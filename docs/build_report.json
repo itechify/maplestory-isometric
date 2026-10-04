@@ -109,7 +109,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 0.32,
+   "seconds": 0.36,
    "portals": [
     {
      "name": "out00",
@@ -387,7 +387,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 0.27,
+   "seconds": 0.32,
    "portals": [
     {
      "name": "in00",
@@ -648,7 +648,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 0.27,
+   "seconds": 0.35,
    "portals": [
     {
      "name": "in01",
@@ -1036,7 +1036,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.7,
+   "seconds": 0.66,
    "portals": [
     {
      "name": "in00",
@@ -1692,7 +1692,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 0.98,
+   "seconds": 1.0,
    "portals": [
     {
      "name": "east00",
@@ -2541,7 +2541,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 1.2,
+   "seconds": 1.49,
    "portals": [
     {
      "name": "west00",
@@ -3609,7 +3609,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 1.62,
+   "seconds": 1.95,
    "portals": [
     {
      "name": "west00",
@@ -4657,7 +4657,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 1.72,
+   "seconds": 2.25,
    "portals": [
     {
      "name": "west00",
@@ -5595,7 +5595,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 1.52,
+   "seconds": 1.83,
    "portals": [
     {
      "name": "west00",
@@ -6230,7 +6230,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.39,
+   "seconds": 0.46,
    "portals": [
     {
      "name": "out00",
@@ -6529,7 +6529,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.22,
+   "seconds": 0.27,
    "portals": [
     {
      "name": "out00",
@@ -6992,7 +6992,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 2.52,
+   "seconds": 3.4,
    "portals": [
     {
      "name": "in00",
@@ -8230,7 +8230,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.09,
+   "seconds": 1.34,
    "portals": [
     {
      "name": "out00",
@@ -9071,18 +9071,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@17.8,17.2",
+     "X1000002_Toadstool_Dark@16.9,12.4",
+     "X1000002_Toadstool_Dark@20.8,8.6",
+     "X1000002_Toadstool_Dark@34.7,13.0",
      "X1000002_Toadstool_Dark@19.5,10.1",
      "X1000002_Toadstool_Dark@32.8,25.2",
-     "X1000002_Toadstool_Dark@34.7,13.0",
-     "X1000002_Toadstool_Dark@16.9,12.4",
-     "X1000002_Toadstool_Dark@20.8,8.6"
+     "X1000002_Toadstool_Dark@17.8,17.2"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 1.51,
+   "seconds": 1.95,
    "portals": [
     {
      "name": "out01",
@@ -9852,7 +9852,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 0.78,
+   "seconds": 1.18,
    "portals": [
     {
      "name": "out00",
@@ -10618,7 +10618,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 1.45,
+   "seconds": 1.96,
    "portals": [
     {
      "name": "out00",
@@ -11715,7 +11715,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 1.61,
+   "seconds": 2.39,
    "portals": [
     {
      "name": "out00",
@@ -12956,7 +12956,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 2.96,
+   "seconds": 5.41,
    "portals": [
     {
      "name": "out00",
@@ -13870,7 +13870,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.21,
+   "seconds": 1.46,
    "portals": [
     {
      "name": "west00",
@@ -14377,7 +14377,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.24,
+   "seconds": 0.29,
    "portals": [
     {
      "name": "out00",
@@ -14669,7 +14669,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.3,
+   "seconds": 0.39,
    "portals": [
     {
      "name": "out00",
@@ -14947,7 +14947,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 1.79,
+   "seconds": 2.14,
    "portals": [
     {
      "name": "out00",
@@ -15200,7 +15200,7 @@
       "route": "VineDown_0",
       "ok": true,
       "stats": {
-       "walk": 19,
+       "walk": 18,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -15214,7 +15214,7 @@
         4.6,
         31.4,
         4.6,
-        26.04
+        26.2
        ]
       ]
      },
@@ -15222,7 +15222,7 @@
       "route": "VineDown_0 (reverse)",
       "ok": true,
       "stats": {
-       "walk": 19,
+       "walk": 18,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -15236,7 +15236,7 @@
       "route": "VineDown_1",
       "ok": true,
       "stats": {
-       "walk": 18,
+       "walk": 19,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -15250,7 +15250,7 @@
         15.6,
         31.4,
         15.6,
-        25.96
+        26.04
        ]
       ]
      },
@@ -15258,7 +15258,7 @@
       "route": "VineDown_1 (reverse)",
       "ok": true,
       "stats": {
-       "walk": 18,
+       "walk": 19,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -15286,7 +15286,7 @@
         21.6,
         31.4,
         21.6,
-        26.08
+        26.16
        ]
       ]
      },
@@ -15322,7 +15322,7 @@
         33.4,
         31.4,
         33.4,
-        25.84
+        25.88
        ]
       ]
      },
@@ -15416,7 +15416,7 @@
         10.0,
         24.8,
         10.0,
-        20.0
+        20.16
        ]
       ]
      },
@@ -15452,7 +15452,7 @@
         26.4,
         24.8,
         26.4,
-        20.0
+        20.16
        ]
       ]
      },
@@ -15488,7 +15488,7 @@
         31.6,
         24.8,
         31.6,
-        19.2
+        19.16
        ]
       ]
      },
@@ -15544,9 +15544,9 @@
       "climb_segments": [
        [
         2.6,
-        18.4,
+        18.36,
         2.6,
-        15.6
+        15.56
        ]
       ]
      },
@@ -15645,7 +15645,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 1.52,
+   "seconds": 2.08,
    "portals": [
     {
      "name": "east00",
@@ -15656,8 +15656,8 @@
      "to_portal": "west00",
      "kind": "edge",
      "world": [
-      296.7250671386719,
-      -555.40380859375,
+      304.5486755371094,
+      -545.0215454101562,
       20.100006103515625
      ],
      "one_way": false,
@@ -15700,7 +15700,7 @@
       ],
       [
        4.6,
-       26.04
+       26.200000000000003
       ],
       [
        4.6,
@@ -15718,7 +15718,7 @@
       ],
       [
        15.6,
-       25.96
+       26.04
       ],
       [
        15.6,
@@ -15736,7 +15736,7 @@
       ],
       [
        21.6,
-       26.080000000000002
+       26.16
       ],
       [
        21.6,
@@ -15754,7 +15754,7 @@
       ],
       [
        33.4,
-       25.84
+       25.880000000000003
       ],
       [
        33.4,
@@ -15832,11 +15832,11 @@
       ],
       [
        10.0,
-       20.000000000000004
+       20.160000000000004
       ],
       [
        10.0,
-       19.200000000000003
+       19.360000000000003
       ]
      ],
      "one_way": false
@@ -15850,11 +15850,11 @@
       ],
       [
        26.4,
-       20.000000000000004
+       20.160000000000004
       ],
       [
        26.4,
-       19.200000000000003
+       19.360000000000003
       ]
      ],
      "one_way": false
@@ -15868,11 +15868,11 @@
       ],
       [
        31.6,
-       19.200000000000003
+       19.160000000000004
       ],
       [
        31.6,
-       18.400000000000002
+       18.360000000000003
       ]
      ],
      "one_way": false
@@ -15900,11 +15900,11 @@
      "pts": [
       [
        2.6,
-       18.400000000000002
+       18.360000000000003
       ],
       [
        2.6,
-       15.600000000000003
+       15.560000000000004
       ],
       [
        2.6,
@@ -16083,8 +16083,8 @@
      "rot": 90,
      "note": "sp x -794: the west end of the top tier (rim road)",
      "world": [
-      273.8147888183594,
-      -532.4935302734375,
+      281.6383972167969,
+      -522.1112670898438,
       20.100006103515625
      ]
     }
@@ -16565,7 +16565,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 2.39,
+   "seconds": 3.73,
    "portals": [
     {
      "name": "west00",
@@ -17522,7 +17522,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 1.63,
+   "seconds": 2.12,
    "portals": [
     {
      "name": "out00",
@@ -18029,7 +18029,7 @@
    }
   }
  },
- "started": "2026-10-04 08:32:45",
+ "started": "2026-10-04 14:14:15",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -18042,6 +18042,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 0,
     "from_portal": "out00",
@@ -18061,6 +18062,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 0,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       23.22,
+       -26.14
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       23.22,
+       -26.14
+      ]
+     },
+     {
+      "map": 10000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       26.34,
+       -32.98
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       26.21,
+       -32.5
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18074,6 +18112,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 10000,
     "from_portal": "out00",
@@ -18093,6 +18132,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 10000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.59,
+       -74.45
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.59,
+       -74.45
+      ]
+     },
+     {
+      "map": 20000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       43.57,
+       -86.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       43.57,
+       -86.32
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18106,6 +18182,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 20000,
     "from_portal": "out00",
@@ -18125,6 +18202,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 20000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       47.57,
+       -130.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       47.57,
+       -130.32
+      ]
+     },
+     {
+      "map": 30000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       46.92,
+       -138.06
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       46.92,
+       -138.06
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18138,6 +18252,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": true,
+   "route": "seeded",
    "link": {
     "from_map": 30000,
     "from_portal": "out00",
@@ -18248,6 +18363,43 @@
     },
     "reverse_blocked_at_face": true,
     "reverse_issues_off_face": []
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.381,
+    "min_jamb_to_centre_m": 2.292,
+    "near_rings": [
+     {
+      "map": 30000,
+      "wall_to_centre_m": 5.381,
+      "at": [
+       57.53,
+       -181.76
+      ],
+      "jamb_to_centre_m": 2.292,
+      "jamb_at": [
+       57.55,
+       -181.51
+      ]
+     },
+     {
+      "map": 40000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       55.39,
+       -206.74
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       55.39,
+       -206.74
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18261,6 +18413,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 40000,
     "from_portal": "east00",
@@ -18280,6 +18433,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.357,
+    "min_jamb_to_centre_m": 2.281,
+    "near_rings": [
+     {
+      "map": 40000,
+      "wall_to_centre_m": 5.357,
+      "at": [
+       57.3,
+       -273.92
+      ],
+      "jamb_to_centre_m": 2.281,
+      "jamb_at": [
+       57.35,
+       -273.53
+      ]
+     },
+     {
+      "map": 40001,
+      "wall_to_centre_m": 5.373,
+      "at": [
+       56.31,
+       -281.66
+      ],
+      "jamb_to_centre_m": 2.289,
+      "jamb_at": [
+       56.27,
+       -281.97
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18293,6 +18483,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 40001,
     "from_portal": "east00",
@@ -18312,6 +18503,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 40001,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.28,
+       -346.99
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.28,
+       -346.99
+      ]
+     },
+     {
+      "map": 40002,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.46,
+       -362.81
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.49,
+       -363.06
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18325,6 +18553,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 40002,
     "from_portal": "east00",
@@ -18344,6 +18573,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.347,
+    "min_jamb_to_centre_m": 2.278,
+    "near_rings": [
+     {
+      "map": 40002,
+      "wall_to_centre_m": 5.347,
+      "at": [
+       75.6,
+       -426.62
+      ],
+      "jamb_to_centre_m": 2.278,
+      "jamb_at": [
+       75.48,
+       -426.21
+      ]
+     },
+     {
+      "map": 50000,
+      "wall_to_centre_m": 5.347,
+      "at": [
+       82.21,
+       -451.3
+      ],
+      "jamb_to_centre_m": 2.278,
+      "jamb_at": [
+       82.32,
+       -451.71
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18357,6 +18623,7 @@
    "curved": true,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 50000,
     "from_portal": "east01",
@@ -18376,6 +18643,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 2.233,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 50000,
+      "wall_to_centre_m": 2.233,
+      "at": [
+       98.57,
+       -533.08
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       105.71,
+       -527.41
+      ]
+     },
+     {
+      "map": 60000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       77.23,
+       -530.0
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       77.69,
+       -529.8
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18389,6 +18693,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 50000,
     "from_portal": "east00",
@@ -18408,6 +18713,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.103,
+    "min_jamb_to_centre_m": 1.747,
+    "near_rings": [
+     {
+      "map": 50000,
+      "wall_to_centre_m": 4.103,
+      "at": [
+       126.54,
+       -522.01
+      ],
+      "jamb_to_centre_m": 1.747,
+      "jamb_at": [
+       124.73,
+       -521.11
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 5.309,
+      "at": [
+       131.0,
+       -524.23
+      ],
+      "jamb_to_centre_m": 2.261,
+      "jamb_at": [
+       131.51,
+       -524.48
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18421,6 +18763,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in00",
@@ -18440,6 +18783,51 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.041,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000005,
+      "wall_to_centre_m": 4.041,
+      "at": [
+       162.07,
+       -492.68
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       158.55,
+       -498.43
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       158.55,
+       -498.43
+      ]
+     },
+     {
+      "map": 1000001,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       166.21,
+       -484.93
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       166.21,
+       -484.93
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18453,6 +18841,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in04",
@@ -18472,6 +18861,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       166.54,
+       -504.45
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       166.54,
+       -504.45
+      ]
+     },
+     {
+      "map": 1000005,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       173.37,
+       -500.03
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       173.05,
+       -500.41
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18485,6 +18911,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in01",
@@ -18504,6 +18931,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.55,
+    "min_jamb_to_centre_m": 2.176,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.55,
+      "at": [
+       208.85,
+       -534.87
+      ],
+      "jamb_to_centre_m": 2.176,
+      "jamb_at": [
+       208.6,
+       -535.12
+      ]
+     },
+     {
+      "map": 1000002,
+      "wall_to_centre_m": 4.579,
+      "at": [
+       214.49,
+       -529.32
+      ],
+      "jamb_to_centre_m": 2.19,
+      "jamb_at": [
+       214.65,
+       -529.16
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18517,6 +18981,7 @@
    "curved": true,
    "bridge_m": 8.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in05",
@@ -18536,6 +19001,51 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 0.49,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000002,
+      "wall_to_centre_m": 0.49,
+      "at": [
+       235.87,
+       -495.14
+      ]
+     },
+     {
+      "map": 1000006,
+      "wall_to_centre_m": 4.179,
+      "at": [
+       233.73,
+       -493.58
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       239.88,
+       -493.18
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       200.08,
+       -529.72
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       200.08,
+       -529.72
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18549,6 +19059,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in02",
@@ -18568,6 +19079,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       174.48,
+       -573.67
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       174.48,
+       -573.67
+      ]
+     },
+     {
+      "map": 1000003,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       162.91,
+       -591.68
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       162.91,
+       -591.68
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18581,6 +19129,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "in03",
@@ -18600,6 +19149,51 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 0.758,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000004,
+      "wall_to_centre_m": 0.758,
+      "at": [
+       201.4,
+       -603.91
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       209.88,
+       -617.29
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 3.0,
+      "at": [
+       187.62,
+       -582.82
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       187.56,
+       -582.9
+      ]
+     },
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 4.498,
+      "at": [
+       203.03,
+       -605.42
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18613,6 +19207,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1000000,
     "from_portal": "east00",
@@ -18632,6 +19227,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       197.78,
+       -574.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       197.78,
+       -574.32
+      ]
+     },
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       204.67,
+       -581.6
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       204.66,
+       -581.6
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18645,6 +19277,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1010000,
     "from_portal": "in01",
@@ -18664,19 +19297,57 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       271.13,
+       -607.06
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       271.31,
+       -606.88
+      ]
+     },
+     {
+      "map": 1010002,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       273.25,
+       -604.94
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       273.25,
+       -604.94
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
    "trail": "Trail_AmherstTownstreet_1010002_west00_to_SnailFieldOfFlowers_1010004",
-   "length_m": 42.2,
+   "length_m": 64.9,
    "rise_m": 12.1,
-   "slope_deg": 17.2,
+   "slope_deg": 11.2,
    "kind": "ramp",
    "main_road": false,
    "hidden": false,
    "curved": true,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "authored",
    "link": {
     "from_map": 1010002,
     "from_portal": "west00",
@@ -18696,6 +19367,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 3.455,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1010004,
+      "wall_to_centre_m": 3.455,
+      "at": [
+       281.89,
+       -573.4
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       305.96,
+       -546.44
+      ]
+     },
+     {
+      "map": 1010002,
+      "wall_to_centre_m": 3.738,
+      "at": [
+       280.19,
+       -572.9
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       271.49,
+       -584.78
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18709,6 +19417,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1010000,
     "from_portal": "east00",
@@ -18728,6 +19437,43 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       260.17,
+       -637.11
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       259.82,
+       -636.76
+      ]
+     },
+     {
+      "map": 1020000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       258.99,
+       -651.43
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       259.06,
+       -651.19
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -18741,6 +19487,7 @@
    "curved": false,
    "bridge_m": 0.0,
    "one_way": false,
+   "route": "seeded",
    "link": {
     "from_map": 1020000,
     "from_portal": "in00",
@@ -18760,10 +19507,47 @@
    "expect": {
     "forward": "ok",
     "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.7,
+    "gap_half_width_m": 2.0,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 3.088,
+    "min_jamb_to_centre_m": 1.508,
+    "near_rings": [
+     {
+      "map": 1020001,
+      "wall_to_centre_m": 3.088,
+      "at": [
+       282.59,
+       -704.65
+      ],
+      "jamb_to_centre_m": 1.508,
+      "jamb_at": [
+       284.02,
+       -705.2
+      ]
+     },
+     {
+      "map": 1020000,
+      "wall_to_centre_m": 4.2,
+      "at": [
+       268.41,
+       -699.27
+      ],
+      "jamb_to_centre_m": 2.0,
+      "jamb_at": [
+       268.65,
+       -699.35
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   }
  ],
- "forest_trees": 1105,
- "seconds": 51.7,
- "objects": 17651
+ "forest_trees": 1125,
+ "seconds": 67.3,
+ "objects": 17687
 }

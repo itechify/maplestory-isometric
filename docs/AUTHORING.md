@@ -165,6 +165,13 @@ height; `m.size` is `(L, D)`.
 - **Trails between maps** leave each edge portal **perpendicular to its footprint edge** for about 3.5 m (plus
   1.2 m inside the map), then turn toward the neighbour. Keep a 4.5 m-wide corridor clear directly in front
   of every edge portal, out to the footprint edge.
+- **Trails stay clear of the runtime's containment rings.** Every map is walled at its footprint + 1 m by a 0.5 m
+  wall (square corners), open only at its gates (`presentation.json` `containment`), so a trail's centreline must
+  keep its half-width (1.9 m on a 3.8 m trail) from that wall, i.e. half-width + 1.5 m from every footprint, except
+  where it leaves straight through its own gate. `validate.py` `trail_ring_band` measures it (high when a wall stands
+  across the trail). Two maps closer than about 7 m leave no room for a trail between them: move the map, not the
+  trail. Where the seeded curve finds no room, author the route in `layout.TRAIL_ROUTES` (corners and fillet radii in
+  the from-map's frame; today only Townstreet `west00` → Snail Field of Flowers `east00`).
 - **Route clearing:** only instances created by `m.scatter` (and `m.mobs`) that end up on a route are
   removed automatically (natural clutter only). Props placed with `m.place` are **never deleted**; if one
   blocks a route it is reported as `blocked`, so move it.
@@ -249,7 +256,9 @@ height; `m.size` is `(L, D)`.
   gate plane), `spawn_regions` (every map with MeowDB spawns has regions with walkable ground in their band),
   `trail_walk` (expectations come from `layout`, not the build report; every layout link must be walked; two-way
   trails ok both ways; the one-way trail ok forward with its **only** drop at the ledge, and in reverse blocked by an
-  unclimbable step at the face and by **nothing else**) and `one_way_ledge` (face on the gate plane within 0.1 m;
+  unclimbable step at the face and by **nothing else**), `trail_ring_band` (no trail's centreline within the
+  capsule radius of a containment ring wall away from its own gates, none inside another map's ring line; a wall on
+  a ribbon's edge is listed as low) and `one_way_ledge` (face on the gate plane within 0.1 m;
   `jump_apex_m_at_cap + step_up_m + 0.30 <= height <= 2.6`, read from `game/data/misostory/movement.json` through
   `src/misostory/ledge_rules.py`).
 - **Player spawns must stand clear of prop collision.** The validator cannot see the exported collision hulls; the
@@ -284,10 +293,10 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   round planted rows, do not cut across them (Tomato Field's `WestBed` and `EastYard`).
 - **Collision is data, never a name.** The export decides what collides from flags and tags on the object
   (`misostory.collision_tags`): `walkable` (GroundIndex), `collider`, `climbable`, `passable`, then
-  `obj["collision"]` (`ground`, `wall`, `none`, `hull`, `veg_hull`, `water`, `exact`). The kit builders tag
-  their meshes (`geo.terrace`: body and cap `wall`, fringe `none`; path ribbons, foam, fringes and sign lettering
-  `none`; interior floorboard and flagstone overlays (`interior.plank_floor`, 60001 `flag_floor`) `none`; `m.rail`,
-  the ledge face and bridge rails `wall`; water surfaces `water`). A mesh you build yourself into a
+  `obj["collision"]` (`ground`, `wall`, `none`, `hull`, `veg_hull`, `water`, `exact`, `overhead_hull`). The kit
+  builders tag their meshes (`geo.terrace`: body and cap `wall`, fringe `none`; path ribbons, foam, fringes and sign
+  lettering `none`; interior floorboard and flagstone overlays (`interior.plank_floor`, 60001 `flag_floor`) `none`;
+  `m.rail`, the ledge face and bridge rails `wall`; water surfaces `water`). A mesh you build yourself into a
   map's Terrain collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)` with
   `from misostory import collision_tags as CT`; `validate.py` (`collision_tags`) fails untagged ones. In an
   Architecture collection an untagged mesh is a wall, so tag a visual-only layer laid over a walkable surface
@@ -295,6 +304,13 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   registry tags: any of `collision_tags.PASSABLE_TAGS` (`passable`, `cloud`, `vine`, `flower`, `grass`, ...) makes an
   asset passable, and `collide_exact` makes it collide with its exact mesh instead of a prism (thin overhead
   dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams).
+- **Overhangs above a walking body get their own prism.** A prop's prism covers only its 0.15–1.6 m slice, so a
+  cap or roof that overhangs its walls has no collision, and a monster or prop can stand inside it. Tag such parts
+  of an asset `CT.tag(part, CT.OVERHEAD_HULL)` in the asset's builder: the export then gives the asset one more
+  prism, the convex hull of all its overhead parts from their lowest point to their top, and leaves them out of the
+  body slice, so the space under the brim stays open. Only for parts that start well above a body (1.5 m player,
+  plus a jump's head room where it matters). Today: 000000030's `X30000_HouseYellowBrim` (`_Cap` and `_Brim`: the
+  brim starts 2.8–3 m above the ground; `mushroom_house_v2` returns `(stem, cap)` for this).
 - **Checking it:** `"$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out <dir> --check` writes
   `<dir>/check.json` and prints `CHECK_TOTALS` (blocked spawns, arrivals and route ends, real overhangs, collision
   triangle counts) without baking or writing glbs. Add `--legacy-names` to classify meshes with the pre-registry

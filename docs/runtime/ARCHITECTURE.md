@@ -115,3 +115,4 @@ signal, add it to `events.gd` with a comment naming the emitter.
 | Interaction prompts, NPC presentation, dialogue and shop windows, ground loot | [INTERACTION_AND_NPC_UI.md](INTERACTION_AND_NPC_UI.md) |
 | HUD, inventory, equipment, stats and quest windows, MisoTheme | [UI.md](UI.md) |
 | Developer console, overlay, debug draw layers | [DEBUG_TOOLS.md](DEBUG_TOOLS.md) |
+| Automated playthroughs of the real game (`bash scripts/playtest.sh <scenario>`) | [PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) |

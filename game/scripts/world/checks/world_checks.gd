@@ -27,7 +27,9 @@ extends Node3D
 ##             CONTAINMENT_WALK_FRAMES, twice: with every link in warp mode the plugs close each ring and stop the
 ##             player inside its map; with the configured link modes (M2: trails walk) a door still stops it, and an
 ##             edge portal lets it out onto its trail, where the side walls keep it (inside the map's region set, no
-##             fall recovery) unless it reaches the far gate and commits to the trail's other map
+##             fall recovery) unless it reaches the far gate and commits to the trail's other map; then the rings of
+##             region extensions (Southperry's ship): pushed at every stretch of them with jumps, the player stays
+##             on the floor, walks back, never falls out or leaves the region (_check_extension_rings)
 ## Output: "WORLD_CHECK FAIL <section>: <detail>" per failure, "WORLD_SECTION <name> <checks> <failed>" per section,
 ## and a final "WORLD_CHECKS_DONE <checks> <failed>". Exit code 0 when everything passed.
 
@@ -35,6 +37,18 @@ const PLAYER_SCENE := "res://scenes/actors/player.tscn"
 ## Walking time per portal in the containment section (4 s at 60 Hz: ~12 m at MeowDB's walk speed, well past every
 ## ring, which stands at most ~2.5 m outward of an arrival).
 const CONTAINMENT_WALK_FRAMES := 240
+## Region-extension rings (containment section): spacing of the pushes along each extension ring edge, and how long
+## each push walks and jumps at the wall (2.5 s: 1.2 to 3 m to the rail, then jumps against it).
+const EXTENSION_SAMPLE_M := 1.0
+const EXTENSION_PUSH_FRAMES := 150
+## Known source-world slots inside region extensions: map id -> [[map-local x, map-local y, radius m, reason]]. A push
+## that ends in the air within the radius is printed as WORLD_KNOWN instead of failing; walking back, falling out and
+## the region stay strict. Each entry goes when the Blender export fixes it (WORLD_RUNTIME.md "Source world status").
+const KNOWN_EXTENSION_SLOTS := {
+	"000000060": [[81.6, -6.7, 1.2, "the ship's main deck stops short of the port hull below the forecastle (x 81.2 to " +
+		"82.6, the hull's inner face 2 to 2.6 m lower): a body pushed there drops about 0.45 m into the slot, wedged " +
+		"between deck edge and hull, and walks back out"]],
+}
 
 var world: IslandWorld = null
 var session: Node = null
@@ -554,6 +568,112 @@ func _check_containment() -> void:
 			_ok(session.current_map == p.destination_map_id and rec.via == "gate", "edge: %s: walked into %s via %s" % [p.key(), session.current_map, rec.via])
 			opened += 1
 	_ok(opened >= 30, "edge: only %d edge portals let the player out onto their trail" % opened)
+	await _check_extension_rings()
+
+
+## Region extensions (maps/<id>.json region_extensions: Southperry's ship). The ring there must hug what the extension
+## brings in, so a body pushed against it stays on that walkable top: no pocket below a deck edge to hang in, no void
+## in front of a bow to fall through. Along every ring edge of the extension outside the layout ring, every
+## EXTENSION_SAMPLE_M: the start is the first walkable deck point (capsule clear) 1.2 to 3 m inward; from it the
+## player walks at the wall for EXTENSION_PUSH_FRAMES, jumping every 25 frames (over a rail, off an edge), then walks
+## back without jumping. It must stand on the floor after the push, be back within 0.75 m of the start, and neither
+## fall out (fall recovery) nor leave the region (RegionMonitor).
+func _check_extension_rings() -> void:
+	var d := world.defs
+	var space := world.get_world_3d().direct_space_state
+	var gq := PhysicsGroundQuery.new(space)
+	var radius := d.tuning.num("grounding", "capsule_radius_m")
+	var height := d.tuning.num("grounding", "capsule_height_m")
+	var pushes := 0
+	for id in d.ids():
+		var def := d.get_def(id)
+		for ext: Dictionary in def.region_extensions:
+			var ring: PackedVector2Array = ext.ring_line
+			if not await _warp(id):
+				_ok(false, "extension %s %s: cannot warp to %s" % [id, String(ext.name), id])
+				continue
+			var side := ContainmentBuilder.outward_side(ring)
+			for i in ring.size():
+				var a := ring[i]
+				var b := ring[(i + 1) % ring.size()]
+				var normal := ContainmentBuilder.edge_outward(ring, i, side)
+				for seg: PackedVector2Array in Geometry2D.clip_polyline_with_polygon(PackedVector2Array([a, b]), def.footprint_base):
+					var s0 := seg[0]
+					var s1 := seg[seg.size() - 1]
+					var length := s0.distance_to(s1)
+					if length < 0.3:
+						continue
+					var n := maxi(1, ceili(length / EXTENSION_SAMPLE_M))
+					for k in n:
+						var at := s0.lerp(s1, (k + 0.5) / n)
+						var start := _deck_point_inward(gq, def, at, -normal, radius, height)
+						if is_nan(start.x):
+							continue
+						pushes += 1
+						await _push_at_ring(def, String(ext.name), start, at)
+	_ok(pushes >= 10, "extension rings: only %d pushes found a deck to start from" % pushes)
+
+
+## The first point 1.2 to 3 m from `at` along `inward` whose top surface (a ray from the map's top down, containment
+## ignored) is walkable collision with a clear capsule on it; Vector3(NAN, NAN, NAN) when there is none.
+func _deck_point_inward(gq: PhysicsGroundQuery, def: MapDefinition, at: Vector2, inward: Vector2, radius: float, height: float) -> Vector3:
+	var space := world.get_world_3d().direct_space_state
+	var k := 1.2
+	while k <= 3.0 + 0.001:
+		var p := at + inward * k
+		var q := PhysicsRayQueryParameters3D.create(Vector3(p.x, def.y_max + 2.0, p.y), Vector3(p.x, def.y_min - 2.0, p.y),
+			WorldLayers.WALKABLE | WorldLayers.BLOCKING | WorldLayers.SCENERY)
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty() and (int((hit.collider as CollisionObject3D).collision_layer) & WorldLayers.WALKABLE) \
+				and (hit.normal as Vector3).y > 0.8 and gq.is_clear(hit.position + Vector3.UP * 0.05, radius, height):
+			return hit.position
+		k += 0.2
+	return Vector3(NAN, NAN, NAN)
+
+
+## The reason of the KNOWN_EXTENSION_SLOTS entry of `def`'s map around world point `p`, or "".
+func _known_extension_slot(def: MapDefinition, p: Vector3) -> String:
+	var local := def.to_local(p)
+	for e: Array in KNOWN_EXTENSION_SLOTS.get(def.map_id, []):
+		if Vector2(local.x, -local.z).distance_to(Vector2(float(e[0]), float(e[1]))) <= float(e[2]):
+			return String(e[3])
+	return ""
+
+
+func _push_at_ring(def: MapDefinition, ext_name: String, start: Vector3, at: Vector2) -> void:
+	var label := "extension %s %s: from %s toward the ring at (%.2f, %.2f)" % [def.map_id, ext_name, start, at.x, at.y]
+	world.place_player(Transform3D(Basis.IDENTITY, start))
+	await _frames(20)
+	var recoveries := world.fall_recovery.recoveries
+	var violations := world.region_monitor.violations
+	var dir := Vector3(at.x - start.x, 0.0, at.y - start.z).normalized()
+	for f in EXTENSION_PUSH_FRAMES:
+		bot.world_dir = dir
+		if f % 25 == 0:
+			bot.press(&"jump")
+		await _frames(1)
+	bot.world_dir = Vector3.ZERO
+	await _frames(30)
+	var pushed := player.global_position
+	var known := _known_extension_slot(def, pushed)
+	if known != "" and not player.is_on_floor():
+		print("WORLD_KNOWN %s: hangs in the air at %s after the push: %s" % [label, pushed, known])
+	else:
+		_ok(player.is_on_floor(), "%s: hangs in the air at %s after the push" % [label, pushed])
+	for _f in 240:
+		var to := Vector3(start.x - player.global_position.x, 0.0, start.z - player.global_position.z)
+		if to.length() < 0.5:
+			break
+		bot.world_dir = to.normalized()
+		await _frames(1)
+	bot.world_dir = Vector3.ZERO
+	await _frames(10)
+	var back := player.global_position
+	_ok(Vector2(back.x - start.x, back.z - start.z).length() <= 0.75 and absf(back.y - start.y) <= 0.6,
+		"%s: pushed to %s, cannot walk back (ended at %s)" % [label, pushed, back])
+	_ok(world.fall_recovery.recoveries == recoveries, "%s: fell out of the ring (fall recovery; pushed to %s)" % [label, pushed])
+	_ok(world.region_monitor.violations == violations, "%s: region invariant violated (%s)" % [label, str(world.region_monitor.last_violation)])
+	_ok(session.current_map == def.map_id, "%s: map changed to %s" % [label, session.current_map])
 
 
 # --- helpers ----------------------------------------------------------------------------------------------------

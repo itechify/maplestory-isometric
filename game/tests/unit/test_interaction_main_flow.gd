@@ -2,7 +2,7 @@ extends TestCase
 ## The world UI inside the REAL game, in a child process: res://scenes/main.tscn (the shell, GameSession,
 ## SubsystemInstaller, HUD, monster system, death controller) driven by
 ## res://scripts/systems/interaction/sandbox/world_ui_main_checks.tscn with real frames, physics and key presses:
-##   Roger's Apple: prompt, marker and tag; F; Esc through the shell's window stack; Y accepts; Space on the last line
+##   Roger's Apple: prompt, marker and tag; F; Esc through the shell's window stack; Y accepts (the accept summary shows on the instructions card; Enter closes it); Space on the last line
 ##   ends the chat without making the player jump; the chat sits above the HUD bar; the completion page and summary.
 ##   A portal's prompt names its destination and Up enters it; at a ladder the prompt says Climb and F climbs (no chat).
 ##   Lucy: greeting -> shop; mashing Enter/Space buys nothing; Right + Enter buys at the canonical price; selling from

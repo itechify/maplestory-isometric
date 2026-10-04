@@ -167,14 +167,28 @@ func test_mai_turn_in_refused_when_inventory_full() -> void:
 
 func test_roger_apple_full_conversation() -> void:
 	var v := talk.talk("3")
+	assert_eq(v["node_id"], "q1002.offer.0")
 	assert_eq(v["type"], "yes_no")
-	assert_eq(v["speaker_kind"], "journal", "no canonical On accept: quest card with the journal text")
+	assert_eq(v["speaker_kind"], "journal", "no canonical On accept: a quest card, not NPC speech")
+	assert_eq(v["speaker_name"], "Roger")
 	assert_eq(v["title"], "Roger's Apple")
-	assert_true(_starts(v["text"], "Press the hotkey I to open your inventory"))
+	assert_eq(v["text"], "Talk to Roger.\n\nAccept this quest?",
+		"the canonical journal summary, then the generic system prompt (not the item instructions)")
+	assert_eq(v["source"], "canonical/quests/1002.json#journal.lines[0] + misostory/dialogue/_system.json#offer_prompt")
+	assert_eq(v["buttons"], ["yes", "no"])
 	v = talk.press("yes")
-	assert_false(bool(v["open"]), "no accepted lines: the chat closes")
+	assert_eq(character.quests.status("1002"), QuestLog.IN_PROGRESS)
 	assert_eq(character.inventory.count("235"), 1, "apple handed over")
 	assert_has(_emitted("item_gained"), ["235", 1])
+	assert_eq(v["node_id"], "q1002.brief.0", "after accepting: the canonical instructions")
+	assert_eq(v["speaker_kind"], "journal")
+	assert_eq(v["title"], "Roger's Apple")
+	assert_eq(v["text"], "Press the hotkey I to open your inventory, navigate to the Use tab, and double-click Roger's"
+		+ " Apple to consume it. Then, talk to Roger.")
+	assert_eq(v["source"], "canonical/quests/1002.json#journal.lines[1]")
+	assert_eq(v["buttons"], ["ok"], "no Back across the accept")
+	v = talk.press("ok")
+	assert_false(bool(v["open"]), "the instructions are the last page")
 	v = talk.talk("3")
 	assert_true(_starts(v["text"], "Eat the Roger's Apple I gave you"), "stopItem while the apple is unused")
 	var apple_ref := false
@@ -194,6 +208,147 @@ func test_roger_apple_full_conversation() -> void:
 	assert_eq(_emitted("exp_gained").size(), 0, "0 EXP")
 	assert_eq(character.exp, 0)
 	assert_eq(character.mesos, 0)
+
+
+func test_roger_offer_declined_then_offered_again() -> void:
+	var v := talk.talk("3")
+	v = talk.press("no")
+	assert_false(bool(v["open"]), "MeowDB has no decline lines for 1002: the chat ends")
+	assert_eq(character.quests.status("1002"), QuestLog.NOT_STARTED)
+	assert_eq(character.inventory.count("235"), 0, "no apple without accepting")
+	v = talk.talk("3")
+	assert_eq(v["node_id"], "q1002.offer.0", "the card is offered again")
+
+
+# --- offers of every quest -------------------------------------------------------------------------------------
+
+## Scans all quests: a quest with canonical "On accept" lines is offered in its NPC's words, and its Yes/No prompt is
+## its last canonical line with no MisoStory text; only a quest without them (Maple Island: 1002 alone) is offered as
+## a quest card, and the card's text is its journal summary + the system prompt, never its in-progress instructions.
+func test_every_offer_is_canonical_speech_or_a_quest_card() -> void:
+	var builder := NpcDialogueBuilder.new(db())
+	var cards: Array = []
+	var catalog := QuestCatalog.new(db())
+	for qid in catalog.ids():
+		var d := catalog.get_def(qid)
+		var g := builder.build(d.start_npc_id)
+		var lines := d.section_lines("on_accept").size()
+		var last := "q%s.offer.%d" % [qid, maxi(lines - 1, 0)]
+		var n := g.node(last)
+		assert_eq(n.get("type"), "yes_no", "%s: the offer ends in a Yes/No" % qid)
+		assert_false(g.has_node("q%s.offer.%d" % [qid, maxi(lines, 1)]), "%s: no page after the question" % qid)
+		var text := String(DialogueText.resolve(n["line"], db())["text"])
+		assert_false(text.is_empty(), "%s: the question has text" % qid)
+		if lines > 0:
+			assert_eq(String(n.get("speaker", "npc")), "npc", "%s: canonical offers are NPC speech" % qid)
+			assert_eq(n["line"], {"quest": qid, "section": "on_accept", "line": lines - 1})
+			assert_false(text.contains("Accept this quest?"), "%s: no system text in a canonical offer" % qid)
+			assert_false(g.has_node("q%s.brief.0" % qid), "%s: canonical accept lines only" % qid)
+			continue
+		cards.append(qid)
+		assert_eq(n.get("speaker"), "journal", "%s: a quest card" % qid)
+		assert_eq(n.get("title"), d.name)
+		assert_true(text.begins_with(d.journal_lines[0] if not d.journal_lines.is_empty() else d.name), text)
+		assert_true(text.ends_with("\n\nAccept this quest?"), text)
+		for i in range(1, d.journal_lines.size() - 1):
+			assert_false(text.contains(d.journal_lines[i]), "%s: the instructions follow the accept" % qid)
+			var brief := g.node("q%s.brief.%d" % [qid, i - 1])
+			assert_eq(brief.get("speaker"), "journal")
+			assert_eq(brief.get("line"), {"quest": qid, "journal": i})
+	assert_eq(cards, ["1002"], "every other Maple Island quest has canonical On accept lines")
+
+
+func test_sam_offer_has_no_system_text() -> void:
+	var v := talk.talk("9")
+	assert_eq(v["node_id"], "q1006.offer.0")
+	assert_eq(v["speaker_kind"], "npc", "canonical On accept: Sam speaks")
+	assert_eq(v["source"], "canonical/quests/1006.json#dialogue.on_accept.lines[0]")
+	assert_true(String(v["text"]).ends_with("What do you think?"), "the canonical line is the question: %s" % v["text"])
+	v = talk.press("yes")
+	assert_eq(v["node_id"], "q1006.accepted.0", "Sam's canonical accept lines, not the journal")
+	assert_eq(v["speaker_kind"], "npc")
+
+
+## A quest added as data with no "On accept" text, started by Robin (8). `journal` = journal lines, `on_accept` =
+## MeowDB's on_accept section (null when MeowDB has none).
+func _card_quest_talk(journal: Array, on_accept: Variant = null) -> Array:
+	var q := {"id": "9995", "name": "Synthetic Errand", "start_npc": {"npc_id": "8", "name": "Robin"},
+		"end_npc": {"npc_id": "8", "name": "Robin"}, "min_level": 0, "job_restriction": null,
+		"prerequisites": {"quests": []}, "repeatable": false,
+		"objectives": {"npc_talk": [{"npc_id": "8", "purpose": "turn_in"}]},
+		"rewards": {"exp": 0, "mesos": 0, "fame": 0, "items": [], "random": [], "selection": []},
+		"items_given_on_accept": [], "items_removed_on_completion": {"items": []}, "followup_quests": [],
+		"next_quest_grants": [], "journal": {"lines": journal},
+		"dialogue": {"on_accept": on_accept, "on_completion": null}}
+	var d := ContentDB.new()
+	d.canonical = db().canonical.duplicate(false)
+	var qs: Dictionary = (db().canonical["quests"] as Dictionary).duplicate(false)
+	qs["9995"] = q
+	d.canonical["quests"] = qs
+	d.miso = db().miso
+	d.loaded = true
+	var c := CharacterState.new()
+	var t := NpcInteraction.new(QuestService.create(null, d, c, RandomNumberGenerator.new()))
+	var errs := t.graph_for("8").validate(d)
+	assert_eq(errs.size(), 0, "\n".join(errs))
+	return [t, c]
+
+
+func test_card_offer_with_two_instruction_lines() -> void:
+	var tc := _card_quest_talk(["Robin needs a hand.", "Find the thing.", "Bring it to Robin.", "Robin thanked me."])
+	var t: NpcInteraction = tc[0]
+	var c: CharacterState = tc[1]
+	var v := t.talk("8")
+	assert_eq(v["type"], "yes_no")
+	assert_eq(v["speaker_kind"], "journal")
+	assert_eq(v["text"], "Robin needs a hand.\n\nAccept this quest?", "line 0 is the question, not a middle line")
+	v = t.press("yes")
+	assert_eq(c.quests.status("9995"), QuestLog.IN_PROGRESS)
+	assert_eq(v["node_id"], "q9995.brief.0")
+	assert_eq(v["text"], "Find the thing.")
+	assert_eq(v["buttons"], ["next"])
+	v = t.press("next")
+	assert_eq(v["text"], "Bring it to Robin.", "every in-progress line, in order")
+	assert_eq(v["buttons"], ["back", "ok"], "Back within the instructions, never across the accept")
+	assert_eq(t.press("back")["text"], "Find the thing.")
+	t.press("next")
+	assert_false(bool(t.press("ok")["open"]))
+
+
+func test_card_offer_with_a_two_line_journal_ends_after_the_accept() -> void:
+	# 2-line journals (1001, 1004, 1008): line 0 is both the start and the in-progress text, so it is not repeated.
+	var tc := _card_quest_talk(["Take this to Robin now.", "Robin got it."])
+	var t: NpcInteraction = tc[0]
+	var v := t.talk("8")
+	assert_eq(v["text"], "Take this to Robin now.\n\nAccept this quest?")
+	v = t.press("yes")
+	assert_false(bool(v["open"]), "nothing left to say")
+	assert_eq((tc[1] as CharacterState).quests.status("9995"), QuestLog.IN_PROGRESS)
+
+
+func test_card_offer_without_a_journal_asks_with_the_quest_name() -> void:
+	var tc := _card_quest_talk([])
+	var v := (tc[0] as NpcInteraction).talk("8")
+	assert_eq(v["text"], "Synthetic Errand\n\nAccept this quest?")
+	assert_eq(v["source"], "canonical/quests/9995.json#name + misostory/dialogue/_system.json#offer_prompt")
+
+
+func test_card_offer_keeps_canonical_accept_and_decline_lines() -> void:
+	# MeowDB could have accept / decline branches without main On accept lines: those canonical lines win.
+	var oa := {"lines": [], "branches": [{"state": "accepted", "lines": [{"text": "Off you go."}]},
+		{"state": "declined", "lines": [{"text": "Maybe later."}]}]}
+	var tc := _card_quest_talk(["Robin needs a hand.", "Find the thing.", "Robin thanked me."], oa)
+	var t: NpcInteraction = tc[0]
+	var v := t.talk("8")
+	assert_eq(v["speaker_kind"], "journal")
+	assert_eq(t.press("no")["text"], "Maybe later.")
+	t.close()
+	t.talk("8")
+	v = t.press("yes")
+	assert_eq(v["node_id"], "q9995.accepted.0")
+	assert_eq(v["text"], "Off you go.")
+	assert_eq(v["speaker_kind"], "npc")
+	assert_false(t.graph_for("8").has_node("q9995.brief.0"), "the canonical accept lines replace the journal brief")
 
 
 # --- Rain's quizzes --------------------------------------------------------------------------------------------

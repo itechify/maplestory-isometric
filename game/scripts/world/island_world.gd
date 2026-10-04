@@ -267,6 +267,7 @@ func _place_chunk(item: Dictionary, res: Resource) -> void:
 		return
 	root.name = String(item.chunk) + "_collision"
 	var gameplay := String(item.kind) in ["map", "interior"] or bool(item.trails)
+	var double_sided := gameplay and double_sided_trimesh(String(defs.id_of_slug.get(String(item.chunk), "")))
 	var bodies := 0
 	for body in root.find_children("*", "StaticBody3D", true, false):
 		var sb := body as StaticBody3D
@@ -278,8 +279,29 @@ func _place_chunk(item: Dictionary, res: Resource) -> void:
 		sb.collision_mask = 0
 		sb.set_meta("chunk", String(item.chunk))
 		bodies += 1
+		if double_sided:
+			for cs in sb.find_children("*", "CollisionShape3D", true, false):
+				var trimesh := (cs as CollisionShape3D).shape as ConcavePolygonShape3D
+				if trimesh != null:
+					# A copy: the imported scene's cached shape stays as exported for any other build in the process.
+					trimesh = trimesh.duplicate() as ConcavePolygonShape3D
+					trimesh.backface_collision = true
+					(cs as CollisionShape3D).shape = trimesh
+					stats["double_sided_trimeshes"] = int(stats.get("double_sided_trimeshes", 0)) + 1
 	collision_root.add_child(root)
 	stats["collision_bodies"] = int(stats.get("collision_bodies", 0)) + bodies
+
+
+## maps/<id>.json `collision.double_sided_trimesh` (with its reason): the map chunk's trimesh collision (Ground and
+## Walls) collides from both sides. The export's trimesh faces point outward, so where the player walks inside an
+## enclosure (Southperry's ship: its bulwarks, the forecastle's deck and bulkhead) it would pass through them from
+## within (WORLD_RUNTIME.md "Region extensions").
+func double_sided_trimesh(map_id: String) -> bool:
+	if map_id == "" or tuning == null:
+		return false
+	var c: Variant = tuning.map_override(map_id).get("collision", {})
+	return c is Dictionary and bool((c as Dictionary).get("double_sided_trimesh", false)) \
+		and String((c as Dictionary).get("reason", "")) != ""
 
 
 func _stage_environment() -> void:

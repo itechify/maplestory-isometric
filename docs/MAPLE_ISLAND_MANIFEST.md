@@ -121,13 +121,13 @@ Every exit is a MeowDB portal. An arrival point is not a portal: it is where a o
 
 ### 1010002 Amherst Townstreet (`AmherstTownstreet_1010002`, MeowDB 000001012)
 - `out00` → **1010000 Amherst** `in01` [edge, 5.0 m trail]
-- `west00` → **1010004 Snail Field of Flowers** `east00` [edge, 42.2 m trail]
+- `west00` → **1010004 Snail Field of Flowers** `east00` [edge, 64.9 m trail]
 
 ### 1010003 Amherst Department Store (`AmherstDepartmentStore_1010003`, MeowDB 000001013)
 - `out00` → **1010000 Amherst** `in02` [door]
 
 ### 1010004 Snail Field of Flowers (`SnailFieldOfFlowers_1010004`, MeowDB 000001014)
-- `east00` → **1010002 Amherst Townstreet** `west00` [edge, 42.2 m trail]
+- `east00` → **1010002 Amherst Townstreet** `west00` [edge, 64.9 m trail]
 
 ### 1020000 The Field East of Amherst (`FieldEastOfAmherst_1020000`, MeowDB 000001020)
 - `west00` → **1010000 Amherst** `east00` [edge, 18.4 m trail]

@@ -3,17 +3,24 @@ extends Control
 ## Root of res://scenes/ui/hud.tscn: the gameplay HUD.
 ##   - bottom bar (MisoStatusBar): level, job, name; HP / MP gauges with current / max; EXP gauge with percent;
 ##     mesos; buttons that open the character windows; the quickslot bar;
-##   - map name banner on Events.map_entered (street + map name, fades);
+##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
+##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
 ##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
 ## inventory_changed, equipment_changed, game_loaded (plus Game.character_replaced); values are read from the live
-## character (re-resolved every time, never cached).
+## character (re-resolved every time, never cached). Between Events.player_died and Events.player_respawned the HP
+## gauge reads 0: a committed death already holds the respawn HP (GAME_SHELL.md "Death and respawn"). A replaced
+## character (Game.character_replaced: a load) ends that early unless Game.is_character_dead() still says dead.
 ##
 ## Integration: the shell instantiates this scene under ctx.ui_root and calls setup(ctx). Without setup() it runs
 ## standalone against the autoloads. Tests call configure(MisoUiEnv.isolated(...)).
 
+## MapSession signal -> handler.
+const SESSION_HANDLERS := {
+	"trail_changed": "_on_trail_changed",
+}
 ## Bus signal -> handler.
 const BUS_HANDLERS := {
 	"hp_changed": "_on_hp_changed",
@@ -32,6 +39,7 @@ const BUS_HANDLERS := {
 	"quest_forfeited": "_on_quest_forfeited",
 	"map_entered": "_on_map_entered",
 	"player_died": "_on_player_died",
+	"player_respawned": "_on_player_respawned",
 	"notice": "_on_notice",
 	"game_loaded": "_on_game_loaded",
 }
@@ -43,6 +51,10 @@ var log_panel: MisoNoticeLog
 var banner: MisoMapBanner
 var flourish: MisoLevelUpFlourish
 var tooltip: MisoItemTooltip
+## True between Events.player_died and Events.player_respawned (or a Game.character_replaced after which the game no
+## longer says dead): the HP gauge then reads 0 whatever HP the character holds (the death commit sets the respawn HP
+## while the death notice is up).
+var dead: bool = false
 ## quest id -> {objective key: current} as last announced (to say which objective a quest_progressed moved).
 var _quest_progress: Dictionary = {}
 
@@ -109,13 +121,15 @@ func configure(e: MisoUiEnv) -> void:
 	_unbind()
 	env = e
 	status.quickslots.env = e
+	dead = e != null and e.is_character_dead(false)
 	_bind()
 	_snapshot_quests()
 	refresh_all()
 
 
-## Redraws every value from the live character.
+## Redraws every value from the live character, and the trail line from the map session.
 func refresh_all() -> void:
+	_sync_trail()
 	var c := env.character() if env != null else null
 	var db := env.get_db() if env != null else null
 	if c == null or db == null:
@@ -128,7 +142,7 @@ func refresh_all() -> void:
 		status.quickslots.refresh()
 		return
 	status.set_identity(c.level, c.name, env.job_name(c))
-	status.set_hp(c.hp, StatCalculator.max_hp(c, db))
+	_show_hp(c.hp, StatCalculator.max_hp(c, db))
 	status.set_mp(c.mp, StatCalculator.max_mp(c, db))
 	_refresh_exp()
 	status.set_mesos(c.mesos)
@@ -182,6 +196,8 @@ func _bind() -> void:
 		return
 	for sig: String in BUS_HANDLERS:
 		env.connect_bus(sig, Callable(self, BUS_HANDLERS[sig]))
+	for sig: String in SESSION_HANDLERS:
+		env.connect_session(sig, Callable(self, SESSION_HANDLERS[sig]))
 	env.connect_character_replaced(_on_character_replaced)
 
 
@@ -190,17 +206,21 @@ func _unbind() -> void:
 		return
 	for sig: String in BUS_HANDLERS:
 		env.disconnect_bus(sig, Callable(self, BUS_HANDLERS[sig]))
+	for sig: String in SESSION_HANDLERS:
+		env.disconnect_session(sig, Callable(self, SESSION_HANDLERS[sig]))
 	env.disconnect_character_replaced(_on_character_replaced)
 
 
 func _on_hp_changed(hp: int, max_hp: int) -> void:
-	status.set_hp(hp, max_hp)
+	_show_hp(hp, max_hp)
 
 
 func _on_mp_changed(mp: int, max_mp: int) -> void:
 	status.set_mp(mp, max_mp)
 
 
+## The EXP bar follows every amount; only a gain (amount > 0) is logged. Amounts <= 0 are refreshes: the death
+## penalty arrives as exp_gained(-lost, "death"), and the bar drops with no "+" line.
 func _on_exp_gained(amount: int, _source: String) -> void:
 	_refresh_exp()
 	if amount > 0:
@@ -284,6 +304,20 @@ func _on_map_entered(map_id: String, _previous: String) -> void:
 
 func _on_player_died(_map_id: String) -> void:
 	log_panel.add_line("You have died.", "warn")
+	dead = true
+	_show_hp(0, status.hp_gauge.maximum)
+
+
+## The death is over (the respawn finished, or a load / the console's respawn out of DEAD): the HP gauge shows the
+## character's HP again.
+func _on_player_respawned(_map_id: String) -> void:
+	dead = false
+	refresh_all()
+
+
+## MapSession.trail_changed: the trail line under the map name ("" off trails, and on every map change).
+func _on_trail_changed(dest_map_id: String) -> void:
+	banner.show_trail(env.current_map_id() if env != null else "", dest_map_id, env.get_db() if env != null else null)
 
 
 func _on_notice(text: String) -> void:
@@ -295,8 +329,14 @@ func _on_game_loaded(_slot: String) -> void:
 	refresh_all()
 
 
+## A replaced character is not the one that died, so the dead reading is re-taken from Game.is_character_dead(). A
+## load out of a death shows the loaded character's HP from the start of the load: MapSession hears
+## character_replaced first and has already left DEAD for the load's warp. The gauge stays at 0 only while the game
+## still says dead (a load MapSession refused, a character at HP 0). Never keep `dead` regardless: a load queued
+## behind a warp the player died in runs from IDLE, and no player_respawned would ever clear it.
 func _on_character_replaced(_reason: String) -> void:
 	tooltip.visible = false
+	dead = env.is_character_dead(dead) if env != null else false
 	_snapshot_quests()
 	refresh_all()
 
@@ -314,6 +354,20 @@ func _on_quickslot_hover(slot: MisoItemSlot, inside: bool) -> void:
 
 
 # --- internals ------------------------------------------------------------------------------------------------
+
+## The HP gauge: `hp` / `max_hp`, or 0 / `max_hp` while dead.
+func _show_hp(hp: int, max_hp: int) -> void:
+	status.set_hp(0 if dead else hp, max_hp)
+
+
+## Shows or clears the trail line from the map session's current value (idempotent: an unchanged line is left alone).
+func _sync_trail() -> void:
+	var dest := env.trail_destination() if env != null else ""
+	if dest == "":
+		banner.clear_trail()
+	else:
+		banner.show_trail(env.current_map_id(), dest, env.get_db())
+
 
 func _refresh_exp() -> void:
 	var c := env.character() if env != null else null

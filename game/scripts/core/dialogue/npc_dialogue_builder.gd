@@ -15,8 +15,12 @@ extends RefCounted
 ##                         done, then the last one; other NPCs say all their lines in order; NPCs without quoted
 ##                         lines say their first idle-chatter line; shopkeepers -> shop.greeting -> open_shop.
 ##   q<id>.offer.<i>       on_accept lines; the last one is a Yes/No (accept). A quest with no "On accept" text
-##                         (MeowDB gap, e.g. 1002) shows its journal text as a quest card instead.
+##                         (MeowDB gap, e.g. 1002) is offered as one quest card instead (speaker "journal"): its
+##                         journal summary (line 0; the quest name without a journal) and the system prompt
+##                         sys offer_prompt ("Accept this quest?") as a Yes/No.
 ##   q<id>.accepted.<i> / q<id>.declined.<i>    the accept / decline branches
+##   q<id>.brief.<i>       quest card after accepting a quest offered that way (when it has no "accepted" lines): the
+##                         canonical in-progress journal lines, i.e. the instructions (1002: "Press the hotkey I ...")
 ##   q<id>.turnin          branch: ready -> completion lines (if any) -> quiz (if any) -> reward pick (if any) ->
 ##                         complete; else missing_kills / missing_items
 ##   q<id>.done.<i>        on_completion main lines, then the quiz, q<id>.select or q<id>.complete (action) ->
@@ -125,13 +129,21 @@ func _add_offer(g: DialogueGraph, d: QuestDef) -> void:
 	var speaker := "npc"
 	for i in d.section_lines("on_accept").size():
 		specs.append({"quest": q, "section": "on_accept", "line": i})
-	if specs.is_empty():
-		# No canonical "On accept" text: offer the quest as a card showing its canonical journal text.
-		speaker = "journal"
-		var jl := d.journal_lines.size()
-		specs.append({"quest": q, "journal": 1 if jl >= 3 else 0})
 	var accepted := _branch_specs(d, "on_accept", "accepted")
 	var declined := _branch_specs(d, "on_accept", "declined")
+	var after_accept := p + "accepted.0" if not accepted.is_empty() else ""
+	if specs.is_empty():
+		# No canonical "On accept" text (MeowDB gap, e.g. 1002): NPC speech would be invented, so the quest is offered
+		# as a quest card. The question is the journal summary (else the quest name) under which the generic system
+		# prompt asks to accept; the canonical in-progress journal lines (the instructions) follow the accept.
+		speaker = "journal"
+		var summary := {"quest": q, "journal": 0} if not d.journal_lines.is_empty() else {"quest": q, "name": true}
+		specs.append({"parts": [summary, {"system": "offer_prompt"}]})
+		if accepted.is_empty():
+			var brief := _journal_brief_specs(d)
+			_chain(g, p + "brief", brief, "", d.name, "journal")
+			if not brief.is_empty():
+				after_accept = p + "brief.0"
 	for i in specs.size():
 		var nid := p + "offer.%d" % i
 		if i < specs.size() - 1:
@@ -139,11 +151,20 @@ func _add_offer(g: DialogueGraph, d: QuestDef) -> void:
 		else:
 			g.set_node(nid, {"type": "yes_no", "line": specs[i], "title": d.name, "speaker": speaker,
 				"yes": {"actions": [{"type": "accept_quest", "quest": q}],
-					"next": p + "accepted.0" if not accepted.is_empty() else "",
+					"next": after_accept,
 					"on_fail": {"inventory_full": "sys.inventory_full", "*": "sys.cannot_accept"}},
 				"no": {"next": p + "declined.0" if not declined.is_empty() else ""}})
 	_chain(g, p + "accepted", accepted, "", d.name)
 	_chain(g, p + "declined", declined, "", d.name)
+
+
+## The in-progress journal lines (the quest's instructions), as QuestEngine.journal_text reads them: the middle
+## lines of a journal of 3 or more lines. A 1- or 2-line journal has none apart from line 0 (already the question).
+func _journal_brief_specs(d: QuestDef) -> Array:
+	var out: Array = []
+	for i in range(1, d.journal_lines.size() - 1):
+		out.append({"quest": d.id, "journal": i})
+	return out
 
 
 # --- quest turn-in side ---------------------------------------------------------------------------------------
@@ -302,13 +323,16 @@ func _add_system_nodes(g: DialogueGraph) -> void:
 
 # --- helpers --------------------------------------------------------------------------------------------------
 
-## A chain of say nodes "<prefix>.0", "<prefix>.1", ... ; the last leads to `last_next`.
-func _chain(g: DialogueGraph, prefix: String, specs: Array, last_next: String, title: String) -> void:
+## A chain of say nodes "<prefix>.0", "<prefix>.1", ... ; the last leads to `last_next`. `speaker` "" = the NPC.
+func _chain(g: DialogueGraph, prefix: String, specs: Array, last_next: String, title: String,
+		speaker: String = "") -> void:
 	for i in specs.size():
 		var nxt := prefix + ".%d" % (i + 1) if i < specs.size() - 1 else last_next
 		var node := {"type": "say", "line": specs[i], "next": nxt}
 		if not title.is_empty():
 			node["title"] = title
+		if not speaker.is_empty():
+			node["speaker"] = speaker
 		g.set_node(prefix + ".%d" % i, node)
 
 

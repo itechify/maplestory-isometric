@@ -1387,7 +1387,7 @@
      "to_portal": "east00",
      "kind": "edge",
      "one_way": false,
-     "trail_m": 42.2
+     "trail_m": 64.9
     }
    ],
    "arrival_points": [],
@@ -1468,13 +1468,13 @@
    ],
    "base_height_m": 9.5,
    "world_origin": [
-    248.29,
-    -551.51
+    256.11,
+    -541.13
    ],
    "world_yaw_deg": -45.0,
    "worldmap_frame_origin": [
-    565.5,
-    -214.4
+    563.7,
+    -201.5
    ],
    "exits": [
     {
@@ -1483,7 +1483,7 @@
      "to_portal": "west00",
      "kind": "edge",
      "one_way": false,
-     "trail_m": 42.2
+     "trail_m": 64.9
     }
    ],
    "arrival_points": [],

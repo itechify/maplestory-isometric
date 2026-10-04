@@ -123,7 +123,12 @@ LINKS = [
     (1000004, "out00", 1000000, "in03", 38.0, -18),
     (1010000, "west00", 1000000, "east00", 14.0, 0),
     (1010002, "out00", 1010000, "in01", 5.0, 90),  # Townstreet's orange house is up the lane behind Amherst
-    (1010004, "east00", 1010002, "west00", 39.0, 98),  # clear of Townstreet's west exit; 40/100 grew to 76 m
+    # 52 m (was 39): at 39 m Snail Field of Flowers' east edge ran 3.4 m from Townstreet's west edge over their last
+    # 2.9 m of overlap, and every way from west00 to east00 passed that slot (Amherst and the Dangerous Forest close
+    # the others), too narrow for a 3.8 m trail between both containment rings (MAP_ARCHITECTURE 4.6: 3.8 + 2 x 1.5 m).
+    # 12.9 m further back, the trail (TRAIL_ROUTES) rounds Townstreet's back-west corner between the two rings and
+    # climbs along the field's east side. Bearing 99+ clashes with the Dangerous Forest (resolve() then makes it 76 m).
+    (1010004, "east00", 1010002, "west00", 52.0, 98),
     (1020000, "west00", 1010000, "east00", 18.0, -45),
     (1020001, "out00", 1020000, "in00", 22.0, 20),
 ]
@@ -318,6 +323,28 @@ GATE_HALF_WIDTH_M = 2.25  # the gate's lateral half-width: the 4.5 m architectur
 ONE_WAY_LEDGE = {(30000, "out00", 40000, "in00"): 2.4}
 
 
+def containment_params(root):
+    """The runtime's containment numbers that a trail must keep clear of (MAP_ARCHITECTURE 4.6), read from the game's
+    adaptation tables under root (game/data/misostory, read-only), with the spec values as fallbacks: every map is
+    walled by a ring whose inner face is footprint + ring_offset_m and which is wall_thickness_m thick outward; at each
+    gate the ring opens min(gate_half_width_m, trail half-width + side_wall_offset_m) either side of the gate."""
+    import json
+    import os
+
+    def read(fname, section, key, default):
+        try:
+            with open(os.path.join(root, "game", "data", "misostory", f"{fname}.json"), encoding="utf-8") as f:
+                v = json.load(f).get(section, {}).get(key)
+            return default if v is None else float(v)
+        except (OSError, ValueError, AttributeError):
+            return default
+
+    return {"ring_offset_m": read("presentation", "containment", "ring_offset_m", GATE_OFFSET_M),
+            "wall_thickness_m": read("presentation", "containment", "wall_thickness_m", 0.5),
+            "side_wall_offset_m": read("presentation", "trails", "side_wall_offset_m", 0.3),
+            "gate_half_width_m": read("portal_adaptations", "gates", "half_width_m", GATE_HALF_WIDTH_M)}
+
+
 def is_arrival_only(mid, name):
     """True for an anchor that is an arrival point, not a portal (see ONE_WAY)."""
     return (mid, name) in ONE_WAY
@@ -327,6 +354,27 @@ RIM_EDGE = {60000: "front"}
 HIDDEN_TRAILS = {(1020000, "in00", 1020001, "out00")}
 # Arrivals onto a floating hub: the causeway stops this many m short and a plank bridge spans the rest.
 BRIDGE_END = {(1000006, "out00"): 8.0}
+# Authored trail routes, for links where the seeded curve has no room: (from map, portal, to map, portal) -> the
+# corners of a polyline from the from-portal's footprint-edge point to the to-portal's, as ((x, y), fillet radius m)
+# in the FROM map's local frame. The first corner is snapped onto the from-portal's exit ray and the last onto the
+# to-portal's, so both ends leave perpendicular through their gate corridors; every corner is rounded with its radius
+# (trails.route_polyline). validate.py trail_ring_band checks the result against the containment rings.
+TRAIL_ROUTES = {
+    # Townstreet -> Snail Field of Flowers: 2 m out of west00, north up Townstreet's west side, right round its
+    # back-west corner (between the two maps' rings), left again and up along the field's east side, left into east00.
+    (1010002, "west00", 1010004, "east00"): [((-6.0, 12.0), 4.0), ((-6.0, 25.5), 5.0), ((2.0, 29.5), 5.0),
+                                              ((2.0, 63.5), 4.0)],
+}
+
+
+def trail_route_world(link, origins):
+    """TRAIL_ROUTES[link] in world xy: [((x, y), radius)], or None."""
+    route = TRAIL_ROUTES.get(link)
+    if not route:
+        return None
+    mid = link[0]
+    o = origins[mid]
+    return [((o[0] + wx, o[1] + wy), r) for (lx, ly), r in route for wx, wy in [_rot(world_yaw(mid), lx, ly)]]
 
 
 def geo_to_world(x, y):

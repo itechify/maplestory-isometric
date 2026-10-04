@@ -98,7 +98,9 @@ func _ready() -> void:
 				trails["ms"] = Time.get_ticks_msec() - t0
 				report["l2_links"] = trails
 				clean = clean and int(trails.failed) == 0 and int(trails.runs) > 0
-				summary.append("links runs=%d failed=%d (%d ms)" % [int(trails.runs), int(trails.failed), int(trails.ms)])
+				var tw: Dictionary = trails.get("trails_walkable", {})
+				summary.append("links runs=%d failed=%d trails walkable=%d/%d (%d ms)" % [int(trails.runs), int(trails.failed),
+					int(tw.get("walkable", 0)), int(tw.get("trail_links", 0)), int(trails.ms)])
 			if "tour" in only:
 				var tours := {}
 				for mode in tour_modes:

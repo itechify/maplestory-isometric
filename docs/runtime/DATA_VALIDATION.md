@@ -24,9 +24,9 @@ GODOT=/path/to/godot.exe bash scripts/validate_data.sh  # binary override, passe
 | 2 | the validator itself is broken: a script does not compile, a check raised a script error (the report would be incomplete), Godot did not exit in time, or a bad command line (an unknown flag, or a value flag with no value) |
 
 An isolated run copies the small `game/assets/world/*.json` sidecars (and `index.json`) but not the glTF chunks. The
-last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`. Shipped data at the time of writing: 0 errors, 4 warnings
-(explained below), 156 out-of-scope references skipped, 191 canonical records, 18 adaptation files, 47 portals,
-25 sidecars, about 2,100 references resolved.
+last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`. Shipped data at the time of writing: 0 errors, 1 warning
+(explained below), 158 out-of-scope references skipped, 191 canonical records, 28 adaptation files, 47 portals,
+25 sidecars, about 2,100 references checked.
 
 ## Data flow
 
@@ -87,7 +87,7 @@ on broken input cannot make a negative test pass for the wrong reason.
 | `portal` | error | `to_map_id` missing or unknown; `to_portal` names no portal of the destination; `to_portal_derivation` other than `reverse_lookup`/`none` (absent = an explicit `to_portal`); a `reverse_lookup` `to_portal` that does not lead back, or whose destination has more than one portal back (maps.md requires the unique one); `none` with a `to_portal`, or `none` while the destination does have a portal back (stale: rerun `extract_maps.mjs`); a null `to_portal` whose destination has no `player_spawns`; two portals with one name on a map. **Portal graph** (MAP_ARCHITECTURE §4.13 L0): a map not reachable through portals from `new_character.json` `start_location.map_id`; a one-way link (no portal back) missing from `portal_adaptations.json` `one_way_allowlist` (each half skipped when its adaptation file is absent) |
 | `drop_owner` | error | a drop table without `owner {kind: monster/breakable, id}`, an unknown owner, or `owner.id` ≠ table id |
 | `drop_table` | error | a monster's or breakable's `drop_table` not of the form `drops/<id>.json`, or naming a missing table |
-| `dialogue_link` | warning | a dialogue link (`ref: {kind|type, id}`) to a record not in the dataset; the text renders without the link |
+| `dialogue_link` | warning | a dialogue link (`ref: {kind|type, id}`) with an unknown kind or no string id (anywhere); a link in an **adaptation** file to a record not in the dataset (the game still shows the text and the reference, with no record behind it). A canonical link outside the dataset is skipped as out of scope instead (see [Dialogue links](#dialogue-links)) |
 | `consistency` | warning | one-sided facts: a map places an NPC whose `locations` omit it (or the reverse); a shop's NPC does not name the shop; a quest NPC stands on none of the quest's maps; a map's `monsters[]` and `spawns[]` disagree; a drop table owned by another record |
 | `adaptation` | error / warning | the reason/verified convention and the per-file schemas below |
 | `crosswalk` | error / warning | the crosswalk is not bijective onto the canonical maps; a Blender slug has no sidecar, a sidecar without a numeric `map_id` or with the wrong one, or (when the export has `index.json`) no chunk; a map chunk in `index.json` that no row names (warning); no export at all (one warning) |
@@ -131,8 +131,41 @@ from or goes to, mostly Victoria Island), and maps' `portals[].to_map_id` (the p
 | `maps.quests.progress_here[]`, `monsters.quests[]` whose `area_label`/`region` is not a region of the shipped quests (`quests/*.region` ∪ the labels of quests starting on a shipped map) | Henesys, Kerning City and Victoria Island quests (10009, 10123, 10303) whose kill targets also live on Maple Island | 30 |
 | `monsters.spawns[]` with `maple_island: false` | a monster's spawn maps off the island | 125 |
 | `npcs.transport.routes[].to_map_id` | Shanks' boat to Lith Harbor (010000000) | 1 |
+| a dialogue link in a **canonical** record to an id outside the dataset, after the quest correction below (one line per record and target) | MeowDB links content off the island: "Grendel the Really Old" (npc 313, a Victoria Island NPC) in Todd's quest 1005 text, in `npcs/7` and `quests/1005` | 2 |
 
 A quest that **starts** on a shipped map must exist whatever its label (its NPC stands there).
+
+#### Dialogue links
+
+A dialogue link is a `ref` object (`{kind|type, id}`) on a dialogue segment, found at any depth (canonical NPC and
+quest dialogue; an adaptation file may carry one too). `ReferenceChecks.LINK_KINDS` maps `npc`, `map`, `item`,
+`monster`, `quest` and `shop` to their domains. A dangling link never fails validation, because it cannot break
+play: the game follows no link. `DialogueText` only marks the resolved ref `known: false`, and the dialogue window
+(`DialogueRichText`) still emphasises the reference by its kind (item, monster, npc, map or quest) whatever its id.
+In the real game, Todd's quest 1005 offer shows
+"Grendel the Really Old" (npc 313, not in the dataset) in NPC green, like "Peter" (review, 2026-10-04).
+
+- **Canonical records:** the link is MeowDB's raw href (docs/canonical/npcs.md "File format" and "Referenced ids";
+  quests.md §4 and the "Dialogue only" ids of §11), and MeowDB covers the whole game, so a link to an id outside the
+  dataset names content off the island. It is skipped as out of scope (table above), not a finding; the line names
+  the first path it was seen at.
+- **Adaptation files:** the link was written by hand, so an id outside the dataset is a mistake: `dialogue_link`
+  warning.
+- **Malformed links** (a kind not in `LINK_KINDS`, or no string id): `dialogue_link` warning, canonical or not.
+- **Quest dialogue is checked as the game links it.** The quests domain keeps MeowDB's raw link ids, while the NPC
+  domain stores a corrected link as `ref.id` with the raw one in `ref.meowdb_link_id` (docs/canonical/npcs.md
+  "Discrepancies"). `DialogueText._remap_for` rewrites a quest's dialogue links with the corrections found in every
+  NPC's `quest_dialogue` block for that quest, so `ReferenceChecks._link_remap` applies the same corrections to
+  `quests/<id>.json` `dialogue` before the lookup (`QUEST_DIALOGUE_ROOT`). Quest 1005 links "Jr. Sentinel Shellpiece"
+  as item 2584 (a different item with the same name); Todd's and Peter's blocks correct it to 347, which the game
+  links, so the validator resolves 347 and reports nothing. In the real game, Todd's accepted line resolves
+  "Jr. Sentinel Shellpieces" to `{kind: item, id: "347", known: true}` (review, 2026-10-04). A correction to an id
+  outside the dataset is skipped like any canonical link, naming both ids. The two functions must stay in step: a
+  change to the runtime's remap rule needs the same change in `_link_remap`. `test_link_remap_matches_the_game_remap`
+  compares them for every shipped quest, and `test_npc_corrected_quest_links_are_not_reported` fails if the shipped
+  corrections are reported (both also fail if the shipped data has no correction left, so they cannot pass
+  vacuously). The validator mirrors the rule instead of calling `_remap_for` because the runtime caches the result
+  per `ContentDB` instance in a static, which would go stale across runs over one mutated copy (the test fixture).
 
 ### The adaptation convention (game/data/misostory)
 
@@ -161,8 +194,17 @@ Metadata keys need no reason: `id`, `kind`, `description`, `title`, `name`, `lab
 `_comment`, `_doc`, `_label`, and any key starting with `_`.
 
 Also, for every adaptation file: typed keys resolve (as above); `external` lists follow the canonical rule; a file in
-`misostory/<domain>/` where `<domain>` is a canonical domain must be named after a canonical id of that domain, and
-its `id` / `<singular>_id` (e.g. `quest_id`) must equal the basename.
+`misostory/<domain>/` where `<domain>` is a canonical domain is an **entity file**: it must be named after a canonical
+id of that domain, and its `id` / `<singular>_id` (e.g. `quest_id`) must equal the basename.
+
+**Shared tables.** In such a folder, a file whose basename starts with `_` (`AdaptationChecks.SHARED_TABLE_PREFIX`) is
+a shared adaptation table, not an entity file: it holds values the folder's entity files share.
+`misostory/monsters/_shared.json` is the shipped one; `MonsterDef` reads it first and lays the species file
+`monsters/<id>.json` over it. A shared table's basename is not matched against canonical ids and its `id` (if any)
+need not equal the basename (no canonical id starts with `_`, so the prefix cannot hide an entity file). Everything
+else still applies: the reason/verified convention, the typed-reference sweep, the `external` rule and the folder's
+`FILE_SCHEMAS` entry. The same prefix marks `dialogue/_<name>.json` shared-line files (`dialogue/_system.json`), which
+the `dialogue/*` check exempts from its `<npc id>.json` naming rule (`AdaptationChecks.is_shared_table`).
 
 ### Per-file schemas
 
@@ -179,17 +221,20 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 | `inventory.json` | every canonical weapon's subtype has a `weapon_subtypes` entry |
 | `combat.json` | `fixed_damage_skills` keys are canonical skill ids (`formulas/*.json skills[].skill_id`) |
 | `portal_adaptations.json` | link ids `T_<map>_<portal>__<map>[_<portal>]`, `"<map>.<portal>"` refs, `destination_portal_id`, spawn indexes and arrival gates name real portals and spawns; each `one_way_allowlist` link exists and really has no way back (warning when stale); the portal-graph check requires the converse (every one-way link is listed) |
-| `dialogue/*` | named `<npc id>.json` (or `_<name>.json` for shared lines) with a matching `npc_id`; `{npc, field, line}` line specs index an existing NPC line (0-based, as `DialogueText` reads them); `{quest, ...}` specs name a canonical quest |
+| `dialogue/*` | named `<npc id>.json` (or `_<name>.json` for shared lines, the shared-table prefix) with a matching `npc_id`; `{npc, field, line}` line specs index an existing NPC line (0-based, as `DialogueText` reads them); `{quest, ...}` specs name a canonical quest |
 | `npcs/*` | `disabled_behaviors` entries are NpcDef behaviours (`quest`, `shop`, `transport`, `talk`; a typo would be ignored at runtime and leave the behaviour on); disabling one the NPC does not have is a warning (stale) |
 
 ## Current warnings on the shipped data
 
-- `npcs/7` and `quests/1005` link "Grendel the Really Old" (npc 313), a Victoria Island NPC.
-- `quests/1005` links "Jr. Sentinel Shellpiece" as item 2584. The quest data uses 347; the record's `discrepancies`
-  explain that MeowDB resolves the dialogue link by name (`npcs/7` already stores 347 with `meowdb_link_id`).
 - `misostory/new_character` `starting_sp` is `verified: true` without a `verification`/`source_url` key (its reason
-  cites `formulas/beginner.json sp.calculator_caveat`).
+  cites `formulas/beginner.json sp.calculator_caveat`). The validator is right; the fix belongs in the data
+  (new_character.json is owned by the game shell, [GAME_SHELL.md](GAME_SHELL.md)).
 - Runs without the Blender export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning.
+
+Earlier runs also warned about three dialogue links. Two of them, "Grendel the Really Old" (npc 313) in `npcs/7` and
+`quests/1005`, are MeowDB links to an off-island NPC and are now skipped as out of scope. The third, "Jr. Sentinel
+Shellpiece" as item 2584 in `quests/1005`, was a validator false positive: the game links the NPC files' corrected id
+347, and the validator now checks that one ([Dialogue links](#dialogue-links)).
 
 ## Sources and adaptations
 
@@ -203,17 +248,17 @@ rules, not game data.
 ## Tests
 
 ```bash
-ISOLATE=<name> bash scripts/test.sh data_                   # the 5 files below (84 tests)
+ISOLATE=<name> bash scripts/test.sh data_                   # the 5 files below (91 tests)
 ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh data_   # same, with the real export for the shipped-data test
 ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 ```
 
 | File | Covers |
 |---|---|
-| `tests/unit/test_data_validation.gd` | the shipped data has no errors and did not crash the validator (each error is printed); every record, portal and adaptation file was checked; finding shape; `ScriptErrorGuard` (records only script errors, attach/detach); the tool's exit code starts at 2 and its command-line parsing |
-| `tests/unit/test_data_validation_references.gd` | injected broken references in every domain, portals (destination, to_portal, reverse lookup, unknown/stale/ambiguous derivations, arrival spawns, duplicate names), the portal graph (unreachable map, unlisted one-way link), drop tables, starter weapons, recovery examples; dialogue links warn only; out-of-scope rules |
+| `tests/unit/test_data_validation.gd` | the shipped data has no errors and did not crash the validator (each error is printed); every record, portal and adaptation file was checked; finding shape; quest dialogue links the NPC files correct are neither warned nor skipped, and the validator's link remap equals `DialogueText._remap_for` for every quest; `ScriptErrorGuard` (records only script errors, attach/detach); the tool's exit code starts at 2 and its command-line parsing |
+| `tests/unit/test_data_validation_references.gd` | injected broken references in every domain, portals (destination, to_portal, reverse lookup, unknown/stale/ambiguous derivations, arrival spawns, duplicate names), the portal graph (unreachable map, unlisted one-way link), drop tables, starter weapons, recovery examples; dialogue links (a canonical link outside the dataset is skipped, an adaptation one warns, a malformed one warns, a quest link is checked as its NPC correction, a correction's null or numeric ids are read as `DialogueText` reads them); out-of-scope rules |
 | `tests/unit/test_data_validation_provenance.gd` | ids, duplicates, source blocks, URL prefixes and look-alikes, real ISO dates, external entries, the sources index (missing, stale, deleted, external contents), loose root files, required fields, loader errors |
-| `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, adaptation references (plain and `{"value": ...}`-wrapped), domain folders, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
+| `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, adaptation references (plain and `{"value": ...}`-wrapped), domain folders and their shared tables, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
 | `tests/unit/test_data_fixture.gd` | `DataValidationTestCase`: deep-copies the shipped ContentDB, injects sidecars, compares against the unbroken copy so each negative test asserts only the finding it caused, and fails a test whose validator run crashed |
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only

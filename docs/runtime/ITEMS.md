@@ -2,7 +2,8 @@
 
 Brief phases 10 to 13 and 15 ("Drop Architecture" included). This system holds the pure rules for everything a
 character carries, wears, uses, buys, sells and picks up, plus the one seam that announces those changes on the
-`Events` bus. It touches no scene tree. Actors, UI and the HUD call it.
+`Events` bus. It builds no nodes and changes no scene tree. The one lookup it makes is the `Game` autoload, read only
+to ask whether the live character is dead (see "Dead characters cannot use items"). Actors, UI and the HUD call it.
 
 ## Files
 
@@ -53,6 +54,7 @@ var items := ItemService.new(Game.character, Data.db, Events)
 items.gain("270", 5)                    # item_gained, inventory_changed (+ inventory_full if not everything fit)
 items.pickup(drop)                      # all-or-nothing for items; mesos up to the cap
 items.use_item("270")                   # item_used, item_lost, inventory_changed, hp_changed / mp_changed
+items.dead_check = func() -> bool: return dead   # optional: who decides "dead" (default: Game, live character)
 items.equip("541"); items.unequip("weapon")   # equipment_changed per slot, inventory_changed, stats_changed
 items.clear_inventory()                 # debug "clear inventory": item_lost per item id, inventory_changed
 ShopService.buy(Game.character, "maple-road-lucy", "270", 10, Data.db, Events)
@@ -115,8 +117,21 @@ No canonical number appears in code. Tests read expected values from the same re
 - **Consumables.** These are flat `hp_restore` / `mp_restore`. Percentage restores (`hp_restore_pct`, floored) and
   buffs (`consumable.buffs`, returned in the result for the effect system) are supported as data, but no current item
   has them. Restores are clamped to `StatCalculator.max_hp` / `max_mp`, and one unit is consumed. A potion used at
-  full HP is still consumed. A dead character (HP 0) cannot use items. Pet Food, scrolls, chairs, equipment and Etc
-  items return `not_usable`.
+  full HP is still consumed. Pet Food, scrolls, chairs, equipment and Etc items return `not_usable`.
+- **Dead characters cannot use items** (`dead`, checked after the item checks). "Dead" is not "HP 0": the game
+  shell takes a death's loss at the moment of death (GAME_SHELL.md "Death and respawn"), so while the death notice is
+  up the character already holds its respawn HP (`death.json`). `Consumables.is_dead(character, db, dead_check)` is
+  true when either of these holds:
+  1. the canonical trigger, `Progression.is_dead` (HP 0, `formulas/death.json`). This also covers the moment
+     between HP 0 and MapSession's `DEAD`, and a death during a warp;
+  2. the dead check, a zero-argument `Callable` returning bool. `Game.is_character_dead` fits as is. It is passed to
+     `Consumables.use(..., dead_check)` or set as `ItemService.dead_check`.
+
+  With no check injected (the default), `Consumables.default_dead_check(character, game = null)` asks the `Game`
+  autoload's `is_character_dead()`, which also reads MapSession's `DEAD` state. It does so only when `character` is
+  `Game.character`, by identity, resolved at each use, so a new game or a load is followed. Any other character (a
+  test fixture, a sandbox) gets only the HP trigger, so it never inherits the live game's death. Inject a check to
+  keep the rules off the scene tree. The `game` argument is the test seam.
 - **Mesos.** Mesos can never go negative. Earning adds only up to the cap. A sale that would pass the cap is refused
   (`meso_cap`).
 - **Shops.** One purchase of a row costs `price_mesos` and gives `quantity_per_purchase` units. `quantity` counts
@@ -233,7 +248,7 @@ Details carry the relevant numbers, for example `stat_too_low {stat, required, a
 ## Testing
 
 ```bash
-ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drops mesos   # 126 tests
+ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drops mesos   # 147 tests, 12 files (with test_shop_ui_window)
 ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references
 ```
 
@@ -244,7 +259,8 @@ ISOLATE=items bash scripts/validate_data.sh                                     
 | `test_inventory_service.gd` | the exact `Events` emitted by gain/lose/pickup/move/clear; atomic `gain_all` / `lose_all`; every drop record shape; unknown ids and malformed entries change nothing |
 | `test_inventory_flow.gd` | brief Test D: Snail meso bag, potion and weapon as ground records, pickup, use, equip, W.ATK, JSON save and reload with identical derived stats |
 | `test_equipment_core.gd` | equip/swap/unequip (also with a full equip tab), level, job, total-stat (worn bonuses count), fame and gender failures, overall <-> top/bottom, two-handed <-> shield (synthetic overall and shield on a private db copy), `total_bonuses`, Max HP, W.ATK, damage and CRIT% through `StatCalculator`, HP clamp on unequip, round trips and numeric ids, equipment signals |
-| `test_consumable_use.gd` | HP/MP restore and clamp, decrement, full-HP use, Roger's Apple, every potion and food Lucy sells, unusable items, dead, persistence, `item_used` |
+| `test_consumable_use.gd` | HP/MP restore and clamp, decrement, full-HP use, Roger's Apple, every potion and food Lucy sells, unusable items, dead at HP 0, persistence, `item_used` |
+| `test_consumable_dead.gd` | an injected dead check refuses use at positive HP, HP 0 is dead whatever the check says, the check runs at each use and after the item checks, `ItemService.dead_check` refuses silently, `default_dead_check` resolves to `Game.is_character_dead` for the live character only (on a private `GameState` and against the autoload, unchanged), and a committed death (private MapSession and `DeathRules`) refuses potions at the respawn HP until the respawn, leaving the `MapSession` autoload as it was |
 | `test_mesos_wallet.gd` | add/spend validation, never negative, cap, `mesos_changed`, persistence |
 | `test_shop_buy_sell.gd` | stock equals canonical rows, price x quantity, exact affordability, insufficient mesos, full inventory, clean equipment, bad requests, sell-back, 0-value sales, meso cap, `sell_slot`, signals, no 64-bit cost wrap |
 | `test_drops_data.gd` | every drop item exists, `DropRates.validate`, labelled placeholders, sources, MSEA/disputed off, overrides win, quest items and Three Snails shells obtainable, meso rules |

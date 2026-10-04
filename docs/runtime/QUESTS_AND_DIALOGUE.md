@@ -37,7 +37,7 @@ data/misostory/dialogue/<npc>.json ── NpcDialogueBuilder → DialogueGraph �
 | `scripts/core/dialogue/dialogue_text.gd` | `DialogueText` | line references → UI text segments |
 | `scripts/core/dialogue/npc_dialogue_builder.gd` | `NpcDialogueBuilder` | generates every NPC's conversation from canonical data |
 | `data/misostory/quests/1002.json` | | Roger's Apple hand-out (adaptation) |
-| `data/misostory/dialogue/_system.json`, `16.json`, `20.json`, `21.json` | | system lines; shop greetings |
+| `data/misostory/dialogue/_system.json`, `16.json`, `20.json`, `21.json` | | system lines (incl. the quest card's offer prompt); shop greetings |
 | `data/misostory/dialogue/18.json` | | Pio: live item counters in 1012's accept line |
 | `data/misostory/npcs/15.json` | | Shanks' transport disabled (out of scope) |
 
@@ -183,6 +183,10 @@ accept or a hand-over.
 - `{"quest", "journal"}`, `{"quest", "name": true}`;
 - `{"npc", "field": "dialogue" | "idle_chatter", "line"}`;
 - `{"system": key}`;
+- `{"parts": [line spec, ...]}`: several lines on one page, one paragraph each (a blank line between them);
+  the source is the parts' sources joined with ` + `. Validation checks every part, so a dead part is reported even
+  though the others still show. `counters` go on the `parts` line itself (they index the joined segments, with one
+  paragraph-break segment between parts); counters on a part are never applied, and validation reports them;
 - or literal `{"text", "source"}`.
 
 Any line spec may add `"counters": [{"segment", "item_id"}]`: those segments of the resolved line show the live
@@ -225,6 +229,14 @@ switches quest entries off. When the player talks to an NPC, these entries are e
 One entry is entered directly, several are listed in a menu, and none falls back to default talk.
 - **Offer:** the canonical On accept lines, with the last line as the Yes/No prompt. Yes accepts and shows the
   `accepted` lines, No shows the `declined` lines.
+- **Offer without On accept text** (MeowDB gap; on Maple Island only 1002 Roger's Apple): NPC speech would be
+  invented, so the quest is offered as one quest card (speaker `journal`: the NPC's portrait and name, the QUEST tag,
+  the quest name as title). Its text is the canonical journal summary (journal line 1; the quest name if there is no
+  journal) and, under it, the generic system prompt `offer_prompt` ("Accept this quest?", `_system.json`) as the
+  Yes/No. Yes accepts, then shows the canonical `accepted` lines if MeowDB has any, otherwise the in-progress journal
+  lines (the middle lines of a 3+ line journal, `q<id>.brief.<i>`, also quest cards): for 1002, "Talk to Roger." /
+  "Accept this quest?", then "Press the hotkey I to open your inventory, ... Then, talk to Roger." A 1- or 2-line
+  journal has nothing after line 1, so the chat ends on Yes. No shows the `declined` lines, or ends the chat.
 - **Turn-in:** if the quest is ready, the main On completion lines are shown, then the quiz (if any), then the
   reward pick (if `rewards.selection` applies), then `complete`, then the `ready` lines. A quest with no completion
   text completes silently and returns to the menu, so Sera's 1000 flows straight into her 1001 offer. If the quest is
@@ -270,7 +282,7 @@ in that order. A patch for a node that does not exist is a validation error. Sys
 | System lines (inventory full, cannot accept/complete) | `data/misostory/dialogue/_system.json` | MeowDB publishes no client messages; shown as speaker "system" |
 | Shanks only talks | `data/misostory/npcs/15.json` | the Lith Harbor boat leaves Maple Island (out of scope); MeowDB has no boarding text |
 | `wrong_npc` and `lost` branches are spoken by the start NPC | builder | MeowDB files them under On completion, but they read as the start NPC (npcs.md speaker caveat) |
-| Quest with no On accept text (1002) is offered as a quest card with its journal text | builder | MeowDB gap; journal text is canonical, NPC speech would be invented |
+| Quest with no On accept text (1002) is offered as a quest card: journal summary + "Accept this quest?", then the in-progress journal lines after Yes | builder; prompt in `data/misostory/dialogue/_system.json` (`offer_prompt`, `verified: false`) | MeowDB gap; the journal text is canonical and NPC speech would be invented. The summary ("Talk to Roger.") is a description, not a question, so a generic system prompt that names nothing asks it; the instructions read as what to do next, so they follow the accept |
 | Main completion lines come before the reward; `ready` lines after it | builder | MeowDB does not say which lines precede the reward |
 | Wrong quiz answers pair with wrong choices in order; a wrong answer ends the chat, retry by talking again | builder | MeowDB does not link them (the counts match for every quiz) and does not say whether retries are allowed (1015's text suggests they are) |
 | Quest NPC talk: first line before, last line after all their quests | builder | MeowDB does not label when each "What X Says" line shows |
@@ -293,8 +305,8 @@ ISOLATE=quests bash scripts/test.sh quest dialogue npc
 | `tests/unit/test_quest_engine.gd` | shipped data validates; unsupported `other` and unknown objective kinds are reported and never complete; level / job / prerequisite gating; 1002 end to end (apple given, use, talk, 0 rewards); 1006 Snail-only kills, exactly 30 EXP (the character's total EXP grows by 30 across the level-up) + 3 Eggs, refused when the Use tab is full; 1011 hand-in removal + deterministic random reward; chance weights; selection rewards; 1012; chain 1007→1008 (letter given once); lost letter re-issue; quizzes 1013 and 1018; a refused 1019 completion keeps the quiz unanswered; save mid-quest and continue; forfeit; markers; journal; quest summaries |
 | `tests/unit/test_quest_save_load.gd` | brief Test E from a clean `CharacterFactory` character: accept, progress halfway, save through `SaveDocument.build` → JSON → `SaveDocument.decode`, reload into a fresh session, finish and verify the exact canonical reward (1006: +30 EXP, +3 Eggs; 1002: the apple survives the save, is eaten through `ItemService.use_item`, 0 rewards); completion persists |
 | `tests/unit/test_quest_service.gd` | Events in/out on a private `events.gd` bus; quest level-ups announced like `Game.gain_exp` (one `leveled_up` per level, `hp_changed`/`mp_changed`, `stats_changed`), including a multi-level reward (1010 at level 1); inventory_full announcement, character provider, detach, debug commands |
-| `tests/unit/test_dialogue_runner.gd` | hand-written graphs: Next/Back, Yes/No, menu conditions (level, mesos, flag, job, items, quest), branch, auto-single, actions clear history, on_fail routing, shop request, give/take, objective conditions, validation errors, overrides and patches, counter validation, `answer_quiz`, no crash without content |
-| `tests/unit/test_dialogue_npc_conversations.gd` | every NPC's generated conversation validates and opens; Sam → Mai full flow with Events; decline; full inventory at Mai; Roger's Apple conversation; Rain 1013 wrong/right and 1018; Heena/Sera chain with a lost mirror; 1005 item ref remap; Pio's live 1012 counters; a synthetic quiz + selection quest completed from data alone; shop greeting → shop request; townsfolk Back; Shanks |
+| `tests/unit/test_dialogue_runner.gd` | hand-written graphs: Next/Back, Yes/No, menu conditions (level, mesos, flag, job, items, quest), branch, auto-single, actions clear history, on_fail routing, shop request, give/take, objective conditions, validation errors, overrides and patches, counter validation, `parts` lines (paragraphs, sources, styling, every part validated, counters on a part reported), `answer_quiz`, no crash without content |
+| `tests/unit/test_dialogue_npc_conversations.gd` | every NPC's generated conversation validates and opens; Sam → Mai full flow with Events; decline; full inventory at Mai; Roger's Apple conversation (offer card, instructions after Yes, decline); every quest's offer is canonical NPC speech or (1002 only) a quest card, Sam's offer carries no system text; synthetic card offers (4-line journal: two instruction pages; 2-line: none; no journal: the quest name; canonical accept/decline branches kept); Rain 1013 wrong/right and 1018; Heena/Sera chain with a lost mirror; 1005 item ref remap; Pio's live 1012 counters; a synthetic quiz + selection quest completed from data alone; shop greeting → shop request; townsfolk Back; Shanks |
 | `tests/unit/test_npc_catalog.gd` | 21 NPCs, validation, Roger, shops, quest relationships equal the quest records, Shanks override, NPCs per map, idle lines |
 
 Data validation for this system is `QuestCatalog.new(db).validate()`, `NpcCatalog.new(db).validate()` and

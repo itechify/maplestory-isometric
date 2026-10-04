@@ -152,8 +152,9 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	var d: Variant = drag_source.call(self)
 	if d == null:
 		return null
-	# The drag crosses the world on its way to a quickslot or another window with the left (attack) button held.
-	MisoUiEnv.release_attack_action()
+	# The drag may cross the world with the left (attack) button held. That never swings: the press was consumed here,
+	# and PlayerCombat counts only unconsumed presses outside a GUI drag (MouseAttackGate). The attack action is left
+	# alone, so an attack key held meanwhile (J) keeps repeating.
 	var preview := MisoItemIcon.new()
 	preview.size = Vector2(40, 40)
 	preview.item_id = item_id

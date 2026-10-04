@@ -555,7 +555,8 @@ class World:
                                      hidden=hidden, bridge_b=bridge,
                                      avoid=[LY.footprint_world(parent, self.origins),
                                             LY.footprint_world(child, self.origins)] + self._trail_neighbours(
-                                                parent, child, a, b), ledge=ledge)
+                                                parent, child, a, b), ledge=ledge,
+                                     route=LY.trail_route_world((parent, pa, child, ca), self.origins))
             objs += o
             info["ids"] = (parent, child)
             info["link"] = (parent, pa, child, ca)
@@ -623,12 +624,36 @@ class World:
                    "measured": meas, "reverse_blocked_at_face": bool(blocked),
                    "reverse_issues_off_face": off_face[:10]}
             entry["ledge"] = led
+        entry["ring_clearance"] = self._ring_clearance(TR, info)
         ob = info.get("obj")
         if ob is not None:
             ob["trail_link"] = json.dumps(entry["link"])
             ob["trail_one_way"] = bool(ledge)
             ob["trail_parts"] = json.dumps(info.get("parts", []))
             ob["trail_ledge"] = json.dumps(led) if led else ""
+
+    def _ring_clearance(self, TR, info):
+        """How close the runtime's containment rings come to this trail's centreline (trails.ring_clearance), with the
+        ring and gate numbers of the game's adaptation tables (layout.containment_params). validate.py's
+        trail_ring_band grades it: a ring wall on the centreline stalls a walk; one on the ribbon's edge narrows it."""
+        import os
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        cp = LY.containment_params(root)
+        half = info["width"] / 2
+        gap_half = min(cp["gate_half_width_m"], half + cp["side_wall_offset_m"])
+        ids = LY.exterior_ids()
+        rc = TR.ring_clearance(info, {m: LY.footprint_world(m, self.origins) for m in ids},
+                               {m: LY.footprint_world(m, self.origins, margin=cp["ring_offset_m"]) for m in ids},
+                               cp["ring_offset_m"], cp["wall_thickness_m"], gap_half)
+        maps = [{"map": m, **v} for m, v in sorted(rc["maps"].items(),
+                                                   key=lambda kv: kv[1].get("wall_to_centre_m", 1e9))]
+        away = [r["wall_to_centre_m"] for r in maps if "wall_to_centre_m" in r]
+        jamb = [r["jamb_to_centre_m"] for r in maps if "jamb_to_centre_m" in r]
+        return {"half_width_m": round(half, 3), "gap_half_width_m": round(gap_half, 3),
+                "ring_offset_m": cp["ring_offset_m"], "wall_thickness_m": cp["wall_thickness_m"],
+                "min_wall_to_centre_m": min(away) if away else None,
+                "min_jamb_to_centre_m": min(jamb) if jamb else None,
+                "near_rings": maps, "centre_inside": rc["centre_inside"]}
 
     # -- mountains + forest + clouds
     def scenery(self, seed=3):

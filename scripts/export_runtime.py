@@ -477,15 +477,46 @@ def asset_extent(coll):
     return (min(zs), max(zs)) if zs else (0.0, 0.0)
 
 
+def overhead_hull(parts, max_pts=12):
+    """One prism over every part tagged collision_tags.OVERHEAD_HULL: (2D convex hull, z0, z1) from the parts' lowest
+    point to their top, or None. parts: [(mesh, matrix)] in one frame."""
+    pts, z0, z1 = [], math.inf, -math.inf
+    for me, mtx in parts:
+        co, _tri = mesh_arrays(me, mtx)
+        if not len(co):
+            continue
+        pts += co[:, :2].tolist()
+        z0, z1 = min(z0, float(co[:, 2].min())), max(z1, float(co[:, 2].max()))
+    h = hull2d(pts) if pts else []
+    return (simplify_hull(h, max_pts), z0, z1) if len(h) >= 3 else None
+
+
 def asset_hulls(ctx, coll, rule):
+    """An asset's collision prisms in its own frame: the body-band slice of its parts (band_hulls), extruded from
+    HULL_SINK below the base to min(top, BLOCK_TOP), plus one overhead prism over its OVERHEAD_HULL parts (a cap that
+    overhangs the walls above a walking body: collision_tags), which the body slice ignores. hull_z gives each
+    hull's own (z0, z1)."""
     key = (coll.name, rule["band"])
     if key not in ctx.asset_hull_cache:
         zmin, zmax = asset_extent(coll)
         off = Matrix.Translation(-coll.instance_offset)
-        parts = [(s.data, off @ s.matrix_world) for s in coll.all_objects if s.type == "MESH" and not s.hide_render]
+        meshes = [s for s in coll.all_objects if s.type == "MESH" and not s.hide_render]
+        parts = [(s.data, off @ s.matrix_world) for s in meshes if CT.of(s) != CT.OVERHEAD_HULL]
         hulls = band_hulls(parts, rule["band"][0], rule["band"][1], rule["min_area"])
-        ctx.asset_hull_cache[key] = {"hulls": hulls, "z0": -HULL_SINK, "z1": min(zmax, BLOCK_TOP), "top": zmax}
+        z0, z1 = -HULL_SINK, min(zmax, BLOCK_TOP)
+        hull_z = [(z0, z1)] * len(hulls)
+        over = overhead_hull([(s.data, off @ s.matrix_world) for s in meshes if CT.of(s) == CT.OVERHEAD_HULL])
+        if over is not None:
+            hulls = hulls + [over[0]]
+            hull_z = hull_z + [(over[1], over[2])]
+        ctx.asset_hull_cache[key] = {"hulls": hulls, "z0": z0, "z1": z1, "top": zmax, "hull_z": hull_z,
+                                     "overhead": over is not None}
     return ctx.asset_hull_cache[key]
+
+
+def hull_ranges(it):
+    """(z0, z1) of each of a hull item's prisms, in the item's own frame (most share the item's z0 / z1)."""
+    return it.get("hull_z") or [(it["z0"], it["z1"])] * len(it["hulls"])
 
 
 def merge_arrays(parts, owners=None):
@@ -523,6 +554,13 @@ def analyse_chunk(ctx, ch):
             c, src = classify_mesh(o, grp, kind, legacy_names=ctx.args.legacy_names)
             classes.append((o, c))
             class_source[o.name] = src
+            if c == CT.OVERHEAD_HULL:
+                over = overhead_hull([(o.data, o.matrix_world)])
+                if over is not None:
+                    hull_items.append({"name": o.name, "asset": None, "hulls": [over[0]], "z0": over[1], "z1": over[2],
+                                       "matrix": Matrix.Identity(4), "kind": "mesh",
+                                       "parts": [(o.data, o.matrix_world.copy())]})
+                continue
             if c in ("hull", "veg_hull"):
                 zs = [(o.matrix_world @ Vector(b)).z for b in o.bound_box]
                 zmin, zmax = min(zs), max(zs)
@@ -557,12 +595,12 @@ def analyse_chunk(ctx, ch):
             continue
         stats["instances_colliding"] += 1
         hull_items.append({"name": o.name, "asset": coll.name, "hulls": ah["hulls"], "z0": ah["z0"], "z1": ah["z1"],
-                           "matrix": o.matrix_world.copy(), "kind": rule["kind"],
+                           "hull_z": ah["hull_z"], "matrix": o.matrix_world.copy(), "kind": rule["kind"],
                            "parts": [(sp.data, o.matrix_world @ rel) for sp, rel in source_parts(o)]})
     for it in hull_items:  # world-space prisms: (xy polygon, z0, z1)
         it["world"] = []
-        for h in it["hulls"]:
-            pts = [it["matrix"] @ Vector((x, y, z)) for x, y in h for z in (it["z0"], it["z1"])]
+        for h, (z0, z1) in zip(it["hulls"], hull_ranges(it)):
+            pts = [it["matrix"] @ Vector((x, y, z)) for x, y in h for z in (z0, z1)]
             zs = [p.z for p in pts]
             it["world"].append(([(p.x, p.y) for p in pts[::2]], min(zs), max(zs)))
     ground_objs = [o for o, c in classes if c == "ground"]
@@ -1784,8 +1822,8 @@ def build_collision_objects(an, coll, name):
     n = 0
     for it in an["hull_items"]:
         mw = it["matrix"]
-        for k, h in enumerate(it["hulls"]):
-            pts = [mw @ Vector((x, y, z)) for x, y in h for z in (it["z0"], it["z1"])]
+        for k, (h, (z0, z1)) in enumerate(zip(it["hulls"], hull_ranges(it))):
+            pts = [mw @ Vector((x, y, z)) for x, y in h for z in (z0, z1)]
             bm = bmesh.new()
             for p in pts:
                 bm.verts.new(p)
@@ -1809,14 +1847,15 @@ def collision_json(an, ctx):
     """Prop collision as data: a shape library (asset-local convex prisms, Godot axes) and per-instance xforms."""
     shapes, inst = {}, []
     for it in an["hull_items"]:
+        prisms = [[gpos((x, y, z)) for x, y in h for z in zr] for h, zr in zip(it["hulls"], hull_ranges(it))]
         if it["asset"]:
             key = it["asset"]
             if key not in shapes:
-                shapes[key] = [[gpos((x, y, z)) for x, y in h for z in (it["z0"], it["z1"])] for h in it["hulls"]]
+                shapes[key] = prisms
             inst.append({"shape": key, "kind": it["kind"], "xform": gxform(it["matrix"])})
         else:
             key = "mesh:" + it["name"]
-            shapes[key] = [[gpos((x, y, z)) for x, y in h for z in (it["z0"], it["z1"])] for h in it["hulls"]]
+            shapes[key] = prisms
             inst.append({"shape": key, "kind": it["kind"], "xform": gxform(Matrix.Identity(4))})
     return {"prop_shapes": shapes, "prop_instances": inst}
 

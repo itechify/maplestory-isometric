@@ -30,6 +30,7 @@ misses a hop back out of the meadow.
 
 import math
 
+from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -65,8 +66,11 @@ def _house_yellow_brim(coll):
     """Yellow-capped mushroom house with a dark brim band and a round yellow mushroom dormer
     window (houseGS/house7 + door/grassySoil/window/16), wall lantern by the door."""
     stem_h, cap_r, cap_h = 3.0, 3.4, 2.6
-    mushroom_house_v2(coll, "X30000_HouseYellowBrim", "M_Grad_mush_yellow__flower_yellow", stem_r=1.8,
-                      stem_h=stem_h, cap_r=cap_r, cap_h=cap_h, chimney=None, collar=False)
+    _stem, cap = mushroom_house_v2(coll, "X30000_HouseYellowBrim", "M_Grad_mush_yellow__flower_yellow", stem_r=1.8,
+                                   stem_h=stem_h, cap_r=cap_r, cap_h=cap_h, chimney=None, collar=False)
+    # the cap (r 3.4, the dormer 3.9) overhangs the ~2 m walls and starts 2.35 m up (2.8 m at the island's 1.2 scale):
+    # cap and brim collide as one overhead prism (collision_tags.OVERHEAD_HULL) that leaves the space under them open
+    CT.tag(cap, CT.OVERHEAD_HULL)
     mb = MeshBuilder()
     mb.torus(cap_r - 0.12, 0.2, loc=(0, 0, stem_h - 0.3), mat="M_Wood_Dark", u=40, v=6)
     # dormer: little cream turret with a round window under a tiny yellow cap
@@ -81,7 +85,7 @@ def _house_yellow_brim(coll):
     mb.box((0.62, 0.08, 0.06), loc=(0.0, y - 0.82, dz - 0.35), mat="M_Wood_Dark")
     mb.dome(0.78, 0.5, loc=(0.0, y - 0.2, dz + 0.12), scale=(1.0, 1.1, 1.0), mat="M_Grad_mush_yellow__flower_yellow",
             u=18, v=4, lip=0.12, profile=0.8)
-    mb.build("X30000_HouseYellowBrim_Brim", coll, smooth=True, sharp_angle=60)
+    CT.tag(mb.build("X30000_HouseYellowBrim_Brim", coll, smooth=True, sharp_angle=60), CT.OVERHEAD_HULL)
 
 
 @asset("X30000_PaleStalks", "Foliage", footprint=1.8, tags=("mushroom", "landmark"))

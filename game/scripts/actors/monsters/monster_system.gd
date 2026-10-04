@@ -13,6 +13,8 @@ extends Node3D
 ##   Events.loot_dropped(drops, position, map_id) (the loot system puts them on the ground)
 ## and the monster's `died` signal lets MapInstanceView record the kill in MapInstanceState (respawn on the
 ## canonical 7.56 s tick, spawn_rate.json).
+## Every frame, update_see_through() gives the live monsters near the player their see-through silhouette
+## (MonsterVisual), so terrain that never fades cannot hide them.
 ##
 ## Collaborators are injectable (tests); null means the autoload: db (Data.db), game (Game), events (Events),
 ## session (MapSession). See docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md.
@@ -62,6 +64,10 @@ var _owns_library: bool = false
 
 func _ready() -> void:
 	_ensure_fx()
+
+
+func _process(_delta: float) -> void:
+	update_see_through()
 
 
 ## The shell's integration call (GameContext contract). Safe to call once the world is built or before.
@@ -251,6 +257,24 @@ func region_for(def: MapDefinition) -> MobRegion:
 	if not _regions.has(def.map_id):
 		_regions[def.map_id] = MobRegion.from_def(def, _tuning())
 	return _regions[def.map_id]
+
+
+## Turns each live monster's see-through silhouette on or off by its distance to the player (feet to feet;
+## MonsterVisual.see_through_wanted with the species' see_through_radius_m and see_through_hysteresis_m). Without a
+## player none shows. Called every frame from _process; returns how many monsters want it (tests, the sandbox).
+func update_see_through() -> int:
+	var has_player := player != null and is_instance_valid(player) and player.is_inside_tree()
+	var at := player.global_position if has_player else Vector3.ZERO
+	var on := 0
+	for m in live_monsters():
+		if m.visual == null or m.def == null or not m.is_inside_tree():
+			continue
+		var want := has_player and MonsterVisual.see_through_wanted(true, m.global_position.distance_to(at),
+			m.def.see_through_radius_m, m.def.see_through_hysteresis_m, m.visual.is_see_through())
+		m.visual.set_see_through(want)
+		if want:
+			on += 1
+	return on
 
 
 ## Kills every live monster through its own death path (EXP, events, drops). Returns how many.

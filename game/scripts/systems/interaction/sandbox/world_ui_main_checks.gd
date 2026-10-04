@@ -127,9 +127,17 @@ func _roger() -> void:
 	await _frames(3)
 	_check("Y accepts Roger's Apple", game.character.quests.status("1002") == QuestLog.IN_PROGRESS
 		and game.character.inventory.count("235") == 1)
-	_check("accept summary announced", _any_notice_since(n0, "Quest accepted"),
-		", ".join(_notices_since(n0)))
-	_check("modal released after the accept", not main.ctx().is_modal_active() and not ui.dialogue.is_open())
+	# 1002 has no canonical On accept text: Yes leads to the quest card with the canonical instructions (journal), which
+	# carries the accept summary as its banner (a notice only if the chat had ended right after the accept).
+	var accepted := ui.dialogue.shown_banner()
+	if accepted == "":
+		accepted = ", ".join(_notices_since(n0))
+	_check("accept summary shown with the instructions", accepted.contains("Quest accepted: Roger's Apple")
+		and ui.dialogue.is_open() and ui.dialogue.body_text().begins_with("Press the hotkey I"),
+		"%s | %s" % [accepted, ui.dialogue.body_text().left(60)])
+	await _press(KEY_ENTER)
+	await _frames(3)
+	_check("modal released after the instructions", not main.ctx().is_modal_active() and not ui.dialogue.is_open())
 	# The in-progress line ends with OK: Space (also the jump key) closes it and must not make the player jump.
 	await _settle()
 	await _press(KEY_F)

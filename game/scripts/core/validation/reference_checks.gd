@@ -9,8 +9,13 @@ extends RefCounted
 ##   2. EXPLICIT_RULES cover keys that are ambiguous ("id" inside maps.npcs[] is an NPC id) or that may leave the
 ##      dataset on purpose (a Victoria Island quest listed on a Maple Island map). An explicit rule for a path wins
 ##      over the sweep at that path.
-## Dialogue link objects ({"kind"|"type": "npc", "id": "2"}) are checked too, as warnings: a dangling link only
-## loses its hyperlink, it does not break play.
+## Dialogue link objects ({"kind"|"type": "npc", "id": "2"}) are checked too. A dangling link never breaks play (the
+## game follows no link: DialogueText marks it known: false and the window still emphasises it by kind), so it is never
+## an error. In a canonical record the link is MeowDB's raw href and MeowDB covers the whole game, so a link to an id
+## outside the dataset names off-island content and is skipped as out of scope (Todd's quest 1005 text names Grendel
+## the Really Old, npc 313). In an adaptation file the link was written by hand, so it is a warning. A malformed link
+## (unknown kind, no string id) is a warning everywhere. A quest's dialogue link is first corrected the way the game
+## corrects it (QUEST_DIALOGUE_ROOT).
 ## Then come the structural checks the sweep cannot express: portals (destination map and destination portal),
 ## drop tables (owner and file reference) and a few two-sided consistency checks (warnings).
 
@@ -67,6 +72,14 @@ const EXPLICIT_RULES := [
 const LINK_KINDS := {"npc": "npcs", "map": "maps", "item": "items", "monster": "monsters", "quest": "quests",
 	"shop": "shops"}
 
+## Quest-domain dialogue (quests/<id>.json "dialogue") keeps MeowDB's raw link ids, while the NPC domain stores a
+## corrected link as ref.id with the raw one in ref.meowdb_link_id (docs/canonical/npcs.md "Discrepancies": quest 1005
+## links "Jr. Sentinel Shellpiece" as item 2584, the NPC files correct it to 347). DialogueText._remap_for rewrites a
+## quest's links with the corrections in that quest's NPC quest_dialogue blocks, so the game links the corrected id,
+## and the validator checks that id. _link_remap mirrors DialogueText._remap_for: keep the two in step.
+const QUEST_DIALOGUE_ROOT := "dialogue"
+const LINK_CORRECTION_KEY := "meowdb_link_id"
+
 ## Owner kinds a drop table may belong to -> canonical domain.
 const DROP_OWNER_KINDS := {"monster": "monsters", "breakable": "breakables"}
 
@@ -81,6 +94,7 @@ var _quest_regions: Dictionary = {}  # region label -> true
 var _pending: Dictionary = {}  # dedup key -> {severity, domain, id, message, check, count}
 var _pending_order: Array[String] = []
 var _skipped: Dictionary = {}  # dedup of out-of-scope lines
+var _link_remaps: Dictionary = {}  # quest id -> {raw MeowDB link id -> corrected id}
 
 
 func _init(content: ContentDB, into: ValidationReport) -> void:
@@ -106,9 +120,10 @@ func run() -> void:
 
 ## Walks one record (canonical or adaptation) and resolves every typed key, explicit rule and dialogue link.
 ## `domain_label` and `id` name the record in findings; `excluded` lists extra root-relative paths to skip;
-## `use_rules` applies EXPLICIT_RULES for `domain_label` (canonical domains only).
+## `use_rules` marks a canonical record: it applies EXPLICIT_RULES for `domain_label`, and a dialogue link to an id
+## outside the dataset is skipped as out of scope instead of being a warning (MeowDB linking off-island content).
 func sweep(domain_label: String, id: String, record: Variant, excluded: Array = [], use_rules: bool = false) -> void:
-	var ctx := {"domain": domain_label, "id": id, "excluded": excluded, "use_rules": use_rules}
+	var ctx := {"domain": domain_label, "id": id, "excluded": excluded, "use_rules": use_rules, "canonical": use_rules}
 	_visit(ctx, record, "", {})
 
 
@@ -211,10 +226,55 @@ func _check_link(ctx: Dictionary, link: Dictionary, path: String) -> void:
 	if not (ref is String):
 		_note(ValidationReport.WARNING, "dialogue_link", ctx.domain, ctx.id, "%s link has no string id" % path)
 		return
-	if not db.has(target, ref):
-		_note(ValidationReport.WARNING, "dialogue_link", ctx.domain, ctx.id,
-			"dialogue links to %s '%s', which is not in the dataset (the text renders without the link); first at %s" % [
-				target, ref, path], "link|%s|%s" % [target, ref])
+	var linked: String = ref
+	if ctx.canonical and ctx.domain == "quests" and path.begins_with(QUEST_DIALOGUE_ROOT + "."):
+		linked = str(_link_remap(ctx.id).get(linked, linked))
+	if db.has(target, linked):
+		return
+	if ctx.canonical:
+		var why := "MeowDB link to content outside the dataset"
+		if linked != ref:
+			why = "MeowDB link %s, corrected by the quest's NPC dialogue, is outside the dataset" % ref
+		_skip("%s/%s: %s -> %s/%s (%s)" % [ctx.domain, ctx.id, path, target, linked, why],
+			"link|%s|%s|%s|%s" % [ctx.domain, ctx.id, target, linked])
+		return
+	_note(ValidationReport.WARNING, "dialogue_link", ctx.domain, ctx.id,
+		"dialogue links to %s '%s', which is not in the dataset (the game shows the text with the reference but has no record behind it); first at %s" % [
+			target, ref, path], "link|%s|%s" % [target, ref])
+
+
+## {raw MeowDB link id -> corrected id} for quest `quest_id`, from every ref with a meowdb_link_id inside the
+## quest_dialogue blocks (quest_id == `quest_id`) of every NPC. Mirrors DialogueText._remap_for, which the game uses;
+## it does not call it because the runtime caches the result per ContentDB instance in a static, which would go stale
+## across validator runs over one mutated copy (the test fixture). test_data_validation.gd compares the two.
+func _link_remap(quest_id: String) -> Dictionary:
+	if _link_remaps.has(quest_id):
+		return _link_remaps[quest_id]
+	var out := {}
+	for npc_id in db.ids("npcs"):
+		for block in ValidationUtil.as_array(db.npc(npc_id).get("quest_dialogue", [])):
+			if block is Dictionary and ValidationUtil.same(block.get("quest_id", null), quest_id):
+				_collect_link_corrections(block, out)
+	_link_remaps[quest_id] = out
+	return out
+
+
+static func _collect_link_corrections(node: Variant, out: Dictionary) -> void:
+	if node is Dictionary:
+		var ref: Variant = node.get("ref", null)
+		if ref is Dictionary and ref.has(LINK_CORRECTION_KEY):
+			# Ids read as DialogueText reads them (QuestJson.s): null -> "", anything else -> str().
+			out[_link_id(ref[LINK_CORRECTION_KEY])] = _link_id(ref.get("id", null))
+		for k in node:
+			if node[k] is Dictionary or node[k] is Array:
+				_collect_link_corrections(node[k], out)
+	elif node is Array:
+		for e in node:
+			_collect_link_corrections(e, out)
+
+
+static func _link_id(v: Variant) -> String:
+	return "" if v == null else str(v)
 
 
 func _out_of_scope(scope: String, owner: Dictionary) -> bool:
@@ -552,9 +612,11 @@ func _note(severity: String, check: String, domain_label: String, id: String, me
 	_pending_order.append(key)
 
 
-func _skip(line: String) -> void:
-	if _skipped.has(line):
+## Lists `line` as skipped (out of scope), once per `dedupe` key (default: the line itself).
+func _skip(line: String, dedupe: String = "") -> void:
+	var key := line if dedupe == "" else dedupe
+	if _skipped.has(key):
 		return
-	_skipped[line] = true
+	_skipped[key] = true
 	report.out_of_scope.append(line)
 

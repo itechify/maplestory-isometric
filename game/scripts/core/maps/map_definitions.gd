@@ -8,7 +8,8 @@ extends RefCounted
 ##   game/data/misostory/map_id_crosswalk.json   MeowDB id <-> GMS v8 id <-> Blender slug
 ##   game/assets/world/<slug>.json (optional)    WHERE: portal anchors, NPC markers, player start, spawn areas,
 ##                                               footprint, frame, bounds, gameplay camera
-##   game/data/misostory/portal_adaptations.json, presentation.json, maps/<id>.json   adaptation rules
+##   game/data/misostory/portal_adaptations.json, presentation.json, maps/<id>.json   adaptation rules (maps/<id>.json
+##                                               region_extensions grow a map's footprint: apply_region_extensions)
 ## build() is pure and works without the export (every transform stays identity, has_markers = false), so the graph
 ## and spawn-count checks run anywhere. ground_all(GroundQuery) then snaps every transform onto collision and plans
 ## the spawn slots; the world calls it with PhysicsGroundQuery once collision is loaded.
@@ -303,6 +304,56 @@ func trail_at_portal(map_id: String, portal_id: String) -> TrailDef:
 		if key in t.portal_keys:
 			return t
 	return null
+
+
+## Merges authored region extensions (data/misostory/maps/<id>.json `region_extensions`) into `def.footprint`, so a
+## walkable part of the map that the export builds outside its layout rectangle (Southperry's moored ship) belongs
+## to the map's region and lies inside its containment ring. Each entry:
+##   name                         label for logs
+##   ring_line_local              [[x, y], ...] in the map's local frame (the sidecar's footprint.local_frame, metres,
+##                                x and y as in the Blender map source; world = def.frame * Vector3(x, 0, -y)). It is
+##                                the region's edge itself, where the ring wall's inner face stands: it is NOT grown by
+##                                containment.ring_offset_m. It must overlap the footprint so the union is one polygon.
+##   keep_footprint_ring_below_y  optional world height: where the extension opens the layout's own ring line, that
+##                                wall still stands from the ring's foot up to this height (ContainmentBuilder), so
+##                                ground below the extension stays closed while a walkway crosses above it.
+##   reason, verified             the adaptation convention.
+## Appends to `def.region_extensions`; `def.footprint_base` keeps the footprint before the union. Returns the errors
+## (an entry without a reason, with fewer than 3 points, or that does not merge into one polygon is skipped). A map
+## without a footprint (no export geometry) has nothing to extend: nothing happens and nothing is reported.
+static func apply_region_extensions(def: MapDefinition, entries: Array) -> PackedStringArray:
+	var errs := PackedStringArray()
+	if def.footprint.size() < 3:
+		return errs
+	if def.footprint_base.is_empty():
+		def.footprint_base = def.footprint.duplicate()
+	for e in entries:
+		if not (e is Dictionary):
+			errs.append("%s: region_extensions entries must be objects" % def.map_id)
+			continue
+		var label := "%s region extension %s" % [def.map_id, String(e.get("name", "?"))]
+		if String(e.get("reason", "")) == "":
+			errs.append("%s has no reason" % label)
+			continue
+		var ring := PackedVector2Array()
+		var pts: Variant = e.get("ring_line_local", [])
+		if pts is Array:
+			for p in pts:
+				if p is Array and (p as Array).size() >= 2:
+					var w := def.frame * Vector3(float(p[0]), 0.0, -float(p[1]))
+					ring.append(Vector2(w.x, w.z))
+		if ring.size() < 3:
+			errs.append("%s needs a ring_line_local of at least 3 points" % label)
+			continue
+		var merged := Geometry2D.merge_polygons(def.footprint, ring)
+		if merged.size() != 1:
+			errs.append("%s does not merge with the footprint into one polygon (%d pieces): it must overlap it" % [label, merged.size()])
+			continue
+		def.footprint = merged[0]
+		var below: Variant = e.get("keep_footprint_ring_below_y", null)
+		def.region_extensions.append({"name": String(e.get("name", "")), "ring_line": ring,
+			"keep_ring_below_y": float(below) if (below is float or below is int) else NAN, "reason": String(e.reason)})
+	return errs
 
 
 ## The point where a portal's outward ray (from its anchor, along -inward) crosses `footprint` (the ring line,
@@ -658,6 +709,10 @@ func _apply_sidecar(def: MapDefinition, sc: Dictionary) -> void:
 	if def.footprint_layout.size() >= 3:
 		var grown := Geometry2D.offset_polygon(def.footprint_layout, tuning.num("containment", "ring_offset_m"), Geometry2D.JOIN_MITER)
 		def.footprint = grown[0] if not grown.is_empty() else def.footprint_layout
+	def.footprint_base = def.footprint.duplicate()
+	var ext: Variant = tuning.map_override(def.map_id).get("region_extensions", [])
+	if ext is Array and not (ext as Array).is_empty():
+		errors.append_array(apply_region_extensions(def, ext))
 	def.camera_bounds = def.footprint.duplicate()
 	var b: Dictionary = sc.get("bounds", {}) if sc.get("bounds", null) is Dictionary else {}
 	var bpos := WorldSidecars.vec3(b.get("position", null), Vector3(0, def.base_y, 0))

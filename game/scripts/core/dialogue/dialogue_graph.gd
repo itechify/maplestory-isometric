@@ -177,5 +177,7 @@ static func _check_line(errs: PackedStringArray, where: String, spec: Variant, d
 	if String(r["text"]).is_empty() and (r["segments"] as Array).is_empty():
 		errs.append("%s: line %s does not resolve" % [where, JSON.stringify(spec)])
 		return
+	for p in DialogueText.part_problems(spec, db):
+		errs.append("%s: %s" % [where, p])
 	for p in DialogueText.counter_problems(spec, r, db):
 		errs.append("%s: %s" % [where, p])

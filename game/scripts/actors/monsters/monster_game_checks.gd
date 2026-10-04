@@ -11,6 +11,10 @@ extends Node
 ##         gained is exactly the canonical EXP of the kills, every drop is from the monster's canonical table and
 ##         lands on the ground (LootSystem), every slot is dead, no debug spawn is reported to the view, and on the
 ##         respawn tick the slots (and only the slots) come back
+## see     the see-through silhouette as the shell runs it (MonsterSystem._process every frame): a Snail spawned next
+##         to the player gets it, fades in and its fills draw; every live monster inside see_through_radius_m has it,
+##         every one beyond radius + hysteresis has none and draws no fill; "kill nearest" drops it in the same frame
+##         and the system never turns the dying monster back on
 ## mouse   real mouse and key events (Input.parse_input_event): a click on a HUD button opens its window and never
 ##         swings, a click shorter than a frame neither; a click on the world swings once; J swings; a click shorter
 ##         than a frame on the pause menu's Resume (landing while the tree is paused) never swings, and one on the
@@ -56,6 +60,7 @@ func _run() -> void:
 	_check("new game reaches PLAYING", ok and main.flow.is_in(ShellFlow.State.PLAYING), main.last_error_message)
 	if main.flow.is_in(ShellFlow.State.PLAYING):
 		await _debug_commands()
+		await _see_through()
 		await _mouse()
 	_remove_tree(save_dir)
 	print("MONSTER_CHECKS_DONE %d %d" % [passed, failed])
@@ -173,6 +178,84 @@ static func _in_table(db: ContentDB, killed: Array, item: String) -> bool:
 			if String((e as Dictionary).get("item_id", "")) == item:
 				return true
 	return false
+
+
+# --- the see-through silhouette ----------------------------------------------------------------------------------
+
+## Monsters keep walking between the system's update and these reads (~1 m/s, one frame apart), so a monster this
+## close to a threshold is left out of the radius checks.
+const SEE_MARGIN_M := 0.3
+
+
+func _see_through() -> void:
+	var dbg := get_node("/root/Debug")
+	var ms := _monster_system()
+	var p := main.game_session.player as Node3D
+	if ms == null or p == null:
+		return
+	var before: Array[Monster] = ms.live_monsters()
+	var out := String(dbg.call("run", "spawn 2 1"))
+	_check("spawn 2 1 (a Snail next to the player)", out.begins_with("spawned 1 x Snail (2) in " + MAP), out)
+	var snail: Monster = null
+	for m in ms.live_monsters():
+		if not (m in before) and m.is_debug_spawn():
+			snail = m
+	if snail == null:
+		_check("the spawned Snail is live", false)
+		return
+	var radius := snail.def.see_through_radius_m
+	var keep := radius + snail.def.see_through_hysteresis_m
+	# No call from here: the shell's own frames run MonsterSystem.update_see_through and MonsterVisual's fade.
+	await _until(func() -> bool: return snail.visual.see_through_amount >= 1.0, 120)
+	var d := snail.global_position.distance_to(p.global_position)
+	_check("the system gave the Snail next to the player its silhouette", snail.visual.is_see_through() and d < radius,
+		"%.1f m, on=%s" % [d, snail.visual.is_see_through()])
+	var fills := snail.visual.see_through_fills()
+	_check("it faded in and its fills draw", snail.visual.see_through_amount >= 1.0 and not fills.is_empty()
+		and fills.all(func(f: MeshInstance3D) -> bool: return f.visible),
+		"amount %.2f, %d fills" % [snail.visual.see_through_amount, fills.size()])
+	# Every live monster follows the radius (and a far one draws no fill once its fade is over).
+	await _frames(int(ceil(snail.def.see_through_fade_s * 60.0)) + 2)
+	var near := 0
+	var far := 0
+	var wrong: PackedStringArray = []
+	for m in ms.live_monsters():
+		var dm := m.global_position.distance_to(p.global_position)
+		var on := m.visual.is_see_through()
+		var drawn := m.visual.see_through_fills().any(func(f: MeshInstance3D) -> bool: return f.visible)
+		if dm < radius - SEE_MARGIN_M:
+			near += 1
+			if not on:
+				wrong.append("%s at %.1f m is off" % [m.name, dm])
+		elif dm > keep + SEE_MARGIN_M:
+			far += 1
+			if on or drawn:
+				wrong.append("%s at %.1f m is on (drawn %s)" % [m.name, dm, drawn])
+	_check("inside %.0f m every monster has it, beyond %.0f m none draws one" % [radius, keep],
+		wrong.is_empty() and near >= 1 and far >= 1, "%d near, %d far: %s" % [near, far, ", ".join(wrong)])
+	_info("see-through: %d of %d live monsters within %.0f m, %d beyond %.0f m" % [near, ms.live_monsters().size(), radius, far, keep])
+	# The console's kill: the nearest monster dies through its own death path and loses the silhouette at once.
+	var live := ms.live_monsters()
+	var target: Monster = null
+	for m in live:
+		if target == null or m.global_position.distance_squared_to(p.global_position) < target.global_position.distance_squared_to(p.global_position):
+			target = m
+	var had := target != null and target.visual.is_see_through()
+	out = String(dbg.call("run", "kill nearest"))
+	var dead: Array[Monster] = []
+	for m in live:
+		if is_instance_valid(m) and not m.is_alive():
+			dead.append(m)
+	var gone := dead.size() == 1 and dead[0] == target
+	_check("kill nearest drops the silhouette in the same frame", gone and had and not target.visual.is_see_through()
+		and target.visual.see_through_amount == 0.0
+		and target.visual.see_through_fills().all(func(f: MeshInstance3D) -> bool: return not f.visible),
+		"%s; %d dead, had %s" % [out, dead.size(), had])
+	await _frames(5)
+	_check("and the system never turns the dying monster back on", gone and is_instance_valid(target)
+		and not target.visual.is_see_through() and target.visual.see_through_fills().all(func(f: MeshInstance3D) -> bool: return not f.visible))
+	if is_instance_valid(snail) and snail.is_alive():
+		snail.debug_kill()
 
 
 # --- mouse and keys ----------------------------------------------------------------------------------------------

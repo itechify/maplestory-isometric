@@ -11,14 +11,14 @@ extends RefCounted
 ##   check     a short slug naming the rule that fired ("reference", "portal", "provenance", ...); tests key on it
 ##
 ## References that point outside the shipped dataset on purpose (Victoria Island quests listed on a Maple Island map,
-## a monster's off-island spawn maps, Shanks' boat to Lith Harbor) are not findings; they are counted in
-## out_of_scope so the report can say how many were skipped and why.
+## a monster's off-island spawn maps, Shanks' boat to Lith Harbor, a canonical dialogue link naming an off-island NPC)
+## are not findings; they are counted in out_of_scope so the report can say how many were skipped and why.
 
 const ERROR := "error"
 const WARNING := "warning"
 
 var findings: Array[Dictionary] = []
-## "<domain>/<id>: <field> -> <target>/<ref>" for every reference skipped as deliberately out of scope.
+## "<domain>/<id>: <field> -> <target>/<ref> (<why>)" for every reference skipped as deliberately out of scope.
 var out_of_scope: PackedStringArray = []
 ## Free-form counters filled by the validator (records checked, references resolved, ...).
 var stats: Dictionary = {}

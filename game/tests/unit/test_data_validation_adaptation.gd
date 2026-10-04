@@ -94,6 +94,25 @@ func test_domain_folder_basename_must_be_a_canonical_id() -> void:
 	expect_new(r, "error", "adaptation", "misostory/quests", quest_id, "quest_id \"%s-other\" differs from the file basename" % BOGUS)
 
 
+func test_shared_table_in_a_domain_folder_is_not_an_entity_file() -> void:
+	# misostory/<domain>/_<name>.json (AdaptationChecks.SHARED_TABLE_PREFIX) holds values the folder's entity files
+	# share, so its basename is not matched against canonical ids; every other adaptation check still applies.
+	var c := clone_db()
+	var domain_name := "monsters"
+	_with_file(c, "_zz_test_shared", adapted({"id": "not-a-%s-id" % domain_name, "probe_m": 0.5}), domain_name)
+	_with_file(c, "_zz_test_unexplained", {"probe_m": 0.5, "drop": {"item_id": BOGUS}}, domain_name)
+	var r := run_validator(c)
+	var label := "misostory/" + domain_name
+	assert_true(AdaptationChecks.is_shared_table("_zz_test_shared"), "a leading underscore marks a shared table")
+	assert_eq(r.matching("adaptation", label, "_zz_test_shared").size(), 0, "a shared table is not matched against canonical ids")
+	expect_new(r, "error", "adaptation", label, "_zz_test_unexplained", "without a reason: drop.item_id, probe_m")
+	expect_new(r, "error", "adaptation", label, "_zz_test_unexplained", "without a verified flag")
+	expect_new(r, "error", "reference", label, "_zz_test_unexplained", "drop.item_id references items '%s'" % BOGUS)
+	assert_eq(r.matching("adaptation", label, "_zz_test_unexplained").filter(
+		func(f: Dictionary) -> bool: return "not in canonical data" in f.message or "differs from the file basename" in f.message).size(),
+		0, "no entity-file check on a shared table")
+
+
 func test_external_list_in_adaptation_file() -> void:
 	var c := _with_file(clone_db(), "zz_test_external", adapted({"external": [{"field": "x"}]}))
 	expect_new(run_validator(c), "error", "external", "misostory", "zz_test_external", "needs a source_url")

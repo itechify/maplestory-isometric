@@ -13,11 +13,15 @@ extends RefCounted
 ##   {"npc": "3", "field": "dialogue" | "idle_chatter", "line": 1}              an NPC's own lines
 ##   {"system": "inventory_full"}                                                MisoStory system line
 ##                                                                                (data/misostory/dialogue/_system.json)
+##   {"parts": [LineSpec, ...]}                                                  several lines shown as one page,
+##                                                                                one paragraph each (a quest card:
+##                                                                                journal summary + system prompt)
 ##   {"text": "...", "segments": [...]?, "source": "..."}                         literal text (adaptations; must name
 ##                                                                                its source)
 ## Any spec may add "counters": [{"segment", "item_id"}]: those segments show the live inventory count (see
 ## apply_counters; the runner applies them, because resolve() has no character).
-## resolve() returns {"text", "segments", "source"}; text is "" when the spec does not resolve.
+## resolve() returns {"text", "segments", "source"}; text is "" when the spec does not resolve. A "parts" line joins
+## its parts' sources with " + " and skips parts that do not resolve (part_problems() reports them).
 ##
 ## UI segment: {"text": String, "bold": bool, "color": "" | "red", "ref": {"kind", "id", "known"}?,
 ##              "icon": {"kind": "item", "id", "icon_key"}?}
@@ -31,10 +35,16 @@ static var _icon_cache: Dictionary = {}
 static var _remap_cache: Dictionary = {}
 
 
+## Paragraph break between the parts of a "parts" line.
+const PART_BREAK := "\n\n"
+
+
 ## Resolves a line spec against the content. See the class comment for the spec forms.
 static func resolve(spec: Dictionary, db: ContentDB) -> Dictionary:
 	if spec.has("text"):
 		return _literal(spec)
+	if spec.has("parts"):
+		return _parts(spec, db)
 	if db == null:
 		# Every other spec points into the content; without it nothing resolves (and nothing crashes).
 		return _empty()
@@ -149,6 +159,34 @@ static func counter_problems(spec: Dictionary, resolved: Dictionary, db: Content
 	return errs
 
 
+## Problems with the parts of a "parts" line spec: not a list, empty, a part that does not resolve (a composite line
+## would otherwise still show the parts that do, hiding the broken one), or a part with its own "counters" (never
+## applied: they belong on the parts line). Empty = valid, or not a "parts" spec.
+static func part_problems(spec: Dictionary, db: ContentDB) -> PackedStringArray:
+	var errs := PackedStringArray()
+	if not spec.has("parts"):
+		return errs
+	if not (spec.get("parts") is Array) or (spec.get("parts") as Array).is_empty():
+		errs.append("parts must be a non-empty list of line specs")
+		return errs
+	var parts: Array = spec.get("parts")
+	for i in parts.size():
+		var part: Variant = parts[i]
+		if not (part is Dictionary) or (part as Dictionary).is_empty():
+			errs.append("part %d is not a line spec" % i)
+			continue
+		if (part as Dictionary).has("counters"):
+			# The runner applies only the line's own counters (DialogueRunner._resolve), so a part's would be dropped.
+			errs.append("part %d: counters on a part are not applied; put them on the parts line" % i)
+		var r := resolve(part, db)
+		if String(r["text"]).is_empty() and (r["segments"] as Array).is_empty():
+			errs.append("part %d %s does not resolve" % [i, JSON.stringify(part)])
+		else:
+			for p in part_problems(part, db):
+				errs.append("part %d: %s" % [i, p])
+	return errs
+
+
 ## Plain text of a segment list.
 static func plain(segments: Array) -> String:
 	var parts := PackedStringArray()
@@ -216,6 +254,27 @@ static func _resolve_quest(spec: Dictionary, db: ContentDB) -> Dictionary:
 	var out := normalize_line(lines[idx], remap, db)
 	out["source"] = path + "%s.lines[%d]" % [where, idx]
 	return out
+
+
+## A "parts" line: each part resolved, one paragraph each (PART_BREAK between them); parts that do not resolve are
+## skipped. Counters of the whole spec index the joined segments (the runner applies them after this).
+static func _parts(spec: Dictionary, db: ContentDB) -> Dictionary:
+	var texts := PackedStringArray()
+	var segs: Array = []
+	var sources := PackedStringArray()
+	for part: Variant in QuestJson.arr(spec.get("parts")):
+		if not (part is Dictionary):
+			continue
+		var r := resolve(part, db)
+		if String(r["text"]).is_empty() and (r["segments"] as Array).is_empty():
+			continue
+		if not segs.is_empty():
+			segs.append(segment(PART_BREAK))
+		segs.append_array(r["segments"])
+		texts.append(String(r["text"]) if not String(r["text"]).is_empty() else plain(r["segments"]))
+		if not String(r["source"]).is_empty():
+			sources.append(String(r["source"]))
+	return {"text": PART_BREAK.join(texts), "segments": segs, "source": " + ".join(sources)}
 
 
 static func _literal(d: Dictionary) -> Dictionary:

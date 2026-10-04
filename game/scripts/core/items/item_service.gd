@@ -10,7 +10,9 @@ extends RefCounted
 ##   items.gain_mesos(12) / items.spend_mesos(50)
 ##
 ## `bus` is any Object with the Events signals (the Events autoload in the game, a fresh events.gd instance in tests,
-## or null to stay silent). The service never looks the bus up itself, so scripts/core stays free of the scene tree.
+## or null to stay silent). The service never looks the bus up itself. The one autoload it may consult is Game, and only
+## in use_item, to ask whether the live character is dead (Consumables.default_dead_check); set `dead_check` to keep
+## it off the scene tree entirely.
 ##
 ## Signals emitted (all from scripts/autoload/events.gd):
 ##   item_gained(item_id, quantity)   after items enter the inventory (quantity actually added)
@@ -26,6 +28,10 @@ extends RefCounted
 var character: CharacterState
 var db: ContentDB
 var bus: Object
+## Injection seam for use_item's "is the player dead?" (see Consumables.is_dead): a zero-argument Callable returning
+## true while dead. Invalid (the default) = Consumables.default_dead_check: the Game autoload's is_character_dead()
+## when `character` is Game.character, else the canonical HP trigger alone.
+var dead_check: Callable = Callable()
 
 
 func _init(c: CharacterState, content: ContentDB, events_bus: Object = null) -> void:
@@ -168,11 +174,12 @@ func pickup(drop: Dictionary) -> Dictionary:
 
 # --- consumables ----------------------------------------------------------------------------------------------
 
-## Uses one consumable (see Consumables.use for the result and codes).
+## Uses one consumable (see Consumables.use for the result and codes; `dead` follows dead_check). A refused use
+## changes and emits nothing.
 func use_item(item_id: String) -> Dictionary:
 	var hp_before := character.hp
 	var mp_before := character.mp
-	var res := Consumables.use(character, item_id, db)
+	var res := Consumables.use(character, item_id, db, dead_check)
 	if not res.ok:
 		return res
 	_emit(&"item_used", [item_id])

@@ -208,9 +208,9 @@ func _on_title_input(event: InputEvent) -> void:
 			_dragging = true
 			_drag_offset = mb.global_position - global_position
 			focus_window()
-			# Clamped at a screen edge, the pointer can leave the window (and, windowed, the game) while the button is
-			# still held; the left button is also an attack binding.
-			MisoUiEnv.release_attack_action()
+			# Clamped at a screen edge, the pointer can leave the window over the world with the left (attack) button
+			# held. That never swings: this press is consumed, and PlayerCombat counts only unconsumed presses
+			# (MouseAttackGate); an attack key held meanwhile (J) keeps repeating.
 		else:
 			_dragging = false
 		_title_bar.accept_event()

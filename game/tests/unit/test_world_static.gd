@@ -9,7 +9,8 @@ extends TestCase
 ## (a slot with a capsule as tall as its species), inside its own map, outside every other trigger and every spawn
 ## keep-out; collision layers are assigned; the containment rings are closed except at the gate gaps of edge-mode
 ## trails, the plugs close those gaps in warp mode, and the trail ribbons, gates, zones and side walls agree with the
-## export (milestone M2: see _check_trails).
+## export (milestone M2: see _check_trails); no containment wall stands on an authored route, and region extensions
+## join their map's ring (Southperry's ship, with the layout ring kept below the gangway).
 
 
 ## Trails that pass closer to another map's ring line than their half-width + side_wall_offset_m (that ring's wall
@@ -135,6 +136,11 @@ func _check(world: IslandWorld) -> void:
 	_check_rings(world)
 	world.defs.graph.set_link_mode("all", PortalDef.LINK_EDGE)
 	_check_rings(world)
+	_check_region_extensions(world)
+	# Routes with every trail mouth plugged (warp mode: the most containment there is), then the configured modes.
+	world.defs.graph.set_link_mode("all", PortalDef.LINK_WARP)
+	_check_routes_clear_of_containment(world)
+	world.defs.apply_configured_link_modes()
 
 
 ## Every ring is closed except where an edge-mode trail's gate crosses it: points along each ring line (inside the
@@ -160,7 +166,7 @@ func _check_rings(world: IslandWorld) -> void:
 			if String(gap.map_id) == id:
 				var g := d.trail(String(gap.link_id)).gate_into(id)
 				gaps.append({"point": Vector2(g.origin.x, g.origin.z), "half": float(gap.half_width), "edge": d.graph.is_edge(g.link_id)})
-		var centroid := ContainmentBuilder._centroid(def.footprint)
+		var side := ContainmentBuilder.outward_side(def.footprint)
 		var y := ((def.y_min - below) + (def.y_max + above)) * 0.5
 		var holes := 0
 		var first_hole := ""
@@ -168,9 +174,7 @@ func _check_rings(world: IslandWorld) -> void:
 			var a := def.footprint[i]
 			var b := def.footprint[(i + 1) % def.footprint.size()]
 			var dir := (b - a).normalized()
-			var normal := Vector2(dir.y, -dir.x)
-			if normal.dot((a + b) * 0.5 - centroid) < 0.0:
-				normal = -normal
+			var normal := ContainmentBuilder.edge_outward(def.footprint, i, side)
 			var length := a.distance_to(b)
 			var s := 0.1
 			while s < length - 0.1:
@@ -198,6 +202,103 @@ func _check_rings(world: IslandWorld) -> void:
 				s += 0.25
 		assert_eq(holes, 0, "%s ring has %d open samples outside the gate gaps (or a warp-mode plug is off)%s; gaps %s" % [id, holes, first_hole, str(gaps)])
 	assert_eq(open_found, open_expected, "every gate gap of an edge-mode link is open (%d of %d samples)" % [open_found, open_expected])
+
+
+## No containment wall stands on an authored route: a body-sized capsule (grounding capsule radius, from the player's
+## step band (movement.json step_up_m) to the capsule height above each route point) touches no containment
+## collision, with every trail mouth plugged. Before Southperry's region extension the 000000060 ring wall stood
+## across the gangplank (Main, ShipDecks, ShipForecastle and ClimbMast run onto the ship, outside the layout).
+func _check_routes_clear_of_containment(world: IslandWorld) -> void:
+	var d := world.defs
+	var space := world.get_world_3d().direct_space_state
+	var radius := d.tuning.num("grounding", "capsule_radius_m")
+	var height := d.tuning.num("grounding", "capsule_height_m")
+	var step := 0.45
+	var mv: Variant = db().miso_table("movement")
+	if mv is Dictionary and (mv as Dictionary).has("step_up_m"):
+		step = float(mv.step_up_m)
+	var capsule := CapsuleShape3D.new()
+	capsule.radius = radius
+	capsule.height = maxf(height - step, radius * 2.0)
+	var q := PhysicsShapeQueryParameters3D.new()
+	q.shape = capsule
+	q.collision_mask = WorldLayers.CONTAINMENT
+	var points := 0
+	var blocked := 0
+	var first := ""
+	for id in d.ids():
+		for r in d.get_def(id).sidecar.get("routes", []):
+			if not (r is Dictionary):
+				continue
+			for pt in r.get("points", []):
+				var p := WorldSidecars.vec3(pt)
+				q.transform = Transform3D(Basis.IDENTITY, p + Vector3.UP * (step + capsule.height * 0.5))
+				points += 1
+				var hits := space.intersect_shape(q, 1)
+				if not hits.is_empty():
+					blocked += 1
+					if first == "":
+						first = " (first: %s/%s at %s, %s)" % [id, String(r.get("name", "?")), p, (hits[0].collider as Node).name]
+	assert_true(points > 1000, "route points probed: %d" % points)
+	assert_eq(blocked, 0, "%d route points have a containment wall within the body%s" % [blocked, first])
+
+
+## Region extensions (maps/<id>.json region_extensions): the extension's ring line is part of the map's ring (its
+## points outside the layout ring lie on the merged footprint's boundary), and where keep_footprint_ring_below_y is
+## set the layout's own ring line under the extension still has its wall below that height and none above it.
+func _check_region_extensions(world: IslandWorld) -> void:
+	var d := world.defs
+	var space := world.get_world_3d().direct_space_state
+	var thickness := d.tuning.num("containment", "wall_thickness_m")
+	var below := d.tuning.num("containment", "margin_below_m")
+	var q := PhysicsPointQueryParameters3D.new()
+	q.collision_mask = WorldLayers.CONTAINMENT
+	var extended := 0
+	for id in d.ids():
+		var def := d.get_def(id)
+		for ext: Dictionary in def.region_extensions:
+			extended += 1
+			var ring: PackedVector2Array = ext.ring_line
+			for v in ring:
+				if Geometry2D.is_point_in_polygon(v, def.footprint_base):
+					continue
+				var on := INF
+				for k in def.footprint.size():
+					var cp := Geometry2D.get_closest_point_to_segment(v, def.footprint[k], def.footprint[(k + 1) % def.footprint.size()])
+					on = minf(on, cp.distance_to(v))
+				assert_true(on < 0.01, "%s extension %s: ring vertex %s is %.3f m off the map's ring line" % [id, String(ext.name), v, on])
+			var top := float(ext.keep_ring_below_y)
+			if is_nan(top):
+				continue
+			var y0 := def.y_min - below
+			var base := def.footprint_base
+			var side := ContainmentBuilder.outward_side(base)
+			var low_hits := 0
+			var high_hits := 0
+			var samples := 0
+			for i in base.size():
+				var normal := ContainmentBuilder.edge_outward(base, i, side)
+				var a := base[i]
+				var b := base[(i + 1) % base.size()]
+				for seg: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([a, b]), ring):
+					var s0 := seg[0]
+					var s1 := seg[seg.size() - 1]
+					var length := s0.distance_to(s1)
+					var t := 0.3
+					while t < length - 0.3:
+						var p := s0.lerp(s1, t / length) + normal * thickness * 0.5
+						samples += 1
+						q.position = Vector3(p.x, (y0 + top) * 0.5, p.y)
+						if not space.intersect_point(q, 1).is_empty():
+							low_hits += 1
+						q.position = Vector3(p.x, top + 1.0, p.y)
+						if not space.intersect_point(q, 1).is_empty():
+							high_hits += 1
+						t += 0.25
+			assert_true(samples > 10, "%s extension %s opens the layout ring (%d samples)" % [id, String(ext.name), samples])
+			assert_eq(low_hits, samples, "%s extension %s: the layout ring keeps its wall below %.1f m (%d of %d)" % [id, String(ext.name), top, low_hits, samples])
+			assert_eq(high_hits, 0, "%s extension %s: the layout ring is open above %.1f m (%d of %d closed)" % [id, String(ext.name), top, high_hits, samples])
+	assert_true(extended >= 1, "Southperry's ship extension is loaded")
 
 
 ## Milestone M2 trails (MAP_ARCHITECTURE sections 4.3, 4.4, 4.6): every trail link has a ribbon and two gates; each

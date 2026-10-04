@@ -1,6 +1,7 @@
 extends Node
-## UI sandbox: the HUD and the character windows over a procedural Maple-Island-ish backdrop, wired exactly as the
-## game shell wires them (a GameContext whose ui_root is a CanvasLayer, then setup(ctx)), with a populated character:
+## UI sandbox: the HUD and the character windows over a procedural Maple-Island-ish backdrop, wired as the game shell
+## wires them (a GameContext whose ui_root is a CanvasLayer; the windows get setup(ctx), the HUD what setup(ctx) does,
+## configure(MisoUiEnv.from_ctx(ctx)), with a private map session injected for the trail line), with a populated character:
 ## potions, food, etc items, equipment worn and carried, mesos, a few levels with unspent AP, quickslot bindings,
 ## Sam's Suggestion in progress and one quest completed.
 ##
@@ -9,15 +10,25 @@ extends Node
 ##
 ## The character is assigned to Game.character directly (Game.new_game is NOT called), so no save is ever written and
 ## autosave stays inactive. Keyboard: I / E / C / Q open the windows, 1-8 use quickslots, Esc closes the newest
-## window, F1 levels up (flourish), F2 shows a map banner, F4 adds a notice.
-## --shots <dir> saves hud.png, windows_a.png (inventory + equipment + tooltip) and windows_b.png (stats + quests),
-## then quits.
+## window, F1 levels up (flourish), F2 shows a map banner, F3 toggles the trail line (000000040 -> 000000041), F4 adds
+## a notice, F5 toggles a death (HP gauge at 0 until the "respawn").
+## --shots <dir> saves hud.png, windows_a.png (inventory + equipment + tooltip), windows_b.png (stats + quests) and
+## trail.png (the trail line, with the HUD of a death), then quits.
+##
+## The trail line comes from a private map_session.gd instance (not the MapSession autoload, which stays untouched).
+
+const TRAIL_FROM := "000000040"
+const TRAIL_TO := "000000041"
+const TRAIL_LINK := "T_000000040_east00__000000041_west00"
 
 var ctx: GameContext
 var ui_layer: CanvasLayer
 var hud: MisoHud
 var windows: MisoWindowsRoot
 var character: CharacterState
+## A private MapSession standing on TRAIL_FROM: drives the HUD's trail line.
+var session: Node
+var _dead := false
 
 
 func _ready() -> void:
@@ -36,9 +47,14 @@ func _ready() -> void:
 	ctx.ui_root = ui_layer
 
 	_populate()
+	session = load("res://scripts/autoload/map_session.gd").new()
+	session.current_map = TRAIL_FROM
 	hud = load("res://scenes/ui/hud.tscn").instantiate()
 	ui_layer.add_child(hud)
-	hud.setup(ctx)
+	# What setup(ctx) does, with the private session in place of the MapSession autoload.
+	var hud_env := MisoUiEnv.from_ctx(ctx)
+	hud_env.map_session = session
+	hud.configure(hud_env)
 	windows = load("res://scenes/ui/windows.tscn").instantiate()
 	ui_layer.add_child(windows)
 	windows.setup(ctx)
@@ -105,8 +121,37 @@ func _unhandled_input(event: InputEvent) -> void:
 			Game.gain_exp(Progression.exp_to_next(character.level, Data.db) - character.exp)
 		KEY_F2:
 			Events.map_entered.emit("000001000", "000000040")
+		KEY_F3:
+			_toggle_trail()
 		KEY_F4:
 			Events.notice.emit("This is a notice.")
+		KEY_F5:
+			_toggle_death()
+
+
+## The HUD (a descendant) has already left the tree and disconnected from the session.
+func _exit_tree() -> void:
+	if session != null:
+		session.free()
+		session = null
+
+
+## The player steps onto (or off) the trail from TRAIL_FROM to TRAIL_TO.
+func _toggle_trail() -> void:
+	if String(session.trail_destination) == "":
+		session.set_trail(TRAIL_LINK, TRAIL_TO)
+	else:
+		session.set_trail("", "")
+
+
+## A death (the HP gauge reads 0 while the character holds HP) and its respawn. Only the HUD hears these: the
+## events go to the HUD's handlers directly, so the Events autoload's other listeners (MapSession) stay out of it.
+func _toggle_death() -> void:
+	_dead = not _dead
+	if _dead:
+		hud._on_player_died(TRAIL_FROM)
+	else:
+		hud._on_player_respawned(TRAIL_FROM)
 
 
 func _shots(dir: String) -> void:
@@ -145,6 +190,12 @@ func _shots(dir: String) -> void:
 	windows.open_window("quests")
 	await _frames(6)
 	await _save(dir.path_join("windows_b.png"))
+
+	windows.close_all()
+	_toggle_trail()
+	_toggle_death()
+	await _wait(MisoMapBanner.FADE_IN_S + 0.2)
+	await _save(dir.path_join("trail.png"))
 	print("UI_SANDBOX_SHOTS ", dir)
 
 

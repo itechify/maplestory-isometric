@@ -34,7 +34,7 @@
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,301,401 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 3,352,201 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
@@ -42,7 +42,7 @@
   },
   "floating_props": {
    "ok": true,
-   "detail": "0 of 4069 instances (286 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
+   "detail": "0 of 4082 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
   },
   "props_near_routes": {
    "ok": true,
@@ -71,6 +71,10 @@
   "trail_walk": {
    "ok": true,
    "detail": "20/20 trails meet their expectation (19 two-way: ok both ways; 1 one-way: forward ok with its only drop at the ledge, reverse blocked at the face and nowhere else); failing: []"
+  },
+  "trail_ring_band": {
+   "ok": true,
+   "detail": "20/20 trails clear of every containment ring wall (ring at footprint + 1.0 m, 0.5 m thick); 5 narrowings listed as low; failing: []"
   },
   "one_way_ledge": {
    "ok": true,
@@ -173,11 +177,36 @@
    "check": "props_near_routes",
    "severity": "low",
    "msg": "map 1020001: X1020001_CratesTomatoes at (57.6, 6.0) stands 1.32 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "trail_ring_band",
+   "severity": "low",
+   "msg": "Trail_ASplitRoad_50000_east01_to_Southperry_60000: map 50000's ring wall stands on the trail's edge, 2.233 m from its centreline at [98.57, -533.08] (half-width 2.6 m)"
+  },
+  {
+   "check": "trail_ring_band",
+   "severity": "low",
+   "msg": "Trail_ASplitRoad_50000_east00_to_FieldWestOfAmherst_1000000: map 50000's gate jamb is 1.747 m from the centreline at [124.73, -521.11] (the gap is 2.25 m either side: the trail turns before leaving it)"
+  },
+  {
+   "check": "trail_ring_band",
+   "severity": "low",
+   "msg": "Trail_FieldWestOfAmherst_1000000_in05_to_HuntingGroundMidForest2_1000006: map 1000002's ring wall stands on the trail's edge, 0.49 m from its centreline at [235.87, -495.14] (half-width 1.9 m)"
+  },
+  {
+   "check": "trail_ring_band",
+   "severity": "low",
+   "msg": "Trail_FieldWestOfAmherst_1000000_in03_to_SnailGarden_1000004: map 1000004's ring wall stands on the trail's edge, 0.758 m from its centreline at [201.4, -603.91] (half-width 1.9 m)"
+  },
+  {
+   "check": "trail_ring_band",
+   "severity": "low",
+   "msg": "Trail_FieldEastOfAmherst_1020000_in00_to_TomatoField_1020001: map 1020001's gate jamb is 1.508 m from the centreline at [284.02, -705.2] (the gap is 2.0 m either side: the trail turns before leaving it)"
   }
  ],
  "stats": {
-  "total_triangles": 9143607,
-  "world_triangles": 3301401,
+  "total_triangles": 9195250,
+  "world_triangles": 3352201,
   "triangles_by_map": {
    "0": 98348,
    "10000": 132563,
@@ -201,22 +230,16 @@
    "1010001": 38776,
    "1010002": 73052,
    "1010003": 58720,
-   "1010004": 262301,
+   "1010004": 263144,
    "1020000": 294763,
    "1020001": 291553
   },
   "top_assets_by_instanced_triangles": [
    {
     "asset": "Tree_Round_B",
-    "instances": 175,
+    "instances": 177,
     "tris_per_instance": 2472,
-    "total": 432600
-   },
-   {
-    "asset": "Tree_Round_A",
-    "instances": 182,
-    "tris_per_instance": 2312,
-    "total": 420784
+    "total": 437544
    },
    {
     "asset": "Rock_Cliff_Stone",
@@ -225,10 +248,22 @@
     "total": 407700
    },
    {
+    "asset": "Tree_Round_A",
+    "instances": 174,
+    "tris_per_instance": 2312,
+    "total": 402288
+   },
+   {
+    "asset": "Tree_Birch_Yellow",
+    "instances": 159,
+    "tris_per_instance": 2112,
+    "total": 335808
+   },
+   {
     "asset": "Tree_Tall_A",
-    "instances": 84,
+    "instances": 74,
     "tris_per_instance": 3984,
-    "total": 334656
+    "total": 294816
    },
    {
     "asset": "Cloud_Puff_A",
@@ -237,22 +272,16 @@
     "total": 285120
    },
    {
-    "asset": "Tree_Birch_Yellow",
-    "instances": 134,
-    "tris_per_instance": 2112,
-    "total": 283008
-   },
-   {
     "asset": "Tree_Birch_Orange",
-    "instances": 132,
+    "instances": 128,
     "tris_per_instance": 2112,
-    "total": 278784
+    "total": 270336
    },
    {
     "asset": "Cloud_Puff_B",
-    "instances": 300,
+    "instances": 306,
     "tris_per_instance": 880,
-    "total": 264000
+    "total": 269280
    },
    {
     "asset": "Mob_Snail",
@@ -261,10 +290,10 @@
     "total": 198856
    },
    {
-    "asset": "Mob_BlueSnail",
-    "instances": 47,
-    "tris_per_instance": 3696,
-    "total": 173712
+    "asset": "Tree_Autumn_A",
+    "instances": 79,
+    "tris_per_instance": 2312,
+    "total": 182648
    }
   ],
   "portal_links": [
@@ -393,7 +422,7 @@
     "a": "1010004:east00",
     "b": "1010002:west00",
     "kind": "edge",
-    "distance_m": 40.8,
+    "distance_m": 53.4,
     "reciprocal": true
    },
    {
@@ -2125,6 +2154,128 @@
     "scale": 36.0
    }
   },
+  "trail_ring_band": [
+   {
+    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_MushroomTown_10000_out00_to_MushroomTown_20000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_MushroomTown_20000_out00_to_EastEntranceMushroomTown_30000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.381,
+    "min_jamb_to_centre_m": 2.292
+   },
+   {
+    "trail": "Trail_SnailHuntingGround1_40000_east00_to_SnailHuntingGround2_40001",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.357,
+    "min_jamb_to_centre_m": 2.281
+   },
+   {
+    "trail": "Trail_SnailHuntingGround2_40001_east00_to_SnailHuntingGround3_40002",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_SnailHuntingGround3_40002_east00_to_ASplitRoad_50000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.347,
+    "min_jamb_to_centre_m": 2.278
+   },
+   {
+    "trail": "Trail_ASplitRoad_50000_east01_to_Southperry_60000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 2.233,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_ASplitRoad_50000_east00_to_FieldWestOfAmherst_1000000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 4.103,
+    "min_jamb_to_centre_m": 1.747
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in00_to_InASmallForest_1000001",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 4.041,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in04_to_HuntingGroundMidForest1_1000005",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in01_to_DangerousForest_1000002",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 4.55,
+    "min_jamb_to_centre_m": 2.176
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in05_to_HuntingGroundMidForest2_1000006",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 0.49,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in02_to_MushroomGarden_1000003",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_in03_to_SnailGarden_1000004",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 0.758,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_FieldWestOfAmherst_1000000_east00_to_Amherst_1010000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_Amherst_1010000_in01_to_AmherstTownstreet_1010002",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_AmherstTownstreet_1010002_west00_to_SnailFieldOfFlowers_1010004",
+    "half_width_m": 1.9,
+    "min_wall_to_centre_m": 3.455,
+    "min_jamb_to_centre_m": 2.2
+   },
+   {
+    "trail": "Trail_Amherst_1010000_east00_to_FieldEastOfAmherst_1020000",
+    "half_width_m": 2.6,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3
+   },
+   {
+    "trail": "Trail_FieldEastOfAmherst_1020000_in00_to_TomatoField_1020001",
+    "half_width_m": 1.7,
+    "min_wall_to_centre_m": 3.088,
+    "min_jamb_to_centre_m": 1.508
+   }
+  ],
   "one_way_ledges": [
    {
     "trail": "Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000",
@@ -3564,7 +3715,7 @@
     ]
    }
   },
-  "objects": 17651,
+  "objects": 17687,
   "meshes": 2633,
   "materials": 200
  },
@@ -3572,6 +3723,6 @@
  "summary": {
   "high": 0,
   "medium": 0,
-  "low": 16
+  "low": 21
  }
 }

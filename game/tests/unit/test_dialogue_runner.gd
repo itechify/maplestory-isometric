@@ -252,6 +252,44 @@ func test_counter_specs_are_validated() -> void:
 	assert_true("counter item 'nope'" in errs, errs)
 
 
+func test_parts_spec_joins_lines_as_paragraphs_and_validates_each_part() -> void:
+	var spec := {"parts": [{"quest": "1006", "journal": 0}, {"system": "offer_prompt"}]}
+	var r := DialogueText.resolve(spec, db())
+	assert_eq(r["text"], "Sam has some advice for beginner adventurers...\n\nAccept this quest?")
+	assert_eq(r["source"], "canonical/quests/1006.json#journal.lines[0] + misostory/dialogue/_system.json#offer_prompt")
+	assert_eq(DialogueText.plain(r["segments"]), r["text"], "the segments carry the same paragraphs")
+	# Canonical styling survives inside a part.
+	var styled := DialogueText.resolve({"parts": [{"quest": "1006", "section": "on_accept", "line": 0}, _lit("x")]}, db())
+	var bold_sam := false
+	for s: Dictionary in styled["segments"]:
+		if s["text"] == "Sam" and bool(s["bold"]) and s.get("ref", {}).get("kind") == "npc":
+			bold_sam = true
+	assert_true(bold_sam, "segments of a part keep bold + refs")
+	var good := DialogueGraph.from_dict({"id": "p", "nodes": {"start": {"type": "say", "line": spec, "next": ""}}})
+	assert_eq(good.validate(db()).size(), 0, "\n".join(good.validate(db())))
+	# A dead part is reported even though the other part still shows text.
+	var bad := DialogueGraph.from_dict({"id": "p", "nodes": {"start": {"type": "say", "next": "",
+		"line": {"parts": [{"quest": "1006", "journal": 0}, {"system": "no_such_line"}, "junk"]}}}})
+	var errs := "\n".join(bad.validate(db()))
+	assert_true("part 1" in errs and "does not resolve" in errs, errs)
+	assert_true("part 2 is not a line spec" in errs, errs)
+	assert_eq(DialogueText.resolve(bad.node("start")["line"], db())["text"], "Sam has some advice for beginner adventurers...",
+		"the parts that resolve are still shown")
+	var empty := DialogueGraph.from_dict({"id": "p", "nodes": {"start": {"type": "say", "line": {"parts": []}, "next": ""}}})
+	assert_true("does not resolve" in "\n".join(empty.validate(db())))
+	# The runner applies only the line's own counters: counters on a part would be dropped, so validation says so.
+	var part_counter := DialogueGraph.from_dict({"id": "p", "nodes": {"start": {"type": "say", "next": "",
+		"line": {"parts": [{"text": "Screw 0/3", "segments": [{"text": "Screw "}, {"text": "0"}, {"text": "/3"}],
+			"source": "test", "counters": [{"segment": 1, "item_id": "441"}]}]}}}})
+	var perrs := "\n".join(part_counter.validate(db()))
+	assert_true("part 0: counters on a part are not applied" in perrs, perrs)
+	var line_counter := DialogueGraph.from_dict({"id": "p", "nodes": {"start": {"type": "say", "next": "",
+		"line": {"parts": [{"text": "Screw 0/3", "segments": [{"text": "Screw "}, {"text": "0"}, {"text": "/3"}],
+			"source": "test"}], "counters": [{"segment": 1, "item_id": "441"}]}}}})
+	assert_eq(line_counter.validate(db()).size(), 0, "\n".join(line_counter.validate(db())))
+	assert_eq(DialogueText.resolve(spec, null)["text"], "", "no content, no text, no crash")
+
+
 func test_line_specs_without_content_do_not_crash() -> void:
 	assert_eq(DialogueText.resolve({"quest": "1006", "section": "on_accept", "line": 0}, null)["text"], "")
 	assert_eq(DialogueText.resolve({"system": "inventory_full"}, null)["text"], "")

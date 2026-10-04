@@ -58,6 +58,58 @@ func test_validator_did_not_crash_on_shipped_data() -> void:
 	assert_false(ScriptErrorGuard.new().is_attached(), "a new guard starts detached")
 
 
+func test_npc_corrected_quest_links_are_not_reported() -> void:
+	# Quest dialogue keeps MeowDB's raw link where an NPC file corrects it (ref.meowdb_link_id = raw, ref.id =
+	# corrected); the game links the corrected id (DialogueText), so the raw id must be neither warned nor skipped.
+	var report := _shipped()
+	var checked := 0
+	for npc_id in db().ids("npcs"):
+		for block in ValidationUtil.as_array(db().npc(npc_id).get("quest_dialogue", [])):
+			if not (block is Dictionary) or not (block.get("quest_id", null) is String):
+				continue
+			var corrections := {}
+			_corrections(block, corrections)
+			for raw in corrections:
+				var ref: Dictionary = corrections[raw]
+				var target: String = ReferenceChecks.LINK_KINDS.get(str(ref.get("kind", ref.get("type", ""))), "")
+				if target == "" or not db().has(target, str(ref.get("id", ""))):
+					continue  # a correction outside the dataset is skipped like any canonical link
+				checked += 1
+				var label := "quests/%s" % block.quest_id
+				for f in report.findings:
+					if "%s/%s" % [f.domain, f.id] == label and "'%s'" % raw in f.message:
+						fail("%s: the corrected link %s was reported as %s" % [label, raw, f.message])
+				for s in report.out_of_scope:
+					if s.begins_with(label + ":") and "/%s (" % raw in s:
+						fail("%s: the corrected link %s was skipped: %s" % [label, raw, s])
+	# Without this the test passes on data that has no correction at all (it would then check nothing).
+	assert_true(checked > 0, "the shipped NPC files correct at least one quest dialogue link (docs/canonical/npcs.md Discrepancies)")
+
+
+func test_link_remap_matches_the_game_remap() -> void:
+	# ReferenceChecks._link_remap mirrors DialogueText._remap_for (the game's correction of quest dialogue links), so
+	# the validator checks the id the player is shown. A change to either side without the other fails here.
+	var refs := ReferenceChecks.new(db(), ValidationReport.new())
+	var corrected := 0
+	for quest_id in db().ids("quests"):
+		var game_remap: Dictionary = DialogueText._remap_for(db(), quest_id)
+		assert_eq(refs._link_remap(quest_id), game_remap, "quest %s: validator remap vs DialogueText._remap_for" % quest_id)
+		if not game_remap.is_empty():
+			corrected += 1
+	assert_true(corrected > 0, "some shipped quest has a corrected dialogue link, so the comparison is not vacuous")
+
+
+static func _corrections(node: Variant, out: Dictionary) -> void:
+	if node is Dictionary:
+		if node.get("ref", null) is Dictionary and node.ref.has("meowdb_link_id"):
+			out[str(node.ref.meowdb_link_id)] = node.ref
+		for k in node:
+			_corrections(node[k], out)
+	elif node is Array:
+		for e in node:
+			_corrections(e, out)
+
+
 func test_script_error_guard_counts_only_script_errors() -> void:
 	var guard := ScriptErrorGuard.new()
 	var no_backtrace: Array[ScriptBacktrace] = []

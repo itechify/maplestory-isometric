@@ -161,8 +161,9 @@ func test_links_and_link_modes() -> void:
 	assert_false(gate.accepts_press(), "the arrival gate cannot be pressed")
 
 
-## With the export: 20 trail links and 4 door links; the trails walk (edge) except the one portal_adaptations.json
-## keeps warp for its source geometry (link_modes.overrides, with a reason), and the doors warp.
+## With the export: 20 trail links and 4 door links; every trail walks (edge) and the doors warp. A trail whose source
+## geometry cannot be walked would be kept warp by a link_modes override with its reason; since the Blender round-3
+## export (000001014 moved, its trail re-routed) there is none, and 000001012 <-> 000001014 walks too.
 func test_link_kinds_with_the_export() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_link_kinds_with_the_export: game/assets/world not present (run with INCLUDE_WORLD=1)")
@@ -184,8 +185,9 @@ func test_link_kinds_with_the_export() -> void:
 		assert_eq(String(link.mode), expected, "%s (%s) mode" % [id, String(link.kind)])
 	assert_eq(kinds, {"trail": 20, "door": 4}, "link kinds")
 	assert_eq(w.graph.mode_counts(), {"edge": 20 - overrides.size(), "warp": 4 + overrides.size()}, "mode counts")
-	assert_eq(w.graph.link_mode("T_000001012_west00__000001014_east00"), PortalDef.LINK_WARP,
-		"the 000001012 hairpin trail stays warp until the Blender fix (WORLD_RUNTIME.md Source world status)")
+	assert_eq(overrides.size(), 0, "no trail is kept warp: all 20 walk (docs/runtime/traversal_report.json)")
+	assert_eq(w.graph.link_mode("T_000001012_west00__000001014_east00"), PortalDef.LINK_EDGE,
+		"the 000001012 <-> 000001014 trail walks since the Blender round-3 re-route (WORLD_RUNTIME.md Source world status)")
 
 
 ## force_link_mode "warp" is the M1 fallback: every link press-Up only, the arrival gate still walk-only.

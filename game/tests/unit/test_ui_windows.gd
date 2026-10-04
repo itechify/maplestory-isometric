@@ -469,9 +469,10 @@ func test_window_drags_by_its_title_and_stays_on_screen() -> void:
 	var start := w.position
 	var grab := w.title_label.get_global_rect().get_center()
 	var vp := root.get_viewport()
-	Input.action_press(&"attack")
+	Input.action_press(&"attack")  # an attack key held while the window is dragged
 	_push_button(vp, grab, true)
-	assert_false(Input.is_action_pressed(&"attack"), "a title press is not an attack (the drag may leave the window)")
+	assert_true(Input.is_action_pressed(&"attack"), "a title press leaves the attack action alone (PlayerCombat ignores "
+		+ "GUI presses; test_ui_drag_attack covers the swings)")
 	_push_motion(vp, grab + Vector2(200, 100))
 	assert_eq(w.position, start + Vector2(200, 100), "the window follows the pointer")
 	_push_motion(vp, grab + Vector2(5000, 5000))
@@ -500,26 +501,6 @@ func _push_button(vp: Viewport, at: Vector2, pressed: bool) -> void:
 	b.pressed = pressed
 	b.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
 	vp.push_input(b, true)
-
-
-func test_a_ui_drag_releases_the_mouse_attack() -> void:
-	# The left button is an attack binding and PlayerCombat polls Input: a drag that starts on a slot must not keep
-	# the attack held while it crosses the world (MisoUiEnv.release_attack_action, UI.md "Known gaps").
-	assert_true(InputMap.has_action("attack"), "Controls registers attack")
-	var press := InputEventMouseButton.new()
-	press.button_index = MOUSE_BUTTON_LEFT
-	press.pressed = true
-	press.position = Vector2(-50, -50)
-	Input.parse_input_event(press)
-	Input.flush_buffered_events()
-	assert_true(Input.is_action_pressed(&"attack"), "the mouse press holds the attack action")
-	MisoUiEnv.release_attack_action()
-	assert_false(Input.is_action_pressed(&"attack"), "released when a UI drag starts")
-	var up := press.duplicate() as InputEventMouseButton
-	up.pressed = false
-	Input.parse_input_event(up)
-	Input.flush_buffered_events()
-	assert_false(Input.is_action_pressed(&"attack"), "still released after the button goes up")
 
 
 func test_standalone_root_handles_escape_itself() -> void:

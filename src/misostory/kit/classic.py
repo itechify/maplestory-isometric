@@ -51,6 +51,7 @@ def wall_lantern(mb, loc, face="-Y"):
 
 def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, cap_h=2.5, chimney="barrel",
                       collar=True, lantern=True, barrels=False, long_body=1.0, profile=0.75, two_story=False):
+    """Mushroom house: a stem (walls, door, windows, lantern) and a domed cap. Returns (stem, cap) objects."""
     mb = MeshBuilder()
     sx = long_body
     mb.cyl(stem_r * 1.04, stem_h * 0.55, mat="M_MushStem", verts=24, r2=stem_r * 1.1, scale=(sx, 1, 1))
@@ -75,7 +76,7 @@ def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, ca
     if barrels:
         for bx, by in ((stem_r * 0.9 * sx, front + 0.2), (stem_r * 0.9 * sx + 0.8, front + 0.6)):
             mb.cyl(0.36, 0.85, loc=(bx, by, 0.2), mat="M_Wood", verts=12, r2=0.4)
-    mb.build(name + "_Stem", coll, smooth=True, sharp_angle=40)
+    stem = mb.build(name + "_Stem", coll, smooth=True, sharp_angle=40)
     cap = MeshBuilder()
     if profile == "cone":
         cap.cyl(cap_r, cap_h, loc=(0, 0, stem_h - 0.45), mat=cap_mat, verts=28, r2=0.18, scale=(sx, 1, 1))
@@ -88,7 +89,7 @@ def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, ca
         barrel_chimney(cap, (cap_r * 0.45 * sx, cap_r * 0.3, stem_h + cap_h * 0.45))
     elif chimney == "oven":
         stone_oven_chimney(cap, (cap_r * 0.45 * sx, cap_r * 0.3, stem_h + cap_h * 0.35))
-    cap.build(name + "_Cap", coll, smooth=True, sharp_angle=70)
+    return stem, cap.build(name + "_Cap", coll, smooth=True, sharp_angle=70)
 
 
 @asset("House_Mushroom_OrangeSpotted", "Architecture", footprint=7.5, tags=("house", "mushroom"))

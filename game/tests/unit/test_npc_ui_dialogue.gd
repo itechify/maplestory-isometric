@@ -1,6 +1,7 @@
 extends TestCase
 ## The dialogue window driven end to end through its UI layer (keys and buttons), on a private Events bus with a real
-## QuestService + NpcInteraction: Roger's Apple and Sam's Suggestion from offer to reward, decline + Back, Rain's quiz
+## QuestService + NpcInteraction: Roger's Apple and Sam's Suggestion from offer to reward, an accept that ends the chat
+## (Nina's 1003: the summary goes to the notice log), decline + Back, Rain's quiz
 ## with number keys and arrows, the system line on a full inventory, every VIEW shape, safe closing at any point, the
 ## modal + window stack contract, and a walk through every NPC's conversation.
 
@@ -98,15 +99,24 @@ func test_roger_apple_from_offer_to_completion_through_the_window() -> void:
 	assert_eq(win.title_label.text, "Roger's Apple")
 	assert_eq(win.kind_label.text, "QUEST", "a quest card (journal speaker)")
 	assert_eq(win.name_label.text, "Roger")
-	assert_true(win.body_text().begins_with("Press the hotkey I"), win.body_text())
+	assert_eq(win.body_text(), "Talk to Roger.\n\nAccept this quest?",
+		"the journal summary and the system prompt, not the item instructions")
 	assert_true(win.buttons["yes"].visible and win.buttons["no"].visible and win.buttons["end"].visible)
 	assert_false(win.buttons["next"].visible)
 	assert_false(win.reward_label.visible, "1002 gives no rewards (canonical)")
 	assert_true(_key(KEY_Y), "Y accepts")
-	assert_false(win.is_open(), "no accepted lines: the chat ends")
+	assert_true(win.is_open(), "the instructions follow the accept")
 	assert_eq(character.inventory.count("235"), 1, "Roger's Apple handed over")
-	assert_has(_emitted("notice"), ["Quest accepted: Roger's Apple   ·   Received Roger's Apple"],
-		"the chat ended right after the accept, so the summary went to the notice log")
+	assert_eq(win.shown_banner(), "Quest accepted: Roger's Apple   ·   Received Roger's Apple",
+		"the accept summary sits on the instructions page")
+	assert_eq(win.kind_label.text, "QUEST")
+	assert_eq(win.title_label.text, "Roger's Apple")
+	assert_true(win.body_text().begins_with("Press the hotkey I to open your inventory"), win.body_text())
+	assert_false(win.reward_label.visible, "no reward line after the accept")
+	assert_true(win.buttons["ok"].visible and not win.buttons["back"].visible, "OK ends; no Back across the accept")
+	assert_true(_key(KEY_ENTER), "Enter closes the instructions")
+	assert_false(win.is_open())
+	assert_eq(_emitted("notice"), [], "the summary was shown in the window, not sent to the notice log")
 	talk.talk("3")
 	assert_true(win.body_text().begins_with("Eat the Roger's Apple I gave you"))
 	assert_true(win.body.text.contains("[color=%s]" % DialogueRichText.REF_COLORS["item"]), "item ref highlighted")
@@ -120,6 +130,21 @@ func test_roger_apple_from_offer_to_completion_through_the_window() -> void:
 	_key(KEY_ENTER)
 	assert_false(win.is_open())
 	assert_eq(_emitted("quest_completed"), [["1002"]])
+
+
+## An offer with no canonical "accepted" lines (Nina's 1003) still ends the chat on Yes, so no page can show the
+## accept summary: it goes to the notice log. (Roger's 1002 covered this until it gained its instructions page.)
+func test_an_accept_that_ends_the_chat_sends_the_summary_to_the_notice_log() -> void:
+	talk.talk("4")
+	assert_eq(String(win.view.get("node_id", "")), "q1003.offer.0")
+	assert_true(_key(KEY_ENTER))
+	assert_eq(String(win.view.get("type", "")), "yes_no", "Nina's last canonical On accept line asks")
+	assert_eq(win.kind_label.text, "QUEST")
+	assert_true(_key(KEY_Y))
+	assert_eq(character.quests.status("1003"), QuestLog.IN_PROGRESS)
+	assert_false(win.is_open(), "no canonical accepted lines: the chat ends on Yes")
+	assert_eq(_emitted("notice"), [["Quest accepted: What Sen wants to eat"]],
+		"the chat ended right after the accept, so the summary went to the notice log (once)")
 
 
 # --- Sam's Suggestion (quest 1006) ---------------------------------------------------------------------------------
@@ -443,8 +468,11 @@ func test_a_key_that_ends_the_chat_holds_the_modal_through_the_physics_step() ->
 	talk.talk("3")
 	assert_eq(String(win.view.get("type", "")), "yes_no", "Roger's offer")
 	win._input(_key_event(KEY_Y))
-	assert_false(win.is_open(), "Y accepted and ended the chat")
+	assert_true(win.is_open(), "Y accepted; the instructions page follows")
+	assert_false(win.is_holding_modal(), "a key that does not end the chat holds nothing")
 	assert_eq(character.quests.status("1002"), QuestLog.IN_PROGRESS)
+	win._input(_key_event(KEY_ENTER))
+	assert_false(win.is_open(), "Enter on the instructions (the last page) ended the chat")
 	assert_false(ctx.has_open_windows(), "off the window stack at once (Esc goes to the next window)")
 	assert_true(ctx.is_modal_active(), "the modal holds through the physics step of the key")
 	assert_false(p.input_on, "so the player cannot act on the same press")

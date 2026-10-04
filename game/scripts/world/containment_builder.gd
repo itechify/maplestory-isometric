@@ -3,10 +3,14 @@ extends RefCounted
 ## Builds the invisible containment (MAP_ARCHITECTURE.md section 4.6), all on the containment layer (the player
 ## collides with it, monsters do not):
 ##   rings   one StaticBody3D per map: a box wall per edge of the map's footprint + ring offset
-##           (MapDefinition.footprint), spanning the map chunk's whole height (bounds) from containment.margin_below_m
-##           below to margin_above_m above. The inner face of every wall lies on the ring line. At each trail end
-##           (a GateDef into the map) the wall leaves a gap centred on the gate, as wide as the corridor between the
-##           trail's side walls and at most the gate's width.
+##           (MapDefinition.footprint, with its region extensions), spanning the map chunk's whole height (bounds)
+##           from containment.margin_below_m below to margin_above_m above. The inner face of every wall lies on the
+##           ring line, the wall outside it (outside by the polygon's winding, so a concave ring works); pieces are
+##           lengthened by the wall thickness only at convex corners, which closes them without poking into the
+##           region at a concave one. At each trail end (a GateDef into the map) the wall leaves a gap centred on the
+##           gate, as wide as the corridor between the trail's side walls and at most the gate's width. Where a region
+##           extension with keep_footprint_ring_below_y opens the layout's own ring line, that line keeps a low wall
+##           up to that height ("Kept" pieces of the same body).
 ##   plugs   one StaticBody3D per gap, the missing piece of wall: enabled (containment layer) while the trail's link
 ##           is in warp mode, disabled (no layer) in edge mode. set_plugs() applies the PortalGraph modes.
 ##   walls   one StaticBody3D per trail: box walls along both ribbon edges, trails.side_wall_offset_m outward, from
@@ -42,6 +46,10 @@ static func build(defs: MapDefinitions, parent: Node3D) -> Dictionary:
 		var y0 := def.y_min - below
 		var y1 := def.y_max + above
 		var body := build_ring(def.footprint, y0, y1, thickness, gaps)
+		for ext: Dictionary in def.region_extensions:
+			var top := float(ext.get("keep_ring_below_y", NAN))
+			if not is_nan(top) and top > y0:
+				add_kept_ring(body, def.footprint_base, ext.ring_line, y0, top, thickness)
 		body.name = "Ring_%s" % id
 		body.set_meta("map_id", id)
 		parent.add_child(body)
@@ -90,7 +98,8 @@ static func build_ring(poly: PackedVector2Array, y0: float, y1: float, thickness
 	var body := StaticBody3D.new()
 	body.collision_layer = WorldLayers.CONTAINMENT
 	body.collision_mask = 0
-	var centroid := _centroid(poly)
+	var side := outward_side(poly)
+	var convex := convex_corners(poly)
 	var h := maxf(y1 - y0, 0.1)
 	for i in poly.size():
 		var a := poly[i]
@@ -109,17 +118,18 @@ static func build_ring(poly: PackedVector2Array, y0: float, y1: float, thickness
 		var k := 0
 		for c in cuts:
 			if c.x > start:
-				_wall_piece(body, a, b, centroid, start, c.x, y0, h, thickness, start == 0.0, false, "Wall%d_%d" % [i, k])
+				_wall_piece(body, a, b, side, start, c.x, y0, h, thickness, start == 0.0 and convex[i] == 1, false, "Wall%d_%d" % [i, k])
 				k += 1
 			start = maxf(start, c.y)
 		if start < length:
-			_wall_piece(body, a, b, centroid, start, length, y0, h, thickness, start == 0.0, true, "Wall%d_%d" % [i, k])
+			_wall_piece(body, a, b, side, start, length, y0, h, thickness, start == 0.0 and convex[i] == 1,
+				convex[(i + 1) % poly.size()] == 1, "Wall%d_%d" % [i, k])
 	return body
 
 
 ## The plug of one gap: the wall piece the gap left out (same line, thickness and height).
 static func build_plug(poly: PackedVector2Array, gap: Dictionary, y0: float, y1: float, thickness: float) -> StaticBody3D:
-	var centroid := _centroid(poly)
+	var side := outward_side(poly)
 	for i in poly.size():
 		var a := poly[i]
 		var b := poly[(i + 1) % poly.size()]
@@ -129,7 +139,7 @@ static func build_plug(poly: PackedVector2Array, gap: Dictionary, y0: float, y1:
 		var body := StaticBody3D.new()
 		body.collision_layer = WorldLayers.CONTAINMENT
 		body.collision_mask = 0
-		_wall_piece(body, a, b, centroid, t - float(gap.half), t + float(gap.half), y0, maxf(y1 - y0, 0.1), thickness, false, false, "Plug")
+		_wall_piece(body, a, b, side, t - float(gap.half), t + float(gap.half), y0, maxf(y1 - y0, 0.1), thickness, false, false, "Plug")
 		return body
 	return null
 
@@ -221,11 +231,73 @@ static func _trim_front(line: PackedVector3Array, gate: GateDef) -> PackedVector
 	return out
 
 
-static func _centroid(poly: PackedVector2Array) -> Vector2:
-	var c := Vector2.ZERO
-	for p in poly:
-		c += p
-	return c / float(maxi(poly.size(), 1))
+## Where a region extension (`ext`, its ring line) opens the layout's own ring line (`base`,
+## MapDefinition.footprint_base), adds that line's wall back to `body` from y0 up to `top` only: the parts of every
+## base edge inside `ext`, outside the base line like any ring wall, named "Kept<edge>_<n>". Returns how many pieces it
+## added.
+static func add_kept_ring(body: StaticBody3D, base: PackedVector2Array, ext: PackedVector2Array, y0: float, top: float, thickness: float) -> int:
+	if base.size() < 3 or ext.size() < 3 or top <= y0:
+		return 0
+	var side := outward_side(base)
+	var count := 0
+	for i in base.size():
+		var a := base[i]
+		var b := base[(i + 1) % base.size()]
+		var length := a.distance_to(b)
+		if length < 0.001:
+			continue
+		var dir := (b - a) / length
+		for seg: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(PackedVector2Array([a, b]), ext):
+			if seg.size() < 2:
+				continue
+			var s0 := clampf((seg[0] - a).dot(dir), 0.0, length)
+			var s1 := clampf((seg[seg.size() - 1] - a).dot(dir), 0.0, length)
+			if absf(s1 - s0) < 0.01:
+				continue
+			_wall_piece(body, a, b, side, minf(s0, s1), maxf(s0, s1), y0, top - y0, thickness, false, false, "Kept%d_%d" % [i, count])
+			count += 1
+	return count
+
+
+## +1 when `poly` winds counter-clockwise in (x, z) (positive shoelace area), else -1: the outward normal of edge
+## a -> b is Vector2(dir.y, -dir.x) * outward_side(poly). Works for concave polygons, unlike a centroid test.
+static func outward_side(poly: PackedVector2Array) -> float:
+	var area := 0.0
+	for i in poly.size():
+		var p := poly[i]
+		var q := poly[(i + 1) % poly.size()]
+		area += p.x * q.y - q.x * p.y
+	return 1.0 if area >= 0.0 else -1.0
+
+
+## The outward unit normal of `poly`'s edge i (from poly[i] to poly[i + 1]). `side`: outward_side(poly) when known.
+static func edge_outward(poly: PackedVector2Array, i: int, side: float = 0.0) -> Vector2:
+	var a := poly[i]
+	var b := poly[(i + 1) % poly.size()]
+	var dir := (b - a).normalized()
+	return Vector2(dir.y, -dir.x) * (side if side != 0.0 else outward_side(poly))
+
+
+## 1 for each vertex of `poly` where the ring turns convex (the region's interior angle is below 180 degrees), else 0
+## (concave or straight). Edges shorter than 1 mm are skipped.
+static func convex_corners(poly: PackedVector2Array) -> PackedByteArray:
+	var out := PackedByteArray()
+	out.resize(poly.size())
+	var side := outward_side(poly)
+	var n := poly.size()
+	for i in n:
+		var prev := Vector2.ZERO
+		for k in range(1, n):
+			prev = poly[i] - poly[(i - k + n) % n]
+			if prev.length() >= 0.001:
+				break
+		var next := Vector2.ZERO
+		for k in range(1, n):
+			next = poly[(i + k) % n] - poly[i]
+			if next.length() >= 0.001:
+				break
+		out[i] = 1 if prev.cross(next) * side > 1e-9 else 0
+	return out
 
 
 ## Arc length of `p` along edge a -> b when p lies on it (within 5 cm), else -1.
@@ -241,15 +313,13 @@ static func _edge_param(a: Vector2, b: Vector2, p: Vector2) -> float:
 	return clampf(t, 0.0, l) if off <= 0.05 else -1.0
 
 
-## One box of wall along edge a -> b between arc lengths s0 and s1, outside the line. The ring's own corners are
-## closed by extending a piece that starts or ends at a polygon corner by the wall thickness.
-static func _wall_piece(body: StaticBody3D, a: Vector2, b: Vector2, centroid: Vector2, s0: float, s1: float, y0: float,
+## One box of wall along edge a -> b between arc lengths s0 and s1, outside the line (`side`: outward_side() of the
+## ring). The ring's convex corners are closed by extending a piece that starts or ends there by the wall thickness.
+static func _wall_piece(body: StaticBody3D, a: Vector2, b: Vector2, side: float, s0: float, s1: float, y0: float,
 		h: float, thickness: float, at_start_corner: bool, at_end_corner: bool, piece_name: String) -> void:
 	var length := (b - a).length()
 	var dir := (b - a) / length
-	var normal := Vector2(dir.y, -dir.x)
-	if normal.dot((a + b) * 0.5 - centroid) < 0.0:
-		normal = -normal
+	var normal := Vector2(dir.y, -dir.x) * side
 	var lo := s0 - (thickness if at_start_corner else 0.0)
 	var hi := s1 + (thickness if at_end_corner else 0.0)
 	if hi - lo < 0.001:

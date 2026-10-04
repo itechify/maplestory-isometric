@@ -12,7 +12,8 @@ extends RefCounted
 ## Canonical (never restated here): level, HP, EXP, P.DMG, ACC, AVOID, defences, KB, the speed modifier, the
 ## movement label, the Peace flag, the touch zone and sprite size (px), and the animation clip lengths (ms).
 ## Adaptation: the proxy model and how it is scaled, the physics capsule, how the speed modifier becomes m/s, the
-## AI timings and probes, the hop rule, and the Peace touch rule. Every px value is converted through WorldScale.
+## AI timings and probes, the hop rule, the Peace touch rule and the see-through silhouette. Every px value is
+## converted through WorldScale.
 ##
 ##   var def := MonsterDef.from_id("2", Data.db)
 ##   def.move_speed_mps      # 0.875 (Snail)
@@ -86,6 +87,14 @@ var hop_max_rise_apex_fraction: float = 0.0
 var fall_landing_tolerance_m: float = 0.0
 ## Canonical gravity (knockback_airtime.gravity_px_per_s2 x WorldScale.v), used for hops and falls.
 var gravity_mps2: float = 0.0
+## The see-through silhouette (MonsterVisual): shown while the monster is within see_through_radius_m of the player,
+## kept until see_through_radius_m + see_through_hysteresis_m; its colour (sRGB, alpha) and fade time.
+var see_through_radius_m: float = 0.0
+var see_through_hysteresis_m: float = 0.0
+var see_through_color: Color = Color(0, 0, 0, 0)
+var see_through_fade_s: float = 0.0
+## The silhouette draws only where the cover in front is at least this far nearer along the view (m).
+var see_through_min_cover_m: float = 0.0
 ## The merged adaptation (monsters/_shared.json, then monsters/<id>.json on top); `reasons` merged the same way.
 var adaptation: Dictionary = {}
 
@@ -265,6 +274,15 @@ func _load_adaptation(a: Dictionary, db: ContentDB) -> void:
 	wall_probe_height_m = _num(a, "wall_probe_height_m")
 	provoked_chase_s = _num(a, "provoked_chase_s")
 	fall_landing_tolerance_m = _num(a, "fall_landing_tolerance_m")
+	see_through_radius_m = _num(a, "see_through_radius_m")
+	see_through_hysteresis_m = _num(a, "see_through_hysteresis_m")
+	see_through_fade_s = _num(a, "see_through_fade_s")
+	see_through_min_cover_m = _num(a, "see_through_min_cover_m")
+	var tint: Variant = a.get("see_through_color", null)
+	if tint is Array and (tint as Array).size() == 4:
+		see_through_color = Color(float(tint[0]), float(tint[1]), float(tint[2]), float(tint[3]))
+	elif not a.is_empty():
+		errors.append("adaptation 'see_through_color' must be [r, g, b, a]")
 	touch_rule = String(a.get("touch_rule", TOUCH_ALWAYS))
 	if not (touch_rule in [TOUCH_ALWAYS, TOUCH_WHEN_PROVOKED]):
 		errors.append("unknown touch_rule '%s'" % touch_rule)

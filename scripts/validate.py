@@ -15,7 +15,8 @@ m.place props crowding route centrelines (graded by body clearance), map complet
 authored player_spawns[0] and spawn regions, and the results recorded at build time in docs/build_report.json:
 traversal, route-graph connectivity (portal_split, orphan_routes), the Gameplay-camera scale proxies
 (player_in_gameplay_frame), the walk between maps along every trail, both ways, against its expectation
-(trail_walk) and the one-way ledge invariant of MAP_ARCHITECTURE 4.4 (one_way_ledge).
+(trail_walk), every trail's clearance from the runtime's containment rings (trail_ring_band) and the one-way ledge
+invariant of MAP_ARCHITECTURE 4.4 (one_way_ledge).
 
 Every section runs guarded: an exception inside one check is recorded in report["exceptions"] (and as a
 high issue, check no_swallowed_exceptions) instead of aborting the whole validation. Exceptions that the
@@ -1126,6 +1127,17 @@ def sec_gameplay_frame():
 run("player_in_gameplay_frame", sec_gameplay_frame)
 
 
+def _misostory_value(fname, section, key, default):
+    """A value of game/data/misostory/<fname>.json (section.key), read-only; `default` when the file or key is absent.
+    The runtime reads the same adaptation tables, so the validator checks what the game will do."""
+    try:
+        with open(os.path.join(ROOT, "game", "data", "misostory", f"{fname}.json"), encoding="utf-8") as f:
+            v = json.load(f).get(section, {}).get(key)
+        return default if v is None else float(v)
+    except (OSError, ValueError, AttributeError):
+        return default
+
+
 # ---------------------------------------------------------------- the walk between maps (build_report trails)
 def sec_trail_walk():
     """Every trail walked portal-to-portal both ways, against its expectation, which comes from the layout (not from
@@ -1226,6 +1238,71 @@ def sec_trail_walk():
 run("trail_walk", sec_trail_walk)
 
 
+# ---------------------------------------------------------------- trails vs the runtime's containment rings
+def sec_trail_ring_band():
+    """Every trail stays clear of the maps' containment rings (MAP_ARCHITECTURE 4.6; the runtime's ContainmentBuilder
+    walls each map at footprint + ring_offset_m, wall_thickness_m thick, open only at its gate gaps). The build
+    measures it (trails.ring_clearance, build_report trails[i].ring_clearance) with the numbers of
+    game/data/misostory (layout.containment_params); this check recomputes those numbers, so a stale build report
+    fails, and grades the result:
+
+    * high: a ring wall within the controller's capsule radius of a trail's centreline away from its own gaps (it
+      stands across the walkable top: a walk along the trail stalls, as on 000001012 -> 000001014 before it was
+      re-routed), or the centreline inside another map's ring line (that map's region);
+    * low (listed): a wall on the ribbon's edge (closer than the half-width), or a gate jamb closer than the gap's
+      half-width (the trail turns before it has left its gap): the trail is narrower there but walkable."""
+    trails = [t for t in (BR.get("trails") or []) if isinstance(t, dict)]
+    if not trails:
+        check("trail_ring_band", True, "no trails in build_report; skipped")
+        return
+    cp = LY.containment_params(ROOT)
+    radius = _misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    rows, bad, n_low = [], [], 0
+    for t in trails:
+        name = t.get("trail", "?")
+        rc = t.get("ring_clearance")
+        if not isinstance(rc, dict):
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: no ring clearance in build_report (trails[i].ring_clearance)")
+            continue
+        if abs(rc.get("ring_offset_m", -1) - cp["ring_offset_m"]) > 1e-6 or \
+                abs(rc.get("wall_thickness_m", -1) - cp["wall_thickness_m"]) > 1e-6:
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: measured against ring offset {rc.get('ring_offset_m')} m / wall "
+                  f"{rc.get('wall_thickness_m')} m, the game data says {cp['ring_offset_m']} / "
+                  f"{cp['wall_thickness_m']}: rebuild")
+            continue
+        half, gap = rc.get("half_width_m", 0.0), rc.get("gap_half_width_m", 0.0)
+        for ins in rc.get("centre_inside") or []:
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: its centreline runs inside map {ins['map']}'s ring line at "
+                  f"{ins['at']} (outside its own gate corridors)")
+            break
+        for r in rc.get("near_rings") or []:
+            d, j = r.get("wall_to_centre_m"), r.get("jamb_to_centre_m")
+            if d is not None and d < radius:
+                bad.append(name)
+                issue("trail_ring_band", "high", f"{name}: map {r['map']}'s ring wall stands across the trail, {d} m "
+                      f"from its centreline at {r['at']} (a body on the centreline is {radius} m wide)")
+            elif d is not None and d < half:
+                n_low += 1
+                issue("trail_ring_band", "low", f"{name}: map {r['map']}'s ring wall stands on the trail's edge, {d} m "
+                      f"from its centreline at {r['at']} (half-width {half} m)")
+            if j is not None and j < min(gap, half) - 0.05:
+                n_low += 1
+                issue("trail_ring_band", "low", f"{name}: map {r['map']}'s gate jamb is {j} m from the centreline at "
+                      f"{r['jamb_at']} (the gap is {gap} m either side: the trail turns before leaving it)")
+        rows.append({"trail": name, "half_width_m": half, "min_wall_to_centre_m": rc.get("min_wall_to_centre_m"),
+                     "min_jamb_to_centre_m": rc.get("min_jamb_to_centre_m")})
+    report["stats"]["trail_ring_band"] = rows
+    check("trail_ring_band", not bad, f"{len(trails) - len(set(bad))}/{len(trails)} trails clear of every containment "
+          f"ring wall (ring at footprint + {cp['ring_offset_m']} m, {cp['wall_thickness_m']} m thick); {n_low} "
+          f"narrowings listed as low; failing: {sorted(set(bad))[:6]}")
+
+
+run("trail_ring_band", sec_trail_ring_band)
+
+
 # ---------------------------------------------------------------- the one-way ledge invariant (MAP_ARCHITECTURE 4.4)
 def sec_one_way_ledge():
     """Every one-way link has a trail ending in a measured ledge: face on the arrival gate plane (footprint +
@@ -1286,17 +1363,6 @@ def _ground_bvh():
                 _mesh_into(vs, ps, o.data, o.matrix_world)
         _GROUND_BVH.append(BVHTree.FromPolygons(vs, ps) if ps else None)
     return _GROUND_BVH[0]
-
-
-def _misostory_value(fname, section, key, default):
-    """A value of game/data/misostory/<fname>.json (section.key), read-only; `default` when the file or key is absent.
-    The runtime reads the same adaptation tables, so the validator checks what the game will do."""
-    try:
-        with open(os.path.join(ROOT, "game", "data", "misostory", f"{fname}.json"), encoding="utf-8") as f:
-            v = json.load(f).get(section, {}).get(key)
-        return default if v is None else float(v)
-    except (OSError, ValueError, AttributeError):
-        return default
 
 
 def _portal_frames(mid):

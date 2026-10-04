@@ -14,12 +14,12 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 
 | Path | Class | Role |
 |---|---|---|
-| `scripts/actors/monsters/monster_system.gd` | `MonsterSystem` | root of `scenes/systems/monster_system.tscn`: `setup(ctx)`, the monster factory/releaser, kill and touch handling, the FX layer |
+| `scripts/actors/monsters/monster_system.gd` | `MonsterSystem` | root of `scenes/systems/monster_system.tscn`: `setup(ctx)`, the monster factory/releaser, kill and touch handling, the FX layer, who shows a see-through silhouette (`update_see_through`) |
 | `scripts/actors/monsters/monster.gd` | `Monster` | one live monster (`scenes/actors/monster.tscn`, a `CharacterBody3D` on `WorldLayers.MONSTERS` with `MONSTER_MASK`) |
 | `scripts/actors/monsters/monster_def.gd` | `MonsterDef` | pure: the canonical record joined with its adaptation file; the speed, hop and size conversions |
 | `scripts/actors/monsters/monster_brain.gd` | `MonsterBrain` | pure: stand / walk / turn / stagger / chase |
 | `scripts/actors/monsters/mob_region.gd` | `MobRegion` | pure XZ geometry: the map's mob region minus the portal-arrival discs |
-| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the proxy model or labelled placeholder, bob, facing, flinch, HP bar, spawn and death fades |
+| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the proxy model or labelled placeholder, bob, facing, flinch, HP bar, spawn and death fades, the see-through silhouette (stencil 36) |
 | `scripts/actors/monsters/monster_test_rig.gd` | `MonsterTestRig` | synchronous combat lab for tests (private bus, private `GameState`, seeded RNG) |
 | `scripts/actors/monsters/monster_game_checks.gd` | | the real-game checks (`scenes/actors/monster_game_checks.tscn`): `main.tscn`, the console's `spawn`/`kill`, real mouse and key events |
 | `scripts/actors/combat/player_combat.gd` | `PlayerCombat` | the player's basic attack (a child of the player, added by `setup`) |
@@ -29,7 +29,7 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/combat/contact_damage.gd` | `ContactDamage` | pure statics: touch gate, resolve, apply (HP, events, knockback), death announcement |
 | `scripts/actors/combat/damage_numbers.gd` | `DamageNumbers` | floating numbers (`scenes/fx/damage_numbers.tscn`) |
 | `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark (`scenes/fx/attack_fx.tscn`) |
-| `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, wander rhythm, chase time, hop landing reach, fall landing tolerance); a species file overrides any key |
+| `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, wander rhythm, chase time, hop landing reach, fall landing tolerance, the see-through silhouette's radius, hysteresis, colour and fade); a species file overrides any key |
 | `data/misostory/monsters/{1,2,3,4,5,9}.json` | | per-species adaptation (model, capsule, walk style, speed model, stand and walk times, touch rule, hop) |
 | `data/misostory/combat.json` `player_attack` | | the player-attack feel: ground root, input buffer, target count, model lunge |
 | `scenes/sandbox/monster_sandbox.tscn` (+ `.gd`) | | the real island, player, camera, MapSession and this system, with a fighting bot and screenshots |
@@ -158,6 +158,55 @@ a backward flinch over the canonical `hit1` clip with a white flash, a scale-in 
 the death fade (`GeometryInstance3D.transparency`). A red HP bar (billboard, drawn over terrain, left-anchored in mesh
 space so it reads the same at every facing) appears over the head once the monster is damaged. A spawned monster
 settles onto the ground within `grounding.probe_up_m` / `probe_down_m` (presentation.json).
+
+### See-through silhouette (`MonsterVisual` + `MonsterSystem.update_see_through`)
+
+The camera dithers out trees, buildings and tall props, but terrain, cliffs and rocks never fade (PLAYER_AND_CAMERA.md
+"Occlusion"). So a monster near the player shows a flat tinted silhouette wherever something hides it, the monster
+counterpart of the player's X-ray fill. It is per pixel and needs no occlusion test: the stencil decides where the
+monster is hidden.
+
+- **Stencil write.** Every surface of the model writes `MonsterVisual.STENCIL_REF` (36) where it is visible (custom
+  stencil: write, always), the unshaded ink shell (`M_Outline`) too, so the silhouette never paints over the contour
+  lines drawn in front of the body. The library's materials are shared by every proxy (`M_Outline`, the eye
+  materials), so each gets one stencil-writing copy (`MonsterVisual.stencil_material`, cached per source material and
+  shared by every monster); the placeholder's own materials are changed in place.
+- **The fill.** Under each model mesh, a `SeeThrough` MeshInstance3D draws that mesh's triangles, every surface merged
+  into one (`MonsterVisual.fill_mesh`, built once per library mesh: one draw call instead of one per material; the ink
+  shell is included, so the silhouette has the footprint of the visible monster) with one `ShaderMaterial` all
+  monsters share (`MonsterVisual.see_through_material()`): unshaded, no depth test, both faces, no depth write, no shadow, render
+  priority -1, and `stencil_mode read, write, compare_greater, 36`. A ShaderMaterial, because BaseMaterial3D keeps
+  stencil read and write exclusive (its setter drops one flag); reading and writing in one pass is what makes each
+  pixel blend once, so a hidden snail is one flat shape, not darker where its shell overlaps its body. Godot compares
+  `reference op stored` (probed: compare_greater with reference 3 passes over 0 and fails over 5), so the fill draws
+  where the stored value is below 36: where neither a monster nor the player is visible. The player writes 37
+  (`PlayerVisual.STENCIL_REF`), so **36 must stay below the player's reference** (a test pins it): a monster hidden
+  only by the player gets no silhouette over the player, and a monster in front of another hides it as usual. Any
+  future stencil writer that a silhouette must not cover needs a value of at least 36. The tint, the fade amount and
+  the minimum cover are instance uniforms (`see_through_tint`, `see_through_amount`, `see_through_min_cover`).
+- **Minimum cover.** The fill reads the depth texture (the opaque pass) and discards a fragment unless the surface in
+  front of it is at least `see_through_min_cover_m` (0.25 m) nearer the camera along the view. Without it every
+  monster on a slope wore a tinted line along its underside, where the body dips a few centimetres into the ground
+  (seen in the real game; 27 sampled px under one Snail on Snail Hunting Ground I, 0 with the threshold), and grass at
+  its feet would tint too. Cliffs, terrace edges and boulders are half a metre to metres in front and still show it.
+- **Draw order.** Priority -1 puts the fill before every default-priority transparent (the placeholder's name tag,
+  occluders the camera fades by alpha, the hit flash, ground-drop shadows), the attack FX (8), the damage numbers (10+)
+  and the HP bar (20, 21), which all stay on top of a silhouette; the player's X-ray fill and outline (120-127) come
+  after it and win where the two overlap. NPC name tags and quest markers are 2D controls, always on top.
+- **Never culled by occlusion.** The fills set `ignore_occlusion_culling`: occlusion culling is off today, but a fill
+  exists to draw exactly where terrain hides the monster, so an occluder must never cull it.
+- **Placeholder vs library.** `build()` decides `is_placeholder` afresh each time: the placeholder's own materials are
+  made stencil-writing in place, so a stale flag on a rebuild would have edited the library's shared materials (a
+  test pins it).
+- **Who gets it.** `MonsterSystem._process` calls `update_see_through()` every frame: each live monster within its
+  species' `see_through_radius_m` (12 m) of the player's feet turns it on; one that shows it keeps it up to
+  `see_through_radius_m + see_through_hysteresis_m` (13 m); without a player none does. The rule is the pure
+  `MonsterVisual.see_through_wanted(alive, distance, radius, hysteresis, showing)`. The fill fades over
+  `see_through_fade_s` (0.2 s, `step_see_through`, run by the visual's own `advance`), and a hidden fill is invisible,
+  so a monster outside the radius costs no draw call.
+- **Death, flash.** `start_death_fade` drops the silhouette at once: with `transparency` above 0 the body leaves the
+  opaque pass, its stencil is no longer written before the fill, and the fill would cover the fading body. The fill
+  meshes are added after `_collect_geoms`, so the hit flash overlay and the death transparency never touch them.
 
 ## The player's attack (`PlayerCombat`)
 
@@ -304,6 +353,9 @@ presentation constants in the script, not gameplay values.
 | `monsters/_shared.json probe_ahead_m`, `ledge_tolerance_m`, `wall_probe_height_m` | 0.6 / 0.45 / 0.3 m | MAP_ARCHITECTURE §4.7.4 |
 | `monsters/_shared.json model_fit` | `sprite_height` | the body you see is the body you hit |
 | `monsters/_shared.json hop_max_rise_apex_fraction` | 0.9 | a hop needs clearance under the top of its arc |
+| `monsters/_shared.json see_through_radius_m`, `see_through_hysteresis_m` | 12 m, kept to 13 m | presentation: past the camera's 8 m nearby radius, ~4 s of walking; farther hidden monsters stay hidden (no screen of silhouettes) |
+| `monsters/_shared.json see_through_color`, `see_through_fade_s` | warm red-orange (1.0, 0.42, 0.3) at 50%, 0.2 s | presentation: the opposite of the player's blue X-ray, subtle; no popping at the radius |
+| `monsters/_shared.json see_through_min_cover_m` | 0.25 m | presentation: no tinted rim where a body dips into the ground or stands in grass |
 | `monsters/_shared.json fall_landing_tolerance_m` | 0.05 m | absorbs the float error between the ground query and the per-tick fall step |
 | `monsters/9.json hop_*` | every 1.2-2.8 s, character base jump, 2 m max drop | MeowDB: "Can hop to a floor above or below", no rule |
 | `monsters/1.json touch_rule` | `when_provoked` | the Peace gap (above) |
@@ -317,7 +369,7 @@ merged view of every species explains every value it reads; `test_monster_def.gd
 ## Testing
 
 ```bash
-ISOLATE=<name> bash scripts/test.sh test_monster test_player_combat                    # 89 tests (3 world tests and the proxy-fit check SKIP)
+ISOLATE=<name> bash scripts/test.sh test_monster test_player_combat                    # 100 tests (3 world tests, the proxy-fit and the library see-through checks SKIP)
 ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh test_monster test_player_combat    # + real collision, the console on the island, the real game
 ISOLATE=<name> bash scripts/validate_data.sh                                            # the adaptation files, _shared.json included
 ```
@@ -333,15 +385,16 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 
 | File | Covers |
 |---|---|
-| `test_monster_def.gd` | all 6 species build; every map species has an adaptation; stats are the canonical JSON; movement kind = canonical label; speed = the walk-line derivation (read from data) plus the documented pins; hop apex and gravity; stagger and push from the combat rules; the Peace rule; models, placeholder and capsules; every adaptation key (species files and `_shared.json`) has a reason and every reason a key, and each species' merged view explains every value; the shared values reach every species and no species file repeats them; a species override wins with its own reason while the others keep the shared value; a missing shared table is an error, naming every value it held (`model_fit` included: no silent default) |
+| `test_monster_def.gd` | all 6 species build; every map species has an adaptation; stats are the canonical JSON; movement kind = canonical label; speed = the walk-line derivation (read from data) plus the documented pins; hop apex and gravity; stagger and push from the combat rules; the Peace rule; models, placeholder and capsules; every adaptation key (species files and `_shared.json`) has a reason and every reason a key, and each species' merged view explains every value; the shared values (the see-through ones too) reach every species and no species file repeats them; a species override wins with its own reason while the others keep the shared value; a missing shared table is an error, naming every value it held (`model_fit` and the see-through values included: no silent default) |
 | `test_monster_shared_data.gd` | the validator's shared-table exception: the shipped `_shared.json` has no finding and `misostory/monsters` no error; an injected `_zz_test_shared` in `monsters/` and `quests/` is not matched against canonical ids but still fails the reason convention, and is still swept for references; any other basename in a domain folder must still be a canonical id |
 | `test_monster_debug.gd` | `debug_kill()` takes no arguments and is the console's first choice; it runs the death path once (canonical EXP "monster:9", one `monster_killed(id, map)`, `loot_dropped` = `DropRoller.roll` with the same seed, `died` once), a second call does nothing, a bare monster is harmless; 40 debug kills drop only canonical Snail items; a slot index of -1 is no slot; INCLUDE_WORLD: on the real island with the real factory, `spawn 2 3` makes three slotless real Monsters and `kill all` gives EXP = the canonical sum of the kills, the seeded drops, every slot dead, only slot monsters released, and on the respawn tick exactly the slots come back |
-| `test_monster_game.gd` | INCLUDE_WORLD: runs `monster_game_checks.tscn` (30 checks) in a child process: `main.tscn`, the console's warp/spawn/kill end to end, and real mouse and key events (HUD button click and sub-frame click never swing, a world click swings once, J swings; then, injected between frames as real input arrives: a sub-frame click on the pause menu's Resume never swings, a sub-frame world click swings once) |
+| `test_monster_game.gd` | INCLUDE_WORLD: runs `monster_game_checks.tscn` (36 checks) in a child process: `main.tscn`, the console's warp/spawn/kill end to end, the see-through silhouette as the shell's own frames run it (a Snail spawned next to the player gets it, fades in and its fills draw; every live monster inside 12 m has it and every one beyond 13 m draws none; `kill nearest` drops it in the same frame and it stays off), and real mouse and key events (HUD button click and sub-frame click never swing, a world click swings once, J swings; then, injected between frames as real input arrives: a sub-frame click on the pause menu's Resume never swings, a sub-frame world click swings once) |
 | `test_monster_ai.gd` | brain stand/walk timings, turning, stagger → chase → wander, sub-KB hits; region steps, discs and strays; region from a MapDefinition; on synthetic collision: turns at a ledge and never falls, turns at a wall, walks up a 0.2 m step, six monsters stay inside a region for 30 s, the Orange Mushroom hops onto a 0.6 m terrace and never off a 5 m cliff, ambient hops land, falling and landing, the push stops at a ledge |
 | `test_player_combat_attack.gd` | lockout = the weapon's ladder time (Wooden Club, Sword, bare hands), presses during it ignored; held attack repeats at the lockout rate; the input buffer; no attack while input-disabled, in hit-stun or dead; the ground root and the air attack; nearest-in-front, never 1 m behind, one target; selection rules in isolation (every Sword presentation and both punches, depth, height, ties); the depth tolerance; bare hands deal 1 and a weapon matches CombatFormula with the same seed; whiffs; monster_hit / monster_missed and their numbers; `setup(ctx)` wiring; the scenes; removing PlayerCombat mid-attack releases the lock; a source swapped and put back by its owner is the owner's again (the decorator it saved is never re-pointed), and a re-wrap mid-attack keeps the player planted; the target count comes from `combat.json player_attack` (1) and a raised count rolls each target |
 | `test_player_combat_mouse.gd` | real `Input` events routed through the viewport (a Button over the world, the keyboard player): a press on the button (held, then released) never swings; a click shorter than a tick on it neither (the old polling guard swung); a world click swings, holding repeats, a sub-tick world click swings once; J attacks with the pointer over the button and while the left button holds it; Ctrl attacks; no swing during a GUI drag; a bot-driven player ignores the mouse; `MouseAttackGate` alone: pass-through without the mouse, world presses only, drags, release ends the hold, other buttons ignored, and the frame-N+1 report of a press that arrives during a physics frame; a sub-frame click on a Resume button that unpauses the tree never swings |
 | `test_player_combat_feel.gd` | `combat.json player_attack` holds every feel value with its own reason and `verified: false`; PlayerCombat reads them; edited data changes the attack (no root: walks during it); with `input_buffer_s` 0 a tap whose key is already up at the tick still attacks at once and a press during the lockout is not kept, while the shipped buffer keeps one; a missing section or malformed values are errors and leave the features off |
 | `test_monster_combat.gd` | every species (Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom) dies to Sword hits with a stagger and its HP bar, awarding exactly its own canonical EXP, one `monster_killed(id, map)` and items only from its own drop table; a seeded Sword kill of a Snail in 3-6 hits grants exactly the canonical 2 EXP (`exp_gained` "monster:2"), one `monster_killed("2", map)`; `loot_dropped` = `DropRoller.roll` with the same seed, at the feet, items from the canonical table, none for an empty roll; the kill is recorded and the slot respawns exactly at the 7.56 s tick, not before; survivor HP through release/realize; an already-live map is re-realized as monsters; contact damage = `resolve_monster_touch(...).final` with the same seed, events, the canonical 1.5 s gate, a second touch only after it; a miss (no damage, no push, MISS); a guard; the Peace rule; HP 0 → `player_died` and a dead player; no touch during a warp; touch geometry edges |
+| `test_monster_see_through.gd` | the rule (inside, at and past the radius, the hysteresis, dead, zero radius); the values reach every species from `_shared.json` (radius at least the camera's nearby radius; a malformed colour is an error); the fill: one shared ShaderMaterial, `stencil_mode read, write, compare_greater, 36`, no depth test, both faces, priority below labels, numbers and the HP bar, and `STENCIL_REF` below `PlayerVisual.STENCIL_REF`; lit and ink surfaces write the stencil on copies shared between monsters while the originals stay untouched; the fill mesh is one surface holding every surface's triangles (merged once per source mesh, a one-surface mesh used as it is) and is never occlusion-culled; with the world export, every surface of the real Snail proxy (ink shells included) writes the stencil, each fill is one surface over the whole mesh, and the library stays untouched; the placeholder in place (no fill under its tag); a visual rebuilt from the placeholder to a library model never edits the library's shared material; the fade in and out (alpha follows, hidden when off) through `step_see_through` and `advance`; death drops it at once and ignores requests, and the flash and death fade never touch the fill; `MonsterSystem.update_see_through` by distance (near, edge, past, far), the player walking in and back (hysteresis), a killed monster, no player |
 | `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit and the labelled placeholder; the HP bar and the death fade over the canonical time |
 | `test_monster_world.gd` | INCLUDE_WORLD: the island built synchronously, the factory installed on the world's view, maps 030/040/050/1002/1020 realized to capacity with real monsters (all six species), 12 s of stepping each: no falls, no recoveries, inside the mob region and the footprint, on walkable ground, every species wanders, Orange Mushrooms hop; no portal trigger of those maps reaches into the mob region and no monster ever stands in a trigger |
 
@@ -408,11 +461,74 @@ by its title over the world, a click on its body, an item dragged from a slot an
 drag), a sub-frame click on its close button, a click while the console is open: none swings. A sub-frame world click
 swings once; a world press held 1.5 s swings 3 times with the Sword (720 ms) and releasing it over a HUD button adds
 nothing; J attacks on the first tick after the console closes. The review found that a sub-frame click on the pause
-menu's Resume swung once (see "Mouse clicks and the UI"); fixed, and now one of the checks scene's 30 checks. Debug
+menu's Resume swung once (see "Mouse clicks and the UI"); fixed, and now one of the checks scene's checks (36 today). Debug
 side: `spawn 9 2` and `spawn 2 2` on 000000040 (the Orange Mushrooms hop there too), a debug Snail fought to death
 with J (EXP = the canonical sum of what died, the slot state and `view.nodes` untouched), three `kill nearest` in one
 frame kill three distinct monsters (never a fading one twice), debug spawns are gone after a warp away and back and
 after `reload`, and a second `kill all` reports no live monsters.
+
+### See-through silhouette in the real game (2026-10-04)
+
+A scratch driver (`_scratch/monsters-xray/driver/xray.gd`, run by `_scratch/monsters-xray/run.sh` from the ISOLATE
+copy, windowed at 1600 x 900 with `--disable-vsync`) starts `main.tscn` with a new character, turns `god on`, warps to
+each map and looks for a live monster that terrain hides: physics rays from 30, 60 and 90% of its height toward the
+camera (walkable, blocking, scenery), going on through prop and tree hulls (`*_hull*`), which the camera can dither.
+It then stands the player on a spawn slot 2.5-10 m from it that terrain does not hide (`goto slot`), waits 0.9 s,
+pauses the tree and renders the frame as the game left it, then with every silhouette off, without the monster,
+without the player, and with only this monster's silhouette. Pixel counts sample every other pixel on both axes.
+
+| Map | Monster, cover | Monster visible without it | Its silhouette adds | Changed on visible player pixels |
+|---|---|---|---|---|
+| 000000041 Snail Hunting Ground II | Blue Snail behind a raised terrace (`Walls`), 4.8 m away | 0 px | 430 px | 0 |
+| 000000041 Snail Hunting Ground II | Blue Snail half behind a terrace edge (`Ground`), 6.2 m | 165 px | 353 px | 0 |
+| 000000042 Snail Hunting Ground III | Blue Snail behind the corner of a cliff wall (`Walls`), 5.7 m | 121 px | 282 px | 0 |
+| 000001002 Dangerous Forest | Orange Mushroom behind a boulder (`Walls`, `Ground`), 3.6 m | 18 px | 2,209 px | 0 |
+
+These are the shipped shader (with the minimum cover); the runs before it found the same kind of cases (a Blue Snail
+wholly behind a Snail Hunting Ground III cliff wall: 0 px visible, 455 px added). In every capture the real system had
+turned the monster's silhouette on by itself (`is_see_through()` true, amount 1), and 2-11 of the map's 25-33 live
+monsters had it (the 12 m radius). The screenshots (`_scratch/monsters-xray/shots7/` and `shots8/`, viewed as sheets
+of off/on crops) show a flat red-orange snail or mushroom shape over the terrace, the cliff face and the boulder,
+completing a half-hidden body at the terrace edge and the cliff corner, with nothing in the frames without it, and no
+tint under the visible snails standing on the slopes around. Terrain hides monsters rarely: in the first 10 s after
+arrival (20 samples of every live monster per run) 0-4.4% of the samples on Snail Hunting Ground II, 0-0.5% on III
+and 1.6-2.6% in Dangerous Forest; the captures are monsters that wandered behind the terraces' walls later.
+
+- **Behind the player** (Snail Hunting Ground I, a Snail moved 0.7 m behind the player on a slope by the arrival): of
+  its 400 px silhouette 341 are hidden by the player, and the silhouette changes no pixel at all in the 400 x 300 box
+  around the player. A negative control swaps in a naive fill (`compare_not_equal 36`, which only skips the monster's
+  own pixels): it paints 356 px over the player. Before the minimum cover the real fill drew a 27 px line along the
+  snail's underside on that slope (the body dipping into the ground; seen in a zoomed crop); with it, 0.
+- **Cost** (Snail Hunting Ground II, 33 live monsters, the tree paused, 120 frames each): `update_see_through()` takes
+  34 µs per frame. With the 7 monsters of the radius on, 880 draw calls instead of 868 and 0.790 ms instead of
+  0.740 ms of GPU time (the depth read included; without the minimum cover the difference was 0.02 ms); with all 33
+  on, the same 880 calls and 0.791 ms, because fills off screen are culled. So all live monsters would be cheap too;
+  the radius is a readability choice (no screen of silhouettes on lower terraces). Before the fill meshes were merged
+  into one surface, 8 monsters cost 65 extra draw calls (one per material).
+
+**Review (2026-10-04, `_scratch/review-monsters-xray/driver/rv.gd`, same setup).** To see exactly which pixels a
+silhouette draws, the measurement turns one monster's tint opaque magenta and counts magenta pixels in its screen
+box (two identical frames differ by 0 px, so nothing else moves).
+
+- *Who hides what.* Of 237 samples of monsters within 13 m (000000040/41/42/50, 000001000/02/03/20, the player at
+  4-8 spawn slots per map) that no collision ray finds hidden, 59 still get silhouette pixels, and every one looked at
+  is really covered by geometry without collision: Dangerous Forest's boulders (a Red Snail, 2,483 px, almost wholly
+  hidden), A Split Road's sunflowers (a Shroom, 804 px over the flower heads), and the dots a camera-dithered canopy
+  keeps over a monster in its hole. So collision rays undercount what the silhouette is for; the behaviour is the
+  designed one.
+- *Feet.* No rim seen: in 11 of 152 samples the silhouette pixels sit only in the bottom fifth of a visible body
+  (1-186 px), and the three largest (186, 84, 42 px on Snail Hunting Ground III, The Field West of Amherst, Mushroom
+  Garden) are flower patches standing in front of the feet, not the ground the body dips into.
+- *Dithered trees.* An Orange Mushroom 2.3 m from the player behind an autumn canopy in In a Small Forest (inside the
+  camera's hole): the canopy's remaining dots over the cap take the tint (870 px), which reads as the same monster,
+  slightly warmer; nothing outside the body changes.
+- *NPCs.* A Snail placed 0.8 m behind Robin (Snail Hunting Ground I) paints 1,265 px of silhouette over him. In normal
+  play it is rare: with the player standing beside each NPC of 000000030 (Todd, Peter: Tutorial Jr. Sentinels),
+  000000040 (Robin, Sam) and 000000050 (Maria, Mai) for 240 s of game time each, monsters came within 0.4-1.6 m of
+  Todd, Sam and Mai, but a silhouetted monster stood behind an NPC on screen in 1 of 1,800 samples (Maria).
+- *Hit flash and death* with the silhouette on behind a terrace (a Blue Snail, 1,814 px): during the flash the
+  silhouette is still there (1,884 px, the body tilted by its flinch), and `die()` hides every fill in the same frame.
+- *All 25 maps*: warp, `spawn 2 3`, `kill all`, `reload` on every monster map, then save and load: no error.
 
 ## Known limits and follow-ups
 
@@ -426,6 +542,24 @@ after `reload`, and a second `kill all` reports no live monsters.
   `MapSession.death_rules`.
 - Monsters keep moving while a modal dialogue is open (as in classic); they stop only with the scene tree's pause.
 - Trees between the camera and a fight fade (OcclusionFader) but can still hide the player (camera system).
+- **See-through silhouette.** It is a flat tint: the hidden monster's shape, not its colours or its species. A cover
+  nearer than 0.25 m along the view (`see_through_min_cover_m`) never shows it, so the bottom of a body right behind
+  a low ledge it touches stays hidden, like its own contact with the ground; taller foliage (a flower patch, a bush)
+  further in front does tint (flower patches at a visible monster's feet, measured in the review above). It covers
+  NPCs, loot and anything else that writes no stencil: rare in play (1 of 1,800 samples beside the NPCs of
+  000000030/40/50), but a monster behind Todd, Sam, Maria or Mai paints over them. Its stencil value (36) must stay
+  below the player's (37); a new system that writes the stencil needs a value of at least 36, or monster silhouettes
+  will paint over it. Monsters beyond 13 m that terrain hides stay hidden (a readability choice, not a cost one: see
+  the review).
+- **Requested (NPCs):** if an NPC should never show a monster silhouette over it, the NPC's model surfaces write a
+  stencil value of at least 36 and other than 37 (say 38), as `MonsterVisual.with_stencil` does with 36: the
+  monster fill (`compare_greater 36`) then skips the NPC, and the player's X-ray (`!= 37`) is unchanged.
+- `MonsterVisual`'s stencil copies and merged fill meshes are cached in static dictionaries keyed by the library's
+  material and mesh resources, which they keep alive: each fresh load of `_library.glb` (a new world) adds a set and
+  the old one is never released (a few proxy meshes and materials per load).
+- **Requested (camera, PLAYER_AND_CAMERA.md):** `PlayerVisual.STENCIL_REF`'s comment ("any value no other system
+  uses") and the known issue "Monsters have no X-ray or outline of their own" are stale: monsters write 36, and
+  their silhouette relies on the player's reference staying above it.
 - The mouse split polls the attack action's key bindings while the mouse is involved, so a key tap shorter than a
   physics tick in the same tick as a UI click is lost (both land between the same two ticks). Keys alone are read
   exactly as before.

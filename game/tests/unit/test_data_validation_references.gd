@@ -1,6 +1,7 @@
 extends DataValidationTestCase
 ## Negative tests: broken cross-record references are caught (items, monsters, maps, portals, NPCs, quests, shops,
-## drop tables, formulas), dialogue links only warn, and deliberately out-of-scope references are skipped.
+## drop tables, formulas), dialogue links never fail (a canonical link outside the dataset is skipped, an adaptation
+## one warns), and deliberately out-of-scope references are skipped.
 
 
 func test_unbroken_copy_matches_shipped_report() -> void:
@@ -257,13 +258,86 @@ func test_beginner_starter_weapons_and_recovery_examples() -> void:
 	expect_new(r, "error", "reference", "formulas", recovery, "consumables.beginners_guide_examples[].item_id references items '%s-potion'" % BOGUS)
 
 
-func test_dialogue_link_to_missing_record_is_only_a_warning() -> void:
+func test_canonical_dialogue_link_outside_the_dataset_is_skipped() -> void:
+	# A canonical link is MeowDB's raw href; MeowDB covers the whole game, so the target is off-island content.
 	var c := clone_db()
 	var id := first_id_where(c, "quests", func(r: Dictionary) -> bool: return not first_link(r.get("dialogue", {})).is_empty(), "with a dialogue link")
 	first_link(c.quest(id).dialogue).id = BOGUS
 	var r := run_validator(c)
-	expect_new(r, "warning", "dialogue_link", "quests", id, "'%s'" % BOGUS)
+	expect_no_new(r)
+	assert_true(_skipped(r, "quests/%s: dialogue." % id, BOGUS), "the off-dataset link is listed as skipped")
+
+
+func test_malformed_canonical_dialogue_link_warns() -> void:
+	var c := clone_db()
+	var id := first_id_where(c, "quests", func(r: Dictionary) -> bool: return not first_link(r.get("dialogue", {})).is_empty(), "with a dialogue link")
+	var link := first_link(c.quest(id).dialogue)
+	link["kind"] = "zz-not-a-kind"
+	var r := run_validator(c)
+	expect_new(r, "warning", "dialogue_link", "quests", id, "unknown link kind \"zz-not-a-kind\"")
 	expect_no_new(r, "", "error")
+	link.erase("kind")
+	link.erase("type")
+	link["kind"] = ReferenceChecks.LINK_KINDS.keys()[0]
+	link.id = 7
+	expect_new(run_validator(c), "warning", "dialogue_link", "quests", id, "link has no string id")
+
+
+func test_adaptation_dialogue_link_outside_the_dataset_warns() -> void:
+	# An adaptation file's link was written by hand, so an unknown id is a mistake, not off-island content.
+	var c := clone_db()
+	c.miso[""]["zz_test_link"] = adapted({"line": {"segments": [{"text": "Hello", "ref": {"kind": "npc", "id": BOGUS}}]}})
+	var r := run_validator(c)
+	expect_new(r, "warning", "dialogue_link", "misostory", "zz_test_link", "dialogue links to npcs '%s'" % BOGUS)
+	expect_no_new(r, "", "error")
+	assert_false(_skipped(r, "zz_test_link", BOGUS), "an adaptation link is never skipped as out of scope")
+
+
+func test_quest_dialogue_link_is_checked_as_the_npc_corrected_id() -> void:
+	# Quest dialogue keeps MeowDB's raw link; an NPC's quest_dialogue block for the same quest may correct it
+	# (ref.meowdb_link_id = raw, ref.id = corrected), and the game (DialogueText) links the corrected id.
+	var c := clone_db()
+	var quest_id := first_id_where(c, "quests", func(r: Dictionary) -> bool: return not first_link(r.get("dialogue", {})).is_empty(), "with a dialogue link")
+	var link := first_link(c.quest(quest_id).dialogue)
+	var kind: String = link.get("kind", link.get("type", ""))
+	var target: String = ReferenceChecks.LINK_KINDS[kind]
+	var corrected := {"kind": kind, "id": c.ids(target)[0], "meowdb_link_id": BOGUS}
+	link.id = BOGUS
+	var npc: Dictionary = c.npc(c.ids("npcs")[0])
+	var blocks: Array = arr(npc, "quest_dialogue").duplicate()
+	blocks.append({"quest_id": quest_id, "lines": [{"text": "x", "segments": [{"text": "x", "ref": corrected}]}]})
+	npc["quest_dialogue"] = blocks
+	var r := run_validator(c)
+	expect_no_new(r)
+	assert_false(_skipped(r, "quests/%s:" % quest_id, BOGUS), "the corrected link resolves, so nothing is skipped")
+	# A correction to an id outside the dataset is skipped like any canonical link, naming both ids.
+	corrected.id = BOGUS + "-corrected"
+	r = run_validator(c)
+	expect_no_new(r)
+	assert_true(_skipped(r, "quests/%s:" % quest_id, "%s/%s-corrected (MeowDB link %s, corrected" % [target, BOGUS, BOGUS]),
+		"the corrected id is the one reported")
+	# Corrections apply only to that quest's NPC blocks.
+	blocks[-1].quest_id = BOGUS + "-other-quest"
+	assert_true(_skipped(run_validator(c), "quests/%s:" % quest_id, "%s/%s (MeowDB link to content" % [target, BOGUS]),
+		"another quest's correction does not apply")
+
+
+func test_link_remap_reads_odd_corrections_like_the_game() -> void:
+	# The validator reads a correction's ids exactly as DialogueText._remap_for does (QuestJson.s: null -> "", any
+	# other value -> str()), so a null id cannot make the two disagree about which id the game links.
+	var c := clone_db()
+	var quest_id: String = c.ids("quests")[0]
+	var npc: Dictionary = c.npc(c.ids("npcs")[0])
+	var blocks: Array = arr(npc, "quest_dialogue").duplicate()
+	blocks.append({"quest_id": quest_id, "lines": [{"text": "abc", "segments": [
+		{"text": "a", "ref": {"kind": "item", "id": null, "meowdb_link_id": BOGUS + "-raw"}},
+		{"text": "b", "ref": {"kind": "item", "id": BOGUS + "-from-null", "meowdb_link_id": null}},
+		{"text": "c", "ref": {"kind": "item", "id": BOGUS + "-from-number", "meowdb_link_id": 7.0}}]}]})
+	npc["quest_dialogue"] = blocks
+	var game_remap: Dictionary = DialogueText._remap_for(c, quest_id)
+	assert_eq(game_remap.get(BOGUS + "-raw", null), "", "the game reads a null corrected id as \"\"")
+	assert_eq(ReferenceChecks.new(c, ValidationReport.new())._link_remap(quest_id), game_remap,
+		"validator remap vs DialogueText._remap_for")
 
 
 func test_quest_starting_on_a_map_must_exist_whatever_its_region() -> void:
@@ -320,8 +394,9 @@ static func _derived_portal_index(rec: Dictionary) -> int:
 	return -1
 
 
-static func _skipped(r: ValidationReport, ref: String) -> bool:
+## True when some out-of-scope line contains `needle` (and `also`, when given).
+static func _skipped(r: ValidationReport, needle: String, also: String = "") -> bool:
 	for s in r.out_of_scope:
-		if ref in s:
+		if needle in s and (also == "" or also in s):  # GDScript: "" in s is false
 			return true
 	return false

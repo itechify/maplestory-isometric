@@ -3,9 +3,10 @@ extends RefCounted
 ## Which region a world point lies in (MAP_ARCHITECTURE.md section 4.3). Pure.
 ##
 ## Regions:
-##   map    every map footprint + ring offset in XZ (MapDefinition.footprint, the containment ring line), with the
-##          ring's vertical span: the map chunk's bounds from containment.margin_below_m below to margin_above_m
-##          above. Interiors are maps on the interior stage; their footprint is the room box.
+##   map    every map footprint + ring offset in XZ (MapDefinition.footprint, the containment ring line, with the
+##          map's authored region extensions such as Southperry's ship), with the ring's vertical span: the map
+##          chunk's bounds from containment.margin_below_m below to margin_above_m above. Interiors are maps on the
+##          interior stage; their footprint is the room box.
 ##   trail  every trail with geometry (TrailDef): within half-width + zone_margin of its centreline, within
 ##          zone_band of the centreline height (section 4.3: ribbon + 1 m, +-5 m).
 ## Map footprints take precedence over trail zones (a trail mouth inside a footprint is that map's).

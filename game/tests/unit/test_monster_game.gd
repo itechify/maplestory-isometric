@@ -2,8 +2,8 @@ extends TestCase
 ## The monster system in the real game (res://scenes/main.tscn, every subsystem the shell installs, real frames,
 ## physics and input) through res://scenes/actors/monster_game_checks.tscn in a child Godot process (the unit-test
 ## runner cannot await frames): the debug console's "spawn 2 3" and "kill all" end to end (EXP, drops on the ground,
-## slots, the respawn tick) and real mouse clicks (a HUD button never swings, nor the pause menu's Resume, the world
-## does, J does).
+## slots, the respawn tick), the see-through silhouette by distance to the player (on near, none far, dropped by a
+## kill) and real mouse clicks (a HUD button never swings, nor the pause menu's Resume, the world does, J does).
 ## Needs the Blender export (INCLUDE_WORLD=1); prints one SKIP line without it. The checks themselves are in
 ## scripts/actors/monsters/monster_game_checks.gd.
 
@@ -41,7 +41,7 @@ func test_console_and_mouse_in_the_real_game() -> void:
 			if at.contains("res://scripts/actors/monsters/") or at.contains("res://scripts/actors/combat/"):
 				fail("script error in the child: " + at)
 	assert_true(done, "the checks scene did not finish (exit %d): %s" % [code, text.right(1500)])
-	assert_true(passes >= 30, "expected the full set of checks, got %d" % passes)
+	assert_true(passes >= 36, "expected the full set of checks, got %d" % passes)
 	if done:
 		assert_eq(code, 0, "child exit code")
 	print("  [monster game] %d checks passed in %d ms" % [passes, Time.get_ticks_msec() - t0])

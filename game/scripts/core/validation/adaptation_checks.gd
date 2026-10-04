@@ -576,11 +576,11 @@ func _check_spawn_index(label: String, id: String, where: String, map_id: String
 		report.error("adaptation", label, id, "%s %s is not one of map %s's %d player spawns" % [where, var_to_str(index), map_id, spawn_count])
 
 
-## dialogue/<npc id>.json (or dialogue/_<name>.json for shared system lines): the file belongs to a canonical NPC, and
-## every canonical line it reuses exists: {"npc", "field", "line"} indexes that NPC's line list (0-based, as
-## DialogueText reads it) and {"quest", ...} names a canonical quest.
+## dialogue/<npc id>.json (or dialogue/_<name>.json, SHARED_TABLE_PREFIX, for shared system lines): the file belongs to
+## a canonical NPC, and every canonical line it reuses exists: {"npc", "field", "line"} indexes that NPC's line list
+## (0-based, as DialogueText reads it) and {"quest", ...} names a canonical quest.
 func _check_dialogue(label: String, id: String, data: Variant) -> void:
-	if not id.begins_with("_"):
+	if not is_shared_table(id):
 		if not db.has("npcs", id):
 			report.error("adaptation", label, id, "dialogue file for NPC '%s', which is not in canonical data (name it <npc id>.json, or _<name>.json for shared lines)" % id)
 		elif data is Dictionary and data.has("npc_id") and not ValidationUtil.same(data.npc_id, id):

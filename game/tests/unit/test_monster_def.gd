@@ -132,7 +132,9 @@ func test_every_adaptation_value_has_a_reason() -> void:
 func test_shared_values_reach_every_species_and_a_species_file_overrides_them() -> void:
 	var shared := db().miso_entity("monsters", MonsterDef.SHARED_TABLE)
 	for k in ["probe_ahead_m", "ledge_tolerance_m", "wall_probe_height_m", "new_heading_chance", "turn_jitter_deg",
-			"provoked_chase_s", "model_fit", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m"]:
+			"provoked_chase_s", "model_fit", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m",
+			"see_through_radius_m", "see_through_hysteresis_m", "see_through_color", "see_through_fade_s",
+			"see_through_min_cover_m"]:
 		assert_true(shared.has(k), "_shared.json holds %s" % k)
 		for id in SPECIES:
 			assert_false(db().miso_entity("monsters", id).has(k), "monsters/%s.json no longer repeats %s" % [id, k])
@@ -146,6 +148,8 @@ func test_shared_values_reach_every_species_and_a_species_file_overrides_them() 
 		assert_near(d.provoked_chase_s, float(shared["provoked_chase_s"]), 1e-9, "%s chase" % id)
 		assert_eq(d.model_fit, String(shared["model_fit"]), "%s model fit" % id)
 		assert_near(d.fall_landing_tolerance_m, float(shared["fall_landing_tolerance_m"]), 1e-9, "%s fall tolerance" % id)
+		assert_near(d.see_through_radius_m, float(shared["see_through_radius_m"]), 1e-9, "%s see-through radius" % id)
+		assert_near(d.see_through_fade_s, float(shared["see_through_fade_s"]), 1e-9, "%s see-through fade" % id)
 	var om := MonsterDef.build("9", db())
 	assert_near(om.hop_max_rise_apex_fraction, float(shared["hop_max_rise_apex_fraction"]), 1e-9, "OM hop reach")
 	# A species file that names a shared key wins, with its own reason; the other species keep the shared value.
@@ -177,4 +181,5 @@ func test_a_missing_shared_table_or_shared_value_is_an_error() -> void:
 	assert_true(text.contains("_shared"), "the missing table is named: %s" % text)
 	assert_true(text.contains("probe_ahead_m"), "and the values it held are missing: %s" % text)
 	assert_true(text.contains("model_fit"), "model_fit too (no silent default): %s" % text)
+	assert_true(text.contains("see_through_radius_m") and text.contains("see_through_color"), "and the see-through values: %s" % text)
 	assert_true(MonsterDef.build("9", c).errors.size() > d.errors.size(), "a jumper also misses its hop reach")

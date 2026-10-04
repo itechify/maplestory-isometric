@@ -142,15 +142,19 @@ func _scenario_roger() -> void:
 	await _shot("1_prompt_roger")
 	await _press_key(KEY_F)
 	await _wait(0.6)
-	_check(npc_ui.dialogue.is_open() and npc_ui.dialogue.body_text().begins_with("Press the hotkey I"),
-		"F opened Roger's offer: '%s'" % npc_ui.dialogue.body_text().left(40))
+	_check(npc_ui.dialogue.is_open() and npc_ui.dialogue.body_text().begins_with("Talk to Roger."),
+		"F opened Roger's offer card: '%s'" % npc_ui.dialogue.body_text().left(40))
 	_check(ctx.is_modal_active() and interaction.prompt.text() == "", "modal: no prompt")
 	await _shot("2_dialogue_roger_offer")
 	await _press_key(KEY_Y)
 	await _wait(0.4)
 	_check(Game.character.inventory.count("235") == 1, "Roger's Apple handed over")
+	_check(npc_ui.dialogue.body_text().begins_with("Press the hotkey I"), "the instructions follow the accept")
+	await _shot("2b_dialogue_roger_instructions")
+	await _press_key(KEY_ENTER)
+	await _wait(0.4)
 	_check(not ctx.is_modal_active(), "modal released")
-	# Roger's offer has no accepted lines; talk again for the in-progress line with its item reference.
+	# Talk again for the in-progress line with its item reference.
 	await _press_key(KEY_F)
 	await _wait(0.6)
 	_check(npc_ui.dialogue.body_text().begins_with("Eat the Roger's Apple"), "in-progress line")

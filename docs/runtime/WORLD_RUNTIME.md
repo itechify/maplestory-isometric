@@ -18,10 +18,10 @@ dithering are not built; their seams are listed at the end.
 | `game/data/misostory/portal_adaptations.json` | portal adaptations: link modes (`force_link_mode`, defaults, per-link overrides), destination overrides, the arrival gate, gate sizes, trigger size, arrival inset, hidden types |
 | `game/data/misostory/presentation.json` | world feel constants: fades, frame budgets, spawn-slot rules, grounding, containment, trails (walls, zones), the region invariant, fall recovery, NPC talk range |
 | `game/data/misostory/death.json` | the world runtime reads only `respawn_player_spawn_index` (the rest is the game shell's death adaptation) |
-| `game/data/misostory/maps/<id>.json` | optional per-map overrides (`environment_preset`, `camera.ortho_size_scale`, `spawn_slot_overrides`, `spawn_keepouts`); `000000030.json` keeps spawn slots out from under the yellow house's cap |
+| `game/data/misostory/maps/<id>.json` | optional per-map overrides (`environment_preset`, `camera.ortho_size_scale`, `spawn_slot_overrides`, `spawn_keepouts`, `region_extensions`, `collision.double_sided_trimesh`); `000000030.json` keeps spawn slots out from under the yellow house's cap; `000000060.json` brings Southperry's moored ship into the map's region and ring and makes its collision double-sided |
 | `game/tools/traversal_bot.gd` | `TraversalBot`: L2 per-map route runs (every route of every map, both ways) |
 | `game/tools/traversal_walker.gd`, `traversal_paths.gd`, `traversal_nav.gd` | the traversal bot in the real world: `TraversalWalker` (IslandWorld + the game's PlayerController + BotInput + the MapSession autoload, on real physics frames), `TraversalPaths` (resampling, stepping around props), `TraversalNav` (in-map paths over the map's routes) |
-| `game/tools/traversal_trails.gd`, `traversal_tour.gd` | `TraversalTrails` (L2 per link: walk, press-Up, equivalence, the 40 -> 30 ledge), `TraversalTour` (L3: the Test A tour in edge and in warp mode) |
+| `game/tools/traversal_trails.gd`, `traversal_tour.gd` | `TraversalTrails` (L2 per link: walk, press-Up, equivalence, the 40 -> 30 ledge, the trails-walkable count), `TraversalTour` (L3: the Test A tour in edge and in warp mode) |
 | `game/tools/traversal_bot_tool.gd`, `traversal_bot.tscn` | the headless runner that writes `docs/runtime/traversal_report.json` |
 | `game/tools/traversal_shots.gd`, `traversal_shots.tscn` | windowed screenshots of the real game walking a trail across a gate and down the one-way ledge |
 | `docs/runtime/traversal_report.json` | the last traversal run: L1 build, L2 routes, L2 links, L3 tour (edge and warp), every trail's ribbon |
@@ -60,9 +60,11 @@ generated `world_index.json` is needed). MeowDB decides what exists and where it
 repeat `[0]`), `respawn_location` (`{returnMap, spawn_index 0}`), `environment_configuration` (`bgm`, `bgm_name`,
 `is_town`, `safe_zone`, raw `field_limit`, raw `mob_rate`, `preset`, `ortho_size` = gameplay camera
 `godot_size_keep_width` x `camera.ortho_size_scale`, `ortho_size_keep_height`, camera pitch/forward/xform), `frame`
-(map-local to world, from `footprint.local_frame`), `footprint` (layout rectangle + 1 m: the ring line),
+(map-local to world, from `footprint.local_frame`), `footprint` (layout rectangle + 1 m, united with the map's
+region extensions: the region edge and the ring line),
 `camera_bounds` (§4.11: the footprint united with the zones of the edge-mode trails touching the map; recomputed
-when a link mode changes), plus `slug`, `kill_y` (the lowest walkable point of the map **and its trails** minus 6 m),
+when a link mode changes), plus `footprint_base` (layout + 1 m without extensions), `region_extensions` (see
+"Region extensions"), `slug`, `kill_y` (the lowest walkable point of the map **and its trails** minus 6 m),
 `y_min`/`y_max`, `spawn_areas`, `mob_names`, `content_hash`.
 
 ## Portals and links
@@ -78,8 +80,9 @@ when a link mode changes), plus `slug`, `kill_y` (the lowest walkable point of t
 - **Links**: 24 (20 trail, 4 door; 1 one-way). A link is a door when a portal's sidecar marker is a door, so without
   the export every link is a trail.
 - **Link modes** (§4.4). `force_link_mode` is `""`, so each link takes its override (`link_modes.overrides`), else
-  `default_link_mode` by kind: trails `edge`, doors `warp` (doors are always warp). Today 19 trails are `edge`; the
-  000001012 ↔ 000001014 trail is overridden to `warp` for its source geometry (see "Source world status"). An `edge`
+  `default_link_mode` by kind: trails `edge`, doors `warp` (doors are always warp). All 20 trails are `edge` and
+  `link_modes.overrides` is empty: the 000001012 ↔ 000001014 trail was overridden to `warp` until the Blender round-3
+  export re-routed it (see "Source world status"). An `edge`
   link's portals are `press_up_or_walk` and its gates commit; a `warp` link's portals are `press_up`, its gates are
   off and its plugs close the trail mouths. `force_link_mode: "warp"` is the M1 fallback (every link press-Up).
   - `PortalGraph.set_link_mode(link_id | "all", mode)` switches at runtime: `edge` on a trail link, `warp` on any;
@@ -181,8 +184,8 @@ when a link mode changes), plus `slug`, `kill_y` (the lowest walkable point of t
 
 ## Region index and the identity invariant
 
-`RegionIndex.from_defs()` (rebuilt once the trails have geometry): map footprints (+1 m; the ring's vertical span,
-the chunk bounds from 2 m below to 4 m above) and the 20 trail zones. `region_of(pos, prefer)` returns
+`RegionIndex.from_defs()` (rebuilt once the trails have geometry): map footprints (+1 m, with their region
+extensions; the ring's vertical span, the chunk bounds from 2 m below to 4 m above) and the 20 trail zones. `region_of(pos, prefer)` returns
 `{kind: "map" | "trail" | "void", id, maps}`; map footprints win over trail zones, and `prefer` (current_map) wins
 among several. `allowed(pos, current_map, armed_maps)`: in current_map, else (outside every footprint) on a trail
 touching it, else in the map of an armed gate.
@@ -199,6 +202,62 @@ touching it, else in the map of an armed gate.
   banner of the map you left (seen in the review's windowed run, 000000040 → 000000041). Requested from the HUD.
 - **SafeGround** (`FallRecovery.is_safe_point`): `allowed(pos, current_map)` without armed gates: the map or one of
   its trails.
+
+### Region extensions
+
+A map's region is its layout rectangle + 1 m, unless something walkable the export builds for that map lies outside
+it. `maps/<id>.json region_extensions` then adds it (`MapDefinitions.apply_region_extensions`, at build time):
+
+- `ring_line_local`: a polygon in the map's local frame (the sidecar's `footprint.local_frame`, metres, x and y as in
+  the Blender map source; world = `frame * Vector3(x, 0, -y)`). It is the region's edge itself, where the ring wall's
+  inner face stands, so it is **not** grown by `ring_offset_m`. It must overlap the footprint: the union
+  (`Geometry2D.merge_polygons`) has to be one polygon, else the entry is refused with a build error (also without a
+  reason or with fewer than 3 points). A map without export geometry (no footprint) is left alone.
+- The union becomes `footprint`, so everything that reads it follows: `RegionIndex` (the identity invariant,
+  SafeGround, saves), the containment ring, `footprint_contains`, the gate ring points and the camera bounds.
+  `footprint_base` keeps the layout ring (+1 m); the mob region still uses the layout rectangle.
+- `keep_footprint_ring_below_y` (optional, world height): where the extension opens the layout's own ring line, that
+  wall still stands from the ring's foot up to this height ("Kept" pieces of the ring body). Ground under the
+  extension stays closed while a walkway crosses the old line above it.
+
+**Southperry (000000060): the ship <Victoria>.** The Blender source moors the ship outside the layout's front edge
+(local y < 0; centre (74.5, -4.3), walkable decks to y = -5.85). The end of the Main route and the ShipDecks,
+ShipForecastle and ClimbMast routes (47 authored points, with the MastRope) lay up to 5.5 m outside the layout,
+4.5 m beyond the ring line: the layout ring's wall stood across the gangplank, and a player on the deck read as
+"void" (`[RegionMonitor] identity invariant: ... lies in void`). The extension's ring line hugs the ship's deck-level
+outline (bulwarks and deck edges, probed in the export's collision with rays from 10.5 m down to 5 m), so no
+body-sized pocket is left between the ship and the wall:
+
+- port side: 0.31 to 0.41 m outside the bulwarks. The margin is tight on purpose: the stern barrel engine's top
+  (7.4 m) sits 2.5 m below the quarterdeck bulwark, so a player who dropped onto it could not get back, and with
+  0.35 m between bulwark and wall no 0.6 m body fits down there (the fore engine likewise);
+- stern: on the quarterdeck's stern edge (x 63.2; the deck ends at x 63.3, a 0.05 m transom sliver at 8.9 m runs at
+  x 63.2 to 63.25). The first version stood 0.3 m further out (x 62.9): a player who walked off the quarterdeck
+  dropped onto the sliver and hung behind the stern in mid-air, and could not walk back without jumping;
+- bow: across the forecastle's bow notch at x 84.85 (the bulwark tips reach x 84.95 at y -3.1 and -5.5, the deck
+  ends at x 84.5 between them; the bowsprit runs through the wall). At x 85.5, the first version left a 1 m void in
+  front of the notch, where a player jumping off the bow fell into the sea (a fall recovery) or hung on the stem
+  pieces in mid-air.
+
+The layout ring under the ship (y = -1, x 63.2 to 83) keeps a wall up to 5.6 m: the base strip in front of the quay
+(1.0 m, one 0.8 m step below the sunken street) stays closed instead of opening onto the sea under the hull, and the
+gangway crosses that line at 7.4 m. A player who jumps off the starboard side lands on that strip and walks back to
+the town through the sunken street.
+
+The ship's collision is part of Southperry's one-sided trimesh, whose faces point outward. On the deck the player is
+inside it, so `maps/000000060.json` sets `collision.double_sided_trimesh` (see "World loading, collision and
+containment"). Without it, two pushes toward port fell out to kill_y: one slipped through the bulwark under the
+sloping quarterdeck handrail (local x 68.4), the other ran in under the forecastle deck past the end of its aft
+bulkhead (x 81 to 82.6) and fell through the hollow hull. One known slot remains (`KNOWN_EXTENSION_SLOTS` in
+`world_checks.gd`, a Blender request under "Source world status"): below the forecastle the main deck stops short of
+the port hull, so a body pushed there drops about 0.45 m between deck edge and hull, wedged, and walks back out.
+
+Checked: `test_region_routes` (every authored point in its own map), `test_world_static` (no ring wall within a body of
+any route point, the kept wall), `test_world_transitions` (the real player pushed at every metre of the extension's
+ring with jumps: on the floor afterwards, walks back, no fall recovery, no invariant violation; the first version's
+ring with one-sided collision fails it 13 times: 9 ring pockets at the stern and the bow, 4 fall-outs through the
+one-sided collision), and the game's PlayerController in main.tscn walking Main onto the ship and pushing off the
+stern, the bow, the forecastle and the port side with jumps: 0 recoveries, 0 violations.
 
 ## MapSession
 
@@ -402,15 +461,24 @@ then reassigns layers by body name:
 | 64 (7) | scenery | collision of the other world chunks (island body, plinth outcrops, scenery, forest) | player |
 | 128 (8) | kill | the sea-level kill plane (Area3D) | |
 
+The exported trimeshes (`Ground`, `Walls`) are one-sided, their faces pointing outward. A map whose
+`maps/<id>.json` sets `collision.double_sided_trimesh` (with a reason) gets copies of its chunk's trimesh shapes with
+`backface_collision` on (`IslandWorld.double_sided_trimesh`, counted in `stats.double_sided_trimeshes`). Today only
+Southperry sets it, for its ship (see "Region extensions").
+
 `WorldLayers.PLAYER_MASK` = walkable, blocking, containment, scenery; `MONSTER_MASK` = walkable, blocking.
 
 - **Environment**: sun (`index.json environment.sun` xform and colour; energy = strength x
   `environment.sun_energy_per_w_m2`), procedural sky from `sky_gradient_srgb`, ambient from `world_backgrounds[0]`.
 - **Sea kill plane** at `sea_level_y` spanning every chunk's bounds.
 - **Containment** (`ContainmentBuilder.build` → `rings`, `plugs`, `trail_walls`, `ring_gaps`):
-  - **Rings**: one body per map, a box wall per edge of footprint + 1 m, spanning the chunk's whole height (2 m below
-    to 4 m above its bounds; the spec's "4 m tall" assumes flat maps, but terraces rise ~10 m above `base_y`). The
-    inner face lies on the ring line, the wall outside it.
+  - **Rings**: one body per map, a box wall per edge of footprint + 1 m (with its region extensions), spanning the
+    chunk's whole height (2 m below to 4 m above its bounds; the spec's "4 m tall" assumes flat maps, but terraces
+    rise ~10 m above `base_y`). The inner face lies on the ring line, the wall outside it: outside by the polygon's
+    winding (`outward_side`, `edge_outward`), so a concave ring such as Southperry's works. Pieces are lengthened by
+    the wall thickness only at convex corners (`convex_corners`); at a concave corner the two walls already overlap,
+    and a lengthened piece would stand 0.5 m inside the region. A region extension's
+    `keep_footprint_ring_below_y` adds the "Kept" low wall (`add_kept_ring`).
   - **Gaps**: at every gate into the map, the wall leaves a gap centred on the gate, as wide as the corridor between
     the trail's side walls and never wider than the gate (`min(gates.half_width_m, half-width +
     trails.side_wall_offset_m)` each side), so no slot opens beside a side wall. 40 gaps.
@@ -495,7 +563,7 @@ Every value below lives in data with its reason; none is in code.
 |---|---|---|
 | `portal_adaptations.json:force_link_mode` | `""` | M2: links take their configured mode; `"warp"` is the M1 fallback (every link press-Up, plugs closed) |
 | `portal_adaptations.json:default_link_mode` | trail `edge`, door `warp` | §4.4 |
-| `portal_adaptations.json:link_modes.overrides` | `T_000001012_west00__000001014_east00`: `warp` | the trail's hairpin climbs inside 000001012's containment band (Source world status); until the Blender fix the link is press-Up only |
+| `portal_adaptations.json:link_modes.overrides` | none | every trail walks; 000001012 ↔ 000001014 was `warp` until the Blender round-3 re-route (Source world status) |
 | `portal_adaptations.json:arrival_gates` | `arrival:T_000000030_out00__000000040` at 40's `in00` anchor, spawn index 0 | MeowDB's one-way link needs an arrival point; it is the walk-through gate at the foot of the ledge |
 | `portal_adaptations.json:gates` | half-width 2.25 m, 3 m above, 1 m below, disarm 0.25 m behind, teleport step 2 m | §4.4: the 4.5 m corridor, twice the max jump, a crossing mid-jump still arms |
 | `portal_adaptations.json:one_way_allowlist` | 30 → 40 | canonical one-way link for the SCC check |
@@ -515,6 +583,8 @@ Every value below lives in data with its reason; none is in code.
 | `presentation.json:npc` | talk radius 1.6 m, fallback spacing 2.5 m | no MeowDB talk range |
 | `presentation.json:session` | fallback map 000000001, location refresh 0.25 s | §4.9 step 4; fresh save points |
 | `death.json:respawn_player_spawn_index` | 0 | MeowDB gives the returnMap, not which player spawn (open question 1). Moved from `presentation.json:respawn.player_spawn_index`; `WorldTuning.value("respawn", "player_spawn_index")` still answers through `MOVED_KEYS` |
+| `maps/000000060.json:region_extensions` | `ship_victoria`: the ship's ring line on its deck-level outline (bulwarks + 0.31 to 0.41 m, the quarterdeck's stern edge, across the bow notch), the layout ring kept below 5.6 m under it | the ship is moored outside the layout rectangle; without it the deck is "void" and the ring stands across the gangplank; a looser line leaves pockets to hang in or fall through ("Region extensions") |
+| `maps/000000060.json:collision.double_sided_trimesh` | true | the export's trimesh faces point outward; on the ship the player stands inside them and slipped through the bulwark and under the forecastle deck into the sea ("Region extensions") |
 | `maps/000000030.json:spawn_keepouts` | 6.5 m around `X30000_HouseYellowBrim` | the yellow house's cap (12 m wide) overhangs its colliding walls; a Sentinel slot stood under it and read as inside the roof. Goes once the Blender cap collides |
 | `presentation.json:environment` | sun energy = W/m² x 0.3183, preset `island_day` | Blender-to-Godot light match |
 | `presentation.json:ambient_neighbours` | false | M3, not built |
@@ -539,10 +609,12 @@ bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://to
 
 | Test file | Level | Checks |
 |---|---|---|
-| `test_portal_graph.gd` | L0 | 47 PortalDefs (exactly one each), 1 arrival gate with a reason, resolution 46 reciprocal + 1 player spawn agreeing with MeowDB's lookup, directed graph = MeowDB's, BFS from 000000001 reaches 25, SCCs {1,10,20,21,30} + rest with only 30 → 40 crossing (allowlisted), every map reaches its returnMap; link modes from the data (every link two ends and two maps; portals follow their link; the arrival gate walk-only); with the export 20 trail and 4 door links, 19 edge (the overridden one warp); `force_link_mode` warp as the M1 fallback; `set_link_mode` both ways, one `link_mode_changed` per change, doors refuse edge, `all`; hidden type 1 |
+| `test_portal_graph.gd` | L0 | 47 PortalDefs (exactly one each), 1 arrival gate with a reason, resolution 46 reciprocal + 1 player spawn agreeing with MeowDB's lookup, directed graph = MeowDB's, BFS from 000000001 reaches 25, SCCs {1,10,20,21,30} + rest with only 30 → 40 crossing (allowlisted), every map reaches its returnMap; link modes from the data (every link two ends and two maps; portals follow their link; the arrival gate walk-only); with the export 20 trail and 4 door links, all 20 trails edge, no override (1012 ↔ 1014 edge); `force_link_mode` warp as the M1 fallback; `set_link_mode` both ways, one `link_mode_changed` per change, doors refuse edge, `all`; hidden type 1 |
 | `test_gate_rules.gd` | L0 | `GateDef.step`: a grounded crossing commits at once; mid-jump arms and commits on landing; hit-stun delays the commit to its first grounded tick after; walking back past `disarm_back` disarms; no arming beside, above or below the box, or without a crossing; sizes from the data |
 | `test_gate_monitor.gd` | L0 (export) | GateMonitor on a fake world and session: walking across the far gate commits via gate with the source portal and its arrival; current_map's own gate never commits; a 3.5 m jump in one tick is a teleport; hit-stun delays, a warp-mode link never commits; the one-way ledge commits 30 → 40 on landing and reports the gate into 30 as a gate without a link |
 | `test_region_index.gd` | L0 (+ export) | map footprints win over trail zones; zone margin and band; the identity invariant (current map, its trails, an armed gate's map; never another map or another trail); with the export every trail's middle is trail, its mouths in its maps, both maps own it |
+| `test_region_routes.gd` | L0 (export) | the identity invariant on every authored path: every route point of every map, every climbable's foot, top and top exit, every player spawn, portal anchor and NPC marker is in its own map's region and `allowed`; Southperry's ship routes (Main's end, ShipDecks, ShipForecastle, ClimbMast) lie outside the layout ring and inside the region only through the extension, in no other map; every trail centreline row lies in one of its two maps or its own zone |
+| `test_world_containment.gd` | L0 | concave rings: walls outside by winding (both windings of an L shape), corners lengthened only where convex (no pillar inside the concave corner, every corner closed); `add_kept_ring`; `apply_region_extensions` in a yawed map frame (merge, `footprint_base`, kept height) and its refusals (no reason, too few points, detached); a map without a footprint is left alone |
 | `test_world_trail_geometry.gd` | L0 (+ export) | `TrailGeometry` on a hand-built L-shaped trail (caps, sides, centre half the width from both sides, on the top); resampling; deck rows; with the export all 20 ribbons derived from the meshes, one width each (11 x 5.2, 8 x 3.8, 1 x 3.4 m), the bridge appended, every cap 1 m inside its gate and centred on it (the ledge end on the plane) |
 | `test_map_camera_bounds.gd` | L0 (export) | camera bounds reach along every edge-mode trail and leave out the warp-mode one; warp mode gives the footprint; kill_y below every trail |
 | `test_map_session_gates.gd` | L0 | on a fake world: a gate commit is one frame, places nothing, never touches input, realizes around the player, emits the three events with the source portal and records its arrival; a press-Up still takes and gives back input; 40 → 30 refused, 30 → 40 through the arrival gate records `player_spawns[0]`; `trail_changed` once per change, cleared by a map change and by reset; a save on a trail keeps current_map's portal as entry, no resume |
@@ -555,22 +627,22 @@ bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://to
 | `test_map_session.gd` | L0 | guards, event order, 40 → 30 rejected, walk-only gate rejected by press, doors, death/respawn (4 maps), ring buffer, cache round trip and eviction, load chain, save block, debug hooks (edge works, doors refuse it); `reset()`; the death commit |
 | `test_portal_one_way_ledge.gd` | L0/L1 | the 30 → 40 ledge invariant: `MovementModel.jump_apex_at_cap()` + `step_up` + 0.3 m ≤ the exported ledge height (2.4 m) ≤ 2.6 m; the face on 40's arrival gate plane (footprint + 1 m) within 0.1 m; player_spawns[0] on the landing |
 | `test_map_sidecar_tolerance.gd` | L0 | missing Todd/Sam/Mai markers → logged fallback; the Phase 1 export shape; unknown added fields; authored fields win |
-| `test_world_static.gd` | L1 | the island builds with **0 errors and 0 warnings**; collision layered; every arrival, player_spawns[0], NPC and slot grounded, capsule-clear, in its own map, outside other triggers and keep-outs; every ring closed except its gate gaps (probed along every ring line), the gaps open in edge mode and plugged in warp mode; 20 trails, 20 wall bodies, 40 plugs; every gate on its ring line with its portal's normal; the ribbon between the gates in no map region and in its zone; kill_y below the trails; side walls beside every ribbon edge and never on it; no other map's ring on a ribbon (except the one known case, `KNOWN_RING_CROWDING`); the ledge gate = the sidecar's gate plane; no gap wider than its corridor |
+| `test_world_static.gd` | L1 | the island builds with **0 errors and 0 warnings**; collision layered; every arrival, player_spawns[0], NPC and slot grounded, capsule-clear, in its own map, outside other triggers and keep-outs; every ring closed except its gate gaps (probed along every ring line), the gaps open in edge mode and plugged in warp mode; 20 trails, 20 wall bodies, 40 plugs; every gate on its ring line with its portal's normal; the ribbon between the gates in no map region and in its zone; kill_y below the trails; side walls beside every ribbon edge and never on it; no other map's ring on a ribbon (except the one known case, `KNOWN_RING_CROWDING`); the ledge gate = the sidecar's gate plane; no gap wider than its corridor; no containment wall within a body capsule of any route point (every trail mouth plugged); a region extension's ring vertices on the map's ring line, and its kept wall closed below its height and open above |
 | `test_traversal_routes.gd` | L2 | the route sweep (`TraversalBot.sweep`): every route of all 25 maps, both ways (one_way once), 360 runs, **0 failures** |
-| `test_traversal_links.gd` | L2/L3 | three child processes of `traversal_bot.tscn`: the link runs (85, **0 failures**, the ledge blocks 40 → 30), the Test A tour walking the trails and the tour in warp mode (each 38 legs, ok, **0 recoveries, 0 stalls, 0 violations, 0 teleports**) |
-| `test_world_transitions.gd` | L2 | `world_checks.tscn` in a child process: a build with 0 warnings; all 47 press-Up transitions, 4 doors, death in 40/1014/21/1011, the load chain, the save round trip at every map, monsters, fall recovery, the mid-air re-placement, NPC scope, portal visuals, layers and physics order, gating, commit; with the real player the **containment** walk twice: every link warp (each map closed by its ring and plugs) and the configured modes (doors closed; edge portals open onto their trails, held by the side walls, or committed through the far gate; no recovery, no invariant violation) |
+| `test_traversal_links.gd` | L2/L3 | three child processes of `traversal_bot.tscn`: the link runs (87, **0 failures**, all 20 trails walkable, the ledge blocks 40 → 30), the Test A tour walking the trails and the tour in warp mode (each 38 legs, ok, **0 recoveries, 0 stalls, 0 violations, 0 teleports**) |
+| `test_world_transitions.gd` | L2 | `world_checks.tscn` in a child process: a build with 0 warnings; all 47 press-Up transitions, 4 doors, death in 40/1014/21/1011, the load chain, the save round trip at every map, monsters, fall recovery, the mid-air re-placement, NPC scope, portal visuals, layers and physics order, gating, commit; with the real player the **containment** walk twice: every link warp (each map closed by its ring and plugs) and the configured modes (doors closed; edge portals open onto their trails, held by the side walls, or committed through the far gate; no recovery, no invariant violation); then the region-extension rings (`_check_extension_rings`): at every metre of an extension's ring outside the layout ring, the player walks at it from the deck 1.2 to 3 m inside, jumping, then walks back without jumping: on the floor, back within 0.75 m, no recovery, no violation (`KNOWN_EXTENSION_SLOTS`, printed as WORLD_KNOWN: the main-deck slot below Southperry's forecastle) |
 
 ## Traversal (M2)
 
-`docs/runtime/traversal_report.json` is the run of the final M2 code (`traversal_bot.tscn`, `--fixed-fps 60`, about
-55 s on the dev machine). Summary:
+`docs/runtime/traversal_report.json` is the run on the Blender round-3 export (`traversal_bot.tscn`, `--fixed-fps 60`,
+about 55 s on the dev machine). Summary:
 
 | Section | Result |
 |---|---|
 | L1 build | 0 errors, 0 warnings; 20 trails with ribbons, 40 plugs, 25 rings |
 | L2 routes | 25 maps, 360 runs, 0 failures |
-| L2 links | 85 runs, 0 failures: the 19 edge-mode trails walked both ways (and the one-way 30 → 40 down the ledge) with the exact `map_left → map_entered → portal_used` sequence through the gate, every link pressed in warp mode (doors both ways, the overridden 1012 ↔ 1014 both ways), walk and press-Up equivalent on every edge direction; 40 → 30: 10 s of jump spam at the ledge, the player stays in 000000040 and never reaches 30's region or the trail |
-| L3 tour, edge | 38 legs over all 25 maps from a new game at 000000001, 858 s of game time, 2,625 m; 0 fall recoveries, 0 stalls, 0 invariant violations, 0 teleports; the 000001012 ↔ 000001014 leg pressed (warp override), every door pressed |
+| L2 links | 87 runs, 0 failures; `l2_links.trails_walkable`: **20 / 20 trails walkable** (20 in edge mode, no warp override). Every trail walked in each direction it allows (both ways, the one-way 30 → 40 down the ledge) with the exact `map_left → map_entered → portal_used` sequence through the gate, every link pressed in warp mode (doors both ways), walk and press-Up equivalent on every edge direction. 000001012 ↔ 000001014: 22.4 s and 68.5 m each way, 0 recoveries, 0 violations. 40 → 30: 10 s of jump spam at the ledge, the player stays in 000000040 and never reaches 30's region or the trail |
+| L3 tour, edge | 38 legs over all 25 maps from a new game at 000000001, 901 s of game time, 2,758 m; 0 fall recoveries, 0 stalls, 0 invariant violations, 0 teleports; every trail leg walked (1012 → 1014 and back included), every door pressed |
 | L3 tour, warp | the same 38 legs, every link pressed (`set_link_mode("all", "warp")`, which gives the same modes as `force_link_mode: "warp"`; `test_force_link_mode_warp_is_the_m1_fallback`), 631 s, 1,875 m; 0 / 0 / 0 / 0 |
 
 The bot walks with the game's PlayerController through the real MapSession, GateMonitor and RegionMonitor. Its paths
@@ -582,35 +654,45 @@ it. Times are game time at 60 ticks/s.
 ## Source world status
 
 The Blender source is clean for warp mode (blender_export.md, "source-world fixes, round 2"): the L1 build settles
-nothing and warns about nothing, the route sweep passes 360 / 360. For walking (M2) 19 of 20 trails pass; the
-findings, for the Blender pass:
+nothing and warns about nothing, the route sweep passes 360 / 360. Since round 3 all 20 trails walk (M2). Findings:
 
-1. **000001012 ↔ 000001014 (kept warp).** After leaving `000001012.west00` the trail turns back in a hairpin and
-   climbs along 000001012's south-west footprint edge inside the 1 m ring band: 25 ribbon points lie inside the ring
-   line, up to 2.31 m deep at (279.55, 10.68, 580.70), and the climb touches 000001014's ring line too (0.20 m at
-   (275.73, 10.13, 578.94)). The 000001012 ring wall stands across the walkable top, so the bot stalls at
-   (272.86, 8.60, 583.47) walking out and (280.73, 11.67, 577.33) walking in. Fix: keep the climb at least
-   half-width + 1.5 m (3.4 m) outside both footprints except at the mouths; then drop the `link_modes` override.
-2. **000001000 → 000001006 bridge (walkable, tight).** The rope rails (`*_BridgeRails`, wall class) cut across the
+1. **000001012 ↔ 000001014: fixed in round 3, now walked.** It was kept warp: the trail turned back in a hairpin and
+   climbed inside 000001012's 1 m ring band (25 ribbon points up to 2.31 m inside its ring line), so the ring wall
+   stood across the walkable top and the bot stalled. Round 3 moved 000001014 12.9 m out and re-routed the trail
+   (64.9 m, 3.46 m from 000001014's ring wall and 3.74 m from 000001012's, blender_export.md); the `link_modes`
+   override is gone and the traversal walks it both ways (above).
+2. **000001000 → 000001006 bridge (walkable, tight; round-2 finding).** The rope rails (`*_BridgeRails`, wall class) cut across the
    inner corner of the bridge's sharp bend, leaving a squeeze about 0.5 m wide at (236.1, 22.7, 495.3), and
    `Trail_Rail_116` stands across the causeway/bridge junction at (233.1, 22.1, 493.6) with a ~0.6 m way round its
    north end. The bridge also runs 1.04 m from 000001002's ring line at (236.5, 22.8, 495.6), so that ring's wall
-   narrows the deck (`KNOWN_RING_CROWDING` in `test_world_static`). Fix: rails that follow the curve (or none on the
-   inner side of the bend), and the bridge ≥ 2.5 m from 000001002's footprint.
+   narrows the deck (`KNOWN_RING_CROWDING` in `test_world_static`; Blender's own `trail_ring_band` check reports
+   0.49 m in round 3). Fix: the bridge ≥ 2.5 m from 000001002's footprint. Round 3 made every `Trail_Rail` follow
+   its bend (blender_export.md), which may clear `Trail_Rail_116`; the bridge's rope rails are not re-probed here.
 3. **000001000 → 000001004.** 5 ribbon points lie up to 0.40 m inside 000001004's ring line at (200.88, 4.49,
-   606.00), so its ring wall clips the trail edge (still walkable).
-4. **Props on sharp bends.** The trail sign at the end of 000001000 `in03`'s exit (AABB (186.6..187.5, 587.4..588.5))
-   and `Trail_Rail_151` at the 000001004 end (210.0..211.5, 615.2..616.7) stand on the inner side of sharp bends,
-   inside the walkable top (the bot steps around them).
-5. **Trail centrelines in the export.** `World_Trails.json trails[]` should carry `centreline` ([[x, y, z], ...] from
+   606.00), so its ring wall clips the trail edge (still walkable; `trail_ring_band` reports 0.76 m in round 3).
+4. **Props on sharp bends (round-2 finding).** The trail sign at the end of 000001000 `in03`'s exit (AABB
+   (186.6..187.5, 587.4..588.5)) and `Trail_Rail_151` at the 000001004 end (210.0..211.5, 615.2..616.7) stood on the
+   inner side of sharp bends, inside the walkable top (the bot steps around them). The round-3 rails follow their
+   bends; the sign is unchanged.
+5. **Southperry's ship lies outside its layout rectangle** (handled at runtime, "Region extensions"). The ship
+   <Victoria> and its decks are moored beyond 000000060's front edge, so the runtime authors the ship's ring line in
+   `maps/000000060.json`. Request: carry it in the export (the ship inside the map's footprint polygon, or a
+   `footprint.region_extensions` list of world XZ ring lines), so the authored polygon can go. The ship's collision
+   is also built to be seen from outside: one-sided trimesh faces pointing outward (bulwarks, hull, the forecastle
+   deck), an aft forecastle bulkhead that stops short of the port side (nothing at local y -6.6 from x 80 to 84),
+   and a main deck that stops short of the port hull below the forecastle (x 81.2 to 82.6). The runtime turns the
+   chunk's trimeshes double-sided (`collision.double_sided_trimesh`), and the deck gap stays a known slot
+   (`KNOWN_EXTENSION_SLOTS`). Request: closed or double-sided collision for the hull, the bulwarks and the
+   forecastle, the bulkhead across the full beam, and the main deck out to the hull; then both runtime stopgaps go.
+6. **Trail centrelines in the export.** `World_Trails.json trails[]` should carry `centreline` ([[x, y, z], ...] from
    the from end) and `half_width_m` (or per-point `half_widths_m`); the runtime then stops deriving them from the
    meshes (`TrailGeometry`, a stopgap that has to cut grid T-junctions and bend folds).
 
-The yellow mushroom house on 000000030 is still the one warp-mode gap: its cap overhangs its colliding walls (the
-brim is 12 m across, only the walls' prop hull, about 3 m around the centre, collides, and the brim starts 2.8 m to
-3 m above the ground), so no clearance capsule can see the cap. `maps/000000030.json spawn_keepouts` keeps slots
-6.5 m from the house's centre. A monster can still wander under the cap (a Blender request: give the cap a blocking
-hull).
+The yellow mushroom house on 000000030: its cap overhangs its colliding walls (the brim is 12 m across and starts
+2.8 m to 3 m above the ground). Round 3 gave the cap and brim an `overhead_hull` prism, 2.82 to 6.54 m above the
+house base but only about 4.1 m around the centre (4.6 m at the dormer; blender_export.md), so a clearance capsule
+still cannot see the outer 1.5 m of the brim. `maps/000000030.json spawn_keepouts` therefore still keeps slots 6.5 m
+from the house's centre; a prism out to the brim's 6 m would let it go.
 
 ## Not built yet (M3 seams)
 

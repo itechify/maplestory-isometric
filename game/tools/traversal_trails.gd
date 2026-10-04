@@ -13,8 +13,8 @@ extends RefCounted
 ##   ledge     40 -> 30 must fail: from 000000040's landing the bot pushes into the 2.4 m ledge and spams jump for
 ##             LEDGE_SPAM_S; current_map stays 000000040, the player never enters 000000030's region or the trail.
 ## Results: {"links": {link_id: {"kind", "one_way", "directions": {"<from>><to>": {"edge": run, "warp": run,
-## "equivalent": bool, "diff": [..]}}}}, "ledge": {...}, "failed": int, "runs": int}; run = {"ok", "time_s",
-## "distance_m", "issues", ...}.
+## "equivalent": bool, "diff": [..]}}}}, "ledge": {...}, "trails_walkable": walkable(), "failed": int, "runs": int};
+## run = {"ok", "time_s", "distance_m", "issues", ...}.
 
 ## Seconds the bot spams jump against the one-way ledge (section 4.13: 10 s).
 const LEDGE_SPAM_S := 10.0
@@ -77,6 +77,38 @@ static func run(w: TraversalWalker, only: PackedStringArray = PackedStringArray(
 		if not bool(ledge.ok):
 			out["failed"] = int(out.failed) + 1
 		print("TRAVERSAL LEDGE 000000040>000000030 %s" % ("blocked (ok)" if bool(ledge.ok) else "FAILED: " + "; ".join(ledge.issues)))
+	out["trails_walkable"] = walkable(out)
+	print("TRAVERSAL TRAILS walkable %d/%d (edge mode %d, warp overrides %d)" % [int(out.trails_walkable.walkable),
+		int(out.trails_walkable.trail_links), int(out.trails_walkable.edge_mode), (out.trails_walkable.warp_overrides as Array).size()])
+	return out
+
+
+## How many of the trail links that ran walk: {"trail_links", "edge_mode" (configured edge), "walkable" (edge mode,
+## and every direction it allows walked ok and equivalent to its press-Up), "not_walkable": [link ids],
+## "warp_overrides": [link ids kept warp by link_modes.overrides]}.
+static func walkable(result: Dictionary) -> Dictionary:
+	var out := {"trail_links": 0, "edge_mode": 0, "walkable": 0, "not_walkable": [], "warp_overrides": []}
+	var links: Dictionary = result.get("links", {})
+	for id in links:
+		var e: Dictionary = links[id]
+		if String(e.get("kind", "")) != PortalGraph.KIND_TRAIL:
+			continue
+		out["trail_links"] = int(out.trail_links) + 1
+		if e.has("override_reason") and String(e.get("mode", "")) != PortalDef.LINK_EDGE:
+			(out.warp_overrides as Array).append(String(id))
+		if String(e.get("mode", "")) != PortalDef.LINK_EDGE:
+			(out.not_walkable as Array).append(String(id))
+			continue
+		out["edge_mode"] = int(out.edge_mode) + 1
+		var dirs: Dictionary = e.get("directions", {})
+		var ok := not dirs.is_empty()
+		for k in dirs:
+			var dir: Dictionary = dirs[k]
+			ok = ok and dir.has("edge") and bool((dir.edge as Dictionary).get("ok", false)) and bool(dir.get("equivalent", false))
+		if ok:
+			out["walkable"] = int(out.walkable) + 1
+		else:
+			(out.not_walkable as Array).append(String(id))
 	return out
 
 

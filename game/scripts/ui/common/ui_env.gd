@@ -30,6 +30,9 @@ var character_provider: Callable = Callable()
 var quest_engine_override: QuestEngine = null
 ## () -> String: the current map id (null-safe default: MapSession.current_map).
 var map_id_provider: Callable = Callable()
+## The MapSession autoload or a stand-in with current_map, trail_destination and the trail_changed(dest_map_id)
+## signal (tests inject a private map_session.gd instance). null = the MapSession autoload.
+var map_session: Object = null
 ## false = never look up autoloads (tests).
 var use_autoloads: bool = true
 
@@ -150,11 +153,18 @@ func quest_engine() -> QuestEngine:
 	return _local_engine
 
 
+## The map session (current map, the trail under the player), or null.
+func get_map_session() -> Object:
+	if map_session != null:
+		return map_session
+	return autoload("MapSession")
+
+
 ## The current map id ("" when unknown).
 func current_map_id() -> String:
 	if map_id_provider.is_valid():
 		return String(map_id_provider.call())
-	var ms := autoload("MapSession")
+	var ms := get_map_session()
 	if ms != null:
 		var m: Variant = ms.get("current_map")
 		if m != null:
@@ -163,6 +173,25 @@ func current_map_id() -> String:
 	if c != null:
 		return String(c.location.get("map_id", ""))
 	return ""
+
+
+## The map at the other end of the trail the player is on (MapSession.trail_destination), or "" off trails.
+func trail_destination() -> String:
+	var ms := get_map_session()
+	if ms == null:
+		return ""
+	var t: Variant = ms.get("trail_destination")
+	return String(t) if t != null else ""
+
+
+## True while the character is dead: Game.is_character_dead() (MapSession DEAD, or HP at the death trigger).
+## `fallback` without a game that can tell. Never `hp <= 0`: a committed death already holds the respawn HP
+## (GAME_SHELL.md "Death and respawn").
+func is_character_dead(fallback: bool = false) -> bool:
+	var g := get_game()
+	if g == null or not g.has_method("is_character_dead"):
+		return fallback
+	return bool(g.call("is_character_dead"))
 
 
 # --- actions --------------------------------------------------------------------------------------------------
@@ -221,6 +250,22 @@ func disconnect_bus(sig: String, cb: Callable) -> void:
 		b.disconnect(sig, cb)
 
 
+## Connects `cb` to the map session's signal `sig` (trail_changed; idempotent). Returns false when unavailable.
+func connect_session(sig: String, cb: Callable) -> bool:
+	var ms := get_map_session()
+	if ms == null or not ms.has_signal(sig):
+		return false
+	if not ms.is_connected(sig, cb):
+		ms.connect(sig, cb)
+	return true
+
+
+func disconnect_session(sig: String, cb: Callable) -> void:
+	var ms := get_map_session()
+	if ms != null and ms.has_signal(sig) and ms.is_connected(sig, cb):
+		ms.disconnect(sig, cb)
+
+
 ## Connects to Game.character_replaced when the game has it.
 func connect_character_replaced(cb: Callable) -> void:
 	var g := get_game()
@@ -247,17 +292,6 @@ func window_closed(w: Control) -> void:
 ## True while a dialogue, shop, console or menu owns the keyboard (UI hotkeys stay quiet then).
 func is_modal_active() -> bool:
 	return ctx != null and ctx.is_modal_active()
-
-
-## Releases the "attack" input action. The left mouse button is one of its bindings (Controls) and the player's attack
-## polls Input; PlayerCombat ignores the button only while the pointer is over a control. A press that starts a UI
-## drag (an item to a quickslot, a window by its title) is not an attack, but the pointer then crosses the world (or
-## leaves a window clamped at the screen edge) with the button held, so the drags call this when they start. The next
-## real press re-arms the action. Workaround until PlayerCombat also checks Viewport.gui_is_dragging() and window
-## drags (UI.md "Known gaps").
-static func release_attack_action() -> void:
-	if InputMap.has_action(&"attack") and Input.is_action_pressed(&"attack"):
-		Input.action_release(&"attack")
 
 
 ## An autoload node by name, or null (always null when use_autoloads is false).

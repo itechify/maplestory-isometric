@@ -14,14 +14,8 @@
     "verified": false
   },
   "link_modes": {
-    "reason": "Per-link overrides keyed by link id (T_<mapA>_<portalA>__<mapB>_<portalB>), each {\"mode\": \"edge\"|\"warp\", \"reason\": \"...\", \"verified\": false}. A trail the player cannot walk because of source geometry stays warp here, with the blocker recorded for the Blender pass (MAP_ARCHITECTURE section 4.13, docs/runtime/WORLD_RUNTIME.md \"Source world status\"). The traversal bot walks the other 19 trails both ways (docs/runtime/traversal_report.json).",
-    "overrides": {
-      "T_000001012_west00__000001014_east00": {
-        "mode": "warp",
-        "reason": "Source geometry (M2 traversal, 2026-10-04): after leaving 000001012.west00 the trail turns back in a hairpin and climbs along 000001012's south-west footprint edge inside the 1 m containment band: 25 ribbon points lie inside 000001012's ring line (footprint + 1 m), up to 2.31 m deep at (279.55, 10.68, 580.70), and the climb also touches 000001014's ring line (0.20 m at (275.73, 10.13, 578.94)). The 000001012 ring wall stands across the walkable top there, so the bot stalls at (272.86, 8.60, 583.47) walking out and at (280.73, 11.67, 577.33) walking in. Walking it would need either a gap in a map ring away from its gate (the identity invariant then breaks: the player would stand in 000001012's region without crossing its gate) or a Blender fix: keep the climb at least half-width + 1.5 m (3.4 m) outside both footprints except at the trail mouths. Until then the link is press-Up only (both portals work; the trail is scenery behind the plugs).",
-        "verified": false
-      }
-    },
+    "reason": "Per-link overrides keyed by link id (T_<mapA>_<portalA>__<mapB>_<portalB>), each {\"mode\": \"edge\"|\"warp\", \"reason\": \"...\", \"verified\": false}. A trail the player cannot walk because of source geometry stays warp here, with the blocker recorded for the Blender pass (MAP_ARCHITECTURE section 4.13, docs/runtime/WORLD_RUNTIME.md \"Source world status\"). None today: T_000001012_west00__000001014_east00 was kept warp until the Blender round-3 export (its trail climbed inside 000001012's containment band); since then 000001014 sits 12.9 m further out and the trail follows an authored 64.9 m route 3.46 m from 000001014's ring wall and 3.74 m from 000001012's, and the traversal bot walks it both ways in edge mode with no stall, recovery or invariant violation, so all 20 trails walk (docs/runtime/traversal_report.json).",
+    "overrides": {},
     "verified": false
   },
   "destination_overrides": {

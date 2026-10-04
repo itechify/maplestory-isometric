@@ -12,8 +12,11 @@ The source world itself was then changed for the runtime (MAP_ARCHITECTURE §5 i
 directions and the one-way ledge, the MeowDB NPC set, authored spawn regions and player spawns. A second round
 (2026-10-04) fixed what the wave-1 runtime found in the source world (route stalls under the interior eaves and in
 Tomato Field, three blocked portal arrivals, route ends a standing player could not start from) and made collision
-classes data instead of name words (§5 item 6, [`collision_tags`](#classification-rules)). The sidecar fields they
-added are listed in the [changelog](#sidecar-changelog); every change so far is additive.
+classes data instead of name words (§5 item 6, [`collision_tags`](#classification-rules)). A third round (M2) made
+the last trail walkable: 000001014 (Snail Field of Flowers) moved 12.9 m so the 000001012 ↔ 000001014 trail can leave
+Townstreet's corridor and stay outside both containment rings, and the 000000030 yellow house's cap got a collision
+prism ([overhead hulls](#classification-rules)). The sidecar fields they added are listed in the
+[changelog](#sidecar-changelog); every change so far is additive.
 
 ## Running it
 
@@ -109,7 +112,7 @@ these 175 MB of glbs. That adds about 13 s, and the import cache lands in `game/
 **Instances are realized as linked duplicates.** Every collection instance becomes one real object per source mesh,
 and all of them share the source mesh data. The glTF exporter then writes each mesh once and points many nodes at
 it, and Godot keeps that sharing (one `ArrayMesh` per glTF mesh). For example, `SnailHuntingGround2_40001` has 874
-mesh nodes but 145 meshes, and `World_Forest` has 1,708 nodes but 32 meshes (1.28 MB for 1.8 M rendered triangles).
+mesh nodes but 145 meshes, and `World_Forest` has 1,753 nodes but 32 meshes (1.29 MB for 1.8 M rendered triangles).
 Node names are the Blender object names. Instance parts are named `<instance>__<part>` when the asset has several
 meshes.
 
@@ -274,7 +277,7 @@ record for the one-way trail, else `null`). The entries come from tags `world.py
 listed stair flights and landings as 10 bogus "trails". `index.json` holds `environment`: the sun (`xform`, `direction`, color,
 Blender strength 5.5 W/m², angle), the ambient background (`#B9DCFF` × 0.36), the sky gradient and the view transform.
 
-**Totals:** 47 portals (39 edge, 8 door, 1 one-way), 1 arrival point and 1 one-way ledge (40000), 21 NPCs (all with MeowDB ids), 205 spawn points in 175 tier areas, 150 authored spawn regions on 15 maps, 25 player starts and 25 player spawns, 144 climbables (43 ladders, 94 ropes, 7 vines; 2 descend-only), 181 routes (6,232 points, 2 one-way), 50 cameras, 25 footprints, 4 water surfaces, 12 interior lights, 2 authored colliders, and 20 trails.
+**Totals:** 47 portals (39 edge, 8 door, 1 one-way), 1 arrival point and 1 one-way ledge (40000), 21 NPCs (all with MeowDB ids), 205 spawn points in 175 tier areas, 150 authored spawn regions on 15 maps, 25 player starts and 25 player spawns, 144 climbables (43 ladders, 94 ropes, 7 vines; 2 descend-only), 181 routes (6,231 points, 2 one-way), 50 cameras, 25 footprints, 4 water surfaces, 12 interior lights, 2 authored colliders, and 20 trails.
 
 ## Collision
 
@@ -288,7 +291,7 @@ Blender strength 5.5 W/m², angle), the ambient background (`#B9DCFF` × 0.36), 
   in world space, so no collision shape carries a (possibly non-uniform) scale.
 
 Godot 4.7.2 still honours these suffixes (`nodes/use_node_type_suffixes`, on by default). Across all chunks that is
-2,473 bodies: 56 concave and 2,417 convex shapes. The sidecar `collision` block repeats the prop shapes as data:
+2,507 bodies: 56 concave and 2,451 convex shapes. The sidecar `collision` block repeats the prop shapes as data:
 `prop_shapes` (asset-local convex prisms in Godot axes, shared per asset) and `prop_instances` (`shape`, `kind`,
 `xform`). A runtime that builds shapes itself, like the MAP_ARCHITECTURE assembler, can use those. The block also
 holds `authored_colliders`, `exact_fallback`, `instances_skipped` and `summary`.
@@ -337,6 +340,7 @@ Collection instances (14,192 seen, 2,313 colliding, 21 of them by their exact me
 | Trees | trunk hull: band 0.1–1.0 m, never the canopy |
 | Rocks, mountains | hull if ≥ 0.9 m tall (`Rock_A` at 0.72 m and `Rock_C` stay passable) |
 | Architecture, props, hedges, landmark foliage | hull if ≥ 0.45 m tall (lower is a step) |
+| Parts tagged `overhead_hull` (`collision_tags.OVERHEAD_HULL`, set by the asset's builder; today the `_Cap` and `_Brim` of 000000030's `X30000_HouseYellowBrim`) | left out of the body slice; one more prism over all of them, from their lowest point to their top |
 
 **Hull shape.** The asset's geometry is sliced to the player's body band (0.15–1.6 m; trees 0.1–1.0 m). Each
 connected piece of the slice gets a 2D convex hull, and overlapping hulls are merged, so a house is one hull but an
@@ -345,6 +349,15 @@ min(top, 3 m). Trees therefore block at the trunk only, buildings at their walls
 sink is wrong for a prop that hangs in the air: the interior eaves (wall top 6.6 m) got a prism down to 6.3 m, 1.30 m
 above the walkable ceiling beams of 1010001 and 60001, inside a standing player. Such thin overhead pieces carry the
 `collide_exact` tag; the exact eave's wall plate is 1.595 m above the beams.
+
+**Overhead prisms.** The body slice leaves an overhang without collision: the 000000030 yellow mushroom house's cap
+reaches about 4.1 m from the house's centre (4.6 m at its dormer) while its walls' prism stops at 3.3 m, so a monster
+or prop could stand inside the cap. Parts of an asset tagged `overhead_hull` (its builder tags them) are left out of the
+body slice and get one more prism: the 2D convex hull of all of them, from their lowest point to their top. The
+house's cap prism spans 2.82–6.54 m above its base (asset 2.35–5.45 m at scale 1.2), 2.78–3.66 m above the walkable
+ground around the house, so a 1.5 m body walks under it and only the top of a 1.3 m jump touches it. The item keeps
+one `prop_instances` entry; its `prop_shapes` entry lists both prisms, each with its own heights (the points carry
+their y), and the collision glb gets `<item>_hull1-convcolonly`.
 
 **Routes and portals are authoritative.** Iteration One walked every route over the real geometry. When a hull
 covers a route sample inside the body band (0.15–1.5 m above the walk surface, samples within 0.8 m of a climbable
@@ -359,7 +372,7 @@ triangles and walls from 919 k to 357 k. The whole collision set is 10.3 MiB.
 
 ### Validation
 
-At export, every route is sampled every 0.25 m (15,695 samples) against the shipped collision:
+At export, every route is sampled every 0.25 m (15,681 samples) against the shipped collision:
 
 - **0** samples are blocked by a prop hull;
 - **12** samples have wall geometry overhead in the body band (an upward ray from 0.15 to 1.5 m). Each is classified
@@ -395,7 +408,7 @@ each instance; "ink" is the part of them in outline shells.
 | WestEntranceMushroomTown_0 | 125,601 | 33,592 | 332 | 79 | 3.08 | 0.11 | 5,224 / 1,944 | 31 |
 | MushroomTown_10000 | 167,763 | 41,027 | 397 | 70 | 3.58 | 0.13 | 3,951 / 2,566 | 61 |
 | MushroomTown_20000 | 148,042 | 31,857 | 410 | 76 | 3.51 | 0.12 | 5,286 / 2,516 | 29 |
-| EastEntranceMushroomTown_30000 | 196,218 | 40,083 | 619 | 119 | 4.94 | 0.27 | 13,552 / 8,034 | 26 |
+| EastEntranceMushroomTown_30000 | 196,218 | 40,083 | 619 | 119 | 4.94 | 0.28 | 13,552 / 8,034 | 27 |
 | SnailHuntingGround1_40000 | 203,567 | 37,652 | 672 | 124 | 5.70 | 0.33 | 15,832 / 11,310 | 18 |
 | SnailHuntingGround2_40001 | 356,575 | 64,438 | 874 | 145 | 8.35 | 0.71 | 23,805 / 33,798 | 50 |
 | SnailHuntingGround3_40002 | 348,591 | 52,331 | 1,042 | 203 | 9.54 | 0.66 | 24,795 / 29,380 | 36 |
@@ -403,30 +416,30 @@ each instance; "ink" is the part of them in outline shells.
 | Southperry_60000 | 429,233 | 99,733 | 413 | 205 | 10.94 | 0.79 | 25,666 / 31,252 | 161 |
 | FieldWestOfAmherst_1000000 | 432,404 | 95,391 | 1,355 | 227 | 12.57 | 0.63 | 30,405 / 19,160 | 59 |
 | InASmallForest_1000001 | 256,753 | 69,119 | 641 | 145 | 6.05 | 0.41 | 17,098 / 15,960 | 26 |
-| DangerousForest_1000002 | 305,514 | 81,553 | 829 | 116 | 5.94 | 0.25 | 10,914 / 7,224 | 46 |
+| DangerousForest_1000002 | 305,474 | 81,533 | 828 | 116 | 5.94 | 0.25 | 10,914 / 7,224 | 46 |
 | MushroomGarden_1000003 | 181,734 | 24,684 | 542 | 122 | 4.39 | 0.33 | 21,438 / 4,304 | 38 |
 | SnailGarden_1000004 | 237,116 | 38,671 | 700 | 168 | 6.54 | 0.47 | 22,422 / 14,669 | 45 |
 | HuntingGroundMidForest1_1000005 | 304,508 | 63,998 | 739 | 175 | 8.28 | 0.55 | 21,968 / 23,468 | 32 |
 | HuntingGroundMidForest2_1000006 | 390,355 | 55,344 | 1,171 | 255 | 11.62 | 0.92 | 16,242 / 62,788 | 40 |
 | Amherst_1010000 | 289,461 | 65,818 | 429 | 133 | 6.37 | 0.24 | 7,425 / 4,792 | 120 |
 | AmherstTownstreet_1010002 | 93,330 | 28,566 | 178 | 61 | 3.08 | 0.13 | 2,184 / 6,014 | 32 |
-| SnailFieldOfFlowers_1010004 | 298,009 | 37,565 | 862 | 130 | 5.87 | 0.27 | 11,958 / 9,570 | 24 |
+| SnailFieldOfFlowers_1010004 | 298,822 | 37,565 | 865 | 130 | 5.89 | 0.28 | 12,206 / 10,150 | 24 |
 | FieldEastOfAmherst_1020000 | 334,749 | 80,911 | 1,179 | 185 | 8.13 | 0.49 | 24,087 / 15,972 | 34 |
 | TomatoField_1020001 | 327,969 | 76,183 | 781 | 119 | 6.57 | 0.44 | 11,876 / 9,938 | 252 |
 | SouthperryArmorStore_60001 (interior) | 78,413 | 34,060 | 64 | 44 | 3.26 | 0.13 | 1,284 / 6,608 | 39 |
 | MushroomTownTownstreet_20001 (interior) | 39,070 | 12,772 | 49 | 36 | 1.83 | 0.07 | 88 / 3,350 | 34 |
 | AmherstWeaponStore_1010001 (interior) | 42,694 | 17,750 | 52 | 36 | 1.61 | 0.10 | 1,580 / 4,746 | 27 |
 | AmherstDepartmentStore_1010003 (interior) | 62,438 | 25,234 | 80 | 56 | 2.22 | 0.14 | 3,398 / 5,010 | 39 |
-| World_IslandBody | 107,555 | 0 | 4 | 4 | 4.60 | 0.13 | 6,400 / 4,852 | 0 |
-| World_Plinths (outcrops) | 5,600 | 2,800 | 52 | 3 | 0.03 | 0.03 | 0 / 0 | 31 |
-| World_Trails | 191,210 | 71,960 | 369 | 83 | 2.58 | 0.33 | 11,188 / 572 | 247 |
+| World_IslandBody | 107,854 | 0 | 4 | 4 | 4.61 | 0.14 | 6,706 / 4,990 | 0 |
+| World_Plinths (outcrops) | 5,640 | 2,820 | 53 | 3 | 0.03 | 0.03 | 0 / 0 | 31 |
+| World_Trails | 199,663 | 76,000 | 382 | 83 | 2.60 | 0.33 | 11,308 / 572 | 252 |
 | World_Scenery | 201,181 | 61,482 | 245 | 67 | 2.80 | 0.31 | 12,798 / 7,840 | 87 |
-| World_Forest | 1,809,360 | 894,945 | 1,708 | 32 | 1.28 | 0.50 | 0 / 0 | 702 |
-| World_SkyAndSea | 546,484 | 0 | 608 | 3 | 0.56 | 0 | – | 0 |
+| World_Forest | 1,846,551 | 914,120 | 1,753 | 32 | 1.29 | 0.52 | 0 / 0 | 730 |
+| World_SkyAndSea | 551,764 | 0 | 614 | 3 | 0.56 | 0 | – | 0 |
 | _library | 75,212 | – | – | 29 | 1.95 | – | – | – |
-| **Total** | **8.82 M** | **2.30 M** | 18,024 | | **164.6** | **10.3** | 363 k / 357 k | 2,417 |
+| **Total** | **8.88 M** | **2.32 M** | 18,091 | | **164.7** | **10.3** | 364 k / 358 k | 2,451 |
 
-Sidecars total 1.9 MB; the largest is `World_Forest.json` at 191 KB (its 702 prop instances). A map chunk renders
+Sidecars total 2.3 MB; the largest is `World_Forest.json` at 198 KB (its 730 prop instances). A map chunk renders
 93–432 k triangles including ink (65–337 k without). The visual glbs hold 3.86 M unique triangles.
 
 **Godot 4.7.2 headless import** (`--headless --path _scratch/godot_probe --import`, all 62 glbs, 175 MB):
@@ -577,6 +590,65 @@ No field was added. The rebuild also moves a handful of decimated Ground / Walls
 five exterior chunks (float-level differences across a rebuild; the raw counts, prop hulls, route check and
 clearance are identical). Route sweep 360 / 360, world smoke 25 / 25, `IslandWorld` 0 warnings.
 
+**2026-10-04: source-world fixes, round 3** (M2 walkability: WORLD_RUNTIME "Source world status" item 1 and the
+000000030 house cap)
+
+No field was added, removed or retyped (`sidecar_diff`: `added_paths []`, `SIDECAR_DIFF_OK True`; 30 contract tests
+pass on the staged export). Value changes:
+
+- **000001014 moved; the 000001012 ↔ 000001014 trail re-routed.** Re-shaping the trail alone was impossible: at the old
+  layout 000001014's east edge ran 3.43 m from 000001012's west edge where the two footprints overlap (their last
+  2.9 m), and every way from `west00` to `east00` passes that slot (Amherst and the Dangerous Forest close the others),
+  but a 3.8 m trail between two rings needs 3.8 + 2 × 1.5 m = 6.8 m. `layout.LINKS` now places 000001014 52 m from
+  `west00` (was 39 m, same bearing 98°), 12.9 m further back: every position in `SnailFieldOfFlowers_1010004.json`
+  (portal, player spawn, spawn regions, routes, climbables, cameras, footprint) moves by Godot (+7.82, 0, −10.38);
+  its routes keep their shapes (4 vine routes differ by up to 0.15 m in length, re-draped on the ground). The trail
+  follows an authored route (`layout.TRAIL_ROUTES`, filleted corners, radius 4–5 m): 2 m straight out of `west00`,
+  north up Townstreet's west side, round its back-west corner between the two maps' rings, north along the field's
+  east side, 3.4 m straight into `east00`. It is 64.9 m long (was 42.2 m), a 10.7° ramp (rise 12.1 m) with no stairs;
+  its `World_Trails.json trails[]` entry is unchanged (one part, the trail mesh). Its centreline now stays 3.46 m
+  from 000001014's ring wall and 3.74 m from 000001012's (the half-width is 1.9 m), and passes each gate jamb at the
+  gap's 2.2 m; before, a ring wall stood 0.003 m from it and its centreline ran inside 000001012's ring line.
+  `validate.py` measures this for every trail now (`trail_ring_band`, below). Iteration One's trail walk passes both
+  ways. In an isolated copy of the game with the `link_modes.overrides` entry removed, `traversal_bot.tscn` walks
+  it both ways in edge mode (22.4 s, 68.5 m, the `map_left → map_entered → portal_used` sequence through the gate,
+  equivalent to press-Up): 87 link runs with 0 failures, the edge-mode tour walks both 1012 ↔ 1014 legs, 0
+  recoveries, stalls, invariant violations and teleports, L1 0 errors and 0 warnings, routes 360 / 360.
+- **Knock-on of the move:** 000001014 is a vertex of the island outline, so `World_IslandBody` grew there (ground
+  6,706 / walls 4,990 triangles, was 6,400 / 4,852); the seeded forest draws over the island's bounding box, so
+  `World_Forest` is re-scattered island-wide (1,753 nodes, 730 trunk hulls, was 1,708 / 702); one plinth outcrop
+  moved from `DangerousForest_1000002` to `World_Plinths` (53 outcrops) and 3 plinth stones joined 000001014;
+  `World_SkyAndSea` has 614 cloud nodes (was 608). Nothing in the runtime names a forest tree.
+- **Trail rails follow their bends.** Each `Trail_Rail` (a 1.8 m `Fence_Wood_Seg`, built from its origin along +X)
+  now aims at the rail line 1.8 m on (its chord) instead of the centreline's tangent, so on the inner side of a bend
+  it no longer cuts into the walkable top (straight runs are unchanged). `World_Trails`: 252 prop hulls (was 247:
+  the longer trail's rails), 382 nodes.
+- **The 000000030 yellow house's cap collides.** `X30000_HouseYellowBrim`'s `_Cap` and `_Brim` parts carry the new
+  collision class `overhead_hull` (`collision_tags.OVERHEAD_HULL`): the asset gets a second prism, 2.82–6.54 m above
+  its base, about 4.1 m around the centre (4.6 m at the dormer), and the walls' prism is unchanged. Under the brim
+  the walkable ground is 2.78–3.66 m below the prism, so walking is unaffected. In the sidecar: `prop_shapes
+  ["X30000_HouseYellowBrim"]` lists 2 prisms (was 1; the points carry their own y), still one `prop_instances` entry
+  (the 000000030 `spawn_keepouts` `around_prop` still finds it), `summary.prop_hulls` 27 (was 26), `exact_fallback`
+  still empty, no route sample, spawn, arrival or route end touches it.
+- Totals: 2,451 prop hulls (was 2,417), 2,507 collision bodies; route check 15,681 samples (was 15,695), 12 overhead
+  samples (9 step, 3 climb or drop, 0 body) as before; all 25 player spawns, 47 arrivals and 362 route ends clear.
+  The other chunks differ only by float-level decimation (up to 28 Ground triangles).
+- Checks on this export: `validate.py` 0 high / 0 medium (21 low: the 16 `props_near_routes` as before and the 5
+  `trail_ring_band` narrowings below); the full suite (`ISOLATE=… INCLUDE_WORLD=1 bash scripts/test.sh`) ran 1,099
+  tests with 1 failure, `test_interaction_main_flow`'s quest-accept checks, which fail identically on the previous
+  export (an in-progress dialogue change, not the world); the route sweep, link runs, both tours, `test_world_static`
+  and the world checks pass with the link still overridden to warp.
+
+`validate.py` gained `trail_ring_band`: the build (`world.py`, `trails.ring_clearance`) samples every map's ring wall
+(footprint + `ring_offset_m`, `wall_thickness_m` thick, square corners, open only at the trail's own gate gaps of
+min(gate half-width, half-width + `side_wall_offset_m`), all read from `game/data/misostory`) and records in
+`build_report.json trails[i].ring_clearance` how close it comes to the trail's centreline, away from and beside its
+own gaps, plus any centreline point inside another map's ring line. High when a ring wall comes within the capsule
+radius of the centreline or the centreline enters another map's region; low (listed) when a wall stands on a ribbon's
+edge or a gate jamb is closer than the gap: today 5, all on trails the runtime already walks (the 000001006 bridge
+past 000001002's ring, 0.49 m; 000001004's ring on its trail's edge, 0.76 m; the A Split Road east exits; the
+Tomato Field lane's jamb).
+
 ## Files
 
 - `scripts/export_runtime.py`: the exporter.
@@ -585,8 +657,12 @@ clearance are identical). Route sweep 360 / 360, world smoke 25 / 25, `IslandWor
 - `src/misostory/test_sidecar_contract.py`: unit tests of that check on a real export plus mutated copies.
 - `src/misostory/ledge_rules.py`: the one-way ledge bounds (no bpy), shared by `traversal.py` / `validate.py` and
   `sidecar_diff.py`.
-- `src/misostory/collision_tags.py`: the collision-class registry (no bpy): classes, `tag()`, the passable and
-  exact asset tags, the group defaults. Builders tag their meshes; the export and `validate.py` read the tags.
+- `src/misostory/collision_tags.py`: the collision-class registry (no bpy): classes (including `overhead_hull` for
+  asset parts), `tag()`, the passable and exact asset tags, the group defaults. Builders tag their meshes; the export
+  and `validate.py` read the tags.
+- `src/misostory/trails.py` `ring_clearance` and `layout.containment_params`: the trails' clearance from the
+  runtime's containment rings, recorded in `build_report.json` and checked by `validate.py` (`trail_ring_band`);
+  `layout.TRAIL_ROUTES`: authored trail routes.
 - `game/assets/world/`: generated output (git-ignored).
 - `_scratch/export_probe/`: survey, bake, look-comparison and transform-verification scripts, plus Godot screenshots
   (not tracked).

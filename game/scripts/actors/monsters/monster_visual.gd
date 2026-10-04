@@ -2,8 +2,23 @@ class_name MonsterVisual
 extends Node3D
 ## Presentation of one monster (child "Visual" of a Monster): the Iteration One proxy model (or a labelled
 ## placeholder), facing, a walk bob timed by the canonical move clip, a hit flinch over the canonical hit clip, an HP
-## bar over the head once damaged, the spawn fade-in and the death fade over the canonical die time. Reads its
-## Monster every frame and never changes gameplay state.
+## bar over the head once damaged, the spawn fade-in and the death fade over the canonical die time, and the
+## see-through silhouette. Reads its Monster every frame and never changes gameplay state.
+##
+## See-through silhouette (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md "See-through silhouette"): terrain never
+## fades, so a monster near the player shows a flat tinted silhouette wherever something hides it.
+##   - every surface of the model (the unshaded ink shell too) writes STENCIL_REF where it is visible, on copies of
+##     the library's materials (the shared originals stay untouched);
+##   - under each model mesh a "SeeThrough" child draws that mesh's triangles (every surface merged into one,
+##     fill_mesh) with the shared fill shader: unshaded, no depth test, both faces, stencil read and write in one pass
+##     with compare_greater STENCIL_REF. It draws where the
+##     stored value is below STENCIL_REF, i.e. where no monster and not the player (PlayerVisual.STENCIL_REF 37) is
+##     visible, and writes STENCIL_REF, so each pixel blends once and a silhouette never covers a visible monster or
+##     the player;
+##   - the fill skips fragments whose cover (the opaque surface in front, from the depth texture) is nearer than
+##     def.see_through_min_cover_m along the view: no rim where a body dips into the ground;
+##   - MonsterSystem.update_see_through() turns it on within the species' see_through_radius_m of the player
+##     (see_through_wanted); it fades over see_through_fade_s, and a dying monster loses it at once.
 
 signal faded_out
 
@@ -20,6 +35,44 @@ const HP_BAR_GAP_M := 0.25
 const HP_FILL := Color(0.95, 0.16, 0.12)
 const HP_BACK := Color(0.08, 0.06, 0.06, 0.85)
 const DEATH_SINK_FRACTION := 0.25
+## Stencil value of a monster's visible pixels. The fill passes where the stored value is below it
+## (compare_greater), so it must stay below PlayerVisual.STENCIL_REF (37) to keep the player on top of silhouettes;
+## any future stencil writer that a silhouette must not cover needs a value of at least this.
+const STENCIL_REF := 36
+## Transparent-pass order of the fill: before the default-priority labels (0), attack FX (8), damage numbers (10+) and
+## the HP bar (20, 21), which stay on top of a silhouette; the player's X-ray fill and outline (120+) come later too.
+const SEE_THROUGH_PRIORITY := -1
+const SEE_THROUGH_NAME := "SeeThrough"
+## The fill shader shared by every monster (a ShaderMaterial: BaseMaterial3D keeps stencil read and write exclusive).
+## The tint (sRGB, alpha), the fade amount and the minimum cover are per-instance uniforms. A fragment draws only
+## where the opaque surface in front of it is at least `see_through_min_cover` m nearer along the view, so the ground
+## a body dips into (a slope under a snail) and a grass tuft at its feet never draw a rim; a cliff or a boulder does.
+const SEE_THROUGH_SHADER := """shader_type spatial;
+render_mode unshaded, blend_mix, depth_draw_never, depth_test_disabled, cull_disabled, shadows_disabled;
+stencil_mode read, write, compare_greater, %d;
+
+uniform sampler2D scene_depth : hint_depth_texture, filter_nearest, repeat_disable;
+instance uniform vec4 see_through_tint : source_color = vec4(0.0);
+instance uniform float see_through_amount = 0.0;
+instance uniform float see_through_min_cover = 0.0;
+
+void fragment() {
+	float depth = texture(scene_depth, SCREEN_UV).r;
+	vec4 scene = INV_PROJECTION_MATRIX * vec4(SCREEN_UV * 2.0 - 1.0, depth, 1.0);
+	// View space looks down -z: the cover is how much nearer the camera the opaque surface is than this fragment.
+	if (scene.z / scene.w - VERTEX.z < see_through_min_cover) {
+		discard;
+	}
+	ALBEDO = see_through_tint.rgb;
+	ALPHA = see_through_tint.a * see_through_amount;
+}
+"""
+
+static var _see_through_material: ShaderMaterial = null
+## Stencil-writing copies of the library's shared materials (source material -> copy), shared by every monster.
+static var _stencil_copies: Dictionary = {}
+## One-surface copies of multi-surface model meshes (source mesh -> fill mesh), shared by every monster.
+static var _fill_meshes: Dictionary = {}
 
 var monster: Node3D = null
 var def: MonsterDef = null
@@ -41,6 +94,11 @@ var _spawn_t: float = -1.0
 var _spawn_s: float = 0.0
 var _fit_scale: float = 1.0
 var _geoms: Array[GeometryInstance3D] = []
+## See-through silhouette: the eased amount (0 hidden .. 1 full), the requested state and the fill meshes.
+var see_through_amount: float = 0.0
+var _see_through: bool = false
+var _see_through_fills: Array[MeshInstance3D] = []
+var _see_through_applied: float = -1.0
 
 
 ## Builds the model for `d` from `library` (null or a missing asset = the labelled placeholder).
@@ -48,6 +106,11 @@ func build(d: MonsterDef, library: ProxyLibrary) -> void:
 	def = d
 	if model != null:
 		model.queue_free()
+	_geoms.clear()
+	_see_through_fills.clear()
+	# Decided afresh: _apply_see_through edits a placeholder's own materials in place, so a stale flag would edit the
+	# library's shared materials.
+	is_placeholder = false
 	var inst: Node3D = null
 	if d.has_model() and library != null:
 		inst = library.instance(d.model)
@@ -68,6 +131,8 @@ func build(d: MonsterDef, library: ProxyLibrary) -> void:
 	add_child(model)
 	model.add_child(inst)
 	_collect_geoms(model)
+	# After _collect_geoms: the fill meshes take no hit flash and no death transparency.
+	_apply_see_through(model, is_placeholder)
 	_build_hp_bar()
 	_flash_mat = StandardMaterial3D.new()
 	_flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -116,11 +181,167 @@ func start_death_fade(seconds: float) -> void:
 	_fade_s = maxf(seconds, 0.01)
 	if hp_bar != null:
 		hp_bar.visible = false
-
+	# Off at once: with transparency > 0 the body leaves the opaque pass, so its stencil would no longer be written
+	# before the fill and the silhouette would cover the fading body.
+	_see_through = false
+	see_through_amount = 0.0
+	_show_see_through()
 
 
 func is_fading() -> bool:
 	return _fade_t >= 0.0
+
+
+# =================================================================================================================
+# See-through silhouette
+# =================================================================================================================
+
+## Whether a monster `distance` m from the player (feet to feet) shows its see-through silhouette: alive and within
+## `radius`; one already `showing` it keeps it until `radius + hysteresis`. Pure (MonsterSystem.update_see_through).
+static func see_through_wanted(alive: bool, distance: float, radius: float, hysteresis: float, showing: bool) -> bool:
+	if not alive or radius <= 0.0:
+		return false
+	return distance <= radius + (maxf(hysteresis, 0.0) if showing else 0.0)
+
+
+## Requests (true) or drops (false) the silhouette; it fades over def.see_through_fade_s. Ignored while dying.
+func set_see_through(on: bool) -> void:
+	_see_through = on and _fade_t < 0.0
+
+
+## The requested state (the silhouette may still be fading).
+func is_see_through() -> bool:
+	return _see_through
+
+
+## Advances the silhouette fade by `delta` seconds and applies it (called from advance(); tests call it directly).
+func step_see_through(delta: float) -> void:
+	var goal := 1.0 if _see_through else 0.0
+	var fade := def.see_through_fade_s if def != null else 0.0
+	see_through_amount = goal if fade <= 0.0 else move_toward(see_through_amount, goal, delta / fade)
+	_show_see_through()
+
+
+## The fill meshes (one "SeeThrough" child per model mesh).
+func see_through_fills() -> Array[MeshInstance3D]:
+	return _see_through_fills
+
+
+## The fill material every monster shares: the see-through shader at SEE_THROUGH_PRIORITY.
+static func see_through_material() -> ShaderMaterial:
+	if _see_through_material == null:
+		var sh := Shader.new()
+		sh.code = SEE_THROUGH_SHADER % STENCIL_REF
+		_see_through_material = ShaderMaterial.new()
+		_see_through_material.resource_name = "MonsterSeeThrough"
+		_see_through_material.shader = sh
+		_see_through_material.render_priority = SEE_THROUGH_PRIORITY
+	return _see_through_material
+
+
+## `m` set to write STENCIL_REF wherever it draws (in place; returns it).
+static func with_stencil(m: BaseMaterial3D) -> BaseMaterial3D:
+	m.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	m.stencil_flags = BaseMaterial3D.STENCIL_FLAG_WRITE
+	m.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_ALWAYS
+	m.stencil_reference = STENCIL_REF
+	return m
+
+
+## The stencil-writing version of `mat`: a copy of a shared (library) material, cached so every monster uses the same
+## copy; `owned` materials (the placeholder's own) are changed in place. A surface without a material gets a default
+## StandardMaterial3D (what Godot draws then). Materials that are not BaseMaterial3D are returned unchanged.
+static func stencil_material(mat: Material, owned: bool) -> Material:
+	if mat == null:
+		return with_stencil(StandardMaterial3D.new())
+	if not (mat is BaseMaterial3D):
+		return mat
+	if owned:
+		return with_stencil(mat as BaseMaterial3D)
+	if not _stencil_copies.has(mat):
+		_stencil_copies[mat] = with_stencil(mat.duplicate() as BaseMaterial3D)
+	return _stencil_copies[mat]
+
+
+## The mesh the fill draws for `mesh`: the mesh itself when it has one surface, else one triangle surface holding
+## every triangle surface of it (positions only; cached per source mesh), so a fill is one draw call per model mesh
+## instead of one per material (a proxy mesh has 3-6 surfaces).
+static func fill_mesh(mesh: Mesh) -> Mesh:
+	if mesh == null or mesh.get_surface_count() <= 1:
+		return mesh
+	if _fill_meshes.has(mesh):
+		return _fill_meshes[mesh]
+	var verts := PackedVector3Array()
+	var index := PackedInt32Array()
+	for s in mesh.get_surface_count():
+		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES:
+			continue
+		var arr := mesh.surface_get_arrays(s)
+		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		var base := verts.size()
+		verts.append_array(v)
+		if ind.is_empty():
+			for i in v.size():
+				index.append(base + i)
+		else:
+			for i in ind:
+				index.append(base + i)
+	var out: Mesh = mesh
+	if not index.is_empty():
+		var arrays := []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = verts
+		arrays[Mesh.ARRAY_INDEX] = index
+		var merged := ArrayMesh.new()
+		merged.resource_name = "%s_SeeThrough" % mesh.resource_name
+		merged.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		out = merged
+	_fill_meshes[mesh] = out
+	return out
+
+
+## Gives every surface under `root` a stencil-writing material and every mesh a hidden fill copy.
+func _apply_see_through(root: Node, owned: bool) -> void:
+	var tint := def.see_through_color if def != null else Color(0, 0, 0, 0)
+	var min_cover := def.see_through_min_cover_m if def != null else 0.0
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null or String(mi.name) == SEE_THROUGH_NAME:
+			continue
+		if mi.material_override != null:
+			mi.material_override = stencil_material(mi.material_override, owned)
+		else:
+			for s in mi.mesh.get_surface_count():
+				mi.set_surface_override_material(s, stencil_material(mi.get_active_material(s), owned))
+		# The whole mesh, ink shell included: the silhouette has the footprint of the visible monster.
+		var fill := MeshInstance3D.new()
+		fill.name = SEE_THROUGH_NAME
+		fill.mesh = fill_mesh(mi.mesh)
+		fill.material_override = see_through_material()
+		fill.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		fill.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
+		# The fill exists to draw where terrain hides the monster: occlusion culling (off today) must never cull it.
+		fill.ignore_occlusion_culling = true
+		fill.layers = mi.layers
+		fill.visible = false
+		fill.set_instance_shader_parameter(&"see_through_tint", tint)
+		fill.set_instance_shader_parameter(&"see_through_amount", 0.0)
+		fill.set_instance_shader_parameter(&"see_through_min_cover", min_cover)
+		mi.add_child(fill)
+		_see_through_fills.append(fill)
+	_see_through_applied = 0.0
+
+
+func _show_see_through() -> void:
+	if is_equal_approx(see_through_amount, _see_through_applied):
+		return
+	_see_through_applied = see_through_amount
+	var on := see_through_amount > 0.001
+	for f in _see_through_fills:
+		if is_instance_valid(f):
+			f.visible = on
+			f.set_instance_shader_parameter(&"see_through_amount", see_through_amount)
 
 
 func _process(delta: float) -> void:
@@ -131,6 +352,7 @@ func _process(delta: float) -> void:
 func advance(delta: float) -> void:
 	if monster == null or model == null:
 		return
+	step_see_through(delta)
 	var facing: Vector3 = monster.get("facing") if "facing" in monster else Vector3.BACK
 	var want := atan2(facing.x, facing.z)
 	var diff := wrapf(want - _yaw, -PI, PI)

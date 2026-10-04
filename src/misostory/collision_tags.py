@@ -12,6 +12,10 @@ name:
 * **Instanced kit assets** are classified by their registry category and tags (``kit.REGISTRY``): any tag in
   ``PASSABLE_TAGS`` makes the asset passable; a tag in ``EXACT_TAGS`` makes it collide with its exact mesh (joined
   to the chunk's Walls trimesh) instead of a convex prism of its body-height slice.
+* **Parts of a kit asset** may carry ``OVERHEAD_HULL`` (set by the asset's builder): an overhang that starts above a
+  walking body, such as a mushroom house's cap whose brim reaches far past its walls. The body-band slice ignores
+  those parts; instead the asset gets one more prism, the 2D convex hull of all its overhead parts from their lowest
+  point to their top, so nothing can stand inside the cap while the space under the brim stays open.
 
 Plain Python (no bpy): ``tag`` only sets a custom property on whatever object it is given.
 """
@@ -25,7 +29,8 @@ HULL = "hull"          # a convex prism of the body-height slice (props)
 VEG_HULL = "veg_hull"  # a convex prism of the trunk band (giant stems), only if >= 1 m tall and >= 0.3 m2
 WATER = "water"        # sidecar `water` data, no solid
 EXACT = "exact"        # the exact mesh joins the Walls trimesh (thin overhead dressing a prism would overfill)
-CLASSES = (GROUND, WALL, NONE, HULL, VEG_HULL, WATER, EXACT)
+OVERHEAD_HULL = "overhead_hull"  # a convex prism of the part's own height range, above a walking body (see below)
+CLASSES = (GROUND, WALL, NONE, HULL, VEG_HULL, WATER, EXACT, OVERHEAD_HULL)
 
 # kit asset tags (kit.REGISTRY[name]["tags"]) that make an instanced asset passable
 PASSABLE_TAGS = frozenset({"passable", "cloud", "debug", "portal", "vine", "flower", "grass"})

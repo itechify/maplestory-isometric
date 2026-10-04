@@ -36,7 +36,8 @@ var respawn_location: ArrivalRef = null
 var environment_configuration: Dictionary = {}
 ## Map-local -> world (from the sidecar footprint local_frame).
 var frame: Transform3D = Transform3D.IDENTITY
-## World XZ polygon: the layout footprint grown by the containment ring offset (footprint + 1 m).
+## World XZ polygon: the map's region and containment ring line. The layout footprint grown by the containment ring
+## offset (footprint + 1 m), united with the map's authored region extensions (`region_extensions`).
 var footprint: PackedVector2Array = []
 ## World XZ polygon the camera may show (M1: the footprint; M2 adds the touching trail zones).
 var camera_bounds: PackedVector2Array = []
@@ -50,6 +51,12 @@ var kind: String = ""
 var has_markers: bool = false
 ## The raw layout rectangle (footprint without the ring offset) and its base height.
 var footprint_layout: PackedVector2Array = []
+## The layout rectangle grown by the ring offset, before the region extensions: `footprint` when the map has none.
+var footprint_base: PackedVector2Array = []
+## Region extensions merged into `footprint` (data/misostory/maps/<id>.json region_extensions, see
+## MapDefinitions.apply_region_extensions): {name, ring_line: PackedVector2Array (world XZ), keep_ring_below_y
+## (world y; NAN when the layout's own ring opens at every height), reason}.
+var region_extensions: Array[Dictionary] = []
 var base_y: float = 0.0
 ## Vertical extent of the map chunk (sidecar bounds) and the fall-recovery height.
 var y_min: float = 0.0
@@ -108,7 +115,7 @@ func is_interior() -> bool:
 	return world_space == SPACE_INTERIOR
 
 
-## True when the world point lies inside the footprint (+ ring offset) in XZ.
+## True when the world point lies inside the footprint (+ ring offset, + region extensions) in XZ.
 func footprint_contains(p: Vector3) -> bool:
 	if footprint.size() < 3:
 		return false

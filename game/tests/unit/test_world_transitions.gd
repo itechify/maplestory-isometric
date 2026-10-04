@@ -6,11 +6,14 @@ extends TestCase
 ## (res://scenes/world/checks/world_checks.tscn); this test launches it and reports every failed check.
 ## It runs twice: with the world's WorldTestPlayer capsule, and with the game's PlayerController
 ## (scenes/actors/player.tscn, `--player real`), which also walks out through every portal to prove the warp-mode
-## containment rings hold the real body. Needs the Blender export (INCLUDE_WORLD=1); prints one SKIP line without it.
+## containment rings hold the real body, and pushes (walking and jumping) at the rings of region extensions such as
+## Southperry's ship (WORLD_KNOWN lines are known source-world slots, printed, not failed). Needs the Blender export
+## (INCLUDE_WORLD=1); prints one SKIP line without it.
 
 const CHECK_SCENE := "res://scenes/world/checks/world_checks.tscn"
 const PLAYER_SCENE := "res://scenes/actors/player.tscn"
-## Watchdog for the child process (frames at --fixed-fps 60); a full real-player run takes about 25k frames.
+## Watchdog for the child process (frames at --fixed-fps 60); a full real-player run takes about 40k frames (25k
+## before the region-extension pushes).
 const QUIT_AFTER_FRAMES := 60000
 
 
@@ -46,7 +49,8 @@ func _run_checks(user_args: PackedStringArray, label: String) -> void:
 		if l.begins_with("WORLD_CHECK FAIL"):
 			fails += 1
 			fail("[%s] %s" % [label, l.trim_prefix("WORLD_CHECK FAIL ")])
-		elif l.begins_with("WORLD_SECTION") or l.begins_with("WORLD_BUILD") or l.begins_with("WORLD_PLAYER"):
+		elif l.begins_with("WORLD_SECTION") or l.begins_with("WORLD_BUILD") or l.begins_with("WORLD_PLAYER") \
+				or l.begins_with("WORLD_KNOWN"):
 			print("  [%s] %s" % [label, l])
 		elif l.begins_with("WORLD_CHECKS_DONE"):
 			done = true

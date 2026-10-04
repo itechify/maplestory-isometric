@@ -4,7 +4,9 @@ landings on steep sections, and a pale 'main road' surface along the classic mai
 Each trail starts at the footprint edge of both maps (never inside a map), sits a few cm below any map or
 plinth surface it meets (no coplanar z-fighting at the junction), and a draped apron ribbon in the trail's
 surface material carries the road from the edge to the portal. Long trails curve through seeded lateral
-waypoints. After all trails exist, `walk_trail` walks each one portal-to-portal over the combined ground.
+waypoints; a link with an authored route (layout.TRAIL_ROUTES) follows that instead (`route_polyline`). After all
+trails exist, `walk_trail` walks each one portal-to-portal over the combined ground, and `ring_clearance` measures how
+close the runtime's containment rings come to it (validate.py trail_ring_band).
 """
 
 import math
@@ -24,6 +26,7 @@ LANDING = 2.4            # landing length (m)
 SINK = 0.04              # trail top sits this far below a map/plinth surface it meets
 CURVE_MIN_LEN = 28.0     # mid sections longer than this curve through lateral waypoints
 RAIL_DROP = 2.0          # rails only where the side drop exceeds this
+RAIL_LEN = 1.8           # a trail rail: Fence_Wood_Seg (2 m along +X from its origin) at 0.9 scale
 WALK_STEP = 0.3
 WALK_MAX_STEP = 0.45
 WALK_MAX_SLOPE = 38.0
@@ -160,13 +163,70 @@ def _polyline_at(pts, s_cum, s):
     return pts[-1], Vector((1, 0))
 
 
+def route_polyline(p0, na, route, p3, nb, step=1.0, exit_step=0.5, max_reach=5.0):
+    """The centreline of an authored route (layout.TRAIL_ROUTES): p0 -> its corners -> p3, every corner rounded with
+    its fillet radius. The first corner is snapped onto p0's exit ray (p0 + na t) and the last onto p3's (p3 + nb t),
+    so both ends leave perpendicular to their footprint edge, through the gate corridor.
+
+    Returns (points, reach): rows every ~exit_step m along the two exits (the straight before the first fillet and
+    after the last one, at most max_reach m: the trail's flat junction length) and every ~step m between, like the
+    seeded trails. Raises ValueError when a corner's fillet does not fit between its neighbours."""
+    na = Vector((na.x, na.y)).normalized()
+    nb = Vector((nb.x, nb.y)).normalized()
+    corners = [(Vector((c[0], c[1])), float(r)) for c, r in route]
+    c0, r0 = corners[0]
+    corners[0] = (p0 + na * max(0.0, (c0 - p0).dot(na)), r0)
+    cl, rl = corners[-1]
+    corners[-1] = (p3 + nb * max(0.0, (cl - p3).dot(nb)), rl)
+    poly = [p0.copy()] + [c for c, _r in corners] + [p3.copy()]
+    dense = [p0.copy()]
+    tans = []
+    for i in range(1, len(poly) - 1):
+        a, v, b = poly[i - 1], poly[i], poly[i + 1]
+        u1, u2 = (v - a).normalized(), (b - v).normalized()
+        th = math.acos(max(-1.0, min(1.0, u1.dot(u2))))
+        r = corners[i - 1][1]
+        t = r * math.tan(th / 2)
+        tans.append(t)
+        if th < 1e-4:
+            dense.append(v.copy())
+            continue
+        s = v - u1 * t
+        n = Vector((-u1.y, u1.x)) if u1.x * u2.y - u1.y * u2.x > 0 else Vector((u1.y, -u1.x))  # towards the centre
+        c = s + n * r
+        e = v + u2 * t
+        a0 = math.atan2(s.y - c.y, s.x - c.x)
+        da = (math.atan2(e.y - c.y, e.x - c.x) - a0 + math.pi) % (2 * math.pi) - math.pi
+        k = max(2, int(math.ceil(abs(da) * r / 0.1)))
+        dense += [c + Vector((math.cos(a0 + da * j / k), math.sin(a0 + da * j / k))) * r for j in range(k + 1)]
+    dense.append(p3.copy())
+    segl = [(b - a).length for a, b in zip(poly, poly[1:])]
+    cut = [0.0] + tans + [0.0]  # tangent length taken from each corner
+    for i, L in enumerate(segl):
+        if cut[i] + cut[i + 1] > L + 1e-6:
+            raise ValueError(f"route segment {i} is {L:.2f} m, its fillets need {cut[i] + cut[i + 1]:.2f} m")
+    reach = min(max_reach, segl[0] - cut[1], segl[-1] - cut[-2])
+    s_cum = [0.0]
+    for i in range(1, len(dense)):
+        s_cum.append(s_cum[-1] + (dense[i] - dense[i - 1]).length)
+    s_end = s_cum[-1]
+    ne = max(1, int(round(reach / exit_step)))
+    nm = max(1, int(round((s_end - 2 * reach) / step)))
+    ss = [reach * k / ne for k in range(ne + 1)]
+    ss += [reach + (s_end - 2 * reach) * k / nm for k in range(1, nm)]
+    ss += [s_end - reach + reach * k / ne for k in range(ne + 1)]
+    return [_polyline_at(dense, s_cum, s)[0].copy() for s in ss], reach
+
+
 def build_trail(world, name, a, b, ea, eb, na, nb, mapground=None, main=False, hidden=False, bridge_b=0.0,
-                avoid=(), ledge=None):
+                avoid=(), ledge=None, route=None):
     """One trail between two edge portals.
 
     a, b: portal world positions (Vector xyz). ea, eb: the footprint-edge points in front of them (Vector xyz,
     z = map ground just inside that edge). na, nb: outward edge normals (2D). mapground: GroundIndex of the map
     and plinth surfaces (junction sinking). bridge_b: the last bridge_b m before eb are a plank bridge.
+    route: an authored route (layout.trail_route_world: [((x, y), fillet radius)]) the centreline follows instead
+    of the seeded curve (route_polyline); its exit straights set the flat junction length.
     ledge: a one-way trail (layout.ONE_WAY_LEDGE) ending in a drop-down ledge: {"landing_z": ground height below
     the ledge, "height": m}. eb is then the point on the arrival gate plane (footprint + GATE_OFFSET_M) with
     z = landing_z + height: the trail top ends exactly there and a rock face (_ledge_face) drops to the landing.
@@ -189,13 +249,19 @@ def build_trail(world, name, a, b, ea, eb, na, nb, mapground=None, main=False, h
             reach = 1.5
     p0 = Vector((ea.x, ea.y))
     p3 = Vector((eb.x, eb.y))
-    p1 = p0 + na * reach
-    p2 = p3 + nb * reach
-    middle = _middle(world, name, p0, p1, p2, p3, curve=not hidden)
-    if avoid and (p2 - p1).length > 12.0:  # keep the trail body off the two maps it joins (offset exits)
-        middle = _relax(middle, avoid, width / 2 + 2.0, exempt=width / 2 + 4.0)
-    ne = max(1, int(round(reach / 0.5)))  # rows every ~0.5 m across the junction exits
-    pts = [p0.lerp(p1, k / ne) for k in range(ne)] + middle + [p2.lerp(p3, k / ne) for k in range(1, ne + 1)]
+    if route:  # an authored route (layout.TRAIL_ROUTES): followed exactly, no seeded curve, no relaxing
+        pts, reach = route_polyline(p0, na, route, p3, nb)
+        middle = pts
+        p1 = p0 + na * reach
+        p2 = p3 + nb * reach
+    else:
+        p1 = p0 + na * reach
+        p2 = p3 + nb * reach
+        middle = _middle(world, name, p0, p1, p2, p3, curve=not hidden)
+        if avoid and (p2 - p1).length > 12.0:  # keep the trail body off the two maps it joins (offset exits)
+            middle = _relax(middle, avoid, width / 2 + 2.0, exempt=width / 2 + 4.0)
+        ne = max(1, int(round(reach / 0.5)))  # rows every ~0.5 m across the junction exits
+        pts = [p0.lerp(p1, k / ne) for k in range(ne)] + middle + [p2.lerp(p3, k / ne) for k in range(1, ne + 1)]
     s_cum = [0.0]
     for i in range(1, len(pts)):
         s_cum.append(s_cum[-1] + (pts[i] - pts[i - 1]).length)
@@ -352,16 +418,31 @@ def build_trail(world, name, a, b, ea, eb, na, nb, mapground=None, main=False, h
                                  rot_z=math.degrees(math.atan2(u.y, u.x)), scale=(chord.length / 4.0, 1.0, 1.15),
                                  obj_name="Trail_Hedge")
     else:
+        rail_off = width / 2 - 0.3
+
+        def rail_point(s_, sd):
+            c_, u_ = _polyline_at(pts, s_cum, s_)
+            return c_ + Vector((-u_.y, u_.x)) * (rail_off * sd)
+
         for k, (s, p, nrm, z, drops) in enumerate(row_drop):
             if not (s1 + 1.0 < s < s2 - 1.0) or k % 4:
                 continue
-            _q, u = _polyline_at(pts, s_cum, s)
             for sd, drop in zip((1, -1), drops):
                 if drop < RAIL_DROP:
                     continue
-                q = p + nrm * ((width / 2 - 0.3) * sd)
+                q = p + nrm * (rail_off * sd)
+                # the 1.8 m segment runs from q along +X: aim it at the rail line 1.8 m on (its chord), so on a bend
+                # it never cuts into the walkable top (a tangent segment on the inner side of a tight bend did)
+                s_far = s + RAIL_LEN
+                for _ in range(3):
+                    gap = (rail_point(s_far, sd) - q).length
+                    if gap < 1e-6:
+                        break
+                    s_far = s + (s_far - s) * RAIL_LEN / gap
+                u = rail_point(s_far, sd) - q
                 kit.instance("Fence_Wood_Seg", world.coll_trails, (q.x, q.y, z - 0.05),
-                             rot_z=math.degrees(math.atan2(u.y, u.x)), scale=(0.9, 1, 0.8), obj_name="Trail_Rail")
+                             rot_z=math.degrees(math.atan2(u.y, u.x)), scale=(RAIL_LEN / 2.0, 1, 0.8),
+                             obj_name="Trail_Rail")
         if mid_len > 20:
             for k, (s, p, nrm, z, drops) in enumerate(row_drop):
                 if not (s1 + 2.0 < s < s2 - 2.0) or k % 6:
@@ -391,11 +472,12 @@ def build_trail(world, name, a, b, ea, eb, na, nb, mapground=None, main=False, h
     entry = {"trail": name, "length_m": round(s_end, 1), "rise_m": round(zb - za, 2), "slope_deg": round(slope, 1),
              "kind": "stairs+landings" if stairs else "ramp", "main_road": main, "hidden": hidden,
              "curved": _max_offset(middle, p1, p2) > 2.0,
-             "bridge_m": bridge_b, "one_way": bool(ledge)}
+             "bridge_m": bridge_b, "one_way": bool(ledge), "route": "authored" if route else "seeded"}
     world.trail_report.append(entry)
     info = {"name": name, "entry": entry, "a": a, "b": b, "ea": ea, "eb": eb, "na": na, "nb": nb,
             "pts": pts, "width": width, "top_mat": top_mat, "reach": reach, "hidden": hidden,
-            "stair_chords": stair_chords, "ledge": ledge, "obj": obj}
+            "stair_chords": stair_chords, "ledge": ledge, "obj": obj,
+            "centre": [(p.x, p.y, z_of(s)) for p, s in zip(pts, s_cum)]}
     return objs, info
 
 
@@ -430,6 +512,93 @@ def _ledge_face(world, name, p, n_out, width, top_z, landing_z):
         objs.append(kit.instance("Rock_Cliff_Stone", world.coll_trails, (q.x, q.y, z),
                                  rot_z=yaw + r.uniform(-12, 12), scale=sc, obj_name=f"{name}_LedgeStone"))
     return objs
+
+
+def ring_clearance(info, footprints, rings, ring_offset, wall, gap_half, step=0.1, near=3.0):
+    """Where the maps' containment rings stand relative to this trail (MAP_ARCHITECTURE 4.6, the runtime's
+    ContainmentBuilder). Every map is walled by a ring whose inner face is its footprint + ring_offset line and which
+    is `wall` thick outward (its corners closed square); it opens only at its gate gaps, gap_half either side of the
+    gate. The gaps this trail uses are the two on its own end maps, centred on its caps (the centreline's first and
+    last points, on the footprint edge in front of the portal); any other stretch of any ring is a wall here.
+
+    footprints / rings: {map id: [(x, y)] * 4}, the layout rectangles (layout.footprint_world) and the same grown by
+    ring_offset (the ring lines). The wall is sampled every `step` m on three lines through its thickness, and each
+    sample's 2D distance to the centreline polyline is taken. Returns {"maps": {map id: {...}}, "centre_inside": [...]}
+    with, for every map whose ring wall comes within half-width + `near` m of the centreline:
+
+    * wall_to_centre_m / at: the closest wall away from the trail's own gaps. Below the half-width the wall stands on
+      the walkable top; near 0 it stands across it.
+    * jamb_to_centre_m / jamb_at (own end maps only): the closest wall beside the trail's own gap, within half-width +
+      0.5 m of the gap's end, where a trail leaving straight through the gap passes the jamb at exactly gap_half.
+
+    centre_inside: centreline points inside a map's ring line other than its own mouths (the gate corridor of the
+    trail's own ends, up to the wall's outer face): a trail there runs inside that map's region."""
+    cen = [Vector((x, y)) for x, y, _z in info["centre"]]
+    half = info["width"] / 2
+    reach = half + near
+    pad = reach + ring_offset + wall
+    xs, ys = [p.x for p in cen], [p.y for p in cen]
+    box = (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
+    segs = list(zip(cen, cen[1:]))
+    ends = []  # (map id, cap point, outward normal, lateral direction)
+    for mid, e, n in ((info["ids"][0], cen[0], info["na"]), (info["ids"][1], cen[-1], info["nb"])):
+        n = Vector((n.x, n.y)).normalized()
+        ends.append((mid, e, n, Vector((-n.y, n.x))))
+
+    def dist_to_centre(w):
+        best, at = 1e9, None
+        for a, b in segs:
+            if min(abs(w.x - a.x), abs(w.x - b.x)) > best + 2.0 and min(abs(w.y - a.y), abs(w.y - b.y)) > best + 2.0:
+                continue
+            d = b - a
+            t = 0.0 if d.length_squared < 1e-9 else max(0.0, min(1.0, (w - a).dot(d) / d.length_squared))
+            q = a + d * t
+            if (w - q).length < best:
+                best, at = (w - q).length, q
+        return best, at
+
+    out = {}
+    for mid, poly in footprints.items():
+        P = [Vector(p) for p in poly]
+        c = sum(P, Vector((0.0, 0.0))) / len(P)
+        best = {"away": None, "jamb": None}
+        for i in range(len(P)):
+            a, b = P[i], P[(i + 1) % len(P)]
+            L = (b - a).length
+            t = (b - a) / L
+            nrm = Vector((t.y, -t.x))
+            if nrm.dot(a + t * (L / 2) - c) < 0:  # outward
+                nrm = -nrm
+            gaps = [(e - a).dot(t) for m2, e, n, _lat in ends if m2 == mid and n.dot(nrm) > 0.99]
+            for off in (ring_offset, ring_offset + wall / 2, ring_offset + wall):
+                for k in range(int(math.floor(-off / step)), int(math.ceil((L + off) / step)) + 1):
+                    u = k * step
+                    w = a + t * u + nrm * off
+                    if not (box[0] <= w.x <= box[2] and box[1] <= w.y <= box[3]):
+                        continue
+                    if any(abs(u - g) <= gap_half for g in gaps):
+                        continue
+                    kind = "jamb" if any(abs(u - g) <= gap_half + half + 0.5 for g in gaps) else "away"
+                    d, q = dist_to_centre(w)
+                    if best[kind] is None or d < best[kind][0]:
+                        best[kind] = (d, q)
+        row = {}
+        for kind, key, at_key in (("away", "wall_to_centre_m", "at"), ("jamb", "jamb_to_centre_m", "jamb_at")):
+            if best[kind] is not None and best[kind][0] < reach:
+                row[key] = round(best[kind][0], 3)
+                row[at_key] = [round(best[kind][1].x, 2), round(best[kind][1].y, 2)]
+        if row:
+            out[mid] = row
+    inside = []
+    for q in cen:
+        for mid, ring in rings.items():
+            if not geo.point_in_poly(q.x, q.y, ring):
+                continue
+            mouth = any(m2 == mid and (q - e).dot(n) <= ring_offset + wall + 1e-6 and abs((q - e).dot(lat)) <= gap_half
+                        for m2, e, n, lat in ends)
+            if not mouth:
+                inside.append({"map": mid, "at": [round(q.x, 2), round(q.y, 2)]})
+    return {"maps": out, "centre_inside": inside[:10]}
 
 
 def _max_offset(pts, a, b):
