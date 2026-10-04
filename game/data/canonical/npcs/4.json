@@ -1,0 +1,171 @@
+{
+  "id": "4",
+  "name": "Nina",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000020",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road",
+      "x_px": -59,
+      "y_px": 86
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "What is Sen doing, I wonder?",
+      "segments": [
+        {
+          "text": "What is "
+        },
+        {
+          "text": "Sen",
+          "bold": true,
+          "ref": {
+            "kind": "npc",
+            "id": "5"
+          }
+        },
+        {
+          "text": " doing, I wonder?"
+        }
+      ]
+    },
+    {
+      "text": "I'll make a mushroom soup for Sen. Hm, do I have any fresh mushrooms?",
+      "segments": [
+        {
+          "text": "I'll make a mushroom soup for "
+        },
+        {
+          "text": "Sen",
+          "ref": {
+            "kind": "npc",
+            "id": "5"
+          }
+        },
+        {
+          "text": ". Hm, do I have any fresh mushrooms?"
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "What would be good for dinner?"
+    },
+    {
+      "text": "I'm cute, right?"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1003",
+        "name": "What Sen wants to eat"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1004",
+        "name": "Returning to Nina"
+      }
+    ],
+    "started_here": [
+      "1003"
+    ],
+    "completed_here": [
+      "1004"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1003",
+      "quest_name": "What Sen wants to eat",
+      "npc_role": "start",
+      "start_npc_id": "4",
+      "complete_npc_id": "5",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Oh, a traveler! Nice, right on time... I have a favor to ask. Head towards your right and you'll find a kid there."
+        },
+        {
+          "text": "That's my little brother, Sen. Will you please ask him what he wants for dinner?",
+          "segments": [
+            {
+              "text": "That's my little brother, "
+            },
+            {
+              "text": "Sen",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "5"
+              }
+            },
+            {
+              "text": ". Will you please ask him what he wants for dinner?"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Oh, I guess you're very busy. Still, it's not too difficult of a job, so please help if you can."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1004",
+      "quest_name": "Returning to Nina",
+      "npc_role": "complete",
+      "start_npc_id": "5",
+      "complete_npc_id": "4",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "He wants mushroom soup? I guess that's our dinner then. Thanks for helping me out."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/4",
+    "retrieved_at": "2026-10-04T10:04:58.445Z"
+  },
+  "field_sources": {
+    "locations/000000020": {
+      "url": "https://meowdb.com/msclassic/maps/000000020",
+      "retrieved_at": "2026-10-04T09:56:39.214Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1003/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1003",
+      "retrieved_at": "2026-10-04T10:07:19.852Z"
+    },
+    "quest_dialogue/1004/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1004",
+      "retrieved_at": "2026-10-04T10:07:21.009Z"
+    }
+  }
+}

@@ -1,0 +1,604 @@
+{
+  "id": "000001001",
+  "name": "In a Small Forest",
+  "street_name": "Rainbow Street",
+  "region": "MapleIsland",
+  "location_label": "Rainbow Street / Maple Island",
+  "is_town": false,
+  "page_map_type_label": null,
+  "overview_text": "In a Small Forest is a hunting ground in Rainbow Street, Maple Island in MapleStory Classic. Monsters here include Snail, Blue Snail, Shroom, and Red Snail, and others. Monsters are around levels 1–8. There are 40 monster spawn points.",
+  "return_map_id": "000001010",
+  "return_map_name": "Amherst",
+  "safe_zone": false,
+  "safe_zone_text": null,
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/RestNPeace",
+    "name": "Rest N Peace",
+    "length": "2:55"
+  },
+  "mob_rate": 1.3,
+  "total_mob_count": 40,
+  "page_facts": {
+    "levels": "Lv 1-8",
+    "spawns": "40",
+    "exp_rank": "#260 / 279"
+  },
+  "connected_maps": [
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": 1153,
+      "y_px": -56,
+      "to_map_id": "000001000",
+      "to_map_name": "The Field West of Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": 947,
+      "y_px": -165
+    },
+    {
+      "x_px": 1011,
+      "y_px": -158
+    },
+    {
+      "x_px": 1077,
+      "y_px": -168
+    },
+    {
+      "x_px": 1232,
+      "y_px": -174
+    },
+    {
+      "x_px": 1280,
+      "y_px": -171
+    }
+  ],
+  "npcs": [],
+  "monsters": [
+    {
+      "id": "2",
+      "name": "Snail",
+      "count": 12,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 12,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "3",
+      "name": "Blue Snail",
+      "count": 7,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 7,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "4",
+      "name": "Shroom",
+      "count": 12,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 12,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "5",
+      "name": "Red Snail",
+      "count": 5,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 5,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "9",
+      "name": "Orange Mushroom",
+      "count": 4,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 4,
+      "movement": "jump",
+      "movement_label": "Jumps between floors",
+      "movement_description": "Can hop to a floor above or below its spawn point."
+    }
+  ],
+  "spawns": [
+    {
+      "mob_id": "9",
+      "x_px": 1022,
+      "y_px": 533,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "9",
+      "x_px": 479,
+      "y_px": 527,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "9",
+      "x_px": 76,
+      "y_px": 529,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "9",
+      "x_px": -333,
+      "y_px": 526,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 854,
+      "y_px": 543,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1272,
+      "y_px": 539,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 592,
+      "y_px": 555,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 350,
+      "y_px": 546,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": -65,
+      "y_px": 529,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -215,
+      "y_px": 521,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -487,
+      "y_px": 519,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": 221,
+      "y_px": 526,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": 983,
+      "y_px": 311,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": 1434,
+      "y_px": 321,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -523,
+      "y_px": 330,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -507,
+      "y_px": 80,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -598,
+      "y_px": -350,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -235,
+      "y_px": -351,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": 408,
+      "y_px": -533,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": 747,
+      "y_px": -530,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -410,
+      "y_px": 320,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -294,
+      "y_px": 321,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -395,
+      "y_px": 81,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 521,
+      "y_px": -527,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 1097,
+      "y_px": -530,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -477,
+      "y_px": -361,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": -357,
+      "y_px": -363,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 636,
+      "y_px": -535,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 982,
+      "y_px": -534,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 263,
+      "y_px": -21,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": -268,
+      "y_px": 78,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": -126,
+      "y_px": 80,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 448,
+      "y_px": -39,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 862,
+      "y_px": -527,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 1147,
+      "y_px": 319,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 1298,
+      "y_px": 328,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "2",
+      "x_px": -53,
+      "y_px": -579,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": -188,
+      "y_px": -583,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 50,
+      "y_px": -573,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 576,
+      "y_px": -42,
+      "mob_time_s": 0
+    }
+  ],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 2038,
+    "height_px": 1690,
+    "center_x_px": 614,
+    "center_y_px": 895,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -614,
+    "x_max": 1424,
+    "y_min": -895,
+    "y_max": 795
+  },
+  "quests": {
+    "progress_here": [
+      {
+        "id": "1010",
+        "name": "Mai's Final Training",
+        "npc_name": "Mai",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+100 EXP",
+        "meso_reward_label": "+150 mesos",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "9",
+            "text": "Defeat Orange Mushroom x1",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "id": "1006",
+        "name": "Sam's Suggestion",
+        "npc_name": "Sam",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+30 EXP",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "2",
+            "text": "Defeat Snail x10",
+            "count": 10
+          }
+        ]
+      },
+      {
+        "id": "1009",
+        "name": "Mai's Training",
+        "npc_name": "Mai",
+        "level_label": "Lv 3+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+70 EXP",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "3",
+            "text": "Defeat Blue Snail x10",
+            "count": 10
+          },
+          {
+            "mob_id": "4",
+            "text": "Defeat Shroom x10",
+            "count": 10
+          },
+          {
+            "mob_id": "5",
+            "text": "Defeat Red Snail x5",
+            "count": 5
+          }
+        ]
+      },
+      {
+        "id": "10009",
+        "name": "Olaf's Second Training",
+        "npc_name": "Olaf",
+        "level_label": "Lv 8+",
+        "area_label": "Victoria Island",
+        "exp_reward_label": "+84 EXP",
+        "meso_reward_label": "+234 mesos",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "9",
+            "text": "Defeat Orange Mushroom x8",
+            "count": 8
+          }
+        ]
+      },
+      {
+        "id": "10303",
+        "name": "Don Hwang's Request",
+        "npc_name": "Nella",
+        "level_label": "Lv 10+",
+        "area_label": "Kerning City",
+        "exp_reward_label": "+171 EXP",
+        "meso_reward_label": "+292 mesos",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "9",
+            "text": "Defeat Orange Mushroom x20",
+            "count": 20
+          }
+        ]
+      },
+      {
+        "id": "10123",
+        "name": "The Reason Behind the Mushroom Studies",
+        "npc_name": "Bruce",
+        "level_label": "Lv 10+",
+        "area_label": "Henesys",
+        "exp_reward_label": "+171 EXP",
+        "meso_reward_label": "+292 mesos",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "4",
+            "text": "Defeat Shroom x20",
+            "count": 20
+          },
+          {
+            "mob_id": "9",
+            "text": "Defeat Orange Mushroom x20",
+            "count": 20
+          }
+        ]
+      }
+    ]
+  },
+  "meowdb_spawn_estimates": {
+    "note": "MeowDB's own spawn/EXP model (page 'Map Summary' and 'How this estimate works'); not raw game data. Monster level/EXP live in the monsters domain.",
+    "total_spawn_points": 40,
+    "capacity_solo": 30,
+    "capacity_full_party": 40,
+    "mobs_per_hour": 14287,
+    "mobs_per_hour_full_party": 19047,
+    "exp_per_hour": 80000,
+    "exp_per_hour_full_party": 106667,
+    "exp_rank": 260,
+    "exp_rank_total": 279,
+    "per_mob": [
+      {
+        "id": "2",
+        "name": "Snail",
+        "spawn_points": 12,
+        "wave_spawn_points": 12,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 4286,
+        "mobs_per_hour_full_party": 5714,
+        "exp_per_hour": 8571,
+        "exp_per_hour_full_party": 11429
+      },
+      {
+        "id": "3",
+        "name": "Blue Snail",
+        "spawn_points": 7,
+        "wave_spawn_points": 7,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 2500,
+        "mobs_per_hour_full_party": 3333,
+        "exp_per_hour": 10000,
+        "exp_per_hour_full_party": 13333
+      },
+      {
+        "id": "4",
+        "name": "Shroom",
+        "spawn_points": 12,
+        "wave_spawn_points": 12,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 4286,
+        "mobs_per_hour_full_party": 5714,
+        "exp_per_hour": 25714,
+        "exp_per_hour_full_party": 34286
+      },
+      {
+        "id": "5",
+        "name": "Red Snail",
+        "spawn_points": 5,
+        "wave_spawn_points": 5,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 1786,
+        "mobs_per_hour_full_party": 2381,
+        "exp_per_hour": 14286,
+        "exp_per_hour_full_party": 19048
+      },
+      {
+        "id": "9",
+        "name": "Orange Mushroom",
+        "spawn_points": 4,
+        "wave_spawn_points": 4,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 1429,
+        "mobs_per_hour_full_party": 1905,
+        "exp_per_hour": 21429,
+        "exp_per_hour_full_party": 28571
+      }
+    ]
+  },
+  "spawn_rules_text": "How spawns work. The server runs a global 7.56s respawn tick across every loaded map. After a mob dies its spawn point waits a cooldown (5s default, or usually the WZ mobTime value for timed spawns), then the mob reappears on the next tick. Field-boss schedules are server-owned, so unconfirmed live-timing windows are labelled when they differ from the raw map value. Map capacity scales with players on the map: 75% solo, +5% per extra player, capping at 100% from 6 players. This map has 40 spawn points, so capacity is ~30 concurrent mobs solo and 40 in a full party. Mob rate (1.3x) multiplies that capacity: expect about 52 monsters up at a time. Not applied to the figures above yet; best reading from closed-beta play.",
+  "mob_rate_text": "About mob rate. Mob rate multiplies how many monsters this map keeps alive at once. This map has 40 spawn points and a mob rate of 1.3x, so expect about 52 monsters up at a time instead of 40. The spawn figures above do not apply it yet. This is our best reading from closed-beta play, where a high-rate map held far more monsters than it has spawn points; an exact whole-map count has not been done.",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000001001",
+    "retrieved_at": "2026-10-04T09:56:54.266Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001000",
+          "retrieved_at": "2026-10-04T09:56:52.757Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "notes": [
+    "1 placed point(s) fall outside the minimap rectangle (bounds_px_derived), so it is not a hard map boundary: spawn 2 at (1434,321).",
+    "mob_rate is 1.3. MeowDB pages disagree on its effect: this page says it multiplies how many monsters stay alive (\"best reading from closed-beta play\", not applied to its own estimates); the spawn-engine guide says MapleStory Classic ignores it and the spawn formula page's capacity formula omits it. See docs/canonical/maps.md, Discrepancies."
+  ],
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y."
+  ]
+}

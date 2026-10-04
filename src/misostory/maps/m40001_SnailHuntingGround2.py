@@ -377,6 +377,7 @@ def build(m):
     m.mobs("Blue Snail", geo.rect(1, 33, 27, 43), 1, seed=15, z_band=(8.1, 8.3))
     m.mobs("Blue Snail", geo.rect(30, 39.2, 63, 44.2), 2, seed=16, z_band=(11.7, 11.9))
     m.player(38.8, 23.6, rot=-30)  # on the mid terrace at the pillar's foot (Gameplay focus)
+    m.player_spawn(5.3, 12.0, rot=90, note="sp x -4: ~4 m east of west00 on the entry ground")
 
 
 def dress(m):

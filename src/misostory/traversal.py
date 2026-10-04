@@ -19,7 +19,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
-from . import core, geo, kit
+from . import core, geo, kit, ledge_rules
 
 MAX_STEP = 0.45
 MAX_DROP = 2.6
@@ -37,6 +37,18 @@ JOIN_XY = 0.75
 JOIN_Z = 0.45
 PORTAL_REACH = 1.5    # a route reaches a portal when one of its samples is this close ...
 PORTAL_REACH_Z = 0.45  # ... on ground within this of the portal's height
+# One-way ledge invariant (docs/runtime/MAP_ARCHITECTURE.md 4.4): a one-way trail's drop-down ledge must be higher
+# than anything the player can climb back up (jump apex at the Jump cap + one walking step + this margin) and no
+# higher than a one-way drop (MAX_DROP). Its face must lie on the arrival gate plane within LEDGE_FACE_TOL_M. The
+# rule itself lives in ledge_rules.py (no bpy) so the staging check (sidecar_diff.py) applies the same bounds.
+LEDGE_MARGIN_M = ledge_rules.LEDGE_MARGIN_M
+LEDGE_FACE_TOL_M = ledge_rules.LEDGE_FACE_TOL_M
+
+
+def ledge_bounds(root):
+    """(min_height, max_height, detail) of the one-way ledge invariant, from the game data under root
+    (ledge_rules.ledge_bounds with this module's MAX_DROP and MAX_STEP)."""
+    return ledge_rules.ledge_bounds(root, max_drop=MAX_DROP, max_step=MAX_STEP)
 
 
 def climbables(ctx):

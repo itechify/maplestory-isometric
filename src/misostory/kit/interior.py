@@ -11,6 +11,7 @@ import math
 
 import bpy
 
+from .. import collision_tags as CT
 from ..geo import MeshBuilder
 from . import asset
 
@@ -59,6 +60,9 @@ def plank_floor(m, x0, y0, x1, y1, z=0.0, board=0.45, gap=0.035, seed=0, name="F
 
     The floor slab underneath should be dark (M_Flat_wood_dk) so the gaps read as seams. The boards
     float a few mm above the slab (no z-fighting) and are not added to the ground set.
+    Collision: none (tag, misostory.collision_tags). The walkable slab below is the floor; untagged, the
+    Architecture default made the boards a Walls slab 3-11 mm above Ground, which the runtime had to accept
+    through its coplanar-ground tolerance (WORLD_RUNTIME "Current findings for the source world").
     """
     import random
     rng = random.Random(f"{m.slug}-{name}-{seed}")
@@ -77,7 +81,7 @@ def plank_floor(m, x0, y0, x1, y1, z=0.0, board=0.45, gap=0.035, seed=0, name="F
                 lbox(mb, m, (b - a - gap, yb - ya - gap, zt - zb), ((a + b) / 2, (ya + yb) / 2, (zb + zt) / 2), 0,
                      rng.choice(PLANK_TONES))
             x += ln
-    obj = mb.build(f"{m.slug}_{name}", coll or m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_{name}", coll or m.col_arch, smooth=False), CT.NONE)  # visual only
     obj.visible_shadow = False
     return obj
 
@@ -208,7 +212,7 @@ def sign_text(m, text, x, y, z, rot=0.0, size=0.4, mat="M_Flat_cloth_white", ext
         me = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
         if not me.polygons:
             raise RuntimeError("empty text mesh")
-        mo = bpy.data.objects.new(f"{m.slug}_{name}_TextMesh", me)
+        mo = CT.tag(bpy.data.objects.new(f"{m.slug}_{name}_TextMesh", me), CT.NONE)  # lettering, not a solid
         mo.location = ob.location.copy()
         mo.rotation_euler = ob.rotation_euler.copy()
         m.col_props.objects.link(mo)
@@ -275,11 +279,15 @@ def _post_stonecap(coll):
     ob.visible_shadow = False   # wall posts: their corbel blobs otherwise stain the floor
 
 
-@asset("Eave_Lashed_4m", "Architecture", footprint=4.0, tags=("interior",))
+@asset("Eave_Lashed_4m", "Architecture", footprint=4.0, tags=("interior", "collide_exact"))
 def _eave(coll):
     """4 m run of the roof edge seen from inside: lashed planks rising toward -Y, dark-blue cords.
 
     Origin at the left end of the wall top; runs along +X; the planks lean into the room (-Y).
+    Collision: the exact mesh (tag ``collide_exact``, misostory.collision_tags). A prop prism of its body-height slice
+    starts 0.3 m below the wall top and fills the whole 1.7 m-deep overhang, which put solid collision 1.30 m above
+    the walkable ceiling beams of 1010001 / 60001 (BEAM_Z 5.0 under a 6.6 m wall top), inside a standing player.
+    The exact wall plate's underside is 1.595 m above those beams.
     """
     mb = MeshBuilder()
     a = math.radians(26)

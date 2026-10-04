@@ -37,3 +37,14 @@ desktop.ini
 .idea/
 *.swp
 *~
+
+# --- MeowDB development-time page cache (raw pages; extracted data lives in game/data/canonical)
+tools/meowdb/.cache/
+
+# --- Godot
+.godot/
+*.import.tmp
+game/export/
+
+# --- Verbatim MeowDB site code (their property; regenerated locally by tools/meowdb/oracle_vectors.mjs from the cache)
+docs/canonical/oracles/*.js.txt

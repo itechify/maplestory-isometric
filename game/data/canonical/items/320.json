@@ -1,0 +1,254 @@
+{
+  "id": "320",
+  "name": "Garnet Ore",
+  "game_item_id": "4020000",
+  "type": "Etc",
+  "subtype": "Gem",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "The ore of a red jewel.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 40,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "11",
+        "monster_name": "Dark Stump",
+        "monster_level": 11,
+        "upvotes": 12,
+        "downvotes": 0,
+        "score": 12,
+        "disputed": false,
+        "community_drop_entry_id": "113",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20,
+        "upvotes": 11,
+        "downvotes": 0,
+        "score": 11,
+        "disputed": false,
+        "community_drop_entry_id": "278",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "36",
+        "monster_name": "Lorang",
+        "monster_level": 38,
+        "upvotes": 9,
+        "downvotes": 0,
+        "score": 9,
+        "disputed": false,
+        "community_drop_entry_id": "150",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1,
+        "upvotes": 7,
+        "downvotes": 0,
+        "score": 7,
+        "disputed": false,
+        "community_drop_entry_id": "244",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "30",
+        "monster_name": "Fire Boar",
+        "monster_level": 32,
+        "upvotes": 7,
+        "downvotes": 1,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "131",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1012",
+        "monster_name": "Jr. Cellion",
+        "monster_level": 33,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "675",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1090",
+        "monster_name": "Bain",
+        "monster_level": 90,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "841",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "33",
+        "monster_name": "Jr. Boogie 1",
+        "monster_level": 35,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "518",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "34",
+        "monster_name": "Jr. Boogie 2",
+        "monster_level": 35,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "520",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "43",
+        "monster_name": "Wraith",
+        "monster_level": 48,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "532",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1014",
+        "monster_name": "Jr. Grupin",
+        "monster_level": 33,
+        "upvotes": 1,
+        "downvotes": 3,
+        "score": -2,
+        "disputed": true,
+        "community_drop_entry_id": "625",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "10202",
+        "quest_name": "Collecting 70 Cursed Dolls",
+        "when": "on_completion",
+        "chance_pct": 14.3,
+        "label": "(14%)",
+        "row_key": "10202-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "80023",
+        "quest_name": "Chrishrama in Need of an Apprentice",
+        "quest_npc_name": "Chrishrama",
+        "quest_level": 10,
+        "quantity": 1
+      }
+    ],
+    "recipes": [
+      {
+        "makes_item_id": "329",
+        "makes_item_name": "Garnet",
+        "skill": "Arcforge Lv 1",
+        "quantity": 1
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "150",
+        "cot2": "40",
+        "change": "-110"
+      }
+    ],
+    "notes": [],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/320",
+    "retrieved_at": "2026-10-04T10:43:24.086Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/320?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:25.125Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/320?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:25.125Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=320",
+      "retrieved_at": "2026-10-04T10:43:26.295Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=10202].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/10202",
+      "retrieved_at": "2026-10-04T11:19:44.538Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 7)"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=10202].chance_pct",
+      "item_page": 14,
+      "quest_page": 14.3,
+      "quest_page_total_weight": 7,
+      "chosen": 14.3,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 7)"
+    }
+  ]
+}

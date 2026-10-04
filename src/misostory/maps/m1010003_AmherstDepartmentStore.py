@@ -538,6 +538,7 @@ def build(m):
 
     # ---------------- gameplay ----------------
     m.player(6.8, 3.6, rot=-40)
+    m.player_spawn(14.3, 9.0, rot=0, note="interior: just inside the door (out00)")
     m.route("Main", [(DOOR_X, 10.75), (14.4, 7.5), (13.0, 5.6), (8.0, 4.6), (4.9, 6.2), (4.3, 8.6)])
     # crates -> book table -> cabinet along y 9.95 (the book stacks sit on the table's back lip), then the potion
     # boards along y 10.9 (the bottle rows stand at the back)
@@ -551,5 +552,5 @@ def build(m):
     # validator's 1.2 m slope window never spans board -> shelf -> lid in a short straight distance
     m.route("PoleShelf", [(14.4, 8.0), (13.9, 8.9)] + ring + [(12.45, 10.1), (12.45, 10.55), (13.15, 10.6),
                                                              (13.15, 11.1), (12.25, 11.1), (11.3, 11.1),
-                                                             (10.4, 11.1)])
+                                                             (10.4, 11.0)])  # (a body at y 11.1 touches the wall)
     m.route("BeamDrop", [(10.4, 11.05), (9.7, 10.9)], one_way=True)   # 1.9 m jump down onto the potion board

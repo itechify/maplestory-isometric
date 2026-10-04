@@ -6,7 +6,7 @@ Classic (GMS v8) structure, from docs/research/maps/40000_SnailHuntingGround1_40
   east terrace; low rock shelf with a ladder; upper band: back-left high terrace with a
   trapezoid hump and a tiny islet (rope), back-right high terrace, linked by the FOUR-BLOCK
   STAIRCASE (T6 > T5 > T4 > T2, reached by rope x1530 from the central terrace).
-  13 ladders/ropes; Snails + Blue Snails only.
+  13 ladders/ropes; Snails + Blue Snails in v8 (MeowDB MS Classic: Snails only).
 
 3D translation: each higher 2D band steps BACK (+y) as it rises, so the map reads as an
 amphitheatre from the camera. The front valley is the main west->east route (the pale main road),
@@ -85,6 +85,9 @@ def build(m):
 
     # ---------------- ground band (front) ----------------
     m.terrace("EntryPlateau", geo.rounded_rect(-1, 2, 13, 17, 2.5), top=1.2, bottom=-0.5)
+    # the arrival apron: the plateau runs on under the one-way trail's ledge (the rock face stands on the arrival
+    # gate plane, local x = -1), so the 2.4 m drop always lands on the plateau, never in a slot at its lip
+    m.terrace("ArrivalApron", geo.rect(-1.8, 6.6, 1.5, 13.4), top=1.2, bottom=-0.5, wobble_amt=0.0, stones=False)
     m.ramp("Steps_Plateau_Basin", (12.5, 9.0, 1.2), (16.0, 9.0, 0.0), 3.6)
     for i, ((cx, cy), (rx, ry), top) in enumerate(KNOLL):
         m.terrace(f"Knoll_T{i + 1}", geo.ellipse(cx, cy, rx, ry, 28 - 4 * i), top=top,
@@ -164,17 +167,26 @@ def build(m):
     dress(m)
 
     # ---------------- gameplay ----------------
+    # in00 is an arrival point, not a portal (MeowDB: 000000040 has no portal back to 000000030): the one-way trail
+    # from the East Entrance ends in a 2.4 m rock ledge on the arrival gate plane, and arrivals land on the plateau
     m.edge_portal("in00")
     m.edge_portal("east00")
     m.npc("Robin", 5.0, 12.8, rot=-30)
+    # Sam (MeowDB 000000040 at x 1602, y 211: the knoll's summit tier T14, east of centre), beside the Main walk
+    m.npc("Sam", 36.4, 12.6, rot=-35)
     m.player(32.6, 14.5, rot=-20)  # on the knoll top, beside the Main walk (Gameplay focus)
+    # player_spawns[0] (MeowDB sp x 1..-213 px: the west entry plateau): the arrival landing, 3.5 m inside the gate
+    # plane below the ledge, facing into the map. A press-Up from 30000 out00 and the walk off the ledge both arrive
+    # here (MAP_ARCHITECTURE 4.4)
+    m.player_spawn(2.5, 10.0, rot=90, note="arrival landing below the one-way ledge from 000000030")
+    # MeowDB: 40 Snail spawn points and no Blue Snails here (v8 had both); every region is a Snail region
     m.mobs("Snail", geo.rect(16, 2, 26, 16), 3, seed=1)
     m.mobs("Snail", geo.rect(44, 2, 62, 16), 3, seed=2)
-    m.mobs("Blue Snail", geo.ellipse(34, 12.5, 8, 5.5), 2, seed=3)
+    m.mobs("Snail", geo.ellipse(34, 12.5, 8, 5.5), 2, seed=3)
     m.mobs("Snail", geo.rect(22, 19, 46, 28), 2, seed=4)
-    m.mobs("Blue Snail", geo.rect(0, 28, 23, 40), 2, seed=5, z_band=(UPPER - 0.1, HUMP + 0.1),
+    m.mobs("Snail", geo.rect(0, 28, 23, 40), 2, seed=5, z_band=(UPPER - 0.1, HUMP + 0.1),
            avoid=[(ISLET_X, ISLET_Y, ISLET_R + 0.6)])  # not on (or under) the islet
-    m.mobs("Blue Snail", geo.rect(38, 32, 63, 40), 2, seed=6)
+    m.mobs("Snail", geo.rect(38, 32, 63, 40), 2, seed=6)
     m.mobs("Snail", geo.rect(51, 25, 63, 31), 1, seed=7)
     # main road: plateau -> basin -> up the knoll's west flights -> over the top -> down the east flights -> meadow
     (w1x0, w1x1, ly1), (w2x0, w2x1, ly2), (w3x0, w3x1, ly3) = (flights[("W", i)] for i in range(3))

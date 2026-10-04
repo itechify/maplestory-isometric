@@ -1,0 +1,255 @@
+{
+  "id": "000000030",
+  "name": "East Entrance to Mushroom Town",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": null,
+  "overview_text": "East Entrance to Mushroom Town is a hunting ground in Maple Road, Maple Island in MapleStory Classic. Monsters here include Tutorial Jr. Sentinel. Monsters are around level 1. There are 6 monster spawn points.",
+  "return_map_id": "000000030",
+  "return_map_name": "East Entrance to Mushroom Town",
+  "safe_zone": false,
+  "safe_zone_text": null,
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 0.6,
+  "total_mob_count": 6,
+  "page_facts": {
+    "levels": "Lv 1",
+    "spawns": "6",
+    "exp_rank": "#269 / 279"
+  },
+  "connected_maps": [
+    {
+      "map_id": "000000020",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000040",
+      "map_name": "Snail Hunting Ground I",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "in00",
+      "type": 2,
+      "x_px": -218,
+      "y_px": 217,
+      "to_map_id": "000000020",
+      "to_map_name": "Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": 1433,
+      "y_px": -924,
+      "to_map_id": "000000040",
+      "to_map_name": "Snail Hunting Ground I",
+      "to_street_name": "Maple Road",
+      "to_portal": null,
+      "to_portal_derivation": "none",
+      "arrival_note": "No portal in 000000040 (Snail Hunting Ground I) leads back to 000000030; arrive at one of 000000040's player_spawns (5 listed)."
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -77,
+      "y_px": 122
+    }
+  ],
+  "npcs": [
+    {
+      "id": "7",
+      "name": "Todd",
+      "x_px": -21,
+      "y_px": 202,
+      "idle_speech_lines": [
+        "Watch out for monsters.",
+        "Press Ctrl to attack monsters.",
+        "Press Z to pick up items.",
+        "If the monsters are too strong, why not form a party with other players?"
+      ]
+    },
+    {
+      "id": "6",
+      "name": "Peter",
+      "x_px": 1314,
+      "y_px": -925,
+      "idle_speech_lines": [
+        "You should train well before continuing your journey.",
+        "Well done making it here!",
+        "This is the exit to Mushroom Town.",
+        "If you want to move to the next stage, talk to me."
+      ]
+    }
+  ],
+  "monsters": [
+    {
+      "id": "1",
+      "name": "Tutorial Jr. Sentinel",
+      "count": 6,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 6,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    }
+  ],
+  "spawns": [
+    {
+      "mob_id": "1",
+      "x_px": 192,
+      "y_px": -463,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "1",
+      "x_px": 690,
+      "y_px": 62,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "1",
+      "x_px": 425,
+      "y_px": -457,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "1",
+      "x_px": 763,
+      "y_px": -399,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "1",
+      "x_px": 475,
+      "y_px": 61,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "1",
+      "x_px": 1360,
+      "y_px": 202,
+      "mob_time_s": 0
+    }
+  ],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 1858,
+    "height_px": 1690,
+    "center_x_px": 299,
+    "center_y_px": 1285,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -299,
+    "x_max": 1559,
+    "y_min": -1285,
+    "y_max": 405
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1005",
+        "name": "Todd's How-to-Hunt",
+        "npc_name": "Todd",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+10 EXP"
+      }
+    ],
+    "progress_here": [
+      {
+        "id": "1005",
+        "name": "Todd's How-to-Hunt",
+        "npc_name": "Todd",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+10 EXP",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "1",
+            "text": "Defeat Tutorial Jr. Sentinel x3",
+            "count": 3
+          }
+        ]
+      }
+    ]
+  },
+  "meowdb_spawn_estimates": {
+    "note": "MeowDB's own spawn/EXP model (page 'Map Summary' and 'How this estimate works'); not raw game data. Monster level/EXP live in the monsters domain.",
+    "total_spawn_points": 6,
+    "capacity_solo": 4.5,
+    "capacity_full_party": 6,
+    "mobs_per_hour": 2143,
+    "mobs_per_hour_full_party": 2857,
+    "exp_per_hour": 2143,
+    "exp_per_hour_full_party": 2857,
+    "exp_rank": 269,
+    "exp_rank_total": 279,
+    "per_mob": [
+      {
+        "id": "1",
+        "name": "Tutorial Jr. Sentinel",
+        "spawn_points": 6,
+        "wave_spawn_points": 6,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 2143,
+        "mobs_per_hour_full_party": 2857,
+        "exp_per_hour": 2143,
+        "exp_per_hour_full_party": 2857
+      }
+    ]
+  },
+  "spawn_rules_text": "How spawns work. The server runs a global 7.56s respawn tick across every loaded map. After a mob dies its spawn point waits a cooldown (5s default, or usually the WZ mobTime value for timed spawns), then the mob reappears on the next tick. Field-boss schedules are server-owned, so unconfirmed live-timing windows are labelled when they differ from the raw map value. Map capacity scales with players on the map: 75% solo, +5% per extra player, capping at 100% from 6 players. This map has 6 spawn points, so capacity is ~5 concurrent mobs solo and 6 in a full party. Mob rate (0.6x) multiplies that capacity: expect about 4 monsters up at a time. Not applied to the figures above yet; best reading from closed-beta play.",
+  "mob_rate_text": "About mob rate. Mob rate multiplies how many monsters this map keeps alive at once. This map has 6 spawn points and a mob rate of 0.6x, so expect about 4 monsters up at a time instead of 6. The spawn figures above do not apply it yet. This is our best reading from closed-beta play, where a high-rate map held far more monsters than it has spawn points; an exact whole-map count has not been done.",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000030",
+    "retrieved_at": "2026-10-04T09:56:42.256Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000020",
+          "retrieved_at": "2026-10-04T09:56:39.214Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000040",
+          "retrieved_at": "2026-10-04T09:56:43.779Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "notes": [
+    "mob_rate is 0.6. MeowDB pages disagree on its effect: this page says it multiplies how many monsters stay alive (\"best reading from closed-beta play\", not applied to its own estimates); the spawn-engine guide says MapleStory Classic ignores it and the spawn formula page's capacity formula omits it. See docs/canonical/maps.md, Discrepancies.",
+    "isTown is true but the page prose calls this map \"a hunting ground\" and the header shows monster facts instead of \"Map type: Town\" (the prose follows whether the map has monsters). is_town keeps the structured isTown value."
+  ],
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y."
+  ]
+}

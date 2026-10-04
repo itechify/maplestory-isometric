@@ -23,6 +23,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+from . import collision_tags as CT
 from . import core, geo, kit
 from . import layout as LY
 from . import materials as M
@@ -81,10 +82,13 @@ class MapCtx:
         self.col_debug = core.get_collection(f"DEBUG/Debug_{s}")
         self.ground = core.GroundIndex()
         self.portals = []
+        self.arrivals = []  # arrival-only anchors (layout.ONE_WAY): markers, not portals
         self.prop_zones = []  # (x, y, r) of placed props; scatter/mobs avoid them
         self.routes = []
         self.npcs = []
         self.spawns = []
+        self.spawn_regions = []  # authored monster spawn areas (m.mobs areas + m.spawn_region), exported as polygons
+        self.player_spawns = []  # authored player spawn points (m.player_spawn); index 0 = MeowDB playerSpawns[0]
         self.warnings = []  # exceptions that used to be swallowed (traversal.check_map reports them)
         self._player = None
         self._gameplay = None  # (fx, fy, scale) of the Gameplay camera, set by cameras()
@@ -130,7 +134,10 @@ class MapCtx:
         raise KeyError(f"[{self.slug}] portal '{portal_name}' has no link in layout.LINKS / DOOR_LINKS")
 
     def edge_portal(self, name, rot=None, offset=(0.0, 0.0)):
-        """Place the layout-anchored edge portal (target looked up from the link table)."""
+        """Place the layout-anchored edge portal (target looked up from the link table).
+
+        An arrival-only anchor (layout.ONE_WAY, e.g. 40000 in00) is not a portal in MeowDB: it becomes an arrival
+        marker (arrival_point) instead, with no portal object."""
         x, y, z = self.anchor(name)
         x += offset[0]
         y += offset[1]
@@ -139,7 +146,31 @@ class MapCtx:
             L, D = self.size
             # face along the walking direction through the portal: decided by the nearest edge
             rot = 90.0 if min(x, L - x) < min(y, D - y) else 0.0
+        if LY.is_arrival_only(self.map_id, name):
+            return self.arrival_point(name, x, y, to_map, to_portal, rot=rot)
         return self.portal(name, x, y, to_map, to_portal, kind="edge", rot=rot)
+
+    def arrival_point(self, name, x, y, from_map, from_portal, rot=0.0):
+        """An arrival-only anchor: where travellers through from_map:from_portal arrive (layout.ONE_WAY).
+
+        Not a portal (no exit, no visual): a plain Empty marker in PORTALS/Portals_<slug> carrying `arrival_name`,
+        `map_id`, `from_map` and `from_portal`, grounded by raycast like a portal. The inter-map trail aims at it."""
+        z = self.ground_z(x, y)
+        if z is None:
+            raise ValueError(f"[{self.slug}] arrival_point('{name}', {x:.1f}, {y:.1f}): no ground under point")
+        obj = bpy.data.objects.new(self._name(f"Arrival_{name}"), None)
+        obj.empty_display_type = "ARROWS"
+        obj.empty_display_size = 1.2
+        obj.location = self.w(x, y, z)
+        obj.rotation_euler = (0.0, 0.0, math.radians(self.wyaw(rot)))
+        self.col_portals.objects.link(obj)
+        obj["arrival_name"] = name
+        obj["map_id"] = self.map_id
+        obj["from_map"] = from_map
+        obj["from_portal"] = from_portal
+        self.arrivals.append({"name": name, "x": x, "y": y, "z": z, "from_map": from_map, "from_portal": from_portal,
+                              "world": list(obj.location)})
+        return obj
 
     def door_portal(self, name, x, y, rot=0.0, z=None):
         to_map, to_portal = self.link_target(name)
@@ -225,7 +256,7 @@ class MapCtx:
                            coll, style=style, seed=core.stable_hash(name), **kw)
         if walkable:
             for o in objs:
-                if o.name.endswith("_Cap") or "_Cap_" in o.name:
+                if o.get("terrace_part") == "cap":  # geo.terrace marks its parts (never by name)
                     self.ground.add(o)
         return objs
 
@@ -346,7 +377,7 @@ class MapCtx:
             for k in range(int(L // 1.5) + 1):
                 p = a.lerp(b, k * 1.5 / max(L, 1e-3))
                 mb.box((0.12, 0.12, height), loc=(p.x, p.y, a.z + height / 2), mat=mat)
-        return mb.build(self._name(name), self.col_arch, smooth=False)
+        return CT.tag(mb.build(self._name(name), self.col_arch, smooth=False), CT.WALL)
 
     def bridge(self, name, p0, p1, width=2.6, rope=True, sag=0.35):
         """Plank bridge with rope rails between two local points (x, y, z)."""
@@ -895,9 +926,14 @@ class MapCtx:
     # gameplay
     # ------------------------------------------------------------------
     def portal(self, name, x, y, to_map, to_portal, kind="edge", rot=0.0, z=None):
-        """An exit. kind: edge (map transition), door (building interior), inner (in-map portal)."""
-        arrival_only = (self.map_id, name) in LY.ONE_WAY
-        asset_name = "Portal_Door" if kind == "door" else ("Portal_Arrival" if arrival_only else "Portal_Swirl")
+        """An exit. kind: edge (map transition), door (building interior), inner (in-map portal).
+
+        When the destination anchor is arrival-only (layout.ONE_WAY: 30000 out00 -> 40000 in00) the link is one-way
+        and the destination has no portal: `one_way` is True and `to_arrival` names the arrival marker. to_portal
+        keeps the layout link's anchor name (Iteration One's v8 target, "in00"): the runtime cross-checks it against
+        the arrival gate's anchor marker (MAP_ARCHITECTURE 4.4) and resolves the arrival to player_spawns[0]."""
+        to_arrival = to_portal if LY.is_arrival_only(to_map, to_portal) else ""
+        asset_name = "Portal_Door" if kind == "door" else "Portal_Swirl"
         obj = self.place(asset_name, x, y, rot=rot, z=z, name=f"Portal_{name}", collection=self.col_portals,
                          sink=0.0)
         obj["map_id"] = self.map_id
@@ -905,34 +941,47 @@ class MapCtx:
         obj["to_map"] = to_map
         obj["to_portal"] = to_portal
         obj["portal_kind"] = kind
-        obj["one_way_arrival"] = arrival_only
+        obj["one_way_arrival"] = False  # arrival-only anchors are arrival_point markers now, never portals
+        obj["one_way"] = bool(to_arrival)
+        obj["to_arrival"] = to_arrival
         lz = obj.location.z - self.origin.z
         self.portals.append({"name": name, "x": x, "y": y, "z": lz, "to_map": to_map, "to_portal": to_portal,
-                             "kind": kind, "world": list(obj.location)})
+                             "kind": kind, "world": list(obj.location), "one_way": bool(to_arrival),
+                             "to_arrival": to_arrival})
         return obj
 
     def npc(self, npc_name, x, y, rot=0.0, npc_id=None, role="", **override):
-        """Place an NPC proxy. Appearance comes from misostory/npcs.py (override with chibi kwargs)."""
+        """Place an NPC proxy. Appearance comes from misostory/npcs.py (override with chibi kwargs).
+
+        Every NPC must be listed in npcs.NPCS with its MeowDB id (`meowdb`, a string): the proxy carries it as
+        `meowdb_npc_id` next to `npc_name` (and the Iteration One GMS id as `npc_id`)."""
         from . import npcs
-        spec = npcs.spec(npc_name) if npc_name in npcs.NPCS else {}
+        if npc_name not in npcs.NPCS:
+            raise KeyError(f"[{self.slug}] npc('{npc_name}'): not in misostory/npcs.py NPCS (MeowDB id required)")
+        spec = npcs.spec(npc_name)
         spec.update(override)
-        if npc_name in npcs.NPCS:
-            nid, nrole = npcs.info(npc_name)
-            npc_id = npc_id or nid
-            role = role or nrole
+        nid, nrole = npcs.info(npc_name)
+        npc_id = npc_id or nid
+        role = role or nrole
+        meowdb_id = npcs.meowdb_id(npc_name)
         asset_name = register_npc(npc_name.replace(" ", ""), **spec)
         obj = self.place(asset_name, x, y, rot=rot, name=f"NPC_{npc_name.replace(' ', '')}",
                          collection=self.col_npcs, sink=0.0)
         obj["npc_name"] = npc_name
         obj["npc_id"] = npc_id or 0
+        obj["meowdb_npc_id"] = meowdb_id
         obj["role"] = role
         b = self.place("NPC_Beacon", x, y, z=obj.location.z - self.origin.z + 2.0, name=f"Beacon_{npc_name}",
                        collection=self.col_debug, rot=45)
-        self.npcs.append({"name": npc_name, "x": x, "y": y, "id": npc_id})
+        self.npcs.append({"name": npc_name, "x": x, "y": y, "id": npc_id, "meowdb_id": meowdb_id})
         return obj
 
     def mobs(self, mob_name, area, count, seed=0, min_dist=2.2, avoid=(), z_band=None):
-        """Spawn representative monster proxies in an area + debug spawn rings."""
+        """Spawn representative monster proxies in an area + debug spawn rings.
+
+        The area is also recorded as an authored spawn region (spawn_region) tagged with this species; the exporter
+        ships it as a polygon (sidecar `spawn_regions`). The proxies are visual placeholders only: the runtime
+        spawns MeowDB's species and counts inside the regions."""
         asset_name = MOB_ASSETS[mob_name]
         r = core.rng(self.slug, "mob", mob_name, seed)
         pts = self.scatter([asset_name], area, count, seed=seed, min_dist=min_dist, scale=(0.95, 1.05),
@@ -941,7 +990,65 @@ class MapCtx:
             self.place("Spawn_Ring", x, y, collection=self.col_debug, required=False, sink=-0.02,
                        scale=1.0 + r.uniform(0, 0.2))
         self.spawns.append({"mob": mob_name, "count": len(pts), "points": pts})
+        self.spawn_region(f"{mob_name.replace(' ', '')}_{seed}", area, species=(mob_name,), z_band=z_band,
+                          proxies=len(pts), source="m.mobs")
         return pts
+
+    def spawn_region(self, name, area, species=(), z_band=None, tiers=(), proxies=0, source="m.spawn_region"):
+        """An authored monster spawn area (local polygon or (cx, cy, r) circle) on walkable ground.
+
+        species: optional species hints (MeowDB decides the real species and counts); z_band: (zmin, zmax) local
+        height filter, as in m.mobs, for areas that overlap several tiers; tiers: optional struct.json tier ids.
+        A region with the same polygon and z_band as an earlier one is merged into it (species are unioned), so
+        two m.mobs calls over one area give one region. Stored in the collection's spawn_regions_json."""
+        if isinstance(area, tuple) and len(area) == 3 and not isinstance(area[0], (tuple, list)):
+            cx, cy, rad = area
+            poly = geo.ellipse(cx, cy, rad, rad, 20)
+        else:
+            poly = list(area)
+        poly = [[round(float(px), 3), round(float(py), 3)] for px, py in poly]
+        zb = None if z_band is None else [round(float(z_band[0]), 3), round(float(z_band[1]), 3)]
+        for reg in self.spawn_regions:
+            if reg["polygon"] == poly and reg["z_band"] == zb:
+                reg["species"] = sorted(set(reg["species"]) | set(species))
+                reg["tiers"] = sorted(set(reg["tiers"]) | set(tiers))
+                reg["proxies"] += proxies
+                return reg
+        reg = {"name": name, "polygon": poly, "z_band": zb, "species": sorted(set(species)), "tiers": sorted(set(tiers)),
+               "proxies": proxies, "source": source}
+        names = {r_["name"] for r_ in self.spawn_regions}
+        k = 2
+        while reg["name"] in names:
+            reg["name"] = f"{name}#{k}"
+            k += 1
+        self.spawn_regions.append(reg)
+        return reg
+
+    def player_spawn(self, x, y, rot=0.0, index=0, note=""):
+        """An authored player spawn point (where a player appears on a spawn-index arrival, respawn or new game).
+
+        index matches MeowDB's playerSpawns[] index (0 is required on every map: respawns and the 30000 -> 40000
+        arrival use it). Place it on a route, near MeowDB's sp position relative to the portals and NPCs; for
+        interiors, just inside the door. rot follows m.place (assets face local -y at rot 0). A plain Empty in
+        CHARACTER_PROXIES/PlayerSpawns_<slug>, grounded by raycast; stored in player_spawns_json."""
+        z = self.ground_z(x, y)
+        if z is None:
+            raise ValueError(f"[{self.slug}] player_spawn({x:.1f}, {y:.1f}): no ground under point")
+        if any(s["index"] == index for s in self.player_spawns):
+            raise ValueError(f"[{self.slug}] player_spawn index {index} declared twice")
+        coll = core.get_collection(f"CHARACTER_PROXIES/PlayerSpawns_{self.slug}")
+        obj = bpy.data.objects.new(self._name(f"PlayerSpawn_{index}"), None)
+        obj.empty_display_type = "ARROWS"  # the facing is the empty's local -Y (the kit asset front at rot 0)
+        obj.empty_display_size = 1.0
+        obj.location = self.w(x, y, z)
+        obj.rotation_euler = (0.0, 0.0, math.radians(self.wyaw(rot)))
+        coll.objects.link(obj)
+        obj["map_id"] = self.map_id
+        obj["player_spawn_index"] = index
+        obj["note"] = note
+        self.player_spawns.append({"index": index, "x": x, "y": y, "z": z, "rot": rot, "note": note,
+                                   "world": list(obj.location)})
+        return obj
 
     def player(self, x, y, rot=0.0):
         """The player scale reference (one per map). It must stand inside the Gameplay frame: see
@@ -1171,6 +1278,9 @@ class MapCtx:
         self.col_map["routes_json"] = json.dumps(self.routes)
         self.col_map["npcs_json"] = json.dumps(self.npcs)
         self.col_map["spawns_json"] = json.dumps([{k: v for k, v in s.items() if k != "points"} for s in self.spawns])
+        self.col_map["spawn_regions_json"] = json.dumps(self.spawn_regions)
+        self.col_map["player_spawns_json"] = json.dumps(self.player_spawns)
+        self.col_map["arrivals_json"] = json.dumps(self.arrivals)
         self.col_map["origin"] = list(self.origin)
         self.col_map["yaw"] = self.yaw
         self.col_map["size"] = list(self.size)

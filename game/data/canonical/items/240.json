@@ -1,0 +1,407 @@
+{
+  "id": "240",
+  "name": "Lemon",
+  "game_item_id": "2010005",
+  "type": "Use",
+  "subtype": "Food",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Very sour.\nRestores around 150 MP.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": {
+    "mp_restore": 150
+  },
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 150,
+  "sell_price_mesos": 15,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "509",
+        "npc_name": "Arturo",
+        "npc_role": "Grocer",
+        "map_id": "010004002",
+        "map_name": "Victoria Road: Perion Department Store",
+        "town": "Perion",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "410",
+        "npc_name": "Dr. Faymus",
+        "npc_role": "Grocer",
+        "map_id": "010003002",
+        "map_name": "Victoria Road: Kerning City Pharmacy",
+        "town": "Kerning City",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1014",
+        "npc_name": "Edel the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "020000002",
+        "map_name": "Orbis: Orbis Department Store",
+        "town": "Orbis",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1116",
+        "npc_name": "Glibber",
+        "npc_role": "Merchant",
+        "map_id": "020001041",
+        "map_name": "El Nath: Ice Valley II",
+        "town": "El Nath",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1114",
+        "npc_name": "Hana",
+        "npc_role": "Grocer",
+        "map_id": "020001012",
+        "map_name": "El Nath: El Nath Department Store",
+        "town": "El Nath",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "312",
+        "npc_name": "Len the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "010002002",
+        "map_name": "Victoria Road: Ellinia Department Store",
+        "town": "Ellinia",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "700",
+        "npc_name": "Luma",
+        "npc_role": "Grocer",
+        "map_id": "010006002",
+        "map_name": "Shallow Passage: Cave Fairy Department Store",
+        "town": "Forgotten Hollow",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "212",
+        "npc_name": "Luna",
+        "npc_role": "Grocer",
+        "map_id": "010001042",
+        "map_name": "Victoria Road: Henesys Department Store",
+        "town": "Henesys",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "607",
+        "npc_name": "Mr. Sweatbottom",
+        "npc_role": "Sauna Manager",
+        "map_id": "010005002",
+        "map_name": "Dungeon: Regular Sauna",
+        "town": "Sleepywood",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "800",
+        "npc_name": "Valen",
+        "npc_role": "Grocer",
+        "map_id": "010007000",
+        "map_name": "Florina Road: Florina Beach",
+        "town": "Florina Beach",
+        "price_mesos": 150,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20,
+        "upvotes": 12,
+        "downvotes": 0,
+        "score": 12,
+        "disputed": false,
+        "community_drop_entry_id": "110",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [
+      {
+        "quest_id": "10011",
+        "quest_name": "Teo's Even Weirder Hobby",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10011-c--0"
+      },
+      {
+        "quest_id": "10100",
+        "quest_name": "Mrs. Ming Ming's First Worry",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10100-c--1"
+      },
+      {
+        "quest_id": "10103",
+        "quest_name": "Estelle's Special Sauce",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10103-c--2"
+      },
+      {
+        "quest_id": "10303",
+        "quest_name": "Don Hwang's Request",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10303-c--3"
+      },
+      {
+        "quest_id": "10614",
+        "quest_name": "A Memory of Iron",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10614-c--4"
+      },
+      {
+        "quest_id": "10616",
+        "quest_name": "The Sage's Burden",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10616-c--5"
+      },
+      {
+        "quest_id": "506002",
+        "quest_name": "Asking After Rina, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506002-c--6"
+      },
+      {
+        "quest_id": "506004",
+        "quest_name": "Asking After Mrs. Ming Ming, the Town Resident.",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506004-c--7"
+      },
+      {
+        "quest_id": "506006",
+        "quest_name": "Asking After Camila, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506006-c--8"
+      },
+      {
+        "quest_id": "506008",
+        "quest_name": "Asking After Bruce, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506008-c--9"
+      },
+      {
+        "quest_id": "506010",
+        "quest_name": "Asking After Maya, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506010-c--10"
+      },
+      {
+        "quest_id": "506012",
+        "quest_name": "Asking After Pia, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506012-c--11"
+      },
+      {
+        "quest_id": "506014",
+        "quest_name": "Asking After Anne, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506014-c--12"
+      },
+      {
+        "quest_id": "506102",
+        "quest_name": "Asking After Alex, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506102-c--13"
+      },
+      {
+        "quest_id": "506104",
+        "quest_name": "Asking After Shumi, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506104-c--14"
+      },
+      {
+        "quest_id": "506106",
+        "quest_name": "Asking After Nella, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506106-c--15"
+      },
+      {
+        "quest_id": "506108",
+        "quest_name": "Asking After Icarus, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506108-c--16"
+      },
+      {
+        "quest_id": "506110",
+        "quest_name": "Asking After Jane Doe, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506110-c--17"
+      },
+      {
+        "quest_id": "506112",
+        "quest_name": "Asking After Jake, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506112-c--18"
+      },
+      {
+        "quest_id": "506114",
+        "quest_name": "Asking After Mr. Pickall, the Town Resident",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506114-c--19"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "10212",
+        "quest_name": "How to Enjoy Mushrooms Even More",
+        "quest_npc_name": "Shane",
+        "quest_level": 14,
+        "quantity": 1
+      }
+    ],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "75",
+        "cot2": "15",
+        "change": "-60"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "Very sour.\nRecovers around 150 MP.",
+      "cot2": "Very sour.\nRestores around 150 MP."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/240",
+    "retrieved_at": "2026-10-04T10:47:12.646Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/240?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:13.700Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/240?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:13.700Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=240",
+      "retrieved_at": "2026-10-04T10:47:14.879Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

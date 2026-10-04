@@ -1,0 +1,312 @@
+{
+  "id": "414",
+  "name": "Iron Ore",
+  "game_item_id": "4010001",
+  "type": "Etc",
+  "subtype": "Ore & Mineral",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A tough iron ore.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 20,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14,
+        "disputed": false,
+        "community_drop_entry_id": "74",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20,
+        "upvotes": 12,
+        "downvotes": 0,
+        "score": 12,
+        "disputed": false,
+        "community_drop_entry_id": "455",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "11",
+        "monster_name": "Dark Stump",
+        "monster_level": 11,
+        "upvotes": 8,
+        "downvotes": 0,
+        "score": 8,
+        "disputed": false,
+        "community_drop_entry_id": "81",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "30",
+        "monster_name": "Fire Boar",
+        "monster_level": 32,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "132",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "61",
+        "monster_name": "Myewood",
+        "monster_level": 54,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "316",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "37",
+        "monster_name": "Cold Eye",
+        "monster_level": 40,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "523",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1061",
+        "monster_name": "Separated Pepe",
+        "monster_level": 60,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "816",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1039",
+        "monster_name": "Jr. Cerebes",
+        "monster_level": 43,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "933",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1069",
+        "monster_name": "Transformed Yeti",
+        "monster_level": 65,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "943",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1084",
+        "monster_name": "Lycanthrope",
+        "monster_level": 80,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "994",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "33",
+        "monster_name": "Jr. Boogie 1",
+        "monster_level": 35,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "227",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "20",
+        "monster_name": "Dark Axe Stump",
+        "monster_level": 23,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "501",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "34",
+        "monster_name": "Jr. Boogie 2",
+        "monster_level": 35,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "519",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1011",
+        "monster_name": "Leatty",
+        "monster_level": 32,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1027",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "24",
+        "monster_name": "Iron Hog",
+        "monster_level": 28,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "508",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "43",
+        "monster_name": "Wraith",
+        "monster_level": 48,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "531",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "10201",
+        "quest_name": "Collecting 50 Cursed Dolls",
+        "when": "on_completion",
+        "chance_pct": 16.7,
+        "label": "(17%)",
+        "row_key": "10201-c--0"
+      },
+      {
+        "quest_id": "10212",
+        "quest_name": "How to Enjoy Mushrooms Even More",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10212-c--1"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": [
+      {
+        "makes_item_id": "421",
+        "makes_item_name": "Iron Ingot",
+        "skill": "Smithing Lv 1",
+        "quantity": 5
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "100",
+        "cot2": "20",
+        "change": "-80"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "The ore of a tough iron.",
+      "cot2": "A tough iron ore."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/414",
+    "retrieved_at": "2026-10-04T10:44:05.139Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/414?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:06.232Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/414?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:06.232Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=414",
+      "retrieved_at": "2026-10-04T10:44:07.393Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=10201].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/10201",
+      "retrieved_at": "2026-10-04T11:19:44.270Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 6)"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=10201].chance_pct",
+      "item_page": 17,
+      "quest_page": 16.7,
+      "quest_page_total_weight": 6,
+      "chosen": 16.7,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 6)"
+    }
+  ]
+}

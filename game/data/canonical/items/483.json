@@ -1,0 +1,207 @@
+{
+  "id": "483",
+  "name": "Monster Card",
+  "game_item_id": "4031045",
+  "type": "Etc",
+  "subtype": "Quest Item",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": true,
+  "description": "A card needed to play the game Match Cards. Need to have plenty of them.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": false,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "250",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2
+      },
+      {
+        "monster_id": "8",
+        "monster_name": "Pig",
+        "monster_level": 7
+      },
+      {
+        "monster_id": "10",
+        "monster_name": "Ribbon Pig",
+        "monster_level": 10
+      },
+      {
+        "monster_id": "12",
+        "monster_name": "Octopus",
+        "monster_level": 12
+      },
+      {
+        "monster_id": "16",
+        "monster_name": "Blue Mushroom",
+        "monster_level": 19
+      },
+      {
+        "monster_id": "19",
+        "monster_name": "Horny Mushroom",
+        "monster_level": 22
+      },
+      {
+        "monster_id": "1000",
+        "monster_name": "Trixter",
+        "monster_level": 25
+      },
+      {
+        "monster_id": "23",
+        "monster_name": "Evil Eye",
+        "monster_level": 27
+      },
+      {
+        "monster_id": "31",
+        "monster_name": "Curse Eye",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "35",
+        "monster_name": "Lupin",
+        "monster_level": 37
+      },
+      {
+        "monster_id": "36",
+        "monster_name": "Lorang",
+        "monster_level": 38
+      },
+      {
+        "monster_id": "37",
+        "monster_name": "Cold Eye",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1040",
+        "monster_name": "Plateon",
+        "monster_level": 44
+      },
+      {
+        "monster_id": "41",
+        "monster_name": "Tortie",
+        "monster_level": 46
+      },
+      {
+        "monster_id": "1046",
+        "monster_name": "Mecateon",
+        "monster_level": 48
+      },
+      {
+        "monster_id": "43",
+        "monster_name": "Wraith",
+        "monster_level": 48
+      },
+      {
+        "monster_id": "1047",
+        "monster_name": "Master Chronos",
+        "monster_level": 49
+      },
+      {
+        "monster_id": "45",
+        "monster_name": "Drake",
+        "monster_level": 50
+      },
+      {
+        "monster_id": "51",
+        "monster_name": "Wild Kargo",
+        "monster_level": 62
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "80001",
+        "quest_name": "Make a Match Cards Set",
+        "quest_npc_name": "Casey",
+        "quest_level": 12,
+        "quantity": 15
+      }
+    ],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "The monster cards needed for the game of Match Cards. Need to have plenty of cards.",
+      "cot2": "A card needed to play the game Match Cards. Need to have plenty of them."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/483",
+    "retrieved_at": "2026-10-04T10:44:20.841Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/483?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:21.934Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/483?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:21.934Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=483",
+      "retrieved_at": "2026-10-04T10:44:23.101Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Untradeable comes from the item page tag; the item API omits the untradeable flag for this item."
+  ]
+}

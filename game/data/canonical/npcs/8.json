@@ -1,0 +1,97 @@
+{
+  "id": "8",
+  "name": "Robin",
+  "roles": [
+    "Townsfolk"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000040",
+      "map_name": "Snail Hunting Ground I",
+      "street_name": "Maple Road",
+      "x_px": 69,
+      "y_px": 275
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Hello! I'm Robin.",
+      "segments": [
+        {
+          "text": "Hello! I'm "
+        },
+        {
+          "text": "Robin",
+          "ref": {
+            "kind": "npc",
+            "id": "8"
+          }
+        },
+        {
+          "text": "."
+        }
+      ]
+    },
+    {
+      "text": "Gathering information before starting your travels is essential for an enjoyable experience."
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Be careful! There are monsters around here."
+    },
+    {
+      "text": "Press Ctrl to attack monsters."
+    },
+    {
+      "text": "Press Z to pick up items that monsters drop."
+    },
+    {
+      "text": "When facing powerful monsters, why not team up with someone else?"
+    },
+    {
+      "text": "You need to time your attacks right to take down monsters easily."
+    },
+    {
+      "text": "The town you just left is called Mushroom Town. You'll also find Southperry and Amherst on this island."
+    },
+    {
+      "text": "If you want to head over to a bigger area, try heading northeast."
+    },
+    {
+      "text": "You've met my brothers Roger and Peter, right?"
+    },
+    {
+      "text": "Best of luck to you!"
+    },
+    {
+      "text": "Yoohoo!"
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [],
+    "started_here": [],
+    "completed_here": []
+  },
+  "quest_dialogue": [],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/8",
+    "retrieved_at": "2026-10-04T10:05:07.886Z"
+  },
+  "field_sources": {
+    "locations/000000040": {
+      "url": "https://meowdb.com/msclassic/maps/000000040",
+      "retrieved_at": "2026-10-04T09:56:43.779Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    }
+  }
+}

@@ -315,11 +315,13 @@ def build(m):
     m.edge_portal("in00")
     m.edge_portal("out00")
     m.player(25.9, 16.4, rot=45)  # on the street at the top of the porch flight, facing the camera
+    m.player_spawn(4.0, 13.5, rot=90, note="sp x -256: beside in00 on the west lawn")
     # main climb: lawn -> verge -> the double flight up the south faces -> street -> out00
     m.route("Main", [(1.0, 14.0), (5.6, 12.8), (9.4, 9.6), (11.6, 5.8), (14.2, 3.0), (18.0, 1.7), (21.4, 1.3),
                      (23.0, 1.2), (23.0, 5.4), (23.0, 10.8), (24.0, 16.6), (30.0, 17.4), (36.0, 18.0), (41.0, 18.0)])
     # street (on Main) -> up the door axis -> through the porch arch -> in01
-    m.route("ToSensHouse", [(sx0, sy0), (mx, my), (ax, ay), (dx, dy)])
+    # (ends 0.4 m in front of the in01 threshold: on it, the 0.3 m body touched the house's collision prism)
+    m.route("ToSensHouse", [(sx0, sy0), (mx, my), (ax, ay), _door_xy(hx, hy, hrot, 4.0)])
     # verge flight -> along the step's porch to its west bench -> up the sky-islet ladder -> the grass crown
     m.route("SkyIslet", [(23.0, 1.0), (23.0, 5.6), (18.0, 7.2), (16.0, 12.6), (15.6, 16.4), (16.6, 20.0), (sx, sy - sr - 0.9), (sx, sy - sr + 0.15), (sx, sy - 1.2),
                          (sx, sy + 0.8)])

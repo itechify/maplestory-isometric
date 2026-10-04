@@ -1,0 +1,221 @@
+{
+  "id": "2",
+  "name": "Sera",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000001",
+      "map_name": "Mushroom Town - West Entrance",
+      "street_name": "Maple Road",
+      "x_px": 833,
+      "y_px": 125
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "It's a fine day for laundry, don't you think?"
+    },
+    {
+      "text": "Did you give my mirror to Heena? When will she help me with the laundry...",
+      "segments": [
+        {
+          "text": "Did you give my mirror to "
+        },
+        {
+          "text": "Heena",
+          "bold": true,
+          "ref": {
+            "kind": "npc",
+            "id": "1"
+          }
+        },
+        {
+          "text": "? When will she help me with the laundry..."
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "It's a never-ending pile of laundry. I'll be here awhile."
+    },
+    {
+      "text": "Have you met my sister Heena yet?"
+    },
+    {
+      "text": "Just press the Up arrow to climb a ladder or rope."
+    },
+    {
+      "text": "Click on me to start a chat!"
+    },
+    {
+      "text": "Why isn't Heena helping me hang all this laundry?"
+    },
+    {
+      "text": "You're on your first journey, right?"
+    },
+    {
+      "text": "What should I make for dinner?"
+    },
+    {
+      "text": "Oh my gosh, so much laundry still left to do."
+    },
+    {
+      "text": "Haven't washed my hair in days..."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1001",
+        "name": "Bringing a Mirror to Heena"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1000",
+        "name": "Borrowing Sera's Mirror"
+      }
+    ],
+    "started_here": [
+      "1001"
+    ],
+    "completed_here": [
+      "1000"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1000",
+      "quest_name": "Borrowing Sera's Mirror",
+      "npc_role": "complete",
+      "start_npc_id": "1",
+      "complete_npc_id": "2",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "Haven't met up with Sera yet? She is up on the hill to the east. It shouldn't be hard to find her.",
+              "segments": [
+                {
+                  "text": "Haven't met up with "
+                },
+                {
+                  "text": "Sera",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": " yet? She is up on the hill to the east. It shouldn't be hard to find her."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Heena, id 1) and completion NPC (Sera, id 2) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    },
+    {
+      "quest_id": "1001",
+      "quest_name": "Bringing a Mirror to Heena",
+      "npc_role": "start",
+      "start_npc_id": "2",
+      "complete_npc_id": "1",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "How am I going to hang all these up? What a hassle. What? You want my mirror? Please don't tell me Heena asked you for this...",
+          "segments": [
+            {
+              "text": "How am I going to hang all these up? What a hassle. What? You want my mirror? Please don't tell me "
+            },
+            {
+              "text": "Heena",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "1"
+              }
+            },
+            {
+              "text": " asked you for this..."
+            }
+          ]
+        },
+        {
+          "text": "Seriously, she should have come to get it herself. She is sooo lazy. Fine, fine, here's the mirror."
+        }
+      ],
+      "branches": [
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Oh? Why aren't you accepting the mirror? Do you no longer wish to see Heena?",
+              "segments": [
+                {
+                  "text": "Oh? Why aren't you accepting the mirror? Do you no longer wish to see "
+                },
+                {
+                  "text": "Heena",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": "?"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/2",
+    "retrieved_at": "2026-10-04T10:04:48.582Z"
+  },
+  "field_sources": {
+    "locations/000000001": {
+      "url": "https://meowdb.com/msclassic/maps/000000001",
+      "retrieved_at": "2026-10-04T09:56:36.674Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1000/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1000",
+      "retrieved_at": "2026-10-04T10:07:11.295Z"
+    },
+    "quest_dialogue/1001/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1001",
+      "retrieved_at": "2026-10-04T10:07:13.814Z"
+    }
+  },
+  "gaps": [
+    "Quest 1000 (Borrowing Sera's Mirror) \"On completion\": MeowDB shows no main lines, only conditional branches (If you haven''t met the right NPC yet)."
+  ]
+}

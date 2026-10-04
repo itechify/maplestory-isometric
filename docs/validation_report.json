@@ -34,23 +34,23 @@
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,301,829 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 3,301,401 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
-   "detail": "24 links ok-checked; extra portals: []"
+   "detail": "24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: []"
   },
   "floating_props": {
    "ok": true,
-   "detail": "0 of 4069 instances (286 trail dressing) neither on walkable ground nor within 0.15 m of a surface (74 rest against walls/props)"
+   "detail": "0 of 4069 instances (286 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
   },
   "props_near_routes": {
    "ok": true,
-   "detail": "0 medium (solid at body height < 0.45 m from a route centreline), 11 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m"
+   "detail": "0 medium (solid at body height < 0.45 m from a route centreline), 16 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m"
   },
   "fidelity": {
    "ok": true,
-   "detail": "NPCs and mob species vs v8 data"
+   "detail": "21 NPC proxies vs MeowDB 21 NPCs (by MeowDB id and name); monster proxies and spawn-region species vs MeowDB species"
   },
   "traversal": {
    "ok": true,
@@ -70,7 +70,23 @@
   },
   "trail_walk": {
    "ok": true,
-   "detail": "20/20 trails walk ok; failing: []"
+   "detail": "20/20 trails meet their expectation (19 two-way: ok both ways; 1 one-way: forward ok with its only drop at the ledge, reverse blocked at the face and nowhere else); failing: []"
+  },
+  "one_way_ledge": {
+   "ok": true,
+   "detail": "1/1 ledges: [{'trail': 'Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000', 'height_m': 2.4, 'height_max_m': 2.4, 'face_offset_max_abs_m': 0.005, 'bounds_m': [2.049, 2.6], 'found_all': True}]; bounds from jump_apex_m_at_cap 1.2987 (misostory/movement.json); step_up_m 0.45 (misostory/movement.json); margin 0.3 m; cap 2.6 m (traversal.MAX_DROP)"
+  },
+  "player_spawns": {
+   "ok": true,
+   "detail": "25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane"
+  },
+  "spawn_regions": {
+   "ok": true,
+   "detail": "15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns"
+  },
+  "collision_tags": {
+   "ok": true,
+   "detail": "1946 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
   },
   "no_swallowed_exceptions": {
    "ok": true,
@@ -116,6 +132,21 @@
   {
    "check": "props_near_routes",
    "severity": "low",
+   "msg": "map 1020001: Fence_Wood_Seg at (14.2, 0.3) stands 1.07 m from route WestBed, solid at body height 0.94 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Fence_Wood_Seg at (16.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.86 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Fence_Wood_Seg at (18.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.92 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
    "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.53 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
@@ -132,17 +163,27 @@
    "check": "props_near_routes",
    "severity": "low",
    "msg": "map 1020001: X1020001_CratesTomatoes at (24.1, 22.3) stands 1.28 m from route Canopy, solid at body height 0.76 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Haystack at (57.0, 2.0) stands 1.5 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: X1020001_CratesTomatoes at (57.6, 6.0) stands 1.32 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   }
  ],
  "stats": {
-  "total_triangles": 9146414,
-  "world_triangles": 3301829,
+  "total_triangles": 9143607,
+  "world_triangles": 3301401,
   "triangles_by_map": {
    "0": 98348,
    "10000": 132563,
    "20000": 115661,
    "30000": 161549,
-   "40000": 158368,
+   "40000": 160036,
    "40001": 308927,
    "40002": 299693,
    "50000": 193467,
@@ -155,7 +196,7 @@
    "1000003": 155749,
    "1000004": 207473,
    "1000005": 265058,
-   "1000006": 343222,
+   "1000006": 342843,
    "1010000": 249060,
    "1010001": 38776,
    "1010002": 73052,
@@ -179,9 +220,9 @@
    },
    {
     "asset": "Rock_Cliff_Stone",
-    "instances": 8148,
+    "instances": 8154,
     "tris_per_instance": 50,
-    "total": 407400
+    "total": 407700
    },
    {
     "asset": "Tree_Tall_A",
@@ -214,16 +255,16 @@
     "total": 264000
    },
    {
-    "asset": "Mob_BlueSnail",
-    "instances": 53,
-    "tris_per_instance": 3696,
-    "total": 195888
+    "asset": "Mob_Snail",
+    "instances": 67,
+    "tris_per_instance": 2968,
+    "total": 198856
    },
    {
-    "asset": "Mob_Snail",
-    "instances": 61,
-    "tris_per_instance": 2968,
-    "total": 181048
+    "asset": "Mob_BlueSnail",
+    "instances": 47,
+    "tris_per_instance": 3696,
+    "total": 173712
    }
   ],
   "portal_links": [
@@ -249,11 +290,13 @@
     "reciprocal": true
    },
    {
-    "a": "40000:in00",
-    "b": "30000:out00",
+    "a": "30000:out00",
+    "b": "40000:in00 (arrival)",
     "kind": "edge",
     "distance_m": 32.4,
-    "reciprocal": true
+    "reciprocal": false,
+    "one_way": true,
+    "fields_ok": true
    },
    {
     "a": "40001:west00",
@@ -396,6 +439,10 @@
     "reciprocal": true
    }
   ],
+  "portal_count": 47,
+  "arrival_markers": [
+   "40000:in00"
+  ],
   "floating": [],
   "props_near_routes": [
    {
@@ -498,6 +545,48 @@
    },
    {
     "map": 1020001,
+    "object": "TomatoField_1020001_Fence_Wood_Seg_05",
+    "asset": "Fence_Wood_Seg",
+    "route": "WestBed",
+    "origin_distance_m": 1.07,
+    "footprint": 2.0,
+    "local_xy": [
+     14.2,
+     0.3
+    ],
+    "body_clearance_m": 0.94,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Fence_Wood_Seg_06",
+    "asset": "Fence_Wood_Seg",
+    "route": "WestBed",
+    "origin_distance_m": 1.0,
+    "footprint": 2.0,
+    "local_xy": [
+     16.3,
+     0.3
+    ],
+    "body_clearance_m": 0.86,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Fence_Wood_Seg_07",
+    "asset": "Fence_Wood_Seg",
+    "route": "WestBed",
+    "origin_distance_m": 1.0,
+    "footprint": 2.0,
+    "local_xy": [
+     18.3,
+     0.3
+    ],
+    "body_clearance_m": 0.92,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
     "object": "TomatoField_1020001_Stump_A",
     "asset": "Stump_A",
     "route": "Climb_Vine_WestFurrow",
@@ -550,6 +639,34 @@
      22.3
     ],
     "body_clearance_m": 0.76,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Haystack_05",
+    "asset": "Haystack",
+    "route": "EastYard",
+    "origin_distance_m": 1.5,
+    "footprint": 1.6,
+    "local_xy": [
+     57.0,
+     2.0
+    ],
+    "body_clearance_m": 0.71,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_CratesTomatoes_04",
+    "asset": "X1020001_CratesTomatoes",
+    "route": "EastYard",
+    "origin_distance_m": 1.32,
+    "footprint": 1.4,
+    "local_xy": [
+     57.6,
+     6.0
+    ],
+    "body_clearance_m": 0.71,
     "grade": "low"
    }
   ],
@@ -1072,6 +1189,7 @@
     "reason": "archway spanning the route"
    }
   ],
+  "npc_proxies": 21,
   "route_graph": {
    "0": {
     "route_groups": [
@@ -1944,7 +2062,7 @@
      0.563,
      0.491
     ],
-    "mobs_in_frame": 12,
+    "mobs_in_frame": 13,
     "mobs_required": 2,
     "issues": [],
     "camera": "CAM_SnailFieldOfFlowers_1010004_Gameplay",
@@ -1953,7 +2071,7 @@
      22.4,
      16.9
     ],
-    "mobs_total": 12,
+    "mobs_total": 13,
     "focus": [
      20.0,
      16.0
@@ -2007,14 +2125,1453 @@
     "scale": 36.0
    }
   },
-  "objects": 17618,
-  "meshes": 2631,
-  "materials": 201
+  "one_way_ledges": [
+   {
+    "trail": "Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000",
+    "height_m": 2.4,
+    "height_max_m": 2.4,
+    "face_offset_max_abs_m": 0.005,
+    "bounds_m": [
+     2.049,
+     2.6
+    ],
+    "found_all": true
+   }
+  ],
+  "player_spawns": {
+   "0": {
+    "local": [
+     4.0,
+     12.6
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 25.9,
+    "nearest_trigger": "out00"
+   },
+   "10000": {
+    "local": [
+     4.5,
+     10.5
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 2.4,
+    "nearest_trigger": "in00"
+   },
+   "20000": {
+    "local": [
+     4.0,
+     13.5
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 1.9,
+    "nearest_trigger": "in00"
+   },
+   "30000": {
+    "local": [
+     5.0,
+     10.2
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 2.9,
+    "nearest_trigger": "in00"
+   },
+   "40000": {
+    "local": [
+     2.5,
+     10.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 59.4,
+    "nearest_trigger": "east00",
+    "inside_gate_plane_m": 3.5
+   },
+   "40001": {
+    "local": [
+     5.3,
+     12.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 3.2,
+    "nearest_trigger": "west00"
+   },
+   "40002": {
+    "local": [
+     4.0,
+     10.0
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 1.9,
+    "nearest_trigger": "west00"
+   },
+   "50000": {
+    "local": [
+     7.0,
+     13.0
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 4.9,
+    "nearest_trigger": "west00"
+   },
+   "60000": {
+    "local": [
+     10.4,
+     16.2
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 12.55,
+    "nearest_trigger": "in00"
+   },
+   "60001": {
+    "local": [
+     3.0,
+     2.7
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 0.55,
+    "nearest_trigger": "out00"
+   },
+   "20001": {
+    "local": [
+     3.0,
+     3.3
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 0.7,
+    "nearest_trigger": "out00"
+   },
+   "1000000": {
+    "local": [
+     7.0,
+     12.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 4.9,
+    "nearest_trigger": "west00"
+   },
+   "1000001": {
+    "local": [
+     33.4,
+     4.6
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 2.5,
+    "nearest_trigger": "out00"
+   },
+   "1000002": {
+    "local": [
+     6.4,
+     3.4
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 1.3,
+    "nearest_trigger": "out01"
+   },
+   "1000003": {
+    "local": [
+     9.0,
+     26.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 1.9,
+    "nearest_trigger": "out00"
+   },
+   "1000004": {
+    "local": [
+     13.8,
+     25.5
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 2.4,
+    "nearest_trigger": "out00"
+   },
+   "1000005": {
+    "local": [
+     4.0,
+     3.6
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 1.5,
+    "nearest_trigger": "out00"
+   },
+   "1000006": {
+    "local": [
+     10.0,
+     3.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 1.45,
+    "nearest_trigger": "out00"
+   },
+   "1010000": {
+    "local": [
+     13.6,
+     11.8
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 11.5,
+    "nearest_trigger": "west00"
+   },
+   "1010001": {
+    "local": [
+     3.0,
+     2.7
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 0.55,
+    "nearest_trigger": "out00"
+   },
+   "1010002": {
+    "local": [
+     6.0,
+     10.0
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 3.9,
+    "nearest_trigger": "west00"
+   },
+   "1010003": {
+    "local": [
+     14.3,
+     9.0
+    ],
+    "ground_gap_m": -0.0,
+    "trigger_clearance_m": 0.65,
+    "nearest_trigger": "out00"
+   },
+   "1010004": {
+    "local": [
+     4.6,
+     31.5
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 31.3,
+    "nearest_trigger": "east00"
+   },
+   "1020000": {
+    "local": [
+     3.6,
+     13.0
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 1.5,
+    "nearest_trigger": "west00"
+   },
+   "1020001": {
+    "local": [
+     4.8,
+     14.7
+    ],
+    "ground_gap_m": 0.0,
+    "trigger_clearance_m": 2.7,
+    "nearest_trigger": "out00"
+   }
+  },
+  "spawn_regions": {
+   "0": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "10000": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "20000": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "30000": {
+    "meowdb_spawn_points": 6,
+    "regions": [
+     {
+      "name": "ValleyEast_G5",
+      "species": [
+       "Tutorial Jr. Sentinel"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Hilltop_G3",
+      "species": [
+       "Tutorial Jr. Sentinel"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "HighTerrace_M3",
+      "species": [
+       "Tutorial Jr. Sentinel"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Ledge_M1",
+      "species": [
+       "Tutorial Jr. Sentinel"
+      ],
+      "walkable_fraction": 0.95
+     }
+    ]
+   },
+   "40000": {
+    "meowdb_spawn_points": 40,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 0.99
+     },
+     {
+      "name": "Snail_2",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_3",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 0.99
+     },
+     {
+      "name": "Snail_4",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_5",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_6",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "40001": {
+    "meowdb_spawn_points": 45,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_2",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_3",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_4",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_5",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_6",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_8",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_9",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 0.96
+     },
+     {
+      "name": "BlueSnail_13",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_14",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "40002": {
+    "meowdb_spawn_points": 42,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_2",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_3",
+      "species": [
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_4",
+      "species": [
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_5",
+      "species": [
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_6",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_8",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_11",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_12",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_13",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_15",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_16",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_22",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "50000": {
+    "meowdb_spawn_points": 42,
+    "regions": [
+     {
+      "name": "BlueSnail_1",
+      "species": [
+       "Blue Snail",
+       "Red Snail",
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_4",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_5",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_6",
+      "species": [
+       "Blue Snail",
+       "Red Snail"
+      ],
+      "walkable_fraction": 0.97
+     },
+     {
+      "name": "Shroom_7",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_9",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_10",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_11",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_12",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "60000": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "60001": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "20001": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "1000000": {
+    "meowdb_spawn_points": 66,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_2",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_3",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_4",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_6",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_7",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 0.96
+     },
+     {
+      "name": "BlueSnail_8",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_9",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_10",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_11",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_12",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_13",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_14",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 0.99
+     },
+     {
+      "name": "OrangeMushroom_15",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_16",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1000001": {
+    "meowdb_spawn_points": 40,
+    "regions": [
+     {
+      "name": "OrangeMushroom_1",
+      "species": [
+       "Orange Mushroom",
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_3",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_4",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_5",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_6",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_8",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_9",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1000002": {
+    "meowdb_spawn_points": 34,
+    "regions": [
+     {
+      "name": "OrangeMushroom_1",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_2",
+      "species": [
+       "Blue Snail",
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_8",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_3",
+      "species": [
+       "Orange Mushroom",
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_4",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_10",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_5",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_6",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Blue Snail",
+       "Orange Mushroom",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_15",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1000003": {
+    "meowdb_spawn_points": 35,
+    "regions": [
+     {
+      "name": "Shroom_1",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_2",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_3",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_4",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 0.99
+     },
+     {
+      "name": "Snail_5",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_6",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_7",
+      "species": [
+       "Orange Mushroom",
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_9",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1000004": {
+    "meowdb_spawn_points": 41,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Blue Snail",
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 0.96
+     },
+     {
+      "name": "RedSnail_4",
+      "species": [
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 0.98
+     },
+     {
+      "name": "Snail_6",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 0.92
+     },
+     {
+      "name": "RedSnail_8",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_9",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_10",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_11",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_12",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 0.87
+     }
+    ]
+   },
+   "1000005": {
+    "meowdb_spawn_points": 44,
+    "regions": [
+     {
+      "name": "Shroom_1",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_2",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_3",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_4",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_13",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_6",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_7",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 0.83
+     },
+     {
+      "name": "Snail_8",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_9",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_10",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_11",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 0.91
+     },
+     {
+      "name": "BlueSnail_12",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1000006": {
+    "meowdb_spawn_points": 45,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Orange Mushroom",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_3",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_4",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_6",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_7",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_8",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_9",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_10",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_11",
+      "species": [
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_12",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_13",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Shroom_14",
+      "species": [
+       "Orange Mushroom",
+       "Shroom"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1010000": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "1010001": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "1010002": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "1010003": {
+    "meowdb_spawn_points": 0,
+    "regions": []
+   },
+   "1010004": {
+    "meowdb_spawn_points": 34,
+    "regions": [
+     {
+      "name": "BlueSnail_1",
+      "species": [
+       "Blue Snail",
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_2",
+      "species": [
+       "Blue Snail",
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_4",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_7",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_8",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_9",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_10",
+      "species": [
+       "Blue Snail",
+       "Red Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1020000": {
+    "meowdb_spawn_points": 38,
+    "regions": [
+     {
+      "name": "Snail_2",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_3",
+      "species": [
+       "Blue Snail",
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_5",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_6",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_7",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_9",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_11",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_13",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_15",
+      "species": [
+       "Blue Snail",
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_16",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_18",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_17",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   },
+   "1020001": {
+    "meowdb_spawn_points": 25,
+    "regions": [
+     {
+      "name": "Snail_1",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_3",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_4",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_5",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "BlueSnail_7",
+      "species": [
+       "Blue Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "OrangeMushroom_8",
+      "species": [
+       "Orange Mushroom"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "RedSnail_9",
+      "species": [
+       "Red Snail"
+      ],
+      "walkable_fraction": 1.0
+     },
+     {
+      "name": "Snail_11",
+      "species": [
+       "Snail"
+      ],
+      "walkable_fraction": 1.0
+     }
+    ]
+   }
+  },
+  "objects": 17651,
+  "meshes": 2633,
+  "materials": 200
  },
  "exceptions": [],
  "summary": {
   "high": 0,
   "medium": 0,
-  "low": 11
+  "low": 16
  }
 }

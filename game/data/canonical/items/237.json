@@ -1,0 +1,245 @@
+{
+  "id": "237",
+  "name": "Egg",
+  "game_item_id": "2010002",
+  "type": "Use",
+  "subtype": "Food",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A nutritious egg.\nRestores around 60 HP.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": {
+    "hp_restore": 60
+  },
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 30,
+  "sell_price_mesos": 3,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "509",
+        "npc_name": "Arturo",
+        "npc_role": "Grocer",
+        "map_id": "010004002",
+        "map_name": "Victoria Road: Perion Department Store",
+        "town": "Perion",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "410",
+        "npc_name": "Dr. Faymus",
+        "npc_role": "Grocer",
+        "map_id": "010003002",
+        "map_name": "Victoria Road: Kerning City Pharmacy",
+        "town": "Kerning City",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1014",
+        "npc_name": "Edel the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "020000002",
+        "map_name": "Orbis: Orbis Department Store",
+        "town": "Orbis",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "312",
+        "npc_name": "Len the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "010002002",
+        "map_name": "Victoria Road: Ellinia Department Store",
+        "town": "Ellinia",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "21",
+        "npc_name": "Lucy",
+        "npc_role": "Grocer",
+        "map_id": "000001013",
+        "map_name": "Rainbow Street: Amherst Department Store",
+        "town": "Maple Road (Beginner Zone)",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "212",
+        "npc_name": "Luna",
+        "npc_role": "Grocer",
+        "map_id": "010001042",
+        "map_name": "Victoria Road: Henesys Department Store",
+        "town": "Henesys",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "607",
+        "npc_name": "Mr. Sweatbottom",
+        "npc_role": "Sauna Manager",
+        "map_id": "010005002",
+        "map_name": "Dungeon: Regular Sauna",
+        "town": "Sleepywood",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "800",
+        "npc_name": "Valen",
+        "npc_role": "Grocer",
+        "map_id": "010007000",
+        "map_name": "Florina Road: Florina Beach",
+        "town": "Florina Beach",
+        "price_mesos": 30,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "1006",
+        "quest_name": "Sam's Suggestion",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "1006-c--0"
+      },
+      {
+        "quest_id": "1009",
+        "quest_name": "Mai's Training",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "1009-c--1"
+      },
+      {
+        "quest_id": "1010",
+        "quest_name": "Mai's Final Training",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "1010-c--2"
+      },
+      {
+        "quest_id": "10406",
+        "quest_name": "Delivering a Box of Fossils",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10406-c--3"
+      }
+    ],
+    "breakables": [
+      {
+        "breakable_id": "0000001",
+        "name": "Wooden Box",
+        "score": 2
+      }
+    ],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "506038",
+        "quest_name": "Bruce's Cooking Ingredients",
+        "quest_npc_name": "Bruce",
+        "quest_level": 17,
+        "quantity": 3
+      }
+    ],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "15",
+        "cot2": "3",
+        "change": "-12"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "A nutritious egg.\nRecovers around 60 HP.",
+      "cot2": "A nutritious egg.\nRestores around 60 HP."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/237",
+    "retrieved_at": "2026-10-04T10:07:56.413Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/237?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:36.540Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/237?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:36.540Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=237",
+      "retrieved_at": "2026-10-04T10:43:21.439Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

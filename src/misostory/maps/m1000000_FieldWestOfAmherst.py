@@ -267,7 +267,13 @@ def _signpost_vined(coll):
 
 def _door(m, portal, px, py, z_top, rot=0.0, scale=1.0, sign=None, sign_off=(2.6, 0.4), sign_rot=0.0,
           back=1.8, portal_rot=None):
-    """Barrel-door mound behind an anchored portal; the door faces the portal (and the camera)."""
+    """Barrel-door mound behind an anchored portal; the door faces the portal (and the camera).
+
+    `back` must leave the portal's arrival point clear: the runtime puts arriving players 1.5 m inward of the anchor
+    (portal_adaptations.json arrival.inset_m, along the footprint edge's inward normal) in a 0.3 m capsule, and the
+    mound's collision prism reaches 1.65 m in front of its origin (Barrel_Door_Mound, scale 1). For a front-edge door
+    at yaw `rot` the arrival sits 1.5 * cos(rot) - back in front of the origin along the door axis, so back must be at
+    least 1.5 * cos(rot) + 1.65 + 0.3 plus a margin. The export's spawn_clearance re-checks it on the real hulls."""
     r = math.radians(rot)
     # door normal at rot=0 is -y; the mound origin sits `back` m behind the portal
     nx, ny = math.sin(r), -math.cos(r)
@@ -460,10 +466,13 @@ def build(m):
     for k, lx in enumerate((-1.9, 1.7)):
         vx, vy = g01(lx, -1.2)
         m.place("Vine_Hanging_A", vx, vy, z=Z_P25 + 2.6, scale=(1, 1, 1.3), rot=k * 30)
-    # the two front-edge doors keep the closed barrel-door mound (their trails leave toward -y, away from it)
-    _door(m, "in02", 62.0, 1.0, 0.0, rot=-30, back=2.4, portal_rot=65)
+    # the two front-edge doors keep the closed barrel-door mound (their trails leave toward -y, away from it). The
+    # mounds stand far enough back that a player arriving through in02 / in03 lands on the grass between the swirl
+    # and the closed door (back=2.4 put the arrival inside the mound and the runtime had to move it 1.0-1.5 m). in03
+    # faces straight at the camera: at -15 its mound already reached 1.6 m past the east edge (0.7 m now).
+    _door(m, "in02", 62.0, 1.0, 0.0, rot=-30, back=3.6, portal_rot=65)
     m.place("Sign_Danger_Board", 58.0, 1.2, rot=-20)
-    _door(m, "in03", 78.0, 1.0, 0.0, rot=-15, back=2.4, portal_rot=65)
+    _door(m, "in03", 78.0, 1.0, 0.0, rot=0, back=3.8, portal_rot=65)
     m.edge_portal("west00")
     m.edge_portal("east00")
     # worn trails along the upper routes, from the V-fork tops out to every back gate
@@ -621,6 +630,7 @@ def build(m):
     # GAMEPLAY
     # =====================================================================
     m.player(46.2, 13.1, rot=-15)
+    m.player_spawn(7.0, 12.0, rot=90, note="sp x -91: ~6 m east of west00 on the entry ground")
     # road and Hollow: Snails, Shrooms and Red Snails
     m.mobs("Snail", geo.rect(2, 2, 13, 8), 1, seed=1, z_band=(1.0, 1.4))
     m.mobs("Shroom", geo.rect(14, 2, 34, 8), 2, seed=2, z_band=(0.6, 1.4))

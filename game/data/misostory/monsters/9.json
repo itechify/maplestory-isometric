@@ -1,0 +1,32 @@
+{
+  "id": "9",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "Orange Mushroom (MeowDB monster 9) in the isometric 3D world: its model, body, movement model, hops and AI timings. Gameplay stats (level, HP, EXP, P.DMG, ACC, AVOID, KB, the speed modifier, the touch zone, the sprite size, the movement label and the animation times) are NOT repeated here: MonsterDef reads them from data/canonical/monsters/9.json. The values every species shares (the terrain probes, the wander rhythm, the model fit, the hop and fall tolerances) come from monsters/_shared.json; a key named here overrides the shared value. Owner: the monster system (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md).",
+  "model": "Mob_OrangeMushroom",
+  "capsule_radius_m": 0.5,
+  "capsule_height_m": 1.45,
+  "walk_style": "bounce",
+  "speed_model": "walk_line_no_character_bonus",
+  "movement_kind": "jump",
+  "idle_s": [0.8, 2.0],
+  "walk_s": [1.5, 3.5],
+  "touch_rule": "always",
+  "hop_interval_s": [1.2, 2.8],
+  "hop_apex": "character_base_jump",
+  "hop_max_drop_m": 2.0,
+  "reasons": {
+    "model": "Iteration One's Orange Mushroom proxy in assets/world/_library.glb (MeowDB publishes stats, not art; no MapleStory sprite is used).",
+    "capsule_radius_m": "Physics body only (kill plane, debug overlays); movement uses probes and combat the canonical touch zone. Kept inside the cap (half the touch-zone width would be 0.79 m).",
+    "capsule_height_m": "The canonical touch-zone height, 58 px x WorldScale.actor (0.025 m/px).",
+    "walk_style": "Presentation: a mushroom bounces a little per step, one cycle per canonical move clip (480 ms).",
+    "speed_model": "MeowDB publishes a speed modifier per monster (Orange Mushroom: 0, 'Normal') but no monster speed formula. px/s = slope of MeowDB's walk line (1.25 px/s per Speed point, from its published 150 px/s at Speed 100 and 200 px/s at Speed 140) x (base Speed 100 + modifier), without the character-only '+20 Speed behind the scenes': 1.25 x 100 = 125 px/s x WorldScale.h = 2.5 m/s, a little slower than the player's 3.0 m/s.",
+    "movement_kind": "Canonical movement label 'Jumps between floors' ('Can hop to a floor above or below its spawn point'): it walks like the others and hops. MeowDB does not say how a jumper decides when to jump (monsters.md gaps).",
+    "idle_s": "MeowDB does not publish how long a monster stands or walks. Orange Mushroom has a quick stand clip (360 ms) and reads restless, so its stands are short (0.8-2.0 s).",
+    "walk_s": "Random walk of 1.5-3.5 s between stands (unpublished, see idle_s).",
+    "touch_rule": "Not a Peace monster: its canonical touch zone always deals contact damage.",
+    "hop_interval_s": "Unpublished (MeowDB gives no jump rule): while walking it hops forward every 1.2-2.8 s when the landing spot is valid, and it also hops instead of turning when a ledge or a low terrace blocks it, so it really changes floors.",
+    "hop_apex": "MeowDB publishes no monster jump height. Classic monsters share the character physics, so the hop uses the character's canonical base jump (jump_height_px_by_jump at Jump 100, 77 px x WorldScale.v = 0.90 m) and the canonical gravity (knockback_airtime.gravity_px_per_s2), so it reads like a player hop. It can land on ground up to hop_max_rise_apex_fraction (monsters/_shared.json) of the apex above its feet.",
+    "hop_max_drop_m": "The deepest floor below it may hop down to (about two classic platform tiers). Deeper drops are treated as cliffs and it turns."
+  }
+}

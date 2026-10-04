@@ -1,0 +1,28 @@
+{
+  "id": "1",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "Tutorial Jr. Sentinel (MeowDB monster 1, a Peace monster) in the isometric 3D world: its placeholder body, movement model, AI timings and its touch rule. Gameplay stats (level, HP, EXP, P.DMG, ACC, AVOID, KB, the speed modifier, the touch zone, the sprite size and the animation times) are NOT repeated here: MonsterDef reads them from data/canonical/monsters/1.json. The values every species shares (the terrain probes, the wander rhythm, the model fit, the hop and fall tolerances) come from monsters/_shared.json; a key named here overrides the shared value. Owner: the monster system (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md).",
+  "model": null,
+  "placeholder_color": "#9aa3ad",
+  "capsule_radius_m": 0.25,
+  "capsule_height_m": 0.9,
+  "walk_style": "bounce",
+  "speed_model": "walk_line_no_character_bonus",
+  "movement_kind": "walk",
+  "idle_s": [1.0, 3.0],
+  "walk_s": [1.0, 3.0],
+  "touch_rule": "when_provoked",
+  "reasons": {
+    "model": "Iteration One built no Tutorial Jr. Sentinel proxy (the library holds the five other Maple Island monsters). null = a clearly labelled procedural placeholder sized from the canonical sprite (40 x 68 px x WorldScale.actor = 1.0 x 1.7 m) and tagged 'Tutorial Jr. Sentinel (placeholder)'. Replace it by adding Mob_TutorialJrSentinel to the library and naming it here.",
+    "placeholder_color": "A neutral stone grey for the placeholder body, so it never reads as a finished model.",
+    "capsule_radius_m": "Physics body only (kill plane, debug overlays); half the canonical touch-zone width, 21 px x 0.025 m/px / 2 = 0.26 m.",
+    "capsule_height_m": "The canonical touch-zone height, 36 px x WorldScale.actor (the sprite is taller, 68 px, than its touch zone).",
+    "walk_style": "Presentation: the placeholder sentinel bobs a little per step (MeowDB publishes clip lengths, not motion).",
+    "speed_model": "MeowDB publishes a speed modifier (speed -60) but no monster speed formula. px/s = slope of MeowDB's walk line (1.25 px/s per Speed point) x (base Speed 100 + modifier), without the character-only '+20 Speed behind the scenes': 1.25 x 40 = 50 px/s x WorldScale.h = 1.0 m/s.",
+    "movement_kind": "Canonical movement label 'Stays on its floor'.",
+    "idle_s": "MeowDB does not publish how long a monster stands or walks; the sentinel is a calm tutorial target, so it stands a little longer.",
+    "walk_s": "Random walk of 1.0-3.0 s between stands (unpublished).",
+    "touch_rule": "MeowDB gap (monsters.md 'Peace monster touch damage'): the page says 'Peace' ('Non-aggressive, won't attack unless provoked'; analysis: 'Safe to walk past.') yet also shows a 21x36 touch zone with Touch DMG 1-1 (Base 1). MisoStory reads both literally: walking into an unprovoked Tutorial Jr. Sentinel does nothing; once the player has hit it, it is provoked for the rest of its life and its touch zone deals contact damage through the normal formula (P.DMG 1). Unverified until MeowDB settles it."
+  }
+}

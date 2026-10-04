@@ -302,6 +302,11 @@ def build(m):
     m.edge_portal("east00")
     m.edge_portal("east01")
     m.npc("Maria", 14.6, 20.8, rot=-15)
+    # Mai (MeowDB 000000050 at x 1891, y -182: the floating trio's top block T0) on the top stone, beside the trio
+    # walk; Maria (x 159) stays west of her, as in MeowDB
+    m.npc("Mai", 48.6, 30.0, rot=-15)
+    # player_spawns[0] (MeowDB sp x -183, y 120: the west entry ground T11, ~6 m east of west00), on the trunk road
+    m.player_spawn(7.0, 13.0, rot=70, note="west entry ground, on the road")
     m.route("Main_Lower_Southperry", [(1, 14), (6, 13.2), (11, 11.4), (15.0, 9.6), (17.4, 8.2), (24, 7.0), (36, 6.3),
                                       (46, 6.6), (52, 6.9), (58, 5.6), (64, 4.6), (70, 4.8), (75, 6.0)])
     # the upper branch: up the fork stair, along the embankment and over the ramp to Amherst

@@ -577,6 +577,7 @@ def build(m):
     # ================= gameplay =================
     m.edge_portal("out00")
     m.player(15.4, 3.9, rot=-50)  # on the mound beside the floor trail, the door, tower and branches behind
+    m.player_spawn(4.0, 3.6, rot=180, note="sp x -214: west of out00, a little higher, on the forest floor")
     m.mobs("Shroom", geo.rect(0, 2, 3, 10), 1, seed=1, z_band=(-0.2, 0.3))
     m.mobs("Shroom", geo.rect(18, 1, 25, 12), 1, seed=2, z_band=(-0.2, 0.3), avoid=[(21.4, 8.8, 3.0)])
     m.mobs("Shroom", geo.rect(29, 1, 38, 11), 1, seed=3, z_band=(1.6, 2.0))

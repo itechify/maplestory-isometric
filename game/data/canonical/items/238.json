@@ -1,0 +1,209 @@
+{
+  "id": "238",
+  "name": "Meat",
+  "game_item_id": "2010003",
+  "type": "Use",
+  "subtype": "Food",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Tasty-looking meat.\nRestores around 160 HP.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": {
+    "hp_restore": 160
+  },
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 80,
+  "sell_price_mesos": 8,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "509",
+        "npc_name": "Arturo",
+        "npc_role": "Grocer",
+        "map_id": "010004002",
+        "map_name": "Victoria Road: Perion Department Store",
+        "town": "Perion",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "410",
+        "npc_name": "Dr. Faymus",
+        "npc_role": "Grocer",
+        "map_id": "010003002",
+        "map_name": "Victoria Road: Kerning City Pharmacy",
+        "town": "Kerning City",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1014",
+        "npc_name": "Edel the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "020000002",
+        "map_name": "Orbis: Orbis Department Store",
+        "town": "Orbis",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1116",
+        "npc_name": "Glibber",
+        "npc_role": "Merchant",
+        "map_id": "020001041",
+        "map_name": "El Nath: Ice Valley II",
+        "town": "El Nath",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1114",
+        "npc_name": "Hana",
+        "npc_role": "Grocer",
+        "map_id": "020001012",
+        "map_name": "El Nath: El Nath Department Store",
+        "town": "El Nath",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "312",
+        "npc_name": "Len the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "010002002",
+        "map_name": "Victoria Road: Ellinia Department Store",
+        "town": "Ellinia",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "212",
+        "npc_name": "Luna",
+        "npc_role": "Grocer",
+        "map_id": "010001042",
+        "map_name": "Victoria Road: Henesys Department Store",
+        "town": "Henesys",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "607",
+        "npc_name": "Mr. Sweatbottom",
+        "npc_role": "Sauna Manager",
+        "map_id": "010005002",
+        "map_name": "Dungeon: Regular Sauna",
+        "town": "Sleepywood",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "800",
+        "npc_name": "Valen",
+        "npc_role": "Grocer",
+        "map_id": "010007000",
+        "map_name": "Florina Road: Florina Beach",
+        "town": "Florina Beach",
+        "price_mesos": 80,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "40",
+        "cot2": "8",
+        "change": "-32"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "A tasty-looking meat.\nRecovers around 160 HP.",
+      "cot2": "Tasty-looking meat.\nRestores around 160 HP."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/238",
+    "retrieved_at": "2026-10-04T10:47:08.969Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/238?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:10.074Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/238?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:10.074Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=238",
+      "retrieved_at": "2026-10-04T10:47:11.255Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

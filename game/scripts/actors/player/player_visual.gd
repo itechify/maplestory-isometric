@@ -1,0 +1,420 @@
+class_name PlayerVisual
+extends Node3D
+## Presentation of the player (child "Visual" of player.tscn): the model, a blob shadow, the X-ray fill and the
+## see-through outline, facing, step smoothing, walk bob, invulnerability blink, climbing and death poses. Reads the
+## parent PlayerController every frame and never changes gameplay state.
+##
+## Model: Iteration One's Player_Proxy from the exported library (res://assets/world/_library.glb, node
+## "Player_Proxy_001": feet at y = 0, front +Z) when present, else a procedural chibi placeholder.
+##
+## Readability through geometry (camera.json, docs/runtime/PLAYER_AND_CAMERA.md "X-ray fill and see-through outline"):
+##   - every surface (the unshaded ink shell too) writes STENCIL_REF where it is visible;
+##   - an X-ray fill (next pass: unshaded, no depth test, stencil != STENCIL_REF) paints the hidden parts of the body
+##     in `xray_color`; an invisible mark pass after it writes STENCIL_REF over the whole silhouette (Godot keeps
+##     stencil read and write exclusive in one pass);
+##   - a see-through outline (a copy of the model with smoothed normals, grown `silhouette_width_px` on screen, no
+##     depth test, stencil != STENCIL_REF, drawn last) rings the silhouette in `silhouette_color` on top of
+##     everything. It shows while set_see_through(true) (CameraRig: something hides the player) and fades out
+##     otherwise, so an unoccluded player has no extra line.
+
+const LIBRARY := "res://assets/world/_library.glb"
+const PROXY_NODE := "Player_Proxy"
+## Render layer of the player's meshes, excluded from the blob shadow decal so it never lands on the player.
+const PLAYER_LAYER := 1 << 19
+## Stencil value of the player's visible pixels (any value no other system uses).
+const STENCIL_REF := 37
+## Transparent-pass order: after faded occluders, FX and labels (0..100); the fill before the outline.
+const FILL_PRIORITY := 120
+const MARK_PRIORITY := 121
+const OUTLINE_PRIORITY := 127
+const OUTLINE_NAME := "SeeThroughOutline"
+
+## Use the library proxy when available (tests and tools can turn the whole visual off by not adding it).
+@export var use_library_model: bool = true
+@export var blob_shadow: bool = true
+## The X-ray fill and the see-through outline.
+@export var xray: bool = true
+
+var player: PlayerController = null
+var model: Node3D = null
+var shadow: Decal = null
+## camera.json colours and timings (loaded in _ready; tests may set them before adding the node).
+var xray_color: Color = Color(0.25, 0.55, 1.0, 0.55)
+var silhouette_color: Color = Color(0.3, 0.62, 1.0, 1.0)
+var silhouette_width_px: float = 3.0
+var see_through_fade_s: float = 0.12
+## Outline opacity factor (0 hidden .. 1 full), eased toward the requested state.
+var see_through_amount: float = 0.0
+
+var _see_through: bool = false
+var _fill_mat: StandardMaterial3D = null
+var _mark_mat: StandardMaterial3D = null
+var _outline_mat: StandardMaterial3D = null
+var _outlines: Array[MeshInstance3D] = []
+var _config_loaded: bool = false
+var _yaw: float = 0.0
+var _bob_phase: float = 0.0
+var _tilt: float = 0.0
+var _death_t: float = 0.0
+
+
+func _ready() -> void:
+	player = get_parent() as PlayerController
+	if not _config_loaded:
+		load_config(_read_config())
+	model = _build_model()
+	add_child(model)
+	if xray:
+		_apply_silhouette(model)
+	_tag_meshes(model)
+	if blob_shadow and player != null:
+		shadow = _build_shadow()
+		player.add_child.call_deferred(shadow)
+	if player != null:
+		_yaw = atan2(player.facing.x, player.facing.z)
+
+
+func _process(delta: float) -> void:
+	step_see_through(delta)
+	if player == null or player.model == null:
+		return
+	var m := player.model
+	# Facing: turn toward the logical facing at the presentation turn rate.
+	var want := atan2(player.facing.x, player.facing.z)
+	var diff := wrapf(want - _yaw, -PI, PI)
+	var step := m.facing_turn_rate * delta
+	_yaw = want if absf(diff) <= step else _yaw + signf(diff) * step
+	# Walk bob and a slight lean into the motion; nothing while airborne, climbing or dead.
+	var speed := player.actual_velocity.length()
+	var moving := player.is_grounded() and speed > 0.2 and not player.is_dead()
+	if moving:
+		_bob_phase += delta * speed / maxf(m.walk_speed, 0.01) * TAU * 2.2
+	else:
+		_bob_phase = 0.0
+	var bob := absf(sin(_bob_phase)) * 0.05 if moving else 0.0
+	var lean := clampf(speed / maxf(m.walk_speed, 0.01), 0.0, 1.0) * 0.12 if moving else 0.0
+	_tilt = lerpf(_tilt, lean, 1.0 - exp(-12.0 * delta))
+	# Death: fall over backwards.
+	_death_t = clampf(_death_t + (delta if player.is_dead() else -delta * 4.0) / 0.35, 0.0, 1.0)
+	position = player.presentation_offset + Vector3.UP * bob
+	rotation = Vector3(_tilt - _death_t * deg_to_rad(80.0), _yaw, 0.0)
+	# Classic post-hit blink while invulnerable.
+	if model != null:
+		model.visible = not player.is_invulnerable() or int(Time.get_ticks_msec() / 70) % 2 == 0
+	if shadow != null:
+		shadow.visible = not player.is_climbing()
+
+
+# =================================================================================================================
+# See-through outline
+# =================================================================================================================
+
+## Shows (true) or hides (false) the see-through outline; it fades over see_through_fade_s. CameraRig calls this
+## every update with "is anything hiding the player".
+func set_see_through(on: bool) -> void:
+	_see_through = on
+
+
+## The requested state (the outline may still be fading).
+func is_see_through() -> bool:
+	return _see_through
+
+
+## Advances the outline fade by `delta` seconds and applies it (called from _process; tests call it directly).
+func step_see_through(delta: float) -> void:
+	var goal := 1.0 if _see_through else 0.0
+	see_through_amount = move_toward(see_through_amount, goal, delta / maxf(see_through_fade_s, 0.001))
+	if _outline_mat == null:
+		return
+	var c := silhouette_color
+	c.a *= see_through_amount
+	_outline_mat.albedo_color = c
+	var on := see_through_amount > 0.001
+	for o in _outlines:
+		if is_instance_valid(o):
+			o.visible = on
+	if on:
+		_outline_mat.grow_amount = outline_grow()
+
+
+## The outline meshes (one per model mesh with lit surfaces).
+func outline_meshes() -> Array[MeshInstance3D]:
+	return _outlines
+
+
+## The X-ray fill, the silhouette mark and the outline materials ({fill, mark, outline}; null before _ready or
+## without xray).
+func silhouette_materials() -> Dictionary:
+	return {"fill": _fill_mat, "mark": _mark_mat, "outline": _outline_mat}
+
+
+## How far the outline hull grows, in meters: silhouette_width_px at the current orthographic camera's scale.
+func outline_grow() -> float:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	var h := get_viewport().get_visible_rect().size.y if is_inside_tree() else 0.0
+	if cam != null and cam.projection == Camera3D.PROJECTION_ORTHOGONAL and h > 0.0:
+		return silhouette_width_px * cam.size / h
+	return silhouette_width_px * 15.0 / 900.0
+
+
+## Reads the colours and timings from camera.json (a Dictionary as loaded).
+func load_config(cfg: Dictionary) -> void:
+	_config_loaded = true
+	xray_color = _color(cfg.get("xray_color"), xray_color)
+	silhouette_color = _color(cfg.get("silhouette_color"), silhouette_color)
+	silhouette_width_px = float(cfg.get("silhouette_width_px", silhouette_width_px))
+	see_through_fade_s = float(cfg.get("silhouette_fade_s", see_through_fade_s))
+
+
+static func _color(v: Variant, fallback: Color) -> Color:
+	if v is Array and (v as Array).size() >= 4:
+		return Color(float(v[0]), float(v[1]), float(v[2]), float(v[3]))
+	return fallback
+
+
+static func _read_config() -> Dictionary:
+	var text := FileAccess.get_file_as_string("res://data/misostory/camera.json")
+	var cfg: Variant = JSON.parse_string(text) if text != "" else null
+	return cfg if cfg is Dictionary else {}
+
+
+## Gives every surface a stencil write and every lit surface the shared X-ray fill as its next pass (on duplicated
+## materials, so the shared library materials stay untouched), and adds an outline mesh under every mesh that has lit
+## surfaces.
+func _apply_silhouette(root: Node) -> void:
+	_fill_mat = StandardMaterial3D.new()
+	_fill_mat.resource_name = "PlayerXrayFill"
+	_fill_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_fill_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_fill_mat.albedo_color = xray_color
+	_fill_mat.no_depth_test = true
+	# Front faces only (like Godot's own X-ray pass): a hidden part blends once, not front and back.
+	_fill_mat.cull_mode = BaseMaterial3D.CULL_BACK
+	_fill_mat.render_priority = FILL_PRIORITY
+	_fill_mat.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	_fill_mat.stencil_flags = BaseMaterial3D.STENCIL_FLAG_READ
+	_fill_mat.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_NOT_EQUAL
+	_fill_mat.stencil_reference = STENCIL_REF
+	# Godot keeps stencil read and write exclusive, so an invisible pass after the fill marks the whole silhouette
+	# (visible and hidden parts) for the outline.
+	_mark_mat = StandardMaterial3D.new()
+	_mark_mat.resource_name = "PlayerSilhouetteMark"
+	_mark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_mark_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_mark_mat.albedo_color = Color(0, 0, 0, 0)
+	_mark_mat.no_depth_test = true
+	_mark_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_mark_mat.render_priority = MARK_PRIORITY
+	_mark_mat.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	_mark_mat.stencil_flags = BaseMaterial3D.STENCIL_FLAG_WRITE
+	_mark_mat.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_ALWAYS
+	_mark_mat.stencil_reference = STENCIL_REF
+	_fill_mat.next_pass = _mark_mat
+	_outline_mat = StandardMaterial3D.new()
+	_outline_mat.resource_name = "PlayerSeeThroughOutline"
+	_outline_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_outline_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_outline_mat.albedo_color = Color(silhouette_color, 0.0)
+	_outline_mat.no_depth_test = true
+	_outline_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_outline_mat.grow = true
+	_outline_mat.grow_amount = outline_grow()
+	_outline_mat.render_priority = OUTLINE_PRIORITY
+	_outline_mat.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	_outline_mat.stencil_flags = BaseMaterial3D.STENCIL_FLAG_READ
+	_outline_mat.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_NOT_EQUAL
+	_outline_mat.stencil_reference = STENCIL_REF
+	var meshes: Array[MeshInstance3D] = []
+	var stack: Array[Node] = [root]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		stack.append_array(n.get_children())
+		if n is MeshInstance3D and (n as MeshInstance3D).mesh != null:
+			meshes.append(n)
+	for mi in meshes:
+		var lit: Array[int] = []
+		for s in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(s) as BaseMaterial3D
+			if mat == null:
+				continue
+			# Every visible surface of the player writes the stencil, the unshaded ink shell (Player_Proxy M_Outline)
+			# too: its inverted hull draws the contour lines in front of the body at creases (hair over the face, the
+			# ear, the feet), and if it did not count as "the player was drawn here" the fill would paint those lines
+			# blue on a player nothing hides. Only lit surfaces carry the fill and get an outline hull (the ink is
+			# already an expanded shell).
+			var copy := mat.duplicate() as BaseMaterial3D
+			copy.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+			copy.stencil_flags = BaseMaterial3D.STENCIL_FLAG_WRITE
+			copy.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_ALWAYS
+			copy.stencil_reference = STENCIL_REF
+			if mat.shading_mode != BaseMaterial3D.SHADING_MODE_UNSHADED:
+				copy.next_pass = _fill_mat
+				lit.append(s)
+			if mi.material_override != null:
+				mi.material_override = copy
+				break
+			mi.set_surface_override_material(s, copy)
+		if lit.is_empty():
+			continue
+		# A material_override covers every surface, so the hull does too.
+		var surfaces: Array = Array(lit) if mi.material_override == null else range(mi.mesh.get_surface_count())
+		var hull := smoothed_hull(mi.mesh, surfaces)
+		if hull == null:
+			continue
+		var o := MeshInstance3D.new()
+		o.name = OUTLINE_NAME
+		o.mesh = hull
+		o.material_override = _outline_mat
+		o.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		o.visible = false
+		mi.add_child(o)
+		_outlines.append(o)
+
+
+## One triangle surface of `surfaces` of `mesh` with every vertex normal averaged over the vertices at the same
+## position, so growing it along the normals never cracks at hard edges (the proxy is flat shaded). Null when the
+## surfaces hold no triangles.
+static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
+	var verts := PackedVector3Array()
+	var normals := PackedVector3Array()
+	var index := PackedInt32Array()
+	var acc: Dictionary = {}
+	for s in surfaces:
+		# PrimitiveMeshes are always triangles; an ArrayMesh says.
+		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(int(s)) != Mesh.PRIMITIVE_TRIANGLES:
+			continue
+		var arr := mesh.surface_get_arrays(int(s))
+		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+		var nrm: PackedVector3Array = arr[Mesh.ARRAY_NORMAL] if arr[Mesh.ARRAY_NORMAL] != null else PackedVector3Array()
+		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		var base := verts.size()
+		verts.append_array(v)
+		for i in v.size():
+			var key := v[i].snappedf(0.0001)
+			acc[key] = (acc.get(key, Vector3.ZERO) as Vector3) + (nrm[i] if i < nrm.size() else Vector3.ZERO)
+		if ind.is_empty():
+			for i in v.size():
+				index.append(base + i)
+		else:
+			for i in ind:
+				index.append(base + i)
+	if index.is_empty():
+		return null
+	normals.resize(verts.size())
+	for i in verts.size():
+		var n: Vector3 = acc[verts[i].snappedf(0.0001)]
+		normals[i] = n.normalized() if n.length_squared() > 1e-12 else Vector3.UP
+	var arrays := []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = verts
+	arrays[Mesh.ARRAY_NORMAL] = normals
+	arrays[Mesh.ARRAY_INDEX] = index
+	var out := ArrayMesh.new()
+	out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return out
+
+
+# =================================================================================================================
+# Model
+# =================================================================================================================
+
+func _build_model() -> Node3D:
+	if use_library_model and ResourceLoader.exists(LIBRARY):
+		var lib: PackedScene = load(LIBRARY)
+		if lib != null:
+			var inst := lib.instantiate()
+			var proxy := find_proxy(inst)
+			if proxy != null:
+				var copy := proxy.duplicate() as Node3D
+				inst.free()
+				copy.transform = Transform3D.IDENTITY
+				copy.name = "Model"
+				return copy
+			inst.free()
+	return _placeholder()
+
+
+## The Player_Proxy root of an instantiated library: the export names asset roots with Blender's numeric suffix
+## ("Player_Proxy_001"), matched like ProxyLibrary does.
+static func find_proxy(library_root: Node) -> Node3D:
+	for c in library_root.get_children():
+		if c is Node3D and ProxyLibrary.asset_name(String(c.name)) == PROXY_NODE:
+			return c
+	return library_root.find_child(PROXY_NODE, true, false) as Node3D
+
+
+## A chibi placeholder: big head, short body, a nose for facing (front = +Z).
+func _placeholder() -> Node3D:
+	var root := Node3D.new()
+	root.name = "Model"
+	var skin := StandardMaterial3D.new()
+	skin.albedo_color = Color("#ffd9b8")
+	var shirt := StandardMaterial3D.new()
+	shirt.albedo_color = Color("#3b7dd8")
+	var hair := StandardMaterial3D.new()
+	hair.albedo_color = Color("#6b3b1f")
+	var body := MeshInstance3D.new()
+	var cap := CapsuleMesh.new()
+	cap.radius = 0.24
+	cap.height = 0.75
+	body.mesh = cap
+	body.material_override = shirt
+	body.position = Vector3(0, 0.38, 0)
+	root.add_child(body)
+	var head := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.36
+	sphere.height = 0.7
+	head.mesh = sphere
+	head.material_override = skin
+	head.position = Vector3(0, 1.08, 0)
+	root.add_child(head)
+	var hair_mi := MeshInstance3D.new()
+	var hs := SphereMesh.new()
+	hs.radius = 0.38
+	hs.height = 0.5
+	hair_mi.mesh = hs
+	hair_mi.material_override = hair
+	hair_mi.position = Vector3(0, 1.22, -0.05)
+	root.add_child(hair_mi)
+	var nose := MeshInstance3D.new()
+	var nm := SphereMesh.new()
+	nm.radius = 0.06
+	nm.height = 0.12
+	nose.mesh = nm
+	nose.material_override = skin
+	nose.position = Vector3(0, 1.02, 0.35)
+	root.add_child(nose)
+	return root
+
+
+func _tag_meshes(n: Node) -> void:
+	if n is VisualInstance3D:
+		(n as VisualInstance3D).layers = PLAYER_LAYER
+	for c in n.get_children():
+		_tag_meshes(c)
+
+
+## A soft round shadow projected straight down under the feet: reads the landing spot of every jump.
+func _build_shadow() -> Decal:
+	var d := Decal.new()
+	d.name = "BlobShadow"
+	var g := Gradient.new()
+	g.set_color(0, Color(0, 0, 0, 0.55))
+	g.set_color(1, Color(0, 0, 0, 0.0))
+	var tex := GradientTexture2D.new()
+	tex.gradient = g
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	tex.width = 64
+	tex.height = 64
+	d.texture_albedo = tex
+	# The box spans from just above the feet to 5.7 m below them: it paints the ground under a jump or a drop,
+	# never a canopy or ceiling above the player.
+	d.size = Vector3(0.9, 6.0, 0.9)
+	d.position = Vector3(0.0, -2.7, 0.0)
+	d.upper_fade = 0.05
+	d.lower_fade = 0.3
+	d.cull_mask = 0xFFFFF & ~PLAYER_LAYER
+	return d

@@ -1,0 +1,293 @@
+{
+  "id": "417",
+  "name": "Silver Ore",
+  "game_item_id": "4010004",
+  "type": "Etc",
+  "subtype": "Ore & Mineral",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A shiny silver ore.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 80,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "35",
+        "monster_name": "Lupin",
+        "monster_level": 37,
+        "upvotes": 8,
+        "downvotes": 0,
+        "score": 8,
+        "disputed": false,
+        "community_drop_entry_id": "473",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 7,
+        "downvotes": 0,
+        "score": 7,
+        "disputed": false,
+        "community_drop_entry_id": "197",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "13",
+        "monster_name": "Green Mushroom",
+        "monster_level": 14,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "67",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "54",
+        "monster_name": "Glowshroom",
+        "monster_level": 39,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "308",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "60",
+        "monster_name": "Duskmander",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "305",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1042",
+        "monster_name": "Lunar Pixie",
+        "monster_level": 45,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "656",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1019",
+        "monster_name": "Star Pixie",
+        "monster_level": 35,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "657",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1078",
+        "monster_name": "Lucida",
+        "monster_level": 73,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "811",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1055",
+        "monster_name": "Hector",
+        "monster_level": 55,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "939",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1060",
+        "monster_name": "White Fang",
+        "monster_level": 59,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "983",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "23",
+        "monster_name": "Evil Eye",
+        "monster_level": 27,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "505",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1015",
+        "monster_name": "Dark Leatty",
+        "monster_level": 33,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1065",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "25",
+        "monster_name": "Fairy 1",
+        "monster_level": 29,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "512",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "45",
+        "monster_name": "Drake",
+        "monster_level": 50,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "535",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": -1,
+        "disputed": true,
+        "community_drop_entry_id": "490",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "10201",
+        "quest_name": "Collecting 50 Cursed Dolls",
+        "when": "on_completion",
+        "chance_pct": 16.7,
+        "label": "(17%)",
+        "row_key": "10201-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": [
+      {
+        "makes_item_id": "424",
+        "makes_item_name": "Silver Ingot",
+        "skill": "Smithing Lv 4",
+        "quantity": 5
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "150",
+        "cot2": "80",
+        "change": "-70"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "The ore of a shiny silver.",
+      "cot2": "A shiny silver ore."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/417",
+    "retrieved_at": "2026-10-04T10:44:12.382Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/417?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:13.479Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/417?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:13.479Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=417",
+      "retrieved_at": "2026-10-04T10:44:14.654Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=10201].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/10201",
+      "retrieved_at": "2026-10-04T11:19:44.270Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 6)"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=10201].chance_pct",
+      "item_page": 17,
+      "quest_page": 16.7,
+      "quest_page_total_weight": 6,
+      "chosen": 16.7,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 6)"
+    }
+  ]
+}

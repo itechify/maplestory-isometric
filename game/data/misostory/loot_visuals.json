@@ -1,0 +1,116 @@
+{
+  "id": "loot_visuals",
+  "kind": "misostory_adaptation",
+  "description": "How ground drops and shop/dialogue item icons look and move (docs/runtime/INTERACTION_AND_NPC_UI.md). Read by LootVisuals (scripts/actors/loot/loot_visuals.gd). Gameplay values stay elsewhere: the drop lifetime, owner window and scatter spacing are data/misostory/drops.json, the pickup box is canonical formulas/loot_rules.json player_pickup_box_px.",
+  "reason": "MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera.",
+  "verified": false,
+  "motion": {
+    "toss_duration_s": 0.5,
+    "toss_height_m": 1.1,
+    "hover_m": 0.15,
+    "bob_amplitude_m": 0.05,
+    "bob_period_s": 1.6,
+    "spin_deg_per_s": 70,
+    "blink_before_expiry_s": 10,
+    "blink_hz": 4,
+    "ground_probe_up_m": 1.5,
+    "ground_probe_down_m": 6,
+    "reason": "Classic drops pop up out of the monster and fall to its feet, then hover and bob. A 0.5 s toss 1.1 m high reads from the 40-degree isometric camera; the drop then hovers 0.15 m above the ground, bobs 5 cm and turns slowly so its 3D shape reads. It blinks at 4 Hz for its last 10 s on the ground so the player sees it is about to vanish (classic items flicker before they disappear). Drops land on the first walkable or blocking surface between 1.5 m above and 6 m below their scatter point.",
+    "verified": false
+  },
+  "placement": {
+    "ground_step_tolerance_m": 0.6,
+    "toss_from_height_m": 0.5,
+    "reason": "A scattered drop must land on the kill's own tier, as classic drops stay on the monster's foothold: a scatter point whose ground is more than 0.6 m (the spawn tier tolerance in presentation.json) above or below the kill point's ground is pulled back toward the kill point (half the offset, then none). The toss starts 0.5 m above the monster's feet, about its body centre.",
+    "verified": false
+  },
+  "pickup": {
+    "hold_repeat_s": 0.2,
+    "reason": "Holding the pickup key keeps picking up, one drop every 0.2 s, as holding Z did in classic; a fresh press always picks up at once. MeowDB documents no pickup rate.",
+    "verified": false
+  },
+  "sizes": {
+    "item_m": 0.58,
+    "coin_m": 0.36,
+    "bag_m": 0.5,
+    "shadow_m": 0.5,
+    "reason": "Sizes relative to the 1.5 m player proxy and the gameplay camera (12-19.5 m tall views, about 50-75 px per meter at 900p): an item about 0.58 m (30-40 px, close to a classic 32 px item icon next to a ~70 px character), coins about half that. Drops from one kill land 25 px = 0.5 m apart (drops.json), so neighbours just touch.",
+    "verified": false
+  },
+  "shapes": {
+    "by_type_subtype": {
+      "Use/Potion": "potion",
+      "Use/Food": "food",
+      "Use/Pet Food": "food",
+      "Use/Scroll": "scroll",
+      "Use/Arrow": "bundle",
+      "Etc/Gem": "gem",
+      "Etc/Ore & Mineral": "gem",
+      "Etc/Quest Item": "pouch"
+    },
+    "by_type": {
+      "Equip": "box",
+      "Use": "potion",
+      "Setup": "chair_box",
+      "Etc": "pouch",
+      "Cash": "box"
+    },
+    "default": "pouch",
+    "reason": "One shape per item family, as the brief asks: equipment drops as a small chest, potions as bottles, food as a round fruit, scrolls as rolled paper, arrows as a bundle, ores and gems as faceted stones, other Etc items as a tied pouch. Type and subtype are read from the canonical item record.",
+    "verified": false
+  },
+  "colors": {
+    "box": {"body": "#9a6a3a", "accent": "#f2c14e"},
+    "chair_box": {"body": "#5f8f4e", "accent": "#e8e0b0"},
+    "potion": {"body": "#d94848", "accent": "#f4e9d8"},
+    "food": {"body": "#d8473a", "accent": "#5c9e3a"},
+    "scroll": {"body": "#efe3c2", "accent": "#b5543a"},
+    "bundle": {"body": "#a77b4f", "accent": "#e9e4d8"},
+    "gem": {"body": "#9c7bd1", "accent": "#efe8ff"},
+    "pouch": {"body": "#b8956a", "accent": "#7a5634"},
+    "reason": "Body and accent colours per shape, chosen for contrast against Maple Island's greens and browns.",
+    "verified": false
+  },
+  "name_keyword_colors": [
+    {"keyword": "Red", "color": "#e03a3a"},
+    {"keyword": "Orange", "color": "#f28a24"},
+    {"keyword": "White", "color": "#f2f2f0"},
+    {"keyword": "Blue", "color": "#3f6fe0"},
+    {"keyword": "Green", "color": "#4caf50"},
+    {"keyword": "Yellow", "color": "#f2d03a"},
+    {"keyword": "Brown", "color": "#8a5a32"},
+    {"keyword": "Apple", "color": "#d8302e"},
+    {"keyword": "Egg", "color": "#f3ead2"},
+    {"keyword": "Meat", "color": "#a4462e"},
+    {"keyword": "Lemon", "color": "#f4dc3c"},
+    {"keyword": "Amethyst", "color": "#9a5fd0"},
+    {"keyword": "Aquamarine", "color": "#5fd0d0"},
+    {"keyword": "Garnet", "color": "#b8323c"},
+    {"keyword": "Opal", "color": "#e8d8f0"},
+    {"keyword": "Diamond", "color": "#d8f2ff"},
+    {"keyword": "Bronze", "color": "#b07a42"},
+    {"keyword": "Iron", "color": "#8c8f96"},
+    {"keyword": "Mithril", "color": "#a9c4d8"},
+    {"keyword": "Silver", "color": "#c8ccd2"},
+    {"keyword": "Snail", "color": "#5a8fd6"},
+    {"keyword": "Mushroom", "color": "#e3762c"},
+    {"keyword": "Shroom", "color": "#d24b6a"},
+    {"keyword": "Spore", "color": "#c35a8a"},
+    {"keyword": "Shell", "color": "#8fb4e0"},
+    {"keyword": "Jr. Sentinel", "color": "#c9a24a"},
+    {"keyword": "Mirror", "color": "#bfe3f5"},
+    {"keyword": "Letter", "color": "#f4efe0"},
+    {"keyword": "Screw", "color": "#8c8f96"},
+    {"keyword": "Board", "color": "#a2763e"}
+  ],
+  "name_keyword_colors_reason": "The first keyword found in the item's English name tints the shape's body (Red Potion red, Blue Snail Shell blue, Egg cream). Without a match the shape colour above is used. Purely visual; names are canonical.",
+  "name_keyword_colors_verified": false,
+  "meso_tiers": [
+    {"max_amount": 49, "coin": "#c98a3a", "coins": 1, "bag": false},
+    {"max_amount": 99, "coin": "#f4c430", "coins": 1, "bag": false},
+    {"max_amount": 999, "coin": "#f4c430", "coins": 3, "bag": false},
+    {"max_amount": -1, "coin": "#f4c430", "coins": 0, "bag": true}
+  ],
+  "meso_tiers_reason": "Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit.",
+  "meso_tiers_verified": false
+}

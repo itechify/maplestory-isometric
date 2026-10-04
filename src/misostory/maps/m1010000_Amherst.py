@@ -630,9 +630,10 @@ def build(m):
     m.npc("Rain", 9.8, 15.0, rot=10)
     m.npc("Pio", 19.9, 15.6, rot=-30)
     m.npc("Lucas", 47.3, 25.2, rot=-25)
-    m.npc("Mai", 21.6, 30.8, rot=-12)
+    # (Mai is not an Amherst NPC in MeowDB MS Classic: she stands on A Split Road, 000000050)
     # on the square at the foot of the plateau ladder, 0.6 m off the Plateau route, facing the camera
     m.player(28.3, 16.4, rot=-20)
+    m.player_spawn(13.6, 11.8, rot=90, note="sp x 282: on the west street between Rain and Pio")
 
     m.route("Main", [(1, 12), (8, 11.8), (15.5, 11.3), (21.8, 11.0), (24.3, 11.0), (27.2, 11.0), (36, 11.4),
                      (44, 11.4), (49.8, 11.0), (53.0, 11.0), (56.8, 11.0), (66, 11.6), (75, 12)])

@@ -22,6 +22,7 @@ import math
 
 import bpy
 
+from misostory import collision_tags as CT
 from misostory.geo import MeshBuilder
 from misostory.kit import add_outline, asset
 from misostory.kit.interior import (PLANK_TOP, ROOM, RUG_Z, SHOP_H, WALL_T, banded_beam, cut_room, lbox, plank_floor,
@@ -655,7 +656,9 @@ def flag_floor(m, x0, y0, x1, y1, band=0.45, seed=0):
                 lbox(mb, m, (b - a - gap, h - gap, zt - zb), ((a + b) / 2, y + h / 2, (zb + zt) / 2), 0, rng.choice(tones))
             x += ln
         y += h
-    obj = mb.build(f"{m.slug}_Floor_Flags", m.col_arch, smooth=False)
+    # visual only: no collision (the walkable floor slab below is the floor; untagged, the Architecture default made
+    # these flags a Walls slab 3-11 mm above Ground)
+    obj = CT.tag(mb.build(f"{m.slug}_Floor_Flags", m.col_arch, smooth=False), CT.NONE)
     obj.visible_shadow = False
     return obj
 
@@ -866,10 +869,12 @@ def build(m):
 
     # ---------------- gameplay ----------------
     m.player(2.6, 2.7, rot=-60)   # on the entry step (classic spawn point)
+    m.player_spawn(3.0, 2.7, rot=90, note="interior: just inside the door (out00), on the entry step")
     m.route("Main", [(1.35, 2.7), (3.9, 3.4), (4.5, 6.4), (4.2, 8.6)])
     # up the crate staircase; the last riser onto the wide shelf is taken head-on (+y), then across the shelf
     m.route("WareHeap", [(4.2, 8.6), (6.4, 7.6), (9.0, 4.2), (12.5, 2.6), (14.65, 2.6), (14.65, 5.0),
                          (14.65, 8.3), (14.65, 9.3), (14.0, 9.7), (12.3, 10.6)])
-    m.route("TopShelf", [(13.6, 9.6), (14.6, 10.5), (15.35, 11.3)])   # ends >0.6 m past the last riser
+    # ends >0.6 m past the last riser and 0.4 m off the back wall (a body standing at y 11.3 touched it)
+    m.route("TopShelf", [(13.6, 9.6), (14.6, 10.5), (15.35, 11.05)])
     # from the end of WareHeap up the rope (climbed mid-route) and along the walkable ceiling beam
     m.route("Rafters", [(12.3, 10.6), (11.8, 10.95), (11.45, 10.95), (11.0, 10.95), (4.2, 10.95)])

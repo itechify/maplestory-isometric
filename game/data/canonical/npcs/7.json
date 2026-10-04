@@ -1,0 +1,265 @@
+{
+  "id": "7",
+  "name": "Todd",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000030",
+      "map_name": "East Entrance to Mushroom Town",
+      "street_name": "Maple Road",
+      "x_px": -21,
+      "y_px": 202
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "If you don't know where to go, I can tell you."
+    },
+    {
+      "text": "So, did you meet up with Robin?",
+      "segments": [
+        {
+          "text": "So, did you meet up with "
+        },
+        {
+          "text": "Robin",
+          "ref": {
+            "kind": "npc",
+            "id": "8"
+          }
+        },
+        {
+          "text": "?"
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Watch out for monsters."
+    },
+    {
+      "text": "Press Ctrl to attack monsters."
+    },
+    {
+      "text": "Press Z to pick up items."
+    },
+    {
+      "text": "If the monsters are too strong, why not form a party with other players?"
+    },
+    {
+      "text": "Use the right timing to attack monsters."
+    },
+    {
+      "text": "That was Mushroom Town. Amherst and Southperry are also on this island."
+    },
+    {
+      "text": "Try heading northeast."
+    },
+    {
+      "text": "If you head there, you might find Robin."
+    },
+    {
+      "text": "Good luck!"
+    },
+    {
+      "text": "Heh."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1005",
+        "name": "Todd's How-to-Hunt"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1005"
+    ],
+    "completed_here": []
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1005",
+      "quest_name": "Todd's How-to-Hunt",
+      "npc_role": "start",
+      "start_npc_id": "7",
+      "complete_npc_id": "6",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "A new traveler, eh? Want to learn how to hunt? The Tutorial Jr. Sentinels you see here are normally too powerful for you to handle, but Grendel the Really Old, the head of all magicians, sealed up their power. So take down three, pick up what they drop, and go see Peter, who should be around here somewhere.",
+          "segments": [
+            {
+              "text": "A new traveler, eh? Want to learn how to hunt? The "
+            },
+            {
+              "text": "Tutorial Jr. Sentinels",
+              "color": "red",
+              "ref": {
+                "kind": "monster",
+                "id": "1"
+              }
+            },
+            {
+              "text": " you see here are normally too powerful for you to handle, but "
+            },
+            {
+              "text": "Grendel the Really Old",
+              "ref": {
+                "kind": "npc",
+                "id": "313"
+              }
+            },
+            {
+              "text": ", the head of all magicians, sealed up their power. So take down three, pick up what they drop, and go see "
+            },
+            {
+              "text": "Peter",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "6"
+              }
+            },
+            {
+              "text": ", who should be around here somewhere."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Look at your mini map (M), located at the top left corner of the screen. You should see something green blinking on the northeast side of the map. That's Peter. You'll run into Jr. Sentinels on your way to meet Peter. Defeat them, pick up 3 Jr. Sentinel Shellpieces, then talk to Peter.",
+              "segments": [
+                {
+                  "text": "Look at your mini map ("
+                },
+                {
+                  "text": "M",
+                  "bold": true
+                },
+                {
+                  "text": "), located at the top left corner of the screen. You should see something green blinking on the northeast side of the map. That's "
+                },
+                {
+                  "text": "Peter",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "6"
+                  }
+                },
+                {
+                  "text": ". You'll run into Jr. Sentinels on your way to meet "
+                },
+                {
+                  "text": "Peter",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "6"
+                  }
+                },
+                {
+                  "text": ". Defeat them, pick up 3 "
+                },
+                {
+                  "text": "Jr. Sentinel Shellpieces",
+                  "ref": {
+                    "kind": "item",
+                    "id": "347",
+                    "meowdb_link_id": "2584"
+                  }
+                },
+                {
+                  "text": ", then talk to "
+                },
+                {
+                  "text": "Peter",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "6"
+                  }
+                },
+                {
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Oh, you know how to hunt already? Well, you can still test your abilities!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/7",
+    "retrieved_at": "2026-10-04T10:05:04.260Z"
+  },
+  "field_sources": {
+    "locations/000000030": {
+      "url": "https://meowdb.com/msclassic/maps/000000030",
+      "retrieved_at": "2026-10-04T09:56:42.256Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1005/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+      "retrieved_at": "2026-10-04T10:07:22.301Z"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "quest_dialogue/1005/start item reference \"Jr. Sentinel Shellpieces\"",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+          "where": "quest page itemRefs (quest item data)",
+          "value": "347"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+          "where": "NPC dialogue link \"Jr. Sentinel Shellpieces\"",
+          "value": "2584"
+        }
+      ],
+      "chosen": "347",
+      "reason": "item-db 347 (\"Jr. Sentinel Shellpiece\", icon key 4000000) is the item the quest page's itemRefs table uses (icon key 4000000); item-db 2584 is a different entry with the same name (icon key 4000067), so the dialogue link appears to be resolved by name. segments[].ref.meowdb_link_id keeps the linked id.",
+      "sources": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/347",
+          "retrieved_at": "2026-10-04T10:11:48.032Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/2584",
+          "retrieved_at": "2026-10-04T10:11:49.011Z"
+        }
+      ]
+    }
+  ]
+}

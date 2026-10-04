@@ -1,0 +1,815 @@
+{
+  "id": "maple-road-pan",
+  "name": "Pan",
+  "npc_id": "16",
+  "npc_name": "Pan",
+  "npc_function": "Armor Seller",
+  "region": "Maple Road (Beginner Zone)",
+  "town_slug": "maple-road",
+  "map_id": "000000061",
+  "map_name": "Southperry Armor Store",
+  "map_display_name": "Maple Road: Southperry Armor Store",
+  "currency": "mesos",
+  "price_patch": "COT2",
+  "opens_no_shop": false,
+  "meowdb_record_source": "classic-only",
+  "item_count": 13,
+  "items": [
+    {
+      "position": 1,
+      "item_id": "933",
+      "name": "White Undershirt",
+      "shop_list_name": "White Undershirt",
+      "icon_key": "1040001",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/933",
+        "retrieved_at": "2026-10-04T10:08:05.997Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/933?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:40.163Z"
+      }
+    },
+    {
+      "position": 2,
+      "item_id": "934",
+      "name": "Grey T-Shirt",
+      "shop_list_name": "Grey T-Shirt",
+      "icon_key": "1040002",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/934",
+        "retrieved_at": "2026-10-04T10:08:07.209Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/934?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:41.373Z"
+      }
+    },
+    {
+      "position": 3,
+      "item_id": "935",
+      "name": "Undershirt",
+      "shop_list_name": "Undershirt",
+      "icon_key": "1040003",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/935",
+        "retrieved_at": "2026-10-04T10:08:08.528Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/935?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:42.587Z"
+      }
+    },
+    {
+      "position": 4,
+      "item_id": "937",
+      "name": "White Tube Top",
+      "shop_list_name": "White Tube Top",
+      "icon_key": "1041001",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [
+        "Renamed in COT2. It was called White Tubetop."
+      ],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/937",
+        "retrieved_at": "2026-10-04T10:08:09.617Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/937?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:43.796Z"
+      }
+    },
+    {
+      "position": 5,
+      "item_id": "938",
+      "name": "Yellow T-Shirt",
+      "shop_list_name": "Yellow T-Shirt",
+      "icon_key": "1041002",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/938",
+        "retrieved_at": "2026-10-04T10:08:10.817Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/938?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:44.991Z"
+      }
+    },
+    {
+      "position": 6,
+      "item_id": "939",
+      "name": "Green T-Shirt",
+      "shop_list_name": "Green T-Shirt",
+      "icon_key": "1041003",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/939",
+        "retrieved_at": "2026-10-04T10:08:12.010Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/939?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:46.203Z"
+      }
+    },
+    {
+      "position": 7,
+      "item_id": "940",
+      "name": "Red Striped Top",
+      "shop_list_name": "Red-Striped top",
+      "icon_key": "1041004",
+      "item_type": "Equip",
+      "item_subtype": "Top",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [
+        "Renamed in COT2. It was called Red-Striped Top."
+      ],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/940",
+        "retrieved_at": "2026-10-04T10:08:13.248Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/940?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:47.411Z"
+      }
+    },
+    {
+      "position": 8,
+      "item_id": "1157",
+      "name": "Blue Jean Shorts",
+      "shop_list_name": "Blue Jeans Shorts",
+      "icon_key": "1060001",
+      "item_type": "Equip",
+      "item_subtype": "Bottom",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1157",
+        "retrieved_at": "2026-10-04T10:08:14.442Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1157?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:48.621Z"
+      }
+    },
+    {
+      "position": 9,
+      "item_id": "1158",
+      "name": "Brown Cotton Shorts",
+      "shop_list_name": "Brown Cotton Shorts",
+      "icon_key": "1060002",
+      "item_type": "Equip",
+      "item_subtype": "Bottom",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1158",
+        "retrieved_at": "2026-10-04T10:08:15.633Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1158?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:49.824Z"
+      }
+    },
+    {
+      "position": 10,
+      "item_id": "1160",
+      "name": "Red Miniskirt",
+      "shop_list_name": "Red Miniskirt",
+      "icon_key": "1061001",
+      "item_type": "Equip",
+      "item_subtype": "Bottom",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1160",
+        "retrieved_at": "2026-10-04T10:08:16.937Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1160?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:51.033Z"
+      }
+    },
+    {
+      "position": 11,
+      "item_id": "1161",
+      "name": "Indigo Miniskirt",
+      "shop_list_name": "Indigo Miniskirt",
+      "icon_key": "1061002",
+      "item_type": "Equip",
+      "item_subtype": "Bottom",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1161",
+        "retrieved_at": "2026-10-04T10:08:18.044Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1161?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:52.243Z"
+      }
+    },
+    {
+      "position": 12,
+      "item_id": "1305",
+      "name": "Leather Sandals",
+      "shop_list_name": "Leather Sandals",
+      "icon_key": "1072000",
+      "item_type": "Equip",
+      "item_subtype": "Shoes",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1305",
+        "retrieved_at": "2026-10-04T10:08:19.256Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1305?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:53.466Z"
+      }
+    },
+    {
+      "position": 13,
+      "item_id": "1306",
+      "name": "Red Rubber Boots",
+      "shop_list_name": "Red Rubber Boots",
+      "icon_key": "1072001",
+      "item_type": "Equip",
+      "item_subtype": "Shoes",
+      "price_mesos": 50,
+      "quantity_per_purchase": 1,
+      "stock_limit": null,
+      "citizen_req": null,
+      "max_per_stack": null,
+      "sell_price_mesos": 0,
+      "sell_price_basis": "per_item",
+      "sell_price_source": "item_api",
+      "rechargeable": false,
+      "recharge_cost_mesos_per_unit": null,
+      "sell_price_history": [],
+      "other_change_history": [],
+      "change_notes": [],
+      "price_match_source": "hand",
+      "item_page": {
+        "url": "https://meowdb.com/msclassic/item-db/1306",
+        "retrieved_at": "2026-10-04T10:08:20.558Z"
+      },
+      "item_api": {
+        "url": "https://meowdb.com/msclassic/api/items/1306?locale=en&preview=1",
+        "retrieved_at": "2026-10-04T10:22:54.667Z"
+      }
+    }
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npc-shops#maple-road-pan",
+    "retrieved_at": "2026-10-04T09:57:45.024Z"
+  },
+  "field_sources": {
+    "items[].name": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "item detail page heading"
+    },
+    "items[].item_type": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "item page breadcrumb (category link)"
+    },
+    "items[].item_subtype": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "item page breadcrumb (?subtype= link)"
+    },
+    "items[].max_per_stack": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "\"Max per Stack\" row"
+    },
+    "items[].quantity_per_purchase": {
+      "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables",
+      "retrieved_at": "2026-10-04T10:08:30.055Z",
+      "also": [
+        {
+          "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
+          "retrieved_at": "2026-10-04T10:08:28.797Z"
+        }
+      ],
+      "note": "1 = price_mesos buys one unit. MeowDB's Shop Item Efficiency guide divides one item's stat by the listed price (e.g. Red Potion: 100 HP / 50 mesos = \"HP / meso\" 2.000) and says \"Arrows are 1 meso each\". Re-checked on 22/22 guide rows for these shops; see cross_checks.shop_item_efficiency_guide.per_unit_ratio_rows."
+    },
+    "items[].sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "fallback_url": "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
+      "fallback_retrieved_at": "per item: items[].item_api.retrieved_at",
+      "note": "item page \"NPC Sell-back (per unit)\" or \"NPC Sell-back\" row; when the page has no such row, the item API's stats.price (the page omits the row when the value is 0). sell_price_source says which one was used."
+    },
+    "items[].sell_price_basis": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "per_unit when the row label is \"NPC Sell-back (per unit)\", per_item when it is \"NPC Sell-back\". For rows taken from the item API (no label), per_unit if the item page has a \"Max per Stack\" row, else per_item; this rule reproduces the label on every labelled row (cross_checks.item_api.basis_rule_holds)."
+    },
+    "items[].sell_price_source": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "\"item_page\" or \"item_api\" (null if neither has a value)"
+    },
+    "items[].rechargeable": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "true only when the item page has a \"Recharge Cost\" row"
+    },
+    "items[].recharge_cost_mesos_per_unit": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "\"Recharge Cost\" row"
+    },
+    "items[].sell_price_history": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "Change history table, \"Sell-back price\" row (COT1 -> COT2)"
+    },
+    "items[].other_change_history": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "Change history table, other rows"
+    },
+    "items[].change_notes": {
+      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
+      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "note": "Change history notes"
+    }
+  },
+  "cross_checks": {
+    "npc_index": {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "roles": [
+        "Shopkeeper"
+      ],
+      "map_ids": [
+        "000000061"
+      ],
+      "maple_island": true
+    },
+    "npc_page": {
+      "url": "https://meowdb.com/msclassic/npcs/16",
+      "retrieved_at": "2026-10-04T10:05:25.047Z",
+      "heading": "Shop inventory (13 items)",
+      "price_badge": "COT2 prices",
+      "sold_at": "Maple Road: Southperry Armor Store",
+      "rows_match_index": true
+    },
+    "map_page": {
+      "url": "https://meowdb.com/msclassic/maps/000000061",
+      "retrieved_at": "2026-10-04T09:56:51.245Z",
+      "npc_listed_on_map": true
+    },
+    "item_pages_where_to_buy": {
+      "rows_checked": 13,
+      "rows_matching": 13,
+      "mismatches": []
+    },
+    "item_api": {
+      "url_template": "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
+      "rows_checked": 13,
+      "page_sell_back_rows": 0,
+      "page_api_price_matches": 0,
+      "api_only_rows": 13,
+      "api_only_zero_rows": 13,
+      "no_price_anywhere_rows": 0,
+      "basis_rule_checked": 0,
+      "basis_rule_holds": 0,
+      "recharge_consistent_rows": 13,
+      "mismatches": [],
+      "zero_is_recorded_value": true,
+      "no_price_reference": [
+        {
+          "item_id": "519",
+          "name": "Glowing Mushroom",
+          "has_price_key": false,
+          "url": "https://meowdb.com/msclassic/api/items?search=Glowing+Mushroom&page=1",
+          "retrieved_at": "2026-10-04T10:26:28.390Z"
+        },
+        {
+          "item_id": "2697",
+          "name": "Luminous Magical Resonance",
+          "has_price_key": false,
+          "url": "https://meowdb.com/msclassic/api/items?search=Luminous+Magical+Resonance&page=1",
+          "retrieved_at": "2026-10-04T10:30:09.220Z"
+        },
+        {
+          "item_id": "2692",
+          "name": "Rotten Root Fragment",
+          "has_price_key": false,
+          "url": "https://meowdb.com/msclassic/api/items?search=Rotten+Root+Fragment&page=1",
+          "retrieved_at": "2026-10-04T10:26:29.343Z"
+        }
+      ],
+      "reference_item_294": {
+        "item_id": "294",
+        "name": "Subi Throwing Stars",
+        "item_page": {
+          "url": "https://meowdb.com/msclassic/item-db/294",
+          "retrieved_at": "2026-10-04T10:08:26.478Z"
+        },
+        "item_api": {
+          "url": "https://meowdb.com/msclassic/api/items/294?locale=en&preview=1",
+          "retrieved_at": "2026-10-04T10:22:58.436Z"
+        },
+        "page_sell_back_per_unit": 250,
+        "api_stats_price": 250,
+        "page_recharge_cost": 0.3,
+        "api_stats_unitPrice": 0.3,
+        "matches": true
+      }
+    },
+    "safe_to_sell_json": {
+      "url": "https://meowdb.com/_data/safe-to-sell.json",
+      "retrieved_at": "2026-10-04T10:09:42.024Z",
+      "generated": "2026-08-11",
+      "items_present": 0,
+      "sell_price_matches": 0,
+      "mismatches": []
+    },
+    "shop_item_efficiency_guide": {
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
+          "retrieved_at": "2026-10-04T10:08:28.797Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables",
+          "retrieved_at": "2026-10-04T10:08:30.055Z"
+        }
+      ],
+      "rows_found": 13,
+      "rows_matching": 13,
+      "rows_unparsed": 0,
+      "mismatches": [],
+      "per_unit_sentence": {
+        "text": "Arrows are 1 meso each",
+        "present": true
+      },
+      "per_unit_ratio_rows": [
+        {
+          "item_id": "933",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "934",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "935",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "937",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "938",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "939",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "940",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 6,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.12,
+          "recomputed_ratio": 0.12,
+          "consistent": true
+        },
+        {
+          "item_id": "1157",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 4,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.08,
+          "recomputed_ratio": 0.08,
+          "consistent": true
+        },
+        {
+          "item_id": "1158",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 4,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.08,
+          "recomputed_ratio": 0.08,
+          "consistent": true
+        },
+        {
+          "item_id": "1160",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 4,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.08,
+          "recomputed_ratio": 0.08,
+          "consistent": true
+        },
+        {
+          "item_id": "1161",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 4,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.08,
+          "recomputed_ratio": 0.08,
+          "consistent": true
+        },
+        {
+          "item_id": "1305",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 2,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.04,
+          "recomputed_ratio": 0.04,
+          "consistent": true
+        },
+        {
+          "item_id": "1306",
+          "tab": "beginner",
+          "stat_column": "WDEF",
+          "stat_value": 2,
+          "price_mesos": 50,
+          "ratio_column": "WDEF / meso",
+          "guide_ratio": 0.04,
+          "recomputed_ratio": 0.04,
+          "consistent": true
+        }
+      ]
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "items[6].name",
+      "item_id": "940",
+      "values": [
+        {
+          "value": "Red-Striped top",
+          "source": "https://meowdb.com/msclassic/npc-shops#maple-road-pan",
+          "also_on": "https://meowdb.com/msclassic/npcs/16"
+        },
+        {
+          "value": "Red Striped Top",
+          "source": "https://meowdb.com/msclassic/item-db/940"
+        }
+      ],
+      "chosen": "Red Striped Top",
+      "reason": "The item page is the item's own detail page; the shop list (the /npc-shops index and the NPC page render one dataset) spells it differently. The Shop Item Efficiency guide uses the item-page spelling. \"name\" uses the item-page name and the shop list spelling is kept in \"shop_list_name\". The item page says \"Renamed in COT2. It was called Red-Striped Top.\"; the shop list shows that pre-COT2 name with different letter case."
+    },
+    {
+      "field": "items[7].name",
+      "item_id": "1157",
+      "values": [
+        {
+          "value": "Blue Jeans Shorts",
+          "source": "https://meowdb.com/msclassic/npc-shops#maple-road-pan",
+          "also_on": "https://meowdb.com/msclassic/npcs/16"
+        },
+        {
+          "value": "Blue Jean Shorts",
+          "source": "https://meowdb.com/msclassic/item-db/1157"
+        }
+      ],
+      "chosen": "Blue Jean Shorts",
+      "reason": "The item page is the item's own detail page; the shop list (the /npc-shops index and the NPC page render one dataset) spells it differently. The Shop Item Efficiency guide uses the item-page spelling. \"name\" uses the item-page name and the shop list spelling is kept in \"shop_list_name\". MeowDB gives no rename note for this item."
+    }
+  ],
+  "gaps": [
+    "MeowDB has no numeric shop id; \"id\" is the shop slug MeowDB uses as the /npc-shops anchor.",
+    "Purchase quantity: MeowDB prices one unit (quantity_per_purchase = 1) but documents no limit on how many units one purchase may buy.",
+    "stock_limit: MeowDB documents no stock limits (finite or restocking) for NPC shops.",
+    "Selling 0-mesos items: MeowDB records sell-back 0 for 13 item(s) here but does not say whether the NPC refuses them or pays 0 mesos.",
+    "Recharge: no item in this shop has a \"Recharge Cost\" row, and MeowDB does not say whether this NPC recharges throwing stars.",
+    "Sell rules: MeowDB documents per-item sell-back values only; it gives no general sell-price formula and no shop-specific sell restrictions."
+  ],
+  "notes": [
+    "MeowDB price note for this shop: \"Community screenshots 2026-08-12 (COT2) posted in Discord by SiuoL93; each list read top-to-bottom and found IDENTICAL to the first test - re-dated, not repriced.\"",
+    "price_mesos is the base price of ONE unit, in mesos. The citizenship discount (formulas/leveling, citizenship) applies only in Henesys or Kerning City, so it never applies to this shop; citizen_req is null on every row.",
+    "sell_price_mesos is 0 for 933 White Undershirt; 934 Grey T-Shirt; 935 Undershirt; 937 White Tube Top; 938 Yellow T-Shirt; 939 Green T-Shirt; 940 Red Striped Top; 1157 Blue Jean Shorts; 1158 Brown Cotton Shorts; 1160 Red Miniskirt; 1161 Indigo Miniskirt; 1305 Leather Sandals; 1306 Red Rubber Boots: the item API records stats.price 0 and the item page omits its \"NPC Sell-back\" row when the value is 0. Where the page does show the row, it equals the API value (7/7 rows across the Maple Island shops, and reference item 294 matching). Items MeowDB has no value for (the Safe-to-Sell \"droppedNoPrice\" items: 519 Glowing Mushroom, 2697 Luminous Magical Resonance, 2692 Rotten Root Fragment) have no price key at all, so 0 is a recorded value, not a gap.",
+    "Equipment item pages note: \"NPC shop copies always roll clean.\" Equipment bought here has the item's clean (base) stats.",
+    "icon_key is MeowDB's icon key for the item. It is not the MeowDB item id; use item_id to join with items data."
+  ]
+}

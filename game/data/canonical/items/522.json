@@ -1,0 +1,121 @@
+{
+  "id": "522",
+  "name": "The Green Relaxer",
+  "game_item_id": "3010000",
+  "type": "Setup",
+  "subtype": null,
+  "inventory_tab": "setup",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Catch your breath and relax by sitting on this chair to restore an additional 30 HP every 10 seconds.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": {
+    "hp_recovery_bonus": 30,
+    "interval_s": 10
+  },
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 1,
+  "tradeable": false,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1,
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "1095",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "1012",
+        "quest_name": "Pio's Collecting Recycled Goods",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "1012-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "Catch your breath and relax by sitting on this chair to recover an additional 30 HP every 10 seconds.",
+      "cot2": "Catch your breath and relax by sitting on this chair to restore an additional 30 HP every 10 seconds."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/522",
+    "retrieved_at": "2026-10-04T10:17:31.306Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/522?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:24.369Z"
+    },
+    "max_stack": {
+      "url": "https://meowdb.com/msclassic/api/items/522?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:24.369Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/522?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:24.369Z"
+    },
+    "setup.interval_s": {
+      "url": "https://meowdb.com/msclassic/api/items/522?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:24.369Z",
+      "from": "description text \"every 10 seconds\""
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=522",
+      "retrieved_at": "2026-10-04T10:44:25.529Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

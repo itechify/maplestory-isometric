@@ -328,6 +328,7 @@ def build(m):
     # ---------------- gameplay ----------------
     m.edge_portal("out00")
     m.player(7.4, 26.2, rot=-160)
+    m.player_spawn(9.0, 26.0, rot=0, note="sp x 2834: beside out00 on the door terrace")
     m.mobs("Shroom", geo.rect(1, 1, 30, 9.5), 3, seed=1, z_band=(-0.2, 0.3), avoid=av)
     m.mobs("Orange Mushroom", geo.rect(10, 1.5, 28, 9.5), 1, seed=2, z_band=(-0.2, 0.3), min_dist=3.0, avoid=av)
     m.mobs("Shroom", geo.rect(12.8, 24.2, 17.6, 30.5), 1, seed=3, z_band=(P02 - 0.2, P02 + 0.3), avoid=av)

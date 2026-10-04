@@ -1,0 +1,213 @@
+{
+  "id": "666",
+  "name": "Hunter's Bow",
+  "game_item_id": "1452002",
+  "type": "Equip",
+  "subtype": "Bow",
+  "inventory_tab": "equip",
+  "equip_slot": "weapon",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 20,
+    "job": [
+      "Bowman"
+    ],
+    "job_raw": "Bowman",
+    "str": 20,
+    "dex": 45,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "watk": 42,
+    "knockback_pct": 20,
+    "upgrade_slots": 7
+  },
+  "weapon": {
+    "weapon_type": "Bow",
+    "attack_speed": 6,
+    "attack_speed_name": "Normal",
+    "multipliers": {
+      "firing": 2.5,
+      "close_range": 1
+    },
+    "multipliers_note": "Basic attacks. Skills may use a specific action.",
+    "attack_cycle_ms": 810,
+    "attack_cycle_with_booster_ms": 720,
+    "attack_cycle_by_kind_ms": null,
+    "attack_cycle_note": null,
+    "basic_attack_mix_pct": null,
+    "reach": null,
+    "arrow_range_px": [
+      300,
+      420
+    ],
+    "arrow_range_note": "420 px with The Eye of Amazon maxed",
+    "required_ammunition": "Arrows for Bows",
+    "required_ammunition_item_id": "209",
+    "basic_attacks": [
+      {
+        "action": "swingT1",
+        "label": "Overhead whack",
+        "kind": "swing",
+        "near_px": 47,
+        "far_px": 86,
+        "top_px": 81,
+        "box_px": [
+          -86,
+          -81,
+          -47,
+          5
+        ],
+        "in_average": false
+      },
+      {
+        "action": "swingT3",
+        "label": "Uppercut whack",
+        "kind": "swing",
+        "near_px": 30,
+        "far_px": 78,
+        "top_px": 73,
+        "box_px": [
+          -78,
+          -73,
+          -30,
+          14
+        ],
+        "in_average": false
+      },
+      {
+        "action": "proneStab",
+        "label": "Crouched attack",
+        "kind": "crouch",
+        "near_px": 24,
+        "far_px": 92,
+        "top_px": 11,
+        "box_px": [
+          -92,
+          -11,
+          -24,
+          2
+        ],
+        "in_average": false
+      }
+    ]
+  },
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 13500,
+  "sell_price_mesos": 4500,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "210",
+        "npc_name": "Karl",
+        "npc_role": "Weapon Seller",
+        "map_id": "010001041",
+        "map_name": "Victoria Road: Henesys Weapon Store",
+        "town": "Henesys",
+        "price_mesos": 13500,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [],
+    "msea_reference_drops": [
+      {
+        "monster_id": "9",
+        "monster_name": "Orange Mushroom",
+        "monster_level": 8
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": [
+      {
+        "recipe_key": "Woodcrafting-27-0",
+        "discipline": "Woodcrafting",
+        "category": "Equipment",
+        "produces_quantity": 1,
+        "required_craft_level": 4,
+        "craft_exp": 80,
+        "meso_cost": 4500,
+        "ingredients": [
+          {
+            "item_id": "306",
+            "name": "Processed Wood",
+            "quantity": 6,
+            "optional": false
+          },
+          {
+            "item_id": "305",
+            "name": "Screw",
+            "quantity": 12,
+            "optional": false
+          },
+          {
+            "item_id": "351",
+            "name": "Red Snail Shell",
+            "quantity": 30,
+            "optional": false
+          },
+          {
+            "item_id": "521",
+            "name": "Two-Handed Weapon Crafting Catalyst",
+            "quantity": 1,
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": null,
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed",
+    "weapon.required_ammunition_item_id"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/666",
+    "retrieved_at": "2026-10-04T10:44:59.643Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/666?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:00.678Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/666?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:00.678Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=666",
+      "retrieved_at": "2026-10-04T10:45:01.841Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

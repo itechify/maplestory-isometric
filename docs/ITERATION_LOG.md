@@ -1,7 +1,10 @@
-# Iteration log: Iteration One
+# Iteration log
 
-This log records the major problems found during building and review, and how each was corrected. Entries are
+This log records the major problems found during building and review, and how each was corrected, for Iteration One
+(the Blender island) and Iteration Two (the playable game). Entries are
 grouped by development phase, in order.
+
+# Iteration One: the Blender island
 
 ## Phase 1: research and topology
 
@@ -109,3 +112,61 @@ removal of 30000's blank wedge. It found three items only partly met, which got 
 | # | Problem found | Correction |
 |---|---|---|
 | F-6 | <ul><li>Dangerous Forest pines still filled about 7-8% of the bottom of 1000006's frame.</li><li>Rope foot coils read as J-hooks, and the strands were thin at gameplay scale.</li><li>The waterfall lobes still had flat tops.</li></ul> | <ul><li>The Dangerous Forest back-fringe trees under 1000006's camera were removed or lowered; projection through the camera identified them.</li><li>Ropes lost the foot coil and are chunkier (r 0.11).</li><li>Rocky crags, boulders and trees now break the waterfall's lobe tops.</li></ul> Validation stays all yes (0 high, 0 medium, 11 low). The bridge reads as slats at region scale; a bolder bridge read is Iteration Two polish. |
+
+---
+
+# Iteration Two: the playable game
+
+Brief: [`ITERATION_TWO_BRIEF.md`](ITERATION_TWO_BRIEF.md). Runtime: Godot 4.7.2 (`game/`). Gameplay data authority:
+MeowDB MS Classic ([`canonical/README.md`](canonical/README.md)).
+
+## Phase R2: canonical research and runtime decisions
+
+| # | Problem found | Correction |
+|---|---|---|
+| R2-1 | MeowDB documents **MapleStory Classic World** (2026), which has its own id scheme: maps are `000000001`…`000001021`, Snail is `"2"`, the Sword is `"541"`. None of Iteration One's GMS v8 ids (`0`, `10000` … `1020001`) exist there, and no arithmetic rule maps one to the other (`0 ↔ 000000001` breaks the obvious one). | MeowDB ids are the runtime ids everywhere. `game/data/misostory/map_id_crosswalk.json` joins them to Iteration One's Blender collections, matched by evidence per map, and is validated like a compile error. |
+| R2-2 | MeowDB's topology differs from Iteration One's v8 graph in exactly two ways: the Mushroom Town `in00` links are two-way, and `000000030 → 000000040` is one-way (Snail Hunting Ground I has no portal back). MeowDB also gives no destination portal names. | Destination portals are derived from MeowDB alone (the unique reciprocal portal; 46 of 47 resolve, and all agree with v8 names). The one-way link lands on the destination's player spawn and becomes a drop-down ledge in the source world. `docs/canonical/topology_diff.md` lists all 69 differences (NPCs, spawns, names). |
+| R2-3 | Map contents differ from v8: Todd, Sam and Mai stand in new places, Paul, Tia and the Maple Administrator do not exist, East Entrance (a town) has 6 Tutorial Jr. Sentinels, and MeowDB's 577 spawn points replace v8's 737. | The runtime creates NPCs and spawns only from MeowDB data; Blender provides positions. The Blender NPC set is brought to parity (MAP_ARCHITECTURE §5). |
+| R2-4 | Capacity rules were contradictory across proposals (spawn-point count, `mobRate`). | MeowDB's spawn-engine guide and spawn formula agree: a 7.56 s global tick, a 5 s wave cooldown, capacity `floor(points × 0.75)` solo, and MS Classic ignores `mobRate`. Stored in `formulas/spawn_rate.json`; the map pages' contrary reading is recorded as a discrepancy. |
+| R2-5 | Several mechanics have no MeowDB value: drop chances and meso amounts, drop lifetime, natural regeneration, bare-handed damage, player and monster knockback distances, HP/MP after respawn, and how many Roger's Apples Roger gives. | Each stays `null` in canonical data with a recorded gap. The game uses isolated adaptation values in `game/data/misostory/` marked `"verified": false` (list in `docs/canonical/README.md`). |
+| R2-6 | The quest the brief suggested (Roger's Apple, 1002) gives no reward in MS Classic, so it cannot prove "exact canonical reward". | Sam's Suggestion (1006: kill 10 Snails, 30 EXP + 3 Eggs) is the primary end-to-end quest; Roger's Apple is implemented alongside it for the item-use objective. |
+| R2-7 | MeowDB's Terms forbid automated collection without permission, and its reuse policy asks that bulk datasets be cleared first. This was only checked after the one-time extraction (about 300 pages, rate-limited and cached). | The extractors are now cache-only (`MEOWDB_ALLOW_NETWORK=1` is required to fetch). Verbatim MeowDB site code stays out of git. Every record carries its source URL, and permission must be requested before MisoStory or its dataset is published. |
+| R2-8 | Runtime map model: per-map scenes would discard Iteration One's 447 m of validated trails, while a continuous world with inferred map identity breaks MapleStory's one-map semantics. | A 3-proposal judge panel chose the "instanced continuous" island ([`runtime/MAP_ARCHITECTURE.md`](runtime/MAP_ARCHITECTURE.md)). One continuous island is resident, exactly one MeowDB map instance is live, and `MapSession.transition()` is the only thing that changes it. Press-Up warp mode ships first, and walkable trail gates come second. |
+| R2-9 | The first perf gate read 4 fps with 265 ms of CPU per frame, even for an empty scene. | A background window's vsync presentation is throttled by the OS. Measured with `--disable-vsync`, every gameplay view runs at 2–3.5 ms per frame and the island overview at 11.6 ms, so all 31 chunks stay resident and no streaming is needed. |
+| R2-10 | A plain glTF export turned every procedural material white, and Godot 4.7.2's importer drops "vertex color as albedo" on each mesh's first primitive. | The exporter bakes albedo into vertex colors with Cycles (mean error 3.7/255 against the Blender render) and adds an unused dummy primitive per mesh as a workaround (`blender_export.md`). |
+
+## Phase S2: core systems (wave 1: eight engineers, each followed by an adversarial reviewer)
+
+Combat mathematics, items, quests and dialogue, saves, the world runtime (warp mode), the player controller and
+camera, source-world fixes, and data validation were built in parallel on disjoint file ownership against contract
+stubs (`docs/runtime/ARCHITECTURE.md`). Reviewers found 86 defects and fixed 80; the rest were cross-system requests,
+resolved by the orchestrator or carried into wave 2. Result: 642 tests, all 818 MeowDB parity vectors exact.
+
+| # | Problem found | Correction |
+|---|---|---|
+| S2-1 | The validator and the test runner could fail open: a GDScript runtime error only aborts the current function, so a crashed check printed `VALIDATION_PASSED`, and a test file with a parse error counted as 0 tests. A parse error in a validator dependency hung the tool forever. | `ScriptErrorGuard` (an `OS` logger) turns any script error during validation or a test into a failure. Uncompilable test files count as failed. Both shell scripts run under an outer timeout. |
+| S2-2 | A save slot left with only its `.bak` (Windows rename removes the old file first) was treated as empty, so a new game overwrote the backup: real data loss. | Backup-only slots are recognised and restored; atomic writes and restore failures are checked. |
+| S2-3 | After a load, MapSession kept the player in the old map and its periodic location capture overwrote the loaded character's position. Autosave on map arrival called a method that did not exist. | MapSession reacts to `Game.character_replaced` with a load transition; autosave goes through `Game.request_autosave`. |
+| S2-4 | MapSession read the floor flag before the player body moved, so a mid-air warp arrival counted as grounded on frame 1. A portal request could also be redirected to a different neighbour of the current map. | ARRIVING runs after the player's physics step. Requests are checked against the portal's own destination and arrival. |
+| S2-5 | Picking up an item whose record carried a `mesos` key paid mesos instead of the item. A non-string item id in a save crashed loading. A purchase quantity overflowed 64-bit price math. | The pickup shape is explicit; ids are normalised on load; quotes are overflow-guarded. All are covered by new tests. |
+| S2-6 | A quest's EXP reward emitted a single `leveled_up` and no HP/MP events, so the HUD went stale after a quest level-up. A refused quiz completion still marked the quiz answered. | Quest rewards go through the same event path as `Game.gain_exp`. Refused completions change nothing. |
+| S2-7 | The controller false-landed on ledge edges, flickered between ground and air in V-shaped crevices, and could record a "safe" point on a fence top. | Landings need a feet ray over walkable floor. Wedges are their own state, and SafeGround accepts walkable collision inside the current region only. |
+| S2-8 | The 30000 → 40000 trail walk accepted any 2.6 m drop anywhere, and the export gate checked only island-wide totals, so a misplaced NPC or a blocked spawn would pass. | The one-way trail must drop exactly at its ledge (2.4 m, face 5 mm from the gate plane). `sidecar_diff` checks NPC ids, destinations, regions, ledges and spawn clearance per map. |
+| S2-9 | Equipment requirements, shield guard and the bare-hands W.ATK line read different sources from the stat totals, so they could disagree. | One `StatCalculator.bonuses()` feeds totals, guard, requirements and the stat window. |
+
+## Phase P2: the playable game (wave 2: shell, monsters and combat, NPC UI and loot, HUD, debug tools, Blender round 2)
+
+The game became playable end to end: title → character creation (canonical creation weapons, 9 AP) → loading →
+the island with live MeowDB spawns, attacks, damage numbers, contact damage, EXP and level-ups, drops and pickup,
+NPC dialogue and quests, shops, the HUD and windows, death and respawn, a debug console and overlay. Reviewers
+probed the running game rather than sandboxes and found 32 defects; the worst are below. Suite: 922 tests.
+
+| # | Problem found | Correction |
+|---|---|---|
+| P2-1 | After the debug console closed, the player could never move again: the console swapped the player's input source, and the attack lock re-wrapped the swapped source instead of restoring the keyboard. | The attack lock no longer mutates sources it did not create. Console sessions are fenced and fully restored, with a regression test in the real main scene. |
+| P2-2 | A monster-contact death announced `player_died` twice. A dialogue or shop open at death survived the respawn and let the player walk under a modal. A load from the death screen left the shell stuck in its DEAD state. | Death is announced once (the HP watch defers to MapSession's death entry). Modals close on death, and the shell flow resets on any load. |
+| P2-3 | Closing the window while dead skipped the canonical EXP penalty, because saving is refused while DEAD and the penalty waited for the OK button. | Recorded as a fidelity exploit; fixed in phase P3 by applying the penalty at the moment of death (classic behaviour). |
+| P2-4 | Dragging an item from the inventory to a quickslot swung the weapon, and a title-bar drag read the OS cursor. Default window positions overlapped at 1600×900. | UI drags and clicks never reach the attack; windows have non-overlapping defaults and raise on any click. |
+| P2-5 | The Tutorial Jr. Sentinel on 000000030 stood inside a mushroom-house cap (the cap has no collision), and nothing verified that every species can be killed. | A physics probe of every monster body against blocking geometry on all 15 monster maps, plus a kill test for every species. The slot clearance is per species (P3). |
+| P2-6 | Seven visual-only interior floor overlays collided as walls, and the export gate accepted a field that silently became an empty list. | Source-world fix through the collision-tag registry (names no longer decide collision). `sidecar_diff` fails on emptied containers. |
+| P2-7 | Blocked portal arrivals in 000001000 (two barrel-door mounds) and 000001021 (a hedge), and eaves over the Rafters route ends in two interiors. | Fixed in the Blender source (moved mounds, ended the hedge lane, trimmed eaves). The world builds with 0 settle moves, and the route sweep passes 360/360 both ways. |

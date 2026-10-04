@@ -1,0 +1,70 @@
+{
+  "id": "13",
+  "name": "Yoona",
+  "roles": [
+    "Townsfolk"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road",
+      "x_px": -18,
+      "y_px": 287
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "When will it be my turn to explore the bigger world outside Maple World?"
+    },
+    {
+      "text": "Pfft, Orange Mushrooms? Red Snails? None of those bother me. I've been training with Mai for a long time, but keep that our little secret!",
+      "segments": [
+        {
+          "text": "Pfft, Orange Mushrooms? Red Snails? None of those bother me. I've been training with "
+        },
+        {
+          "text": "Mai",
+          "ref": {
+            "kind": "npc",
+            "id": "11"
+          }
+        },
+        {
+          "text": " for a long time, but keep that our little secret!"
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Whoa, what are you looking at?!"
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [],
+    "started_here": [],
+    "completed_here": []
+  },
+  "quest_dialogue": [],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/13",
+    "retrieved_at": "2026-10-04T10:05:56.372Z"
+  },
+  "field_sources": {
+    "locations/000000060": {
+      "url": "https://meowdb.com/msclassic/maps/000000060",
+      "retrieved_at": "2026-10-04T09:56:49.733Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    }
+  }
+}

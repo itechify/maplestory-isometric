@@ -1,0 +1,233 @@
+{
+  "id": "18",
+  "name": "Pio",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street",
+      "x_px": 547,
+      "y_px": 274
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Hm, everything has its use..."
+    },
+    {
+      "text": "Ah, you're the one who collected stuff for me earlier. You'll get to pick a Job for yourself soon, you know. When you get to Level 10, you can become a Magician, Bowman, Warrior, or Thief. You can't do it on this island though. You'll need to take a ship from Southperry and head to Victoria Island.",
+      "segments": [
+        {
+          "text": "Ah, you're the one who collected stuff for me earlier. You'll get to pick a Job for yourself soon, you know. When you get to Level 10, you can become a Magician, Bowman, Warrior, or Thief. You can't do it on this island though. You'll need to take a ship from "
+        },
+        {
+          "text": "Southperry",
+          "ref": {
+            "kind": "map",
+            "id": "000000060"
+          }
+        },
+        {
+          "text": " and head to Victoria Island."
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Do you need my help? I'm really great with machines."
+    },
+    {
+      "text": "I just ate a little while ago, but I'm already hungry again!"
+    },
+    {
+      "text": "Phew, work is hard. I need to take a break."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1012",
+        "name": "Pio's Collecting Recycled Goods"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1012"
+    ],
+    "completed_here": [
+      "1012"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1012",
+      "quest_name": "Pio's Collecting Recycled Goods",
+      "npc_role": "start",
+      "start_npc_id": "18",
+      "complete_npc_id": "18",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "My goodness. I've been wandering around town, and I see so many recyclable items just being thrown away! Say, can you help me collect some of them? Don't worry, I'll reward you well for your effort."
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "That's right! Please collect 'trash' from around town."
+            },
+            {
+              "text": "I don't know if you saw any abandoned wooden boxes on your way here, but your job is to break those boxes apart into Rusty Screws and Old Wooden Boards. Collect 3 of each for me, okay? \n\n Rusty Screw 0/3\n Old Wooden Board 0/3",
+              "segments": [
+                {
+                  "text": "I don't know if you saw any abandoned wooden boxes on your way here, but your job is to break those boxes apart into "
+                },
+                {
+                  "text": "Rusty Screws",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "441"
+                  }
+                },
+                {
+                  "text": " and "
+                },
+                {
+                  "text": "Old Wooden Boards",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "442"
+                  }
+                },
+                {
+                  "text": ". Collect "
+                },
+                {
+                  "text": "3",
+                  "bold": true
+                },
+                {
+                  "text": " of each for me, okay? \n\n "
+                },
+                {
+                  "text": "Rusty Screw",
+                  "ref": {
+                    "kind": "item",
+                    "id": "441"
+                  }
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "0",
+                  "bold": true
+                },
+                {
+                  "text": "/3\n "
+                },
+                {
+                  "text": "Old Wooden Board",
+                  "ref": {
+                    "kind": "item",
+                    "id": "442"
+                  }
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "0",
+                  "bold": true
+                },
+                {
+                  "text": "/3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Come on! Think about the planet!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1012",
+      "quest_name": "Pio's Collecting Recycled Goods",
+      "npc_role": "complete",
+      "start_npc_id": "18",
+      "complete_npc_id": "18",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "What? You brought them all? Okay, let's see..."
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "See what I'm talking about? So many recyclable items, just carelessly tossed away. Hopefully there are more people like you in the world."
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "No, no, no! Open Quest Info to check what you need to do!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/18",
+    "retrieved_at": "2026-10-04T10:06:31.457Z"
+  },
+  "field_sources": {
+    "locations/000001010": {
+      "url": "https://meowdb.com/msclassic/maps/000001010",
+      "retrieved_at": "2026-10-04T09:57:03.267Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1012/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1012",
+      "retrieved_at": "2026-10-04T10:07:30.710Z"
+    },
+    "quest_dialogue/1012/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1012",
+      "retrieved_at": "2026-10-04T10:07:30.710Z"
+    }
+  }
+}

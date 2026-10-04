@@ -1,0 +1,84 @@
+{
+  "id": "combat",
+  "kind": "misostory_adaptation",
+  "description": "MisoStory combat and character-rule values that MeowDB MS Classic does not publish. Every canonical number stays in game/data/canonical (read through ContentDB); each section here names the gap it fills, why the value was chosen, and is unverified against the live game. Read by scripts/core/combat/combat_rules.gd (CombatRules.adaptation). See docs/runtime/COMBAT.md.",
+  "bare_hands": {
+    "weapon_watk": 0,
+    "weapon_mult": 1.0,
+    "primary": "str",
+    "secondary": "dex",
+    "attack_speed_tier": 6,
+    "punch_presentation_odds": "equal",
+    "reason": "MeowDB documents bare hands only as an attack presentation: hit boxes for Punch 1, Punch 2 and the crouched attack, and an ordinary action of 100% stab (attack_styles.json bare_hands, damage.json ordinary_action_odds.barehanded). It gives no Weapon Attack, multiplier or attack speed (damage.json bare_hands, attack_speed.json bare_hands), and its simulators return no unarmed damage. MisoStory treats the empty weapon slot as a W.ATK line of 0 (weapon_watk) and runs the documented physical formula unchanged. Total Weapon Attack is still the pool of every equipped W.ATK line (derived_stats.json total_weapon_attack_rule), which is 0 for a Beginner, so a landed punch deals the final-clamp minimum, trunc(clamp(0, 1, 99999)) = 1. weapon_mult only fills the formula slot, because it is multiplied by a TotalWATK of 0. Primary STR and secondary DEX follow MeowDB's character builder fallback for a weaponless Beginner (function eA). Tier 6 (Normal) is the neutral timing tier, where every frame keeps its base length, and the tier MeowDB's character builder passes for every Beginner. Punch 1 and Punch 2 get equal odds, matching the 'each with equal odds' rule that MeowDB's weapon item pages state for weapon presentations.",
+    "verified": false
+  },
+  "post_hit_invincibility": {
+    "override_s": null,
+    "applies_after_miss_or_guard": true,
+    "reason": "Canonical: 'Invincible after a hit: 1.5 s' and 'A monster attack that misses you or that you block gives the same 1.5 s' (formulas/accuracy.json after_hit). MisoStory keeps the canonical duration. override_s is where a documented isometric adjustment would go (the brief's 'isometric_contact_invulnerability_duration'); null means the canonical value is used.",
+    "verified": false
+  },
+  "player_knockback": {
+    "on_landed_hit": true,
+    "on_miss_or_guard": false,
+    "reason": "MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage; a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value.",
+    "verified": false
+  },
+  "monster_knockback": {
+    "stagger_rule": "damage_at_least_kb",
+    "stagger_duration": "hit_animation",
+    "hit_animation_clip": "hit1",
+    "fallback_stagger_s": 0.6,
+    "knockback_distance_px": 20,
+    "reason": "Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. MeowDB does not publish the knockback distance or the stagger time (movement.json monster_knockback.gaps). MisoStory staggers a monster for the length of its own canonical hit animation (monsters/*.json animations.hit1.duration_ms; Snail 600 ms). During that time it pushes the monster 20 px away from the attacker. A monster without a hit clip staggers for 0.6 s, the length of the Maple Island hit clips.",
+    "verified": false
+  },
+  "fixed_damage_skills": {
+    "0001000": {
+      "name": "Three Snails",
+      "hit_check": true,
+      "defense": false,
+      "level_gap": false,
+      "critical": false,
+      "reason": "Three Snails deals the fixed damage of its skill level, which 'character stats, weapon stats, and target defense do not scale' (canonical, formulas/beginner.json skills[0001000]). MeowDB does not say whether the hit roll, the level-gap scale or critical hits apply (beginner.json gaps). MisoStory applies the shared hit check, because the skill page lists 'Target hit eligibility' as a conditional factor. It applies no level-gap scale and no critical, so the published value stays fixed. The final clamp applies as for every hit.",
+      "verified": false
+    }
+  },
+  "level_up": {
+    "heal": "full",
+    "exp_overflow": "carry",
+    "multiple_levels_per_gain": true,
+    "exp_at_level_cap": "discard",
+    "reason": "MeowDB implies that a level-up heals ('Unlike leveling up, job advancing does not heal you'; hp_mp_gain.json, recovery.json level_up_heal) but not by how much. MisoStory restores HP and MP to their full totals, gear included, as classic MapleStory did. The glossary says a level-up 'resets your EXP bar to 0' but does not say what happens to EXP beyond the requirement. MisoStory reads the EXP bar as per level and carries the excess into the new level, so one large award can raise several levels and no earned EXP is lost. At the level cap (exp_table.json level_cap) EXP no longer accumulates.",
+    "verified": false
+  },
+  "beginner_sp_after_level_10": {
+    "sp_per_level": 0,
+    "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. MisoStory grants a Beginner no SP after level 10.",
+    "verified": false
+  },
+  "ap_allocation": {
+    "ap_into_hp_mp": false,
+    "reason": "MeowDB pages disagree on whether AP can raise Max HP or Max MP: the glossary says yes, while the HP/MP guide and the Beginner's guide list no AP term. The canonical decision (beginner.json ap.allocatable_stats = STR/DEX/INT/LUK; hp_mp_gain.json ap_into_hp_mp = null with a discrepancy entry) is STR/DEX/INT/LUK only. MisoStory follows it: AP cannot be put into Max HP or Max MP.",
+    "verified": false
+  },
+  "isometric_reach": {
+    "attack_box_depth_px": 60,
+    "touch_zone_depth": "width",
+    "reason": "MeowDB hit boxes are 2D side-view rectangles: reach along the facing direction and height above the feet (attack_styles.json, monsters/*.json touch_zone_px). In the isometric 3D world a box also needs a depth across the facing direction. MisoStory gives attack boxes a total depth of 60 px, centred on the attacker's facing line, and gives monster touch zones a depth equal to their canonical width. A monster roughly in line with the player is therefore hit, as in 2D. Consumers convert px with WorldScale.actor().",
+    "verified": false
+  },
+  "player_attack": {
+    "root_on_ground": true,
+    "root_on_ground_reason": "Classic behaviour: a basic attack started on the ground plants the character until the attack's canonical cycle time (attack_speed.json) ends, so it cannot walk or jump out of it; an attack started in the air keeps the jump's momentum. MeowDB publishes the cycle times but not whether movement is locked during them.",
+    "input_buffer_s": 0.15,
+    "input_buffer_s_reason": "Input forgiveness, not a MapleStory number: an attack press up to 0.15 s (9 physics ticks) before the running attack's lockout ends is kept and fires on the first free tick, so a player tapping in rhythm does not lose presses. Holding the attack key repeats at exactly the canonical cycle time either way.",
+    "basic_attack_targets": 1,
+    "basic_attack_targets_reason": "MeowDB orders basic-attack targets (attack_styles.json target_selection_order: nearest first, ties to the monster that appeared first) but publishes no count. A classic basic attack hits one monster; each extra target would get its own hit roll.",
+    "lunge_m": 0.14,
+    "lunge_s": 0.16,
+    "lunge_reason": "Presentation of the attack's weight: the player's model (never the body, so reach and collision are untouched) lunges 0.14 m along its facing over the first 35% of 0.16 s and eases back over the rest. MeowDB publishes sprite clips, not 3D motion.",
+    "reason": "Values that decide how the player's basic attack feels in the isometric world and that MeowDB MS Classic does not publish: the ground root during an attack, the input buffer before the lockout ends, the number of monsters one basic attack hits, and the model's lunge. The attack's timing, hit boxes, damage and target order stay canonical (attack_speed.json, attack_styles.json, damage.json). Read by scripts/actors/combat/player_combat.gd (PlayerCombat); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md.",
+    "verified": false
+  }
+}

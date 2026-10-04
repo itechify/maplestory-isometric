@@ -1,0 +1,102 @@
+{
+  "id": "portal_adaptations",
+  "kind": "misostory_adaptation",
+  "description": "How MeowDB's press-Up portals become 3D portals (docs/runtime/MAP_ARCHITECTURE.md section 4.4, docs/runtime/WORLD_RUNTIME.md). MeowDB decides which portals exist and where they lead (game/data/canonical/maps); this file holds only isometric adaptations, each with a reason. Read through WorldTuning; never duplicated in code.",
+  "force_link_mode": {
+    "value": "",
+    "reason": "Milestone M2 \"Walkable island\" (MAP_ARCHITECTURE section 6): empty, so every link takes its default_link_mode or link_modes override (trail links walk through their gates, door links warp). Set to \"warp\" for the M1 fallback: every link press-Up only, every trail mouth plugged, trails as scenery (the L3 tour runs in both). The debug console switches links at runtime (linkmode / map_link_mode -> PortalGraph.set_link_mode).",
+    "verified": false
+  },
+  "default_link_mode": {
+    "trail": "edge",
+    "door": "warp",
+    "reason": "MAP_ARCHITECTURE section 4.4: trail links default to walkable edges, door links are always warps (interiors sit on the separate interior stage). Used when force_link_mode is empty (the M2 default).",
+    "verified": false
+  },
+  "link_modes": {
+    "reason": "Per-link overrides keyed by link id (T_<mapA>_<portalA>__<mapB>_<portalB>), each {\"mode\": \"edge\"|\"warp\", \"reason\": \"...\", \"verified\": false}. A trail the player cannot walk because of source geometry stays warp here, with the blocker recorded for the Blender pass (MAP_ARCHITECTURE section 4.13, docs/runtime/WORLD_RUNTIME.md \"Source world status\"). The traversal bot walks the other 19 trails both ways (docs/runtime/traversal_report.json).",
+    "overrides": {
+      "T_000001012_west00__000001014_east00": {
+        "mode": "warp",
+        "reason": "Source geometry (M2 traversal, 2026-10-04): after leaving 000001012.west00 the trail turns back in a hairpin and climbs along 000001012's south-west footprint edge inside the 1 m containment band: 25 ribbon points lie inside 000001012's ring line (footprint + 1 m), up to 2.31 m deep at (279.55, 10.68, 580.70), and the climb also touches 000001014's ring line (0.20 m at (275.73, 10.13, 578.94)). The 000001012 ring wall stands across the walkable top there, so the bot stalls at (272.86, 8.60, 583.47) walking out and at (280.73, 11.67, 577.33) walking in. Walking it would need either a gap in a map ring away from its gate (the identity invariant then breaks: the player would stand in 000001012's region without crossing its gate) or a Blender fix: keep the climb at least half-width + 1.5 m (3.4 m) outside both footprints except at the trail mouths. Until then the link is press-Up only (both portals work; the trail is scenery behind the plugs).",
+        "verified": false
+      }
+    },
+    "verified": false
+  },
+  "destination_overrides": {
+    "reason": "Destination resolution rule 1 (MAP_ARCHITECTURE section 4.4): '<map_id>.<portal>' -> {\"destination_portal_id\" or \"destination_spawn_index\", \"reason\"}. Rule 2 (the unique reciprocal) resolves 46 of 47 MeowDB portals and rule 3 (playerSpawns[0]) the one-way 000000030.out00, so none are needed.",
+    "overrides": {},
+    "verified": false
+  },
+  "arrival_gates": {
+    "reason": "Non-canonical arrival points (portal_type 'arrival', interaction walk_only). MeowDB 000000040 has no portal back to 000000030, so the walking end of the one-way 30 -> 40 trail is an adaptation gate at Iteration One's former 40000 in00 anchor. Its spawn_transform is player_spawns[0] of 000000040, so a press-Up from 30 and a walk down the trail land identically (section 4.4). It has no press-Up trigger node: in edge mode it is the walk-through gate at the foot of the one-way ledge (GateDef into 000000040, committing 000000030.out00), in warp mode only the arrival point of the press-Up.",
+    "gates": [
+      {
+        "portal_id": "arrival:T_000000030_out00__000000040",
+        "map_id": "000000040",
+        "anchor_marker": "in00",
+        "source_portal": "000000030.out00",
+        "spawn_index": 0,
+        "reason": "000000030.out00 -> 000000040 is MeowDB's only one-way link (000000040 lists only east00); the trail's 40-side end needs an arrival point.",
+        "verified": false
+      }
+    ]
+  },
+  "one_way_allowlist": {
+    "reason": "Directed links with no way back, allowed by the strongly-connected-component check (MAP_ARCHITECTURE section 4.13 L0). Canonical: 000000040 has no portal to 000000030 on its MeowDB page.",
+    "links": [
+      {
+        "from": "000000030",
+        "to": "000000040"
+      }
+    ],
+    "verified": true,
+    "verification": "game/data/canonical/maps/000000040.json lists only east00 (to 000000041); 000000030.out00 is the only portal into 000000040 with no reciprocal (to_portal_derivation none)."
+  },
+  "one_way_ledge": {
+    "clearance_margin_m": 0.3,
+    "max_drop_m": 2.6,
+    "gate_plane_tolerance_m": 0.1,
+    "reason": "MAP_ARCHITECTURE section 4.4 CI invariant for each allowlisted one-way link (30 -> 40): jump_apex_m_at_cap + step_up_m + clearance_margin_m <= ledge height <= max_drop_m, so a player can drop down the ledge but never jump or step back up it. max_drop_m is the Blender validator one-way drop cap (AUTHORING.md, 2.6 m); the jump apex and step-up come from the player MovementModel (canonical jump table x WorldScale, data/misostory/movement.json). The ledge face must lie on the arrival gate plane (footprint + containment.ring_offset_m) within gate_plane_tolerance_m (section 4.13 L1).",
+    "verified": false
+  },
+  "hidden_portal_types": {
+    "value": [
+      1
+    ],
+    "reason": "MeowDB publishes the raw portal type only (2 on 46 portals, 1 on 000001020.in00, which its page lists as 'Inside portal'); it does not say type 1 is invisible. MAP_ARCHITECTURE section 4.4 follows classic behaviour: type 1 shows no swirl and no prompt, but press-Up still works. The hedge lane is the in-world hint (open question 5).",
+    "verified": false
+  },
+  "trigger": {
+    "width_m": 4.5,
+    "height_m": 3,
+    "depth_m": 1.6,
+    "reason": "Press-Up trigger box centred on the anchor (MAP_ARCHITECTURE section 4.4): 4.5 m wide = the authored architecture-free corridor at every edge anchor (AUTHORING.md), 3 m tall = more than twice the ~1.3 m maximum jump, 1.6 m deep so the 1.5 m arrival point (plus the body radius) sits outside it.",
+    "verified": false
+  },
+  "arrival": {
+    "inset_m": 1.5,
+    "reason": "Arrivals stand 1.5 m inward of the destination anchor along the anchor normal (edges) or the door's facing (doors), facing inward (MAP_ARCHITECTURE section 4.4, graft from proposal A). That is outside the 1.6 m deep trigger, so the player never arrives inside a portal.",
+    "verified": false
+  },
+  "gates": {
+    "half_width_m": 2.25,
+    "height_m": 3,
+    "below_m": 1,
+    "disarm_back_m": 0.25,
+    "teleport_step_m": 2,
+    "reason": "MAP_ARCHITECTURE section 4.4 \"Gates\": the walk-through commit plane at each end of an edge-mode trail stands on the map ring line (footprint + containment.ring_offset_m), across the 4.5 m authored corridor (half_width_m 2.25), from below_m under the ground to height_m above it (3 m, more than twice the ~1.3 m maximum jump, so a jump across still arms it). Walking back out more than disarm_back_m behind the plane disarms it. GateMonitor treats a tick that moves the feet farther than teleport_step_m (no walk, jump or knockback covers 2 m in 1/60 s) as a teleport, never as a crossing.",
+    "verified": false
+  },
+  "anti_ping_pong": {
+    "disarm_arrival_portal_until_exit": true,
+    "reason": "The portal a player arrives at stays disarmed until the player has been outside its trigger (MAP_ARCHITECTURE section 4.4), so holding Up through an arrival never bounces back.",
+    "verified": false
+  },
+  "interaction": {
+    "interact_also_enters": true,
+    "reason": "Up (portal_enter) is MapleStory's portal key; MisoStory also lets the interact key (F) enter a portal when that portal is the nearest interactable, so a player who learned 'F talks' is not stuck (MAP_ARCHITECTURE section 4.4).",
+    "verified": false
+  }
+}

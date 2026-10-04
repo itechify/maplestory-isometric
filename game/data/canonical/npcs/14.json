@@ -1,0 +1,83 @@
+{
+  "id": "14",
+  "name": "Bari",
+  "roles": [
+    "Townsfolk"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road",
+      "x_px": 1013,
+      "y_px": 527
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "I'm good at making anything! My uncle Pio in Amherst used to teach me lots of things when I was young.",
+      "segments": [
+        {
+          "text": "I'm good at making anything! My uncle "
+        },
+        {
+          "text": "Pio",
+          "ref": {
+            "kind": "npc",
+            "id": "18"
+          }
+        },
+        {
+          "text": " in "
+        },
+        {
+          "text": "Amherst",
+          "ref": {
+            "kind": "map",
+            "id": "000001010"
+          }
+        },
+        {
+          "text": " used to teach me lots of things when I was young."
+        }
+      ]
+    },
+    {
+      "text": "They might just be a few tree branches, but don't underestimate them. They could be used to build a boat that sails across the sea."
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Working hard there?"
+    },
+    {
+      "text": "*Salute*"
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [],
+    "started_here": [],
+    "completed_here": []
+  },
+  "quest_dialogue": [],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/14",
+    "retrieved_at": "2026-10-04T10:06:09.588Z"
+  },
+  "field_sources": {
+    "locations/000000060": {
+      "url": "https://meowdb.com/msclassic/maps/000000060",
+      "retrieved_at": "2026-10-04T09:56:49.733Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    }
+  }
+}

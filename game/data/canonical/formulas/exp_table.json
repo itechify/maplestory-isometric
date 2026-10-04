@@ -1,0 +1,771 @@
+{
+  "id": "exp_table",
+  "name": "EXP to next level",
+  "value_kind": "exp_to_next",
+  "semantics": [
+    "exp_to_next for level L = EXP needed to go from level L (at 0 EXP) to level L+1. It is NOT cumulative.",
+    "total_from_lv1 for level L = cumulative EXP from level 1 at 0 EXP to reach level L+1 (sum of exp_to_next for levels 1..L). MeowDB: \"Total from Lv 1 is all the EXP needed to reach the next level, starting from level 1.\"",
+    "Level-up resets the EXP bar to 0 (glossary: \"Hitting the next level. Resets your EXP bar to 0.\")."
+  ],
+  "level_min": 1,
+  "level_max_listed": 99,
+  "level_cap": 100,
+  "level_cap_note": "Level 100. Nexon set the maximum character level at Lv. 100 in its Founder's Access release notes.",
+  "confidence": {
+    "current_levels": [
+      1,
+      49
+    ],
+    "historical_levels": [
+      50,
+      99
+    ],
+    "statements": [
+      "Values through level 49 match current play. Level 50 and up follow the historical table.",
+      "Levels 1 to 49 are confirmed in the current game. Levels 50 to 99 reproduce a historical reference table and remain planning estimates until they are verified in current play.",
+      "Levels 1 through 49 match current MapleStory Classic play. Levels 50 through 99 remain a historical planning reference until current play reaches them."
+    ]
+  },
+  "formula_segments": [
+    {
+      "levels": [
+        1,
+        5
+      ],
+      "formula": "(floor(level² / 2) + 15) × level",
+      "status": "Current"
+    },
+    {
+      "levels": [
+        6,
+        50
+      ],
+      "formula": [
+        "q = floor(level² / 3)",
+        "(q + 19) × q"
+      ],
+      "status": "Current through Lv 49"
+    },
+    {
+      "levels": [
+        51,
+        99
+      ],
+      "formula": "trunc(previous level's EXP × 1.0548)",
+      "status": "Historical"
+    }
+  ],
+  "levels": [
+    {
+      "level": 1,
+      "exp_to_next": 15,
+      "total_from_lv1": 15,
+      "status": "current"
+    },
+    {
+      "level": 2,
+      "exp_to_next": 34,
+      "total_from_lv1": 49,
+      "status": "current"
+    },
+    {
+      "level": 3,
+      "exp_to_next": 57,
+      "total_from_lv1": 106,
+      "status": "current"
+    },
+    {
+      "level": 4,
+      "exp_to_next": 92,
+      "total_from_lv1": 198,
+      "status": "current"
+    },
+    {
+      "level": 5,
+      "exp_to_next": 135,
+      "total_from_lv1": 333,
+      "status": "current"
+    },
+    {
+      "level": 6,
+      "exp_to_next": 372,
+      "total_from_lv1": 705,
+      "status": "current"
+    },
+    {
+      "level": 7,
+      "exp_to_next": 560,
+      "total_from_lv1": 1265,
+      "status": "current"
+    },
+    {
+      "level": 8,
+      "exp_to_next": 840,
+      "total_from_lv1": 2105,
+      "status": "current"
+    },
+    {
+      "level": 9,
+      "exp_to_next": 1242,
+      "total_from_lv1": 3347,
+      "status": "current"
+    },
+    {
+      "level": 10,
+      "exp_to_next": 1716,
+      "total_from_lv1": 5063,
+      "status": "current"
+    },
+    {
+      "level": 11,
+      "exp_to_next": 2360,
+      "total_from_lv1": 7423,
+      "status": "current"
+    },
+    {
+      "level": 12,
+      "exp_to_next": 3216,
+      "total_from_lv1": 10639,
+      "status": "current"
+    },
+    {
+      "level": 13,
+      "exp_to_next": 4200,
+      "total_from_lv1": 14839,
+      "status": "current"
+    },
+    {
+      "level": 14,
+      "exp_to_next": 5460,
+      "total_from_lv1": 20299,
+      "status": "current"
+    },
+    {
+      "level": 15,
+      "exp_to_next": 7050,
+      "total_from_lv1": 27349,
+      "status": "current"
+    },
+    {
+      "level": 16,
+      "exp_to_next": 8840,
+      "total_from_lv1": 36189,
+      "status": "current"
+    },
+    {
+      "level": 17,
+      "exp_to_next": 11040,
+      "total_from_lv1": 47229,
+      "status": "current"
+    },
+    {
+      "level": 18,
+      "exp_to_next": 13716,
+      "total_from_lv1": 60945,
+      "status": "current"
+    },
+    {
+      "level": 19,
+      "exp_to_next": 16680,
+      "total_from_lv1": 77625,
+      "status": "current"
+    },
+    {
+      "level": 20,
+      "exp_to_next": 20216,
+      "total_from_lv1": 97841,
+      "status": "current"
+    },
+    {
+      "level": 21,
+      "exp_to_next": 24402,
+      "total_from_lv1": 122243,
+      "status": "current"
+    },
+    {
+      "level": 22,
+      "exp_to_next": 28980,
+      "total_from_lv1": 151223,
+      "status": "current"
+    },
+    {
+      "level": 23,
+      "exp_to_next": 34320,
+      "total_from_lv1": 185543,
+      "status": "current"
+    },
+    {
+      "level": 24,
+      "exp_to_next": 40512,
+      "total_from_lv1": 226055,
+      "status": "current"
+    },
+    {
+      "level": 25,
+      "exp_to_next": 47216,
+      "total_from_lv1": 273271,
+      "status": "current"
+    },
+    {
+      "level": 26,
+      "exp_to_next": 54900,
+      "total_from_lv1": 328171,
+      "status": "current"
+    },
+    {
+      "level": 27,
+      "exp_to_next": 63666,
+      "total_from_lv1": 391837,
+      "status": "current"
+    },
+    {
+      "level": 28,
+      "exp_to_next": 73080,
+      "total_from_lv1": 464917,
+      "status": "current"
+    },
+    {
+      "level": 29,
+      "exp_to_next": 83720,
+      "total_from_lv1": 548637,
+      "status": "current"
+    },
+    {
+      "level": 30,
+      "exp_to_next": 95700,
+      "total_from_lv1": 644337,
+      "status": "current"
+    },
+    {
+      "level": 31,
+      "exp_to_next": 108480,
+      "total_from_lv1": 752817,
+      "status": "current"
+    },
+    {
+      "level": 32,
+      "exp_to_next": 122760,
+      "total_from_lv1": 875577,
+      "status": "current"
+    },
+    {
+      "level": 33,
+      "exp_to_next": 138666,
+      "total_from_lv1": 1014243,
+      "status": "current"
+    },
+    {
+      "level": 34,
+      "exp_to_next": 155540,
+      "total_from_lv1": 1169783,
+      "status": "current"
+    },
+    {
+      "level": 35,
+      "exp_to_next": 174216,
+      "total_from_lv1": 1343999,
+      "status": "current"
+    },
+    {
+      "level": 36,
+      "exp_to_next": 194832,
+      "total_from_lv1": 1538831,
+      "status": "current"
+    },
+    {
+      "level": 37,
+      "exp_to_next": 216600,
+      "total_from_lv1": 1755431,
+      "status": "current"
+    },
+    {
+      "level": 38,
+      "exp_to_next": 240500,
+      "total_from_lv1": 1995931,
+      "status": "current"
+    },
+    {
+      "level": 39,
+      "exp_to_next": 266682,
+      "total_from_lv1": 2262613,
+      "status": "current"
+    },
+    {
+      "level": 40,
+      "exp_to_next": 294216,
+      "total_from_lv1": 2556829,
+      "status": "current"
+    },
+    {
+      "level": 41,
+      "exp_to_next": 324240,
+      "total_from_lv1": 2881069,
+      "status": "current"
+    },
+    {
+      "level": 42,
+      "exp_to_next": 356916,
+      "total_from_lv1": 3237985,
+      "status": "current"
+    },
+    {
+      "level": 43,
+      "exp_to_next": 391160,
+      "total_from_lv1": 3629145,
+      "status": "current"
+    },
+    {
+      "level": 44,
+      "exp_to_next": 428280,
+      "total_from_lv1": 4057425,
+      "status": "current"
+    },
+    {
+      "level": 45,
+      "exp_to_next": 468450,
+      "total_from_lv1": 4525875,
+      "status": "current"
+    },
+    {
+      "level": 46,
+      "exp_to_next": 510420,
+      "total_from_lv1": 5036295,
+      "status": "current"
+    },
+    {
+      "level": 47,
+      "exp_to_next": 555680,
+      "total_from_lv1": 5591975,
+      "status": "current"
+    },
+    {
+      "level": 48,
+      "exp_to_next": 604416,
+      "total_from_lv1": 6196391,
+      "status": "current"
+    },
+    {
+      "level": 49,
+      "exp_to_next": 655200,
+      "total_from_lv1": 6851591,
+      "status": "current"
+    },
+    {
+      "level": 50,
+      "exp_to_next": 709716,
+      "total_from_lv1": 7561307,
+      "status": "historical"
+    },
+    {
+      "level": 51,
+      "exp_to_next": 748608,
+      "total_from_lv1": 8309915,
+      "status": "historical"
+    },
+    {
+      "level": 52,
+      "exp_to_next": 789631,
+      "total_from_lv1": 9099546,
+      "status": "historical"
+    },
+    {
+      "level": 53,
+      "exp_to_next": 832902,
+      "total_from_lv1": 9932448,
+      "status": "historical"
+    },
+    {
+      "level": 54,
+      "exp_to_next": 878545,
+      "total_from_lv1": 10810993,
+      "status": "historical"
+    },
+    {
+      "level": 55,
+      "exp_to_next": 926689,
+      "total_from_lv1": 11737682,
+      "status": "historical"
+    },
+    {
+      "level": 56,
+      "exp_to_next": 977471,
+      "total_from_lv1": 12715153,
+      "status": "historical"
+    },
+    {
+      "level": 57,
+      "exp_to_next": 1031036,
+      "total_from_lv1": 13746189,
+      "status": "historical"
+    },
+    {
+      "level": 58,
+      "exp_to_next": 1087536,
+      "total_from_lv1": 14833725,
+      "status": "historical"
+    },
+    {
+      "level": 59,
+      "exp_to_next": 1147132,
+      "total_from_lv1": 15980857,
+      "status": "historical"
+    },
+    {
+      "level": 60,
+      "exp_to_next": 1209994,
+      "total_from_lv1": 17190851,
+      "status": "historical"
+    },
+    {
+      "level": 61,
+      "exp_to_next": 1276301,
+      "total_from_lv1": 18467152,
+      "status": "historical"
+    },
+    {
+      "level": 62,
+      "exp_to_next": 1346242,
+      "total_from_lv1": 19813394,
+      "status": "historical"
+    },
+    {
+      "level": 63,
+      "exp_to_next": 1420016,
+      "total_from_lv1": 21233410,
+      "status": "historical"
+    },
+    {
+      "level": 64,
+      "exp_to_next": 1497832,
+      "total_from_lv1": 22731242,
+      "status": "historical"
+    },
+    {
+      "level": 65,
+      "exp_to_next": 1579913,
+      "total_from_lv1": 24311155,
+      "status": "historical"
+    },
+    {
+      "level": 66,
+      "exp_to_next": 1666492,
+      "total_from_lv1": 25977647,
+      "status": "historical"
+    },
+    {
+      "level": 67,
+      "exp_to_next": 1757815,
+      "total_from_lv1": 27735462,
+      "status": "historical"
+    },
+    {
+      "level": 68,
+      "exp_to_next": 1854143,
+      "total_from_lv1": 29589605,
+      "status": "historical"
+    },
+    {
+      "level": 69,
+      "exp_to_next": 1955750,
+      "total_from_lv1": 31545355,
+      "status": "historical"
+    },
+    {
+      "level": 70,
+      "exp_to_next": 2062925,
+      "total_from_lv1": 33608280,
+      "status": "historical"
+    },
+    {
+      "level": 71,
+      "exp_to_next": 2175973,
+      "total_from_lv1": 35784253,
+      "status": "historical"
+    },
+    {
+      "level": 72,
+      "exp_to_next": 2295216,
+      "total_from_lv1": 38079469,
+      "status": "historical"
+    },
+    {
+      "level": 73,
+      "exp_to_next": 2420993,
+      "total_from_lv1": 40500462,
+      "status": "historical"
+    },
+    {
+      "level": 74,
+      "exp_to_next": 2553663,
+      "total_from_lv1": 43054125,
+      "status": "historical"
+    },
+    {
+      "level": 75,
+      "exp_to_next": 2693603,
+      "total_from_lv1": 45747728,
+      "status": "historical"
+    },
+    {
+      "level": 76,
+      "exp_to_next": 2841212,
+      "total_from_lv1": 48588940,
+      "status": "historical"
+    },
+    {
+      "level": 77,
+      "exp_to_next": 2996910,
+      "total_from_lv1": 51585850,
+      "status": "historical"
+    },
+    {
+      "level": 78,
+      "exp_to_next": 3161140,
+      "total_from_lv1": 54746990,
+      "status": "historical"
+    },
+    {
+      "level": 79,
+      "exp_to_next": 3334370,
+      "total_from_lv1": 58081360,
+      "status": "historical"
+    },
+    {
+      "level": 80,
+      "exp_to_next": 3517093,
+      "total_from_lv1": 61598453,
+      "status": "historical"
+    },
+    {
+      "level": 81,
+      "exp_to_next": 3709829,
+      "total_from_lv1": 65308282,
+      "status": "historical"
+    },
+    {
+      "level": 82,
+      "exp_to_next": 3913127,
+      "total_from_lv1": 69221409,
+      "status": "historical"
+    },
+    {
+      "level": 83,
+      "exp_to_next": 4127566,
+      "total_from_lv1": 73348975,
+      "status": "historical"
+    },
+    {
+      "level": 84,
+      "exp_to_next": 4353756,
+      "total_from_lv1": 77702731,
+      "status": "historical"
+    },
+    {
+      "level": 85,
+      "exp_to_next": 4592341,
+      "total_from_lv1": 82295072,
+      "status": "historical"
+    },
+    {
+      "level": 86,
+      "exp_to_next": 4844001,
+      "total_from_lv1": 87139073,
+      "status": "historical"
+    },
+    {
+      "level": 87,
+      "exp_to_next": 5109452,
+      "total_from_lv1": 92248525,
+      "status": "historical"
+    },
+    {
+      "level": 88,
+      "exp_to_next": 5389449,
+      "total_from_lv1": 97637974,
+      "status": "historical"
+    },
+    {
+      "level": 89,
+      "exp_to_next": 5684790,
+      "total_from_lv1": 103322764,
+      "status": "historical"
+    },
+    {
+      "level": 90,
+      "exp_to_next": 5996316,
+      "total_from_lv1": 109319080,
+      "status": "historical"
+    },
+    {
+      "level": 91,
+      "exp_to_next": 6324914,
+      "total_from_lv1": 115643994,
+      "status": "historical"
+    },
+    {
+      "level": 92,
+      "exp_to_next": 6671519,
+      "total_from_lv1": 122315513,
+      "status": "historical"
+    },
+    {
+      "level": 93,
+      "exp_to_next": 7037118,
+      "total_from_lv1": 129352631,
+      "status": "historical"
+    },
+    {
+      "level": 94,
+      "exp_to_next": 7422752,
+      "total_from_lv1": 136775383,
+      "status": "historical"
+    },
+    {
+      "level": 95,
+      "exp_to_next": 7829518,
+      "total_from_lv1": 144604901,
+      "status": "historical"
+    },
+    {
+      "level": 96,
+      "exp_to_next": 8258575,
+      "total_from_lv1": 152863476,
+      "status": "historical"
+    },
+    {
+      "level": 97,
+      "exp_to_next": 8711144,
+      "total_from_lv1": 161574620,
+      "status": "historical"
+    },
+    {
+      "level": 98,
+      "exp_to_next": 9188514,
+      "total_from_lv1": 170763134,
+      "status": "historical"
+    },
+    {
+      "level": 99,
+      "exp_to_next": 9692044,
+      "total_from_lv1": 180455178,
+      "status": "historical"
+    }
+  ],
+  "party_bonus": {
+    "status": "Confirmed (MeowDB states it was measured/confirmed in COT2)",
+    "bonus_exp_pct_by_party_size": {
+      "1": 0,
+      "2": 10,
+      "3": 20,
+      "4": 30,
+      "5": 30,
+      "6": 30
+    },
+    "statements": [
+      "Party bonus EXP by party size, measured in COT2 by Ryan.",
+      "The bonus caps at four members.",
+      "A member who has not attacked for 15 seconds stops receiving party EXP until they attack again.",
+      "COT2 grants +10% with two players, +20% with three, and +30% with four to six. The EXP figure above is the map's total base EXP output before party sharing or bonuses."
+    ],
+    "party_inactivity_cutoff_s": 15,
+    "calculator_code": "l=a<=1?0:Math.min(30,(a-1)*10)",
+    "gaps": [
+      "How party EXP is split between members (by damage, level, or evenly) is not documented on MeowDB."
+    ]
+  },
+  "parity_examples": [
+    {
+      "level": 10,
+      "exp_to_next": 1716,
+      "note": "Level 10 needs 1,716 EXP."
+    },
+    {
+      "from_level": 10,
+      "to_level": 30,
+      "exp_remaining": 545290,
+      "note": "545,290 EXP remaining. 20 levels to go."
+    },
+    {
+      "level": 5,
+      "worked": "Level 5: (12 + 15) × 5 ="
+    },
+    {
+      "level": 49,
+      "worked": "Level 49: (800 + 19) × 800 ="
+    },
+    {
+      "level": 51,
+      "worked": "Level 51: trunc(709,716 × 1.0548) ="
+    }
+  ],
+  "cross_checks": [
+    "All 99 rows of the /formulas/leveling table equal the /guides/exp-table-level-1-to-100 table, the running sum, and the published formula (checked by the extractor).",
+    "MeowDB calculator code (rounding oracle): for(let a=1;a<=99;a+=1)if(a<=5)e.push((Math.floor(a**2/2)+15)*a);else if(a<=50){let l=Math.floor(a**2/3);e.push((l+19)*l)}else e.push(Math.trunc(1.0548*e[a-2]))"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/leveling",
+    "retrieved_at": "2026-10-04T10:04:44.928Z"
+  },
+  "field_sources": {
+    "confidence": {
+      "url": "https://meowdb.com/msclassic/guides/exp-table-level-1-to-100",
+      "retrieved_at": "2026-10-04T10:06:26.526Z"
+    },
+    "level_cap_note": {
+      "url": "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+      "retrieved_at": "2026-10-04T10:09:38.993Z"
+    },
+    "party_bonus.statements": {
+      "url": "https://meowdb.com/msclassic/guides/exp-table-level-1-to-100",
+      "retrieved_at": "2026-10-04T10:06:26.526Z"
+    },
+    "party_inactivity_cutoff_s": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "parity_examples": {
+      "url": "https://meowdb.com/msclassic/exp-calculator",
+      "retrieved_at": "2026-10-04T09:57:52.584Z"
+    },
+    "cross_checks.calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    }
+  },
+  "discrepancies": [
+    {
+      "topic": "Level cap",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+          "value": 100,
+          "text": "Level 100. Nexon set the maximum character level at Lv. 100 in its Founder's Access release notes."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/exp-table-level-1-to-100",
+          "value": null,
+          "text": "Nexon has never announced a level cap for Classic."
+        }
+      ],
+      "chosen": 100,
+      "reason": "The \"What is MapleStory Classic World?\" guide (updated 2026-10-03) cites Nexon's Founder's Access release notes and is newer than the EXP guide (updated 2026-09-18)."
+    },
+    {
+      "topic": "Level 50 status",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/formulas/leveling",
+          "text": "Formula row \"6-50\" is labelled \"Current through Lv 49\"."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/exp-table-level-1-to-100",
+          "text": "Formula row \"6 to 50\"; \"Levels 1 to 49 are confirmed in the current game.\""
+        }
+      ],
+      "chosen": "Level 50 uses the 6-50 formula value (709,716) but is marked historical",
+      "reason": "Both pages agree the confirmed boundary is level 49; the value itself is identical on both pages."
+    }
+  ]
+}

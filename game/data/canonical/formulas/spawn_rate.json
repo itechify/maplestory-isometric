@@ -1,0 +1,258 @@
+{
+  "id": "spawn_rate",
+  "name": "Monster respawn timing and map capacity",
+  "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+  "status_note": "Our spawn model uses three rules: a global server tick, a per-spawn-point cooldown, and a map capacity that changes with player count. The exact player-count curve still needs direct confirmation in current live play.",
+  "global_respawn_tick_s": 7.56,
+  "wave_point_cooldown_s": 5,
+  "timed_point_cooldown": "the spawn point's own timer (map spawn \"mobTime\", in seconds) replaces the 5 s default",
+  "respawn_rules": [
+    "Global respawn tick = 7.56 s",
+    "Wave-point cooldown = 5 s",
+    "Effective respawn = first 7.56 s tick at or after death + cooldown",
+    "Wave ceiling per point = 3600 / 7.56 ≈ 476 spawns / hour",
+    "Timed average per point = 3600 / (Timer + 3.78)"
+  ],
+  "effective_respawn_rule": "Effective respawn = the first 7.56s tick at or after (death + cooldown).",
+  "effective_respawn_rule_note": "Use this bracketed form from the spawn guide: the spawn point becomes ready at death + cooldown, and the mob appears on the first global tick at or after that moment. The formulas tab line \"first 7.56 s tick at or after death + cooldown\" has no brackets (see discrepancies).",
+  "respawn_explanation": [
+    "The server runs one respawn check every 7.56 seconds, globally. That pass walks every loaded map and asks each empty spawn point whether it is ready to refill. The tick is a synchronization gate: a mob whose cooldown ended 1 second ago still has to wait for the next tick before it appears.",
+    "When many mobs die in a short window (an AoE clear), they all respawn at the next tick together. The map looks empty for a few seconds, then refills in one wave.",
+    "Each spawn point has its own post-death cooldown that runs in parallel with the global tick.",
+    "Wave cooldowns are shorter than the tick, so a freshly-cleared wave point cycles roughly every 7.56s in active grinding.",
+    "A timed boss on a 300s timer cycles in 300s plus up to 7.56s of tick slop, so closer to 304s on average."
+  ],
+  "spawn_types": [
+    {
+      "type": "wave",
+      "map_mob_time": 0,
+      "cooldown_s": 5,
+      "description": "Wave-pool spawn (default) 5 seconds Default for every point"
+    },
+    {
+      "type": "timed",
+      "map_mob_time": "> 0 (seconds)",
+      "cooldown_s": "mobTime",
+      "description": "Timed spawn (the point has its own timer) That point's timer (60s, 180s, 300s, 1800s, etc.) Replaces the 5s default"
+    }
+  ],
+  "map_page_display": {
+    "explanation": "MeowDB map pages list spawn points as {\"mobId\",\"x\",\"y\",\"mobTime\"} and monsters as {\"count\",\"respawnMin\",\"respawnMax\",\"waveSpawnCount\"}. mobTime 0 / respawnMin 0 / respawnMax 0 mean a wave-pool point (5 s cooldown), which the page labels \"Wave (~7.5s)\": in active grinding a wave point refills on the next 7.56 s server tick (the 5 s cooldown is shorter than the tick). \"~7.5s\" is a rounded display of the 7.56 s tick, not a separate constant.",
+    "example_map": {
+      "map_id": "000000040",
+      "monsters": [
+        {
+          "id": "2",
+          "name": "Snail",
+          "count": 40,
+          "respawnMin": 0,
+          "respawnMax": 0,
+          "waveSpawnCount": 40
+        }
+      ],
+      "spawn_point_sample": {
+        "mobId": "2",
+        "x": 424,
+        "y": 342,
+        "mobTime": 0
+      }
+    },
+    "statements": [
+      "Wave (~7.5s)",
+      "The server runs a global 7.56s respawn tick across every loaded map. After a mob dies its spawn point waits a cooldown (5s default, or usually the WZ mobTime value for timed spawns), then the mob reappears on the next tick. Field-boss schedules are server-owned, so unconfirmed live-timing windows are labelled when they differ from the raw map value."
+    ]
+  },
+  "derived_timing_note": "Arithmetic implied by the rule (not stated by MeowDB): a wave-point mob reappears between 5 s and 12.56 s after it dies (death + 5 s cooldown, then wait for the next 7.56 s tick). When the mob is killed right as it spawns (on a tick), it reappears exactly one tick (7.56 s) later. MeowDB's calculator uses 7.56 s as the \"Average respawn\" for wave points and max(Timer + 3.78, 7.56) for timed points (3.78 s = half a tick of slop).",
+  "calculator_code": "let a=\"timed\"===P(e,\"type\")?Math.max(M(e,\"timer\")+3.78,7.56):7.56;return[S(\"Average respawn\",`${A(a,2)} s`),S(\"Spawns per hour\",3600/a,1)]",
+  "capacity": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "PlayerScalar = min(1, 0.75 + 0.05 × (Players - 1))",
+      "Capacity = floor(SpawnPoints × PlayerScalar)"
+    ],
+    "player_scalar_table": [
+      {
+        "players": "1",
+        "scalar_pct": 75
+      },
+      {
+        "players": "2",
+        "scalar_pct": 80
+      },
+      {
+        "players": "3",
+        "scalar_pct": 85
+      },
+      {
+        "players": "4",
+        "scalar_pct": 90
+      },
+      {
+        "players": "5",
+        "scalar_pct": 95
+      },
+      {
+        "players": "6+",
+        "scalar_pct": 100
+      }
+    ],
+    "statements": [
+      "The model sets maximum concurrent mobs to map spawn points multiplied by a player-count scalar: 75% for one player, then +5% per extra player, up to 100% at six. This curve powers the map calculators, but every live player-count step has not been measured yet.",
+      "The player-count scalar does not apply to timed spawns."
+    ],
+    "solo_scalar": 0.75,
+    "calculator_code": "let a=Math.min(1,.75+.05*(Math.max(1,M(e,\"players\"))-1));return[S(\"Player scalar\",`${A(100*a,0)}%`),S(\"Mob capacity\",Math.floor(M(e,\"points\")*a),0)]",
+    "example": {
+      "spawn_points": 40,
+      "solo_capacity": 30,
+      "full_party_capacity": 40,
+      "note": "This map has 40 spawn points, so capacity is ~30 concurrent mobs solo and 40 in a full party."
+    }
+  },
+  "spawns_per_hour": {
+    "statements": [
+      "For a wave-pool spawn point that always has someone clearing it, the upper ceiling is 3600 / 7.56 ≈ 476 spawns per hour. Apply the player-count scalar above: ~357/hr solo, ~476/hr in a full party.",
+      "For a timed spawn on a 60-second timer, the per-point rate is 3600 / (60 + ~3.78) ≈ 56 spawns per hour; the tick adds an average half-tick (~3.78s) of slop on every cycle."
+    ]
+  },
+  "map_spawn_rate_multiplier": {
+    "applied_by_msc": false,
+    "statements": [
+      "Each map's data carries a spawn-rate multiplier, typically between 0.8 and 2.0. Other MapleStory servers multiplied map capacity by it.",
+      "MSC does not.",
+      "The live game ignores it; capacity comes only from spawn-point count and the player scalar."
+    ]
+  },
+  "kills_and_exp_per_hour_model": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "CyclesPerHour = 3600 / 7.56",
+      "WaveSupply = WavePoints × CyclesPerHour × PlayerScalar",
+      "TimedSupply = TimedPoints × 3600 / max(Timer + 3.78, 7.56)",
+      "SupplyPerHour = WaveSupply + TimedSupply",
+      "RequestedPerHour = KillsPerCycle × CyclesPerHour",
+      "FractionOfCeiling = min(1, RequestedPerHour / SupplyPerHour) × Uptime",
+      "KillsPerHour = round(PublishedKillsPerHour × FractionOfCeiling)",
+      "EXPPerHour = round(PublishedEXPPerHour × FractionOfCeiling)",
+      "MapEXPPerHour = Σ EXPPerHourᵢ"
+    ]
+  },
+  "timed_boss_note": "Timed bosses ignore player count.",
+  "unverified": "Still unverified in current live play: whether the player-count curve is exactly linear at every step, whether timed spawn points sit outside the wave-pool cap, and whether the 7.56-second tick can slip under load.",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/spawns",
+    "retrieved_at": "2026-10-04T10:04:46.189Z"
+  },
+  "field_sources": {
+    "status_note": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "effective_respawn_rule": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "respawn_explanation": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "spawn_types": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "map_page_display": {
+      "url": "https://meowdb.com/msclassic/maps/000000040",
+      "retrieved_at": "2026-10-04T09:56:43.779Z"
+    },
+    "capacity.statements": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "capacity.example": {
+      "url": "https://meowdb.com/msclassic/maps/000000040",
+      "retrieved_at": "2026-10-04T09:56:43.779Z"
+    },
+    "spawns_per_hour": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "map_spawn_rate_multiplier": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "timed_boss_note": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "unverified": {
+      "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+      "retrieved_at": "2026-10-04T10:06:30.200Z"
+    },
+    "calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    }
+  },
+  "gaps": [
+    "Which spawn points are filled when capacity < spawn points (selection order or randomness) is not documented.",
+    "Initial population when a map is first loaded is not documented.",
+    "Whether the 7.56 s tick phase is shared across maps for a single player (global clock) is stated (\"globally\"), but the tick phase origin is not."
+  ],
+  "discrepancies": [
+    {
+      "topic": "Map mob-rate multiplier",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000040",
+          "text": "Mob rate (1 x) multiplies that capacity: expect about 40 monsters up at a time. Not applied to the figures above yet; best reading from closed-beta play. / Mob rate multiplies how many monsters this map keeps alive at once. This map's mob rate is 1.0x, so its 40 spawn points are the whole story: about 40 monsters up at a time. The spawn figures above do not apply it yet. This is our best reading from closed-beta play, where a high-rate map held far more monsters than it has spawn points; an exact whole-map count has not been done."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+          "text": "MSC does not. The live game ignores it; capacity comes only from spawn-point count and the player scalar."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+          "text": "There is no separate map-wide multiplier or fixed 40-mob cap."
+        }
+      ],
+      "chosen": "Capacity = floor(SpawnPoints × PlayerScalar); the map mob rate is not applied",
+      "reason": "The dedicated spawn guide (updated 2026-08-24) and the glossary agree; the map pages themselves say their figures do not apply the mob rate and call it a \"best reading from closed-beta play\". Unresolved: mark for later verification. The map read here (000000040) shows mob rate 1.0x; check each map's mobRate in the maps domain before relying on either reading."
+    },
+    {
+      "topic": "Displayed respawn time",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000040",
+          "text": "Wave (~7.5s)"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/formulas/spawns",
+          "text": "Global respawn tick = 7.56 s"
+        }
+      ],
+      "chosen": 7.56,
+      "reason": "The map label is a rounded display of the same model; the formulas tab gives the exact model constant."
+    },
+    {
+      "topic": "Effective respawn wording (operator grouping)",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/formulas/spawns",
+          "text": "Effective respawn = first 7.56 s tick at or after death + cooldown"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/spawn-engine-respawn-and-map-capacity",
+          "text": "Effective respawn = the first 7.56s tick at or after (death + cooldown)."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000040",
+          "text": "After a mob dies its spawn point waits a cooldown (5s default, or usually the WZ mobTime value for timed spawns), then the mob reappears on the next tick."
+        }
+      ],
+      "chosen": "first global tick at or after (death time + cooldown)",
+      "reason": "The formulas-tab line can be misread as (first tick at or after death) + cooldown. The spawn guide brackets (death + cooldown), and the guide and map pages both describe the cooldown running first and the mob waiting for the next tick. Only this reading allows the stated 7.56 s cycle of a freshly-cleared wave point (the other reading would give 7.56 + 5 = 12.56 s and spawns off the tick)."
+    }
+  ]
+}

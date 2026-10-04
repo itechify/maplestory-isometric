@@ -332,6 +332,7 @@ def build(m):
     # on the clover bed beside the shelf walk, near GAMEPLAY_FOCUS, ~0.5 m camera-side of the route
     # and turned toward the camera (local look ~(-0.88, +0.47))
     m.player(36.6, 22.6, rot=60)
+    m.player_spawn(3.6, 13.0, rot=90, note="sp x -426: just inside west00 on the west plateau")
 
     # monsters (52 classic spawns: Blue Snail 19, Red Snail 13, Orange Mushroom 12, Snail 8)
     # 14 proxies, one per ~4 spawns, spread over the tiers that have spawns (Red Snails on platforms only)

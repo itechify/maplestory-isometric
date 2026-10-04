@@ -1,0 +1,180 @@
+extends TestCase
+## MonsterDef: the canonical record joined with data/misostory/monsters/_shared.json and <id>.json (the species file
+## overrides the shared table). Gameplay numbers must be the canonical ones (read here straight from the canonical
+## JSON, never restated), the derived conversions must follow their documented rule, and every Maple Island species
+## must be complete.
+
+const SPECIES := ["1", "2", "3", "4", "5", "9"]
+
+
+func test_every_maple_island_species_builds_without_errors() -> void:
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		assert_eq(d.errors.size(), 0, "monster %s: %s" % [id, "; ".join(d.errors)])
+		assert_true(d.stats != null, "%s stats" % id)
+
+
+func test_every_monster_on_a_maple_island_map_has_an_adaptation() -> void:
+	var seen := {}
+	for map_id in db().ids("maps"):
+		for s in db().map(map_id).get("spawns", []):
+			seen[String((s as Dictionary).get("mob_id", ""))] = true
+	for id in seen:
+		assert_false(db().miso_entity("monsters", id).is_empty(), "data/misostory/monsters/%s.json missing" % id)
+
+
+func test_gameplay_stats_are_canonical() -> void:
+	for id in SPECIES:
+		var rec := db().monster(id)
+		var d := MonsterDef.build(id, db())
+		assert_eq(d.max_hp, int(rec["hp"]), "%s hp" % id)
+		assert_eq(d.exp_reward, int(rec["exp"]), "%s exp" % id)
+		assert_eq(d.level, int(rec["level"]), "%s level" % id)
+		assert_eq(d.stats.pdmg, int(rec["physical_damage"]), "%s P.DMG" % id)
+		assert_eq(d.stats.acc, int(rec["accuracy"]), "%s ACC" % id)
+		assert_eq(d.stats.kb, int(rec["knockback_threshold_damage"]), "%s KB" % id)
+		assert_eq(d.speed_modifier, int(rec["speed"]), "%s speed modifier" % id)
+		assert_eq(d.peaceful, bool(rec["flags"]["non_aggressive"]), "%s Peace flag" % id)
+		assert_near(d.die_fade_s, float(rec["die_fade_ms"]) / 1000.0, 1e-9, "%s die fade" % id)
+		var tz: Array = rec["touch_zone_px"]
+		assert_near(d.touch_size_m.x, WorldScale.actor(float(tz[0])), 1e-5, "%s touch width" % id)
+		assert_near(d.touch_size_m.y, WorldScale.actor(float(tz[1])), 1e-5, "%s touch height" % id)
+
+
+func test_movement_kind_follows_the_canonical_label() -> void:
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		var jumps := String(db().monster(id)["movement"]["label"]).contains("Jump")
+		assert_eq(d.is_jumper(), jumps, "%s movement kind vs '%s'" % [id, d.movement_label])
+	assert_true(MonsterDef.build("9", db()).is_jumper(), "Orange Mushroom hops")
+
+
+func test_speed_is_the_walk_line_slope_times_base_plus_modifier() -> void:
+	# The derivation is read from the canonical movement record, never from a restated 1.25.
+	var mv := db().formula("movement")
+	var ws: Dictionary = mv["walk_speed"]
+	var slope := (float(ws["cap_px_per_s"]) - float(ws["base_px_per_s"])) / (float(mv["speed_cap"]) - float(mv["base_speed"]))
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		var px := slope * (float(mv["base_speed"]) + float(db().monster(id)["speed"]))
+		assert_near(d.move_speed_mps, WorldScale.h(px), 1e-9, "%s speed" % id)
+	# Pins of the documented examples (docs and data reasons quote them).
+	assert_near(MonsterDef.build("2", db()).move_speed_mps, 0.875, 1e-6, "Snail 43.75 px/s")
+	assert_near(MonsterDef.build("9", db()).move_speed_mps, 2.5, 1e-6, "Orange Mushroom 125 px/s")
+	var player_walk := WorldScale.h(float(ws["base_px_per_s"]))
+	for id in SPECIES:
+		assert_true(MonsterDef.build(id, db()).move_speed_mps < player_walk, "%s slower than the player" % id)
+
+
+func test_hop_uses_the_character_base_jump_and_canonical_gravity() -> void:
+	var mv := db().formula("movement")
+	var d := MonsterDef.build("9", db())
+	var base_px := 0.0
+	for row in mv["jump_height_px_by_jump"]:
+		if float(row["jump"]) == float(mv["base_jump"]):
+			base_px = float(row["height_px"])
+	assert_near(d.hop_apex_m, WorldScale.v(base_px), 1e-9, "apex = Jump 100 height")
+	assert_near(d.gravity_mps2, WorldScale.v(float(mv["knockback_airtime"]["gravity_px_per_s2"])), 1e-9, "gravity")
+	assert_true(d.hop_interval_s.x > 0.0 and d.hop_interval_s.y >= d.hop_interval_s.x, "hop interval")
+
+
+func test_stagger_and_push_come_from_the_combat_rules() -> void:
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		assert_near(d.stagger_s, CombatFormula.monster_stagger_s(d.stats, db()), 1e-9, "%s stagger" % id)
+		assert_near(d.knockback_m, WorldScale.h(CombatFormula.monster_knockback_distance_px(db())), 1e-9, "%s push" % id)
+
+
+func test_peace_monster_touch_rule() -> void:
+	var sentinel := MonsterDef.build("1", db())
+	assert_true(sentinel.peaceful, "canonical Peace attribute")
+	assert_eq(sentinel.touch_rule, MonsterDef.TOUCH_WHEN_PROVOKED)
+	assert_false(sentinel.touch_active(false), "safe to walk past")
+	assert_true(sentinel.touch_active(true), "provoked: touch hurts")
+	var snail := MonsterDef.build("2", db())
+	assert_true(snail.touch_active(false), "a Snail always hurts")
+	var data := db().miso_entity("monsters", "1")
+	assert_eq(data.get("verified"), false, "the Peace rule is unverified")
+
+
+func test_models_and_capsules() -> void:
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		if id == "1":
+			assert_false(d.has_model(), "Tutorial Jr. Sentinel has no proxy: placeholder")
+		else:
+			assert_true(d.model.begins_with("Mob_"), "%s model" % id)
+		assert_true(d.capsule_radius_m > 0.0 and d.capsule_radius_m <= d.touch_size_m.x * 0.5 + 1e-6, "%s capsule inside the touch zone" % id)
+		assert_near(d.capsule_height_m, d.touch_size_m.y, 0.02, "%s capsule height = touch zone height" % id)
+
+
+func test_every_adaptation_value_has_a_reason() -> void:
+	for id in SPECIES + [MonsterDef.SHARED_TABLE]:
+		var a := db().miso_entity("monsters", id)
+		assert_false(a.is_empty(), "monsters/%s.json loads" % id)
+		var reasons: Dictionary = a.get("reasons", {})
+		for k in a:
+			if k in ["id", "kind", "description", "verified", "reasons"]:
+				continue
+			assert_true(String(reasons.get(k, "")) != "", "monsters/%s.json %s has no reason" % [id, k])
+		for k in reasons:
+			assert_true(a.has(k), "monsters/%s.json explains '%s', which it does not set" % [id, k])
+		assert_eq(a.get("verified"), false, "monsters/%s.json is unverified" % id)
+	# The merged view a species runs with: every value it reads is explained, by the species or the shared table.
+	for id in SPECIES:
+		var merged := MonsterDef.build(id, db()).adaptation
+		for k in merged:
+			if k in ["id", "kind", "description", "verified", "reasons"]:
+				continue
+			assert_true(String((merged["reasons"] as Dictionary).get(k, "")) != "", "monster %s: %s unexplained" % [id, k])
+
+
+func test_shared_values_reach_every_species_and_a_species_file_overrides_them() -> void:
+	var shared := db().miso_entity("monsters", MonsterDef.SHARED_TABLE)
+	for k in ["probe_ahead_m", "ledge_tolerance_m", "wall_probe_height_m", "new_heading_chance", "turn_jitter_deg",
+			"provoked_chase_s", "model_fit", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m"]:
+		assert_true(shared.has(k), "_shared.json holds %s" % k)
+		for id in SPECIES:
+			assert_false(db().miso_entity("monsters", id).has(k), "monsters/%s.json no longer repeats %s" % [id, k])
+	for id in SPECIES:
+		var d := MonsterDef.build(id, db())
+		assert_near(d.probe_ahead_m, float(shared["probe_ahead_m"]), 1e-9, "%s probe" % id)
+		assert_near(d.ledge_tolerance_m, float(shared["ledge_tolerance_m"]), 1e-9, "%s ledge tolerance" % id)
+		assert_near(d.wall_probe_height_m, float(shared["wall_probe_height_m"]), 1e-9, "%s wall probe" % id)
+		assert_near(d.new_heading_chance, float(shared["new_heading_chance"]), 1e-9, "%s heading chance" % id)
+		assert_near(d.turn_jitter_rad, deg_to_rad(float(shared["turn_jitter_deg"])), 1e-9, "%s jitter" % id)
+		assert_near(d.provoked_chase_s, float(shared["provoked_chase_s"]), 1e-9, "%s chase" % id)
+		assert_eq(d.model_fit, String(shared["model_fit"]), "%s model fit" % id)
+		assert_near(d.fall_landing_tolerance_m, float(shared["fall_landing_tolerance_m"]), 1e-9, "%s fall tolerance" % id)
+	var om := MonsterDef.build("9", db())
+	assert_near(om.hop_max_rise_apex_fraction, float(shared["hop_max_rise_apex_fraction"]), 1e-9, "OM hop reach")
+	# A species file that names a shared key wins, with its own reason; the other species keep the shared value.
+	var c := ContentDB.new()
+	c.canonical = db().canonical
+	c.miso = db().miso.duplicate(true)
+	c.loaded = true
+	c.miso["monsters"]["2"]["probe_ahead_m"] = 0.8
+	c.miso["monsters"]["2"]["reasons"]["probe_ahead_m"] = "test override"
+	c.miso["monsters"]["9"]["hop_max_rise_apex_fraction"] = 0.5
+	var snail := MonsterDef.build("2", c)
+	assert_eq(snail.errors.size(), 0, "; ".join(snail.errors))
+	assert_near(snail.probe_ahead_m, 0.8, 1e-9, "the Snail's own probe wins")
+	assert_eq(String(snail.adaptation["reasons"]["probe_ahead_m"]), "test override", "with its own reason")
+	assert_near(MonsterDef.build("3", c).probe_ahead_m, float(shared["probe_ahead_m"]), 1e-9, "Blue Snail keeps the shared probe")
+	assert_near(MonsterDef.build("9", c).hop_max_rise_apex_fraction, 0.5, 1e-9, "OM override")
+	assert_eq(float(db().miso_entity("monsters", MonsterDef.SHARED_TABLE)["probe_ahead_m"]), float(shared["probe_ahead_m"]),
+		"merging never edits the shared table")
+
+
+func test_a_missing_shared_table_or_shared_value_is_an_error() -> void:
+	var c := ContentDB.new()
+	c.canonical = db().canonical
+	c.miso = db().miso.duplicate(true)
+	c.loaded = true
+	(c.miso["monsters"] as Dictionary).erase(MonsterDef.SHARED_TABLE)
+	var d := MonsterDef.build("2", c)
+	var text := "; ".join(d.errors)
+	assert_true(text.contains("_shared"), "the missing table is named: %s" % text)
+	assert_true(text.contains("probe_ahead_m"), "and the values it held are missing: %s" % text)
+	assert_true(text.contains("model_fit"), "model_fit too (no silent default): %s" % text)
+	assert_true(MonsterDef.build("9", c).errors.size() > d.errors.size(), "a jumper also misses its hop reach")

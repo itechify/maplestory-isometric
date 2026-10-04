@@ -326,6 +326,9 @@ def build(m):
     m.edge_portal("in00")
     m.edge_portal("out00")
     m.player(26.2, 13.7, rot=30)  # on the street, just off the road centreline, facing the camera
+    m.player_spawn(4.5, 10.5, rot=90, note="sp x -91: ~3 m east of in00 on the arrival meadow")
     m.route("Main", [(1, 10), (5.5, 11.0), (9.4, 11.99), (13.3, 12.98), (16.5, 13.9), (20, 14.4), (30, 14.5),
                      (41, 14)])
-    m.route("ToYellowHouse", [(31.2, 14.6), (30.9, 19.0), (dx + 0.05, dy - 1.1)])
+    # ends on the door path 1.35 m in front of the door plane: a run can start there clear of the house's
+    # collision (at 1.1 m the 0.3 m body touched its prism)
+    m.route("ToYellowHouse", [(31.2, 14.6), (30.9, 19.0), (dx + 0.05, dy - 1.35)])

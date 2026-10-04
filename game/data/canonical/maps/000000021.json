@@ -1,0 +1,118 @@
+{
+  "id": "000000021",
+  "name": "Mushroom Town Townstreet",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Mushroom Town Townstreet is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 1 NPC including Sen. Connects to 1 other map.",
+  "return_map_id": "000000021",
+  "return_map_name": "Mushroom Town Townstreet",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000020",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": -167,
+      "y_px": 244,
+      "to_map_id": "000000020",
+      "to_map_name": "Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "in01",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -329,
+      "y_px": 241
+    }
+  ],
+  "npcs": [
+    {
+      "id": "5",
+      "name": "Sen",
+      "x_px": 24,
+      "y_px": 246,
+      "idle_speech_lines": [
+        "I'm... so... hungry!",
+        "Can... I... eat this...?"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 1408,
+    "height_px": 942,
+    "center_x_px": 749,
+    "center_y_px": 477,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -749,
+    "x_max": 659,
+    "y_min": -477,
+    "y_max": 465
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1004",
+        "name": "Returning to Nina",
+        "npc_name": "Sen",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+3 EXP"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000021",
+    "retrieved_at": "2026-10-04T09:56:40.709Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000020",
+          "retrieved_at": "2026-10-04T09:56:39.214Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

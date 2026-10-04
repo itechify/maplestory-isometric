@@ -1,0 +1,2726 @@
+{
+  "generated_by": "game/tools/traversal_bot.tscn",
+  "generated_at": "2026-10-04T19:57:48Z",
+  "engine": "4.7.2-stable (official)",
+  "sections": [
+    "l1",
+    "routes",
+    "trails",
+    "tour"
+  ],
+  "maps_requested": [
+    "all"
+  ],
+  "l1_build": {
+    "ms": 904,
+    "errors": [],
+    "warnings": [],
+    "stats": {
+      "collision_bodies": 2473,
+      "portals": 47,
+      "npcs": 21,
+      "rings": 25,
+      "trails": 20,
+      "plugs": 40
+    }
+  },
+  "l2_routes": {
+    "maps": 25,
+    "runs": 360,
+    "failed": 0,
+    "ms": 8526,
+    "failures": [],
+    "per_map": {
+      "000000001": {
+        "slug": "WestEntranceMushroomTown_0",
+        "routes": 3,
+        "runs": 6,
+        "failed": 0
+      },
+      "000000010": {
+        "slug": "MushroomTown_10000",
+        "routes": 2,
+        "runs": 4,
+        "failed": 0
+      },
+      "000000020": {
+        "slug": "MushroomTown_20000",
+        "routes": 3,
+        "runs": 6,
+        "failed": 0
+      },
+      "000000021": {
+        "slug": "MushroomTownTownstreet_20001",
+        "routes": 3,
+        "runs": 6,
+        "failed": 0
+      },
+      "000000030": {
+        "slug": "EastEntranceMushroomTown_30000",
+        "routes": 3,
+        "runs": 6,
+        "failed": 0
+      },
+      "000000040": {
+        "slug": "SnailHuntingGround1_40000",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      },
+      "000000041": {
+        "slug": "SnailHuntingGround2_40001",
+        "routes": 10,
+        "runs": 20,
+        "failed": 0
+      },
+      "000000042": {
+        "slug": "SnailHuntingGround3_40002",
+        "routes": 6,
+        "runs": 12,
+        "failed": 0
+      },
+      "000000050": {
+        "slug": "ASplitRoad_50000",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      },
+      "000000060": {
+        "slug": "Southperry_60000",
+        "routes": 10,
+        "runs": 20,
+        "failed": 0
+      },
+      "000000061": {
+        "slug": "SouthperryArmorStore_60001",
+        "routes": 4,
+        "runs": 8,
+        "failed": 0
+      },
+      "000001000": {
+        "slug": "FieldWestOfAmherst_1000000",
+        "routes": 12,
+        "runs": 24,
+        "failed": 0
+      },
+      "000001001": {
+        "slug": "InASmallForest_1000001",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      },
+      "000001002": {
+        "slug": "DangerousForest_1000002",
+        "routes": 12,
+        "runs": 24,
+        "failed": 0
+      },
+      "000001003": {
+        "slug": "MushroomGarden_1000003",
+        "routes": 4,
+        "runs": 8,
+        "failed": 0
+      },
+      "000001004": {
+        "slug": "SnailGarden_1000004",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      },
+      "000001005": {
+        "slug": "HuntingGroundMidForest1_1000005",
+        "routes": 16,
+        "runs": 31,
+        "failed": 0
+      },
+      "000001006": {
+        "slug": "HuntingGroundMidForest2_1000006",
+        "routes": 14,
+        "runs": 28,
+        "failed": 0
+      },
+      "000001010": {
+        "slug": "Amherst_1010000",
+        "routes": 5,
+        "runs": 10,
+        "failed": 0
+      },
+      "000001011": {
+        "slug": "AmherstWeaponStore_1010001",
+        "routes": 5,
+        "runs": 10,
+        "failed": 0
+      },
+      "000001012": {
+        "slug": "AmherstTownstreet_1010002",
+        "routes": 3,
+        "runs": 6,
+        "failed": 0
+      },
+      "000001013": {
+        "slug": "AmherstDepartmentStore_1010003",
+        "routes": 4,
+        "runs": 7,
+        "failed": 0
+      },
+      "000001014": {
+        "slug": "SnailFieldOfFlowers_1010004",
+        "routes": 14,
+        "runs": 28,
+        "failed": 0
+      },
+      "000001020": {
+        "slug": "FieldEastOfAmherst_1020000",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      },
+      "000001021": {
+        "slug": "TomatoField_1020001",
+        "routes": 8,
+        "runs": 16,
+        "failed": 0
+      }
+    }
+  },
+  "trails": {
+    "T_000000001_out00__000000010_in00": {
+      "link_id": "T_000000001_out00__000000010_in00",
+      "maps": [
+        "000000001",
+        "000000010"
+      ],
+      "portals": [
+        "000000001.out00",
+        "000000010.in00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 23,
+      "length_m": 10.06,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        13.89,
+        13.96
+      ],
+      "notes": []
+    },
+    "T_000000010_out00__000000020_in00": {
+      "link_id": "T_000000010_out00__000000020_in00",
+      "maps": [
+        "000000010",
+        "000000020"
+      ],
+      "portals": [
+        "000000010.out00",
+        "000000020.in00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 31,
+      "length_m": 14.1,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        13.93,
+        15.16
+      ],
+      "notes": []
+    },
+    "T_000000020_out00__000000030_in00": {
+      "link_id": "T_000000020_out00__000000030_in00",
+      "maps": [
+        "000000020",
+        "000000030"
+      ],
+      "portals": [
+        "000000020.out00",
+        "000000030.in00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 21,
+      "length_m": 10.03,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        14.88,
+        15.96
+      ],
+      "notes": []
+    },
+    "T_000000030_out00__000000040": {
+      "link_id": "T_000000030_out00__000000040",
+      "maps": [
+        "000000030",
+        "000000040"
+      ],
+      "portals": [
+        "000000030.out00",
+        "000000040.arrival:T_000000030_out00__000000040"
+      ],
+      "one_way": true,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 60,
+      "length_m": 27.02,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        14.6,
+        24.37
+      ],
+      "notes": []
+    },
+    "T_000000040_east00__000000041_west00": {
+      "link_id": "T_000000040_east00__000000041_west00",
+      "maps": [
+        "000000040",
+        "000000041"
+      ],
+      "portals": [
+        "000000040.east00",
+        "000000041.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 25,
+      "length_m": 12.03,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        8.56,
+        10.96
+      ],
+      "notes": []
+    },
+    "T_000000041_east00__000000042_west00": {
+      "link_id": "T_000000041_east00__000000042_west00",
+      "maps": [
+        "000000041",
+        "000000042"
+      ],
+      "portals": [
+        "000000041.east00",
+        "000000042.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 37,
+      "length_m": 18.22,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        5.76,
+        7.96
+      ],
+      "notes": [
+        "1 reversing side points cut (folds on the inner edge of a bend)",
+        "6 square corners on the outline (4 expected); the caps are the runs nearest the gates"
+      ]
+    },
+    "T_000000042_east00__000000050_west00": {
+      "link_id": "T_000000042_east00__000000050_west00",
+      "maps": [
+        "000000042",
+        "000000050"
+      ],
+      "portals": [
+        "000000042.east00",
+        "000000050.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 70,
+      "length_m": 30.05,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        4.71,
+        17.46
+      ],
+      "notes": [
+        "2 spike or zigzag points cut from the outline"
+      ]
+    },
+    "T_000000050_east00__000001000_west00": {
+      "link_id": "T_000000050_east00__000001000_west00",
+      "maps": [
+        "000000050",
+        "000001000"
+      ],
+      "portals": [
+        "000000050.east00",
+        "000001000.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 24,
+      "length_m": 12.35,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        6.15,
+        7.96
+      ],
+      "notes": [
+        "2 spike or zigzag points cut from the outline"
+      ]
+    },
+    "T_000000050_east01__000000060_west00": {
+      "link_id": "T_000000050_east01__000000060_west00",
+      "maps": [
+        "000000050",
+        "000000060"
+      ],
+      "portals": [
+        "000000050.east01",
+        "000000060.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 84,
+      "length_m": 37.44,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        3.92,
+        4.26
+      ],
+      "notes": [
+        "2 boundary loops; kept the longest (92.5 m)",
+        "6 spike or zigzag points cut from the outline",
+        "11 reversing side points cut (folds on the inner edge of a bend)"
+      ]
+    },
+    "T_000001000_east00__000001010_west00": {
+      "link_id": "T_000001000_east00__000001010_west00",
+      "maps": [
+        "000001000",
+        "000001010"
+      ],
+      "portals": [
+        "000001000.east00",
+        "000001010.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 27,
+      "length_m": 12.09,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        4.95,
+        5.96
+      ],
+      "notes": [
+        "1 spike or zigzag points cut from the outline"
+      ]
+    },
+    "T_000001000_in00__000001001_out00": {
+      "link_id": "T_000001000_in00__000001001_out00",
+      "maps": [
+        "000001000",
+        "000001001"
+      ],
+      "portals": [
+        "000001000.in00",
+        "000001001.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 38,
+      "length_m": 18.11,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        11.36,
+        12.36
+      ],
+      "notes": []
+    },
+    "T_000001000_in01__000001002_out01": {
+      "link_id": "T_000001000_in01__000001002_out01",
+      "maps": [
+        "000001000",
+        "000001002"
+      ],
+      "portals": [
+        "000001000.in01",
+        "000001002.out01"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 27,
+      "length_m": 12.02,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        12.16,
+        14.96
+      ],
+      "notes": []
+    },
+    "T_000001000_in02__000001003_out00": {
+      "link_id": "T_000001000_in02__000001003_out00",
+      "maps": [
+        "000001000",
+        "000001003"
+      ],
+      "portals": [
+        "000001000.in02",
+        "000001003.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 52,
+      "length_m": 24.54,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        4.36,
+        4.96
+      ],
+      "notes": [
+        "2 spike or zigzag points cut from the outline"
+      ]
+    },
+    "T_000001000_in03__000001004_out00": {
+      "link_id": "T_000001000_in03__000001004_out00",
+      "maps": [
+        "000001000",
+        "000001004"
+      ],
+      "portals": [
+        "000001000.in03",
+        "000001004.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 102,
+      "length_m": 49.54,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        4.21,
+        4.96
+      ],
+      "notes": [
+        "3 boundary loops; kept the longest (114.9 m)",
+        "1 spike or zigzag points cut from the outline",
+        "16 reversing side points cut (folds on the inner edge of a bend)",
+        "8 square corners on the outline (4 expected); the caps are the runs nearest the gates"
+      ]
+    },
+    "T_000001000_in04__000001005_out00": {
+      "link_id": "T_000001000_in04__000001005_out00",
+      "maps": [
+        "000001000",
+        "000001005"
+      ],
+      "portals": [
+        "000001000.in04",
+        "000001005.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 23,
+      "length_m": 10.51,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        12.78,
+        13.36
+      ],
+      "notes": [
+        "4 spike or zigzag points cut from the outline"
+      ]
+    },
+    "T_000001000_in05__000001006_out00": {
+      "link_id": "T_000001000_in05__000001006_out00",
+      "maps": [
+        "000001000",
+        "000001006"
+      ],
+      "portals": [
+        "000001000.in05",
+        "000001006.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 131,
+      "length_m": 60.19,
+      "half_width_m": [
+        1.49,
+        1.9
+      ],
+      "y": [
+        13.76,
+        22.96
+      ],
+      "notes": [
+        "2 boundary loops; kept the longest (116.1 m)",
+        "4 spike or zigzag points cut from the outline",
+        "plank bridge Trail_FieldWestOfAmherst_1000000_in05_to_HuntingGroundMidForest2_1000006_BridgeDeck: 25 rows appended"
+      ]
+    },
+    "T_000001010_east00__000001020_west00": {
+      "link_id": "T_000001010_east00__000001020_west00",
+      "maps": [
+        "000001010",
+        "000001020"
+      ],
+      "portals": [
+        "000001010.east00",
+        "000001020.west00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 44,
+      "length_m": 18.38,
+      "half_width_m": [
+        2.6,
+        2.6
+      ],
+      "y": [
+        5.88,
+        5.96
+      ],
+      "notes": [
+        "1 spike or zigzag points cut from the outline",
+        "7 reversing side points cut (folds on the inner edge of a bend)",
+        "5 square corners on the outline (4 expected); the caps are the runs nearest the gates"
+      ]
+    },
+    "T_000001010_in01__000001012_out00": {
+      "link_id": "T_000001010_in01__000001012_out00",
+      "maps": [
+        "000001010",
+        "000001012"
+      ],
+      "portals": [
+        "000001010.in01",
+        "000001012.out00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 12,
+      "length_m": 5.0,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        6.66,
+        7.96
+      ],
+      "notes": []
+    },
+    "T_000001012_west00__000001014_east00": {
+      "link_id": "T_000001012_west00__000001014_east00",
+      "maps": [
+        "000001012",
+        "000001014"
+      ],
+      "portals": [
+        "000001012.west00",
+        "000001014.east00"
+      ],
+      "one_way": false,
+      "hidden": false,
+      "source": "mesh",
+      "rows": 89,
+      "length_m": 41.64,
+      "half_width_m": [
+        1.9,
+        1.9
+      ],
+      "y": [
+        7.94,
+        20.06
+      ],
+      "notes": [
+        "2 boundary loops; kept the longest (102.8 m)",
+        "6 spike or zigzag points cut from the outline",
+        "7 reversing side points cut (folds on the inner edge of a bend)",
+        "8 square corners on the outline (4 expected); the caps are the runs nearest the gates"
+      ]
+    },
+    "T_000001020_in00__000001021_out00": {
+      "link_id": "T_000001020_in00__000001021_out00",
+      "maps": [
+        "000001020",
+        "000001021"
+      ],
+      "portals": [
+        "000001020.in00",
+        "000001021.out00"
+      ],
+      "one_way": false,
+      "hidden": true,
+      "source": "mesh",
+      "rows": 49,
+      "length_m": 20.63,
+      "half_width_m": [
+        1.7,
+        1.7
+      ],
+      "y": [
+        3.16,
+        10.56
+      ],
+      "notes": [
+        "3 spike or zigzag points cut from the outline",
+        "6 square corners on the outline (4 expected); the caps are the runs nearest the gates"
+      ]
+    }
+  },
+  "l2_links": {
+    "links": {
+      "T_000000001_out00__000000010_in00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000001>000000010": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.3,
+              "distance_m": 12.85,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000010>000000001": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.3,
+              "distance_m": 12.85,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000010_out00__000000020_in00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000010>000000020": {
+            "edge": {
+              "ok": true,
+              "time_s": 5.65,
+              "distance_m": 16.99,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000020>000000010": {
+            "edge": {
+              "ok": true,
+              "time_s": 5.65,
+              "distance_m": 16.99,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000020_in01__000000021_out00": {
+        "kind": "door",
+        "one_way": false,
+        "mode": "warp",
+        "directions": {
+          "000000020>000000021": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            }
+          },
+          "000000021>000000020": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          }
+        }
+      },
+      "T_000000020_out00__000000030_in00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000020>000000030": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.3,
+              "distance_m": 12.96,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000030>000000020": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.3,
+              "distance_m": 12.95,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000030_out00__000000040": {
+        "kind": "trail",
+        "one_way": true,
+        "mode": "edge",
+        "directions": {
+          "000000030>000000040": {
+            "edge": {
+              "ok": true,
+              "time_s": 10.35,
+              "distance_m": 40.32,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000040_east00__000000041_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000040>000000041": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.967,
+              "distance_m": 15.13,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000041>000000040": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.967,
+              "distance_m": 15.13,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000041_east00__000000042_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000041>000000042": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.017,
+              "distance_m": 21.26,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000042>000000041": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.017,
+              "distance_m": 21.26,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000042_east00__000000050_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000042>000000050": {
+            "edge": {
+              "ok": true,
+              "time_s": 10.967,
+              "distance_m": 43.49,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000050>000000042": {
+            "edge": {
+              "ok": true,
+              "time_s": 10.967,
+              "distance_m": 43.5,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000050_east00__000001000_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000050>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 5.05,
+              "distance_m": 15.31,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001000>000000050": {
+            "edge": {
+              "ok": true,
+              "time_s": 5.05,
+              "distance_m": 15.32,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000050_east01__000000060_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000000050>000000060": {
+            "edge": {
+              "ok": true,
+              "time_s": 13.233,
+              "distance_m": 39.62,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000000060>000000050": {
+            "edge": {
+              "ok": true,
+              "time_s": 13.233,
+              "distance_m": 39.62,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000000060_in00__000000061_out00": {
+        "kind": "door",
+        "one_way": false,
+        "mode": "warp",
+        "directions": {
+          "000000060>000000061": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          },
+          "000000061>000000060": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          }
+        }
+      },
+      "T_000001000_east00__000001010_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001010": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.983,
+              "distance_m": 14.97,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001010>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.983,
+              "distance_m": 14.97,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in00__000001001_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001001": {
+            "edge": {
+              "ok": true,
+              "time_s": 6.983,
+              "distance_m": 20.93,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001001>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 6.983,
+              "distance_m": 20.93,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in01__000001002_out01": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001002": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.967,
+              "distance_m": 15.22,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001002>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.967,
+              "distance_m": 15.22,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in02__000001003_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001003": {
+            "edge": {
+              "ok": true,
+              "time_s": 9.117,
+              "distance_m": 27.28,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001003>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 9.117,
+              "distance_m": 27.28,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in03__000001004_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001004": {
+            "edge": {
+              "ok": true,
+              "time_s": 17.55,
+              "distance_m": 52.37,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001004>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 17.583,
+              "distance_m": 52.36,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in04__000001005_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001005": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.417,
+              "distance_m": 13.21,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001005>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 4.933,
+              "distance_m": 14.99,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.683,
+              "distance_m": 0.87,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001000_in05__000001006_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001000>000001006": {
+            "edge": {
+              "ok": true,
+              "time_s": 21.367,
+              "distance_m": 65.34,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001006>000001000": {
+            "edge": {
+              "ok": true,
+              "time_s": 21.317,
+              "distance_m": 64.89,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001010_east00__000001020_west00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001010>000001020": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.0,
+              "distance_m": 20.92,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001020>000001010": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.0,
+              "distance_m": 20.92,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001010_in00__000001011_out00": {
+        "kind": "door",
+        "one_way": false,
+        "mode": "warp",
+        "directions": {
+          "000001010>000001011": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          },
+          "000001011>000001010": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          }
+        }
+      },
+      "T_000001010_in01__000001012_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001010>000001012": {
+            "edge": {
+              "ok": true,
+              "time_s": 2.633,
+              "distance_m": 8.94,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001012>000001010": {
+            "edge": {
+              "ok": true,
+              "time_s": 2.633,
+              "distance_m": 8.94,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      },
+      "T_000001010_in02__000001013_out00": {
+        "kind": "door",
+        "one_way": false,
+        "mode": "warp",
+        "directions": {
+          "000001010>000001013": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          },
+          "000001013>000001010": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            }
+          }
+        }
+      },
+      "T_000001012_west00__000001014_east00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "warp",
+        "directions": {
+          "000001012>000001014": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          },
+          "000001014>000001012": {
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            }
+          }
+        },
+        "override_reason": "Source geometry (M2 traversal, 2026-10-04): after leaving 000001012.west00 the trail turns back in a hairpin and climbs along 000001012's south-west footprint edge inside the 1 m containment band: 25 ribbon points lie inside 000001012's ring line (footprint + 1 m), up to 2.31 m deep at (279.55, 10.68, 580.70), and the climb also touches 000001014's ring line (0.20 m at (275.73, 10.13, 578.94)). The 000001012 ring wall stands across the walkable top there, so the bot stalls at (272.86, 8.60, 583.47) walking out and at (280.73, 11.67, 577.33) walking in. Walking it would need either a gap in a map ring away from its gate (the identity invariant then breaks: the player would stand in 000001012's region without crossing its gate) or a Blender fix: keep the climb at least half-width + 1.5 m (3.4 m) outside both footprints except at the trail mouths. Until then the link is press-Up only (both portals work; the trail is scenery behind the plugs)."
+      },
+      "T_000001020_in00__000001021_out00": {
+        "kind": "trail",
+        "one_way": false,
+        "mode": "edge",
+        "directions": {
+          "000001020>000001021": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.8,
+              "distance_m": 24.86,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.733,
+              "distance_m": 0.75,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          },
+          "000001021>000001020": {
+            "edge": {
+              "ok": true,
+              "time_s": 7.8,
+              "distance_m": 24.87,
+              "issues": [],
+              "recoveries": 0,
+              "violations": 0
+            },
+            "warp": {
+              "ok": true,
+              "time_s": 0.75,
+              "distance_m": 0.8,
+              "issues": []
+            },
+            "equivalent": true,
+            "diff": []
+          }
+        }
+      }
+    },
+    "failed": 0,
+    "runs": 85,
+    "ledge": {
+      "ok": true,
+      "issues": [],
+      "max_climb_m": 0.9,
+      "ledge_top_y": 14.6,
+      "current_map": "000000040",
+      "time_s": 10.0
+    },
+    "ms": 8557
+  },
+  "l3_tour": {
+    "edge": {
+      "mode": "edge",
+      "ok": true,
+      "legs": [
+        {
+          "from": "000000001",
+          "to": "000000010",
+          "portal": "000000001.out00",
+          "link": "T_000000001_out00__000000010_in00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 15.37,
+          "distance_m": 47.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000010",
+          "to": "000000020",
+          "portal": "000000010.out00",
+          "link": "T_000000010_out00__000000020_in00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 18.9,
+          "distance_m": 56.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000020",
+          "to": "000000021",
+          "portal": "000000020.in01",
+          "link": "T_000000020_in01__000000021_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 19.05,
+          "distance_m": 57.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000021",
+          "to": "000000020",
+          "portal": "000000021.out00",
+          "link": "T_000000020_in01__000000021_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000020",
+          "to": "000000030",
+          "portal": "000000020.out00",
+          "link": "T_000000020_out00__000000030_in00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 7.82,
+          "distance_m": 23.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000030",
+          "to": "000000040",
+          "portal": "000000030.out00",
+          "link": "T_000000030_out00__000000040",
+          "how": "walk",
+          "ok": true,
+          "time_s": 48.63,
+          "distance_m": 154.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000040",
+          "to": "000000041",
+          "portal": "000000040.east00",
+          "link": "T_000000040_east00__000000041_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 26.55,
+          "distance_m": 80.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000041",
+          "to": "000000042",
+          "portal": "000000041.east00",
+          "link": "T_000000041_east00__000000042_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 28.37,
+          "distance_m": 85.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000042",
+          "to": "000000050",
+          "portal": "000000042.east00",
+          "link": "T_000000042_east00__000000050_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 56.47,
+          "distance_m": 182.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000050",
+          "to": "000000060",
+          "portal": "000000050.east01",
+          "link": "T_000000050_east01__000000060_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 38.12,
+          "distance_m": 114.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000060",
+          "to": "000000061",
+          "portal": "000000060.in00",
+          "link": "T_000000060_in00__000000061_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 19.58,
+          "distance_m": 59.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000061",
+          "to": "000000060",
+          "portal": "000000061.out00",
+          "link": "T_000000060_in00__000000061_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000060",
+          "to": "000000050",
+          "portal": "000000060.west00",
+          "link": "T_000000050_east01__000000060_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 31.37,
+          "distance_m": 96.1,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000050",
+          "to": "000001000",
+          "portal": "000000050.east00",
+          "link": "T_000000050_east00__000001000_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 23.27,
+          "distance_m": 72.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001001",
+          "portal": "000001000.in00",
+          "link": "T_000001000_in00__000001001_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 49.45,
+          "distance_m": 152.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001001",
+          "to": "000001000",
+          "portal": "000001001.out00",
+          "link": "T_000001000_in00__000001001_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 6.27,
+          "distance_m": 18.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001002",
+          "portal": "000001000.in01",
+          "link": "T_000001000_in01__000001002_out01",
+          "how": "walk",
+          "ok": true,
+          "time_s": 35.72,
+          "distance_m": 111.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001002",
+          "to": "000001000",
+          "portal": "000001002.out01",
+          "link": "T_000001000_in01__000001002_out01",
+          "how": "walk",
+          "ok": true,
+          "time_s": 4.25,
+          "distance_m": 13.0,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001003",
+          "portal": "000001000.in02",
+          "link": "T_000001000_in02__000001003_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 49.05,
+          "distance_m": 151.0,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001003",
+          "to": "000001000",
+          "portal": "000001003.out00",
+          "link": "T_000001000_in02__000001003_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 8.4,
+          "distance_m": 25.1,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001004",
+          "portal": "000001000.in03",
+          "link": "T_000001000_in03__000001004_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 35.67,
+          "distance_m": 107.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001004",
+          "to": "000001000",
+          "portal": "000001004.out00",
+          "link": "T_000001000_in03__000001004_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 16.87,
+          "distance_m": 50.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001005",
+          "portal": "000001000.in04",
+          "link": "T_000001000_in04__000001005_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 55.58,
+          "distance_m": 173.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001005",
+          "to": "000001000",
+          "portal": "000001005.out00",
+          "link": "T_000001000_in04__000001005_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 3.68,
+          "distance_m": 11.0,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001006",
+          "portal": "000001000.in05",
+          "link": "T_000001000_in05__000001006_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 37.62,
+          "distance_m": 114.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001006",
+          "to": "000001000",
+          "portal": "000001006.out00",
+          "link": "T_000001000_in05__000001006_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 20.6,
+          "distance_m": 62.7,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001010",
+          "portal": "000001000.east00",
+          "link": "T_000001000_east00__000001010_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 55.6,
+          "distance_m": 173.1,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001011",
+          "portal": "000001010.in00",
+          "link": "T_000001010_in00__000001011_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 23.83,
+          "distance_m": 66.6,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001011",
+          "to": "000001010",
+          "portal": "000001011.out00",
+          "link": "T_000001010_in00__000001011_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001013",
+          "portal": "000001010.in02",
+          "link": "T_000001010_in02__000001013_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 20.7,
+          "distance_m": 58.3,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001013",
+          "to": "000001010",
+          "portal": "000001013.out00",
+          "link": "T_000001010_in02__000001013_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001012",
+          "portal": "000001010.in01",
+          "link": "T_000001010_in01__000001012_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 24.05,
+          "distance_m": 74.3,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001012",
+          "to": "000001014",
+          "portal": "000001012.west00",
+          "link": "T_000001012_west00__000001014_east00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 7.68,
+          "distance_m": 22.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001014",
+          "to": "000001012",
+          "portal": "000001014.east00",
+          "link": "T_000001012_west00__000001014_east00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001012",
+          "to": "000001010",
+          "portal": "000001012.out00",
+          "link": "T_000001010_in01__000001012_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 8.92,
+          "distance_m": 28.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001020",
+          "portal": "000001010.east00",
+          "link": "T_000001010_east00__000001020_west00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 20.1,
+          "distance_m": 60.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001020",
+          "to": "000001021",
+          "portal": "000001020.in00",
+          "link": "T_000001020_in00__000001021_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 29.73,
+          "distance_m": 91.1,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001021",
+          "to": "000001020",
+          "portal": "000001021.out00",
+          "link": "T_000001020_in00__000001021_out00",
+          "how": "walk",
+          "ok": true,
+          "time_s": 7.08,
+          "distance_m": 22.7,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        }
+      ],
+      "time_s": 858.08,
+      "distance_m": 2625.0,
+      "recoveries": 0,
+      "stalls": 0,
+      "violations": 0,
+      "teleports": 0,
+      "maps_visited": [
+        "000000001",
+        "000000010",
+        "000000020",
+        "000000021",
+        "000000030",
+        "000000040",
+        "000000041",
+        "000000042",
+        "000000050",
+        "000000060",
+        "000000061",
+        "000001000",
+        "000001001",
+        "000001002",
+        "000001003",
+        "000001004",
+        "000001005",
+        "000001006",
+        "000001010",
+        "000001011",
+        "000001012",
+        "000001013",
+        "000001014",
+        "000001020",
+        "000001021"
+      ],
+      "ms": 18554
+    },
+    "warp": {
+      "mode": "warp",
+      "ok": true,
+      "legs": [
+        {
+          "from": "000000001",
+          "to": "000000010",
+          "portal": "000000001.out00",
+          "link": "T_000000001_out00__000000010_in00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 11.82,
+          "distance_m": 35.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000010",
+          "to": "000000020",
+          "portal": "000000010.out00",
+          "link": "T_000000010_out00__000000020_in00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 13.27,
+          "distance_m": 38.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000020",
+          "to": "000000021",
+          "portal": "000000020.in01",
+          "link": "T_000000020_in01__000000021_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 18.37,
+          "distance_m": 55.3,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000021",
+          "to": "000000020",
+          "portal": "000000021.out00",
+          "link": "T_000000020_in01__000000021_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000020",
+          "to": "000000030",
+          "portal": "000000020.out00",
+          "link": "T_000000020_out00__000000030_in00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 4.25,
+          "distance_m": 11.3,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000030",
+          "to": "000000040",
+          "portal": "000000030.out00",
+          "link": "T_000000030_out00__000000040",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 38.55,
+          "distance_m": 113.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000040",
+          "to": "000000041",
+          "portal": "000000040.east00",
+          "link": "T_000000040_east00__000000041_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 21.65,
+          "distance_m": 63.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000041",
+          "to": "000000042",
+          "portal": "000000041.east00",
+          "link": "T_000000041_east00__000000042_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 21.38,
+          "distance_m": 62.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000042",
+          "to": "000000050",
+          "portal": "000000042.east00",
+          "link": "T_000000042_east00__000000050_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 45.53,
+          "distance_m": 138.0,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000050",
+          "to": "000000060",
+          "portal": "000000050.east01",
+          "link": "T_000000050_east01__000000060_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 24.93,
+          "distance_m": 74.0,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000060",
+          "to": "000000061",
+          "portal": "000000060.in00",
+          "link": "T_000000060_in00__000000061_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 18.87,
+          "distance_m": 57.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000061",
+          "to": "000000060",
+          "portal": "000000061.out00",
+          "link": "T_000000060_in00__000000061_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000060",
+          "to": "000000050",
+          "portal": "000000060.west00",
+          "link": "T_000000050_east01__000000060_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 18.87,
+          "distance_m": 57.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000000050",
+          "to": "000001000",
+          "portal": "000000050.east00",
+          "link": "T_000000050_east00__000001000_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 18.27,
+          "distance_m": 55.5,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001001",
+          "portal": "000001000.in00",
+          "link": "T_000001000_in00__000001001_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 42.48,
+          "distance_m": 130.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001001",
+          "to": "000001000",
+          "portal": "000001001.out00",
+          "link": "T_000001000_in00__000001001_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001002",
+          "portal": "000001000.in01",
+          "link": "T_000001000_in01__000001002_out01",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 30.77,
+          "distance_m": 94.6,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001002",
+          "to": "000001000",
+          "portal": "000001002.out01",
+          "link": "T_000001000_in01__000001002_out01",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001003",
+          "portal": "000001000.in02",
+          "link": "T_000001000_in02__000001003_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 39.98,
+          "distance_m": 122.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001003",
+          "to": "000001000",
+          "portal": "000001003.out00",
+          "link": "T_000001000_in02__000001003_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001004",
+          "portal": "000001000.in03",
+          "link": "T_000001000_in03__000001004_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 18.58,
+          "distance_m": 55.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001004",
+          "to": "000001000",
+          "portal": "000001004.out00",
+          "link": "T_000001000_in03__000001004_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001005",
+          "portal": "000001000.in04",
+          "link": "T_000001000_in04__000001005_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 51.85,
+          "distance_m": 160.7,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001005",
+          "to": "000001000",
+          "portal": "000001005.out00",
+          "link": "T_000001000_in04__000001005_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.68,
+          "distance_m": 0.9,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001006",
+          "portal": "000001000.in05",
+          "link": "T_000001000_in05__000001006_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 16.32,
+          "distance_m": 47.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001006",
+          "to": "000001000",
+          "portal": "000001006.out00",
+          "link": "T_000001000_in05__000001006_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001000",
+          "to": "000001010",
+          "portal": "000001000.east00",
+          "link": "T_000001000_east00__000001010_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 50.63,
+          "distance_m": 156.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001011",
+          "portal": "000001010.in00",
+          "link": "T_000001010_in00__000001011_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 23.12,
+          "distance_m": 64.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001011",
+          "to": "000001010",
+          "portal": "000001011.out00",
+          "link": "T_000001010_in00__000001011_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001013",
+          "portal": "000001010.in02",
+          "link": "T_000001010_in02__000001013_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 20.7,
+          "distance_m": 58.3,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001013",
+          "to": "000001010",
+          "portal": "000001013.out00",
+          "link": "T_000001010_in02__000001013_out00",
+          "how": "door",
+          "ok": true,
+          "time_s": 0.73,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001012",
+          "portal": "000001010.in01",
+          "link": "T_000001010_in01__000001012_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 22.15,
+          "distance_m": 66.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001012",
+          "to": "000001014",
+          "portal": "000001012.west00",
+          "link": "T_000001012_west00__000001014_east00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 6.97,
+          "distance_m": 20.2,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001014",
+          "to": "000001012",
+          "portal": "000001014.east00",
+          "link": "T_000001012_west00__000001014_east00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001012",
+          "to": "000001010",
+          "portal": "000001012.out00",
+          "link": "T_000001010_in01__000001012_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 7.03,
+          "distance_m": 20.4,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001010",
+          "to": "000001020",
+          "portal": "000001010.east00",
+          "link": "T_000001010_east00__000001020_west00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 13.12,
+          "distance_m": 38.6,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001020",
+          "to": "000001021",
+          "portal": "000001020.in00",
+          "link": "T_000001020_in00__000001021_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 22.28,
+          "distance_m": 65.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        },
+        {
+          "from": "000001021",
+          "to": "000001020",
+          "portal": "000001021.out00",
+          "link": "T_000001020_in00__000001021_out00",
+          "how": "press_up",
+          "ok": true,
+          "time_s": 0.75,
+          "distance_m": 0.8,
+          "issues": [],
+          "stalls": 0,
+          "teleports": 0
+        }
+      ],
+      "time_s": 630.57,
+      "distance_m": 1874.9,
+      "recoveries": 0,
+      "stalls": 0,
+      "violations": 0,
+      "teleports": 0,
+      "maps_visited": [
+        "000000001",
+        "000000010",
+        "000000020",
+        "000000021",
+        "000000030",
+        "000000040",
+        "000000041",
+        "000000042",
+        "000000050",
+        "000000060",
+        "000000061",
+        "000001000",
+        "000001001",
+        "000001002",
+        "000001003",
+        "000001004",
+        "000001005",
+        "000001006",
+        "000001010",
+        "000001011",
+        "000001012",
+        "000001013",
+        "000001014",
+        "000001020",
+        "000001021"
+      ],
+      "ms": 12954
+    }
+  }
+}

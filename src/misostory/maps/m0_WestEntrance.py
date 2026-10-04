@@ -184,7 +184,9 @@ def build(m):
     m.npc("Heena", hx, hy, rot=25)
     # the laundry bluff: clothesline, basket, Sera, red-berry shrubs, a butterfly on the post
     m.place("Clothesline_Laundry", 27.6, 17.4, rot=0)
-    m.place("X0_LaundryBasket", 24.6, 16.5, rot=20)
+    # the basket stands on Sera's west side: at (24.6, 16.5) it sat on the BluffLadder walk to her (the route
+    # brushed its rim, so the export had to collide it as an exact mesh the player clipped through)
+    m.place("X0_LaundryBasket", 22.6, 16.4, rot=20)
     m.npc("Sera", 23.6, 17.6, rot=15)
     m.place("X0_BerryBush", 31.0, 18.8, rot=-10)
     m.place("X0_BerryBush", 30.6, 25.5, rot=40, scale=0.9)
@@ -259,6 +261,9 @@ def build(m):
     # ---------------- gameplay ----------------
     m.edge_portal("out00")
     m.player(4.0, 12.6, rot=20)  # new characters appear here, under Heena's bush
+    m.player_spawn(4.0, 12.6, rot=20,
+                   note="sp x -189: the west end below Heena (MeowDB's west half differs from v8; the tier and side "
+                        "are kept)")
     m.route("Main", [(2.5, 12.6), (8.0, 13.6), (12.0, 14.2), (a1[0] - 0.4, 14.2), (a0[0] + 0.4, 14.2),
                      (a0[0] + 0.7, 13.5), (16.7, 12.0), (16.4, b1[1] + 0.4), (16.4, b0[1] - 0.4), (17.4, b0[1] - 1.0),
                      (19.4, 6.4), (c1[0] - 0.4, 6.4), (c0[0] + 0.4, 6.4), (26.5, 7.6), (31.0, 10.0)])

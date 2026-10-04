@@ -1,0 +1,20 @@
+{
+  "npc_id": "18",
+  "name": "Pio",
+  "reason": "Pio's 1012 \"If you accept\" line ends with \"Rusty Screw 0/3\" and \"Old Wooden Board 0/3\". The 0 is MeowDB rendering the game's live item counter as a literal (docs/canonical/quests.md section 10: substitute the live count; docs/canonical/npcs.md \"Rendered counters\"). This patch keeps the canonical line and only marks those two bold \"0\" segments (indexes 11 and 17 of the line's segments) as counters of the item the player holds. Validation fails if a data refresh moves the segments.",
+  "verified": false,
+  "patch_nodes": {
+    "q1012.accepted.1": {
+      "line": {
+        "quest": "1012",
+        "section": "on_accept",
+        "branch": "accepted",
+        "line": 1,
+        "counters": [
+          {"segment": 11, "item_id": "441"},
+          {"segment": 17, "item_id": "442"}
+        ]
+      }
+    }
+  }
+}

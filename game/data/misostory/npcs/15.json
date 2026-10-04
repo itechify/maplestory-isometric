@@ -1,0 +1,7 @@
+{
+  "npc_id": "15",
+  "name": "Shanks",
+  "reason": "Shanks' boat to Lith Harbor (010000000) leaves Maple Island and is out of scope for Iteration Two; MeowDB also has no boarding dialogue, arrival map or Yes/No text for it (gaps in game/data/canonical/npcs/15.json). Until Victoria Island exists, Shanks only talks (his canonical idle-chatter lines).",
+  "verified": false,
+  "disabled_behaviors": ["transport"]
+}

@@ -1,0 +1,175 @@
+{
+  "id": "000000060",
+  "name": "Southperry",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Southperry is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 4 NPCs including Yoona, Bari, and Shanks. Connects to 2 other maps.",
+  "return_map_id": "000000060",
+  "return_map_name": "Southperry",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 4,
+  "field_restrictions": [
+    {
+      "key": "summoning-bag",
+      "label": "No summoning bags",
+      "description": "Summoning bags cannot be used on this map."
+    }
+  ],
+  "bgm": {
+    "path": "Bgm00/GoPicnic",
+    "name": "Go Picnic",
+    "length": "1:13"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000050",
+      "map_name": "A Split Road",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000061",
+      "map_name": "Southperry Armor Store",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "west00",
+      "type": 2,
+      "x_px": -547,
+      "y_px": 286,
+      "to_map_id": "000000050",
+      "to_map_name": "A Split Road",
+      "to_street_name": "Maple Road",
+      "to_portal": "east01",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "in00",
+      "type": 2,
+      "x_px": 699,
+      "y_px": 527,
+      "to_map_id": "000000061",
+      "to_map_name": "Southperry Armor Store",
+      "to_street_name": "Maple Road",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -37,
+      "y_px": 177
+    }
+  ],
+  "npcs": [
+    {
+      "id": "13",
+      "name": "Yoona",
+      "x_px": -18,
+      "y_px": 287,
+      "idle_speech_lines": [
+        "Whoa, what are you looking at?!"
+      ]
+    },
+    {
+      "id": "14",
+      "name": "Bari",
+      "x_px": 1013,
+      "y_px": 527,
+      "idle_speech_lines": [
+        "Working hard there?",
+        "*Salute*"
+      ]
+    },
+    {
+      "id": "15",
+      "name": "Shanks",
+      "x_px": 3223,
+      "y_px": -13,
+      "idle_speech_lines": [
+        "I'm the captain, dang it! Don't look down on me!",
+        "I'll take you anywhere you want to go."
+      ]
+    },
+    {
+      "id": "12",
+      "name": "Biggs",
+      "x_px": 950,
+      "y_px": -193,
+      "idle_speech_lines": [
+        "Heh, looks like I'm still the best looking man in this town.",
+        "Hey you! What are you looking at? If you're admiring my good looks, just go ahead and say it!",
+        "One of these days, I'll be the one operating that huge ship and setting off for bigger, better lands..."
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 4724,
+    "height_px": 2222,
+    "center_x_px": 652,
+    "center_y_px": 1505,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -652,
+    "x_max": 4072,
+    "y_min": -1505,
+    "y_max": 717
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1011",
+        "name": "Biggs's Collection of Items",
+        "npc_name": "Biggs",
+        "level_label": "Lv 3+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+70 EXP"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000060",
+    "retrieved_at": "2026-10-04T09:56:49.733Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000050",
+          "retrieved_at": "2026-10-04T09:56:48.241Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000061",
+          "retrieved_at": "2026-10-04T09:56:51.245Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

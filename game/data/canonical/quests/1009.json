@@ -1,0 +1,416 @@
+{
+  "id": "1009",
+  "name": "Mai's Training",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": "Mai's Training",
+  "start_npc": {
+    "npc_id": "11",
+    "name": "Mai"
+  },
+  "end_npc": {
+    "npc_id": "11",
+    "name": "Mai"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000000050",
+      "map_name": "A Split Road",
+      "street_name": "Maple Road"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000000050",
+      "map_name": "A Split Road",
+      "street_name": "Maple Road"
+    }
+  ],
+  "min_level": 3,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [
+      {
+        "quest_id": "1006",
+        "name": "Sam's Suggestion"
+      }
+    ],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [
+      {
+        "mob_id": "3",
+        "name": "Blue Snail",
+        "count": 10
+      },
+      {
+        "mob_id": "4",
+        "name": "Shroom",
+        "count": 10
+      },
+      {
+        "mob_id": "5",
+        "name": "Red Snail",
+        "count": 5
+      }
+    ],
+    "item_collection": [],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "11",
+        "name": "Mai",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": []
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 70,
+    "mesos": 0,
+    "fame": 0,
+    "items": [
+      {
+        "item_id": "237",
+        "item_icon_key": "2010002",
+        "name": "Egg",
+        "count": 5,
+        "given": "on_completion"
+      }
+    ],
+    "selection": [],
+    "random": []
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "No item requirements.",
+    "items": []
+  },
+  "followup_quests": [
+    {
+      "quest_id": "1010",
+      "name": "Mai's Final Training"
+    }
+  ],
+  "next_quest_grants": [],
+  "quest_line": {
+    "steps": [
+      {
+        "quest_id": "1006",
+        "name": "Sam's Suggestion",
+        "npc": "Sam",
+        "min_level": 1
+      },
+      {
+        "quest_id": "1009",
+        "name": "Mai's Training",
+        "npc": "Mai",
+        "min_level": 3
+      },
+      {
+        "quest_id": "1010",
+        "name": "Mai's Final Training",
+        "npc": "Mai",
+        "min_level": 0
+      }
+    ],
+    "position": 2,
+    "total": 3,
+    "end_fork": [],
+    "split": null
+  },
+  "journal": {
+    "raw": "Mai at A Split Road seems like a martial arts specialist who can train beginners.\nI am now under the tutelage of the famous sword master, Mai, in A Split Road. For my first lesson, she told me to hunt Blue Snails, Shrooms, and Red Snails. Ah, Mai also said to meet up with Biggs in Southperry for a useful quest.\nMai trained you, and you feel stronger.",
+    "lines": [
+      "Mai at A Split Road seems like a martial arts specialist who can train beginners.",
+      "I am now under the tutelage of the famous sword master, Mai, in A Split Road. For my first lesson, she told me to hunt Blue Snails, Shrooms, and Red Snails. Ah, Mai also said to meet up with Biggs in Southperry for a useful quest.",
+      "Mai trained you, and you feel stronger."
+    ],
+    "summary": "Mai at A Split Road seems like a martial arts specialist who can train beginners.",
+    "entries": [
+      "I am now under the tutelage of the famous sword master, Mai, in A Split Road. For my first lesson, she told me to hunt Blue Snails, Shrooms, and Red Snails. Ah, Mai also said to meet up with Biggs in Southperry for a useful quest.",
+      "Mai trained you, and you feel stronger."
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "Hmm, you look like you're in serious need of my guidance. Is it your first time here? What you need more than anything right now is FOCUS. So...want me to train you?",
+          "segments": [
+            {
+              "text": "Hmm, you look like you're in serious need of my guidance. Is it your first time here? What you need more than anything right now is FOCUS. So...want me to train you?"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "accepted",
+          "heading": "If you accept",
+          "lines": [
+            {
+              "text": "It's simple actually. All you need to do right now is hunt monsters. I'll assign you a few tasks, and you'll be surprised to see how much you grow.",
+              "segments": [
+                {
+                  "text": "It's simple actually. All you need to do right now is hunt monsters. I'll assign you a few tasks, and you'll be surprised to see how much you grow."
+                }
+              ]
+            },
+            {
+              "text": "Head out of town, and you'll run into lots of monsters. The weakest is the Blue Snail, a tiny blue snail, and it's a piece of cake. Next are the Shrooms and the Red Snails. Listen, hunt weaker monsters until you can handle bigger, stronger, and faster monsters. It's all about hunting the right ones.",
+              "segments": [
+                {
+                  "text": "Head out of town, and you'll run into lots of monsters. The weakest is the "
+                },
+                {
+                  "text": "Blue Snail",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "3"
+                  }
+                },
+                {
+                  "text": ", a tiny blue snail, and it's a piece of cake. Next are the "
+                },
+                {
+                  "text": "Shrooms",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "4"
+                  }
+                },
+                {
+                  "text": " and the "
+                },
+                {
+                  "text": "Red Snails",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "5"
+                  }
+                },
+                {
+                  "text": ". Listen, hunt weaker monsters until you can handle bigger, stronger, and faster monsters. It's all about hunting the right ones."
+                }
+              ]
+            },
+            {
+              "text": "Your training task is to defeat 10 Blue Snail, 10 Shroom, and 5 Red Snail and then return. It may seem tough at first, but you'll be able to do it quickly, so don't worry. Just remember to start with the weaker ones and take it slow! Staying calm is the key to hunting!",
+              "segments": [
+                {
+                  "text": "Your training task is to defeat 10 "
+                },
+                {
+                  "text": "Blue Snail",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "3"
+                  }
+                },
+                {
+                  "text": ", 10 "
+                },
+                {
+                  "text": "Shroom",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "4"
+                  }
+                },
+                {
+                  "text": ", and 5 "
+                },
+                {
+                  "text": "Red Snail",
+                  "red": true,
+                  "ref": {
+                    "type": "monster",
+                    "id": "5"
+                  }
+                },
+                {
+                  "text": " and then return. It may seem tough at first, but you'll be able to do it quickly, so don't worry. Just remember to start with the weaker ones and take it slow! Staying calm is the key to hunting!"
+                }
+              ]
+            },
+            {
+              "text": "Oh, and press W to see the World Map and locate Southperry. Go there and meet Biggs. He may have something for you. You can accept Biggs's quest while training with me, so I suggest you meet him pronto.",
+              "segments": [
+                {
+                  "text": "Oh, and press "
+                },
+                {
+                  "text": "W",
+                  "bold": true
+                },
+                {
+                  "text": " to see the World Map and locate "
+                },
+                {
+                  "text": "Southperry",
+                  "bold": true,
+                  "ref": {
+                    "type": "map",
+                    "id": "000000060"
+                  }
+                },
+                {
+                  "text": ". Go there and meet "
+                },
+                {
+                  "text": "Biggs",
+                  "bold": true,
+                  "ref": {
+                    "type": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": ". He may have something for you. You can accept "
+                },
+                {
+                  "text": "Biggs's",
+                  "bold": true,
+                  "ref": {
+                    "type": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": " quest while training with me, so I suggest you meet him pronto."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "state": "declined",
+          "heading": "If you decline",
+          "lines": [
+            {
+              "text": "Hmm... So, you don't want to receive training? It's good that you have so much confidence. But if you change your mind, come talk to me again.",
+              "segments": [
+                {
+                  "text": "Hmm... So, you don't want to receive training? It's good that you have so much confidence. But if you change your mind, come talk to me again."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [],
+      "lines": [
+        {
+          "text": "Have you been training by preying on the weak? Let me see...",
+          "segments": [
+            {
+              "text": "Have you been training by preying on the weak? Let me see..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "stopMob",
+          "state": "missing_kills",
+          "heading": "If you haven't defeated enough monsters",
+          "lines": [
+            {
+              "text": "I don't think you understood what I told you. You haven't defeated enough monsters. You can check your quest progress in the Quest Log, right?",
+              "segments": [
+                {
+                  "text": "I don't think you understood what I told you. You haven't defeated enough monsters. You can check your quest progress in the Quest Log, right?"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1009",
+    "retrieved_at": "2026-10-04T10:07:27.135Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/237",
+      "retrieved_at": "2026-10-04T10:07:56.413Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/monsters/3",
+      "retrieved_at": "2026-10-04T10:07:00.438Z",
+      "checked": "monster name"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/monsters/4",
+      "retrieved_at": "2026-10-04T10:07:04.065Z",
+      "checked": "monster name"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/monsters/5",
+      "retrieved_at": "2026-10-04T10:07:07.735Z",
+      "checked": "monster name"
+    }
+  ],
+  "notes": [],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

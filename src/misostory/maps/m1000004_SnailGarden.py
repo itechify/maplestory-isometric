@@ -445,6 +445,7 @@ def build(m):
     # ---------------- gameplay ----------------
     m.edge_portal("out00")
     m.player(14.6, 25.6, rot=-170)
+    m.player_spawn(13.8, 25.5, rot=0, note="sp x 827: in front of out00 on the arrival shelf")
     bed_avoid = [geo.rect(21.2, 1.2, 29.8, 3.8), geo.rect(21.4, 9.0, 31.0, 11.4)] + av
     m.mobs("Snail", geo.rect(22.5, 4, 30.5, 9.0), 1, seed=1, z_band=(-0.2, 0.3), avoid=bed_avoid)
     m.mobs("Blue Snail", geo.rect(22.5, 4, 30.5, 9.0), 1, seed=2, z_band=(-0.2, 0.3), avoid=bed_avoid)

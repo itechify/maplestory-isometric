@@ -1,0 +1,26 @@
+{
+  "id": "2",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "Snail (MeowDB monster 2) in the isometric 3D world: its model, body, movement model and AI timings. Gameplay stats (level, HP, EXP, P.DMG, ACC, AVOID, KB, the speed modifier, the touch zone, the sprite size and the animation times) are NOT repeated here: MonsterDef reads them from data/canonical/monsters/2.json. The values every species shares (the terrain probes, the wander rhythm, the model fit, the hop and fall tolerances) come from monsters/_shared.json; a key named here overrides the shared value. Owner: the monster system (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md).",
+  "model": "Mob_Snail",
+  "capsule_radius_m": 0.3,
+  "capsule_height_m": 0.65,
+  "walk_style": "crawl",
+  "speed_model": "walk_line_no_character_bonus",
+  "movement_kind": "walk",
+  "idle_s": [1.0, 2.5],
+  "walk_s": [1.5, 4.0],
+  "touch_rule": "always",
+  "reasons": {
+    "model": "Iteration One's Snail proxy in assets/world/_library.glb (MeowDB publishes stats, not art; no MapleStory sprite is used).",
+    "capsule_radius_m": "Physics body only (kill plane, debug overlays). Movement uses ground and wall probes and combat uses the canonical touch zone, so the capsule never decides a hit. Half the touch-zone width (37 px x 0.025 m/px / 2 = 0.46 m) would poke into hedges, so 0.3 m keeps it inside the shell.",
+    "capsule_height_m": "The canonical touch-zone height, 26 px x WorldScale.actor (0.025 m/px).",
+    "walk_style": "Presentation: a snail crawls, so its walk cycle is a squash and stretch, one cycle per canonical move clip (900 ms).",
+    "speed_model": "MeowDB publishes a speed modifier per monster (Snail: speed -65) but no monster speed formula (checked: monster pages, glossary, /formulas, /guides/speed-jump-and-movement). MisoStory reads the modifier the way the character walk line reads Speed: px/s = slope x (base Speed + modifier), where slope is the px/s per Speed point of MeowDB's published walk line (150 px/s at Speed 100, 200 px/s at Speed 140: 1.25 px/s) and base Speed is 100. The '+20 Speed behind the scenes' MeowDB documents for characters is not applied to monsters. Snail: 1.25 x 35 = 43.75 px/s x WorldScale.h = 0.875 m/s (the player walks 3.0 m/s).",
+    "movement_kind": "Canonical movement label 'Stays on its floor': a platform walker that turns at ledges and walls (MAP_ARCHITECTURE section 4.7.4).",
+    "idle_s": "MeowDB does not publish how long a monster stands or walks. Classic monsters alternate short stands and walks; a random stand of 1.0-2.5 s keeps a field lively without crowding.",
+    "walk_s": "Random walk of 1.5-4.0 s between stands (unpublished, see idle_s).",
+    "touch_rule": "Not a Peace monster (no 'Peace' attribute, flags.non_aggressive false): its canonical touch zone always deals contact damage."
+  }
+}

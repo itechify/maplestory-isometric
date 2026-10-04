@@ -1,0 +1,2054 @@
+{
+  "id": "273",
+  "name": "Blue Potion",
+  "game_item_id": "2000003",
+  "type": "Use",
+  "subtype": "Potion",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A potion made out of blue herbs.\nRestores 200 MP.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": {
+    "mp_restore": 200
+  },
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 220,
+  "sell_price_mesos": 22,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "509",
+        "npc_name": "Arturo",
+        "npc_role": "Grocer",
+        "map_id": "010004002",
+        "map_name": "Victoria Road: Perion Department Store",
+        "town": "Perion",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "410",
+        "npc_name": "Dr. Faymus",
+        "npc_role": "Grocer",
+        "map_id": "010003002",
+        "map_name": "Victoria Road: Kerning City Pharmacy",
+        "town": "Kerning City",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1014",
+        "npc_name": "Edel the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "020000002",
+        "map_name": "Orbis: Orbis Department Store",
+        "town": "Orbis",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1116",
+        "npc_name": "Glibber",
+        "npc_role": "Merchant",
+        "map_id": "020001041",
+        "map_name": "El Nath: Ice Valley II",
+        "town": "El Nath",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1114",
+        "npc_name": "Hana",
+        "npc_role": "Grocer",
+        "map_id": "020001012",
+        "map_name": "El Nath: El Nath Department Store",
+        "town": "El Nath",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "312",
+        "npc_name": "Len the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "010002002",
+        "map_name": "Victoria Road: Ellinia Department Store",
+        "town": "Ellinia",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "700",
+        "npc_name": "Luma",
+        "npc_role": "Grocer",
+        "map_id": "010006002",
+        "map_name": "Shallow Passage: Cave Fairy Department Store",
+        "town": "Forgotten Hollow",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "212",
+        "npc_name": "Luna",
+        "npc_role": "Grocer",
+        "map_id": "010001042",
+        "map_name": "Victoria Road: Henesys Department Store",
+        "town": "Henesys",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "607",
+        "npc_name": "Mr. Sweatbottom",
+        "npc_role": "Sauna Manager",
+        "map_id": "010005002",
+        "map_name": "Dungeon: Regular Sauna",
+        "town": "Sleepywood",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "800",
+        "npc_name": "Valen",
+        "npc_role": "Grocer",
+        "map_id": "010007000",
+        "map_name": "Florina Road: Florina Beach",
+        "town": "Florina Beach",
+        "price_mesos": 220,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "14",
+        "monster_name": "Bubbling",
+        "monster_level": 15,
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14,
+        "disputed": false,
+        "community_drop_entry_id": "77",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20,
+        "upvotes": 9,
+        "downvotes": 0,
+        "score": 9,
+        "disputed": false,
+        "community_drop_entry_id": "456",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "19",
+        "monster_name": "Horny Mushroom",
+        "monster_level": 22,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "105",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "59",
+        "monster_name": "Rafflesia",
+        "monster_level": 47,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "290",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "63",
+        "monster_name": "Sporewood",
+        "monster_level": 59,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "302",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "31",
+        "monster_name": "Curse Eye",
+        "monster_level": 33,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "309",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "62",
+        "monster_name": "Rotten Mushroom",
+        "monster_level": 56,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "318",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "16",
+        "monster_name": "Blue Mushroom",
+        "monster_level": 19,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "395",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "41",
+        "monster_name": "Tortie",
+        "monster_level": 46,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "818",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "44",
+        "monster_name": "Clang",
+        "monster_level": 49,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "820",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "22",
+        "monster_name": "Wild Boar",
+        "monster_level": 25,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "129",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "36",
+        "monster_name": "Lorang",
+        "monster_level": 38,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "149",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1014",
+        "monster_name": "Jr. Grupin",
+        "monster_level": 33,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "624",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1021",
+        "monster_name": "Jr. Pepe",
+        "monster_level": 35,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "701",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "32",
+        "monster_name": "Jr. Wraith",
+        "monster_level": 34,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "224",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "21",
+        "monster_name": "Zombie Mushroom",
+        "monster_level": 24,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "286",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "54",
+        "monster_name": "Glowshroom",
+        "monster_level": 39,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "310",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "56",
+        "monster_name": "Golden Stirge",
+        "monster_level": 42,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "348",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1012",
+        "monster_name": "Jr. Cellion",
+        "monster_level": 33,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "674",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "700005",
+        "monster_name": "Crimson Balrog",
+        "monster_level": 100,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "962",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "58",
+        "monster_name": "Echopus",
+        "monster_level": 45,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "292",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "60",
+        "monster_name": "Duskmander",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "304",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "700003",
+        "monster_name": "Rotten Mushmom",
+        "monster_level": 60,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "334",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1042",
+        "monster_name": "Lunar Pixie",
+        "monster_level": 45,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "650",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1019",
+        "monster_name": "Star Pixie",
+        "monster_level": 35,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "658",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "38",
+        "monster_name": "Zombie Lupin",
+        "monster_level": 41,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "687",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1011",
+        "monster_name": "Leatty",
+        "monster_level": 32,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "712",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1013",
+        "monster_name": "Jr. Lioner",
+        "monster_level": 33,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "724",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1051",
+        "monster_name": "Luster Pixie",
+        "monster_level": 52,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "731",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1073",
+        "monster_name": "Dark Yeti",
+        "monster_level": 68,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "780",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1090",
+        "monster_name": "Bain",
+        "monster_level": 90,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "793",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1053",
+        "monster_name": "Lioner",
+        "monster_level": 53,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "803",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1054",
+        "monster_name": "Grupin",
+        "monster_level": 53,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "804",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1078",
+        "monster_name": "Lucida",
+        "monster_level": 73,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "809",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1048",
+        "monster_name": "Jr. Yeti",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "812",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1069",
+        "monster_name": "Transformed Yeti",
+        "monster_level": 65,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "814",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1055",
+        "monster_name": "Hector",
+        "monster_level": 55,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "827",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1058",
+        "monster_name": "Coolie Zombie",
+        "monster_level": 57,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "837",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "37",
+        "monster_name": "Cold Eye",
+        "monster_level": 40,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "851",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "52",
+        "monster_name": "Tauromacis",
+        "monster_level": 70,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "852",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "53",
+        "monster_name": "Taurospear",
+        "monster_level": 75,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "853",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1074",
+        "monster_name": "Transformed Dark Yeti",
+        "monster_level": 68,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "946",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "700000",
+        "monster_name": "Mushmom",
+        "monster_level": 40,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "1096",
+        "shown_on_item_page": false
+      },
+      {
+        "monster_id": "700002",
+        "monster_name": "Zombie Mushmom",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "1100",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "40",
+        "monster_name": "Copper Drake",
+        "monster_level": 45,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "1105",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1052",
+        "monster_name": "Cellion",
+        "monster_level": 53,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "1106",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "15",
+        "monster_name": "Axe Stump",
+        "monster_level": 17,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "101",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "13",
+        "monster_name": "Green Mushroom",
+        "monster_level": 14,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "262",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "700001",
+        "monster_name": "Jr. Balrog",
+        "monster_level": 80,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "314",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1015",
+        "monster_name": "Dark Leatty",
+        "monster_level": 33,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "1028",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "57",
+        "monster_name": "Aqumander",
+        "monster_level": 43,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "347",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "55",
+        "monster_name": "Raffle",
+        "monster_level": 40,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "356",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "23",
+        "monster_name": "Evil Eye",
+        "monster_level": 27,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "464",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "18",
+        "monster_name": "Jr. Necki",
+        "monster_level": 21,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "570",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1001",
+        "monster_name": "Jr. Sentinel",
+        "monster_level": 26,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "611",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1060",
+        "monster_name": "White Fang",
+        "monster_level": 59,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "986",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1059",
+        "monster_name": "Minor Zombie",
+        "monster_level": 58,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1009",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "20",
+        "monster_name": "Dark Axe Stump",
+        "monster_level": 23,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1085",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "12",
+        "monster_name": "Octopus",
+        "monster_level": 12
+      },
+      {
+        "monster_id": "13",
+        "monster_name": "Green Mushroom",
+        "monster_level": 14
+      },
+      {
+        "monster_id": "14",
+        "monster_name": "Bubbling",
+        "monster_level": 15
+      },
+      {
+        "monster_id": "15",
+        "monster_name": "Axe Stump",
+        "monster_level": 17
+      },
+      {
+        "monster_id": "16",
+        "monster_name": "Blue Mushroom",
+        "monster_level": 19
+      },
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20
+      },
+      {
+        "monster_id": "19",
+        "monster_name": "Horny Mushroom",
+        "monster_level": 22
+      },
+      {
+        "monster_id": "20",
+        "monster_name": "Dark Axe Stump",
+        "monster_level": 23
+      },
+      {
+        "monster_id": "21",
+        "monster_name": "Zombie Mushroom",
+        "monster_level": 24
+      },
+      {
+        "monster_id": "22",
+        "monster_name": "Wild Boar",
+        "monster_level": 25
+      },
+      {
+        "monster_id": "1001",
+        "monster_name": "Jr. Sentinel",
+        "monster_level": 26
+      },
+      {
+        "monster_id": "23",
+        "monster_name": "Evil Eye",
+        "monster_level": 27
+      },
+      {
+        "monster_id": "1002",
+        "monster_name": "Green Trixter",
+        "monster_level": 28
+      },
+      {
+        "monster_id": "24",
+        "monster_name": "Iron Hog",
+        "monster_level": 28
+      },
+      {
+        "monster_id": "1006",
+        "monster_name": "Brown Teddy",
+        "monster_level": 30
+      },
+      {
+        "monster_id": "1005",
+        "monster_name": "Fire Sentinel",
+        "monster_level": 30
+      },
+      {
+        "monster_id": "1004",
+        "monster_name": "Ice Sentinel",
+        "monster_level": 30
+      },
+      {
+        "monster_id": "1003",
+        "monster_name": "Sentinel",
+        "monster_level": 30
+      },
+      {
+        "monster_id": "1007",
+        "monster_name": "Chirppy",
+        "monster_level": 31
+      },
+      {
+        "monster_id": "1008",
+        "monster_name": "Drumming Bunny",
+        "monster_level": 31
+      },
+      {
+        "monster_id": "29",
+        "monster_name": "Ligator",
+        "monster_level": 31
+      },
+      {
+        "monster_id": "30",
+        "monster_name": "Fire Boar",
+        "monster_level": 32
+      },
+      {
+        "monster_id": "1011",
+        "monster_name": "Leatty",
+        "monster_level": 32
+      },
+      {
+        "monster_id": "1009",
+        "monster_name": "Pink Teddy",
+        "monster_level": 32
+      },
+      {
+        "monster_id": "1010",
+        "monster_name": "Ratz",
+        "monster_level": 32
+      },
+      {
+        "monster_id": "31",
+        "monster_name": "Curse Eye",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "1015",
+        "monster_name": "Dark Leatty",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "1012",
+        "monster_name": "Jr. Cellion",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "1014",
+        "monster_name": "Jr. Grupin",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "1013",
+        "monster_name": "Jr. Lioner",
+        "monster_level": 33
+      },
+      {
+        "monster_id": "1017",
+        "monster_name": "Black Ratz",
+        "monster_level": 34
+      },
+      {
+        "monster_id": "1016",
+        "monster_name": "Roloduck",
+        "monster_level": 34
+      },
+      {
+        "monster_id": "1018",
+        "monster_name": "Tick",
+        "monster_level": 34
+      },
+      {
+        "monster_id": "1020",
+        "monster_name": "Bloctopus",
+        "monster_level": 35
+      },
+      {
+        "monster_id": "33",
+        "monster_name": "Jr. Boogie 1",
+        "monster_level": 35
+      },
+      {
+        "monster_id": "34",
+        "monster_name": "Jr. Boogie 2",
+        "monster_level": 35
+      },
+      {
+        "monster_id": "1021",
+        "monster_name": "Jr. Pepe",
+        "monster_level": 35
+      },
+      {
+        "monster_id": "1019",
+        "monster_name": "Star Pixie",
+        "monster_level": 35
+      },
+      {
+        "monster_id": "1023",
+        "monster_name": "Helly",
+        "monster_level": 36
+      },
+      {
+        "monster_id": "1025",
+        "monster_name": "Chronos",
+        "monster_level": 37
+      },
+      {
+        "monster_id": "35",
+        "monster_name": "Lupin",
+        "monster_level": 37
+      },
+      {
+        "monster_id": "1024",
+        "monster_name": "Propelly",
+        "monster_level": 37
+      },
+      {
+        "monster_id": "1026",
+        "monster_name": "King Bloctopus",
+        "monster_level": 38
+      },
+      {
+        "monster_id": "36",
+        "monster_name": "Lorang",
+        "monster_level": 38
+      },
+      {
+        "monster_id": "1027",
+        "monster_name": "Planey",
+        "monster_level": 38
+      },
+      {
+        "monster_id": "1029",
+        "monster_name": "Toy Trojan",
+        "monster_level": 39
+      },
+      {
+        "monster_id": "1028",
+        "monster_name": "Tweeter",
+        "monster_level": 39
+      },
+      {
+        "monster_id": "1031",
+        "monster_name": "Barnard Gray",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "37",
+        "monster_name": "Cold Eye",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1030",
+        "monster_name": "Tick-Tock",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1032",
+        "monster_name": "Flyeye",
+        "monster_level": 41
+      },
+      {
+        "monster_id": "1035",
+        "monster_name": "Mateon",
+        "monster_level": 41
+      },
+      {
+        "monster_id": "1034",
+        "monster_name": "Platoon Chronos",
+        "monster_level": 41
+      },
+      {
+        "monster_id": "1033",
+        "monster_name": "Robo",
+        "monster_level": 41
+      },
+      {
+        "monster_id": "38",
+        "monster_name": "Zombie Lupin",
+        "monster_level": 41
+      },
+      {
+        "monster_id": "1037",
+        "monster_name": "Block Golem",
+        "monster_level": 42
+      },
+      {
+        "monster_id": "1036",
+        "monster_name": "Nependeath",
+        "monster_level": 42
+      },
+      {
+        "monster_id": "1038",
+        "monster_name": "Zeta Gray",
+        "monster_level": 42
+      },
+      {
+        "monster_id": "1039",
+        "monster_name": "Jr. Cerebes",
+        "monster_level": 43
+      },
+      {
+        "monster_id": "1042",
+        "monster_name": "Lunar Pixie",
+        "monster_level": 45
+      },
+      {
+        "monster_id": "41",
+        "monster_name": "Tortie",
+        "monster_level": 46
+      },
+      {
+        "monster_id": "1045",
+        "monster_name": "Dark Nependeath",
+        "monster_level": 47
+      },
+      {
+        "monster_id": "43",
+        "monster_name": "Wraith",
+        "monster_level": 48
+      },
+      {
+        "monster_id": "44",
+        "monster_name": "Clang",
+        "monster_level": 49
+      },
+      {
+        "monster_id": "1047",
+        "monster_name": "Master Chronos",
+        "monster_level": 49
+      },
+      {
+        "monster_id": "1048",
+        "monster_name": "Jr. Yeti",
+        "monster_level": 50
+      },
+      {
+        "monster_id": "1050",
+        "monster_name": "Firebomb",
+        "monster_level": 51
+      },
+      {
+        "monster_id": "46",
+        "monster_name": "Croco",
+        "monster_level": 52
+      },
+      {
+        "monster_id": "1051",
+        "monster_name": "Luster Pixie",
+        "monster_level": 52
+      },
+      {
+        "monster_id": "1052",
+        "monster_name": "Cellion",
+        "monster_level": 53
+      },
+      {
+        "monster_id": "1054",
+        "monster_name": "Grupin",
+        "monster_level": 53
+      },
+      {
+        "monster_id": "1053",
+        "monster_name": "Lioner",
+        "monster_level": 53
+      },
+      {
+        "monster_id": "1055",
+        "monster_name": "Hector",
+        "monster_level": 55
+      },
+      {
+        "monster_id": "47",
+        "monster_name": "Malady",
+        "monster_level": 55
+      },
+      {
+        "monster_id": "1056",
+        "monster_name": "Dark Jr. Yeti",
+        "monster_level": 56
+      },
+      {
+        "monster_id": "48",
+        "monster_name": "Stone Golem",
+        "monster_level": 56
+      },
+      {
+        "monster_id": "1058",
+        "monster_name": "Coolie Zombie",
+        "monster_level": 57
+      },
+      {
+        "monster_id": "49",
+        "monster_name": "Dark Stone Golem",
+        "monster_level": 58
+      },
+      {
+        "monster_id": "1059",
+        "monster_name": "Minor Zombie",
+        "monster_level": 58
+      },
+      {
+        "monster_id": "1060",
+        "monster_name": "White Fang",
+        "monster_level": 59
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [
+      {
+        "quest_id": "10000",
+        "quest_name": "Olaf's First Training",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10000-c--0"
+      },
+      {
+        "quest_id": "10001",
+        "quest_name": "Phil's Call",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10001-c--1"
+      },
+      {
+        "quest_id": "80027",
+        "quest_name": "Chief Stan's Reply",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "80027-c--2"
+      },
+      {
+        "quest_id": "80029",
+        "quest_name": "Dances with Balrog's Reply",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "80029-c--3"
+      },
+      {
+        "quest_id": "10109",
+        "quest_name": "Arcon's Blood?",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10109-c--4"
+      },
+      {
+        "quest_id": "10110",
+        "quest_name": "Getting Arcon's Blood",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10110-c--5"
+      },
+      {
+        "quest_id": "10116",
+        "quest_name": "Maya's Second Collection",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10116-c--6"
+      },
+      {
+        "quest_id": "10119",
+        "quest_name": "Pia's Present For a Friend",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10119-c--7"
+      },
+      {
+        "quest_id": "10121",
+        "quest_name": "What Pia Borrowed",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10121-c--8"
+      },
+      {
+        "quest_id": "10125",
+        "quest_name": "I Need to Find My Daughter 2",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10125-c--9"
+      },
+      {
+        "quest_id": "10206",
+        "quest_name": "First Material Delivery for Building a New House",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10206-c--10"
+      },
+      {
+        "quest_id": "10207",
+        "quest_name": "Second Material Delivery for Building a New House",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10207-c--11"
+      },
+      {
+        "quest_id": "10208",
+        "quest_name": "Third Material Delivery for Building a New House",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10208-c--12"
+      },
+      {
+        "quest_id": "10210",
+        "quest_name": "I Need Help on My Homework!",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10210-c--13"
+      },
+      {
+        "quest_id": "10608",
+        "quest_name": "A Fairy's Insight",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10608-c--14"
+      },
+      {
+        "quest_id": "10610",
+        "quest_name": "The Yawning Abyss",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10610-c--15"
+      },
+      {
+        "quest_id": "10301",
+        "quest_name": "Talking to Stan",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10301-c--16"
+      },
+      {
+        "quest_id": "10309",
+        "quest_name": "Stranger's Request",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10309-c--17"
+      },
+      {
+        "quest_id": "10313",
+        "quest_name": "[Construction Site B2] Shumi's Lost Roll of Cash",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10313-c--18"
+      },
+      {
+        "quest_id": "10316",
+        "quest_name": "I'm Bored 2",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10316-c--19"
+      },
+      {
+        "quest_id": "10317",
+        "quest_name": "Icarus's Hang Glider",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10317-c--20"
+      },
+      {
+        "quest_id": "10318",
+        "quest_name": "Icarus and the Balloon",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10318-c--21"
+      },
+      {
+        "quest_id": "10320",
+        "quest_name": "The Ingredients for the Flying Medicine",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10320-c--22"
+      },
+      {
+        "quest_id": "10403",
+        "quest_name": "Reawakening the Gladius",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10403-c--23"
+      },
+      {
+        "quest_id": "10405",
+        "quest_name": "Searching for Fossils",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10405-c--24"
+      },
+      {
+        "quest_id": "10407",
+        "quest_name": "Research on Plant Fossils",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10407-c--25"
+      },
+      {
+        "quest_id": "10501",
+        "quest_name": "Hungry Ronnie",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10501-c--26"
+      },
+      {
+        "quest_id": "10503",
+        "quest_name": "Secret to Unagi Special",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10503-c--27"
+      },
+      {
+        "quest_id": "10600",
+        "quest_name": "Zelya's Map",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10600-c--28"
+      },
+      {
+        "quest_id": "10612",
+        "quest_name": "Nyroth's Fragile Hope",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10612-c--29"
+      },
+      {
+        "quest_id": "10700",
+        "quest_name": "Special Taste of Florina Beach I",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10700-c--30"
+      },
+      {
+        "quest_id": "10701",
+        "quest_name": "Special Taste of Florina Beach II",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10701-c--31"
+      },
+      {
+        "quest_id": "10702",
+        "quest_name": "Special Taste of Florina Beach III",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10702-c--32"
+      },
+      {
+        "quest_id": "10703",
+        "quest_name": "Special Taste of Florina Beach IV",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10703-c--33"
+      },
+      {
+        "quest_id": "506000",
+        "quest_name": "To Henesys, the Prairie Town",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506000-c--34"
+      },
+      {
+        "quest_id": "506015",
+        "quest_name": "First Greeting with Chief Stan",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506015-c--35"
+      },
+      {
+        "quest_id": "506016",
+        "quest_name": "Asking After Chief Stan",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506016-c--36"
+      },
+      {
+        "quest_id": "506017",
+        "quest_name": "First Greeting with Athena Pierce",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506017-c--37"
+      },
+      {
+        "quest_id": "506018",
+        "quest_name": "Asking After Athena Pierce",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506018-c--38"
+      },
+      {
+        "quest_id": "506019",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506019-c--39"
+      },
+      {
+        "quest_id": "506020",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506020-c--40"
+      },
+      {
+        "quest_id": "506021",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506021-c--41"
+      },
+      {
+        "quest_id": "506022",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506022-c--42"
+      },
+      {
+        "quest_id": "506023",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506023-c--43"
+      },
+      {
+        "quest_id": "506024",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506024-c--44"
+      },
+      {
+        "quest_id": "506025",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506025-c--45"
+      },
+      {
+        "quest_id": "506026",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506026-c--46"
+      },
+      {
+        "quest_id": "506027",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506027-c--47"
+      },
+      {
+        "quest_id": "506028",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506028-c--48"
+      },
+      {
+        "quest_id": "506029",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506029-c--49"
+      },
+      {
+        "quest_id": "506030",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506030-c--50"
+      },
+      {
+        "quest_id": "506031",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506031-c--51"
+      },
+      {
+        "quest_id": "506032",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506032-c--52"
+      },
+      {
+        "quest_id": "506033",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506033-c--53"
+      },
+      {
+        "quest_id": "506034",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506034-c--54"
+      },
+      {
+        "quest_id": "506035",
+        "quest_name": "Donating to Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506035-c--55"
+      },
+      {
+        "quest_id": "506038",
+        "quest_name": "Bruce's Cooking Ingredients",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506038-c--56"
+      },
+      {
+        "quest_id": "506039",
+        "quest_name": "A Father's Love for His Daughter",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506039-c--57"
+      },
+      {
+        "quest_id": "506043",
+        "quest_name": "Chief Stan's Hammer",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506043-c--58"
+      },
+      {
+        "quest_id": "506044",
+        "quest_name": "Memories of Youth",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506044-c--59"
+      },
+      {
+        "quest_id": "506100",
+        "quest_name": "To the Gray City, Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506100-c--60"
+      },
+      {
+        "quest_id": "506115",
+        "quest_name": "First Greeting with Chun Ji",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506115-c--61"
+      },
+      {
+        "quest_id": "506116",
+        "quest_name": "Asking After Chun Ji",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506116-c--62"
+      },
+      {
+        "quest_id": "506117",
+        "quest_name": "First Greeting with Dark Lord",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506117-c--63"
+      },
+      {
+        "quest_id": "506118",
+        "quest_name": "Asking After Dark Lord",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506118-c--64"
+      },
+      {
+        "quest_id": "506119",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506119-c--65"
+      },
+      {
+        "quest_id": "506120",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506120-c--66"
+      },
+      {
+        "quest_id": "506121",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506121-c--67"
+      },
+      {
+        "quest_id": "506122",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506122-c--68"
+      },
+      {
+        "quest_id": "506123",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506123-c--69"
+      },
+      {
+        "quest_id": "506124",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506124-c--70"
+      },
+      {
+        "quest_id": "506125",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506125-c--71"
+      },
+      {
+        "quest_id": "506126",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506126-c--72"
+      },
+      {
+        "quest_id": "506127",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506127-c--73"
+      },
+      {
+        "quest_id": "506128",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506128-c--74"
+      },
+      {
+        "quest_id": "506129",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506129-c--75"
+      },
+      {
+        "quest_id": "506130",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506130-c--76"
+      },
+      {
+        "quest_id": "506131",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506131-c--77"
+      },
+      {
+        "quest_id": "506132",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506132-c--78"
+      },
+      {
+        "quest_id": "506133",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506133-c--79"
+      },
+      {
+        "quest_id": "506134",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506134-c--80"
+      },
+      {
+        "quest_id": "506135",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506135-c--81"
+      },
+      {
+        "quest_id": "506136",
+        "quest_name": "Donating to Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506136-c--82"
+      },
+      {
+        "quest_id": "506138",
+        "quest_name": "Making the Medicine",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "506138-c--83"
+      },
+      {
+        "quest_id": "12000",
+        "quest_name": "Collecting Huckle's Magic Ingredients",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12000-c--84"
+      },
+      {
+        "quest_id": "12109",
+        "quest_name": "The Descendent of the Author of the Book of Ancient",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12109-c--85"
+      },
+      {
+        "quest_id": "12111",
+        "quest_name": "Where's Hella?",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12111-c--86"
+      },
+      {
+        "quest_id": "12117",
+        "quest_name": "A Word from the Assistant",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12117-c--87"
+      },
+      {
+        "quest_id": "12118",
+        "quest_name": "To Acquire the Fairy Dust",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12118-c--88"
+      },
+      {
+        "quest_id": "12123",
+        "quest_name": "An Old Ring",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12123-c--89"
+      },
+      {
+        "quest_id": "12124",
+        "quest_name": "The Secrets Behind the Ring?",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12124-c--90"
+      },
+      {
+        "quest_id": "12126",
+        "quest_name": "Looking for the Sage in Perion",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12126-c--91"
+      },
+      {
+        "quest_id": "12128",
+        "quest_name": "Looking for the Sage in Ellinia",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12128-c--92"
+      },
+      {
+        "quest_id": "12130",
+        "quest_name": "Looking for the Sage in Henesys",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12130-c--93"
+      },
+      {
+        "quest_id": "12132",
+        "quest_name": "Looking for the Sage in Kerning City",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12132-c--94"
+      },
+      {
+        "quest_id": "12134",
+        "quest_name": "All the Map Pieces in One Place",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12134-c--95"
+      },
+      {
+        "quest_id": "12137",
+        "quest_name": "The Map is in One Piece",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "12137-c--96"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "120",
+        "cot2": "22",
+        "change": "-98"
+      },
+      {
+        "key": "shopPrice",
+        "stat": "Shop price (mesos)",
+        "cot1": "240",
+        "cot2": "220",
+        "change": "-20"
+      }
+    ],
+    "notes": [
+      "Same price at every seller: Len the Fairy (Ellinia), Valen (Florina Beach), Luma (Forgotten Hollow), Luna (Henesys), Dr. Faymus (Kerning City), Mina (Lith Harbor), Arturo (Perion) and Mr. Sweatbottom (Sleepywood)."
+    ],
+    "in_game_text": {
+      "cot1": "A potion made out of blue herbs. Recovers 200 MP.",
+      "cot2": "A potion made out of blue herbs.\nRestores 200 MP."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/273",
+    "retrieved_at": "2026-10-04T10:47:16.240Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/273?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:17.336Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/273?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:17.336Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=273",
+      "retrieved_at": "2026-10-04T10:47:18.517Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.monster_drops[monster_id=700000]": {
+      "url": "https://meowdb.com/msclassic/monsters/700000",
+      "retrieved_at": "2026-10-04T10:56:20.704Z",
+      "from": "monster page JSON-LD (name, Level)"
+    }
+  },
+  "notes": [
+    "Community drop from monster 700000 (Mushmom): the item page hides it because the monster is missing from the monster list bundled with the page; name and level come from /monsters/700000."
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "id": "3",
+  "name": "Roger",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000010",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road",
+      "x_px": 233,
+      "y_px": 58
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Hey, nice weather, isn't it?"
+    },
+    {
+      "text": "Was my information helpful? Farewell, my dear Mapler!"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Open your Item Inventory to find your Equip, Use, Set Up, Etc, and Cash tabs."
+    },
+    {
+      "text": "Items you pick up will be automatically stored in the appropriate tab. Cool, huh?"
+    },
+    {
+      "text": "Double-click on an item in your Item Inventory and you'll be able to use it"
+    },
+    {
+      "text": "Want to discard an item? Then click on the item in your Item Inventory and drag it out of the window."
+    },
+    {
+      "text": "When your Item Inventory is full, you won't be able to pick up new items. You should get rid of unimportant items by either discarding them or selling them at a store."
+    },
+    {
+      "text": "Items in the Use tab can also be stored in the bottom right shortcut window where you can assign Hotkeys."
+    },
+    {
+      "text": "You'll die when your HP reaches 0, so it's for your own good to consume a potion or food before it's too late."
+    },
+    {
+      "text": "You want to go somewhere? Then come talk to me."
+    },
+    {
+      "text": "If you want to talk to someone, double-click on them."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1002",
+        "name": "Roger's Apple"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1002"
+    ],
+    "completed_here": [
+      "1002"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1002",
+      "quest_name": "Roger's Apple",
+      "npc_role": "complete",
+      "start_npc_id": "3",
+      "complete_npc_id": "3",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "Eat the Roger's Apple I gave you by opening your inventory and clicking the Use tab. Double-click the Roger's Apple to recover some HP.",
+              "segments": [
+                {
+                  "text": "Eat the "
+                },
+                {
+                  "text": "Roger's Apple",
+                  "color": "red",
+                  "ref": {
+                    "kind": "item",
+                    "id": "235"
+                  }
+                },
+                {
+                  "text": " I gave you by opening your inventory and clicking the "
+                },
+                {
+                  "text": "Use tab",
+                  "bold": true
+                },
+                {
+                  "text": ". Double-click the "
+                },
+                {
+                  "text": "Roger's Apple",
+                  "ref": {
+                    "kind": "item",
+                    "id": "235"
+                  }
+                },
+                {
+                  "text": " to recover some HP."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/3",
+    "retrieved_at": "2026-10-04T10:04:50.974Z"
+  },
+  "field_sources": {
+    "locations/000000010": {
+      "url": "https://meowdb.com/msclassic/maps/000000010",
+      "retrieved_at": "2026-10-04T09:56:37.734Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1002/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1002",
+      "retrieved_at": "2026-10-04T09:59:45.816Z"
+    }
+  },
+  "gaps": [
+    "Quest 1002 (Roger's Apple): MeowDB shows no \"On accept\" dialogue.",
+    "Quest 1002 (Roger's Apple) \"On completion\": MeowDB shows no main lines, only conditional branches (If you don''t have the items yet)."
+  ]
+}

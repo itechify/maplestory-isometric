@@ -1,0 +1,173 @@
+{
+  "id": "drop_rates",
+  "kind": "misostory_placeholder",
+  "canonical": false,
+  "verified": false,
+  "description": "Drop chances, drop quantities and meso amounts for every canonical drop table (data/canonical/drops/<owner id>.json). Read by scripts/core/drops/drop_rates.gd; rolled by DropRoller. See docs/runtime/ITEMS.md.",
+  "reason": "MeowDB MS Classic publishes WHICH items drop (community-confirmed Classic drops with votes, plus the pre-Big-Bang MSEA reference list) but no drop chance, no quantity and no meso amount (docs/canonical/monsters.md 'Drops: what MeowDB does and does not tell us'; formulas/loot_rules.json gaps). Every number in this file is a MisoStory placeholder chosen for a classic feel. None of them is a MapleStory fact. Replace any of them as soon as MeowDB publishes a value.",
+  "resolution_order": [
+    "owner_item_overrides[owner_id][item_id]",
+    "item_overrides[item_id]",
+    "subtype_rates['<Type>/<Subtype>']",
+    "type_rates['<Type>']",
+    "default_rate"
+  ],
+  "resolution_note": "Each field (chance, min_quantity, max_quantity) is taken from the first level that has it. Type and subtype are the canonical item's own type/subtype (items domain), not the drop entry's. An override is an explicit decision: it applies even to entries the status rules exclude, and the status multiplier is not applied to it. global_rate_multiplier applies to every item chance; the result is clamped to [0, 1].",
+  "global_rate_multiplier": 1.0,
+  "global_rate_multiplier_reason": "1.0 = the placeholder rates as written. A single knob for playtests and debug, never a substitute for editing a rate.",
+  "status_rules": {
+    "classic_confirmed": {
+      "enabled": true,
+      "rate_multiplier": 1.0,
+      "verified": false,
+      "reason": "Items players have personally seen drop in Classic World (MeowDB community drops). These are the canonical drop list."
+    },
+    "msea_reference": {
+      "enabled": false,
+      "rate_multiplier": 0.0,
+      "verified": false,
+      "reason": "MeowDB: 'historical reference only and shows what this monster dropped in old MapleSEA. If you spot any of these drop in Classic, add them to the confirmed list.' Not confirmed for Classic World, so off by default. Enabling them (with a multiplier) is a labelled design decision."
+    }
+  },
+  "disputed_entries": {
+    "enabled": false,
+    "verified": false,
+    "reason": "A community entry with score <= 0 (at least as many downvotes as upvotes; monsters.md 'disputed'): Snail - The Green Relaxer 522; Blue Snail - Opal Ore 324, Silver Ore 417, Monster Card 483; Red Snail - Amethyst Ore 321. Off by default because players report NOT seeing them as often as seeing them."
+  },
+  "default_rate": {
+    "chance": 0.01,
+    "min_quantity": 1,
+    "max_quantity": 1,
+    "verified": false,
+    "reason": "Fallback for an item type not listed in type_rates. Quantity 1 unless a level below says otherwise (MeowDB publishes no quantities)."
+  },
+  "type_rates": {
+    "Equip": {
+      "chance": 0.005,
+      "verified": false,
+      "reason": "Equipment from Maple Island monsters is a rare, exciting find: about 1 in 200 kills per listed piece, so a table with 10 equips yields a piece every ~20 kills."
+    },
+    "Use": {
+      "chance": 0.01,
+      "verified": false,
+      "reason": "Use items not covered by a subtype rate."
+    },
+    "Etc": {
+      "chance": 0.02,
+      "verified": false,
+      "reason": "Etc items not covered by a subtype rate."
+    },
+    "Setup": {
+      "chance": 0.002,
+      "verified": false,
+      "reason": "Chairs are rare trophies (and the only listed one, The Green Relaxer, is disputed and a quest reward)."
+    }
+  },
+  "subtype_rates": {
+    "Etc/Monster Drop": {
+      "chance": 0.4,
+      "verified": false,
+      "reason": "A monster's own leftover (Snail Shell, Mushroom Spore, Orange Mushroom Cap...) is the signature drop of classic hunting and the highest-voted entry on every Maple Island table. 0.4 makes Biggs's 10 Blue Snail Shells (quest 1011) about 25 kills and keeps Three Snails (one shell per cast) supplied."
+    },
+    "Use/Potion": {
+      "chance": 0.02,
+      "verified": false,
+      "reason": "MeowDB's Beginner's guide: 'Potions are most of what you spend mesos on early. Mobs drop them rarely, so buy...' (formulas/recovery.json consumables.statements). 1 in 50 kills keeps potions a shop purchase."
+    },
+    "Use/Food": {
+      "chance": 0.02,
+      "verified": false,
+      "reason": "Treated like potions (same use, same 'rarely' from monsters)."
+    },
+    "Use/Arrow": {
+      "chance": 0.02,
+      "verified": false,
+      "reason": "Arrows are useless to a Beginner but listed on every monster table; uncommon so they do not crowd the Use tab."
+    },
+    "Use/Scroll": {
+      "chance": 0.001,
+      "verified": false,
+      "reason": "Scrolls are the rarest classic drops (1 in 1000 kills)."
+    },
+    "Etc/Gem": {
+      "chance": 0.005,
+      "verified": false,
+      "reason": "Gem ores are valuable crafting materials (MeowDB: Garnet Ore 'the most in-demand ore in COT2'); rarer than common ores."
+    },
+    "Etc/Ore & Mineral": {
+      "chance": 0.01,
+      "verified": false,
+      "reason": "Common ores (Bronze, Iron, Mithril, Silver) are frequently voted but still uncommon per kill."
+    }
+  },
+  "item_overrides": {},
+  "item_overrides_reason": "Item-wide overrides for every owner, keyed by item id ({chance, min_quantity, max_quantity, reason, verified}). None yet.",
+  "owner_item_overrides": {
+    "1": {
+      "347": {
+        "chance": 1.0,
+        "verified": false,
+        "reason": "Todd's How-to-Hunt (quest 1005) asks for 3 Jr. Sentinel Shellpieces after 3 Tutorial Jr. Sentinel kills; the tutorial monster's only drop always drops so the tutorial can never stall."
+      }
+    },
+    "3": {
+      "349": {
+        "chance": 0.4,
+        "verified": false,
+        "reason": "Blue Snail Shell is needed 10x by Biggs's Collection of Items (quest 1011) and by Three Snails level 2. Same as the Etc/Monster Drop rate, pinned here so the quest stays obtainable if that default changes."
+      }
+    },
+    "9": {
+      "356": {
+        "chance": 0.4,
+        "verified": false,
+        "reason": "Orange Mushroom Cap is needed by Biggs's Collection of Items (quest 1011). Pinned for the same reason as 349."
+      }
+    },
+    "0000001": {
+      "236": {
+        "chance": 0.3,
+        "verified": false,
+        "reason": "Wooden Box (breakable, 4 hits): breaking a box should usually pay out. Apple."
+      },
+      "237": {
+        "chance": 0.3,
+        "verified": false,
+        "reason": "Wooden Box: Egg, same as Apple."
+      },
+      "441": {
+        "chance": 0.5,
+        "verified": false,
+        "reason": "Rusty Screw: Pio's Collecting Recycled Goods (quest 1012) needs 3, and the Wooden Box is its only source. MeowDB does not say whether box quest items are quest-gated, so they drop at any time."
+      },
+      "442": {
+        "chance": 0.5,
+        "verified": false,
+        "reason": "Old Wooden Board: Pio's quest 1012 needs 3; only source is the Wooden Box. Same rule as 441."
+      }
+    }
+  },
+  "owner_item_overrides_reason": "Per (owner, item) overrides, keyed by the canonical drop-table owner id (monster '1' and breakable '0000001' are different owners) and item id. Every item a Maple Island quest asks the player to collect has one, so quest progress never depends on a type default.",
+  "mesos": {
+    "verified": false,
+    "reason": "MeowDB publishes no meso formula and no meso drop chance. Its only data are player reports of mesos seen from one kill (canonical drops/<id>.json meso): Snail has 1 report (2 mesos); the other monsters have none. Breakables have no meso data (status not_applicable) and drop no mesos.",
+    "chance": 0.6,
+    "chance_reason": "Most classic kills leave a meso bag, but not all. The reports' drop_chance_pct_as_submitted (100) is hard-coded by MeowDB's report form and is NOT a rate (monsters.md), so it is not used.",
+    "use_player_reports": true,
+    "use_player_reports_reason": "When a monster's canonical meso block has status 'player_reports' and median_min/median_max, the amount is read from there at roll time (Snail: 2 to 2). Nothing is copied into this file.",
+    "per_level": {
+      "min": 1.5,
+      "max": 2.5,
+      "verified": false,
+      "reason": "Placeholder amount for monsters without reports: uniform integer in [max(1, floor(level x min)), max(that, ceil(level x max))]. Anchored to the one report (Snail, level 1: 2 mesos): Blue Snail (2) 3-5, Shroom (3) 4-8, Red Snail (4) 6-10, Orange Mushroom (8) 12-20."
+    },
+    "by_owner": {
+      "1": {
+        "chance": 0.0,
+        "verified": false,
+        "reason": "Tutorial Jr. Sentinel: a non-aggressive tutorial monster with no meso reports; MisoStory keeps its loot to the quest item."
+      }
+    },
+    "by_owner_reason": "Per-owner meso overrides ({chance, min, max, reason, verified}); a field given here wins over reports and the per-level rule."
+  }
+}

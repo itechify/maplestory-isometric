@@ -1,0 +1,119 @@
+{
+  "id": "0000001",
+  "name": "Wooden Box drop table",
+  "owner": {
+    "kind": "breakable",
+    "id": "0000001",
+    "name": "Wooden Box"
+  },
+  "rates_canonical": false,
+  "entries": [
+    {
+      "item_id": "236",
+      "item_name": "Apple",
+      "category": "Use",
+      "subcategory": "Food",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "7",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2010001"
+    },
+    {
+      "item_id": "237",
+      "item_name": "Egg",
+      "category": "Use",
+      "subcategory": "Food",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "8",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2010002"
+    },
+    {
+      "item_id": "441",
+      "item_name": "Rusty Screw",
+      "category": "Etc",
+      "subcategory": "Quest Item",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "6",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4031003"
+    },
+    {
+      "item_id": "442",
+      "item_name": "Old Wooden Board",
+      "category": "Etc",
+      "subcategory": "Quest Item",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "1",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4031004"
+    }
+  ],
+  "meso": {
+    "status": "not_applicable",
+    "canonical": false,
+    "chance": null,
+    "note": "MeowDB has no meso reports for breakables"
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001",
+    "retrieved_at": "2026-10-04T10:07:46.821Z"
+  },
+  "notes": [
+    "classic_confirmed = listed in the breakable page's \"Drops (MS Classic) - Community sourced\"; votes are up/down votes. No chance or quantity is published.",
+    "disputed (derived by the extractor) = votes.score <= 0.",
+    "MeowDB has no MSEA reference list and no meso reports for breakables.",
+    "Rusty Screw and Old Wooden Board are Etc \"Quest Item\" drops; quest gating (who can loot them) is not stated on the breakable page.",
+    "meowdb_icon_key is MeowDB's icon asset key; it is NOT the item id. Use item_id."
+  ],
+  "gaps": [
+    "drop chance per item: not published",
+    "quantity per drop: not published",
+    "whether breakables drop mesos: not published"
+  ]
+}

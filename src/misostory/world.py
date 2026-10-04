@@ -10,6 +10,7 @@ import bmesh
 import bpy
 from mathutils import Vector, noise
 
+from . import collision_tags as CT
 from . import core, geo, kit
 from . import layout as LY
 from . import materials as M
@@ -263,7 +264,7 @@ class World:
         for i in range(n):
             f = bm.faces.new((rings[-1][i], tip, rings[-1][(i + 1) % n]))
             f.material_index = mi
-        mb.build("Island_Underside", self.coll_base, smooth=True, sharp_angle=60)
+        CT.tag(mb.build("Island_Underside", self.coll_base, smooth=True, sharp_angle=60), CT.NONE)  # never reached
 
     # -- lake + waterfall
     def lake_poly(self, extra=0.0):
@@ -422,7 +423,7 @@ class World:
                 rows.append([b2.verts.new((p.x + side.x * w * sd, p.y + side.y * w * sd, z)) for sd in (-1, 1)])
             for k in range(8):
                 b2.faces.new((rows[k][0], rows[k][1], rows[k + 1][1], rows[k + 1][0])).material_index = mi
-            m2.build(name, self.coll_scenery, smooth=True, recalc_normals=False)
+            CT.tag(m2.build(name, self.coll_scenery, smooth=True, recalc_normals=False), CT.NONE)  # falling water
 
         sheet("Waterfall_Upper", lip, h + 0.1, ledge_z + 0.2, 1.6, width, width * 1.1)
         foot = ledge_c + d * 6.6
@@ -434,8 +435,8 @@ class World:
                                                           geo.offset_poly(poly, -2.5)):
             reach_lake += 1.0
         stream = [foot + d * (reach_lake * k / 6) for k in range(7)]
-        geo.path_ribbon("Waterfall_Stream", [(p.x, p.y) for p in stream], width * 1.05, self.coll_scenery,
-                        self.ground, mat="M_Water", lift=0.04, edge_wobble=0.3, end_taper=0.9)
+        CT.tag(geo.path_ribbon("Waterfall_Stream", [(p.x, p.y) for p in stream], width * 1.05, self.coll_scenery,
+                               self.ground, mat="M_Water", lift=0.04, edge_wobble=0.3, end_taper=0.9), CT.WATER)
         geo.path_ribbon("Waterfall_Splash", [(p.x, p.y) for p in stream[:3]], width * 0.7, self.coll_scenery,
                         self.ground, mat="M_Foam", lift=0.07, edge_wobble=0.4, end_taper=0.3)
         geo.flat_poly("Waterfall_River", [(p.x, p.y) for p in (
@@ -472,7 +473,7 @@ class World:
             mb.cyl(r.uniform(0.6, 1.2), 0.05, mat="M_Flat_leaf", verts=10)
             if r.random() < 0.4:
                 mb.sphere(0.18, loc=(0.2, 0.1, 0.12), scale=(1, 1, 0.6), mat="M_Flat_flower_pink", subdiv=1)
-            ob = mb.build("Lake_LilyPad", self.coll_scenery, smooth=False)
+            ob = CT.tag(mb.build("Lake_LilyPad", self.coll_scenery, smooth=False), CT.NONE)
             ob.location = (px, py, -1.07)
         mx, my = mesa_xy
         for k in range(16):
@@ -541,13 +542,24 @@ class World:
             main = (parent, pa, child, ca) in LY.MAIN_ROAD
             hidden = (parent, pa, child, ca) in LY.HIDDEN_TRAILS
             bridge = LY.BRIDGE_END.get((child, ca), 0.0)
+            ledge = None
+            ledge_h = LY.ONE_WAY_LEDGE.get((parent, pa, child, ca))
+            if LY.is_arrival_only(child, ca):
+                if ledge_h is None:
+                    raise RuntimeError(f"one-way link {parent}:{pa} -> {child}:{ca} has no ONE_WAY_LEDGE height")
+                # the trail ends on the arrival gate plane (footprint + GATE_OFFSET_M), ledge_h above the landing
+                gate = Vector((eb.x, eb.y)) + nb * LY.GATE_OFFSET_M
+                ledge = {"landing_z": eb.z, "height": ledge_h, "gate_point": gate.copy(), "normal": nb.copy()}
+                eb = Vector((gate.x, gate.y, eb.z + ledge_h))
             o, info = TR.build_trail(self, name, a, b, ea, eb, na, nb, mapground=mapground, main=main,
                                      hidden=hidden, bridge_b=bridge,
                                      avoid=[LY.footprint_world(parent, self.origins),
                                             LY.footprint_world(child, self.origins)] + self._trail_neighbours(
-                                                parent, child, a, b))
+                                                parent, child, a, b), ledge=ledge)
             objs += o
             info["ids"] = (parent, child)
+            info["link"] = (parent, pa, child, ca)
+            info["parts"] = [ob.name for ob in o if ob.type == "MESH"]
             infos.append(info)
         combined = core.GroundIndex()
         for ob in self.ground.objects + mapground.objects:
@@ -568,8 +580,55 @@ class World:
                 if z is not None:
                     kit.instance("Lamp_Post", self.coll_trails, (q.x, q.y, z - 0.03), obj_name="Trail_VillageLamp")
         for info in infos:
-            info["entry"]["walk"] = TR.walk_trail(info, combined)
+            self._walk_and_tag(TR, info, combined)
         return objs
+
+    def _walk_and_tag(self, TR, info, combined):
+        """Walk a trail both ways and record the expectations; tag the trail mesh for the exporter.
+
+        Two-way trails must walk ok both ways. A one-way trail (ledge) must walk ok forward (its drop allowed) and
+        be blocked in reverse by a step at the ledge face; the ledge is measured on the real ground (face offset
+        from the arrival gate plane, height) and checked by validate.py (trail_walk, one_way_ledge)."""
+        import json
+        entry = info["entry"]
+        ledge = info.get("ledge")
+        parent, pa, child, ca = info["link"]
+        entry["link"] = {"from_map": parent, "from_portal": pa, "to_map": child, "to_portal": ca}
+        g = ledge["gate_point"] if ledge else None
+        # forward: the only drop allowed is the ledge itself (within TR.LEDGE_ZONE_M of its gate-plane point)
+        entry["walk"] = TR.walk_trail(info, combined, allow_drops=bool(ledge),
+                                      drop_at=(g.x, g.y) if ledge else None)
+        entry["walk_reverse"] = TR.walk_trail(info, combined, reverse=True)
+        entry["expect"] = {"forward": "ok", "reverse": "blocked" if ledge else "ok"}
+        led = None
+        if ledge:
+            n = ledge["normal"]
+            meas = TR.measure_ledge(combined, g, n, ledge["landing_z"] + ledge["height"], ledge["landing_z"],
+                                    LY.GATE_HALF_WIDTH_M)
+
+            def at_face(it):
+                return math.hypot(it["at"][0] - g.x, it["at"][1] - g.y) <= TR.LEDGE_ZONE_M
+
+            blocked = [it for it in entry["walk_reverse"]["issues"] if it["type"] == "step" and it.get("dz", 0) > 1.0
+                       and at_face(it)]
+            # anything else that stops the reverse walk is a defect of the trail itself, hidden behind the ledge
+            off_face = [it for it in entry["walk_reverse"]["issues"] if it not in blocked]
+            led = {"arrival_map": child, "arrival_point": ca, "from_map": parent, "from_portal": pa,
+                   "authored_height_m": ledge["height"], "landing_z": round(ledge["landing_z"], 3),
+                   "top_z": round(ledge["landing_z"] + ledge["height"], 3),
+                   "gate_plane": {"point": [round(g.x, 4), round(g.y, 4), round(ledge["landing_z"], 4)],
+                                  "outward_normal": [round(n.x, 5), round(n.y, 5)],
+                                  "offset_from_footprint_m": LY.GATE_OFFSET_M,
+                                  "half_width_m": LY.GATE_HALF_WIDTH_M},
+                   "measured": meas, "reverse_blocked_at_face": bool(blocked),
+                   "reverse_issues_off_face": off_face[:10]}
+            entry["ledge"] = led
+        ob = info.get("obj")
+        if ob is not None:
+            ob["trail_link"] = json.dumps(entry["link"])
+            ob["trail_one_way"] = bool(ledge)
+            ob["trail_parts"] = json.dumps(info.get("parts", []))
+            ob["trail_ledge"] = json.dumps(led) if led else ""
 
     # -- mountains + forest + clouds
     def scenery(self, seed=3):

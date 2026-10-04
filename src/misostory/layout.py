@@ -304,7 +304,23 @@ MAIN_ROAD = {
     (40002, "east00", 50000, "west00"), (50000, "east01", 60000, "west00"), (50000, "east00", 1000000, "west00"),
     (1000000, "east00", 1010000, "west00"), (1010000, "east00", 1020000, "west00"),
 }
-ONE_WAY = {(10000, "in00"), (20000, "in00"), (30000, "in00"), (40000, "in00")}
+# Arrival-only anchors: (map, anchor) pairs that are NOT portals in MeowDB MS Classic. MeowDB lists 10000/20000/30000
+# in00 as ordinary two-way portals (type 2, back to the previous map), so only 40000 in00 is left: Snail Hunting
+# Ground I has no portal back to 30000 (000000030 out00 -> 000000040 arrives at a player spawn). The anchor stays as
+# the 3D arrival point (an arrival marker, no portal object) and the trail into it ends in a one-way ledge.
+ONE_WAY = {(40000, "in00")}
+# The runtime's walk-through gate plane sits at footprint + GATE_OFFSET_M along the anchor's outward normal
+# (docs/runtime/MAP_ARCHITECTURE.md section 4.4: gate plane = RegionIndex boundary = containment-ring gap).
+GATE_OFFSET_M = 1.0
+GATE_HALF_WIDTH_M = 2.25  # the gate's lateral half-width: the 4.5 m architecture-free corridor (AUTHORING.md)
+# One-way trails end in a drop-down ledge whose face lies on the arrival gate plane: link -> ledge height (m) above
+# the landing ground. CI invariant (MAP_ARCHITECTURE 4.4): jump_apex_m_at_cap + step_up_m + 0.30 <= height <= 2.6.
+ONE_WAY_LEDGE = {(30000, "out00", 40000, "in00"): 2.4}
+
+
+def is_arrival_only(mid, name):
+    """True for an anchor that is an arrival point, not a portal (see ONE_WAY)."""
+    return (mid, name) in ONE_WAY
 # Maps whose front (local -y) edge IS the island cliff: no plinth ring and no rim wobble there.
 RIM_EDGE = {60000: "front"}
 # Classic hidden portals: the trail is a hedge-screened grass lane (no road, rails or signposts).

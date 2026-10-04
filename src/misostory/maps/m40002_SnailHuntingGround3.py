@@ -300,6 +300,7 @@ def build(m):
     m.mobs("Red Snail", geo.rect(0, 20, 17, 28), 1, seed=23, z_band=(T12E - 0.1, T12W + 0.1))
     m.mobs("Red Snail", geo.rect(22, 29, 35, 37), 1, seed=24, z_band=(T7E - 0.1, T7E + 0.1))
     m.player(17.1, 33.0, rot=-30)  # on T7 by the chimney foot (Gameplay focus)
+    m.player_spawn(4.0, 10.0, rot=90, note="sp x 1: just east of west00 on the entry plateau")
 
 
 def dress(m):

@@ -1,0 +1,377 @@
+{
+  "id": "10",
+  "name": "Maria",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000050",
+      "map_name": "A Split Road",
+      "street_name": "Maple Road",
+      "x_px": 159,
+      "y_px": 65
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "I need to get this to Amherst! What should I do...?",
+      "segments": [
+        {
+          "text": "I need to get this to "
+        },
+        {
+          "text": "Amherst",
+          "ref": {
+            "kind": "map",
+            "id": "000001010"
+          }
+        },
+        {
+          "text": "! What should I do...?"
+        }
+      ]
+    },
+    {
+      "text": "I'm so glad my message was delivered to town in time. Thanks again. Are you using the hat I gave you? How is it?"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Ahh... I need to get this letter delivered..."
+    },
+    {
+      "text": "Why is no one passing by?!"
+    },
+    {
+      "text": "Just look at the time. I hope it's not too late..."
+    },
+    {
+      "text": "Ah, what should I do...?"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1007",
+        "name": "Letter for Lucas"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1008",
+        "name": "Lucas's Reply"
+      }
+    ],
+    "started_here": [
+      "1007"
+    ],
+    "completed_here": [
+      "1008"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1007",
+      "quest_name": "Letter for Lucas",
+      "npc_role": "start",
+      "start_npc_id": "10",
+      "complete_npc_id": "17",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "I'm getting anxious. I need to get this letter to Lucas fast. It's urgent! But I have things to do here, so I can't leave this spot...",
+          "segments": [
+            {
+              "text": "I'm getting anxious. I need to get this letter to "
+            },
+            {
+              "text": "Lucas",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "17"
+              }
+            },
+            {
+              "text": " fast. It's urgent! But I have things to do here, so I can't leave this spot..."
+            }
+          ]
+        },
+        {
+          "text": "Can you take this letter to Lucas in Amherst? It'll only take a minute...",
+          "segments": [
+            {
+              "text": "Can you take this "
+            },
+            {
+              "text": "letter",
+              "bold": true
+            },
+            {
+              "text": " to "
+            },
+            {
+              "text": "Lucas",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "17"
+              }
+            },
+            {
+              "text": " in "
+            },
+            {
+              "text": "Amherst",
+              "bold": true,
+              "ref": {
+                "kind": "map",
+                "id": "000001010"
+              }
+            },
+            {
+              "text": "? It'll only take a minute..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Are you going to help me? I'm so relieved... Now I can finally relax. Please take this letter, and make sure to give it to the chief of Amherst.",
+              "segments": [
+                {
+                  "text": "Are you going to help me? I'm so relieved... Now I can finally relax. Please take this letter, and make sure to give it to the chief of "
+                },
+                {
+                  "text": "Amherst",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": "."
+                }
+              ]
+            },
+            {
+              "text": "Amherst is northeast from here. Lucas is the chief of Amherst. He is probably walking in front of the general store today. Please make sure to bring me Lucas's reply.",
+              "segments": [
+                {
+                  "text": "Amherst",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": " is northeast from here. "
+                },
+                {
+                  "text": "Lucas",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "17"
+                  }
+                },
+                {
+                  "text": " is the chief of "
+                },
+                {
+                  "text": "Amherst",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": ". He is probably walking in front of the general store today. Please make sure to bring me "
+                },
+                {
+                  "text": "Lucas's",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "17"
+                  }
+                },
+                {
+                  "text": " reply."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Ahhh, this is not good. If I don't get this to the town chief... Please reconsider!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1008",
+      "quest_name": "Lucas's Reply",
+      "npc_role": "complete",
+      "start_npc_id": "17",
+      "complete_npc_id": "10",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Oh, the reply letter! Thank you! I want to give you something to show my appreciation."
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Ta da! A hat! It has a level limitation, but I think you're strong enough to wear it. Thanks again for all your help!"
+            },
+            {
+              "text": "If you don't know how to equip items yet, open the Equip tab in your Inventory.\n You can freely switch between menus using the Tab key. To equip an item, just double-click on it.\n To check if it's equipped properly, open the Equipment window.",
+              "segments": [
+                {
+                  "text": "If you don't know how to equip items yet, open the "
+                },
+                {
+                  "text": "Equip tab",
+                  "bold": true
+                },
+                {
+                  "text": " in your Inventory.\n You can freely switch between menus using the "
+                },
+                {
+                  "text": "Tab",
+                  "bold": true
+                },
+                {
+                  "text": " key. To equip an item, just "
+                },
+                {
+                  "text": "double-click",
+                  "bold": true
+                },
+                {
+                  "text": " on it.\n To check if it's equipped properly, open the "
+                },
+                {
+                  "text": "Equipment window",
+                  "bold": true
+                },
+                {
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "Have you not gone to the chief yet? Or did you lose the letter? Please deliver the letter soon and bring back Chief Lucas's reply.",
+              "segments": [
+                {
+                  "text": "Have you not gone to the chief yet? Or did you lose the letter? Please deliver the letter soon and bring back Chief "
+                },
+                {
+                  "text": "Lucas's",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "17"
+                  }
+                },
+                {
+                  "text": " reply."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "You didn't deliver my reply to Maria yet? If you lose my reply, just tell me. I suppose I can write up another one.",
+              "segments": [
+                {
+                  "text": "You didn't deliver my reply to "
+                },
+                {
+                  "text": "Maria",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "10"
+                  }
+                },
+                {
+                  "text": " yet? If you lose my reply, just tell me. I suppose I can write up another one."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "lost",
+          "label": "If you lost the items",
+          "lines": [
+            {
+              "text": "You lost my reply letter? Bah, such carelessness! I have a town to run, you know. But fine, I'll rewrite the letter. Here, take it, and don't lose it this time."
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Lucas, id 17) and completion NPC (Maria, id 10) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/10",
+    "retrieved_at": "2026-10-04T10:05:21.229Z"
+  },
+  "field_sources": {
+    "locations/000000050": {
+      "url": "https://meowdb.com/msclassic/maps/000000050",
+      "retrieved_at": "2026-10-04T09:56:48.241Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1007/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1007",
+      "retrieved_at": "2026-10-04T10:07:24.726Z"
+    },
+    "quest_dialogue/1008/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1008",
+      "retrieved_at": "2026-10-04T10:07:25.938Z"
+    }
+  }
+}

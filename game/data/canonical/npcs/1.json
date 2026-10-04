@@ -1,0 +1,385 @@
+{
+  "id": "1",
+  "name": "Heena",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000001",
+      "map_name": "Mushroom Town - West Entrance",
+      "street_name": "Maple Road",
+      "x_px": -46,
+      "y_px": 280
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "You must be a new traveler. Allow me to give you some useful instructions. To speak to NPCs like me, just click on us. To move, press the left and right arrow keys and jump. Go on and try it! Also, sometimes you may need to climb a ladder or use a rope to reach your destination. You can do that by pressing the up arrow. This is important information, so remember it well.",
+      "segments": [
+        {
+          "text": "You must be a new traveler. Allow me to give you some useful instructions. To speak to NPCs like me, just click on us. To move, press the "
+        },
+        {
+          "text": "left and right arrow keys",
+          "bold": true
+        },
+        {
+          "text": " and jump. Go on and try it! Also, sometimes you may need to climb a ladder or use a rope to reach your destination. You can do that by pressing the "
+        },
+        {
+          "text": "up arrow",
+          "bold": true
+        },
+        {
+          "text": ". This is important information, so remember it well."
+        }
+      ]
+    },
+    {
+      "text": "Now I can examine my face with this mirror. Phew! Not sunburnt."
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Beautiful day today!"
+    },
+    {
+      "text": "Press the left Alt key to jump."
+    },
+    {
+      "text": "Press the arrow keys to move left and right."
+    },
+    {
+      "text": "Ha!"
+    },
+    {
+      "text": "Hehe..."
+    },
+    {
+      "text": "How go your travels?"
+    },
+    {
+      "text": "Whoa. You look brand new."
+    },
+    {
+      "text": "Arrghh, my flawless skin..."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1000",
+        "name": "Borrowing Sera's Mirror"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1001",
+        "name": "Bringing a Mirror to Heena"
+      }
+    ],
+    "started_here": [
+      "1000"
+    ],
+    "completed_here": [
+      "1001"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1000",
+      "quest_name": "Borrowing Sera's Mirror",
+      "npc_role": "start",
+      "start_npc_id": "1",
+      "complete_npc_id": "2",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "You must be the new traveler. I'll be giving you important information, so listen up. First, if you want to talk to anyone, click that person with your mouse.",
+          "segments": [
+            {
+              "text": "You must be the new traveler. I'll be giving you important information, so listen up. First, if you want to talk to anyone, "
+            },
+            {
+              "text": "click",
+              "bold": true
+            },
+            {
+              "text": " that person with your mouse."
+            }
+          ]
+        },
+        {
+          "text": "The left and right arrows allow you to move. Press Alt to jump. Press a direction key and Alt at the same time to jump left or right.",
+          "segments": [
+            {
+              "text": "The "
+            },
+            {
+              "text": "left and right arrows",
+              "bold": true
+            },
+            {
+              "text": " allow you to move. Press "
+            },
+            {
+              "text": "Alt",
+              "bold": true
+            },
+            {
+              "text": " to jump. Press a direction key and "
+            },
+            {
+              "text": "Alt",
+              "bold": true
+            },
+            {
+              "text": " at the same time to jump left or right."
+            }
+          ]
+        },
+        {
+          "text": "Man, it's scorching hot today! The sun is burning my beautiful skin! Can you get me my mirror from Sera, please? I have to check my skin!",
+          "segments": [
+            {
+              "text": "Man, it's scorching hot today! The sun is burning my beautiful skin! Can you get me my "
+            },
+            {
+              "text": "mirror",
+              "bold": true
+            },
+            {
+              "text": " from "
+            },
+            {
+              "text": "Sera",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "2"
+              }
+            },
+            {
+              "text": ", please? I have to check my skin!"
+            }
+          ]
+        },
+        {
+          "text": "If you want to keep track of your progress on a quest, open your Quest Window, then press Quest Helper to register it. Quests registered to the Quest Helper will display on your screen while you play.",
+          "segments": [
+            {
+              "text": "If you want to keep track of your progress on a quest, open your "
+            },
+            {
+              "text": "Quest Window",
+              "bold": true
+            },
+            {
+              "text": ", then press "
+            },
+            {
+              "text": "Quest Helper",
+              "bold": true
+            },
+            {
+              "text": " to register it. Quests registered to the Quest Helper will display on your screen while you play."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Thank you. Sera is on the hill to the east, hanging laundry. The mirror looks like this: Sera's Mirror.",
+              "segments": [
+                {
+                  "text": "Thank you. "
+                },
+                {
+                  "text": "Sera",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": " is on the hill to the east, hanging laundry. The mirror looks like this: "
+                },
+                {
+                  "text": "Sera's Mirror",
+                  "ref": {
+                    "kind": "item",
+                    "id": "438"
+                  }
+                },
+                {
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Don't want to? Fine, come back when you change your mind."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1001",
+      "quest_name": "Bringing a Mirror to Heena",
+      "npc_role": "complete",
+      "start_npc_id": "2",
+      "complete_npc_id": "1",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Oh wow! You brought Sera's mirror! Thank you so, so much. Let's see... No skin damage whatsoever... Whew! That's a relief.",
+          "segments": [
+            {
+              "text": "Oh wow! You brought "
+            },
+            {
+              "text": "Sera's",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "2"
+              }
+            },
+            {
+              "text": " mirror! Thank you so, so much. Let's see... No skin damage whatsoever... Whew! That's a relief."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "If you go right, you will see a shiny aura. We call that a portal. If you press up arrow, you will teleport to the next area. So long!",
+              "segments": [
+                {
+                  "text": "If you go right, you will see a shiny aura. We call that a portal. If you press "
+                },
+                {
+                  "text": "up arrow",
+                  "bold": true
+                },
+                {
+                  "text": ", you will teleport to the next area. So long!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "Did you lose the mirror? Ask my sister for it again, then."
+            }
+          ]
+        },
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "It looks like you haven't delivered the mirror to Heena yet. Please hurry!",
+              "segments": [
+                {
+                  "text": "It looks like you haven't delivered the mirror to "
+                },
+                {
+                  "text": "Heena",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": " yet. Please hurry!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "lost",
+          "label": "If you lost the items",
+          "lines": [
+            {
+              "text": "How am I going to hang all these up? What a hassle. What? You want my mirror? Please don't tell me Heena asked you for this...",
+              "segments": [
+                {
+                  "text": "How am I going to hang all these up? What a hassle. What? You want my mirror? Please don't tell me "
+                },
+                {
+                  "text": "Heena",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": " asked you for this..."
+                }
+              ]
+            },
+            {
+              "text": "Seriously, she should have come to get it herself. She is sooo lazy. Fine, fine, here's the mirror."
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Sera, id 2) and completion NPC (Heena, id 1) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/1",
+    "retrieved_at": "2026-10-04T10:04:26.730Z"
+  },
+  "field_sources": {
+    "locations/000000001": {
+      "url": "https://meowdb.com/msclassic/maps/000000001",
+      "retrieved_at": "2026-10-04T09:56:36.674Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1000/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1000",
+      "retrieved_at": "2026-10-04T10:07:11.295Z"
+    },
+    "quest_dialogue/1001/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1001",
+      "retrieved_at": "2026-10-04T10:07:13.814Z"
+    }
+  }
+}

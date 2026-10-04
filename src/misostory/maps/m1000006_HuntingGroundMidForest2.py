@@ -356,10 +356,13 @@ def build(m):
            (23.2, 7.8), (19.0, 8.4), (13.0, 8.4), (8.6, 8.2), (7.4, 5.0), (7.2, 2.0)]
     _island(m, "Hub_T17", hub, HUB, cap=2.0, tiers=((1.2, 0.9), (2.2, 0.9), (3.4, 0.9), (4.4, 0.8)), stalk=0.24,
             wobble_amt=0.1)
-    m.terrace("DoorBlock_T12", [(12.0, 2.6), (15.0, 2.4), (18.4, 2.7), (18.4, 6.8), (12.0, 6.8)], top=DOOR_ROOF,
+    # the block's front face stands >= 0.4 m behind out00's arrival point (anchor (14, 1) + 1.5 m inward = (14, 2.5)),
+    # so a player arriving from 1000000 in05 stands on the hub in front of it, not 3 cm inside its body (Iteration
+    # One had the face at y 2.4-2.7; the runtime's single-sided collision could not even report that overlap)
+    m.terrace("DoorBlock_T12", [(12.0, 3.05), (15.0, 2.85), (18.4, 3.15), (18.4, 6.8), (12.0, 6.8)], top=DOOR_ROOF,
               bottom=HUB - 0.4)
     # the barrel door bulges from the block face east of the out00 swirl, so the camera sees both
-    m.place("Barrel_Door_Mound", 16.4, 2.9, rot=0, scale=0.7, z=HUB - 0.04)
+    m.place("Barrel_Door_Mound", 16.4, 3.35, rot=0, scale=0.7, z=HUB - 0.04)
 
     # ================= west: lower island T21, the stair T15 -> T13 -> T11 -> T8, T10 + T9 =================
     small = dict(cap=1.1, tiers=((0.55, 1.1),), stalk=0.45)
@@ -541,6 +544,7 @@ def build(m):
            avoid=t0_clear)
 
     m.player(21.0, 6.0, rot=-45)  # on the hub, clear of the door block (screen right of it), facing the camera
+    m.player_spawn(10.0, 3.0, rot=180, note="sp x -203: west of out00 on the arrival hub")
 
     # --- islands: every route walks its ropes (the validator links routes that climb the same rope)
     # hub -> T18 -> T19 -> T20 and down the long Rope_643 to the long slope of the dell

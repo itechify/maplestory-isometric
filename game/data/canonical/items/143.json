@@ -1,0 +1,167 @@
+{
+  "id": "143",
+  "name": "Overall Armor DEF Scroll: Intermediate",
+  "game_item_id": "2040501",
+  "type": "Use",
+  "subtype": "Scroll",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Improves Defense on overalls.\nSuccess rate: 60%, Weapon Def. +4, Magic Def. +2",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": {
+    "target_equipment": "Overall",
+    "stat_type": "DEF",
+    "grade": "Intermediate",
+    "success_rate_pct": 60,
+    "stat_bonus_on_success": {
+      "wdef": 4,
+      "mdef": 2
+    }
+  },
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "1048",
+        "monster_name": "Jr. Yeti",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "864",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "443",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "700000",
+        "monster_name": "Mushmom",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1043",
+        "monster_name": "King Block Golem",
+        "monster_level": 45
+      },
+      {
+        "monster_id": "1051",
+        "monster_name": "Luster Pixie",
+        "monster_level": 52
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [
+      {
+        "quest_id": "10509",
+        "quest_name": "[Forest of Patience] Sabitrama and the Diet Medicine",
+        "when": "on_completion",
+        "chance_pct": 50,
+        "label": "(50%)",
+        "row_key": "10509-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "mdef",
+        "stat": "MDEF",
+        "cot1": "1",
+        "cot2": "2",
+        "change": "+1"
+      },
+      {
+        "key": "wdef",
+        "stat": "WDEF",
+        "cot1": "3",
+        "cot2": "4",
+        "change": "+1"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "Improves Defense on overalls.\nSuccess rate: 60%, Weapon Def.+3, Magic Def.+1",
+      "cot2": "Improves Defense on overalls.\nSuccess rate: 60%, Weapon Def. +4, Magic Def. +2"
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/143",
+    "retrieved_at": "2026-10-04T10:43:05.927Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/143?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:06.988Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/143?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:06.988Z"
+    },
+    "scroll": {
+      "url": "https://meowdb.com/msclassic/api/items/143?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:06.988Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=143",
+      "retrieved_at": "2026-10-04T10:43:08.156Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Scroll: stat_bonus_on_success is added to the target equipment when the scroll succeeds; it is not a stat of the scroll itself."
+  ]
+}

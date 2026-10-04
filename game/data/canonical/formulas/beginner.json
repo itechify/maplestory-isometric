@@ -1,0 +1,618 @@
+{
+  "id": "beginner",
+  "name": "Beginner",
+  "class_slug": "beginner",
+  "description": "Every adventurer starts as a Beginner on Maple Island. Learn the basics of combat with simple skills before choosing your path at level 10.",
+  "starting_level": 1,
+  "starting_level_note": "Classic World starts every character at level 1 in its own economy.",
+  "starting_stats": {
+    "str": 4,
+    "dex": 4,
+    "int": 4,
+    "luk": 4
+  },
+  "starting_stats_note": "Every character starts with 4 STR, 4 DEX, 4 INT and 4 LUK, and those 16 points count toward total AP.",
+  "creation_ap": 9,
+  "creation_ap_note": [
+    "You place your first 9 AP on the character creation screen, so pick your class before you make your character.",
+    "Every character starts with 4 in each stat. You place 9 more AP at character creation, then get 5 AP per level for STR, DEX, INT, and LUK."
+  ],
+  "ap": {
+    "total_ap_formula": "Total AP = 25 + 5 × (Level - 1)",
+    "free_ap_formula": "Free AP = Total AP - 16",
+    "ap_per_level": 5,
+    "ap_per_level_note": "You get 5 AP with each level, and you can use them on the stats you want in Character Info to make your character stronger.",
+    "total_ap_at_level_1": 25,
+    "free_ap_at_level_1": 9,
+    "allocatable_stats": [
+      "str",
+      "dex",
+      "int",
+      "luk"
+    ],
+    "unused_ap_retained": "Not explicitly stated. AP is placed by hand and stays where it is put: \"You place every AP and SP by hand. A misplaced stat stays there until you use a cash-shop AP Reset.\"",
+    "ap_not_reset_on_job_advancement": "1st job has no stat requirements (a 4-INT Beginner can advance to Warrior), but your AP does not reset on advancement.",
+    "calculator_code": "l=25+5*(a-1),r=[S(\"Total AP\",l,0),S(\"Free AP\",l-16,0)];return\"beginner\"===P(e,\"class\")?[...r,S(\"Beginner SP\",9,0)]"
+  },
+  "sp": {
+    "beginner_total_sp": 9,
+    "formula": "Beginner SP = 9",
+    "sp_per_level": 1,
+    "sp_levels": [
+      2,
+      10
+    ],
+    "note": "You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10). That's exactly enough to max all three Beginner skills (3 SP each, 9 total).",
+    "after_level_10_as_beginner": "Not documented. MeowDB's calculators return Beginner SP = 9 at every level (model, not confirmed).",
+    "calculator_caveat": "The /formulas/leveling \"AP and SP\" calculator prints \"Beginner SP = 9\" for every level, including level 1. It is the level-10 total, not a starting grant: per the Beginner's guide a Beginner has 0 SP at level 1 and gains 1 SP at each level-up from 2 to 10."
+  },
+  "hp_mp": {
+    "base_hp": 50,
+    "base_mp": 5,
+    "hp_per_level": 16,
+    "mp_per_level": 12,
+    "random_range": null,
+    "random_range_note": "Flat gains; MeowDB: \"Sampled level-ups showed zero variance.\" (hp_mp_gain.json)",
+    "hp_formula": "BeginnerHP = 50 + 16 × (Level - 1)",
+    "mp_formula": "BeginnerMP = 5 + 12 × (Level - 1)",
+    "by_level_1_to_10": [
+      {
+        "level": 1,
+        "hp": 50,
+        "mp": 5
+      },
+      {
+        "level": 2,
+        "hp": 66,
+        "mp": 17
+      },
+      {
+        "level": 3,
+        "hp": 82,
+        "mp": 29
+      },
+      {
+        "level": 4,
+        "hp": 98,
+        "mp": 41
+      },
+      {
+        "level": 5,
+        "hp": 114,
+        "mp": 53
+      },
+      {
+        "level": 6,
+        "hp": 130,
+        "mp": 65
+      },
+      {
+        "level": 7,
+        "hp": 146,
+        "mp": 77
+      },
+      {
+        "level": 8,
+        "hp": 162,
+        "mp": 89
+      },
+      {
+        "level": 9,
+        "hp": 178,
+        "mp": 101
+      },
+      {
+        "level": 10,
+        "hp": 194,
+        "mp": 113
+      }
+    ]
+  },
+  "max_level": {
+    "game_level_cap": 100,
+    "beginner_specific_cap": null,
+    "note": "MeowDB gives the game cap (Lv 100, see exp_table.json) but no Beginner-specific cap. A Beginner can stay a Beginner past level 10 (the HP/MP guide documents a level 11 Beginner advancing late); MeowDB's HP/MP calculator accepts Beginner levels 1-100.",
+    "evidence": "A level 11 Beginner advanced to Warrior"
+  },
+  "stat_caps": null,
+  "stat_caps_note": "Not documented on MeowDB (only Speed cap 140 and Jump cap 120, see movement.json).",
+  "job_advancement": {
+    "first_job_level": 10,
+    "statements": [
+      "To advance for not only Warriors, Bowmen, and Thieves, but also Magicians, you need to be at least level 10.",
+      "1st job has no stat requirements (a 4-INT Beginner can advance to Warrior), but your AP does not reset on advancement."
+    ],
+    "instructors": [
+      "Perion: Warriors (Dances With Balrog)",
+      "Ellinia: Magicians (Grendel the Really Old)",
+      "Henesys: Bowmen (Athena Pierce)",
+      "Kerning City: Thieves (Dark Lord)"
+    ],
+    "leaving_maple_island": "Shanks at the dock sails you to Lith Harbor for 300 mesos once you reach level 7.",
+    "one_way": "The boat is one-way."
+  },
+  "equipment_restrictions": {
+    "rule": "A Beginner can equip only items with no job requirement (\"Any\" class) that meet the level and stat requirements.",
+    "statements": [
+      "Every NPC-sold item with no class lock.",
+      "If you can't wear something, check that your character meets the level and statistic requirements."
+    ],
+    "character_builder_code": "h={beginner:[],warrior:[\"Warrior\"],magician:[\"Mage\"],bowman:[\"Bowman\"],thief:[\"Thief\"]};function f(e,t){return!e||h[t].some(t=>e.includes(t))}",
+    "note": "The rule is MeowDB tool logic (character builder: Beginner matches no job requirement) plus the Beginner shop category \"no class lock\"; it is not stated as a sentence on a mechanics page."
+  },
+  "starter_weapons": {
+    "statement": "Every any-class weapon, from the 50-meso starter trio (Sword, Hand Axe, Wooden Club) up to Lv 27.",
+    "creation_choice_note": "Choose the Wooden Club at character creation. It has 19 W.ATK; the Sword and Hand Axe have 17.",
+    "items": [
+      {
+        "item_id": "541",
+        "name": "Sword",
+        "subtype": "One-Handed Sword",
+        "watk": 17,
+        "level_req": 0,
+        "attack_speed_tier": 4
+      },
+      {
+        "item_id": "576",
+        "name": "Hand Axe",
+        "subtype": "One-Handed Axe",
+        "watk": 17,
+        "level_req": 0,
+        "attack_speed_tier": 4
+      },
+      {
+        "item_id": "585",
+        "name": "Wooden Club",
+        "subtype": "One-Handed Blunt Weapon",
+        "watk": 19,
+        "level_req": 0,
+        "attack_speed_tier": 5
+      },
+      {
+        "item_id": "558",
+        "name": "Razor",
+        "subtype": "Dagger",
+        "watk": 23,
+        "level_req": 5,
+        "attack_speed_tier": 4
+      }
+    ],
+    "level_req_note": "level_req 0 = no level requirement: the item page has no \"REQ LEV\" row, the Beginner shop list shows \"-\" in its Lv column, and MeowDB's item API gives \"levelReq\": 0 (checked for 541/576/585; Razor 558 has 5 on all three).",
+    "guide_advice": [
+      "Club attacks one tier slower than Sword or Hand Axe, but across levels 1 to 4, the Club reaches the useful damage breakpoints more often.",
+      "At level 5, switch to Razor. Its 23 W.ATK and faster speed give every class path higher minimum and average damage than Wooden Club."
+    ]
+  },
+  "starter_clothes": null,
+  "starter_clothes_note": "Not documented on MeowDB.",
+  "skills": [
+    {
+      "skill_id": "0001000",
+      "name": "Three Snails",
+      "page": "https://meowdb.com/msclassic/skills/beginner/three-snails",
+      "type": "active",
+      "max_level": 3,
+      "description": "Hurls snail shells to attack monsters from long distance.",
+      "delivery": "projectile",
+      "element": "none",
+      "weapon_requirement": "any",
+      "cast_position": "ground only",
+      "targets": 1,
+      "range_px": 300,
+      "damage_formula": "fixed damage",
+      "damage_note": "Three Snails deals the fixed damage stored for the selected skill level. Character stats, weapon stats, and target defense do not scale this fixed value.",
+      "affected_by": [
+        "Skill level"
+      ],
+      "conditional_factors": [
+        "Required shell item",
+        "Target hit eligibility"
+      ],
+      "factors_statement": "Affected by Skill level Conditional factors Required shell item Target hit eligibility",
+      "hit_check_note": "The page lists \"Target hit eligibility\" as a conditional factor but does not say explicitly whether the shared accuracy roll, the level-gap scale or critical hits apply to this fixed damage (gap).",
+      "levels": [
+        {
+          "level": 1,
+          "effect": "Snail Shell -1, MP -3; Damage 15",
+          "item_cost_name": "Snail Shell",
+          "item_cost_qty": 1,
+          "mp_cost": 3,
+          "fixed_damage": 15,
+          "item_cost_id": "348"
+        },
+        {
+          "level": 2,
+          "effect": "Blue Snail Shell -1, MP -4; Damage 25",
+          "item_cost_name": "Blue Snail Shell",
+          "item_cost_qty": 1,
+          "mp_cost": 4,
+          "fixed_damage": 25,
+          "item_cost_id": "349"
+        },
+        {
+          "level": 3,
+          "effect": "Red Snail Shell -1, MP -5; Damage 40",
+          "item_cost_name": "Red Snail Shell",
+          "item_cost_qty": 1,
+          "mp_cost": 5,
+          "fixed_damage": 40,
+          "item_cost_id": "351"
+        }
+      ],
+      "animation": {
+        "base_action_ms": 800,
+        "ms_at_normal_6": 810,
+        "weapon_speed_based": true
+      },
+      "terrain_note": "Wall and platform interactions are not confirmed for this skill."
+    },
+    {
+      "skill_id": "0001001",
+      "name": "Recovery",
+      "page": "https://meowdb.com/msclassic/skills/beginner/recovery",
+      "type": "active",
+      "max_level": 3,
+      "description": "Enables the user to recover HP constantly for 30 sec.",
+      "target": "self",
+      "cast_position": "ground, air, or rope",
+      "output_formula": "Timed HP recovery",
+      "output_note": "Recovery restores a fixed total amount of HP across its 30-second duration.",
+      "affected_by": [
+        "Skill level"
+      ],
+      "conditional_factors": [
+        "30-second effect duration"
+      ],
+      "factors_statement": "Affected by Skill level Conditional factors 30-second effect duration",
+      "levels": [
+        {
+          "level": 1,
+          "effect": "MP -5; Recover HP 24 in 30 sec. Cooldown: 2 min.",
+          "mp_cost": 5,
+          "hp_total": 24,
+          "duration_s": 30,
+          "cooldown_s": 120
+        },
+        {
+          "level": 2,
+          "effect": "MP -10; Recover HP 48 in 30 sec. Cooldown: 2 min.",
+          "mp_cost": 10,
+          "hp_total": 48,
+          "duration_s": 30,
+          "cooldown_s": 120
+        },
+        {
+          "level": 3,
+          "effect": "MP -15; Recover HP 72 in 30 sec. Cooldown: 2 min.",
+          "mp_cost": 15,
+          "hp_total": 72,
+          "duration_s": 30,
+          "cooldown_s": 120
+        }
+      ],
+      "animation": {
+        "timing": "Timing unavailable"
+      }
+    },
+    {
+      "skill_id": "0001002",
+      "name": "Nimble Feet",
+      "page": "https://meowdb.com/msclassic/skills/beginner/nimble-feet",
+      "type": "active",
+      "max_level": 3,
+      "description": "Enables the character to move around quickly for a short amount of time.",
+      "target": "self",
+      "cast_position": "ground, air, or rope",
+      "levels": [
+        {
+          "level": 1,
+          "effect": "MP -4; speed +10 for 10 sec. Cooldown: 3 min.",
+          "mp_cost": 4,
+          "speed_bonus": 10,
+          "duration_s": 10,
+          "cooldown_s": 180
+        },
+        {
+          "level": 2,
+          "effect": "MP -7; speed +10 for 20 sec. Cooldown: 3 min.",
+          "mp_cost": 7,
+          "speed_bonus": 10,
+          "duration_s": 20,
+          "cooldown_s": 180
+        },
+        {
+          "level": 3,
+          "effect": "MP -10; speed +10 for 30 sec. Cooldown: 3 min.",
+          "mp_cost": 10,
+          "speed_bonus": 10,
+          "duration_s": 30,
+          "cooldown_s": 180
+        }
+      ],
+      "animation": {
+        "timing": "Timing unavailable"
+      }
+    }
+  ],
+  "skills_max_level_summary": [
+    "Speed +10 for 30s (MP -10). 3 min cooldown.",
+    "40 fixed damage, ranged. Consumes 1 Red Snail Shell + 5 MP per cast.",
+    "Heals 72 HP over 30s (MP -15). 2 min cooldown."
+  ],
+  "skill_order_advice": "Order matters for levels 1 to 9; by 10 they're all maxed anyway. Take Nimble Feet first, then Three Snails for ranged, Recovery last.",
+  "basic_attack": {
+    "mp_cost": 0,
+    "mp_cost_note": "Switch to basic attacks when MP is low; they cost no MP.",
+    "with_weapon": "damage.json physical formula with the weapon's family, action multipliers and hit boxes (attack_styles.json beginner_weapons). No mastery (MasteryLevel 0 -> M = 0.08). Critical base c = 0.05, d = 0.20.",
+    "stat_advice": "STR gives a Beginner stronger basic attacks than INT does.",
+    "bare_hands": {
+      "documented": "hitboxes and action only",
+      "weapon_attack": null,
+      "weapon_mult": null,
+      "action": "stab (100%)",
+      "presentations": [
+        "Punch 1 (stabO1)",
+        "Punch 2 (stabO2)",
+        "Crouched attack (proneStab)"
+      ],
+      "hit_boxes_px": {
+        "stabO1": [
+          -64,
+          -33,
+          -27,
+          -18
+        ],
+        "stabO2": [
+          -60,
+          -31,
+          -27,
+          -15
+        ],
+        "proneStab": [
+          -56,
+          -12,
+          -12,
+          0
+        ]
+      },
+      "attack_speed": null,
+      "note": "MeowDB has NOTHING on unarmed damage: no Weapon Attack value, no multiplier (\"Barehanded\" row shows \"-\" for the average multiplier), no speed, and the Damage Simulator has no Beginner/unarmed option. Searched: /formulas/damage, /guides/explaining-the-damage-formula, /guides/weapon-reach, /dmg-simulator (page and JS), /character-builder JS, /classes, /classes/beginner."
+    }
+  },
+  "death_exp_penalty": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "Loss = floor(EXP to next level × (5 + 20 / LUK) / 100)",
+      "EXP after death = max(0, EXP - Loss)",
+      "LUK 4: 10% · LUK 10: 7% · LUK 20: 6% · LUK 50: 5.4% · LUK 100: 5.2%"
+    ],
+    "notes": [
+      "LUK is base LUK: the points you put in, before gear.",
+      "EXP stops at 0, so a death never takes away a level.",
+      "A Safety Charm stops the loss."
+    ],
+    "luk_basis": "The character's own base LUK: the starting 4 plus every AP placed in LUK, before equipment and buffs (\"the points you put in, before gear\"). Every character starts with 4 LUK, and MeowDB's calculator clamps the input to 4..999. Do not use only the allocated AP (that can be 0 and would divide by zero).",
+    "base_loss_pct": 5,
+    "luk_term_numerator": 20,
+    "calculator_luk_clamp": [
+      4,
+      999
+    ],
+    "calculator_code": "l=D(Math.floor(M(e,\"luk\")),4,999),r=Math.round(a*D(M(e,\"expPercent\"),0,100)/100),t=Math.max(0,r-Math.floor(a*(5+20/l)/100))",
+    "parity_example": {
+      "level": 30,
+      "base_luk": 4,
+      "exp_before": 47850,
+      "loss": 9570,
+      "exp_after": 38280,
+      "note": "EXP after death 38,280 (40%)"
+    },
+    "town_exception": null,
+    "beginner_exception": null,
+    "exceptions_note": "MeowDB documents NO exception for dying in town and NO Beginner exception. The only documented way to avoid the loss is a Safety Charm. Do not add exceptions from other sources without recording them as external."
+  },
+  "beginner_perks": {
+    "taxi_discount": "Taxis are 90% off while you are still a Beginner.",
+    "taxi_discount_pct": 90
+  },
+  "class_page_strengths": [
+    "Three Snails gives an early ranged attack (each throw uses a snail shell)",
+    "Nimble Feet gives a bit of mobility",
+    "No commitment: every job is still open"
+  ],
+  "class_page_weaknesses": [
+    "Very low damage and survivability",
+    "No job identity until Lv 10",
+    "Skills are minor next to job skills"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/classes/beginner",
+    "retrieved_at": "2026-10-04T10:06:42.205Z"
+  },
+  "field_sources": {
+    "starting_level_note": {
+      "url": "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+      "retrieved_at": "2026-10-04T10:09:38.993Z"
+    },
+    "starting_stats_note": {
+      "url": "https://meowdb.com/msclassic/formulas/leveling",
+      "retrieved_at": "2026-10-04T10:04:44.928Z"
+    },
+    "creation_ap_note": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "ap": {
+      "url": "https://meowdb.com/msclassic/formulas/leveling",
+      "retrieved_at": "2026-10-04T10:04:44.928Z"
+    },
+    "ap.ap_per_level_note": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1018",
+      "retrieved_at": "2026-10-04T10:07:37.927Z"
+    },
+    "ap.unused_ap_retained": {
+      "url": "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+      "retrieved_at": "2026-10-04T10:09:38.993Z"
+    },
+    "ap.ap_not_reset_on_job_advancement": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "ap.calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    },
+    "sp": {
+      "url": "https://meowdb.com/msclassic/formulas/leveling",
+      "retrieved_at": "2026-10-04T10:04:44.928Z"
+    },
+    "sp.note": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "hp_mp": {
+      "url": "https://meowdb.com/msclassic/formulas/leveling",
+      "retrieved_at": "2026-10-04T10:04:44.928Z"
+    },
+    "max_level": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "job_advancement.statements.0": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1017",
+      "retrieved_at": "2026-10-04T10:07:36.703Z"
+    },
+    "job_advancement": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "equipment_restrictions.statements.0": {
+      "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
+      "retrieved_at": "2026-10-04T10:08:28.797Z"
+    },
+    "equipment_restrictions.character_builder_code": {
+      "url": "https://meowdb.com/_next/static/chunks/4068-26c6ed6efe1adbc7.js",
+      "retrieved_at": "2026-10-04T10:05:15.057Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "starter_weapons": {
+      "url": "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
+      "retrieved_at": "2026-10-04T10:08:28.797Z"
+    },
+    "starter_weapons.items": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "starter_weapons.guide_advice": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "skills.0": {
+      "url": "https://meowdb.com/msclassic/skills/beginner/three-snails",
+      "retrieved_at": "2026-10-04T10:08:40.464Z"
+    },
+    "skills.1": {
+      "url": "https://meowdb.com/msclassic/skills/beginner/recovery",
+      "retrieved_at": "2026-10-04T10:08:44.073Z"
+    },
+    "skills.2": {
+      "url": "https://meowdb.com/msclassic/skills/beginner/nimble-feet",
+      "retrieved_at": "2026-10-04T10:08:41.660Z"
+    },
+    "skills.0.levels.item_cost_id": {
+      "urls": [
+        "https://meowdb.com/msclassic/api/drops?monsterId=2",
+        "https://meowdb.com/msclassic/api/drops?monsterId=3",
+        "https://meowdb.com/msclassic/api/drops?monsterId=5"
+      ],
+      "retrieved_at": "2026-10-04T10:06:58.031Z"
+    },
+    "skills_max_level_summary": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "skill_order_advice": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "basic_attack.mp_cost_note": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "basic_attack.stat_advice": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "basic_attack.bare_hands.hit_boxes_px": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "death_exp_penalty": {
+      "url": "https://meowdb.com/msclassic/formulas/leveling",
+      "retrieved_at": "2026-10-04T10:04:44.928Z"
+    },
+    "death_exp_penalty.calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    },
+    "beginner_perks": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "starter_weapons.level_req_note": {
+      "urls": [
+        "https://meowdb.com/msclassic/api/items/541?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/585?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/558?locale=en&preview=1"
+      ],
+      "retrieved_at": "2026-10-04T10:22:27.349Z"
+    },
+    "equipment_restrictions.statements.1": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1014",
+      "retrieved_at": "2026-10-04T10:07:33.075Z"
+    }
+  },
+  "gaps": [
+    "Bare-hand (no weapon) Weapon Attack, multiplier and attack speed: not documented.",
+    "Beginner-specific max level: not documented (game cap Lv 100).",
+    "SP gained as a Beginner after level 10: not documented (calculator returns 9 total).",
+    "Stat caps: not documented.",
+    "Rule for putting AP into Max HP / Max MP: not documented.",
+    "Starting clothes / starting inventory: not documented.",
+    "Death EXP penalty exceptions in town or for Beginners: none documented.",
+    "Whether Three Snails is subject to the hit roll, level-gap scale or critical hits: not stated explicitly (its page lists \"Target hit eligibility\" as a conditional factor).",
+    "Animation time of Recovery and Nimble Feet casts: \"Timing unavailable\".",
+    "How Recovery distributes its HP total over 30 s (tick interval): not documented."
+  ],
+  "discrepancies": [
+    {
+      "topic": "Which stats AP can raise",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+          "text": "Every character starts with 4 in each stat. You place 9 more AP at character creation, then get 5 AP per level for STR, DEX, INT, and LUK."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/formulas/leveling",
+          "text": "Total AP = 25 + 5 × (Level - 1); Free AP = Total AP - 16 (STR/DEX/INT/LUK only; the HP/MP formulas have no AP term)."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+          "text": "AP: Earned at every level up. You get 5 per level. Used to raise STR / DEX / INT / LUK / HP / MP."
+        }
+      ],
+      "chosen": "allocatable_stats = STR, DEX, INT, LUK",
+      "reason": "The Beginner's guide (updated 2026-10-02) and the leveling formulas agree on the four stats, and the HP/MP guide has no AP term (\"HP washing is dead in MSCW\"); the glossary is a one-line definition. Whether AP can be put into Max HP / Max MP remains a documented gap (hp_mp_gain.json ap_into_hp_mp = null)."
+    }
+  ]
+}

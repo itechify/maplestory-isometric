@@ -8,7 +8,7 @@ Classic (GMS v8) structure, from docs/research/maps/30000_EastEntranceMushroomTo
   (log bench) -> ladder up to U1 -> stepping stones U1..U4 rising EAST -> S1 (three-arrow
   signpost) -> S2 slope -> the S3 summit where Peter guards the exit out00. A dead-end
   stair of islets W1..W3 rises beside the arrival point. Every hop is exactly one 60 px
-  unit; climbs of 3-4 units use ropes/ladders. No monsters in v8.
+  unit; climbs of 3-4 units use ropes/ladders. No monsters in v8 (MeowDB MS Classic: 6 Tutorial Jr. Sentinels).
 
 3D translation: the camera looks from the south-east, so the climb winds BACK (+y) as it
 rises: valley in front, the mid band (E2 -> E3 -> M1 -> M3) along the middle, the
@@ -440,9 +440,26 @@ def build(m):
               avoid=[geo.rect(30, 28.6, 38, 32.4)])
 
     # ================= gameplay =================
-    m.edge_portal("in00")
-    m.edge_portal("out00")
+    m.edge_portal("in00")  # a two-way portal back to 20000 out00 in MeowDB (v8 had an arrival point only)
+    m.edge_portal("out00")  # one-way to 40000: the trail ends in a drop-down ledge (no portal back)
     m.player(27.5, 20.2, rot=55)  # on the E3 ledge just off the trail, facing the camera
+    # Todd (MeowDB 000000030 at x -21, y 202: the west valley floor G1, just east of the arrival) by the ivy signpost,
+    # 1.6 m off the Main road
+    m.npc("Todd", 6.8, 9.6, rot=30)
+    # player_spawns[0] (MeowDB sp x -77, y 122: on G1 between in00 and Todd), on the Main road facing down it
+    m.player_spawn(5.0, 10.2, rot=50, note="west valley floor between in00 and Todd")
+    # MeowDB: 6 Tutorial Jr. Sentinel spawn points (x 1360 on the east valley floor G5; x 475 / 690 on the house
+    # hilltop G3; x 192 / 425 on the M3 high terrace, x 763 on M1). No kit proxy exists for the species, so these are
+    # bare regions (no representative proxies)
+    sentinel = ("Tutorial Jr. Sentinel",)
+    m.spawn_region("ValleyEast_G5", geo.rect(29.5, 1.0, 37.5, 11.0), species=sentinel, z_band=(-0.2, 0.3),
+                   tiers=("G5",))
+    m.spawn_region("Hilltop_G3", geo.rect(12.8, 2.4, 25.2, 6.0), species=sentinel, z_band=(G3 - 0.2, G3 + 0.2),
+                   tiers=("G3",))
+    m.spawn_region("HighTerrace_M3", geo.rect(1.0, 17.6, 16.8, 26.0), species=sentinel, z_band=(M3 - 0.2, M3 + 0.2),
+                   tiers=("M3",))
+    m.spawn_region("Ledge_M1", geo.rect(18.6, 17.6, 23.0, 25.6), species=sentinel, z_band=(M1 - 0.2, M1 + 0.2),
+                   tiers=("M1",))
     # the whole climb as ONE route: valley -> rope -> E1 -> rope -> E2 -> planks -> E3 -> planks -> M1 ->
     # M2 slope -> M3 -> ladder -> U1 -> mushroom caps -> U4 -> S1 -> S2 slope -> summit -> out00
     m.route("Main", [(1.0, 12.0), (5.0, 9.0), (9.0, 5.6), (12.0, 4.4), (18.0, 4.0), (24.0, 4.2), (27.0, 5.2),

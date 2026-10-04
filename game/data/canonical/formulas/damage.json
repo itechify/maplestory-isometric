@@ -1,0 +1,834 @@
+{
+  "id": "damage",
+  "name": "Outgoing damage formulas (physical, magic, defense, element, level gap, critical, clamp)",
+  "status": "Published formula (no status label on the MeowDB card)",
+  "pipeline_order": {
+    "steps": [
+      "hit_check",
+      "raw_roll",
+      "defense",
+      "element",
+      "level_gap",
+      "critical",
+      "final_clamp"
+    ],
+    "statement": "After the raw roll / Hit check / Raw roll / Defense / Element / Level gap / Critical / Final clamp",
+    "post_raw_operations": [
+      {
+        "order": 1,
+        "operation": "Raw × 100 / (EffectiveDEF + 100)"
+      },
+      {
+        "order": 2,
+        "operation": "Multiply by elemental result"
+      },
+      {
+        "order": 3,
+        "operation": "Multiply by higher-level target scale"
+      },
+      {
+        "order": 4,
+        "operation": "Multiply by critical result"
+      },
+      {
+        "order": 5,
+        "operation": "Apply Iron Arrow target falloff when relevant"
+      },
+      {
+        "order": 6,
+        "operation": "trunc(clamp(value, 1, 99,999))"
+      }
+    ],
+    "skill_bonus_stage": "Applied to the skill's power before the base roll.",
+    "hit_effects_stage": "Multipliers applied after defense.",
+    "note": "These cover the common branches. Separate rules apply to Lucky Seven and prone attacks. Heal and damage over time also use the expandable reference."
+  },
+  "physical": {
+    "formulas": [
+      "S = SkillDamage / 100",
+      "M = (MasteryLevel / 10 + 0.1) × 0.8",
+      "B = uniform(0.8, 1.0)",
+      "Q = uniform(Primary × M, Primary)",
+      "Raw = S × TotalWATK × (B + (Q × WeaponMult + Secondary) / StatDiv + AttackPower / APDiv)",
+      "MIN = S × TotalWATK × (0.8 + (Primary × M × WeaponMult + Secondary) / StatDiv + AttackPower / APDiv)",
+      "MAX = S × TotalWATK × (1.0 + (Primary × WeaponMult + Secondary) / StatDiv + AttackPower / APDiv)",
+      "Average = S × TotalWATK × (0.9 + (Primary × (M + 1) / 2 × WeaponMult + Secondary) / StatDiv + AttackPower / APDiv)",
+      "Ordinary attacks: StatDiv = 100 · APDiv = 50"
+    ],
+    "independent_rolls": "B and Q are independent random draws.",
+    "distribution_note": "MIN and MAX are the opposite corners of two independent rolls, so the distribution is concentrated toward the middle instead of being uniform across the displayed range. MasteryLevel is clamped to 0-10 for this base term.",
+    "base_roll": {
+      "min": 0.8,
+      "max": 1
+    },
+    "ordinary_divisors": {
+      "stat_div": 100,
+      "ap_div": 50
+    },
+    "mastery": {
+      "formula": "M = (MasteryLevel / 10 + 0.1) × 0.8",
+      "mastery_level_clamp": [
+        0,
+        10
+      ],
+      "no_mastery_factor": 0.08,
+      "no_mastery_worked": "= (0 / 10 + 0.1) × 0.8 = 0.08",
+      "effect": "Weapon Attack multiplies the whole result. Mastery raises MIN only."
+    },
+    "weapon_families": [
+      {
+        "key": "sword_axe_blunt_spear_polearm",
+        "label": "Sword / Axe / Blunt / Spear / Polearm",
+        "primary": "STR",
+        "secondary": "DEX"
+      },
+      {
+        "key": "bow_crossbow",
+        "label": "Bow / Crossbow",
+        "primary": "DEX",
+        "secondary": "STR"
+      },
+      {
+        "key": "dagger_claw",
+        "label": "Dagger / Claw",
+        "primary": "LUK",
+        "secondary": "STR + DEX"
+      },
+      {
+        "key": "wand_staff_physical",
+        "label": "Wand / Staff physical hit",
+        "primary": "STR",
+        "secondary": "DEX"
+      },
+      {
+        "key": "spell",
+        "label": "Spell",
+        "primary": "INT",
+        "secondary": null
+      }
+    ],
+    "weapon_action_multipliers": {
+      "one_handed_sword": {
+        "label": "1H Sword",
+        "swing": 1.8,
+        "stab": 1.8,
+        "shoot": 1.8,
+        "mixed": 1.8
+      },
+      "two_handed_sword": {
+        "label": "2H Sword",
+        "swing": 2.5,
+        "stab": 2.5,
+        "shoot": 2.5,
+        "mixed": 2.5
+      },
+      "one_handed_axe_or_blunt": {
+        "label": "1H Axe / Blunt",
+        "swing": 2.4,
+        "stab": 1.2,
+        "shoot": null,
+        "mixed": 1.8
+      },
+      "two_handed_axe_or_blunt": {
+        "label": "2H Axe / Blunt",
+        "swing": 3,
+        "stab": 2,
+        "shoot": null,
+        "mixed": 2.5
+      },
+      "spear": {
+        "label": "Spear",
+        "swing": 1.5,
+        "stab": 3.5,
+        "shoot": null,
+        "mixed": 2.5
+      },
+      "polearm": {
+        "label": "Polearm",
+        "swing": 3.5,
+        "stab": 1.5,
+        "shoot": null,
+        "mixed": 2.5
+      },
+      "dagger": {
+        "label": "Dagger",
+        "swing": 1,
+        "stab": 2,
+        "shoot": null,
+        "mixed": 1.5
+      },
+      "bow_crossbow_claw": {
+        "label": "Bow / Crossbow / Claw",
+        "swing": 1,
+        "stab": 1,
+        "shoot": 2.5,
+        "mixed": 1
+      },
+      "wand_staff_physical": {
+        "label": "Wand / Staff physical hit",
+        "swing": 1.8,
+        "stab": 1.8,
+        "shoot": 1.8,
+        "mixed": 1.8
+      }
+    },
+    "weapon_action_multipliers_note": "An explicit `Mixed` action uses the table's arithmetic midpoint.",
+    "not_used_note": "`Not used` means that action and weapon combination has no valid multiplier path. Ordinary play should never produce it.",
+    "ordinary_action_odds": {
+      "one_handed_sword": {
+        "label": "1H Sword",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 1.8
+      },
+      "two_handed_sword": {
+        "label": "2H Sword",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 2.5
+      },
+      "one_handed_axe_or_blunt": {
+        "label": "1H Axe / Blunt",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 1.92
+      },
+      "two_handed_axe_or_blunt": {
+        "label": "2H Axe / Blunt",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 2.6
+      },
+      "spear": {
+        "label": "Spear",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 2.3
+      },
+      "polearm": {
+        "label": "Polearm",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 2.7
+      },
+      "dagger": {
+        "label": "Dagger",
+        "swing_pct": 60,
+        "stab_pct": 40,
+        "average_multiplier": 1.4
+      },
+      "bow_close_range": {
+        "label": "Bow, close range",
+        "swing_pct": 100,
+        "stab_pct": null,
+        "average_multiplier": 1
+      },
+      "crossbow_close_range": {
+        "label": "Crossbow, close range",
+        "swing_pct": 50,
+        "stab_pct": 50,
+        "average_multiplier": 1
+      },
+      "claw_close_range": {
+        "label": "Claw, close range",
+        "swing_pct": null,
+        "stab_pct": 100,
+        "average_multiplier": 1
+      },
+      "wand_staff": {
+        "label": "Wand / Staff",
+        "swing_pct": 100,
+        "stab_pct": null,
+        "average_multiplier": 1.8
+      },
+      "barehanded": {
+        "label": "Barehanded",
+        "swing_pct": null,
+        "stab_pct": 100,
+        "average_multiplier": null
+      }
+    },
+    "ordinary_action_odds_formula": "Average multiplier = P(swing) × Swing + P(stab) × Stab",
+    "ordinary_action_pool_note": "follows the current standing pool of three swing entries and two stab entries: 60% swing and 40% stab.",
+    "ordinary_action_presentation_odds": "Each of the five standing presentations is equally likely (20% each). MeowDB weapon item pages: \"A normal attack picks one of the attacks, each with equal odds (60% swing, 40% thrust), and the averages use those attacks. Crouched attack is left out of average calculations.\" See attack_styles.json ordinary_action_selection.",
+    "default_skill_action_note": "A skill set to its weapon's default action stabs with swords, daggers, wands, staves and spears, swings with axes, blunt weapons and polearms, and shoots with bows, crossbows and claws.",
+    "special_branches": {
+      "lines": [
+        "Lucky Seven: WeaponMult = 3.0 · M = 0.5",
+        "Drain: WeaponMult = 2.5",
+        "Bow / Crossbow / Claw projectile: WeaponMult = 2.5 · StatDiv = 100 · APDiv = 50",
+        "Close-range ranged swing: WeaponMult = 1.0 · StatDiv = 300 · APDiv = 150",
+        "Close-range ranged stab: WeaponMult = 1.0 · StatDiv = 300 · APDiv = 50",
+        "Crouched attack: WeaponMult = 1.0 · StatDiv = 300 · APDiv = 150 · B = uniform(0.2, 0.3)",
+        "Magic skill: no WeaponMult"
+      ],
+      "lucky_seven": {
+        "weapon_mult": 3,
+        "mastery_factor": 0.5
+      },
+      "drain": {
+        "weapon_mult": 2.5
+      },
+      "ranged_projectile": {
+        "applies_to": "Bow / Crossbow / Claw projectile",
+        "weapon_mult": 2.5,
+        "stat_div": 100,
+        "ap_div": 50
+      },
+      "close_range_ranged_swing": {
+        "weapon_mult": 1,
+        "stat_div": 300,
+        "ap_div": 150
+      },
+      "close_range_ranged_stab": {
+        "weapon_mult": 1,
+        "stat_div": 300,
+        "ap_div": 50
+      },
+      "crouched_attack": {
+        "weapon_mult": 1,
+        "stat_div": 300,
+        "ap_div": 150,
+        "base_roll": {
+          "min": 0.2,
+          "max": 0.3
+        }
+      },
+      "magic_skill": {
+        "weapon_mult": null
+      },
+      "close_range_action_note": "A Bow always swings, a Crossbow swings or stabs at 50% each, and a Claw always stabs.",
+      "wand_note": "Magic skills never use a weapon action multiplier. Wand and Staff `1.8` applies only to a physical whack."
+    },
+    "stat_window_range": {
+      "description": "It predicts the lowest and highest damage from one ordinary basic physical attack.",
+      "exclusions": "This range is calculated before the target's defenses and elements. It also excludes level-difference scaling, critical hits and a skill's damage value.",
+      "split_action_rule": "MeowDB mirrors split-action weapons by using the lowest MIN and highest MAX across their possible ordinary actions."
+    },
+    "attack_power_value_note": "For standard melee attacks and projectiles, 1 Attack Power adds the same raw damage as 2 points of secondary stat. Close-range Claw and Crossbow stabs are an exception: 1 Attack Power equals 6 secondary stat."
+  },
+  "magic": {
+    "formulas": [
+      "S = SkillPower / 100",
+      "M = (MasteryLevel / 10 + 0.1) × 0.8",
+      "MagicTotal = floor(TotalINT / 2) + EquipmentMATK + ScrollMATK + BuffMATK",
+      "MIN = S × MagicTotal × (1 + TotalINT × M / 100)",
+      "MAX = S × MagicTotal × (1 + TotalINT / 100)",
+      "Average = (MIN + MAX) / 2"
+    ],
+    "guide_mastery_formula": "m = (SpellMastery / 10 + 0.1) × 0.8",
+    "roll": "Ordinary magic uses one uniform roll between MIN and MAX. Total LUK and physical Weapon Attack do not enter this branch.",
+    "note": "INT raises MagicTotal and the INT term. Mastery raises MIN only."
+  },
+  "skill_bonuses": {
+    "lines": [
+      "Combo Attack",
+      "1 + (5 + floor(ComboLevel / 2)) / 100",
+      "Panic / Coma",
+      "1 + 5 × Orbs × (Orbs - 1) / 100",
+      "Charge bonus",
+      "Damage multiplier = 1 + bonus / 100",
+      "Lv 1-8: bonus = Lv + 1 · Lv 9: 9 · Lv 10-30: 5 + floor(Lv / 2)"
+    ]
+  },
+  "defense": {
+    "formulas": [
+      "EffectiveDEF = max(0, FlatBonus + trunc((1 + PercentBonus / 100) × BaseDEF))",
+      "Defended = Raw × 100 / (EffectiveDEF + 100)"
+    ],
+    "bypass_expected": "Raw × ((1 - g) × 100 / (EffectiveDEF + 100) + g)",
+    "note": "Physical and magic defense use the same curve with different stats. A bypass proc produces either a defended hit or a full bypass; the last line is its expected value.",
+    "def_stat": {
+      "physical": "monster WDEF (P.DEF)",
+      "magic": "monster MDEF (M.DEF)"
+    },
+    "calculator_code": "100*M(e,\"raw\")/(Math.max(0,M(e,\"defense\"))+100)"
+  },
+  "elements": {
+    "formulas": [
+      "Single element: immune 0 · resistant 0.75 · neutral 1.0 · weak 1.25",
+      "Composition multiplier = 0.25 × (Code(Element1) + Code(Element2))",
+      "Element codes: immune 0 · resistant 1 · neutral 2 · weak 3",
+      "Any other element result counts as 1.0."
+    ],
+    "single_element_multiplier": {
+      "immune": 0,
+      "resistant": 0.75,
+      "neutral": 1,
+      "weak": 1.25
+    },
+    "composition_codes": {
+      "immune": 0,
+      "resistant": 1,
+      "neutral": 2,
+      "weak": 3
+    },
+    "composition_multiplier_coefficient": 0.25,
+    "result_table": [
+      {
+        "result": "Immune",
+        "multiplier": 0
+      },
+      {
+        "result": "Quarter",
+        "multiplier": 0.25
+      },
+      {
+        "result": "Half",
+        "multiplier": 0.5
+      },
+      {
+        "result": "Resistant",
+        "multiplier": 0.75
+      },
+      {
+        "result": "Neutral",
+        "multiplier": 1
+      },
+      {
+        "result": "Weak",
+        "multiplier": 1.25
+      },
+      {
+        "result": "Enhanced weak",
+        "multiplier": 1.5
+      }
+    ],
+    "other_result_multiplier": 1
+  },
+  "level_gap": {
+    "formulas": [
+      "Gap = MobLevel - PlayerLevel",
+      "LevelScale = 1 when Gap ≤ 0",
+      "LevelScale = 1 / (1 + Gap² × 0.005) when Gap is 1-9",
+      "LevelScale = 1 / (1 + Gap × 0.05) when Gap ≥ 10"
+    ],
+    "branches": [
+      {
+        "gap": "<= 0",
+        "scale": "1"
+      },
+      {
+        "gap": "1-9",
+        "scale": "1 / (1 + Gap^2 × 0.005)",
+        "coefficient": 0.005
+      },
+      {
+        "gap": ">= 10",
+        "scale": "1 / (1 + Gap × 0.05)",
+        "coefficient": 0.05
+      }
+    ],
+    "calculator_code": "function I(e){return e<=0?1:e<10?1/(1+e**2*.005):1/(1+.05*e)}",
+    "parity_example": {
+      "gap": 5,
+      "scale_pct": 88.9,
+      "raw": 1000,
+      "after": 889,
+      "after_exact": 888.889,
+      "note": "Damage after level gap (Try-values defaults: raw 1000, 5 levels above). The page displays the value rounded to an integer; the exact value is 1000 / 1.125 = 888.889. Do not truncate here: the final trunc happens only after the critical step."
+    }
+  },
+  "critical": {
+    "formulas": [
+      "Critical hit = Normal × (1 + d)",
+      "Expected with crit = Normal × (1 + c × d)",
+      "Before gear and passives, the critical rate is 5% and critical damage is 20%.",
+      "Power Knockback always lands as a critical hit.",
+      "Damage over time and bleed can land as critical hits."
+    ],
+    "base_rate_c": 0.05,
+    "base_damage_d": 0.2,
+    "expected_formula": "= Normal × (1 + c × d)"
+  },
+  "final_clamp": {
+    "formula": "Final = trunc(clamp(value, 1, 99,999))",
+    "min": 1,
+    "max": 99999,
+    "rounding": "trunc after clamp",
+    "calculator_code": "let $=e=>Math.trunc(D(e,1,99999))"
+  },
+  "other_mechanics": [
+    {
+      "title": "Element Amplification",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "Element Amplification",
+        "Lv 1-29: (104 + Lv)% · Lv 30: 135%",
+        "MP cost",
+        "BaseMP + trunc(BaseMP × x / 100)",
+        "x = 19 + Lv at Lv 1-29 · 50 at Lv 30",
+        "The extra MP applies to Energy Bolt, Magic Claw, Fire Arrow, Explosion, Element Composition, Cold Beam, Thunder Bolt, Ice Strike and Thunder Spear. Slow, Seal, Poison Breath and Poison Mist keep their normal MP cost."
+      ]
+    },
+    {
+      "title": "Shadow Partner and Iron Arrow",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "Shadow Partner",
+        "Lv 1-29: (109 + Lv)% · Lv 30: 140%",
+        "Iron Arrow target i",
+        "max(0, 1 - 0.2 × i)"
+      ]
+    },
+    {
+      "title": "Final Attack",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "Proc chance = 20% at Lv 1 to 50% at Lv 30",
+        "Starts after your attack animation ends, then plays its own attack",
+        "Follow-up time = Σ trunc(FrameDelay × (10 + tier) / 16), rounded up to 30 ms",
+        "You can't attack again until it ends",
+        "Costs no MP",
+        "Final Attack",
+        "Damage at Lv 30",
+        "Hits",
+        "Follow-up at speed 4",
+        "Fighter: Sword, Axe",
+        "140%",
+        "Up to 3 mobs within 150 px",
+        "630 ms",
+        "Page: Sword, Blunt Weapon",
+        "270%",
+        "1 mob",
+        "630 ms",
+        "Spearman: Spear, Polearm",
+        "260%, absorbs 10% as HP",
+        "1 mob",
+        "630 ms",
+        "Hunter: Bow",
+        "90% × 3 arrows",
+        "Split like Holy Arrow",
+        "630 ms",
+        "Crossbowman: Crossbow",
+        "250%",
+        "1 mob",
+        "720 ms",
+        "It fires the way you face when it starts. With no mob in front, it doesn't fire."
+      ]
+    },
+    {
+      "title": "Heal",
+      "status": "Unconfirmed (MeowDB labels this card Unconfirmed)",
+      "lines": [
+        "r = uniform(0.8, 1.0)",
+        "S = RecoveryRate / 100",
+        "t = PartyMembersHit + UndeadHit",
+        "Pool = ((TotalINT × r + TotalLUK) / 200 + 3) × MagicTotal × S × (1 + 0.1 × t)",
+        "Undead damage per mob = trunc(trunc(Pool) / t × 0.5)"
+      ]
+    },
+    {
+      "title": "Damage Over Time",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "DoT core total = (ConfiguredDoT / 100) × MagicTotal × (TotalINT / 125 + 1)",
+        "Higher-level DoT scale = 1 / (1 + LevelGap × 0.05)"
+      ]
+    },
+    {
+      "title": "Bleed (Axes and Coma)",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "Total = (dot / 100) × (1 + (2 × STR + DEX) / 100 + AttackPower / 50) × TotalWATK",
+        "Coma: dot × (1 + 5 × Orbs × (Orbs - 1) / 100)",
+        "Higher-level scale = 1 / (1 + LevelGap × 0.05)",
+        "Axe Mastery per tick = Total / 3",
+        "Axe Mastery dot = 40 at Lv 1 · 100 at Lv 20",
+        "Coma dot = 40 at Lv 1 · 100 at Lv 30",
+        "Axe Mastery can apply bleed on a successful axe hit: 5% chance at Lv 1, 25% at Lv 20. The total lands over three 1-second ticks.",
+        "Bleed does not stack. A new bleed refreshes the timer, and a stronger bleed replaces a weaker one.",
+        "Slash Blast and Shout roll bleed for every monster they hit.",
+        "Bleed ignores mastery, the damage roll and monster defense. It can land as a critical hit."
+      ]
+    },
+    {
+      "title": "Meso Explosion",
+      "status": "Unconfirmed (MeowDB labels this card Unconfirmed)",
+      "lines": [
+        "x = 900 at Lv 1 · 1,500 at Lv 30",
+        "HIGH = x × 0.5 × (1 + Mesos / (Mesos + 10))",
+        "LOW = HIGH × 0.5",
+        "Damage per drop = uniform(LOW, HIGH)"
+      ]
+    },
+    {
+      "title": "Shadow Meso",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "MesoCost = 200 + 10 × (Lv - 1) at Lv 1-29 · 500 at Lv 30",
+        "Base = MesoCost × 8",
+        "Base = 1,600 at Lv 1 · 4,000 at Lv 30",
+        "Damage = Base × LevelScale",
+        "Critical hit = Damage × (1 + d)",
+        "Final = trunc(clamp(value, 1, 99,999))",
+        "Shadow Meso uses the normal hit roll and the Darkness check.",
+        "Monster defense and elements do not apply."
+      ]
+    },
+    {
+      "title": "Linked Explosions",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "ExplosionTargets ≤ 4",
+        "Arrow Bomb / Inferno / Blizzard explosion: WeaponMult = 2.5 · StatDiv = 100 · APDiv = 50",
+        "Arrow Bomb, Inferno, Blizzard and Poison Breath hit one monster first, then set off an explosion.",
+        "The explosion hits up to 4 monsters, counting the first one.",
+        "The Arrow Bomb, Inferno and Blizzard explosions always count as a shoot action."
+      ]
+    },
+    {
+      "title": "Summons",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "U = uniform(0, 1)",
+        "Q = uniform(DEX × 0.48, DEX)",
+        "Hawk / Eagle Raw = SkillDamage × (0.8 + 0.2 × U + 2 × Q / 100 + STR / 100 + AttackPower / 50)",
+        "M = (ceil(Lv / 3) / 10 + 0.1) × 0.8",
+        "QI = uniform(TotalINT × M, TotalINT)",
+        "Dragon Raw = MagicTotal × (SkillMagic / 100) × (QI / 100 + 1)",
+        "Defended = Raw × 100 / (DEF + 100)",
+        "DEF = monster WDEF for Hawk / Eagle · MDEF for Dragon",
+        "Silver Hawk and Golden Eagle use DEX and STR with a bow or crossbow equipped. Summon Dragon uses INT.",
+        "Summon damage does not use your weapon's attack or multiplier.",
+        "Element, higher-level scale, critical hits and the damage cap then apply as usual.",
+        "Summons use your hit roll and the Darkness check. Against bosses they never get the automatic hit."
+      ]
+    },
+    {
+      "title": "Invincible Retaliation",
+      "status": "Published formula (no status label on the MeowDB card)",
+      "lines": [
+        "Retaliation = (dot / 100) × MagicTotal × (TotalINT / 125 + 1)",
+        "dot = 9 + Lv at Lv 1-19 · 30 at Lv 20",
+        "Higher-level scale = 1 / (1 + LevelGap × 0.05)",
+        "Critical hit = Retaliation × (1 + d)",
+        "Final = trunc(clamp(value, 1, 99,999))",
+        "Hits a monster that touches you while Invincible is active.",
+        "Monster defense does not apply. Monsters that ignore reflected damage take none."
+      ]
+    }
+  ],
+  "bare_hands": {
+    "documented": false,
+    "weapon_attack": null,
+    "weapon_mult": null,
+    "note": "MeowDB documents bare hands only as an attack presentation: hit boxes (Punch 1, Punch 2, Crouched attack; see attack_styles.json) and the ordinary-action row \"Barehanded: Swing -, Stab 100%, Average multiplier -\". It gives no Weapon Attack value, no weapon action multiplier and no damage example for an unarmed attack, and the Damage Simulator has no Beginner or unarmed option. Do not derive a value from the formula (TotalWATK would be 0); this is a gap."
+  },
+  "parity_examples": [
+    {
+      "input": {
+        "skill_pct": 100,
+        "mastery_level": 0,
+        "total_watk": 47,
+        "primary_str": 132,
+        "secondary_dex": 30,
+        "weapon_mult": 1.8,
+        "attack_power": 0
+      },
+      "window": [
+        60,
+        172
+      ],
+      "note": "Character-window damage range: 60-172"
+    },
+    {
+      "input": {
+        "skill_pct": 260,
+        "mastery_level": 0,
+        "total_watk": 47,
+        "primary_str": 132,
+        "secondary_dex": 30,
+        "weapon_mult": 1.8,
+        "attack_power": 0
+      },
+      "window": [
+        157,
+        449
+      ],
+      "note": "Max-level Power Strike on the same Warrior (guide)"
+    },
+    {
+      "input": {
+        "skill_pct": 100,
+        "mastery_level": 10,
+        "total_watk": 80,
+        "primary": 250,
+        "secondary": 50,
+        "weapon_mult": 2.5,
+        "attack_power": 0
+      },
+      "raw_range_rounded": [
+        544,
+        620
+      ],
+      "note": "/formulas/damage Try-values defaults (display rounds to integers)"
+    },
+    {
+      "input": {
+        "level": 1,
+        "str": 13,
+        "dex": 4,
+        "int": 4,
+        "luk": 4,
+        "target": "Snail (monster 2): Lv 1, HP 45, no P.DEF"
+      },
+      "hits_to_kill_min_avg_max": {
+        "sword_541": "4/3/3",
+        "hand_axe_576": "4/3/3",
+        "wooden_club_585": "3/3/2"
+      },
+      "note": "Beginner guide table; reproduced with the constants in this file, trunc after clamp, split-action weapons using lowest MIN / highest MAX and 60/40 average."
+    }
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/damage",
+    "retrieved_at": "2026-10-04T10:04:41.289Z"
+  },
+  "field_sources": {
+    "pipeline_order.statement": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "pipeline_order.post_raw_operations": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "pipeline_order.note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.independent_rolls": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.distribution_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.mastery": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.weapon_action_multipliers_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.not_used_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.ordinary_action_pool_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.ordinary_action_presentation_odds": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "physical.special_branches.close_range_action_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.special_branches.wand_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.stat_window_range": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "physical.attack_power_value_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "magic.guide_mastery_formula": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "magic.roll": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "magic.note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "defense.bypass_expected": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "defense.note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "elements.result_table": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "critical.expected_formula": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "parity_examples.0": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "parity_examples.1": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "parity_examples.3": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    }
+  },
+  "gaps": [
+    "Bare-hand (no weapon) Weapon Attack, weapon action multiplier and attack speed are not documented on MeowDB.",
+    "Whether Three Snails (fixed damage) is subject to the hit roll, level-gap scale or critical hits is not stated explicitly. Its page says character stats, weapon stats and target defense do not scale the fixed value, and lists \"Target hit eligibility\" (plus \"Required shell item\") as a conditional factor, which suggests the shared hit check applies; level gap and criticals are not mentioned.",
+    "Critical rate/damage for a Beginner beyond the base c = 0.05, d = 0.20 is not documented (no Beginner passives exist)."
+  ],
+  "discrepancies": [
+    {
+      "topic": "Displayed damage range vs roll distribution",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+          "text": "The MIN-MAX damage window shown in your character stat window. Every hit rolls somewhere inside."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+          "text": "MIN and MAX are the opposite corners of two independent rolls, so the distribution is concentrated toward the middle instead of being uniform across the displayed range."
+        }
+      ],
+      "chosen": "Two independent uniform rolls (B and Q), per the damage formula guide",
+      "reason": "The guide is the dedicated methodology page; the glossary line is compatible (every hit is inside the window) but must not be read as one uniform roll."
+    },
+    {
+      "topic": "Heal undead damage formula",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/formulas/damage",
+          "text": "t = PartyMembersHit + UndeadHit; Pool = ((TotalINT × r + TotalLUK) / 200 + 3) × MagicTotal × S × (1 + 0.1 × t); Undead damage per mob = trunc(trunc(Pool) / t × 0.5) (card labelled Unconfirmed)"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+          "text": "t = max(2, every character and undead mob touched); Undead damage per mob = Pool × (1 + 0.1 × t) / t × 0.5"
+        }
+      ],
+      "chosen": "Not used by a Beginner; both recorded (formulas tab text in other_mechanics, guide text in docs)",
+      "reason": "Heal is a Cleric skill; resolve before implementing Clerics."
+    }
+  ]
+}

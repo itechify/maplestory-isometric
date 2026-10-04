@@ -385,6 +385,7 @@ def build(m):
     # =====================================================================
     m.edge_portal("out00")
     m.player(17.0, 13.7, rot=-10)
+    m.player_spawn(33.4, 4.6, rot=180, note="sp x 947: west of and above out00, on the arrival rock")
     m.mobs("Orange Mushroom", geo.rect(2, 1, 20, 9.5), 2, seed=1, z_band=(-0.1, 0.2))
     m.mobs("Shroom", geo.rect(2, 1, 20, 9.5), 2, seed=2, z_band=(-0.1, 0.2))
     m.mobs("Snail", geo.rect(1, 11, 8, 16), 1, seed=3, z_band=(3.0, 3.4))

@@ -1,0 +1,87 @@
+{
+  "id": "15",
+  "name": "Shanks",
+  "roles": [
+    "Transport"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road",
+      "x_px": 3223,
+      "y_px": -13
+    }
+  ],
+  "dialogue": [],
+  "idle_chatter": [
+    {
+      "text": "I'm the captain, dang it! Don't look down on me!"
+    },
+    {
+      "text": "I'll take you anywhere you want to go."
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [],
+    "started_here": [],
+    "completed_here": []
+  },
+  "quest_dialogue": [],
+  "shop": null,
+  "transport": {
+    "routes": [
+      {
+        "from_map_id": "000000060",
+        "to_map_name": "Lith Harbor",
+        "to_map_id": "010000000",
+        "fare_mesos": 300,
+        "min_level": 7,
+        "one_way": true,
+        "source_quote": "Shanks at the dock sails you to Lith Harbor for 300 mesos once you reach level 7. The boat is one-way. Hand in every Maple Island quest before you board."
+      }
+    ]
+  },
+  "what_they_do": [
+    "Provides transportation between towns or regions."
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/15",
+    "retrieved_at": "2026-10-04T10:06:16.896Z"
+  },
+  "field_sources": {
+    "locations/000000060": {
+      "url": "https://meowdb.com/msclassic/maps/000000060",
+      "retrieved_at": "2026-10-04T09:56:49.733Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "transport": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z",
+      "fields": [
+        "to_map_name",
+        "fare_mesos",
+        "min_level",
+        "one_way",
+        "source_quote"
+      ]
+    },
+    "transport/to_map_id": {
+      "url": "https://meowdb.com/msclassic/world-map",
+      "retrieved_at": "2026-10-04T10:10:07.647Z"
+    }
+  },
+  "notes": [
+    "Out of scope for Iteration Two gameplay: the boat leaves Maple Island (destination Lith Harbor, Victoria Island). Record only."
+  ],
+  "gaps": [
+    "MeowDB has no structured transport data for Shanks: no boarding dialogue / Yes-No prompt text, no arrival map or spawn point, no travel time. Route facts come from the editorial beginner guide (prose), the map id from the world-map spot \"Lith Harbor\".",
+    "MeowDB shows no quoted dialogue for Shanks; \"What Shanks Says\" lists only the idle/speech-bubble lines."
+  ]
+}

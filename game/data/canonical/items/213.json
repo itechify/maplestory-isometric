@@ -1,0 +1,721 @@
+{
+  "id": "213",
+  "name": "Arrows for Crossbows",
+  "game_item_id": "2061000",
+  "type": "Use",
+  "subtype": "Arrow",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A quiver full of arrows. Only usable with crossbows.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 1,
+  "sell_price_mesos": 0,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_api",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 1000,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "509",
+        "npc_name": "Arturo",
+        "npc_role": "Grocer",
+        "map_id": "010004002",
+        "map_name": "Victoria Road: Perion Department Store",
+        "town": "Perion",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "410",
+        "npc_name": "Dr. Faymus",
+        "npc_role": "Grocer",
+        "map_id": "010003002",
+        "map_name": "Victoria Road: Kerning City Pharmacy",
+        "town": "Kerning City",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1014",
+        "npc_name": "Edel the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "020000002",
+        "map_name": "Orbis: Orbis Department Store",
+        "town": "Orbis",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1116",
+        "npc_name": "Glibber",
+        "npc_role": "Merchant",
+        "map_id": "020001041",
+        "map_name": "El Nath: Ice Valley II",
+        "town": "El Nath",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1114",
+        "npc_name": "Hana",
+        "npc_role": "Grocer",
+        "map_id": "020001012",
+        "map_name": "El Nath: El Nath Department Store",
+        "town": "El Nath",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "312",
+        "npc_name": "Len the Fairy",
+        "npc_role": "Grocer",
+        "map_id": "010002002",
+        "map_name": "Victoria Road: Ellinia Department Store",
+        "town": "Ellinia",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "700",
+        "npc_name": "Luma",
+        "npc_role": "Grocer",
+        "map_id": "010006002",
+        "map_name": "Shallow Passage: Cave Fairy Department Store",
+        "town": "Forgotten Hollow",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "212",
+        "npc_name": "Luna",
+        "npc_role": "Grocer",
+        "map_id": "010001042",
+        "map_name": "Victoria Road: Henesys Department Store",
+        "town": "Henesys",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "607",
+        "npc_name": "Mr. Sweatbottom",
+        "npc_role": "Sauna Manager",
+        "map_id": "010005002",
+        "map_name": "Dungeon: Regular Sauna",
+        "town": "Sleepywood",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "800",
+        "npc_name": "Valen",
+        "npc_role": "Grocer",
+        "map_id": "010007000",
+        "map_name": "Florina Road: Florina Beach",
+        "town": "Florina Beach",
+        "price_mesos": 1,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "614",
+        "npc_name": "24 Hr Mobile Store",
+        "npc_role": "Mobile Store",
+        "map_id": "010005070",
+        "map_name": "Dungeon: Ant Tunnel Park",
+        "town": "Sleepywood Dungeon",
+        "price_mesos": 2,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "14",
+        "monster_name": "Bubbling",
+        "monster_level": 15,
+        "upvotes": 8,
+        "downvotes": 0,
+        "score": 8,
+        "disputed": false,
+        "community_drop_entry_id": "86",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "9",
+        "monster_name": "Orange Mushroom",
+        "monster_level": 8,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "70",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "248",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "17",
+        "monster_name": "Stirge",
+        "monster_level": 20,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "572",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1021",
+        "monster_name": "Jr. Pepe",
+        "monster_level": 35,
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "702",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "7",
+        "monster_name": "Slime",
+        "monster_level": 6,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "331",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1014",
+        "monster_name": "Jr. Grupin",
+        "monster_level": 33,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "627",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "35",
+        "monster_name": "Lupin",
+        "monster_level": 37,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "764",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1019",
+        "monster_name": "Star Pixie",
+        "monster_level": 35,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "644",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1042",
+        "monster_name": "Lunar Pixie",
+        "monster_level": 45,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "659",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1012",
+        "monster_name": "Jr. Cellion",
+        "monster_level": 33,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "679",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1013",
+        "monster_name": "Jr. Lioner",
+        "monster_level": 33,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "726",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "38",
+        "monster_name": "Zombie Lupin",
+        "monster_level": 41,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "761",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1051",
+        "monster_name": "Luster Pixie",
+        "monster_level": 52,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "768",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1058",
+        "monster_name": "Coolie Zombie",
+        "monster_level": 57,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "783",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1078",
+        "monster_name": "Lucida",
+        "monster_level": 73,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "808",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1036",
+        "monster_name": "Nependeath",
+        "monster_level": 42,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "823",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1056",
+        "monster_name": "Dark Jr. Yeti",
+        "monster_level": 56,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "826",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1048",
+        "monster_name": "Jr. Yeti",
+        "monster_level": 50,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "935",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1055",
+        "monster_name": "Hector",
+        "monster_level": 55,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "938",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1074",
+        "monster_name": "Transformed Dark Yeti",
+        "monster_level": 68,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "951",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1069",
+        "monster_name": "Transformed Yeti",
+        "monster_level": 65,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "953",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1054",
+        "monster_name": "Grupin",
+        "monster_level": 53,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "956",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1039",
+        "monster_name": "Jr. Cerebes",
+        "monster_level": 43,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "970",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "61",
+        "monster_name": "Myewood",
+        "monster_level": 54,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "1093",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "435",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "13",
+        "monster_name": "Green Mushroom",
+        "monster_level": 14,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "476",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1060",
+        "monster_name": "White Fang",
+        "monster_level": 59,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "992",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "6",
+        "monster_name": "Stump",
+        "monster_level": 5,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "109",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "420",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "4",
+        "monster_name": "Shroom",
+        "monster_level": 3,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "426",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "16",
+        "monster_name": "Blue Mushroom",
+        "monster_level": 19,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "576",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1001",
+        "monster_name": "Jr. Sentinel",
+        "monster_level": 26,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "613",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "22",
+        "monster_name": "Wild Boar",
+        "monster_level": 25,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1025",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "21",
+        "monster_name": "Zombie Mushroom",
+        "monster_level": 24,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1043",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "32",
+        "monster_name": "Jr. Wraith",
+        "monster_level": 34,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1071",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "24",
+        "monster_name": "Iron Hog",
+        "monster_level": 28
+      },
+      {
+        "monster_id": "1025",
+        "monster_name": "Chronos",
+        "monster_level": 37
+      },
+      {
+        "monster_id": "1029",
+        "monster_name": "Toy Trojan",
+        "monster_level": 39
+      },
+      {
+        "monster_id": "1031",
+        "monster_name": "Barnard Gray",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1030",
+        "monster_name": "Tick-Tock",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1037",
+        "monster_name": "Block Golem",
+        "monster_level": 42
+      },
+      {
+        "monster_id": "1041",
+        "monster_name": "Master Robo",
+        "monster_level": 44
+      },
+      {
+        "monster_id": "1043",
+        "monster_name": "King Block Golem",
+        "monster_level": 45
+      },
+      {
+        "monster_id": "1047",
+        "monster_name": "Master Chronos",
+        "monster_level": 49
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": [
+      {
+        "recipe_key": "Woodcrafting-3-0",
+        "discipline": "Woodcrafting",
+        "category": "Consumables",
+        "produces_quantity": 500,
+        "required_craft_level": 1,
+        "craft_exp": 3,
+        "meso_cost": 0,
+        "ingredients": [
+          {
+            "item_id": "306",
+            "name": "Processed Wood",
+            "quantity": 1,
+            "optional": false
+          },
+          {
+            "item_id": "307",
+            "name": "Stiff Feather",
+            "quantity": 1,
+            "optional": false
+          }
+        ]
+      },
+      {
+        "recipe_key": "Woodcrafting-4-1",
+        "discipline": "Woodcrafting",
+        "category": "Consumables",
+        "produces_quantity": 5,
+        "required_craft_level": 1,
+        "craft_exp": 0,
+        "meso_cost": 0,
+        "ingredients": [
+          {
+            "item_id": "209",
+            "name": "Arrows for Bows",
+            "quantity": 10,
+            "optional": false
+          }
+        ]
+      }
+    ]
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": [
+      {
+        "makes_item_id": "209",
+        "makes_item_name": "Arrows for Bows",
+        "skill": "Woodcrafting Lv 1",
+        "quantity": 10
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [
+      "Renamed in COT2. It was called Arrow for Crossbow."
+    ],
+    "in_game_text": {
+      "cot1": "A barrel full of arrows. Only usable with crossbows.",
+      "cot2": "A quiver full of arrows. Only usable with crossbows."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/213",
+    "retrieved_at": "2026-10-04T10:43:16.793Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/213?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:17.852Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/213?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:17.852Z"
+    },
+    "sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/api/items/213?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:17.852Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=213",
+      "retrieved_at": "2026-10-04T10:43:19.022Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Sell-back 0: the item page shows no \"NPC Sell-back\" row and the item API records stats.price = 0."
+  ]
+}

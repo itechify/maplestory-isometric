@@ -1,0 +1,536 @@
+{
+  "id": "3",
+  "name": "Blue Snail drop table",
+  "owner": {
+    "kind": "monster",
+    "id": "3",
+    "name": "Blue Snail"
+  },
+  "rates_canonical": false,
+  "entries": [
+    {
+      "item_id": "209",
+      "item_name": "Arrows for Bows",
+      "category": "Use",
+      "subcategory": "Arrow",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "419",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2060000"
+    },
+    {
+      "item_id": "213",
+      "item_name": "Arrows for Crossbows",
+      "category": "Use",
+      "subcategory": "Arrow",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "420",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2061000"
+    },
+    {
+      "item_id": "270",
+      "item_name": "Red Potion",
+      "category": "Use",
+      "subcategory": "Potion",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 9,
+        "downvotes": 0,
+        "score": 9
+      },
+      "disputed": false,
+      "community_drop_entry_id": "68",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2000000",
+      "msea_detail_text": "Potion"
+    },
+    {
+      "item_id": "321",
+      "item_name": "Amethyst Ore",
+      "category": "Etc",
+      "subcategory": "Gem",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "424",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4020001"
+    },
+    {
+      "item_id": "324",
+      "item_name": "Opal Ore",
+      "category": "Etc",
+      "subcategory": "Gem",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": -1
+      },
+      "disputed": true,
+      "community_drop_entry_id": "491",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4020004"
+    },
+    {
+      "item_id": "349",
+      "item_name": "Blue Snail Shell",
+      "category": "Etc",
+      "subcategory": "Monster Drop",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14
+      },
+      "disputed": false,
+      "community_drop_entry_id": "2",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4000002",
+      "msea_detail_text": "Monster Drop"
+    },
+    {
+      "item_id": "414",
+      "item_name": "Iron Ore",
+      "category": "Etc",
+      "subcategory": "Ore & Mineral",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14
+      },
+      "disputed": false,
+      "community_drop_entry_id": "74",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4010001"
+    },
+    {
+      "item_id": "417",
+      "item_name": "Silver Ore",
+      "category": "Etc",
+      "subcategory": "Ore & Mineral",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": -1
+      },
+      "disputed": true,
+      "community_drop_entry_id": "490",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4010004"
+    },
+    {
+      "item_id": "483",
+      "item_name": "Monster Card",
+      "category": "Etc",
+      "subcategory": "Quest Item",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0
+      },
+      "disputed": true,
+      "community_drop_entry_id": "250",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4031045",
+      "msea_detail_text": "Quest Item"
+    },
+    {
+      "item_id": "558",
+      "item_name": "Razor",
+      "category": "Equip",
+      "subcategory": "Dagger",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 1,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "601",
+      "item_level_req": 5,
+      "req_job": null,
+      "meowdb_icon_key": "1332000"
+    },
+    {
+      "item_id": "715",
+      "item_name": "Blue Headband",
+      "category": "Equip",
+      "subcategory": "Hat",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "421",
+      "item_level_req": 5,
+      "req_job": null,
+      "meowdb_icon_key": "1002007"
+    },
+    {
+      "item_id": "934",
+      "item_name": "Grey T-Shirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "717",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "1040002"
+    },
+    {
+      "item_id": "935",
+      "item_name": "Undershirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "423",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "1040003",
+      "msea_detail_text": "Any"
+    },
+    {
+      "item_id": "937",
+      "item_name": "White Tube Top",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "425",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "1041001"
+    },
+    {
+      "item_id": "939",
+      "item_name": "Green T-Shirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "422",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "1041003"
+    },
+    {
+      "item_id": "945",
+      "item_name": "Brown Training Shirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "682",
+      "item_level_req": 10,
+      "req_job": "Mage",
+      "meowdb_icon_key": "1040007"
+    },
+    {
+      "item_id": "960",
+      "item_name": "Blue One-lined T-Shirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5
+      },
+      "disputed": false,
+      "community_drop_entry_id": "270",
+      "item_level_req": 12,
+      "req_job": null,
+      "meowdb_icon_key": "1040013",
+      "msea_detail_text": "Lv 12 · Any"
+    },
+    {
+      "item_id": "963",
+      "item_name": "Red Striped T-Shirt",
+      "category": "Equip",
+      "subcategory": "Top",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3
+      },
+      "disputed": false,
+      "community_drop_entry_id": "362",
+      "item_level_req": 12,
+      "req_job": null,
+      "meowdb_icon_key": "1041015",
+      "msea_detail_text": "Lv 12 · Any"
+    },
+    {
+      "item_id": "1157",
+      "item_name": "Blue Jean Shorts",
+      "category": "Equip",
+      "subcategory": "Bottom",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "681",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "1060001"
+    },
+    {
+      "item_id": "1181",
+      "item_name": "Grey Thick Sweat Pants",
+      "category": "Equip",
+      "subcategory": "Bottom",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3
+      },
+      "disputed": false,
+      "community_drop_entry_id": "363",
+      "item_level_req": 12,
+      "req_job": null,
+      "meowdb_icon_key": "1060011",
+      "msea_detail_text": "Lv 12 · Any"
+    },
+    {
+      "item_id": "1440",
+      "item_name": "Brown Duo",
+      "category": "Equip",
+      "subcategory": "Gloves",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "719",
+      "item_level_req": 15,
+      "req_job": "Thief",
+      "meowdb_icon_key": "1082005"
+    },
+    {
+      "item_id": "59",
+      "item_name": "Cape Magic Def. Scroll: Intermediate",
+      "category": "Use",
+      "subcategory": "Scroll",
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": null,
+      "req_job_text": null,
+      "msea_detail_text": "Scroll",
+      "meowdb_icon_key": "2041005"
+    },
+    {
+      "item_id": "595",
+      "item_name": "Iron Mace",
+      "category": "Equip",
+      "subcategory": null,
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": 20,
+      "req_job_text": "Warrior/Mage",
+      "msea_detail_text": "Lv 20 · Warrior/Mage",
+      "meowdb_icon_key": "1322008"
+    }
+  ],
+  "meso": {
+    "status": "no_data",
+    "canonical": false,
+    "chance": null,
+    "report_count": 0,
+    "trusted_report_count": 0,
+    "median_min": null,
+    "median_max": null,
+    "reports": [],
+    "note": "Player-submitted totals seen from ONE kill. MeowDB's report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published."
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/api/drops?monsterId=3",
+    "retrieved_at": "2026-10-04T10:07:01.651Z"
+  },
+  "field_sources": {
+    "msea_reference_entries": {
+      "url": "https://meowdb.com/msclassic/monsters/3",
+      "retrieved_at": "2026-10-04T10:07:00.438Z",
+      "note": "\"MSEA reference drops\" (Read-only) section of the monster page"
+    },
+    "meso": {
+      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=3",
+      "retrieved_at": "2026-10-04T10:07:02.848Z"
+    }
+  },
+  "notes": [
+    "classic_confirmed = listed in \"Drops (MS Classic) - Community sourced\": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.",
+    "disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted (\"haven't seen it\") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.",
+    "msea_reference = listed only in \"MSEA reference drops\": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.",
+    "An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).",
+    "chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.",
+    "meowdb_icon_key is MeowDB's icon asset key (looks like a WZ id); it is NOT the item id. Use item_id."
+  ],
+  "gaps": [
+    "drop chance per item: not published by MeowDB",
+    "quantity per drop: not published by MeowDB",
+    "meso amount formula / meso drop chance: not published; only player reports (see meso)"
+  ]
+}

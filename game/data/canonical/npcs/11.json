@@ -1,0 +1,608 @@
+{
+  "id": "11",
+  "name": "Mai",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000050",
+      "map_name": "A Split Road",
+      "street_name": "Maple Road",
+      "x_px": 1891,
+      "y_px": -182
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "You can become a lot stronger if you get trained by me. Come to me whenever you're ready."
+    },
+    {
+      "text": "Why don't you go out and explore the big, wide world?"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Hey, do you know me? No? What's wrong with you?"
+    },
+    {
+      "text": "If you're thinking of challenging me, dream on."
+    },
+    {
+      "text": "Is there anyone out there who can give me a good fight?"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1009",
+        "name": "Mai's Training"
+      },
+      {
+        "id": "1010",
+        "name": "Mai's Final Training"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1006",
+        "name": "Sam's Suggestion"
+      }
+    ],
+    "started_here": [
+      "1009",
+      "1010"
+    ],
+    "completed_here": [
+      "1006",
+      "1009",
+      "1010"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1006",
+      "quest_name": "Sam's Suggestion",
+      "npc_role": "complete",
+      "start_npc_id": "9",
+      "complete_npc_id": "11",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Are you the one that Sam mentioned? Do you need me for something...?",
+          "segments": [
+            {
+              "text": "Are you the one that "
+            },
+            {
+              "text": "Sam",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "9"
+              }
+            },
+            {
+              "text": " mentioned? Do you need me for something...?"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Well, defeating 10 Snails is a piece of cake! Haha!",
+              "segments": [
+                {
+                  "text": "Well, defeating "
+                },
+                {
+                  "text": "10 ",
+                  "color": "red"
+                },
+                {
+                  "text": "Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": " is a piece of cake! Haha!"
+                }
+              ]
+            },
+            {
+              "text": "I will allow you to proceed onto the next training after you increase your abilities."
+            }
+          ]
+        },
+        {
+          "key": "stopMob",
+          "label": "If you haven''t defeated enough monsters",
+          "lines": [
+            {
+              "text": "I'm sure I told you to defeat 10 Snails. Check your quest progress in the Quest Log.",
+              "segments": [
+                {
+                  "text": "I'm sure I told you to defeat "
+                },
+                {
+                  "text": "10 ",
+                  "color": "red"
+                },
+                {
+                  "text": "Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": ". Check your quest progress in the Quest Log."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "Have you not gone to Mai yet? She is the pretty gal at A Split Road. Don't forget to eliminate the Snails before you see her!",
+              "segments": [
+                {
+                  "text": "Have you not gone to "
+                },
+                {
+                  "text": "Mai",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "11"
+                  }
+                },
+                {
+                  "text": " yet? She is the pretty gal at "
+                },
+                {
+                  "text": "A Split Road",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000000050"
+                  }
+                },
+                {
+                  "text": ". Don't forget to eliminate the "
+                },
+                {
+                  "text": "Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": " before you see her!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Sam, id 9) and completion NPC (Mai, id 11) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    },
+    {
+      "quest_id": "1009",
+      "quest_name": "Mai's Training",
+      "npc_role": "start",
+      "start_npc_id": "11",
+      "complete_npc_id": "11",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Hmm, you look like you're in serious need of my guidance. Is it your first time here? What you need more than anything right now is FOCUS. So...want me to train you?"
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "It's simple actually. All you need to do right now is hunt monsters. I'll assign you a few tasks, and you'll be surprised to see how much you grow."
+            },
+            {
+              "text": "Head out of town, and you'll run into lots of monsters. The weakest is the Blue Snail, a tiny blue snail, and it's a piece of cake. Next are the Shrooms and the Red Snails. Listen, hunt weaker monsters until you can handle bigger, stronger, and faster monsters. It's all about hunting the right ones.",
+              "segments": [
+                {
+                  "text": "Head out of town, and you'll run into lots of monsters. The weakest is the "
+                },
+                {
+                  "text": "Blue Snail",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "3"
+                  }
+                },
+                {
+                  "text": ", a tiny blue snail, and it's a piece of cake. Next are the "
+                },
+                {
+                  "text": "Shrooms",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "4"
+                  }
+                },
+                {
+                  "text": " and the "
+                },
+                {
+                  "text": "Red Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "5"
+                  }
+                },
+                {
+                  "text": ". Listen, hunt weaker monsters until you can handle bigger, stronger, and faster monsters. It's all about hunting the right ones."
+                }
+              ]
+            },
+            {
+              "text": "Your training task is to defeat 10 Blue Snail, 10 Shroom, and 5 Red Snail and then return. It may seem tough at first, but you'll be able to do it quickly, so don't worry. Just remember to start with the weaker ones and take it slow! Staying calm is the key to hunting!",
+              "segments": [
+                {
+                  "text": "Your training task is to defeat 10 "
+                },
+                {
+                  "text": "Blue Snail",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "3"
+                  }
+                },
+                {
+                  "text": ", 10 "
+                },
+                {
+                  "text": "Shroom",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "4"
+                  }
+                },
+                {
+                  "text": ", and 5 "
+                },
+                {
+                  "text": "Red Snail",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "5"
+                  }
+                },
+                {
+                  "text": " and then return. It may seem tough at first, but you'll be able to do it quickly, so don't worry. Just remember to start with the weaker ones and take it slow! Staying calm is the key to hunting!"
+                }
+              ]
+            },
+            {
+              "text": "Oh, and press W to see the World Map and locate Southperry. Go there and meet Biggs. He may have something for you. You can accept Biggs's quest while training with me, so I suggest you meet him pronto.",
+              "segments": [
+                {
+                  "text": "Oh, and press "
+                },
+                {
+                  "text": "W",
+                  "bold": true
+                },
+                {
+                  "text": " to see the World Map and locate "
+                },
+                {
+                  "text": "Southperry",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000000060"
+                  }
+                },
+                {
+                  "text": ". Go there and meet "
+                },
+                {
+                  "text": "Biggs",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": ". He may have something for you. You can accept "
+                },
+                {
+                  "text": "Biggs's",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": " quest while training with me, so I suggest you meet him pronto."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Hmm... So, you don't want to receive training? It's good that you have so much confidence. But if you change your mind, come talk to me again."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1009",
+      "quest_name": "Mai's Training",
+      "npc_role": "complete",
+      "start_npc_id": "11",
+      "complete_npc_id": "11",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Have you been training by preying on the weak? Let me see..."
+        }
+      ],
+      "branches": [
+        {
+          "key": "stopMob",
+          "label": "If you haven''t defeated enough monsters",
+          "lines": [
+            {
+              "text": "I don't think you understood what I told you. You haven't defeated enough monsters. You can check your quest progress in the Quest Log, right?"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1010",
+      "quest_name": "Mai's Final Training",
+      "npc_role": "start",
+      "start_npc_id": "11",
+      "complete_npc_id": "11",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Wow, you're fast! That's awesome. We'll head straight to the next quest. It's important to know your limits, but it's also important to test your abilities. Want to try defeating some powerful monsters?"
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "This time, you'll be hunting Orange Mushroom, which you WON'T find just casually wandering around. You'll have to go into every portal to find them. I want you to defeat 1!",
+              "segments": [
+                {
+                  "text": "This time, you'll be hunting "
+                },
+                {
+                  "text": "Orange Mushroom",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "9"
+                  }
+                },
+                {
+                  "text": ", which you WON'T find just casually wandering around. You'll have to go into every portal to find them. I want you to defeat "
+                },
+                {
+                  "text": "1",
+                  "color": "red"
+                },
+                {
+                  "text": "!"
+                }
+              ]
+            },
+            {
+              "text": "Also, I've heard that Biggs is collecting something from the Orange Mushrooms... If you haven't filled Biggs's request yet, you might want to try doing so while you train.",
+              "segments": [
+                {
+                  "text": "Also, I've heard that "
+                },
+                {
+                  "text": "Biggs",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": " is collecting something from the "
+                },
+                {
+                  "text": "Orange Mushrooms",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "9"
+                  }
+                },
+                {
+                  "text": "... If you haven't filled "
+                },
+                {
+                  "text": "Biggs's",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "12"
+                  }
+                },
+                {
+                  "text": " request yet, you might want to try doing so while you train."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "If it seems too difficult for you, come back after training against easier monsters."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1010",
+      "quest_name": "Mai's Final Training",
+      "npc_role": "complete",
+      "start_npc_id": "11",
+      "complete_npc_id": "11",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "So you've taken care of the Orange Mushroom? Weren't they hard to find? Let's see how strong you have become...",
+          "segments": [
+            {
+              "text": "So you've taken care of the "
+            },
+            {
+              "text": "Orange Mushroom",
+              "color": "red",
+              "ref": {
+                "kind": "monster",
+                "id": "9"
+              }
+            },
+            {
+              "text": "? Weren't they hard to find? Let's see how strong you have become..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Great job! You're now strong enough to hold your own against any monster here. You'll have to start making job decisions once you reach level 10. If you haven't met Rain from Amherst yet, you should go see her. She'll give you a lot of information with her challenges. If we meet again someday, let's catch up. Goodbye!",
+              "segments": [
+                {
+                  "text": "Great job! You're now strong enough to hold your own against any monster here. You'll have to start making job decisions once you reach level 10. If you haven't met "
+                },
+                {
+                  "text": "Rain",
+                  "ref": {
+                    "kind": "npc",
+                    "id": "19"
+                  }
+                },
+                {
+                  "text": " from "
+                },
+                {
+                  "text": "Amherst",
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": " yet, you should go see her. She'll give you a lot of information with her challenges. If we meet again someday, let's catch up. Goodbye!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopMob",
+          "label": "If you haven''t defeated enough monsters",
+          "lines": [
+            {
+              "text": "I don't think you're quite done yet. Press Q to check the quest."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/11",
+    "retrieved_at": "2026-10-04T10:05:23.675Z"
+  },
+  "field_sources": {
+    "locations/000000050": {
+      "url": "https://meowdb.com/msclassic/maps/000000050",
+      "retrieved_at": "2026-10-04T09:56:48.241Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1006/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1006",
+      "retrieved_at": "2026-10-04T10:07:23.558Z"
+    },
+    "quest_dialogue/1009/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1009",
+      "retrieved_at": "2026-10-04T10:07:27.135Z"
+    },
+    "quest_dialogue/1009/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1009",
+      "retrieved_at": "2026-10-04T10:07:27.135Z"
+    },
+    "quest_dialogue/1010/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1010",
+      "retrieved_at": "2026-10-04T10:07:28.351Z"
+    },
+    "quest_dialogue/1010/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1010",
+      "retrieved_at": "2026-10-04T10:07:28.351Z"
+    }
+  }
+}

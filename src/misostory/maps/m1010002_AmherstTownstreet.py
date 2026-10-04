@@ -459,6 +459,7 @@ def build(m):
     m.edge_portal("out00")
     m.edge_portal("west00")
     m.player(14.6, 4.0, rot=-20)
+    m.player_spawn(6.0, 10.0, rot=90, note="sp x -329: on the street between west00 and out00")
     # through-route: Amherst lane -> into the house -> out of the west door -> garden path -> west00
     m.route("Main", [(14.0, 1.0), (14.0, 5.6), (14.0, 8.6), (12.0, 9.6), _door_point(-1.2), _door_point(0.0),
                      _door_point(1.8), (5.0, 10.6), (1.0, 12.0)])

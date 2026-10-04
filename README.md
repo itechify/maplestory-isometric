@@ -10,6 +10,31 @@ command, or download them from the [latest release](https://github.com/itechify/
 
 ![Island overview](docs/images/island_overview.jpg)
 
+## Play it (Iteration Two, work in progress)
+
+Iteration Two turns the island into a playable **Godot 4.7** game (`game/`), using gameplay data from
+[MeowDB MS Classic](https://meowdb.com/msclassic) (see [`docs/canonical/README.md`](docs/canonical/README.md)).
+Brief: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md). Architecture: [`docs/runtime/ARCHITECTURE.md`](docs/runtime/ARCHITECTURE.md).
+
+```bash
+bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
+bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)
+bash scripts/test.sh            # 900+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+```
+
+| Keys | Action |
+|---|---|
+| W A S D | move (8 directions, relative to the camera) |
+| Space / Alt | jump |
+| J / Ctrl / left click | attack |
+| F | talk to the NPC in front of you |
+| Up arrow | enter a portal, grab a ladder or rope (W/S or Up/Down to climb) |
+| Z | pick up drops |
+| I / E / C / Q | inventory, equipment, character stats (spend AP), quest log |
+| 1 – 8 | quickslots (bind consumables from the inventory) |
+| Esc | close the newest window, else the pause menu (save, load, controls, quit) |
+| ` (backtick) / F3 | developer console (`help`, `warp <map>`, `give <item> [qty]`, `exp <n>`, `level <n>`, `mesos <n>`) / debug overlay |
+
 ## Quick start
 
 | What | Command (Git Bash, Windows) |
@@ -158,8 +183,9 @@ Full list and Iteration Two plans: `docs/DEFERRED.md`. Current validator state: 
   "interior stage" far from the island. They are linked to their exterior doors by portals only, with no visual link.
 - **Trail lengths are a layout choice.** Maps sit where the classic world map puts them, and trails stretch until
   footprints stop overlapping, so some side-map trails are longer than any classic distance.
-- **One-way portals are physically two-way.** The classic arrival-only chain (`in00` of 10000/20000/30000/40000)
-  can be walked back in 3D. Those portals are marked as arrival points (ground ring and welcome post), not exits.
+- **One one-way link.** MeowDB MS Classic makes the `in00` portals of 10000, 20000 and 30000 ordinary two-way
+  portals (Iteration One had followed the v8 arrival-only chain). Only 30000 `out00` → 40000 is one-way: 40000's
+  `in00` is an arrival marker, not a portal, and the trail into it ends in a drop-down ledge you cannot climb back.
 - **Mushroom Town stays on-data.** Each Mushroom Town map keeps its classic single landmark house, so from the
   island cameras the area reads as a hamlet in grassySoil meadows rather than a dense town.
 - **Procedural look.** Materials are procedural painted noise with inverted-hull ink outlines. There are no

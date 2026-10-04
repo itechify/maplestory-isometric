@@ -417,11 +417,14 @@ def build(m):
 
     # ---------------- gameplay ----------------
     m.player(5.2, 3.6, rot=-60)
+    m.player_spawn(3.0, 2.7, rot=90, note="interior: just inside the door (out00)")
     m.route("Main", [(1.35, 2.7), (3.6, 3.4), (4.4, 6.4), (4.2, 8.6)])
     # (the validator's 1.2 m slope window flags any route that runs through a rope, so the climb is
     #  split: up the stair to the rope foot, then from the rope head along the beam)
     m.route("ForgeClimb", [(4.2, 8.6), (6.5, 6.8), (9.0, 4.0), (12.5, 2.8), (14.75, 2.6), (14.75, 6.0),
                            (14.75, 9.5), (13.4, 10.0), (12.3, 10.6)])
     m.route("Rafters", [(11.3, 10.95), (4.2, 10.95)])
-    m.route("Rope", [(11.8, 10.95), (11.45, 10.95)])   # two samples straddling the rope climb (deck -> beam)
+    # two samples straddling the rope climb (deck -> beam); the deck end stands 0.15 m off the beam line, clear of
+    # the back post's stone cap
+    m.route("Rope", [(11.8, 10.8), (11.45, 10.95)])
     m.route("Perches", [(12.6, 9.8), (13.75, 10.9), (14.85, 10.9)])

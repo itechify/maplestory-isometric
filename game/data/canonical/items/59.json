@@ -1,0 +1,164 @@
+{
+  "id": "59",
+  "name": "Cape Magic Def. Scroll: Intermediate",
+  "game_item_id": "2041005",
+  "type": "Use",
+  "subtype": "Scroll",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Improves Magic Def. on capes.\nSuccess rate: 60%, Magic Def. +4, Weapon Def. +2",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": {
+    "target_equipment": "Cape",
+    "stat_type": "Magic Def",
+    "grade": "Intermediate",
+    "success_rate_pct": 60,
+    "stat_bonus_on_success": {
+      "wdef": 2,
+      "mdef": 4
+    }
+  },
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [],
+    "msea_reference_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1
+      },
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2
+      },
+      {
+        "monster_id": "7",
+        "monster_name": "Slime",
+        "monster_level": 6
+      },
+      {
+        "monster_id": "1029",
+        "monster_name": "Toy Trojan",
+        "monster_level": 39
+      },
+      {
+        "monster_id": "700000",
+        "monster_name": "Mushmom",
+        "monster_level": 40
+      },
+      {
+        "monster_id": "1036",
+        "monster_name": "Nependeath",
+        "monster_level": 42
+      },
+      {
+        "monster_id": "1086",
+        "monster_name": "Ghost Pirate",
+        "monster_level": 83
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [
+      {
+        "quest_id": "12119",
+        "quest_name": "Acquiring the Fairy Dust",
+        "when": "on_completion",
+        "chance_pct": 25,
+        "label": "(25%)",
+        "row_key": "12119-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "mdef",
+        "stat": "MDEF",
+        "cot1": "3",
+        "cot2": "4",
+        "change": "+1"
+      },
+      {
+        "key": "wdef",
+        "stat": "WDEF",
+        "cot1": "1",
+        "cot2": "2",
+        "change": "+1"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "Improves Magic Def. on capes.\nSuccess rate: 60%, Magic Def.+3, Weapon Def.+1",
+      "cot2": "Improves Magic Def. on capes.\nSuccess rate: 60%, Magic Def. +4, Weapon Def. +2"
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/59",
+    "retrieved_at": "2026-10-04T10:42:55.347Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/59?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:42:56.477Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/59?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:42:56.477Z"
+    },
+    "scroll": {
+      "url": "https://meowdb.com/msclassic/api/items/59?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:42:56.477Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=59",
+      "retrieved_at": "2026-10-04T10:42:57.260Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Scroll: stat_bonus_on_success is added to the target equipment when the scroll succeeds; it is not a stat of the scroll itself."
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "000000030",
+  "kind": "misostory_adaptation",
+  "description": "World runtime adaptation for East Entrance to Mushroom Town (MeowDB map 000000030), read through WorldTuning.map_override (docs/runtime/WORLD_RUNTIME.md). Only placement rules live here: the map's species, spawn counts and portals are canonical.",
+  "spawn_keepouts": [
+    {
+      "around_prop": "X30000_HouseYellowBrim",
+      "radius_m": 6.5,
+      "reason": "The yellow mushroom house's cap overhangs its walls: the visual brim spans 12.0 x 11.8 m (about 6.0 m around the house's centre) and starts 2.8-3.0 m above the ground, but only the walls (the X30000_HouseYellowBrim prop hull, about 3 m around the centre) collide. A Tutorial Jr. Sentinel slot planned next to the house stood under the brim, and its 1.7 m placeholder read as standing inside the roof (MONSTERS_AND_COMBAT_RUNTIME.md, seen in the real game); no clearance capsule can see a cap without collision. Spawn slots therefore keep their feet 6.5 m from the house's centre: the brim's 6.0 m plus half the widest body spawning here (the Sentinel's canonical 40 px sprite x WorldScale.actor = 1.0 m). A blocking hull for the cap belongs in the Blender source; this disc can go once the export has one.",
+      "verified": false
+    }
+  ]
+}

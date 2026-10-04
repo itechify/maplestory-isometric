@@ -1,0 +1,246 @@
+{
+  "id": "321",
+  "name": "Amethyst Ore",
+  "game_item_id": "4020001",
+  "type": "Etc",
+  "subtype": "Gem",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "The ore of a purple jewel.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 200,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "10",
+        "monster_name": "Ribbon Pig",
+        "monster_level": 10,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "392",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "38",
+        "monster_name": "Zombie Lupin",
+        "monster_level": 41,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "526",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "41",
+        "monster_name": "Tortie",
+        "monster_level": 46,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "530",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1069",
+        "monster_name": "Transformed Yeti",
+        "monster_level": 65,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "940",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1014",
+        "monster_name": "Jr. Grupin",
+        "monster_level": 33,
+        "upvotes": 3,
+        "downvotes": 1,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "743",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "55",
+        "monster_name": "Raffle",
+        "monster_level": 40,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "354",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "424",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1080",
+        "monster_name": "Werewolf",
+        "monster_level": 75,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1012",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1005",
+        "monster_name": "Fire Sentinel",
+        "monster_level": 30,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1052",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "198",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "25",
+        "monster_name": "Fairy 1",
+        "monster_level": 29,
+        "upvotes": 0,
+        "downvotes": 0,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "513",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "10202",
+        "quest_name": "Collecting 70 Cursed Dolls",
+        "when": "on_completion",
+        "chance_pct": 14.3,
+        "label": "(14%)",
+        "row_key": "10202-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": [
+      {
+        "makes_item_id": "330",
+        "makes_item_name": "Amethyst",
+        "skill": "Arcforge Lv 5",
+        "quantity": 1
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "150",
+        "cot2": "200",
+        "change": "+50"
+      }
+    ],
+    "notes": [],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/321",
+    "retrieved_at": "2026-10-04T10:43:27.651Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/321?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:28.739Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/321?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:28.739Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=321",
+      "retrieved_at": "2026-10-04T10:43:29.911Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=10202].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/10202",
+      "retrieved_at": "2026-10-04T11:19:44.538Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 7)"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=10202].chance_pct",
+      "item_page": 14,
+      "quest_page": 14.3,
+      "quest_page_total_weight": 7,
+      "chosen": 14.3,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 7)"
+    }
+  ]
+}
