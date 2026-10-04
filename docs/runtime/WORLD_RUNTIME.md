@@ -194,7 +194,9 @@ touching it, else in the map of an armed gate.
 - **The trail HUD line.** The same sample reports the trail under the live position to
   `MapSession.set_trail(link_id, dest_map_id)`, which emits `trail_changed(dest_map_id)` when the destination changes
   (`""` off trails, and on every map change). `MapSession.trail_destination` / `trail_link_id` hold the current
-  value. The HUD shows "→ <destination map name>" from it (the HUD system's part).
+  value. The HUD is meant to show "→ <destination map name>" from it (the HUD system's part). **Not wired yet:**
+  nothing under `game/scripts/ui` listens to `trail_changed`, so in the game a walk along a trail shows only the map
+  banner of the map you left (seen in the review's windowed run, 000000040 → 000000041). Requested from the HUD.
 - **SafeGround** (`FallRecovery.is_safe_point`): `allowed(pos, current_map)` without armed gates: the map or one of
   its trails.
 
@@ -246,9 +248,11 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
   Their owners detach them. It emits `state_changed` and `session_reset`.
 
   `detach_world()` calls it after settling any warp, and `IslandWorld._exit_tree` calls `detach_world()`. So the
-  shell's quit to title leaves a clean session. The next `GameSession.start` finds `BOOT`, and its `was_boot`
-  branch enters the world exactly as the first time: `start_new_game()`, or `load_character(Game.character)`,
-  which uses the saved `resume` point. The first `map_entered` names no old map.
+  shell's quit to title leaves a clean session. The next `GameSession.start` finds `BOOT` (its step 0 calls
+  `reset()` itself if a session was left past `BOOT`) and enters the world exactly as the first time:
+  `start_new_game()`, or `load_character(Game.character)`, which uses the saved `resume` point. The first
+  `map_entered` names no old map. Seen in the real game (review): a quit to title mid-warp leaves `BOOT` with no
+  current map, instance or cache, and Continue lands on the last save with a one-entry transition log.
 - **Death** (§4.8):
   - `enter_dead()` sets state DEAD, turns input off, runs the commit below, then emits `Events.player_died(map)`.
   - MapSession also enters DEAD when someone else emits `Events.player_died`.
@@ -337,9 +341,10 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
     microseconds);
   - `kill(i, now)`; `snapshot()` / `from_snapshot()` (fast-forwarded); survivors keep their HP.
 
-  Only MeowDB spawn points are slots. `SpawnSlot.NO_SLOT` (-1, the debug console's `SpawnSlot.synthetic(...)`,
-  placement `"debug"`) and any out-of-range index are "no slot": `has_slot()` is false, `kill()` refuses them, they
-  are never alive, never respawned and have no HP, and `ready_time(-1)` is `INF` (it used to wrap to the last slot).
+  Only MeowDB spawn points are slots. `SpawnSlot.NO_SLOT` (-1, placement `"debug"`: the debug console's `spawn`
+  builds such a slot itself, `SpawnSlot.synthetic(...)` makes the same shape) and any out-of-range index are "no
+  slot": `MapInstanceState.has_slot()` (and `SpawnSlot.is_spawn_point()`) is false, `kill()` refuses them, they are
+  never alive, never respawned and have no HP, and `ready_time(-1)` is `INF` (it used to wrap to the last slot).
 
   **Drops** are the loot system's records, identified by `"uid"` (`DROP_UID_KEY`):
   - `add_drop(record)` stores a copy;
@@ -358,7 +363,10 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
     `notify_node_killed(node)`, or give the node a `died` signal.
   - `notify_node_killed(node)` and `slot_of(node)` accept only the node this view spawned for that slot. A debug
     spawn, or a node released by an earlier realize, never kills a live slot, and `notify_killed(-1)` is false.
-  - **`debug_kill(node) -> {own_death, slot, recorded}`** is the console's kill:
+  - **`debug_kill(node) -> {own_death, slot, recorded}`** is a kill for tools and the console. The console's `kill`
+    does not call it today: it has its own equivalent path (DEBUG_TOOLS.md "Kill": the monster's `debug_kill()`,
+    else `MapSession.report_monster_killed`), which reaches the same slot rules through `died` /
+    `notify_node_killed`. It does:
     - a node with a zero-argument `die()` (the monster system's `Monster`) runs its own death: EXP, drops and
       `monster_killed`. A slot monster's `died` then records the kill; a debug spawn's is not connected and records
       nothing;

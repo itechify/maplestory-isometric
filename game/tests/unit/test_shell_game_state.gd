@@ -62,6 +62,30 @@ func test_change_hp_clamps_and_announces() -> void:
 	assert_eq(_heard("hp_changed").size(), 1, "still announced (the HUD and death watch see the value)")
 
 
+## The death's loss is taken at the moment of death: while the notice is up the character already holds its respawn
+## HP (death.json), so "is the player dead?" follows MapSession's DEAD state, not the raw HP.
+func test_is_character_dead_while_the_committed_death_holds_respawn_hp() -> void:
+	var ms: Node = load("res://scripts/autoload/map_session.gd").new()
+	ms.defs = MapDefinitions.build(db())
+	ms.content = db()
+	ms.character = game.character
+	ms.autosave_enabled = false
+	game.map_session = ms
+	assert_eq(ms.start_new_game(), OK, "a private session in the world")
+	assert_false(game.is_character_dead(), "alive in IDLE")
+	var rules := DeathRules.from_db(db())
+	ms.death_commit = func(c: CharacterState) -> Dictionary: return rules.apply(c)
+	game.change_hp(-game.character.hp)
+	assert_eq(ms.enter_dead(), OK, "MapSession enters DEAD and commits")
+	assert_true(game.character.hp > 0, "the committed death already holds the respawn HP (%d)" % game.character.hp)
+	assert_true(game.is_character_dead(), "dead while MapSession is DEAD, whatever the HP")
+	assert_eq(ms.respawn(), OK, "respawn")
+	assert_eq(ms.state_name(), "IDLE", "respawned (no world: at once)")
+	assert_false(game.is_character_dead(), "alive after the respawn")
+	game.map_session = null
+	ms.free()
+
+
 func test_change_mp() -> void:
 	var max_mp := StatCalculator.max_mp(game.character, db())
 	assert_eq(game.change_mp(-3), -3, "applied")

@@ -11,6 +11,7 @@ signal map_left(map_id: String)
 signal portal_used(map_id: String, portal_name: String, to_map_id: String)
 
 # --- character ----------------------------------------------------------------------------------------------
+## `amount` is negative for a loss: the death EXP penalty emits -lost with source "death" (listeners log gains only).
 signal exp_gained(amount: int, source: String)
 signal leveled_up(new_level: int)
 signal stats_changed()

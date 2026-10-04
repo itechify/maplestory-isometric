@@ -144,7 +144,7 @@ names to ids.
 | `quests` | Active and completed quests | the QuestService's own command |
 | `reload` | A fresh instance of the current map. Removes debug spawns | `MapSession.reload_map` |
 | `respawn` | Respawns a dead character at its return map | `MapSession.respawn` |
-| `linkmode [warp or edge] [link or all]` | Shows or switches link modes. `edge` answers "unavailable until walk-through gates exist (M2)" | `PortalGraph.set_link_mode` |
+| `linkmode [warp or edge] [link or all]` | Shows or switches link modes. `edge` lets players walk the trail links through their gates (M2); door links answer that doors are always warp | `PortalGraph.set_link_mode` |
 | `timescale [x]` | Shows or sets `Engine.time_scale` (0.01 to 16). Physics, animation and `Game.clock` follow it | Engine |
 | `seed [n]` | Shows or reseeds the gameplay RNG. The same seed replays the same rolls and new map instances | `Game.rng` |
 | `screenshot [path]` | Saves the next frame, without the console, to `user://screenshots/` by default | `Debug.screenshot` |

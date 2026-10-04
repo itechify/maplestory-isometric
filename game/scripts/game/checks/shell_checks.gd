@@ -10,9 +10,11 @@ extends Node
 ##        save -> pause/resume, Esc closes a window first, modals and the world -> quit to title (MapSession back in
 ##        BOOT) -> continue -> same map, position, stats -> quit to title -> a second new game
 ## death  brief Test F: die in 000000040 and 000001014 (HP 0 through Game.change_hp) and once by another system's
-##        Events.player_died: the loss taken and saved at the death, notice, OK only travels to the returnMap,
-##        death.json HP/MP, revive, valid save, inventory/equipment/quests untouched; then quit to title and continue
-##        from that save, a load from the death screen, and closing the window while dead
+##        Events.player_died: the loss taken and saved at the death, notice, the HUD under it (EXP bar already
+##        dropped, HP 0), OK only travels to the returnMap, death.json HP/MP, revive, valid save,
+##        inventory/equipment/quests untouched; a death mid-warp, by monster touch, with a dialogue open and while
+##        paused; then quit to title and continue from that save, a load from the death screen, and closing the
+##        window while dead
 ## death_quit    brief Test F as a real quit, one link of a chain of processes sharing --save-dir (with --keep-saves):
 ##        start (a new game; or, when the directory holds the previous link's expectations, Continue and verify that
 ##        death first), die in --map, check the loss was taken and saved at the death, write the expectations, close
@@ -336,6 +338,14 @@ func _death() -> void:
 		_check("%s: Esc does not close the notice or pause" % map_id, not main.handle_menu_action() and notice.visible)
 		_check("%s: the death is committed once, at the death" % map_id, commits == [map_id]
 			and bool(session.call("is_death_committed")), str(commits))
+		# The HUD under the notice: the EXP bar already dropped (Events.exp_gained(-exp_lost, "death")); the HP gauge
+		# keeps the killing blow's 0 (the character already holds its respawn HP). A death announced by another system
+		# never sent an HP 0, so only its EXP bar is checked.
+		var gauges := _hud_gauges()
+		_check("%s: the HUD shows the EXP loss at the death%s" % [map_id, ", HP 0" if String(case[1]) == "hp" else ""],
+			not gauges.is_empty() and int(gauges["exp"]) == c.exp and (String(case[1]) != "hp" or int(gauges["hp"]) == 0),
+			"HUD %s, character exp %d hp %d" % [gauges, c.exp, c.hp])
+		_check("%s: Game.is_character_dead() while the respawn HP is held" % map_id, game.is_character_dead() and c.hp > 0)
 		_check("%s: EXP penalty %d at the moment of death" % [map_id, loss], loss > 0 and c.exp == maxi(0, exp_before - loss),
 			"%d -> %d" % [exp_before, c.exp])
 		_check("%s: HP/MP per death.json set at the death" % map_id, c.hp == want_hp and c.mp == want_mp,
@@ -403,6 +413,7 @@ func _death() -> void:
 	_check("mid-warp: alive with input", not pc.is_dead() and pc.is_input_enabled() and not main.ctx().is_modal_active())
 	await _monster_touch_death(game, session, db)
 	await _death_with_dialogue_open(game, session, db)
+	await _death_while_paused(game, session)
 	# Reload the post-death save.
 	var after := _comparable(c.to_dict())
 	var map_after := String(session.get("current_map"))
@@ -475,6 +486,29 @@ func _death_with_dialogue_open(game: GameState, session: Node, db: ContentDB) ->
 		and not game.npc_talk.is_open() and pc.is_input_enabled())
 	_check("dialogue death: Esc opens the pause menu", main.handle_menu_action() and main.flow.is_in(ShellFlow.State.PAUSED))
 	main.resume()
+
+
+## ShellFlow allows PAUSED --died--> DEAD. No gameplay path kills a paused player today (the world is paused), but a
+## death announced then must not leave the tree paused under the menu, with Resume and Quit to Title refused in DEAD:
+## the menu closes and the tree unpauses before the notice opens, and OK respawns as usual.
+func _death_while_paused(game: GameState, session: Node) -> void:
+	await _until(func() -> bool: return bool(session.call("is_idle")) and main.game_session.player.is_on_floor())
+	var map_id := String(session.get("current_map"))
+	_check("paused death: paused", main.pause() and main.flow.is_in(ShellFlow.State.PAUSED) and get_tree().paused)
+	get_node("/root/Events").emit_signal("player_died", map_id)
+	await _frames(3)
+	var dc := main.game_session.death
+	_check("paused death: the menu closed and the world runs again", not main.pause_menu.visible
+		and not get_tree().paused and not game.paused, "menu %s tree paused %s" % [main.pause_menu.visible, get_tree().paused])
+	_check("paused death: dead, the notice up as a modal", main.flow.is_in(ShellFlow.State.DEAD) and dc.is_dead()
+		and dc.notice.visible and main.ctx().is_modal_active() and String(session.call("state_name")) == "DEAD",
+		"flow %s session %s" % [ShellFlow.state_name(main.flow.state), session.call("state_name")])
+	dc.notice.confirm()
+	var respawned := func() -> bool:
+		return main.flow.is_in(ShellFlow.State.PLAYING) and bool(session.call("is_idle")) and not dc.is_dead()
+	var ok := await _until(respawned)
+	_check("paused death: respawned, no modal left, input on", ok and not main.ctx().is_modal_active()
+		and (main.game_session.player as PlayerController).is_input_enabled())
 
 
 ## A load out of DEAD (the debug console's "load", the death screen's only load) ends the death without a respawn:
@@ -824,6 +858,20 @@ static func _diff(a: Variant, b: Variant, path: String = "$") -> String:
 				return d
 		return ""
 	return "" if a == b else "%s: %s != %s" % [path, str(a), str(b)]
+
+
+## The HUD's HP and EXP gauges ({"hp", "exp"}: the values they show), found by shape under the session's ui_root
+## (the HUD is another system's scene: no class reference, so these checks still compile without it); {} without one.
+func _hud_gauges() -> Dictionary:
+	var c := main.ctx()
+	if c == null or c.ui_root == null:
+		return {}
+	for n in c.ui_root.find_children("*", "", true, false):
+		var status: Variant = n.get("status")
+		if status is Object and (status as Object).get("hp_gauge") is Object and (status as Object).get("exp_gauge") is Object:
+			return {"hp": int(((status as Object).get("hp_gauge") as Object).get("current")),
+				"exp": int(((status as Object).get("exp_gauge") as Object).get("current"))}
+	return {}
 
 
 static func _find_button(node: Node, text: String) -> Button:

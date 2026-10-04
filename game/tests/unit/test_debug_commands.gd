@@ -77,7 +77,7 @@ func test_portals_where_maps_reload_linkmode() -> void:
 	assert_eq(fresh.alive_count(), fresh.capacity, "fresh instance full")
 	assert_true(h.run("linkmode").contains("links"), "linkmode summary")
 	assert_true(h.run("linkmode warp").begins_with("link mode warp for all"), "warp ok")
-	assert_true(h.run("linkmode edge").contains("unavailable until walk-through gates"), "edge is M2")
+	assert_true(h.run("linkmode edge").begins_with("link mode edge for all"), "edge for every trail link (M2)")
 	assert_true(h.run("linkmode warp T_nope").contains("unknown link"), "unknown link")
 	assert_true(h.run("linkmode fly").contains("must be warp or edge"), "bad mode")
 

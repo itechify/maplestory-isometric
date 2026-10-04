@@ -59,6 +59,8 @@ var last_creation_errors: PackedStringArray = []
 var save_service: SaveService = null
 var db: ContentDB = null
 var event_bus: Node = null
+## Injection seam (tests): the MapSession whose DEAD state is_character_dead() reads; null = the MapSession autoload.
+var map_session: Node = null
 ## push_warning() on rejected or degraded new games (tests switch it off).
 var log_warnings: bool = true
 ## The quest system (QUESTS_AND_DIALOGUE.md "Wiring it into the game"): QuestService on the Events bus, following
@@ -306,9 +308,15 @@ func damage_player(amount: int, source_monster_id: String = "") -> int:
 	return -change_hp(-maxi(amount, 0))
 
 
-## True when the character's HP is at the canonical death trigger (formulas/death.json: HP 0).
+## True while the character is dead: HP at the canonical death trigger (formulas/death.json: HP 0), or MapSession in
+## DEAD. The game shell takes a death's loss at the moment of death (GAME_SHELL.md "Death and respawn"), so while the
+## death notice is up the character already holds the HP it will respawn with (death.json, 50). A system that asks
+## "is the player dead?" must ask this (or MapSession), never `character.hp <= 0`.
 func is_character_dead() -> bool:
-	return Progression.is_dead(character, _db())
+	if Progression.is_dead(character, _db()):
+		return true
+	var s: Node = map_session if map_session != null else SaveService._autoload("MapSession")
+	return s != null and s.has_method("state_name") and String(s.call("state_name")) == "DEAD"
 
 
 ## Ends the live game without saving (the shell saves first): has_active_game() turns false, a pending autosave is

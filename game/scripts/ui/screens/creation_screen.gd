@@ -222,7 +222,7 @@ func _build() -> void:
 		refresh())
 	stat_buttons.add_child(reset)
 	var rec := ScreenKit.button("Recommended", false, 150)
-	rec.tooltip_text = "The Beginner's guide spread (new_character.json quick_start)"
+	rec.tooltip_text = "The stats and weapon the Beginner's guide recommends"
 	rec.pressed.connect(func() -> void:
 		model.use_defaults()
 		refresh())

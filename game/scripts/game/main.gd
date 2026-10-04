@@ -69,6 +69,10 @@ func _ready() -> void:
 	pause_menu.quit_game_pressed.connect(quit_game)
 	screens.add_child(pause_menu)
 	flow.changed.connect(_on_flow_changed)
+	# Connected at boot, so before any session's DeathController (signals run in connection order).
+	var ev := _autoload("Events")
+	if ev != null and ev.has_signal(&"player_died") and not ev.is_connected(&"player_died", _on_player_died):
+		ev.connect(&"player_died", _on_player_died)
 	flow.fire(ShellFlow.EV_BOOT)
 	show_title()
 	if use_command_line:
@@ -326,6 +330,14 @@ func handle_menu_action() -> bool:
 
 
 # --- internals ----------------------------------------------------------------------------------------------------
+
+## A death announced while the pause menu is open (ShellFlow allows PAUSED --died--> DEAD; no gameplay path does it
+## today, the world is paused): the menu closes and the tree unpauses before the DeathController hears the death, so
+## the notice is the only modal and the game is never left paused under a Resume and a Quit to Title that DEAD refuses.
+func _on_player_died(_map_id: String) -> void:
+	if flow.is_in(ShellFlow.State.PAUSED):
+		_unpause()
+
 
 func _on_pause_save() -> void:
 	var err := save_now()

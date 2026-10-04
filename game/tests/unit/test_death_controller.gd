@@ -271,6 +271,55 @@ func test_commit_signal_reports_after_the_save() -> void:
 		assert_eq(seen[0], ["000000040", OK, game.character.exp], "the save is on disk when committed fires")
 
 
+## The EXP loss shows at the death, as in classic: Events.exp_gained(-exp_lost, "death") exactly once per death, once
+## the death is both committed and announced, in every ordering; nothing at OK (the HUD redraws only its EXP bar for
+## it, so its HP gauge keeps the killing blow's 0 under the notice).
+func test_the_exp_loss_is_announced_once_at_the_death() -> void:
+	game.gain_exp(10)
+	var seen: Array = []
+	var on_exp := func(amount: int, source: String) -> void:
+		seen.append([amount, source, dc.is_dead(), dc.is_committed(), game.character.exp])
+	ev.connect("exp_gained", on_exp)
+	# HP 0 (MapSession.enter_dead: committed, then announced).
+	ms.debug_warp("000000040")
+	var exp_before := game.character.exp
+	game.change_hp(-9999)
+	var lost := exp_before - game.character.exp
+	assert_true(lost > 0, "this death costs EXP")
+	assert_eq(seen, [[-lost, DeathController.EXP_LOSS_SOURCE, true, true, game.character.exp]],
+		"once, at the death, after the loss was taken")
+	seen.clear()
+	assert_eq(dc.confirm(), OK, "OK")
+	assert_eq(seen, [], "nothing at OK")
+	# Another system announces the death (MapSession commits before the controller hears it).
+	ms.debug_warp("000000040")
+	exp_before = game.character.exp
+	ev.emit_signal("player_died", "000000040")
+	assert_eq(seen, [[game.character.exp - exp_before, DeathController.EXP_LOSS_SOURCE, true, true, game.character.exp]],
+		"once for a death another system announced")
+	seen.clear()
+	assert_eq(dc.confirm(), OK, "OK")
+	# A death during a warp: announced at once, committed (and shown) when the warp ends.
+	ms.debug_warp("000000040")
+	ms.state = ms.State.WARP_IN
+	exp_before = game.character.exp
+	game.change_hp(-9999)
+	assert_true(dc.is_dead() and not dc.is_committed(), "dead, not committed during the warp")
+	assert_eq(seen, [], "no EXP loss to show before the commit")
+	var rec := TransitionRecord.new()
+	rec.via = "debug"
+	rec.to_map = "000000040"
+	ms._complete(rec)
+	assert_eq(seen, [[game.character.exp - exp_before, DeathController.EXP_LOSS_SOURCE, true, true, game.character.exp]],
+		"once, when the warp ends and the death is committed")
+	assert_true(game.character.exp < exp_before, "the loss is real")
+	seen.clear()
+	assert_eq(dc.confirm(), OK, "OK")
+	assert_eq(seen, [], "nothing at OK")
+	assert_eq(dc.rules.applied_count, 3, "three deaths, three penalties")
+	ev.disconnect("exp_gained", on_exp)
+
+
 func test_death_during_a_warp_respawns_after_the_warp() -> void:
 	game.gain_exp(10)
 	var c := game.character

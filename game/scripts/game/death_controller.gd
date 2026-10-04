@@ -16,7 +16,8 @@ extends Node
 ##      (Game.save_game: MapSession allows saving while DEAD once the death is committed).
 ##   3. Events.player_died: a modal conversation, shop or console still open is closed (it would hold the keyboard
 ##      over the notice and survive the respawn), then the DeathNotice opens as a modal ("You have died. Return to
-##      the nearest town?").
+##      the nearest town?"). Once the death is both committed and announced, Events.exp_gained(-exp_lost, "death")
+##      lets the HUD's EXP bar drop at the death; its HP gauge keeps the killing blow's 0 until the respawn.
 ##   4. OK (confirm()): once MapSession is DEAD (a death during a warp enters DEAD, and commits, when the warp ends),
 ##      MapSession.respawn() warps to the returnMap. OK changes nothing else: the loss was taken at the death. The
 ##      notice hides as the warp starts (the modal stays until the end). Nothing blocks or awaits: signals carry it.
@@ -41,6 +42,8 @@ signal committed(map_id: String, report: Dictionary)
 ## Upper bound on the windows closed at a death (close_top_window() pops one per call; this only guards a window
 ## that re-registers itself while closing).
 const MAX_WINDOWS_CLOSED_AT_DEATH := 32
+## Events.exp_gained source of the death's EXP loss (amount = -exp_lost): the HUD redraws its EXP bar at the death.
+const EXP_LOSS_SOURCE := "death"
 
 ## MapSession (or a private instance): state_name(), enter_dead(), respawn(), is_idle(), death_commit,
 ## death_committed, is_death_committed(), commit_death(), respawn_location(), respawn_reference_of(), state_changed,
@@ -79,6 +82,8 @@ var _kill_queued := false
 ## respawn is done, a load ended it, detach). It keeps the penalty to one per death whatever the order of the hook,
 ## the quit fallback and the respawn.
 var _committed := false
+## This death's EXP loss was announced (Events.exp_gained(-exp_lost, "death")); cleared with _committed.
+var _loss_shown := false
 var _connected := false
 var _hooked := false
 
@@ -135,6 +140,7 @@ func detach() -> void:
 				session.set(&"death_commit", Callable())
 	_hooked = false
 	_committed = false
+	_loss_shown = false
 	_close_notice()
 
 
@@ -299,6 +305,7 @@ func _on_death_committed(map_id: String, _report: Variant) -> void:
 		if err != OK:
 			push_warning("[DeathController] save at the death failed: %s" % error_string(err))
 	committed.emit(map_id, last_report)
+	_show_exp_loss()  # a death during a warp: announced first, committed only now
 
 
 func _on_hp_changed(hp: int, _max_hp: int) -> void:
@@ -341,6 +348,7 @@ func _on_player_died(map_id: String) -> void:
 		player.call("die")
 	_close_modal_windows()
 	_open_notice(map_id)
+	_show_exp_loss()  # committed first (enter_dead, or MapSession heard another system's announcement first)
 	died.emit(map_id)
 
 
@@ -352,6 +360,7 @@ func _on_player_respawned(map_id: String) -> void:
 	if _respawning:
 		return  # our own respawn: _finish() ends the death
 	_committed = false
+	_loss_shown = false
 	if _dead:
 		_stop_waiting()
 		_dead = false
@@ -380,6 +389,7 @@ func _finish() -> void:
 	_dead = false
 	_respawning = false
 	_committed = false
+	_loss_shown = false
 	died_in = ""
 	_close_notice()
 	var to_map := String(session.get(&"current_map"))
@@ -393,9 +403,20 @@ func _finish() -> void:
 	respawned.emit(to_map, last_report)
 
 
+## The EXP loss shows at the death, as in classic: Events.exp_gained(-exp_lost, "death") once per death, as soon as the
+## death is both committed (the loss taken) and announced (modal windows closed, notice up), whichever comes last. The
+## HUD redraws only its EXP bar for it (it logs positive gains only), so the HP gauge keeps the killing blow's 0 under
+## the notice; a stats_changed now would show the respawn HP the character already holds.
+func _show_exp_loss() -> void:
+	if _loss_shown or not _dead or not _committed or bus == null:
+		return
+	_loss_shown = true
+	bus.emit_signal(&"exp_gained", -int(last_report.get("exp_lost", 0)), EXP_LOSS_SOURCE)
+
+
 ## The death rules changed EXP, HP and MP: tell the HUD (no new signal: stats/hp/mp refresh). Sent as the respawn
 ## starts, not at the commit: until then the HUD keeps the killing blow's HP 0 under the notice instead of the HP the
-## character will wake up with (GAME_SHELL.md "Known limits").
+## character will wake up with (the EXP bar already dropped at the death: _show_exp_loss).
 func _announce_vitals() -> void:
 	if bus == null or game == null or not (game.get(&"character") is CharacterState):
 		return

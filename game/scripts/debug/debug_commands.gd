@@ -44,7 +44,7 @@ func install() -> void:
 	d.register_command("where", "where: current map, session state, last transition, position and region", _cmd_where)
 	d.register_command("maps", "maps: the 25 maps with ids, v8 ids, names and counts", _cmd_maps)
 	d.register_command("reload", "reload: fresh monsters for the current map (MapSession.reload_map); removes debug spawns", _cmd_reload)
-	d.register_command("linkmode", "linkmode [warp|edge] [link|all]: show or switch portal link modes (edge needs M2 gates)", _cmd_linkmode)
+	d.register_command("linkmode", "linkmode [warp|edge] [link|all]: show or switch portal link modes (edge = walk the trail through its gates; doors are always warp)", _cmd_linkmode)
 	d.register_command("respawn", "respawn: respawn a dead character at its return map", _cmd_respawn)
 	d.register_command("goto", "goto <x> <z> | goto slot <n> | goto npc <id|name> | goto portal <id>: move the player inside the current map", _cmd_goto)
 	# Overlay and draw layers.
@@ -281,7 +281,7 @@ func _cmd_linkmode(args: PackedStringArray) -> String:
 		OK:
 			return "link mode %s for %s" % [mode, "all %d links" % graph.links.size() if link == "all" else link]
 		ERR_UNAVAILABLE:
-			return "linkmode %s: unavailable until walk-through gates exist (milestone M2); links stay warp" % mode
+			return "linkmode %s: %s is a door link; doors are always warp" % [mode, link]
 		ERR_DOES_NOT_EXIST:
 			return "linkmode: unknown link %s (Tab lists the link ids)" % link
 		_:

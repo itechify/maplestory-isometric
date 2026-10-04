@@ -2,7 +2,8 @@ class_name ShellCheckRunner
 extends RefCounted
 ## Runs res://scenes/ui/screens/shell_checks.tscn in a child Godot process (the unit-test runner cannot await
 ## frames) and parses its output: "SHELL_CHECK PASS|FAIL <name>[: detail]", "SHELL_INFO ...",
-## "SHELL_CHECKS_DONE <passed> <failed>". Used by test_shell_acceptance.gd and test_death_flow.gd.
+## "SHELL_CHECKS_DONE <passed> <failed>". Used by test_shell_acceptance.gd, test_death_flow.gd and
+## test_death_quit_reload.gd (a chain of processes sharing --save-dir).
 
 const CHECK_SCENE := "res://scenes/ui/screens/shell_checks.tscn"
 ## Watchdog for the child process (frames at --fixed-fps 60).
