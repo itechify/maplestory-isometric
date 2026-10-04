@@ -1,0 +1,196 @@
+{
+  "id": 20000,
+  "name": "Mushroom Town",
+  "extent": {
+    "minX": -309,
+    "maxX": 939,
+    "minY": -85,
+    "maxY": 420
+  },
+  "tiers": [
+    {
+      "id": "T1",
+      "x1": -309,
+      "x2": 141,
+      "y_left": 215,
+      "y_right": 215,
+      "kind": "ground",
+      "label": "west lawn (arrival in00)",
+      "length": 450
+    },
+    {
+      "id": "T2",
+      "x1": 141,
+      "x2": 231,
+      "y_left": 155,
+      "y_right": 155,
+      "kind": "ledge",
+      "label": "step (ladder foot x197)",
+      "length": 90
+    },
+    {
+      "id": "T3",
+      "x1": 231,
+      "x2": 939,
+      "y_left": 95,
+      "y_right": 95,
+      "kind": "ground",
+      "label": "upper terrace street (orange house door in01, tower out00)",
+      "length": 708
+    },
+    {
+      "id": "T4",
+      "x1": -129,
+      "x2": 39,
+      "y_left": 95,
+      "y_right": 95,
+      "kind": "floating",
+      "label": "Nina's floating flower islet (no ladder)",
+      "length": 168
+    },
+    {
+      "id": "T5",
+      "x1": 141,
+      "x2": 309,
+      "y_left": -85,
+      "y_right": -85,
+      "kind": "floating",
+      "label": "sky islet lookout (ladder x197)",
+      "length": 168
+    }
+  ],
+  "ladders": [
+    {
+      "x": 197,
+      "y1": -83,
+      "y2": 153,
+      "isLadder": true,
+      "from_tier": "T2",
+      "to_tier": "T5"
+    }
+  ],
+  "portals": [
+    {
+      "name": "in00",
+      "x": -207,
+      "y": 218,
+      "target": null,
+      "inferred": false,
+      "type": 1
+    },
+    {
+      "name": "in01",
+      "x": 557,
+      "y": 94,
+      "target": "20001:out00",
+      "inferred": false,
+      "type": 2
+    },
+    {
+      "name": "out00",
+      "x": 795,
+      "y": 96,
+      "target": "30000:in00",
+      "inferred": false,
+      "type": 2
+    }
+  ],
+  "mobs": {},
+  "npcs": [
+    {
+      "id": 2102,
+      "name": "Nina",
+      "x": -59,
+      "y": 95
+    }
+  ],
+  "terrain_style": "grassySoil tileset (layer 1): grass fringe over olive/khaki-brown cobbled dirt with grey stones; two small floating grass islets with rounded dirt undersides. Sky backdrop grassySoil back 0-3,5,6.",
+  "landmarks": [
+    {
+      "what": "Dark green bush on Nina's islet",
+      "x": -89,
+      "y": 85
+    },
+    {
+      "what": "Orange flowers on Nina's islet (nature/5,6 x5)",
+      "x": -12,
+      "y": 50
+    },
+    {
+      "what": "Butterfly on Nina's islet",
+      "x": 18,
+      "y": 39
+    },
+    {
+      "what": "Clover-and-flower patch on west lawn",
+      "x": -25,
+      "y": 184
+    },
+    {
+      "what": "Clover-and-flower patch (front layer)",
+      "x": 52,
+      "y": 188
+    },
+    {
+      "what": "Ladder from step T2 to sky islet T5",
+      "x": 197,
+      "y": 20
+    },
+    {
+      "what": "Butterfly + orange flowers by the house",
+      "x": 337,
+      "y": 40
+    },
+    {
+      "what": "Green bush (flipped) west of house",
+      "x": 380,
+      "y": 30
+    },
+    {
+      "what": "Stone archway with plank door = in01 door into 20001 (door/8 + door/10)",
+      "x": 555,
+      "y": 40
+    },
+    {
+      "what": "Orange mushroom house (houseGS/house6 body)",
+      "x": 597,
+      "y": 14
+    },
+    {
+      "what": "Orange cap of house6",
+      "x": 606,
+      "y": -88
+    },
+    {
+      "what": "Red-spotted amanita mushroom cluster",
+      "x": 678,
+      "y": 43
+    },
+    {
+      "what": "Tall stone chimney/oven tower with log pile and small arched door (house/chimney/3) - out00 sits at its base",
+      "x": 750,
+      "y": -46
+    },
+    {
+      "what": "Olive bush (flipped) east end",
+      "x": 833,
+      "y": 44
+    },
+    {
+      "what": "Exit portal out00 (visible)",
+      "x": 795,
+      "y": 96
+    }
+  ],
+  "notes": [
+    "Geometry/NPCs/ladders: docs/research/raw/gms_v8/20000.json (maplestory.io /api/GMS/8/map/20000).",
+    "Portals recovered from raw WZ because the parsed API JSON has null entries: https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000020000.img/portal/<n> (fields pn, pt, tm, tn, x, y). All portals here are therefore sourced, not inferred.",
+    "Landmark x,y are WZ obj anchors from https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000020000.img/<layer>/obj/<n>; sprites identified via https://maplestory.io/api/wz/GMS/8/Map/Obj/<oS>.img/<l0>/<l1>/<l2>/0. API-reported sprite origins were all exactly (w/2,h/2), so treat anchors as roughly sprite-centre; footprints are +-half sprite size. Where one landmark merges several objects, x,y is their approximate mean.",
+    "tiers[].y_left/y_right are MapleStory y (down is positive). Tier ids are local to this file. Ladders: y1 = top end, y2 = bottom end (raw data order); from_tier = bottom tier, to_tier = top tier.",
+    "v8 has zero mob spawns in this map (life contains only NPCs).",
+    "Spawn points x3 at (-256,122),(-207,123),(-173,125), above T1 west end.",
+    "in00 (pt 1, tm 999999999) is arrival-only: no portal back to 10000.",
+    "T4 (Nina) is 120 px above T1 with no ladder. T5 sky islet holds no objects/NPCs; it is reached only by the ladder at x=197.",
+    "v22 differs (docs/research/raw/gms_v22/20000.json): T3 extends to x=1209 (vs 939); v22 raw WZ: in01 unchanged (557,94), out00 moved to (1109,97) -> 30000:in00 (https://maplestory.io/api/wz/GMS/22/Map/Map/Map0/000020000.img/portal/5); rest identical."
+  ]
+}

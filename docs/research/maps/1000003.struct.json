@@ -1,0 +1,715 @@
+{
+ "id": 1000003,
+ "name": "Mushroom Garden",
+ "slug": "MushroomGarden_1000003",
+ "units": "MapleStory px; y increases downward",
+ "source": {
+  "map_json": "docs/research/raw/gms_v8/1000003.json (maplestory.io /api/GMS/8/map/1000003)",
+  "wz": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000003.img (portal, info, back, <layer>/obj, <layer>/info)"
+ },
+ "extent": {
+  "minX": 1041,
+  "maxX": 2919,
+  "minY": -355,
+  "maxY": 720
+ },
+ "tiers": [
+  {
+   "id": "G1",
+   "x1": 1041,
+   "x2": 2301,
+   "y_left": 515,
+   "y_right": 515,
+   "kind": "ground",
+   "length_px": 1260
+  },
+  {
+   "id": "G2",
+   "x1": 2301,
+   "x2": 2391,
+   "y_left": 455,
+   "y_right": 455,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G3",
+   "x1": 2391,
+   "x2": 2481,
+   "y_left": 395,
+   "y_right": 395,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G4",
+   "x1": 2481,
+   "x2": 2919,
+   "y_left": 335,
+   "y_right": 335,
+   "kind": "ground",
+   "length_px": 438
+  },
+  {
+   "id": "P01",
+   "x1": 1446,
+   "x2": 1614,
+   "y_left": 305,
+   "y_right": 305,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P02",
+   "x1": 2526,
+   "x2": 2874,
+   "y_left": 185,
+   "y_right": 185,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P03",
+   "x1": 1176,
+   "x2": 1614,
+   "y_left": 125,
+   "y_right": 125,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P04",
+   "x1": 2346,
+   "x2": 2514,
+   "y_left": 125,
+   "y_right": 125,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P05",
+   "x1": 1626,
+   "x2": 1794,
+   "y_left": 65,
+   "y_right": 65,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P06",
+   "x1": 2256,
+   "x2": 2424,
+   "y_left": 65,
+   "y_right": 65,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P07",
+   "x1": 1806,
+   "x2": 2244,
+   "y_left": 5,
+   "y_right": 5,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P08",
+   "x1": 1806,
+   "x2": 1974,
+   "y_left": -55,
+   "y_right": -55,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P09",
+   "x1": 1716,
+   "x2": 1884,
+   "y_left": -115,
+   "y_right": -115,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P10",
+   "x1": 1266,
+   "x2": 1704,
+   "y_left": -175,
+   "y_right": -175,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P11",
+   "x1": 1626,
+   "x2": 1794,
+   "y_left": -235,
+   "y_right": -235,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P12",
+   "x1": 1716,
+   "x2": 1884,
+   "y_left": -295,
+   "y_right": -295,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P13",
+   "x1": 2346,
+   "x2": 2784,
+   "y_left": -295,
+   "y_right": -295,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P14",
+   "x1": 1896,
+   "x2": 2334,
+   "y_left": -355,
+   "y_right": -355,
+   "kind": "ledge",
+   "length_px": 438
+  }
+ ],
+ "ladders": [
+  {
+   "x": 1512,
+   "y1": 307,
+   "y2": 495,
+   "isLadder": true,
+   "from_tier": "G1",
+   "to_tier": "P01",
+   "length_px": 188,
+   "bottom_gap_px": 20
+  },
+  {
+   "x": 1563,
+   "y1": 127,
+   "y2": 263,
+   "isLadder": false,
+   "from_tier": "P01",
+   "to_tier": "P03",
+   "length_px": 136,
+   "bottom_gap_px": 42
+  },
+  {
+   "x": 2598,
+   "y1": 187,
+   "y2": 271,
+   "isLadder": true,
+   "from_tier": "G4",
+   "to_tier": "P02",
+   "length_px": 84,
+   "bottom_gap_px": 64
+  }
+ ],
+ "portals": [
+  {
+   "name": "out00",
+   "x": 2695,
+   "y": 329,
+   "target": "1000000:in02",
+   "inferred": false,
+   "type": 2,
+   "tier": "G4",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000003.img/portal/6"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": 2834,
+   "y": 264,
+   "tier_below": "G4"
+  },
+  {
+   "x": 2770,
+   "y": 271,
+   "tier_below": "G4"
+  },
+  {
+   "x": 2530,
+   "y": 266,
+   "tier_below": "G4"
+  },
+  {
+   "x": 2588,
+   "y": 278,
+   "tier_below": "G4"
+  },
+  {
+   "x": 2435,
+   "y": 335,
+   "tier_below": "G3"
+  },
+  {
+   "x": 2346,
+   "y": 396,
+   "tier_below": "G2"
+  }
+ ],
+ "mobs": {
+  "Snail": {
+   "id": 100100,
+   "count": 9,
+   "tiers": [
+    "G1",
+    "P02",
+    "P03",
+    "P07",
+    "P10",
+    "P13",
+    "P14"
+   ],
+   "per_tier": {
+    "P13": 2,
+    "P14": 1,
+    "P10": 1,
+    "P03": 2,
+    "P02": 1,
+    "P07": 1,
+    "G1": 1
+   }
+  },
+  "Shroom": {
+   "id": 120100,
+   "count": 28,
+   "tiers": [
+    "G1",
+    "G4",
+    "P02",
+    "P03",
+    "P07",
+    "P10",
+    "P13",
+    "P14"
+   ],
+   "per_tier": {
+    "P10": 3,
+    "P14": 5,
+    "P13": 3,
+    "G1": 8,
+    "P07": 3,
+    "P02": 3,
+    "G4": 1,
+    "P03": 2
+   }
+  },
+  "Orange Mushroom": {
+   "id": 1210102,
+   "count": 5,
+   "tiers": [
+    "G1",
+    "P13",
+    "P14"
+   ],
+   "per_tier": {
+    "G1": 3,
+    "P13": 1,
+    "P14": 1
+   }
+  }
+ },
+ "npcs": [],
+ "terrain_style": "grassySoil tileset (WZ layer info tS=grassySoil): bright green grass-blade tops over khaki/olive-brown clumpy soil with embedded mossy grey rocks; background set grassySoil (flat blue sky, scrolling cumulus clouds, distant rolling grassy hill, big leafy tree, grassy flower-meadow band)",
+ "landmarks": [
+  {
+   "what": "white-trunk tree, mixed green/orange/teal foliage",
+   "x": 1163,
+   "y": 346,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1279,
+   "y": 103,
+   "tier": "P03",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "large green bush",
+   "x": 1286,
+   "y": 499,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1339,
+   "y": -199,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage",
+   "x": 1342,
+   "y": 375,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/1",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1372,
+   "y": 103,
+   "tier": "P03",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1396,
+   "y": -206,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "large green bush",
+   "x": 1436,
+   "y": 509,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1483,
+   "y": -197,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1518,
+   "y": 104,
+   "tier": "P03",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1523,
+   "y": -203,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1560,
+   "y": 494,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1587,
+   "y": -204,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1664,
+   "y": 492,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1771,
+   "y": 492,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "small round shrub",
+   "x": 1846,
+   "y": 495,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1921,
+   "y": 491,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1983,
+   "y": -384,
+   "tier": "P14",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1990,
+   "y": -23,
+   "tier": "P07",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2048,
+   "y": -375,
+   "tier": "P14",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "large green bush",
+   "x": 2066,
+   "y": 463,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 0
+  },
+  {
+   "what": "white-trunk tree, teal/green foliage",
+   "x": 2078,
+   "y": 357,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/5",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2089,
+   "y": -25,
+   "tier": "P07",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2105,
+   "y": -385,
+   "tier": "P14",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2152,
+   "y": -16,
+   "tier": "P07",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2188,
+   "y": -378,
+   "tier": "P14",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 0
+  },
+  {
+   "what": "large green bush",
+   "x": 2211,
+   "y": 454,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2251,
+   "y": -386,
+   "tier": "P14",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage with orange clump",
+   "x": 2269,
+   "y": 346,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/7",
+   "layer": 0
+  },
+  {
+   "what": "large green bush",
+   "x": 2500,
+   "y": -340,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 0
+  },
+  {
+   "what": "green bush",
+   "x": 2541,
+   "y": -310,
+   "tier": "P13",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2575,
+   "y": 307,
+   "tier": "G4",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2615,
+   "y": 306,
+   "tier": "G4",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2617,
+   "y": 154,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "purple flower",
+   "x": 2644,
+   "y": -317,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 0
+  },
+  {
+   "what": "purple flower",
+   "x": 2657,
+   "y": -317,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 0
+  },
+  {
+   "what": "orange flower",
+   "x": 2663,
+   "y": 141,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 0
+  },
+  {
+   "what": "purple flowers",
+   "x": 2665,
+   "y": -318,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2670,
+   "y": 154,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "orange flower",
+   "x": 2685,
+   "y": 128,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 0
+  },
+  {
+   "what": "purple flower",
+   "x": 2691,
+   "y": -320,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 0
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": 2695,
+   "y": 284,
+   "tier": "G4",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 2709,
+   "y": -316,
+   "tier": "P13",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 0
+  },
+  {
+   "what": "orange flower",
+   "x": 2710,
+   "y": 139,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 0
+  },
+  {
+   "what": "orange flower",
+   "x": 2737,
+   "y": 142,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2748,
+   "y": 154,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2767,
+   "y": 302,
+   "tier": "G4",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2802,
+   "y": 159,
+   "tier": "P02",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2808,
+   "y": 306,
+   "tier": "G4",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  }
+ ],
+ "minor_footholds": []
+}

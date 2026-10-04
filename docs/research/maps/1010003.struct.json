@@ -1,0 +1,461 @@
+{
+ "id": 1010003,
+ "name": "Amherst Department Store",
+ "street": "Rainbow Street",
+ "slug": "AmherstDepartmentStore_1010003",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1010003.json (maplestory.io /api/GMS/8/map/1010003)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001010003.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -400,
+  "maxX": 400,
+  "minY": -129,
+  "maxY": 184,
+  "note": "all footholds (no boundary walls in this map; side limits come from vr_bounds)"
+ },
+ "walkable_extent": {
+  "minX": -400,
+  "maxX": 400,
+  "minY": -129,
+  "maxY": 182
+ },
+ "vr_bounds": {
+  "left": -400,
+  "top": -300,
+  "right": 400,
+  "bottom": 300
+ },
+ "is_town": true,
+ "bgm": "Bgm00/FloralLife",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "shop floor (duplicated at y=182 and y=184)",
+   "kind": "ground",
+   "x1": -400,
+   "x2": 400,
+   "y_left": 182,
+   "y_right": 182,
+   "y_max": 184,
+   "length": 800
+  },
+  {
+   "id": "T02",
+   "label": "crate top (lower)",
+   "kind": "floating",
+   "x1": -160,
+   "x2": -99,
+   "y_left": 141,
+   "y_right": 141,
+   "length": 61
+  },
+  {
+   "id": "T03",
+   "label": "crate top (upper)",
+   "kind": "floating",
+   "x1": -178,
+   "x2": -117,
+   "y_left": 98,
+   "y_right": 98,
+   "length": 61
+  },
+  {
+   "id": "T04",
+   "label": "book bench (low)",
+   "kind": "floating",
+   "x1": -110,
+   "x2": 28,
+   "y_left": 147,
+   "y_right": 147,
+   "length": 138
+  },
+  {
+   "id": "T05",
+   "label": "book table top",
+   "kind": "floating",
+   "x1": -100,
+   "x2": 42,
+   "y_left": 103,
+   "y_right": 103,
+   "length": 142
+  },
+  {
+   "id": "T06",
+   "label": "small shelf above book table",
+   "kind": "floating",
+   "x1": -86,
+   "x2": 4,
+   "y_left": 59,
+   "y_right": 59,
+   "length": 90
+  },
+  {
+   "id": "T07",
+   "label": "potion shelf, bottom board",
+   "kind": "floating",
+   "x1": -153,
+   "x2": -56,
+   "y_left": 31,
+   "y_right": 31,
+   "length": 97
+  },
+  {
+   "id": "T08",
+   "label": "potion shelf, middle board",
+   "kind": "floating",
+   "x1": -159,
+   "x2": -51,
+   "y_left": 3,
+   "y_right": 3,
+   "length": 108
+  },
+  {
+   "id": "T09",
+   "label": "potion shelf, top board",
+   "kind": "floating",
+   "x1": -162,
+   "x2": -51,
+   "y_left": -25,
+   "y_right": -25,
+   "length": 111
+  },
+  {
+   "id": "T10",
+   "label": "pole-shelf board (low, wide)",
+   "kind": "floating",
+   "x1": 79,
+   "x2": 232,
+   "y_left": 145,
+   "y_right": 145,
+   "length": 153
+  },
+  {
+   "id": "T11",
+   "label": "pole-shelf board (jar)",
+   "kind": "floating",
+   "x1": 61,
+   "x2": 108,
+   "y_left": 120,
+   "y_right": 120,
+   "length": 47
+  },
+  {
+   "id": "T12",
+   "label": "pole-shelf board",
+   "kind": "floating",
+   "x1": 108,
+   "x2": 220,
+   "y_left": 103,
+   "y_right": 103,
+   "length": 112
+  },
+  {
+   "id": "T13",
+   "label": "pole-shelf board (jar)",
+   "kind": "floating",
+   "x1": 59,
+   "x2": 109,
+   "y_left": 72,
+   "y_right": 73,
+   "length": 50
+  },
+  {
+   "id": "T14",
+   "label": "pole-shelf board",
+   "kind": "floating",
+   "x1": 91,
+   "x2": 174,
+   "y_left": 57,
+   "y_right": 57,
+   "length": 83
+  },
+  {
+   "id": "T15",
+   "label": "pole-shelf board (jar)",
+   "kind": "floating",
+   "x1": 62,
+   "x2": 108,
+   "y_left": 22,
+   "y_right": 22,
+   "length": 46
+  },
+  {
+   "id": "T16",
+   "label": "pole-shelf board (top, wide)",
+   "kind": "floating",
+   "x1": 65,
+   "x2": 220,
+   "y_left": -43,
+   "y_right": -43,
+   "length": 155
+  },
+  {
+   "id": "T17",
+   "label": "top of wall poster frame",
+   "kind": "floating",
+   "x1": 163,
+   "x2": 259,
+   "y_left": 7,
+   "y_right": 7,
+   "length": 96
+  },
+  {
+   "id": "T18",
+   "label": "wall shelf (treasure chest)",
+   "kind": "floating",
+   "x1": 234,
+   "x2": 358,
+   "y_left": -28,
+   "y_right": -28,
+   "length": 124
+  },
+  {
+   "id": "T19",
+   "label": "treasure chest lid",
+   "kind": "floating",
+   "x1": 288,
+   "x2": 335,
+   "y_left": -62,
+   "y_right": -62,
+   "y_max": -60,
+   "length": 47
+  },
+  {
+   "id": "T20",
+   "label": "ceiling crossbeam",
+   "kind": "floating",
+   "x1": -128,
+   "x2": 305,
+   "y_left": -127,
+   "y_right": -129,
+   "length": 433
+  },
+  {
+   "id": "T21",
+   "label": "NPC booth roof",
+   "kind": "floating",
+   "x1": -348,
+   "x2": -198,
+   "y_left": -27,
+   "y_right": -27,
+   "length": 150
+  },
+  {
+   "id": "T22",
+   "label": "NPC stand inside booth (Lucy; enclosed)",
+   "kind": "floating",
+   "x1": -333,
+   "x2": -213,
+   "y_left": 84,
+   "y_right": 84,
+   "length": 120
+  }
+ ],
+ "ladders": [],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "out00",
+   "x": 300,
+   "y": 182,
+   "target": "1010000:in02",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -114,
+   "y": 115,
+   "tier_below": "T02"
+  }
+ ],
+ "mobs": {},
+ "npcs": [
+  {
+   "id": 11100,
+   "name": "Lucy",
+   "x": -258,
+   "y": 84,
+   "tier": "T22"
+  }
+ ],
+ "terrain_style": "interior: wooden plank floor strip under an 800x600 timber-frame shop backdrop (insideGS/house0); shelves, crates, jars; WZ tS=coalMine listed but terrain is object-drawn",
+ "landmarks": [
+  {
+   "what": "room backdrop (timber-frame shop interior)",
+   "x": 0,
+   "y": 300,
+   "bbox": [
+    -400,
+    -300,
+    400,
+    300
+   ],
+   "wz_obj": [
+    "insideGS/house0/basic/0"
+   ],
+   "instances": 1,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "WELCOME booth with money-bag banner (Lucy)",
+   "x": -268,
+   "y": 183,
+   "bbox": [
+    -356,
+    -153,
+    -180,
+    183
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/12",
+    "shop/shop/grocery/13"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "back-wall beams and ceiling crossbeam",
+   "x": 4,
+   "y": 101,
+   "bbox": [
+    -350,
+    -143,
+    358,
+    101
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/0",
+    "shop/shop/grocery/10"
+   ],
+   "instances": 2,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "wall shelf with red/blue potions",
+   "x": -107,
+   "y": 48,
+   "bbox": [
+    -178,
+    -64,
+    -36,
+    48
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/1",
+    "shop/shop/grocery/6",
+    "shop/shop/grocery/7"
+   ],
+   "instances": 4,
+   "stands_on": "T07"
+  },
+  {
+   "what": "two stacked wooden crates",
+   "x": -140,
+   "y": 184,
+   "bbox": [
+    -181,
+    98,
+    -99,
+    184
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/5"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "table with books",
+   "x": -34,
+   "y": 183,
+   "bbox": [
+    -117,
+    59,
+    48,
+    183
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/4"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "tall post with plank shelves and lidded jars",
+   "x": 190,
+   "y": 182,
+   "bbox": [
+    58,
+    -228,
+    322,
+    182
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/15",
+    "shop/shop/grocery/2"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "parchment poster on wall",
+   "x": 203,
+   "y": 128,
+   "bbox": [
+    153,
+    12,
+    253,
+    128
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/14"
+   ],
+   "instances": 1,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "wall shelf with treasure chest",
+   "x": 296,
+   "y": 4,
+   "bbox": [
+    234,
+    -62,
+    358,
+    4
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/16",
+    "shop/shop/grocery/19"
+   ],
+   "instances": 2,
+   "stands_on": null
+  },
+  {
+   "what": "exit door with \"Thank you\" sign (out00)",
+   "x": 316,
+   "y": 186,
+   "bbox": [
+    264,
+    42,
+    368,
+    186
+   ],
+   "wz_obj": [
+    "shop/shop/grocery/3"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites"
+}

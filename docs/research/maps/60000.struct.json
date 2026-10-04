@@ -1,0 +1,1292 @@
+{
+ "id": 60000,
+ "name": "Southperry",
+ "street": "Maple Road",
+ "source_version": "GMS v8 (docs/research/raw/gms_v8/60000.json)",
+ "isTown": true,
+ "bgm": "Bgm00/GoPicnic",
+ "mapMark": "SouthPerry",
+ "returnMap": 60000,
+ "units": "MapleStory px; y increases downward",
+ "extent": {
+  "minX": -662,
+  "maxX": 4082,
+  "minY": -1145,
+  "maxY": 720
+ },
+ "tiers": [
+  {
+   "id": "T0",
+   "x1": 2925,
+   "x2": 2996,
+   "y_left": -1138,
+   "y_right": -1139,
+   "kind": "floating",
+   "label": "SHIP masthead / crow's nest",
+   "length": 71,
+   "y_min": -1145,
+   "y_max": -1138,
+   "profile": [
+    [
+     2925,
+     -1138
+    ],
+    [
+     2961,
+     -1145
+    ],
+    [
+     2996,
+     -1139
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T1",
+   "x1": 2650,
+   "x2": 3312,
+   "y_left": -971,
+   "y_right": -1107,
+   "kind": "slope",
+   "label": "SHIP upper yard (sloped spar)",
+   "length": 662,
+   "y_min": -1107,
+   "y_max": -971,
+   "profile": [
+    [
+     2650,
+     -971
+    ],
+    [
+     3312,
+     -1107
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T2",
+   "x1": 2674,
+   "x2": 3281,
+   "y_left": -645,
+   "y_right": -705,
+   "kind": "slope",
+   "label": "SHIP lower yard (sloped spar)",
+   "length": 607,
+   "y_min": -705,
+   "y_max": -645,
+   "profile": [
+    [
+     2674,
+     -645
+    ],
+    [
+     3281,
+     -705
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T3",
+   "x1": 2919,
+   "x2": 3841,
+   "y_left": -313,
+   "y_right": -483,
+   "kind": "slope",
+   "label": "SHIP main deck + bow rising to the east",
+   "length": 922,
+   "y_min": -483,
+   "y_max": -284,
+   "profile": [
+    [
+     2919,
+     -313
+    ],
+    [
+     3102,
+     -313
+    ],
+    [
+     3135,
+     -284
+    ],
+    [
+     3263,
+     -284
+    ],
+    [
+     3296,
+     -311
+    ],
+    [
+     3415,
+     -315
+    ],
+    [
+     3841,
+     -483
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T4",
+   "x1": 2521,
+   "x2": 2919,
+   "y_left": -355,
+   "y_right": -358,
+   "kind": "slope",
+   "label": "SHIP stern (quarter) deck; 209px stern wall at x2521",
+   "length": 398,
+   "y_min": -373,
+   "y_max": -355,
+   "profile": [
+    [
+     2521,
+     -355
+    ],
+    [
+     2583,
+     -373
+    ],
+    [
+     2686,
+     -373
+    ],
+    [
+     2738,
+     -368
+    ],
+    [
+     2785,
+     -359
+    ],
+    [
+     2919,
+     -358
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T5",
+   "x1": 3226,
+   "x2": 3301,
+   "y_left": -302,
+   "y_right": -238,
+   "kind": "slope",
+   "label": "SHIP gunwale ramp (gangway top -> deck)",
+   "length": 75,
+   "y_min": -302,
+   "y_max": -238,
+   "profile": [
+    [
+     3226,
+     -302
+    ],
+    [
+     3301,
+     -238
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T6",
+   "x1": 1216,
+   "x2": 1300,
+   "y_left": -257,
+   "y_right": -257,
+   "kind": "floating",
+   "label": "prop top on upper terrace (box/sack near gazebo?)",
+   "length": 84,
+   "y_min": -257,
+   "y_max": -257,
+   "profile": [
+    [
+     1216,
+     -257
+    ],
+    [
+     1300,
+     -257
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T7",
+   "x1": 3098,
+   "x2": 3422,
+   "y_left": -32,
+   "y_right": -219,
+   "kind": "slope",
+   "label": "GANGPLANK: quay -> landing at -219",
+   "length": 324,
+   "y_min": -219,
+   "y_max": -32,
+   "profile": [
+    [
+     3098,
+     -32
+    ],
+    [
+     3302,
+     -219
+    ],
+    [
+     3422,
+     -219
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T8",
+   "x1": 568,
+   "x2": 626,
+   "y_left": -201,
+   "y_right": -201,
+   "kind": "floating",
+   "label": "prop top: blue crate (upper terrace)",
+   "length": 58,
+   "y_min": -205,
+   "y_max": -201,
+   "profile": [
+    [
+     568,
+     -201
+    ],
+    [
+     597,
+     -205
+    ],
+    [
+     626,
+     -201
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T9",
+   "x1": 620,
+   "x2": 678,
+   "y_left": -200,
+   "y_right": -200,
+   "kind": "floating",
+   "label": "prop top: blue crate (upper terrace)",
+   "length": 58,
+   "y_min": -204,
+   "y_max": -200,
+   "profile": [
+    [
+     620,
+     -200
+    ],
+    [
+     649,
+     -204
+    ],
+    [
+     678,
+     -200
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T10",
+   "x1": 868,
+   "x2": 1382,
+   "y_left": -193,
+   "y_right": -193,
+   "kind": "ledge",
+   "label": "upper terrace east (gazebo, Biggs)",
+   "length": 514,
+   "y_min": -193,
+   "y_max": -193,
+   "profile": [
+    [
+     868,
+     -193
+    ],
+    [
+     1382,
+     -193
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T11",
+   "x1": 668,
+   "x2": 702,
+   "y_left": -168,
+   "y_right": -168,
+   "kind": "floating",
+   "label": "prop top (upper terrace)",
+   "length": 34,
+   "y_min": -170,
+   "y_max": -168,
+   "profile": [
+    [
+     668,
+     -168
+    ],
+    [
+     685,
+     -170
+    ],
+    [
+     702,
+     -168
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T12",
+   "x1": 328,
+   "x2": 868,
+   "y_left": -133,
+   "y_right": -133,
+   "kind": "ledge",
+   "label": "upper terrace west (ladder x405 head)",
+   "length": 540,
+   "y_min": -133,
+   "y_max": -133,
+   "profile": [
+    [
+     328,
+     -133
+    ],
+    [
+     868,
+     -133
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T13",
+   "x1": 1408,
+   "x2": 1562,
+   "y_left": -133,
+   "y_right": -133,
+   "kind": "floating",
+   "label": "floating slab stair 4 (top, hop to T10)",
+   "length": 154,
+   "y_min": -133,
+   "y_max": -133,
+   "profile": [
+    [
+     1408,
+     -133
+    ],
+    [
+     1562,
+     -133
+    ]
+   ],
+   "fh_group": 38
+  },
+  {
+   "id": "T14",
+   "x1": 3658,
+   "x2": 3722,
+   "y_left": -133,
+   "y_right": -133,
+   "kind": "floating",
+   "label": "prop top on quay (stack, upper)",
+   "length": 64,
+   "y_min": -133,
+   "y_max": -133,
+   "profile": [
+    [
+     3658,
+     -133
+    ],
+    [
+     3722,
+     -133
+    ]
+   ],
+   "fh_group": 39
+  },
+  {
+   "id": "T15",
+   "x1": 3358,
+   "x2": 3536,
+   "y_left": -112,
+   "y_right": -117,
+   "kind": "floating",
+   "label": "prop/hull ledge near bow",
+   "length": 178,
+   "y_min": -117,
+   "y_max": -112,
+   "profile": [
+    [
+     3358,
+     -112
+    ],
+    [
+     3464,
+     -117
+    ],
+    [
+     3536,
+     -117
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T16",
+   "x1": 3489,
+   "x2": 3573,
+   "y_left": -77,
+   "y_right": -77,
+   "kind": "floating",
+   "label": "prop/hull ledge near bow",
+   "length": 84,
+   "y_min": -77,
+   "y_max": -77,
+   "profile": [
+    [
+     3489,
+     -77
+    ],
+    [
+     3573,
+     -77
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T17",
+   "x1": 1498,
+   "x2": 1652,
+   "y_left": -73,
+   "y_right": -73,
+   "kind": "floating",
+   "label": "floating slab stair 3",
+   "length": 154,
+   "y_min": -73,
+   "y_max": -73,
+   "profile": [
+    [
+     1498,
+     -73
+    ],
+    [
+     1652,
+     -73
+    ]
+   ],
+   "fh_group": 35
+  },
+  {
+   "id": "T18",
+   "x1": 3658,
+   "x2": 3722,
+   "y_left": -73,
+   "y_right": -73,
+   "kind": "floating",
+   "label": "prop top on quay (stack, lower)",
+   "length": 64,
+   "y_min": -73,
+   "y_max": -73,
+   "profile": [
+    [
+     3658,
+     -73
+    ],
+    [
+     3722,
+     -73
+    ]
+   ],
+   "fh_group": 36
+  },
+  {
+   "id": "T19",
+   "x1": 1498,
+   "x2": 1652,
+   "y_left": -13,
+   "y_right": -13,
+   "kind": "floating",
+   "label": "floating slab stair 2",
+   "length": 154,
+   "y_min": -13,
+   "y_max": -13,
+   "profile": [
+    [
+     1498,
+     -13
+    ],
+    [
+     1652,
+     -13
+    ]
+   ],
+   "fh_group": 31
+  },
+  {
+   "id": "T20",
+   "x1": 2848,
+   "x2": 4082,
+   "y_left": -13,
+   "y_right": -13,
+   "kind": "ground",
+   "label": "QUAY / pier (Shanks, ship)",
+   "length": 1234,
+   "y_min": -13,
+   "y_max": -13,
+   "profile": [
+    [
+     2848,
+     -13
+    ],
+    [
+     4082,
+     -13
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T21",
+   "x1": -122,
+   "x2": 32,
+   "y_left": 47,
+   "y_right": 47,
+   "kind": "floating",
+   "label": "floating slab in front of domed house (Paul, h001)",
+   "length": 154,
+   "y_min": 47,
+   "y_max": 47,
+   "profile": [
+    [
+     -122,
+     47
+    ],
+    [
+     32,
+     47
+    ]
+   ],
+   "fh_group": 27
+  },
+  {
+   "id": "T22",
+   "x1": 1588,
+   "x2": 1742,
+   "y_left": 47,
+   "y_right": 47,
+   "kind": "floating",
+   "label": "floating slab stair 1 (ladder x1649 head)",
+   "length": 154,
+   "y_min": 47,
+   "y_max": 47,
+   "profile": [
+    [
+     1588,
+     47
+    ],
+    [
+     1742,
+     47
+    ]
+   ],
+   "fh_group": 28
+  },
+  {
+   "id": "T23",
+   "x1": 2758,
+   "x2": 2848,
+   "y_left": 47,
+   "y_right": 47,
+   "kind": "ground",
+   "label": "harbour stair step 6",
+   "length": 90,
+   "y_min": 47,
+   "y_max": 47,
+   "profile": [
+    [
+     2758,
+     47
+    ],
+    [
+     2848,
+     47
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T24",
+   "x1": 2668,
+   "x2": 2758,
+   "y_left": 107,
+   "y_right": 107,
+   "kind": "ground",
+   "label": "harbour stair step 5",
+   "length": 90,
+   "y_min": 107,
+   "y_max": 107,
+   "profile": [
+    [
+     2668,
+     107
+    ],
+    [
+     2758,
+     107
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T25",
+   "x1": 2578,
+   "x2": 2668,
+   "y_left": 167,
+   "y_right": 167,
+   "kind": "ground",
+   "label": "harbour stair step 4",
+   "length": 90,
+   "y_min": 167,
+   "y_max": 167,
+   "profile": [
+    [
+     2578,
+     167
+    ],
+    [
+     2668,
+     167
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T26",
+   "x1": -428,
+   "x2": -344,
+   "y_left": 225,
+   "y_right": 225,
+   "kind": "floating",
+   "label": "prop top (crate) on west ground",
+   "length": 84,
+   "y_min": 225,
+   "y_max": 225,
+   "profile": [
+    [
+     -428,
+     225
+    ],
+    [
+     -344,
+     225
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T27",
+   "x1": 2488,
+   "x2": 2578,
+   "y_left": 227,
+   "y_right": 227,
+   "kind": "ground",
+   "label": "harbour stair step 3",
+   "length": 90,
+   "y_min": 227,
+   "y_max": 227,
+   "profile": [
+    [
+     2488,
+     227
+    ],
+    [
+     2578,
+     227
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T28",
+   "x1": 1968,
+   "x2": 2279,
+   "y_left": 387,
+   "y_right": 287,
+   "kind": "slope",
+   "label": "lighthouse rock mound",
+   "length": 311,
+   "y_min": 278,
+   "y_max": 387,
+   "profile": [
+    [
+     1968,
+     387
+    ],
+    [
+     2019,
+     346
+    ],
+    [
+     2037,
+     346
+    ],
+    [
+     2104,
+     289
+    ],
+    [
+     2216,
+     278
+    ],
+    [
+     2236,
+     289
+    ],
+    [
+     2279,
+     287
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T29",
+   "x1": -662,
+   "x2": 302,
+   "y_left": 287,
+   "y_right": 287,
+   "kind": "ground",
+   "label": "west town ground (entry from A Split Road)",
+   "length": 964,
+   "y_min": 287,
+   "y_max": 287,
+   "profile": [
+    [
+     -662,
+     287
+    ],
+    [
+     302,
+     287
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T30",
+   "x1": 328,
+   "x2": 482,
+   "y_left": 287,
+   "y_right": 287,
+   "kind": "floating",
+   "label": "cliff-top ledge east of west ground (rope heads)",
+   "length": 154,
+   "y_min": 287,
+   "y_max": 287,
+   "profile": [
+    [
+     328,
+     287
+    ],
+    [
+     482,
+     287
+    ]
+   ],
+   "fh_group": 15
+  },
+  {
+   "id": "T31",
+   "x1": 2398,
+   "x2": 2488,
+   "y_left": 287,
+   "y_right": 287,
+   "kind": "ground",
+   "label": "harbour stair step 2",
+   "length": 90,
+   "y_min": 287,
+   "y_max": 287,
+   "profile": [
+    [
+     2398,
+     287
+    ],
+    [
+     2488,
+     287
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T32",
+   "x1": 1700,
+   "x2": 1812,
+   "y_left": 338,
+   "y_right": 337,
+   "kind": "floating",
+   "label": "prop/rock top beside lighthouse",
+   "length": 112,
+   "y_min": 337,
+   "y_max": 338,
+   "profile": [
+    [
+     1700,
+     338
+    ],
+    [
+     1812,
+     337
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T33",
+   "x1": 2308,
+   "x2": 2398,
+   "y_left": 347,
+   "y_right": 347,
+   "kind": "ground",
+   "label": "harbour stair step 1",
+   "length": 90,
+   "y_min": 347,
+   "y_max": 347,
+   "profile": [
+    [
+     2308,
+     347
+    ],
+    [
+     2398,
+     347
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T34",
+   "x1": 302,
+   "x2": 2308,
+   "y_left": 527,
+   "y_right": 407,
+   "kind": "slope",
+   "label": "sunken market street (rises east 527 -> 407)",
+   "length": 2006,
+   "y_min": 407,
+   "y_max": 527,
+   "profile": [
+    [
+     302,
+     527
+    ],
+    [
+     1440,
+     527
+    ],
+    [
+     1620,
+     407
+    ],
+    [
+     2308,
+     407
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T35",
+   "x1": 1387,
+   "x2": 1471,
+   "y_left": 463,
+   "y_right": 463,
+   "kind": "floating",
+   "label": "prop top (market stall/crate)",
+   "length": 84,
+   "y_min": 463,
+   "y_max": 463,
+   "profile": [
+    [
+     1387,
+     463
+    ],
+    [
+     1471,
+     463
+    ]
+   ],
+   "fh_group": 0
+  }
+ ],
+ "ladders": [
+  {
+   "x": 442,
+   "y1": 289,
+   "y2": 515,
+   "isLadder": false,
+   "from_tier": "T34",
+   "to_tier": "T30",
+   "length": 226,
+   "bottom_gap_px": 12,
+   "one_way_down": false
+  },
+  {
+   "x": 364,
+   "y1": 289,
+   "y2": 525,
+   "isLadder": false,
+   "from_tier": "T34",
+   "to_tier": "T30",
+   "length": 236,
+   "bottom_gap_px": 2,
+   "one_way_down": false
+  },
+  {
+   "x": 1649,
+   "y1": 49,
+   "y2": 398,
+   "isLadder": true,
+   "from_tier": "T34",
+   "to_tier": "T22",
+   "length": 349,
+   "bottom_gap_px": 9,
+   "one_way_down": false
+  },
+  {
+   "x": 405,
+   "y1": -131,
+   "y2": 266,
+   "isLadder": true,
+   "from_tier": "T30",
+   "to_tier": "T12",
+   "length": 397,
+   "bottom_gap_px": 21,
+   "one_way_down": false
+  },
+  {
+   "x": 2955,
+   "y1": -1141,
+   "y2": -1035,
+   "isLadder": false,
+   "from_tier": "T1",
+   "to_tier": "T0",
+   "length": 106,
+   "bottom_gap_px": 1,
+   "one_way_down": false
+  },
+  {
+   "x": 2955,
+   "y1": -670,
+   "y2": -339,
+   "isLadder": false,
+   "from_tier": "T3",
+   "to_tier": "T2",
+   "length": 331,
+   "bottom_gap_px": 26,
+   "one_way_down": false
+  },
+  {
+   "x": 2957,
+   "y1": -1032,
+   "y2": -674,
+   "isLadder": false,
+   "from_tier": "T2",
+   "to_tier": "T1",
+   "length": 358,
+   "bottom_gap_px": 1,
+   "one_way_down": false
+  }
+ ],
+ "portals": [
+  {
+   "name": "west00",
+   "x": -547,
+   "y": 286,
+   "type": 2,
+   "target": "50000:east01",
+   "inferred": false,
+   "source": "https://maplestory.io/api/GMS/32/map/60000",
+   "note": "v8 entry null; v32 has identical footholds (203) and gives name/position/target"
+  },
+  {
+   "name": "in00",
+   "x": 699,
+   "y": 527,
+   "type": 2,
+   "target": "60001:out00",
+   "inferred": false,
+   "source": "docs/research/raw/gms_v22/60000.json (also https://maplestory.io/api/GMS/34/map/60000)",
+   "note": "Armor Store door; v8 entry null; v22 footholds identical (203)"
+  },
+  {
+   "name": "h001",
+   "x": -1,
+   "y": 43,
+   "type": 1,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "invisible portal on slab T21, no target in data (called gm00 at -65,43 in v22+); purpose unknown, not a player exit"
+  },
+  {
+   "name": "tp",
+   "x": 870,
+   "y": 526,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "tp",
+   "x": 955,
+   "y": 523,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "tp",
+   "x": 1058,
+   "y": 523,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "tp",
+   "x": 1147,
+   "y": 524,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "tp",
+   "x": 1239,
+   "y": 524,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "tp",
+   "x": 1327,
+   "y": 524,
+   "type": 6,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "type 6 = Mystic Door landing spot, not an exit"
+  },
+  {
+   "name": "sp",
+   "x": -37,
+   "y": 177,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60000.json",
+   "note": "player spawn point"
+  }
+ ],
+ "portal_nulls_in_v8": 2,
+ "mobs": {},
+ "npcs": [
+  {
+   "id": 20100,
+   "name": "Yoona",
+   "x": -18,
+   "y": 287,
+   "tier": "T29"
+  },
+  {
+   "id": 20002,
+   "name": "Biggs",
+   "x": 950,
+   "y": -193,
+   "tier": "T10"
+  },
+  {
+   "id": 20001,
+   "name": "Bari",
+   "x": 1013,
+   "y": 527,
+   "tier": "T34"
+  },
+  {
+   "id": 22000,
+   "name": "Shanks",
+   "x": 3223,
+   "y": -13,
+   "tier": "T20"
+  },
+  {
+   "id": 9000000,
+   "name": "Paul",
+   "x": 4,
+   "y": 47,
+   "tier": "T21"
+  },
+  {
+   "id": 9010001,
+   "name": "Tia",
+   "x": -450,
+   "y": 287,
+   "tier": "T29"
+  },
+  {
+   "id": 9010000,
+   "name": "Maple Administrator",
+   "x": -181,
+   "y": 287,
+   "tier": "T29"
+  }
+ ],
+ "terrain_style": "pale beige/cream irregular flagstone masonry (cobblestone/sandstone) for all ground, cliffs, steps and floating slabs; whitewashed houses with blue domes / blue roofs (minimap); wooden ship with cream sails, green/gold hull trim; wooden pier props",
+ "landmarks": [
+  {
+   "what": "large white house with blue dome and a white arch/wing on its east side",
+   "x": -95,
+   "y": 287,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x -382..194, y -83..285"
+  },
+  {
+   "what": "small crate (walkable top T26)",
+   "x": -386,
+   "y": 287,
+   "approx": true,
+   "source": "minimap+data"
+  },
+  {
+   "what": "wooden signboard at foot of west cliff",
+   "x": 520,
+   "y": 527,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "Armor Store: white house with blue slanted roof + chimney (door = in00 x699)",
+   "x": 740,
+   "y": 527,
+   "approx": true,
+   "source": "minimap+data",
+   "span": "x 530..946"
+  },
+  {
+   "what": "white house with blue dome",
+   "x": 1210,
+   "y": 527,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 1042..1378"
+  },
+  {
+   "what": "coloured cloth banners / market racks (red, green, pink)",
+   "x": 1360,
+   "y": 527,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 1282..1442"
+  },
+  {
+   "what": "blue crates on upper terrace (tops = T8/T9)",
+   "x": 630,
+   "y": -133,
+   "approx": true,
+   "source": "minimap+data"
+  },
+  {
+   "what": "green bush on upper terrace",
+   "x": 750,
+   "y": -133,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "wooden gazebo / pavilion on upper terrace",
+   "x": 1140,
+   "y": -193,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 1026..1256, top ~y -409"
+  },
+  {
+   "what": "white lighthouse tower with blue dome cap",
+   "x": 1935,
+   "y": 237,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 1826..2044, y -323..237"
+  },
+  {
+   "what": "rock + timber base of lighthouse with small blue-roofed shed",
+   "x": 2030,
+   "y": 400,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 1810..2258"
+  },
+  {
+   "what": "grand stone staircase (7 rises of 60px, 90px treads)",
+   "x": 2578,
+   "y": 200,
+   "approx": false,
+   "source": "data"
+  },
+  {
+   "what": "docked sailing ship (3 masts, cream sails, stern west, bow east)",
+   "x": 3100,
+   "y": -400,
+   "approx": true,
+   "source": "render+minimap",
+   "span": "x 2370..3842, y -1171..~60"
+  },
+  {
+   "what": "UNIDENTIFIED decorative figure object (blonde woman in white dress with dark aura) on quay",
+   "x": 3700,
+   "y": -13,
+   "approx": true,
+   "source": "render+minimap"
+  },
+  {
+   "what": "UNIDENTIFIED orange ring object with white cloud puffs (life-buoy?) on quay",
+   "x": 3820,
+   "y": -13,
+   "approx": true,
+   "source": "render+minimap"
+  },
+  {
+   "what": "shrubs at east end of quay",
+   "x": 3970,
+   "y": -13,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  }
+ ]
+}

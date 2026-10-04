@@ -1,0 +1,1621 @@
+{
+ "id": 1000005,
+ "name": "Hunting Ground Middle of the Forest I",
+ "street": "Rainbow Street",
+ "source": "maplestory.io /api/GMS/8/map/1000005 (local copy docs/research/raw/gms_v8/1000005.json); geometry identical in gms_v22",
+ "conventions": "MapleStory px, y grows DOWNWARD. Tier ids T0.. sorted top-to-bottom (T0 = highest). Ladder from_tier = tier at the BOTTOM end, to_tier = tier at the TOP end (null = no foothold there). kind: ground = attached to map bottom; ledge = raised block standing on ground or an object top; floating = free platform; slope = sloped ground piece.",
+ "meta": {
+  "bgm": "Bgm00/RestNPeace",
+  "isTown": false,
+  "returnMap": 1010000,
+  "mapMark": "Amherst",
+  "mobRate": 1,
+  "minimap": {
+   "centerX": 800,
+   "centerY": 1681,
+   "width": 2071,
+   "height": 2175,
+   "magnification": 4
+  }
+ },
+ "extent": {
+  "minX": -759,
+  "maxX": 1209,
+  "minY": -1405,
+  "maxY": 420,
+  "width": 1968,
+  "height": 1825
+ },
+ "layering": {
+  "ground": "T36 y215 | T34 mound y155 | T37 y215 | T35 y155 | T33 y95 (+ door block T29 top y5 on the mound)",
+  "jump_tower": "central zig-zag column of 168-px stones x-219..219 rising in 60-px steps from T27 y-145 to T9 y-745 (T27,T26,T25,T23,T21,T20,T18,T15,T13,T12,T11,T9 + T10 side shelf)",
+  "left_stack": "T32 y95, T30 y35, T28 y-25 then rope to T22 y-265",
+  "right_branch": "T24 y-265 -> T19 y-445 -> T16 y-505 (log piles on T19/T16)",
+  "upper": "T8 y-805, T7 y-925, T6 y-1045, T5 y-1165, T3/T4 y-1225, T2 y-1285, T1 y-1345, T0 y-1405 (summit)"
+ },
+ "tiers": [
+  {
+   "id": "T0",
+   "x1": 681,
+   "x2": 1029,
+   "y_left": -1405,
+   "y_right": -1405,
+   "kind": "floating",
+   "width": 348,
+   "group": 64,
+   "layer": 1,
+   "fh_ids": [
+    304,
+    306,
+    307,
+    309,
+    312
+   ],
+   "note": "",
+   "links": [
+    "rope x=904 down to T4",
+    "step/drop down 60px to T1"
+   ]
+  },
+  {
+   "id": "T1",
+   "x1": 501,
+   "x2": 669,
+   "y_left": -1345,
+   "y_right": -1345,
+   "kind": "floating",
+   "width": 168,
+   "group": 65,
+   "layer": 1,
+   "fh_ids": [
+    297,
+    300,
+    302
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T0 (h-gap 12px)",
+    "step/drop down 60px to T2"
+   ]
+  },
+  {
+   "id": "T2",
+   "x1": 411,
+   "x2": 579,
+   "y_left": -1285,
+   "y_right": -1285,
+   "kind": "floating",
+   "width": 168,
+   "group": 62,
+   "layer": 1,
+   "fh_ids": [
+    290,
+    293,
+    295
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T1 (h-gap -78px)",
+    "step/drop down 60px to T3"
+   ]
+  },
+  {
+   "id": "T3",
+   "x1": -39,
+   "x2": 399,
+   "y_left": -1225,
+   "y_right": -1225,
+   "kind": "floating",
+   "width": 438,
+   "group": 57,
+   "layer": 1,
+   "fh_ids": [
+    278,
+    280,
+    281,
+    283,
+    286,
+    288
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T2 (h-gap 12px)",
+    "step/drop down 60px to T5"
+   ]
+  },
+  {
+   "id": "T4",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": -1225,
+   "y_right": -1225,
+   "kind": "floating",
+   "width": 168,
+   "group": 60,
+   "layer": 1,
+   "fh_ids": [
+    103,
+    106,
+    108
+   ],
+   "note": "",
+   "links": [
+    "ladder x=980 down to T6",
+    "rope x=904 up 178px to T0"
+   ]
+  },
+  {
+   "id": "T5",
+   "x1": -489,
+   "x2": -51,
+   "y_left": -1165,
+   "y_right": -1165,
+   "kind": "floating",
+   "width": 438,
+   "group": 55,
+   "layer": 1,
+   "fh_ids": [
+    266,
+    269,
+    270,
+    272,
+    275,
+    276
+   ],
+   "note": "",
+   "links": [
+    "rope x=-367 down to T7",
+    "jump up 60px to T3 (h-gap 12px)"
+   ]
+  },
+  {
+   "id": "T6",
+   "x1": 591,
+   "x2": 1119,
+   "y_left": -1045,
+   "y_right": -1045,
+   "kind": "floating",
+   "width": 528,
+   "group": 51,
+   "layer": 1,
+   "fh_ids": [
+    243,
+    244,
+    245,
+    247,
+    249,
+    251,
+    254,
+    256
+   ],
+   "note": "",
+   "links": [
+    "ladder x=651 down to T8",
+    "ladder x=980 up 143px to T4"
+   ]
+  },
+  {
+   "id": "T7",
+   "x1": -489,
+   "x2": -321,
+   "y_left": -925,
+   "y_right": -925,
+   "kind": "floating",
+   "width": 168,
+   "group": 48,
+   "layer": 1,
+   "fh_ids": [
+    258,
+    260,
+    262,
+    264
+   ],
+   "note": "",
+   "links": [
+    "rope x=-438 down to T10",
+    "rope x=-367 up 194px to T5"
+   ]
+  },
+  {
+   "id": "T8",
+   "x1": 231,
+   "x2": 759,
+   "y_left": -805,
+   "y_right": -805,
+   "kind": "floating",
+   "width": 528,
+   "group": 42,
+   "layer": 1,
+   "fh_ids": [
+    219,
+    222,
+    223,
+    224,
+    225,
+    226,
+    228,
+    229
+   ],
+   "note": "",
+   "links": [
+    "ladder x=651 up 188px to T6",
+    "rope x=716 down to T16",
+    "step/drop down 60px to T9"
+   ]
+  },
+  {
+   "id": "T9",
+   "x1": 51,
+   "x2": 219,
+   "y_left": -745,
+   "y_right": -745,
+   "kind": "floating",
+   "width": 168,
+   "group": 43,
+   "layer": 1,
+   "fh_ids": [
+    212,
+    215,
+    217
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T8 (h-gap 12px)",
+    "step/drop down 60px to T11"
+   ]
+  },
+  {
+   "id": "T10",
+   "x1": -579,
+   "x2": -141,
+   "y_left": -685,
+   "y_right": -685,
+   "kind": "floating",
+   "width": 438,
+   "group": 37,
+   "layer": 1,
+   "fh_ids": [
+    193,
+    196,
+    197,
+    198,
+    200,
+    203
+   ],
+   "note": "",
+   "links": [
+    "rope x=-438 up 195px to T7",
+    "step/drop down 60px to T12"
+   ]
+  },
+  {
+   "id": "T11",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -685,
+   "y_right": -685,
+   "kind": "floating",
+   "width": 168,
+   "group": 40,
+   "layer": 1,
+   "fh_ids": [
+    205,
+    208,
+    210
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T9 (h-gap -78px)",
+    "step/drop down 60px to T12"
+   ]
+  },
+  {
+   "id": "T12",
+   "x1": -129,
+   "x2": 39,
+   "y_left": -625,
+   "y_right": -625,
+   "kind": "floating",
+   "width": 168,
+   "group": 36,
+   "layer": 1,
+   "fh_ids": [
+    186,
+    189,
+    191
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T10 (h-gap 12px)",
+    "jump up 60px to T11 (h-gap -78px)",
+    "step/drop down 60px to T13"
+   ]
+  },
+  {
+   "id": "T13",
+   "x1": -129,
+   "x2": 39,
+   "y_left": -565,
+   "y_right": -565,
+   "kind": "floating",
+   "width": 168,
+   "group": 33,
+   "layer": 1,
+   "fh_ids": [
+    179,
+    182,
+    184
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T12 (h-gap -168px)",
+    "step/drop down 60px to T15"
+   ]
+  },
+  {
+   "id": "T14",
+   "x1": 821,
+   "x2": 938,
+   "y_left": -536,
+   "y_right": -533,
+   "kind": "ledge",
+   "width": 117,
+   "group": 32,
+   "layer": 0,
+   "fh_ids": [
+    16
+   ],
+   "note": "object foothold: one 117-px layer-0 foothold with a 3-px tilt and no walls. It is the top of a stacked log pile (raw WZ obj grassySoil/artificiality/6 at x886) standing on T16, about 31 px tall.",
+   "links": [
+    "step/drop down 31px to T16"
+   ]
+  },
+  {
+   "id": "T15",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "floating",
+   "width": 168,
+   "group": 31,
+   "layer": 1,
+   "fh_ids": [
+    172,
+    175,
+    177
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T13 (h-gap -78px)",
+    "step/drop down 60px to T18"
+   ]
+  },
+  {
+   "id": "T16",
+   "x1": 681,
+   "x2": 1029,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "floating",
+   "width": 348,
+   "group": 29,
+   "layer": 1,
+   "fh_ids": [
+    233,
+    235,
+    236,
+    238,
+    241
+   ],
+   "note": "",
+   "links": [
+    "rope x=716 up 256px to T8",
+    "jump up 31px to T14 (h-gap -208px)",
+    "step/drop down 60px to T19"
+   ]
+  },
+  {
+   "id": "T17",
+   "x1": 449,
+   "x2": 566,
+   "y_left": -474,
+   "y_right": -471,
+   "kind": "ledge",
+   "width": 117,
+   "group": 30,
+   "layer": 0,
+   "fh_ids": [
+    15
+   ],
+   "note": "object foothold: top of a stacked log pile (obj artificiality/6 at x514) standing on T19, about 29 px tall",
+   "links": [
+    "step/drop down 29px to T19"
+   ]
+  },
+  {
+   "id": "T18",
+   "x1": -129,
+   "x2": 39,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "floating",
+   "width": 168,
+   "group": 28,
+   "layer": 1,
+   "fh_ids": [
+    165,
+    168,
+    170
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T15 (h-gap -78px)",
+    "step/drop down 60px to T20"
+   ]
+  },
+  {
+   "id": "T19",
+   "x1": 231,
+   "x2": 669,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "floating",
+   "width": 438,
+   "group": 25,
+   "layer": 1,
+   "fh_ids": [
+    123,
+    124,
+    125,
+    127,
+    130,
+    133,
+    135
+   ],
+   "note": "",
+   "links": [
+    "ladder x=315 down to T24",
+    "jump up 60px to T16 (h-gap 12px)",
+    "jump up 29px to T17 (h-gap -220px)"
+   ]
+  },
+  {
+   "id": "T20",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "floating",
+   "width": 168,
+   "group": 26,
+   "layer": 1,
+   "fh_ids": [
+    158,
+    161,
+    163
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T18 (h-gap -78px)",
+    "step/drop down 60px to T21"
+   ]
+  },
+  {
+   "id": "T21",
+   "x1": -129,
+   "x2": 39,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "floating",
+   "width": 168,
+   "group": 23,
+   "layer": 1,
+   "fh_ids": [
+    151,
+    154,
+    156
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T20 (h-gap -78px)",
+    "step/drop down 60px to T23"
+   ]
+  },
+  {
+   "id": "T22",
+   "x1": -669,
+   "x2": -231,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "width": 438,
+   "group": 18,
+   "layer": 1,
+   "fh_ids": [
+    91,
+    93,
+    94,
+    95,
+    97,
+    100
+   ],
+   "note": "",
+   "links": [
+    "rope x=-296 down to T28",
+    "step/drop down 60px to T25"
+   ]
+  },
+  {
+   "id": "T23",
+   "x1": -129,
+   "x2": 39,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "width": 168,
+   "group": 19,
+   "layer": 1,
+   "fh_ids": [
+    144,
+    147,
+    149
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T21 (h-gap -168px)",
+    "step/drop down 60px to T25",
+    "step/drop down 60px to T26"
+   ]
+  },
+  {
+   "id": "T24",
+   "x1": 231,
+   "x2": 399,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "width": 168,
+   "group": 20,
+   "layer": 1,
+   "fh_ids": [
+    137,
+    140,
+    142
+   ],
+   "note": "",
+   "links": [
+    "ladder x=315 up 141px to T19",
+    "step/drop down 60px to T26"
+   ]
+  },
+  {
+   "id": "T25",
+   "x1": -219,
+   "x2": -51,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "floating",
+   "width": 168,
+   "group": 17,
+   "layer": 1,
+   "fh_ids": [
+    322,
+    325,
+    327
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T22 (h-gap 12px)",
+    "jump up 60px to T23 (h-gap -78px)",
+    "step/drop down 60px to T27"
+   ]
+  },
+  {
+   "id": "T26",
+   "x1": 51,
+   "x2": 219,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "floating",
+   "width": 168,
+   "group": 16,
+   "layer": 1,
+   "fh_ids": [
+    117,
+    120,
+    122
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T23 (h-gap 12px)",
+    "jump up 60px to T24 (h-gap 12px)",
+    "step/drop down 60px to T27"
+   ]
+  },
+  {
+   "id": "T27",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -145,
+   "y_right": -145,
+   "kind": "floating",
+   "width": 168,
+   "group": 13,
+   "layer": 1,
+   "fh_ids": [
+    110,
+    113,
+    115
+   ],
+   "note": "",
+   "links": [
+    "rope x=78 down to T29",
+    "jump up 60px to T25 (h-gap 12px)",
+    "jump up 60px to T26 (h-gap -78px)"
+   ]
+  },
+  {
+   "id": "T28",
+   "x1": -399,
+   "x2": -231,
+   "y_left": -25,
+   "y_right": -25,
+   "kind": "floating",
+   "width": 168,
+   "group": 9,
+   "layer": 1,
+   "fh_ids": [
+    84,
+    87,
+    89
+   ],
+   "note": "",
+   "links": [
+    "rope x=-296 up 196px to T22",
+    "step/drop down 60px to T30"
+   ]
+  },
+  {
+   "id": "T29",
+   "x1": 6,
+   "x2": 264,
+   "y_left": 5,
+   "y_right": 5,
+   "kind": "ledge",
+   "width": 258,
+   "group": 4,
+   "layer": 0,
+   "fh_ids": [
+    2,
+    4,
+    6,
+    10,
+    11
+   ],
+   "note": "raised earth block (layer 0) standing on T34: walls x=6 and x=264 run from y5 down to y150, so it is 150 px tall. The exit door object is at x129 on its front face.",
+   "links": [
+    "ladder x=52 down to T34",
+    "rope x=78 up 135px to T27"
+   ]
+  },
+  {
+   "id": "T30",
+   "x1": -399,
+   "x2": -231,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "width": 168,
+   "group": 8,
+   "layer": 1,
+   "fh_ids": [
+    315,
+    318,
+    320
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T28 (h-gap -168px)",
+    "step/drop down 60px to T32"
+   ]
+  },
+  {
+   "id": "T31",
+   "x1": 949,
+   "x2": 1066,
+   "y_left": 67,
+   "y_right": 70,
+   "kind": "ledge",
+   "width": 117,
+   "group": 7,
+   "layer": 0,
+   "fh_ids": [
+    14
+   ],
+   "note": "object foothold: top of a stacked log pile (obj artificiality/6 at x1014) standing on T33, about 27 px tall",
+   "links": [
+    "step/drop down 28px to T33"
+   ]
+  },
+  {
+   "id": "T32",
+   "x1": -309,
+   "x2": -141,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "floating",
+   "width": 168,
+   "group": 5,
+   "layer": 1,
+   "fh_ids": [
+    77,
+    80,
+    82
+   ],
+   "note": "",
+   "links": [
+    "jump up 60px to T30 (h-gap -78px)",
+    "step/drop down 60px to T34"
+   ]
+  },
+  {
+   "id": "T33",
+   "x1": 771,
+   "x2": 1209,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "ground",
+   "width": 438,
+   "group": 0,
+   "layer": 1,
+   "fh_ids": [
+    55,
+    57,
+    59,
+    60,
+    70,
+    74,
+    75
+   ],
+   "note": "east raised ground (dead-end corner, log pile)",
+   "links": [
+    "jump up 28px to T31 (h-gap -260px)"
+   ]
+  },
+  {
+   "id": "T34",
+   "x1": -219,
+   "x2": 309,
+   "y_left": 155,
+   "y_right": 155,
+   "kind": "ground",
+   "width": 528,
+   "group": 0,
+   "layer": 1,
+   "fh_ids": [
+    18,
+    19,
+    20,
+    22,
+    24,
+    26,
+    28,
+    50,
+    51
+   ],
+   "note": "central raised ground mound (60 px above T36/T37); spawn points and exit out00 here",
+   "links": [
+    "ladder x=52 up 142px to T29",
+    "jump up 60px to T32 (h-gap -78px)",
+    "riser 60px DOWN east to T37 at x=309"
+   ]
+  },
+  {
+   "id": "T35",
+   "x1": 681,
+   "x2": 771,
+   "y_left": 155,
+   "y_right": 155,
+   "kind": "ground",
+   "width": 90,
+   "group": 0,
+   "layer": 1,
+   "fh_ids": [
+    54,
+    66,
+    68
+   ],
+   "note": "60-px step",
+   "links": [
+    "riser 60px UP east to T33 at x=771"
+   ]
+  },
+  {
+   "id": "T36",
+   "x1": -759,
+   "x2": -219,
+   "y_left": 215,
+   "y_right": 215,
+   "kind": "ground",
+   "width": 540,
+   "group": 0,
+   "layer": 1,
+   "fh_ids": [
+    34,
+    36,
+    37,
+    38,
+    39,
+    41,
+    44
+   ],
+   "note": "west low ground",
+   "links": [
+    "riser 60px UP east to T34 at x=-219"
+   ]
+  },
+  {
+   "id": "T37",
+   "x1": 309,
+   "x2": 681,
+   "y_left": 215,
+   "y_right": 215,
+   "kind": "ground",
+   "width": 372,
+   "group": 0,
+   "layer": 1,
+   "fh_ids": [
+    25,
+    29,
+    30,
+    31,
+    47
+   ],
+   "note": "low ground between mound and east steps; rainbow fountain",
+   "links": [
+    "riser 60px UP east to T35 at x=681"
+   ]
+  }
+ ],
+ "ladders": [
+  {
+   "x": 651,
+   "y1": -1043,
+   "y2": -855,
+   "length": 188,
+   "isLadder": true,
+   "from_tier": "T8",
+   "to_tier": "T6",
+   "note": ""
+  },
+  {
+   "x": 716,
+   "y1": -803,
+   "y2": -547,
+   "length": 256,
+   "isLadder": false,
+   "from_tier": "T16",
+   "to_tier": "T8",
+   "note": ""
+  },
+  {
+   "x": 980,
+   "y1": -1223,
+   "y2": -1080,
+   "length": 143,
+   "isLadder": true,
+   "from_tier": "T6",
+   "to_tier": "T4",
+   "note": ""
+  },
+  {
+   "x": 904,
+   "y1": -1403,
+   "y2": -1225,
+   "length": 178,
+   "isLadder": false,
+   "from_tier": "T4",
+   "to_tier": "T0",
+   "note": ""
+  },
+  {
+   "x": -438,
+   "y1": -923,
+   "y2": -728,
+   "length": 195,
+   "isLadder": false,
+   "from_tier": "T10",
+   "to_tier": "T7",
+   "note": ""
+  },
+  {
+   "x": -367,
+   "y1": -1163,
+   "y2": -969,
+   "length": 194,
+   "isLadder": false,
+   "from_tier": "T7",
+   "to_tier": "T5",
+   "note": ""
+  },
+  {
+   "x": -296,
+   "y1": -263,
+   "y2": -67,
+   "length": 196,
+   "isLadder": false,
+   "from_tier": "T28",
+   "to_tier": "T22",
+   "note": ""
+  },
+  {
+   "x": 52,
+   "y1": 7,
+   "y2": 149,
+   "length": 142,
+   "isLadder": true,
+   "from_tier": "T34",
+   "to_tier": "T29",
+   "note": ""
+  },
+  {
+   "x": 78,
+   "y1": -143,
+   "y2": -8,
+   "length": 135,
+   "isLadder": false,
+   "from_tier": "T29",
+   "to_tier": "T27",
+   "note": ""
+  },
+  {
+   "x": 315,
+   "y1": -443,
+   "y2": -302,
+   "length": 141,
+   "isLadder": true,
+   "from_tier": "T24",
+   "to_tier": "T19",
+   "note": ""
+  }
+ ],
+ "portals": [
+  {
+   "name": "sp",
+   "x": -214,
+   "y": 59,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T32"
+  },
+  {
+   "name": "sp",
+   "x": -326,
+   "y": -41,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T28"
+  },
+  {
+   "name": "sp",
+   "x": -122,
+   "y": 114,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T34"
+  },
+  {
+   "name": "sp",
+   "x": -57,
+   "y": 110,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T34"
+  },
+  {
+   "name": "sp",
+   "x": 9,
+   "y": 107,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T34"
+  },
+  {
+   "name": "sp",
+   "x": 213,
+   "y": 101,
+   "target": null,
+   "inferred": false,
+   "source": "v8 JSON (spawn point, not an exit)",
+   "tier": "T34"
+  },
+  {
+   "name": "out00",
+   "x": 132,
+   "y": 155,
+   "target": "1000000:in04",
+   "inferred": false,
+   "reverse": "1000000 in04 at (389,-688) -> 1000005:out00 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/7)",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/portal/6 (raw v8 WZ: pn=out00 pt=2 tm=1000000 tn=in04). The parsed API JSON has portals[6]=null. Corroborated by /api/GMS/40/map/1000005 and by hidden-street 2005",
+   "tier": "T34"
+  }
+ ],
+ "mobs": {
+  "Shroom": {
+   "id": 120100,
+   "count": 12,
+   "per_tier": {
+    "T36": 3,
+    "T37": 2,
+    "T10": 1,
+    "T22": 3,
+    "T19": 1,
+    "T33": 2
+   },
+   "tiers": [
+    "T10",
+    "T19",
+    "T22",
+    "T33",
+    "T36",
+    "T37"
+   ]
+  },
+  "Blue Snail": {
+   "id": 100101,
+   "count": 16,
+   "per_tier": {
+    "T19": 3,
+    "T16": 2,
+    "T8": 1,
+    "T6": 1,
+    "T0": 1,
+    "T3": 1,
+    "T5": 1,
+    "T10": 1,
+    "T36": 1,
+    "T37": 1,
+    "T33": 1,
+    "T22": 2
+   },
+   "tiers": [
+    "T0",
+    "T3",
+    "T5",
+    "T6",
+    "T8",
+    "T10",
+    "T16",
+    "T19",
+    "T22",
+    "T33",
+    "T36",
+    "T37"
+   ]
+  },
+  "Red Snail": {
+   "id": 130101,
+   "count": 10,
+   "per_tier": {
+    "T5": 2,
+    "T3": 2,
+    "T0": 1,
+    "T6": 1,
+    "T8": 1,
+    "T16": 2,
+    "T36": 1
+   },
+   "tiers": [
+    "T0",
+    "T3",
+    "T5",
+    "T6",
+    "T8",
+    "T16",
+    "T36"
+   ]
+  },
+  "Snail": {
+   "id": 100100,
+   "count": 21,
+   "per_tier": {
+    "T10": 3,
+    "T33": 1,
+    "T37": 1,
+    "T34": 1,
+    "T29": 2,
+    "T8": 3,
+    "T6": 4,
+    "T0": 2,
+    "T3": 2,
+    "T5": 2
+   },
+   "tiers": [
+    "T0",
+    "T3",
+    "T5",
+    "T6",
+    "T8",
+    "T10",
+    "T29",
+    "T33",
+    "T34",
+    "T37"
+   ]
+  }
+ },
+ "npcs": [],
+ "npcs_note": "v8 JSON npcs[] is empty for this map",
+ "terrain_style": "Tile set tS=grassySoil (raw WZ <layer>/info/tS). Grass-topped earth: thick bright-green grass fringe over olive-brown mossy cobbled dirt with embedded grey boulders; floating platforms have ragged dirt undersides; ground blocks are solid dirt down to the map bottom (v8 render). Background set bS=grassySoil: tiled blue sky (no.0), drifting white cumulus clouds (no.1, type 4 = horizontal scroll), a distant domed grassy hill (no.2), a single big leafy tree (no.3), and a horizontally tiled meadow strip with golden grass (no.4) with the strongest parallax (raw WZ back/<n>; sprites viewed at Data/Map/Back/grassySoil.img/back/<no>).",
+ "landmarks": [
+  {
+   "what": "white-pink clover flowers (x4)",
+   "x": 850,
+   "y": -1438,
+   "xs": [
+    793,
+    842,
+    850,
+    916
+   ],
+   "tier": "T0",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/10 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "orange flower",
+   "x": 797,
+   "y": -1433,
+   "xs": [
+    797
+   ],
+   "tier": "T0",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/6 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "orange flower (tall) (x2)",
+   "x": 855,
+   "y": -1441,
+   "xs": [
+    816,
+    893
+   ],
+   "tier": "T0",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/5 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "orange butterfly",
+   "x": 906,
+   "y": -1523,
+   "xs": [
+    906
+   ],
+   "tier": "T0",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/19 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": 114,
+   "y": -1267,
+   "xs": [
+    114
+   ],
+   "tier": "T3",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "low berry bush (red strawberries) (x2)",
+   "x": 257,
+   "y": -1246,
+   "xs": [
+    216,
+    297
+   ],
+   "tier": "T3",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/0 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "purple flowers (x3)",
+   "x": 266,
+   "y": -1261,
+   "xs": [
+    234,
+    265,
+    298
+   ],
+   "tier": "T3",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/3 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "pink butterfly",
+   "x": 239,
+   "y": -1315,
+   "xs": [
+    239
+   ],
+   "tier": "T3",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/21 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "young tree, green leaves",
+   "x": -365,
+   "y": -1309,
+   "xs": [
+    -365
+   ],
+   "tier": "T5",
+   "source": "raw v8 WZ object acc1/midForest/nature/1 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": -330,
+   "y": -1210,
+   "xs": [
+    -330
+   ],
+   "tier": "T5",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "white-pink clover flowers (x6)",
+   "x": 849,
+   "y": -1077,
+   "xs": [
+    718,
+    760,
+    824,
+    906,
+    921,
+    966
+   ],
+   "tier": "T6",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/10 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush (x2)",
+   "x": 921,
+   "y": -1077,
+   "xs": [
+    850,
+    991
+   ],
+   "tier": "T6",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush (x2)",
+   "x": 477,
+   "y": -840,
+   "xs": [
+    415,
+    538
+   ],
+   "tier": "T8",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "white-pink clover flowers (x2)",
+   "x": 614,
+   "y": -830,
+   "xs": [
+    592,
+    635
+   ],
+   "tier": "T8",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/10 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "tree, teal-green foliage",
+   "x": -494,
+   "y": -840,
+   "xs": [
+    -494
+   ],
+   "tier": "T10",
+   "source": "raw v8 WZ object acc1/midForest/nature/5 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": -410,
+   "y": -732,
+   "xs": [
+    -410
+   ],
+   "tier": "T10",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "small round shrub (x3)",
+   "x": -274,
+   "y": -707,
+   "xs": [
+    -313,
+    -274,
+    -236
+   ],
+   "tier": "T10",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/1 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "stacked log pile",
+   "x": 886,
+   "y": -538,
+   "xs": [
+    886
+   ],
+   "tier": "T14",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/6 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "tiny mushrooms + ladybug scatter",
+   "x": 900,
+   "y": -540,
+   "xs": [
+    900
+   ],
+   "tier": "T14",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/7 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "low dark-green bush",
+   "x": 764,
+   "y": -517,
+   "xs": [
+    764
+   ],
+   "tier": "T16",
+   "source": "raw v8 WZ object acc1/darkWood/nature/20 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "orange flower (tall)",
+   "x": 767,
+   "y": -536,
+   "xs": [
+    767
+   ],
+   "tier": "T16",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/5 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "orange flower",
+   "x": 785,
+   "y": -530,
+   "xs": [
+    785
+   ],
+   "tier": "T16",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/6 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "yellow butterfly",
+   "x": 795,
+   "y": -559,
+   "xs": [
+    795
+   ],
+   "tier": "T16",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/20 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "stacked log pile",
+   "x": 514,
+   "y": -476,
+   "xs": [
+    514
+   ],
+   "tier": "T17",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/6 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "tiny mushrooms + ladybug scatter",
+   "x": 527,
+   "y": -479,
+   "xs": [
+    527
+   ],
+   "tier": "T17",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/7 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "pink butterfly",
+   "x": 325,
+   "y": -531,
+   "xs": [
+    325
+   ],
+   "tier": "T19",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/21 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "purple flowers (x3)",
+   "x": 358,
+   "y": -468,
+   "xs": [
+    329,
+    363,
+    382
+   ],
+   "tier": "T19",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/4 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "low dark-green bush",
+   "x": 369,
+   "y": -456,
+   "xs": [
+    369
+   ],
+   "tier": "T19",
+   "source": "raw v8 WZ object acc1/darkWood/nature/20 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "low dark-green bush",
+   "x": -577,
+   "y": -277,
+   "xs": [
+    -577
+   ],
+   "tier": "T22",
+   "source": "raw v8 WZ object acc1/darkWood/nature/20 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "young tree, autumn orange leaves",
+   "x": -560,
+   "y": -390,
+   "xs": [
+    -560
+   ],
+   "tier": "T22",
+   "source": "raw v8 WZ object acc1/midForest/nature/2 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": 982,
+   "y": 46,
+   "xs": [
+    982
+   ],
+   "tier": "T31",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "stacked log pile",
+   "x": 1014,
+   "y": 65,
+   "xs": [
+    1014
+   ],
+   "tier": "T31",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/6 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "tiny mushrooms + ladybug scatter",
+   "x": 1027,
+   "y": 62,
+   "xs": [
+    1027
+   ],
+   "tier": "T31",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/7 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "tree, mixed green/teal/orange foliage",
+   "x": 1102,
+   "y": -71,
+   "xs": [
+    1102
+   ],
+   "tier": "T33",
+   "source": "raw v8 WZ object acc1/midForest/nature/7 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "young tree, autumn orange leaves",
+   "x": -34,
+   "y": 29,
+   "xs": [
+    -34
+   ],
+   "tier": "T34",
+   "source": "raw v8 WZ object acc1/midForest/nature/2 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": 5,
+   "y": 117,
+   "xs": [
+    5
+   ],
+   "tier": "T34",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "small round shrub (x5)",
+   "x": 147,
+   "y": 133,
+   "xs": [
+    40,
+    61,
+    196,
+    211,
+    227
+   ],
+   "tier": "T34",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/1 in layer 1 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/1/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "arched wooden banded door (108x94)",
+   "x": 129,
+   "y": 106,
+   "xs": [
+    129
+   ],
+   "tier": "T34",
+   "source": "raw v8 WZ object door/grassySoil/door/0 in layer 1 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/1/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": -627,
+   "y": 170,
+   "xs": [
+    -627
+   ],
+   "tier": "T36",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "young tree, green leaves",
+   "x": -586,
+   "y": 74,
+   "xs": [
+    -586
+   ],
+   "tier": "T36",
+   "source": "raw v8 WZ object acc1/midForest/nature/1 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "low dark-green bush",
+   "x": 391,
+   "y": 204,
+   "xs": [
+    391
+   ],
+   "tier": "T37",
+   "source": "raw v8 WZ object acc1/darkWood/nature/20 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "rainbow fountain (stones, mushroom-shaped spout, rainbow)",
+   "x": 557,
+   "y": 167,
+   "xs": [
+    557
+   ],
+   "tier": "T37",
+   "source": "raw v8 WZ object acc1/grassySoil/artificiality/9 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "big round green bush",
+   "x": 564,
+   "y": 179,
+   "xs": [
+    564
+   ],
+   "tier": "T37",
+   "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
+  },
+  {
+   "what": "background: one big leafy tree (back no.3) and a distant domed hill (back no.2); the hidden-street 2005 thumbnail shows the big tree at the east edge",
+   "x": -161,
+   "y": -283,
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/back/3 (background-layer offset, not a world position)"
+  }
+ ],
+ "notes": [
+  "No left/right edge exits: perimeter walls x=-759 and x=1209 run down to y=420; exactly one non-spawn portal (out00). Dead-end side map off The Field West of Amherst.",
+  "v40 data adds 3 floor footholds (y-205, x771-939) and 5 ropes to this map. These are later-patch additions and are NOT used here."
+ ]
+}

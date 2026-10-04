@@ -1,0 +1,437 @@
+{
+  "id": 30000,
+  "name": "East Entrance to Mushroom Town",
+  "extent": {
+    "minX": -309,
+    "maxX": 1569,
+    "minY": -925,
+    "maxY": 420
+  },
+  "tiers": [
+    {
+      "id": "G1",
+      "x1": -309,
+      "x2": 231,
+      "y_left": 215,
+      "y_right": 215,
+      "kind": "ground",
+      "label": "west valley floor (arrival in00)",
+      "length": 540
+    },
+    {
+      "id": "G2",
+      "x1": 231,
+      "x2": 321,
+      "y_left": 155,
+      "y_right": 155,
+      "kind": "ledge",
+      "label": "hill step W",
+      "length": 90
+    },
+    {
+      "id": "G3",
+      "x1": 321,
+      "x2": 939,
+      "y_left": 95,
+      "y_right": 95,
+      "kind": "ledge",
+      "label": "hilltop (yellow mushroom house)",
+      "length": 618
+    },
+    {
+      "id": "G4",
+      "x1": 939,
+      "x2": 1119,
+      "y_left": 155,
+      "y_right": 155,
+      "kind": "ledge",
+      "label": "hill step E",
+      "length": 180
+    },
+    {
+      "id": "G5",
+      "x1": 1119,
+      "x2": 1569,
+      "y_left": 215,
+      "y_right": 215,
+      "kind": "ground",
+      "label": "east valley floor (fountain, rope x1434)",
+      "length": 450
+    },
+    {
+      "id": "W1",
+      "x1": -219,
+      "x2": -51,
+      "y_left": -25,
+      "y_right": -25,
+      "kind": "floating",
+      "label": "west islet stair 1",
+      "length": 168
+    },
+    {
+      "id": "W2",
+      "x1": -129,
+      "x2": 39,
+      "y_left": -85,
+      "y_right": -85,
+      "kind": "floating",
+      "label": "west islet stair 2",
+      "length": 168
+    },
+    {
+      "id": "W3",
+      "x1": -39,
+      "x2": 129,
+      "y_left": -145,
+      "y_right": -145,
+      "kind": "floating",
+      "label": "west islet stair 3 (dead end)",
+      "length": 168
+    },
+    {
+      "id": "E1",
+      "x1": 1311,
+      "x2": 1479,
+      "y_left": -25,
+      "y_right": -25,
+      "kind": "floating",
+      "label": "east rope shelf 1",
+      "length": 168
+    },
+    {
+      "id": "E2",
+      "x1": 1311,
+      "x2": 1479,
+      "y_left": -265,
+      "y_right": -265,
+      "kind": "floating",
+      "label": "east rope shelf 2",
+      "length": 168
+    },
+    {
+      "id": "E3",
+      "x1": 951,
+      "x2": 1299,
+      "y_left": -325,
+      "y_right": -325,
+      "kind": "floating",
+      "label": "east slab (hop west)",
+      "length": 348
+    },
+    {
+      "id": "M1",
+      "x1": 630,
+      "x2": 939,
+      "y_left": -385,
+      "y_right": -385,
+      "kind": "floating",
+      "label": "mid slab east (low part)",
+      "length": 309
+    },
+    {
+      "id": "M2",
+      "x1": 540,
+      "x2": 630,
+      "y_left": -445,
+      "y_right": -385,
+      "kind": "slope",
+      "label": "mid slab ramp",
+      "length": 90
+    },
+    {
+      "id": "M3",
+      "x1": -39,
+      "x2": 540,
+      "y_left": -445,
+      "y_right": -445,
+      "kind": "floating",
+      "label": "mid high terrace (bench, ladder x107)",
+      "length": 579
+    },
+    {
+      "id": "M4",
+      "x1": 241,
+      "x2": 358,
+      "y_left": -474,
+      "y_right": -471,
+      "kind": "floating",
+      "label": "log-bench top",
+      "length": 117
+    },
+    {
+      "id": "U1",
+      "x1": 51,
+      "x2": 219,
+      "y_left": -625,
+      "y_right": -625,
+      "kind": "floating",
+      "label": "upper stepping islet 1",
+      "length": 168
+    },
+    {
+      "id": "U2",
+      "x1": 141,
+      "x2": 309,
+      "y_left": -685,
+      "y_right": -685,
+      "kind": "floating",
+      "label": "upper stepping islet 2",
+      "length": 168
+    },
+    {
+      "id": "U3",
+      "x1": 231,
+      "x2": 399,
+      "y_left": -745,
+      "y_right": -745,
+      "kind": "floating",
+      "label": "upper stepping islet 3",
+      "length": 168
+    },
+    {
+      "id": "U4",
+      "x1": 411,
+      "x2": 759,
+      "y_left": -805,
+      "y_right": -805,
+      "kind": "floating",
+      "label": "upper stepping slab 4",
+      "length": 348
+    },
+    {
+      "id": "S1",
+      "x1": 771,
+      "x2": 1080,
+      "y_left": -865,
+      "y_right": -865,
+      "kind": "floating",
+      "label": "summit approach (signpost)",
+      "length": 309
+    },
+    {
+      "id": "S2",
+      "x1": 1080,
+      "x2": 1170,
+      "y_left": -865,
+      "y_right": -925,
+      "kind": "slope",
+      "label": "summit ramp",
+      "length": 90
+    },
+    {
+      "id": "S3",
+      "x1": 1170,
+      "x2": 1569,
+      "y_left": -925,
+      "y_right": -925,
+      "kind": "floating",
+      "label": "summit (Peter, out00)",
+      "length": 399
+    }
+  ],
+  "ladders": [
+    {
+      "x": -136,
+      "y1": -23,
+      "y2": 213,
+      "isLadder": true,
+      "from_tier": "G1",
+      "to_tier": "W1"
+    },
+    {
+      "x": 1434,
+      "y1": -23,
+      "y2": 213,
+      "isLadder": false,
+      "from_tier": "G5",
+      "to_tier": "E1"
+    },
+    {
+      "x": 1359,
+      "y1": -263,
+      "y2": -27,
+      "isLadder": false,
+      "from_tier": "E1",
+      "to_tier": "E2"
+    },
+    {
+      "x": 107,
+      "y1": -623,
+      "y2": -447,
+      "isLadder": true,
+      "from_tier": "M3",
+      "to_tier": "U1"
+    }
+  ],
+  "portals": [
+    {
+      "name": "in00",
+      "x": -218,
+      "y": 217,
+      "target": null,
+      "inferred": false,
+      "type": 1
+    },
+    {
+      "name": "out00",
+      "x": 1433,
+      "y": -924,
+      "target": "40000:in00",
+      "inferred": false,
+      "type": 2
+    }
+  ],
+  "mobs": {},
+  "npcs": [
+    {
+      "id": 2002,
+      "name": "Peter",
+      "x": 1314,
+      "y": -925
+    }
+  ],
+  "terrain_style": "grassySoil tileset (layer 1, 286 tiles): grass fringe over olive/khaki-brown cobbled dirt with grey stones; a stepped central hill, large floating earth slabs with sloped grass shoulders, and many small oval floating grass islets with rounded dirt undersides. Sky backdrop grassySoil back 0-3,5,6.",
+  "landmarks": [
+    {
+      "what": "Clover-and-flower beds on west ground",
+      "x": -21,
+      "y": 186
+    },
+    {
+      "what": "Wooden signpost with ivy + arrow board (guide/midForest/wood/0,4)",
+      "x": 77,
+      "y": 140
+    },
+    {
+      "what": "Tall pale stalk-mushroom cluster on hill (nature/11 + nature/25)",
+      "x": 444,
+      "y": -80
+    },
+    {
+      "what": "Green bush on hill",
+      "x": 507,
+      "y": 28
+    },
+    {
+      "what": "Two burlap sacks",
+      "x": 614,
+      "y": 68
+    },
+    {
+      "what": "Yellow mushroom house (houseGS/house7 body)",
+      "x": 714,
+      "y": 14
+    },
+    {
+      "what": "Yellow cap with brown rim (house7 basic/1 + deco/0)",
+      "x": 694,
+      "y": -98
+    },
+    {
+      "what": "Yellow mushroom dormer window on the cap",
+      "x": 755,
+      "y": -154
+    },
+    {
+      "what": "Mushroom-awning doorway with plank door (decorative, no portal)",
+      "x": 761,
+      "y": 38
+    },
+    {
+      "what": "Wall lantern (flipped)",
+      "x": 830,
+      "y": 21
+    },
+    {
+      "what": "Olive bush on east hill step",
+      "x": 960,
+      "y": 105
+    },
+    {
+      "what": "Mushroom fountain with rainbow and stone basin (acc1/grassySoil/artificiality/9)",
+      "x": 1229,
+      "y": 169
+    },
+    {
+      "what": "Wooden signpost with ivy + arrow by the rope (guide/midForest/wood/0,1)",
+      "x": 1474,
+      "y": 140
+    },
+    {
+      "what": "Grass tuft on W3",
+      "x": 62,
+      "y": -169
+    },
+    {
+      "what": "Grass tufts on E1",
+      "x": 1393,
+      "y": -51
+    },
+    {
+      "what": "Grass tufts on E3",
+      "x": 1125,
+      "y": -350
+    },
+    {
+      "what": "Log bench with tiny mushrooms (standable top M4)",
+      "x": 307,
+      "y": -477
+    },
+    {
+      "what": "Bushes and grass along M3",
+      "x": 320,
+      "y": -490
+    },
+    {
+      "what": "Bush + tiny pale mushrooms on the M2/M1 shoulder",
+      "x": 690,
+      "y": -420
+    },
+    {
+      "what": "Olive bush (flipped) on M1",
+      "x": 810,
+      "y": -435
+    },
+    {
+      "what": "Bush and grass on U4",
+      "x": 583,
+      "y": -826
+    },
+    {
+      "what": "Signpost with ivy + three arrow boards on S1",
+      "x": 1012,
+      "y": -927
+    },
+    {
+      "what": "Big green bush on summit",
+      "x": 1286,
+      "y": -992
+    },
+    {
+      "what": "Tall pale stalk-mushroom cluster on summit (flipped)",
+      "x": 1384,
+      "y": -1100
+    },
+    {
+      "what": "Olive bush on summit",
+      "x": 1444,
+      "y": -975
+    },
+    {
+      "what": "Exit portal out00 (visible) on summit",
+      "x": 1433,
+      "y": -924
+    }
+  ],
+  "notes": [
+    "Geometry/NPCs/ladders: docs/research/raw/gms_v8/30000.json (maplestory.io /api/GMS/8/map/30000).",
+    "Portals recovered from raw WZ because the parsed API JSON has null entries: https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000030000.img/portal/<n> (fields pn, pt, tm, tn, x, y). All portals here are therefore sourced, not inferred.",
+    "Landmark x,y are WZ obj anchors from https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000030000.img/<layer>/obj/<n>; sprites identified via https://maplestory.io/api/wz/GMS/8/Map/Obj/<oS>.img/<l0>/<l1>/<l2>/0. API-reported sprite origins were all exactly (w/2,h/2), so treat anchors as roughly sprite-centre; footprints are +-half sprite size. Where one landmark merges several objects, x,y is their approximate mean.",
+    "tiers[].y_left/y_right are MapleStory y (down is positive). Tier ids are local to this file. Ladders: y1 = top end, y2 = bottom end (raw data order); from_tier = bottom tier, to_tier = top tier.",
+    "v8 has zero mob spawns in this map (life contains only NPCs).",
+    "Spawn point \"sp\" at (-77,122) above G1. in00 (pt 1, tm 999999999) is arrival-only: no portal back to 20000.",
+    "Reachability (inferred from the data pattern: every intended hop is 60 px up with <=12 px horizontal gap; every larger rise has a ladder/rope): main route G1 -> G2 -> G3 -> G4 -> G5 -> rope x1434 -> E1 -> rope x1359 -> E2 -> hop W to E3 -> hop W to M1 -> walk up slope M2 -> M3 -> ladder x107 -> U1 -> U2 -> U3 -> U4 -> S1 -> slope S2 -> S3 (Peter, out00). The west islet stair W1-W3 (via ladder x-136) tops out at y=-145, 300 px below M3: a dead-end side branch.",
+    "M3 west face is a wall at x=-39 from y=-445 down to -300; S3 east end is a wall at x=1569 from -925 down to -780 (map edge).",
+    "v22 differs (docs/research/raw/gms_v22/30000.json): E2 islet moved to x1221..1389 y-385 with rope x1342 (-383..-34); upper islets rearranged with a rope at x183 (-803..-455) replacing ladder x107; adds NPC 2004 Todd at (-21,215) and 3x mob 9300018 \"Tutorial Jr. Sentinel\" at (479,-445),(1343,215),(690,95) (https://maplestory.io/api/GMS/22/mob/9300018)."
+  ]
+}

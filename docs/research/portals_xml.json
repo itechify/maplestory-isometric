@@ -1,0 +1,1819 @@
+{
+  "0": {
+    "name": "West Entrance to Mushroom Town",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000000000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -206,
+        "y": 102,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -162,
+        "y": 103,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -127,
+        "y": 101,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -112,
+        "y": 101,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 1052,
+        "y": 365,
+        "tm": 10000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 4,
+    "exits": [
+      "out00 (pt2 @ 1052,365) -> 10000:in00 [one-way (target in00 is pt1 arrival-only, no return link)]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 4 / WZ 4",
+    "cross_version": {
+      "v22": "same links, geometry/type differs; v8-only: out00|pt2|1052,365|->10000:in00; v22-only: out00|pt2|1116,365|->10000:in00",
+      "v40": "LINKS DIFFER; sp count 4->2; v8-only: out00|pt2|1052,365|->10000:in00; v40-only: st00|pt1|47,1232|->999999999:999999999",
+      "v55": "LINKS DIFFER; sp count 4->2; v8-only: out00|pt2|1052,365|->10000:in00; v55-only: st00|pt1|47,1232|->999999999:999999999",
+      "v62": "LINKS DIFFER; sp count 4->3; v8-only: out00|pt2|1052,365|->10000:in00; v62-only: st00|pt1|47,1232|->999999999:999999999  tutorial0|pt9|102,24|->999999999:  tutorial4|pt9|-1,24|->999999999:"
+    },
+    "note": "Classic v8-v37 map. From GMS v38 onward ID 0 is 'Entrance - Mushroom Town Training Camp' (String/Map.img/maple/0/mapName at v38; portal list becomes st00 + sp and out00->10000 is removed). Use the v8 portals above, never v38+."
+  },
+  "10000": {
+    "name": "Mushroom Town",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000010000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -91,
+        "y": 181,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in00",
+        "pt": 1,
+        "x": -195,
+        "y": 278,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 706,
+        "y": 216,
+        "tm": 20000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ 706,216) -> 20000:in00 [one-way (target in00 is pt1 arrival-only, no return link)]"
+    ],
+    "targetless_portals": [
+      "in00 (pt1 @ -195,278)"
+    ],
+    "api_completeness": "ok: API 1 parsed non-sp + 1 null = 2; WZ non-sp = 2; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; v62-only: tutorial6|pt9|152,181|->999999999:"
+    }
+  },
+  "20000": {
+    "name": "Mushroom Town",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000020000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -256,
+        "y": 122,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -207,
+        "y": 123,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -173,
+        "y": 125,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in00",
+        "pt": 1,
+        "x": -207,
+        "y": 218,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in01",
+        "pt": 2,
+        "x": 557,
+        "y": 94,
+        "tm": 20001,
+        "tn": "out00"
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 795,
+        "y": 96,
+        "tm": 30000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 3,
+    "exits": [
+      "in01 (pt2 @ 557,94) -> 20001:out00 [two-way]",
+      "out00 (pt2 @ 795,96) -> 30000:in00 [one-way (target in00 is pt1 arrival-only, no return link)]"
+    ],
+    "targetless_portals": [
+      "in00 (pt1 @ -207,218)"
+    ],
+    "api_completeness": "ok: API 1 parsed non-sp + 2 null = 3; WZ non-sp = 3; sp API 3 / WZ 3",
+    "cross_version": {
+      "v22": "same links, geometry/type differs; v8-only: out00|pt2|795,96|->30000:in00; v22-only: out00|pt2|1109,97|->30000:in00",
+      "v40": "same links, geometry/type differs; v8-only: out00|pt2|795,96|->30000:in00; v40-only: out00|pt2|1046,94|->30000:in00",
+      "v55": "same links, geometry/type differs; v8-only: out00|pt2|795,96|->30000:in00; v55-only: out00|pt2|1046,94|->30000:in00",
+      "v62": "same links, geometry/type differs; v8-only: out00|pt2|795,96|->30000:in00; v62-only: out00|pt2|1046,94|->30000:in00"
+    }
+  },
+  "20001": {
+    "name": "Mushroom Town Townstreet",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000020001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -329,
+        "y": 241,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": -167,
+        "y": 244,
+        "tm": 20000,
+        "tn": "in01"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ -167,244) -> 20000:in01 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "30000": {
+    "name": "East Entrance to Mushroom Town",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000030000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -77,
+        "y": 122,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in00",
+        "pt": 1,
+        "x": -218,
+        "y": 217,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 1433,
+        "y": -924,
+        "tm": 40000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ 1433,-924) -> 40000:in00 [one-way (target in00 is pt1 arrival-only, no return link)]"
+    ],
+    "targetless_portals": [
+      "in00 (pt1 @ -218,217)"
+    ],
+    "api_completeness": "ok: API 2 parsed non-sp + 0 null = 2; WZ non-sp = 2; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "same links, geometry/type differs; v8-only: in00|pt1|-218,217|->999999999:  out00|pt2|1433,-924|->40000:in00; v62-only: in00|pt1|-199,215|->999999999:  out00|pt2|1086,-687|->40000:in00"
+    }
+  },
+  "40000": {
+    "name": "Snail Hunting Ground I",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1,
+        "y": 183,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -69,
+        "y": 184,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -122,
+        "y": 182,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -166,
+        "y": 182,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -213,
+        "y": 181,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in00",
+        "pt": 1,
+        "x": -172,
+        "y": 278,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 2692,
+        "y": 392,
+        "tm": 40001,
+        "tn": "west00"
+      }
+    ],
+    "sp_count": 5,
+    "exits": [
+      "east00 (pt2 @ 2692,392) -> 40001:west00 [two-way]"
+    ],
+    "targetless_portals": [
+      "in00 (pt1 @ -172,278)"
+    ],
+    "api_completeness": "ok: API 1 parsed non-sp + 1 null = 2; WZ non-sp = 2; sp API 5 / WZ 5",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "same links, geometry/type differs; v8-only: east00|pt2|2692,392|->40001:west00; v40-only: east00|pt2|2812,397|->40001:west00",
+      "v55": "same links, geometry/type differs; v8-only: east00|pt2|2692,392|->40001:west00; v55-only: east00|pt2|1750,213|->40001:west00",
+      "v62": "LINKS DIFFER; sp count 5->4; v8-only: east00|pt2|2692,392|->40001:west00  in00|pt1|-172,278|->999999999:; v62-only: east00|pt2|1457,214|->40001:west00  in00|pt1|-29,270|->999999999:  tutorial8|pt9|78,237|->999999999:"
+    }
+  },
+  "40001": {
+    "name": "Snail Hunting Ground II",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -4,
+        "y": 314,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -56,
+        "y": 315,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -111,
+        "y": 317,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -176,
+        "y": 315,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -219,
+        "y": 313,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -219,
+        "y": 393,
+        "tm": 40000,
+        "tn": "east00"
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 2792,
+        "y": 395,
+        "tm": 40002,
+        "tn": "west00"
+      }
+    ],
+    "sp_count": 5,
+    "exits": [
+      "west00 (pt2 @ -219,393) -> 40000:east00 [two-way]",
+      "east00 (pt2 @ 2792,395) -> 40002:west00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 2 null = 2; WZ non-sp = 2; sp API 5 / WZ 5",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "same links, geometry/type differs; v8-only: east00|pt2|2792,395|->40002:west00; v55-only: east00|pt2|1964,392|->40002:west00",
+      "v62": "same links, geometry/type differs; v8-only: east00|pt2|2792,395|->40002:west00  west00|pt2|-219,393|->40000:east00; v62-only: east00|pt2|1585,388|->40002:west00  west00|pt2|-163,391|->40000:east00"
+    }
+  },
+  "40002": {
+    "name": "Snail Hunting Ground III",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040002.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1,
+        "y": 183,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -69,
+        "y": 184,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -122,
+        "y": 182,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -166,
+        "y": 182,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -213,
+        "y": 181,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 2822,
+        "y": -1164,
+        "tm": 50000,
+        "tn": "west00"
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -19,
+        "y": 274,
+        "tm": 40001,
+        "tn": "east00"
+      }
+    ],
+    "sp_count": 5,
+    "exits": [
+      "east00 (pt2 @ 2822,-1164) -> 50000:west00 [two-way]",
+      "west00 (pt2 @ -19,274) -> 40001:east00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 2 null = 2; WZ non-sp = 2; sp API 5 / WZ 5",
+    "cross_version": {
+      "v22": "same links, geometry/type differs; v8-only: east00|pt2|2822,-1164|->50000:west00; v22-only: east00|pt2|2753,-685|->50000:west00",
+      "v40": "same links, geometry/type differs; v8-only: east00|pt2|2822,-1164|->50000:west00; v40-only: east00|pt2|2753,-685|->50000:west00",
+      "v55": "same links, geometry/type differs; v8-only: east00|pt2|2822,-1164|->50000:west00; v55-only: east00|pt2|2753,-685|->50000:west00",
+      "v62": "same links, geometry/type differs; sp count 5->3; v8-only: east00|pt2|2822,-1164|->50000:west00  west00|pt2|-19,274|->40001:east00; v62-only: east00|pt2|1874,-450|->50000:west00  west00|pt2|202,329|->40001:east00"
+    }
+  },
+  "50000": {
+    "name": "A Split Road",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000050000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -183,
+        "y": 120,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -505,
+        "y": 246,
+        "tm": 40002,
+        "tn": "east00"
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 3041,
+        "y": 7,
+        "tm": 1000000,
+        "tn": "west00"
+      },
+      {
+        "pn": "east01",
+        "pt": 2,
+        "x": 3046,
+        "y": 361,
+        "tm": 60000,
+        "tn": "west00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "west00 (pt2 @ -505,246) -> 40002:east00 [two-way]",
+      "east00 (pt2 @ 3041,7) -> 1000000:west00 [two-way]",
+      "east01 (pt2 @ 3046,361) -> 60000:west00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 3 null = 3; WZ non-sp = 3; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "same links, geometry/type differs; v8-only: east00|pt2|3041,7|->1000000:west00; v40-only: east00|pt2|3033,2|->1000000:west00",
+      "v55": "same links, geometry/type differs; v8-only: east00|pt2|3041,7|->1000000:west00; v55-only: east00|pt2|3033,2|->1000000:west00",
+      "v62": "LINKS DIFFER; v8-only: east00|pt2|3041,7|->1000000:west00  east01|pt2|3046,361|->60000:west00  west00|pt2|-505,246|->40002:east00; v62-only: east00|pt2|1915,-56|->1000000:west00  east01|pt2|1907,360|->50001:west00  tutorial7|pt9|-222,207|->999999999:  west00|pt2|-413,244|->40002:east00"
+    },
+    "note": "Pre-v56 (v8..v55) east01 -> 60000:west00 (Southperry directly). From v56 east01 -> 50001:west00 (new 'Field West of Southperry'); 60000 west00 then targets 50001:east00."
+  },
+  "60000": {
+    "name": "Southperry",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000060000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -37,
+        "y": 177,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "h001",
+        "pt": 1,
+        "x": -1,
+        "y": 43,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -547,
+        "y": 286,
+        "tm": 50000,
+        "tn": "east01"
+      },
+      {
+        "pn": "in00",
+        "pt": 2,
+        "x": 699,
+        "y": 527,
+        "tm": 60001,
+        "tn": "out00"
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 870,
+        "y": 526,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 955,
+        "y": 523,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 1058,
+        "y": 523,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 1147,
+        "y": 524,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 1239,
+        "y": 524,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 1327,
+        "y": 524,
+        "tm": 999999999,
+        "tn": ""
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "west00 (pt2 @ -547,286) -> 50000:east01 [two-way]",
+      "in00 (pt2 @ 699,527) -> 60001:out00 [two-way]"
+    ],
+    "targetless_portals": [
+      "h001 (pt1 @ -1,43)",
+      "tp (pt6 @ 870,526)",
+      "tp (pt6 @ 955,523)",
+      "tp (pt6 @ 1058,523)",
+      "tp (pt6 @ 1147,524)",
+      "tp (pt6 @ 1239,524)",
+      "tp (pt6 @ 1327,524)"
+    ],
+    "api_completeness": "ok: API 7 parsed non-sp + 2 null = 9; WZ non-sp = 9; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "LINKS DIFFER; v8-only: h001|pt1|-1,43|->999999999:; v22-only: gm00|pt1|-65,43|->999999999:",
+      "v40": "LINKS DIFFER; v8-only: h001|pt1|-1,43|->999999999:; v40-only: gm00|pt1|-65,43|->999999999:",
+      "v55": "LINKS DIFFER; v8-only: h001|pt1|-1,43|->999999999:; v55-only: gm00|pt1|-65,43|->999999999:",
+      "v62": "LINKS DIFFER; v8-only: h001|pt1|-1,43|->999999999:  west00|pt2|-547,286|->50000:east01; v62-only: ev00|pt3|-181,0|->60000:ev99  ev01|pt3|-181,-103|->60000:ev99  ev02|pt3|-146,-205|->60000:ev99  ev03|pt3|-43,-205|->60000:ev99  ev04|pt3|60,-204|->60000:ev99  ev05|pt3|92,-102|->60000:ev99  ev06|pt3|92,0|->60000:ev99  ev99|pt1|35,284|->999999999:ev99  gm00|pt1|-65,43|->999999999:  west00|pt2|-547,286|->50001:east00"
+    },
+    "note": "Only walkable exit is west00 -> 50000:east01. NPC 22000 'Shanks' stands at x=3223 (from ../gms_v8/60000.json npcs); his ship travel is NPC-scripted, not a portal. h001 (pt1, no target) is renamed gm00 at (-65,43) in v22+."
+  },
+  "60001": {
+    "name": "Southperry Armor Store",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000060001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -114,
+        "y": 115,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": -48,
+        "y": 181,
+        "tm": 60000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ -48,181) -> 60000:in00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "1000000": {
+    "name": "The Field West of Amherst",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -91,
+        "y": 181,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -391,
+        "y": 276,
+        "tm": 50000,
+        "tn": "east00"
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 3338,
+        "y": 456,
+        "tm": 1010000,
+        "tn": "west00"
+      },
+      {
+        "pn": "in00",
+        "pt": 2,
+        "x": -60,
+        "y": -385,
+        "tm": 1000001,
+        "tn": "out00"
+      },
+      {
+        "pn": "in01",
+        "pt": 2,
+        "x": 2987,
+        "y": -508,
+        "tm": 1000002,
+        "tn": "out01"
+      },
+      {
+        "pn": "in02",
+        "pt": 2,
+        "x": 1740,
+        "y": 455,
+        "tm": 1000003,
+        "tn": "out00"
+      },
+      {
+        "pn": "in03",
+        "pt": 2,
+        "x": 1908,
+        "y": 456,
+        "tm": 1000004,
+        "tn": "out00"
+      },
+      {
+        "pn": "in04",
+        "pt": 2,
+        "x": 389,
+        "y": -688,
+        "tm": 1000005,
+        "tn": "out00"
+      },
+      {
+        "pn": "in05",
+        "pt": 2,
+        "x": 757,
+        "y": -747,
+        "tm": 1000006,
+        "tn": "out00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "west00 (pt2 @ -391,276) -> 50000:east00 [two-way]",
+      "east00 (pt2 @ 3338,456) -> 1010000:west00 [two-way]",
+      "in00 (pt2 @ -60,-385) -> 1000001:out00 [two-way]",
+      "in01 (pt2 @ 2987,-508) -> 1000002:out01 [two-way]",
+      "in02 (pt2 @ 1740,455) -> 1000003:out00 [two-way]",
+      "in03 (pt2 @ 1908,456) -> 1000004:out00 [two-way]",
+      "in04 (pt2 @ 389,-688) -> 1000005:out00 [two-way]",
+      "in05 (pt2 @ 757,-747) -> 1000006:out00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 8 null = 8; WZ non-sp = 8; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "same links, geometry/type differs; v8-only: in00|pt2|-60,-385|->1000001:out00  in04|pt2|389,-688|->1000005:out00  in05|pt2|757,-747|->1000006:out00  west00|pt2|-391,276|->50000:east00; v55-only: in00|pt2|843,-507|->1000001:out00  in04|pt2|1208,-445|->1000005:out00  in05|pt2|1565,-385|->1000006:out00  west00|pt2|830,272|->50000:east00",
+      "v62": "LINKS DIFFER; v8-only: east00|pt2|3338,456|->1010000:west00  in00|pt2|-60,-385|->1000001:out00  in01|pt2|2987,-508|->1000002:out01  in02|pt2|1740,455|->1000003:out00  in03|pt2|1908,456|->1000004:out00  in04|pt2|389,-688|->1000005:out00  in05|pt2|757,-747|->1000006:out00  west00|pt2|-391,276|->50000:east00; v62-only: east00|pt2|2895,450|->1010000:west00  in00|pt2|1068,-269|->1000003:out00  in01|pt2|2644,-207|->1000004:out00  west00|pt2|830,273|->50000:east00"
+    }
+  },
+  "1000001": {
+    "name": "In a Small Forest",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 947,
+        "y": -165,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1011,
+        "y": -158,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1077,
+        "y": -168,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1232,
+        "y": -174,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1280,
+        "y": -171,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 1153,
+        "y": -56,
+        "tm": 1000000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 5,
+    "exits": [
+      "out00 (pt2 @ 1153,-56) -> 1000000:in00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 5 / WZ 5",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; v8-only: out00|pt2|1153,-56|->1000000:in00; v62-only: out00|pt2|1153,-56|->50001:in00"
+    }
+  },
+  "1000002": {
+    "name": "Dangerous Forest",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000002.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -204,
+        "y": -944,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -148,
+        "y": -943,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -85,
+        "y": -942,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -25,
+        "y": -941,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -68,
+        "y": -550,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 142,
+        "y": -543,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 43,
+        "y": -547,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 245,
+        "y": -550,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out01",
+        "pt": 2,
+        "x": -310,
+        "y": -864,
+        "tm": 1000000,
+        "tn": "in01"
+      }
+    ],
+    "sp_count": 8,
+    "exits": [
+      "out01 (pt2 @ -310,-864) -> 1000000:in01 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 8 / WZ 8",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "same links, geometry/type differs; v8-only: out01|pt2|-310,-864|->1000000:in01; v55-only: out01|pt2|-266,-867|->1000000:in01",
+      "v62": "LINKS DIFFER; v8-only: out01|pt2|-310,-864|->1000000:in01; v62-only: out00|pt2|-266,-867|->50001:in01"
+    }
+  },
+  "1000003": {
+    "name": "Mushroom Garden",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000003.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2834,
+        "y": 264,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2770,
+        "y": 271,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2530,
+        "y": 266,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2588,
+        "y": 278,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2435,
+        "y": 335,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2346,
+        "y": 396,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 2695,
+        "y": 329,
+        "tm": 1000000,
+        "tn": "in02"
+      }
+    ],
+    "sp_count": 6,
+    "exits": [
+      "out00 (pt2 @ 2695,329) -> 1000000:in02 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 6 / WZ 6",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; sp count 6->3; v8-only: out00|pt2|2695,329|->1000000:in02; v62-only: out00|pt2|2437,329|->1000000:in00"
+    }
+  },
+  "1000004": {
+    "name": "Snail Garden",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000004.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 827,
+        "y": 284,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 886,
+        "y": 283,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1051,
+        "y": 277,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1115,
+        "y": 279,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1200,
+        "y": 271,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1276,
+        "y": 272,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 980,
+        "y": 329,
+        "tm": 1000000,
+        "tn": "in03"
+      }
+    ],
+    "sp_count": 6,
+    "exits": [
+      "out00 (pt2 @ 980,329) -> 1000000:in03 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 6 / WZ 6",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; sp count 6->3; v8-only: out00|pt2|980,329|->1000000:in03; v62-only: out00|pt2|890,331|->1000000:in01"
+    }
+  },
+  "1000005": {
+    "name": "Hunting Ground Middle of the Forest I",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -214,
+        "y": 59,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -326,
+        "y": -41,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -122,
+        "y": 114,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -57,
+        "y": 110,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 9,
+        "y": 107,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 213,
+        "y": 101,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 132,
+        "y": 155,
+        "tm": 1000000,
+        "tn": "in04"
+      }
+    ],
+    "sp_count": 6,
+    "exits": [
+      "out00 (pt2 @ 132,155) -> 1000000:in04 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 6 / WZ 6",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; v8-only: out00|pt2|132,155|->1000000:in04; v62-only: out00|pt2|132,155|->1020000:in01"
+    }
+  },
+  "1000006": {
+    "name": "Hunting Ground Middle of the Forest II",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000006.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -203,
+        "y": -1434,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -332,
+        "y": -1486,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -68,
+        "y": -1409,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1,
+        "y": -1413,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 174,
+        "y": -1414,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 230,
+        "y": -1412,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 381,
+        "y": -1390,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 133,
+        "y": -1346,
+        "tm": 1000000,
+        "tn": "in05"
+      }
+    ],
+    "sp_count": 7,
+    "exits": [
+      "out00 (pt2 @ 133,-1346) -> 1000000:in05 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 1 parsed non-sp + 0 null = 1; WZ non-sp = 1; sp API 7 / WZ 7",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "LINKS DIFFER; v8-only: out00|pt2|133,-1346|->1000000:in05; v62-only: out00|pt2|133,-1346|->1020000:in02"
+    }
+  },
+  "1010000": {
+    "name": "Amherst",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 282,
+        "y": 123,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -291,
+        "y": 276,
+        "tm": 1000000,
+        "tn": "east00"
+      },
+      {
+        "pn": "in00",
+        "pt": 2,
+        "x": 227,
+        "y": -175,
+        "tm": 1010001,
+        "tn": "out00"
+      },
+      {
+        "pn": "in01",
+        "pt": 2,
+        "x": 2276,
+        "y": 275,
+        "tm": 1010002,
+        "tn": "out00"
+      },
+      {
+        "pn": "in02",
+        "pt": 2,
+        "x": 1516,
+        "y": 156,
+        "tm": 1010003,
+        "tn": "out00"
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 3055,
+        "y": 274,
+        "tm": 1020000,
+        "tn": "west00"
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 169,
+        "y": 274,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 250,
+        "y": 274,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 335,
+        "y": 275,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 421,
+        "y": 275,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 492,
+        "y": 276,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "tp",
+        "pt": 6,
+        "x": 621,
+        "y": 273,
+        "tm": 999999999,
+        "tn": ""
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "west00 (pt2 @ -291,276) -> 1000000:east00 [two-way]",
+      "in00 (pt2 @ 227,-175) -> 1010001:out00 [two-way]",
+      "in01 (pt2 @ 2276,275) -> 1010002:out00 [two-way]",
+      "in02 (pt2 @ 1516,156) -> 1010003:out00 [two-way]",
+      "east00 (pt2 @ 3055,274) -> 1020000:west00 [two-way]"
+    ],
+    "targetless_portals": [
+      "tp (pt6 @ 169,274)",
+      "tp (pt6 @ 250,274)",
+      "tp (pt6 @ 335,275)",
+      "tp (pt6 @ 421,275)",
+      "tp (pt6 @ 492,276)",
+      "tp (pt6 @ 621,273)"
+    ],
+    "api_completeness": "ok: API 6 parsed non-sp + 5 null = 11; WZ non-sp = 11; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "1010001": {
+    "name": "Amherst Weapon Store",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -114,
+        "y": 115,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": -48,
+        "y": 181,
+        "tm": 1010000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ -48,181) -> 1010000:in00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "1010002": {
+    "name": "Amherst Townstreet",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010002.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -329,
+        "y": 241,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": -167,
+        "y": 244,
+        "tm": 1010000,
+        "tn": "in01"
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -492,
+        "y": 275,
+        "tm": 1010004,
+        "tn": "east00"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ -167,244) -> 1010000:in01 [two-way]",
+      "west00 (pt2 @ -492,275) -> 1010004:east00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 2 null = 2; WZ non-sp = 2; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "same links, geometry/type differs; v8-only: west00|pt2|-492,275|->1010004:east00; v62-only: west00|pt2|-465,275|->1010004:east00"
+    }
+  },
+  "1010003": {
+    "name": "Amherst Department Store",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010003.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -114,
+        "y": 115,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": 300,
+        "y": 182,
+        "tm": 1010000,
+        "tn": "in02"
+      }
+    ],
+    "sp_count": 1,
+    "exits": [
+      "out00 (pt2 @ 300,182) -> 1010000:in02 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 1 / WZ 1",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "1010004": {
+    "name": "Snail Field of Flowers",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010004.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -794,
+        "y": -700,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -707,
+        "y": -700,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -493,
+        "y": -722,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -416,
+        "y": -718,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -141,
+        "y": -732,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -56,
+        "y": -724,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 206,
+        "y": -741,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 288,
+        "y": -743,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 369,
+        "y": -736,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 447,
+        "y": -740,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 535,
+        "y": -743,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "east00",
+        "pt": 2,
+        "x": 559,
+        "y": -623,
+        "tm": 1010002,
+        "tn": "west00"
+      }
+    ],
+    "sp_count": 11,
+    "exits": [
+      "east00 (pt2 @ 559,-623) -> 1010002:west00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 0 parsed non-sp + 1 null = 1; WZ non-sp = 1; sp API 11 / WZ 11",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "identical to v8",
+      "v62": "identical to v8"
+    }
+  },
+  "1020000": {
+    "name": "The Field East of Amherst",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001020000.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -426,
+        "y": 6,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -269,
+        "y": -4,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -209,
+        "y": -9,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -160,
+        "y": -14,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -95,
+        "y": -11,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -37,
+        "y": -17,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 248,
+        "y": -181,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 738,
+        "y": -197,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1022,
+        "y": -578,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1533,
+        "y": -587,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "in00",
+        "pt": 1,
+        "x": 1792,
+        "y": -384,
+        "tm": 1020001,
+        "tn": "out00"
+      },
+      {
+        "pn": "west00",
+        "pt": 2,
+        "x": -332,
+        "y": 90,
+        "tm": 1010000,
+        "tn": "east00"
+      }
+    ],
+    "sp_count": 10,
+    "exits": [
+      "in00 (pt1 @ 1792,-384) -> 1020001:out00 [two-way]",
+      "west00 (pt2 @ -332,90) -> 1010000:east00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 1 parsed non-sp + 1 null = 2; WZ non-sp = 2; sp API 10 / WZ 10",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "same links, geometry/type differs; sp count 10->8; v8-only: in00|pt1|1792,-384|->1020001:out00; v55-only: in00|pt2|1874,-266|->1020001:out00",
+      "v62": "LINKS DIFFER; sp count 10->5; v8-only: in00|pt1|1792,-384|->1020001:out00  west00|pt2|-332,90|->1010000:east00; v62-only: in00|pt2|-199,-450|->1020001:out00  in01|pt2|713,-571|->1000005:out00  in02|pt2|1589,-506|->1000006:out00  west00|pt2|-216,93|->1010000:east00"
+    },
+    "note": "in00 -> 1020001 is pt1 at (1792,-384) in v8..v48 (last checked: /api/wz/GMS/48/Map/Map/Map0/001020000.img/portal/10); it becomes pt2 at (1874,-266) at v49 (/api/wz/GMS/49/.../portal/9), the first version with the reworked 1020000 geometry. [memory] pt1 = invisible portal, pt2 = visible portal."
+  },
+  "1020001": {
+    "name": "Tomato Field",
+    "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001020001.img/portal",
+    "source_version": "GMS v8 (raw WZ node tree served by maplestory.io /api/wz; canonical path Data/Map/Map/Map0/...; the shorter /api/wz/GMS/8/Map/Map/Map0/... alias returns the same values)",
+    "portals": [
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -195,
+        "y": 111,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -127,
+        "y": 112,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -81,
+        "y": 112,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": -348,
+        "y": 106,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1203,
+        "y": 119,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 1259,
+        "y": 125,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2194,
+        "y": 59,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2432,
+        "y": 38,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "sp",
+        "pt": 0,
+        "x": 2322,
+        "y": 55,
+        "tm": 999999999,
+        "tn": ""
+      },
+      {
+        "pn": "out00",
+        "pt": 2,
+        "x": -275,
+        "y": 214,
+        "tm": 1020000,
+        "tn": "in00"
+      }
+    ],
+    "sp_count": 9,
+    "exits": [
+      "out00 (pt2 @ -275,214) -> 1020000:in00 [two-way]"
+    ],
+    "targetless_portals": [],
+    "api_completeness": "ok: API 1 parsed non-sp + 0 null = 1; WZ non-sp = 1; sp API 9 / WZ 9",
+    "cross_version": {
+      "v22": "identical to v8",
+      "v40": "identical to v8",
+      "v55": "same links, geometry/type differs; sp count 9->6",
+      "v62": "same links, geometry/type differs; sp count 9->6; v8-only: out00|pt2|-275,214|->1020000:in00; v62-only: out00|pt2|-335,210|->1020000:in00"
+    }
+  }
+}

@@ -1,0 +1,88 @@
+# Validation report
+
+Objects: 17618, triangles (evaluated, incl. instances): 9,146,414
+
+| check | ok | detail |
+|---|---|---|
+| hierarchy | yes | missing top collections: [] |
+| all_maps_present | yes | absent: [] |
+| no_placeholders | yes | placeholder maps: [] |
+| naming | yes | 0 generic names: [] |
+| no_hidden_objects | yes | 0 hidden (colliders exempt): [] |
+| materials | yes | 0 meshes missing materials: [] |
+| instances | yes | 0 broken instances |
+| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (374,235) |
+| world_polygon_budget | yes | WORLD layer 3,301,829 triangles (budget 3,500,000) |
+| portal_topology | yes | 24 links ok-checked; extra portals: [] |
+| floating_props | yes | 0 of 4069 instances (286 trail dressing) neither on walkable ground nor within 0.15 m of a surface (74 rest against walls/props) |
+| props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 11 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
+| fidelity | yes | NPCs and mob species vs v8 data |
+| traversal | yes | maps failing traversal: [] |
+| portal_split | yes | 25 maps with route groups; portals split in: [] |
+| orphan_routes | yes | maps with route groups that reach no portal: [] |
+| player_in_gameplay_frame | yes | maps failing: [] (25 from build_report, 0 recomputed from the scene; player at 0.1..0.9 of CAM_<slug>_Gameplay, hunting maps >= 2 mobs in frame) |
+| trail_walk | yes | 20/20 trails walk ok; failing: [] |
+| no_swallowed_exceptions | yes | 0 recorded: [] |
+
+## Triangle budget
+
+Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its own line.
+
+| layer | triangles | budget | ok |
+|---|---|---|---|
+| 1000000 FieldWestOfAmherst_1000000 | 374,235 | 400,000 | yes |
+| 60000 Southperry_60000 | 371,142 | 400,000 | yes |
+| 1000006 HuntingGroundMidForest2_1000006 | 343,222 | 400,000 | yes |
+| 40001 SnailHuntingGround2_40001 | 308,927 | 400,000 | yes |
+| 40002 SnailHuntingGround3_40002 | 299,693 | 400,000 | yes |
+| 1020000 FieldEastOfAmherst_1020000 | 294,763 | 400,000 | yes |
+| 1020001 TomatoField_1020001 | 291,553 | 400,000 | yes |
+| 1000002 DangerousForest_1000002 | 268,476 | 400,000 | yes |
+| 1000005 HuntingGroundMidForest1_1000005 | 265,058 | 400,000 | yes |
+| 1010004 SnailFieldOfFlowers_1010004 | 262,301 | 400,000 | yes |
+| 1010000 Amherst_1010000 | 249,060 | 400,000 | yes |
+| 1000001 InASmallForest_1000001 | 223,436 | 400,000 | yes |
+| 1000004 SnailGarden_1000004 | 207,473 | 400,000 | yes |
+| 50000 ASplitRoad_50000 | 193,467 | 400,000 | yes |
+| 30000 EastEntranceMushroomTown_30000 | 161,549 | 400,000 | yes |
+| 40000 SnailHuntingGround1_40000 | 158,368 | 400,000 | yes |
+| 1000003 MushroomGarden_1000003 | 155,749 | 400,000 | yes |
+| 10000 MushroomTown_10000 | 132,563 | 400,000 | yes |
+| 20000 MushroomTown_20000 | 115,661 | 400,000 | yes |
+| 0 WestEntranceMushroomTown_0 | 98,348 | 400,000 | yes |
+| 60001 SouthperryArmorStore_60001 | 75,405 | 400,000 | yes |
+| 1010002 AmherstTownstreet_1010002 | 73,052 | 400,000 | yes |
+| 1010003 AmherstDepartmentStore_1010003 | 58,720 | 400,000 | yes |
+| 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
+| 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
+| WORLD (plinth, hull, trails, scenery, clouds) | 3,301,829 | 3,500,000 | yes |
+| total | 9,146,414 | | |
+
+## Top 10 assets by instanced triangles
+
+| asset | instances | tris / instance (with outline) | total |
+|---|---|---|---|
+| `Tree_Round_B` | 175 | 2,472 | 432,600 |
+| `Tree_Round_A` | 182 | 2,312 | 420,784 |
+| `Rock_Cliff_Stone` | 8148 | 50 | 407,400 |
+| `Tree_Tall_A` | 84 | 3,984 | 334,656 |
+| `Cloud_Puff_A` | 324 | 880 | 285,120 |
+| `Tree_Birch_Yellow` | 134 | 2,112 | 283,008 |
+| `Tree_Birch_Orange` | 132 | 2,112 | 278,784 |
+| `Cloud_Puff_B` | 300 | 880 | 264,000 |
+| `Mob_BlueSnail` | 53 | 3,696 | 195,888 |
+| `Mob_Snail` | 61 | 2,968 | 181,048 |
+
+Issues: 0 high, 0 medium, 11 low
+
+- [low] props_near_routes: map 1000004: X1000004_Trellis at (23.5, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1000004: X1000004_Trellis at (27.9, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1000004: X1000004_Trellis at (35.8, 27.5) stands 0.85 m from route EastLedges, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010001: Armor_Stand at (2.9, 5.3) stands 1.17 m from route Main, solid at body height 0.74 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020000: Berry_Bush at (17.6, 25.4) stands 1.48 m from route West_StairsToShelves, solid at body height 0.82 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020000: Berry_Bush at (27.3, 25.3) stands 1.45 m from route West_StairsToShelves, solid at body height 0.79 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.53 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.52 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.03 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: X1020001_CratesTomatoes at (24.1, 22.3) stands 1.28 m from route Canopy, solid at body height 0.76 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)

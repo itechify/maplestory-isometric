@@ -1,0 +1,1228 @@
+{
+ "id": 40001,
+ "name": "Snail Hunting Ground II",
+ "street": "Maple Road",
+ "source_version": "GMS v8 (docs/research/raw/gms_v8/40001.json for footholds, ladders, life). Exit portals: raw GMS v8 WZ nodes (docs/research/portals_xml.json); the parsed v8 JSON has null entries for them. Earlier drafts of this file filled those from /api/GMS/34-40 or inference; replaced in the verification fix pass (see docs/MAP_INVENTORY.md, Verification log). docs/topology.json is the authoritative portal table.",
+ "isTown": false,
+ "bgm": "Bgm00/RestNPeace",
+ "mapMark": "MushroomVillage",
+ "returnMap": 60000,
+ "units": "MapleStory px; y increases downward",
+ "extent": {
+  "minX": -309,
+  "maxX": 2919,
+  "minY": -1165,
+  "maxY": 600
+ },
+ "tiers": [
+  {
+   "id": "T0",
+   "x1": 2031,
+   "x2": 2919,
+   "y_left": -1165,
+   "y_right": -1165,
+   "kind": "ledge",
+   "label": "summit ledge, top-east (highest tier)",
+   "length": 888,
+   "y_min": -1165,
+   "y_max": -1165,
+   "profile": [
+    [
+     2031,
+     -1165
+    ],
+    [
+     2919,
+     -1165
+    ]
+   ],
+   "fh_group": 70
+  },
+  {
+   "id": "T1",
+   "x1": 1851,
+   "x2": 2031,
+   "y_left": -1105,
+   "y_right": -1105,
+   "kind": "floating",
+   "label": "summit step (60px below T0)",
+   "length": 180,
+   "y_min": -1105,
+   "y_max": -1105,
+   "profile": [
+    [
+     1851,
+     -1105
+    ],
+    [
+     2031,
+     -1105
+    ]
+   ],
+   "fh_group": 70
+  },
+  {
+   "id": "T2",
+   "x1": 1671,
+   "x2": 1839,
+   "y_left": -1045,
+   "y_right": -1045,
+   "kind": "floating",
+   "label": "arch climb block, upper run 3",
+   "length": 168,
+   "y_min": -1045,
+   "y_max": -1045,
+   "profile": [
+    [
+     1671,
+     -1045
+    ],
+    [
+     1839,
+     -1045
+    ]
+   ],
+   "fh_group": 69
+  },
+  {
+   "id": "T3",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -985,
+   "y_right": -985,
+   "kind": "floating",
+   "label": "arch climb block, upper run 2",
+   "length": 168,
+   "y_min": -985,
+   "y_max": -985,
+   "profile": [
+    [
+     1581,
+     -985
+    ],
+    [
+     1749,
+     -985
+    ]
+   ],
+   "fh_group": 68
+  },
+  {
+   "id": "T4",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -925,
+   "y_right": -925,
+   "kind": "floating",
+   "label": "arch apex block",
+   "length": 168,
+   "y_min": -925,
+   "y_max": -925,
+   "profile": [
+    [
+     1491,
+     -925
+    ],
+    [
+     1659,
+     -925
+    ]
+   ],
+   "fh_group": 67
+  },
+  {
+   "id": "T5",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -865,
+   "y_right": -865,
+   "kind": "floating",
+   "label": "arch west leg block 4",
+   "length": 168,
+   "y_min": -865,
+   "y_max": -865,
+   "profile": [
+    [
+     1311,
+     -865
+    ],
+    [
+     1479,
+     -865
+    ]
+   ],
+   "fh_group": 65
+  },
+  {
+   "id": "T6",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -865,
+   "y_right": -865,
+   "kind": "floating",
+   "label": "arch east leg block 1 (top)",
+   "length": 168,
+   "y_min": -865,
+   "y_max": -865,
+   "profile": [
+    [
+     1581,
+     -865
+    ],
+    [
+     1749,
+     -865
+    ]
+   ],
+   "fh_group": 66
+  },
+  {
+   "id": "T7",
+   "x1": 1221,
+   "x2": 1389,
+   "y_left": -805,
+   "y_right": -805,
+   "kind": "floating",
+   "label": "arch west leg block 3",
+   "length": 168,
+   "y_min": -805,
+   "y_max": -805,
+   "profile": [
+    [
+     1221,
+     -805
+    ],
+    [
+     1389,
+     -805
+    ]
+   ],
+   "fh_group": 64
+  },
+  {
+   "id": "T8",
+   "x1": 1671,
+   "x2": 1839,
+   "y_left": -805,
+   "y_right": -805,
+   "kind": "floating",
+   "label": "arch east leg block 2",
+   "length": 168,
+   "y_min": -805,
+   "y_max": -805,
+   "profile": [
+    [
+     1671,
+     -805
+    ],
+    [
+     1839,
+     -805
+    ]
+   ],
+   "fh_group": 63
+  },
+  {
+   "id": "T9",
+   "x1": 1131,
+   "x2": 1299,
+   "y_left": -745,
+   "y_right": -745,
+   "kind": "floating",
+   "label": "arch west leg block 2",
+   "length": 168,
+   "y_min": -745,
+   "y_max": -745,
+   "profile": [
+    [
+     1131,
+     -745
+    ],
+    [
+     1299,
+     -745
+    ]
+   ],
+   "fh_group": 61
+  },
+  {
+   "id": "T10",
+   "x1": 1761,
+   "x2": 1929,
+   "y_left": -745,
+   "y_right": -745,
+   "kind": "floating",
+   "label": "arch east leg block 3",
+   "length": 168,
+   "y_min": -745,
+   "y_max": -745,
+   "profile": [
+    [
+     1761,
+     -745
+    ],
+    [
+     1929,
+     -745
+    ]
+   ],
+   "fh_group": 62
+  },
+  {
+   "id": "T11",
+   "x1": 1131,
+   "x2": 1299,
+   "y_left": -685,
+   "y_right": -685,
+   "kind": "floating",
+   "label": "arch west leg block 1 (from T13)",
+   "length": 168,
+   "y_min": -685,
+   "y_max": -685,
+   "profile": [
+    [
+     1131,
+     -685
+    ],
+    [
+     1299,
+     -685
+    ]
+   ],
+   "fh_group": 59
+  },
+  {
+   "id": "T12",
+   "x1": 1851,
+   "x2": 2649,
+   "y_left": -685,
+   "y_right": -685,
+   "kind": "ledge",
+   "label": "upper-east ledge",
+   "length": 798,
+   "y_min": -685,
+   "y_max": -685,
+   "profile": [
+    [
+     1851,
+     -685
+    ],
+    [
+     2649,
+     -685
+    ]
+   ],
+   "fh_group": 56
+  },
+  {
+   "id": "T13",
+   "x1": 321,
+   "x2": 1209,
+   "y_left": -625,
+   "y_right": -625,
+   "kind": "ledge",
+   "label": "upper-west ledge",
+   "length": 888,
+   "y_min": -625,
+   "y_max": -625,
+   "profile": [
+    [
+     321,
+     -625
+    ],
+    [
+     1209,
+     -625
+    ]
+   ],
+   "fh_group": 52
+  },
+  {
+   "id": "T14",
+   "x1": 1671,
+   "x2": 1839,
+   "y_left": -625,
+   "y_right": -625,
+   "kind": "floating",
+   "label": "arch east foot block (to T12)",
+   "length": 168,
+   "y_min": -625,
+   "y_max": -625,
+   "profile": [
+    [
+     1671,
+     -625
+    ],
+    [
+     1839,
+     -625
+    ]
+   ],
+   "fh_group": 57
+  },
+  {
+   "id": "T15",
+   "x1": 1221,
+   "x2": 1389,
+   "y_left": -565,
+   "y_right": -565,
+   "kind": "floating",
+   "label": "west stacked pair (upper)",
+   "length": 168,
+   "y_min": -565,
+   "y_max": -565,
+   "profile": [
+    [
+     1221,
+     -565
+    ],
+    [
+     1389,
+     -565
+    ]
+   ],
+   "fh_group": 54
+  },
+  {
+   "id": "T16",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -565,
+   "y_right": -565,
+   "kind": "floating",
+   "label": "east stacked pair (upper)",
+   "length": 168,
+   "y_min": -565,
+   "y_max": -565,
+   "profile": [
+    [
+     1491,
+     -565
+    ],
+    [
+     1659,
+     -565
+    ]
+   ],
+   "fh_group": 53
+  },
+  {
+   "id": "T17",
+   "x1": 1221,
+   "x2": 1389,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "floating",
+   "label": "west stacked pair (lower)",
+   "length": 168,
+   "y_min": -505,
+   "y_max": -505,
+   "profile": [
+    [
+     1221,
+     -505
+    ],
+    [
+     1389,
+     -505
+    ]
+   ],
+   "fh_group": 49
+  },
+  {
+   "id": "T18",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "floating",
+   "label": "east stacked pair (lower), rope head x1530",
+   "length": 168,
+   "y_min": -505,
+   "y_max": -505,
+   "profile": [
+    [
+     1491,
+     -505
+    ],
+    [
+     1659,
+     -505
+    ]
+   ],
+   "fh_group": 48
+  },
+  {
+   "id": "T19",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "floating",
+   "label": "central pillar block 4 (top)",
+   "length": 168,
+   "y_min": -445,
+   "y_max": -445,
+   "profile": [
+    [
+     1311,
+     -445
+    ],
+    [
+     1479,
+     -445
+    ]
+   ],
+   "fh_group": 45
+  },
+  {
+   "id": "T20",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "floating",
+   "label": "central pillar block 3",
+   "length": 168,
+   "y_min": -385,
+   "y_max": -385,
+   "profile": [
+    [
+     1311,
+     -385
+    ],
+    [
+     1479,
+     -385
+    ]
+   ],
+   "fh_group": 40
+  },
+  {
+   "id": "T21",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "floating",
+   "label": "central pillar block 2",
+   "length": 168,
+   "y_min": -325,
+   "y_max": -325,
+   "profile": [
+    [
+     1311,
+     -325
+    ],
+    [
+     1479,
+     -325
+    ]
+   ],
+   "fh_group": 36
+  },
+  {
+   "id": "T22",
+   "x1": 2391,
+   "x2": 2919,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "ledge",
+   "label": "mid-east ledge (reaches east edge)",
+   "length": 528,
+   "y_min": -325,
+   "y_max": -325,
+   "profile": [
+    [
+     2391,
+     -325
+    ],
+    [
+     2919,
+     -325
+    ]
+   ],
+   "fh_group": 34
+  },
+  {
+   "id": "T23",
+   "x1": 51,
+   "x2": 759,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "ledge",
+   "label": "mid-west ledge",
+   "length": 708,
+   "y_min": -265,
+   "y_max": -265,
+   "profile": [
+    [
+     51,
+     -265
+    ],
+    [
+     759,
+     -265
+    ]
+   ],
+   "fh_group": 27
+  },
+  {
+   "id": "T24",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "label": "central pillar block 1 (bottom)",
+   "length": 168,
+   "y_min": -265,
+   "y_max": -265,
+   "profile": [
+    [
+     1311,
+     -265
+    ],
+    [
+     1479,
+     -265
+    ]
+   ],
+   "fh_group": 33
+  },
+  {
+   "id": "T25",
+   "x1": 2211,
+   "x2": 2379,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "label": "mid-east stacked pair (upper)",
+   "length": 168,
+   "y_min": -265,
+   "y_max": -265,
+   "profile": [
+    [
+     2211,
+     -265
+    ],
+    [
+     2379,
+     -265
+    ]
+   ],
+   "fh_group": 32
+  },
+  {
+   "id": "T26",
+   "x1": 771,
+   "x2": 1479,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "ledge",
+   "label": "central mid ledge, west half",
+   "length": 708,
+   "y_min": -205,
+   "y_max": -205,
+   "profile": [
+    [
+     771,
+     -205
+    ],
+    [
+     1479,
+     -205
+    ]
+   ],
+   "fh_group": 26
+  },
+  {
+   "id": "T27",
+   "x1": 1491,
+   "x2": 2019,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "ledge",
+   "label": "central mid ledge, east half",
+   "length": 528,
+   "y_min": -205,
+   "y_max": -205,
+   "profile": [
+    [
+     1491,
+     -205
+    ],
+    [
+     2019,
+     -205
+    ]
+   ],
+   "fh_group": 25
+  },
+  {
+   "id": "T28",
+   "x1": 2211,
+   "x2": 2379,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "floating",
+   "label": "mid-east stacked pair (lower), rope head x2270",
+   "length": 168,
+   "y_min": -205,
+   "y_max": -205,
+   "profile": [
+    [
+     2211,
+     -205
+    ],
+    [
+     2379,
+     -205
+    ]
+   ],
+   "fh_group": 28
+  },
+  {
+   "id": "T29",
+   "x1": 2031,
+   "x2": 2199,
+   "y_left": -25,
+   "y_right": -25,
+   "kind": "floating",
+   "label": "low stepping block 5 (top)",
+   "length": 168,
+   "y_min": -25,
+   "y_max": -25,
+   "profile": [
+    [
+     2031,
+     -25
+    ],
+    [
+     2199,
+     -25
+    ]
+   ],
+   "fh_group": 20
+  },
+  {
+   "id": "T30",
+   "x1": 1941,
+   "x2": 2109,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "label": "low stepping block 4",
+   "length": 168,
+   "y_min": 35,
+   "y_max": 35,
+   "profile": [
+    [
+     1941,
+     35
+    ],
+    [
+     2109,
+     35
+    ]
+   ],
+   "fh_group": 14
+  },
+  {
+   "id": "T31",
+   "x1": 2211,
+   "x2": 2559,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "label": "low floating ledge over east ground",
+   "length": 348,
+   "y_min": 35,
+   "y_max": 35,
+   "profile": [
+    [
+     2211,
+     35
+    ],
+    [
+     2559,
+     35
+    ]
+   ],
+   "fh_group": 11
+  },
+  {
+   "id": "T32",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "floating",
+   "label": "low floating block over west ground (rope hub)",
+   "length": 168,
+   "y_min": 95,
+   "y_max": 95,
+   "profile": [
+    [
+     861,
+     95
+    ],
+    [
+     1029,
+     95
+    ]
+   ],
+   "fh_group": 10
+  },
+  {
+   "id": "T33",
+   "x1": 1761,
+   "x2": 1929,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "floating",
+   "label": "low stepping block 3",
+   "length": 168,
+   "y_min": 95,
+   "y_max": 95,
+   "profile": [
+    [
+     1761,
+     95
+    ],
+    [
+     1929,
+     95
+    ]
+   ],
+   "fh_group": 12
+  },
+  {
+   "id": "T34",
+   "x1": 1671,
+   "x2": 1839,
+   "y_left": 155,
+   "y_right": 155,
+   "kind": "floating",
+   "label": "low stepping block 2 (from mesa)",
+   "length": 168,
+   "y_min": 155,
+   "y_max": 155,
+   "profile": [
+    [
+     1671,
+     155
+    ],
+    [
+     1839,
+     155
+    ]
+   ],
+   "fh_group": 9
+  },
+  {
+   "id": "T35",
+   "x1": -309,
+   "x2": 1659,
+   "y_left": 395,
+   "y_right": 215,
+   "kind": "slope",
+   "label": "west ground + ramp + mesa top (one continuous tier)",
+   "length": 1968,
+   "y_min": 215,
+   "y_max": 395,
+   "profile": [
+    [
+     -309,
+     395
+    ],
+    [
+     1080,
+     395
+    ],
+    [
+     1350,
+     215
+    ],
+    [
+     1659,
+     215
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T36",
+   "x1": 1659,
+   "x2": 2919,
+   "y_left": 395,
+   "y_right": 395,
+   "kind": "ground",
+   "label": "east ground floor below mesa cliff (exit east)",
+   "length": 1260,
+   "y_min": 395,
+   "y_max": 395,
+   "profile": [
+    [
+     1659,
+     395
+    ],
+    [
+     2919,
+     395
+    ]
+   ],
+   "fh_group": 0
+  }
+ ],
+ "ladders": [
+  {
+   "x": 1530,
+   "y1": -503,
+   "y2": -219,
+   "isLadder": false,
+   "from_tier": "T27",
+   "to_tier": "T18",
+   "length": 284,
+   "bottom_gap_px": 14,
+   "one_way_down": false
+  },
+  {
+   "x": 2520,
+   "y1": -683,
+   "y2": -367,
+   "isLadder": false,
+   "from_tier": "T22",
+   "to_tier": "T12",
+   "length": 316,
+   "bottom_gap_px": 42,
+   "one_way_down": false
+  },
+  {
+   "x": 1867,
+   "y1": -203,
+   "y2": 95,
+   "isLadder": false,
+   "from_tier": "T33",
+   "to_tier": "T27",
+   "length": 298,
+   "bottom_gap_px": 0,
+   "one_way_down": false
+  },
+  {
+   "x": 412,
+   "y1": -623,
+   "y2": -302,
+   "isLadder": false,
+   "from_tier": "T23",
+   "to_tier": "T13",
+   "length": 321,
+   "bottom_gap_px": 37,
+   "one_way_down": false
+  },
+  {
+   "x": 2270,
+   "y1": -203,
+   "y2": 33,
+   "isLadder": false,
+   "from_tier": "T31",
+   "to_tier": "T28",
+   "length": 236,
+   "bottom_gap_px": 2,
+   "one_way_down": false
+  },
+  {
+   "x": 2383,
+   "y1": 37,
+   "y2": 356,
+   "isLadder": false,
+   "from_tier": "T36",
+   "to_tier": "T31",
+   "length": 319,
+   "bottom_gap_px": 39,
+   "one_way_down": false
+  },
+  {
+   "x": 918,
+   "y1": 97,
+   "y2": 353,
+   "isLadder": false,
+   "from_tier": "T35",
+   "to_tier": "T32",
+   "length": 256,
+   "bottom_gap_px": 42,
+   "one_way_down": false
+  },
+  {
+   "x": 997,
+   "y1": -203,
+   "y2": 93,
+   "isLadder": false,
+   "from_tier": "T32",
+   "to_tier": "T26",
+   "length": 296,
+   "bottom_gap_px": 2,
+   "one_way_down": false
+  }
+ ],
+ "portals": [
+  {
+   "name": "west00",
+   "x": -219,
+   "y": 393,
+   "type": 2,
+   "target": "40000:east00",
+   "inferred": false,
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040001.img/portal/5 (raw GMS v8 WZ; compiled in docs/research/portals_xml.json)",
+   "note": "Confirmed by the raw v8 WZ node. An earlier draft of this file took the same values from /api/GMS/40/map/40001 because the parsed v8 JSON entry is null."
+  },
+  {
+   "name": "east00",
+   "x": 2792,
+   "y": 395,
+   "type": 2,
+   "target": "40002:west00",
+   "inferred": false,
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040001.img/portal/6 (raw GMS v8 WZ; compiled in docs/research/portals_xml.json)",
+   "note": "Confirmed by the raw v8 WZ node. An earlier draft of this file took the same values from /api/GMS/34 and /39/map/40001 because the parsed v8 JSON entry is null."
+  },
+  {
+   "name": "sp",
+   "x": -4,
+   "y": 314,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/40001.json",
+   "note": "player spawn point"
+  },
+  {
+   "name": "sp",
+   "x": -56,
+   "y": 315,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/40001.json",
+   "note": "player spawn point"
+  },
+  {
+   "name": "sp",
+   "x": -111,
+   "y": 317,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/40001.json",
+   "note": "player spawn point"
+  },
+  {
+   "name": "sp",
+   "x": -176,
+   "y": 315,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/40001.json",
+   "note": "player spawn point"
+  },
+  {
+   "name": "sp",
+   "x": -219,
+   "y": 313,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/40001.json",
+   "note": "player spawn point"
+  }
+ ],
+ "portal_nulls_in_v8": 2,
+ "mobs": {
+  "Snail": {
+   "id": 100100,
+   "level": 1,
+   "count": 43,
+   "tiers": [
+    "T35",
+    "T22",
+    "T12",
+    "T15",
+    "T13",
+    "T26",
+    "T27",
+    "T23",
+    "T0",
+    "T36",
+    "T31"
+   ],
+   "by_tier": {
+    "T35": 5,
+    "T22": 4,
+    "T12": 5,
+    "T15": 1,
+    "T13": 6,
+    "T26": 4,
+    "T27": 1,
+    "T23": 5,
+    "T0": 4,
+    "T36": 7,
+    "T31": 1
+   }
+  },
+  "Blue Snail": {
+   "id": 100101,
+   "level": 2,
+   "count": 24,
+   "tiers": [
+    "T35",
+    "T36",
+    "T31",
+    "T27",
+    "T26",
+    "T23",
+    "T13",
+    "T12",
+    "T22",
+    "T0",
+    "T1"
+   ],
+   "by_tier": {
+    "T35": 4,
+    "T36": 3,
+    "T31": 2,
+    "T27": 3,
+    "T26": 1,
+    "T23": 1,
+    "T13": 2,
+    "T12": 2,
+    "T22": 1,
+    "T0": 4,
+    "T1": 1
+   }
+  }
+ },
+ "npcs": [],
+ "terrain_style": "grass-topped olive/brown dirt cliff tiles (Maple Island grassy-soil set) with small embedded grey-green rocks; platforms are earth blocks with tapered/ragged undersides; tile module 90px wide, step module 60px tall; autumn-coloured (orange/yellow) white-trunk trees, round green bushes and grass tufts as decoration (minimap); white picket fences on the west ground",
+ "landmarks": [
+  {
+   "what": "white picket fence",
+   "x": -125,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x -222..-30"
+  },
+  {
+   "what": "dense cluster of yellow/orange autumn trees",
+   "x": 170,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x -142..482"
+  },
+  {
+   "what": "UNIDENTIFIED flat light object with dark shadow beneath, at ground level",
+   "x": 545,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 444..642"
+  },
+  {
+   "what": "yellow autumn trees",
+   "x": 770,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 626..914"
+  },
+  {
+   "what": "white picket fence at foot of ramp",
+   "x": 1000,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 866..1138"
+  },
+  {
+   "what": "yellow autumn tree on mesa top",
+   "x": 1500,
+   "y": 215,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "green bush + orange sapling below mesa cliff",
+   "x": 1820,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "yellow autumn trees",
+   "x": 2450,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "teal-leaf tree + green bush",
+   "x": 2760,
+   "y": 395,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "orange autumn tree + bushes",
+   "x": 900,
+   "y": -625,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "yellow tufts / flowers",
+   "x": 225,
+   "y": -265,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "orange tree, red-leaf tree, bush",
+   "x": 1150,
+   "y": -205,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "green bush",
+   "x": 1810,
+   "y": -205,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "green bushes",
+   "x": 2350,
+   "y": -685,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 2194..2514"
+  },
+  {
+   "what": "green bush",
+   "x": 2760,
+   "y": -325,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px"
+  },
+  {
+   "what": "grove of yellow/orange + teal trees on the summit",
+   "x": 2600,
+   "y": -1165,
+   "approx": true,
+   "source": "v8 minimap (map px = minimap px*16 - miniMap.center), +/-50px",
+   "span": "x 2370..2818"
+  }
+ ]
+}

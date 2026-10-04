@@ -1,0 +1,931 @@
+{
+ "synthesis": {
+  "significant_issues_remain": true,
+  "must_fix": [
+   {
+    "map_id": "60000",
+    "scope": "map",
+    "issue": "The Southperry Gameplay render (a required representative render) does not show the boarding point. The code shows why: SHIP_GANGWAY_X = -0.4 is only 0.2 m from SHIP_MAIN_X = -0.6 (m60000_Southperry.py line 602-604), so the gangplank sits directly behind the main mast. The main shrouds, which anchor either side of the gangway opening (lines 892-893), also cross in front of it. Shanks wears roof_blue on his coat, hat and top (npcs.py) and blends into the blue-and-white ticket booth. Only one NPC stands near the boarding point. The iter2 triage acceptance ('Shanks, the gangplank and at least two NPCs unobstructed') is not met. This is criterion (4) of the town verifier, which failed.",
+    "fix": "1) Move SHIP_GANGWAY_X into the open waist between the fore and main masts, at about 2.4-2.8. Spot-render the waist from CAM Gameplay to choose the clearest x; there is no named hatch object to aim at. 2) Make the shroud special case at lines 892-893 a distance test, e.g. `if sgn == GANGWAY_SIDE and abs(mx - SHIP_GANGWAY_X) < 2.0`, so the main shrouds go back to the default (mx-0.8, mx, mx+0.8) and the fore shrouds (5.0/5.8/6.6) do not collide with the gangway anchors. The bulwark gap (line 629), Gangway_Base, Gangplank, Shanks (gx-1.1, 5.0) and the routes at lines 1449/1465/1467 all derive from gx and follow automatically. Re-check that the ShipDecks/ShipForecastle routes still clear the masts. 3) Give Shanks a contrasting outfit through npc()'s **override, e.g. m.npc('Shanks', ..., coat='cloth_white' or a red/gold, hat_color to match). 4) Move Tia (3.8,14.6) or Bari (28.9,16.6) onto the quay front strip, on the camera side of the ticket booth (68.4,6.2), at least 0.9 m off Main. 5) Optional, same frame: in the jib _flat_sail call (line ~880), raise the clew (for example SHIP_FC + 2.5) and/or reduce _swing from 50 to about 30 degrees so the jib clears the lighthouse base. Redo the 'ray-probed clear' check for Shanks's new spot. Then rebuild and run traversal, orphan_routes, props_near_routes, player_in_gameplay_frame and the budget check (378k of 400k). Re-render Southperry_60000_Gameplay and Overview. Acceptance: the gangplank, Shanks and at least one more NPC are unobstructed in Gameplay."
+   },
+   {
+    "map_id": "ALL_ROPE_MAPS (40001, 1020000, 40000, 40002, 30000, 1000006, 1010000)",
+    "scope": "shared",
+    "issue": "At gameplay scale, ropes still read as stakes, crooked sticks or 'a pole with a knob' rather than hanging ropes. Three verifiers flagged this (medium for 40001 and 1020000; low for Amherst), and it is the iter2 shared #6 item again. The silhouette comes from mapkit._hanging_strand. The plumb strand (r 0.07, 4-5 px on screen) bends over the lip, drapes onto the cap and ties to a 0.38 m stake topped by a rope torus (lines ~610-640 bend, ~704-708 stake). From the iso camera, drape plus stake draws a hook or cane top above the edge. 40001's identity is all ropes, and 1020000's is its 12 climbables, so climbs reading as climbs (the 'moves like' half of the goal) is weak on those maps. Ladders and vines read fine.",
+    "fix": "In mapkit._hanging_strand (rope branch only): 1) Stop the strand at the lip. Drop the over-the-lip `bend` points for ropes, or keep only the first point at the lip edge, and end it with a short dark whipping or knot cylinder (about rr*1.5, 0.12 m) at col_top. 2) Delete the 0.38 m stake and its torus, or replace them with a flat peg no more than 0.1 m above the cap top, so nothing rises above the lip edge. 3) Raise the visual strand radius from 0.07 to about 0.09 and keep the existing outline (rr + 0.016). 4) Tone: the two verifiers disagree (one wants lighter, one darker), so use a mid-value, more saturated ochre for M_Rope, about #A9814A instead of the current #C7A46B. Keep the dark M_Wood_Dark knot bands every 0.4 m and the ink outline, so the strand separates from both dark soil and pale lit stone. 5) Delete the pale override in m30000's local _hemp() (lines 215-221, M_Flat_sand_a), or point it at the same mid-tone. 6) The 1020001 trellis 'stake hooks' are not from this code path: the vine branch returns before the stake code, and the trellis is the map-local X1020001_TrellisArch. Check that asset separately; it is optional. Checks: ladder() mirrors the strand's bounding box to keep the climb position at (x,y), so changing the radius or removing the stake changes that box. Rebuild all maps and re-run floating_props, props_near_routes, ladder coverage and climb, traversal and the 20/20 trail walk. Re-render the Gameplay frames of 40001, 1020000, 30000 and 40000, and check Amherst."
+   },
+   {
+    "map_id": "island (world.lake waterfall)",
+    "scope": "shared",
+    "issue": "The waterfall crescent cliff, at the visual centre of every island shot and Region_MapleRoad, still reads as 'two stacked rectangular blocks' or a two-layer cake. Two verifiers independently rated this medium. Triage #9 landed only partly: the plunge now reaches the lake and the flanking peaks exist, but the code makes the cliff boxy by construction. Waterfall_Cliff is one geo.terrace at a uniform height h across a ~68 m crescent (world.py ~331-333). The W and E tiers are the same parametric curve offset by `fwd` (lines 334-343), so they are concentric, with wobble of only 1.2-1.4.",
+    "fix": "In World.lake() (world.py lines ~317-343): 1) Break the uniform top. Build the crescent as 3 overlapping lobes, each with its own seed and wobble_amt of about 2.5-3.0: a west wing (t of about -1 to -0.25) at about 0.8h, a centre lobe (t of about -0.35 to 0.35) at h, and an east wing (t of about 0.25 to 1) at about 0.88h. The centre lobe must contain the lip at (tx,ty) - d*4 at height h, because the Upper sheet, river and ledge key off it. 2) Make the front tiers non-concentric. Jitter fwd per vertex (for example fwd + 2.5*sin(2.7*pi*t + seed) plus an rng ±1.0) and give the tiers different depths (6-10 m). Add a third, smaller shoulder tier at about 0.3h on one wing. 3) Scatter about 8-14 Rock_Cliff_Stone instances (scale 1.5-3.5) on the camera-facing faces and tier fronts, plus a few bush or vine clumps on the tier lips. 4) If the grass_rock faces still render dark olive, tint the cliff faces toward the warm strata (#8a7d6b-#9a8a72). Constraints: keep every new height at or below h, and run any bulky addition through occludes_map, as the flanking peaks do. Keep the ground_index registration, which the ledge and foot raycasts use. Leave the ledge, sheets, stream, mist, flanking peaks and lake position unchanged. This is scenery only, with no traversal impact. Re-render Island_Overview_Close, Island_Hero, Island_Overview and Region_MapleRoad."
+   },
+   {
+    "map_id": "1000006",
+    "scope": "map",
+    "issue": "Two problems on one map. 1) The Gameplay frame is about 30% occupied by the neighbouring Dangerous Forest (1000002) in the foreground. A dark 1000002 broadleaf tree hides the arrival portal at the hub lip, and the golden dell and the ramp (the map's defining features) are pushed to the top of the frame. 2) The plank-bridge arrival (triage #13b) does not read in Region_WestAmherstForests; region criterion (5) failed. The span does exist: layout.py line 313 has BRIDGE_END = {(1000006,'out00'): 8.0}, trails.py line 367 has _plank_bridge, and build_report has bridge_m 8. So this is a contrast and void-readability problem, not a missing span.",
+    "fix": "1) In m1000006_HuntingGroundMidForest2.py, change GAMEPLAY_FOCUS from (17,9) to about (17,12.5) and GAMEPLAY_SCALE from 34 to about 36. Move m.player from (20.6,3.0) to a hub point near the new focus, e.g. (19,4.5), and re-run player_in_gameplay_frame. If the dark 1000002 tree still covers the arrival portal, move or delete that one tree in m1000002. Do not open render.py foreground exclusion; that is Iteration Two tooling. 2) Bridge readability, contrast only, in _plank_bridge or a 1000006-specific override: dark-stained plank material, taller rail posts (about 1.1 m) in a contrasting colour with rope rails, and a lantern or Sign_Arrow post at each end. Confirm with _scratch/spot_render.py at the bridge midpoint that air is visible under the span, i.e. the causeway solid and flanks stop at s_cut. If they do not, pull the hub's front skirt back or darken the face under the bridge. Re-run the trail walk (20/20). Re-render 1000006 Gameplay and Region_WestAmherstForests."
+   },
+   {
+    "map_id": "30000",
+    "scope": "map",
+    "issue": "The 30000 Gameplay frame exists to show the two rope pitches, the map's identity beat (line 40 comment). A large featureless dark-green trail-flank wedge fills about the right quarter of the frame (x 1380-1920), under the stair flight to 40000. The rope strands themselves are near-white against lit pale-grey stone, because the local _hemp() recolours them to M_Flat_sand_a, so the identity beat barely reads.",
+    "fix": "1) Shift GAMEPLAY_FOCUS (29.0,16.5) about 2-3 m away from the embankment, or lower GAMEPLAY_SCALE from 36 to about 34, so the flank wedge is mostly cropped. Confirm in a test render that both rope pitches (R1X/R2X) and the player (27.5,20.2) stay in frame, and re-run player_in_gameplay_frame. 2) Rope contrast comes from the shared rope item: remove or retarget the _hemp() pale override so the ropes take the mid-tone ochre with dark bands and outline. 3) Optional: place 3-5 Rock_Cliff_Stone instances and bush clumps on the remaining visible flank face (instances off-route; re-run props_near_routes). Re-render MushroomTown-area 30000 Gameplay."
+   }
+  ],
+  "deferrable": [
+   "Island hull reads as a flat-bottomed striped slab (cake slice) in Island_Hero. Already deferred: DEFERRED.md line 51, underside crags and hanging spires.",
+   "1000006 trail (61 m, 1000000 in05 -> 1000006) still reads straight at region scale and forms a mild two-strip comb with the 1010004 lane. A layout or lateral-offset change cascades through resolve() and the trail walk, and R3-5 already accepted about 58 m by design. It reads as a valley lane, not a runway.",
+   "Shared trail flank dressing: large featureless green wedges under the long stair trails (30000->40000, 40002->50000) in region frames. The fringe, outcrops and toe bushes from triage #4c did not land. The 30000 Gameplay case is handled by reframing in must_fix.",
+   "North-rim and NE ridges are evenly spaced, near-identical cones (picket fence or saw-tooth). Jitter scale, yaw and offset, cluster in 2s and 3s, and mix in Mountain_Hill, while keeping the Mushroom Town wall dense.",
+   "Cloud collar: soft, but a dense continuous band that renders grey in the island's shadow (Overview and Hero left half, Region_MapleRoad bottom-left), with popcorn discs at lower right in Hero. Fix with an emission or lifted-shadow term on the cloud material and 20-30% sky gaps. Also one opaque sky cloud blob at top-centre of Region_RainbowStreet. Criterion (2) passed, so this does not block.",
+   "Forest cluster north of Amherst still reads as a grid of rectangular plates, with one short, straight fenced connector from 1000006 toward 1000002.",
+   "Dangerous Forest (1000002) is dark only in its canopy: same bright floor and same global sun. A kit grass_moss style is already in DEFERRED.md. Also a spur-ribbon overlap band at the east junction.",
+   "1020000 hidden-lane hedges are uniform smooth tubes (green sausages), one drapes over the cliff corner, and they advertise the hidden lane.",
+   "Ribbon seams and lips: 30000 valley road shows overlapping quads, 1010004 knoll-to-stair patch and basin kink, 50000 upper-road notch at the T4_Ramp seam, and the 1000000 road east-end lip and step folds (already in DEFERRED.md).",
+   "Gameplay framing polish: the 10000 and map 0 house caps clip the top edge, 1010002's orange cap (its identity cue) is above the frame, 1000004's player and portal are squeezed at the top edge, 20000 has no NPC in frame, and the 1000001 birch crown is cut off.",
+   "Southperry polish: the ship is small at island scale and reads as moored at the corner rather than hovering (push it 2-4 m out or scale it 1.15, add keel puffs). The Overview shows about 25% underside.",
+   "1000005 jump-tower spire renders as a banded grey silo, not a mossy rock spire.",
+   "Stair and flight readability: map 0's upper flight reads as one tilted slab, the 40000 west knoll flight reads as three separate slabs, and the 40001 road ribbon ends square at a cliff edge.",
+   "Scatter hygiene: flowers grow out of the 1000001 timber stair planks (skip scatter on stair and plank sections), and a blue toadstool intersects a boulder west of map 0 (add a clearance check).",
+   "Main road east of Amherst is fainter than the west legs (verify 1020000 uses MAIN_ROAD end to end), and 1020000's west-plateau road reads as a bare sand plane. Terrace walls hide short in-plate road stretches in 40001/40002.",
+   "Interiors: the 20001 entry-nook lintel reads as a free-standing gate, and the 1010003 spiral stair foot crowds the Thank-you door, with a sparse front floor (front-floor display already in DEFERRED.md).",
+   "1020001 trellis vine tips show a pale hooked stake above the deck edges. This is the map-local X1020001_TrellisArch, not the kit vine; fix it alongside or after the shared rope pass.",
+   "Region character: the autumn palette is shared by the Snail Hunting Grounds and 1020000, so the 'autumn birch valley' is not unique to one region.",
+   "Dropped as cosmetic or duplicate: interior Overview fill of about 87% of frame height against the 75-80% target (nothing cropped), overlapping labels in the debug Island_Overview only, and the 20001 cap-apex hairline (already on the iter2 Iteration Two list)."
+  ],
+  "failed_criteria": [
+   "Regions verifier (5): the 1000006 plank-bridge arrival does not read as a bridge in Region_WestAmherstForests. The 1010004 arrival half passes. Covered by must_fix 1000006.",
+   "Towns verifier (4): the Southperry Gameplay boarding point (gangplank) and characters clause fails. The gangplank is behind the main mast and shrouds, Shanks blends with the booth, and only one NPC is near the boarding point. The ship and lighthouse clauses pass. Covered by must_fix 60000."
+  ],
+  "verdict_table": [
+   {
+    "map_id": "island",
+    "verdict": "good (must_fix pending: waterfall cliff)"
+   },
+   {
+    "map_id": "0",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "10000",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "20000",
+    "verdict": "good"
+   },
+   {
+    "map_id": "20001",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "30000",
+    "verdict": "good (must_fix pending: gameplay framing and rope contrast)"
+   },
+   {
+    "map_id": "40000",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "40001",
+    "verdict": "good (must_fix pending: shared rope read)"
+   },
+   {
+    "map_id": "40002",
+    "verdict": "good"
+   },
+   {
+    "map_id": "50000",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "60000",
+    "verdict": "good (must_fix pending: boarding point)"
+   },
+   {
+    "map_id": "60001",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1000000",
+    "verdict": "good"
+   },
+   {
+    "map_id": "1000001",
+    "verdict": "good"
+   },
+   {
+    "map_id": "1000002",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1000003",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1000004",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1000005",
+    "verdict": "good"
+   },
+   {
+    "map_id": "1000006",
+    "verdict": "good (must_fix pending: gameplay occlusion and bridge read)"
+   },
+   {
+    "map_id": "1010000",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1010001",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1010002",
+    "verdict": "good"
+   },
+   {
+    "map_id": "1010003",
+    "verdict": "good"
+   },
+   {
+    "map_id": "1010004",
+    "verdict": "excellent"
+   },
+   {
+    "map_id": "1020000",
+    "verdict": "good (must_fix pending: shared rope read)"
+   },
+   {
+    "map_id": "1020001",
+    "verdict": "excellent"
+   }
+  ],
+  "assessment": "Iteration One is close to done. Five targeted fixes remain; nothing needs structural rework.\n\n**Verdicts.** All 25 maps plus the island were seen. The result is 13 excellent, 12 good, 0 needs work, with the island good. Iter2 was 4 excellent, 20 good and 1 needs work (40002, now good). Where verifiers disagreed, the map-level verifier's verdict wins over the region verifier's, because it saw the Gameplay and Overview renders at full scale. Examples: 0, 10000, 40000, 50000, 1000002/3/4, 1010004 and 1020001 rise to excellent; 60000 drops to good because its boarding-point clause failed.\n\n**Island.** All eight island criteria pass. The four iter2 island blockers are cleared:\n- the faceted cloud collar and peak halos\n- the runway comb across the forest cluster\n- the broken main road (now traceable from the NW tip through the fork to Southperry and to Amherst)\n- Mushroom Town not reading as a meadow pocket under a peak wall\n\nThe island now clearly evokes the classic world map. Validation is all yes, with 20/20 trails walking.\n\n**How must_fix was chosen.** An item qualifies only if (a) a verifier criterion failed on it, or (b) two or more verifiers flagged it at medium severity at a visually central spot. In both cases the fix must also be local to one module with no layout cascade. Five items qualify, and every failed criterion maps to one of them:\n1. **Southperry boarding point** (criterion fail). The code confirms the gangplank sits 0.2 m from the main mast, so the mast hides it by construction.\n2. **Rope silhouette** in the shared kit. Three verifiers flagged it, and it weakens the 'moves like' half of the goal on 40001, 1020000 and 30000. The fix removes the above-lip stake and drape, not just the colour.\n3. **Waterfall cliff.** Two verifiers rated it medium, and it sits at the centre of every island shot. The fix is scenery only, with no traversal impact.\n4. **1000006.** Neighbour occlusion in its Gameplay frame plus the bridge read (criterion fail). The span exists, so only contrast and the visible void are needed.\n5. **30000.** Its Gameplay frame exists to show the ropes; it needs reframing plus rope contrast.\n\n**What goes to Iteration Two.** Everything else is polish or structural and is listed as deferrable: hull crags (already in DEFERRED.md), straightening the 1000006 trail (a layout cascade, and the length was accepted in R3-5), flank dressing, ridge jitter, cloud shadow lift, ribbon seams, framing polish and similar items.\n\n**Sequencing.** Per the project rule against editing shared src/misostory/*.py while map fixers run:\n1. Land the two shared edits first, mapkit._hanging_strand and world.lake, as one slot.\n2. Rebuild and re-validate (floating_props, props_near_routes, ladder coverage, traversal, trail walk).\n3. Then run the three map-scope fixes (60000, 1000006, 30000) in parallel.\n4. Re-render the affected frames and do a single bounded re-check:\n   - Southperry_60000_Gameplay\n   - 40001, 1020000, 30000 and 1000006 Gameplay\n   - Island_Overview_Close and Island_Hero\n   - Region_MapleRoad and Region_WestAmherstForests\n\nIf that re-check passes, Iteration One meets its goal and the deferrable list becomes the Iteration Two backlog."
+ },
+ "verifiers": [
+  {
+   "criteria": [
+    {
+     "name": "(1) Each interior fills its frame (about 75-80%) and reads as its classic shop or house",
+     "pass": true,
+     "evidence": "FRAME FILL: all four Overviews use the same framing. At 1920x1080 the room spans about x 445-1475 and y 70-1005, so it fills about 87% of the height and 54% of the width. Nothing is cropped, with about 70 px margins top and bottom. That is a little tighter than 75-80%, but the frame is clearly well filled. RECOGNISABILITY: 20001 Sen's house: orange mushroom-cap cross-section over timber-framed cream walls, and a loft with the orange bed, gold treasure chest and curtained window. Also present: ladder up through the railing hatch, cupboard, bell lamp, stone-arched door with portal glow, Sen beside the player, and a stove with pot. It reads at once as the template mushroom-house interior. 60001 Southperry Armor Store: Pan sits behind an arched booth window on the west (back-left) wall, with helmets on its shelves. A stepped heap of crates and barrels on the east side climbs to a raised plank deck and a hanging line to the ceiling beam. The pink door is centre-left with a glow. The nautical white/blue look (ship's wheel, life ring, compass rug, shields) is a valid choice because the research note calls the appearance 'open'. 1010001 Amherst Weapon Store: reads as a forge workshop, not a plain store. It has the domed furnace with glowing mouth and stack, the green glass tank on the raised deck, the gear wheel on the wall and the chained black armour in an arched alcove. Sid stands in a boarded booth with a sword rack (back-left), and a railed stair climbs past the machine to the beam. 1010003 Amherst Department Store: Lucy stands in the WELCOME booth with the money-bag panel on the left wall. There are potion rows behind the booth and on the POTIONS shelf, a red-gold chest high on the right wall, and the 'Thank you' sign over the right door. The jar-laden pole is shown as a spiral stair around a pole. It shares the same rafters, posts and shell as 1010001, so the two read as a pair."
+    },
+    {
+     "name": "(2) Cutaway readable, furniture not blocking the walk",
+     "pass": true,
+     "evidence": "In all four, the front walls are cut away and the front-right edge has a low knee wall (stone in 20001 and 1010001, planks in 60001 and 1010003). The back and left walls carry the identity props and stay fully visible. The centre floor is open in every room, around the rugs: blue braided rug (20001), compass rug (60001), red/yellow rug (1010001), green rug (1010003). Each door threshold is clear and shows the taller Portal_Door glow. Hard evidence: VALIDATION.md line 18 has props_near_routes = yes, with 0 medium findings and interiors checked at 0.8 m clearance. The only 1010001 entries are two low ones (Armor_Stand, WeaponBarrel at about 0.75 m body clearance). The source shows the 20001 ToStove route was rerouted around the north side of the dining set (m20001 line 674). Minor crowding only: in 1010003 the bottom of the spiral stair sits close to the Thank-you door, and in 1010001 a few small props sit near the stair foot. Neither blocks the walk."
+    },
+    {
+     "name": "(3) No broken geometry",
+     "pass": true,
+     "evidence": "I checked all four for floating props, z-fighting, intersecting meshes, missing faces, gaps at the cut walls and stray fragments, and found none. The rafter bands, post caps, wall ends, knee walls and floor slabs are all clean. The 20001 cap ends sit cleanly on the side walls. The only artefact is a faint seam at the 20001 cap apex (top centre, about x 880, y 75-130). It is the '20001 apex hairline' already in the iter2 triage's Iteration Two list. The 20001 post-and-beam right of the door looks free-standing, but it is the deliberate entry-nook lintel (m20001_MushroomTownTownstreet.py lines 562-569), not broken geometry."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "20001",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The entry-nook lintel (part of House_Frame: posts at x 3.4, y 1.5 and y 5.2; beam about 2.15 m high, built at m20001_MushroomTownTownstreet.py lines 562-569) reads in the Overview as a stray free-standing gate. In the image region about x 615-770, y 495-700 (between the arched door and the loft), the front post stands alone in the open front band. The beam frames no wall, so it looks like leftover scaffolding rather than a nook opening.",
+     "fix": "Tie the lintel to something visible. Either run the beam back into the loft's front post or the left wall and drop the lone front post at y 1.5, or add a knee-high partition stub (wainscot height 0.9 m, same dark plank) between the front post and the left wall so the nook reads as a room division. Keep the beam above body height so the Main route stays clear."
+    },
+    {
+     "map_id": "20001",
+     "scope": "map",
+     "severity": "low",
+     "issue": "There is a faint hairline seam at the apex of the orange cap where the two halves meet (top centre, about x 880, y 75-130). It is already on the triage's Iteration Two list.",
+     "fix": "Already deferred. When it is picked up, weld or overlap the two cap halves at the ridge (about 0.02 m overlap, or merge the vertices) so the cap reads as one shell."
+    },
+    {
+     "map_id": "1010003",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The jar-laden pole is built as a spiral stair whose lowest steps sit about 1 m left of the Thank-you door glow (image about x 1150-1280, y 690-730), so the exit corner feels crowded. The front band of floor is also sparse (a small table, crates and a fruit stand), which leaves the near half of the room thin next to the busy back wall. The front-floor display is already an Iteration Two candidate.",
+     "fix": "Rotate the spiral about 90-120 degrees so its lowest step faces the room centre rather than the door, or move the pole about 0.8 m toward the back wall or the potion shelves. Optionally add one low display table (potions or fruit) in the front band, at least 1.5 m off the routes."
+    },
+    {
+     "map_id": "ALL_INTERIORS",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The interior Overview framing fills about 87% of the frame height (y 70-1005 of 1080), a little beyond the 75-80% target. Nothing is cropped, but the cap of 20001 and the rafters of the three shops come within about 70 px of the edge.",
+     "fix": "Optional. Increase the interior Overview margin (OVERVIEW_EXTRA, or the interior ortho-scale factor) by about 8-10% so the rooms fill about 80% of the frame height."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "20001",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "60001",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1010001",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1010003",
+     "verdict": "good"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Each map reads cleanly with an obvious route and its landmark",
+     "pass": true,
+     "evidence": "1010004: Overview shows the full classic read from back to front: the fenced rim lane with vine arches at the fence gaps (y~300-340), the vine curtain, the three shelf meadows (purple, clover, orange), the central orange-flower knoll, the east stone-disc stair and the clover basin with a dirt path. The route is lane -> vines -> knoll -> knoll-to-stair path (Gameplay ~1160-1600,470-540) -> stair -> basin path. The Gameplay frame crops off the rim lane, but the knoll and bowl are the right gameplay landmark. 1020000: Gameplay shows the terraced hillside: a diagonal row of earth-pillar stepping stones (left), berry-bush shelves, two ladders (~1320,430 and ~850,1000), grass hop-ramps, and the DANGER-sign ledge with tomato plants and the blue portal (~1570,450) where the hedge lane leaves east. The route is implied by platforms rather than a ribbon, which fits a classic climbing field. One caveat: the ropes read as poles (see issues). The giant orange mushroom pair is outside my assigned frames. The map source places Mushroom_Giant_Orange x2 at x~53 (east end), so it exists but is not shown in either image I reviewed. 1020001: Gameplay has a clear dirt path running across the frame past the trellis arch, with the canopy decks above. Overview shows the walled farm, the west hedge-lane mouth with a tomato-capped gate and portal (~300,480-560), and the path along the beds to the east end."
+    },
+    {
+     "name": "(2) Identity vs brief (flower field / east field with hidden portal lane / tomato farm)",
+     "pass": true,
+     "evidence": "1010004: matches its section 5 notes. You arrive at the top on a fenced, hedge-lined rim road (Overview), long vines hang down the cliff, there are three colour-coded meadows and a centre island covered in orange flowers, a stone stair zig-zags up the east side, and the basin is carpeted in clover with snails and butterflies everywhere. Triage acceptance items are confirmed. The east00 arrival meets the rim road along its axis: portal ~1440,290, arrow sign ~1515,258, and the trail carries on east before turning south, with no grass flank between trail and road. The EastStair discs now have stone caps, and the dirt path runs up to them (Gameplay ~1600-1760,560-830). The basin floor and banks are densified with clover and flower scatter (Gameplay bottom third). 1020000: the DANGER sign (yellow diamond with red '!', ~1250,630), tomato plants (~1320-1420,680-740), the portal and a hedge-walled lane heading east are all present on a secluded east-flank ledge, and its 12 climbables plus stepping-stone rows are present. The ropes are weaker than the ladders. 1020001: the strongest identity of the three. Tomato rows run into depth in sunken planted furrows, there are scarecrows, a giant tomato, tomato crates, straw stacks, and a wooden trellis/pergola canopy with vines up the posts, interleaved in height and depth. It is a walled field reached through a hedge lane with a hidden-path mouth, and autumn trees and birches stand on the banks."
+    },
+    {
+     "name": "(3) Player and mobs in frame",
+     "pass": true,
+     "evidence": "1010004 Gameplay: the player stands on the orange knoll (~1080,515), with about 10 snails in frame (red, blue and green, on the shelves, knoll and basin path) plus butterflies. 1020000 Gameplay: the player is at the centre on a clover patch (~885,555), with a red snail beside them (~1000,520), a red snail on the upper terrace (~1340,265), a blue snail at the top (~1160,40) and a red snail by the hedge (~1630,720). 1020001 Gameplay: the player is on the path (~945,470), with blue snails (~1300,480 and ~640,800), a red snail (~1750,650), a green snail (~215,555) and two Orange Mushrooms (~470,560 and ~1500,1010). This matches VALIDATION.md player_in_gameplay_frame = yes."
+    },
+    {
+     "name": "(4) No broken geometry / floating props / route clutter visible",
+     "pass": true,
+     "evidence": "None of the five frames shows broken meshes, floating props or a blocked route. Remaining blemishes are cosmetic. 1010004 has a lighter overlapping ribbon patch on the knoll-to-stair path (~1170-1260,470-500) and a kink in the basin path where segments meet (~1330,900). 1020000 has oversized tubular hedges at the lane mouth, and one segment drapes over the cliff corner (~1500-1620,260-340). Small hooked stake tops show on the 1020000 ropes and the 1020001 trellis vines. Props on the 1020001 decks (crates) sit on the deck tops. This matches VALIDATION.md: floating_props 0, and props_near_routes has 0 medium and only low items."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "1020000",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "The ropes still read as thin, pale standing poles with a bent or hooked stake top above the lip, not as hanging rope. They are visible in FieldEastOfAmherst_1020000_Gameplay.png at about (600,400-490), (430,515-600), (985,270-440) and (975,765-890), each with a small coil at the foot. The ladders (~1320,430 and ~850,1000) read fine, so on a map whose identity is its 12 climbables, the ropes are the weak half. Triage shared #6 named this render as the re-check target.",
+     "fix": "In the kit m.ladder(kind='rope'), cut the stake flush with or below the lip so nothing hooks above the edge, and remove any remaining curled top. Hang the strand plumb within ~0.12 m of the face from lip to base, and keep the foot coil. Make the hemp lighter and warmer, with dark knot bands every ~0.4 m and an ink outline, so the strand contrasts with the dirt cliff. Re-check the 1020000, 40001, 30000 and 50000 Gameplay renders."
+    },
+    {
+     "map_id": "1020000",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "At the right edge of the 1020000 Gameplay frame (~1500-1920,260-690), the hedge walls of the hidden Tomato Field lane are big, uniform, smooth tubes. They read as green sausages or a caterpillar more than clipped hedges. One segment climbs up and over the cliff corner above the portal like a slide. They also openly advertise the 'hidden' lane.",
+     "fix": "In the World_Trails hidden-lane hedges (trails.py, triage #13), vary the radius and height along each run (about 0.8-1.3x), break the runs into overlapping clumps with bumpier leaf silhouettes, drop or trim the segment that drapes over the cliff lip, and taper the hedges down toward the portal ledge. That makes the lane mouth a gap in the shrubbery rather than a tube corridor."
+    },
+    {
+     "map_id": "1010004",
+     "scope": "map",
+     "severity": "low",
+     "issue": "There are path-ribbon seams in the 1010004 Gameplay frame. On the knoll-to-east-stair path, a lighter, mismatched patch sits where two ribbon segments overlap (~1170-1260,470-500). The basin dirt path also shows a visible kink where segments meet (~1330,900) and a notch near the west end (~210,830).",
+     "fix": "Merge the knoll-to-stair path into a single ribbon, or give the overlapping segments the same material and z-lift with blend=True. Smooth the basin path's control points at the segment joins so it runs as one continuous curve."
+    },
+    {
+     "map_id": "1010004",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The east00 trail leaving the rim lane is still a long, almost straight runway fenced on both sides, running down the east side of the map (Overview right edge, x~1500-1620, y~280 to 1080). The arrival now meets the rim road correctly along its axis, but the long fenced run adds to the 'circuit board' look triage #4 flagged in region shots.",
+     "fix": "In trails.py build_trail, add 1-2 seeded lateral waypoints (6-12 m offsets) on this mid-section, keep fence rails only where the side drop exceeds 2 m, and plant shrub and tree clumps along the run."
+    },
+    {
+     "map_id": "1020001",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The vines on the trellis posts end in a pale stake with a hooked tip poking above the deck edges: 1020001 Gameplay at about (550,50-90), (1280,220-250) and (1780,340-370). It is the same crook artifact as the ropes and slightly breaks the leafy-vine read.",
+     "fix": "When the rope/vine kit asset is fixed, end the vine strand at the deck lip with a leaf tuft instead of the stake hook, or lower the stake so it is hidden under the deck."
+    },
+    {
+     "map_id": "1020000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "In the 1020000 Gameplay frame, a large flat cream/beige surface fills the lower-left corner (~0-200,560-1080, and ~600-800 along the bottom edge). It is the main road on the west plateau. At this crop it reads as a bare sand plane with a hard edge against the grass, not as a road.",
+     "fix": "Narrow the main-road ribbon to the agreed ~3.6 m where it crosses the west plateau. Add a grass-fringe edge and a few verge flowers or stones along it so it reads as a road through the meadow."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "1010004",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1020000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1020001",
+     "verdict": "excellent"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) One continuous cream main road in Island_WorldMapStyle: NW tip (map 0) -> Split Road fork -> Southperry, and fork -> Amherst -> east fields",
+     "pass": true,
+     "evidence": "In Island_WorldMapStyle a cream line is traceable from the NW tip (about px 270,180) through the Mushroom Town meadow, past 30000 (600,340) and its cream stair treads, then along the Maple Road plates (700,450 -> 800,600 -> 1050,700) to the 50000 fork (about 1120,700). From the fork it runs south into the Southperry plate (1110,790) and east (1150,700 -> 1350,680) to the Amherst plaza (1450,680), then on to 1020000 (1560,760). Island_Overview_Close confirms the same line, including cream treads on the 30000->40000 and 40002->50000 stair trails. Two breaks are legitimate. The grey cobble Amherst plaza is the deliberate exception named in triage shared #5. Cream is not expected to reach Tomato Field, because triage #13a defines 1020000->1020001 as a hidden turf lane. Two cosmetic items remain: terrace walls hide short in-plate stretches inside 40001/40002, and the leg east of Amherst is fainter. Neither is a break. In iter2 the road showed only as stubs between plates."
+    },
+    {
+     "name": "(2) Clouds read soft (no faceted/rubble collar, no daisy halos)",
+     "pass": true,
+     "evidence": "The free clouds in Island_Overview, WorldMapStyle, Hero and Close are smooth rounded puff clusters, with none of iter2's facets. The under-island collar is now made of smooth, flattened overlapping puffs instead of iter2's faceted white rubble band. No peak in any of the four final shots has a white ring or halo; iter2 had small halo puffs on the snow peaks. One cosmetic residual: the collar is still a dense continuous band. It reads grey in the island's shadow on the left (Overview, Hero), and at lower right in Hero the stacked flat discs look scale-like or popcorn-like."
+    },
+    {
+     "name": "(3) Waterfall cliff reads as a rocky gap in a ridge, not a grey box",
+     "pass": true,
+     "evidence": "It passes on both clauses. (a) Sited in a gap: in WorldMapStyle and Overview it sits between the NW ridge segment and the east ridge segment, with Mountain peaks behind it, to its left and to its right. (b) No longer a grey box: it is now two tiers with grass caps and dark grey-green faces, and the falls and mist land in the lake. In iter2 it was a single tall grey box whose plunge fell short of the lake. Residual, verbatim from my notes: from the iso and hero angles (Hero, Overview_Close) it still reads as 'two stacked rectangular blocks' with 'straight vertical dark rock faces and sharp right-angle corners'. In WorldMapStyle plan it looks like a layered cake of two regular concentric tiers. Triage shared #9 landed only partly; see the medium issue."
+    },
+    {
+     "name": "(4) No straight 'runway comb' trails across the forest cluster",
+     "pass": true,
+     "evidence": "Iter2 had three long, dead-straight fenced N-S runways (around px x1150, 1275 and 1475) that formed a comb through the center-right cluster. In the final Overview, WorldMapStyle and Close those long runways are gone. Two short straight connectors remain, each about one plate-gap long: a fenced N-S link from 1000006 south toward 1000002 (Close about x1335, y570-640; WorldMapStyle about x1285, y500-600) and a short lane from Amherst south to 1000003. They do not read as a comb. The cluster still reads somewhat as a grid of rectangular plates (cosmetic)."
+    },
+    {
+     "name": "(5) Mushroom Town reads as a meadow pocket with mushrooms under a peak wall (NW)",
+     "pass": true,
+     "evidence": "In Overview, WorldMapStyle, Hero and Close, maps 0/10000/20000/30000 (labelled in the debug Overview) sit in an open golden-green meadow. The ground has scattered single big oaks and many red, blue and orange decorative mushrooms on the hill skirts, where iter2 had a dense forest carpet. A continuous wall of dark peaks runs along the back (north) edge and wraps around the west of map 0 at the NW tip, so it reads as a peak-ringed pocket at island scale."
+    },
+    {
+     "name": "(6) Southperry is a port on the south rim with the ship over the void",
+     "pass": true,
+     "evidence": "Debug Overview labels 60000 at the south rim, centre (px about 1190,670). The plate reads as a sandy port with blue-roofed buildings. The ship sits at the plate's SE corner, and its hull overhangs the rim line in Overview (about 1235,760), Close (about 1245,920) and Hero (about 1240,600). The ship is small at island scale, so it reads as moored at the corner more than hovering over the void (low issue)."
+    },
+    {
+     "name": "(7) The whole island reads as one coherent, deliberately designed place evoking the classic world map",
+     "pass": true,
+     "evidence": "The geography follows the classic world map. Mushroom Town is in the NW pocket, the Maple Road snail fields run diagonally SE past the central lake and waterfall to the Split Road fork, Southperry is the port on the south rim, and Amherst is in the east with the forest hunting grounds north of it, the gardens south of it and Tomato Field at the east tip. North-rim ridges frame the whole island. All four iter2 island blockers named in the triage verdict_table are cleared: faceted clouds, runway trails, broken main road, and Mushroom Town not reading. Nothing in the island shots is broken or unreadable. Residuals: the hull is a flat-bottomed slab (medium, already deferred in DEFERRED.md line 51), and the waterfall cliff is still boxy (medium). The rest is low: peak rows of identical cones, a dense collar that turns grey in shadow, the short straight connector at 1000006, and overlapping debug labels."
+    },
+    {
+     "name": "(8) Clearly better than the iter2 overview",
+     "pass": true,
+     "evidence": "Side by side, iter2 Island_Overview against final Island_Overview: the rubble collar and faceted clouds are now soft puffs, and the peak halos are gone. The grey-box waterfall that missed the lake is now a tiered cliff between flanking peaks, landing in the lake. The three-runway comb is gone. The forest-carpet Mushroom Town is now a meadow pocket under a peak wall, and the road can now be traced continuously. The overall image is cleaner and more legible, with no regressions."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "Triage shared #9 (waterfall cliff, world.lake) landed only partly. The request was 2-3 irregular stepped tiers, warm khaki strata, Rock_Cliff_Stone in the faces, hanging vines and a wet band. What I see is 2 regular concentric tiers with straight vertical, dark olive/grey-green faces and sharp right-angle corners. From the Hero and Overview_Close angles it reads as 'two stacked rectangular blocks' at the visual centre of every island shot (Close about px 780-950, y 380-490). In WorldMapStyle it looks like a two-layer cake.",
+     "fix": "In world.lake's crescent cliff: add per-tier noise to the crescent radius (amplitude 1.5-3 m) and offset each tier's outline so the tiers do not stay concentric. Add a third, smaller tier or a broken shoulder. Bevel the outer corners or replace them with Rock_Cliff_Stone outcrop clusters, and scatter 1-2 stones on each camera-facing face. Warm the strata toward #8a7d6b-#9a8a72 (the shared #11 grass_rock tone), hang vines off the grass-cap lips, and darken a wet band behind the sheet. Keep the flanking peaks and the lake position. Then re-render Island_Overview_Close and Hero."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "The island hull is a tall slab with vertical walls, a flat bottom and uniform horizontal strata stripes. It is the most artificial element in Island_Hero, where about 250 px of striped wall ends in a straight bottom edge (about y 830), and it reads as a cake slice rather than a floating island. This is already accepted as an Iteration Two item in docs/DEFERRED.md line 51 ('Island silhouette: underside crags and hanging spires'), so it is not a blocker for Iteration One.",
+     "fix": "Iteration Two, world.island hull: taper the underside to an irregular inverted crag, with the bottom ring inset 40-70% and noise-displaced. Hang 5-10 rock spires or stalactites and dangling roots off the underside, and break the strata with domain-warped noise so the bands are not perfectly horizontal. Keep the rim outline and the plinth caps unchanged."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The north-rim mountain ridges are evenly spaced, near-identical dark cones that read like a picket fence. About 12 in a tight line behind Mushroom Town and about 8 on each eastern segment, most visible in Hero and Overview. This is the same 'row of identical gumdrops' polish that triage #16 described for the SW rim hills.",
+     "fix": "In world.scenery's ridge placement (layout.RIDGES): vary scale 0.6-1.4, jitter ±6-10 m perpendicular to the polyline, cluster peaks in 2s and 3s with occasional gaps, mix in some rounded Mountain_Hill or Mountain_Peak_C forms with the grass tint, and randomise Z rotation. Keep the wall dense behind Mushroom Town so the pocket read survives."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The cloud collar is soft but still one dense, continuous band under the whole south side. In the island's shadow (Overview and Hero, left half) it reads as grey fog rather than white cloud, and at lower right in Hero the overlapping flat discs form a scale or popcorn pattern.",
+     "fix": "In kit/terrain._cloud and world.scenery's Cloud_CliffBase: skip a further 20-30% of ring points to leave sky gaps, and vary puff scale more (0.5-1.6). Give the cloud material a small emission or a lifted shadow/ambient term, or turn off shadow receiving from the hull, so puffs in shadow stay near-white."
+    },
+    {
+     "map_id": "60000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "Southperry's ship is small at island scale. It sits at the SE corner of the plate with the hull just past the rim (Overview about px 1235,760; Close about 1245,920), so it reads as moored at the corner rather than clearly hovering over the void.",
+     "fix": "Push the mooring 2-4 m further out past the rim, or scale the ship about 1.15. Add the optional 2-3 cloud-puff instances (scale 0.3-0.5) under the keel at about ship_z - 1.5, as in the 60000 triage optional item, and re-check the 400k budget (currently 378k)."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The forest cluster north of Amherst still reads as a grid of rectangular plates, and it keeps one short, straight fenced N-S connector from 1000006 down toward 1000002 (Close about px 1335, y570-640; WorldMapStyle about 1285, y500-600). It is not a comb, but it is the last ruler-straight trail in the island shots.",
+     "fix": "In trails.build_trail, apply the Catmull-Rom lateral waypoint sweep (triage #4c) to this link even below the 25-30 m threshold, or offset its mid-point 3-5 m. Plant shrub clumps along it and drop the fence rails where the side drop is under 2 m. Optionally raise the plinth outline wobble to 3-4 m on edges without portals."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "Main-road cosmetics in WorldMapStyle. Terrace walls hide short in-plate stretches of the cream road inside 40001/40002, and the leg east of the Amherst plaza toward 1020000 is fainter than the west legs. It is still traceable.",
+     "fix": "Check that 1020000's through-route ribbon uses mapkit.MAIN_ROAD (mat M_Main_Road, width 3.6) all the way from its west portal to the in-map road. Where terrace walls hide the road in 40001/40002, consider widening the ribbon slightly at switchbacks; this is optional."
+    },
+    {
+     "map_id": "island",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "In debug/Island_Overview, some map labels overlap and are hard to read: 'Dangerous Forest' over 'Snail Field of Flowers', and 'Hunting Ground Middle of the Forest I' over 'In a Small Forest'. This affects the debug render only.",
+     "fix": "In the debug label pass, apply a simple screen-space de-overlap: nudge labels vertically when their 2D boxes intersect, or offset each label toward its map's camera-facing edge."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "island",
+     "verdict": "good"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Each town is recognizable as its classic self",
+     "pass": true,
+     "evidence": "Mushroom Town 10000 Gameplay shows the yellow house with a brown-streaked cap and a cap knob/chimney, Roger inside a raised hedge-walled crop garden with a blue fence, and the sunflower arrival bed at bottom-left. In 20000 Gameplay, Sen's orange house now has its stone arch standing clear of the cap with a portal glow inside, so the only enterable door reads. It also shows the stone oven tower with a red cap and a tiny arched door, the out00 ring beside the tower, and the ladder to a giant red amanita sky perch. Map 0 Gameplay shows the orange yellow-spotted house with barrels at the door, Heena standing on top of a bush, the terraced descent, and the laundry bluff with Y-post clotheslines, Sera and a ladder. Amherst (Gameplay and Overview) shows a three-level cobble town with the plateau Weapon Store reached by a ladder and rope pair, five distinct caps (yellow orange-spotted, red tower, yellow, lime Department Store, red), the rainbow-spring plaza, the red mailbox and stone gate at the west entrance, mushroom face cut-outs with a banner, and the giant tree house at the east exit. Southperry (Overview and Gameplay) shows whitewashed blue-domed houses on flagstone terraces, the sunken market with stalls, the belvedere stairs, the grand stair to the quay, the blue-capped lighthouse and the three-masted ship."
+    },
+    {
+     "name": "(2) Towns are visibly more developed than fields",
+     "pass": true,
+     "evidence": "Evidence limit: no field render was in my image budget. Within the town renders, every frame is densely furnished: multiple buildings, lamps, benches, notice boards, planters, stalls, crops, barrels and crates, and several NPCs. Amherst Overview packs 6+ buildings, a plaza and market stalls onto three levels. In Southperry Overview, about 20 domed houses sit on terraced flagstone and contrast sharply with the plain grass-and-tree land around the plinth. That surround is the only field-type ground I saw, and the contrast with it is clear."
+    },
+    {
+     "name": "(3) Player proxy and NPCs in frame establish scale",
+     "pass": true,
+     "evidence": "The player proxy is clearly visible in all five Gameplay frames: on the cream road in 10000 and 20000, on the plateau path in 0, on the grass between the wall and the plaza in 1010000, and at the top of the quay in 60000. NPCs in frame: Roger (10000); Heena and Sera (0); Mai, Pio, Rain, Lucas and one more (1010000); Shanks, probably, partly hidden (60000). The exception is 20000, which has the player only. Nina's islet at (8.5, 24.8) is about 19 m west of GAMEPLAY_FOCUS (27, 17) at scale 32. Scale reads well: doors, benches and barrels are sized to the proxy."
+    },
+    {
+     "name": "(4) Southperry Gameplay shows the boarding point/gangplank and characters; ship and lighthouse read",
+     "pass": false,
+     "evidence": "Split result. The ship and lighthouse clauses PASS. The three-master fills the lower centre with deck, hatch stair, masts, the furled courses and topsails, the set topgallants and a cloud puff under the keel. The lighthouse is tall, with gold bands, a round blue dome and a red finial. The gangplank and characters clause FAILS as rendered. The player is clearly visible at the quay top, and the blue-striped ticket booth is visible. But the gangplank (a wooden ramp at about 60-67% x, 72-80% y) sits behind the main mast, the furled yards and the shrouds, and does not clearly read as the boarding point. The blue figure that is probably Shanks (about 62% x, 65% y) is partly overlapped by yards and rigging and is hard to tell apart from the blue booth and props. No second NPC is visible. The module comment says Shanks' spot was ray-probed clear, but that is a claim about the build; in the render he is not clearly unobstructed. The iter2 triage acceptance asked for Shanks, the gangplank and at least two NPCs unobstructed, and that is not met. This is still a large improvement over iter2, which had no characters and a hidden boarding point."
+    },
+    {
+     "name": "(5) Renders look intentional (composition, no broken geometry, no clutter on routes)",
+     "pass": true,
+     "evidence": "All seven renders look composed and on-style, with no broken geometry, z-fighting or floating props seen, and no props on routes. The main roads are clear cream ribbons, and Amherst keeps its deliberate cobble. Minor items: the 10000 and 0 house caps are clipped by the top frame edge. Southperry Gameplay has rigging lines crossing the quay and the jib triangle covering the lighthouse base. The Amherst rope reads as a thin pole with a knob. The upper stone flight in map 0 reads as a tilted cobble slab. The dark island underside fills about 25% of the lower-left of Southperry Overview."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "60000",
+     "scope": "map",
+     "severity": "medium",
+     "issue": "In Southperry_60000_Gameplay the boarding point does not read. The gangplank (wooden ramp at about 60-67% x, 72-80% y of the frame) is behind the main mast, the furled fore/main yards and the shrouds. Shanks (blue figure at about 62% x, 65% y) is partly overlapped by rigging and blends with the blue ticket booth. Only one NPC is near the boarding point, below the triage acceptance of Shanks, the gangplank and 2+ NPCs unobstructed.",
+     "fix": "Make the gangplank read through the rigging. Give the Gangplank bridge contrasting rope handrails (red/white or pale hemp with an ink outline) and a pennant or a 'To Victoria Island' sign on a post at its quay foot (gx, about 3.6). Shanks currently uses default blue clothing: give him a contrasting colour or a captain's hat, or step him 0.5-1.0 m toward the camera-side lip if the ray probe allows. Move a second NPC (Bari or Tia) onto the quay front strip near the ticket booth (68.4, 6.2), at least 0.9 m from Main and on the camera side of the booth. Re-render and check that the gangplank, Shanks and the second NPC are unobstructed. Alternative, verify first: move SHIP_GANGWAY_X to the open deck between SHIP_FORE_X and SHIP_MAIN_X (around the hatch, which looked clear in the frame) and re-probe Shanks' spot."
+    },
+    {
+     "map_id": "60000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "In Southperry Gameplay, the single remaining jib is a large cream triangle (about 72-86% x, 59-93% y) that covers the lighthouse's lower shaft and base. In Overview it overlaps the lighthouse foot too.",
+     "fix": "In the jib _flat_sail call, raise the clew (for example SHIP_FC + 2.5 instead of + 1.3) and/or reduce the _swing angle from 50 to about 30 degrees, so the sail's foot stays forward of and below the lighthouse base in the Gameplay camera."
+    },
+    {
+     "map_id": "20000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "MushroomTown_20000_Gameplay has no NPC in frame, so the player is the only scale figure. Nina's flower islet (nx, ny = 8.2, 25.2) is about 19 m west of GAMEPLAY_FOCUS (27, 17) at scale 32.",
+     "fix": "Optional. Shift GAMEPLAY_FOCUS to about (22, 19) and GAMEPLAY_SCALE to about 38, and confirm Sen's arch door and the oven tower stay in frame with player_in_gameplay_frame still passing. Or accept as is, since 10000 and 0 already show NPCs for Mushroom Town."
+    },
+    {
+     "map_id": "10000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "In MushroomTown_10000_Gameplay the top of the yellow house cap touches or clips the top frame edge, and the well in the top-left corner is cut. Map 0 Gameplay has the same problem: the top of the orange spotted cap is cut off by the frame edge.",
+     "fix": "Nudge GAMEPLAY_FOCUS about 1-1.5 m toward +y, or raise GAMEPLAY_SCALE from 30 to about 32, in m10000_MushroomTown.py (focus 27, 21.5) and m0_WestEntrance.py (focus 14, 14.5). Re-check player_in_gameplay_frame afterwards. In map 0 the player at spawn must stay in frame, so move the focus, not the player."
+    },
+    {
+     "map_id": "1010000",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "In Amherst Gameplay, the rope of the plateau rope/ladder pair (about 43% x, 55-72% y) reads as a thin pole with a knob on top next to the ladder, not as a hanging rope. This is the iter2 shared rope-asset item (#6), still visible here.",
+     "fix": "In mapkit._hanging_strand: hang the strand plumb within about 0.12 m of the face, remove the top torus knob, shorten the stake, and use a lighter hemp colour with dark knot bands every 0.4 m and an ink outline. Re-render the 1010000 Gameplay."
+    },
+    {
+     "map_id": "0",
+     "scope": "map",
+     "severity": "low",
+     "issue": "In WestEntranceMushroomTown_0_Gameplay the upper stone flight between the plateau and the middle terrace (about 49-58% x, 52-66% y) reads as one tilted cobbled slab rather than steps. The lower flight reads correctly as steps.",
+     "fix": "Rebuild the upper flight with the same tread/riser parameters as the lower flight (more, shallower treads with visible risers), or add a darker riser material so the step edges show from the iso camera."
+    },
+    {
+     "map_id": "60000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "In Southperry_60000_Overview the dark island underside and the grey banded area below the rim fill about 25% of the frame (lower-left). The town sits in the upper-right two-thirds.",
+     "fix": "Optional. Shift the Overview fit slightly toward +y/+x, for example by extending OVERVIEW_EXTRA with a box behind the harbour quarter, so the town is centred and less of the underside shows. Keep the full ship in frame."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "0",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "10000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "20000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1010000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "60000",
+     "verdict": "good"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Each map reads cleanly with an obvious route and its landmark",
+     "pass": true,
+     "evidence": "30000: the yellow dormer house, pale stalk mushrooms, rainbow fountain and arrow signs are visible, and the switchback caps are joined by wooden flights with a cream trail. 50000: the Amherst/Southperry fork signpost at the junction plaza is the focal point, with the lower road in front and a wooden stair up to the upper road. 1000000: the V-fork stepping-stone discs, giant red spotted mushroom, pale stalk mushrooms on the east balcony and a door mound with portal are visible, and the wide cream front road runs across the frame. 1000003: mushroom-cap zig-zag stairs, the hobbit door with its ladder, and the portal at the top of the dirt path. 1000004: the arch of eight stumps with plank bridges is the centrepiece, with the hobbit door at upper-left and the stepped dirt path down into the basin. 1010002: a two-storey cutaway with ground floor, loft and ladder, a door path to the bottom portal, and a vine arch with the DANGER skull sign at the west portal."
+    },
+    {
+     "name": "(2) Identity vs brief",
+     "pass": true,
+     "evidence": "1000003 (a garden, not a forest: hedges, clover, flower beds, hill door, cap stairs) and 1000004 (door mound, sunken fenced vegetable plot, stone arch as stumps, carrot/cabbage beds, sunflowers, three snail colours) match their briefs closely. 50000 shows the fork with two signed branches, the yellow-tree mesa and the boulder trio, which now reads as an outcrop rather than a tank. 1000000 shows the hub's hollow, V-fork, stalk balcony and side doors. 1010002 has the bookcase downstairs, bed, chest and window upstairs, the ladder, and the garden path with the DANGER sign. Two weak spots: 30000's 'climb the ropes' beat is present but not dominant (thin pale strands), and 1010002's orange cap is cropped out of the Gameplay frame."
+    },
+    {
+     "name": "(3) Player in frame",
+     "pass": true,
+     "evidence": "30000: centre, on the middle cap at about (1075, 210). 50000: bottom-centre, beside the fork signpost at about (1155, 820). 1000000: lower-centre, on the cream road at about (955, 815). 1000003: upper-left, beside the portal at about (450, 280). 1000004: top-centre under the portal at about (690, 150), about 0.14 of frame height, tight but inside VALIDATION's 0.1-0.9 band. 1010002: bottom-centre, on the door path at about (1110, 890). VALIDATION.md player_in_gameplay_frame = yes for all 25 maps."
+    },
+    {
+     "name": "(4) No broken geometry / floating props / route clutter",
+     "pass": true,
+     "evidence": "No floating props or broken meshes were seen in the six frames. The red and white pennants on the 30000 lower caps are the intentional X30000_ClimbFlag rope-top markers (lines 315-316), not clutter. Only blemishes, none of them broken geometry: (a) 30000 has a large flat dark-green trail flank filling the right quarter of the frame; (b) 1000000 has a dark lip or wedge under the east end of the road and folds where the ribbon drapes the hollow steps; (c) 50000 has a small notch or flap in the upper-road ribbon at about (1500-1720, 540-640); (d) 1000003's cap stepping stones interpenetrate in places."
+    },
+    {
+     "name": "(5) Cream main road reads on through-route maps (30000, 50000, 1000000)",
+     "pass": true,
+     "evidence": "50000: both the lower road (diagonal across the bottom) and the upper road (right side) are clearly cream and continuous through the plaza. 1000000: the front road is wide and clearly paler than the tan M_Path_Dirt side paths at upper-left; it climbs east to the right edge, which fixes iter2's 'main road indistinct'. 30000: the valley and cap trails are cream (ROAD = MAIN_ROAD mat), but the valley stretch at lower-left reads as overlapping, seamed quads rather than one ribbon. It still reads as the route."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "30000",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "In the Gameplay render, a large, featureless dark-green wedge fills about the right quarter of the frame (x 1380-1920, y 280-1080), under the stone stair flight at top-right that leads from out00 to 40000. It is the inter-map trail's sloped flank, which trails.py builds as plain M_Grass (FLANK_MAT) and which faces the camera in shade. It looks unfinished and steals frame area from the rope pitches the camera is aimed at. It is not high: the route and the landmarks still read, and nothing is broken or missing.",
+     "fix": "Shared (trails.py): on stair-flight sections, cap or taper the flank height and break up tall camera-facing flank faces with the M_Dirt_Cliff band and a few rock and vine instances, so no single flat face shows. Alternatively (map, 30000): shift GAMEPLAY_FOCUS about 2-3 m west, or lower GAMEPLAY_SCALE slightly, so the embankment is cropped while both ropes stay in frame."
+    },
+    {
+     "map_id": "30000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The rope pitches, the map's identity beat and the stated reason for the Gameplay framing (line 40), are in frame but have low contrast. They read as thin, near-white strands with a small coil, against lit, pale-grey stone faces (about x 1150, y 560-690 and x 975, y 770-890).",
+     "fix": "In the local _hemp() wrapper (line 215, used at lines 310/313), use a darker tan or ochre hemp and a thicker strand (about r 0.09-0.1) with 2-3 larger knots. These faces are lit pale grey, so the rope needs to be darker than the rock, not lighter."
+    },
+    {
+     "map_id": "30000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The cream valley road at lower-left (about x 300-600, y 600-800) shows as separate overlapping quads with hard seams and a small gap, rather than one continuous ribbon.",
+     "fix": "Merge the valley Main ribbon pieces into one m.path polyline, or overlap the ends of adjacent ribbons by about 0.3 m with matching width and smooth_iters, so the seams disappear."
+    },
+    {
+     "map_id": "1000000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "There is a dark lip or wedge under the east end of the cream road, likely where the Ramp_Hollow_G7 top (blend=False, line 333) meets the G7 cap (about x 1640-1920, y 770-800). The front road also folds into faceted panels where it drapes the hollow steps (x 560-800). This is the known 'ribbon lip flaps on the 1000000 road' item.",
+     "fix": "Set blend=True on Ramp_Hollow_G7, or extend its top about 0.5 m into the G7 cap and start the next road ribbon about 0.3 m inside the cap. Drape the hollow-step crossing with a finer step and a lower edge offset."
+    },
+    {
+     "map_id": "1010002",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The orange spotted cap, the cue that makes this the 'orange mushroom house', is above the top of the Gameplay frame. Only a strip of cap underside shows as a flat brown slab along the top edge (x 470-1770, y 0-45), so the cream timber drum reads more like a round tower.",
+     "fix": "Raise GAMEPLAY_SCALE from 27 to about 31, or move GAMEPLAY_FOCUS about 2-3 m +y (cap base TOP = 7.6, dome about 5 m), so the sliced orange rim and gills enter the frame. The player and the bottom portal must stay in frame."
+    },
+    {
+     "map_id": "50000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "A small notch or flap remains in the upper-road cream ribbon on the right, at about (1500-1720, 540-640), likely a residue of the T4_Ramp-to-crest seam.",
+     "fix": "Extend T4_Ramp about 0.5 m into the crest cap (or set blend=True), and overlap the next Upper_Road ribbon about 0.3 m inside T4_UpperRoad_Crest."
+    },
+    {
+     "map_id": "1000004",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The player sits about 0.14 of frame height from the top, directly under the portal, and the portal is cropped by the top edge. The arrival point feels squeezed.",
+     "fix": "Move GAMEPLAY_FOCUS about 1.5-2 m toward the door and portal, or move m.player about 2 m down the path toward the basin steps, so both the portal and the player are clear of the edge."
+    },
+    {
+     "map_id": "1000003",
+     "scope": "map",
+     "severity": "low",
+     "issue": "Some mushroom-cap stepping stones interpenetrate their neighbours (about x 1010-1390, y 190-370 and x 1330-1820, y 500-650). The stair still reads, but the overlaps look slightly busy.",
+     "fix": "Space adjacent cap centres by about 0.2 m more, or shrink alternate caps by about 10%, so each cap's rim is clear of the next."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "30000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "50000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1000000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000003",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1000004",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1010002",
+     "verdict": "good"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Hunting grounds keep distinct compositions",
+     "pass": true,
+     "evidence": "Each of the 7 Gameplay frames has a different centrepiece and silhouette. 40000: a three-tier oval stepped knoll with flagstone flights, two ladders on a long soil cliff and autumn birches. 40001: an arch of grass-capped stone drums with a real voussoir void, plus a drum stair climbing to a signboard summit, set on diagonal terraces. 40002: a stone chimney (two pillars topped by red banners, discs between them) with a cream main road winding past it. 1000002: a dark moss floor below a soil cliff hung with 6 long leafy vines. 1000005: a rainbow fountain, a door-in-block mound with its portal, and a grey spire wrapped in jump discs. 1000006: floating root-ball islets with giant lily-of-the-valley over a golden, leaf-strewn dell. 1000001: a giant white birch trunk ringed by a spiral of grass ledges, with a stepped hill in front. 40000 and 40002 share the knoll by design (the classic data does too), but the 40002 Gameplay frames the chimney and road, not the knoll. No two look alike."
+    },
+    {
+     "name": "(2) Player and >= 2 mobs in frame establish scale",
+     "pass": true,
+     "evidence": "The player is visible in all 7 frames. Mobs are clearly visible in each: 40000 has about 7 snails and blue snails around the knoll. 40001 has about 8, including a blue snail beside the player under the arch. 40002 has red snails at about (240,670) and (1255,785) px plus blue and green snails. 1000002 has orange mushrooms plus red and blue snails. 1000005 has blue and red snails on the top-right shelf and a snail on the mound. 1000006 has a blue snail, snails and an orange mushroom. 1000001 has an orange mushroom and a red snail. build_report gameplay_frame agrees: mobs_in_frame is 6-9 per map against 2 required, player_uv inside 0.1-0.9 everywhere. Snails are now a readable size next to the player (about 0.5x player height)."
+    },
+    {
+     "name": "(3) Climbs (ropes/ladders) read as climbs",
+     "pass": true,
+     "evidence": "Ladders and vines are unambiguous. Ladders: 40000 x2 on the meadow cliff, 40002 on the cliff at about (550,690) px and at the chimney top, 1000005 x2 (door mound, top-right shelf), 1000001 x2 at the bottom-right. Vines: 1000002's six leafy vines down the shelf face, and 1000001's three on the back cliff. Ropes read in 1000005 and 1000001, where they are longer strands with a ring at the foot. They read weakly in 40000 (east-meadow ropes at about x 1410/1530 px), 40001 (about (460,490), (265,600), (905,935) and (1615,975) px) and 40002 (the three chimney ropes at about x 810-850 px). There the 4-5 px strand and its drape over the lip make a crook or walking-stick shape that reads more like a stake than a rope. Pass overall, with a medium shared issue raised for the rope look."
+    },
+    {
+     "name": "(4) 40002's crest walk is visible and readable",
+     "pass": true,
+     "evidence": "In the 40002 Overview the crest is a painted cream M_Main_Road ribbon. It runs along the top terrace from the chimney (about (920,265) px) diagonally to the east portal (about (1460,610) px), then down the trail stair, with low grass-rock rim segments along its back edge. The grove no longer hides it: only a few trees overlap, around (1090-1330, 300-410) px. The Gameplay frame also shows the crest road running to the upper right, past the flagged chimney. The through-route reads as one cream road broken only at the climbs: west approach, then knoll stair, then chimney foot, then crest. Around_Knoll stays brown dirt, as the triage asked. Minor: the dense world forest right behind the crest competes with it visually."
+    },
+    {
+     "name": "(5) Dangerous Forest reads darker / more dangerous",
+     "pass": true,
+     "evidence": "1000002's Gameplay uses dark moss-green turf, dark pines and teal canopies, purple toadstools, thorny dark bramble clumps (about (590,530), (1190,500) and (1720,420) px), mossy boulders and logs. Its colour key is clearly darker than all six other hunting frames, and in the 1000006 frame its dark ground sits visibly against 1000006's bright turf. It is still lit by the same strong global sun, so it reads as moody and saturated rather than gloomy. That is a low polish item."
+    },
+    {
+     "name": "(6) Renders look intentional, no broken geometry",
+     "pass": true,
+     "evidence": "All 8 renders are composed and finished, with no z-fighting, holes, floating props or placeholder blocks seen. Remaining defects are framing and cosmetic. 1000006: the Dangerous Forest is placed camera-side of it (layout.py line 121: 'behind the Dangerous Forest'), so about 30% of the lower frame is 1000002's dark turf and pines, and a dark broadleaf tree covers the arrival portal at about (770,550) px. 1000005: the jump-tower spire renders as a grey, horizontally banded cylinder that reads as a silo. 40001: the tan road ribbon at the bottom left ends square at a cliff edge at about (690,950) px. 1000001: flowers grow out of the planks of the timber stair at the top right (about (1730-1790,145-185) px). 40000: the left knoll flight reads as three separate slabs laid over the tier rims. 1000002: the darker spur tint overlaps the main trail edge at about (1550-1870,480-800) px. render.py has no foreground exclusion of other map collections in Gameplay renders, so neighbour occlusion is possible elsewhere too, but I saw it only in 1000006."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "1000006",
+     "scope": "map",
+     "severity": "medium",
+     "issue": "The Gameplay frame is partly occluded by the neighbouring Dangerous Forest. layout.py line 121 places 1000006 behind 1000002, so 1000002's dark turf, dark pines, a dead snag and a broadleaf tree fill the lower-centre and lower-right of the frame, about (760-1920, 600-1080) px. One dark tree at about (800-1040, 410-840) px hides most of the arrival portal at the hub lip (about (770,550) px). The golden V-dell and the long ramp to the east meadow, the map's defining features, are pushed into the top of the frame or out of it. render.py does no foreground exclusion for Gameplay cameras.",
+     "fix": "Map scope: shift GAMEPLAY_FOCUS from (17, 9) about 3-4 m toward +y, e.g. (17, 12.5), and optionally raise GAMEPLAY_SCALE from 34 to 36. The hub then sits in the lower half and 1000002's foreground falls out of frame. Move m.player (now (20.6, 3.0), v about 0.51) to a hub point nearer the new focus, e.g. (19, 4.5), so it stays inside 0.1-0.9, then re-run player_in_gameplay_frame. Alternative, shared: in render.py, for CAM_<slug>_Gameplay, set hide_render on other maps' Props/Trees collections whose footprint lies camera-side of the subject's front edge, and restore them after the render."
+    },
+    {
+     "map_id": "40001",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "Short ropes read as crooked sticks or stakes rather than ropes at gameplay scale (32-44). The strand is r 0.07, only 4-5 px on screen, and the mapkit rope builder drapes it over the lip onto the cap, which draws a hook or crook at the top. This matters most in 40001, which per its research note is built entirely from ropes; there they read like walking sticks at about (460,490), (265,600), (905,935) and (1615,975) px. It is also visible on 40000's east-meadow ropes (about x 1410/1530 px), 40002's three chimney ropes and 1000006 (about (375,280) px). Longer ropes with a foot ring (1000005, 1000001) read fine. Ladders and vines are unaffected.",
+     "fix": "In mapkit's rope builder (the over-the-lip section, around lines 615-640), replace the bare drape with a visible tie-off. Add a short wooden peg or stake (about r 0.06, 0.35 m tall) on the cap 0.3 m behind the lip, and end the strand in a small knot torus around it, so the top reads as anchored, not hooked. Give the strand a lighter hemp tint than the soil faces, with darker knot bands every 0.35-0.4 m (thin torus rings), so it separates from the brown cliff. Optionally raise the visual radius to about 0.085 while keeping the clearance checks at 0.07. Rebuild and re-run floating_props and props_near_routes."
+    },
+    {
+     "map_id": "1000005",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The jump-tower core (Tower_Spire, intended as a 'mossy rock spire') renders as a smooth grey-blue cylinder with regular horizontal banding, at about (500-810, 0-570) px of the Gameplay frame. It reads as a stone silo or water tank, not a rock spire. The giant dark-bark tree at GIANT (21.5, 24) is mostly outside this Gameplay frame (focus (14, 13)), so its rescale is not verified here.",
+     "fix": "Give Tower_Spire a rock profile: a slightly irregular outline (vary the ellipse radius ±10-15% per vertex), a mossy green side material or M_Rock with vertical clefts instead of the strata bands, and 3-5 Rock_Cliff_Stone or Rock_A instances plus vine runs on its face. Keep SPIRE_R and SPIRE_TOP so the spiral discs and routes stay valid."
+    },
+    {
+     "map_id": "1000002",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The Dangerous Forest is darker in palette but lit by the same strong global sun as every other map, so it reads as saturated and moody rather than dangerous or gloomy. A darker spur tint also overlaps the main trail edge at the east junction (about (1550-1870, 480-800) px) as a visible semi-transparent band.",
+     "fix": "Optional: add a per-map light-dimming volume or darker AO tint for 1000002, e.g. a large flattened shadow-catcher canopy (an instanced dark canopy band behind the battlement row that casts shade over the floor), or darken the grass and leaf materials another 10-15%. Fade the spur ribbon's last 1 m before it meets the Trail ribbon, or lift it 0.01 m and taper it, to remove the overlap band."
+    },
+    {
+     "map_id": "40001",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The tan main-road ribbon at the bottom-left of the Gameplay frame (about (110-690, 720-960) px) ends with a square cut at the terrace edge and looks like a laid board rather than a road continuing to the next level.",
+     "fix": "Give the road's last segment a rounded or tapered end, or continue it down the ramp or slope to the meadow so it reads as continuous. If it ends at a climb, end it with a small trampled patch at the rope foot."
+    },
+    {
+     "map_id": "1000001",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "Flowers are scattered on the treads of the timber stair trail at the top right of the Gameplay frame (about (1730-1790, 145-185) px), so they appear to grow out of wooden planks. The giant birch's new crown is cut off by the top frame edge, so the crown fix is not verified from this render.",
+     "fix": "In trails.py trail dressing, skip flower and grass-tuft scatter on stair and plank sections (only scatter on turf flanks). Optionally lower the 1000001 GAMEPLAY_FOCUS by about 1.5 m in the camera's up direction so some canopy lobes appear above the trunk."
+    },
+    {
+     "map_id": "40000",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The knoll's west flagstone flight reads as three separate slabs laid over each tier rim (about (390-960, 590-750) px), not one continuous cut stair. The east flight reads better. The ropes also show the shared crook issue.",
+     "fix": "Close the gaps between the flight segments so each tread meets the next tier's rise, or sink the slabs about 0.05 m into the tier turf with a short stone riser face on each tier wall so the flight reads as cut into the knoll."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "40000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "40001",
+     "verdict": "good"
+    },
+    {
+     "map_id": "40002",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000002",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1000005",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000006",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000001",
+     "verdict": "good"
+    }
+   ]
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Trails meet maps cleanly at portals (no z-fight stripes, pale rectangles or floating aprons at trail ends)",
+     "pass": true,
+     "evidence": "I checked every visible trail end across the 7 region frames and saw no stripes, pale rectangles or raised aprons at region scale. Ends checked: 0/10000/20000/30000 in Region_MushroomTownArea; 40000->40001 (~690,415 / 750,480) and 40001->40002 (~990,725 / 1090,800) in Region_SnailHuntingGrounds; the 1000000 in00/in01/in04/in05 portals (~690,610; 1175,670; 1260,675; 1255,580) in Region_WestAmherstForests; Amherst east00 -> 1020000 (~1025,635 -> 1135,705) and 1010002 west00 (~820,375) in Region_AmherstArea; 50000 east01 -> Southperry NW portal (~880,580) in Region_SouthperryAndSplitRoad. All join the in-map paths without a seam. Caveat: hairline z-fighting may not show in a downscaled region PNG, so this pass relies on validation too: trail_walk passes 20/20 in VALIDATION.md."
+    },
+    {
+     "name": "(2) Trails read as deliberate paths/stairs with sensible slopes, curving where long",
+     "pass": true,
+     "evidence": "The 30000->40000 and 40002->50000 stone flights read as deliberate stairs with cheeks (Region_SnailHuntingGrounds top-left and bottom-right; Region_SouthperryAndSplitRoad top-left). The 10000->20000 lane curves, with fences and lamps (Region_MushroomTownArea ~880-1060, 470-620). The 37.5 m 50000->60000 lane curves down to Southperry (Region_SouthperryAndSplitRoad ~830-1100, 450-600). The 1010004 lane bends onto its rim road. The 1000005 trail is now 10.6 m, so the old three-tooth 'circuit-board' comb is gone, and the 1000004 trail is a short fenced lane under Amherst's plinth. Residual: the longest trail, 1000000 in05 -> 1000006 (61 m; build_report says curved:true), shows no visible bend at region scale. It reads as a straight sandy gully lane (Region_WestAmherstForests ~1240,650 -> 1150,330; Region_RainbowStreet x~540, y 320-520) running parallel to the 1010004 lane (x~1030), which leaves a mild two-strip comb. It still reads as a valley lane rather than a runway, so the criterion passes with a medium issue filed."
+    },
+    {
+     "name": "(3) Neighbouring maps read as one island with consistent palette/scale; each region has its own character",
+     "pass": true,
+     "evidence": "All regions share one bright-green toon palette, the same ink outlines, the same terrace/plinth language and consistent house-to-tree scale. Each region's character:\n- NW Mushroom Town: an open meadow pocket with giant red/blue/orange toadstools on the skirts, sparse big oaks and peaks behind (Region_MushroomTownArea). It reads as a village, not farmsteads in a forest.\n- Port: Southperry's white and blue domes, palms, lighthouse and overhanging ship are clearly distinct (Region_SouthperryAndSplitRoad).\n- Amherst: the cobble plaza, rainbow sign and mushroom houses read strongly (Region_AmherstArea).\n- Rainbow Street gardens: 1000003's colourful mushroom beds and the 1010004 flower terraces are distinct.\n- Dangerous Forest (1000002): darker, with dark pines and red/teal canopy (Region_WestAmherstForests right-centre).\nBlurs: the autumn orange/yellow palette also covers the Snail Hunting Grounds and 1020000, so the 'autumn birch valley' is not unique to one region. 1000002 reads dark only through its canopy; its floor stays the same bright green."
+    },
+    {
+     "name": "(4) No obviously floating or intersecting scenery",
+     "pass": true,
+     "evidence": "No floating trees, rocks or props were seen in any of the 7 frames. Boulders, toadstools, palms and filler trees all sit on the ground with matching shadows. Southperry's ship overhangs the hull edge on purpose, with cloud puffs under the keel. The lower waterfall sheet now ends at the lake's north shore with a foam puff (Region_MapleRoad and Region_SnailHuntingGrounds). One minor contact: a blue scatter toadstool sits on a grey boulder at the left of Region_MushroomTownArea (~65-120, 440-510)."
+    },
+    {
+     "name": "(5) The 1000006 plank-bridge arrival and the 1010004 arrival read sensibly in Region_WestAmherstForests / Region_AmherstArea",
+     "pass": false,
+     "evidence": "Split result.\n- 1010004 passes. In Region_AmherstArea the trail climbs north along 1010004's east flank from the 1010002 west portal (~820,375). It curves at (~790,85) onto the fenced top rim road along the road's axis, with no 90-degree corner and no grass flank between trail and road.\n- 1000006 does not. In Region_WestAmherstForests, at the trail's top (~1150-1190, 290-345), I see no plank span, no rope rails and no void under the hub lip. The sandy lane appears to run straight into the golden dell's lower-left corner. That is the original triage complaint ('the floating arrival hub reads as the end of a ridge'), so the intent of fix #13b (BRIDGE_END 8 m of planks on rope rails over air) is not visible from the designated camera. build_report does record bridge_m: 8, so the geometry may exist but lack contrast. The dell itself reads and nothing looks broken, so this is not high."
+    }
+   ],
+   "issues": [
+    {
+     "map_id": "1000006",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "The 1000006 plank-bridge arrival does not read as a bridge in Region_WestAmherstForests. At the trail's top (~1150-1190, 290-345) there is no visible plank span, rope rails or air gap under the hub lip; the lane seems to run straight into the dell's lower-left corner, as in iter2 ('reads as the end of a ridge'). build_report records bridge_m: 8, so the span may exist but lack contrast or be hidden.",
+     "fix": "First check the 1000006 Gameplay and Overview renders. If an 8 m rope-rail span over air exists, raise its contrast: dark-stained planks, taller rail posts (~1.1 m) in a contrasting colour, a lantern or Sign_Arrow post at each end, and a dark void under the hub lip (pull the hub's front skirt further back or darken the under-bridge cliff). If there is no span, the causeway still fills the gap: fix the BRIDGE_END handling in trails.build_trail so the causeway solid and flanks stop 8 m short and only planks on rails cross. Re-render Region_WestAmherstForests."
+    },
+    {
+     "map_id": "1000006",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "The longest trail, 1000000 in05 -> 1000006 (61 m against the triage's 40-45 m target), still reads as a straight sandy gully lane at region scale despite curved:true in build_report. See Region_WestAmherstForests (~1240,650 -> 1150,330) and Region_RainbowStreet (x~540). Next to the parallel 1010004 lane (x~1030) it leaves a mild two-strip comb.",
+     "fix": "In layout.LINKS, shorten the 1000006 link toward ~45 m on a bearing that still clears 1000002/1000005. Or, in trails.build_trail, raise the lateral Catmull-Rom waypoint offset for mid-sections over 40 m from 6-12 m to 12-18 m so a visible S-bend forms. Plant 2-3 tree/shrub clumps on the inside of each bend to break the sightline."
+    },
+    {
+     "map_id": "WORLD",
+     "scope": "shared",
+     "severity": "medium",
+     "issue": "The waterfall crescent cliff still reads as two stacked, flat-faced grey boxes at the visual centre of Region_MapleRoad (~1150-1430, 300-470) and the top of Region_SnailHuntingGrounds (~1030-1530, 0-250). Triage #9's terrace-language rebuild did not land; only the plunge-to-lake fix did. It is the most artificial-looking object in the Maple Road frames.",
+     "fix": "In world.lake, rebuild the crescent with geo.terrace-style irregular outlines: 2-3 tiers with jittered, non-parallel edges, a fringed grass cap, warm khaki strata (the M_Rock_Cliff warm variant, #8a7d6b-#9a8a72), Rock_Cliff_Stone instances on the faces, hanging vines and a dark wet band behind the sheets. Place 2-3 Mountain_Peak_Rocky behind the crescent ends so it reads as a gap in the ridge. Keep the lake position."
+    },
+    {
+     "map_id": "30000",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "Under the long stair trails (30000->40000 and 40002->50000) the side flanks are large, smooth, featureless green wedges. See Region_MushroomTownArea bottom-right (~1690-1800, 840-1080), Region_SnailHuntingGrounds (~170-330, 60-270 and ~1530-1700, 850-1000) and Region_SouthperryAndSplitRoad top-left (~150-330, 90-280). Triage #4c's fringe, outcrops and toe bushes are not visible.",
+     "fix": "In trails.build_trail, for flanks with a side drop over 2 m: add a top-edge grass fringe, a Rock_Cliff_Stone outcrop every 4-6 m, a dirt strata band in M_Dirt_Cliff on the steepest third, and bush clumps at the toe."
+    },
+    {
+     "map_id": "WORLD",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The rim mountains form a regular saw-tooth of near-identical faceted pyramids. See Region_AmherstArea right (~1000-1650, 0-620), Region_RainbowStreet NE rim and Region_MapleRoad top-left and right.",
+     "fix": "In world.scenery, jitter the peak scale (0.7-1.3), yaw, spacing and perpendicular offset (±10 m). Cluster the peaks in 2s and 3s with gaps, and mix in Mountain_Hill and rounded peaks."
+    },
+    {
+     "map_id": "WORLD",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "The clouds under the hull in Region_MapleRoad (bottom-left, ~0-640, 720-1080) render as a flat mid-grey faceted mass that reads like rubble or smoke rather than cloud. One large opaque sky cloud blob also sits top-centre in Region_RainbowStreet.",
+     "fix": "Brighten the under-hull cloud material so it stays white in the hull's shadow (add an emission/backlight term of ~0.3-0.5, or a light-path shadow fallback). Check that the subdiv-smoothed puffs are used for the collar instances."
+    },
+    {
+     "map_id": "0",
+     "scope": "shared",
+     "severity": "low",
+     "issue": "A decorative blue giant toadstool sits on, or intersects, a grey boulder on the hill skirt west of map 0 (Region_MushroomTownArea ~65-120, 440-510).",
+     "fix": "In the world.scenery toadstool scatter (shared #8c), reject positions within ~1.5 m of an existing boulder or scenery instance, or run the boulder pass after the toadstools with a clearance check."
+    },
+    {
+     "map_id": "1000002",
+     "scope": "map",
+     "severity": "low",
+     "issue": "The Dangerous Forest reads dark only through its canopy (dark pines, red/teal trees); its floor is the same bright green as its neighbours, so at region scale the 'gloom' is weaker than it could be (Region_WestAmherstForests right-centre).",
+     "fix": "Give 1000002's ground caps a darker, mossy green tint (about 15-25% lower value) and scatter dark ferns or fallen logs on the floor. Optionally add a faint low fog or vignette volume inside the footprint."
+    }
+   ],
+   "verdicts": [
+    {
+     "map_id": "0",
+     "verdict": "good"
+    },
+    {
+     "map_id": "10000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "20000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "30000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "40000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "40001",
+     "verdict": "good"
+    },
+    {
+     "map_id": "40002",
+     "verdict": "good"
+    },
+    {
+     "map_id": "50000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "60000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1000000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000001",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000002",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000003",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000004",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000005",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1000006",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1010000",
+     "verdict": "excellent"
+    },
+    {
+     "map_id": "1010002",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1010004",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1020000",
+     "verdict": "good"
+    },
+    {
+     "map_id": "1020001",
+     "verdict": "good"
+    }
+   ]
+  }
+ ]
+}

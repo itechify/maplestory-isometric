@@ -1,0 +1,309 @@
+{
+ "id": 1010002,
+ "name": "Amherst Townstreet",
+ "street": "Rainbow Street",
+ "slug": "AmherstTownstreet_1010002",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1010002.json (maplestory.io /api/GMS/8/map/1010002)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001010002.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -579,
+  "maxX": 399,
+  "minY": -117,
+  "maxY": 480,
+  "note": "all footholds incl. boundary walls; maxY is the bottom of the outer boundary walls, not a walkable surface (see walkable_extent)"
+ },
+ "walkable_extent": {
+  "minX": -579,
+  "maxX": 399,
+  "minY": 47,
+  "maxY": 275
+ },
+ "vr_bounds": null,
+ "is_town": true,
+ "bgm": "Bgm00/FloralLife",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "street west of the house (main ground)",
+   "kind": "ground",
+   "x1": -579,
+   "x2": -221,
+   "y_left": 275,
+   "y_right": 275,
+   "length": 358
+  },
+  {
+   "id": "T02",
+   "label": "house ground floor (29px doorstep up from street)",
+   "kind": "ledge",
+   "x1": -221,
+   "x2": 129,
+   "y_left": 246,
+   "y_right": 246,
+   "length": 350
+  },
+  {
+   "id": "T03",
+   "label": "ground strip under/behind the house (reachable only by dropping from T02)",
+   "kind": "ground",
+   "x1": -221,
+   "x2": 399,
+   "y_left": 275,
+   "y_right": 275,
+   "length": 620
+  },
+  {
+   "id": "T04",
+   "label": "house upper floor (enclosed room)",
+   "kind": "floating",
+   "x1": -142,
+   "x2": 138,
+   "y_left": 47,
+   "y_right": 47,
+   "length": 280
+  }
+ ],
+ "ladders": [
+  {
+   "x": 77,
+   "y1": 49,
+   "y2": 244,
+   "isLadder": true,
+   "from_tier": "T02",
+   "to_tier": "T04",
+   "bottom_gap_px": 2,
+   "climb_px": 195
+  }
+ ],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "out00",
+   "x": -167,
+   "y": 244,
+   "target": "1010000:in01",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T02"
+  },
+  {
+   "name": "west00",
+   "x": -492,
+   "y": 275,
+   "target": "1010004:east00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -329,
+   "y": 241,
+   "tier_below": "T01"
+  }
+ ],
+ "mobs": {},
+ "npcs": [],
+ "terrain_style": "grass-topped brown earth street (render; WZ tS=grassySoil) + cutaway two-storey orange mushroom-house interior (insideGS/house1); outdoor backdrop set grassySoil",
+ "landmarks": [
+  {
+   "what": "cutaway two-storey mushroom-house shell",
+   "x": 33,
+   "y": 274,
+   "bbox": [
+    -275,
+    -259,
+    340,
+    274
+   ],
+   "wz_obj": [
+    "insideGS/house1/basic/0"
+   ],
+   "instances": 1,
+   "stands_on": "T03"
+  },
+  {
+   "what": "ground-floor room",
+   "x": -21,
+   "y": 246,
+   "bbox": [
+    -256,
+    47,
+    214,
+    246
+   ],
+   "wz_obj": [
+    "insideGS/house1/basic/4"
+   ],
+   "instances": 1,
+   "stands_on": "T02"
+  },
+  {
+   "what": "upper-floor room",
+   "x": 15,
+   "y": 47,
+   "bbox": [
+    -208,
+    -217,
+    237,
+    47
+   ],
+   "wz_obj": [
+    "insideGS/house1/basic/1"
+   ],
+   "instances": 1,
+   "stands_on": "T04"
+  },
+  {
+   "what": "wooden front door (left side of house)",
+   "x": -220,
+   "y": 246,
+   "bbox": [
+    -254,
+    159,
+    -186,
+    246
+   ],
+   "wz_obj": [
+    "prop/grassySoil/door/0"
+   ],
+   "instances": 1,
+   "stands_on": "T02"
+  },
+  {
+   "what": "ground-floor bookcase",
+   "x": -41,
+   "y": 250,
+   "bbox": [
+    -86,
+    165,
+    4,
+    250
+   ],
+   "wz_obj": [
+    "prop/grassySoil/fur/0"
+   ],
+   "instances": 1,
+   "stands_on": "T02"
+  },
+  {
+   "what": "upper-floor bed",
+   "x": -66,
+   "y": 49,
+   "bbox": [
+    -130,
+    -18,
+    -2,
+    49
+   ],
+   "wz_obj": [
+    "prop/grassySoil/fur/1"
+   ],
+   "instances": 1,
+   "stands_on": "T04"
+  },
+  {
+   "what": "upper-floor chest",
+   "x": 81,
+   "y": 48,
+   "bbox": [
+    42,
+    7,
+    119,
+    48
+   ],
+   "wz_obj": [
+    "prop/grassySoil/fur/2"
+   ],
+   "instances": 1,
+   "stands_on": "T04"
+  },
+  {
+   "what": "upper-floor curtained window",
+   "x": 38,
+   "y": -6,
+   "bbox": [
+    1,
+    -68,
+    74,
+    -6
+   ],
+   "wz_obj": [
+    "prop/grassySoil/win/0"
+   ],
+   "instances": 1,
+   "stands_on": null
+  },
+  {
+   "what": "hanging lamps (both floors)",
+   "x": 7,
+   "y": 128,
+   "bbox": [
+    -12,
+    -130,
+    26,
+    128
+   ],
+   "wz_obj": [
+    "prop/grassySoil/lamp/0"
+   ],
+   "instances": 2,
+   "stands_on": null
+  },
+  {
+   "what": "wooden ladder between floors (x=77)",
+   "x": 77,
+   "y": 246,
+   "bbox": [
+    62,
+    47,
+    92,
+    246
+   ],
+   "wz_obj": null,
+   "instances": null,
+   "stands_on": null
+  },
+  {
+   "what": "DANGER warning sign near west exit",
+   "x": -411,
+   "y": 272,
+   "bbox": [
+    -445,
+    195,
+    -378,
+    272
+   ],
+   "wz_obj": [
+    "guide/midForest/danger/2"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "flower bed and bush near west exit",
+   "x": -354,
+   "y": 295,
+   "bbox": [
+    -496,
+    167,
+    -213,
+    295
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/13",
+    "acc1/grassySoil/nature/5",
+    "acc1/grassySoil/nature/6"
+   ],
+   "instances": 3,
+   "stands_on": "T01"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites"
+}

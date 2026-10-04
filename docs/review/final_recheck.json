@@ -1,0 +1,52 @@
+{
+ "note": "Bounded re-check of the five must-fix items on re-rendered frames; partly-met items got one more pass (ITERATION_LOG F-6).",
+ "results": [
+  {
+   "criteria": [
+    {
+     "name": "(1) Ropes in 40001 and 1020000 read as hanging ropes (plumb banded strands ending at the lip, no stake/hook/knob silhouette above the lip)",
+     "pass": true,
+     "evidence": "SnailHuntingGround2_40001_Gameplay.png: ropes at about x460 (y445-545), x260 (y565-650, on the front of the round platform), x905 (y930-985) and x1615 (y985-1030). Each is a plain vertical brown strand with regular knot bands. Each top meets the terrace lip, and each bottom ends in a small coil or loop on the lower ground. Nothing sticks up above the lip. FieldEastOfAmherst_1020000_Gameplay.png: ropes at about x600 (y440-490), x990 (y290-440), x975 (y785-890), x425 (y565-605) and x765 (y45-105). Same reading: plumb, banded, tops at the platform edge, small disc or coil foot sitting on the ground. No stake or hook shape shows against the background above any lip. The ladders at about x1325 and x850 are separate ladder props and I did not count them as ropes. One small leftover: a tiny dark-brown dot sits on the grass just behind and up-right of most rope tops (40001 about (487,435) and (297,553); 1020000 about (620,405), (1020,275), (450,522) and (965,763)). They look like anchor-peg heads seen from above. They sit flat on the grass and do not show as a shape above the lip, so they don't fail the criterion, but they could be hidden or removed as polish."
+    },
+    {
+     "name": "(2) Waterfall cliff reads as an irregular rocky gap in a ridge (different-height lobes, irregular tiers, boulders/bushes) rather than stacked rectangular blocks",
+     "pass": false,
+     "evidence": "This is a partial fix. Progress is clear in Region_MapleRoad.png (cliff at about x1160-1430, y290-490). There are now two lobes either side of the falls at different heights: the right lobe tops out around y290-300 and the left around y320-340. The left lobe has 2-3 offset grass-capped ledges (about y330, y390, y440). The waterfall drops in two steps with a splash puff at the middle ledge, and a little vegetation sits on top near the source (tree at about x1300,y315). Mountain cones on both sides (about x1130, x1270 behind, x1460+) give it a notch-in-a-ridge context. But the shapes are still rectangular: flat tops, straight vertical stone faces and right-angle corners. The left-lobe tiers are horizontal rectangular shelves stacked with offsets, not broken or varied edges. In the distant shots it still reads as boxes. In Island_Hero.png (about x800-950, y250-345) the right lobe is a flat-topped square block and the whole cliff looks like a dark stone fortress block with a waterfall. In Island_Overview_Close.png (about x800-950, y340-490) the right mass (about x900-950, y395-460) is likewise a flat-topped box. I saw no obvious boulders breaking up the outline. Offsetting rectangular slabs does not make them irregular, so the 'rather than stacked rectangular blocks' part is not yet met. Next step: break up the top edges and corners (rough ridgeline, chamfered or uneven faces, rocks or bushes along the ledges) so the outline stops looking like boxes from the overview cameras."
+    },
+    {
+     "name": "(3) Island overall still reads coherent (no regressions visible)",
+     "pass": true,
+     "evidence": "Island_Overview_Close.png and Island_Hero.png: the floating island still reads clearly. Mountain-cone ridge along the back, lake fed by the two-step waterfall (the lower splash puff lands at the lake's top shore), terraced Maple Road region on the left, Amherst cluster on the right, Southperry town and ship at the front edge, a continuous path network, and a layered rock underside. Region_MapleRoad.png: terraces, mushroom houses, paths and trees all sit on the ground with nothing out of place. 40001: stone-arch platform cluster, boulders, snails, signboard and character all sit on the ground. 1020000: terraces, ladders, portal and signpost are intact. In the fix areas I saw no broken geometry, no floating objects and no ropes hanging in mid-air: rope feet sit on the lower ground and the waterfall connects ledge to lake. The bumpy tubular hedge on the right side of 1020000 (about x1500-1920, y260-690) looks a bit odd, but the rope and waterfall fixes would not have touched it, so I don't count it as a regression."
+    }
+   ],
+   "new_issues": []
+  },
+  {
+   "criteria": [
+    {
+     "name": "(1) Southperry Gameplay: gangplank/boarding point, Shanks (red) and at least one more NPC unobstructed",
+     "pass": true,
+     "evidence": "Southperry_60000_Gameplay.png: A wooden gangplank runs from the ship deck up to the pier between the main mast and the foremast (about x1150-1310, y775-900). The walking surface reads as one continuous path from deck to pier. A white foremast spar (about x1265-1410, y770-865) and some thin rigging lines cross its lower-right end, but they don't hide the step-on point. Shanks is clearly visible as the red-coated, red-hatted figure on the pier at the top of the gangplank (about x1230-1275, y695-770), with no sail or mast in front of him. The second NPC is the pink/purple figure in front of the blue market stall (about x1020-1050, y650-710). Rigging and the left end of the main yard pass close by but don't cover her. I did not count the blue-shirt figure on the sand (about 1025,500) because the same figure appears in the other gameplay shots, so it is most likely the player avatar. The large jib sail (about x1380-1660, y640-1020) covers only the base of the lighthouse, not the boarding area."
+    },
+    {
+     "name": "(2) 1000006 Gameplay: golden dell, ramp and arrival portal read clearly with at most a sliver of the neighbouring dark forest in the foreground",
+     "pass": false,
+     "evidence": "HuntingGroundMidForest2_1000006_Gameplay.png: The dell, the ramp and the portal all read clearly and nothing covers them. The blue arrival portal is at about (750-850, 830-970), the wooden plank ramp with corner posts runs below it to the bottom edge (about x720-880, y930-1080), and the ochre dell floor with fallen leaves shows between the platforms across the middle of the frame (about x600-1400, y250-650). The dark-forest intrusion is more than a sliver, though. About six dark teal pine crowns and dark green trees form a band along the right half of the bottom edge: x910-1170 (two pines rising to about y820), x1150-1330 at y930-1080, x1450-1640 at y870-1080, x1640-1830 at y990-1080, and x1830-1920 at y830-1080. That is roughly 7-8% of the frame, about a quarter of its height at the tallest point, across half the bottom edge. The nearest pine is only about 60px right of the ramp, so a small camera lift or culling those trees should fix it; nothing needs rebuilding. Borderline fail."
+    },
+    {
+     "name": "(3) Region_WestAmherstForests: 1000006 arrival reads as a plank bridge (planks, posts, rope rails, air under the span) landing on the floating hub",
+     "pass": false,
+     "evidence": "Region_WestAmherstForests.png: A long connector runs from the golden 1000006 map (top, about x1060-1440, y80-350) down the gap between the two plateaus to the hub (about x1125-1185, y335-650), ending near the hub's portal arches at about (1170,660). Its tan colour and mottled texture match the dirt paths elsewhere in this frame (for example the hub paths at about x820-1000, y690-800 and the left-plateau path at about x680-740, y570-710), so it reads as a path or boardwalk, not a plank bridge. I couldn't make out separate planks, posts or rope rails at this scale. Its slightly darker edges could be rails, but that's not certain. For air under the span: shadows fall to the left in this image, so a raised deck should cast an offset shadow on the gully floor. The dark band left of the strip (about x1080-1130, y360-600) is ambiguous because it could just as well be the shadow of the dark-forest plateau. The short planked ramp just below the portal (about x1175-1205, y305-345) does show visible slats at this scale. That means the long span fails because of its material and contrast, not because the region view is too small to show a bridge."
+    },
+    {
+     "name": "(4) 30000 Gameplay: both rope pitches read clearly as climbs (hanging ochre ropes with knots, no pole/hook look) and no large blank wedge dominates",
+     "pass": false,
+     "evidence": "EastEntranceMushroomTown_30000_Gameplay.png: Narrow fail, scoped as follows. Blank-wedge part: passes. There is an untextured dark-green slab on the right edge (about x1610-1920, y420-1080), about 15% of the width and 7% of the area. It's noticeable but doesn't dominate the frame. Rope part: fails. Two thin ochre ropes with small knots do hang from the platform edges, one from the upper ledge at about (1365-1385, 610-700) and one down the lower rock face at about (1180-1200, 820-915). So the hanging form and the knots are there. But both are only a few pixels wide and low-contrast against the grey and brown cliff, and I only picked them out on a close look. Each one ends in a J-shaped curl at the bottom (about 1362-1380, 680-700 and 1180-1195, 895-915) that reads like a hook. What catches the eye at each pitch is instead a vertical post with a red-and-white flag and a spiral rope coil (about x1440-1495, y505-600 and x1280-1330, y710-800). That is still a pole look, not a climb. Suggested fix: thicker, higher-contrast ropes, no J-curl at the ends, and less emphasis on the flag posts."
+    }
+   ],
+   "new_issues": [
+    "Southperry_60000_Gameplay.png (may be pre-existing): a large barrel or cylinder lies sideways at the ship's stern and appears to clip through the hull (about x700-830, y925-1015). It looks like geometry intersecting the hull, not a deliberately mounted fitting."
+   ]
+  }
+ ]
+}

@@ -1,0 +1,1544 @@
+{
+ "island": "Maple Island (classic GMS v0.08-v0.22)",
+ "start_map": 0,
+ "primary_route": [
+  0,
+  10000,
+  20000,
+  30000,
+  40000,
+  40001,
+  40002,
+  50000,
+  60000
+ ],
+ "rainbow_street_route": [
+  50000,
+  1000000,
+  1010000,
+  1020000,
+  1020001
+ ],
+ "maps": [
+  {
+   "id": 0,
+   "name": "West Entrance to Mushroom Town",
+   "slug": "WestEntranceMushroomTown_0",
+   "street": "Maple Road",
+   "kind": "town",
+   "footprint_m": [
+    32,
+    28
+   ],
+   "base_height_m": 14.0,
+   "world_origin": [
+    0.0,
+    0.0
+   ],
+   "world_yaw_deg": -65.0,
+   "worldmap_frame_origin": [
+    0.0,
+    0.0
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 10000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "one_way_in_classic": true,
+     "trail_m": 10.1
+    }
+   ],
+   "classic_npcs": [
+    "Heena",
+    "Sera"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Heena",
+    "Sera"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "ToHouseDoor",
+    "BluffLadder"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 10000,
+   "name": "Mushroom Town",
+   "slug": "MushroomTown_10000",
+   "street": "Maple Road",
+   "kind": "town",
+   "footprint_m": [
+    42,
+    36
+   ],
+   "base_height_m": 14.0,
+   "world_origin": [
+    16.93,
+    -36.54
+   ],
+   "world_yaw_deg": -75.0,
+   "worldmap_frame_origin": [
+    37.8,
+    -13.9
+   ],
+   "exits": [
+    {
+     "portal": "in00",
+     "to_map": 0,
+     "to_portal": "out00",
+     "kind": "edge",
+     "classic_arrival_only": true,
+     "trail_m": 10.1
+    },
+    {
+     "portal": "out00",
+     "to_map": 20000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "one_way_in_classic": true,
+     "trail_m": 14.1
+    }
+   ],
+   "classic_npcs": [
+    "Roger"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Roger"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "ToYellowHouse"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 20000,
+   "name": "Mushroom Town",
+   "slug": "MushroomTown_20000",
+   "street": "Maple Road",
+   "kind": "town",
+   "footprint_m": [
+    42,
+    36
+   ],
+   "base_height_m": 14.0,
+   "world_origin": [
+    29.57,
+    -87.32
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    82.7,
+    -40.8
+   ],
+   "exits": [
+    {
+     "portal": "in00",
+     "to_map": 10000,
+     "to_portal": "out00",
+     "kind": "edge",
+     "classic_arrival_only": true,
+     "trail_m": 14.1
+    },
+    {
+     "portal": "out00",
+     "to_map": 30000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "one_way_in_classic": true,
+     "trail_m": 10.0
+    },
+    {
+     "portal": "in01",
+     "to_map": 20001,
+     "to_portal": "out00",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Nina"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Nina"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "ToSensHouse",
+    "SkyIslet"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 30000,
+   "name": "East Entrance to Mushroom Town",
+   "slug": "EastEntranceMushroomTown_30000",
+   "street": "Maple Road",
+   "kind": "town",
+   "footprint_m": [
+    38,
+    38
+   ],
+   "base_height_m": 15.0,
+   "world_origin": [
+    34.88,
+    -137.21
+   ],
+   "world_yaw_deg": -100.0,
+   "worldmap_frame_origin": [
+    121.7,
+    -72.4
+   ],
+   "exits": [
+    {
+     "portal": "in00",
+     "to_map": 20000,
+     "to_portal": "out00",
+     "kind": "edge",
+     "classic_arrival_only": true,
+     "trail_m": 10.0
+    },
+    {
+     "portal": "out00",
+     "to_map": 40000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "one_way_in_classic": true,
+     "trail_m": 28.0
+    }
+   ],
+   "classic_npcs": [
+    "Peter"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Peter"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "WestIslets",
+    "MeadowRecovery"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 40000,
+   "name": "Snail Hunting Ground I",
+   "slug": "SnailHuntingGround1_40000",
+   "street": "Maple Road",
+   "kind": "hunting",
+   "footprint_m": [
+    64,
+    40
+   ],
+   "base_height_m": 11.0,
+   "world_origin": [
+    45.39,
+    -207.74
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    179.0,
+    -114.8
+   ],
+   "exits": [
+    {
+     "portal": "in00",
+     "to_map": 30000,
+     "to_portal": "out00",
+     "kind": "edge",
+     "classic_arrival_only": true,
+     "trail_m": 28.0
+    },
+    {
+     "portal": "east00",
+     "to_map": 40001,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 12.0
+    }
+   ],
+   "classic_npcs": [
+    "Robin"
+   ],
+   "classic_mobs": {
+    "Snail": 33,
+    "Blue Snail": 16
+   },
+   "built_status": "authored",
+   "built_npcs": [
+    "Robin"
+   ],
+   "built_mobs": {
+    "Snail": 1,
+    "Blue Snail": 2
+   },
+   "routes": [
+    "Main",
+    "AroundKnoll",
+    "KnollLadder",
+    "FourBlocks",
+    "UpperWest",
+    "Hump",
+    "WestLadders",
+    "Islet"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 40001,
+   "name": "Snail Hunting Ground II",
+   "slug": "SnailHuntingGround2_40001",
+   "street": "Maple Road",
+   "kind": "hunting",
+   "footprint_m": [
+    64,
+    44
+   ],
+   "base_height_m": 8.0,
+   "world_origin": [
+    44.21,
+    -280.96
+   ],
+   "world_yaw_deg": -103.0,
+   "worldmap_frame_origin": [
+    229.9,
+    -167.4
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 40000,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 12.0
+    },
+    {
+     "portal": "east00",
+     "to_map": 40002,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 18.2
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 43,
+    "Blue Snail": 24
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Blue Snail": 2
+   },
+   "routes": [
+    "Main",
+    "MesaAndStones",
+    "West_Ropes",
+    "East_Ropes",
+    "Rope_1867",
+    "Rope_1530",
+    "Pillar",
+    "V_East",
+    "Arch",
+    "Summit"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 40002,
+   "name": "Snail Hunting Ground III",
+   "slug": "SnailHuntingGround3_40002",
+   "street": "Maple Road",
+   "kind": "hunting",
+   "footprint_m": [
+    64,
+    46
+   ],
+   "base_height_m": 5.0,
+   "world_origin": [
+    31.69,
+    -365.27
+   ],
+   "world_yaw_deg": -83.0,
+   "worldmap_frame_origin": [
+    280.7,
+    -235.9
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 40001,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 18.2
+    },
+    {
+     "portal": "east00",
+     "to_map": 50000,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 30.0
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 36,
+    "Blue Snail": 26,
+    "Red Snail": 13
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Blue Snail": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Main",
+    "East_Loop",
+    "Rope_1530",
+    "Rope_2520",
+    "T12_Walk",
+    "T7_West"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 50000,
+   "name": "A Split Road",
+   "slug": "ASplitRoad_50000",
+   "street": "Maple Road",
+   "kind": "field",
+   "footprint_m": [
+    76,
+    32
+   ],
+   "base_height_m": 4.0,
+   "world_origin": [
+    70.1,
+    -458.87
+   ],
+   "world_yaw_deg": -67.0,
+   "worldmap_frame_origin": [
+    374.0,
+    -274.9
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 40002,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 30.0
+    },
+    {
+     "portal": "east01",
+     "to_map": 60000,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 37.5
+    },
+    {
+     "portal": "east00",
+     "to_map": 1000000,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 12.5
+    }
+   ],
+   "classic_npcs": [
+    "Maria"
+   ],
+   "classic_mobs": {
+    "Blue Snail": 25,
+    "Red Snail": 13,
+    "Shroom": 18
+   },
+   "built_status": "authored",
+   "built_npcs": [
+    "Maria"
+   ],
+   "built_mobs": {
+    "Blue Snail": 1,
+    "Shroom": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Main_Lower_Southperry",
+    "Main_Upper_Amherst",
+    "Ladder_2095",
+    "Maria_Ladder77",
+    "Mesa_HighRoute",
+    "Rope_1397_1503",
+    "Rope_2665_2757",
+    "Rope_2010_Trio"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 60000,
+   "name": "Southperry",
+   "slug": "Southperry_60000",
+   "street": "Maple Road",
+   "kind": "town",
+   "footprint_m": [
+    82,
+    46
+   ],
+   "base_height_m": 1.0,
+   "world_origin": [
+    32.2,
+    -544.22
+   ],
+   "world_yaw_deg": -67.0,
+   "worldmap_frame_origin": [
+    407.6,
+    -362.0
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 50000,
+     "to_portal": "east01",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 37.5
+    },
+    {
+     "portal": "in00",
+     "to_map": 60001,
+     "to_portal": "out00",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Yoona",
+    "Biggs",
+    "Bari",
+    "Shanks",
+    "Paul",
+    "Tia",
+    "Maple Administrator"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Shanks",
+    "Tia",
+    "Maple Administrator",
+    "Yoona",
+    "Paul",
+    "Bari",
+    "Biggs"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "SquareFront",
+    "ArmorStore",
+    "LedgeRopes_Belvedere",
+    "SlabLadder_Belvedere",
+    "Knoll",
+    "HarbourQuarter",
+    "ShipDecks",
+    "ShipForecastle",
+    "ClimbMast"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 60001,
+   "name": "Southperry Armor Store",
+   "slug": "SouthperryArmorStore_60001",
+   "street": "Maple Road",
+   "kind": "interior",
+   "footprint_m": [
+    16,
+    12
+   ],
+   "base_height_m": 0.0,
+   "world_origin": [
+    2600.0,
+    0.0
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    1838.5,
+    1838.5
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 60000,
+     "to_portal": "in00",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Pan"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Pan"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "WareHeap",
+    "TopShelf",
+    "Rafters"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 20001,
+   "name": "Mushroom Town Townstreet",
+   "slug": "MushroomTownTownstreet_20001",
+   "street": "Maple Road",
+   "kind": "interior",
+   "footprint_m": [
+    16,
+    12
+   ],
+   "base_height_m": 0.0,
+   "world_origin": [
+    2400.0,
+    0.0
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    1697.1,
+    1697.1
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 20000,
+     "to_portal": "in01",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Sen"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Sen"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "Loft",
+    "ToStove"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000000,
+   "name": "The Field West of Amherst",
+   "slug": "FieldWestOfAmherst_1000000",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    80,
+    48
+   ],
+   "base_height_m": 5.0,
+   "world_origin": [
+    125.87,
+    -535.16
+   ],
+   "world_yaw_deg": -37.0,
+   "worldmap_frame_origin": [
+    467.4,
+    -289.4
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 50000,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 12.5
+    },
+    {
+     "portal": "in00",
+     "to_map": 1000001,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 18.1
+    },
+    {
+     "portal": "in04",
+     "to_map": 1000005,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 10.6
+    },
+    {
+     "portal": "in01",
+     "to_map": 1000002,
+     "to_portal": "out01",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 12.0
+    },
+    {
+     "portal": "in05",
+     "to_map": 1000006,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 61.0
+    },
+    {
+     "portal": "in02",
+     "to_map": 1000003,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 24.5
+    },
+    {
+     "portal": "in03",
+     "to_map": 1000004,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 50.3
+    },
+    {
+     "portal": "east00",
+     "to_map": 1010000,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 12.1
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 16,
+    "Blue Snail": 20,
+    "Red Snail": 26,
+    "Shroom": 21,
+    "Orange Mushroom": 7
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Shroom": 2,
+    "Red Snail": 1,
+    "Blue Snail": 1,
+    "Orange Mushroom": 1
+   },
+   "routes": [
+    "Main",
+    "ToMushroomGarden_in02",
+    "ToSnailGarden_in03",
+    "WestLookout",
+    "ToPlateau_RopeYard",
+    "VFork_West_to_in00",
+    "To_in04",
+    "ToSummit",
+    "To_in05",
+    "Skirt_to_in04",
+    "VFork_East_to_in01",
+    "ToBalcony"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000001,
+   "name": "In a Small Forest",
+   "slug": "InASmallForest_1000001",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    38,
+    34
+   ],
+   "base_height_m": 8.0,
+   "world_origin": [
+    139.22,
+    -464.2
+   ],
+   "world_yaw_deg": -35.0,
+   "worldmap_frame_origin": [
+    426.7,
+    -229.8
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1000000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 18.1
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 16,
+    "Blue Snail": 10,
+    "Red Snail": 5,
+    "Shroom": 11,
+    "Orange Mushroom": 4
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Orange Mushroom": 2,
+    "Shroom": 1,
+    "Snail": 1,
+    "Red Snail": 1,
+    "Blue Snail": 1
+   },
+   "routes": [
+    "Arrival_to_Floor",
+    "Floor_to_Crown",
+    "To_P06",
+    "To_P11",
+    "To_P19",
+    "Crown_to_Ridge_to_Arrival",
+    "HillTop",
+    "Hilltop_to_Rock"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000002,
+   "name": "Dangerous Forest",
+   "slug": "DangerousForest_1000002",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    40,
+    36
+   ],
+   "base_height_m": 13.0,
+   "world_origin": [
+    212.7,
+    -525.3
+   ],
+   "world_yaw_deg": -40.0,
+   "worldmap_frame_origin": [
+    521.8,
+    -221.0
+   ],
+   "exits": [
+    {
+     "portal": "out01",
+     "to_map": 1000000,
+     "to_portal": "in01",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 12.0
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 15,
+    "Blue Snail": 3,
+    "Red Snail": 5,
+    "Orange Mushroom": 12
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Orange Mushroom": 1,
+    "Red Snail": 1,
+    "Blue Snail": 1,
+    "Snail": 1
+   },
+   "routes": [
+    "Descent",
+    "WestHollow",
+    "VineCurtainFeet",
+    "VineSpur",
+    "VineEastFoot",
+    "EastGlade",
+    "ShelfWest",
+    "ShelfEast",
+    "ShelfToVines",
+    "ShelfToRidgeVine",
+    "BattlementsWest",
+    "BattlementsEast"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000003,
+   "name": "Mushroom Garden",
+   "slug": "MushroomGarden_1000003",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    36,
+    30
+   ],
+   "base_height_m": 2.0,
+   "world_origin": [
+    133.87,
+    -604.69
+   ],
+   "world_yaw_deg": -55.0,
+   "worldmap_frame_origin": [
+    522.2,
+    -332.9
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1000000,
+     "to_portal": "in02",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 24.5
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 9,
+    "Shroom": 28,
+    "Orange Mushroom": 5
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Shroom": 1,
+    "Orange Mushroom": 1,
+    "Snail": 1
+   },
+   "routes": [
+    "Main",
+    "DoorHillStair",
+    "LawnToCentral",
+    "ToTop"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000004,
+   "name": "Snail Garden",
+   "slug": "SnailGarden_1000004",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    40,
+    30
+   ],
+   "base_height_m": 2.0,
+   "world_origin": [
+    176.04,
+    -623.89
+   ],
+   "world_yaw_deg": -55.0,
+   "worldmap_frame_origin": [
+    565.6,
+    -316.7
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1000000,
+     "to_portal": "in03",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 50.3
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 17,
+    "Blue Snail": 19,
+    "Red Snail": 11
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Blue Snail": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Main",
+    "StumpArch",
+    "WestColumn",
+    "ArchToCentral",
+    "Summit",
+    "ArchToEast",
+    "EastLedges",
+    "ToCarrots"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000005,
+   "name": "Hunting Ground Middle of the Forest I",
+   "slug": "HuntingGroundMidForest1_1000005",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    38,
+    42
+   ],
+   "base_height_m": 12.0,
+   "world_origin": [
+    167.89,
+    -494.12
+   ],
+   "world_yaw_deg": -40.0,
+   "worldmap_frame_origin": [
+    468.1,
+    -230.7
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1000000,
+     "to_portal": "in04",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 10.6
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 21,
+    "Blue Snail": 16,
+    "Red Snail": 10,
+    "Shroom": 12
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Shroom": 1,
+    "Snail": 1,
+    "Blue Snail": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Floor",
+    "WestHollow",
+    "WestStack",
+    "DoorRoof",
+    "JumpTower",
+    "TowerToT22",
+    "TowerToT24",
+    "EastBranch",
+    "T10",
+    "T10DropToTower",
+    "BranchT8",
+    "T8ToT6Ladder",
+    "CanopyT6",
+    "LedgeT4",
+    "SummitStair",
+    "StoneT7"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1000006,
+   "name": "Hunting Ground Middle of the Forest II",
+   "slug": "HuntingGroundMidForest2_1000006",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    42,
+    40
+   ],
+   "base_height_m": 16.0,
+   "world_origin": [
+    230.69,
+    -482.57
+   ],
+   "world_yaw_deg": -45.0,
+   "worldmap_frame_origin": [
+    504.4,
+    -178.1
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1000000,
+     "to_portal": "in05",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 61.0
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 13,
+    "Blue Snail": 17,
+    "Red Snail": 6,
+    "Shroom": 9,
+    "Orange Mushroom": 6
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Orange Mushroom": 1,
+    "Blue Snail": 1,
+    "Red Snail": 1,
+    "Shroom": 1
+   },
+   "routes": [
+    "HubEast",
+    "HubToT14",
+    "WestStair",
+    "StairToT9",
+    "T21",
+    "UpperWest",
+    "UpperRing",
+    "RopeLadderFoot",
+    "Summit",
+    "T7",
+    "T22",
+    "WestGrove",
+    "EastAndBackDell",
+    "CentreDell"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1010000,
+   "name": "Amherst",
+   "slug": "Amherst_1010000",
+   "street": "Rainbow Street",
+   "kind": "town",
+   "footprint_m": [
+    76,
+    40
+   ],
+   "base_height_m": 6.0,
+   "world_origin": [
+    196.89,
+    -590.79
+   ],
+   "world_yaw_deg": -45.0,
+   "worldmap_frame_origin": [
+    557.0,
+    -278.5
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 1000000,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 12.1
+    },
+    {
+     "portal": "in01",
+     "to_map": 1010002,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 5.0
+    },
+    {
+     "portal": "east00",
+     "to_map": 1020000,
+     "to_portal": "west00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 18.4
+    },
+    {
+     "portal": "in00",
+     "to_map": 1010001,
+     "to_portal": "out00",
+     "kind": "door"
+    },
+    {
+     "portal": "in02",
+     "to_map": 1010003,
+     "to_portal": "out00",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Lucas",
+    "Mai",
+    "Rain",
+    "Pio"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Rain",
+    "Pio",
+    "Lucas",
+    "Mai"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "Plateau",
+    "ToDeptStore",
+    "Lookout",
+    "ToTownstreet"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1010001,
+   "name": "Amherst Weapon Store",
+   "slug": "AmherstWeaponStore_1010001",
+   "street": "Rainbow Street",
+   "kind": "interior",
+   "footprint_m": [
+    16,
+    12
+   ],
+   "base_height_m": 0.0,
+   "world_origin": [
+    2800.0,
+    0.0
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    1979.9,
+    1979.9
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1010000,
+     "to_portal": "in00",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Sid"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Sid"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "ForgeClimb",
+    "Rafters",
+    "Rope",
+    "Perches"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1010002,
+   "name": "Amherst Townstreet",
+   "slug": "AmherstTownstreet_1010002",
+   "street": "Rainbow Street",
+   "kind": "townstreet",
+   "footprint_m": [
+    24,
+    22
+   ],
+   "base_height_m": 8.0,
+   "world_origin": [
+    264.06,
+    -594.33
+   ],
+   "world_yaw_deg": -45.0,
+   "worldmap_frame_origin": [
+    607.0,
+    -233.5
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1010000,
+     "to_portal": "in01",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 5.0
+    },
+    {
+     "portal": "west00",
+     "to_map": 1010004,
+     "to_portal": "east00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 42.2
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "Loft",
+    "BackGarden"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1010003,
+   "name": "Amherst Department Store",
+   "slug": "AmherstDepartmentStore_1010003",
+   "street": "Rainbow Street",
+   "kind": "interior",
+   "footprint_m": [
+    16,
+    12
+   ],
+   "base_height_m": 0.0,
+   "world_origin": [
+    3000.0,
+    0.0
+   ],
+   "world_yaw_deg": -90.0,
+   "worldmap_frame_origin": [
+    2121.3,
+    2121.3
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1010000,
+     "to_portal": "in02",
+     "kind": "door"
+    }
+   ],
+   "classic_npcs": [
+    "Lucy"
+   ],
+   "classic_mobs": {},
+   "built_status": "authored",
+   "built_npcs": [
+    "Lucy"
+   ],
+   "built_mobs": {},
+   "routes": [
+    "Main",
+    "LeftStack",
+    "PoleShelf",
+    "BeamDrop"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1010004,
+   "name": "Snail Field of Flowers",
+   "slug": "SnailFieldOfFlowers_1010004",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    38,
+    36
+   ],
+   "base_height_m": 9.5,
+   "world_origin": [
+    248.29,
+    -551.51
+   ],
+   "world_yaw_deg": -45.0,
+   "worldmap_frame_origin": [
+    565.5,
+    -214.4
+   ],
+   "exits": [
+    {
+     "portal": "east00",
+     "to_map": 1010002,
+     "to_portal": "west00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 42.2
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 10,
+    "Blue Snail": 16,
+    "Red Snail": 17
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Blue Snail": 1,
+    "Red Snail": 1,
+    "Snail": 1
+   },
+   "routes": [
+    "RimRoad",
+    "VineDown_0",
+    "VineDown_1",
+    "VineDown_2",
+    "VineDown_3",
+    "MidRow",
+    "VineT9_T1",
+    "VineT7_T4",
+    "VineT8_T5",
+    "VineT10_T3",
+    "WestKnolls",
+    "VineT9_T14",
+    "BasinBowl",
+    "EastStair"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1020000,
+   "name": "The Field East of Amherst",
+   "slug": "FieldEastOfAmherst_1020000",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    56,
+    36
+   ],
+   "base_height_m": 4.0,
+   "world_origin": [
+    245.31,
+    -648.29
+   ],
+   "world_yaw_deg": -107.0,
+   "worldmap_frame_origin": [
+    631.9,
+    -285.0
+   ],
+   "exits": [
+    {
+     "portal": "west00",
+     "to_map": 1010000,
+     "to_portal": "east00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 18.4
+    },
+    {
+     "portal": "in00",
+     "to_map": 1020001,
+     "to_portal": "out00",
+     "kind": "edge",
+     "one_way_in_classic": false,
+     "trail_m": 20.7
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 8,
+    "Blue Snail": 19,
+    "Red Snail": 13,
+    "Orange Mushroom": 12
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Blue Snail": 1,
+    "Orange Mushroom": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Main",
+    "West_LadderStones",
+    "West_StairsToShelves",
+    "Mound_RopeT17_Berry",
+    "T19_LadderWestHigh",
+    "WestHigh_Crown_Nook",
+    "Berry_UpStones_Crown",
+    "Clover_RopeUpStones"
+   ],
+   "traversal_ok": true
+  },
+  {
+   "id": 1020001,
+   "name": "Tomato Field",
+   "slug": "TomatoField_1020001",
+   "street": "Rainbow Street",
+   "kind": "hunting",
+   "footprint_m": [
+    60,
+    30
+   ],
+   "base_height_m": 2.0,
+   "world_origin": [
+    275.14,
+    -712.15
+   ],
+   "world_yaw_deg": -65.0,
+   "worldmap_frame_origin": [
+    698.1,
+    -309.0
+   ],
+   "exits": [
+    {
+     "portal": "out00",
+     "to_map": 1020000,
+     "to_portal": "in00",
+     "kind": "edge",
+     "classic_arrival_only": false,
+     "trail_m": 20.7
+    }
+   ],
+   "classic_npcs": [],
+   "classic_mobs": {
+    "Snail": 9,
+    "Blue Snail": 8,
+    "Red Snail": 4,
+    "Orange Mushroom": 4
+   },
+   "built_status": "authored",
+   "built_npcs": [],
+   "built_mobs": {
+    "Snail": 1,
+    "Orange Mushroom": 1,
+    "Blue Snail": 1,
+    "Red Snail": 1
+   },
+   "routes": [
+    "Main",
+    "WestBed",
+    "EastYard",
+    "Canopy",
+    "Climb_Vine_WestFurrow",
+    "Climb_Vine_Hump",
+    "Climb_Vine_EastFurrow",
+    "Climb_Vine_EastBank"
+   ],
+   "traversal_ok": true
+  }
+ ]
+}

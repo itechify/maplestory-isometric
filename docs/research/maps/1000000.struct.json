@@ -1,0 +1,1899 @@
+{
+ "id": 1000000,
+ "name": "The Field West of Amherst",
+ "slug": "FieldWestOfAmherst_1000000",
+ "units": "MapleStory px; y increases downward",
+ "source": {
+  "map_json": "docs/research/raw/gms_v8/1000000.json (maplestory.io /api/GMS/8/map/1000000)",
+  "wz": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img (portal, info, back, <layer>/obj, <layer>/info)"
+ },
+ "extent": {
+  "minX": -489,
+  "maxX": 3459,
+  "minY": -1045,
+  "maxY": 660
+ },
+ "tiers": [
+  {
+   "id": "G1",
+   "x1": -489,
+   "x2": 219,
+   "y_left": 275,
+   "y_right": 275,
+   "kind": "ground",
+   "length_px": 708
+  },
+  {
+   "id": "G2",
+   "x1": 219,
+   "x2": 591,
+   "y_left": 335,
+   "y_right": 335,
+   "kind": "ground",
+   "length_px": 372
+  },
+  {
+   "id": "G3",
+   "x1": 591,
+   "x2": 1299,
+   "y_left": 275,
+   "y_right": 275,
+   "kind": "ground",
+   "length_px": 708
+  },
+  {
+   "id": "G4",
+   "x1": 1299,
+   "x2": 1389,
+   "y_left": 335,
+   "y_right": 335,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G5",
+   "x1": 1389,
+   "x2": 1479,
+   "y_left": 395,
+   "y_right": 395,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G6",
+   "x1": 1479,
+   "x2": 2301,
+   "y_left": 455,
+   "y_right": 455,
+   "kind": "ground",
+   "length_px": 822
+  },
+  {
+   "id": "G7",
+   "x1": 2301,
+   "x2": 2829,
+   "y_left": 275,
+   "y_right": 275,
+   "kind": "ground",
+   "length_px": 528
+  },
+  {
+   "id": "G8",
+   "x1": 2829,
+   "x2": 2919,
+   "y_left": 335,
+   "y_right": 335,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G9",
+   "x1": 2919,
+   "x2": 3009,
+   "y_left": 395,
+   "y_right": 395,
+   "kind": "ground",
+   "length_px": 90
+  },
+  {
+   "id": "G10",
+   "x1": 3009,
+   "x2": 3459,
+   "y_left": 455,
+   "y_right": 455,
+   "kind": "ground",
+   "length_px": 450
+  },
+  {
+   "id": "P01",
+   "x1": 1626,
+   "x2": 2064,
+   "y_left": 305,
+   "y_right": 305,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P02",
+   "x1": -39,
+   "x2": 129,
+   "y_left": 215,
+   "y_right": 215,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P03",
+   "x1": -39,
+   "x2": 129,
+   "y_left": 155,
+   "y_right": 155,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P04",
+   "x1": -39,
+   "x2": 129,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P05",
+   "x1": 681,
+   "x2": 849,
+   "y_left": 95,
+   "y_right": 95,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P06",
+   "x1": 51,
+   "x2": 219,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P07",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P08",
+   "x1": 2481,
+   "x2": 2649,
+   "y_left": 35,
+   "y_right": 35,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P09",
+   "x1": 141,
+   "x2": 309,
+   "y_left": -25,
+   "y_right": -25,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P10",
+   "x1": 1041,
+   "x2": 1209,
+   "y_left": -25,
+   "y_right": -25,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P11a",
+   "x1": 1221,
+   "x2": 2019,
+   "y_left": -85,
+   "y_right": -85,
+   "kind": "ledge",
+   "length_px": 798
+  },
+  {
+   "id": "P11b",
+   "x1": 2019,
+   "x2": 2469,
+   "y_left": -25,
+   "y_right": -25,
+   "kind": "ledge",
+   "length_px": 450
+  },
+  {
+   "id": "P12",
+   "x1": 2931,
+   "x2": 3459,
+   "y_left": -85,
+   "y_right": -85,
+   "kind": "ledge",
+   "length_px": 528
+  },
+  {
+   "id": "P13",
+   "x1": 1761,
+   "x2": 1929,
+   "y_left": -145,
+   "y_right": -145,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P14",
+   "x1": 1761,
+   "x2": 1929,
+   "y_left": -205,
+   "y_right": -205,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P15",
+   "x1": 1671,
+   "x2": 1839,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P16",
+   "x1": 1851,
+   "x2": 2019,
+   "y_left": -265,
+   "y_right": -265,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P17",
+   "x1": 141,
+   "x2": 489,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P18",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P19",
+   "x1": 1941,
+   "x2": 2109,
+   "y_left": -325,
+   "y_right": -325,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P20",
+   "x1": -219,
+   "x2": 129,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P21",
+   "x1": 501,
+   "x2": 849,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P22",
+   "x1": 1221,
+   "x2": 1569,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P23",
+   "x1": 411,
+   "x2": 579,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P24",
+   "x1": 861,
+   "x2": 1209,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P25",
+   "x1": 231,
+   "x2": 399,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P26a",
+   "x1": 2121,
+   "x2": 2661,
+   "y_left": -385,
+   "y_right": -385,
+   "kind": "ledge",
+   "length_px": 540
+  },
+  {
+   "id": "P26b",
+   "x1": 2661,
+   "x2": 2751,
+   "y_left": -445,
+   "y_right": -445,
+   "kind": "ledge",
+   "length_px": 90
+  },
+  {
+   "id": "P26c",
+   "x1": 2751,
+   "x2": 3189,
+   "y_left": -505,
+   "y_right": -505,
+   "kind": "ledge",
+   "length_px": 438
+  },
+  {
+   "id": "P27",
+   "x1": -174,
+   "x2": 84,
+   "y_left": -535,
+   "y_right": -535,
+   "kind": "ledge",
+   "length_px": 258
+  },
+  {
+   "id": "P28",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -565,
+   "y_right": -565,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P29",
+   "x1": 231,
+   "x2": 579,
+   "y_left": -685,
+   "y_right": -685,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P30",
+   "x1": 591,
+   "x2": 939,
+   "y_left": -745,
+   "y_right": -745,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P31",
+   "x1": 1311,
+   "x2": 1659,
+   "y_left": -745,
+   "y_right": -745,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P32",
+   "x1": 951,
+   "x2": 1299,
+   "y_left": -805,
+   "y_right": -805,
+   "kind": "ledge",
+   "length_px": 348
+  },
+  {
+   "id": "P33",
+   "x1": 276,
+   "x2": 534,
+   "y_left": -835,
+   "y_right": -835,
+   "kind": "ledge",
+   "length_px": 258
+  },
+  {
+   "id": "P34",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -925,
+   "y_right": -925,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P35",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -985,
+   "y_right": -985,
+   "kind": "floating",
+   "length_px": 168
+  },
+  {
+   "id": "P36",
+   "x1": 1761,
+   "x2": 2559,
+   "y_left": -1045,
+   "y_right": -1045,
+   "kind": "ledge",
+   "length_px": 798
+  }
+ ],
+ "ladders": [
+  {
+   "x": 2528,
+   "y1": 37,
+   "y2": 273,
+   "isLadder": true,
+   "from_tier": "G7",
+   "to_tier": "P08",
+   "length_px": 236,
+   "bottom_gap_px": 2
+  },
+  {
+   "x": 300,
+   "y1": -683,
+   "y2": -541,
+   "isLadder": true,
+   "from_tier": "P25",
+   "to_tier": "P29",
+   "length_px": 142,
+   "bottom_gap_px": 36
+  },
+  {
+   "x": 1598,
+   "y1": -743,
+   "y2": -604,
+   "isLadder": false,
+   "from_tier": "P28",
+   "to_tier": "P31",
+   "length_px": 139,
+   "bottom_gap_px": 39
+  },
+  {
+   "x": 1537,
+   "y1": -563,
+   "y2": -425,
+   "isLadder": false,
+   "from_tier": "P22",
+   "to_tier": "P28",
+   "length_px": 138,
+   "bottom_gap_px": 40
+  },
+  {
+   "x": 1554,
+   "y1": -923,
+   "y2": -782,
+   "isLadder": true,
+   "from_tier": "P31",
+   "to_tier": "P34",
+   "length_px": 141,
+   "bottom_gap_px": 37
+  },
+  {
+   "x": 3148,
+   "y1": -503,
+   "y2": -217,
+   "isLadder": false,
+   "from_tier": "P12",
+   "to_tier": "P26c",
+   "length_px": 286,
+   "bottom_gap_px": 132
+  },
+  {
+   "x": 718,
+   "y1": 97,
+   "y2": 273,
+   "isLadder": false,
+   "from_tier": "G3",
+   "to_tier": "P05",
+   "length_px": 176,
+   "bottom_gap_px": 2
+  },
+  {
+   "x": 898,
+   "y1": 37,
+   "y2": 273,
+   "isLadder": false,
+   "from_tier": "G3",
+   "to_tier": "P07",
+   "length_px": 236,
+   "bottom_gap_px": 2
+  },
+  {
+   "x": 1085,
+   "y1": -23,
+   "y2": 273,
+   "isLadder": false,
+   "from_tier": "G3",
+   "to_tier": "P10",
+   "length_px": 296,
+   "bottom_gap_px": 2
+  },
+  {
+   "x": 1167,
+   "y1": -23,
+   "y2": 173,
+   "isLadder": false,
+   "from_tier": "G3",
+   "to_tier": "P10",
+   "length_px": 196,
+   "bottom_gap_px": 102
+  },
+  {
+   "x": 3064,
+   "y1": -83,
+   "y2": 383,
+   "isLadder": false,
+   "from_tier": "G10",
+   "to_tier": "P12",
+   "length_px": 466,
+   "bottom_gap_px": 72
+  },
+  {
+   "x": 3001,
+   "y1": -83,
+   "y2": 232,
+   "isLadder": false,
+   "from_tier": "G9",
+   "to_tier": "P12",
+   "length_px": 315,
+   "bottom_gap_px": 163
+  },
+  {
+   "x": 2197,
+   "y1": -23,
+   "y2": 417,
+   "isLadder": false,
+   "from_tier": "G6",
+   "to_tier": "P11b",
+   "length_px": 440,
+   "bottom_gap_px": 38
+  }
+ ],
+ "portals": [
+  {
+   "name": "west00",
+   "x": -391,
+   "y": 276,
+   "target": "50000:east00",
+   "inferred": false,
+   "type": 2,
+   "tier": "G1",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/1"
+  },
+  {
+   "name": "east00",
+   "x": 3338,
+   "y": 456,
+   "target": "1010000:west00",
+   "inferred": false,
+   "type": 2,
+   "tier": "G10",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/2"
+  },
+  {
+   "name": "in00",
+   "x": -60,
+   "y": -385,
+   "target": "1000001:out00",
+   "inferred": false,
+   "type": 2,
+   "tier": "P20",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/3"
+  },
+  {
+   "name": "in01",
+   "x": 2987,
+   "y": -508,
+   "target": "1000002:out01",
+   "inferred": false,
+   "type": 2,
+   "tier": "P26c",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/4"
+  },
+  {
+   "name": "in02",
+   "x": 1740,
+   "y": 455,
+   "target": "1000003:out00",
+   "inferred": false,
+   "type": 2,
+   "tier": "G6",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/5"
+  },
+  {
+   "name": "in03",
+   "x": 1908,
+   "y": 456,
+   "target": "1000004:out00",
+   "inferred": false,
+   "type": 2,
+   "tier": "G6",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/6"
+  },
+  {
+   "name": "in04",
+   "x": 389,
+   "y": -688,
+   "target": "1000005:out00",
+   "inferred": false,
+   "type": 2,
+   "tier": "P29",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/7"
+  },
+  {
+   "name": "in05",
+   "x": 757,
+   "y": -747,
+   "target": "1000006:out00",
+   "inferred": false,
+   "type": 2,
+   "tier": "P30",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/8"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -91,
+   "y": 181,
+   "tier_below": "G1"
+  }
+ ],
+ "mobs": {
+  "Shroom": {
+   "id": 120100,
+   "count": 21,
+   "tiers": [
+    "G1",
+    "G10",
+    "G2",
+    "G3",
+    "G6",
+    "G7",
+    "P11a",
+    "P11b",
+    "P12",
+    "P17",
+    "P21",
+    "P22",
+    "P24",
+    "P26a",
+    "P30"
+   ],
+   "per_tier": {
+    "G2": 1,
+    "P11b": 1,
+    "G7": 1,
+    "G6": 2,
+    "G3": 1,
+    "P17": 1,
+    "P22": 1,
+    "P26a": 2,
+    "P12": 2,
+    "P24": 1,
+    "P21": 1,
+    "P11a": 1,
+    "G1": 1,
+    "P30": 4,
+    "G10": 1
+   }
+  },
+  "Red Snail": {
+   "id": 130101,
+   "count": 26,
+   "tiers": [
+    "G1",
+    "G10",
+    "G2",
+    "G3",
+    "G6",
+    "G7",
+    "P11a",
+    "P11b",
+    "P12",
+    "P17",
+    "P21",
+    "P22",
+    "P24",
+    "P26a",
+    "P26c",
+    "P30",
+    "P32"
+   ],
+   "per_tier": {
+    "G6": 3,
+    "G3": 3,
+    "G1": 1,
+    "P24": 1,
+    "P22": 1,
+    "P21": 1,
+    "P17": 1,
+    "P26a": 2,
+    "P26c": 1,
+    "P12": 1,
+    "G7": 2,
+    "P11b": 1,
+    "P11a": 2,
+    "G2": 1,
+    "G10": 1,
+    "P30": 1,
+    "P32": 3
+   }
+  },
+  "Snail": {
+   "id": 100100,
+   "count": 16,
+   "tiers": [
+    "G1",
+    "G2",
+    "G3",
+    "G7",
+    "P12",
+    "P29",
+    "P31",
+    "P36"
+   ],
+   "per_tier": {
+    "G1": 1,
+    "G2": 2,
+    "G3": 1,
+    "G7": 1,
+    "P12": 1,
+    "P29": 4,
+    "P31": 3,
+    "P36": 3
+   }
+  },
+  "Blue Snail": {
+   "id": 100101,
+   "count": 20,
+   "tiers": [
+    "G2",
+    "P11a",
+    "P11b",
+    "P12",
+    "P17",
+    "P21",
+    "P22",
+    "P24",
+    "P26a",
+    "P29",
+    "P31",
+    "P32",
+    "P36"
+   ],
+   "per_tier": {
+    "G2": 1,
+    "P12": 2,
+    "P26a": 2,
+    "P22": 2,
+    "P24": 1,
+    "P21": 1,
+    "P17": 1,
+    "P11a": 3,
+    "P11b": 2,
+    "P29": 1,
+    "P32": 1,
+    "P31": 2,
+    "P36": 1
+   }
+  },
+  "Orange Mushroom": {
+   "id": 1210102,
+   "count": 7,
+   "tiers": [
+    "P11b",
+    "P26c",
+    "P36"
+   ],
+   "per_tier": {
+    "P26c": 2,
+    "P11b": 1,
+    "P36": 4
+   }
+  }
+ },
+ "npcs": [],
+ "terrain_style": "grassySoil tileset (WZ layer info tS=grassySoil): bright green grass-blade tops over khaki/olive-brown clumpy soil with embedded mossy grey rocks; background set grassySoil (flat blue sky, scrolling cumulus clouds, distant rolling grassy hill, big leafy tree, grassy flower-meadow band)",
+ "landmarks": [
+  {
+   "what": "twin white-trunk tree, orange/rust foliage",
+   "x": -311,
+   "y": 114,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/4",
+   "layer": 1
+  },
+  {
+   "what": "green bush",
+   "x": -167,
+   "y": -390,
+   "tier": "P20",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, orange autumn foliage",
+   "x": -143,
+   "y": 150,
+   "tier": "G1",
+   "wz": "acc1/midForest/nature/2",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, orange autumn foliage",
+   "x": -125,
+   "y": -506,
+   "tier": "P27",
+   "wz": "acc1/midForest/nature/2",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": -121,
+   "y": 244,
+   "tier": "G1",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": -57,
+   "y": -435,
+   "tier": "P20",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "green bush",
+   "x": -11,
+   "y": -382,
+   "tier": "P20",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 11,
+   "y": -401,
+   "tier": "P20",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 2
+  },
+  {
+   "what": "triangular DANGER sign (!) on post",
+   "x": 15,
+   "y": -422,
+   "tier": "P20",
+   "wz": "guide/midForest/danger/0",
+   "layer": 2
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage",
+   "x": 53,
+   "y": -526,
+   "tier": "P27",
+   "wz": "acc1/midForest/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 235,
+   "y": -62,
+   "tier": "P09",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 265,
+   "y": -57,
+   "tier": "P09",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 281,
+   "y": 313,
+   "tier": "G2",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 301,
+   "y": -705,
+   "tier": "P29",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 328,
+   "y": -714,
+   "tier": "P29",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 338,
+   "y": -705,
+   "tier": "P29",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 340,
+   "y": -349,
+   "tier": "P17",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 354,
+   "y": -351,
+   "tier": "P17",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 362,
+   "y": -703,
+   "tier": "P29",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": 395,
+   "y": -736,
+   "tier": "P29",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 406,
+   "y": -349,
+   "tier": "P17",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 428,
+   "y": -349,
+   "tier": "P17",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, teal/green foliage",
+   "x": 444,
+   "y": -859,
+   "tier": "P33",
+   "wz": "acc1/midForest/nature/5",
+   "layer": 0
+  },
+  {
+   "what": "yellow butterfly",
+   "x": 446,
+   "y": 262,
+   "tier": "G2",
+   "wz": "acc1/grassySoil/nature/20",
+   "layer": 3
+  },
+  {
+   "what": "orange flower",
+   "x": 448,
+   "y": 302,
+   "tier": "G2",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 3
+  },
+  {
+   "what": "triangular skull DANGER sign",
+   "x": 470,
+   "y": -727,
+   "tier": "P29",
+   "wz": "guide/midForest/danger/2",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 475,
+   "y": 302,
+   "tier": "G2",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 3
+  },
+  {
+   "what": "white-trunk tree, mixed green/orange/teal foliage",
+   "x": 491,
+   "y": 162,
+   "tier": "G2",
+   "wz": "acc1/midForest/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 507,
+   "y": 309,
+   "tier": "G2",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 3
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage with orange clump",
+   "x": 522,
+   "y": -850,
+   "tier": "P33",
+   "wz": "acc1/midForest/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 656,
+   "y": -762,
+   "tier": "P30",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "tilted triangular skull warning sign",
+   "x": 682,
+   "y": -787,
+   "tier": "P30",
+   "wz": "guide/midForest/danger/1",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 695,
+   "y": -409,
+   "tier": "P21",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 717,
+   "y": -423,
+   "tier": "P21",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 734,
+   "y": -409,
+   "tier": "P21",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": 758,
+   "y": -795,
+   "tier": "P30",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "dark grass tuft",
+   "x": 762,
+   "y": 69,
+   "tier": "P05",
+   "wz": "acc1/darkWood/nature/17",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 775,
+   "y": -409,
+   "tier": "P21",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 784,
+   "y": -769,
+   "tier": "P30",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 809,
+   "y": -768,
+   "tier": "P30",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 829,
+   "y": -770,
+   "tier": "P30",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 845,
+   "y": -768,
+   "tier": "P30",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 1031,
+   "y": -482,
+   "tier": "P24",
+   "wz": "acc1/grassySoil/nature/5",
+   "layer": 1
+  },
+  {
+   "what": "brown dirt/fungus patches",
+   "x": 1044,
+   "y": 258,
+   "tier": "G3",
+   "wz": "acc1/midForest/nature/11",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 1054,
+   "y": -470,
+   "tier": "P24",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 1079,
+   "y": -475,
+   "tier": "P24",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 1
+  },
+  {
+   "what": "purple flower",
+   "x": 1094,
+   "y": -53,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/3",
+   "layer": 1
+  },
+  {
+   "what": "orange flower",
+   "x": 1109,
+   "y": -475,
+   "tier": "P24",
+   "wz": "acc1/grassySoil/nature/6",
+   "layer": 1
+  },
+  {
+   "what": "purple flowers",
+   "x": 1116,
+   "y": -50,
+   "tier": "P10",
+   "wz": "acc1/grassySoil/nature/4",
+   "layer": 1
+  },
+  {
+   "what": "olive bush",
+   "x": 1117,
+   "y": 223,
+   "tier": "G3",
+   "wz": "acc1/darkWood/nature/9",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1129,
+   "y": -826,
+   "tier": "P32",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1213,
+   "y": -828,
+   "tier": "P32",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "large green bush",
+   "x": 1385,
+   "y": -153,
+   "tier": "P11a",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 1
+  },
+  {
+   "what": "red spotted toadstool cluster",
+   "x": 1412,
+   "y": -136,
+   "tier": "P11a",
+   "wz": "acc1/grassySoil/nature/14",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1514,
+   "y": -771,
+   "tier": "P31",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1556,
+   "y": -771,
+   "tier": "P31",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "large green bush",
+   "x": 1570,
+   "y": 406,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/13",
+   "layer": 1
+  },
+  {
+   "what": "wooden DANGER notice board on two posts",
+   "x": 1629,
+   "y": 408,
+   "tier": "G6",
+   "wz": "guide/midForest/danger/3",
+   "layer": 1
+  },
+  {
+   "what": "dark grass tuft",
+   "x": 1650,
+   "y": -352,
+   "tier": "P18",
+   "wz": "acc1/darkWood/nature/17",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1715,
+   "y": 282,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": 1739,
+   "y": 405,
+   "tier": "G6",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1773,
+   "y": 275,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1820,
+   "y": 278,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "cluster of small white mushrooms",
+   "x": 1847,
+   "y": 430,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1867,
+   "y": 278,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "wooden plank door (drawn over a portal)",
+   "x": 1905,
+   "y": 405,
+   "tier": "G6",
+   "wz": "door/grassySoil/door/0",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1923,
+   "y": 281,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 1941,
+   "y": -1063,
+   "tier": "P36",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 1987,
+   "y": 276,
+   "tier": "P01",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 0
+  },
+  {
+   "what": "squat tree, green/red/orange foliage clumps",
+   "x": 2007,
+   "y": 377,
+   "tier": "G6",
+   "wz": "acc1/midForest/nature/6",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2024,
+   "y": 423,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "cluster of small white mushrooms",
+   "x": 2045,
+   "y": -350,
+   "tier": "P19",
+   "wz": "acc1/grassySoil/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "green bush",
+   "x": 2047,
+   "y": -1057,
+   "tier": "P36",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2085,
+   "y": 428,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 3
+  },
+  {
+   "what": "wooden barrel (upright)",
+   "x": 2111,
+   "y": -55,
+   "tier": "P11b",
+   "wz": "acc1/grassySoil/artificiality/10",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage",
+   "x": 2121,
+   "y": -1188,
+   "tier": "P36",
+   "wz": "acc1/midForest/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2142,
+   "y": 423,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "green bush",
+   "x": 2152,
+   "y": -1065,
+   "tier": "P36",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 1
+  },
+  {
+   "what": "wooden barrel (upright)",
+   "x": 2181,
+   "y": -55,
+   "tier": "P11b",
+   "wz": "acc1/grassySoil/artificiality/10",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage",
+   "x": 2198,
+   "y": 318,
+   "tier": "G6",
+   "wz": "acc1/midForest/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2210,
+   "y": 428,
+   "tier": "G6",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 3
+  },
+  {
+   "what": "white-trunk tree, orange autumn foliage",
+   "x": 2212,
+   "y": -1168,
+   "tier": "P36",
+   "wz": "acc1/midForest/nature/2",
+   "layer": 1
+  },
+  {
+   "what": "wooden barrel (upright)",
+   "x": 2219,
+   "y": -55,
+   "tier": "P11b",
+   "wz": "acc1/grassySoil/artificiality/10",
+   "layer": 1
+  },
+  {
+   "what": "wooden barrel (on its side)",
+   "x": 2261,
+   "y": -54,
+   "tier": "P11b",
+   "wz": "acc1/grassySoil/artificiality/11",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, teal/green foliage",
+   "x": 2294,
+   "y": -1203,
+   "tier": "P36",
+   "wz": "acc1/midForest/nature/5",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2297,
+   "y": -407,
+   "tier": "P26a",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, mixed green/orange/teal foliage",
+   "x": 2300,
+   "y": -558,
+   "tier": "P26a",
+   "wz": "acc1/midForest/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 2346,
+   "y": -409,
+   "tier": "P26a",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2348,
+   "y": -49,
+   "tier": "P11b",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "green bush",
+   "x": 2377,
+   "y": -1053,
+   "tier": "P36",
+   "wz": "acc1/darkWood/nature/20",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2417,
+   "y": -407,
+   "tier": "P26a",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, green/teal foliage with orange clump",
+   "x": 2419,
+   "y": -1216,
+   "tier": "P36",
+   "wz": "acc1/midForest/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "white-trunk tree, orange autumn foliage",
+   "x": 2479,
+   "y": -511,
+   "tier": "P26a",
+   "wz": "acc1/midForest/nature/2",
+   "layer": 1
+  },
+  {
+   "what": "small round shrub",
+   "x": 2480,
+   "y": -409,
+   "tier": "P26a",
+   "wz": "acc1/grassySoil/nature/1",
+   "layer": 1
+  },
+  {
+   "what": "red-berry bush strip",
+   "x": 2551,
+   "y": -407,
+   "tier": "P26a",
+   "wz": "acc1/grassySoil/nature/0",
+   "layer": 1
+  },
+  {
+   "what": "cluster of small white mushrooms",
+   "x": 2587,
+   "y": 10,
+   "tier": "P08",
+   "wz": "acc1/grassySoil/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2618,
+   "y": 242,
+   "tier": "G7",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2680,
+   "y": 248,
+   "tier": "G7",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 3
+  },
+  {
+   "what": "loose wooden plank",
+   "x": 2729,
+   "y": 201,
+   "tier": "G7",
+   "wz": "guide/midForest/wood/3",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2742,
+   "y": 242,
+   "tier": "G7",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "vine-wrapped blank wooden signpost",
+   "x": 2750,
+   "y": 198,
+   "tier": "G7",
+   "wz": "guide/midForest/wood/0",
+   "layer": 1
+  },
+  {
+   "what": "loose wooden plank",
+   "x": 2779,
+   "y": 219,
+   "tier": "G7",
+   "wz": "guide/midForest/wood/4",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2914,
+   "y": -537,
+   "tier": "P26c",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "orange butterfly",
+   "x": 2942,
+   "y": -614,
+   "tier": "P26c",
+   "wz": "acc1/grassySoil/nature/19",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 2979,
+   "y": -537,
+   "tier": "P26c",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "pink butterfly",
+   "x": 2982,
+   "y": -604,
+   "tier": "P26c",
+   "wz": "acc1/grassySoil/nature/21",
+   "layer": 1
+  },
+  {
+   "what": "wooden DANGER notice board on two posts",
+   "x": 3033,
+   "y": -572,
+   "tier": "P26c",
+   "wz": "guide/midForest/danger/3",
+   "layer": 1
+  },
+  {
+   "what": "clover patch with pink/white blossoms",
+   "x": 3047,
+   "y": -537,
+   "tier": "P26c",
+   "wz": "acc1/grassySoil/nature/10",
+   "layer": 1
+  },
+  {
+   "what": "sunflower",
+   "x": 3054,
+   "y": 415,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/24",
+   "layer": 1
+  },
+  {
+   "what": "hanging ivy vine",
+   "x": 3066,
+   "y": -569,
+   "tier": "P26c",
+   "wz": "acc1/darkWood/nature/22",
+   "layer": 1
+  },
+  {
+   "what": "orange butterfly",
+   "x": 3074,
+   "y": 350,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/19",
+   "layer": 1
+  },
+  {
+   "what": "small sunflower",
+   "x": 3077,
+   "y": 424,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/22",
+   "layer": 3
+  },
+  {
+   "what": "sunflower",
+   "x": 3093,
+   "y": 410,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/23",
+   "layer": 1
+  },
+  {
+   "what": "cluster of small white mushrooms",
+   "x": 3097,
+   "y": -109,
+   "tier": "P12",
+   "wz": "acc1/grassySoil/nature/7",
+   "layer": 1
+  },
+  {
+   "what": "sunflower",
+   "x": 3121,
+   "y": 414,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/23",
+   "layer": 3
+  },
+  {
+   "what": "small sunflower",
+   "x": 3152,
+   "y": 420,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/22",
+   "layer": 1
+  },
+  {
+   "what": "sunflower",
+   "x": 3176,
+   "y": 418,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/24",
+   "layer": 3
+  },
+  {
+   "what": "sunflower",
+   "x": 3193,
+   "y": 409,
+   "tier": "G10",
+   "wz": "acc1/grassySoil/nature/23",
+   "layer": 1
+  },
+  {
+   "what": "wooden signboard reading \"Amherst\" with right arrow",
+   "x": 3250,
+   "y": 370,
+   "tier": "G10",
+   "wz": "signboard/maypleIsland/board/1",
+   "layer": 1
+  },
+  {
+   "what": "tall beige stalk-mushroom cluster (132x294 px sprite)",
+   "x": 3284,
+   "y": -187,
+   "tier": "P12",
+   "wz": "acc1/grassySoil/nature/11",
+   "layer": 1
+  },
+  {
+   "what": "red spotted toadstool cluster",
+   "x": 3313,
+   "y": -137,
+   "tier": "P12",
+   "wz": "acc1/grassySoil/nature/14",
+   "layer": 1
+  },
+  {
+   "what": "tall beige stalk-mushroom cluster (132x294 px sprite)",
+   "x": 3355,
+   "y": -236,
+   "tier": "P12",
+   "wz": "acc1/grassySoil/nature/11",
+   "layer": 1
+  },
+  {
+   "what": "cluster of small white mushrooms",
+   "x": 3377,
+   "y": -109,
+   "tier": "P12",
+   "wz": "acc1/grassySoil/nature/7",
+   "layer": 1
+  }
+ ],
+ "minor_footholds": [
+  {
+   "note": "tiny standable fragment (<60 px)",
+   "levels": [
+    "2092..2129@-81"
+   ],
+   "walls": []
+  },
+  {
+   "note": "tiny standable fragment (<60 px)",
+   "levels": [
+    "2162..2199@-81"
+   ],
+   "walls": []
+  },
+  {
+   "note": "tiny standable fragment (<60 px)",
+   "levels": [
+    "2200..2237@-81"
+   ],
+   "walls": []
+  },
+  {
+   "note": "tiny standable fragment (<60 px)",
+   "levels": [
+    "2234..2246@-73->-80",
+    "2246..2277@-80",
+    "2277..2287@-80->-75"
+   ],
+   "walls": []
+  },
+  {
+   "note": "wall-only fragment",
+   "levels": [],
+   "walls": [
+    "x1581:60->0"
+   ]
+  },
+  {
+   "note": "wall-only fragment",
+   "levels": [],
+   "walls": [
+    "x2919:-360->-300"
+   ]
+  },
+  {
+   "note": "wall-only fragment",
+   "levels": [],
+   "walls": [
+    "x3021:0->-60"
+   ]
+  },
+  {
+   "note": "fragment lying directly under a higher level of the same chain (likely leftover foothold, not a real surface)",
+   "levels": [
+    "2661..2700@-385"
+   ]
+  },
+  {
+   "note": "fragment lying directly under a higher level of the same chain (likely leftover foothold, not a real surface)",
+   "levels": [
+    "2751..2790@-445"
+   ]
+  },
+  {
+   "note": "fragment lying directly under a higher level of the same chain (likely leftover foothold, not a real surface)",
+   "levels": [
+    "411..489@-265"
+   ]
+  },
+  {
+   "note": "fragment lying directly under a higher level of the same chain (likely leftover foothold, not a real surface)",
+   "levels": [
+    "1980..2019@-25"
+   ]
+  }
+ ]
+}

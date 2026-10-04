@@ -1,0 +1,2020 @@
+{
+ "checks": {
+  "hierarchy": {
+   "ok": true,
+   "detail": "missing top collections: []"
+  },
+  "all_maps_present": {
+   "ok": true,
+   "detail": "absent: []"
+  },
+  "no_placeholders": {
+   "ok": true,
+   "detail": "placeholder maps: []"
+  },
+  "naming": {
+   "ok": true,
+   "detail": "0 generic names: []"
+  },
+  "no_hidden_objects": {
+   "ok": true,
+   "detail": "0 hidden (colliders exempt): []"
+  },
+  "materials": {
+   "ok": true,
+   "detail": "0 meshes missing materials: []"
+  },
+  "instances": {
+   "ok": true,
+   "detail": "0 broken instances"
+  },
+  "polygon_budget": {
+   "ok": true,
+   "detail": "maps over 400,000: {}; largest 1000000 (374,235)"
+  },
+  "world_polygon_budget": {
+   "ok": true,
+   "detail": "WORLD layer 3,301,829 triangles (budget 3,500,000)"
+  },
+  "portal_topology": {
+   "ok": true,
+   "detail": "24 links ok-checked; extra portals: []"
+  },
+  "floating_props": {
+   "ok": true,
+   "detail": "0 of 4069 instances (286 trail dressing) neither on walkable ground nor within 0.15 m of a surface (74 rest against walls/props)"
+  },
+  "props_near_routes": {
+   "ok": true,
+   "detail": "0 medium (solid at body height < 0.45 m from a route centreline), 11 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m"
+  },
+  "fidelity": {
+   "ok": true,
+   "detail": "NPCs and mob species vs v8 data"
+  },
+  "traversal": {
+   "ok": true,
+   "detail": "maps failing traversal: []"
+  },
+  "portal_split": {
+   "ok": true,
+   "detail": "25 maps with route groups; portals split in: []"
+  },
+  "orphan_routes": {
+   "ok": true,
+   "detail": "maps with route groups that reach no portal: []"
+  },
+  "player_in_gameplay_frame": {
+   "ok": true,
+   "detail": "maps failing: [] (25 from build_report, 0 recomputed from the scene; player at 0.1..0.9 of CAM_<slug>_Gameplay, hunting maps >= 2 mobs in frame)"
+  },
+  "trail_walk": {
+   "ok": true,
+   "detail": "20/20 trails walk ok; failing: []"
+  },
+  "no_swallowed_exceptions": {
+   "ok": true,
+   "detail": "0 recorded: []"
+  }
+ },
+ "issues": [
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1000004: X1000004_Trellis at (23.5, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1000004: X1000004_Trellis at (27.9, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1000004: X1000004_Trellis at (35.8, 27.5) stands 0.85 m from route EastLedges, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1010001: Armor_Stand at (2.9, 5.3) stands 1.17 m from route Main, solid at body height 0.74 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020000: Berry_Bush at (17.6, 25.4) stands 1.48 m from route West_StairsToShelves, solid at body height 0.82 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020000: Berry_Bush at (27.3, 25.3) stands 1.45 m from route West_StairsToShelves, solid at body height 0.79 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.53 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.52 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.03 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  },
+  {
+   "check": "props_near_routes",
+   "severity": "low",
+   "msg": "map 1020001: X1020001_CratesTomatoes at (24.1, 22.3) stands 1.28 m from route Canopy, solid at body height 0.76 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+  }
+ ],
+ "stats": {
+  "total_triangles": 9146414,
+  "world_triangles": 3301829,
+  "triangles_by_map": {
+   "0": 98348,
+   "10000": 132563,
+   "20000": 115661,
+   "30000": 161549,
+   "40000": 158368,
+   "40001": 308927,
+   "40002": 299693,
+   "50000": 193467,
+   "60000": 371142,
+   "60001": 75405,
+   "20001": 36964,
+   "1000000": 374235,
+   "1000001": 223436,
+   "1000002": 268476,
+   "1000003": 155749,
+   "1000004": 207473,
+   "1000005": 265058,
+   "1000006": 343222,
+   "1010000": 249060,
+   "1010001": 38776,
+   "1010002": 73052,
+   "1010003": 58720,
+   "1010004": 262301,
+   "1020000": 294763,
+   "1020001": 291553
+  },
+  "top_assets_by_instanced_triangles": [
+   {
+    "asset": "Tree_Round_B",
+    "instances": 175,
+    "tris_per_instance": 2472,
+    "total": 432600
+   },
+   {
+    "asset": "Tree_Round_A",
+    "instances": 182,
+    "tris_per_instance": 2312,
+    "total": 420784
+   },
+   {
+    "asset": "Rock_Cliff_Stone",
+    "instances": 8148,
+    "tris_per_instance": 50,
+    "total": 407400
+   },
+   {
+    "asset": "Tree_Tall_A",
+    "instances": 84,
+    "tris_per_instance": 3984,
+    "total": 334656
+   },
+   {
+    "asset": "Cloud_Puff_A",
+    "instances": 324,
+    "tris_per_instance": 880,
+    "total": 285120
+   },
+   {
+    "asset": "Tree_Birch_Yellow",
+    "instances": 134,
+    "tris_per_instance": 2112,
+    "total": 283008
+   },
+   {
+    "asset": "Tree_Birch_Orange",
+    "instances": 132,
+    "tris_per_instance": 2112,
+    "total": 278784
+   },
+   {
+    "asset": "Cloud_Puff_B",
+    "instances": 300,
+    "tris_per_instance": 880,
+    "total": 264000
+   },
+   {
+    "asset": "Mob_BlueSnail",
+    "instances": 53,
+    "tris_per_instance": 3696,
+    "total": 195888
+   },
+   {
+    "asset": "Mob_Snail",
+    "instances": 61,
+    "tris_per_instance": 2968,
+    "total": 181048
+   }
+  ],
+  "portal_links": [
+   {
+    "a": "10000:in00",
+    "b": "0:out00",
+    "kind": "edge",
+    "distance_m": 12.0,
+    "reciprocal": true
+   },
+   {
+    "a": "20000:in00",
+    "b": "10000:out00",
+    "kind": "edge",
+    "distance_m": 16.0,
+    "reciprocal": true
+   },
+   {
+    "a": "30000:in00",
+    "b": "20000:out00",
+    "kind": "edge",
+    "distance_m": 12.0,
+    "reciprocal": true
+   },
+   {
+    "a": "40000:in00",
+    "b": "30000:out00",
+    "kind": "edge",
+    "distance_m": 32.4,
+    "reciprocal": true
+   },
+   {
+    "a": "40001:west00",
+    "b": "40000:east00",
+    "kind": "edge",
+    "distance_m": 14.2,
+    "reciprocal": true
+   },
+   {
+    "a": "40002:west00",
+    "b": "40001:east00",
+    "kind": "edge",
+    "distance_m": 20.1,
+    "reciprocal": true
+   },
+   {
+    "a": "50000:west00",
+    "b": "40002:east00",
+    "kind": "edge",
+    "distance_m": 34.4,
+    "reciprocal": true
+   },
+   {
+    "a": "60000:west00",
+    "b": "50000:east01",
+    "kind": "edge",
+    "distance_m": 30.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1000000:west00",
+    "b": "50000:east00",
+    "kind": "edge",
+    "distance_m": 14.1,
+    "reciprocal": true
+   },
+   {
+    "a": "1000001:out00",
+    "b": "1000000:in00",
+    "kind": "edge",
+    "distance_m": 20.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1000005:out00",
+    "b": "1000000:in04",
+    "kind": "edge",
+    "distance_m": 12.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1000002:out01",
+    "b": "1000000:in01",
+    "kind": "edge",
+    "distance_m": 14.3,
+    "reciprocal": true
+   },
+   {
+    "a": "1000006:out00",
+    "b": "1000000:in05",
+    "kind": "edge",
+    "distance_m": 58.7,
+    "reciprocal": true
+   },
+   {
+    "a": "1000003:out00",
+    "b": "1000000:in02",
+    "kind": "edge",
+    "distance_m": 26.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1000004:out00",
+    "b": "1000000:in03",
+    "kind": "edge",
+    "distance_m": 42.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1010000:west00",
+    "b": "1000000:east00",
+    "kind": "edge",
+    "distance_m": 14.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1010002:out00",
+    "b": "1010000:in01",
+    "kind": "edge",
+    "distance_m": 7.1,
+    "reciprocal": true
+   },
+   {
+    "a": "1010004:east00",
+    "b": "1010002:west00",
+    "kind": "edge",
+    "distance_m": 40.8,
+    "reciprocal": true
+   },
+   {
+    "a": "1020000:west00",
+    "b": "1010000:east00",
+    "kind": "edge",
+    "distance_m": 18.0,
+    "reciprocal": true
+   },
+   {
+    "a": "1020001:out00",
+    "b": "1020000:in00",
+    "kind": "edge",
+    "distance_m": 23.2,
+    "reciprocal": true
+   },
+   {
+    "a": "20001:out00",
+    "b": "20000:in01",
+    "kind": "door",
+    "distance_m": 2353.2,
+    "reciprocal": true
+   },
+   {
+    "a": "60001:out00",
+    "b": "60000:in00",
+    "kind": "door",
+    "distance_m": 2601.4,
+    "reciprocal": true
+   },
+   {
+    "a": "1010001:out00",
+    "b": "1010000:in00",
+    "kind": "door",
+    "distance_m": 2640.6,
+    "reciprocal": true
+   },
+   {
+    "a": "1010003:out00",
+    "b": "1010000:in02",
+    "kind": "door",
+    "distance_m": 2830.0,
+    "reciprocal": true
+   }
+  ],
+  "floating": [],
+  "props_near_routes": [
+   {
+    "map": 1000004,
+    "object": "SnailGarden_1000004_X1000004_Trellis",
+    "asset": "X1000004_Trellis",
+    "route": "Summit",
+    "origin_distance_m": 0.83,
+    "footprint": 1.6,
+    "local_xy": [
+     23.5,
+     25.1
+    ],
+    "body_clearance_m": 0.65,
+    "grade": "low"
+   },
+   {
+    "map": 1000004,
+    "object": "SnailGarden_1000004_X1000004_Trellis_02",
+    "asset": "X1000004_Trellis",
+    "route": "Summit",
+    "origin_distance_m": 0.83,
+    "footprint": 1.6,
+    "local_xy": [
+     27.9,
+     25.1
+    ],
+    "body_clearance_m": 0.65,
+    "grade": "low"
+   },
+   {
+    "map": 1000004,
+    "object": "SnailGarden_1000004_X1000004_Trellis_03",
+    "asset": "X1000004_Trellis",
+    "route": "EastLedges",
+    "origin_distance_m": 0.85,
+    "footprint": 1.6,
+    "local_xy": [
+     35.8,
+     27.5
+    ],
+    "body_clearance_m": 0.67,
+    "grade": "low"
+   },
+   {
+    "map": 1010001,
+    "object": "AmherstWeaponStore_1010001_Armor_Stand",
+    "asset": "Armor_Stand",
+    "route": "Main",
+    "origin_distance_m": 1.17,
+    "footprint": 1.0,
+    "local_xy": [
+     2.9,
+     5.3
+    ],
+    "body_clearance_m": 0.74,
+    "grade": "low"
+   },
+   {
+    "map": 1010001,
+    "object": "AmherstWeaponStore_1010001_X1010001_WeaponBarrel",
+    "asset": "X1010001_WeaponBarrel",
+    "route": "ForgeClimb",
+    "origin_distance_m": 1.22,
+    "footprint": 1.0,
+    "local_xy": [
+     13.4,
+     1.5
+    ],
+    "body_clearance_m": 0.77,
+    "grade": "low"
+   },
+   {
+    "map": 1020000,
+    "object": "FieldEastOfAmherst_1020000_Berry_Bush",
+    "asset": "Berry_Bush",
+    "route": "West_StairsToShelves",
+    "origin_distance_m": 1.48,
+    "footprint": 1.4,
+    "local_xy": [
+     17.6,
+     25.4
+    ],
+    "body_clearance_m": 0.82,
+    "grade": "low"
+   },
+   {
+    "map": 1020000,
+    "object": "FieldEastOfAmherst_1020000_Berry_Bush_05",
+    "asset": "Berry_Bush",
+    "route": "West_StairsToShelves",
+    "origin_distance_m": 1.45,
+    "footprint": 1.4,
+    "local_xy": [
+     27.3,
+     25.3
+    ],
+    "body_clearance_m": 0.79,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Stump_A",
+    "asset": "Stump_A",
+    "route": "Climb_Vine_WestFurrow",
+    "origin_distance_m": 0.9,
+    "footprint": 1.0,
+    "local_xy": [
+     17.7,
+     18.4
+    ],
+    "body_clearance_m": 0.53,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Stump_A_02",
+    "asset": "Stump_A",
+    "route": "Climb_Vine_EastFurrow",
+    "origin_distance_m": 0.9,
+    "footprint": 1.0,
+    "local_xy": [
+     42.2,
+     18.4
+    ],
+    "body_clearance_m": 0.52,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_Crate",
+    "asset": "Crate",
+    "route": "Canopy",
+    "origin_distance_m": 1.5,
+    "footprint": 1.0,
+    "local_xy": [
+     46.9,
+     19.0
+    ],
+    "body_clearance_m": 1.03,
+    "grade": "low"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_CratesTomatoes",
+    "asset": "X1020001_CratesTomatoes",
+    "route": "Canopy",
+    "origin_distance_m": 1.28,
+    "footprint": 1.4,
+    "local_xy": [
+     24.1,
+     22.3
+    ],
+    "body_clearance_m": 0.76,
+    "grade": "low"
+   }
+  ],
+  "props_near_routes_exempt": [
+   {
+    "map": 20000,
+    "object": "MushroomTown_20000_X20000_StoneArch",
+    "asset": "X20000_StoneArch",
+    "route": "ToSensHouse",
+    "origin_distance_m": 0.0,
+    "footprint": 2.2,
+    "local_xy": [
+     31.5,
+     22.2
+    ],
+    "body_clearance_m": 1.0,
+    "reason": "archway spanning the route"
+   },
+   {
+    "map": 20001,
+    "object": "MushroomTownTownstreet_20001_X20001_RugBlue",
+    "asset": "X20001_RugBlue",
+    "route": "Main",
+    "origin_distance_m": 0.43,
+    "footprint": 3.0,
+    "local_xy": [
+     6.8,
+     3.6
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 20001,
+    "object": "MushroomTownTownstreet_20001_X20001_RugGreen_02",
+    "asset": "X20001_RugGreen",
+    "route": "Loft",
+    "origin_distance_m": 0.98,
+    "footprint": 3.0,
+    "local_xy": [
+     6.2,
+     9.1
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 30000,
+    "object": "EastEntranceMushroomTown_30000_Rock_A_02",
+    "asset": "Rock_A",
+    "route": "Main",
+    "origin_distance_m": 1.4,
+    "footprint": 1.2,
+    "local_xy": [
+     38.0,
+     11.6
+    ],
+    "reason": "climb"
+   },
+   {
+    "map": 40000,
+    "object": "SnailHuntingGround1_40000_X40000_Islet_Root",
+    "asset": "X40000_Islet_Root",
+    "route": "Islet",
+    "origin_distance_m": 0.23,
+    "footprint": 3.8,
+    "local_xy": [
+     5.6,
+     30.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 60001,
+    "object": "SouthperryArmorStore_60001_X60001_HelmetPile",
+    "asset": "X60001_HelmetPile",
+    "route": "WareHeap",
+    "origin_distance_m": 0.6,
+    "footprint": 1.2,
+    "local_xy": [
+     14.1,
+     4.0
+    ],
+    "body_clearance_m": 0.54,
+    "reason": "hop-able (top 0.46 m above the floor)"
+   },
+   {
+    "map": 60001,
+    "object": "SouthperryArmorStore_60001_X60001_HelmetPile_02",
+    "asset": "X60001_HelmetPile",
+    "route": "WareHeap",
+    "origin_distance_m": 0.67,
+    "footprint": 1.2,
+    "local_xy": [
+     14.0,
+     7.8
+    ],
+    "body_clearance_m": 0.59,
+    "reason": "hop-able (top 0.38 m above the floor)"
+   },
+   {
+    "map": 60001,
+    "object": "SouthperryArmorStore_60001_X60001_HelmetPile_03",
+    "asset": "X60001_HelmetPile",
+    "route": "TopShelf",
+    "origin_distance_m": 1.04,
+    "footprint": 1.2,
+    "local_xy": [
+     12.8,
+     9.0
+    ],
+    "body_clearance_m": 0.58,
+    "reason": "hop-able (top 0.46 m above the floor)"
+   },
+   {
+    "map": 60001,
+    "object": "SouthperryArmorStore_60001_X60001_HelmetPile_04",
+    "asset": "X60001_HelmetPile",
+    "route": "TopShelf",
+    "origin_distance_m": 0.96,
+    "footprint": 1.2,
+    "local_xy": [
+     13.6,
+     11.0
+    ],
+    "body_clearance_m": 0.45,
+    "reason": "hop-able (top 0.29 m above the floor)"
+   },
+   {
+    "map": 1000001,
+    "object": "InASmallForest_1000001_X1000001_BracketFungus",
+    "asset": "X1000001_BracketFungus",
+    "route": "Floor_to_Crown",
+    "origin_distance_m": 0.08,
+    "footprint": 1.6,
+    "local_xy": [
+     14.4,
+     16.8
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1000001,
+    "object": "InASmallForest_1000001_X1000001_BracketFungus_15",
+    "asset": "X1000001_BracketFungus",
+    "route": "Crown_to_Ridge_to_Arrival",
+    "origin_distance_m": 0.76,
+    "footprint": 1.6,
+    "local_xy": [
+     16.5,
+     23.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1000001,
+    "object": "InASmallForest_1000001_X1000001_BracketFungus_16",
+    "asset": "X1000001_BracketFungus",
+    "route": "Crown_to_Ridge_to_Arrival",
+    "origin_distance_m": 0.27,
+    "footprint": 1.6,
+    "local_xy": [
+     16.5,
+     22.3
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1010001,
+    "object": "AmherstWeaponStore_1010001_X1010001_GlassTank",
+    "asset": "X1010001_GlassTank",
+    "route": "Perches",
+    "origin_distance_m": 0.0,
+    "footprint": 1.1,
+    "local_xy": [
+     14.9,
+     10.9
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1010001,
+    "object": "AmherstWeaponStore_1010001_Rug_Round",
+    "asset": "Rug_Round",
+    "route": "ForgeClimb",
+    "origin_distance_m": 0.57,
+    "footprint": 3.0,
+    "local_xy": [
+     6.9,
+     5.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1010002,
+    "object": "AmherstTownstreet_1010002_Rug_Round_02",
+    "asset": "Rug_Round",
+    "route": "Loft",
+    "origin_distance_m": 0.22,
+    "footprint": 3.0,
+    "local_xy": [
+     16.9,
+     12.2
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_BookStacks",
+    "asset": "X1010003_BookStacks",
+    "route": "LeftStack",
+    "origin_distance_m": 0.45,
+    "footprint": 1.4,
+    "local_xy": [
+     8.1,
+     10.4
+    ],
+    "body_clearance_m": 0.43,
+    "reason": "hop-able (top 0.27 m above the floor)"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_BookStacks_02",
+    "asset": "X1010003_BookStacks",
+    "route": "LeftStack",
+    "origin_distance_m": 0.1,
+    "footprint": 1.4,
+    "local_xy": [
+     8.0,
+     10.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_PotionRow",
+    "asset": "X1010003_PotionRow",
+    "route": "BeamDrop",
+    "origin_distance_m": 0.42,
+    "footprint": 1.1,
+    "local_xy": [
+     9.4,
+     11.3
+    ],
+    "body_clearance_m": 0.39,
+    "reason": "hop-able (top 0.36 m above the floor)"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_PotionRow_02",
+    "asset": "X1010003_PotionRow",
+    "route": "LeftStack",
+    "origin_distance_m": 0.42,
+    "footprint": 1.1,
+    "local_xy": [
+     8.1,
+     11.3
+    ],
+    "body_clearance_m": 0.4,
+    "reason": "hop-able (top 0.36 m above the floor)"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_PotionRow_03",
+    "asset": "X1010003_PotionRow",
+    "route": "LeftStack",
+    "origin_distance_m": 0.42,
+    "footprint": 1.1,
+    "local_xy": [
+     6.9,
+     11.3
+    ],
+    "body_clearance_m": 0.39,
+    "reason": "hop-able (top 0.36 m above the floor)"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_X1010003_RugSquare",
+    "asset": "X1010003_RugSquare",
+    "route": "Main",
+    "origin_distance_m": 0.75,
+    "footprint": 3.4,
+    "local_xy": [
+     8.2,
+     5.4
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.54,
+    "footprint": 3.8,
+    "local_xy": [
+     5.4,
+     18.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_02",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     9.0,
+     18.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_03",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     10.8,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_04",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     14.5,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_05",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     16.3,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_06",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     20.0,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_07",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     21.8,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_08",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     25.4,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_09",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     29.1,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_10",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     30.9,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_11",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     34.6,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_12",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     36.4,
+     23.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_13",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     38.2,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_14",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     41.9,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_15",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     45.5,
+     20.0
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_16",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     49.2,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_DeckFrame_17",
+    "asset": "X1020001_DeckFrame",
+    "route": "Canopy",
+    "origin_distance_m": 0.0,
+    "footprint": 3.8,
+    "local_xy": [
+     52.8,
+     21.5
+    ],
+    "reason": "perch the route walks over"
+   },
+   {
+    "map": 1020001,
+    "object": "TomatoField_1020001_X1020001_TrellisArch_02",
+    "asset": "X1020001_TrellisArch",
+    "route": "EastYard",
+    "origin_distance_m": 0.23,
+    "footprint": 2.6,
+    "local_xy": [
+     55.9,
+     12.4
+    ],
+    "body_clearance_m": 1.24,
+    "reason": "archway spanning the route"
+   }
+  ],
+  "route_graph": {
+   "0": {
+    "route_groups": [
+     [
+      "Main",
+      "ToHouseDoor",
+      "BluffLadder"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "10000": {
+    "route_groups": [
+     [
+      "Main",
+      "ToYellowHouse"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "20000": {
+    "route_groups": [
+     [
+      "Main",
+      "ToSensHouse",
+      "SkyIslet"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "30000": {
+    "route_groups": [
+     [
+      "Main",
+      "WestIslets",
+      "MeadowRecovery"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "40000": {
+    "route_groups": [
+     [
+      "Main",
+      "AroundKnoll",
+      "KnollLadder",
+      "FourBlocks",
+      "UpperWest",
+      "Hump",
+      "WestLadders",
+      "Islet"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "40001": {
+    "route_groups": [
+     [
+      "Main",
+      "MesaAndStones",
+      "West_Ropes",
+      "East_Ropes",
+      "Rope_1867",
+      "Rope_1530",
+      "Pillar",
+      "V_East",
+      "Arch",
+      "Summit"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "40002": {
+    "route_groups": [
+     [
+      "Main",
+      "East_Loop",
+      "Rope_1530",
+      "Rope_2520",
+      "T12_Walk",
+      "T7_West"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "50000": {
+    "route_groups": [
+     [
+      "Main_Lower_Southperry",
+      "Main_Upper_Amherst",
+      "Ladder_2095",
+      "Maria_Ladder77",
+      "Mesa_HighRoute",
+      "Rope_1397_1503",
+      "Rope_2665_2757",
+      "Rope_2010_Trio"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "60000": {
+    "route_groups": [
+     [
+      "Main",
+      "SquareFront",
+      "ArmorStore",
+      "LedgeRopes_Belvedere",
+      "SlabLadder_Belvedere",
+      "Knoll",
+      "HarbourQuarter",
+      "ShipDecks",
+      "ShipForecastle",
+      "ClimbMast"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "60001": {
+    "route_groups": [
+     [
+      "Main",
+      "WareHeap",
+      "TopShelf",
+      "Rafters"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "20001": {
+    "route_groups": [
+     [
+      "Main",
+      "Loft",
+      "ToStove"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000000": {
+    "route_groups": [
+     [
+      "Main",
+      "ToMushroomGarden_in02",
+      "ToSnailGarden_in03",
+      "WestLookout",
+      "ToPlateau_RopeYard",
+      "VFork_West_to_in00",
+      "To_in04",
+      "ToSummit",
+      "To_in05",
+      "Skirt_to_in04",
+      "VFork_East_to_in01",
+      "ToBalcony"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000001": {
+    "route_groups": [
+     [
+      "Arrival_to_Floor",
+      "Floor_to_Crown",
+      "To_P06",
+      "To_P11",
+      "To_P19",
+      "Crown_to_Ridge_to_Arrival",
+      "HillTop",
+      "Hilltop_to_Rock"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000002": {
+    "route_groups": [
+     [
+      "Descent",
+      "WestHollow",
+      "VineCurtainFeet",
+      "VineSpur",
+      "VineEastFoot",
+      "EastGlade",
+      "ShelfWest",
+      "ShelfEast",
+      "ShelfToVines",
+      "ShelfToRidgeVine",
+      "BattlementsWest",
+      "BattlementsEast"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000003": {
+    "route_groups": [
+     [
+      "Main",
+      "DoorHillStair",
+      "LawnToCentral",
+      "ToTop"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000004": {
+    "route_groups": [
+     [
+      "Main",
+      "StumpArch",
+      "WestColumn",
+      "ArchToCentral",
+      "Summit",
+      "ArchToEast",
+      "EastLedges",
+      "ToCarrots"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000005": {
+    "route_groups": [
+     [
+      "Floor",
+      "WestHollow",
+      "WestStack",
+      "DoorRoof",
+      "JumpTower",
+      "TowerToT22",
+      "TowerToT24",
+      "EastBranch",
+      "T10",
+      "T10DropToTower",
+      "BranchT8",
+      "T8ToT6Ladder",
+      "CanopyT6",
+      "LedgeT4",
+      "SummitStair",
+      "StoneT7"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1000006": {
+    "route_groups": [
+     [
+      "HubEast",
+      "HubToT14",
+      "WestStair",
+      "StairToT9",
+      "T21",
+      "UpperWest",
+      "UpperRing",
+      "RopeLadderFoot",
+      "Summit",
+      "T7",
+      "T22",
+      "WestGrove",
+      "EastAndBackDell",
+      "CentreDell"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1010000": {
+    "route_groups": [
+     [
+      "Main",
+      "Plateau",
+      "ToDeptStore",
+      "Lookout",
+      "ToTownstreet"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1010001": {
+    "route_groups": [
+     [
+      "Main",
+      "ForgeClimb",
+      "Rafters",
+      "Rope",
+      "Perches"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1010002": {
+    "route_groups": [
+     [
+      "Main",
+      "Loft",
+      "BackGarden"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1010003": {
+    "route_groups": [
+     [
+      "Main",
+      "LeftStack",
+      "PoleShelf",
+      "BeamDrop"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1010004": {
+    "route_groups": [
+     [
+      "RimRoad",
+      "VineDown_0",
+      "VineDown_1",
+      "VineDown_2",
+      "VineDown_3",
+      "MidRow",
+      "VineT9_T1",
+      "VineT7_T4",
+      "VineT8_T5",
+      "VineT10_T3",
+      "WestKnolls",
+      "VineT9_T14",
+      "BasinBowl",
+      "EastStair"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1020000": {
+    "route_groups": [
+     [
+      "Main",
+      "West_LadderStones",
+      "West_StairsToShelves",
+      "Mound_RopeT17_Berry",
+      "T19_LadderWestHigh",
+      "WestHigh_Crown_Nook",
+      "Berry_UpStones_Crown",
+      "Clover_RopeUpStones"
+     ]
+    ],
+    "orphan_routes": []
+   },
+   "1020001": {
+    "route_groups": [
+     [
+      "Main",
+      "WestBed",
+      "EastYard",
+      "Canopy",
+      "Climb_Vine_WestFurrow",
+      "Climb_Vine_Hump",
+      "Climb_Vine_EastFurrow",
+      "Climb_Vine_EastBank"
+     ]
+    ],
+    "orphan_routes": []
+   }
+  },
+  "gameplay_frame": {
+   "0": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.165,
+     0.517
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_WestEntranceMushroomTown_0_Gameplay",
+    "kind": "town",
+    "player_local": [
+     4.0,
+     12.6
+    ],
+    "mobs_total": 0,
+    "focus": [
+     14.0,
+     14.5
+    ],
+    "scale": 30.0
+   },
+   "10000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.347,
+     0.213
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_MushroomTown_10000_Gameplay",
+    "kind": "town",
+    "player_local": [
+     26.2,
+     13.7
+    ],
+    "mobs_total": 0,
+    "focus": [
+     27.0,
+     21.5
+    ],
+    "scale": 30.0
+   },
+   "20000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.462,
+     0.47
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_MushroomTown_20000_Gameplay",
+    "kind": "town",
+    "player_local": [
+     25.9,
+     16.4
+    ],
+    "mobs_total": 0,
+    "focus": [
+     27.0,
+     17.0
+    ],
+    "scale": 32.0
+   },
+   "30000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.676,
+     0.787
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_EastEntranceMushroomTown_30000_Gameplay",
+    "kind": "town",
+    "player_local": [
+     27.5,
+     20.2
+    ],
+    "mobs_total": 0,
+    "focus": [
+     26.8,
+     13.4
+    ],
+    "scale": 34.0
+   },
+   "40000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.523,
+     0.403
+    ],
+    "mobs_in_frame": 7,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_SnailHuntingGround1_40000_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     32.6,
+     14.5
+    ],
+    "mobs_total": 15,
+    "focus": [
+     30.0,
+     16.0
+    ],
+    "scale": 34.0
+   },
+   "40001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.457,
+     0.307
+    ],
+    "mobs_in_frame": 9,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_SnailHuntingGround2_40001_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     38.8,
+     23.6
+    ],
+    "mobs_total": 18,
+    "focus": [
+     35.0,
+     28.0
+    ],
+    "scale": 40.0
+   },
+   "40002": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.429,
+     0.466
+    ],
+    "mobs_in_frame": 6,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_SnailHuntingGround3_40002_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     17.1,
+     33.0
+    ],
+    "mobs_total": 18,
+    "focus": [
+     19.5,
+     35.0
+    ],
+    "scale": 44.0
+   },
+   "50000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.602,
+     0.21
+    ],
+    "mobs_in_frame": 12,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_ASplitRoad_50000_Gameplay",
+    "kind": "field",
+    "player_local": [
+     54.2,
+     10.6
+    ],
+    "mobs_total": 16,
+    "focus": [
+     48.0,
+     14.0
+    ],
+    "scale": 44.0
+   },
+   "60000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.534,
+     0.507
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_Southperry_60000_Gameplay",
+    "kind": "town",
+    "player_local": [
+     65.0,
+     11.0
+    ],
+    "mobs_total": 0,
+    "focus": [
+     64.0,
+     9.0
+    ],
+    "scale": 50.0
+   },
+   "60001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.136,
+     0.476
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_SouthperryArmorStore_60001_Gameplay",
+    "kind": "interior",
+    "player_local": [
+     2.6,
+     2.7
+    ],
+    "mobs_total": 0,
+    "focus": [
+     8.0,
+     7.6
+    ],
+    "scale": 20.0
+   },
+   "20001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.359,
+     0.176
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_MushroomTownTownstreet_20001_Gameplay",
+    "kind": "interior",
+    "player_local": [
+     5.6,
+     2.6
+    ],
+    "mobs_total": 0,
+    "focus": [
+     6.6,
+     6.6
+    ],
+    "scale": 25.0
+   },
+   "1000000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.498,
+     0.217
+    ],
+    "mobs_in_frame": 9,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_FieldWestOfAmherst_1000000_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     46.2,
+     13.1
+    ],
+    "mobs_total": 22,
+    "focus": [
+     47.0,
+     18.0
+    ],
+    "scale": 46.0
+   },
+   "1000001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.446,
+     0.399
+    ],
+    "mobs_in_frame": 6,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_InASmallForest_1000001_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     17.0,
+     13.7
+    ],
+    "mobs_total": 11,
+    "focus": [
+     19.0,
+     15.0
+    ],
+    "scale": 32.0
+   },
+   "1000002": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.172,
+     0.12
+    ],
+    "mobs_in_frame": 8,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_DangerousForest_1000002_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     7.6,
+     3.2
+    ],
+    "mobs_total": 17,
+    "focus": [
+     19.0,
+     13.0
+    ],
+    "scale": 32.0
+   },
+   "1000003": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.237,
+     0.71
+    ],
+    "mobs_in_frame": 7,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_MushroomGarden_1000003_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     7.4,
+     26.2
+    ],
+    "mobs_total": 11,
+    "focus": [
+     19.0,
+     15.0
+    ],
+    "scale": 36.0
+   },
+   "1000004": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.361,
+     0.832
+    ],
+    "mobs_in_frame": 8,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_SnailGarden_1000004_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     14.6,
+     25.6
+    ],
+    "mobs_total": 13,
+    "focus": [
+     22.0,
+     14.0
+    ],
+    "scale": 38.0
+   },
+   "1000005": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.568,
+     0.176
+    ],
+    "mobs_in_frame": 6,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_HuntingGroundMidForest1_1000005_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     15.4,
+     3.9
+    ],
+    "mobs_total": 13,
+    "focus": [
+     14.0,
+     13.0
+    ],
+    "scale": 32.0
+   },
+   "1000006": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.611,
+     0.288
+    ],
+    "mobs_in_frame": 8,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_HuntingGroundMidForest2_1000006_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     21.0,
+     6.0
+    ],
+    "mobs_total": 15,
+    "focus": [
+     17.0,
+     19.0
+    ],
+    "scale": 36.0
+   },
+   "1010000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.461,
+     0.201
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_Amherst_1010000_Gameplay",
+    "kind": "town",
+    "player_local": [
+     28.3,
+     16.4
+    ],
+    "mobs_total": 0,
+    "focus": [
+     30.0,
+     21.0
+    ],
+    "scale": 44.0
+   },
+   "1010001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.26,
+     0.383
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_AmherstWeaponStore_1010001_Gameplay",
+    "kind": "interior",
+    "player_local": [
+     5.2,
+     3.6
+    ],
+    "mobs_total": 0,
+    "focus": [
+     8.0,
+     7.6
+    ],
+    "scale": 20.0
+   },
+   "1010002": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.578,
+     0.133
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_AmherstTownstreet_1010002_Gameplay",
+    "kind": "townstreet",
+    "player_local": [
+     14.6,
+     4.0
+    ],
+    "mobs_total": 0,
+    "focus": [
+     12.5,
+     11.0
+    ],
+    "scale": 27.0
+   },
+   "1010003": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.316,
+     0.319
+    ],
+    "mobs_in_frame": 0,
+    "mobs_required": 0,
+    "issues": [],
+    "camera": "CAM_AmherstDepartmentStore_1010003_Gameplay",
+    "kind": "interior",
+    "player_local": [
+     6.8,
+     3.6
+    ],
+    "mobs_total": 0,
+    "focus": [
+     8.0,
+     7.6
+    ],
+    "scale": 20.0
+   },
+   "1010004": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.563,
+     0.491
+    ],
+    "mobs_in_frame": 12,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_SnailFieldOfFlowers_1010004_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     22.4,
+     16.9
+    ],
+    "mobs_total": 12,
+    "focus": [
+     20.0,
+     16.0
+    ],
+    "scale": 38.0
+   },
+   "1020000": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.463,
+     0.455
+    ],
+    "mobs_in_frame": 9,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_FieldEastOfAmherst_1020000_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     36.6,
+     22.6
+    ],
+    "mobs_total": 15,
+    "focus": [
+     37.0,
+     24.0
+    ],
+    "scale": 38.0
+   },
+   "1020001": {
+    "ok": true,
+    "player": true,
+    "player_uv": [
+     0.492,
+     0.529
+    ],
+    "mobs_in_frame": 6,
+    "mobs_required": 2,
+    "issues": [],
+    "camera": "CAM_TomatoField_1020001_Gameplay",
+    "kind": "hunting",
+    "player_local": [
+     26.0,
+     14.9
+    ],
+    "mobs_total": 8,
+    "focus": [
+     27.0,
+     13.0
+    ],
+    "scale": 36.0
+   }
+  },
+  "objects": 17618,
+  "meshes": 2631,
+  "materials": 201
+ },
+ "exceptions": [],
+ "summary": {
+  "high": 0,
+  "medium": 0,
+  "low": 11
+ }
+}

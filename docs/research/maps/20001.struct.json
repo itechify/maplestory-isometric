@@ -1,0 +1,151 @@
+{
+  "id": 20001,
+  "name": "Mushroom Town Townstreet",
+  "extent": {
+    "minX": -579,
+    "maxX": 489,
+    "minY": -117,
+    "maxY": 480
+  },
+  "tiers": [
+    {
+      "id": "T1",
+      "x1": -579,
+      "x2": -221,
+      "y_left": 275,
+      "y_right": 275,
+      "kind": "ground",
+      "label": "front yard outside west door (sp)",
+      "length": 358
+    },
+    {
+      "id": "T2",
+      "x1": -221,
+      "x2": 129,
+      "y_left": 246,
+      "y_right": 246,
+      "kind": "ground",
+      "label": "ground floor (out00, Sen, cupboard)",
+      "length": 350
+    },
+    {
+      "id": "T3",
+      "x1": -142,
+      "x2": 138,
+      "y_left": 47,
+      "y_right": 47,
+      "kind": "ledge",
+      "label": "upper floor / loft (bed, chest, window)",
+      "length": 280
+    }
+  ],
+  "ladders": [
+    {
+      "x": 77,
+      "y1": 49,
+      "y2": 244,
+      "isLadder": true,
+      "from_tier": "T2",
+      "to_tier": "T3"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "x": -167,
+      "y": 244,
+      "target": "20000:in01",
+      "inferred": false,
+      "type": 2
+    }
+  ],
+  "mobs": {},
+  "npcs": [
+    {
+      "id": 2001,
+      "name": "Sen",
+      "x": 24,
+      "y": 246
+    }
+  ],
+  "terrain_style": "Interior: two-storey mushroom-house cutaway (insideGS/house1): cream plaster walls framed by honey-coloured timber posts/beams, plank floors, orange mushroom-cap roof shell with stone-arched front. Outside the west wall a short grassySoil yard strip (grass over olive-brown dirt).",
+  "landmarks": [
+    {
+      "what": "Round-topped orange plank exit door on the house's west wall (prop/door/0)",
+      "x": -220,
+      "y": 202
+    },
+    {
+      "what": "Ground-floor room wall panel with timber posts and a small wall shelf (house1/basic/4)",
+      "x": -21,
+      "y": 146
+    },
+    {
+      "what": "Bookshelf / cupboard with jars (prop/fur/0)",
+      "x": -41,
+      "y": 207
+    },
+    {
+      "what": "Hanging bell lamp, ground floor",
+      "x": 9,
+      "y": 98
+    },
+    {
+      "what": "Ground-floor floorboards (house1/basic/2)",
+      "x": -3,
+      "y": 249
+    },
+    {
+      "what": "Ladder between floors (connect/ladder/1)",
+      "x": 77,
+      "y": 142
+    },
+    {
+      "what": "Upper-floor floorboards (house1/basic/3)",
+      "x": 11,
+      "y": 58
+    },
+    {
+      "what": "Orange wooden bed with pillows (prop/fur/1)",
+      "x": -66,
+      "y": 15
+    },
+    {
+      "what": "Treasure chest (prop/fur/2)",
+      "x": 80,
+      "y": 27
+    },
+    {
+      "what": "Curtained window (prop/win/0)",
+      "x": 37,
+      "y": -37
+    },
+    {
+      "what": "Hanging bell lamp, upper floor",
+      "x": 5,
+      "y": -100
+    },
+    {
+      "what": "Upper room wall/roof-truss panel (house1/basic/1)",
+      "x": 14,
+      "y": -85
+    },
+    {
+      "what": "Mushroom-house cutaway shell: orange cap, cream walls, stone-arched entrance (house1/basic/0)",
+      "x": 32,
+      "y": 7
+    }
+  ],
+  "notes": [
+    "Geometry/NPCs/ladders: docs/research/raw/gms_v8/20001.json (maplestory.io /api/GMS/8/map/20001).",
+    "Portals recovered from raw WZ because the parsed API JSON has null entries: https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000020001.img/portal/<n> (fields pn, pt, tm, tn, x, y). All portals here are therefore sourced, not inferred.",
+    "Landmark x,y are WZ obj anchors from https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000020001.img/<layer>/obj/<n>; sprites identified via https://maplestory.io/api/wz/GMS/8/Map/Obj/<oS>.img/<l0>/<l1>/<l2>/0. API-reported sprite origins were all exactly (w/2,h/2), so treat anchors as roughly sprite-centre; footprints are +-half sprite size. Where one landmark merges several objects, x,y is their approximate mean.",
+    "tiers[].y_left/y_right are MapleStory y (down is positive). Tier ids are local to this file. Ladders: y1 = top end, y2 = bottom end (raw data order); from_tier = bottom tier, to_tier = top tier.",
+    "v8 has zero mob spawns in this map (life contains only NPCs).",
+    "Despite the name \"Mushroom Town Townstreet\", v8 data is a two-storey mushroom-house interior (informally Sen's house, since Sen is its only NPC). The slug is kept as given.",
+    "Spawn point \"sp\" at (-329,241) is OUTSIDE in the yard (T1); arrival via 20000:in01 lands at out00 (-167,244) inside, next to the door. returnMap is 20001 itself.",
+    "Walls/ceilings (not tiers): ground-floor ceiling y=69 (x -141..129); door lintel wall x=-141 from y=69 down to 152 (leaves a ~94 px doorway above T2); east wall x=129 (y 69..246); upper room box x -142..138, floor 47, ceiling -117.",
+    "Data artifact excluded from tiers: the y=275 ground continues under the house floor and east to x=489 (fh 23,2-7,9,12,13), 29 px below T2; not intended play space.",
+    "No minimap for this map in the API (/api/GMS/8/map/20001/minimap returns 404). Geometry identical in v22 and v28; v28 parses out00 -> 20000:in01 directly (https://maplestory.io/api/GMS/28/map/20001)."
+  ]
+}

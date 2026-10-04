@@ -1,0 +1,425 @@
+{
+ "id": 1010001,
+ "name": "Amherst Weapon Store",
+ "street": "Rainbow Street",
+ "slug": "AmherstWeaponStore_1010001",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1010001.json (maplestory.io /api/GMS/8/map/1010001)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001010001.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -400,
+  "maxX": 400,
+  "minY": -263,
+  "maxY": 182,
+  "note": "all footholds (no boundary walls in this map; side limits come from vr_bounds)"
+ },
+ "walkable_extent": {
+  "minX": -400,
+  "maxX": 400,
+  "minY": -263,
+  "maxY": 182
+ },
+ "vr_bounds": {
+  "left": -400,
+  "top": -300,
+  "right": 400,
+  "bottom": 300
+ },
+ "is_town": true,
+ "bgm": "Bgm00/FloralLife",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "shop floor",
+   "kind": "ground",
+   "x1": -400,
+   "x2": 400,
+   "y_left": 182,
+   "y_right": 182,
+   "length": 800
+  },
+  {
+   "id": "T02",
+   "label": "low step at foot of forge machine",
+   "kind": "floating",
+   "x1": 19,
+   "x2": 113,
+   "y_left": 158,
+   "y_right": 158,
+   "length": 94
+  },
+  {
+   "id": "T03",
+   "label": "stair step 1",
+   "kind": "floating",
+   "x1": 158,
+   "x2": 198,
+   "y_left": 156,
+   "y_right": 156,
+   "length": 40
+  },
+  {
+   "id": "T04",
+   "label": "stair step 2",
+   "kind": "floating",
+   "x1": 172,
+   "x2": 214,
+   "y_left": 127,
+   "y_right": 127,
+   "length": 42
+  },
+  {
+   "id": "T05",
+   "label": "stair step 3 (wide)",
+   "kind": "floating",
+   "x1": 189,
+   "x2": 301,
+   "y_left": 97,
+   "y_right": 97,
+   "length": 112
+  },
+  {
+   "id": "T06",
+   "label": "stair step 4",
+   "kind": "floating",
+   "x1": 162,
+   "x2": 202,
+   "y_left": 57,
+   "y_right": 57,
+   "length": 40
+  },
+  {
+   "id": "T07",
+   "label": "stair step 5",
+   "kind": "floating",
+   "x1": 184,
+   "x2": 228,
+   "y_left": 20,
+   "y_right": 20,
+   "length": 44
+  },
+  {
+   "id": "T08",
+   "label": "forge scaffold deck",
+   "kind": "floating",
+   "x1": 46,
+   "x2": 263,
+   "y_left": -19,
+   "y_right": -19,
+   "length": 217
+  },
+  {
+   "id": "T09",
+   "label": "pipe arch (sloped hump)",
+   "kind": "slope",
+   "x1": 114,
+   "x2": 173,
+   "y_left": -45,
+   "y_right": -51,
+   "y_min": -59,
+   "length": 59
+  },
+  {
+   "id": "T10",
+   "label": "dome of green glass tank",
+   "kind": "floating",
+   "x1": 174,
+   "x2": 252,
+   "y_left": -98,
+   "y_right": -97,
+   "y_min": -108,
+   "length": 78
+  },
+  {
+   "id": "T11",
+   "label": "right roof beam",
+   "kind": "floating",
+   "x1": 247,
+   "x2": 342,
+   "y_left": -183,
+   "y_right": -183,
+   "length": 95
+  },
+  {
+   "id": "T12",
+   "label": "ceiling beam / pipe (top of rope)",
+   "kind": "floating",
+   "x1": -185,
+   "x2": 311,
+   "y_left": -263,
+   "y_right": -263,
+   "length": 496
+  },
+  {
+   "id": "T13",
+   "label": "barrel top (right wall)",
+   "kind": "floating",
+   "x1": 328,
+   "x2": 365,
+   "y_left": 131,
+   "y_right": 131,
+   "length": 37
+  },
+  {
+   "id": "T14",
+   "label": "armor-alcove sill",
+   "kind": "floating",
+   "x1": -119,
+   "x2": -16,
+   "y_left": 139,
+   "y_right": 139,
+   "length": 103
+  },
+  {
+   "id": "T15",
+   "label": "NPC booth roof",
+   "kind": "floating",
+   "x1": -345,
+   "x2": -208,
+   "y_left": -13,
+   "y_right": -13,
+   "length": 137
+  },
+  {
+   "id": "T16",
+   "label": "NPC stand inside booth (Sid; enclosed)",
+   "kind": "floating",
+   "x1": -338,
+   "x2": -227,
+   "y_left": 140,
+   "y_right": 140,
+   "length": 111
+  }
+ ],
+ "ladders": [
+  {
+   "x": 75,
+   "y1": -261,
+   "y2": -84,
+   "isLadder": false,
+   "from_tier": "T08",
+   "to_tier": "T12",
+   "bottom_gap_px": 65,
+   "climb_px": 177
+  }
+ ],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "out00",
+   "x": -48,
+   "y": 181,
+   "target": "1010000:in00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -114,
+   "y": 115,
+   "tier_below": "T14"
+  }
+ ],
+ "mobs": {},
+ "npcs": [
+  {
+   "id": 11000,
+   "name": "Sid",
+   "x": -270,
+   "y": 140,
+   "tier": "T16"
+  }
+ ],
+ "terrain_style": "interior: wooden plank floor strip under an 800x600 workshop backdrop (insideGS/house0); pipes, gears, forge machine; WZ tS=coalMine listed but terrain is object-drawn",
+ "landmarks": [
+  {
+   "what": "room backdrop (workshop interior)",
+   "x": 0,
+   "y": 300,
+   "bbox": [
+    -400,
+    -300,
+    400,
+    300
+   ],
+   "wz_obj": [
+    "insideGS/house0/basic/0"
+   ],
+   "instances": 1,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "wooden NPC booth (Sid)",
+   "x": -248,
+   "y": 185,
+   "bbox": [
+    -356,
+    -147,
+    -141,
+    185
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/20",
+    "shop/shop/weapon/19"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "pipe-and-wall panel left of centre",
+   "x": -156,
+   "y": 146,
+   "bbox": [
+    -352,
+    -141,
+    39,
+    146
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/5"
+   ],
+   "instances": 1,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "gear-mechanism window in back wall",
+   "x": -46,
+   "y": -13,
+   "bbox": [
+    -132,
+    -142,
+    39,
+    -13
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/16",
+    "shop/shop/weapon/0"
+   ],
+   "instances": 2,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "chained dark armor in wall alcove",
+   "x": -75,
+   "y": 137,
+   "bbox": [
+    -121,
+    25,
+    -30,
+    137
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/10"
+   ],
+   "instances": 1,
+   "stands_on": "T14"
+  },
+  {
+   "what": "small display piece beside booth",
+   "x": -170,
+   "y": 158,
+   "bbox": [
+    -204,
+    54,
+    -136,
+    158
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/7"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "ceiling beam / pipe with hanging rope (x=75)",
+   "x": 50,
+   "y": -152,
+   "bbox": [
+    -265,
+    -344,
+    365,
+    -152
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/6"
+   ],
+   "instances": 1,
+   "stands_on": null,
+   "mount": "wall"
+  },
+  {
+   "what": "forge machine: domed furnace with glowing mouth + green glass tank",
+   "x": 204,
+   "y": 183,
+   "bbox": [
+    10,
+    -153,
+    397,
+    183
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/2"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "metal step-scaffold beside the forge",
+   "x": 174,
+   "y": 183,
+   "bbox": [
+    46,
+    -19,
+    301,
+    183
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/18"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "sacks on floor",
+   "x": 278,
+   "y": 183,
+   "bbox": [
+    241,
+    135,
+    314,
+    183
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/12"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "barrel of weapons by right wall",
+   "x": 352,
+   "y": 182,
+   "bbox": [
+    312,
+    51,
+    391,
+    182
+   ],
+   "wz_obj": [
+    "shop/shop/weapon/11"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites"
+}

@@ -1,0 +1,169 @@
+{
+  "id": 10000,
+  "name": "Mushroom Town",
+  "extent": {
+    "minX": -309,
+    "maxX": 849,
+    "minY": 65,
+    "maxY": 480
+  },
+  "tiers": [
+    {
+      "id": "T1",
+      "x1": -309,
+      "x2": 0,
+      "y_left": 275,
+      "y_right": 275,
+      "kind": "ground",
+      "label": "west sunflower meadow (arrival in00)",
+      "length": 309
+    },
+    {
+      "id": "T2",
+      "x1": 0,
+      "x2": 90,
+      "y_left": 275,
+      "y_right": 215,
+      "kind": "slope",
+      "label": "ramp up to street",
+      "length": 90
+    },
+    {
+      "id": "T3",
+      "x1": 90,
+      "x2": 849,
+      "y_left": 215,
+      "y_right": 215,
+      "kind": "ground",
+      "label": "main street (yellow mushroom house, out00)",
+      "length": 759
+    },
+    {
+      "id": "T4",
+      "x1": 186,
+      "x2": 444,
+      "y_left": 65,
+      "y_right": 65,
+      "kind": "ledge",
+      "label": "Roger's hedge-garden terrace (no ladder)",
+      "length": 258
+    }
+  ],
+  "ladders": [],
+  "portals": [
+    {
+      "name": "in00",
+      "x": -195,
+      "y": 278,
+      "target": null,
+      "inferred": false,
+      "type": 1
+    },
+    {
+      "name": "out00",
+      "x": 706,
+      "y": 216,
+      "target": "20000:in00",
+      "inferred": false,
+      "type": 2
+    }
+  ],
+  "mobs": {},
+  "npcs": [
+    {
+      "id": 2000,
+      "name": "Roger",
+      "x": 233,
+      "y": 65
+    }
+  ],
+  "terrain_style": "grassySoil tileset (layers 0 and 1): green grass fringe over olive/khaki-brown cobbled dirt (per minimap; the maplestory.io render of this map shows no tiles). Same sky backdrop set as map 0 (grassySoil back 0-3,6).",
+  "landmarks": [
+    {
+      "what": "Butterfly over sunflowers",
+      "x": -261,
+      "y": 182
+    },
+    {
+      "what": "Sunflower patch (5 sunflowers, nature/22-24)",
+      "x": -208,
+      "y": 231
+    },
+    {
+      "what": "Olive bush (flipped)",
+      "x": -116,
+      "y": 223
+    },
+    {
+      "what": "Green hedge bushes forming the base of Roger's terrace",
+      "x": 296,
+      "y": 160
+    },
+    {
+      "what": "Green bush on terrace",
+      "x": 362,
+      "y": 105
+    },
+    {
+      "what": "Olive bush in terrace",
+      "x": 363,
+      "y": 147
+    },
+    {
+      "what": "Vegetable garden fence (posts, rope, leafy crops) on top of Roger's terrace",
+      "x": 327,
+      "y": 44
+    },
+    {
+      "what": "Yellow mushroom house with brown-striped cap (houseGS/house8 body)",
+      "x": 485,
+      "y": 138
+    },
+    {
+      "what": "Yellow cap of house8",
+      "x": 481,
+      "y": 56
+    },
+    {
+      "what": "Arched doorway with keyhole plank door (house8 deco + door/13)",
+      "x": 448,
+      "y": 168
+    },
+    {
+      "what": "Barrel chimney with little yellow hat (house/chimney/0)",
+      "x": 588,
+      "y": -16
+    },
+    {
+      "what": "Vegetable garden fence in front of the house",
+      "x": 547,
+      "y": 190
+    },
+    {
+      "what": "Olive bush right of house",
+      "x": 599,
+      "y": 167
+    },
+    {
+      "what": "Green bush (flipped) right of house",
+      "x": 645,
+      "y": 164
+    },
+    {
+      "what": "Exit portal out00 (visible)",
+      "x": 706,
+      "y": 216
+    }
+  ],
+  "notes": [
+    "Geometry/NPCs/ladders: docs/research/raw/gms_v8/10000.json (maplestory.io /api/GMS/8/map/10000).",
+    "Portals recovered from raw WZ because the parsed API JSON has null entries: https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000010000.img/portal/<n> (fields pn, pt, tm, tn, x, y). All portals here are therefore sourced, not inferred.",
+    "Landmark x,y are WZ obj anchors from https://maplestory.io/api/wz/GMS/8/Map/Map/Map0/000010000.img/<layer>/obj/<n>; sprites identified via https://maplestory.io/api/wz/GMS/8/Map/Obj/<oS>.img/<l0>/<l1>/<l2>/0. API-reported sprite origins were all exactly (w/2,h/2), so treat anchors as roughly sprite-centre; footprints are +-half sprite size. Where one landmark merges several objects, x,y is their approximate mean.",
+    "tiers[].y_left/y_right are MapleStory y (down is positive). Tier ids are local to this file. Ladders: y1 = top end, y2 = bottom end (raw data order); from_tier = bottom tier, to_tier = top tier.",
+    "v8 has zero mob spawns in this map (life contains only NPCs).",
+    "Spawn point \"sp\" at (-91,181), above T1 near the sunflowers.",
+    "in00 (pt 1, tm 999999999) is an arrival-only point: there is no portal back to map 0.",
+    "T4 (Roger) is 150 px above T3 with walls at x=186 and x=444 down to y=210 and no ladder; it is layer 0 while T1-T3 are layer 1.",
+    "v22 geometry identical to v8 (docs/research/raw/gms_v22/10000.json)."
+  ]
+}

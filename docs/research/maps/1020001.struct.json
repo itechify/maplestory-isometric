@@ -1,0 +1,700 @@
+{
+ "id": 1020001,
+ "name": "Tomato Field",
+ "street": "Rainbow Street",
+ "slug": "TomatoField_1020001",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1020001.json (maplestory.io /api/GMS/8/map/1020001)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001020001.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -399,
+  "maxX": 2559,
+  "minY": -325,
+  "maxY": 480,
+  "note": "all footholds incl. boundary walls; maxY is the bottom of the outer boundary walls, not a walkable surface (see walkable_extent)"
+ },
+ "walkable_extent": {
+  "minX": -399,
+  "maxX": 2559,
+  "minY": -325,
+  "maxY": 275
+ },
+ "vr_bounds": null,
+ "is_town": false,
+ "bgm": "Bgm00/RestNPeace",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "west bank (entry/exit, out00)",
+   "kind": "ground",
+   "x1": -399,
+   "x2": 0,
+   "y_left": 215,
+   "y_right": 215,
+   "length": 399
+  },
+  {
+   "id": "T02",
+   "label": "slope down into west furrow",
+   "kind": "slope",
+   "x1": 0,
+   "x2": 90,
+   "y_left": 215,
+   "y_right": 275,
+   "length": 90
+  },
+  {
+   "id": "T03",
+   "label": "west furrow (tomato rows)",
+   "kind": "ground",
+   "x1": 90,
+   "x2": 990,
+   "y_left": 275,
+   "y_right": 275,
+   "length": 900
+  },
+  {
+   "id": "T04",
+   "label": "slope up to central hump",
+   "kind": "slope",
+   "x1": 990,
+   "x2": 1080,
+   "y_left": 275,
+   "y_right": 215,
+   "length": 90
+  },
+  {
+   "id": "T05",
+   "label": "central hump",
+   "kind": "ground",
+   "x1": 1080,
+   "x2": 1350,
+   "y_left": 215,
+   "y_right": 215,
+   "length": 270
+  },
+  {
+   "id": "T06",
+   "label": "slope down into east furrow",
+   "kind": "slope",
+   "x1": 1350,
+   "x2": 1440,
+   "y_left": 215,
+   "y_right": 275,
+   "length": 90
+  },
+  {
+   "id": "T07",
+   "label": "east furrow (tomato rows)",
+   "kind": "ground",
+   "x1": 1440,
+   "x2": 1890,
+   "y_left": 275,
+   "y_right": 275,
+   "length": 450
+  },
+  {
+   "id": "T08",
+   "label": "long slope up to east plateau",
+   "kind": "slope",
+   "x1": 1890,
+   "x2": 2070,
+   "y_left": 275,
+   "y_right": 155,
+   "length": 180
+  },
+  {
+   "id": "T09",
+   "label": "east plateau (tree pair)",
+   "kind": "ground",
+   "x1": 2070,
+   "x2": 2559,
+   "y_left": 155,
+   "y_right": 155,
+   "length": 489
+  },
+  {
+   "id": "T10",
+   "label": "platform -145 #1 (tomato plants)",
+   "kind": "floating",
+   "x1": -219,
+   "x2": -51,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T11",
+   "label": "platform -145 #2",
+   "kind": "floating",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T12",
+   "label": "platform -205 #1",
+   "kind": "floating",
+   "x1": 51,
+   "x2": 219,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T13",
+   "label": "platform -205 #2",
+   "kind": "floating",
+   "x1": 321,
+   "x2": 489,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T14",
+   "label": "platform -205 #3",
+   "kind": "floating",
+   "x1": 591,
+   "x2": 759,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T15",
+   "label": "platform -205 #4 (tomato plant)",
+   "kind": "floating",
+   "x1": 1041,
+   "x2": 1209,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T16",
+   "label": "platform -205 #5",
+   "kind": "floating",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T17",
+   "label": "platform -205 #6",
+   "kind": "floating",
+   "x1": 1761,
+   "x2": 1929,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T18",
+   "label": "platform -265 #1",
+   "kind": "floating",
+   "x1": 231,
+   "x2": 399,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T19",
+   "label": "platform -265 #2",
+   "kind": "floating",
+   "x1": 501,
+   "x2": 669,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T20",
+   "label": "platform -265 #3",
+   "kind": "floating",
+   "x1": 771,
+   "x2": 939,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T21",
+   "label": "platform -265 #4",
+   "kind": "floating",
+   "x1": 951,
+   "x2": 1119,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T22",
+   "label": "platform -265 #5",
+   "kind": "floating",
+   "x1": 1221,
+   "x2": 1389,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T23",
+   "label": "platform -265 #6",
+   "kind": "floating",
+   "x1": 1401,
+   "x2": 1569,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T24",
+   "label": "platform -265 #7",
+   "kind": "floating",
+   "x1": 1941,
+   "x2": 2109,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T25",
+   "label": "platform -265 #8 (tomato plants)",
+   "kind": "floating",
+   "x1": 2121,
+   "x2": 2289,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T26",
+   "label": "apex platform -325",
+   "kind": "floating",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -325,
+   "y_right": -325,
+   "length": 168
+  }
+ ],
+ "ladders": [
+  {
+   "x": -109,
+   "y1": -143,
+   "y2": 183,
+   "isLadder": false,
+   "from_tier": "T01",
+   "to_tier": "T10",
+   "bottom_gap_px": 32,
+   "climb_px": 326
+  },
+  {
+   "x": 1142,
+   "y1": -203,
+   "y2": 154,
+   "isLadder": false,
+   "from_tier": "T05",
+   "to_tier": "T15",
+   "bottom_gap_px": 61,
+   "climb_px": 357
+  },
+  {
+   "x": 2165,
+   "y1": -263,
+   "y2": 102,
+   "isLadder": false,
+   "from_tier": "T09",
+   "to_tier": "T25",
+   "bottom_gap_px": 53,
+   "climb_px": 365
+  },
+  {
+   "x": 430,
+   "y1": -203,
+   "y2": 245,
+   "isLadder": false,
+   "from_tier": "T03",
+   "to_tier": "T13",
+   "bottom_gap_px": 30,
+   "climb_px": 448
+  },
+  {
+   "x": 1641,
+   "y1": -203,
+   "y2": 245,
+   "isLadder": false,
+   "from_tier": "T07",
+   "to_tier": "T16",
+   "bottom_gap_px": 30,
+   "climb_px": 448
+  }
+ ],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "out00",
+   "x": -275,
+   "y": 214,
+   "target": "1020000:in00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -195,
+   "y": 111,
+   "tier_below": "T01"
+  },
+  {
+   "x": -127,
+   "y": 112,
+   "tier_below": "T01"
+  },
+  {
+   "x": -81,
+   "y": 112,
+   "tier_below": "T01"
+  },
+  {
+   "x": -348,
+   "y": 106,
+   "tier_below": "T01"
+  },
+  {
+   "x": 1203,
+   "y": 119,
+   "tier_below": "T05"
+  },
+  {
+   "x": 1259,
+   "y": 125,
+   "tier_below": "T05"
+  },
+  {
+   "x": 2194,
+   "y": 59,
+   "tier_below": "T09"
+  },
+  {
+   "x": 2432,
+   "y": 38,
+   "tier_below": "T09"
+  },
+  {
+   "x": 2322,
+   "y": 55,
+   "tier_below": "T09"
+  }
+ ],
+ "mobs": {
+  "Orange Mushroom": {
+   "id": 1210102,
+   "count": 4,
+   "tiers": [
+    "T03",
+    "T07",
+    "T09"
+   ],
+   "per_tier": {
+    "T03": 2,
+    "T07": 1,
+    "T09": 1
+   }
+  },
+  "Snail": {
+   "id": 100100,
+   "count": 9,
+   "tiers": [
+    "T01",
+    "T03",
+    "T05",
+    "T07",
+    "T09"
+   ],
+   "per_tier": {
+    "T07": 2,
+    "T09": 2,
+    "T01": 1,
+    "T03": 3,
+    "T05": 1
+   }
+  },
+  "Blue Snail": {
+   "id": 100101,
+   "count": 8,
+   "tiers": [
+    "T03",
+    "T05",
+    "T07",
+    "T08",
+    "T09"
+   ],
+   "per_tier": {
+    "T09": 2,
+    "T08": 1,
+    "T07": 1,
+    "T05": 1,
+    "T03": 3
+   }
+  },
+  "Red Snail": {
+   "id": 130101,
+   "count": 4,
+   "tiers": [
+    "T01",
+    "T02",
+    "T04",
+    "T07"
+   ],
+   "per_tier": {
+    "T02": 1,
+    "T01": 1,
+    "T04": 1,
+    "T07": 1
+   }
+  }
+ },
+ "npcs": [],
+ "terrain_style": "grass-topped olive/brown earth with embedded rocks, gentle 90-180px-run slopes (render; WZ tS=grassySoil on layer 1); small floating grass-and-earth platforms; outdoor backdrop set grassySoil",
+ "landmarks": [
+  {
+   "what": "autumn tree pair on west bank",
+   "x": -212,
+   "y": 219,
+   "bbox": [
+    -438,
+    -101,
+    14,
+    219
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/4"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "pale-yellow tree on central hump",
+   "x": 1199,
+   "y": 214,
+   "bbox": [
+    1046,
+    -102,
+    1352,
+    214
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/3"
+   ],
+   "instances": 1,
+   "stands_on": "T05"
+  },
+  {
+   "what": "tree pair on east plateau",
+   "x": 2282,
+   "y": 155,
+   "bbox": [
+    2047,
+    -161,
+    2516,
+    155
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/4",
+    "acc1/midForest/nature/3"
+   ],
+   "instances": 2,
+   "stands_on": "T09"
+  },
+  {
+   "what": "tomato plants x1 on T02",
+   "x": 59,
+   "y": 253,
+   "bbox": [
+    29,
+    190,
+    89,
+    253
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 1,
+   "stands_on": "T02"
+  },
+  {
+   "what": "tomato plants x32 on T03",
+   "x": 542,
+   "y": 279,
+   "bbox": [
+    64,
+    208,
+    1020,
+    279
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 32,
+   "stands_on": "T03"
+  },
+  {
+   "what": "tomato plants x1 on T04",
+   "x": 1024,
+   "y": 248,
+   "bbox": [
+    994,
+    185,
+    1054,
+    248
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 1,
+   "stands_on": "T04"
+  },
+  {
+   "what": "tomato plants x4 on T05",
+   "x": 1216,
+   "y": 215,
+   "bbox": [
+    1071,
+    148,
+    1361,
+    215
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 4,
+   "stands_on": "T05"
+  },
+  {
+   "what": "tomato plants x2 on T06",
+   "x": 1406,
+   "y": 258,
+   "bbox": [
+    1364,
+    178,
+    1448,
+    258
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 2,
+   "stands_on": "T06"
+  },
+  {
+   "what": "tomato plants x11 on T07",
+   "x": 1664,
+   "y": 279,
+   "bbox": [
+    1423,
+    208,
+    1904,
+    279
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 11,
+   "stands_on": "T07"
+  },
+  {
+   "what": "tomato plants x4 on T08",
+   "x": 1994,
+   "y": 250,
+   "bbox": [
+    1892,
+    97,
+    2095,
+    250
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 4,
+   "stands_on": "T08"
+  },
+  {
+   "what": "tomato plants x11 on T09",
+   "x": 2318,
+   "y": 158,
+   "bbox": [
+    2091,
+    88,
+    2545,
+    158
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 11,
+   "stands_on": "T09"
+  },
+  {
+   "what": "tomato plants x2 on T10",
+   "x": -148,
+   "y": -146,
+   "bbox": [
+    -190,
+    -210,
+    -107,
+    -146
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 2,
+   "stands_on": "T10"
+  },
+  {
+   "what": "tomato plants x1 on T15",
+   "x": 1167,
+   "y": -207,
+   "bbox": [
+    1137,
+    -270,
+    1197,
+    -207
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 1,
+   "stands_on": "T15"
+  },
+  {
+   "what": "tomato plants x3 on T25",
+   "x": 2210,
+   "y": -266,
+   "bbox": [
+    2144,
+    -332,
+    2276,
+    -266
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 3,
+   "stands_on": "T25"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites"
+}

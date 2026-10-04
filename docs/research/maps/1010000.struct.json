@@ -1,0 +1,669 @@
+{
+ "id": 1010000,
+ "name": "Amherst",
+ "street": "Rainbow Street",
+ "slug": "Amherst_1010000",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1010000.json (maplestory.io /api/GMS/8/map/1010000)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001010000.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -398,
+  "maxX": 3278,
+  "minY": -228,
+  "maxY": 480,
+  "note": "all footholds incl. boundary walls; maxY is the bottom of the outer boundary walls, not a walkable surface (see walkable_extent)"
+ },
+ "walkable_extent": {
+  "minX": -398,
+  "maxX": 3278,
+  "minY": -228,
+  "maxY": 274
+ },
+ "vr_bounds": null,
+ "is_town": true,
+ "bgm": "Bgm00/FloralLife",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "west street (main ground)",
+   "kind": "ground",
+   "x1": -398,
+   "x2": 720,
+   "y_left": 274,
+   "y_right": 274,
+   "length": 1118
+  },
+  {
+   "id": "T02",
+   "label": "ramp up to middle terrace",
+   "kind": "slope",
+   "x1": 720,
+   "x2": 810,
+   "y_left": 274,
+   "y_right": 214,
+   "length": 90
+  },
+  {
+   "id": "T03",
+   "label": "landing below 60px step",
+   "kind": "ground",
+   "x1": 810,
+   "x2": 862,
+   "y_left": 214,
+   "y_right": 214,
+   "length": 52
+  },
+  {
+   "id": "T04",
+   "label": "middle terrace (Department Store, Lucas)",
+   "kind": "ground",
+   "x1": 862,
+   "x2": 2018,
+   "y_left": 154,
+   "y_right": 154,
+   "length": 1156
+  },
+  {
+   "id": "T05",
+   "label": "east step down",
+   "kind": "ground",
+   "x1": 2018,
+   "x2": 2108,
+   "y_left": 214,
+   "y_right": 214,
+   "length": 90
+  },
+  {
+   "id": "T06",
+   "label": "east street (Townstreet house, tree house, east exit)",
+   "kind": "ground",
+   "x1": 2108,
+   "x2": 3278,
+   "y_left": 274,
+   "y_right": 274,
+   "length": 1170
+  },
+  {
+   "id": "T07",
+   "label": "barrel top by orange mushroom house",
+   "kind": "floating",
+   "x1": 2353,
+   "x2": 2390,
+   "y_left": 223,
+   "y_right": 223,
+   "length": 37
+  },
+  {
+   "id": "T08",
+   "label": "small ledge at foot of rope x=2072",
+   "kind": "floating",
+   "x1": 1942,
+   "x2": 2108,
+   "y_left": 94,
+   "y_right": 94,
+   "length": 166
+  },
+  {
+   "id": "T09",
+   "label": "floating ledge (lower)",
+   "kind": "floating",
+   "x1": 2032,
+   "x2": 2198,
+   "y_left": -86,
+   "y_right": -86,
+   "length": 166
+  },
+  {
+   "id": "T10",
+   "label": "floating ledge (upper)",
+   "kind": "floating",
+   "x1": 2032,
+   "x2": 2198,
+   "y_left": -146,
+   "y_right": -146,
+   "length": 166
+  },
+  {
+   "id": "T11",
+   "label": "upper step (top of ladder/rope cliff)",
+   "kind": "ledge",
+   "x1": 893,
+   "x2": 1073,
+   "y_left": -116,
+   "y_right": -116,
+   "length": 180
+  },
+  {
+   "id": "T12",
+   "label": "upper plateau (Weapon Store, Mai)",
+   "kind": "ledge",
+   "x1": -83,
+   "x2": 893,
+   "y_left": -176,
+   "y_right": -176,
+   "length": 976
+  },
+  {
+   "id": "T13",
+   "label": "barrel top A on upper plateau",
+   "kind": "floating",
+   "x1": 733,
+   "x2": 770,
+   "y_left": -227,
+   "y_right": -227,
+   "length": 37
+  },
+  {
+   "id": "T14",
+   "label": "barrel top B on upper plateau (rounded)",
+   "kind": "floating",
+   "x1": 771,
+   "x2": 824,
+   "y_left": -221,
+   "y_right": -223,
+   "y_min": -228,
+   "length": 53
+  }
+ ],
+ "ladders": [
+  {
+   "x": 991,
+   "y1": -114,
+   "y2": 152,
+   "isLadder": true,
+   "from_tier": "T04",
+   "to_tier": "T11",
+   "bottom_gap_px": 2,
+   "climb_px": 266
+  },
+  {
+   "x": 917,
+   "y1": -114,
+   "y2": 152,
+   "isLadder": false,
+   "from_tier": "T04",
+   "to_tier": "T11",
+   "bottom_gap_px": 2,
+   "climb_px": 266
+  },
+  {
+   "x": 2072,
+   "y1": -84,
+   "y2": 92,
+   "isLadder": false,
+   "from_tier": "T08",
+   "to_tier": "T09",
+   "bottom_gap_px": 2,
+   "climb_px": 176
+  }
+ ],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "west00",
+   "x": -291,
+   "y": 276,
+   "target": "1000000:east00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  },
+  {
+   "name": "in00",
+   "x": 227,
+   "y": -175,
+   "target": "1010001:out00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T12"
+  },
+  {
+   "name": "in01",
+   "x": 2276,
+   "y": 275,
+   "target": "1010002:out00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T06"
+  },
+  {
+   "name": "in02",
+   "x": 1516,
+   "y": 156,
+   "target": "1010003:out00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T04"
+  },
+  {
+   "name": "east00",
+   "x": 3055,
+   "y": 274,
+   "target": "1020000:west00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T06"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": 282,
+   "y": 123,
+   "tier_below": "T01"
+  }
+ ],
+ "mystic_door_points": [
+  {
+   "x": 169,
+   "y": 274,
+   "tier": "T01"
+  },
+  {
+   "x": 250,
+   "y": 274,
+   "tier": "T01"
+  },
+  {
+   "x": 335,
+   "y": 275,
+   "tier": "T01"
+  },
+  {
+   "x": 421,
+   "y": 275,
+   "tier": "T01"
+  },
+  {
+   "x": 492,
+   "y": 276,
+   "tier": "T01"
+  },
+  {
+   "x": 621,
+   "y": 273,
+   "tier": "T01"
+  }
+ ],
+ "mobs": {},
+ "npcs": [
+  {
+   "id": 12000,
+   "name": "Lucas",
+   "x": 1790,
+   "y": 154,
+   "tier": "T04"
+  },
+  {
+   "id": 12100,
+   "name": "Mai",
+   "x": 628,
+   "y": -176,
+   "tier": "T12"
+  },
+  {
+   "id": 12101,
+   "name": "Rain",
+   "x": 103,
+   "y": 274,
+   "tier": "T01"
+  },
+  {
+   "id": 10000,
+   "name": "Pio",
+   "x": 547,
+   "y": 274,
+   "tier": "T01"
+  }
+ ],
+ "terrain_style": "grass-topped grey-blue/beige cobblestone terrain blocks (render); WZ layer info tS=woodMarble on layers 0-1; outdoor backdrop set grassySoil",
+ "landmarks": [
+  {
+   "what": "red mailbox",
+   "x": -109,
+   "y": 277,
+   "bbox": [
+    -136,
+    214,
+    -82,
+    277
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/1"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "yellow-capped mushroom house (decorative, no portal)",
+   "x": 71,
+   "y": 274,
+   "bbox": [
+    -101,
+    -46,
+    242,
+    274
+   ],
+   "wz_obj": [
+    "houseGS/house1/basic/0",
+    "houseGS/house1/basic/1",
+    "door/grassySoil/door/1",
+    "door/grassySoil/window/1",
+    "house/grassySoil/chimney/0"
+   ],
+   "instances": 5,
+   "stands_on": "T01"
+  },
+  {
+   "what": "red-capped mushroom tower with pipe chimney (decorative, no portal)",
+   "x": 487,
+   "y": 275,
+   "bbox": [
+    349,
+    -160,
+    624,
+    275
+   ],
+   "wz_obj": [
+    "houseGS/house10/basic/0",
+    "houseGS/house10/basic/1",
+    "houseGS/house9/deco/0",
+    "door/grassySoil/window/10",
+    "house/grassySoil/chimney/5"
+   ],
+   "instances": 5,
+   "stands_on": "T01"
+  },
+  {
+   "what": "farm props (sacks, pitchfork) by the red tower",
+   "x": 483,
+   "y": 277,
+   "bbox": [
+    422,
+    185,
+    543,
+    277
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/23",
+    "acc1/grassySoil/artificiality/24",
+    "acc1/grassySoil/artificiality/25"
+   ],
+   "instances": 3,
+   "stands_on": "T01"
+  },
+  {
+   "what": "autumn tree with birdhouse",
+   "x": 661,
+   "y": 275,
+   "bbox": [
+    508,
+    -41,
+    814,
+    275
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/4",
+    "acc1/midForest/artificiality/2"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "Weapon Store: yellow-capped mushroom house + thatched annex + sword signboard (door = in00)",
+   "x": 293,
+   "y": -172,
+   "bbox": [
+    52,
+    -450,
+    534,
+    -172
+   ],
+   "wz_obj": [
+    "houseGS/house3/basic/0",
+    "houseGS/house3/basic/1",
+    "houseGS/house3/basic/2",
+    "houseGS/house3/basic/3",
+    "houseGS/house3/deco/0",
+    "door/grassySoil/door/5",
+    "door/grassySoil/window/4",
+    "signboard/grassySoil/board/0",
+    "signboard/grassySoil/icon/0"
+   ],
+   "instances": 9,
+   "stands_on": "T12"
+  },
+  {
+   "what": "tree on upper plateau (west)",
+   "x": 69,
+   "y": -176,
+   "bbox": [
+    -21,
+    -457,
+    159,
+    -176
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/1"
+   ],
+   "instances": 1,
+   "stands_on": "T12"
+  },
+  {
+   "what": "pale-yellow tree on upper plateau (east)",
+   "x": 594,
+   "y": -174,
+   "bbox": [
+    441,
+    -490,
+    747,
+    -174
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/3"
+   ],
+   "instances": 1,
+   "stands_on": "T12"
+  },
+  {
+   "what": "two barrels on upper plateau (standable, T13/T14)",
+   "x": 779,
+   "y": -175,
+   "bbox": [
+    726,
+    -228,
+    831,
+    -175
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/10",
+    "acc1/grassySoil/artificiality/11"
+   ],
+   "instances": 2,
+   "stands_on": "T12"
+  },
+  {
+   "what": "rope (x=917) + wooden ladder (x=991) on the 270px cliff face",
+   "x": 954,
+   "y": 154,
+   "bbox": [
+    917,
+    -116,
+    991,
+    154
+   ],
+   "wz_obj": null,
+   "instances": null,
+   "stands_on": null
+  },
+  {
+   "what": "rainbow over small mushroom-and-pebble spring prop",
+   "x": 1288,
+   "y": 155,
+   "bbox": [
+    1211,
+    67,
+    1364,
+    155
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/9"
+   ],
+   "instances": 1,
+   "stands_on": "T04"
+  },
+  {
+   "what": "Department Store: lime-capped mushroom house + lantern + potion signboard (door = in02)",
+   "x": 1557,
+   "y": 155,
+   "bbox": [
+    1384,
+    -154,
+    1729,
+    155
+   ],
+   "wz_obj": [
+    "houseGS/house8/basic/0",
+    "houseGS/house8/basic/1",
+    "houseGS/house8/deco/0",
+    "door/grassySoil/door/13",
+    "house/grassySoil/lamp/1",
+    "house/grassySoil/lamp/4",
+    "house/grassySoil/chimney/0",
+    "signboard/grassySoil/board/2",
+    "signboard/grassySoil/icon/2"
+   ],
+   "instances": 9,
+   "stands_on": "T04"
+  },
+  {
+   "what": "tree grove around Lucas",
+   "x": 1798,
+   "y": 155,
+   "bbox": [
+    1610,
+    -185,
+    1986,
+    155
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/0",
+    "acc1/midForest/nature/2"
+   ],
+   "instances": 2,
+   "stands_on": "T04"
+  },
+  {
+   "what": "Townstreet entrance: orange-spotted mushroom house (door = in01)",
+   "x": 2372,
+   "y": 275,
+   "bbox": [
+    2169,
+    -4,
+    2574,
+    275
+   ],
+   "wz_obj": [
+    "houseGS/house6/basic/0",
+    "houseGS/house6/basic/1",
+    "houseGS/house6/deco/0",
+    "door/grassySoil/door/8",
+    "door/grassySoil/door/12",
+    "house/grassySoil/lamp/2",
+    "house/grassySoil/chimney/3",
+    "house/grassySoil/accessory/2"
+   ],
+   "instances": 8,
+   "stands_on": "T06"
+  },
+  {
+   "what": "barrel by orange house (standable, T07)",
+   "x": 2372,
+   "y": 275,
+   "bbox": [
+    2346,
+    223,
+    2398,
+    275
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/10"
+   ],
+   "instances": 1,
+   "stands_on": "T06"
+  },
+  {
+   "what": "mushroom-shaped face-cutout boards (red small, yellow tall)",
+   "x": 2669,
+   "y": 277,
+   "bbox": [
+    2583,
+    127,
+    2755,
+    277
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/26",
+    "acc1/grassySoil/artificiality/27"
+   ],
+   "instances": 2,
+   "stands_on": "T06"
+  },
+  {
+   "what": "white banner on a pole",
+   "x": 2777,
+   "y": 275,
+   "bbox": [
+    2738,
+    74,
+    2816,
+    275
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/12",
+    "acc1/grassySoil/artificiality/13"
+   ],
+   "instances": 2,
+   "stands_on": "T06"
+  },
+  {
+   "what": "giant tree house with two orange-capped rooms (east00 at its foot)",
+   "x": 2968,
+   "y": 275,
+   "bbox": [
+    2714,
+    -328,
+    3221,
+    275
+   ],
+   "wz_obj": [
+    "houseGS/house12/basic/0",
+    "houseGS/house12/deco/0",
+    "door/grassySoil/window/1"
+   ],
+   "instances": 3,
+   "stands_on": "T06"
+  },
+  {
+   "what": "red-spotted toadstool cluster",
+   "x": 3137,
+   "y": 276,
+   "bbox": [
+    3088,
+    186,
+    3185,
+    276
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/14"
+   ],
+   "instances": 1,
+   "stands_on": "T06"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites",
+ "npc_version_note": "NPC 12100 (Mai) at (628,-176) is present in GMS v8 data but absent in GMS v22 data for this map"
+}

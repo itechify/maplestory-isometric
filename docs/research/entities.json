@@ -1,0 +1,1731 @@
+{
+ "_meta": {
+  "description": "MisoStory Phase-1 entity catalogue for the 25 classic Maple Island maps. The required keys are mobs, npcs and per_map. Other keys (_meta, per_map[].map_name, per_map[].mob_spawns, per_map[].mob_spawn_total, per_map[].mobRate, per_map[].npcs[].fh, v22_deltas, the extra stat/sprite/era fields on mobs and npcs) are additions.",
+  "primary_source": "maplestory.io GMS v8: https://maplestory.io/api/GMS/8/map/<id> (local copies in docs/research/raw/gms_v8/), https://maplestory.io/api/GMS/8/mob/<id> and https://maplestory.io/api/GMS/8/npc/<id> (local copies in docs/research/raw/entities/*_v8_*.json)",
+  "secondary_source": "maplestory.io GMS v22, used for comparison and quest data only (v8 has no quest data; https://maplestory.io/api/GMS/8/quest/<id> returns 404): docs/research/raw/gms_v22/, docs/research/raw/entities/*_v22_*.json, docs/research/raw/entities/quests_v22/",
+  "sprites": "docs/research/ref_sprites/<mob|npc>_<id>_<slug>.png = frame 0 of the 'stand' animation from https://maplestory.io/api/GMS/<v>/<mob|npc>/<id>/render/stand/0 (v8 for everything, including Ria 9010003, who exists in the v8 data but is placed only in the v22 Southperry map; v22 only for 9300018, 2004 and 2005, which do not exist in v8). Mobs also have <...>_move0.png (frame 0 of 'move'). PROPRIETARY reference images: do not copy or ship them.",
+  "counts_note": "per_map[].mobs counts are spawn-point (life) entries in the map data, not how many mobs are alive at once. [memory] The server derives the live population from the map area and mobRate.",
+  "units": "All coordinates and sprite sizes are MapleStory pixels; y increases downward. fh = footholdId from the map data.",
+  "warning": "Do NOT use v62+ NPC renders for 2100/2101/2102: from v62 on they are maple-leaf costume variants, not the classic look. Do not use v83+ map data at all, because the map IDs were repurposed."
+ },
+ "mobs": {
+  "100100": {
+   "name": "Snail",
+   "level": 1,
+   "hp": 8,
+   "mp": 0,
+   "exp": 3,
+   "speed": -65,
+   "physical_damage": 22,
+   "physical_defense": 0,
+   "magic_defense": 0,
+   "accuracy": 20,
+   "evasion": 0,
+   "era": "v8 (stats identical in v22)",
+   "source": "https://maplestory.io/api/GMS/8/mob/100100",
+   "animation_frame_counts": {
+    "die1": 9,
+    "hit1": 1,
+    "move": 5,
+    "stand": 1
+   },
+   "sprite": "docs/research/ref_sprites/mob_100100_snail.png",
+   "sprite_frame_px": {
+    "w": 37,
+    "h": 26
+   },
+   "visual": "DIFFERENT BASE DESIGN from Blue/Red Snail. Low, elongated slug body in pale lavender-white with a lavender-blue shaded underside/foot; the front end rises into a neck topped by a round white head with a single sleepy/closed eye drawn as a curved black line (reads like an eye-stalk head). A large dark teal-green spiral shell (teal base, lighter cyan-green highlights, dark spiral groove) sits on the rear and is taller than the head. Faces left in the frame. Smallest, flattest silhouette of the five mobs."
+  },
+  "100101": {
+   "name": "Blue Snail",
+   "level": 2,
+   "hp": 15,
+   "mp": 15,
+   "exp": 4,
+   "speed": -50,
+   "physical_damage": 27,
+   "physical_defense": 0,
+   "magic_defense": 0,
+   "accuracy": 20,
+   "evasion": 0,
+   "era": "v8 (stats identical in v22)",
+   "source": "https://maplestory.io/api/GMS/8/mob/100101",
+   "animation_frame_counts": {
+    "die1": 3,
+    "hit1": 1,
+    "move": 4,
+    "stand": 1
+   },
+   "sprite": "docs/research/ref_sprites/mob_100101_blue_snail.png",
+   "sprite_frame_px": {
+    "w": 35,
+    "h": 34
+   },
+   "visual": "Chunky rounded cream/peach body (wide base tapering upward, like a blob or dumpling), with two large eyes on top under heavy tan/brown droopy half-closed lids (bored expression); white eyeballs, black pupils; a faint short mouth line on the front of the body. A royal/medium-blue spiral shell (darker blue spiral groove, light-blue highlight) sits on the back/right side and is roughly as tall as the body. Taller and chunkier than the 100100 Snail."
+  },
+  "120100": {
+   "name": "Shroom",
+   "level": 2,
+   "hp": 20,
+   "mp": 15,
+   "exp": 5,
+   "speed": -30,
+   "physical_damage": 32,
+   "physical_defense": 0,
+   "magic_defense": 0,
+   "accuracy": 30,
+   "evasion": 0,
+   "era": "v8 (stats identical in v22)",
+   "source": "https://maplestory.io/api/GMS/8/mob/120100",
+   "animation_frame_counts": {
+    "die1": 4,
+    "hit1": 1,
+    "move": 4,
+    "stand": 3
+   },
+   "sprite": "docs/research/ref_sprites/mob_120100_shroom.png",
+   "sprite_frame_px": {
+    "w": 36,
+    "h": 36
+   },
+   "visual": "Small mushroom creature. Dome cap in red-orange with lighter peach/orange blotchy spots and a darker red-orange rim, overhanging a short tan/beige stem that is the face. Asymmetric angry face: one eye squinting under a furrowed brow, the other a large round white eye; small open mouth with red inside. Dark olive-brown lump at the base (feet/ground shadow). Squat; the cap is nearly as wide as the frame.",
+   "name_note": "String data names it 'Shroom' in v8, v22, v40, v62, v83 and v95. The v22 quest 1016 text calls it 'Spore'."
+  },
+  "130101": {
+   "name": "Red Snail",
+   "level": 4,
+   "hp": 45,
+   "mp": 30,
+   "exp": 8,
+   "speed": -50,
+   "physical_damage": 35,
+   "physical_defense": 3,
+   "magic_defense": 10,
+   "accuracy": 35,
+   "evasion": 0,
+   "era": "v8 (stats identical in v22)",
+   "source": "https://maplestory.io/api/GMS/8/mob/130101",
+   "animation_frame_counts": {
+    "die1": 3,
+    "hit1": 1,
+    "move": 4,
+    "stand": 1
+   },
+   "sprite": "docs/research/ref_sprites/mob_130101_red_snail.png",
+   "sprite_frame_px": {
+    "w": 35,
+    "h": 34
+   },
+   "visual": "Same sprite as Blue Snail (100101) with only the shell recoloured: crimson/magenta-red shell with a darker red spiral groove (251-pixel difference vs Blue Snail; everything else identical: cream body, two lidded eyes on top)."
+  },
+  "1210102": {
+   "name": "Orange Mushroom",
+   "level": 8,
+   "hp": 80,
+   "mp": 45,
+   "exp": 15,
+   "speed": 0,
+   "physical_damage": 52,
+   "physical_defense": 0,
+   "magic_defense": 10,
+   "accuracy": 42,
+   "evasion": 1,
+   "era": "v8 (stats identical in v22)",
+   "source": "https://maplestory.io/api/GMS/8/mob/1210102",
+   "animation_frame_counts": {
+    "die1": 3,
+    "hit1": 1,
+    "jump": 1,
+    "move": 3,
+    "stand": 2
+   },
+   "sprite": "docs/research/ref_sprites/mob_1210102_orange_mushroom.png",
+   "sprite_frame_px": {
+    "w": 63,
+    "h": 58
+   },
+   "visual": "Largest island mob. Wide orange cap (orange gradient, darker orange rim) with large yellow spots, tilted slightly to one side; a grey-brown gill ring is visible under the cap. Body is a soft round white/cream dumpling shape, wider than tall, with two small black dot eyes and a small ':3'-style smiling mouth; no visible arms or legs. The cap is wider than the body."
+  },
+  "9300018": {
+   "name": "Tutorial Jr. Sentinel",
+   "level": 1,
+   "hp": 8,
+   "mp": 15,
+   "exp": 1,
+   "speed": -60,
+   "physical_damage": 20,
+   "physical_defense": 0,
+   "magic_defense": 0,
+   "accuracy": 30,
+   "evasion": 0,
+   "era": "v22 only, not placed in v8 maps",
+   "source": "https://maplestory.io/api/GMS/22/mob/9300018",
+   "animation_frame_counts": {
+    "die1": 5,
+    "hit1": 1,
+    "move": 4,
+    "stand": 4
+   },
+   "sprite": "docs/research/ref_sprites/mob_9300018_tutorial_jr_sentinel.png",
+   "sprite_frame_px": {
+    "w": 40,
+    "h": 68
+   },
+   "visual": "v22-only tutorial mob. A round beige stone ball with a black horizontal band and a gold gem in the centre. The sprite also bakes in tutorial UI above the stone (a grey 'Ctrl' keycap graphic with a yellow outline and an orange down-arrow). Not present in the v8 maps."
+  }
+ },
+ "npcs": {
+  "2000": {
+   "name": "Roger",
+   "role": "Tutorial instructor in Mushroom Town (10000). v8 dialogue covers the inventory, picking up, using and dropping items, potions/HP, and 'You want to go travel now? Then come talk to me'. Peter's older brother (per Peter's dialogue). No quests in the v22 API data.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2000",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_2000_roger.png",
+   "sprite_frame_px": {
+    "w": 56,
+    "h": 70
+   },
+   "sprite_identical_to": [],
+   "visual": "Long dark navy/black hair in a low ponytail draped over the right shoulder; heavy-lidded, bored eyes. Red tracksuit-style uniform: a row of white buttons/marks across the chest, a gold shoulder emblem on the right shoulder, a yellow stripe down the trouser leg, white gloves, grey-white shoes."
+  },
+  "2001": {
+   "name": "Sen",
+   "role": "Hungry child in Mushroom Town Townstreet (20001). v8 dialogue: 'I'm... so ... hungry!'. [v22 data] Completes quest 1003 and starts 1004.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2001",
+   "v22_related_quests": [
+    1004
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2001_sen.png",
+   "sprite_frame_px": {
+    "w": 40,
+    "h": 58
+   },
+   "sprite_identical_to": [],
+   "visual": "Small child: messy golden-orange hair, teal eyes, rosy cheeks, one finger raised to the mouth (hungry pose); brown/khaki tunic, orange boots."
+  },
+  "2002": {
+   "name": "Peter",
+   "role": "Tutorial instructor at the East Entrance to Mushroom Town (30000). v8 dialogue: 'This is the exit to the Mushroom Town', 'If you want to move on to the next stage, talk to me', warns about monsters. Brother of Roger and Robin.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2002",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_2002_peter.png",
+   "sprite_frame_px": {
+    "w": 52,
+    "h": 70
+   },
+   "sprite_identical_to": [
+    2003,
+    2004,
+    2005
+   ],
+   "visual": "Same outfit design as Roger (2000) but in royal blue: blue uniform with gold shoulder emblem, yellow trouser stripe, white gloves. Shoulder-length ash-brown/taupe hair, same heavy-lidded expression. Pixel-identical to Robin (2003) in the v8 render."
+  },
+  "2003": {
+   "name": "Robin",
+   "role": "Tutorial instructor in Snail Hunting Ground I (40000). v8 dialogue gives combat hints (left Ctrl to attack, Z to pick up, party up), names Mushroom Town, Southperry and Amherst, and says 'try heading up northeast'. Younger brother of Roger and Peter.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2003",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_2003_robin.png",
+   "sprite_frame_px": {
+    "w": 52,
+    "h": 70
+   },
+   "sprite_identical_to": [
+    2002,
+    2004,
+    2005
+   ],
+   "visual": "Pixel-identical to Peter (2002) in the v8 render: blue uniform with gold shoulder emblem, yellow trouser stripe, white gloves; shoulder-length ash-brown/taupe hair."
+  },
+  "2004": {
+   "name": "Todd",
+   "role": "v22 only: tutorial NPC at the East Entrance to Mushroom Town (30000). [v22 data] Quest 1018 'Todd's How-to-Hunt' (kill 1 Tutorial Jr. Sentinel 9300018, then talk to Peter).",
+   "era": "v22 only, not placed in v8 maps",
+   "source": "https://maplestory.io/api/GMS/22/npc/2004",
+   "v22_related_quests": [
+    1018
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2004_todd.png",
+   "sprite_frame_px": {
+    "w": 52,
+    "h": 70
+   },
+   "sprite_identical_to": [
+    2002,
+    2003,
+    2005
+   ],
+   "visual": "v22 only. NPC data has link=2003, so it uses Robin's sprite; the render is pixel-identical to Robin/Peter (blue uniform, ash-brown hair).",
+   "link": 2003
+  },
+  "2005": {
+   "name": "Sam",
+   "role": "v22 only: tutorial NPC in Snail Hunting Ground I (40000). [v22 data] Quest 1019 'Sam's Suggestion' (hunt 10 Snails, then meet Mai).",
+   "era": "v22 only, not placed in v8 maps",
+   "source": "https://maplestory.io/api/GMS/22/npc/2005",
+   "v22_related_quests": [
+    1019
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2005_sam.png",
+   "sprite_frame_px": {
+    "w": 52,
+    "h": 70
+   },
+   "sprite_identical_to": [
+    2002,
+    2003,
+    2004
+   ],
+   "visual": "v22 only. NPC data has link=2003, so it uses Robin's sprite; the render is pixel-identical to Robin/Peter (blue uniform, ash-brown hair).",
+   "link": 2003
+  },
+  "2100": {
+   "name": "Sera",
+   "role": "Mushroom Town resident (map 0), Heena's sister, hanging laundry. v8 dialogue: tutorial hints (press Up to climb ladders/ropes, double-click to talk). [v22 data] Completes quest 1000 and starts 1001 (item 4031003 'Sera's Mirror'); the v22 quest text calls her 'Sarah'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2100",
+   "v22_related_quests": [
+    1001
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2100_sera.png",
+   "sprite_frame_px": {
+    "w": 51,
+    "h": 67
+   },
+   "sprite_identical_to": [
+    2103
+   ],
+   "visual": "Long wavy honey-blonde/olive-gold hair; light-blue apron or bib over a brown dress, hands together at the chest. The frame is cut off around the waist, so the lower body is not visible. Pixel-identical to Maria (2103) in v8."
+  },
+  "2101": {
+   "name": "Heena",
+   "role": "Mushroom Town resident (map 0). v8 dialogue: tutorial hints (jump with left Alt, move with the arrow keys) and 'Arrghh, my beautiful skin...' (the v22 quest text explains this as worry about sunlight irritating her face). [v22 data] Starts quest 1000 'Borrowing Sarah's Mirror' and completes 1001 'Bringing a Mirror to Heena'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2101",
+   "v22_related_quests": [
+    1000
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2101_heena.png",
+   "sprite_frame_px": {
+    "w": 56,
+    "h": 55
+   },
+   "sprite_identical_to": [
+    12101
+   ],
+   "visual": "Brown spiky/feathered hair with a pink headband; large dark eye, orange blush marks; both hands clasped at the chin. White top, with a navy-blue garment visible at the bottom edge. The 56x55 frame shows only head and upper body, so the pose is not fully visible. Pixel-identical to Rain (12101)."
+  },
+  "2102": {
+   "name": "Nina",
+   "role": "Mushroom Town resident (20000), Sen's sister. v8 dialogue: wondering what to make for dinner. [v22 data] Starts quest 1003 'What Sen wants to eat' and completes 1004 'Returning to Nina'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2102",
+   "v22_related_quests": [
+    1003
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2102_nina.png",
+   "sprite_frame_px": {
+    "w": 65,
+    "h": 74
+   },
+   "sprite_identical_to": [
+    20100
+   ],
+   "visual": "Bunny costume: pink-and-white rabbit-ear headband, spiky dark-blue hair, blue eyes, pink strapless leotard, pink gloves, dark olive/brown tights, pink heels. Pixel-identical to Yoona (20100) in v8."
+  },
+  "2103": {
+   "name": "Maria",
+   "role": "Person at A Split Road (50000) who wants a letter delivered. v8 dialogue: 'I need to get this letter sent...'. [v22 data] Starts quest 1005 'Letter for Lucas' (item 4031000 Maria's Letter) and completes 1006 'Lucas' Reply'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/2103",
+   "v22_related_quests": [
+    1005
+   ],
+   "sprite": "docs/research/ref_sprites/npc_2103_maria.png",
+   "sprite_frame_px": {
+    "w": 51,
+    "h": 67
+   },
+   "sprite_identical_to": [
+    2100
+   ],
+   "visual": "Pixel-identical to Sera (2100) in v8: long wavy honey-blonde hair, light-blue apron over a brown dress; the frame is cut off around the waist."
+  },
+  "10000": {
+   "name": "Pio",
+   "role": "Handyman in Amherst. v8 dialogue: 'I can handle machinery really well', is hungry, takes a break from work. [v22 data] Quest 1008 'Pio's Collecting Recycled Goods' (break scrap boxes in the village).",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/10000",
+   "v22_related_quests": [
+    1008
+   ],
+   "sprite": "docs/research/ref_sprites/npc_10000_pio.png",
+   "sprite_frame_px": {
+    "w": 52,
+    "h": 68
+   },
+   "sprite_identical_to": [],
+   "visual": "Stocky, tan-skinned handyman with a pale blond buzz cut and an orange-and-white cap worn tilted; eyes squeezed shut, lips pursed (straining). White T-shirt, light-blue denim overalls; carries a red-orange toolbox and a grey wrench."
+  },
+  "11000": {
+   "name": "Sid",
+   "role": "Shopkeeper. Sourced facts: he stands in the map named 'Amherst Weapon Store' (1010001), and his v8 dialogue says 'On sale! Really CHEAP!'. The inventory is not available from the API.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/11000",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_11000_sid.png",
+   "sprite_frame_px": {
+    "w": 51,
+    "h": 79
+   },
+   "sprite_identical_to": [],
+   "visual": "Big, hulking man with olive/tan skin, a blond flat-top, black sunglasses and a frown; blue uniform (same family as Roger/Pan) with yellow shoulder and trouser stripes; hunched, fists held low; grey shoes."
+  },
+  "11100": {
+   "name": "Lucy",
+   "role": "Shopkeeper. Sourced facts: she stands in the map named 'Amherst Department Store' (1010003), and her v8 dialogue says 'You definitely need potions to travel' and 'cheap goods'. [proposal] She probably sells potions and consumables. The inventory is not available from the API.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/11100",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_11100_lucy.png",
+   "sprite_frame_px": {
+    "w": 59,
+    "h": 69
+   },
+   "sprite_identical_to": [],
+   "visual": "Girl with big curly brown hair and large green eyes; orange-brown pinafore/jumper dress over a light-blue blouse, hands on hips, brown shoes."
+  },
+  "12000": {
+   "name": "Lucas",
+   "role": "Chief/elder of Amherst. v8 dialogue: distrusts strangers, worried about the town's peace, asks you to deal with monsters around town. [v22 data] Completes quest 1005 and starts 1006 'Lucas' Reply' (item 4031001 Lucas' Letter).",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/12000",
+   "v22_related_quests": [
+    1006
+   ],
+   "sprite": "docs/research/ref_sprites/npc_12000_lucas.png",
+   "sprite_frame_px": {
+    "w": 51,
+    "h": 73
+   },
+   "sprite_identical_to": [],
+   "visual": "Elderly village chief: swept-back sandy-blond hair and a full beard, stern face; long white/ivory robe with gold hem trim and a gold belt, a purple stole over one shoulder fastened with a round gold clasp; wooden cane in hand."
+  },
+  "12100": {
+   "name": "Mai",
+   "role": "Fighter in Amherst. v8 dialogue: 'Is there anyone that can satisfy my desire to fight...?'. [v22 data] Quests 1016 'Mai's Training' (hunt 10 each of Snail, Blue Snail and 120100; the quest text calls 120100 'Spore') and 1017 'Mai's Final Training' (10 Orange Mushrooms). In the v22 maps she stands at A Split Road (50000) instead of Amherst.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/12100",
+   "v22_related_quests": [
+    1016,
+    1017
+   ],
+   "sprite": "docs/research/ref_sprites/npc_12100_mai.png",
+   "sprite_frame_px": {
+    "w": 54,
+    "h": 80
+   },
+   "sprite_identical_to": [],
+   "visual": "Young woman with brown high twin pigtails tied with red ribbons, pink/magenta eyes; red sleeveless qipao/cheongsam with a side slit, yellow sash, gold bracelet; holds a large curved broadsword (dao-like) with a gold guard, blade pointing down; red shoes."
+  },
+  "12101": {
+   "name": "Rain",
+   "role": "Amherst tutorial helper. v8 dialogue: jump and movement hints, the same lines as Heena. [v22 data] Gives the 'Rain's Maple Quiz 1-7' quests (1009-1015), but the v8 dialogue has no quiz lines.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/12101",
+   "v22_related_quests": [
+    1009,
+    1010,
+    1011,
+    1012,
+    1013,
+    1014,
+    1015
+   ],
+   "sprite": "docs/research/ref_sprites/npc_12101_rain.png",
+   "sprite_frame_px": {
+    "w": 56,
+    "h": 55
+   },
+   "sprite_identical_to": [
+    2101
+   ],
+   "visual": "Pixel-identical to Heena (2101) in v8: brown spiky hair with a pink headband, hands clasped at the chin; the frame shows only the upper body."
+  },
+  "20001": {
+   "name": "Bari",
+   "role": "Southperry sailor/dock worker; flavour only. v8 dialogue: 'Working hard there~', 'Salute~'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/20001",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_20001_bari.png",
+   "sprite_frame_px": {
+    "w": 53,
+    "h": 74
+   },
+   "sprite_identical_to": [],
+   "visual": "Older sailor: white sailor cap, short grey hair, tan skin, sleepy-lidded eyes; navy sailor shirt, a large coil of olive/brown rope over the right shoulder, white trousers, brown shoes."
+  },
+  "20002": {
+   "name": "Biggs",
+   "role": "Southperry sailor who is vain about his looks and wants to captain the big ship one day (v8 dialogue). [v22 data] Quest 1007 'Bigg's Collection of Items' asks for 30 Blue Snail Shells (4000000) and 10 Orange Mushroom Caps (4000001).",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/20002",
+   "v22_related_quests": [
+    1007
+   ],
+   "sprite": "docs/research/ref_sprites/npc_20002_biggs.png",
+   "sprite_frame_px": {
+    "w": 46,
+    "h": 67
+   },
+   "sprite_identical_to": [],
+   "visual": "Young sailor: white sailor cap with a blue band, grey swept hair, scowling/arrogant face; navy sailor top with white stripes and a light-blue neckerchief, white trousers, brown shoes, hands on hips."
+  },
+  "20100": {
+   "name": "Yoona",
+   "role": "Southperry resident; flavour only. v8 dialogue: 'Whoa, what are you looking at?!?!'.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/20100",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_20100_yoona.png",
+   "sprite_frame_px": {
+    "w": 65,
+    "h": 74
+   },
+   "sprite_identical_to": [
+    2102
+   ],
+   "visual": "Pixel-identical to Nina (2102) in v8: bunny-ear headband, spiky dark-blue hair, pink leotard and gloves, dark tights, pink heels."
+  },
+  "21000": {
+   "name": "Pan",
+   "role": "Shopkeeper. Sourced facts: he stands in the map named 'Southperry Armor Store' (60001), and his v8 dialogue says 'I've got some goods here for sale!!'. The shop inventory is server-side and not in the API, and isShop is false for every NPC, so that flag cannot be used.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/21000",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_21000_pan.png",
+   "sprite_frame_px": {
+    "w": 35,
+    "h": 57
+   },
+   "sprite_identical_to": [],
+   "visual": "Short, chubby man with short brown hair, green-tinted sunglasses and a smug face; blue uniform in the same style as Roger/Peter (silver buttons, yellow shoulder patch, yellow trouser stripe), grey shoes."
+  },
+  "22000": {
+   "name": "Shanks",
+   "role": "Ship captain at Southperry. v8 dialogue: 'I am the captain', 'I'll take you anywhere you want'. [memory] Sails players one way from Maple Island to Lith Harbor on Victoria Island for a mesos fee. Neither the destination nor the fare is in the API data.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/22000",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_22000_shanks.png",
+   "sprite_frame_px": {
+    "w": 67,
+    "h": 77
+   },
+   "sprite_identical_to": [],
+   "visual": "Ship captain: large royal-blue wide-brim hat with a white feather plume on one side, blonde hair, blue eyes; blue long coat with gold trim and gold/orange square cuff panels, light shirt with dark-red detail at the chest. Holds a small gold-and-brown object in one hand (not identified from the sprite)."
+  },
+  "9000000": {
+   "name": "Paul",
+   "role": "Event NPC in Southperry. v8 dialogue: 'Where's my brother...?', 'I need to get to where the event takes place...'. [memory] Used to warp players to GM-run events.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/9000000",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_9000000_paul.png",
+   "sprite_frame_px": {
+    "w": 48,
+    "h": 60
+   },
+   "sprite_identical_to": [],
+   "visual": "Boy in a yellow cap worn backwards with a red brim, dark hair; white T-shirt with red shoulder straps (backpack), blue jeans with a yellow side stripe, red-and-white sneakers; holds a skateboard (pale deck, blue wheels) upright at his side."
+  },
+  "9010000": {
+   "name": "Maple Administrator",
+   "role": "Maple Administrator (official/GM presence) in Southperry. v8 dialogue: greetings and an anti-hacking-tools reminder. [v22 data] Gives the seasonal quest 8700 'Easter : Easter Basket' (level 8+).",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/9010000",
+   "v22_related_quests": [
+    8700
+   ],
+   "sprite": "docs/research/ref_sprites/npc_9010000_maple_administrator.png",
+   "sprite_frame_px": {
+    "w": 46,
+    "h": 69
+   },
+   "sprite_identical_to": [],
+   "visual": "Woman in a white newsboy cap with a large blue 'W' logo, short black hair, white skirt suit, white shoes; carries a black briefcase with a white 'W' logo."
+  },
+  "9010001": {
+   "name": "Tia",
+   "role": "Event/greeter NPC in Southperry. v8 dialogue: 'Hey all!', 'Hope you all have a wonderful day today'. Replaced by Ria (9010003) in the v22 map.",
+   "era": "v8",
+   "source": "https://maplestory.io/api/GMS/8/npc/9010001",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_9010001_tia.png",
+   "sprite_frame_px": {
+    "w": 74,
+    "h": 113
+   },
+   "sprite_identical_to": [],
+   "visual": "Girl with long auburn/red-brown hair and a small silver tiara, big blue eyes; pink jacket over a light top, blue flared jeans with pink bows at the hems, pink shoes; holds three star-patterned balloons (yellow, pink, cyan) on strings, which fill the top half of the 74x113 frame."
+  },
+  "9010003": {
+   "name": "Ria",
+   "role": "v22 only: replaces Tia in Southperry with the same dialogue. Not placed in any v8 map.",
+   "era": "present in v8 NPC data but placed only in the v22 map (Southperry); not placed in v8 maps",
+   "source": "https://maplestory.io/api/GMS/8/npc/9010003",
+   "v22_related_quests": [],
+   "sprite": "docs/research/ref_sprites/npc_9010003_ria.png",
+   "sprite_frame_px": {
+    "w": 74,
+    "h": 113
+   },
+   "sprite_identical_to": [],
+   "visual": "Recolour of Tia (9010001): long dark-blue hair, purple jacket, black trousers with purple bows, balloons in cyan/pink/yellow. v22 only (replaces Tia in Southperry)."
+  }
+ },
+ "per_map": {
+  "0": {
+   "map_name": "West Entrance to Mushroom Town",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2101,"name":"Heena","x":-48,"y":65,"fh":66},
+    {"id":2100,"name":"Sera","x":833,"y":125,"fh":8}
+   ],
+   "mob_spawns": []
+  },
+  "10000": {
+   "map_name": "Mushroom Town",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2000,"name":"Roger","x":233,"y":65,"fh":7}
+   ],
+   "mob_spawns": []
+  },
+  "20000": {
+   "map_name": "Mushroom Town",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2102,"name":"Nina","x":-59,"y":95,"fh":38}
+   ],
+   "mob_spawns": []
+  },
+  "20001": {
+   "map_name": "Mushroom Town Townstreet",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2001,"name":"Sen","x":24,"y":246,"fh":25}
+   ],
+   "mob_spawns": []
+  },
+  "30000": {
+   "map_name": "East Entrance to Mushroom Town",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2002,"name":"Peter","x":1314,"y":-925,"fh":128}
+   ],
+   "mob_spawns": []
+  },
+  "40000": {
+   "map_name": "Snail Hunting Ground I",
+   "mobs": {
+    "Snail": 33,
+    "Blue Snail": 16
+   },
+   "mob_spawn_total": 49,
+   "mobRate": 1,
+   "npcs": [
+    {"id":2003,"name":"Robin","x":69,"y":275,"fh":35}
+   ],
+   "mob_spawns": [
+    {"id":100100,"x":441,"y":395,"fh":42},
+    {"id":100100,"x":721,"y":395,"fh":47},
+    {"id":100100,"x":2546,"y":-325,"fh":229},
+    {"id":100100,"x":2782,"y":-325,"fh":224},
+    {"id":100100,"x":2378,"y":-685,"fh":2},
+    {"id":100100,"x":2045,"y":-685,"fh":13},
+    {"id":100100,"x":1227,"y":-625,"fh":191},
+    {"id":100100,"x":907,"y":-625,"fh":193},
+    {"id":100100,"x":1078,"y":-205,"fh":167},
+    {"id":100100,"x":1666,"y":-205,"fh":157},
+    {"id":100100,"x":200,"y":-265,"fh":137},
+    {"id":100100,"x":-126,"y":-325,"fh":130},
+    {"id":100100,"x":534,"y":395,"fh":45},
+    {"id":100101,"x":647,"y":395,"fh":46},
+    {"id":100101,"x":890,"y":395,"fh":48},
+    {"id":100101,"x":1994,"y":395,"fh":82},
+    {"id":100101,"x":2447,"y":395,"fh":86},
+    {"id":100101,"x":2649,"y":395,"fh":89},
+    {"id":100101,"x":2463,"y":35,"fh":177},
+    {"id":100101,"x":1801,"y":-205,"fh":168},
+    {"id":100101,"x":1327,"y":-205,"fh":162},
+    {"id":100101,"x":1264,"y":-205,"fh":162},
+    {"id":100101,"x":354,"y":-265,"fh":132},
+    {"id":100100,"x":764,"y":395,"fh":47},
+    {"id":100101,"x":22,"y":-310,"fh":126},
+    {"id":100101,"x":582,"y":-685,"fh":190},
+    {"id":100101,"x":1093,"y":-625,"fh":189},
+    {"id":100101,"x":2213,"y":-685,"fh":1},
+    {"id":100101,"x":2538,"y":-685,"fh":9},
+    {"id":100101,"x":2674,"y":-325,"fh":234},
+    {"id":100100,"x":2110,"y":-685,"fh":7},
+    {"id":100100,"x":2459,"y":-685,"fh":8},
+    {"id":100100,"x":364,"y":-685,"fh":203},
+    {"id":100100,"x":-23,"y":-625,"fh":214},
+    {"id":100100,"x":1000,"y":395,"fh":51},
+    {"id":100100,"x":86,"y":-625,"fh":209},
+    {"id":100100,"x":280,"y":-265,"fh":132},
+    {"id":100100,"x":1941,"y":-685,"fh":17},
+    {"id":100100,"x":2613,"y":-325,"fh":234},
+    {"id":100100,"x":2235,"y":395,"fh":84},
+    {"id":100100,"x":1417,"y":-205,"fh":161},
+    {"id":100100,"x":1341,"y":-625,"fh":194},
+    {"id":100100,"x":660,"y":-685,"fh":200},
+    {"id":100100,"x":483,"y":-265,"fh":131},
+    {"id":100100,"x":1887,"y":395,"fh":80},
+    {"id":100100,"x":2344,"y":395,"fh":85},
+    {"id":100100,"x":2547,"y":395,"fh":90},
+    {"id":100100,"x":2735,"y":395,"fh":88},
+    {"id":100100,"x":2382,"y":35,"fh":187}
+   ]
+  },
+  "40001": {
+   "map_name": "Snail Hunting Ground II",
+   "mobs": {
+    "Snail": 43,
+    "Blue Snail": 24
+   },
+   "mob_spawn_total": 67,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100100,"x":441,"y":395,"fh":49},
+    {"id":100100,"x":721,"y":395,"fh":55},
+    {"id":100100,"x":2546,"y":-325,"fh":189},
+    {"id":100100,"x":2782,"y":-325,"fh":183},
+    {"id":100100,"x":2378,"y":-685,"fh":2},
+    {"id":100100,"x":2045,"y":-685,"fh":16},
+    {"id":100100,"x":1227,"y":-565,"fh":286},
+    {"id":100100,"x":907,"y":-625,"fh":32},
+    {"id":100100,"x":1078,"y":-205,"fh":163},
+    {"id":100100,"x":1666,"y":-205,"fh":169},
+    {"id":100100,"x":200,"y":-265,"fh":119},
+    {"id":100100,"x":2499,"y":-1165,"fh":136},
+    {"id":100100,"x":534,"y":395,"fh":53},
+    {"id":100100,"x":2740,"y":-1165,"fh":131},
+    {"id":100101,"x":647,"y":395,"fh":54},
+    {"id":100101,"x":890,"y":395,"fh":56},
+    {"id":100101,"x":1784,"y":395,"fh":78},
+    {"id":100101,"x":2447,"y":395,"fh":87},
+    {"id":100101,"x":2649,"y":395,"fh":90},
+    {"id":100101,"x":2463,"y":35,"fh":204},
+    {"id":100101,"x":1801,"y":-205,"fh":173},
+    {"id":100101,"x":1522,"y":-205,"fh":178},
+    {"id":100101,"x":1264,"y":-205,"fh":157},
+    {"id":100100,"x":764,"y":395,"fh":55},
+    {"id":100101,"x":354,"y":-265,"fh":117},
+    {"id":100101,"x":582,"y":-625,"fh":42},
+    {"id":100101,"x":1093,"y":-625,"fh":24},
+    {"id":100101,"x":2213,"y":-685,"fh":1},
+    {"id":100101,"x":2538,"y":-685,"fh":9},
+    {"id":100101,"x":2674,"y":-325,"fh":195},
+    {"id":100101,"x":2618,"y":-1165,"fh":130},
+    {"id":100101,"x":2374,"y":-1165,"fh":126},
+    {"id":100100,"x":422,"y":-625,"fh":31},
+    {"id":100100,"x":515,"y":-625,"fh":41},
+    {"id":100100,"x":1000,"y":395,"fh":59},
+    {"id":100100,"x":730,"y":-625,"fh":35},
+    {"id":100100,"x":834,"y":-625,"fh":25},
+    {"id":100100,"x":2143,"y":-685,"fh":7},
+    {"id":100100,"x":2300,"y":-685,"fh":3},
+    {"id":100100,"x":2456,"y":-325,"fh":186},
+    {"id":100100,"x":2041,"y":395,"fh":83},
+    {"id":100100,"x":2121,"y":395,"fh":84},
+    {"id":100100,"x":548,"y":-265,"fh":114},
+    {"id":100100,"x":625,"y":-265,"fh":114},
+    {"id":100100,"x":898,"y":-205,"fh":168},
+    {"id":100100,"x":1887,"y":395,"fh":81},
+    {"id":100100,"x":1003,"y":-205,"fh":163},
+    {"id":100100,"x":1219,"y":-205,"fh":162},
+    {"id":100101,"x":1865,"y":-205,"fh":173},
+    {"id":100101,"x":2324,"y":35,"fh":206},
+    {"id":100101,"x":1965,"y":-1105,"fh":144},
+    {"id":100101,"x":2165,"y":-1165,"fh":127},
+    {"id":100101,"x":2273,"y":-1165,"fh":137},
+    {"id":100101,"x":247,"y":395,"fh":62},
+    {"id":100101,"x":134,"y":395,"fh":63},
+    {"id":100100,"x":2555,"y":-1165,"fh":129},
+    {"id":100100,"x":2344,"y":395,"fh":86},
+    {"id":100100,"x":1941,"y":-685,"fh":15},
+    {"id":100100,"x":2613,"y":-325,"fh":195},
+    {"id":100100,"x":2235,"y":395,"fh":85},
+    {"id":100100,"x":660,"y":-625,"fh":27},
+    {"id":100100,"x":483,"y":-265,"fh":118},
+    {"id":100100,"x":274,"y":-265,"fh":117},
+    {"id":100100,"x":2674,"y":-1165,"fh":130},
+    {"id":100100,"x":2547,"y":395,"fh":91},
+    {"id":100100,"x":2735,"y":395,"fh":89},
+    {"id":100100,"x":2382,"y":35,"fh":196}
+   ]
+  },
+  "40002": {
+   "map_name": "Snail Hunting Ground III",
+   "mobs": {
+    "Snail": 36,
+    "Blue Snail": 26,
+    "Red Snail": 13
+   },
+   "mob_spawn_total": 75,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100100,"x":441,"y":395,"fh":33},
+    {"id":100100,"x":721,"y":395,"fh":37},
+    {"id":100100,"x":2546,"y":-325,"fh":225},
+    {"id":100100,"x":2782,"y":-325,"fh":231},
+    {"id":100100,"x":2378,"y":-685,"fh":2},
+    {"id":100100,"x":2045,"y":-685,"fh":11},
+    {"id":100100,"x":1227,"y":-625,"fh":107},
+    {"id":100100,"x":907,"y":-625,"fh":108},
+    {"id":100100,"x":1078,"y":-205,"fh":150},
+    {"id":100100,"x":1666,"y":-205,"fh":141},
+    {"id":100100,"x":200,"y":-265,"fh":131},
+    {"id":100100,"x":-126,"y":-325,"fh":127},
+    {"id":100100,"x":534,"y":395,"fh":35},
+    {"id":100100,"x":954,"y":-1225,"fh":210},
+    {"id":100100,"x":720,"y":-1225,"fh":215},
+    {"id":100100,"x":491,"y":-1225,"fh":208},
+    {"id":100100,"x":1474,"y":-1285,"fh":160},
+    {"id":100100,"x":1725,"y":-1285,"fh":165},
+    {"id":100100,"x":1983,"y":-1285,"fh":166},
+    {"id":100100,"x":2499,"y":-1165,"fh":184},
+    {"id":100100,"x":2740,"y":-1165,"fh":186},
+    {"id":100101,"x":647,"y":395,"fh":36},
+    {"id":100101,"x":890,"y":395,"fh":38},
+    {"id":100100,"x":764,"y":395,"fh":37},
+    {"id":100101,"x":1784,"y":395,"fh":63},
+    {"id":100101,"x":2447,"y":395,"fh":71},
+    {"id":100101,"x":2649,"y":395,"fh":74},
+    {"id":100101,"x":2463,"y":35,"fh":200},
+    {"id":100101,"x":1801,"y":-205,"fh":151},
+    {"id":100101,"x":1522,"y":-205,"fh":142},
+    {"id":100101,"x":1264,"y":-205,"fh":145},
+    {"id":100101,"x":354,"y":-265,"fh":138},
+    {"id":100101,"x":-56,"y":-325,"fh":132},
+    {"id":100101,"x":582,"y":-685,"fh":106},
+    {"id":100100,"x":1000,"y":395,"fh":41},
+    {"id":100101,"x":1093,"y":-625,"fh":105},
+    {"id":100101,"x":2213,"y":-685,"fh":1},
+    {"id":100101,"x":2538,"y":-685,"fh":8},
+    {"id":100101,"x":2674,"y":-325,"fh":229},
+    {"id":100101,"x":602,"y":-1225,"fh":217},
+    {"id":100101,"x":848,"y":-1225,"fh":211},
+    {"id":100101,"x":1607,"y":-1285,"fh":164},
+    {"id":100101,"x":1348,"y":-1285,"fh":179},
+    {"id":100101,"x":2618,"y":-1165,"fh":172},
+    {"id":100101,"x":2374,"y":-1165,"fh":169},
+    {"id":100100,"x":1887,"y":395,"fh":65},
+    {"id":130101,"x":2674,"y":-1165,"fh":172},
+    {"id":130101,"x":1858,"y":-1285,"fh":167},
+    {"id":130101,"x":1057,"y":-1225,"fh":216},
+    {"id":130101,"x":274,"y":-265,"fh":138},
+    {"id":130101,"x":483,"y":-265,"fh":130},
+    {"id":130101,"x":660,"y":-685,"fh":111},
+    {"id":130101,"x":1341,"y":-625,"fh":109},
+    {"id":130101,"x":1417,"y":-205,"fh":144},
+    {"id":130101,"x":2235,"y":395,"fh":69},
+    {"id":130101,"x":2613,"y":-325,"fh":229},
+    {"id":100100,"x":2344,"y":395,"fh":70},
+    {"id":130101,"x":1941,"y":-685,"fh":14},
+    {"id":130101,"x":2555,"y":-1165,"fh":171},
+    {"id":130101,"x":1533,"y":-1285,"fh":164},
+    {"id":100101,"x":209,"y":275,"fh":25},
+    {"id":100101,"x":-216,"y":275,"fh":83},
+    {"id":100101,"x":1530,"y":215,"fh":56},
+    {"id":100101,"x":521,"y":-685,"fh":114},
+    {"id":100100,"x":1417,"y":-205,"fh":144},
+    {"id":100100,"x":1341,"y":-625,"fh":109},
+    {"id":100100,"x":660,"y":-685,"fh":111},
+    {"id":100100,"x":2547,"y":395,"fh":75},
+    {"id":100100,"x":483,"y":-265,"fh":130},
+    {"id":100100,"x":2674,"y":-1165,"fh":172},
+    {"id":100100,"x":274,"y":-265,"fh":138},
+    {"id":100100,"x":2123,"y":395,"fh":68},
+    {"id":100100,"x":1858,"y":-1285,"fh":167},
+    {"id":100100,"x":2735,"y":395,"fh":73},
+    {"id":100100,"x":2382,"y":35,"fh":201}
+   ]
+  },
+  "50000": {
+   "map_name": "A Split Road",
+   "mobs": {
+    "Blue Snail": 25,
+    "Red Snail": 13,
+    "Shroom": 18
+   },
+   "mob_spawn_total": 56,
+   "mobRate": 1.5,
+   "npcs": [
+    {"id":2103,"name":"Maria","x":159,"y":65,"fh":151}
+   ],
+   "mob_spawns": [
+    {"id":100101,"x":1364,"y":365,"fh":87},
+    {"id":100101,"x":1631,"y":365,"fh":116},
+    {"id":100101,"x":1003,"y":5,"fh":27},
+    {"id":100101,"x":1193,"y":5,"fh":12},
+    {"id":100101,"x":1493,"y":-55,"fh":7},
+    {"id":100101,"x":1651,"y":-55,"fh":6},
+    {"id":130101,"x":1569,"y":-55,"fh":7},
+    {"id":130101,"x":1091,"y":5,"fh":29},
+    {"id":130101,"x":868,"y":65,"fh":23},
+    {"id":130101,"x":-99,"y":245,"fh":99},
+    {"id":130101,"x":-337,"y":245,"fh":103},
+    {"id":130101,"x":418,"y":365,"fh":79},
+    {"id":100101,"x":1030,"y":365,"fh":84},
+    {"id":130101,"x":734,"y":365,"fh":81},
+    {"id":130101,"x":820,"y":365,"fh":82},
+    {"id":130101,"x":922,"y":365,"fh":83},
+    {"id":130101,"x":1169,"y":365,"fh":89},
+    {"id":120100,"x":1269,"y":365,"fh":86},
+    {"id":120100,"x":1398,"y":-55,"fh":5},
+    {"id":120100,"x":575,"y":125,"fh":15},
+    {"id":120100,"x":698,"y":125,"fh":19},
+    {"id":120100,"x":103,"y":245,"fh":94},
+    {"id":120100,"x":-483,"y":245,"fh":104},
+    {"id":100101,"x":646,"y":365,"fh":80},
+    {"id":120100,"x":308,"y":365,"fh":93},
+    {"id":120100,"x":874,"y":365,"fh":83},
+    {"id":120100,"x":977,"y":365,"fh":84},
+    {"id":120100,"x":482,"y":365,"fh":79},
+    {"id":120100,"x":-266,"y":245,"fh":102},
+    {"id":120100,"x":1559,"y":365,"fh":114},
+    {"id":120100,"x":1145,"y":5,"fh":12},
+    {"id":120100,"x":1452,"y":365,"fh":88},
+    {"id":100101,"x":1986,"y":185,"fh":30},
+    {"id":100101,"x":2069,"y":185,"fh":49},
+    {"id":100101,"x":578,"y":365,"fh":78},
+    {"id":100101,"x":2312,"y":185,"fh":32},
+    {"id":100101,"x":2704,"y":5,"fh":33},
+    {"id":100101,"x":2855,"y":5,"fh":37},
+    {"id":130101,"x":2527,"y":90,"fh":3},
+    {"id":130101,"x":2197,"y":185,"fh":50},
+    {"id":120100,"x":1884,"y":365,"fh":118},
+    {"id":120100,"x":2139,"y":365,"fh":121},
+    {"id":120100,"x":2368,"y":365,"fh":120},
+    {"id":120100,"x":2724,"y":365,"fh":124},
+    {"id":130101,"x":2609,"y":365,"fh":128},
+    {"id":100101,"x":630,"y":125,"fh":20},
+    {"id":100101,"x":2235,"y":365,"fh":123},
+    {"id":100101,"x":1989,"y":365,"fh":119},
+    {"id":100101,"x":2515,"y":365,"fh":127},
+    {"id":100101,"x":1768,"y":365,"fh":117},
+    {"id":100101,"x":3136,"y":5,"fh":39},
+    {"id":100101,"x":2866,"y":365,"fh":125},
+    {"id":100101,"x":752,"y":125,"fh":19},
+    {"id":100101,"x":6,"y":245,"fh":100},
+    {"id":100101,"x":-218,"y":245,"fh":101},
+    {"id":100101,"x":-417,"y":245,"fh":104}
+   ]
+  },
+  "60000": {
+   "map_name": "Southperry",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":20100,"name":"Yoona","x":-18,"y":287,"fh":10},
+    {"id":20002,"name":"Biggs","x":950,"y":-193,"fh":117},
+    {"id":20001,"name":"Bari","x":1013,"y":527,"fh":58},
+    {"id":22000,"name":"Shanks","x":3223,"y":-13,"fh":157},
+    {"id":9000000,"name":"Paul","x":4,"y":47,"fh":160},
+    {"id":9010001,"name":"Tia","x":-450,"y":287,"fh":27},
+    {"id":9010000,"name":"Maple Administrator","x":-181,"y":287,"fh":5}
+   ],
+   "mob_spawns": []
+  },
+  "60001": {
+   "map_name": "Southperry Armor Store",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":21000,"name":"Pan","x":-270,"y":140,"fh":11}
+   ],
+   "mob_spawns": []
+  },
+  "1000000": {
+   "map_name": "The Field West of Amherst",
+   "mobs": {
+    "Snail": 16,
+    "Blue Snail": 20,
+    "Red Snail": 26,
+    "Shroom": 21,
+    "Orange Mushroom": 7
+   },
+   "mob_spawn_total": 90,
+   "mobRate": 1.3,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":120100,"x":509,"y":335,"fh":62},
+    {"id":120100,"x":2160,"y":-25,"fh":170},
+    {"id":120100,"x":2455,"y":275,"fh":113},
+    {"id":120100,"x":1561,"y":455,"fh":93},
+    {"id":120100,"x":1120,"y":275,"fh":77},
+    {"id":120100,"x":312,"y":-325,"fh":215},
+    {"id":120100,"x":1372,"y":-385,"fh":260},
+    {"id":120100,"x":2521,"y":-385,"fh":309},
+    {"id":120100,"x":3269,"y":-85,"fh":341},
+    {"id":130101,"x":2066,"y":455,"fh":101},
+    {"id":130101,"x":1643,"y":455,"fh":92},
+    {"id":130101,"x":983,"y":275,"fh":73},
+    {"id":120100,"x":994,"y":-445,"fh":243},
+    {"id":130101,"x":899,"y":275,"fh":72},
+    {"id":130101,"x":165,"y":275,"fh":49},
+    {"id":130101,"x":1068,"y":-445,"fh":243},
+    {"id":130101,"x":1311,"y":-385,"fh":258},
+    {"id":130101,"x":712,"y":-385,"fh":232},
+    {"id":130101,"x":386,"y":-325,"fh":216},
+    {"id":130101,"x":2261,"y":-385,"fh":312},
+    {"id":130101,"x":2413,"y":-385,"fh":310},
+    {"id":130101,"x":2959,"y":-505,"fh":329},
+    {"id":130101,"x":3220,"y":-85,"fh":345},
+    {"id":120100,"x":629,"y":-385,"fh":231},
+    {"id":130101,"x":2550,"y":275,"fh":114},
+    {"id":130101,"x":2640,"y":275,"fh":115},
+    {"id":130101,"x":2058,"y":-25,"fh":181},
+    {"id":130101,"x":1659,"y":-85,"fh":183},
+    {"id":130101,"x":1539,"y":-85,"fh":166},
+    {"id":120100,"x":1398,"y":-85,"fh":164},
+    {"id":120100,"x":-249,"y":275,"fh":44},
+    {"id":120100,"x":2621,"y":-385,"fh":315},
+    {"id":100100,"x":-65,"y":275,"fh":46},
+    {"id":100101,"x":273,"y":335,"fh":61},
+    {"id":1210102,"x":2882,"y":-505,"fh":329},
+    {"id":130101,"x":380,"y":335,"fh":63},
+    {"id":130101,"x":793,"y":275,"fh":74},
+    {"id":130101,"x":2233,"y":455,"fh":102},
+    {"id":130101,"x":3247,"y":455,"fh":135},
+    {"id":100100,"x":434,"y":335,"fh":63},
+    {"id":100100,"x":322,"y":335,"fh":61},
+    {"id":100100,"x":662,"y":275,"fh":70},
+    {"id":100100,"x":2390,"y":275,"fh":112},
+    {"id":100100,"x":3097,"y":-85,"fh":343},
+    {"id":100101,"x":3031,"y":-85,"fh":349},
+    {"id":120100,"x":3153,"y":-85,"fh":345},
+    {"id":100101,"x":3345,"y":-85,"fh":342},
+    {"id":100101,"x":2361,"y":-385,"fh":310},
+    {"id":100101,"x":1502,"y":-385,"fh":255},
+    {"id":100101,"x":1418,"y":-385,"fh":260},
+    {"id":100101,"x":944,"y":-445,"fh":250},
+    {"id":100101,"x":573,"y":-385,"fh":229},
+    {"id":100101,"x":245,"y":-325,"fh":222},
+    {"id":100101,"x":1299,"y":-85,"fh":155},
+    {"id":100101,"x":1465,"y":-85,"fh":184},
+    {"id":100101,"x":1729,"y":-85,"fh":168},
+    {"id":120100,"x":1951,"y":455,"fh":100},
+    {"id":100101,"x":2232,"y":-25,"fh":171},
+    {"id":100101,"x":2400,"y":-25,"fh":162},
+    {"id":100101,"x":2193,"y":-385,"fh":305},
+    {"id":100100,"x":280,"y":-685,"fh":421},
+    {"id":100100,"x":334,"y":-685,"fh":423},
+    {"id":100100,"x":428,"y":-685,"fh":424},
+    {"id":100100,"x":483,"y":-685,"fh":425},
+    {"id":100101,"x":532,"y":-685,"fh":427},
+    {"id":120100,"x":661,"y":-745,"fh":433},
+    {"id":120100,"x":760,"y":-745,"fh":441},
+    {"id":1210102,"x":2311,"y":-25,"fh":172},
+    {"id":120100,"x":808,"y":-745,"fh":441},
+    {"id":120100,"x":858,"y":-745,"fh":440},
+    {"id":130101,"x":709,"y":-745,"fh":442},
+    {"id":130101,"x":1016,"y":-805,"fh":444},
+    {"id":130101,"x":1139,"y":-805,"fh":452},
+    {"id":130101,"x":1218,"y":-805,"fh":451},
+    {"id":100101,"x":1090,"y":-805,"fh":452},
+    {"id":100101,"x":1349,"y":-745,"fh":455},
+    {"id":100101,"x":1538,"y":-745,"fh":460},
+    {"id":100100,"x":1417,"y":-745,"fh":459},
+    {"id":1210102,"x":3053,"y":-505,"fh":330},
+    {"id":100100,"x":1479,"y":-745,"fh":458},
+    {"id":100100,"x":1602,"y":-745,"fh":462},
+    {"id":100100,"x":1877,"y":-1045,"fh":413},
+    {"id":100100,"x":2118,"y":-1045,"fh":416},
+    {"id":100100,"x":2383,"y":-1045,"fh":407},
+    {"id":100101,"x":2037,"y":-1045,"fh":415},
+    {"id":1210102,"x":1961,"y":-1045,"fh":414},
+    {"id":1210102,"x":2181,"y":-1045,"fh":417},
+    {"id":1210102,"x":2265,"y":-1045,"fh":418},
+    {"id":1210102,"x":2459,"y":-1045,"fh":409},
+    {"id":120100,"x":3122,"y":455,"fh":133}
+   ]
+  },
+  "1000001": {
+   "map_name": "In a Small Forest",
+   "mobs": {
+    "Snail": 16,
+    "Blue Snail": 10,
+    "Red Snail": 5,
+    "Shroom": 11,
+    "Orange Mushroom": 4
+   },
+   "mob_spawn_total": 46,
+   "mobRate": 1.3,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":1210102,"x":1022,"y":605,"fh":50},
+    {"id":1210102,"x":479,"y":605,"fh":43},
+    {"id":100100,"x":-487,"y":605,"fh":29},
+    {"id":100100,"x":221,"y":605,"fh":40},
+    {"id":100100,"x":983,"y":365,"fh":3},
+    {"id":100100,"x":1252,"y":365,"fh":7},
+    {"id":100100,"x":-452,"y":365,"fh":130},
+    {"id":100100,"x":-438,"y":125,"fh":101},
+    {"id":100100,"x":-526,"y":-295,"fh":163},
+    {"id":100100,"x":-274,"y":-295,"fh":159},
+    {"id":100100,"x":447,"y":-475,"fh":189},
+    {"id":100100,"x":775,"y":-475,"fh":193},
+    {"id":1210102,"x":76,"y":605,"fh":39},
+    {"id":100100,"x":279,"y":5,"fh":91},
+    {"id":100101,"x":-370,"y":365,"fh":131},
+    {"id":100101,"x":-284,"y":365,"fh":135},
+    {"id":100101,"x":-346,"y":125,"fh":102},
+    {"id":100101,"x":367,"y":5,"fh":83},
+    {"id":100101,"x":536,"y":-475,"fh":190},
+    {"id":100101,"x":1097,"y":-475,"fh":197},
+    {"id":100101,"x":852,"y":-475,"fh":193},
+    {"id":100101,"x":-439,"y":-295,"fh":164},
+    {"id":120100,"x":-357,"y":-295,"fh":160},
+    {"id":1210102,"x":-333,"y":605,"fh":27},
+    {"id":120100,"x":660,"y":-475,"fh":191},
+    {"id":120100,"x":994,"y":-475,"fh":195},
+    {"id":120100,"x":534,"y":5,"fh":87},
+    {"id":120100,"x":-268,"y":125,"fh":103},
+    {"id":130101,"x":-189,"y":125,"fh":107},
+    {"id":130101,"x":448,"y":5,"fh":88},
+    {"id":130101,"x":922,"y":-475,"fh":196},
+    {"id":130101,"x":1074,"y":365,"fh":5},
+    {"id":130101,"x":1170,"y":365,"fh":6},
+    {"id":100100,"x":-85,"y":-535,"fh":214},
+    {"id":120100,"x":854,"y":605,"fh":51},
+    {"id":120100,"x":-156,"y":-535,"fh":213},
+    {"id":100101,"x":-8,"y":-535,"fh":218},
+    {"id":100100,"x":1012,"y":-55,"fh":64},
+    {"id":100100,"x":-334,"y":365,"fh":131},
+    {"id":100100,"x":-202,"y":-535,"fh":212},
+    {"id":100101,"x":324,"y":5,"fh":83},
+    {"id":120100,"x":1272,"y":605,"fh":55},
+    {"id":120100,"x":592,"y":605,"fh":47},
+    {"id":120100,"x":350,"y":605,"fh":45},
+    {"id":120100,"x":-65,"y":605,"fh":38},
+    {"id":100100,"x":-215,"y":605,"fh":42}
+   ]
+  },
+  "1000002": {
+   "map_name": "Dangerous Forest",
+   "mobs": {
+    "Snail": 15,
+    "Blue Snail": 3,
+    "Red Snail": 5,
+    "Orange Mushroom": 12
+   },
+   "mob_spawn_total": 35,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":1210102,"x":-308,"y":215,"fh":38},
+    {"id":1210102,"x":-54,"y":215,"fh":41},
+    {"id":100100,"x":333,"y":-445,"fh":73},
+    {"id":100100,"x":516,"y":-385,"fh":63},
+    {"id":100100,"x":728,"y":-385,"fh":53},
+    {"id":100100,"x":995,"y":-385,"fh":59},
+    {"id":100100,"x":1376,"y":-325,"fh":62},
+    {"id":100100,"x":1136,"y":-325,"fh":54},
+    {"id":1210102,"x":764,"y":-865,"fh":123},
+    {"id":1210102,"x":1053,"y":-865,"fh":127},
+    {"id":100100,"x":853,"y":-865,"fh":124},
+    {"id":100100,"x":965,"y":-865,"fh":126},
+    {"id":1210102,"x":245,"y":155,"fh":47},
+    {"id":100100,"x":687,"y":-865,"fh":122},
+    {"id":100100,"x":204,"y":-445,"fh":77},
+    {"id":1210102,"x":639,"y":-385,"fh":57},
+    {"id":1210102,"x":1228,"y":-325,"fh":56},
+    {"id":100100,"x":1217,"y":95,"fh":22},
+    {"id":100100,"x":1479,"y":95,"fh":24},
+    {"id":100101,"x":957,"y":95,"fh":19},
+    {"id":100101,"x":574,"y":155,"fh":10},
+    {"id":130101,"x":-192,"y":215,"fh":39},
+    {"id":130101,"x":61,"y":215,"fh":42},
+    {"id":1210102,"x":462,"y":155,"fh":9},
+    {"id":130101,"x":352,"y":155,"fh":2},
+    {"id":130101,"x":872,"y":-385,"fh":64},
+    {"id":130101,"x":-31,"y":-445,"fh":71},
+    {"id":100101,"x":905,"y":-865,"fh":126},
+    {"id":100100,"x":-62,"y":-865,"fh":91},
+    {"id":1210102,"x":705,"y":155,"fh":11},
+    {"id":1210102,"x":1095,"y":95,"fh":13},
+    {"id":1210102,"x":1568,"y":95,"fh":26},
+    {"id":1210102,"x":1331,"y":95,"fh":21},
+    {"id":100100,"x":-120,"y":-445,"fh":70},
+    {"id":100100,"x":77,"y":-445,"fh":72}
+   ]
+  },
+  "1000003": {
+   "map_name": "Mushroom Garden",
+   "mobs": {
+    "Snail": 9,
+    "Shroom": 28,
+    "Orange Mushroom": 5
+   },
+   "mob_spawn_total": 42,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100100,"x":2612,"y":-295,"fh":99},
+    {"id":100100,"x":2537,"y":-295,"fh":97},
+    {"id":120100,"x":1439,"y":-175,"fh":65},
+    {"id":120100,"x":1350,"y":-175,"fh":63},
+    {"id":120100,"x":2134,"y":-355,"fh":86},
+    {"id":120100,"x":2421,"y":-295,"fh":93},
+    {"id":120100,"x":1581,"y":515,"fh":143},
+    {"id":120100,"x":1221,"y":515,"fh":133},
+    {"id":120100,"x":2700,"y":-295,"fh":98},
+    {"id":120100,"x":2472,"y":-295,"fh":96},
+    {"id":120100,"x":2260,"y":-355,"fh":88},
+    {"id":120100,"x":2201,"y":-355,"fh":86},
+    {"id":100100,"x":2175,"y":-355,"fh":86},
+    {"id":120100,"x":2048,"y":-355,"fh":85},
+    {"id":120100,"x":1982,"y":-355,"fh":84},
+    {"id":120100,"x":1559,"y":-175,"fh":59},
+    {"id":120100,"x":2001,"y":5,"fh":34},
+    {"id":120100,"x":2135,"y":5,"fh":32},
+    {"id":120100,"x":2602,"y":185,"fh":9},
+    {"id":120100,"x":2659,"y":185,"fh":2},
+    {"id":120100,"x":2722,"y":185,"fh":2},
+    {"id":120100,"x":2567,"y":335,"fh":172},
+    {"id":120100,"x":2234,"y":515,"fh":152},
+    {"id":100100,"x":1486,"y":-175,"fh":59},
+    {"id":120100,"x":2137,"y":515,"fh":149},
+    {"id":120100,"x":1758,"y":515,"fh":145},
+    {"id":120100,"x":1911,"y":515,"fh":148},
+    {"id":120100,"x":1429,"y":515,"fh":142},
+    {"id":120100,"x":1318,"y":515,"fh":131},
+    {"id":1210102,"x":1657,"y":515,"fh":144},
+    {"id":1210102,"x":1845,"y":515,"fh":146},
+    {"id":1210102,"x":1137,"y":515,"fh":137},
+    {"id":100100,"x":1268,"y":125,"fh":122},
+    {"id":100100,"x":2784,"y":185,"fh":6},
+    {"id":100100,"x":2068,"y":5,"fh":33},
+    {"id":1210102,"x":2509,"y":-295,"fh":97},
+    {"id":1210102,"x":2083,"y":-355,"fh":85},
+    {"id":100100,"x":2031,"y":515,"fh":147},
+    {"id":100100,"x":1346,"y":125,"fh":118},
+    {"id":120100,"x":1413,"y":125,"fh":117},
+    {"id":120100,"x":1476,"y":125,"fh":117},
+    {"id":120100,"x":1901,"y":5,"fh":39}
+   ]
+  },
+  "1000004": {
+   "map_name": "Snail Garden",
+   "mobs": {
+    "Snail": 17,
+    "Blue Snail": 19,
+    "Red Snail": 11
+   },
+   "mob_spawn_total": 47,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100101,"x":1160,"y":335,"fh":58},
+    {"id":100101,"x":1316,"y":335,"fh":52},
+    {"id":100101,"x":1074,"y":-385,"fh":208},
+    {"id":100101,"x":1294,"y":-385,"fh":202},
+    {"id":100101,"x":1681,"y":-445,"fh":198},
+    {"id":100101,"x":1905,"y":-445,"fh":193},
+    {"id":100101,"x":2330,"y":-385,"fh":169},
+    {"id":100101,"x":2468,"y":-385,"fh":164},
+    {"id":100101,"x":2662,"y":-325,"fh":179},
+    {"id":100101,"x":2803,"y":-325,"fh":185},
+    {"id":100101,"x":2134,"y":-85,"fh":134},
+    {"id":130101,"x":1764,"y":515,"fh":21},
+    {"id":100101,"x":1648,"y":515,"fh":20},
+    {"id":130101,"x":2031,"y":515,"fh":23},
+    {"id":130101,"x":2298,"y":515,"fh":26},
+    {"id":130101,"x":2731,"y":455,"fh":38},
+    {"id":130101,"x":2270,"y":-85,"fh":139},
+    {"id":130101,"x":2048,"y":-85,"fh":133},
+    {"id":130101,"x":2410,"y":-385,"fh":165},
+    {"id":130101,"x":2736,"y":-325,"fh":180},
+    {"id":130101,"x":1832,"y":-445,"fh":188},
+    {"id":130101,"x":1516,"y":-85,"fh":122},
+    {"id":130101,"x":1155,"y":-385,"fh":204},
+    {"id":100101,"x":1940,"y":515,"fh":24},
+    {"id":100100,"x":882,"y":185,"fh":5},
+    {"id":100100,"x":982,"y":185,"fh":2},
+    {"id":100100,"x":1839,"y":515,"fh":22},
+    {"id":100100,"x":2131,"y":515,"fh":25},
+    {"id":100100,"x":2427,"y":455,"fh":45},
+    {"id":100100,"x":2668,"y":455,"fh":36},
+    {"id":100100,"x":2222,"y":-85,"fh":135},
+    {"id":100100,"x":1997,"y":-85,"fh":131},
+    {"id":100100,"x":1449,"y":-85,"fh":122},
+    {"id":100100,"x":1300,"y":-85,"fh":119},
+    {"id":100101,"x":2194,"y":515,"fh":27},
+    {"id":100100,"x":1668,"y":-85,"fh":114},
+    {"id":100100,"x":1232,"y":-385,"fh":203},
+    {"id":100100,"x":1017,"y":-385,"fh":206},
+    {"id":100100,"x":1724,"y":-445,"fh":187},
+    {"id":100100,"x":1777,"y":-445,"fh":187},
+    {"id":100100,"x":2263,"y":-385,"fh":163},
+    {"id":100100,"x":2858,"y":-325,"fh":182},
+    {"id":100101,"x":2553,"y":455,"fh":37},
+    {"id":100101,"x":2802,"y":455,"fh":39},
+    {"id":100101,"x":1022,"y":185,"fh":2},
+    {"id":100101,"x":1365,"y":-85,"fh":121},
+    {"id":100101,"x":1592,"y":-85,"fh":115}
+   ]
+  },
+  "1000005": {
+   "map_name": "Hunting Ground Middle of the Forest I",
+   "mobs": {
+    "Snail": 21,
+    "Blue Snail": 16,
+    "Red Snail": 10,
+    "Shroom": 12
+   },
+   "mob_spawn_total": 59,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":120100,"x":-657,"y":215,"fh":44},
+    {"id":120100,"x":-514,"y":215,"fh":38},
+    {"id":100101,"x":306,"y":-445,"fh":123},
+    {"id":100101,"x":400,"y":-445,"fh":124},
+    {"id":100101,"x":752,"y":-505,"fh":233},
+    {"id":100101,"x":971,"y":-505,"fh":238},
+    {"id":100101,"x":459,"y":-805,"fh":225},
+    {"id":100101,"x":798,"y":-1045,"fh":243},
+    {"id":100101,"x":767,"y":-1405,"fh":306},
+    {"id":100101,"x":215,"y":-1225,"fh":283},
+    {"id":100101,"x":-254,"y":-1165,"fh":270},
+    {"id":130101,"x":-329,"y":-1165,"fh":276},
+    {"id":120100,"x":-367,"y":215,"fh":37},
+    {"id":130101,"x":-402,"y":-1165,"fh":269},
+    {"id":130101,"x":29,"y":-1225,"fh":278},
+    {"id":130101,"x":290,"y":-1225,"fh":288},
+    {"id":130101,"x":960,"y":-1405,"fh":309},
+    {"id":130101,"x":1041,"y":-1045,"fh":256},
+    {"id":130101,"x":306,"y":-805,"fh":219},
+    {"id":100100,"x":-496,"y":-685,"fh":203},
+    {"id":100100,"x":-202,"y":-685,"fh":193},
+    {"id":100100,"x":-276,"y":-685,"fh":197},
+    {"id":100101,"x":-333,"y":-685,"fh":197},
+    {"id":120100,"x":390,"y":215,"fh":25},
+    {"id":120100,"x":-382,"y":-685,"fh":198},
+    {"id":120100,"x":-437,"y":-265,"fh":95},
+    {"id":120100,"x":-383,"y":-265,"fh":95},
+    {"id":120100,"x":611,"y":-445,"fh":127},
+    {"id":100101,"x":494,"y":-445,"fh":125},
+    {"id":130101,"x":818,"y":-505,"fh":236},
+    {"id":130101,"x":892,"y":-505,"fh":236},
+    {"id":130101,"x":-453,"y":215,"fh":38},
+    {"id":100101,"x":-583,"y":215,"fh":39},
+    {"id":100101,"x":619,"y":215,"fh":30},
+    {"id":120100,"x":495,"y":215,"fh":29},
+    {"id":100101,"x":937,"y":95,"fh":75},
+    {"id":100100,"x":1074,"y":95,"fh":57},
+    {"id":100100,"x":440,"y":215,"fh":25},
+    {"id":100100,"x":-87,"y":155,"fh":19},
+    {"id":100100,"x":115,"y":5,"fh":4},
+    {"id":100100,"x":184,"y":5,"fh":6},
+    {"id":100100,"x":383,"y":-805,"fh":223},
+    {"id":100100,"x":542,"y":-805,"fh":224},
+    {"id":100100,"x":609,"y":-805,"fh":224},
+    {"id":100100,"x":657,"y":-1045,"fh":244},
+    {"id":120100,"x":845,"y":95,"fh":70},
+    {"id":100100,"x":731,"y":-1045,"fh":243},
+    {"id":100100,"x":858,"y":-1045,"fh":245},
+    {"id":100100,"x":927,"y":-1045,"fh":247},
+    {"id":100100,"x":833,"y":-1405,"fh":307},
+    {"id":100100,"x":893,"y":-1405,"fh":307},
+    {"id":100100,"x":89,"y":-1225,"fh":280},
+    {"id":100100,"x":154,"y":-1225,"fh":281},
+    {"id":100100,"x":-206,"y":-1165,"fh":270},
+    {"id":100100,"x":-126,"y":-1165,"fh":272},
+    {"id":120100,"x":1138,"y":95,"fh":59},
+    {"id":120100,"x":-573,"y":-265,"fh":93},
+    {"id":100101,"x":-502,"y":-265,"fh":94},
+    {"id":100101,"x":-335,"y":-265,"fh":100}
+   ]
+  },
+  "1000006": {
+   "map_name": "Hunting Ground Middle of the Forest II",
+   "mobs": {
+    "Snail": 13,
+    "Blue Snail": 17,
+    "Red Snail": 6,
+    "Shroom": 9,
+    "Orange Mushroom": 6
+   },
+   "mob_spawn_total": 51,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100100,"x":-990,"y":-865,"fh":172},
+    {"id":100100,"x":-681,"y":-865,"fh":174},
+    {"id":100101,"x":446,"y":-922,"fh":208},
+    {"id":100101,"x":351,"y":-859,"fh":196},
+    {"id":100101,"x":172,"y":-745,"fh":192},
+    {"id":100101,"x":-68,"y":-745,"fh":195},
+    {"id":100101,"x":-237,"y":-805,"fh":187},
+    {"id":100101,"x":-340,"y":-805,"fh":188},
+    {"id":100101,"x":-533,"y":-860,"fh":185},
+    {"id":100101,"x":-903,"y":-865,"fh":172},
+    {"id":100101,"x":-583,"y":-1165,"fh":165},
+    {"id":100101,"x":-337,"y":-1165,"fh":171},
+    {"id":1210102,"x":-830,"y":-865,"fh":173},
+    {"id":100101,"x":-486,"y":-1165,"fh":167},
+    {"id":100101,"x":670,"y":-1465,"fh":80},
+    {"id":100100,"x":752,"y":-1465,"fh":81},
+    {"id":100100,"x":828,"y":-1465,"fh":86},
+    {"id":100100,"x":-419,"y":-1165,"fh":160},
+    {"id":100100,"x":-536,"y":-1165,"fh":167},
+    {"id":100100,"x":-913,"y":-1525,"fh":68},
+    {"id":100100,"x":-677,"y":-1525,"fh":60},
+    {"id":130101,"x":-841,"y":-1525,"fh":69},
+    {"id":130101,"x":-746,"y":-1525,"fh":63},
+    {"id":1210102,"x":42,"y":-745,"fh":191},
+    {"id":130101,"x":-796,"y":-1525,"fh":63},
+    {"id":130101,"x":-652,"y":-1825,"fh":93},
+    {"id":130101,"x":-410,"y":-1825,"fh":99},
+    {"id":120100,"x":-570,"y":-1825,"fh":92},
+    {"id":120100,"x":-380,"y":-1825,"fh":96},
+    {"id":120100,"x":-472,"y":-1825,"fh":91},
+    {"id":120100,"x":-508,"y":-1825,"fh":91},
+    {"id":120100,"x":-366,"y":-2125,"fh":105},
+    {"id":120100,"x":-132,"y":-2125,"fh":103},
+    {"id":1210102,"x":-300,"y":-2125,"fh":106},
+    {"id":100100,"x":-437,"y":-805,"fh":186},
+    {"id":1210102,"x":-211,"y":-2125,"fh":104},
+    {"id":1210102,"x":177,"y":-1885,"fh":117},
+    {"id":100100,"x":97,"y":-1885,"fh":117},
+    {"id":100100,"x":-72,"y":-1885,"fh":114},
+    {"id":120100,"x":-4,"y":-1885,"fh":124},
+    {"id":120100,"x":53,"y":-1885,"fh":116},
+    {"id":120100,"x":562,"y":-1945,"fh":134},
+    {"id":100101,"x":622,"y":-1945,"fh":136},
+    {"id":100101,"x":681,"y":-1945,"fh":137},
+    {"id":100101,"x":835,"y":-1945,"fh":143},
+    {"id":100100,"x":247,"y":-789,"fh":193},
+    {"id":130101,"x":758,"y":-1945,"fh":138},
+    {"id":100100,"x":569,"y":-985,"fh":210},
+    {"id":1210102,"x":868,"y":-985,"fh":206},
+    {"id":100101,"x":780,"y":-985,"fh":207},
+    {"id":100101,"x":698,"y":-985,"fh":194}
+   ]
+  },
+  "1010000": {
+   "map_name": "Amherst",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":12000,"name":"Lucas","x":1790,"y":154,"fh":86},
+    {"id":12100,"name":"Mai","x":628,"y":-176,"fh":17},
+    {"id":12101,"name":"Rain","x":103,"y":274,"fh":43},
+    {"id":10000,"name":"Pio","x":547,"y":274,"fh":38}
+   ],
+   "mob_spawns": []
+  },
+  "1010001": {
+   "map_name": "Amherst Weapon Store",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":11000,"name":"Sid","x":-270,"y":140,"fh":11}
+   ],
+   "mob_spawns": []
+  },
+  "1010002": {
+   "map_name": "Amherst Townstreet",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": []
+  },
+  "1010003": {
+   "map_name": "Amherst Department Store",
+   "mobs": {},
+   "mob_spawn_total": 0,
+   "mobRate": 1,
+   "npcs": [
+    {"id":11100,"name":"Lucy","x":-258,"y":84,"fh":5}
+   ],
+   "mob_spawns": []
+  },
+  "1010004": {
+   "map_name": "Snail Field of Flowers",
+   "mobs": {
+    "Snail": 10,
+    "Blue Snail": 16,
+    "Red Snail": 17
+   },
+   "mob_spawn_total": 43,
+   "mobRate": 1.2,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":100100,"x":-863,"y":-145,"fh":114},
+    {"id":100100,"x":-611,"y":-145,"fh":122},
+    {"id":130101,"x":-724,"y":-145,"fh":118},
+    {"id":130101,"x":-170,"y":-145,"fh":135},
+    {"id":130101,"x":-52,"y":-145,"fh":138},
+    {"id":130101,"x":73,"y":-145,"fh":137},
+    {"id":130101,"x":537,"y":-145,"fh":90},
+    {"id":130101,"x":610,"y":-145,"fh":89},
+    {"id":100100,"x":-685,"y":155,"fh":98},
+    {"id":100100,"x":-111,"y":95,"fh":104},
+    {"id":100100,"x":209,"y":95,"fh":106},
+    {"id":100101,"x":-619,"y":155,"fh":91},
+    {"id":100100,"x":678,"y":-145,"fh":85},
+    {"id":100101,"x":-557,"y":155,"fh":91},
+    {"id":100101,"x":-48,"y":95,"fh":105},
+    {"id":100101,"x":136,"y":95,"fh":108},
+    {"id":130101,"x":14,"y":95,"fh":107},
+    {"id":130101,"x":76,"y":95,"fh":107},
+    {"id":130101,"x":-494,"y":155,"fh":92},
+    {"id":130101,"x":-952,"y":455,"fh":45},
+    {"id":130101,"x":-673,"y":455,"fh":38},
+    {"id":130101,"x":-392,"y":575,"fh":58},
+    {"id":130101,"x":-120,"y":575,"fh":35},
+    {"id":100100,"x":136,"y":-145,"fh":145},
+    {"id":130101,"x":173,"y":575,"fh":34},
+    {"id":130101,"x":542,"y":455,"fh":76},
+    {"id":130101,"x":750,"y":455,"fh":75},
+    {"id":130101,"x":671,"y":455,"fh":80},
+    {"id":100101,"x":604,"y":455,"fh":76},
+    {"id":100101,"x":81,"y":575,"fh":65},
+    {"id":100101,"x":-19,"y":575,"fh":61},
+    {"id":100101,"x":-305,"y":575,"fh":64},
+    {"id":100101,"x":-739,"y":455,"fh":55},
+    {"id":100101,"x":-819,"y":455,"fh":40},
+    {"id":100101,"x":-786,"y":-145,"fh":118},
+    {"id":100100,"x":-866,"y":455,"fh":40},
+    {"id":100100,"x":-223,"y":575,"fh":57},
+    {"id":100100,"x":258,"y":575,"fh":37},
+    {"id":100101,"x":-672,"y":-145,"fh":117},
+    {"id":100101,"x":-238,"y":-145,"fh":140},
+    {"id":100101,"x":-107,"y":-145,"fh":135},
+    {"id":100101,"x":0,"y":-145,"fh":138},
+    {"id":100101,"x":469,"y":-145,"fh":88}
+   ]
+  },
+  "1020000": {
+   "map_name": "The Field East of Amherst",
+   "mobs": {
+    "Snail": 8,
+    "Blue Snail": 19,
+    "Red Snail": 13,
+    "Orange Mushroom": 12
+   },
+   "mob_spawn_total": 52,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":1210102,"x":287,"y":215,"fh":3},
+    {"id":1210102,"x":501,"y":215,"fh":6},
+    {"id":100101,"x":157,"y":155,"fh":13},
+    {"id":100101,"x":818,"y":155,"fh":24},
+    {"id":100101,"x":1778,"y":95,"fh":61},
+    {"id":100101,"x":1294,"y":215,"fh":10},
+    {"id":100101,"x":374,"y":215,"fh":5},
+    {"id":100101,"x":396,"y":-325,"fh":129},
+    {"id":100101,"x":572,"y":-325,"fh":133},
+    {"id":100101,"x":745,"y":-325,"fh":131},
+    {"id":100101,"x":1159,"y":-265,"fh":99},
+    {"id":100101,"x":1454,"y":-265,"fh":93},
+    {"id":1210102,"x":704,"y":215,"fh":8},
+    {"id":100101,"x":651,"y":-745,"fh":161},
+    {"id":100101,"x":1191,"y":-745,"fh":173},
+    {"id":100101,"x":1794,"y":-685,"fh":187},
+    {"id":130101,"x":1697,"y":-685,"fh":186},
+    {"id":130101,"x":1909,"y":-685,"fh":188},
+    {"id":130101,"x":1740,"y":-385,"fh":77},
+    {"id":130101,"x":1836,"y":-385,"fh":75},
+    {"id":130101,"x":1917,"y":-385,"fh":74},
+    {"id":130101,"x":1303,"y":-265,"fh":97},
+    {"id":130101,"x":483,"y":-325,"fh":134},
+    {"id":1210102,"x":1211,"y":215,"fh":11},
+    {"id":130101,"x":661,"y":-325,"fh":132},
+    {"id":130101,"x":-271,"y":-445,"fh":112},
+    {"id":130101,"x":-8,"y":-445,"fh":100},
+    {"id":130101,"x":1032,"y":-745,"fh":171},
+    {"id":100101,"x":-187,"y":-445,"fh":106},
+    {"id":100101,"x":-92,"y":-445,"fh":104},
+    {"id":100101,"x":1435,"y":215,"fh":34},
+    {"id":1210102,"x":514,"y":-325,"fh":134},
+    {"id":1210102,"x":619,"y":-325,"fh":133},
+    {"id":1210102,"x":2008,"y":95,"fh":49},
+    {"id":1210102,"x":1368,"y":215,"fh":34},
+    {"id":130101,"x":1236,"y":-265,"fh":96},
+    {"id":130101,"x":1107,"y":-265,"fh":95},
+    {"id":100101,"x":1377,"y":-265,"fh":98},
+    {"id":100101,"x":1643,"y":-685,"fh":185},
+    {"id":100100,"x":1859,"y":-685,"fh":189},
+    {"id":100100,"x":1251,"y":-745,"fh":173},
+    {"id":100100,"x":396,"y":-745,"fh":155},
+    {"id":100100,"x":31,"y":-445,"fh":105},
+    {"id":100100,"x":-325,"y":-445,"fh":103},
+    {"id":100100,"x":-57,"y":95,"fh":2},
+    {"id":1210102,"x":1097,"y":-745,"fh":172},
+    {"id":100100,"x":600,"y":215,"fh":7},
+    {"id":100100,"x":1642,"y":95,"fh":58},
+    {"id":1210102,"x":1303,"y":-745,"fh":176},
+    {"id":1210102,"x":453,"y":-745,"fh":157},
+    {"id":1210102,"x":555,"y":-745,"fh":158},
+    {"id":100101,"x":-161,"y":95,"fh":21}
+   ]
+  },
+  "1020001": {
+   "map_name": "Tomato Field",
+   "mobs": {
+    "Snail": 9,
+    "Blue Snail": 8,
+    "Red Snail": 4,
+    "Orange Mushroom": 4
+   },
+   "mob_spawn_total": 25,
+   "mobRate": 1,
+   "npcs": [],
+   "mob_spawns": [
+    {"id":1210102,"x":268,"y":275,"fh":17},
+    {"id":1210102,"x":640,"y":275,"fh":20},
+    {"id":100100,"x":1881,"y":275,"fh":38},
+    {"id":100100,"x":2085,"y":155,"fh":43},
+    {"id":100100,"x":2477,"y":155,"fh":44},
+    {"id":100101,"x":2376,"y":155,"fh":45},
+    {"id":100101,"x":2197,"y":155,"fh":47},
+    {"id":100101,"x":1970,"y":221,"fh":35},
+    {"id":100101,"x":1776,"y":275,"fh":37},
+    {"id":100101,"x":1176,"y":215,"fh":31},
+    {"id":100101,"x":923,"y":275,"fh":24},
+    {"id":100101,"x":724,"y":275,"fh":21},
+    {"id":1210102,"x":1566,"y":275,"fh":26},
+    {"id":100101,"x":399,"y":275,"fh":19},
+    {"id":130101,"x":61,"y":255,"fh":15},
+    {"id":130101,"x":-164,"y":215,"fh":6},
+    {"id":130101,"x":1048,"y":236,"fh":25},
+    {"id":130101,"x":1660,"y":275,"fh":36},
+    {"id":1210102,"x":2280,"y":155,"fh":46},
+    {"id":100100,"x":-54,"y":215,"fh":9},
+    {"id":100100,"x":175,"y":275,"fh":14},
+    {"id":100100,"x":533,"y":275,"fh":16},
+    {"id":100100,"x":812,"y":275,"fh":23},
+    {"id":100100,"x":1309,"y":215,"fh":33},
+    {"id":100100,"x":1493,"y":275,"fh":27}
+   ]
+  }
+ },
+ "v22_deltas": {
+  "30000": {
+   "map_name": "East Entrance to Mushroom Town",
+   "mob_spawn_count_changes": {
+    "Tutorial Jr. Sentinel (9300018)": {
+     "v8": 0,
+     "v22": 3
+    }
+   },
+   "npcs_added_in_v22": [
+    "2004 Todd"
+   ],
+   "npcs_removed_in_v22": []
+  },
+  "40000": {
+   "map_name": "Snail Hunting Ground I",
+   "mob_spawn_count_changes": {
+    "Blue Snail (100101)": {
+     "v8": 16,
+     "v22": 0
+    }
+   },
+   "npcs_added_in_v22": [
+    "2005 Sam"
+   ],
+   "npcs_removed_in_v22": []
+  },
+  "40001": {
+   "map_name": "Snail Hunting Ground II",
+   "mob_spawn_count_changes": {
+    "Snail (100100)": {
+     "v8": 43,
+     "v22": 44
+    },
+    "Blue Snail (100101)": {
+     "v8": 24,
+     "v22": 11
+    }
+   },
+   "npcs_added_in_v22": [],
+   "npcs_removed_in_v22": []
+  },
+  "40002": {
+   "map_name": "Snail Hunting Ground III",
+   "mob_spawn_count_changes": {
+    "Snail (100100)": {
+     "v8": 36,
+     "v22": 25
+    },
+    "Blue Snail (100101)": {
+     "v8": 26,
+     "v22": 15
+    },
+    "Red Snail (130101)": {
+     "v8": 13,
+     "v22": 1
+    }
+   },
+   "npcs_added_in_v22": [],
+   "npcs_removed_in_v22": []
+  },
+  "50000": {
+   "map_name": "A Split Road",
+   "mob_spawn_count_changes": {},
+   "npcs_added_in_v22": [
+    "12100 Mai"
+   ],
+   "npcs_removed_in_v22": []
+  },
+  "60000": {
+   "map_name": "Southperry",
+   "mob_spawn_count_changes": {},
+   "npcs_added_in_v22": [
+    "9010003 Ria"
+   ],
+   "npcs_removed_in_v22": [
+    "9010001 Tia"
+   ]
+  },
+  "1010000": {
+   "map_name": "Amherst",
+   "mob_spawn_count_changes": {},
+   "npcs_added_in_v22": [],
+   "npcs_removed_in_v22": [
+    "12100 Mai"
+   ]
+  }
+ }
+}

@@ -1,0 +1,916 @@
+{
+ "id": 1020000,
+ "name": "The Field East of Amherst",
+ "street": "Rainbow Street",
+ "slug": "FieldEastOfAmherst_1020000",
+ "source": {
+  "footholds_life_ladders": "docs/research/raw/gms_v8/1020000.json (maplestory.io /api/GMS/8/map/1020000)",
+  "portals_objects_backgrounds": "maplestory.io raw WZ /api/wz/GMS/8/Data/Map/Map/Map0/001020000.img/{portal,life,back,0..7/obj}",
+  "version": "GMS v8"
+ },
+ "units": "MapleStory pixels; y increases downward",
+ "extent": {
+  "minX": -489,
+  "maxX": 2199,
+  "minY": -745,
+  "maxY": 480,
+  "note": "all footholds incl. boundary walls; maxY is the bottom of the outer boundary walls, not a walkable surface (see walkable_extent)"
+ },
+ "walkable_extent": {
+  "minX": -489,
+  "maxX": 2199,
+  "minY": -745,
+  "maxY": 215
+ },
+ "vr_bounds": null,
+ "is_town": false,
+ "bgm": "Bgm00/FloralLife",
+ "return_map": 1010000,
+ "tiers": [
+  {
+   "id": "T01",
+   "label": "west plateau (entry from Amherst)",
+   "kind": "ground",
+   "x1": -489,
+   "x2": 129,
+   "y_left": 95,
+   "y_right": 95,
+   "length": 618
+  },
+  {
+   "id": "T02",
+   "label": "step down",
+   "kind": "ground",
+   "x1": 129,
+   "x2": 219,
+   "y_left": 155,
+   "y_right": 155,
+   "length": 90
+  },
+  {
+   "id": "T03",
+   "label": "west pit floor",
+   "kind": "ground",
+   "x1": 219,
+   "x2": 771,
+   "y_left": 215,
+   "y_right": 215,
+   "length": 552
+  },
+  {
+   "id": "T04",
+   "label": "step up",
+   "kind": "ground",
+   "x1": 771,
+   "x2": 861,
+   "y_left": 155,
+   "y_right": 155,
+   "length": 90
+  },
+  {
+   "id": "T05",
+   "label": "central mound",
+   "kind": "ground",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": 95,
+   "y_right": 95,
+   "length": 168
+  },
+  {
+   "id": "T06",
+   "label": "step down",
+   "kind": "ground",
+   "x1": 1029,
+   "x2": 1119,
+   "y_left": 155,
+   "y_right": 155,
+   "length": 90
+  },
+  {
+   "id": "T07",
+   "label": "east pit floor",
+   "kind": "ground",
+   "x1": 1119,
+   "x2": 1491,
+   "y_left": 215,
+   "y_right": 215,
+   "length": 372
+  },
+  {
+   "id": "T08",
+   "label": "step up",
+   "kind": "ground",
+   "x1": 1491,
+   "x2": 1581,
+   "y_left": 155,
+   "y_right": 155,
+   "length": 90
+  },
+  {
+   "id": "T09",
+   "label": "east plateau (log pile, giant mushroom)",
+   "kind": "ground",
+   "x1": 1581,
+   "x2": 2199,
+   "y_left": 95,
+   "y_right": 95,
+   "length": 618
+  },
+  {
+   "id": "T10",
+   "label": "log-pile top",
+   "kind": "floating",
+   "x1": 1801,
+   "x2": 1918,
+   "y_left": 67,
+   "y_right": 70,
+   "length": 117
+  },
+  {
+   "id": "T11",
+   "label": "low platform over east plateau",
+   "kind": "floating",
+   "x1": 1581,
+   "x2": 1749,
+   "y_left": -85,
+   "y_right": -85,
+   "length": 168
+  },
+  {
+   "id": "T12",
+   "label": "stepping-stone row -145 #1",
+   "kind": "floating",
+   "x1": -39,
+   "x2": 129,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T13",
+   "label": "stepping-stone row -145 #2",
+   "kind": "floating",
+   "x1": 141,
+   "x2": 309,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T14",
+   "label": "stepping-stone row -145 #3",
+   "kind": "floating",
+   "x1": 321,
+   "x2": 489,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T15",
+   "label": "stepping-stone row -145 #4",
+   "kind": "floating",
+   "x1": 501,
+   "x2": 669,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T16",
+   "label": "stepping-stone row -145 #5",
+   "kind": "floating",
+   "x1": 681,
+   "x2": 849,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T17",
+   "label": "stepping-stone row -145 #6",
+   "kind": "floating",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": -145,
+   "y_right": -145,
+   "length": 168
+  },
+  {
+   "id": "T18",
+   "label": "step platform -205",
+   "kind": "floating",
+   "x1": 51,
+   "x2": 219,
+   "y_left": -205,
+   "y_right": -205,
+   "length": 168
+  },
+  {
+   "id": "T19",
+   "label": "step platform -265 (west)",
+   "kind": "floating",
+   "x1": 141,
+   "x2": 309,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 168
+  },
+  {
+   "id": "T20",
+   "label": "long platform -265 (clover/flower bed)",
+   "kind": "floating",
+   "x1": 1041,
+   "x2": 1569,
+   "y_left": -265,
+   "y_right": -265,
+   "length": 528
+  },
+  {
+   "id": "T21",
+   "label": "long platform -325 (berry bushes)",
+   "kind": "floating",
+   "x1": 321,
+   "x2": 849,
+   "y_left": -325,
+   "y_right": -325,
+   "length": 528
+  },
+  {
+   "id": "T22",
+   "label": "platform -325 (centre)",
+   "kind": "floating",
+   "x1": 861,
+   "x2": 1029,
+   "y_left": -325,
+   "y_right": -325,
+   "length": 168
+  },
+  {
+   "id": "T23",
+   "label": "platform -325 (east)",
+   "kind": "floating",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -325,
+   "y_right": -325,
+   "length": 168
+  },
+  {
+   "id": "T24",
+   "label": "Tomato Field portal ledge (danger sign, tomato plants)",
+   "kind": "floating",
+   "x1": 1671,
+   "x2": 2019,
+   "y_left": -385,
+   "y_right": -385,
+   "length": 348
+  },
+  {
+   "id": "T25",
+   "label": "long platform -445 (west, bushes)",
+   "kind": "floating",
+   "x1": -399,
+   "x2": 129,
+   "y_left": -445,
+   "y_right": -445,
+   "length": 528
+  },
+  {
+   "id": "T26",
+   "label": "platform -445 (small)",
+   "kind": "floating",
+   "x1": 141,
+   "x2": 309,
+   "y_left": -445,
+   "y_right": -445,
+   "length": 168
+  },
+  {
+   "id": "T27",
+   "label": "row -565 #1",
+   "kind": "floating",
+   "x1": 771,
+   "x2": 939,
+   "y_left": -565,
+   "y_right": -565,
+   "length": 168
+  },
+  {
+   "id": "T28",
+   "label": "row -565 #2",
+   "kind": "floating",
+   "x1": 951,
+   "x2": 1119,
+   "y_left": -565,
+   "y_right": -565,
+   "length": 168
+  },
+  {
+   "id": "T29",
+   "label": "row -565 #3",
+   "kind": "floating",
+   "x1": 1131,
+   "x2": 1299,
+   "y_left": -565,
+   "y_right": -565,
+   "length": 168
+  },
+  {
+   "id": "T30",
+   "label": "row -565 #4",
+   "kind": "floating",
+   "x1": 1311,
+   "x2": 1479,
+   "y_left": -565,
+   "y_right": -565,
+   "length": 168
+  },
+  {
+   "id": "T31",
+   "label": "row -565 #5",
+   "kind": "floating",
+   "x1": 1491,
+   "x2": 1659,
+   "y_left": -565,
+   "y_right": -565,
+   "length": 168
+  },
+  {
+   "id": "T32",
+   "label": "platform -685 (west, small)",
+   "kind": "floating",
+   "x1": 141,
+   "x2": 309,
+   "y_left": -685,
+   "y_right": -685,
+   "length": 168
+  },
+  {
+   "id": "T33",
+   "label": "platform -685 (east, bushes + white mushrooms)",
+   "kind": "floating",
+   "x1": 1581,
+   "x2": 2019,
+   "y_left": -685,
+   "y_right": -685,
+   "length": 438
+  },
+  {
+   "id": "T34",
+   "label": "top platform -745 (west, big bush + flowers)",
+   "kind": "floating",
+   "x1": 321,
+   "x2": 759,
+   "y_left": -745,
+   "y_right": -745,
+   "length": 438
+  },
+  {
+   "id": "T35",
+   "label": "top platform -745 (small)",
+   "kind": "floating",
+   "x1": 771,
+   "x2": 939,
+   "y_left": -745,
+   "y_right": -745,
+   "length": 168
+  },
+  {
+   "id": "T36",
+   "label": "top platform -745 (centre, big bush + flowers)",
+   "kind": "floating",
+   "x1": 951,
+   "x2": 1389,
+   "y_left": -745,
+   "y_right": -745,
+   "length": 438
+  },
+  {
+   "id": "T37",
+   "label": "top platform -745 (small, east)",
+   "kind": "floating",
+   "x1": 1401,
+   "x2": 1569,
+   "y_left": -745,
+   "y_right": -745,
+   "length": 168
+  }
+ ],
+ "ladders": [
+  {
+   "x": 33,
+   "y1": -143,
+   "y2": 45,
+   "isLadder": true,
+   "from_tier": "T01",
+   "to_tier": "T12",
+   "bottom_gap_px": 50,
+   "climb_px": 188
+  },
+  {
+   "x": 837,
+   "y1": -743,
+   "y2": -602,
+   "isLadder": true,
+   "from_tier": "T27",
+   "to_tier": "T35",
+   "bottom_gap_px": 37,
+   "climb_px": 141
+  },
+  {
+   "x": 1442,
+   "y1": -743,
+   "y2": -604,
+   "isLadder": true,
+   "from_tier": "T30",
+   "to_tier": "T37",
+   "bottom_gap_px": 39,
+   "climb_px": 139
+  },
+  {
+   "x": 1548,
+   "y1": -563,
+   "y2": -367,
+   "isLadder": false,
+   "from_tier": "T23",
+   "to_tier": "T31",
+   "bottom_gap_px": 42,
+   "climb_px": 196
+  },
+  {
+   "x": 208,
+   "y1": -443,
+   "y2": -302,
+   "isLadder": true,
+   "from_tier": "T19",
+   "to_tier": "T26",
+   "bottom_gap_px": 37,
+   "climb_px": 141
+  },
+  {
+   "x": 920,
+   "y1": -143,
+   "y2": 53,
+   "isLadder": false,
+   "from_tier": "T05",
+   "to_tier": "T17",
+   "bottom_gap_px": 42,
+   "climb_px": 196
+  },
+  {
+   "x": 979,
+   "y1": -323,
+   "y2": -188,
+   "isLadder": false,
+   "from_tier": "T17",
+   "to_tier": "T22",
+   "bottom_gap_px": 43,
+   "climb_px": 135
+  },
+  {
+   "x": 1702,
+   "y1": -83,
+   "y2": 57,
+   "isLadder": true,
+   "from_tier": "T09",
+   "to_tier": "T11",
+   "bottom_gap_px": 38,
+   "climb_px": 140
+  },
+  {
+   "x": 1618,
+   "y1": -323,
+   "y2": -127,
+   "isLadder": false,
+   "from_tier": "T11",
+   "to_tier": "T23",
+   "bottom_gap_px": 42,
+   "climb_px": 196
+  },
+  {
+   "x": 263,
+   "y1": -683,
+   "y2": -487,
+   "isLadder": false,
+   "from_tier": "T26",
+   "to_tier": "T32",
+   "bottom_gap_px": 42,
+   "climb_px": 196
+  },
+  {
+   "x": 1893,
+   "y1": -683,
+   "y2": -457,
+   "isLadder": false,
+   "from_tier": "T24",
+   "to_tier": "T33",
+   "bottom_gap_px": 72,
+   "climb_px": 226
+  },
+  {
+   "x": 895,
+   "y1": -563,
+   "y2": -367,
+   "isLadder": false,
+   "from_tier": "T22",
+   "to_tier": "T27",
+   "bottom_gap_px": 42,
+   "climb_px": 196
+  }
+ ],
+ "ladder_convention": "from_tier = tier at the bottom end, to_tier = tier at the top end; bottom_gap_px = drop from rope bottom to from_tier surface (jump-grab distance)",
+ "portals": [
+  {
+   "name": "in00",
+   "x": 1792,
+   "y": -384,
+   "target": "1020001:out00",
+   "inferred": false,
+   "portal_type": 1,
+   "tier": "T24"
+  },
+  {
+   "name": "west00",
+   "x": -332,
+   "y": 90,
+   "target": "1010000:east00",
+   "inferred": false,
+   "portal_type": 2,
+   "tier": "T01"
+  }
+ ],
+ "spawn_points": [
+  {
+   "x": -426,
+   "y": 6,
+   "tier_below": "T01"
+  },
+  {
+   "x": -269,
+   "y": -4,
+   "tier_below": "T01"
+  },
+  {
+   "x": -209,
+   "y": -9,
+   "tier_below": "T01"
+  },
+  {
+   "x": -160,
+   "y": -14,
+   "tier_below": "T01"
+  },
+  {
+   "x": -95,
+   "y": -11,
+   "tier_below": "T01"
+  },
+  {
+   "x": -37,
+   "y": -17,
+   "tier_below": "T01"
+  },
+  {
+   "x": 248,
+   "y": -181,
+   "tier_below": "T13"
+  },
+  {
+   "x": 738,
+   "y": -197,
+   "tier_below": "T16"
+  },
+  {
+   "x": 1022,
+   "y": -578,
+   "tier_below": "T28"
+  },
+  {
+   "x": 1533,
+   "y": -587,
+   "tier_below": "T31"
+  }
+ ],
+ "mobs": {
+  "Orange Mushroom": {
+   "id": 1210102,
+   "count": 12,
+   "tiers": [
+    "T03",
+    "T07",
+    "T09",
+    "T21",
+    "T34",
+    "T36"
+   ],
+   "per_tier": {
+    "T03": 3,
+    "T07": 2,
+    "T21": 2,
+    "T09": 1,
+    "T36": 2,
+    "T34": 2
+   }
+  },
+  "Blue Snail": {
+   "id": 100101,
+   "count": 19,
+   "tiers": [
+    "T01",
+    "T02",
+    "T03",
+    "T04",
+    "T07",
+    "T09",
+    "T20",
+    "T21",
+    "T25",
+    "T33",
+    "T34",
+    "T36"
+   ],
+   "per_tier": {
+    "T02": 1,
+    "T04": 1,
+    "T09": 1,
+    "T07": 2,
+    "T03": 1,
+    "T21": 3,
+    "T20": 3,
+    "T34": 1,
+    "T36": 1,
+    "T33": 2,
+    "T25": 2,
+    "T01": 1
+   }
+  },
+  "Red Snail": {
+   "id": 130101,
+   "count": 13,
+   "tiers": [
+    "T20",
+    "T21",
+    "T24",
+    "T25",
+    "T33",
+    "T36"
+   ],
+   "per_tier": {
+    "T33": 2,
+    "T24": 3,
+    "T20": 3,
+    "T21": 2,
+    "T25": 2,
+    "T36": 1
+   }
+  },
+  "Snail": {
+   "id": 100100,
+   "count": 8,
+   "tiers": [
+    "T01",
+    "T03",
+    "T09",
+    "T25",
+    "T33",
+    "T34",
+    "T36"
+   ],
+   "per_tier": {
+    "T33": 1,
+    "T36": 1,
+    "T34": 1,
+    "T25": 2,
+    "T01": 1,
+    "T03": 1,
+    "T09": 1
+   }
+  }
+ },
+ "npcs": [],
+ "terrain_style": "grass-topped olive/brown earth with embedded rocks (render; WZ tS=grassySoil on layer 1); floating grass-and-earth platforms; outdoor backdrop set grassySoil",
+ "landmarks": [
+  {
+   "what": "autumn tree on west plateau",
+   "x": -357,
+   "y": 93,
+   "bbox": [
+    -510,
+    -223,
+    -204,
+    93
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/4"
+   ],
+   "instances": 1,
+   "stands_on": "T01"
+  },
+  {
+   "what": "rainbow-spring props on west plateau",
+   "x": -147,
+   "y": 92,
+   "bbox": [
+    -321,
+    3,
+    27,
+    92
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/9"
+   ],
+   "instances": 2,
+   "stands_on": "T01"
+  },
+  {
+   "what": "autumn + pale-yellow trees in west pit",
+   "x": 459,
+   "y": 217,
+   "bbox": [
+    206,
+    -103,
+    712,
+    217
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/4",
+    "acc1/midForest/nature/3"
+   ],
+   "instances": 2,
+   "stands_on": "T03"
+  },
+  {
+   "what": "pale-yellow tree in east pit",
+   "x": 1210,
+   "y": 213,
+   "bbox": [
+    1057,
+    -103,
+    1363,
+    213
+   ],
+   "wz_obj": [
+    "acc1/midForest/nature/3"
+   ],
+   "instances": 1,
+   "stands_on": "T07"
+  },
+  {
+   "what": "red-berry shrub row on T21",
+   "x": 598,
+   "y": -324,
+   "bbox": [
+    422,
+    -366,
+    773,
+    -324
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/0",
+    "acc1/grassySoil/nature/1"
+   ],
+   "instances": 4,
+   "stands_on": "T21"
+  },
+  {
+   "what": "pink-flowered clover bed on T20",
+   "x": 1302,
+   "y": -258,
+   "bbox": [
+    1138,
+    -329,
+    1465,
+    -258
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/10"
+   ],
+   "instances": 7,
+   "stands_on": "T20"
+  },
+  {
+   "what": "DANGER sign + 3 tomato plants marking hidden portal in00 (T24)",
+   "x": 1857,
+   "y": -383,
+   "bbox": [
+    1746,
+    -466,
+    1968,
+    -383
+   ],
+   "wz_obj": [
+    "guide/midForest/danger/2",
+    "acc1/grassySoil/nature/9"
+   ],
+   "instances": 4,
+   "stands_on": "T24"
+  },
+  {
+   "what": "big bush with flowers on T34",
+   "x": 515,
+   "y": -727,
+   "bbox": [
+    378,
+    -855,
+    651,
+    -727
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/13",
+    "acc1/grassySoil/nature/5",
+    "acc1/grassySoil/nature/6",
+    "acc1/grassySoil/nature/20"
+   ],
+   "instances": 5,
+   "stands_on": "T34"
+  },
+  {
+   "what": "big bush with flowers on T36",
+   "x": 1132,
+   "y": -738,
+   "bbox": [
+    983,
+    -866,
+    1281,
+    -738
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/13",
+    "acc1/grassySoil/nature/21",
+    "acc1/grassySoil/nature/6"
+   ],
+   "instances": 6,
+   "stands_on": "T36"
+  },
+  {
+   "what": "small bushes + white mushrooms on T33",
+   "x": 1815,
+   "y": -684,
+   "bbox": [
+    1643,
+    -728,
+    1986,
+    -684
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/nature/1",
+    "acc1/grassySoil/nature/7"
+   ],
+   "instances": 5,
+   "stands_on": "T33"
+  },
+  {
+   "what": "rainbow-spring prop on east plateau",
+   "x": 1707,
+   "y": 92,
+   "bbox": [
+    1630,
+    4,
+    1783,
+    92
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/9"
+   ],
+   "instances": 1,
+   "stands_on": "T09"
+  },
+  {
+   "what": "stacked log pile (standable top T10)",
+   "x": 1870,
+   "y": 93,
+   "bbox": [
+    1800,
+    32,
+    1940,
+    93
+   ],
+   "wz_obj": [
+    "acc1/grassySoil/artificiality/6",
+    "acc1/grassySoil/artificiality/7"
+   ],
+   "instances": 2,
+   "stands_on": "T09"
+  },
+  {
+   "what": "giant orange mushroom pair (decorative house13) at east end",
+   "x": 2050,
+   "y": 99,
+   "bbox": [
+    1924,
+    -99,
+    2175,
+    99
+   ],
+   "wz_obj": [
+    "houseGS/house13/basic/0",
+    "houseGS/house13/basic/1"
+   ],
+   "instances": 3,
+   "stands_on": "T09"
+  }
+ ],
+ "landmark_convention": "x,y = bottom-centre of the union bbox of the listed WZ objects (bbox = [left, top, right, bottom], from v8 sprite size + origin); stands_on = tier whose surface is within 25px of the bbox bottom, else null (wall/air/backdrop); \"what\" is a visual reading of the v8 object sprites"
+}

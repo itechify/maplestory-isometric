@@ -1,0 +1,2049 @@
+{
+  "version": 1,
+  "era": "GMS v0.08-v0.22 classic Maple Island",
+  "unit_note": "positions in MapleStory px from v8 data (raw GMS v8 WZ portal nodes; y increases downward). NPC x is the WZ life x; NPC y is the foothold-snapped cy served by /api/GMS/8/map (raw WZ life y is 2-9 px smaller, i.e. higher on screen, for Heena, Roger, Nina, Paul, Tia, Maple Administrator, Pan and Sid; largest: Nina, 9 px). mobs = v8 spawn-point counts, not live population. worldmap_spot_px = pixel position on the 411x348 WorldMap0 illustration (relative direction only, not a scale).",
+  "baseline": "GMS v8 for topology, positions, geometry, NPCs and spawns; v22 differences are documented as an optional variant (see discrepancies).",
+  "kind_legend": {
+    "town": "Outdoor map with the WZ town flag and no monsters (Mushroom Town maps 0-30000, Southperry, Amherst).",
+    "field": "Outdoor monster map that acts as a road junction or hub: A Split Road (fork), The Field West of Amherst (6-door hub), The Field East of Amherst (end field with a hidden pocket).",
+    "hunting": "Outdoor monster map that is a training ground: the three Snail Hunting Grounds on the road, plus every dead-end pocket (1000001-1000006, 1010004, 1020001).",
+    "interior": "Building interior reached by a door portal, with no other exit (20001, 60001, 1010001, 1010003).",
+    "townstreet": "'Townstreet template' (cutaway mushroom house on a short street strip) that continues onward: 1010002 Amherst Townstreet. 20001 uses the same template but is a dead end, so it is classed interior."
+  },
+  "exit_kind_legend": {
+    "edge_west": "Non-door exit standing on a v8 foothold chain that reaches the map's west (left, in 2D) foothold limit; may sit high up (1000002). Positional: checked by the build script with 0 px tolerance (if the chain reaches both limits, the nearer one decides).",
+    "edge_east": "Non-door exit standing on a v8 foothold chain that reaches the map's east (right, in 2D) foothold limit; may sit high up (30000, 40002, 50000 east00). Same check as edge_west.",
+    "door": "Portal at a door object (house, shop, or wooden door in an earth mound) or an interior doorway.",
+    "inner": "Non-door exit whose foothold chain reaches neither map limit: a mid-air or high ledge (1000000 in01, 1000001 out00, 1020000 in00). kind is positional only; the raw portal type is recorded separately as pt.",
+    "other": "Not used: NPC-scripted travel (Shanks' ship) is not a portal and is recorded in notes/branches instead."
+  },
+  "source_legend": {
+    "xml": "Raw GMS v8 WZ portal node (maplestory.io /api/wz/GMS/8/Data/Map/Map/Map0/<id9>.img/portal/<n>), compiled in docs/research/portals_xml.json.",
+    "api": "Parsed maplestory.io /api/GMS/8/map/<id> JSON (lossy).",
+    "inferred": "Reasoned from other evidence; always low confidence.",
+    "wiki": "Archived era fansite/wiki pages (Hidden Street, StrategyWiki, MapleWiki)."
+  },
+  "maps": [
+    {
+      "id": 0,
+      "name": "West Entrance to Mushroom Town",
+      "street": "Maple Road",
+      "slug": "WestEntranceMushroomTown_0",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 1052,
+          "y": 365,
+          "to_map": 10000,
+          "to_portal": "in00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the lower lane."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2101,
+          "name": "Heena",
+          "role": "Tutorial NPC: movement and jump controls (v8 dialogue). Mirror errand to her sister Sera: a quest in the 2005 guide ('Talk to Heena ... This is a quest ... Talk to Sera, she will give you a mirror'); quest IDs and text are [v22 data].",
+          "x": -48,
+          "y": 65
+        },
+        {
+          "id": 2100,
+          "name": "Sera",
+          "role": "Heena's sister hanging laundry; ladder/rope climbing hint (v8 dialogue). Gives the mirror for Heena's errand (2005 guide); [v22 data] item name Sera's Mirror.",
+          "x": 833,
+          "y": 125
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Orange mushroom house with yellow spots on the high west plateau (houseGS/house6 + deco/0), mushroom-awning plank door, iron wall lantern, barrels (standable tops)",
+        "Heena perched on a bush / grass clump just above the spawn point",
+        "Three 60 px grass steps down from the house plateau to the lower lane",
+        "Sera's laundry bluff: raised block climbed by the ladder at x=975, clothesline on Y-shaped posts with shirt, trousers and sheet (the line is a walkable foothold)",
+        "Rows of small coloured mushrooms and red-spotted toadstools in the valley",
+        "Exit portal out00 at the east end of the lower lane"
+      ],
+      "terrain_style": "grassySoil tiles: bright green grass fringe over olive/khaki cobbled dirt with embedded grey stones; solid earth blocks with vertical cliff faces. Backdrop set grassySoil: blue sky, drifting cumulus, distant hill, giant leafy oak, golden meadow strips.",
+      "recognizable": "The very first screen of the game: new characters appear on the high west plateau beside a big orange mushroom house with yellow spots, while Heena hovers above the spawn point teaching how to move and jump. The lane drops by three grass steps toward a laundry bluff where her sister Sera hangs washing on a line, reached by the only ladder. Pastoral sky, a giant oak behind, no monsters, and the FloralLife town theme. The official 2005 gallery screenshot (docs/research/ref_web/0_1.jpg) shows exactly this scene.",
+      "notes": "Spawn map: 4 spawn points (sp) at x -206..-112, y~102 on the west plateau; no arrival portal and no portal leads back into map 0. Foothold extent x -264..1254, walkable y 50..365, 9 walkable tiers, 1 ladder. Classic map exists only in GMS v8-v37: from v38 ID 0 is \"Entrance - Mushroom Town Training Camp\" (never use v38+ data). v22 re-lays out the west half (plateau lower than the lane, steps go up) and moves out00 to (1116,365); v8 is canonical. v22 also adds an Up-key hint sign at the ladder (not in v8). WorldMap0 spot: NW tip of the island. Brief: docs/research/maps/0_WestEntranceMushroomTown_0.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "MushroomVillage",
+      "return_map": 0,
+      "mob_rate": 1,
+      "spawn_points": 4,
+      "worldmap_spot_px": [
+        104,
+        38
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000000000.img/portal"
+    },
+    {
+      "id": 10000,
+      "name": "Mushroom Town",
+      "street": "Maple Road",
+      "slug": "MushroomTown_10000",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 706,
+          "y": 216,
+          "to_map": 20000,
+          "to_portal": "in00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the main street."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2000,
+          "name": "Roger",
+          "role": "Tutorial instructor: inventory, items and potions (v8 dialogue). 2005 guide: lowers your HP so you learn to eat an apple, then gives 3 Red Potions.",
+          "x": 233,
+          "y": 65
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Yellow mushroom house with a brown-streaked cap (houseGS/house8), arched doorway with keyhole plank door",
+        "Barrel chimney with a little yellow lid (house/grassySoil/chimney/0)",
+        "Roger's raised hedge-walled vegetable-garden terrace (fence with rope and leafy crops) above the street",
+        "Sunflower patch with a butterfly at the low west arrival meadow",
+        "Short ramp from the arrival meadow up onto the main street"
+      ],
+      "terrain_style": "grassySoil tiles (green grass over olive/khaki cobbled dirt); same sky/cumulus/hill/oak backdrop as map 0. The local render lacks tiles; the minimap and WZ object list are the reference.",
+      "recognizable": "A short, calm single-house town screen: you arrive in a sunflower meadow, walk up a ramp onto the street and pass a yellow mushroom house with a barrel chimney. Roger stands above the street in a hedge-walled garden; in the words of a 2005 beginner guide he is the 'creepy looking guy' who takes away some of your HP so you learn to open the inventory and eat an apple. Hidden Street (2005) called this map 'Mushroom Town I'.",
+      "notes": "Arrival point in00 (-195,278) is arrival-only (pt 1, no target). Foothold extent x -309..849 (1158 px), walkable y 65..275, 4 tiers, no ladders. Identical in v8, v22, v40, v55. Brief: docs/research/maps/10000_MushroomTown_10000.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "MushroomVillage",
+      "return_map": 10000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        132,
+        48
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000010000.img/portal",
+      "arrival_points": [
+        {
+          "portal": "in00",
+          "x": -195,
+          "y": 278,
+          "pt": 1,
+          "from_map": 0,
+          "from_portal": "out00"
+        }
+      ]
+    },
+    {
+      "id": 20000,
+      "name": "Mushroom Town",
+      "street": "Maple Road",
+      "slug": "MushroomTown_20000",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "in01",
+          "x": 557,
+          "y": 94,
+          "to_map": 20001,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Stone-arched door of the orange mushroom house (door objects door/8, door/10 at x 555-565)."
+        },
+        {
+          "portal": "out00",
+          "x": 795,
+          "y": 96,
+          "to_map": 30000,
+          "to_portal": "in00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the upper town terrace, at the foot of the stone oven/chimney tower."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2102,
+          "name": "Nina",
+          "role": "Sen's sister, wondering what to cook (v8 dialogue). The 2005 guide mentions an unnamed 'simple quest' on this (3rd) screen; 'Nina and Sen's Dinner Menu' is first named in the Hidden Street quest list of Feb 2006. [v22 data] details: ask Sen inside 20001.",
+          "x": -59,
+          "y": 95
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Orange mushroom house (houseGS/house6, no yellow spots in v8) with a stone-arched door: the enterable door in01 to Sen's house (20001)",
+        "Stone oven/chimney tower with log pile and tiny arched door (house/grassySoil/chimney/3); the exit out00 is at its foot",
+        "Nina's floating flower islet above the west lawn",
+        "Ladder at x=197 from a grass step up to an empty high sky islet",
+        "Clover-and-flower patches on the west lawn, red-spotted toadstools by the house"
+      ],
+      "terrain_style": "grassySoil tiles (green grass over olive/khaki cobbled dirt with grey stones); two small floating grass islets with rounded dirt undersides; grassySoil sky backdrop.",
+      "recognizable": "The town map with a house you can actually walk into: an orange mushroom house whose stone-arched door leads to Sen's two-storey home (20001). Everything steps up from the low west lawn to a long raised town terrace, Nina waits on a floating flower islet, a ladder climbs to an empty sky islet, and the road leaves east past a stone oven tower. Hidden Street (2005) called this map 'Mushroom Town II'.",
+      "notes": "Arrival point in00 (-207,218) is arrival-only. 3 spawn points at x -256..-173. Foothold extent x -309..939 (1248 px), walkable y -85..215, 5 tiers, 1 ladder. v22 extends the upper street east (out00 moves to (1109,97)) and adds an Up-key hint at the door; v8 is canonical. Brief: docs/research/maps/20000_MushroomTown_20000.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "MushroomVillage",
+      "return_map": 20000,
+      "mob_rate": 1,
+      "spawn_points": 3,
+      "worldmap_spot_px": [
+        132,
+        48
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000020000.img/portal",
+      "arrival_points": [
+        {
+          "portal": "in00",
+          "x": -207,
+          "y": 218,
+          "pt": 1,
+          "from_map": 10000,
+          "from_portal": "out00"
+        }
+      ]
+    },
+    {
+      "id": 20001,
+      "name": "Mushroom Town Townstreet",
+      "street": "Maple Road",
+      "slug": "MushroomTownTownstreet_20001",
+      "kind": "interior",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": -167,
+          "y": 244,
+          "to_map": 20000,
+          "to_portal": "in01",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Round-topped wooden door on the west wall of the house interior."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2001,
+          "name": "Sen",
+          "role": "Hungry boy inside the house (v8 dialogue). Answers Nina's dinner question ('Nina and Sen's Dinner Menu', named Feb 2006; [v22 data] details).",
+          "x": 24,
+          "y": 246
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Cutaway two-storey orange mushroom house shell with stone-arched entrance",
+        "Ground floor: bookshelf/cupboard with jars, hanging bell lamp, Sen",
+        "Indoor ladder at x=77 between the floors",
+        "Upper floor: orange bed with pillows, treasure chest, window with orange curtains, hanging lamp",
+        "Round-topped orange plank exit door on the west wall"
+      ],
+      "terrain_style": "Interior: two-storey cutaway of an orange mushroom house (insideGS/house1): cream plaster walls in honey-coloured timber frames, plank floors, orange cap cross-section, stone-arched front. A short grassySoil yard strip outside the west wall, with the outdoor sky, hill and oak backdrop still visible behind the house.",
+      "recognizable": "Despite the name 'Townstreet', this is Sen's house: a doll-house cutaway of a two-storey mushroom home with a cupboard and the hungry boy Sen downstairs and a bedroom with a bed, chest and curtained window upstairs, joined by a ladder. Players come here for Nina's dinner errand and leave by the same door.",
+      "notes": "Name/content mismatch is a data fact: WZ name 'Mushroom Town Townstreet', content = house interior (Hidden Street 2006: 'head into the house'). Same 'Townstreet template' as 1010002 Amherst Townstreet: identical door portal out00 (-167,244), ladder x=77, floors y=246/69, roof y=-117. The only spawn point (sp) is outside in the yard at (-329,241). Play space about 360 x 363 px; no minimap. Dead end. Brief: docs/research/maps/20001_MushroomTownTownstreet_20001.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "MushroomVillage",
+      "return_map": 20001,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        132,
+        48
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000020001.img/portal"
+    },
+    {
+      "id": 30000,
+      "name": "East Entrance to Mushroom Town",
+      "street": "Maple Road",
+      "slug": "EastEntranceMushroomTown_30000",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 1433,
+          "y": -924,
+          "to_map": 40000,
+          "to_portal": "in00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Top-east summit, 1140 px (19 tiers of 60 px) above the arrival point; Peter stands beside it."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2002,
+          "name": "Peter",
+          "role": "Instructor at the exit from Mushroom Town; warns about monsters; brother of Roger and Robin (v8 dialogue). 2005 guide: gives EXP.",
+          "x": 1314,
+          "y": -925
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Yellow mushroom house with a dark brim and a round yellow dormer window (houseGS/house7) on the central hill",
+        "Mushroom fountain with a rainbow over a stone basin (acc1/grassySoil/artificiality/9)",
+        "Log bench with tiny mushrooms on the middle terrace (standable top)",
+        "Tall pale stalk-mushroom clusters at the bottom and on the summit (vertical landmarks)",
+        "Ivy-wrapped wooden signposts at the start, at the bottom-right rope and by the summit exit",
+        "Ropes at x=1359 and x=1434 on the east side; ladders at x=-136 and x=107"
+      ],
+      "terrain_style": "grassySoil tiles: stepped central hill, large floating earth slabs with sloped grass shoulders, many small oval floating grass islets; 8 slope tiles; grassySoil sky backdrop.",
+      "recognizable": "The big climb out of Mushroom Town. A 19-tier switchback: east across the valley, up two ropes, back west along a middle terrace, up a ladder, then east over stepping stones to the summit, where Peter guards 'the exit to the Mushroom Town' and warns that monsters roam beyond. The yellow dormer house, the rainbow fountain and the pale stalk-mushrooms mark the way. For new players this was the first real platforming challenge.",
+      "notes": "Arrival point in00 (-218,217) is arrival-only. Foothold extent x -309..1569 (1878 px), walkable y -925..215 (1140 px = 19 tiers of 60 px), 22 walkable tiers, 2 ladders + 2 ropes. A three-platform staircase next to the arrival is a dead end. No mobs in v8; v22 adds Todd (NPC 2004) and 3 Tutorial Jr. Sentinels (mob 9300018) and reshuffles the climbing aids (not in the v8 baseline). Brief: docs/research/maps/30000_EastEntranceMushroomTown_30000.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "MushroomVillage",
+      "return_map": 30000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        141,
+        67
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000030000.img/portal",
+      "arrival_points": [
+        {
+          "portal": "in00",
+          "x": -218,
+          "y": 217,
+          "pt": 1,
+          "from_map": 20000,
+          "from_portal": "out00"
+        }
+      ]
+    },
+    {
+      "id": 40000,
+      "name": "Snail Hunting Ground I",
+      "street": "Maple Road",
+      "slug": "SnailHuntingGround1_40000",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "east00",
+          "x": 2692,
+          "y": 392,
+          "to_map": 40001,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the ground band."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2003,
+          "name": "Robin",
+          "role": "Combat tutor (attack, pick up, party); names Southperry and Amherst; 'try heading up northeast' (v8 dialogue).",
+          "x": 69,
+          "y": 275
+        }
+      ],
+      "mobs": {
+        "Snail": 33,
+        "Blue Snail": 16
+      },
+      "landmarks": [
+        "Symmetric stepped knoll in the middle of the ground (3 steps of 60 px up and 3 down)",
+        "Raised west entry plateau with wooden signposts and Robin beside the arrival point",
+        "Long upper-west ledge with a trapezoid hump and a tiny islet above it",
+        "Four-block staircase linking the two upper ledges",
+        "Two ropes over the east meadow that can only be climbed down",
+        "White-barked autumn birches, daffodils, red-berry shrubs"
+      ],
+      "terrain_style": "grassySoil tiles (90 px wide modules, 60 px steps) with embedded grey-green rocks; earth platforms with tapered undersides. Backdrop set midForest: misty pastel mountains over a mirror lake, rows of white-barked trees with olive/orange/teal crowns over golden grass.",
+      "recognizable": "The first hunting field after leaving Mushroom Town, where new players kill their first Snails and Blue Snails. The pastoral town sky gives way to a light autumn woodland with misty mountains and a lake in the backdrop, and the calm 'Rest N Peace' field theme starts. Robin waits at the entrance with combat tips and tells you to head northeast.",
+      "notes": "Arrival point in00 (-172,278) is arrival-only; no portal leads back to 30000 in any version checked (v8, v22, v28-v39). returnMap 60000. Foothold extent x -309..2919 (3228 px), 23 tiers in 5 bands, 13 climbables (5 ladders, 8 ropes). v22 removes the Blue Snails and adds Sam (NPC 2005); v8 is canonical. From v37 (v34 is the last served version without them) the map has 16 climbables, and v49+ shortens it: both excluded. east00 is the v8 WZ value (2692,392); the brief and 40000.struct.json first carried (2812,397) from /api/GMS/39 and were corrected in the verification pass. Brief: docs/research/maps/40000_SnailHuntingGround1_40000.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "MushroomVillage",
+      "return_map": 60000,
+      "mob_rate": 1,
+      "spawn_points": 5,
+      "worldmap_spot_px": [
+        160,
+        86
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040000.img/portal",
+      "arrival_points": [
+        {
+          "portal": "in00",
+          "x": -172,
+          "y": 278,
+          "pt": 1,
+          "from_map": 30000,
+          "from_portal": "out00"
+        }
+      ]
+    },
+    {
+      "id": 40001,
+      "name": "Snail Hunting Ground II",
+      "street": "Maple Road",
+      "slug": "SnailHuntingGround2_40001",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "west00",
+          "x": -219,
+          "y": 393,
+          "to_map": 40000,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West end of the ground band."
+        },
+        {
+          "portal": "east00",
+          "x": 2792,
+          "y": 395,
+          "to_map": 40002,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the ground band."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 43,
+        "Blue Snail": 24
+      },
+      "landmarks": [
+        "'Lambda' arch of floating blocks in the centre of the sky with a 4-block pillar beneath it",
+        "Block stair from the arch to a summit ledge with its own grove (top right)",
+        "Long west meadow ending in a grassy ramp up onto a mesa with a sheer east cliff",
+        "Birch-log picket fences at the west entrance",
+        "Rickety plank bridge over a dark grassy-edged pit (midForest/artificiality/7-9)"
+      ],
+      "terrain_style": "grassySoil tiles with embedded rocks (60 px step module); midForest backdrop as in 40000; white picket / birch-log fences on the west ground.",
+      "recognizable": "The snail ground with the inverted-V arch of floating stepping stones in the middle of the sky, a pillar under it and a stair to a wooded summit ledge. The ground is a long meadow with a ramp onto a cliff-edged mesa, fenced at the entrance and crossed by a little plank bridge. Ropes only, no ladders.",
+      "notes": "returnMap 60000. Foothold extent x -309..2919, 37 tiers in 6 bands, 8 ropes (no ladders). v22 thins Blue Snails 24 -> 11. From v37 it has 15 climbables (excluded), and v49+ shortens the map (do not use). Brief: docs/research/maps/40001_SnailHuntingGround2_40001.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "MushroomVillage",
+      "return_map": 60000,
+      "mob_rate": 1,
+      "spawn_points": 5,
+      "worldmap_spot_px": [
+        180,
+        118
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040001.img/portal"
+    },
+    {
+      "id": 40002,
+      "name": "Snail Hunting Ground III",
+      "street": "Maple Road",
+      "slug": "SnailHuntingGround3_40002",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "east00",
+          "x": 2822,
+          "y": -1164,
+          "to_map": 50000,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the summit ridge at y=-1164; the player must climb out."
+        },
+        {
+          "portal": "west00",
+          "x": -19,
+          "y": 274,
+          "to_map": 40001,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West entry plateau T19 (reaches the west limit x=-309); the portal is 290 px in, among the spawn points."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 36,
+        "Blue Snail": 26,
+        "Red Snail": 13
+      },
+      "landmarks": [
+        "Same west half as Snail Hunting Ground I, but the knoll ends in a 180 px sheer east cliff",
+        "Narrow chimney of three stacked blocks with short ropes and a ladder at the far west",
+        "Summit ridge spanning almost the whole map width (x 321..2919) where the Red Snails roam",
+        "Wooden signposts beside the high exit at the top right",
+        "Plank bridge over a pit; lily-of-the-valley, big leafy plants, white-barked trees"
+      ],
+      "terrain_style": "grassySoil tiles with embedded rocks (60 px step module); midForest backdrop; birch grove on the summit ridge.",
+      "recognizable": "The tallest of the three snail grounds and the first map with Red Snails. Its west half echoes Snail Hunting Ground I, then breaks off in a cliff; the way on is a long climb up stacked tiers to a summit ridge that spans the whole map, ending at a signposted exit in the top-right corner.",
+      "notes": "returnMap 60000. Foothold extent x -309..2919, y -1285..600; 25 tiers in 6 bands; 15 climbables (6 ladders, 9 ropes). v22-v55 move east00 to (2753,-685); v8 (2822,-1164) is canonical. From v37 it has 18 climbables (excluded). The brief and 40002.struct.json first carried inferred positions (west00 (-200,275), east00 (2800,-1165)) and a ground-tier fallback exit; they were corrected to the v8 WZ values (-19,274) and (2822,-1164) in the verification pass, and there is no exit at the east end of ground tier T24. Brief: docs/research/maps/40002_SnailHuntingGround3_40002.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "MushroomVillage",
+      "return_map": 60000,
+      "mob_rate": 1,
+      "spawn_points": 5,
+      "worldmap_spot_px": [
+        213,
+        144
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000040002.img/portal"
+    },
+    {
+      "id": 50000,
+      "name": "A Split Road",
+      "street": "Maple Road",
+      "slug": "ASplitRoad_50000",
+      "kind": "field",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "west00",
+          "x": -505,
+          "y": 246,
+          "to_map": 40002,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West end of the lower road."
+        },
+        {
+          "portal": "east00",
+          "x": 3041,
+          "y": 7,
+          "to_map": 1000000,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "UPPER road (embankment), signboard 'Amherst ->' at (2932,-82)."
+        },
+        {
+          "portal": "east01",
+          "x": 3046,
+          "y": 361,
+          "to_map": 60000,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "LOWER road, signboard 'South perry ->' at (2819,280)."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 2103,
+          "name": "Maria",
+          "role": "Wants a letter delivered (v8 dialogue). 'Maria's Hat Quest' (reward: a bandana or skullcap) is in the 2005 guide, which does not describe the steps. The letter-to-Lucas form is named in Hidden Street Feb 2006 ('Please Bring This Letter To Lucas') and StrategyWiki 2007; [v22 data] quests 1005/1006.",
+          "x": 159,
+          "y": 65
+        }
+      ],
+      "mobs": {
+        "Blue Snail": 25,
+        "Red Snail": 13,
+        "Shroom": 18
+      },
+      "landmarks": [
+        "The fork: an upper embankment road and a lower valley road both reach the east edge, each with its own exit",
+        "Wooden arrow signboards 'Amherst ->' on the upper road and 'South perry ->' on the lower road (signboard/maypleIsland/board/1 and /0)",
+        "Red mailbox with heart and envelope icons (artificiality/16) about 55 px from Maria",
+        "Maria's small flowered platform near the start, reached by a short ladder at x=77",
+        "Central mesa with a big yellow autumn tree; pyramid of three floating blocks over its east shoulder"
+      ],
+      "terrain_style": "grassySoil tiles on two tile layers giving large layered hill masses (mesa and embankment) with many embedded rocks; midForest backdrop with white-barked autumn trees.",
+      "recognizable": "The island's only fork in the road. A long, low map whose east end splits into two roads stacked one above the other, each with a wooden arrow sign: up to Amherst, down to Southperry and the ship. Near the start Maria waits by a red mailbox with a letter she needs delivered to Amherst, and the first Shrooms appear among the snails.",
+      "notes": "returnMap 60000, mobRate 1.5. Foothold extent x -624..3234 (3858 px), y -175..570; 14 tiers in 4 bands; 8 climbables (2 ladders, 6 ropes). v22 adds Mai (12100) on a central platform (not in the v8 baseline). east00 is the v8 WZ value (3041,7); the brief and 50000.struct.json first carried (3033,2) from /api/GMS/37-39 and were corrected in the verification pass. From v37 the map has 14 climbables, and v49 reworks its geometry: both excluded. From v56 east01 leads to the new map 50001 instead of Southperry; never use v56+ links. Brief: docs/research/maps/50000_ASplitRoad_50000.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "MushroomVillage",
+      "return_map": 60000,
+      "mob_rate": 1.5,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        249,
+        170
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000050000.img/portal"
+    },
+    {
+      "id": 60000,
+      "name": "Southperry",
+      "street": "Maple Road",
+      "slug": "Southperry_60000",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "west00",
+          "x": -547,
+          "y": 286,
+          "to_map": 50000,
+          "to_portal": "east01",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West plateau, arrival from A Split Road."
+        },
+        {
+          "portal": "in00",
+          "x": 699,
+          "y": 527,
+          "to_map": 60001,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Armor Store door in the sunken market street (housePT/house1, shield-and-cross signboard)."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 20100,
+          "name": "Yoona",
+          "role": "Southperry resident, flavour only (v8 dialogue).",
+          "x": -18,
+          "y": 287
+        },
+        {
+          "id": 20002,
+          "name": "Biggs",
+          "role": "Sailor who wants to captain the ship (v8 dialogue). [v8 data: Etc/QuestInfo.img/0000100] quest 'Bigg's Collection of Items': 10 orange mushroom caps and 30 blue snail shells; the same quest is in the 2005 guide.",
+          "x": 950,
+          "y": -193
+        },
+        {
+          "id": 20001,
+          "name": "Bari",
+          "role": "Dock worker, flavour only ('Working hard there~').",
+          "x": 1013,
+          "y": 527
+        },
+        {
+          "id": 22000,
+          "name": "Shanks",
+          "role": "Ship captain. Sails players off the island to Victoria Island (Lith Harbor), one way, 150 mesos (Hidden Street 2005). NPC-scripted travel, not a portal.",
+          "x": 3223,
+          "y": -13
+        },
+        {
+          "id": 9000000,
+          "name": "Paul",
+          "role": "Event NPC (v8 dialogue: looking for the event place). [memory] GM-event warp NPC.",
+          "x": 4,
+          "y": 47
+        },
+        {
+          "id": 9010001,
+          "name": "Tia",
+          "role": "Greeter ('Hey all!'). Replaced by Ria (9010003) in v22.",
+          "x": -450,
+          "y": 287
+        },
+        {
+          "id": 9010000,
+          "name": "Maple Administrator",
+          "role": "Maple Administrator: greeting and anti-hacking reminder (v8 dialogue).",
+          "x": -181,
+          "y": 287
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Whitewashed buildings with blue domes (housePT/house0 with arched wall and starfish, house2 square tower)",
+        "Armor Store exterior: white walls, wavy blue-tiled roof, barrel-topped chimney, arched door, hanging sign with a green shield-and-cross icon (door = in00)",
+        "Sunken market street below a 240 px cliff, with rolled carpets, bales and an iron-bound chest",
+        "Upper terrace with a canvas market gazebo, blue ceramic pots and Biggs",
+        "Lighthouse: white tower with blue dome cap on a rocky outcrop with carved stairs (housePT/house3)",
+        "Grand white flagstone staircase (7 rises of 60 px) up to the quay",
+        "Docked ship 'victoria' (WZ set vehicle/ship/victoria): three masts with cream sails, golden winged figurehead, green-and-gold rails, twin barrel engines; walkable deck, climbable mast rope at x=2955",
+        "Wooden gangway at Shanks, cargo crates and bales, two face-in-the-hole photo boards on the quay"
+      ],
+      "terrain_style": "whiteMarble tiles: pale cream irregular flagstone (crazy paving) with grey grout for all ground, cliffs, steps and slabs; Santorini-style whitewashed buildings with blue domes and roofs. Backgrounds are sky and drifting clouds only (no sea or water anywhere in the v8 data).",
+      "recognizable": "The sunny harbour town at the end of Maple Road and the island's exit: Mediterranean whitewashed houses with blue domes on white flagstones, a lighthouse, a grand staircase up to the quay, and the big three-masted ship Victoria with Shanks at the gangway. Clouds drift past instead of sea, fitting the official description of Maple Island as 'an island floating somewhere in the sky'. The short, cheerful 'Go Picnic' loop plays.",
+      "notes": "Only walkable exits: west00 (to A Split Road east01) and the Armor Store door in00. There is NO east portal: travel off the island is NPC-scripted through Shanks (22000) at (3223,-13), one way to Lith Harbor, 150 mesos (Hidden Street 2005; StrategyWiki 2006; MapleWiki 2007). Non-exit portal points: h001 (pt 1, no target) at (-1,43) next to Paul, renamed gm00 in v22 (probably a GM/hidden landing spot, not a player exit); 6 'tp' points (pt 6) at x 870..1327, y~524 ([memory] Mystic Door landing spots). Foothold extent x -662..4082, y -1145..720; 36 tiers; 7 climbables. Hidden Street 2006: 'Only the armour store is available here.' v22 replaces Tia with Ria. From v56 west00 leads to 50001 (excluded). Brief: docs/research/maps/60000_Southperry_60000.md.",
+      "bgm": "Bgm00/GoPicnic",
+      "map_mark": "SouthPerry",
+      "return_map": 60000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        262,
+        187
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000060000.img/portal"
+    },
+    {
+      "id": 60001,
+      "name": "Southperry Armor Store",
+      "street": "Maple Road",
+      "slug": "SouthperryArmorStore_60001",
+      "kind": "interior",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": -48,
+          "y": 181,
+          "to_map": 60000,
+          "to_portal": "in00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Shop door, floor level, centre-left."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 21000,
+          "name": "Pan",
+          "role": "Armor/clothing shopkeeper: tied to this shop by v8 life data (NPC 21000 in 60001). Price list: StrategyWiki's 'Southperry Armor Store' table (revision of 14 Sep 2006, archived Jan 2007) lists 13 beginner clothes and shoes at 50 mesos each; that page does not name Pan. Inventory is server-side, not in the API.",
+          "x": -270,
+          "y": 140
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Pan's booth window on the west side",
+        "Climbable heap of wares on the east side leading up to a walkable ceiling beam",
+        "Timber ceiling beams with blue iron bands; wooden post with grey stone caps",
+        "Shop door at floor level, centre-left"
+      ],
+      "terrain_style": "Single 800 x 600 timber interior (insideGS/house0): plaster walls, heavy timber ceiling beams bound with blue iron bands, stone-capped wooden posts, plank floor; shop props from shop/shop/weapon.",
+      "recognizable": "A single warm, beamed shop room where Pan, in a blue suit and sunglasses, sells 50-meso beginner clothes from a booth window. It plays the gentle FloralLife town theme instead of Southperry's harbour tune.",
+      "notes": "Same room template as 1010001 Amherst Weapon Store: identical door out00 (-48,181), spawn point (-114,115), shopkeeper position (-270,140) and rope x=75. No minimap; 16 walkable tiers (floor + furniture tops). Exterior is the blue-roofed house in 60000. Brief: docs/research/maps/60001_SouthperryArmorStore_60001.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "SouthPerry",
+      "return_map": 60000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        262,
+        187
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/000060001.img/portal"
+    },
+    {
+      "id": 1000000,
+      "name": "The Field West of Amherst",
+      "street": "Rainbow Street",
+      "slug": "FieldWestOfAmherst_1000000",
+      "kind": "field",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "west00",
+          "x": -391,
+          "y": 276,
+          "to_map": 50000,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West end of the ground road."
+        },
+        {
+          "portal": "east00",
+          "x": 3338,
+          "y": 456,
+          "to_map": 1010000,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East gate, 'Amherst ->' signboard with sunflowers."
+        },
+        {
+          "portal": "in00",
+          "x": -60,
+          "y": -385,
+          "to_map": 1000001,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Wooden door on an upper-left floating island; '!' triangle sign."
+        },
+        {
+          "portal": "in01",
+          "x": 2987,
+          "y": -508,
+          "to_map": 1000002,
+          "to_portal": "out01",
+          "kind": "inner",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Upper-east shelf; wooden DANGER notice board but NO door object (plain portal)."
+        },
+        {
+          "portal": "in02",
+          "x": 1740,
+          "y": 455,
+          "to_map": 1000003,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Left of the twin doors in the mound inside the sunken hollow; wooden notice-board sign."
+        },
+        {
+          "portal": "in03",
+          "x": 1908,
+          "y": 456,
+          "to_map": 1000004,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Right of the twin doors in the hollow mound; no sign."
+        },
+        {
+          "portal": "in04",
+          "x": 389,
+          "y": -688,
+          "to_map": 1000005,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Wooden door on a high left island; skull-and-DANGER triangle sign."
+        },
+        {
+          "portal": "in05",
+          "x": 757,
+          "y": -747,
+          "to_map": 1000006,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Wooden door on the highest left-centre island; tilted-skull sign."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 16,
+        "Blue Snail": 20,
+        "Red Snail": 26,
+        "Shroom": 21,
+        "Orange Mushroom": 7
+      },
+      "landmarks": [
+        "Six side doors: small wooden doors set into earth mounds, most with a danger sign beside them",
+        "Sunken hollow (x 1479..2301) with a twin-door mound (Mushroom Garden + Snail Garden); its 180 px east cliff is climbed by a 440 px rope",
+        "V-shaped fork of stepping stones rising out of the central plateau; vertical stepping-stone mazes in the upper two-thirds",
+        "'Amherst ->' signboard with sunflowers at the east gate",
+        "Giant pale stalk-mushrooms on the east balcony; barrels; autumn birches by the west exit",
+        "Wooded summit (top centre-right) where Orange Mushrooms roam"
+      ],
+      "terrain_style": "grassySoil tiles: bright green grass over khaki/olive clumpy soil with mossy grey rocks; ground road in big rectangular steps on the 60 px grid with a dense archipelago of floating slabs and oval stepping-stone tufts above. grassySoil backdrop (sky, cumulus, distant hill, big leafy tree, meadow band).",
+      "recognizable": "The busy hub of Rainbow Street and the widest field on the island: a 3948 px road west to east with a sky archipelago of floating ledges about 25 steps high, and six little wooden doors with danger signs leading off to the forest and garden pockets. Players came back here again and again to pick a pocket. Islanders remembered the hard-to-reach 'pillar' ledge above the Mushroom Garden door (Basilmarket 2007).",
+      "notes": "Hub: 8 exits (west, east, 6 side doors). mobRate 1.3, returnMap 1010000 (Amherst). Foothold extent x -489..3459, walkable y -1045..455 (1500 px, ~25 steps of 60 px); 10 ground levels + 39 platform levels; 13 climbables (3 ladders, 10 ropes). Danger-sign variants by door: in00 \"!\" triangle, in01 and in02 wooden notice board, in03 none, in04 skull-and-DANGER triangle, in05 tilted skull (whether they encode difficulty is unconfirmed). v8 geometry (493 footholds) is canonical; v22 has 396. Exclude the 18 climbables of v37-v48, the v49+ rework (Stump, Slime and Pig spawns; west00 moves to x=830) and the v56+ Yoona. The raised block above the in05 platform has no v8 footholds: decoration. Brief: docs/research/maps/1000000_FieldWestOfAmherst_1000000.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1.3,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal"
+    },
+    {
+      "id": 1000001,
+      "name": "In a Small Forest",
+      "street": "Rainbow Street",
+      "slug": "InASmallForest_1000001",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 1153,
+          "y": -56,
+          "to_map": 1000000,
+          "to_portal": "in00",
+          "kind": "inner",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Mid-air ledge on the right side (tier P14), no door object; only exit, no edge exits."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 16,
+        "Blue Snail": 10,
+        "Red Snail": 5,
+        "Shroom": 11,
+        "Orange Mushroom": 4
+      },
+      "landmarks": [
+        "Zig-zag tower of 14 small 168 px stepping stones up the left-centre",
+        "Arrival ledge in mid-air on the right side, overlooking the open forest floor",
+        "798 px top ledge with three ropes hanging down like curtains",
+        "4-step hill with a ladder in the bottom-right corner"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop; groves of white-trunk birches in green, teal, autumn orange and mustard.",
+      "recognizable": "A small, cosy pocket forest: you arrive on a ledge in mid-air and look down on a forest floor ringed by green and autumn birches. A tall zig-zag column of tiny stepping stones climbs the middle to a wide top ledge with rope curtains. Easy snails on the ledges, Orange Mushrooms patrolling the floor.",
+      "notes": "Dead-end pocket off 1000000 (door in00). Only exit is the mid-air portal on P14; both map edges are walls. mobRate 1.3. Foothold extent x -624..1434, walkable y -535..605 (19 steps); 1 ground + 28 platform levels; 6 climbables (1 ladder, 5 ropes). Brief: docs/research/maps/1000001_InASmallForest_1000001.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1.3,
+      "spawn_points": 5,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000001.img/portal"
+    },
+    {
+      "id": 1000002,
+      "name": "Dangerous Forest",
+      "street": "Rainbow Street",
+      "slug": "DangerousForest_1000002",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out01",
+          "x": -310,
+          "y": -864,
+          "to_map": 1000000,
+          "to_portal": "in01",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Top-left platform (P03, x -399..39 at y=-865), which starts at the map's west limit; the portal is 89 px from it. No door object; only exit. Portal name is out01, not out00. Classed inner before the verification pass (see discrepancies)."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 15,
+        "Blue Snail": 3,
+        "Red Snail": 5,
+        "Orange Mushroom": 12
+      },
+      "landmarks": [
+        "Three horizontal bands like a bookshelf: forest floor, a giant floating middle shelf, and a battlement row on top",
+        "Seven long green vines (360..453 px) as the only way up",
+        "Floor rising eastward while the middle shelf falls eastward",
+        "Dense autumn birch groves on both main tiers"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop; dense autumn birch groves (rust-orange and mustard); all 7 climbables are green leafy vines (connect/rope/3). Nothing man-made.",
+      "recognizable": "The 'dangerous' pocket: you enter at the top-left and drop into an autumn forest of three wide shelves joined only by long green vines, with 12 Orange Mushrooms (level 8) roaming below. A 2007 Basilmarket poster advised training here 'till 20ish' before leaving the island.",
+      "notes": "Dead-end pocket off 1000000 (in01, the doorless portal by the DANGER board). The exit portal is named out01 and pairs with 1000000 in01; it sits on the top-left row that starts at the west limit of the map, so its kind is edge_west. Return to the exit needs two long vine climbs. From v37 it has 10 climbables (excluded). mobRate 1.0. Foothold extent x -399..1749, walkable y -925..215 (19 steps); 3 ground + 9 platform levels. Brief: docs/research/maps/1000002_DangerousForest_1000002.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 8,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000002.img/portal"
+    },
+    {
+      "id": 1000003,
+      "name": "Mushroom Garden",
+      "street": "Rainbow Street",
+      "slug": "MushroomGarden_1000003",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 2695,
+          "y": 329,
+          "to_map": 1000000,
+          "to_portal": "in02",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Wooden plank door in a grassy hill on the east terrace (door/grassySoil/door/0)."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 9,
+        "Shroom": 28,
+        "Orange Mushroom": 5
+      },
+      "landmarks": [
+        "Hobbit-style wooden door set into a grassy hill on the east terrace (entrance and exit)",
+        "Berry hedges, clover with pink blossoms, purple irises and orange flower beds",
+        "Neat zig-zag stair of stepping stones and terraces up to a top terrace",
+        "Rope ladder and knotted rope hanging from left islands"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop; platforms sit 30 px off the usual 60 px grid. Garden decor: berry hedges, clover, flower beds, white birches.",
+      "recognizable": "A compact, cultivated garden of berry hedges, clover and flower beds, swarming with 28 Shrooms. You enter and leave through a wooden door in a grassy hill. Despite the name there are no giant mushroom props: the mushrooms are the monsters.",
+      "notes": "Dead-end pocket off 1000000 (left door in the hollow mound, in02). Foothold extent x 1041..2919, walkable y -355..515 (870 px, the lowest span of the pockets); 4 ground + 14 platform levels; 3 climbables. Brief: docs/research/maps/1000003_MushroomGarden_1000003.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 6,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000003.img/portal"
+    },
+    {
+      "id": 1000004,
+      "name": "Snail Garden",
+      "street": "Rainbow Street",
+      "slug": "SnailGarden_1000004",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 980,
+          "y": 329,
+          "to_map": 1000000,
+          "to_portal": "in03",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Door in a raised earth block at the west end (door/grassySoil/door/0)."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 17,
+        "Blue Snail": 19,
+        "Red Snail": 11
+      },
+      "landmarks": [
+        "Door set into an earth mound at the west end (the only way in or out)",
+        "Stepped drop into a fenced sunken basin",
+        "Arch of eight small stepping stones curving over the basin",
+        "Top-row garden beds: carrots, fruit bushes, strawberries, sunflowers"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop; stepped ground bowl with a short brown fence in the basin; floating platforms 168 + n*90 px wide on a 60 px grid.",
+      "recognizable": "The safest of the six forest pockets (snails only, levels 1-4): a door in an earth mound opens onto a stepped garden bowl with a fenced basin full of snails, an arch of stepping stones over it, and real vegetable beds on the top islands.",
+      "notes": "Dead-end pocket off 1000000 (right door in the hollow mound, in03). Foothold extent x 771..2919, walkable y -445..515; 26 tiers; 11 climbables (3 ladders, 8 ropes). v8 and v22 identical; v62 is a re-layout. Brief: docs/research/maps/1000004_SnailGarden_1000004.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 6,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000004.img/portal"
+    },
+    {
+      "id": 1000005,
+      "name": "Hunting Ground Middle of the Forest I",
+      "street": "Rainbow Street",
+      "slug": "HuntingGroundMidForest1_1000005",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 132,
+          "y": 155,
+          "to_map": 1000000,
+          "to_portal": "in04",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Door in a raised block on the central ground mound (door/grassySoil/door/0)."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 21,
+        "Blue Snail": 16,
+        "Red Snail": 10,
+        "Shroom": 12
+      },
+      "landmarks": [
+        "Zig-zag jump tower: 11 hops of 60 px up a column of small grass stones (y -145 to -805)",
+        "Door in a block on the central ground mound, with a short ladder-and-rope climb into the tower",
+        "Summit loop: ladders up the east side, stones stepping down west, ropes down the west side",
+        "Three standable log piles and a rainbow fountain on the forest floor"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop; forest-floor props: log piles, rainbow fountain, tiny mushrooms and ladybugs.",
+      "recognizable": "The 'climb the forest' map and the tallest pocket (1620 px): from a door on a central mound a zig-zag column of tiny stones rises through the forest, climbed purely by jumping, to a loop of ledges over the top. Shrooms hold the lower west shelves.",
+      "notes": "Dead-end pocket off 1000000 (in04). Foothold extent x -759..1209, walkable y -1405..215; 38 tiers; 10 climbables (4 ladders, 6 ropes). 5 ropes and a stone are added from v37 (still in v40; later easing, excluded). Brief: docs/research/maps/1000005_HuntingGroundMidForest1_1000005.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 6,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/portal"
+    },
+    {
+      "id": 1000006,
+      "name": "Hunting Ground Middle of the Forest II",
+      "street": "Rainbow Street",
+      "slug": "HuntingGroundMidForest2_1000006",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 133,
+          "y": -1346,
+          "to_map": 1000000,
+          "to_portal": "in05",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Door in a block on the floating central island, about 600 px above the valley floor."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 13,
+        "Blue Snail": 17,
+        "Red Snail": 6,
+        "Shroom": 9,
+        "Orange Mushroom": 6
+      },
+      "landmarks": [
+        "Arrival on a floating central island with a banded wooden door, about 600 px above the valley",
+        "V-shaped valley floor: west plateau, low floor, long grassy ramp up to a high east plateau",
+        "White wooden stake fences along both banks",
+        "Ring of islands around the arrival island with lily-of-the-valley, daffodils and a giant umbrella leaf"
+      ],
+      "terrain_style": "grassySoil tiles and backdrop with midForest decor: big twin-trunk white-bark trees in autumn orange and yellow, white wooden stake fences, lily-of-the-valley, daffodils, a giant umbrella-leaf plant; ropes hang from wooden pegs; one rope ladder.",
+      "recognizable": "You step out of a door on a floating island high above an autumn valley. Below, a smooth V-shaped valley with white stake fences and big orange and yellow birches; around you, a ring of grass islands with giant lilies of the valley. Orange Mushrooms (level 8) roam among the snails and Shrooms.",
+      "notes": "Dead-end pocket off 1000000 (in05). The exit is on the floating centre island near the top of the map (y=-1346), a vertical exit. Foothold extent x -1119..1029, walkable y -2125..-745; 30 tiers (valley ground split at its slopes); 10 climbables (1 rope ladder, 9 ropes). v8, v22, v40 identical. Brief: docs/research/maps/1000006_HuntingGroundMidForest2_1000006.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 7,
+      "worldmap_spot_px": [
+        273,
+        164
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000006.img/portal"
+    },
+    {
+      "id": 1010000,
+      "name": "Amherst",
+      "street": "Rainbow Street",
+      "slug": "Amherst_1010000",
+      "kind": "town",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "west00",
+          "x": -291,
+          "y": 276,
+          "to_map": 1000000,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West gate, 107 px in from the west wall; Rain stands nearby."
+        },
+        {
+          "portal": "in00",
+          "x": 227,
+          "y": -175,
+          "to_map": 1010001,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Weapon Store door on the walled upper plateau (door/grassySoil/door/5)."
+        },
+        {
+          "portal": "in01",
+          "x": 2276,
+          "y": 275,
+          "to_map": 1010002,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Orange-spotted mushroom house door on the east street (leads to Townstreet)."
+        },
+        {
+          "portal": "in02",
+          "x": 1516,
+          "y": 156,
+          "to_map": 1010003,
+          "to_portal": "out00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Department Store door on the middle terrace (door/grassySoil/door/13)."
+        },
+        {
+          "portal": "east00",
+          "x": 3055,
+          "y": 274,
+          "to_map": 1020000,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "East end of the street, at the foot of the giant tree house, 223 px before the east wall."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 12000,
+          "name": "Lucas",
+          "role": "Chief of Amherst, wary of strangers (v8 dialogue). Receives Maria's letter and writes the reply (Hidden Street Feb 2006, StrategyWiki 2007; [v22 data] quests 1005/1006).",
+          "x": 1790,
+          "y": 154
+        },
+        {
+          "id": 12100,
+          "name": "Mai",
+          "role": "Fighter looking for a challenge (v8 dialogue). Mai's Training quests: first attested in the Hidden Street list of Feb 2006; [v22 data] details (by v22 she stands at A Split Road instead).",
+          "x": 628,
+          "y": -176
+        },
+        {
+          "id": 12101,
+          "name": "Rain",
+          "role": "Tutorial helper at the west gate: jump and movement hints (v8 dialogue). Rain's Maple Quiz: first attested in the Hidden Street list of Feb 2006; [v22 data] details (the v8 dialogue has no quiz lines).",
+          "x": 103,
+          "y": 274
+        },
+        {
+          "id": 10000,
+          "name": "Pio",
+          "role": "Handyman, always hungry (v8 dialogue). Recycling errand (break Wooden Boxes around town): first attested in the Hidden Street list of Feb 2006; [v22 data] details.",
+          "x": 547,
+          "y": 274
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Three-level hill town: street (y=274), middle terrace (y=154), walled upper plateau (y=-176, 450 px above the street)",
+        "Paired rope (x=917) and ladder (x=991) up the 270 px cliff to the upper plateau",
+        "Weapon Store on the plateau: yellow-capped mushroom house with thatched annex and sword signboard (door in00)",
+        "Department Store on the middle terrace: lime-capped mushroom house with lantern and potion signboard (door in02)",
+        "Orange-spotted mushroom house on the east street (door in01 to Townstreet)",
+        "Red mailbox at the west gate; red-capped mushroom tower with pipe chimney and farm props",
+        "Giant tree house with two orange-capped rooms beside the east exit; mushroom face-cutout boards and a white banner"
+      ],
+      "terrain_style": "Pale grey-blue and tan cobblestone mosaic with a thin grass lip (WZ tileset woodMarble); the only cobblestone map on the island. Three levels joined by a wooden ramp, a rope and a ladder. grassySoil sky backdrop.",
+      "recognizable": "The 'town of quests' (official GMS site 2006, Hidden Street 2006): a cobblestone hill town of colourful mushroom houses on three levels, with the island's only weapon shop up on the walled plateau and the potion shop on the middle square. Rain greets you at the west gate, Chief Lucas waits on the terrace for Maria's letter, and a giant tree house stands over the east exit. FloralLife plays.",
+      "notes": "v8 data puts Mai at (628,-176) on the upper plateau; the Hidden Street Dec 2005 diagram independently labels her on the plateau next to the weapon store (a text label, no coordinates). By v22 she has moved to A Split Road. v8 placement is canonical. 6 'tp' points (pt 6) at x 169..621 on the west street are not exits. No clock or tower exists in Amherst (searched); the island's tower is Southperry's lighthouse. Maria belongs at A Split Road, not Amherst (Amherst Maria is post-v83). Foothold extent x -398..3278, walkable y -228..274; 14 tiers; 3 climbables. Brief: docs/research/maps/1010000_Amherst_1010000.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        312,
+        165
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010000.img/portal"
+    },
+    {
+      "id": 1010001,
+      "name": "Amherst Weapon Store",
+      "street": "Rainbow Street",
+      "slug": "AmherstWeaponStore_1010001",
+      "kind": "interior",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": -48,
+          "y": 181,
+          "to_map": 1010000,
+          "to_portal": "in00",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Shop door, floor level."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 11000,
+          "name": "Sid",
+          "role": "Weapon shopkeeper ('On sale! Really CHEAP!'). The only weapon shop on the island: Hidden Street 2006 lists only a Weapon store and a Potion store in Amherst and 'only the armour store' in Southperry, and the v8 map set has no other weapon-store map (MapleWiki 2008 says the same; secondary). Inventory not in the API.",
+          "x": -270,
+          "y": 140
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Domed forge furnace with a glowing mouth and a green glass tank",
+        "Sid's boarded wooden booth in the back-left corner",
+        "Gear-mechanism window, pipes, chained dark armor in a wall alcove",
+        "Step scaffold and machine stack up to a ceiling beam with a hanging rope (x=75), 445 px above the floor",
+        "Sacks and a barrel of weapons by the right wall"
+      ],
+      "terrain_style": "Single 800 x 600 forge-workshop interior (insideGS/house0 shell): plank floor, timber posts with stone caps, lashed plank roof, gear-and-pipe walls.",
+      "recognizable": "A forge workshop rather than a plain store: Sid sells weapons from a booth beside a glowing domed furnace, with gears, pipes and armor on the walls. It is the only weapon shop on the island (Hidden Street 2006; MapleWiki 2008).",
+      "notes": "Same room template as 60001 Southperry Armor Store (identical door, spawn point, shopkeeper position and rope). 16 walkable tiers (floor + props). Brief: docs/research/maps/1010001_AmherstWeaponStore_1010001.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        312,
+        165
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010001.img/portal"
+    },
+    {
+      "id": 1010002,
+      "name": "Amherst Townstreet",
+      "street": "Rainbow Street",
+      "slug": "AmherstTownstreet_1010002",
+      "kind": "townstreet",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": -167,
+          "y": 244,
+          "to_map": 1010000,
+          "to_portal": "in01",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "Just inside the house's west doorway; leads back out to Amherst."
+        },
+        {
+          "portal": "west00",
+          "x": -492,
+          "y": 275,
+          "to_map": 1010004,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West end of the garden path behind the house; a DANGER sign stands 80 px east of it."
+        }
+      ],
+      "npcs": [],
+      "mobs": {},
+      "landmarks": [
+        "Cutaway two-storey orange mushroom house: bookcase downstairs; bed, chest and curtained window upstairs",
+        "Wooden ladder between the floors (x=77) and hanging lamps",
+        "Front door at the west side of the house (arrival from Amherst)",
+        "Garden path out the west side with a DANGER sign and a flower bed (way to Snail Field of Flowers)"
+      ],
+      "terrain_style": "Grass-topped earth street strip (grassySoil) under a cutaway two-storey orange mushroom-house interior (insideGS/house1); grassySoil sky backdrop.",
+      "recognizable": "Inside the orange mushroom house you just entered from Amherst: a doll-house cutaway on a short grass street. It is not a dead end: out the west side a garden path with a DANGER sign is the back way out of town to the Snail Field of Flowers. Hidden Street's Dec 2005 diagram captions it 'HOUSE IN TOWNSTREET'.",
+      "notes": "Through-route: the only access to 1010004. Same Townstreet template as 20001 (identical door out00 (-167,244), ladder x=77, floors, roof). No NPCs, no mobs. Foothold extent x -579..399; 4 tiers. Brief: docs/research/maps/1010002_AmherstTownstreet_1010002.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        312,
+        165
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010002.img/portal"
+    },
+    {
+      "id": 1010003,
+      "name": "Amherst Department Store",
+      "street": "Rainbow Street",
+      "slug": "AmherstDepartmentStore_1010003",
+      "kind": "interior",
+      "is_town": true,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": 300,
+          "y": 182,
+          "to_map": 1010000,
+          "to_portal": "in02",
+          "kind": "door",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "'Thank you' exit door on the right side of the shop."
+        }
+      ],
+      "npcs": [
+        {
+          "id": 11100,
+          "name": "Lucy",
+          "role": "Potion/grocery shopkeeper ('You definitely need potions to travel'). Inventory not in the API.",
+          "x": -258,
+          "y": 84
+        }
+      ],
+      "mobs": {},
+      "landmarks": [
+        "Orange 'WELCOME' booth with a money-bag banner (Lucy)",
+        "Wall shelf with red and blue potions",
+        "Stacked crates, table with books, tall pole shelf with lidded jars, parchment poster",
+        "High wall shelf with a treasure chest; ceiling crossbeam about 310 px above the floor",
+        "Exit door with a 'Thank you' sign"
+      ],
+      "terrain_style": "Single 800 x 600 timber-frame shop interior (insideGS/house0 shell, same as the Weapon Store); brick-edged plank floor; many shelf and crate platforms.",
+      "recognizable": "The potion shop: Lucy behind an orange WELCOME booth, potion bottles on the wall ('You definitely need potions to travel'), jars and crates to hop across, and a 'Thank you' door on the way out. Same shell as the Weapon Store, so the two shops read as a pair.",
+      "notes": "22 walkable tiers (floor + furniture tops), no ladders. Hidden Street 2006 calls it the \"Potion store\". Brief: docs/research/maps/1010003_AmherstDepartmentStore_1010003.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 1,
+      "worldmap_spot_px": [
+        312,
+        165
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010003.img/portal"
+    },
+    {
+      "id": 1010004,
+      "name": "Snail Field of Flowers",
+      "street": "Rainbow Street",
+      "slug": "SnailFieldOfFlowers_1010004",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "east00",
+          "x": 559,
+          "y": -623,
+          "to_map": 1010002,
+          "to_portal": "west00",
+          "kind": "edge_east",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "On the fenced top rim, which spans the full map width (x -1029..849); the portal is 290 px from the east limit. Only exit. Classed inner before the verification pass (see discrepancies)."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 10,
+        "Blue Snail": 16,
+        "Red Snail": 17
+      },
+      "landmarks": [
+        "Fenced, hedge-lined rim road across the full width at the top (arrival)",
+        "Curtain of long green vines (~450 px) down the rim cliff into the bowl",
+        "Three flower-bed bands (purple irises, clover, orange flowers) and a centre island of orange flowers",
+        "Zig-zag stone stair up the east side of the bowl",
+        "Clover-carpeted basin; pink, orange and yellow butterflies"
+      ],
+      "terrain_style": "grassySoil tiles; grassySoil backdrop with meadow strips (golden grass, broken wooden fence, yellow tree). All 11 climbables are green leafy vines (connect/rope/3). Decor: wooden rail fences and big bushes on the rim, clover carpets, purple and orange flower beds, butterflies.",
+      "recognizable": "A flower meadow with butterflies seen from a fenced cliff-top lane: you arrive on the rim and drop down vines into a bowl of irises, clover and orange flowers full of snails. It keeps the FloralLife town music and is reached through the town, not from the fields.",
+      "notes": "Reachable ONLY through 1010002 Amherst Townstreet (west00). mobRate 1.2 (faster respawn). The exit is on the full-width top rim, 290 px from the east limit, so its kind is edge_east (it was classed inner before the verification pass). Foothold extent x -1029..849, walkable y -625..575; 19 tiers; 2 of the 11 vines are dead ends. Stable from v8 to v62. Brief: docs/research/maps/1010004_SnailFieldOfFlowers_1010004.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1.2,
+      "spawn_points": 11,
+      "worldmap_spot_px": [
+        312,
+        165
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010004.img/portal"
+    },
+    {
+      "id": 1020000,
+      "name": "The Field East of Amherst",
+      "street": "Rainbow Street",
+      "slug": "FieldEastOfAmherst_1020000",
+      "kind": "field",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "in00",
+          "x": 1792,
+          "y": -384,
+          "to_map": 1020001,
+          "to_portal": "out00",
+          "kind": "inner",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 1,
+          "note": "pt 1 portal ([memory] pt 1 = invisible portal, so probably hidden in-game) on a high ledge (x 1671..2019, y=-384) in the platform lattice, marked by a DANGER sign and 3 tomato plants. There is no east exit."
+        },
+        {
+          "portal": "west00",
+          "x": -332,
+          "y": 90,
+          "to_map": 1010000,
+          "to_portal": "east00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West plateau, 157 px in from the west wall."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 8,
+        "Blue Snail": 19,
+        "Red Snail": 13,
+        "Orange Mushroom": 12
+      },
+      "landmarks": [
+        "Lattice of floating grass platforms 10 rows high (960 px) over the meadow",
+        "Rows of small stepping-stone platforms (6 at y=-145, 5 at y=-565)",
+        "DANGER sign and 3 tomato plants on a high ledge marking the hidden Tomato Field portal",
+        "Giant orange mushroom pair at the far east end (decorative, not a door)",
+        "Rainbow-spring props, standable log pile, clover beds, small white mushrooms"
+      ],
+      "terrain_style": "grassySoil tiles: meadow ground with two 120 px sunken hollows under a regular lattice of floating slabs and small tufts, 10 rows high; autumn birch groves in the hollows. Backdrop (2006 screenshot): blue sky, soft distant hills, a giant tree trunk.",
+      "recognizable": "The end of Rainbow Street: an orderly lattice of floating platforms stacked over a meadow, with 12 Orange Mushroom spawn points among the snails, under a sky with a giant tree in the background. A DANGER sign among tomato plants high on the east side hides the secret way to the Tomato Field. The town music still plays.",
+      "notes": "No east exit (east plateau ends in a wall at x=2199). in00 is pt 1 in v8-v48 ([memory] pt 1 = invisible portal); at v49 it becomes pt 2 ([memory] visible) at (1874,-266). mobRate 1.0. Foothold extent x -489..2199, walkable y -745..215; 37 tiers; 12 climbables (5 ladders, 7 ropes). Redesigned twice after the era, both excluded: at v49 (163 footholds instead of 254, 8 spawn points instead of 10, 5 climbables, Slime and Pig added) and at v56 (191 footholds, new side portals to 1000005/1000006, Mai stands here). Brief: docs/research/maps/1020000_FieldEastOfAmherst_1020000.md.",
+      "bgm": "Bgm00/FloralLife",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 10,
+      "worldmap_spot_px": [
+        321,
+        189
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001020000.img/portal"
+    },
+    {
+      "id": 1020001,
+      "name": "Tomato Field",
+      "street": "Rainbow Street",
+      "slug": "TomatoField_1020001",
+      "kind": "hunting",
+      "is_town": false,
+      "exits": [
+        {
+          "portal": "out00",
+          "x": -275,
+          "y": 214,
+          "to_map": 1020000,
+          "to_portal": "in00",
+          "kind": "edge_west",
+          "source": "xml",
+          "confidence": "high",
+          "pt": 2,
+          "note": "West end of the ground, 124 px in from the west wall; the only exit."
+        }
+      ],
+      "npcs": [],
+      "mobs": {
+        "Snail": 9,
+        "Blue Snail": 8,
+        "Red Snail": 4,
+        "Orange Mushroom": 4
+      },
+      "landmarks": [
+        "72 tomato plants filling two sunken furrows along the ground",
+        "Canopy of 17 small 168 px floating platforms in staggered rows (no mobs there)",
+        "Five long leafy vines (326..448 px) up to the canopy",
+        "Autumn birches at the west end, mustard-yellow birches in the centre and east"
+      ],
+      "terrain_style": "grassySoil tiles: long, low ground with gentle slopes (90..180 px runs) and two sunken furrows; one canopy of small floating tufts; long leafy vines; autumn and mustard birches.",
+      "recognizable": "A flat farm strip with rows of tomato plants along gently rolling ground and a sky row of stepping stones, reached only through a hidden portal on the East Field's DANGER-sign ledge. The quietest, simplest map on the street, with the calm RestNPeace field music.",
+      "notes": "Dead-end pocket off 1020000 (hidden in00). Only exit out00 at the west end. All 25 spawn points are on the ground chain. Foothold extent x -399..2559, walkable y -325..275; 26 tiers. Brief: docs/research/maps/1020001_TomatoField_1020001.md.",
+      "bgm": "Bgm00/RestNPeace",
+      "map_mark": "Amherst",
+      "return_map": 1010000,
+      "mob_rate": 1,
+      "spawn_points": 9,
+      "worldmap_spot_px": [
+        321,
+        189
+      ],
+      "source_url": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001020001.img/portal"
+    }
+  ],
+  "connections": [
+    {
+      "a": 0,
+      "a_portal": "out00",
+      "b": 10000,
+      "b_portal": "in00",
+      "bidirectional": false,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 10000,
+      "a_portal": "out00",
+      "b": 20000,
+      "b_portal": "in00",
+      "bidirectional": false,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 20000,
+      "a_portal": "in01",
+      "b": 20001,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 20000,
+      "a_portal": "out00",
+      "b": 30000,
+      "b_portal": "in00",
+      "bidirectional": false,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 30000,
+      "a_portal": "out00",
+      "b": 40000,
+      "b_portal": "in00",
+      "bidirectional": false,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 40000,
+      "a_portal": "east00",
+      "b": 40001,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 40001,
+      "a_portal": "east00",
+      "b": 40002,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 40002,
+      "a_portal": "east00",
+      "b": 50000,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 50000,
+      "a_portal": "east00",
+      "b": 1000000,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 50000,
+      "a_portal": "east01",
+      "b": 60000,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 60000,
+      "a_portal": "in00",
+      "b": 60001,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "east00",
+      "b": 1010000,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in00",
+      "b": 1000001,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in01",
+      "b": 1000002,
+      "b_portal": "out01",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in02",
+      "b": 1000003,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in03",
+      "b": 1000004,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in04",
+      "b": 1000005,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1000000,
+      "a_portal": "in05",
+      "b": 1000006,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1010000,
+      "a_portal": "in00",
+      "b": 1010001,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1010000,
+      "a_portal": "in01",
+      "b": 1010002,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1010000,
+      "a_portal": "in02",
+      "b": 1010003,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1010000,
+      "a_portal": "east00",
+      "b": 1020000,
+      "b_portal": "west00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1010002,
+      "a_portal": "west00",
+      "b": 1010004,
+      "b_portal": "east00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    },
+    {
+      "a": 1020000,
+      "a_portal": "in00",
+      "b": 1020001,
+      "b_portal": "out00",
+      "bidirectional": true,
+      "source": "xml",
+      "confidence": "high"
+    }
+  ],
+  "primary_route": [
+    0,
+    10000,
+    20000,
+    30000,
+    40000,
+    40001,
+    40002,
+    50000,
+    60000
+  ],
+  "branches": [
+    {
+      "from": 20000,
+      "maps": [
+        20001
+      ],
+      "description": "Sen's house through the orange mushroom house door (in01). Optional dead-end interior used by Nina's dinner errand; return to 20000 by the same door. The only side branch before the one-way funnel ends."
+    },
+    {
+      "from": 50000,
+      "maps": [
+        1000000,
+        1010000,
+        1020000
+      ],
+      "description": "Rainbow Street. A Split Road's UPPER east exit (east00, signboard 'Amherst ->') leads east through The Field West of Amherst to Amherst and on to The Field East of Amherst, where the street ends (no further exit). Not needed to reach Southperry, but Maria's letter errand at 50000 sends players to Lucas in Amherst. The only way back to the main route is through 50000."
+    },
+    {
+      "from": 1000000,
+      "maps": [
+        1000001,
+        1000002,
+        1000003,
+        1000004,
+        1000005,
+        1000006
+      ],
+      "description": "Six dead-end training pockets off The Field West of Amherst, each entered and left by one portal: in00 In a Small Forest, in01 Dangerous Forest (doorless, DANGER board), in02 Mushroom Garden and in03 Snail Garden (twin doors in the hollow mound), in04 and in05 the two Hunting Grounds Middle of the Forest (high doors)."
+    },
+    {
+      "from": 1010000,
+      "maps": [
+        1010001,
+        1010003
+      ],
+      "description": "Amherst shop interiors: Weapon Store (door in00 on the upper plateau, Sid) and Department Store (door in02 on the middle terrace, Lucy)."
+    },
+    {
+      "from": 1010000,
+      "maps": [
+        1010002,
+        1010004
+      ],
+      "description": "Amherst Townstreet (door in01 in the orange-spotted house) is a through-route: its west garden path (west00) is the ONLY way to the Snail Field of Flowers."
+    },
+    {
+      "from": 1020000,
+      "maps": [
+        1020001
+      ],
+      "description": "Tomato Field: dead-end pocket behind portal in00 (pt 1; [memory] an invisible portal type) on a high ledge of The Field East of Amherst, marked by a DANGER sign and tomato plants."
+    },
+    {
+      "from": 60000,
+      "maps": [
+        60001
+      ],
+      "description": "Southperry Armor Store (door in00 in the sunken market street, Pan)."
+    },
+    {
+      "from": 60000,
+      "maps": [],
+      "description": "Off-island exit: Shanks (NPC 22000) at the ship on the east quay sails one way to Lith Harbor, Victoria Island, for 150 mesos (Hidden Street 2005, StrategyWiki 2006, MapleWiki 2007). NPC-scripted, not a portal, outside the 25-map set. Maple Island is 'a mysterious island of no-return' (official GMS site 2005)."
+    }
+  ],
+  "start_map": 0,
+  "discrepancies": [
+    {
+      "topic": "Which data version is the baseline (v8 vs v22)",
+      "sources_disagree": "Both are inside the target era. v22 adds Todd (NPC 2004) and 3 Tutorial Jr. Sentinels at 30000, Sam (NPC 2005) at 40000, moves Mai from Amherst to A Split Road, removes Blue Snails from 40000 and thins 40001/40002, replaces Tia with Ria, re-lays out map 0, extends 20000 east, reshuffles 30000 climbing aids, changes 40002 east00 and 1000000 geometry, and adds Up-key hint signs (wiki_maple_road.md section 5; entities.json v22_deltas).",
+      "decision": "GMS v8 is the canonical baseline for topology, portal positions, geometry, NPC placement and spawns. v22 content is recorded as an optional \"late 2005/2006 variant\" only.",
+      "rationale": "v8 is the only version for which the team holds the complete raw WZ portal set (25/25 maps pass the completeness check) and full foothold/object data for every map. Links are identical in v8 and v22, so the choice only affects placement and NPC content."
+    },
+    {
+      "topic": "When map 0 became the Training Camp",
+      "sources_disagree": "Task brief: v40+. topology_sources.md: v37 is still \"West Entrance to Mushroom Town\", v38 is \"Entrance - Mushroom Town Training Camp\" (String/Map.img name + portal list). analyze:group1: v37 original, v39 already Training Camp (consistent with v38).",
+      "decision": "Classic map 0 exists in GMS v8-v37 only; v38+ data for ID 0 is excluded.",
+      "rationale": "Raw WZ map-name strings and portal lists at v37 and v38 (https://maplestory.io/api/wz/GMS/37/String/Map.img/maple/0/mapName vs /GMS/38/...) are direct evidence; v39/v40 agree."
+    },
+    {
+      "topic": "When and how Maple Island was restructured (50001)",
+      "sources_disagree": "Task brief: v62 added 50001 and only 50000 changed. topology_sources.md: the change is at v56 (v55 unchanged) and also rewires 60000 west00, 1000001/1000002 (to 50001), 1000005/1000006 (to 1020000), and cuts 1000000 to 4 portals; corroborated by TitanMS v62 XML.",
+      "decision": "No v56+ link data is used anywhere. All 24 connections are v8 links (identical through v55 except map 0).",
+      "rationale": "Version bisection over every GMS version the WZ endpoint serves (v8, v22, v28, v32, v34, v37-v62)."
+    },
+    {
+      "topic": "Portal positions for 40000 east00, 40002 west00/east00 and 50000 east00",
+      "sources_disagree": "analyze:group2 struct.json files and briefs used out-of-era parsed-API or inferred positions because the v8 API JSON had nulls: 40000 east00 (2812,397) from v39; 40002 west00 (-200,275) inferred; 40002 east00 (2800,-1165) inferred; 50000 east00 (3033,2) from v37-v39. The raw v8 WZ nodes give (2692,392), (-19,274), (2822,-1164) and (3041,7).",
+      "decision": "Use the raw v8 WZ values (portals_xml.json) in topology.json. In the verification pass the four entries in 40000/40002/50000.struct.json and the matching brief rows were patched to the WZ values (old values kept in their notes), the 40002 brief lost its ground-tier fallback exit, and the struct.json source_version fields now say where earlier values came from.",
+      "rationale": "The WZ node tree is the v8 client data itself and covers every portal; the other values are from later builds or estimates."
+    },
+    {
+      "topic": "A Split Road <-> The Field West of Amherst link, and which end of Southperry links to A Split Road",
+      "sources_disagree": "worldmap.md marked 50000 <-> 1000000 as inferred only (all portals null in the API) and said Southperry's connecting end was undeterminable. Raw v8 WZ: 50000 east00 (3041,7) -> 1000000:west00 and back; 50000 east01 (3046,361) -> 60000:west00 (-547,286, the far west end) and back.",
+      "decision": "Both links are recorded as source xml, confidence high. Southperry connects at its west end; its east end is the ship dock.",
+      "rationale": "Direct portal data supersedes inference from the world-map drawing; the two agree in direction (Amherst branch east/upper, Southperry south/lower)."
+    },
+    {
+      "topic": "Where the Tomato Field entrance is",
+      "sources_disagree": "wiki_rainbow_street.md inferred the orange mushroom-cap house at the far east ground of 1020000; worldmap.md proposed that Tomato Field joins Field East at its left end. Raw v8 WZ: 1020000 in00 is a pt 1 portal ([memory] an invisible type) at (1792,-384) on a high ledge, beside a DANGER sign and 3 tomato plants; the far-east orange mushrooms are decorative (house13). Tomato Field's own exit is at its west end.",
+      "decision": "Use the WZ position: inner portal (pt 1) on the high east-side ledge of 1020000.",
+      "rationale": "Portal and object positions are data; the other two placements were inferences made while the portal was unparsed."
+    },
+    {
+      "topic": "Six Rainbow Street portals reported as unparsed",
+      "sources_disagree": "wiki_rainbow_street.md: positions unknown for 1010000 in02, 1010001 out00, 1010002 out00/west00, 1020000 in00 and 1000003 out00 (destinations confirmed by the Hidden Street Dec 2005 diagram and MapleTip 2007). Raw v8 WZ gives all of them.",
+      "decision": "Use the WZ positions. 1010000 in02 = (1516,156), which matches the wiki's diagram-based estimate of x 1500-1600 on the middle terrace.",
+      "rationale": "WZ data is complete; the archived diagram independently corroborates the destinations and the Department Store door position."
+    },
+    {
+      "topic": "One-way Mushroom Town chain (0 -> 10000 -> 20000 -> 30000 -> 40000)",
+      "sources_disagree": "Every team flagged it for confirmation. Data: the in00 arrival points in 10000/20000/30000/40000 are pt 1 with no target, and no portal leads back west in v8, v22 or v28-v39. A 2005 Hidden Street beginner guide says Heena 'will take you to the next screen/map', and Peter's v8 dialogue says 'If you want to move on to the next stage, talk to me': NPC-scripted warps may exist, and portal data cannot show them.",
+      "decision": "Recorded as four one-way connections (bidirectional false), source xml, confidence high. Whether MisoStory adds return paths is a design decision for the project owner, not a data question. NPC warps are not modelled.",
+      "rationale": "Consistent across every version checked; it matches the remembered and documented feel of a tutorial funnel."
+    },
+    {
+      "topic": "Mai's position",
+      "sources_disagree": "v8 data puts Mai (12100) at (628,-176) on the Amherst upper plateau; the Hidden Street Dec 2005 diagram independently labels her on the plateau next to the weapon store (text labels only, so no coordinates). v22 places her at A Split Road (1891,-175) with new training lines.",
+      "decision": "Mai stands in Amherst (v8 baseline). The A Split Road position is the v22 variant.",
+      "rationale": "Follows the baseline decision. The position comes from v8 data alone; the Dec 2005 diagram independently agrees on the plateau."
+    },
+    {
+      "topic": "Field West of Amherst geometry (v8 vs v22)",
+      "sources_disagree": "v8 has 493 footholds, v22 has 396; ladders, ropes, mobs and portals are identical (wiki_rainbow_street.md).",
+      "decision": "Use v8 geometry, as in docs/research/maps/1000000.struct.json.",
+      "rationale": "Baseline decision. The portal positions in topology.json are v8, and the 1000000 brief assigns each of them to a v8 tier (G1, G6, G10, P20, P26c, P29, P30)."
+    },
+    {
+      "topic": "20001 'Mushroom Town Townstreet' is Sen's house",
+      "sources_disagree": "WZ name says Townstreet; the v8 content is a two-storey house interior (Hidden Street 2006 'head into the house', StrategyWiki 2007). The same template is reused for 1010002 Amherst Townstreet.",
+      "decision": "Keep the canonical name and slug exactly. Classify 20001 as kind interior (dead end behind a door) and 1010002 as townstreet (through-route). [proposal] An in-game display alias such as \"Sen's House\" is a project decision.",
+      "rationale": "Slugs are fixed by the canonical list; kind follows function, and matches how src/misostory/layout.py already treats the two maps."
+    },
+    {
+      "topic": "Street name of the Mushroom Town and Snail Hunting Ground maps",
+      "sources_disagree": "Hidden Street's 2005 map list prefixes Mushroom Town, Snail Hunting Ground and Split Road maps with 'Rainbow Street'; the WZ streetName is 'Maple Road' for every map 0-60001 and 'Rainbow Street' for every 10xxxxx map.",
+      "decision": "Use the WZ streetName.",
+      "rationale": "Data over wiki. [memory] The Hidden Street label is probably a translation of the Korean street name."
+    },
+    {
+      "topic": "Order and identity of the two \"Mushroom Town\" maps",
+      "sources_disagree": "The world map groups 10000, 20000 and 20001 under one spot, so it cannot order them.",
+      "decision": "10000 is west of 20000: 0 -> 10000 -> 20000 -> 30000. 10000 = Roger and the yellow house (Hidden Street \"Mushroom Town I\"); 20000 = Nina and the enterable orange house (Hidden Street \"Mushroom Town II\").",
+      "rationale": "Portal data (10000 out00 -> 20000 in00 at 20000's far west); Hidden Street 2005 thumbnails match the v8 minimap sizes to within 1 px."
+    },
+    {
+      "topic": "Climbable art: which maps use green vines",
+      "sources_disagree": "wiki_rainbow_street.md (from renders) says Dangerous Forest is the only map with vine ropes. The WZ object data shows vines (connect/rope/3) in 1000002, all 11 climbables of 1010004, and the 5 ropes of 1020001.",
+      "decision": "Use the WZ object data.",
+      "rationale": "Object data over a reading of partial renders."
+    },
+    {
+      "topic": "Field backgrounds: dark/cloudy vs blue sky",
+      "sources_disagree": "Hidden Street 2005 thumbnails of the Rainbow Street pockets show a dark grey, cloudy backdrop; the v8 and v22 WZ background nodes say blue sky with white clouds (grassySoil set).",
+      "decision": "Blue sky with white clouds (WZ).",
+      "rationale": "WZ data over small, probably darkened thumbnails; the 2006 Field East screenshot also shows a bright blue sky."
+    },
+    {
+      "topic": "Shanks' ship: destination and fare",
+      "sources_disagree": "entities.json marks the destination and fare as [memory]; wiki_maple_road.md cites four era sources: Hidden Street Nov 2005 \"Lith Harbor (pay 150 mesos)\", a Hidden Street Aug 2005 guide, StrategyWiki 2006 and MapleWiki 2007. A later web summary says 500 mesos (unverified, later era).",
+      "decision": "One-way voyage to Lith Harbor, Victoria Island, 150 mesos (wiki-sourced). Recorded as NPC travel in notes/branches, not as a portal connection.",
+      "rationale": "Wiki over memory; the portal data has no east exit in 60000."
+    },
+    {
+      "topic": "Who gives and who completes 'Todd's How-To Hunt'",
+      "sources_disagree": "Hidden Street 2006: Peter gives, Todd completes. StrategyWiki 2007: Todd gives, Peter completes.",
+      "decision": "Not part of the v8 baseline (Todd is v22-only). If the v22 variant is ever built, follow StrategyWiki.",
+      "rationale": "v22 NPC placement (Todd at the entrance, Peter at the exit) favours StrategyWiki."
+    },
+    {
+      "topic": "Name of mob 120100: 'Shroom' vs 'Spore'",
+      "sources_disagree": "v22 quest text calls it 'Spore'; the mob name data says 'Shroom' in every version checked (v8-v95).",
+      "decision": "Shroom.",
+      "rationale": "Mob data over quest text."
+    },
+    {
+      "topic": "Exit kinds: when is a portal an edge exit?",
+      "sources_disagree": "Verification found the edge/inner split inconsistent: 1000002 out01 (89 px from the west limit, on the top-left row that starts at that limit) was inner while 30000 out00 (136 px from the east limit, on the summit) was edge_east; 1010004 east00 (290 px from the east limit, on a full-width rim) was inner while 40002 west00 (290 px from the west limit) was edge_west. A pure distance threshold such as 160 px does not work either: it would turn 40000 east00 (227 px), 40002 west00 (290), 50000 east00/east01 (193/188), 0 out00 (202) and 1010000 east00 (223) into inner.",
+      "decision": "edge_*/inner are positional: a non-door exit is edge_<side> when the v8 foothold chain under it reaches that side's foothold limit (0 px tolerance; the nearer limit wins if both), otherwise inner. The rule reproduces 42 of the 44 previous kinds; 1000002 out01 becomes edge_west and 1010004 east00 becomes edge_east. The build script checks the rule on every run.",
+      "rationale": "One computable meaning for kind. Every inner exit stands on a ledge that stops well short of the nearer limit (1000001 out00 90 px, 1020000 in00 180 px, 1000000 in01 270 px), so the rule has a clear margin. No code in src/ reads kind from topology.json today (layout.py keeps its own portal table)."
+    },
+    {
+      "topic": "Quest data in v8, and which quests belong to the baseline era",
+      "sources_disagree": "entities.md and MAP_INVENTORY section 9 said v8 has no quest data (the parsed /api/GMS/8/quest/1000 returns 404), so every quest role was tagged [v22 data]. The raw v8 WZ has Etc/QuestInfo.img (https://maplestory.io/api/wz/GMS/8/Data/Etc/QuestInfo.img) with 43 entries; its only Maple Island entry (island=0) is 0000100, titled Bigg's Collection of Items. The Hidden Street beginner guide (v1.20, dated August 2005, archived 2005-10-13) describes Heena's quest and Sera's mirror, Roger's apple-and-potion lesson, an unnamed 'simple quest' on the 3rd screen, Maria's hat quest and Biggs' collection. Todd, Sam, Pio, Rain's quiz and Mai's training first appear in Hidden Street's quest list of Feb 2006.",
+      "decision": "Quests are split by attestation in section 9: the 2005-attested ones belong to the baseline era, the Feb 2006 ones to the late-2005/2006 variant. Quest IDs, item names and step text still come from v22 and stay tagged [v22 data]; Biggs' quest is tagged [v8 data: Etc/QuestInfo.img/0000100].",
+      "rationale": "Raw WZ over the parsed endpoint, and a dated era guide over an inference from a 404. A missing QuestInfo entry is not evidence that a quest did not exist: the 2005 guide shows the tutorial quests did."
+    },
+    {
+      "topic": "First post-classic rework: v49, not v55",
+      "sources_disagree": "Section 9 and topology_sources.md said v55 reworks the geometry, 1020000 is redesigned once 'about v57', Stump/Slime/Pig arrive in v55+ and Yoona in v62+, and v40 adds easing climbables to four maps. Verification (parsed /api/GMS/<v>/map and raw WZ portal nodes): v48 equals v40 for every map checked; v49 is the first version with reworked geometry (40000, 40001, 50000, 60000, 1000000-1000006, 1010000, 1020000, 1020001), with Stump (130100), Slime (210100) and Pig (1210100) in 1000000 and Slime and Pig in 1020000; 1020000 in00 changes from pt 1 at (1792,-384) to pt 2 at (1874,-266). 1020000 changes again at v56, when Yoona (20100) appears in 1000000. The extra climbables are first present at v37 (v34 is the last served version without them; v35-v36 are not served), in 11 maps.",
+      "decision": "Exclusion boundaries: climbables first present at v37, geometry and spawns from v49, links from v56. Links stay identical through v55 except map 0 (D3 stands).",
+      "rationale": "Version bisection over the served versions, done in the verification pass. The earlier v55/v57/v62 dates were the first versions the team happened to sample, not the first changed ones."
+    }
+  ]
+}

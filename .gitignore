@@ -1,0 +1,39 @@
+# --- Proprietary reference material (Nexon game data and art) — fetched as reference only, never redistribute
+docs/research/ref_renders/
+docs/research/ref_sprites/
+docs/research/ref_web/
+docs/research/raw/
+
+# --- Scratch and intermediate work (agent sandboxes, test builds, logs)
+_scratch/
+
+# --- Build outputs: regenerated from source, published as GitHub Release assets at milestones (see CONTRIBUTING.md)
+#     MapleIsland.blend  <- scripts/build_island.py      renders/  <- scripts/render_all.sh
+#     README images live in docs/images/ (small JPGs, tracked)
+MapleIsland.blend
+renders/
+
+# --- Blender backups and autosaves
+*.blend1
+*.blend2
+*.blend@
+*.autosave
+quit.blend
+
+# --- Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# --- Node (tools/contact_sheet.js)
+node_modules/
+
+# --- OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~

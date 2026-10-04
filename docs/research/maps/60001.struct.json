@@ -1,0 +1,509 @@
+{
+ "id": 60001,
+ "name": "Southperry Armor Store",
+ "street": "Maple Road",
+ "source_version": "GMS v8 (docs/research/raw/gms_v8/60001.json)",
+ "isTown": true,
+ "bgm": "Bgm00/FloralLife",
+ "mapMark": "SouthPerry",
+ "returnMap": 60000,
+ "units": "MapleStory px; y increases downward",
+ "extent": {
+  "minX": -400,
+  "maxX": 400,
+  "minY": -263,
+  "maxY": 183
+ },
+ "tiers": [
+  {
+   "id": "T0",
+   "x1": -185,
+   "x2": 311,
+   "y_left": -263,
+   "y_right": -263,
+   "kind": "ledge",
+   "label": "ceiling beam / loft (rope x75 head)",
+   "length": 496,
+   "y_min": -263,
+   "y_max": -263,
+   "profile": [
+    [
+     -185,
+     -263
+    ],
+    [
+     311,
+     -263
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T1",
+   "x1": 247,
+   "x2": 342,
+   "y_left": -183,
+   "y_right": -183,
+   "kind": "floating",
+   "label": "goods stack top shelf",
+   "length": 95,
+   "y_min": -183,
+   "y_max": -183,
+   "profile": [
+    [
+     247,
+     -183
+    ],
+    [
+     342,
+     -183
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T2",
+   "x1": 174,
+   "x2": 252,
+   "y_left": -97,
+   "y_right": -96,
+   "kind": "floating",
+   "label": "goods stack: rounded item top",
+   "length": 78,
+   "y_min": -107,
+   "y_max": -96,
+   "profile": [
+    [
+     174,
+     -97
+    ],
+    [
+     199,
+     -107
+    ],
+    [
+     227,
+     -107
+    ],
+    [
+     252,
+     -96
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T3",
+   "x1": 114,
+   "x2": 173,
+   "y_left": -44,
+   "y_right": -50,
+   "kind": "floating",
+   "label": "goods stack: rounded item top",
+   "length": 59,
+   "y_min": -58,
+   "y_max": -44,
+   "profile": [
+    [
+     114,
+     -44
+    ],
+    [
+     119,
+     -53
+    ],
+    [
+     139,
+     -58
+    ],
+    [
+     173,
+     -50
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T4",
+   "x1": 46,
+   "x2": 263,
+   "y_left": -19,
+   "y_right": -19,
+   "kind": "floating",
+   "label": "goods stack: wide shelf (rope x75 bottom area)",
+   "length": 217,
+   "y_min": -19,
+   "y_max": -19,
+   "profile": [
+    [
+     46,
+     -19
+    ],
+    [
+     263,
+     -19
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T5",
+   "x1": -345,
+   "x2": -208,
+   "y_left": -13,
+   "y_right": -13,
+   "kind": "floating",
+   "label": "Pan's kiosk roof (solid block -13..150)",
+   "length": 137,
+   "y_min": -13,
+   "y_max": -13,
+   "profile": [
+    [
+     -345,
+     -13
+    ],
+    [
+     -208,
+     -13
+    ]
+   ],
+   "fh_group": 1
+  },
+  {
+   "id": "T7",
+   "x1": 184,
+   "x2": 228,
+   "y_left": 20,
+   "y_right": 20,
+   "kind": "floating",
+   "label": "goods stack step",
+   "length": 44,
+   "y_min": 20,
+   "y_max": 20,
+   "profile": [
+    [
+     184,
+     20
+    ],
+    [
+     228,
+     20
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T8",
+   "x1": 162,
+   "x2": 202,
+   "y_left": 57,
+   "y_right": 57,
+   "kind": "floating",
+   "label": "goods stack step",
+   "length": 40,
+   "y_min": 57,
+   "y_max": 57,
+   "profile": [
+    [
+     162,
+     57
+    ],
+    [
+     202,
+     57
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T9",
+   "x1": 189,
+   "x2": 301,
+   "y_left": 97,
+   "y_right": 97,
+   "kind": "floating",
+   "label": "goods stack step",
+   "length": 112,
+   "y_min": 97,
+   "y_max": 97,
+   "profile": [
+    [
+     189,
+     97
+    ],
+    [
+     301,
+     97
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T10",
+   "x1": 172,
+   "x2": 214,
+   "y_left": 127,
+   "y_right": 127,
+   "kind": "floating",
+   "label": "goods stack step",
+   "length": 42,
+   "y_min": 127,
+   "y_max": 127,
+   "profile": [
+    [
+     172,
+     127
+    ],
+    [
+     214,
+     127
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T11",
+   "x1": 328,
+   "x2": 365,
+   "y_left": 132,
+   "y_right": 132,
+   "kind": "floating",
+   "label": "small prop top by east wall",
+   "length": 37,
+   "y_min": 132,
+   "y_max": 132,
+   "profile": [
+    [
+     328,
+     132
+    ],
+    [
+     365,
+     132
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T12",
+   "x1": -119,
+   "x2": -16,
+   "y_left": 139,
+   "y_right": 139,
+   "kind": "floating",
+   "label": "low step / platform above the door spot (spawn lands here)",
+   "length": 103,
+   "y_min": 139,
+   "y_max": 139,
+   "profile": [
+    [
+     -119,
+     139
+    ],
+    [
+     -16,
+     139
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T13",
+   "x1": -338,
+   "x2": -227,
+   "y_left": 140,
+   "y_right": 140,
+   "kind": "floating",
+   "label": "Pan's booth recess floor (inside kiosk)",
+   "length": 111,
+   "y_min": 140,
+   "y_max": 140,
+   "profile": [
+    [
+     -338,
+     140
+    ],
+    [
+     -227,
+     140
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T15",
+   "x1": 158,
+   "x2": 198,
+   "y_left": 156,
+   "y_right": 156,
+   "kind": "floating",
+   "label": "goods stack bottom step",
+   "length": 40,
+   "y_min": 156,
+   "y_max": 156,
+   "profile": [
+    [
+     158,
+     156
+    ],
+    [
+     198,
+     156
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T16",
+   "x1": 19,
+   "x2": 113,
+   "y_left": 159,
+   "y_right": 159,
+   "kind": "floating",
+   "label": "low crate / bench top",
+   "length": 94,
+   "y_min": 159,
+   "y_max": 159,
+   "profile": [
+    [
+     19,
+     159
+    ],
+    [
+     113,
+     159
+    ]
+   ],
+   "fh_group": 0
+  },
+  {
+   "id": "T17",
+   "x1": -400,
+   "x2": 400,
+   "y_left": 183,
+   "y_right": 183,
+   "kind": "ground",
+   "label": "shop floor, wall to wall",
+   "length": 800,
+   "y_min": 183,
+   "y_max": 183,
+   "profile": [
+    [
+     -400,
+     183
+    ],
+    [
+     400,
+     183
+    ]
+   ],
+   "fh_group": 1
+  }
+ ],
+ "excluded_footholds": [
+  {
+   "id": "T6",
+   "reason": "ceiling-only foothold (drawn right-to-left) closing a solid block; not walkable"
+  },
+  {
+   "id": "T14",
+   "reason": "ceiling-only foothold (drawn right-to-left) closing a solid block; not walkable"
+  }
+ ],
+ "ladders": [
+  {
+   "x": 75,
+   "y1": -261,
+   "y2": -84,
+   "isLadder": false,
+   "from_tier": "T4",
+   "to_tier": "T0",
+   "length": 177,
+   "bottom_gap_px": 65,
+   "one_way_down": false
+  }
+ ],
+ "portals": [
+  {
+   "name": "out00",
+   "x": -48,
+   "y": 181,
+   "type": 2,
+   "target": "60000:in00",
+   "inferred": false,
+   "source": "https://maplestory.io/api/GMS/39/map/60001",
+   "note": "v8 entry null; v39 footholds identical (27) and NPC identical"
+  },
+  {
+   "name": "sp",
+   "x": -114,
+   "y": 115,
+   "type": 0,
+   "target": null,
+   "inferred": false,
+   "source": "docs/research/raw/gms_v8/60001.json",
+   "note": "player spawn point"
+  }
+ ],
+ "portal_nulls_in_v8": 1,
+ "mobs": {},
+ "npcs": [
+  {
+   "id": 21000,
+   "name": "Pan",
+   "x": -270,
+   "y": 140,
+   "tier": "T13"
+  }
+ ],
+ "terrain_style": "wooden interior: timber ceiling beams bound with blue iron bands, wooden post with grey stone caps (render); floor, walls, counter art and wares are NOT in the render",
+ "landmarks": [
+  {
+   "what": "wooden post with grey stone caps (west wall)",
+   "x": -370,
+   "y": 60,
+   "approx": true,
+   "source": "render",
+   "span": "x -400..-340, y -100..225"
+  },
+  {
+   "what": "timber ceiling beams with blue iron bands, west",
+   "x": -260,
+   "y": -150,
+   "approx": true,
+   "source": "render",
+   "span": "x -400..-115, y -255..-45"
+  },
+  {
+   "what": "timber ceiling beams with blue iron bands, east",
+   "x": 305,
+   "y": -180,
+   "approx": true,
+   "source": "render",
+   "span": "x 210..400, y -255..-100"
+  },
+  {
+   "what": "Pan's kiosk / booth (solid block with recess)",
+   "x": -276,
+   "y": 68,
+   "approx": false,
+   "source": "data",
+   "span": "x -345..-208, y -13..150"
+  },
+  {
+   "what": "climbable stack of wares (crates/items)",
+   "x": 190,
+   "y": 60,
+   "approx": false,
+   "source": "data",
+   "span": "x 19..365, y 159..-183"
+  },
+  {
+   "what": "exit door (out00)",
+   "x": -48,
+   "y": 181,
+   "approx": false,
+   "source": "data"
+  }
+ ]
+}
