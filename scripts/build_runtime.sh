@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # One command from source to a playable game: Blender island -> runtime export -> Godot import -> data validation.
 #
-#   bash scripts/build_runtime.sh            # build MapleIsland.blend only if missing, then export, import, validate
+#   bash scripts/build_runtime.sh            # (re)build MapleIsland.blend if missing or older than the Blender source,
+#                                            # then export, import, validate
 #   bash scripts/build_runtime.sh --rebuild  # always rebuild MapleIsland.blend first
 #   BLENDER=/path/to/blender.exe bash scripts/build_runtime.sh
 #
@@ -12,8 +13,13 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
 B="${BLENDER:-/c/Program Files/Blender Foundation/Blender 5.2/blender.exe}"
 
-if [[ "${1:-}" == "--rebuild" || ! -f MapleIsland.blend ]]; then
-  echo "[build_runtime] building MapleIsland.blend"
+# A .blend left over from another branch (e.g. the Iteration One release) is stale whenever the generator changed.
+stale=""
+if [[ -f MapleIsland.blend ]]; then
+  stale="$(find src scripts/build_island.py -newer MapleIsland.blend -print -quit 2>/dev/null || true)"
+fi
+if [[ "${1:-}" == "--rebuild" || ! -f MapleIsland.blend || -n "$stale" ]]; then
+  echo "[build_runtime] building MapleIsland.blend${stale:+ (source is newer than the .blend: $stale)}"
   "$B" -b --factory-startup --python scripts/build_island.py
 fi
 
