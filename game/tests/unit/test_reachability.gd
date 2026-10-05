@@ -7,7 +7,8 @@ extends TestCase
 ## hop; two 0.9 m steps by two hops on one path; a 2.4 m plateau with no way up is not; a ladder makes it reachable;
 ## the arc check refuses a hop through a wall and never climbs by walking off.
 ## The island test (INCLUDE_WORLD=1; a SKIP line without the export) scans all 25 maps and fails on any target no
-## proof reaches. REACH_REPORT_OUT=<file> also writes the report document.
+## proof reaches; every canonical portal and spawn slot must be a target (counted from the canonical records), and a
+## portal without an anchor fails rather than dropping out. REACH_REPORT_OUT=<file> also writes the report document.
 
 const AREA_HALF := 8.0
 
@@ -171,6 +172,16 @@ func test_every_npc_slot_box_and_portal_is_reachable() -> void:
 		assert_true(int(by_kind.get(kind, 0)) > 0, "the check found %s targets" % kind)
 	assert_eq(int(by_kind.get(ReachCheck.KIND_NPC, 0)), 21, "every NPC")
 	assert_eq(int(by_kind.get(ReachCheck.KIND_BOX, 0)), 19, "every Wooden Box placement")
+	# Every canonical portal and spawn slot is a target, counted from the canonical records: none may drop out of the
+	# proof (a portal the export lost is a failed target, see below), so the totals cannot shrink unnoticed.
+	var canon_portals := 0
+	var canon_slots := 0
+	for id in world.defs.ids():
+		var rec := db().map(id)
+		canon_portals += (rec.get("portals", []) as Array).size()
+		canon_slots += (rec.get("spawns", []) as Array).size()
+	assert_eq(int(by_kind.get(ReachCheck.KIND_PORTAL, 0)), canon_portals, "every canonical portal (%d)" % canon_portals)
+	assert_eq(int(by_kind.get(ReachCheck.KIND_SLOT, 0)), canon_slots, "every canonical spawn slot (%d)" % canon_slots)
 	for bad: Dictionary in doc.unreachable:
 		fail("%s %s %s (%s) at map-local %s is not reachable from the map's entries (%s): %s" % [bad.map_id, bad.kind,
 			bad.id, bad.name, bad.local, bad.rule, bad.why])
@@ -182,6 +193,14 @@ func test_every_npc_slot_box_and_portal_is_reachable() -> void:
 	if pocket >= 0:
 		var no := check.prove(g50, check.entries(g50), PackedInt32Array([pocket]))
 		assert_false(bool(no.ok), "the unenterable pocket is not proven reachable: %s" % str(no))
+	# A canonical portal the export placed nowhere fails the proof instead of dropping out of it.
+	var lost: PortalDef = world.defs.get_def("000000050").canonical_portals()[0]
+	lost.has_anchor = false
+	var r50 := check.check(g50)
+	lost.has_anchor = true
+	var flagged := (r50.unreachable as Array).filter(func(row: Dictionary) -> bool:
+		return String(row.kind) == ReachCheck.KIND_PORTAL and String(row.id) == lost.portal_id)
+	assert_eq(flagged.size(), 1, "a portal without an anchor is an unreachable target: %s" % str(r50.unreachable))
 	check.free_all()
 	var out := OS.get_environment("REACH_REPORT_OUT")
 	if out != "":

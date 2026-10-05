@@ -54,7 +54,9 @@ var world: IslandWorld = null
 var db: ContentDB = null
 var tuning: WorldTuning = null
 var model: MovementModel = null
-## Replay into edges the arc check refuses with the real PlayerController (slow; off for model tests).
+## Replay into edges the arc check refuses with the real PlayerController (slow). create() turns it on whenever the
+## scan has a host to replay in (the island run and the model tests' PlayerTestWorld alike); set it false to prove on
+## the arc check alone.
 var replay: bool = true
 
 ## Per map, reset by check(): into edge (from * node count + to) -> true (certified) / false (refused).
@@ -116,13 +118,22 @@ func targets(g: StuckScan.MapGraph) -> Array[Dictionary]:
 				"within %.1f m on its tier" % approach))
 	for p in def.canonical_portals():
 		if not p.has_anchor:
+			# A canonical portal the export placed nowhere has no trigger a player can reach: a failed target, never a
+			# portal that silently drops out of the proof.
+			out.append(_target(g, KIND_PORTAL, p.portal_id, "-> " + p.destination_map_id, p.anchor_transform.origin,
+				PackedInt32Array(), "no anchor in the export"))
 			continue
 		if p.accepts_press():
 			out.append(_target(g, KIND_PORTAL, p.portal_id, "-> " + p.destination_map_id, p.anchor_ground,
 				_nodes_where(g, func(q: Vector3) -> bool: return p.trigger_contains(q + Vector3.UP * 0.1)), "press-Up trigger"))
 			continue
 		var t := world.defs.trail_at_portal(g.map_id, p.portal_id)
-		var gate := t.gate_into(t.other_map(g.map_id)) if t != null else null
+		if t == null:
+			# Neither a press-Up trigger nor a walked trail: nothing a player could use (a failed target, not a skip).
+			out.append(_target(g, KIND_PORTAL, p.portal_id, "-> " + p.destination_map_id, p.anchor_ground,
+				PackedInt32Array(), "walk-only portal without a trail"))
+			continue
+		var gate := t.gate_into(t.other_map(g.map_id))
 		if gate == null:
 			# A walk-only portal with no way out of this map (the arrival end of a one-way link) is no target.
 			continue
