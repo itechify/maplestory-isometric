@@ -167,10 +167,18 @@ items were left on purpose or found along the way.
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
   a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. On the
   integrated build `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 25 of 25 maps and 47 of 47 portals on
-  foot, no death; a review run of the same seed passed 477 checks but the walker died twice, on legs 22 in 000001000
-  and 46 in 000001020, and retried each leg after a console warp, so "no death" is not yet reliable) and so does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77
-  checks, 0 failed, level 10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the
-  canonical +100 (a soft check) and one death in 000001000.
+  foot, no death; a review run of the same seed passed 477 checks but the walker died twice, on legs 22 in
+  000001000 and 46 in 000001020, and retried each leg after a console warp, so "no death" is not yet reliable) and so
+  does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77 checks, 0 failed, level
+  10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the canonical +100 (a soft
+  check) and one death in 000001000 (a review run: 77 checks, 0 failed, one warning, the same death at level 8).
+- **`ui_minimap` fails on the integrated build** (1 of 231 checks, seed 1, review run): its "level-up: the SP line"
+  check expects the minimap package's "You have 1 SP to distribute (press K)." while the skills package's HUD writes
+  "You have 1 SP to spend (press K)."; the unit test `test_ui_minimap_feedback.gd` was updated at the merge, the
+  scenario (`game/tools/playtest/scenarios/ui_minimap.gd:152`) was not. A one-line fix for the harness owner.
+- **`test_box` breaks 16 of the 19 boxes**, though its header says all 19 are played: Pio's quest takes three of
+  Amherst's six (1/1 Board and Screw while it is in progress), and Amherst's boxes 0, 2 and 3 are never broken in the
+  real game (0 takes two hits for the reload check). Breaking the rest of Amherst after the quest would close it.
 - **Docs outside this list's owner:** `runtime/DEBUG_TOOLS.md` still calls the `drops` simulation "placeholder
   rates"; `runtime/PLAYTHROUGH_REPORT.md` is Iteration Two's report.
 

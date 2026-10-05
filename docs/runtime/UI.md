@@ -506,8 +506,11 @@ the visible canonical portals, NPC dots equal to the canonical NPCs, the arrow o
 transport icons, and island-wide the shop badges on exactly the three shop doors. Last, the Phase 12 feedback through
 real play: Snails killed in Snail Hunting Ground I up to level 2 (8 kills with seed 1), then the flourish, the level,
 AP and SP lines in the log, the hits announced (`monster_hit`, the damage numbers' source) and every pickup announced
-with the HUD's own line; no engine error from the minimap. Last run (2026-10-05, review): 231 checks passed headless and
-windowed; the windowed run writes one screenshot per map.
+with the HUD's own line; no engine error from the minimap. Last run on the minimap package (2026-10-05, review): 231
+checks passed headless and windowed; the windowed run writes one screenshot per map. **On the integrated Iteration
+Three build it fails 1 of 231** (headless, seed 1): "level-up: the SP line" still expects "You have 1 SP to distribute
+(press K)." (`ui_minimap.gd`), but the skills package's HUD writes "You have 1 SP to spend (press K)." (`hud.gd`;
+the unit test `test_ui_minimap_feedback.gd` follows the HUD). The scenario's expected line needs the HUD's wording.
 
 **Review (iteration 2).** An adversarial review drove the real `main.tscn` (quick start) with real input events
 (`Input.parse_input_event`: keys, mouse moves, clicks, double-clicks, right-clicks and drags) through 63 checks: the
