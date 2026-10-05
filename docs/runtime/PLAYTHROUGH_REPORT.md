@@ -43,9 +43,9 @@ Seed 1, headless, fixed 60 fps. Run with `ISOLATE=<name> bash scripts/playtest.s
 
 | Test | Result | Checks | Notes |
 |---|---|---|---|
-| A: traversal | **PASS** | 470 passed, 0 failed, 7 warnings | 25/25 maps and 47/47 portals on foot. The warnings are the walker's known limits: it never fights, so it twice died on hunting-map approaches and retried, plus prop replans. |
+| A: traversal | **PASS** | 469 passed, 0 failed, 8 warnings | Re-run after the last world fix. 25/25 maps and 47/47 portals on foot. The warnings are the walker's known limits: it never fights, so it died on some hunting-map approaches and retried, plus prop replans. |
 | B: combat | **PASS** | 50 passed, 0 failed, 2 warnings | The held attack now repeats at the canonical cadence (gaps of 43 ticks with a 44-tick gap every fifth swing, average 720 ms). Mid-hop hits now stagger; in 2 of 131 cases the push after landing was blocked by a ledge, which pushes respect by design. The bot could not reach some Sentinels on high tiers. |
-| C: progression | see below | | |
+| C: progression | **PASS** | 68 passed, 0 failed, 2 warnings | A clean Beginner reached level 7 by killing only, across two process restarts, with every EXP award, level-up, AP gain and stats-window number canonical. The first replay failed one check: phase 2 resumed the hunter inside a second walled pocket in 000001000 and it made 0 kills. That pocket was fixed in the source (F1-9) and this run is on the fixed world. The two warnings are deaths: the bot attacks Orange Mushrooms above its level and never retreats or rests. (Their soft check's label still says "there is no natural HP regeneration", which is out of date.) |
 | D: inventory | **PASS** | 94 passed, 0 failed, 0 warnings | The A Split Road trap no longer happens (the earlier "never trapped" warning is gone). |
 | E: quest | **PASS** | 102 passed, 0 failed, 0 warnings | Sam's Suggestion: exactly +30 EXP and 3 Eggs, across save, quit, reload and restart. |
 | F: death | **PASS** | 200 passed, 0 failed, 0 warnings | Still passes with natural recovery in the game (200 of 200 checks). |
@@ -108,6 +108,7 @@ The unit suite (1144 tests) also runs `smoke`, `npcs` (21/21 NPCs on foot), `rel
 |---|---|
 | BLOCKER: a walled ground pocket beside A Split Road's ramp trapped the player, and Continue resumed inside it | Blender source: `T4_UpperRoad_Low` now fills the pocket. `test_d_stuck` asserts the cap is at 2.2 m. |
 | 000001005 out00: the arrival was inside the door block, and Up beside the portal grabbed a ladder | Blender source: the door block was set back and the ladder moved 1.55 m outside the trigger. `test_a_probe_1005` passes. |
+| A second walled pocket in The Field West of Amherst (found by the Test C replay) | Blender source: the `P17_P25_Fill` terrace. `trap_probe` keeps both former traps escapable (`test_playtest_traps.gd`). |
 | No natural HP regeneration (death spiral at low levels) | `NaturalRecovery`, a labelled adaptation. The `regen` scenario passes. |
 | 5 NPCs unreachable on foot | Stairs in the Blender source plus an across-counter talk zone. `npcs` is 21/21. |
 | Space (the jump key) confirmed the death notice | The notice ignores jump keys and key repeat. |
@@ -122,8 +123,9 @@ The unit suite (1144 tests) also runs `smoke`, `npcs` (21/21 NPCs on foot), `rel
   - the 0.25 s snag in Southperry
   - the camera jolt at ladder tops
   - the canopy dither at the moment of contact
-- **Prevention:** a flood-fill trap survey of every map and an arrival-path sweep in the export gate. The known trap is
-  fixed in the source and guarded by `test_d_stuck`; the climbable/trigger gate is built.
+- **Prevention:** a flood-fill trap survey of every map, and an arrival-path sweep in the export gate. The playtests
+  found two pockets, both fixed in the source and guarded by `trap_probe`, but there may be more. The climbable/trigger
+  gate is built.
 - **Deferred to later iterations** ([DEFERRED.md](../DEFERRED.md)):
   - minimap
   - sitting and chairs
