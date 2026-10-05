@@ -12,7 +12,7 @@ func parity_keys() -> Dictionary:
 		"test_quest_gate_board_and_screw_need_pios_quest": ["quest:1012", "drop:0000001/old-wooden-board", "drop:0000001/rusty-screw",
 			"mechanic:quest-gated-drops"],
 		"test_tutorial_sentinel_always_drops_its_shellpiece": ["quest:1005", "drop:1/jr-sentinel-shellpiece"],
-		"test_meso_amounts_come_from_the_record": ["mechanic:meso-amount-source", "drop:2/mesos"],
+		"test_meso_amounts_come_from_the_record": ["mechanic:meso-amount-source", "meso:2", "meso:3", "meso:4", "meso:5", "meso:9"],
 		"test_wooden_box_never_drops_mesos": ["breakable:0000001"],
 	}
 

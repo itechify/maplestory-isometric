@@ -25,21 +25,33 @@ import { entryKey } from '../sources/parse.mjs';
 export const FORMAT = 1;
 export const STATES = ['missing', 'partial', 'implemented', 'verified'];
 
-/** The categories, in manifest order: [id, title]. The brief's list, then the validator's own requirements. */
+/**
+ * The categories, in manifest order: [id, title]. The brief's list ("Iteration Three Core Objective"), then the rows
+ * of its Definition of Done that are not one canonical record each (rules.json `mechanics` rows name their category),
+ * then the validator's own requirements.
+ */
 export const CATEGORIES = [
   ['maps', 'Maps'], ['portals', 'Portals'], ['monster-species', 'Monster species'],
   ['monster-populations', 'Monster populations'], ['monster-spawn-rules', 'Monster spawn rules'],
   ['monster-stats', 'Monster stats'], ['monster-drops', 'Monster drops'], ['meso-drops', 'Meso drops'],
   ['items', 'Items (Etc and Set-up)'], ['equipment', 'Equipment'], ['consumables', 'Consumables'], ['npcs', 'NPCs'],
   ['shops', 'Shops'], ['quests', 'Quests'], ['quest-chains', 'Quest chains'], ['quest-objectives', 'Quest objectives'],
-  ['quest-rewards', 'Quest rewards'], ['beginner-skills', 'Beginner skills'], ['breakables', 'Breakables'],
+  ['quest-rewards', 'Quest rewards'], ['beginner-skills', 'Beginner skills and mechanics'], ['breakables', 'Breakables'],
   ['chairs', 'Chairs'], ['map-mechanics', 'Map mechanics'],
+  ['monster-behaviour', 'Monster behaviour, hit areas and spawning (Phases 5-6)'],
+  ['drop-rules', 'Drop rules (Drop Testing, placeholder removal)'],
+  ['persistence', 'Persistence (Phase 14)'],
+  ['ui', 'UI and world feedback (Phases 11-12, quest log, skill UI)'],
+  ['playthrough', 'Clean-character playthrough (Definition of Done: Gameplay)'],
   ['cross-reference-validation', 'Cross-reference validation (Phase 16)'],
   ['canonical-verification', 'Canonical verification (Phase 17, probability handling)'],
 ];
 
-/** Categories whose verified state needs real-game (playtest) evidence. */
-export const REAL_GAME_CATEGORIES = new Set(['quests', 'quest-objectives', 'quest-rewards', 'quest-chains']);
+/** Categories whose verified state needs real-game (playtest) evidence. A rules.json row can also ask for it (real_game). */
+export const REAL_GAME_CATEGORIES = new Set(['quests', 'quest-objectives', 'quest-rewards', 'quest-chains', 'playthrough']);
+
+/** Categories a rules.json `mechanics` row may name (the brief's categories and the Definition of Done rows). */
+const RULE_ROW_CATEGORIES = new Set(CATEGORIES.map(([id]) => id).filter((id) => !['cross-reference-validation', 'canonical-verification'].includes(id)));
 
 const byKey = (a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0);
 const sortedKeys = (o) => Object.keys(o || {}).sort();
@@ -56,7 +68,8 @@ const arr = (v) => (Array.isArray(v) ? v : []);
  *   playtests   [{file, doc (report.json)}]
  */
 export function buildParity({ canonical, miso, rules, runtime, provenance = null, tests = [], playtests = [] }) {
-  const evidence = collectEvidence(tests, playtests);
+  const tagStats = [];
+  const evidence = collectEvidence(tests, playtests, arr(rules.playtest_tags), tagStats);
   const findings = recordFindings(provenance);
   const runtimeOf = (spec) => runtimeState(spec, runtime);
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
@@ -67,6 +80,18 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
   const duplicateKeys = new Set();
   for (const e of entries) (seenKeys.has(e.key) ? duplicateKeys : seenKeys).add(e.key);
   if (duplicateKeys.size) throw new Error(`duplicate parity keys: ${[...duplicateKeys].sort().join(', ')}`);
+  // A hand-declared alias (a rules.json row's `accepts`) must name nothing else: not another entry's key, and not an
+  // alias of another row. (Generated entries accept their parent's key on purpose: an objective accepts its quest.)
+  const aliasOwner = new Map();
+  for (const e of entries) {
+    for (const a of arr(e.rule_accepts)) {
+      if (seenKeys.has(a)) throw new Error(`rules.json: ${e.key} accepts ${a}, which is the key of another entry`);
+      if (aliasOwner.has(a)) throw new Error(`rules.json: ${a} is accepted by both ${aliasOwner.get(a)} and ${e.key}`);
+      aliasOwner.set(a, e.key);
+    }
+    delete e.rule_accepts;
+  }
+  const accepted = new Set(entries.flatMap((e) => e.accepts));
   // Chains are derived from their member quests once those have states.
   const byKeyMap = new Map(entries.map((e) => [e.key, e]));
   const out = [];
@@ -83,10 +108,13 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
     inputs: {
       tests: tests.map((t) => ({ file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, totals: t.doc.totals ?? null })),
       playtests: playtests.map((p) => ({ file: p.file, scenario: p.doc.scenario ?? null, result: p.doc.result ?? null, seed: p.doc.seed ?? null,
-        checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length })),
+        checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length,
+        rule_tagged_checks: tagStats.filter((s) => s.file === p.file).reduce((n, s) => n + s.matched, 0),
+        failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`) })),
+      playtest_tag_rules_unmatched: tagStats.filter((s) => s.matched === 0).map((s) => ({ file: s.file, rule: s.rule })),
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
-      unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k)).sort(),
+      unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k) && !accepted.has(k)).sort(),
     },
     totals,
     source_data_gaps: sourceDataGaps(out),
@@ -98,15 +126,33 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.',
-  source_data_gap: 'The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount): the entry is excused from the exit criterion.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards, chains and the clean-character playthrough rows need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.',
+  source_data_gap: 'The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
+  evidence: 'A unit test declares the keys it proves in its file\'s parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.',
 };
 
 // --- evidence ----------------------------------------------------------------------------------------------------
 
-/** key -> {passed: [...], failed: [...]} from unit test evidence and playtest checks (hard checks only). */
-export function collectEvidence(tests, playtests) {
+/**
+ * The keys a rules.json playtest_tags rule gives a check name, or null when the rule does not apply. A rule is
+ * {scenario: name | [names], match: regex source (on the check name), keys: [templates], why}; a template may use the
+ * match's groups ($1 .. $9).
+ */
+export function tagKeysFor(rule, scenario, name) {
+  const scenarios = Array.isArray(rule.scenario) ? rule.scenario : [rule.scenario];
+  if (!scenarios.includes(scenario)) return null;
+  const m = new RegExp(rule.match).exec(String(name));
+  if (!m) return null;
+  return arr(rule.keys).map((t) => String(t).replace(/\$(\d)/g, (_, g) => m[Number(g)] ?? ''));
+}
+
+/**
+ * key -> {passed: [...], failed: [...]} from unit test evidence and playtest checks (hard checks only). Playtest checks
+ * keep their own parity keys and gain those of every matching rules.json playtest_tags rule (each key once per check).
+ * tagStats (optional, filled in) receives one {file, rule, matched} per report and rule of its scenario.
+ */
+export function collectEvidence(tests, playtests, tagRules = [], tagStats = null) {
   const ev = new Map();
   const add = (key, ok, item) => {
     if (!ev.has(key)) ev.set(key, { passed: [], failed: [] });
@@ -118,10 +164,21 @@ export function collectEvidence(tests, playtests) {
     }
   }
   for (const p of playtests) {
+    const scenario = p.doc.scenario ?? null;
+    const rules = arr(tagRules).map((rule, i) => ({ rule, i, matched: 0 }))
+      .filter((r) => (Array.isArray(r.rule.scenario) ? r.rule.scenario : [r.rule.scenario]).includes(scenario));
     for (const c of arr(p.doc.checks)) {
       if (c.soft) continue; // a soft check is a warning, never evidence
-      for (const k of arr(c.parity)) add(k, !!c.ok, { kind: 'playtest', id: `${p.doc.scenario ?? p.file}#${c.i ?? '?'} ${c.name}` });
+      const keys = new Set(arr(c.parity));
+      for (const r of rules) {
+        const extra = tagKeysFor(r.rule, scenario, c.name);
+        if (!extra) continue;
+        r.matched++;
+        for (const k of extra) keys.add(k);
+      }
+      for (const k of [...keys].sort()) add(k, !!c.ok, { kind: 'playtest', id: `${scenario ?? p.file}#${c.i ?? '?'} ${c.name}` });
     }
+    if (tagStats) for (const r of rules) tagStats.push({ file: p.file, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
   }
   return ev;
 }
@@ -218,10 +275,13 @@ function enumerate(ctx) {
       out.push(entry('monster-populations', `population:${id}/${mob}`, `${m.name}: ${s.name} x${s.count ?? '?'}`,
         { record: `maps/${id}`, accepts: [`spawn-rule:${id}`] }));
     }
+    // A placement accepts its breakable's key and the map-wide key of a test that checks every placement on the map.
     arr(m.reactors).forEach((r, i) => {
       out.push(entry('breakables', `placement:${id}/${i}`, `${r.name ?? r.id} placement ${i} on ${m.name} (respawn ${r.respawn_s ?? '?'} s)`,
-        { record: `maps/${id}`, accepts: [`breakable:${r.id}`] }));
+        { record: `maps/${id}`, accepts: [`breakable:${r.id}`, `breakable-placement:${id}`] }));
     });
+    // Every playable map has its own minimap (brief Phase 11).
+    out.push(entry('ui', `minimap:${id}`, `Minimap of ${m.name} (${id}): player, map shape, exits, NPCs, name`, { record: `maps/${id}` }));
   }
   for (const id of sortedKeys(monsters)) {
     const m = monsters[id];
@@ -340,13 +400,28 @@ function enumerate(ctx) {
     const b = C.breakables[id];
     out.push(entry('breakables', `breakable:${id}`, `${b.name} (breaks in ${b.hits_to_break ?? '?'} hits)`, { record: `breakables/${id}`, source_gaps: recordGaps(b) }));
   }
+  // A rules.json row: {key, name, brief, category (default map-mechanics), runtime (its own declaration; a row outside
+  // map-mechanics without one uses its category's), accepts (aliases: test keys that prove the same thing),
+  // real_game (needs a playtest check), source_gaps (the sources give no value: a documented source-data gap),
+  // adaptations (misostory files)}.
   for (const m of arr(rules.mechanics)) {
-    out.push(entry('map-mechanics', m.key, m.name, { runtime_spec: m.runtime ?? null, brief: m.brief ?? null,
-      adaptations: arr(m.adaptations).filter((a) => miso[a.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')]) }));
+    const category = m.category ?? 'map-mechanics';
+    if (!RULE_ROW_CATEGORIES.has(category)) throw new Error(`rules.json: ${m.key} names an unknown category ${category}`);
+    const ent = entry(category, m.key, m.name, { brief: m.brief ?? null, accepts: [...arr(m.accepts)], rule_accepts: arr(m.accepts),
+      ...(typeof m.real_game === 'boolean' ? { real_game: m.real_game } : {}), adaptations: arr(m.adaptations).filter((a) => miso[a.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')]) });
+    if (m.runtime !== undefined || category === 'map-mechanics') ent.runtime_spec = m.runtime ?? null;
+    if (arr(m.source_gaps).length) {
+      ent.source_data_gap = true;
+      ent.source_gaps.push(...arr(m.source_gaps).map(String));
+    }
+    if (m.note) ent.notes.push(String(m.note));
+    out.push(ent);
   }
-  for (const x of arr(rules.cross_reference)) out.push(entry('cross-reference-validation', x.key, x.name, { brief: x.brief ?? null }));
+  for (const x of arr(rules.cross_reference)) {
+    out.push(entry('cross-reference-validation', x.key, x.name, { brief: x.brief ?? null, accepts: [...arr(x.accepts)], rule_accepts: arr(x.accepts) }));
+  }
   for (const x of arr(rules.canonical_verification)) {
-    const ent = entry('canonical-verification', x.key, x.name, { brief: x.brief ?? null });
+    const ent = entry('canonical-verification', x.key, x.name, { brief: x.brief ?? null, accepts: [...arr(x.accepts)], rule_accepts: arr(x.accepts) });
     ent.issues.push(...dataRequirementIssues(x.requires, C));
     out.push(ent);
   }
@@ -384,9 +459,10 @@ function finish(e, ctx, all) {
   const oos = rules.out_of_scope?.[e.key];
   e.in_scope = !oos;
   if (oos) e.notes.push(`out of scope: ${oos}`);
-  const rt = e.category === 'map-mechanics' ? runtimeOf(e.runtime_spec) : categoryRuntime[e.category];
+  const own = 'runtime_spec' in e;
+  const rt = own ? runtimeOf(e.runtime_spec) : categoryRuntime[e.category];
   delete e.runtime_spec;
-  if (e.category === 'map-mechanics') e.runtime = rt;
+  if (own) e.runtime = rt;
   if (e.record && findings.has(e.record)) e.issues.push(...findings.get(e.record).map((m) => `validation: ${m}`));
   const keys = [e.key, ...e.accepts];
   const passed = [];
@@ -415,13 +491,14 @@ function finish(e, ctx, all) {
   }
   if (rt.state === 'partial' && rt.note) e.issues.push(`runtime partial: ${rt.note}`);
   if (failed.length) e.issues.push(`${failed.length} tagged check(s) failed`);
-  const real = REAL_GAME_CATEGORIES.has(e.category) ? passed.filter((p) => p.kind === 'playtest') : passed;
+  const needsRealGame = typeof e.real_game === 'boolean' ? e.real_game : REAL_GAME_CATEGORIES.has(e.category);
+  const real = needsRealGame ? passed.filter((p) => p.kind === 'playtest') : passed;
   if (e.issues.length) e.state = 'partial';
   else if (e.source_data_gap) e.state = 'partial';
   else if (real.length) e.state = 'verified';
   else {
     e.state = 'implemented';
-    if (passed.length && REAL_GAME_CATEGORIES.has(e.category)) e.notes.push('unit-tested only: needs a real-game (playtest) check');
+    if (passed.length && needsRealGame) e.notes.push('unit-tested only: needs a real-game (playtest) check');
   }
 }
 
@@ -467,17 +544,23 @@ export function toMarkdown(doc) {
   L.push('`report.json` files. Do not edit: change the data, the code, the tests or `tools/parity/rules.json` and regenerate.');
   L.push('Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).', '');
   L.push('## States', '');
-  for (const s of [...STATES, 'source_data_gap', 'in_scope']) L.push(`- **${s}**: ${doc.rule[s]}`);
+  for (const s of [...STATES, 'source_data_gap', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
   L.push('- Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries');
   L.push('  `parity`. "Implemented" is a declaration (`tools/parity/rules.json`: the runtime files or code markers per category');
   L.push('  and mechanic); only evidence makes an entry verified.', '');
   L.push('## Evidence used', '');
   if (!doc.inputs.tests.length && !doc.inputs.playtests.length) L.push('No evidence files were given.');
   for (const t of doc.inputs.tests) L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed`);
-  for (const p of doc.inputs.playtests) L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ${p.checks} checks (${p.tagged_checks} tagged)`);
+  for (const p of doc.inputs.playtests) {
+    L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
+      `${arr(p.failed_checks).length ? `; failed: ${p.failed_checks.map((f) => esc(f)).join('; ')}` : ''}`);
+  }
   if (doc.inputs.provenance) L.push(`- Provenance report: ${doc.inputs.provenance.records} records, ${doc.inputs.provenance.errors} errors, ${doc.inputs.provenance.warnings} warnings`);
   if (doc.inputs.unknown_evidence_keys.length) L.push(`- Tagged keys that name no manifest entry: ${doc.inputs.unknown_evidence_keys.map((k) => `\`${k}\``).join(', ')}`);
+  for (const u of arr(doc.inputs.playtest_tag_rules_unmatched)) L.push(`- A playtest_tags rule matched no check of \`${u.file}\` (renamed checks?): \`${esc(u.rule)}\``);
   L.push('');
+  L.push('Regenerate with the same inputs (`--check` instead of writing compares the committed files):', '');
+  L.push('```bash', regenerateCommand(doc.inputs), '```', '');
   L.push('## Totals', '');
   const t = doc.totals;
   L.push(`${t.all.entries} entries: ${t.all.verified} verified, ${t.all.implemented} implemented, ${t.all.partial} partial, ${t.all.missing} missing; ` +
@@ -491,7 +574,7 @@ export function toMarkdown(doc) {
   }
   L.push('');
   L.push('## Source-data gaps', '');
-  if (!doc.source_data_gaps.length) L.push('None recorded in the data yet (drop records are still schema v1, whose chances are placeholders, not gaps).');
+  if (!doc.source_data_gaps.length) L.push('None recorded.');
   for (const g of doc.source_data_gaps) L.push(`- \`${g.key}\` ${esc(g.name)}: ${esc(g.gaps.join('; '))}`);
   L.push('', 'Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in');
   L.push('[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").', '');
@@ -515,3 +598,9 @@ export function toMarkdown(doc) {
 }
 
 const anchor = (title) => title.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/ /g, '-');
+
+/** The build_parity.mjs command line that rebuilds the manifest from the same evidence files. */
+export function regenerateCommand(inputs) {
+  const args = [...arr(inputs.tests).map((t) => `--tests ${t.file}`), ...arr(inputs.playtests).map((p) => `--playtest ${p.file}`)];
+  return ['node tools/parity/build_parity.mjs', ...args].join(' \\\n  ');
+}

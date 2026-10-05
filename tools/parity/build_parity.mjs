@@ -6,7 +6,10 @@
 //                                                        # its "Evidence used" section lists them)
 //
 // Usual sequence: TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh, then
-// bash scripts/validate_data.sh --report, playtests with --out, then this script with the evidence and report paths.
+// bash scripts/validate_data.sh --report, playtests with --out (every scenario the manifest cites, the every-quest set
+// through scripts/playtest_quests.sh --out <dir>, the clean-character playthrough), then this script with the evidence
+// and report paths. The generated markdown ends its "Evidence used" section with the exact command it was built with.
+// Playtest checks count with their own parity keys plus those tools/parity/rules.json playtest_tags gives them.
 //
 // Inputs (offline, deterministic; nothing is fetched):
 //   game/data/canonical, game/data/misostory     the entities (maps, portals, monsters, drops, items, quests, ...)
@@ -122,6 +125,10 @@ function main() {
   if (provenance && provenance.counts?.records !== Object.values(loadCanonical()).reduce((n, d) => n + Object.keys(d).length, 0)) {
     console.warn('the provenance report counts a different number of records than game/data/canonical: regenerate it');
   }
+  if (doc.inputs.unknown_evidence_keys.length) {
+    console.warn(`${doc.inputs.unknown_evidence_keys.length} tagged key(s) name no manifest entry (a typo, or a row missing from rules.json): ${doc.inputs.unknown_evidence_keys.join(', ')}`);
+  }
+  for (const u of doc.inputs.playtest_tag_rules_unmatched) console.warn(`playtest_tags rule ${u.rule} matched no check of ${u.file}`);
   const json = JSON.stringify(doc, null, 2) + '\n';
   const md = toMarkdown(doc) + '\n';
   const t = doc.totals.all;

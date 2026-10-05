@@ -167,6 +167,67 @@ test('v1 entries sharing a name get distinct keys; a duplicate key fails the bui
   assert.throws(() => build({ canonical: d }), /duplicate parity keys: drop:2\/snail-shell/);
 });
 
+test('rule rows: categories, aliases, real-game flags and source-data gaps', () => {
+  const rules = { ...RULES, mechanics: [...RULES.mechanics,
+    { key: 'persistence:mesos', category: 'persistence', name: 'mesos persist', accepts: ['mechanic:mesos-saved'] },
+    { key: 'mechanic:natural-mp-regen', name: 'no MP regen', source_gaps: ['MeowDB documents none'] },
+    { key: 'playthrough:reach-southperry', category: 'playthrough', name: 'reach Southperry' },
+    { key: 'mechanic:strict-guard', category: 'playthrough', real_game: false, name: 'strict guard' },
+  ] };
+  const ev = [unit([{ file: 't.gd', name: 'test_a', ok: true, parity: ['mechanic:mesos-saved', 'mechanic:natural-mp-regen', 'playthrough:reach-southperry', 'mechanic:strict-guard'] }])];
+  const doc = build({ rules, tests: ev });
+  const mesos = find(doc, 'persistence:mesos');
+  assert.equal(mesos.category, 'persistence');
+  assert.equal(mesos.state, 'verified', 'evidence for the alias counts');
+  assert.deepEqual(doc.inputs.unknown_evidence_keys, [], 'an alias is a known key');
+  const mp = find(doc, 'mechanic:natural-mp-regen');
+  assert.equal(mp.source_data_gap, true);
+  assert.equal(mp.state, 'partial', 'a gap row is excused, never verified');
+  assert.ok(doc.source_data_gaps.some((g) => g.key === 'mechanic:natural-mp-regen'));
+  assert.equal(find(doc, 'playthrough:reach-southperry').state, 'implemented', 'the playthrough category needs the real game');
+  assert.equal(find(doc, 'mechanic:strict-guard').state, 'verified', 'real_game false waives it for one row');
+  const real = build({ rules, playtests: [play([{ i: 0, name: 'in Southperry', ok: true, parity: ['playthrough:reach-southperry'] }], 'playthrough')] });
+  assert.equal(find(real, 'playthrough:reach-southperry').state, 'verified');
+  assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:x', name: 'x', accepts: ['mechanic:mesos-saved'] }] } }),
+    /mechanic:mesos-saved is accepted by both/);
+  assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:y', name: 'y', accepts: ['quest:1006'] }] } }),
+    /accepts quest:1006, which is the key of another entry/);
+  assert.throws(() => build({ rules: { ...rules, mechanics: [{ key: 'mechanic:z', name: 'z', category: 'nowhere' }] } }), /unknown category nowhere/);
+});
+
+test('playtest_tags give keys to matching hard checks of their scenario, and report rules that match nothing', () => {
+  const rules = { ...RULES, playtest_tags: [
+    { scenario: 'npcs', match: '^\\S+ \\((\\d+)\\) can be talked to on foot', keys: ['npc:$1', 'quest:1006'] },
+    { scenario: ['npcs', 'other'], match: '^never matches$', keys: ['quest:1009'] },
+  ] };
+  const checks = [
+    { i: 0, name: 'Sam (9) can be talked to on foot in 000000040', ok: true },
+    { i: 1, name: 'Mai (11) can be talked to on foot in 000000050', ok: false },
+    { i: 2, name: 'Roger (3) can be talked to on foot in 000000010', ok: true, soft: true },
+    { i: 3, name: 'every NPC was talked to on foot', ok: true, parity: ['quest:1006'] },
+  ];
+  const doc = build({ rules, playtests: [play(checks, 'npcs'), play([{ i: 0, name: 'Sam (9) can be talked to on foot', ok: true }], 'elsewhere')] });
+  const ev = collectEvidence([], [play(checks, 'npcs')], rules.playtest_tags);
+  assert.deepEqual(ev.get('npc:9').passed.map((x) => x.id), ['npcs#0 Sam (9) can be talked to on foot in 000000040']);
+  assert.equal(ev.get('npc:11').failed.length, 1, 'a failing matched check is failing evidence');
+  assert.equal(ev.get('npc:3'), undefined, 'a soft check is never evidence');
+  assert.equal(ev.get('quest:1006').passed.length, 2, 'one key once per check, rule keys and the check\'s own');
+  assert.equal(find(doc, 'quest:1006').state, 'partial', 'the failing Mai check carries the rule\'s quest key too');
+  assert.match(find(doc, 'quest:1006').issues.join(), /1 tagged check\(s\) failed/);
+  assert.deepEqual(doc.inputs.playtest_tag_rules_unmatched.map((u) => u.rule), ['1: ^never matches$']);
+  const p = doc.inputs.playtests.find((x) => x.scenario === 'npcs');
+  assert.equal(p.rule_tagged_checks, 2);
+  assert.deepEqual(p.failed_checks, ['#1 Mai (11) can be talked to on foot in 000000050']);
+  assert.match(toMarkdown(doc), /node tools\/parity\/build_parity\.mjs \\\n {2}--playtest npcs\/report\.json/);
+});
+
+test('a placement accepts the map-wide breakable-placement key; every map has a minimap row', () => {
+  const doc = build({ tests: [unit([{ file: 't.gd', name: 'test_b', ok: true, parity: ['breakable-placement:000000040', 'minimap:000000040'] }])] });
+  assert.ok(find(doc, 'placement:000000040/0').accepts.includes('breakable-placement:000000040'));
+  assert.equal(find(doc, 'minimap:000000040').category, 'ui');
+  assert.deepEqual(doc.inputs.unknown_evidence_keys, []);
+});
+
 test('a canonical-verification row about the drop data stays partial while any drop record is schema v1', () => {
   const rules = { ...RULES, canonical_verification: [
     { key: 'canon:membership-chance-separate', name: 'separate sources', requires: { drops_schema_version: 2 } },
