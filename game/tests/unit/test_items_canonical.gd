@@ -243,6 +243,12 @@ func test_consumable_comparison_can_fail() -> void:
 	_expect_caught(_consumable_problems, "177", "scroll/success_rate_pct", 60, "scroll")
 	assert_true(_mentions(_consumable_problems("270", _canonical("270"), _db_with("270", "consumable/hp_restore", 90)),
 		"hp_restore"), "a runtime Red Potion restoring 90 HP is caught")
+	# No Maple Island item restores a percentage, so the family tests never use that path: a record that did (Red Potion
+	# with 10% HP and 5% MP on top) is applied as it says through ItemService.use_item, and a runtime without it is caught.
+	var pct := _set_path(_set_path(_canonical("270"), "consumable/hp_restore_pct", 10), "consumable/mp_restore_pct", 5)
+	var pct_problems := _consumable_problems("270", pct, _db_with_record("items", "270", pct.duplicate(true)))
+	assert_eq(pct_problems.size(), 0, "a percentage restore is applied as the record says: %s" % "; ".join(pct_problems))
+	assert_true(_mentions(_consumable_problems("270", pct, db()), "hp_restore_pct"), "a runtime without the percentage is caught")
 
 
 func test_setup_comparison_can_fail() -> void:
