@@ -489,42 +489,30 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
-### Results (2026-10-05, the Iteration Three base build with this harness, seeds 1, 2 and 3)
+### Results (2026-10-05, the integrated Iteration Three build, seeds 1, 2 and 3)
 
-On each seed 19 of 20 quests pass in the real game with real input, every chain strict after its setup (0 console
-steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches). 1012 (Pio) is blocked by design: Rusty Screw and
-Old Wooden Board come only from the Wooden Box, and the base build has no breakables runtime (contract C8), so its run
-fails at "Wooden Boxes stand in 000001010" right after the accept. The WARNs are the C3 `rewards_received` record of
-1008 and 1011, which the quest log does not keep yet. Checks per quest are the same on every seed; the random rewards
-and the times differ.
+**20 of 20 quests PASS on each seed** (523 quest checks per seed, 0 failed, 0 warnings), every chain strict after its
+setup (0 console steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches); 1000-1001 strict from character
+creation. 1012 passes with the real Wooden Box (contract C8) and the 1012-gated drops (C1/C2), and the C3
+`rewards_received` record of 1008 and 1011 is now a hard check that matches the random pick. Per quest and per seed,
+with what each run showed: [QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
 
-| Chain | Quests | Result (checks) | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
+| Chain | Quests | Checks | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
 |---|---|---|---|---|---|---|---|
-| 1000-1001 | Sera's Mirror | PASS (45) | 0 | 3 | 74 / 79 / 76 | 14 / 13 / 14 | |
-| 1002 | Roger's Apple | PASS (25) | 1 | 3 | 54 / 57 / 48 | 11 / 10 / 11 | |
-| 1003-1004 | Nina and Sen's dinner | PASS (44) | 1 | 3 | 96 / 100 / 101 | 15 / 15 / 16 | |
-| 1005 | Todd's How-to-Hunt | PASS (27) | 1 | 3 | 104 / 94 / 77 | 15 / 13 / 16 | |
-| 1006, 1009, 1010 | Mai's Training | PASS (93) | 1 | 6 | 757 / 612 / 574 | 148 / 94 / 121 | |
-| 1007-1008 | the letters | PASS (48, 1 WARN) | 2 | 3 | 420 / 407 / 313 | 71 / 66 / 68 | 712 Black / 714 Yellow / 713 Green Headband |
-| 1011 | Biggs's collection | PASS (30, 1 WARN) | 2 | 3 | 533 / 1144 / 1112 | 93 / 155 / 186 | 559 Fruit Knife on all three |
-| 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 19 / 39 / 33 | 9 / 6 / 6 | |
-| 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 58 / 81 / 59 | 26 / 20 / 24 | |
+| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 86 / 85 / 92 | 13 / 13 / 12 | |
+| 1002 | Roger's Apple | 25 | 1 | 3 | 62 / 64 / 69 | 11 / 10 / 10 | |
+| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 111 / 106 / 114 | 15 / 14 / 14 | |
+| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 116 / 110 / 116 | 14 / 14 / 13 | |
+| 1006, 1009, 1010 | Mai's Training | 93 | 1 | 6 | 707 / 744 / 708 | 105 / 115 / 116 | |
+| 1007-1008 | the letters | 48 | 2 | 3 | 384 / 343 / 351 | 58 / 50 / 54 | 713 Green / 712 Black / 712 Black Headband |
+| 1011 | Biggs's collection | 30 | 2 | 3 | 380 / 581 / 502 | 54 / 87 / 73 | 558 Razor / 559 Fruit Knife / 559 Fruit Knife |
+| 1012 | Pio's recycled goods | 33 | 2 | 3 | 101 / 101 / 91 | 13 / 13 / 13 | |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 90 / 92 / 77 | 20 / 21 / 23 | |
 
-**1012 with the Wooden Box (review probe, 2026-10-05, seed 1).** This harness with the breakables package (C8) and
-the drops package's schema v2 records (C1) merged in a scratch copy: 1012 PASS, 33 quest checks, strict ok. The box
-broken before the accept dropped neither Rusty Screw nor Old Wooden Board (both gated to 1012); every box broke after
-the canonical 4 hits and dropped one of each; the save and restart came at 1/3 Rusty Screw; two more boxes, then EXP
-+100, mesos +150, the hand-ins taken and The Green Relaxer given, exactly. 98 s of game time over 3 phases.
-
-**Strict from character creation.** Since the review, 1000-1001 (no setup at all) runs strict from the step after
-`new_game`: phase 0 strict ok, 0 console steps in the whole run.
-
-**Review re-run (2026-10-05, seed 1, the harness after the review fixes).** 19 of 20 PASS, every chain strict ok,
-the same check counts per chain as the table above; 1012 fails only at "Wooden Boxes stand in 000001010". Random
-rewards: 1008 708 Brown Skullcap, 1011 559 Fruit Knife. A run before `unstick()` existed failed 1009 on the A Split
-Road ledge (see "Findings"). The `kit` scenario with the mechanics and breakables packages merged in a scratch copy:
-`use_chair` (a double-click on The Green Relaxer), `sit` (X) and both stands PASS, the store's Wooden Box is found;
-only `cast_skill` stays a WARN.
+**Before the shun fix (the wave-1 harness on this build).** Seeds 1 and 3 passed 20/20; seed 2 failed 1006, 1009 and
+1010 at the trail hop from Snail Hunting Ground I to II (the survival guard spin, "Findings"). On the base build
+before wave 2, 1012 failed at "Wooden Boxes stand in 000001010" (no breakables runtime), and 1008 and 1011 had a
+`rewards_received` WARN (the quest log did not keep it yet).
 
 ## The clean-character playthrough
 
@@ -586,7 +574,8 @@ skips it; `playtest_quests.sh` does that for every chain after a worker's first)
 | `quest --quest 1002` | 45-60 s (3 phases) | 9-13 s | 5x |
 | `quest --quest 1006,1009,1010` | 610 s (6 phases) | 94-147 s | 4-6.5x |
 | `quest --quest 1011` | 1020-1035 s (3 phases) | 175-230 s | 4.5-6x |
-| `playtest_quests.sh --jobs 3` (all 9 chains) | about 2400 s summed | 8-10 min | |
+| `playtest_quests.sh --jobs 3` (all 9 chains) | 2040-2230 s summed | about 6 min (5-6 min with two playthroughs running beside it) | |
+| `playthrough` (creation to Shanks, 8 phases) | 2200-2540 s | 316-359 s (three seeds in parallel) | 7x |
 
 Wall times grow with the machine's load (the ranges are two runs, the slower one beside other agents' Godot runs).
 
@@ -600,7 +589,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
 | `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
 | `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
-| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery's key, the Wooden Box in the store. The chair and box checks WARN until the mechanics and breakables packages land; `cast_skill` stays a WARN here (no Skills window to learn and bind a skill with; `test_skills` casts through it) | harness |
+| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store | harness |
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
@@ -624,6 +613,14 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 
 ## Findings (2026-10-05)
 
+- **Iteration Three playthrough package (the harness defects its runs found, all fixed):** the survival guard spun
+  on a monster it could not reach (seed 2 of 1006: 24 interrupts in 2 s; `shun()`); `break_box` walked up to a box
+  at the foot of a terrace from the terrace above and whiffed 40 times (Amherst 000001010:0; test_box's tier-aware
+  approach and the next-box fallback); Three Snails walked toward a Snail on a ledge and never threw (`throw_at` stops
+  only when level with the target, `same_tier_monster()`); `let_monsters_win` stopped 0.75 m short of every monster
+  (now the last step is straight at it); a run continued with `--resume` from a copy wrote its report into the
+  original `--out` (the runner now writes where it is told). Details and the one open game observation (a Continue
+  just past a trail gate logs a resume-point warning): [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) "Findings".
 - **A trap in The Field West of Amherst (000001000), confirmed.** Test C's hunter (seed 1, final harness) ended phase
   1 at map-local (62.5, 0.0, -37.5), world (196.9, 5.0, 541.9), below terraces 4-9 m up; the Continue of phase 2
   resumed it there, and in the whole phase it reached none of 393 targets ("phase 2: every kill gave its canonical
