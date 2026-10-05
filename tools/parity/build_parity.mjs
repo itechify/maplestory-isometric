@@ -12,12 +12,14 @@
 // Playtest checks count with their own parity keys plus those tools/parity/rules.json playtest_tags gives them.
 // The clean-character playthrough: pass its report (or directory) with one more --playtest. Its checks verify the
 // playthrough:<slug> rows (rules.json mechanics with category "playthrough") when they carry those keys (or a
-// playtest_tags rule for that scenario gives them), and only when the report is a clean run: strict mode ok and not
-// one console or api step in the report (parity.mjs cleanRun). Its quest:, npc:, map: ... keys count as usual.
+// playtest_tags rule for that scenario gives them), and only when the report is a clean run: a passing report, strict
+// mode ok and not one console or api step in the report (parity.mjs cleanRun). Its quest:, npc:, map: ... keys count
+// as usual.
 //
 // Inputs (offline, deterministic; nothing is fetched):
 //   game/data/canonical, game/data/misostory     the entities (maps, portals, monsters, drops, items, quests, ...)
-//   tools/parity/rules.json                      the runtime declarations, mechanics, validation rows, out-of-scope keys
+//   tools/parity/rules.json                      the runtime declarations, mechanics, validation rows, out-of-scope keys,
+//                                                pending source reads (values published on a page not read yet)
 //   docs/provenance_report.json                  validation findings per record (bash scripts/validate_data.sh --report)
 //   --tests <file>                               unit test evidence (TEST_EVIDENCE_OUT=<file> bash scripts/test.sh)
 //   --playtest <file|dir>                        playtest report.json files (a directory is searched for report.json;
@@ -138,11 +140,18 @@ function main() {
   for (const u of doc.inputs.playtest_tag_rules_unmatched) {
     console.warn(`playtest_tags rule ${u.rule} matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')}`);
   }
+  if (doc.inputs.undeclared_pending_reads.length) {
+    console.warn(`${doc.inputs.undeclared_pending_reads.length} entry(ies) a drop record marks as a pending source read are not declared in ` +
+      `tools/parity/rules.json pending_source_reads (they count as pending anyway): ${doc.inputs.undeclared_pending_reads.join(', ')}`);
+  }
+  if (doc.inputs.unmatched_kuro_candidates.length) {
+    console.warn(`excluded KuroDB candidate rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.join('; ')}`);
+  }
   const json = JSON.stringify(doc, null, 2) + '\n';
   const md = toMarkdown(doc) + '\n';
   const t = doc.totals.all;
   const summary = `${t.entries} entries: ${t.verified} verified, ${t.implemented} implemented, ${t.partial} partial, ${t.missing} missing; ` +
-    `${t.source_data_gap} source-data gaps; ${doc.totals.open_for_exit} open for the exit criterion`;
+    `${t.source_data_gap} source-data gaps, ${t.pending_source_read} pending source reads; ${doc.totals.open_for_exit} open for the exit criterion`;
   if (o.check) {
     const same = fs.existsSync(o.outJson) && fs.readFileSync(o.outJson, 'utf8') === json && fs.existsSync(o.outMd) && fs.readFileSync(o.outMd, 'utf8') === md;
     console.log(`${summary}\n${same ? 'PARITY_CHECK_PASSED: the committed manifest is current' : 'PARITY_CHECK_FAILED: the committed manifest differs from a fresh build'}`);
