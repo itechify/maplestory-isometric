@@ -406,7 +406,7 @@ doc comment.
 ## Testing
 
 ```bash
-ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 38 tests
+ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 62 tests (19 of them the minimap's: test_ui_minimap)
 ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 ```
 

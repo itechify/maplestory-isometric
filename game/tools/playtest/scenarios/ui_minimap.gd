@@ -6,11 +6,14 @@ extends PlaytestScenario
 ## open -> the player placed mid-trail: the arrow carries "-> <destination>" -> every one of the 25 maps (console warp,
 ## setup only): title, portal markers (exactly the visible canonical portals: no arrival gate, no hidden portal), NPC
 ## dots (exactly the canonical NPCs), shop badges on the doors to Pan, Sid and Lucy, the collision ground drawn, the
-## arrow on the picture after arrival, and the NPC name tags' shop / transport icons; a screenshot per map (windowed).
-## Ends with no engine error raised from the minimap's scripts.
+## arrow on the picture after arrival, and the NPC name tags' shop / transport icons; a screenshot per map (windowed)
+## -> Phase 12 feedback through real kills in 000000040 to level 2: the flourish, the level, AP and SP lines, hits,
+## pickup lines. Ends with no engine error raised from the minimap's scripts.
 
 const START_MAP := "000000001"
 const HEENA := "1"
+## Snail Hunting Ground I: the first hunting map (Phase 12 feedback through real kills).
+const HUNT_MAP := "000000040"
 
 
 func description() -> String:
@@ -18,7 +21,7 @@ func description() -> String:
 
 
 func max_seconds() -> float:
-	return 600.0
+	return 900.0
 
 
 func run(d: PlaytestDriver) -> void:
@@ -100,11 +103,49 @@ func run(d: PlaytestDriver) -> void:
 	shops.sort()
 	d.check("shop badges on exactly the doors to the three shops", shops == _shop_doors(d), "%s / %s" % [shops, _shop_doors(d)])
 	d.check("the Transport NPC's tag carries the boat", not transports.is_empty(), str(transports))
+	await _feedback(d)
 	var errs: Array = []
 	for e: Dictionary in d.report.engine_errors:
 		if String(e.get("message", "")).contains("minimap") or String(e.get("message", "")).contains("map_icons"):
 			errs.append(e)
 	d.check("no engine error from the minimap's scripts", errs.is_empty(), str(errs))
+
+
+## Phase 12 feedback through real play in Snail Hunting Ground I: fight Snails until level 2, then the HUD log has the
+## level line, the AP line and the SP line, the flourish played; the hits showed damage numbers; picked-up drops and
+## mesos are announced with the HUD's own lines.
+func _feedback(d: PlaytestDriver) -> void:
+	await d.console("warp %s" % HUNT_MAP)
+	var hud := d.hud() as MisoHud
+	var hits: Array = [0]
+	var flourish: Array = [false]
+	var on_hit := func(_m: String, _dmg: int, _crit: bool) -> void: hits[0] += 1
+	var on_level := func(_lv: int) -> void: flourish[0] = hud.flourish.is_playing()
+	d.events().connect("monster_hit", on_hit)
+	d.events().connect("leveled_up", on_level, CONNECT_DEFERRED)
+	var start := hud.log_panel.history.size()
+	var f: Dictionary = await d.fight_until(func() -> bool: return d.character().level >= 2, 400.0)
+	d.events().disconnect("monster_hit", on_hit)
+	d.events().disconnect("leveled_up", on_level)
+	if not d.check("level 2 by killing in %s" % HUNT_MAP, d.character().level >= 2, "%d kills, level %d" % [int(f["kills"]), d.character().level]):
+		return
+	var c := d.character()
+	var lines := hud.log_panel.texts().slice(start)
+	d.check("level-up: the flourish played", flourish[0] and hud.flourish.sub.text == "Level %d" % c.level, hud.flourish.sub.text)
+	d.check("level-up: the log congratulates", lines.has("Congratulations! You have reached level %d." % c.level), str(lines))
+	var ap_line := "You have %d AP to distribute (press %s)." % [c.ap, MisoUiEnv.key_label("toggle_stats")]
+	d.check("level-up: the AP line", c.ap > 0 and lines.has(ap_line), "%s in %s" % [ap_line, lines])
+	var sp_line := "You have %d SP to distribute (press %s)." % [c.sp, MisoUiEnv.key_label("toggle_skills")]
+	d.check("level-up: the SP line", c.sp > 0 and lines.has(sp_line), "%s in %s" % [sp_line, lines])
+	d.check("hits were announced (monster_hit: damage numbers)", int(hits[0]) > 0, "%d hits" % int(hits[0]))
+	var before := hud.log_panel.history.size()
+	var p: Dictionary = await d.pickup_all_nearby(10.0, 60.0)
+	var picked_lines := hud.log_panel.texts().slice(before)
+	var gains := Array(picked_lines).filter(func(t: String) -> bool: return t.begins_with("You have gained"))
+	if d.soft_check("something dropped nearby to pick up", int(p["picked"]) > 0, str(p["picked"])):
+		d.check("every pickup is announced in the HUD log", gains.size() >= int(p["picked"]),
+			"%d picked, lines %s" % [int(p["picked"]), picked_lines])
+	await d.screenshot("feedback_level_2")
 
 
 ## The player placed in the middle of a walkable trail of the current map (an API placement, as ui_game_check does):

@@ -167,13 +167,25 @@ func describe_at(px: Vector2) -> String:
 
 
 ## Where the destination names go: [{id, text, rect}], nearest portal to the player first, each where it fits
-## (beside its glyph, outward first, then above, below, right, left) without overlapping an earlier label or leaving
-## the picture. A name that fits nowhere is left out: hovering its portal still shows it (describe_at).
+## (beside its glyph, outward first, then above, below, right, left) without covering another label, a portal glyph,
+## an NPC dot or its icon, or leaving the picture. A name that fits nowhere is left out: hovering its portal still
+## shows it (describe_at). The player's arrow is not avoided (the names would jump as the player walks); it is drawn
+## on top.
 func label_layout() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var font := _label_font()
 	if model == null or font == null:
 		return out
+	var taken: Array[Rect2] = []
+	for p: Dictionary in model.portals:
+		taken.append(Rect2(to_px(p["pos"]) - Vector2.ONE * (PORTAL_R + 1.0), Vector2.ONE * (PORTAL_R + 1.0) * 2.0))
+		if bool(p["dest_shop"]):
+			taken.append(Rect2(to_px(p["pos"]) + Vector2(PORTAL_R + 1.0 - ICON_R, -PORTAL_R - 1.0 - ICON_R), Vector2.ONE * ICON_R * 2.0))
+	for n: Dictionary in model.npcs:
+		var at := to_px(n["pos"])
+		taken.append(Rect2(at - Vector2.ONE * MARKER_R, Vector2.ONE * MARKER_R * 2.0))
+		if String(n["role"]) != "":
+			taken.append(Rect2(at + Vector2(MARKER_R + 2.0 - ICON_R, -MARKER_R - ICON_R), Vector2.ONE * ICON_R * 2.0))
 	var order: Array[Dictionary] = []
 	for p: Dictionary in model.portals:
 		order.append(p)
@@ -190,11 +202,14 @@ func label_layout() -> Array[Dictionary]:
 		var gap := PORTAL_R + 3.0
 		var candidates := [at + dir * (gap + sz.x * 0.5 * absf(dir.x) + sz.y * 0.5 * absf(dir.y)) - sz * 0.5,
 			at + Vector2(-sz.x * 0.5, -gap - sz.y), at + Vector2(-sz.x * 0.5, gap),
-			at + Vector2(gap, -sz.y * 0.5), at + Vector2(-gap - sz.x, -sz.y * 0.5)]
+			at + Vector2(gap, -sz.y * 0.5), at + Vector2(-gap - sz.x, -sz.y * 0.5),
+			at + Vector2(gap * 0.6, -gap * 0.6 - sz.y), at + Vector2(-gap * 0.6 - sz.x, -gap * 0.6 - sz.y),
+			at + Vector2(gap * 0.6, gap * 0.6), at + Vector2(-gap * 0.6 - sz.x, gap * 0.6)]
 		for corner: Vector2 in candidates:
 			var r := Rect2(corner.round(), sz)
-			if not area.encloses(r) or out.any(func(o: Dictionary) -> bool: return (o["rect"] as Rect2).intersects(r)):
+			if not area.encloses(r) or taken.any(func(o: Rect2) -> bool: return o.intersects(r)):
 				continue
+			taken.append(r)
 			out.append({"id": String(p["id"]), "text": text, "rect": r})
 			break
 	return out

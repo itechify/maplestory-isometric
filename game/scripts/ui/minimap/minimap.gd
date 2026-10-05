@@ -1,8 +1,8 @@
 class_name MisoMinimap
 extends PanelContainer
-## Root of res://scenes/ui/minimap.tscn: the minimap (brief Phase 11), top left of the screen.
+## Root of res://scenes/ui/minimap.tscn: the minimap (Iteration Three brief Phase 11), top left of the screen.
 ##   - title strip: the canonical street (gold) above the canonical map name, always shown, so the map name stays on
-##     screen after the arrival banner fades; the canonical map id beside them while the debug overlay is on
+##     screen after the arrival banner fades; the canonical map id under them while the debug overlay is on
 ##     (Debug.overlay_enabled / overlay_toggled, F3);
 ##   - the map (MisoMinimapView): the map's walkable ground as the gameplay camera sees it (MinimapModel), its visible
 ##     portals with destination names, its NPCs with their quest-marker state and shop or transport icon, the
