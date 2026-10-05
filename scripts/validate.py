@@ -1519,6 +1519,100 @@ def _point_in_poly(x, y, poly):
 run("spawn_regions", sec_spawn_regions)
 
 
+# ---------------------------------------------------------------- the band inside the containment ring (stuck slots)
+RING_BAND_STEP_M = 0.5           # sample spacing along the inset ring line
+RING_BAND_GATE_CLEAR_M = 1.5     # gate corridors are skipped for GATE_HALF_WIDTH_M + this either side of the anchor
+
+
+def _movement_value(key, default):
+    """A top-level value of game/data/misostory/movement.json (the controller's body numbers)."""
+    try:
+        with open(os.path.join(ROOT, "game", "data", "misostory", "movement.json"), encoding="utf-8") as f:
+            v = json.load(f).get(key)
+        return default if v is None else float(v)
+    except (OSError, ValueError, AttributeError):
+        return default
+
+
+def sec_ring_band():
+    """No pit inside a map's containment ring (docs/runtime/STUCK_SCAN.md). The runtime walls every map at footprint +
+    ring_offset_m (ContainmentBuilder), so a player who walks off the terrain into the band between the terrain edge
+    and that wall can only leave the way they came. Iteration Three's stuck-region scan found such slots at map corners
+    2.3-2.6 m deep (the plinth's rounded top did not reach the ring's square corners), deeper than any jump. Every
+    exterior map's ring line, inset by the body radius (the farthest a body's centre gets), is sampled every
+    RING_BAND_STEP_M; gate corridors (trail ends) and RIM_EDGE sides are skipped. At each sample the highest walkable
+    surface (the walkable BVH, cast from above the map) must lie no more than the controller's step_up_m below the
+    map's base height: deeper (or no surface at all) is high."""
+    bvh = _ground_bvh()
+    cp = LY.containment_params(ROOT)
+    radius = _misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    step_up = _movement_value("step_up_m", 0.45)
+    inset = cp["ring_offset_m"] - radius
+    origins = LY.resolve()
+    rows, n_bad = {}, 0
+    for mid in LY.exterior_ids():
+        m = LY.MAPS[mid]
+        base = m["z"]
+        gates = []
+        for c, ca, p, pa, _g, _b in LY.LINKS:
+            for side_map, name in ((c, ca), (p, pa)):
+                if side_map == mid and name in m["anchors"]:
+                    gates.append(LY.anchor_world(mid, name, origins))
+        rim = LY.RIM_EDGE.get(mid)
+        poly = LY.footprint_world(mid, origins, margin=inset)  # local corners (0,0) (L,0) (L,D) (0,D) grown by inset
+        names = ["front", "right", "back", "left"]  # edge i runs from poly[i] to poly[i + 1]
+        worst, pits = None, []
+        for i in range(4):
+            if rim == names[i]:
+                continue
+            ax, ay = poly[i]
+            bx, by = poly[(i + 1) % 4]
+            length = math.hypot(bx - ax, by - ay)
+            n = max(1, int(math.ceil(length / RING_BAND_STEP_M)))
+            for k in range(n + 1):
+                t = k / n
+                x, y = ax + (bx - ax) * t, ay + (by - ay) * t
+                if any(math.hypot(x - g[0], y - g[1]) < LY.GATE_HALF_WIDTH_M + RING_BAND_GATE_CLEAR_M for g in gates):
+                    continue
+                h = bvh.ray_cast(Vector((x, y, base + 40.0)), Vector((0, 0, -1)), 200.0) if bvh else (None,)
+                depth = None if h[0] is None else round(base - h[0].z, 2)
+                if depth is not None and depth <= step_up + 0.02:
+                    continue
+                pits.append((x, y, depth))
+                if worst is None or depth is None or (worst[2] is not None and depth > worst[2]):
+                    worst = (x, y, depth)
+        if pits:
+            n_bad += 1
+            # Report each pit run once (the samples cluster at corners), in map-local Blender coordinates.
+            o = origins[mid]
+            yaw = math.radians(LY.world_yaw(mid))
+            runs = []
+            for x, y, depth in pits:
+                dx, dy = x - o[0], y - o[1]
+                lx, ly = dx * math.cos(-yaw) - dy * math.sin(-yaw), dx * math.sin(-yaw) + dy * math.cos(-yaw)
+                if runs and math.hypot(lx - runs[-1]["last"][0], ly - runs[-1]["last"][1]) <= RING_BAND_STEP_M * 1.5:
+                    runs[-1]["last"] = (lx, ly)
+                    runs[-1]["n"] += 1
+                    runs[-1]["depth"] = None if depth is None or runs[-1]["depth"] is None else max(depth, runs[-1]["depth"])
+                    continue
+                runs.append({"first": (lx, ly), "last": (lx, ly), "n": 1, "depth": depth})
+            rows[mid] = [{"local_from": [round(r["first"][0], 2), round(r["first"][1], 2)],
+                          "local_to": [round(r["last"][0], 2), round(r["last"][1], 2)], "samples": r["n"],
+                          "depth_m": r["depth"]} for r in runs]
+            for r in rows[mid]:
+                issue("ring_band", "high", f"map {mid}: {r['samples']} samples of the band inside the containment ring "
+                      f"from local {r['local_from']} to {r['local_to']} lie "
+                      f"{'over no walkable surface' if r['depth_m'] is None else str(r['depth_m']) + ' m'} below the "
+                      f"map's base (more than step_up {step_up} m): a player who drops in cannot climb out")
+    report["stats"]["ring_band"] = rows
+    check("ring_band", n_bad == 0, f"{len(LY.exterior_ids()) - n_bad}/{len(LY.exterior_ids())} exterior maps have "
+          f"walkable ground within step_up ({step_up} m) of their base all along the ring line inset by the body "
+          f"radius (footprint + {inset:.2f} m; gate corridors and rim edges skipped)")
+
+
+run("ring_band", sec_ring_band)
+
+
 # ---------------------------------------------------------------- exceptions the build swallowed
 def _find_exceptions(node, path, out):
     if isinstance(node, dict):

@@ -40,7 +40,7 @@ const DEFAULT_CELL_M := 0.35
 ## At most this many stacked surfaces are recorded per column (top down).
 const MAX_SURFACES := 8
 ## The next ray of a column starts this far below the surface just found.
-const SURFACE_GAP_M := 0.05
+const SURFACE_GAP_M := 0.01
 ## The controller's feet rays start this far above the step band (PlayerController.RAY_HEADROOM).
 const RAY_HEADROOM_M := 0.05
 ## Certain jumps reach this much less high than the controller can (jump_apex + step_up): a jump the graph counts as
@@ -269,7 +269,7 @@ func _setup_queries() -> void:
 	_ray.exclude = exclude
 	_up_ray = PhysicsRayQueryParameters3D.new()
 	_up_ray.collision_mask = WorldLayers.PLAYER_MASK
-	_up_ray.hit_back_faces = true
+	_up_ray.hit_back_faces = false
 	_up_ray.hit_from_inside = false
 	_up_ray.exclude = exclude
 	# The controller's body: a capsule from step_up to body_height (PlayerController._configure_shapes).
@@ -397,7 +397,7 @@ func _sample(g: MapGraph) -> void:
 				var fl := _is_floor(hit.normal as Vector3)
 				var node := -1
 				var feet := Vector3(x, hy, z)
-				if fl and hy >= kill_y and _clear(feet) and _open_above(feet):
+				if fl and hy >= kill_y and _clear(feet) and _open_above(feet, n, g.y_top):
 					node = g.node_pos.size()
 					g.node_pos.append(feet)
 					g.node_col.append(c)
@@ -431,17 +431,27 @@ func _sweep(a: Vector3, b: Vector3) -> bool:
 	return r.size() > 0 and r[0] >= 0.9999
 
 
-## Open air over the feet. A capsule inside a hollow trimesh solid overlaps no triangle and tests clear, so an upward
-## ray that also sees back faces must not meet a back face first (the inside of a closed solid: a buried surface).
-func _open_above(feet: Vector3) -> bool:
-	_n_rays += 1
-	_up_ray.from = feet + Vector3.UP * SURFACE_GAP_M
-	_up_ray.to = feet + Vector3.UP * 60.0
-	var h := space.intersect_ray(_up_ray)
-	if h.is_empty():
+## Open air over the feet: the feet are not inside a closed solid. A capsule inside a hollow trimesh overlaps no triangle
+## and tests clear, and Jolt reports no back faces (neither to rays nor to point queries), so this counts faces: going
+## down the column, every surface met above the feet (tops_above: faces facing up) enters a solid; going up from
+## the feet, every face met (they face down) is the bottom of a solid. A solid wholly above the feet adds one of each; a
+## solid around the feet adds only its top. More tops than bottoms: buried. Under a one-sided sheet (a plinth skirt, a
+## trail's shell) counts as buried too, which is right: the body passes such sheets only from below.
+func _open_above(feet: Vector3, tops_above: int, y_top: float) -> bool:
+	if tops_above == 0:
 		return true
-	# Seen from below, a front face points down (a ceiling); a face pointing up is seen from inside its solid.
-	return (h.normal as Vector3).y <= 0.0
+	var bottoms := 0
+	var y := feet.y + SURFACE_GAP_M
+	while bottoms < tops_above:
+		_n_rays += 1
+		_up_ray.from = Vector3(feet.x, y, feet.z)
+		_up_ray.to = Vector3(feet.x, y_top, feet.z)
+		var h := space.intersect_ray(_up_ray)
+		if h.is_empty():
+			break
+		bottoms += 1
+		y = (h.position as Vector3).y + SURFACE_GAP_M
+	return bottoms >= tops_above
 
 
 ## The first surface of column c (top down) at or below height y; -1 if none.
@@ -707,14 +717,14 @@ func _ends(g: MapGraph) -> void:
 			g.entries.append(n)
 	var exit_seen := {}
 	for n in g.node_count():
-		if _is_exit(g, g.node_pos[n]) != "":
+		if exit_reason(g, g.node_pos[n]) != "":
 			exit_seen[n] = true
 			g.exits.append(n)
 
 
 ## Why feet at `p` have left this map's play: "portal <id>" inside a press-Up trigger, "map <id>" past the gate of a
 ## trail into another map (inside its corridor and height band: the GateMonitor's arm rule), else "".
-func _is_exit(g: MapGraph, p: Vector3) -> String:
+func exit_reason(g: MapGraph, p: Vector3) -> String:
 	var probe := p + Vector3.UP * 0.1
 	for portal in g.exit_portals:
 		if portal.trigger_contains(probe):
@@ -1222,7 +1232,7 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
 		var s := starts[si]
 		si += 1
 		var plans: Array[Dictionary] = []
-		for target in _nearest_escapable(g, s, TARGETS):
+		for target in nearest_escapable(g, s, TARGETS):
 			var tp := g.node_pos[target]
 			plans.append({"to": tp, "jump": "none", "ticks": TRY_TICKS})
 			plans.append({"to": tp, "jump": "hold", "ticks": TRY_TICKS})
@@ -1267,7 +1277,7 @@ func _plan_text(plan: Dictionary, g: MapGraph) -> String:
 func _try(g: MapGraph, pw: PlayerTestWorld, s: Vector3, plan: Dictionary) -> Dictionary:
 	var p := _place(pw, s)
 	var best_y := p.global_position.y
-	var why := _escaped_here(g, p)
+	var why := escape_reason(g, p.global_position, p.is_grounded())
 	if why != "":
 		return {"escaped": true, "why": why, "end": p.global_position, "grounded": p.is_grounded(), "best_y": best_y}
 	var fell := [false]
@@ -1297,26 +1307,25 @@ func _try(g: MapGraph, pw: PlayerTestWorld, s: Vector3, plan: Dictionary) -> Dic
 			break
 		if p.is_grounded() or p.is_climbing():
 			best_y = maxf(best_y, p.global_position.y)
-		why = _escaped_here(g, p)
+		why = escape_reason(g, p.global_position, p.is_grounded())
 		if why != "":
 			break
 	pw.bot.release_all()
 	if why == "" and not fell[0]:
 		pw.run(30)
-		why = _escaped_here(g, p)
+		why = escape_reason(g, p.global_position, p.is_grounded())
 	p.fell_out_of_world.disconnect(on_fell)
 	return {"escaped": why != "", "why": why if why != "" else ("fell below kill_y" if fell[0] else ""),
 		"end": p.global_position, "grounded": p.is_grounded(), "best_y": best_y}
 
 
-## Why the controller now stands outside the trap: on an escapable node, in a press-Up trigger or in another map's
-## region; "" otherwise.
-func _escaped_here(g: MapGraph, p: PlayerController) -> String:
-	var at := p.global_position
-	var ex := _is_exit(g, at)
+## Why a body with feet `at` is out of the trap: grounded on an escapable node, in a press-Up trigger, or past a gate
+## into another map; "" otherwise (trap_probe uses it on the live game).
+func escape_reason(g: MapGraph, at: Vector3, grounded: bool) -> String:
+	var ex := exit_reason(g, at)
 	if ex != "":
 		return "reached " + ex
-	if p.is_grounded():
+	if grounded:
 		var n := g.node_near(at, 0.3, 0.3, 1)
 		if n >= 0 and g.bwd[n] == 1:
 			return "stands on escapable ground at local %s" % [_r3(g.def.to_local(at))]
@@ -1324,7 +1333,7 @@ func _escaped_here(g: MapGraph, p: PlayerController) -> String:
 
 
 ## The `count` escapable nodes nearest to feet `p` (horizontal distance, spread over different directions).
-func _nearest_escapable(g: MapGraph, p: Vector3, count: int) -> PackedInt32Array:
+func nearest_escapable(g: MapGraph, p: Vector3, count: int) -> PackedInt32Array:
 	var out := PackedInt32Array()
 	var c0 := g.column_at(p.x, p.z)
 	if c0 < 0:
