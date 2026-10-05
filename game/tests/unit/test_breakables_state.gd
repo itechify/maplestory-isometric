@@ -186,6 +186,13 @@ func test_rules_and_adaptation_values() -> void:
 	assert_eq(typeof(ctx["quests_in_progress"]), TYPE_PACKED_STRING_ARRAY, "C2: a PackedStringArray")
 	assert_eq(ctx["quests_in_progress"], PackedStringArray(["1012"]), "C2: the in-progress quest ids")
 	assert_eq(BreakableRules.drop_context(null), {"quests_in_progress": PackedStringArray()}, "no character")
+	# The declared rules are the ones the runtime implements: boxes_per_attack is read (the MeleeQuery cap), one hit is
+	# counted per landed attack (MapInstanceState.hit_breakable) and respawn is exactly respawn_s, never tick-aligned.
+	assert_eq(BreakableRules.boxes_per_attack(db()), 1, "hit_rule.boxes_per_attack")
+	assert_eq(BreakableRules.section(db(), "hit_rule").get("hits_per_landed_attack", null), 1,
+		"hit_rule.hits_per_landed_attack: the runtime counts exactly one hit per landed attack")
+	assert_eq(BreakableRules.section(db(), "respawn").get("align_to_spawn_tick", null), false,
+		"respawn.align_to_spawn_tick: the runtime brings a box back exactly respawn_s after the break")
 	for section in ["box", "hit_rule", "respawn", "placement"]:
 		assert_false(BreakableRules.section(db(), section).is_empty(), "breakables.json %s" % section)
 		assert_true(String(BreakableRules.section(db(), section).get("reason", "")) != "", "%s has a reason" % section)

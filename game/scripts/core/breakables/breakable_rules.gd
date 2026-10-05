@@ -52,6 +52,13 @@ static func touch_px(db: ContentDB) -> Vector2:
 	return Vector2.ZERO
 
 
+## Boxes one landed attack hits, nearest first (breakables.json hit_rule.boxes_per_attack); 1 when the value is missing
+## or below 1.
+static func boxes_per_attack(db: ContentDB) -> int:
+	var v := num(db, "hit_rule", "boxes_per_attack")
+	return maxi(int(v), 1) if not is_nan(v) else 1
+
+
 ## The box's body in meters: (width, height, depth) through WorldScale.actor.
 static func size_m(db: ContentDB) -> Vector3:
 	var px := touch_px(db)

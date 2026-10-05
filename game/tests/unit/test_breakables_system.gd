@@ -280,6 +280,21 @@ func test_a_respawn_inside_another_hit_reaches_the_box() -> void:
 		"a box broken in the state is no target even before its node shows it")
 
 
+## One landed attack hits the nearest box it overlaps and no other (breakables.json hit_rule.boxes_per_attack 1).
+func test_one_attack_hits_only_the_nearest_box() -> void:
+	var boxes := sys.live_boxes()
+	var origin := Vector3(10, 0, 10)
+	boxes[0].global_position = origin + Vector3(0.9, 0, 0)
+	boxes[1].global_position = origin + Vector3(0.5, 0, 0)
+	boxes[2].global_position = origin + Vector3(0.7, 0, 0)
+	var wide := Rect2(0, -40, 80, 80)
+	var depth := CombatReach.attack_box_depth_px(db())
+	var hit := sys.land_attack(origin, Vector3.RIGHT, wide, depth)
+	assert_true(hit == boxes[1], "the nearest box takes the hit")
+	assert_eq([st.breakable_hits(0), st.breakable_hits(1), st.breakable_hits(2)], [0, 1, 0], "and only it")
+	assert_true(sys.land_attack(origin, Vector3.LEFT, wide, depth) == null, "an attack the other way reaches none")
+
+
 func test_attack_candidates_are_the_intact_boxes() -> void:
 	var c := sys.attack_candidates()
 	assert_eq(c.size(), 3, "three intact boxes")

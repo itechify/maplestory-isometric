@@ -211,14 +211,16 @@ func attack_candidates() -> Array:
 
 
 ## One attack whose hit box is `box_px` (px, facing +x, CombatReach.attack_box_px) and `depth_px` deep, made from
-## `origin` facing `facing`: the nearest intact box it overlaps takes one landed hit (breakables.json hit_rule).
-## Returns that box, or null when the attack reached none.
+## `origin` facing `facing`: the nearest intact boxes it overlaps (breakables.json hit_rule.boxes_per_attack) take one
+## landed hit each. Returns the nearest box hit, or null when the attack reached none.
 func land_attack(origin: Vector3, facing: Vector3, box_px: Rect2, depth_px: float, source: String = "attack") -> WoodenBox:
-	var hits := MeleeQuery.pick(origin, facing, box_px, depth_px, attack_candidates(), 1)
-	if hits.is_empty():
-		return null
-	var box: WoodenBox = hits[0]["node"]
-	return box if bool(land_hit(box, source).get("counted", false)) else null
+	var hits := MeleeQuery.pick(origin, facing, box_px, depth_px, attack_candidates(), BreakableRules.boxes_per_attack(_db()))
+	var first: WoodenBox = null
+	for h: Dictionary in hits:
+		var box: WoodenBox = h["node"]
+		if bool(land_hit(box, source).get("counted", false)) and first == null:
+			first = box
+	return first
 
 
 ## One landed hit on `box` (a box of this system): MapInstanceState.hit_breakable; at the canonical count it breaks
