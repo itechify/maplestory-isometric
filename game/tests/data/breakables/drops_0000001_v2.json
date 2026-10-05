@@ -17,7 +17,8 @@
         "conversion": "1 / 4 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
         "kuro_quest_condition": null},
       "chance_state": "resolved", "probability": 0.25,
-      "quantity": {"min": 1, "max": 1, "source": "fixture"},
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
       "quest_gate": null, "notes": []
     },
     {
@@ -40,8 +41,10 @@
         "conversion": "1 / 1 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
         "kuro_quest_condition": "1008"},
       "chance_state": "resolved", "probability": 1.0,
-      "quantity": {"min": 1, "max": 1, "source": "fixture"},
-      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)"},
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
+      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)",
+        "rule": "C1 quest-gate rule: a MisoStory derivation", "decision": "D3-9", "verified": false},
       "notes": []
     },
     {
@@ -55,8 +58,10 @@
         "conversion": "1 / 1 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
         "kuro_quest_condition": "1008"},
       "chance_state": "resolved", "probability": 1.0,
-      "quantity": {"min": 1, "max": 1, "source": "fixture"},
-      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)"},
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
+      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)",
+        "rule": "C1 quest-gate rule: a MisoStory derivation", "decision": "D3-9", "verified": false},
       "notes": []
     }
   ],
