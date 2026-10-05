@@ -47,7 +47,18 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - Playtest `_scratch/pt/ui_minimap/report.json`: ui_minimap seed 1, FAIL, 231 checks (0 tagged by the scenario, 217 by rules.json playtest_tags); failed: #226 level-up: the SP line
 - Provenance report: 192 records, 0 errors, 54 warnings
 
-Regenerate with the same inputs (`--check` instead of writing compares the committed files):
+How the evidence is made (each step writes git-ignored files under `_scratch/`):
+
+1. `TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh`: the full unit suite.
+   `INCLUDE_WORLD=1` is required: without the exported world the world tests (test_world_transitions,
+   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass, and their keys would count.
+2. `bash scripts/validate_data.sh --report`: `provenance_report.json` (validation findings per record).
+3. `ISOLATE=<name> bash scripts/playtest.sh <scenario> --out _scratch/pt/<scenario>` for every scenario listed above, and
+   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.
+4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the
+   `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run
+   (strict mode ok, no console or api step).
+5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).
 
 ```bash
 node tools/parity/build_parity.mjs \

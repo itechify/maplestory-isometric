@@ -602,7 +602,17 @@ export function toMarkdown(doc) {
     L.push(`- A playtest_tags rule matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')} (renamed checks?): \`${esc(u.rule)}\``);
   }
   L.push('');
-  L.push('Regenerate with the same inputs (`--check` instead of writing compares the committed files):', '');
+  L.push('How the evidence is made (each step writes git-ignored files under `_scratch/`):', '');
+  L.push('1. `TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh`: the full unit suite.');
+  L.push('   `INCLUDE_WORLD=1` is required: without the exported world the world tests (test_world_transitions,');
+  L.push('   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass, and their keys would count.');
+  L.push('2. `bash scripts/validate_data.sh --report`: `provenance_report.json` (validation findings per record).');
+  L.push('3. `ISOLATE=<name> bash scripts/playtest.sh <scenario> --out _scratch/pt/<scenario>` for every scenario listed above, and');
+  L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.');
+  L.push('4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the');
+  L.push('   `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run');
+  L.push('   (strict mode ok, no console or api step).');
+  L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).', '');
   L.push('```bash', regenerateCommand(doc.inputs), '```', '');
   L.push('## Totals', '');
   const t = doc.totals;
