@@ -8,11 +8,33 @@ extends TestCase
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const KIT := "res://tools/playtest/playtest_kit.gd"
 ## Calls a strict scenario (or the kit) may never make: teleports, the developer console behind the driver's back,
-## and direct writes to the character or its services.
+## and direct writes to the character or its services. The game's own services announce what they change on the
+## event bus, so PlaytestLedger cannot tell a service call from play (and it does not cover AP, SP, stats, HP, skills
+## or position at all): those calls are refused here.
 const FORBIDDEN: PackedStringArray = ["place_player", "Debug.run", "debug().call", "call(\"run\"", "call_command(",
 	"ItemService.new(", ".inventory.add(", ".inventory.remove(", ".quests.start(", ".quests.complete(",
 	"start_new_game(", "Progression.gain_exp", "Progression.allocate_ap", ".mesos +=", ".mesos -=", ".mesos = ",
-	".exp += ", ".exp = ", ".level = ", ".hp = ", "gain_exp(", "force_equip("]
+	".exp += ", ".exp = ", ".level = ", ".hp = ", "gain_exp(", "force_equip(",
+	# ItemService and QuestService (d.game().items / .quests): announced on the bus, so only this scan catches them.
+	".items.gain", ".items.lose", ".items.clear_inventory(", ".items.move(", ".items.pickup(", ".items.use_item(",
+	".items.equip(", ".items.unequip(", ".items.spend_mesos(", ".quests.accept(", ".quests.forfeit(",
+	"engine.accept(", "engine.complete(", "engine.forfeit(", "engine.on_",
+	# QuestLog, Inventory and Equipment writes.
+	".quests.add_kills(", ".quests.add_uses(", ".quests.mark_talked(", ".quests.mark_visited(", ".quests.set_other(",
+	".inventory.remove_at(", ".inventory.put_at(", ".inventory.clear(", ".inventory.add_instance(", ".inventory.move(",
+	".inventory.swap(", ".inventory.set_capacity(", ".equipment.equip(", ".equipment.unequip(",
+	# GameState and the character's other fields (the ledger does not reconcile them).
+	"().allocate_ap(", "Game.allocate_ap(", "change_hp(", "change_mp(", "damage_player(", "apply_level_up",
+	"apply_death_penalty", ".ap = ", ".ap += ", ".ap -= ", ".sp = ", ".sp += ", ".sp -= ", ".hp += ", ".hp -= ",
+	".mp = ", ".mp += ", ".level += ", "set_base_stat(", ".base_stats[", ".skills[", ".cooldowns[", ".effects.append(",
+	".quickslots[",
+	# Moving the player or the map behind the walker, and hits or kills that no attack made.
+	"global_position = ", "global_transform = ", "teleport(", "request_portal(", "debug_warp(", "enter_from_location(",
+	"receive_hit(", "land_hit(", "report_monster_killed", "\"die\"",
+	# The save on disk between phases.
+	"FileAccess.WRITE", "save_now(", "SaveService."]
+## Lines a FORBIDDEN entry matches that are not a cheat (a synthetic input event's own position).
+const ALLOWED: PackedStringArray = ["ev.global_position = ev.position"]
 
 
 func parity_keys() -> Dictionary:
@@ -20,6 +42,7 @@ func parity_keys() -> Dictionary:
 		"test_strict_report_fails_on_console_and_api_steps_after_the_strict_step": ["mechanic:no-console-playthrough"],
 		"test_ledger_explains_service_changes_and_flags_direct_writes": ["mechanic:no-console-playthrough"],
 		"test_strict_scenarios_and_the_kit_make_no_cheat_calls": ["mechanic:no-console-playthrough"],
+		"test_the_cheat_scan_flags_service_calls_teleports_and_console_outside_setup": ["mechanic:no-console-playthrough"],
 	}
 
 
@@ -133,17 +156,49 @@ func test_strict_scenarios_and_the_kit_make_no_cheat_calls() -> void:
 			strict_n += 1
 	assert_true(strict_n >= 1, "at least one strict scenario (quest.gd)")
 	for path in files:
-		var fn := ""
-		var n := 0
-		for line in FileAccess.get_file_as_string(path).split("\n"):
-			n += 1
-			var t := line.strip_edges()
-			if t.begins_with("func ") or t.begins_with("static func "):
-				fn = t.get_slice("(", 0).get_slice(" ", t.get_slice("(", 0).get_slice_count(" ") - 1)
-			if t.begins_with("#"):
-				continue
-			for bad in FORBIDDEN:
-				assert_false(t.contains(bad), "%s:%d (%s) calls %s: %s" % [path.get_file(), n, fn, bad, t])
-			if t.contains("console(") and not t.contains("func console("):
-				assert_true(fn.begins_with("_setup"), "%s:%d: console() outside a _setup function (%s): %s" % [
-					path.get_file(), n, fn, t])
+		for v in cheat_calls(FileAccess.get_file_as_string(path), path.get_file()):
+			assert_true(false, v)
+
+
+func test_the_cheat_scan_flags_service_calls_teleports_and_console_outside_setup() -> void:
+	# The scan itself must be able to fail: a synthetic strict scenario with one cheat per line.
+	var src := "\n".join(PackedStringArray([
+		"func _setup_world() -> void:",
+		"\tawait d.console(\"warp 000000040\")",
+		"func run(d) -> void:",
+		"\td.game().items.gain(\"349\", 10)",
+		"\td.game().quests.accept(\"1006\")",
+		"\td.game().allocate_ap(\"str\")",
+		"\td.player().global_position = Vector3.ZERO",
+		"\tc.ap = 99",
+		"\tawait d.console(\"level 10\")",
+		"\t# d.game().items.gain(\"349\", 10) in a comment is not a call",
+		"\tev.global_position = ev.position",
+	]))
+	var v := cheat_calls(src, "synthetic.gd")
+	assert_eq(v.size(), 6, "one finding per cheat line (the setup console, the comment and the input event are fine): %s" % v)
+	for want in [".items.gain", ".quests.accept(", "().allocate_ap(", "global_position = ", ".ap = ", "console() outside"]:
+		assert_true(Array(v).any(func(x: String) -> bool: return x.contains(want)), "flags %s: %s" % [want, v])
+	assert_eq(cheat_calls("func _setup_x() -> void:\n\tawait d.console(\"give 270 5\")", "ok.gd"), PackedStringArray(),
+		"console() inside a _setup function is setup")
+
+
+## The cheat calls in the source of a strict scenario: one line per FORBIDDEN match outside comments and ALLOWED
+## lines, and one per console() call outside a function named _setup*.
+static func cheat_calls(text: String, file: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var fn := ""
+	var n := 0
+	for line in text.split("\n"):
+		n += 1
+		var t := line.strip_edges()
+		if t.begins_with("func ") or t.begins_with("static func "):
+			fn = t.get_slice("(", 0).get_slice(" ", t.get_slice("(", 0).get_slice_count(" ") - 1)
+		if t.begins_with("#") or Array(ALLOWED).any(func(a: String) -> bool: return t.contains(a)):
+			continue
+		for bad in FORBIDDEN:
+			if t.contains(bad):
+				out.append("%s:%d (%s) calls %s: %s" % [file, n, fn, bad, t])
+		if t.contains("console(") and not t.contains("func console(") and not fn.begins_with("_setup"):
+			out.append("%s:%d: console() outside a _setup function (%s): %s" % [file, n, fn, t])
+	return out
