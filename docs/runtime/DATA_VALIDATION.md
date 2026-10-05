@@ -11,6 +11,8 @@ bash scripts/validate_data.sh                      # report + exit code (below)
 bash scripts/validate_data.sh --verbose            # also list every reference skipped as out of scope
 bash scripts/validate_data.sh --strict             # warnings fail too
 bash scripts/validate_data.sh --json report.json   # also write the report as JSON
+bash scripts/validate_data.sh --report             # also write the provenance validation report (below):
+                                                   # docs/provenance_report.json + docs/PROVENANCE_REPORT.md
 bash scripts/validate_data.sh --world-dir <res://...>   # Blender export to check crosswalk slugs against
 ISOLATE=<name> bash scripts/validate_data.sh       # private copy under _scratch/godot_runs/<name>/ (as scripts/test.sh)
 VALIDATE_TIMEOUT_S=300 bash scripts/validate_data.sh    # outer time limit (default 180 s)
@@ -26,9 +28,13 @@ GODOT=/path/to/godot bash scripts/validate_data.sh      # binary override, passe
 An isolated run copies the small `game/assets/world/*.json` sidecars (and `index.json`) but not the glTF chunks, and
 mirrors `tools/*/captures/` next to the copy (as `scripts/test.sh` does), because the validator checks that every
 cited capture file exists at `res://../tools/...`. The last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`.
-Shipped data at the time of writing: 0 errors, 1 warning (explained below), 158 out-of-scope references skipped,
-192 canonical records, 29 adaptation files, 47 portals, 25 sidecars, 11 capture paths, about 2,100 references
-checked.
+Shipped data at the time of writing: 0 errors, 0 warnings (`--strict` passes), 158 out-of-scope references skipped
+(listed per rule in every report), 192 canonical records, 29 adaptation files, 47 portals, 25 sidecars, 51 capture
+paths, 40 per-property sources, 2,111 references and 3,088 names checked; the quest, NPC and dialogue validation ran.
+
+Every report lists the out-of-scope skips grouped by rule (`SKIPPED (out of scope) 125 x monsters.spawns[].map_id ->
+maps (maple_island: false)`); `--verbose` adds one line per skipped reference. The summary's stats include one
+`refs.<category>` counter per Phase 16 category (below), so a category that silently stops resolving shows as 0.
 
 ## Data flow
 
@@ -40,11 +46,16 @@ DataValidator.validate(db, options)   scripts/core/validation/data_validator.gd 
    ├─ ProvenanceChecks                ids, schema, provenance (v1 source + per-property sources + captures), external,
    │                                  sources_index; the rules per authority come from ProvenanceAuthorities.REGISTRY
    ├─ DropRecordChecks                drop_record (+ provenance): schema v2 drop records (contract C1)
-   ├─ ReferenceChecks                 reference, dialogue_link, portal (+ portal graph), drop_owner, drop_table, consistency
-   └─ AdaptationChecks                adaptation (convention + per-file schemas), crosswalk (+ Blender sidecars, index.json)
+   ├─ ReferenceChecks                 reference (+ skill references), dialogue_link, portal (+ portal graph), drop_owner,
+   │                                  drop_table, consistency; counts refs.<Phase 16 category>
+   ├─ IntegrityChecks                 chair, name (placeholders), duplicate
+   ├─ AdaptationChecks                adaptation (convention + per-file schemas), crosswalk (+ Blender sidecars, index.json)
+   └─ GameplayDataChecks              quest_data, npc_data, dialogue_data: the game's own QuestCatalog, NpcCatalog and
+                                      NpcDialogueBuilder validation (only when everything above found no error)
    │
-ValidationReport                      findings + out_of_scope + stats
+ValidationReport                      findings + out_of_scope (+ per rule) + stats
    ├─ tools/validate_data.gd(.tscn)   prints the report, sets the exit code   ← scripts/validate_data.sh
+   │    └─ ProvenanceReport           --report: docs/provenance_report.json + docs/PROVENANCE_REPORT.md
    └─ tests/unit/test_data_validation*.gd
 ```
 
@@ -95,9 +106,40 @@ on broken input cannot make a negative test pass for the wrong reason.
 | `drop_table` | error | a monster's or breakable's `drop_table` not of the form `drops/<id>.json`, or naming a missing table |
 | `dialogue_link` | warning | a dialogue link (`ref: {kind|type, id}`) with an unknown kind or no string id (anywhere); a link in an **adaptation** file to a record not in the dataset (the game still shows the text and the reference, with no record behind it). A canonical link outside the dataset is skipped as out of scope instead (see [Dialogue links](#dialogue-links)) |
 | `consistency` | warning | one-sided facts: a map places an NPC whose `locations` omit it (or the reverse); a shop's NPC does not name the shop; a quest NPC stands on none of the quest's maps; a map's `monsters[]` and `spawns[]` disagree; a drop table owned by another record |
-| `adaptation` | error / warning | the reason/verified convention and the per-file schemas below |
+| `chair` | error / warning | a chair reference (formulas `chairs[].item_id`, `formulas/recovery.json`) that is not a usable chair (contract C5): not type `Setup`, no `setup` block, `setup.hp_recovery_bonus` not a number ≥ 0 or `setup.interval_s` not > 0; an item with a `setup` block whose type is not `Setup`; a formulas chair whose `additional_hp_per_tick` / `tick_interval_s` disagree with the item's `setup` (warning) |
+| `name` | error | a placeholder name: any `name` or `*_name` string (canonical or adaptation, outside the provenance and commentary subtrees) that is empty, `?`, contains "placeholder", the words TODO / TBD / FIXME, starts with "Unknown", or reads "Item 1234". Two records may share a real name (Red Cloth Pants, 1168 male and 1177 female) |
+| `duplicate` | error | an id defined twice: a `skill_id` in two formulas `skills[]` entries; the same id twice in a list whose entries are distinct things (a map's `npcs[].id` and `monsters[].id`, a shop's `items[].item_id`, a v1 drop table's `entries[].item_id`, a quest's objective lists (an NPC talk per `npc_id` + `purpose`) and `rewards.items[].item_id`). Map `reactors[]` are placements and may repeat; v2 drop tables are checked by `drop_record` |
+| `adaptation` | error / warning | the reason/verified convention and the per-file schemas below; `verified: true` without `verified_against` is an error |
 | `crosswalk` | error / warning | the crosswalk is not bijective onto the canonical maps; a Blender slug has no sidecar, a sidecar without a numeric `map_id` or with the wrong one, or (when the export has `index.json`) no chunk; a map chunk in `index.json` that no row names (warning); no export at all (one warning) |
+| `quest_data` | error | `QuestCatalog.validate()`: an unknown objective kind, an unsupported `other` objective (the quest could never complete), an unsupported prerequisite kind, a missing prerequisite or follow-up quest, a quiz without its question, an empty random/selection group or a non-positive weight, an adaptation file without its reason or verified flag |
+| `npc_data` | error | `NpcCatalog.validate()`: an NPC whose map, quests or shop do not exist, that has nothing to say, or that its map does not list (the game could not place it); a quest whose start / end NPC does not list it |
+| `dialogue_data` | error | `NpcDialogueBuilder.validate_all()`: every NPC's generated conversation with its override file applied: unknown node types, dangling node targets, line specs that resolve to no text, malformed conditions and actions, an override file for an unknown NPC |
 | `validator` | error | a script error inside the validator (the report is incomplete; the tool exits 2) |
+
+The `quest_data`, `npc_data` and `dialogue_data` checks are the game's own data validation (the classes the quest
+engine, the NPC presenter and the dialogue window use), run headless. They read the data the way the game does, which
+assumes structurally valid data, so `GameplayDataChecks` runs them only when every check above found no error; the
+stat `gameplay_checks_run` (or `gameplay_checks_skipped`) says which happened. A parse error in one of those classes
+also makes the validator exit 2.
+
+### Phase 16 cross-references
+
+The brief's "Content Cross-Reference Validation" matrix and where each row is checked (`ReferenceChecks.PHASE16_CATEGORIES`;
+each resolved reference is counted as `refs.<category>`, and `test_every_phase16_category_counts_references` fails if
+one is 0 on the shipped data):
+
+| Category | Rule |
+|---|---|
+| `quest-reward-item`, `quest-objective-item`, `quest-monster`, `quest-npc` | typed keys in quest records (`rewards.*` vs objectives, accept items, hand-ins, prerequisites) |
+| `monster-drop`, `breakable-drop` | `item_id` in drop tables, by the table owner's kind |
+| `shop-item` | `item_id` in shop stock |
+| `map-monster`, `map-npc` | explicit rules on maps `monsters[].id`, `spawns[].mob_id`, `npcs[].id` |
+| `portal-destination` | `_check_portals` (destination map and portal) and the portal graph |
+| `skill-reference` | `skill_id` / `skill_ids` anywhere, against the skill definitions in formulas `skills[]` |
+| `chair-item` | `IntegrityChecks` chair rule |
+
+Duplicate ids and placeholder names are the `duplicate` and `name` checks; "no silent missing references" is the
+per-category counters plus the out-of-scope skips listed per rule in every report.
 
 ### Reference rules
 
@@ -114,6 +156,7 @@ files' `{"value": ..., "reason": ..., "verified": ...}` style):
 | `quest_id(s)` | quests |
 | `shop_id(s)` | shops |
 | `breakable_id(s)` | breakables |
+| `skill_id(s)` | skills: the pseudo-domain of every formulas record's `skills[].skill_id` (Three Snails, Recovery, Nimble Feet in `formulas/beginner.json`); the definitions themselves (`formulas` `skills[].skill_id`) are not swept |
 
 This covers drops, quest objectives (kills, item collection and usage, NPC talk), rewards (items, random, selection),
 accept items, prerequisites, follow-ups and quest lines, shop stock, NPC shop blocks and locations, the Beginner
@@ -133,7 +176,7 @@ place in the whole game an item comes from or goes to, mostly Victoria Island), 
 portal check reports it). A v2 drop entry's `item_id` and `quest_gate.quest_id` are swept (a null `item_id`, an
 unresolved member, is skipped like any unset reference).
 
-**Out of scope, skipped (not findings, counted and listed with `--verbose`):**
+**Out of scope, skipped (not findings; every report lists the count per rule, `--verbose` each reference):**
 
 | Rule | Why | Shipped count |
 |---|---|---|
@@ -252,8 +295,22 @@ under a non-metadata key. It has a reason when:
 It has a verified flag when its object has `<key>_verified` (or `<prefix>_verified`), or its object or any enclosing
 object has `verified`. Both must be bools; `reason`, `*_reason` and `reasons` values must be non-empty strings. A key
 that is covered covers everything nested under it, and arrays are transparent, so one top-level `reason` +
-`verified` covers a whole file and per-entry reasons refine it. `verified: true` must say what it was checked
-against with `source_url`, `verification`, `verified_by` or `verified_against` on the same object (warning).
+`verified` covers a whole file and per-entry reasons refine it.
+
+**`verified: true` is accepted only with `verified_against`** on the same object (for a `<key>_verified: true`
+sibling flag, `<key>_verified_against` or `verified_against`): a non-empty string or a non-empty list of them naming
+what the value was checked against (a canonical record and field, a URL, or a decision or brief section). Anything
+else is an error: a value nobody can say was checked is `verified: false` with its reason. The older free-form keys
+(`verification`, `verified_by`, `source_url`) remain descriptive metadata and no longer count. The project owner's
+natural-regen rule is the model case (contract C4; the mechanics package writes it as
+`game/data/misostory/recovery.json`):
+
+```json
+{"natural_recovery": {"hp": {"amount": 10, "interval_s": 10.0, "eligible_activities": ["still", "seated"]},
+  "reason": "The project owner's rule ...", "verified": true,
+  "verified_against": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration"},
+ "provenance": {"natural_recovery": {"authority": "Project owner", "decision": "ITERATION_THREE_BRIEF: Natural HP Regeneration"}}}
+```
 
 Rule 3 is deliberately lenient at the file level: in the shipped data only per-record files (`dialogue/*`,
 `npcs/15`, `quests/1002`) and `drop_rates.json`'s structural keys (`canonical`, `resolution_order`) rely on the
@@ -262,8 +319,8 @@ file's top-level `reason`; every tuning value in the table files has its own.
 Metadata keys need no reason: `id`, `kind`, `description`, `title`, `name`, `label`, `note(s)`, `comment(s)`,
 `reason(s)`, `verified`, `verification`, `verified_by`, `verified_against`, `source(s)`, `source_url(s)`,
 `retrieved_at`, `schema`, `schema_version`, `version`, `see`, `doc(s)`, `external`, `gaps`, `discrepancies`,
-`match_basis`, `provenance`, any key ending in `_reason`, `_note(s)`, `_verified`, `_source`, `_source_url`,
-`_description`, `_comment`, `_doc`, `_label`, and any key starting with `_`.
+`match_basis`, `provenance`, any key ending in `_reason`, `_note(s)`, `_verified`, `_verified_against`, `_source`,
+`_source_url`, `_description`, `_comment`, `_doc`, `_label`, and any key starting with `_`.
 
 Also, for every adaptation file: typed keys resolve (as above); `external` lists follow the canonical rule; a
 top-level `provenance` block follows the [authority registry](#provenance-authorities) (the project owner's
@@ -301,15 +358,41 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 
 ## Current warnings on the shipped data
 
-- `misostory/new_character` `starting_sp` is `verified: true` without a `verification`/`source_url` key (its reason
-  cites `formulas/beginner.json sp.calculator_caveat`). The validator is right; the fix belongs in the data
-  (new_character.json is owned by the game shell, [GAME_SHELL.md](GAME_SHELL.md)).
-- Runs without the Blender export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning.
+None (`--strict` passes). Runs without the Blender export (plain `ISOLATE=` test runs) add one
+`crosswalk/world_assets` warning.
+
+The last data warning was `misostory/new_character` `starting_sp`, `verified: true` with nothing saying against what.
+Its reason quotes `formulas/beginner.json sp.calculator_caveat` ("a Beginner has 0 SP at level 1"), so it now carries
+that as `verified_against`. `portal_adaptations.json one_way_allowlist` named its check in a `verification` key, now
+`verified_against`.
 
 Earlier runs also warned about three dialogue links. Two of them, "Grendel the Really Old" (npc 313) in `npcs/7` and
 `quests/1005`, are MeowDB links to an off-island NPC and are now skipped as out of scope. The third, "Jr. Sentinel
 Shellpiece" as item 2584 in `quests/1005`, was a validator false positive: the game links the NPC files' corrected id
 347, and the validator now checks that one ([Dialogue links](#dialogue-links)).
+
+## The provenance validation report
+
+`bash scripts/validate_data.sh --report` (or `--report-json <path>` / `--report-md <path>`) also writes the brief's
+Phase 17 report through `ProvenanceReport` (`scripts/core/validation/provenance_report.gd`) to
+[`docs/provenance_report.json`](../provenance_report.json) and [`docs/PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md):
+
+- **records**: every canonical record with its property rows. Row `(record)` is the record's own `source` (it covers
+  every value no other row names); then each `field_sources.<field>` (MeowDB, or `external` when its URL is declared in
+  `external`); then each per-property source: `provenance.<property>` (contract C7) and, in schema v2 drop records,
+  each entry's `membership_source` / `chance_source` and the meso `amount_source` / `chance_source`. Each row has the
+  authority, URLs, `read_at` (or the cache's `retrieved_at`), capture, decision and raw value. The record also carries
+  its validation findings, which the parity generator reads.
+- **unresolved**, by domain: every record's `gaps` (a value the source does not give: null or absent, never guessed),
+  and in drop records every member without a chance (v2: unresolved, never drops; v1: null, still rolled from the
+  placeholder `misostory/drop_rates.json`), every unresolved item and every unresolved or placeholder meso value.
+- **adaptations**: every object in `game/data/misostory` that carries a verified flag, with `verified_against` and its
+  reason (its own, its `<key>_reason`s or reasons map, or the nearest enclosing one).
+- **counts**: records per domain, property rows per authority, capture files, unresolved values per domain,
+  adaptations verified and not.
+
+It records no clock time, so regenerating it over unchanged data gives the same files; regenerate it whenever the
+data changes (the parity manifest reads it).
 
 ## Sources and adaptations
 
@@ -324,7 +407,7 @@ are provenance rules, not game data.
 ## Tests
 
 ```bash
-ISOLATE=<name> bash scripts/test.sh data_                   # the 6 files below (132 tests)
+ISOLATE=<name> bash scripts/test.sh data_                   # the 9 files below (160 tests)
 ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh data_   # same, with the real export for the shipped-data test
 ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 ```
@@ -333,10 +416,18 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 |---|---|
 | `tests/unit/test_data_validation.gd` | the shipped data has no errors and did not crash the validator (each error is printed); every record, portal and adaptation file was checked; finding shape; quest dialogue links the NPC files correct are neither warned nor skipped, and the validator's link remap equals `DialogueText._remap_for` for every quest; `ScriptErrorGuard` (records only script errors, attach/detach); the tool's exit code starts at 2 and its command-line parsing |
 | `tests/unit/test_data_validation_references.gd` | injected broken references in every domain, portals (destination, to_portal, reverse lookup, unknown/stale/ambiguous derivations, arrival spawns, duplicate names), the portal graph (unreachable map, unlisted one-way link), drop tables, starter weapons, recovery examples; dialogue links (a canonical link outside the dataset is skipped, an adaptation one warns, a malformed one warns, a quest link is checked as its NPC correction, a correction's null or numeric ids are read as `DialogueText` reads them); out-of-scope rules |
-| `tests/unit/test_data_validation_provenance.gd` | ids, duplicates, source blocks, URL prefixes and look-alikes, real ISO dates, external entries, the sources index (missing, stale, deleted, external contents, capture files and property sources), loose root files, required fields, loader errors; provenance v2: per-property KuroDB / Hidden Street / MeowDB sources accepted, each misuse rejected (KuroDB as membership, Hidden Street as a probability, a missing or non-ISO `read_at`, a missing `capture`, a capture file that does not exist or a path outside `tools/*/captures/`, an unknown authority, a URL off the authority's site, a Project owner citation without a decision, in canonical and adaptation files), v1 rules unchanged, the capture lookup live on the shipped data (item 242), the registry rules |
+| `tests/unit/test_data_validation_provenance.gd` | the quest tracker tags (`missable`, `tracker_tags`) cite their capture; ids, duplicates, source blocks, URL prefixes and look-alikes, real ISO dates, external entries, the sources index (missing, stale, deleted, external contents, capture files and property sources), loose root files, required fields, loader errors; provenance v2: per-property KuroDB / Hidden Street / MeowDB sources accepted, each misuse rejected (KuroDB as membership, Hidden Street as a probability, a missing or non-ISO `read_at`, a missing `capture`, a capture file that does not exist or a path outside `tools/*/captures/`, an unknown authority, a URL off the authority's site, a Project owner citation without a decision, in canonical and adaptation files), v1 rules unchanged, the capture lookup live on the shipped data (item 242), the registry rules |
 | `tests/unit/test_data_validation_drops_v2.gd` | schema v2 drop records: the C1 fixture `tests/data/drops_v2/fixture_2.json` passes with no new finding; corrupted copies fail (probability 1.5 or negative, a KuroDB-only item added as a member with a KuroDB or a copied Hidden Street source, a resolved entry without `chance_source`, an unknown item or gate quest, 1/N read as N% and the reverse, truncation, a reactor value without an interpretation, mismatched or unordered quantities and meso amounts, a meso chance that is an item row, Hidden Street on a breakable, an unknown `schema_version`, duplicate keys and items); `DropRates` survives a v2 table |
-| `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, adaptation references (plain and `{"value": ...}`-wrapped), domain folders and their shared tables, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
+| `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, `verified: true` only with `verified_against` (the older keys and empty values rejected; the owner natural-regen shape accepted), adaptation references (plain and `{"value": ...}`-wrapped), domain folders and their shared tables, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
+| `tests/unit/test_data_validation_integrity.gd` | every Phase 16 category counts references on the shipped data; skill references resolve and a skill defined twice is an error; chairs are Setup items with valid setup data (and the shipped ones are); a setup block on another item type; placeholder names (patterns and injected cases) and none in the shipped data; duplicate list entries, while repeated reactor placements and shared names are not duplicates; breakable and monster drop categories; out-of-scope skips listed per rule without `--verbose` |
+| `tests/unit/test_data_validation_gameplay.gd` | the quest / NPC / dialogue validation runs on the shipped data and finds nothing; an unsupported objective, a dangling dialogue target and an NPC its map does not list are reported; it waits for structurally valid data; message prefixes name the record |
+| `tests/unit/test_data_validation_report.gd` | the provenance report: one entry per record with its own source first and every field and per-property source; v2 drop sources (Hidden Street membership, KuroDB chances, meso) and unresolved members; every gap listed; adaptations with flag, reason and `verified_against`; deterministic output; findings attached to their record |
 | `tests/unit/test_data_fixture.gd` | `DataValidationTestCase`: deep-copies the shipped ContentDB, injects sidecars, compares against the unbroken copy so each negative test asserts only the finding it caused, and fails a test whose validator run crashed |
+
+Each file declares in `parity_keys()` (contract C6) which Phase 16 rows (`xref:<category>`, `xref:no-duplicate-ids`,
+`xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests
+prove; the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test
+evidence.
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an
