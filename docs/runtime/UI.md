@@ -496,6 +496,12 @@ staying disconnected after a reparent.
 - **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
   them. The fold state is not saved (it lasts the session).
 - **The minimap shows no monsters and no Wooden Boxes,** as classic minimaps do not.
+- **Phase 12 follow-ups outside the HUD and minimap** (found by the `ui_minimap` real-play check and the review):
+  SP is announced only by the level-up log line; a "Skill [K] +N" badge belongs on the status bar
+  (`status_bar.gd`) and an SP row in the stats or skills window. Monsters without a proxy show the Label3D
+  "Tutorial Jr. Sentinel (placeholder)" in normal play (`monster_visual.gd`). The quest log shows no chain
+  progression or NPC location (`quest_window.gd`, `quest_def.gd`). X (sit) and K (skills) are listed on the Controls
+  panel and named by the SP line; their handlers come from the chairs and skills work.
 
 - **The trail line follows `RegionMonitor`'s sampling** (10 Hz, MapSession emits only changes). At a trail mouth the
   line appears or clears up to a tenth of a second after the step. A player who stands on the seam between a map
