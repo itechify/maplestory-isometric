@@ -198,6 +198,12 @@ test('rule rows: categories, aliases, real-game flags and source-data gaps', () 
   assert.equal(find(withConsole, 'playthrough:reach-southperry').state, 'implemented', 'one console step (even setup) is not clean');
   const real = build({ rules, playtests: [clean(play(check, 'playthrough'), { play: 9, console: 0, api: 0 })] });
   assert.equal(find(real, 'playthrough:reach-southperry').state, 'verified');
+  // A strict run stopped by a failed step: its earlier passing checks (one quest of six, one quiz of seven) do not
+  // show the clean-character playthrough was done.
+  const stopped = clean(play([...check, { i: 1, name: "step 'quiz' completed", ok: false }], 'playthrough'), { play: 9, console: 0, api: 0 });
+  stopped.doc.result = 'FAIL';
+  assert.equal(find(build({ rules, playtests: [stopped] }), 'playthrough:reach-southperry').state, 'implemented',
+    'a failed run is not a clean-character playthrough');
   assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:x', name: 'x', accepts: ['mechanic:mesos-saved'] }] } }),
     /mechanic:mesos-saved is accepted by both/);
   assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:y', name: 'y', accepts: ['quest:1006'] }] } }),

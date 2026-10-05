@@ -3,11 +3,13 @@ extends TestCase
 ## item:<id>). The expected side is the canonical record read straight from res://data/canonical/items/<id>.json, not
 ## through ContentDB, so a loader that dropped or changed a field is caught too. The runtime side is what the game
 ## calls: ItemDef.of, Inventory.add, ItemService.equip / use_item (Equipment, Consumables, Chairs), Equipment.equip_check
-## and total_bonuses, StatCalculator, ShopService.quote_buy / quote_sell, WeaponProfile and CombatFormula timings.
+## and total_bonuses, StatCalculator, ShopService.quote_buy / quote_sell / sell_price, WeaponProfile (damage rows, hit
+## boxes) and CombatFormula timings, and CharacterFactory's creation weapons.
 ##
 ## One comparator per field family returns its problems as text. Each family test runs it on every item; each
-## mutation test feeds it a record with one field changed (and, for three families, the runtime a changed record
-## with the true one expected), so every comparison is shown to fail when the two sides differ. Documented
+## mutation test feeds it an expected record with one field changed, and the runtime a changed record (or a changed
+## shop or hit-zone table) with the true one expected, so every comparison is shown to fail when the two sides differ
+## (a changed expected record alone can trip the record's own derivation checks instead of the comparison). Documented
 ## adaptations are asserted as documented: equipment stacks by data/misostory/inventory.json equipment_max_stack, an
 ## unpublished max_stack (Green Apple, 242) by unpublished_max_stack, and only when the record's gaps and that table's
 ## reason both say so. Green Apple's stack size, tradeable tag and sell-back basis are on its item page, which was never
@@ -129,6 +131,15 @@ func test_identity_comparison_can_fail() -> void:
 	_expect_caught(_identity_problems, "348", "quest_item", true, "quest_item")
 	_expect_caught(_identity_problems, "270", "tradeable", false, "tradeable")
 	_expect_caught(_identity_problems, "441", "tradeable", true, "tradeable")
+	_expect_caught(_identity_problems, "541", "beginner_creation_weapon", false, "beginner_creation_weapon")
+	_expect_caught(_identity_problems, "543", "beginner_creation_weapon", true, "beginner_creation_weapon")
+	# The runtime side: the game reads a different name, quest flag or creation-weapon flag than the canonical file says.
+	assert_true(_mentions(_identity_problems("270", _canonical("270"), _db_with("270", "name", "Blue Potion")), "name"),
+		"a runtime Red Potion named Blue Potion is caught")
+	assert_true(_mentions(_identity_problems("348", _canonical("348"), _db_with("348", "quest_item", true)), "quest_item"),
+		"a runtime quest flag the file does not set is caught")
+	assert_true(_mentions(_identity_problems("541", _canonical("541"), _db_with("541", "beginner_creation_weapon", false)),
+		"beginner_creation_weapon"), "a Sword the creation screen no longer offers is caught")
 
 
 func test_stack_comparison_can_fail() -> void:
@@ -142,12 +153,22 @@ func test_stack_comparison_can_fail() -> void:
 	# The runtime side: the game reads a different stack size than the canonical file says.
 	assert_true(_mentions(_stack_problems("270", _canonical("270"), _db_with("270", "max_stack", 7)), "max_stack"),
 		"a runtime stack of 7 for Red Potion is caught")
+	# The expected-side tab mutation above also trips the record's own type -> tab derivation; this one can only be
+	# caught by comparing with the runtime (the game files Red Potion under Etc).
+	assert_true(_mentions(_stack_problems("270", _canonical("270"), _db_with("270", "inventory_tab", "etc")), "tab"),
+		"a runtime Red Potion in the Etc tab is caught")
 
 
 func test_slot_comparison_can_fail() -> void:
 	_expect_caught(_slot_problems, "711", "equip_slot", "top", "slot")
 	_expect_caught(_slot_problems, "900", "equip_slot", "hat", "slot")
 	_expect_caught(_slot_problems, "270", "equip_slot", "hat", "slot")
+	# The expected-side mutations above also trip the record's own subtype -> slot derivation; these can only be
+	# caught by comparing with the runtime (the game wears the Red Headband as a top; Red Potion as a hat).
+	assert_true(_mentions(_slot_problems("711", _canonical("711"), _db_with("711", "equip_slot", "top")), "slot"),
+		"a runtime Red Headband worn as a top is caught")
+	assert_true(_mentions(_slot_problems("270", _canonical("270"), _db_with("270", "equip_slot", "hat")), "slot"),
+		"a runtime Red Potion that can be worn is caught")
 
 
 func test_requirement_comparison_can_fail() -> void:
@@ -173,6 +194,11 @@ func test_stat_comparison_can_fail() -> void:
 	_expect_caught(_stat_problems, "711", "stats/upgrade_slots", 5, "upgrade_slots")
 	_expect_caught(_stat_problems, "711", "stats/charisma", 1, "no runtime field")
 	_expect_caught(_stat_problems, "270", "stats", {"watk": 1}, "non-equipment")
+	# The runtime side: the game reads other stat rows than the canonical file says.
+	assert_true(_mentions(_stat_problems("711", _canonical("711"), _db_with("711", "stats/wdef", 9)), "wdef"),
+		"a runtime Red Headband with W.DEF 9 is caught")
+	assert_true(_mentions(_stat_problems("711", _canonical("711"), _db_with("711", "stats/hp", 50)), "max_hp"),
+		"a runtime Red Headband with Max HP +50 is caught")
 
 
 func test_weapon_comparison_can_fail() -> void:
@@ -185,6 +211,26 @@ func test_weapon_comparison_can_fail() -> void:
 	_expect_caught(_weapon_problems, "541", "stats/watk", 18, "watk")
 	_expect_caught(_weapon_problems, "541", "subtype", "Dagger", "damage category")
 	_expect_caught(_weapon_problems, "270", "weapon", _canonical("541").get("weapon"), "weapon")
+	# Hit boxes (basic_attacks is a list, so these records are changed by hand): a different box or an attack combat
+	# does not play on the item page side, and a different box in combat's hit-zone set on the runtime side.
+	var moved := _canonical("541")
+	moved["weapon"]["basic_attacks"][0]["box_px"] = [-120, -50, -22, -10]
+	assert_true(_mentions(_weapon_problems("541", moved, db()), "hit box"), "a Sword swing box the game does not use is caught")
+	var renamed := _canonical("541")
+	renamed["weapon"]["basic_attacks"][0]["action"] = "swingX9"
+	assert_true(_mentions(_weapon_problems("541", renamed, db()), "no hit box"), "an item-page attack combat lacks is caught")
+	var dropped := _canonical("541")
+	(dropped["weapon"]["basic_attacks"] as Array).pop_back()
+	assert_true(_mentions(_weapon_problems("541", dropped, db()), "basic attacks in combat"),
+		"a basic attack combat plays but the item page does not list is caught")
+	var styles: Dictionary = db().formula("attack_styles").duplicate(true)
+	var set_name := WeaponProfile.from_item("541", db()).hitzone_set
+	styles["hitzone_sets"][set_name]["ordinary"]["swingO3"]["box_px"] = [-130, -50, -22, -10]
+	assert_true(_mentions(_weapon_problems("541", _canonical("541"), _db_with_record("formulas", "attack_styles", styles)), "hit box"),
+		"a combat hit box (%s swingO3) other than the item page's is caught" % set_name)
+	# The runtime side: the game reads a different attack speed than the canonical file says.
+	assert_true(_mentions(_weapon_problems("541", _canonical("541"), _db_with("541", "weapon/attack_speed", 6)), "attack_speed"),
+		"a runtime Sword at speed 6 is caught")
 
 
 func test_consumable_comparison_can_fail() -> void:
@@ -204,6 +250,9 @@ func test_setup_comparison_can_fail() -> void:
 	_expect_caught(_setup_problems, "522", "setup/interval_s", 5, "interval_s")
 	_expect_caught(_setup_problems, "522", "setup", null, "chair")
 	_expect_caught(_setup_problems, "348", "setup", {"hp_recovery_bonus": 30, "interval_s": 10}, "chair")
+	# The runtime side: the game's chair restores a different amount than the canonical file says.
+	assert_true(_mentions(_setup_problems("522", _canonical("522"), _db_with("522", "setup/hp_recovery_bonus", 40)),
+		"hp_recovery_bonus"), "a runtime Green Relaxer restoring 40 HP is caught")
 
 
 func test_price_comparison_can_fail() -> void:
@@ -220,6 +269,15 @@ func test_price_comparison_can_fail() -> void:
 	no_shops["sources"]["shops"] = []
 	no_shops["npc_buy_price_mesos"] = null
 	assert_true(_mentions(_price_problems("270", no_shops, db()), "buy"), "a shop row the record does not list is caught")
+	# The runtime side: the game sells back at a different price, and Lucy's shop charges a different price.
+	assert_true(_mentions(_price_problems("270", _canonical("270"), _db_with("270", "sell_price_mesos", 9)), "sell"),
+		"a runtime Red Potion selling back for 9 is caught")
+	var shop: Dictionary = db().shop("maple-road-lucy").duplicate(true)
+	for row in shop["items"]:
+		if String(row.get("item_id", "")) == "270":
+			row["price_mesos"] = 51
+	assert_true(_mentions(_price_problems("270", _canonical("270"), _db_with_record("shops", "maple-road-lucy", shop)), "buy"),
+		"Lucy's shop charging 51 for Red Potion is caught")
 
 
 # --- comparators: (item id, the expected canonical record, the content the runtime reads) -> problems ----------------
@@ -243,6 +301,9 @@ func _identity_problems(id: String, rec: Dictionary, d: ContentDB) -> PackedStri
 	_eq(p, "tradeable", def.untradeable(), rec.get("tradeable") == false)
 	if rec.get("tradeable") == null and not _gap_mentions(rec, "tradeable"):
 		p.append("tradeable: null without a documented gap")
+	# items.md: beginner_creation_weapon marks the three weapons the creation screen offers (CharacterFactory).
+	_eq(p, "beginner_creation_weapon: offered at character creation", CharacterFactory.creation_weapon_ids(d).has(id),
+		rec.get("beginner_creation_weapon") == true)
 	return p
 
 
@@ -543,6 +604,30 @@ func _weapon_problems(id: String, rec: Dictionary, d: ContentDB) -> PackedString
 		for k in wd["attack_cycle_by_kind_ms"]:
 			var ms: Variant = (wd["attack_cycle_by_kind_ms"][k] as Dictionary).get("ms")
 			_eq(p, "weapon: %s attack cycle in combat" % k, profile.attack_duration_ms(String(k), d), int(_n(ms)))
+	# The reach: every basic attack on the item page plays in combat with the item page's hit box (WeaponProfile picks
+	# an attack_styles.json hit-zone set; CombatReach swings its box), and combat plays no other basic attack.
+	var basics: Array = wd.get("basic_attacks") if wd.get("basic_attacks") is Array else []
+	var page_actions: Array = []
+	for b in basics:
+		var action := String((b as Dictionary).get("action", ""))
+		var kind := String((b as Dictionary).get("kind", ""))
+		kind = "stab" if kind == "thrust" else kind
+		page_actions.append(action)
+		if not profile.presentations.has(action):
+			p.append("weapon: basic attack %s has no hit box in combat (hit-zone set %s)" % [action, profile.hitzone_set])
+			continue
+		_eq(p, "weapon: basic attack %s hit box in combat [left, top, right, bottom]" % action,
+			_box_of(profile.hit_box_px(action)), (b as Dictionary).get("box_px"))
+		if not profile.presentations_for(kind).has(action):
+			p.append("weapon: basic attack %s is not one of combat's basic %s attacks %s" % [action, kind, profile.presentations_for(kind)])
+	var combat_actions: Array = []
+	for kind in profile.basic_presentations:
+		for action in profile.basic_presentations[kind]:
+			combat_actions.append(String(action))
+	page_actions.sort()
+	combat_actions.sort()
+	if not basics.is_empty():
+		_eq(p, "weapon: basic attacks in combat", combat_actions, page_actions)
 	return p
 
 
@@ -674,6 +759,7 @@ func _price_problems(id: String, rec: Dictionary, d: ContentDB) -> PackedStringA
 	var sell: Variant = rec.get("sell_price_mesos")
 	_eq(p, "sell: sell_price_mesos", def.sell_price, -1 if sell == null else int(sell))
 	_eq(p, "sell: sell_price_basis", def.sell_basis, _s(rec.get("sell_price_basis")))
+	_eq(p, "sell: the shop window's sell-back price (ShopService.sell_price)", ShopService.sell_price(id, d), -1 if sell == null else int(sell))
 	var seller := CharacterState.new()
 	var qty := 2 if def.max_stack > 1 else 1
 	seller.inventory.add(id, qty, d)
@@ -766,13 +852,18 @@ func _set_path(rec: Dictionary, path: String, value: Variant) -> Dictionary:
 	return out
 
 
-## A private copy of the game content whose record of `id` has `path` set to `value` (the shared db() is untouched).
+## A private copy of the game content whose item record of `id` has `path` set to `value` (the shared db() is untouched).
 func _db_with(id: String, path: String, value: Variant) -> ContentDB:
+	return _db_with_record("items", id, _set_path(db().item(id), path, value))
+
+
+## A private copy of the game content whose `domain` record `id` is `rec` (the shared db() is untouched).
+func _db_with_record(domain: String, id: String, rec: Dictionary) -> ContentDB:
 	var d := ContentDB.new()
 	d.canonical = db().canonical.duplicate()
-	var items: Dictionary = (db().canonical["items"] as Dictionary).duplicate()
-	items[id] = _set_path(db().item(id), path, value)
-	d.canonical["items"] = items
+	var records: Dictionary = (db().canonical[domain] as Dictionary).duplicate()
+	records[id] = rec
+	d.canonical[domain] = records
 	d.miso = db().miso
 	d.loaded = true
 	return d
@@ -820,6 +911,11 @@ func _job_slug(job: String, tags: Dictionary) -> String:
 func _gender_of(rec: Dictionary) -> String:
 	var g := _s(rec.get("gender"))
 	return "" if g == "any" else g
+
+
+## A hit box as the item page writes it: [left, top, right, bottom] in px.
+static func _box_of(r: Rect2) -> Array:
+	return [r.position.x, r.position.y, r.end.x, r.end.y]
 
 
 func _any_stat(req: Dictionary) -> bool:
