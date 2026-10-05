@@ -1741,7 +1741,8 @@ func describe(g: MapGraph, local: Vector3) -> PackedStringArray:
 			ny = (h.normal as Vector3).y
 			var col: Object = h.get("collider")
 			if col is Node:
-				what = "%s/%s" % [(col as Node).get_parent().name, (col as Node).name]
+				var holder := (col as Node).get_parent()
+				what = "%s/%s" % [String(holder.name) if holder != null else "", (col as Node).name]
 			if col is CollisionObject3D:
 				what += " (%s)" % WorldLayers.NAMES.get((col as CollisionObject3D).collision_layer, "layer %d" % (col as CollisionObject3D).collision_layer)
 		var n := g.surf_node[s]
