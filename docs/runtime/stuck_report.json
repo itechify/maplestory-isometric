@@ -1,12 +1,12 @@
 {
   "generated_by": "game/tools/stuck_scan_tool.tscn",
-  "generated_at": "2026-10-05T17:38:11Z",
+  "generated_at": "2026-10-05T17:42:09Z",
   "engine": "4.7.2-stable (official)",
   "verified": true,
   "maps_requested": [
     "all"
   ],
-  "build_ms": 1040,
+  "build_ms": 1129,
   "allowlist": "game/data/misostory/stuck_allowlist.json",
   "params": {
     "cell_m": 0.35,
@@ -42,12 +42,14 @@
     "unverified": 0,
     "allowlisted": 0,
     "new_traps": 0,
+    "unreviewed_unenterable": 0,
     "fall_outs": 4929,
     "outside_regions": 160,
     "outside_regions_escapable": 0,
-    "ms": 101035
+    "ms": 86450
   },
   "traps": [],
+  "unreviewed_unenterable": [],
   "maps": {
     "000000001": {
       "nodes": 7807,
@@ -62,9 +64,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 242,
-      "edges_ms": 498,
-      "ms": 801,
+      "sample_ms": 272,
+      "edges_ms": 599,
+      "ms": 944,
       "rays": 60981,
       "shape_queries": 30132,
       "sweeps": 113483,
@@ -88,9 +90,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 496,
-      "edges_ms": 1265,
-      "ms": 1947,
+      "sample_ms": 438,
+      "edges_ms": 950,
+      "ms": 1522,
       "rays": 76263,
       "shape_queries": 47600,
       "sweeps": 166423,
@@ -114,9 +116,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 504,
-      "edges_ms": 986,
-      "ms": 1678,
+      "sample_ms": 418,
+      "edges_ms": 771,
+      "ms": 1321,
       "rays": 101109,
       "shape_queries": 45985,
       "sweeps": 143302,
@@ -140,9 +142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 188,
-      "sample_ms": 29,
-      "edges_ms": 204,
-      "ms": 254,
+      "sample_ms": 25,
+      "edges_ms": 171,
+      "ms": 211,
       "rays": 6195,
       "shape_queries": 2806,
       "sweeps": 30786,
@@ -271,7 +273,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.46, 2.6, -13.65])",
-          "verify_ms": 749,
+          "verify_ms": 664,
           "in_edges": [
             {
               "kind": "slide",
@@ -377,7 +379,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [28.5, 1.19, -25.76])",
-          "verify_ms": 4,
+          "verify_ms": 3,
           "in_edges": [
             {
               "kind": "slide",
@@ -438,9 +440,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 616,
-      "edges_ms": 1510,
-      "ms": 2329,
+      "sample_ms": 488,
+      "edges_ms": 1175,
+      "ms": 1809,
       "rays": 107755,
       "shape_queries": 54098,
       "sweeps": 219210,
@@ -488,7 +490,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [-0.19, 1.2, -16.21])",
-          "verify_ms": 95,
+          "verify_ms": 69,
           "in_edges": [
             {
               "kind": "slide",
@@ -572,7 +574,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (hop edge from local [34.81, 4.6, -33.01])",
-          "verify_ms": 4,
+          "verify_ms": 2,
           "in_edges": [
             {
               "kind": "hop",
@@ -605,9 +607,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 978,
-      "edges_ms": 2140,
-      "ms": 3503,
+      "sample_ms": 824,
+      "edges_ms": 1708,
+      "ms": 2793,
       "rays": 202371,
       "shape_queries": 85298,
       "sweeps": 275673,
@@ -647,9 +649,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 651,
-      "sample_ms": 2032,
-      "edges_ms": 3048,
-      "ms": 5540,
+      "sample_ms": 1725,
+      "edges_ms": 2405,
+      "ms": 4446,
       "rays": 376740,
       "shape_queries": 128845,
       "sweeps": 357477,
@@ -884,7 +886,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 140,
+          "verify_ms": 117,
           "in_edges": [
             {
               "kind": "slide",
@@ -968,7 +970,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 571,
+          "verify_ms": 488,
           "in_edges": [
             {
               "kind": "slide",
@@ -1052,7 +1054,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 78,
+          "verify_ms": 65,
           "in_edges": [
             {
               "kind": "slide",
@@ -1136,7 +1138,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [41.83, 2.6, -15.13])",
-          "verify_ms": 77,
+          "verify_ms": 63,
           "in_edges": [
             {
               "kind": "slide",
@@ -1220,7 +1222,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 174,
+          "verify_ms": 151,
           "in_edges": [
             {
               "kind": "slide",
@@ -1281,9 +1283,9 @@
         }
       ],
       "fall_outs": 1494,
-      "sample_ms": 2894,
-      "edges_ms": 2703,
-      "ms": 6094,
+      "sample_ms": 2370,
+      "edges_ms": 2191,
+      "ms": 4905,
       "rays": 550888,
       "shape_queries": 176992,
       "sweeps": 321413,
@@ -1412,7 +1414,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.18, 2.96, -12.96])",
-          "verify_ms": 295,
+          "verify_ms": 312,
           "in_edges": [
             {
               "kind": "slide",
@@ -1496,7 +1498,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 724,
+          "verify_ms": 692,
           "in_edges": [
             {
               "kind": "slide",
@@ -1553,13 +1555,14 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of floor 3.2 m below the terrace around it: the opening above is narrower than the body."
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 2085,
-      "edges_ms": 2078,
-      "ms": 4504,
+      "sample_ms": 1805,
+      "edges_ms": 1830,
+      "ms": 3896,
       "rays": 329777,
       "shape_queries": 139026,
       "sweeps": 264408,
@@ -1628,7 +1631,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [77.56, 7.2, 0.99])",
-          "verify_ms": 47,
+          "verify_ms": 40,
           "in_edges": [
             {
               "kind": "slide",
@@ -1734,7 +1737,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 789,
+          "verify_ms": 742,
           "in_edges": [
             {
               "kind": "slide",
@@ -1791,7 +1794,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The top of Southperry's containment ring wall, 1.9 m under the front terrain and inside the solid terrain: the face-count buried test cannot see it on Southperry's double-sided trimesh."
         },
         {
           "id": "000000060#2",
@@ -1818,7 +1822,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 592,
+          "verify_ms": 586,
           "in_edges": [
             {
               "kind": "slide",
@@ -1847,7 +1851,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
         },
         {
           "id": "000000060#3",
@@ -1874,7 +1879,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 568,
+          "verify_ms": 541,
           "in_edges": [
             {
               "kind": "slide",
@@ -1931,7 +1936,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
         },
         {
           "id": "000000060#4",
@@ -1958,7 +1964,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 479,
+          "verify_ms": 434,
           "in_edges": [
             {
               "kind": "slide",
@@ -2015,13 +2021,14 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
         }
       ],
       "fall_outs": 231,
-      "sample_ms": 2659,
-      "edges_ms": 4605,
-      "ms": 7730,
+      "sample_ms": 2334,
+      "edges_ms": 3979,
+      "ms": 6681,
       "rays": 386861,
       "shape_queries": 216318,
       "sweeps": 560811,
@@ -2150,7 +2157,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [12.25, 1.91, -7.85])",
-          "verify_ms": 144,
+          "verify_ms": 123,
           "in_edges": [
             {
               "kind": "drop",
@@ -2256,7 +2263,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [13.3, 0.9, -6.45])",
-          "verify_ms": 3,
+          "verify_ms": 2,
           "in_edges": [
             {
               "kind": "drop",
@@ -2317,9 +2324,9 @@
         }
       ],
       "fall_outs": 342,
-      "sample_ms": 34,
-      "edges_ms": 266,
-      "ms": 329,
+      "sample_ms": 27,
+      "edges_ms": 220,
+      "ms": 273,
       "rays": 6072,
       "shape_queries": 2848,
       "sweeps": 38206,
@@ -2448,7 +2455,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 656,
+          "verify_ms": 564,
           "in_edges": [
             {
               "kind": "slide",
@@ -2505,7 +2512,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The Dangerous Forest's ground 9.9 m under the 000001000 in05 - 000001006 out00 trail, outside every map region: the graph reaches it only by a slide off the trail deck, which the trail's side walls stop."
         },
         {
           "id": "000001000#1",
@@ -2532,7 +2540,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [66.77, 1.19, -17.46])",
-          "verify_ms": 19,
+          "verify_ms": 14,
           "in_edges": [
             {
               "kind": "slide",
@@ -2638,7 +2646,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 624,
+          "verify_ms": 574,
           "in_edges": [
             {
               "kind": "slide",
@@ -2695,7 +2703,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of plinth floor between terraces, 8.4 m down: the opening is narrower than the body."
         },
         {
           "id": "000001000#3",
@@ -2722,7 +2731,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [32.94, 3.88, -27.46])",
-          "verify_ms": 9,
+          "verify_ms": 7,
           "in_edges": [
             {
               "kind": "drop",
@@ -2806,7 +2815,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "hop (hop edge from local [60.94, 6.4, -29.27])",
-          "verify_ms": 31,
+          "verify_ms": 22,
           "in_edges": [
             {
               "kind": "hop",
@@ -2862,7 +2871,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 893,
+          "verify_ms": 771,
           "in_edges": [
             {
               "kind": "slide",
@@ -2919,13 +2928,14 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of plinth floor between terraces, 4.2 m down: the opening is narrower than the body."
         }
       ],
       "fall_outs": 707,
-      "sample_ms": 4885,
-      "edges_ms": 4885,
-      "ms": 10935,
+      "sample_ms": 4219,
+      "edges_ms": 3970,
+      "ms": 9113,
       "rays": 748619,
       "shape_queries": 247180,
       "sweeps": 539496,
@@ -3075,7 +3085,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [29.39, 1.56, -10.02])",
-          "verify_ms": 180,
+          "verify_ms": 164,
           "in_edges": [
             {
               "kind": "drop",
@@ -3170,7 +3180,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 249,
+          "verify_ms": 232,
           "in_edges": [
             {
               "kind": "slide",
@@ -3338,7 +3348,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.66, 1.57, -10.05])",
-          "verify_ms": 241,
+          "verify_ms": 257,
           "in_edges": [
             {
               "kind": "slide",
@@ -3399,9 +3409,9 @@
         }
       ],
       "fall_outs": 144,
-      "sample_ms": 722,
-      "edges_ms": 1794,
-      "ms": 2690,
+      "sample_ms": 638,
+      "edges_ms": 1595,
+      "ms": 2374,
       "rays": 109638,
       "shape_queries": 46662,
       "sweeps": 204170,
@@ -3506,9 +3516,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 55,
-      "sample_ms": 1004,
-      "edges_ms": 1467,
-      "ms": 2635,
+      "sample_ms": 904,
+      "edges_ms": 1323,
+      "ms": 2333,
       "rays": 139091,
       "shape_queries": 59054,
       "sweeps": 186762,
@@ -3638,7 +3648,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 542,
+          "verify_ms": 436,
           "in_edges": [
             {
               "kind": "slide",
@@ -3695,7 +3705,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "1.8 m2 of P03's floor under the caps of the mid mushroom stair, against P10's wall: the gaps between the cap rims and the wall are 0.2-0.55 m, narrower than the body."
         },
         {
           "id": "000001003#1",
@@ -3722,7 +3733,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [32.23, 11.57, -25.08])",
-          "verify_ms": 15,
+          "verify_ms": 14,
           "in_edges": [
             {
               "kind": "slide",
@@ -3806,7 +3817,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (drop edge from local [26.03, 12.81, -30.27])",
-          "verify_ms": 72,
+          "verify_ms": 66,
           "in_edges": [
             {
               "kind": "drop",
@@ -3867,9 +3878,9 @@
         }
       ],
       "fall_outs": 56,
-      "sample_ms": 956,
-      "edges_ms": 1217,
-      "ms": 2323,
+      "sample_ms": 843,
+      "edges_ms": 976,
+      "ms": 1898,
       "rays": 173185,
       "shape_queries": 59889,
       "sweeps": 154433,
@@ -3974,9 +3985,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 2,
-      "sample_ms": 1280,
-      "edges_ms": 1651,
-      "ms": 3093,
+      "sample_ms": 1102,
+      "edges_ms": 1425,
+      "ms": 2636,
       "rays": 196198,
       "shape_queries": 75534,
       "sweeps": 197250,
@@ -4035,7 +4046,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [-0.41, 5.33, -16.45])",
-          "verify_ms": 500,
+          "verify_ms": 453,
           "in_edges": [
             {
               "kind": "drop",
@@ -4096,9 +4107,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 825,
-      "edges_ms": 2229,
-      "ms": 3259,
+      "sample_ms": 681,
+      "edges_ms": 1757,
+      "ms": 2582,
       "rays": 119667,
       "shape_queries": 56679,
       "sweeps": 255384,
@@ -4146,7 +4157,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 605,
+          "verify_ms": 573,
           "in_edges": [
             {
               "kind": "slide",
@@ -4203,13 +4214,14 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "The same Dangerous Forest ground under the out00 bridge, seen from this map's trail zone. The real controller got in by walking out of the dell under the bridge until Bridge_Abutment (m1000006) closed the ring's gate gap below the deck; now only a slide off the deck reaches it in the graph, which the trail's side walls stop."
         }
       ],
       "fall_outs": 299,
-      "sample_ms": 1461,
-      "edges_ms": 2525,
-      "ms": 4276,
+      "sample_ms": 1354,
+      "edges_ms": 2175,
+      "ms": 3731,
       "rays": 181006,
       "shape_queries": 78434,
       "sweeps": 283385,
@@ -4335,9 +4347,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 54,
-      "sample_ms": 2547,
-      "edges_ms": 3906,
-      "ms": 7082,
+      "sample_ms": 2341,
+      "edges_ms": 3330,
+      "ms": 6246,
       "rays": 430255,
       "shape_queries": 150816,
       "sweeps": 465351,
@@ -4442,9 +4454,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 229,
-      "sample_ms": 34,
-      "edges_ms": 279,
-      "ms": 332,
+      "sample_ms": 33,
+      "edges_ms": 245,
+      "ms": 293,
       "rays": 6025,
       "shape_queries": 2996,
       "sweeps": 39052,
@@ -4549,9 +4561,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 325,
-      "edges_ms": 1056,
-      "ms": 1486,
+      "sample_ms": 291,
+      "edges_ms": 914,
+      "ms": 1279,
       "rays": 45525,
       "shape_queries": 20911,
       "sweeps": 142037,
@@ -4599,7 +4611,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 202,
+          "verify_ms": 168,
           "in_edges": [
             {
               "kind": "slide",
@@ -4660,9 +4672,9 @@
         }
       ],
       "fall_outs": 428,
-      "sample_ms": 33,
-      "edges_ms": 288,
-      "ms": 343,
+      "sample_ms": 27,
+      "edges_ms": 240,
+      "ms": 284,
       "rays": 5940,
       "shape_queries": 2862,
       "sweeps": 41000,
@@ -4767,9 +4779,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 35,
-      "sample_ms": 1003,
-      "edges_ms": 1812,
-      "ms": 3003,
+      "sample_ms": 886,
+      "edges_ms": 1626,
+      "ms": 2659,
       "rays": 142179,
       "shape_queries": 61802,
       "sweeps": 227929,
@@ -4898,7 +4910,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 790,
+          "verify_ms": 726,
           "in_edges": [
             {
               "kind": "slide",
@@ -4955,7 +4967,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of floor 5.8 m below the bands: the opening is narrower than the body."
         },
         {
           "id": "000001020#1",
@@ -4982,7 +4995,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 574,
+          "verify_ms": 517,
           "in_edges": [
             {
               "kind": "slide",
@@ -5039,7 +5052,8 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of floor 5.6 m below the bands: the opening is narrower than the body."
         },
         {
           "id": "000001020#2",
@@ -5066,7 +5080,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 564,
+          "verify_ms": 498,
           "in_edges": [
             {
               "kind": "slide",
@@ -5123,13 +5137,14 @@
               ],
               "best_rise_m": 0.0
             }
-          ]
+          ],
+          "reviewed": "One column of floor 5.0 m below the bands: the opening is narrower than the body."
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 1646,
-      "edges_ms": 1841,
-      "ms": 3757,
+      "sample_ms": 1481,
+      "edges_ms": 1724,
+      "ms": 3422,
       "rays": 288397,
       "shape_queries": 112615,
       "sweeps": 245085,
@@ -5169,9 +5184,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 4,
-      "sample_ms": 1544,
-      "edges_ms": 2148,
-      "ms": 3922,
+      "sample_ms": 1401,
+      "edges_ms": 2013,
+      "ms": 3580,
       "rays": 242495,
       "shape_queries": 91511,
       "sweeps": 317820,

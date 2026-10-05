@@ -166,7 +166,14 @@ func test_every_map_has_no_unlisted_trap() -> void:
 		fail("%s: a trap (%d nodes, %.2f m2) at map-local %s, Blender-local xy %s, %.2f m below its way in %s: %s" % [trap.id,
 			int(trap.nodes), float(trap.area_m2), trap.local, trap.blender_local_xy, float(trap.drop_m),
 			trap.in_edges[0] if not (trap.in_edges as Array).is_empty() else "?", trap.get("enter_how", "")])
-	for e in scan.allowlist:
+	# An UNENTERABLE component is open space the real controller could not get into: inspected by hand and listed with
+	# its reason (stuck_allowlist.json unenterable), or it fails here. Four such rooms and shafts were real traps the
+	# replays could not enter, so a new one is reviewed, not passed.
+	for c: Dictionary in doc.unreviewed_unenterable:
+		fail("%s: UNENTERABLE and not reviewed (%d nodes, %.2f m2) at map-local %s, Blender-local xy %s, %.2f m below its way in %s: inspect it (stuck_scan_tool --inspect) and fix it or list it in stuck_allowlist.json unenterable" % [
+			c.id, int(c.nodes), float(c.area_m2), c.local, c.blender_local_xy, float(c.drop_m),
+			c.in_edges[0] if not (c.in_edges as Array).is_empty() else "?"])
+	for e in scan.allowlist + scan.reviewed_unenterable:
 		assert_true(e is Dictionary and String((e as Dictionary).get("reason", "")) != "", "every allowlist entry has a reason")
 	var out := OS.get_environment("STUCK_REPORT_OUT")
 	if out != "":

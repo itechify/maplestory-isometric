@@ -246,6 +246,9 @@ var exclude: Array[RID] = []
 var host: Node = null
 ## The reviewed dead ends (game/data/misostory/stuck_allowlist.json entries).
 var allowlist: Array = []
+## The reviewed UNENTERABLE components (stuck_allowlist.json unenterable): open space the real controller could not get
+## into, inspected by hand and kept, each with its reason. An UNENTERABLE component none of them covers is unreviewed.
+var reviewed_unenterable: Array = []
 
 var _ray: PhysicsRayQueryParameters3D = null
 var _up_ray: PhysicsRayQueryParameters3D = null
@@ -278,6 +281,7 @@ static func create_in(node: Node3D, content: ContentDB, options: Dictionary = {}
 	var table: Variant = content.miso_table("stuck_allowlist")
 	if table is Dictionary:
 		s.allowlist = (table as Dictionary).get("entries", [])
+		s.reviewed_unenterable = (table as Dictionary).get("unenterable", [])
 	s._setup_queries()
 	return s
 
@@ -1571,8 +1575,9 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 	var per_map := {}
 	var totals := {"maps": 0, "nodes": 0, "certain_edges": 0, "into_edges": 0, "reachable": 0, "flagged": 0,
 		"components": 0, "confirmed": 0, "cleared": 0, "unenterable": 0, "unverified": 0, "allowlisted": 0,
-		"new_traps": 0, "fall_outs": 0, "outside_regions": 0, "outside_regions_escapable": 0}
+		"new_traps": 0, "unreviewed_unenterable": 0, "fall_outs": 0, "outside_regions": 0, "outside_regions_escapable": 0}
 	var traps: Array[Dictionary] = []
+	var unreviewed: Array[Dictionary] = []
 	for id in ids:
 		if not world.defs.has_map(id):
 			continue
@@ -1601,6 +1606,9 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 			elif verdict == VERDICT_CONFIRMED:
 				totals.new_traps += 1
 				traps.append(entry)
+			if verdict == VERDICT_UNENTERABLE and String(comp.get("reviewed", "")) == "":
+				totals.unreviewed_unenterable += 1
+				unreviewed.append(entry)
 		var row := g.stats.duplicate()
 		row["name"] = g.name
 		row["kill_y_local"] = snappedf(g.kill_y - g.frame.origin.y, 0.01)
@@ -1624,7 +1632,7 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 		totals.components += g.components.size()
 		totals.fall_outs += g.fall_outs
 	totals["ms"] = Time.get_ticks_msec() - t0
-	return {"params": params(), "totals": totals, "traps": traps, "maps": per_map}
+	return {"params": params(), "totals": totals, "traps": traps, "unreviewed_unenterable": unreviewed, "maps": per_map}
 
 
 ## Forward-reachable nodes of `g` outside every map region and trail zone (RegionIndex "void"): {count, escapable,
@@ -1655,10 +1663,12 @@ func outside_regions(g: MapGraph) -> Dictionary:
 	return {"count": count, "escapable": escapable, "samples": (esc_samples + other).slice(0, 4)}
 
 
-## The JSON-ready summary of a component (with its allowlist match, if any).
+## The JSON-ready summary of a component (with its allowlist match, and for an UNENTERABLE one its review, if any).
 func report_component(g: MapGraph, comp: Dictionary) -> Dictionary:
-	var hit := _allowlisted(g, comp)
+	var hit := _match(allowlist, g, comp)
 	comp["allowlisted"] = hit
+	if String(comp.verdict) == VERDICT_UNENTERABLE:
+		comp["reviewed"] = _match(reviewed_unenterable, g, comp)
 	var out := {}
 	for k in ["id", "nodes", "area_m2", "local", "blender_local_xy", "y_local", "drop_m", "entries_inside", "floor", "verdict",
 			"entered", "enter_how", "verify_ms"]:
@@ -1673,12 +1683,15 @@ func report_component(g: MapGraph, comp: Dictionary) -> Dictionary:
 		out["samples"] = comp.samples
 	if hit != "":
 		out["allowlisted"] = hit
+	if String(comp.get("reviewed", "")) != "":
+		out["reviewed"] = comp.reviewed
 	return out
 
 
-## The allowlist entry's reason when the component holds a node within the entry's radius of its map-local point.
-func _allowlisted(g: MapGraph, comp: Dictionary) -> String:
-	for e in allowlist:
+## The reason of the first entry of `list` (allowlist or reviewed_unenterable: {map_id, local, radius_m, reason}) whose
+## map-local point lies within its radius of a node of the component; "" if none.
+func _match(list: Array, g: MapGraph, comp: Dictionary) -> String:
+	for e in list:
 		if not (e is Dictionary) or String((e as Dictionary).get("map_id", "")) != g.map_id:
 			continue
 		var l: Array = (e as Dictionary).get("local", [])
