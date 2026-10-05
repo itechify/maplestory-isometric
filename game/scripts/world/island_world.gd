@@ -651,8 +651,9 @@ func _on_link_mode_changed(link_id: String, _mode: String) -> void:
 ## walkable ground, capsule-clear and outside every portal trigger, except the trigger of `entry`, the portal the save
 ## says the player arrived through (ArrivalResolver passes it). An accepted resume arrives through that same entry, so
 ## activate_map disarms that portal exactly as on a real arrival: standing in its trigger after a Continue is the state
-## the arrival itself left (G1: every edge arrival spawns inside its own portal's trigger, 0.7 m from the gate, and the
-## save made right after a trail arrival used to be refused for it, falling back to that arrival with a warning).
+## the arrival itself left (G1: a walk across a trail's far gate leaves the player just past the gate, inside the
+## trigger of the portal it arrived through and 0.7 m short of that portal's arrival spawn; a save made there used to
+## be refused, and the load fell back to that arrival spawn with a warning).
 func validate_resume(map_id: String, pos: Vector3, entry: ArrivalRef = null) -> bool:
 	var def := defs.get_def(map_id)
 	if def == null or ground_query == null:
