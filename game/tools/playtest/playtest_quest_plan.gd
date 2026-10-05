@@ -12,6 +12,7 @@ extends RefCounted
 ##   p.items          [{item_id, name, count, from_accept, sources, obtainable}]  drop tables (resolved chances
 ##                    only) and breakables (the Wooden Box), each source with its maps
 ##   p.uses, p.talks, p.quiz (PlaytestKit.quiz_answer), p.rewards, p.blocked (why it cannot be played now)
+##   p.hand_ins       [{item_id, count}]   items_removed_on_completion: what the turn-in takes from the bag
 ##
 ## An objective that only an unresolved drop (no chance, no item id) could supply is reported in `blocked` as a
 ## source-data gap; it is never faked. Drop tables are read in both shapes: schema v2 (contract C1: chance_state,
@@ -100,6 +101,13 @@ static func plan(qid: String, db: ContentDB) -> Dictionary:
 	var fixed: Array = []
 	for it: Dictionary in rew.get("items", []):
 		fixed.append({"item_id": String(it.get("item_id", "")), "count": int(it.get("count", 1))})
+	# What the turn-in takes: canonical items_removed_on_completion (the list the quest engine removes), not the item
+	# objectives (an objective may be a "hold" without a hand-in).
+	var hand_ins: Array = []
+	var removed: Variant = q.get("items_removed_on_completion")
+	for it: Variant in ((removed as Dictionary).get("items", []) if removed is Dictionary else []):
+		if it is Dictionary:
+			hand_ins.append({"item_id": String((it as Dictionary).get("item_id", "")), "count": int((it as Dictionary).get("count", 1))})
 	return {
 		"ok": blocked.is_empty(), "id": qid, "name": String(q.get("name", qid)), "start": start, "end": end,
 		"min_level": maxi(1, int(q.get("min_level", 0)) if q.get("min_level") != null else 1),
@@ -107,7 +115,7 @@ static func plan(qid: String, db: ContentDB) -> Dictionary:
 			"steps": steps, "position": int(line.get("position", 1)), "total": int(line.get("total", 1))},
 		"followups": follow, "accept_items": accept, "kills": kills, "items": items, "uses": uses, "talks": talks,
 		"quiz": quiz, "rewards": {"exp": int(rew.get("exp", 0)), "mesos": int(rew.get("mesos", 0)), "items": fixed,
-			"random": random}, "blocked": blocked,
+			"random": random}, "hand_ins": hand_ins, "blocked": blocked,
 	}
 
 
@@ -255,20 +263,27 @@ static func item_sources(item_id: String, db: ContentDB, for_quest: String = "")
 			for s: Dictionary in spawn_maps(owner, db):
 				maps.append(String(s["map"]))
 			row["maps"] = maps
-		var gate := String(row.get("quest_gate", ""))
-		var why := ""
-		if row.get("chance") == null:
-			why = "unresolved chance"
-		elif float(row["chance"]) <= 0.0:
-			why = "chance 0"
-		elif gate != "" and gate != for_quest:
-			why = "gated to quest %s" % gate
-		elif (row["maps"] as PackedStringArray).is_empty():
-			why = "no map has the owner"
+		var why := source_why(row, for_quest)
 		row["obtainable"] = why == ""
 		row["why"] = why
 		out.append(row)
 	return out
+
+
+## Why a source row cannot supply its item for `for_quest` ("" when it can): an unresolved chance (contract C1: it
+## never rolls), a chance of 0, a quest gate to another quest (C1/C2: it rolls only while that quest is in progress),
+## or no map holding the owner.
+static func source_why(row: Dictionary, for_quest: String) -> String:
+	var gate := String(row.get("quest_gate", ""))
+	if row.get("chance") == null:
+		return "unresolved chance"
+	if float(row["chance"]) <= 0.0:
+		return "chance 0"
+	if gate != "" and gate != for_quest:
+		return "gated to quest %s" % gate
+	if (row.get("maps", PackedStringArray()) as PackedStringArray).is_empty():
+		return "no map has the owner"
+	return ""
 
 
 ## The source to farm for a quest: an obtainable one, the highest chance, then the fewest hops from `near_map`.

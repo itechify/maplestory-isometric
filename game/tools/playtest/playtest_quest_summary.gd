@@ -10,7 +10,7 @@ extends SceneTree
 ## Exit code 0 when every quest of every chain is PASS, 1 otherwise, 2 on a bad command line. A quest's verdict is the
 ## scenario's own (carry.quest_results); when a run ended early (a timeout, a crash) it is rebuilt from the report's
 ## parity keys, and a quest with no check at all is NOT_PLAYED. A chain whose strict block was violated fails all its
-## quests.
+## quests, and so does a fatal error or a failed check that names no quest (a quest's own failure fails only it).
 
 
 func _init() -> void:
@@ -54,6 +54,15 @@ static func collect(out_dir: String, chains: PackedStringArray) -> Dictionary:
 			"game_s": float(totals.get("game_s", 0.0)), "wall_s": float(totals.get("wall_s", 0.0)),
 			"phases": (r.get("phases", []) as Array).size(), "console_setup": console_setup,
 			"errors": (r.get("errors", []) as Array).size()})
+		# What failed the chain without naming a quest (a fatal script error, a timeout, a failed check with no quest
+		# key): no quest of the chain can PASS over it. A failure tagged to one quest does not touch the others.
+		var unattributed := PackedStringArray()
+		for e: Variant in r.get("errors", []):
+			unattributed.append("error: %s" % String((e as Dictionary).get("message", "")).left(120) if e is Dictionary else str(e))
+		for c: Variant in r.get("checks", []):
+			if c is Dictionary and not bool((c as Dictionary).get("ok", true)) and not bool((c as Dictionary).get("soft", false)) \
+					and not ((c as Dictionary).get("parity", []) as Array).any(func(k: Variant) -> bool: return String(k).begins_with("quest:")):
+				unattributed.append("failed check: %s" % String((c as Dictionary).get("name", "")))
 		var results: Dictionary = (r.get("carry", {}) as Dictionary).get("quest_results", {})
 		var names: Dictionary = (r.get("carry", {}) as Dictionary).get("quest_names", {})
 		var parity: Dictionary = r.get("parity", {})
@@ -75,6 +84,9 @@ static func collect(out_dir: String, chains: PackedStringArray) -> Dictionary:
 			if not strict_ok and row["result"] == "PASS":
 				row["result"] = "FAIL"
 				(row["failed"] as Array).append("strict mode %s for chain %s" % [chain_rows[-1]["strict"], chain])
+			if not unattributed.is_empty() and row["result"] == "PASS":
+				row["result"] = "FAIL"
+				(row["failed"] as Array).append("chain %s: %s" % [chain, "; ".join(unattributed)])
 			if row["result"] == "PASS":
 				passed += 1
 			rows.append(row)
