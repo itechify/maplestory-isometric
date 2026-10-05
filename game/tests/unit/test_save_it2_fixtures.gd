@@ -303,6 +303,12 @@ func test_each_fixture_loads_into_the_game_and_saves_back_at_the_current_version
 			assert_eq(again.version_found, SaveMigrations.CURRENT_VERSION, "%s rewritten at the current version" % fixture)
 			assert_eq(again.migrations_applied, PackedStringArray(), "%s needs no migration any more" % fixture)
 			assert_eq(_diff(first, again.character.to_dict()), "", "%s: the rewrite is lossless" % fixture)
+			# The migration's "rewards not recorded" marker survives the load and the save back. The lossless check above
+			# compares two post-load documents, so it cannot see a marker the first load dropped (wave 1 review); a
+			# dropped marker would never come back, since a v2 file is not migrated again.
+			for q: String in PINS[fixture]["completed"]:
+				assert_eq(again.character.quests.rewards_received(q), {"recorded": false},
+					"%s: completed %s still says its rewards were not recorded after the save back" % [fixture, q])
 		game.free()
 		svc.free()
 		bus.free()
