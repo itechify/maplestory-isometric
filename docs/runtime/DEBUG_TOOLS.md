@@ -359,11 +359,12 @@ key events (`Input.parse_input_event`) and `Debug.run`.
 
 ## Known limits and requests
 
-- **`kill` without a monster death method.** A monster with no `debug_kill()`, `kill()` or `die()` gives no EXP or
-  drops when killed from the console. The monster system should expose `debug_kill()` running its normal death.
+- **`kill` and the monster's death.** `Monster.debug_kill()` runs the monster's own death (EXP, drops, one
+  `monster_killed`), so `kill` in the real game is a normal kill. Only a node with no `debug_kill()`, `kill()` or
+  `die()` (none in the game; a test stub, say) dies by freeing its slot, with no EXP or drops.
 - **Debug spawns and the monster system's factory.** These spawns go through the monster system's `monster_factory`
-  with `slot.index == -1`. A factory or AI that assumes a real slot index should treat -1 as "no slot": do not report
-  it to the view, and do not respawn it.
+  with `slot.index == -1`; MonsterSystem gives them `slot_index` NO_SLOT (full HP, never reported to the view, never
+  respawned). Another factory or AI must treat -1 the same way.
 - **The context is duck-typed.** `Debug.ctx` and `DebugUI.setup()` take any `Object` with the `GameContext` fields
   and methods, so the debug tools never depend on the shell's script compiling. The sandbox uses the real
   `GameContext` and falls back to a stand-in only when that script does not load.
