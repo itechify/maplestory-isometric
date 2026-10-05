@@ -54,6 +54,8 @@ var _wobble_t: float = 0.0
 var _respawn_t: float = -1.0
 ## Flying chips and planks: {"node", "v": Vector3, "spin": Vector3, "t", "life"}.
 var _pieces: Array[Dictionary] = []
+## The FX's own random numbers (seeded by the placement key in setup()): never the global RNG, never Game.rng.
+var _fx_rng := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
@@ -69,6 +71,7 @@ func setup(p: BreakablePlacement, p_size_m: Vector3, p_hits_to_break: int, hits_
 	hits_to_break = p_hits_to_break
 	system = p_system
 	name = "WoodenBox_%s_%d" % [p.map_id, p.index]
+	_fx_rng.seed = hash(p.key())
 	transform = p.transform
 	# _ready() builds the crate at the default size when the box enters the tree before setup(): build it again at
 	# the box's own body size.
@@ -323,13 +326,13 @@ func _spawn_piece(dims: Vector3, at: Vector3, v_lo: float, v_hi: float, life: fl
 	var bm := BoxMesh.new()
 	bm.size = dims
 	mi.mesh = bm
-	mi.material_override = _material(PLANK_COLOR if randf() < 0.6 else FRAME_COLOR)
+	mi.material_override = _material(PLANK_COLOR if _fx_rng.randf() < 0.6 else FRAME_COLOR)
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	mi.global_position = at
-	var dir := Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
-	var v := dir * randf_range(v_lo, v_hi) * 0.5 + Vector3.UP * randf_range(v_lo, v_hi)
-	_pieces.append({"node": mi, "v": v, "spin": Vector3(randf_range(-9, 9), randf_range(-9, 9), randf_range(-9, 9)),
+	var dir := Vector3.FORWARD.rotated(Vector3.UP, _fx_rng.randf() * TAU)
+	var v := dir * _fx_rng.randf_range(v_lo, v_hi) * 0.5 + Vector3.UP * _fx_rng.randf_range(v_lo, v_hi)
+	_pieces.append({"node": mi, "v": v, "spin": Vector3(_fx_rng.randf_range(-9, 9), _fx_rng.randf_range(-9, 9), _fx_rng.randf_range(-9, 9)),
 		"t": 0.0, "life": life})
 
 
