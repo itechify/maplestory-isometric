@@ -285,11 +285,11 @@ func _prove(g: StuckScan.MapGraph, starts: PackedInt32Array, reach: PackedByteAr
 	for n in goal:
 		goal_set[n] = 1
 	var used := 0
-	for round in MAX_ROUNDS:
+	for attempt in MAX_ROUNDS:
 		var path := _search(g, reach, goal_set)
 		if path.is_empty():
 			return {"ok": false, "into_edges": used,
-				"why": "no path even over the scan's generous edges" if round == 0 else "every way in needs an edge that failed certification"}
+				"why": "no path even over the scan's generous edges" if attempt == 0 else "every way in needs an edge that failed certification"}
 		var all_ok := true
 		for e: Vector3i in path:
 			if not _certify(g, e.x, e.y, e.z):

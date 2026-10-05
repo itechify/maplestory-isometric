@@ -688,12 +688,12 @@ func _swap(req: TransitionRequest, res: Dictionary) -> TransitionRecord:
 	# file describes it, and monsters, ground drops and Wooden Boxes are never saved (contract C3): nothing of the
 	# instances before it survives. The old map is not parked and every parked map is forgotten, else a pause-menu
 	# load into the same map took back the snapshot it had just parked (broken boxes still broken).
-	var load := req.via == VIA_LOAD
+	var loading := req.via == VIA_LOAD
 	if world != null:
 		world.call("release_instance")
-	if instance_state != null and old != "" and not load:
+	if instance_state != null and old != "" and not loading:
 		cache.put(old, instance_state.snapshot(now))
-	if load:
+	if loading:
 		cache.clear()
 	instance_state = null
 	current_map = req.to_map
