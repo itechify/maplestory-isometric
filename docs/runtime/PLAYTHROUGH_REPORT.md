@@ -16,6 +16,10 @@ Movement, Camera, Combat and World reviews, what was found, and what was fixed. 
   to `<out>/report.md` and `report.json`.
 - **Expected values come from data.** Scenarios read canonical data (MeowDB) and compute expectations independently,
   for example damage ranges from `formulas/damage.json` and EXP from `exp_table.json`. They never hard-code results.
+- **Final replay on the final build.** The playtest round ran before fix round F1, which changed world geometry
+  (A Split Road, 000001005), attack timing, monster stagger and push, and added natural recovery. Every test A–G was
+  then re-run on the final build (commit `2933fe7` plus docs, seed 1, headless). Those results are in
+  [Final replay](#final-replay-final-build) below.
 - **No human has played this build yet.** These are scripted playthroughs by agents, with screenshot review. A human
   pass (MAP_ARCHITECTURE L4) is the recommended next step: walk Test A by hand, fight, quest and shop, and judge feel.
 
@@ -32,6 +36,23 @@ Movement, Camera, Combat and World reviews, what was found, and what was fixed. 
 | G: shop | `test_g_shop` | **PASS** (184 checks) | All three shops (Pan, Sid, Lucy) reached on foot through their doors and talked to across the counter. 18 purchases and 15 sales at **canonical prices and sell-backs**. Insufficient funds and inventory-full refusals change nothing and say why. The quantity picker is capped by room, mesos and slot quantity. |
 | NPC reach | `npcs` | **PASS** (hard checks) | **21/21 NPCs** talked to on foot, each with a player at least 0.6 m inside the talk zone. |
 | Natural recovery | `regen` | **PASS** | No recovery while walking. +10 HP after 10 s standing still, one tick per 10 s, capped at max HP (an adaptation; MeowDB gives no numbers). |
+
+## Final replay (final build)
+
+Seed 1, headless, fixed 60 fps. Run with `ISOLATE=<name> bash scripts/playtest.sh <scenario> --seed 1`.
+
+| Test | Result | Checks | Notes |
+|---|---|---|---|
+| A: traversal | **PASS** | 470 passed, 0 failed, 7 warnings | 25/25 maps and 47/47 portals on foot. The warnings are the walker's known limits: it never fights, so it twice died on hunting-map approaches and retried, plus prop replans. |
+| B: combat | **PASS** | 50 passed, 0 failed, 2 warnings | The held attack now repeats at the canonical cadence (gaps of 43 ticks with a 44-tick gap every fifth swing, average 720 ms). Mid-hop hits now stagger; in 2 of 131 cases the push after landing was blocked by a ledge, which pushes respect by design. The bot could not reach some Sentinels on high tiers. |
+| C: progression | see below | | |
+| D: inventory | **PASS** | 94 passed, 0 failed, 0 warnings | The A Split Road trap no longer happens (the earlier "never trapped" warning is gone). |
+| E: quest | **PASS** | 102 passed, 0 failed, 0 warnings | Sam's Suggestion: exactly +30 EXP and 3 Eggs, across save, quit, reload and restart. |
+| F: death | **PASS** | 200 passed, 0 failed, 0 warnings | Still passes with natural recovery in the game (200 of 200 checks). |
+| G: shop | **PASS** | 184 passed, 0 failed, 0 warnings | Canonical prices at all three shops. |
+
+The unit suite (1144 tests) also runs `smoke`, `npcs` (21/21 NPCs on foot), `reload`, `regen` and the traversal tools
+(366 route runs, 87 link runs, both Test A tours) on every run.
 
 ## Review questions (measured)
 
@@ -91,19 +112,18 @@ Movement, Camera, Combat and World reviews, what was found, and what was fixed. 
 | 5 NPCs unreachable on foot | Stairs in the Blender source plus an across-counter talk zone. `npcs` is 21/21. |
 | Space (the jump key) confirmed the death notice | The notice ignores jump keys and key repeat. |
 | The stats window grid reflowed at 0 AP; Quest Log "nearby" never matched; identical gain lines were dropped; the shop did not show gender requirements | Fixed in the UI with tests. |
+| Held attacks repeated every 733 ms (canonical 720 ms); mid-hop hits never staggered; the monster push stopped one tick short; an attack pressed while dead fired after the respawn | Fixed, each with a regression test. Confirmed in the final Test B replay. |
+| Nothing stopped a ladder from being grabbable inside a portal's press-Up trigger (the 000001005 class) | `sidecar_diff` now fails the export on it, with a mutation test; the shipped export passes. |
 
 ## Still open
 
-- **Fixed after the replays:** the held-attack cadence (now 720 ms on average), mid-hop staggers, the full monster
-  push distance, and presses made while dead (each with a regression test). The export gate now also rejects a ladder
-  grabbable from inside a portal trigger.
 - **Polish and feel:**
   - the proxy models are wider than their touch boxes
   - the 0.25 s snag in Southperry
   - the camera jolt at ladder tops
   - the canopy dither at the moment of contact
-- **Prevention:** an export-gate check for climbable/portal overlap and a flood-fill trap survey of every map. The two
-  known cases are fixed in the source, but the general checks are not built yet.
+- **Prevention:** a flood-fill trap survey of every map and an arrival-path sweep in the export gate. The known trap is
+  fixed in the source and guarded by `test_d_stuck`; the climbable/trigger gate is built.
 - **Deferred to later iterations** ([DEFERRED.md](../DEFERRED.md)):
   - minimap
   - sitting and chairs
