@@ -189,11 +189,27 @@ func _check_hidden_portal_and_lane(w: IslandWorld) -> void:
 				assert_true(m.portal(p.portal_id).is_empty(), "%s: arrival gates are not shown" % p.key())
 		for t in w.defs.trails_of(id):
 			var shown := m.trails.any(func(e: Dictionary) -> bool: return e["link_id"] == t.link_id)
-			var want := not t.hidden and t.has_geometry() and w.defs.graph.is_edge(t.link_id)
-			assert_eq(shown, want, "%s: trail %s shown iff walkable and not hidden" % [id, t.link_id])
+			# A one-way trail is a way out only at its from end (maps[0]).
+			var leaves := not t.one_way or (t.maps.size() >= 2 and t.maps[0] == id)
+			var want := not t.hidden and t.has_geometry() and w.defs.graph.is_edge(t.link_id) and leaves
+			assert_eq(shown, want, "%s: trail %s shown iff walkable out of the map and not hidden" % [id, t.link_id])
+		# Every stub leads where one of the map's own canonical portals goes: a stub is never an exit MeowDB lacks.
+		var dests := PackedStringArray()
+		for p: Dictionary in db().map(id).get("portals", []):
+			dests.append(String(p.get("to_map_id", "")))
+		for e: Dictionary in m.trails:
+			assert_true(String(e["other_map"]) in dests, "%s: the stub to %s follows a canonical portal %s" % [id, e["other_map"], dests])
 	assert_true(hidden >= 1, "the canonical data has a hidden portal (000001020 in00)")
-	var east := MinimapModel.build(w.defs.get_def("000000040"), w.defs, db(), w.ground_faces("000000040"))
-	assert_true(not east.trails.is_empty() and east.trails[0]["points"].size() >= 2, "000000040 shows its trail stub")
+	# The one-way 30 -> 40 (a 2.4 m ledge down into 40): a stub on 30, none back up from 40.
+	var snail := MinimapModel.build(w.defs.get_def("000000040"), w.defs, db(), w.ground_faces("000000040"))
+	var snail_to := PackedStringArray()
+	for e: Dictionary in snail.trails:
+		snail_to.append(String(e["other_map"]))
+		assert_true((e["points"] as PackedVector2Array).size() >= 2, "000000040: the stub has a line")
+	assert_eq(snail_to, PackedStringArray(["000000041"]), "000000040: one stub, east to Snail Hunting Ground II, none back to 000000030")
+	var east := MinimapModel.build(w.defs.get_def("000000030"), w.defs, db(), w.ground_faces("000000030"))
+	assert_true(east.trails.any(func(e: Dictionary) -> bool: return e["other_map"] == "000000040"),
+		"000000030 shows the one-way trail down to 000000040")
 
 
 func test_the_sidecar_camera_is_the_game_camera() -> void:

@@ -15,7 +15,8 @@ extends RefCounted
 ##                   canonical destination name, the way out (-inward) and a shop badge when a shopkeeper stands in
 ##                   the destination map
 ##   npcs            the map's canonical NPCs at their placements, with their role icon (MapIcons.npc_role)
-##   trails          the walkable trails leaving the map (edge-mode links; not the hidden hedge lane), from this map's
+##   trails          the walkable trails leaving the map (edge-mode links; not the hidden hedge lane; a one-way trail
+##                   only at its from end, so 000000040 shows no stub back up the 30 -> 40 ledge), from this map's
 ##                   end, so the minimap shows the stub of the way out
 ##
 ## No gameplay number is involved: every position is the runtime's, every name is canonical.
@@ -267,12 +268,23 @@ func _build_trails(def: MapDefinition, defs: MapDefinitions, db: ContentDB) -> v
 	for t in defs.trails_of(def.map_id):
 		if t.hidden or not t.has_geometry() or (defs.graph != null and not defs.graph.is_edge(t.link_id)):
 			continue
+		if not leaves(t, def.map_id):
+			continue
 		var line := PackedVector2Array()
 		for q in t.centreline_from(def.map_id):
 			line.append(projection.project(q))
 		var other := t.other_map(def.map_id)
 		trails.append({"link_id": t.link_id, "other_map": other,
 			"other_name": String(_map_record(db, other).get("name", other)), "points": line})
+
+
+## True when `t` can be walked out of `map_id`: any two-way trail, and a one-way trail only from its from end
+## (maps[0]). The one-way 000000030 -> 000000040 ends at 40's arrival gate below a ledge that cannot be climbed, so on
+## 000000040 it is no way out and gets no stub.
+static func leaves(t: TrailDef, map_id: String) -> bool:
+	if not t.one_way:
+		return true
+	return t.maps.size() >= 2 and t.end_of(map_id) == 0
 
 
 ## Names of the shopkeepers in `map_id` (canonical maps/<id>.json npcs whose npcs/<id>.json has a shop).
