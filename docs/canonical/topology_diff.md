@@ -226,7 +226,7 @@ in Blender (`built_mobs`/`built_npcs` in docs/manifest.json: 1-2 representative 
 | 000000010 [10000] | - | - | - | Roger (3) | Roger (2000) |
 | 000000020 [20000] | - | - | - | Nina (4) | Nina (2102) |
 | 000000021 [20001] | - | - | - | Sen (5) | Sen (2001) |
-| 000000030 [30000] | 6: Tutorial Jr. Sentinel 6 | - | - | Todd (7), Peter (6) | Peter (2002) |
+| 000000030 [30000] | 6: Tutorial Jr. Sentinel 6 | - | Tutorial Jr. Sentinel 4 | Todd (7), Peter (6) | Peter (2002) |
 | 000000040 [40000] | 40: Snail 40 | 49: Snail 33, Blue Snail 16 | Snail 15 | Robin (8), Sam (9) | Robin (2003) |
 | 000000041 [40001] | 45: Snail 32, Blue Snail 13 | 67: Snail 43, Blue Snail 24 | Snail 11, Blue Snail 7 | - | - |
 | 000000042 [40002] | 42: Snail 20, Blue Snail 21, Red Snail 1 | 75: Snail 36, Blue Snail 26, Red Snail 13 | Snail 8, Blue Snail 6, Red Snail 4 | - | - |
