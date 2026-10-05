@@ -45,6 +45,9 @@ const MAX_ROUNDS := 60
 const MAX_LEVELS := 8
 ## Arc samples of a certified hop or long drop (capsule sweeps between consecutive samples).
 const ARC_SAMPLES := 8
+## _search's parent-edge marks: a certain edge, and a certified into edge (CERTIFIED_KIND + its StuckScan.Edge).
+const CERTAIN_KIND := 255
+const CERTIFIED_KIND := 100
 
 var scan: StuckScan = null
 var world: IslandWorld = null
@@ -184,14 +187,23 @@ func _nodes_where(g: StuckScan.MapGraph, keep: Callable) -> PackedInt32Array:
 	return out
 
 
-## The entry nodes of `g`: its map's player_spawns and portal arrivals, snapped as the stuck scan snaps entries.
+## The entry nodes of `g`, snapped as the stuck scan snaps entries: its map's player_spawns (new game, respawns, spawn
+## arrivals) and the arrivals of the portals some portal of the island lands on (MapDefinitions.arrival_for; an
+## arrival gate too). A portal nothing leads to (the start of the one-way 000000030 -> 000000040 link) is no entry.
 func entries(g: StuckScan.MapGraph) -> PackedInt32Array:
 	var def := world.defs.get_def(g.map_id)
+	var landed := {}
+	for id in world.defs.ids():
+		for q in world.defs.get_def(id).canonical_portals():
+			var a := world.defs.arrival_for(q)
+			if a != null and a.map_id == g.map_id and a.is_portal():
+				landed[a.portal_id] = true
 	var pts := PackedVector3Array()
 	for xf in def.player_spawns:
 		pts.append(xf.origin)
 	for p in def.portals:
-		pts.append(p.spawn_transform.origin)
+		if landed.has(p.portal_id):
+			pts.append(p.spawn_transform.origin)
 	var out := PackedInt32Array()
 	for q in pts:
 		var n := g.node_near(q, StuckScan.SNAP_UP_M, StuckScan.SNAP_DOWN_M, 2)
@@ -286,22 +298,25 @@ func _prove(g: StuckScan.MapGraph, starts: PackedInt32Array, reach: PackedByteAr
 		goal_set[n] = 1
 	var used := 0
 	for attempt in MAX_ROUNDS:
-		var path := _search(g, reach, goal_set)
-		if path.is_empty():
+		var found := _search(g, reach, goal_set)
+		var at := int(found.node)
+		if at < 0:
 			return {"ok": false, "into_edges": used,
 				"why": "no path even over the scan's generous edges" if attempt == 0 else "every way in needs an edge that failed certification"}
+		var path: Array = found.path
+		var before := int(found.get("certified", 0))
 		var all_ok := true
 		for e: Vector3i in path:
 			if not _certify(g, e.x, e.y, e.z):
 				all_ok = false
 		if all_ok:
-			# The path is certain now: grow the closure from its last node (every edge on it is certain or certified).
+			# Every edge on the path is certain or certified now: the goal node and everything after each certified edge
+			# join the closure.
+			used = before + path.size()
 			for e: Vector3i in path:
-				used += 1
 				_grow(g, reach, e.y)
-			for n in goal:
-				if reach[n] == 1:
-					return {"ok": true, "into_edges": used}
+			_grow(g, reach, at)
+			return {"ok": true, "into_edges": used}
 	return {"ok": false, "into_edges": used, "why": "not proven in %d certification rounds" % MAX_ROUNDS}
 
 
@@ -343,9 +358,13 @@ func _grow(g: StuckScan.MapGraph, seen: PackedByteArray, from: int) -> void:
 
 
 ## 0-1 BFS from the closure `reach` (distance 0) to a node of `goal_set`: certain and certified edges cost 0, an
-## uncertified into edge (not refused, not a slide) 1. Returns the uncertified edges on the best path as
-## [Vector3i(from, to, kind)] in path order; [] when no node of the goal is reachable within MAX_LEVELS.
-func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByteArray) -> Array[Vector3i]:
+## uncertified into edge (not refused, not a slide) 1. Returns {"node": the goal node reached (-1: none within
+## MAX_LEVELS), "path": the uncertified edges on the way there as [Vector3i(from, to, kind)] in path order (possibly
+## none: a goal behind edges certified in an earlier round), "certified": the into edges on the way that were
+## certified before}. A node's parent edge (pkind) is an uncertified into edge (its kind), a certified one
+## (CERTIFIED_KIND + kind) or a certain one (CERTAIN_KIND), and a node found again at a lower level is processed there
+## only (stale queue entries are skipped), so the parent chain never loses an edge.
+func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByteArray) -> Dictionary:
 	var count := g.node_count()
 	var level := PackedInt32Array()
 	level.resize(count)
@@ -355,7 +374,7 @@ func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByte
 	parent.fill(-1)
 	var pkind := PackedByteArray()
 	pkind.resize(count)
-	pkind.fill(255)
+	pkind.fill(CERTAIN_KIND)
 	var current := PackedInt32Array()
 	for n in count:
 		if reach[n] == 1:
@@ -368,6 +387,8 @@ func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByte
 		while head < current.size() and found < 0:
 			var u := current[head]
 			head += 1
+			if level[u] != lv:
+				continue  # reached again at a lower level: processed there
 			if goal_set[u] == 1:
 				found = u
 				break
@@ -379,8 +400,8 @@ func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByte
 				var v := g.i_dst[k]
 				var key := u * count + v
 				if _certified.has(key):
-					if bool(_certified[key]):
-						_relax0(v, u, lv, level, parent, pkind, current)
+					if bool(_certified[key]) and _relax0(v, u, lv, level, parent, pkind, current):
+						pkind[v] = CERTIFIED_KIND + g.i_kind[k]
 					continue
 				if g.i_kind[k] == StuckScan.Edge.SLIDE or level[v] >= 0:
 					continue
@@ -392,25 +413,32 @@ func _search(g: StuckScan.MapGraph, reach: PackedByteArray, goal_set: PackedByte
 			break
 		current = nxt
 	if found < 0:
-		return []
+		return {"node": -1, "path": []}
 	var path: Array[Vector3i] = []
+	var certified := 0
 	var v := found
-	while level[v] > 0:
+	var guard := count
+	while parent[v] >= 0 and guard > 0:
+		guard -= 1
 		var u := parent[v]
-		if pkind[v] != 255 and level[v] == level[u] + 1:
+		if pkind[v] < CERTIFIED_KIND:
 			path.push_front(Vector3i(u, v, pkind[v]))
+		elif pkind[v] != CERTAIN_KIND:
+			certified += 1
 		v = u
-	return path
+	return {"node": found, "path": path, "certified": certified}
 
 
+## Reaches v from u at cost 0 (a certain edge) when that is better than what v has; true when it did.
 func _relax0(v: int, u: int, lv: int, level: PackedInt32Array, parent: PackedInt32Array, pkind: PackedByteArray,
-		current: PackedInt32Array) -> void:
+		current: PackedInt32Array) -> bool:
 	if level[v] >= 0 and level[v] <= lv:
-		return
+		return false
 	level[v] = lv
 	parent[v] = u
-	pkind[v] = 255
+	pkind[v] = CERTAIN_KIND
 	current.append(v)
+	return true
 
 
 ## Certifies into edge from -> to of `kind` (cached per map): the arc check, else a replay with the real controller.

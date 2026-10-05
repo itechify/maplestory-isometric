@@ -4,7 +4,8 @@ extends TestCase
 ## entries, proven on the stuck-region scan's graph with edges the controller can certainly take.
 ##
 ## Model tests on hand-made worlds (PlayerTestWorld boxes, no export needed): a 1 m ledge is reached by a certified
-## hop; a 2.4 m plateau with no way up is not; a ladder makes it reachable; a slide (a fall down a wall) proves nothing.
+## hop; two 0.9 m steps by two hops on one path; a 2.4 m plateau with no way up is not; a ladder makes it reachable;
+## the arc check refuses a hop through a wall and never climbs by walking off.
 ## The island test (INCLUDE_WORLD=1; a SKIP line without the export) scans all 25 maps and fails on any target no
 ## proof reaches. REACH_REPORT_OUT=<file> also writes the report document.
 
@@ -23,6 +24,8 @@ func parity_keys() -> Dictionary:
 		"test_a_one_metre_ledge_is_reached_by_a_certified_hop": ["mechanic:stuck-region-scan"],
 		"test_a_plateau_with_no_way_up_is_unreachable": ["mechanic:stuck-region-scan"],
 		"test_a_ladder_makes_the_plateau_reachable": ["mechanic:stuck-region-scan"],
+		"test_two_ledges_are_climbed_hop_by_hop": ["mechanic:stuck-region-scan"],
+		"test_the_arc_check_refuses_a_hop_through_a_wall": ["mechanic:stuck-region-scan"],
 	}
 
 
@@ -39,6 +42,33 @@ func test_a_one_metre_ledge_is_reached_by_a_certified_hop() -> void:
 	var res := check.prove(g, _start(g), PackedInt32Array([top]))
 	assert_true(bool(res.ok), "a 1 m ledge is within a jump: %s" % str(res))
 	assert_true(int(res.into_edges) >= 1, "proven through a certified hop (%d)" % int(res.into_edges))
+	w.free_all()
+
+
+## Two steps of 0.9 m (1.8 m in all, above any single jump): the top is proven hop by hop, two certified hops on one
+## path (the search keeps every uncertified edge of a multi-level path).
+func test_two_ledges_are_climbed_hop_by_hop() -> void:
+	var w := _ground_world()
+	w.add_box(Vector3(2.5, 0.45, 0.0), Vector3(2.0, 0.9, 4.0))  # x 1.5..3.5, top 0.9
+	w.add_box(Vector3(4.5, 0.9, 0.0), Vector3(2.0, 1.8, 4.0))  # x 3.5..5.5, top 1.8
+	var r := _scan(w, [])
+	var g: StuckScan.MapGraph = r.graph
+	var top := g.node_near(Vector3(5.0, 1.8, 0.0), 0.3, 0.3, 1)
+	assert_true(top >= 0, "the upper ledge is a node")
+	var res := (r.check as ReachCheck).prove(g, _start(g), PackedInt32Array([top]))
+	assert_true(bool(res.ok), "up the steps: %s" % str(res))
+	# The scan may have refined a certain jump for one step; with those set aside both steps are into edges, and one
+	# path must carry both, each certified.
+	g.extra = {}
+	g.extra_rev = {}
+	var mid := g.node_near(Vector3(2.5, 0.9, 0.0), 0.3, 0.3, 1)
+	var check := ReachCheck.create(r.scan)  # nothing certified yet
+	assert_eq(check._closure(g, _start(g))[mid], 0, "the lower step is not certain without a jump")
+	var found := check._search(g, check._closure(g, _start(g)), _goal_set(g, top))
+	assert_eq((found.path as Array).size(), 2, "the best path carries both hops: %s" % str(found.path))
+	res = check.prove(g, _start(g), PackedInt32Array([top]))
+	assert_true(bool(res.ok), "two hops: %s" % str(res))
+	assert_eq(int(res.into_edges), 2, "through two certified hops")
 	w.free_all()
 
 
@@ -185,6 +215,14 @@ func _scan(w: PlayerTestWorld, climbables: Array[ClimbableDef]) -> Dictionary:
 	g.climbables = climbables
 	scan.scan(g)
 	return {"scan": scan, "graph": g, "check": ReachCheck.create(scan)}
+
+
+func _goal_set(g: StuckScan.MapGraph, n: int) -> PackedByteArray:
+	var s := PackedByteArray()
+	s.resize(g.node_count())
+	s.fill(0)
+	s[n] = 1
+	return s
 
 
 func _start(g: StuckScan.MapGraph) -> PackedInt32Array:

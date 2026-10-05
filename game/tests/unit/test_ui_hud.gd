@@ -572,6 +572,8 @@ func test_active_effects_show_with_their_time_left() -> void:
 		assert_true(String(shown[1].tooltip).contains(recovery.name), String(shown[1].tooltip))
 		assert_near(float(shown[0].sweep), 0.25, 1e-4, "a quarter of Nimble Feet has run")
 		assert_near(float(shown[1].sweep), 0.0, 1e-4, "Recovery just cast")
+	for cell: Control in h.effects.cells.values():
+		assert_eq(cell.mouse_filter, Control.MOUSE_FILTER_STOP, "a click on a buff icon is handled, never a swing")
 	# Remaining time counts down every tick without an event: the row follows on its own.
 	(EffectBook.find(c, "skill:0001002") as Dictionary)["remaining_s"] = 9.2
 	h.effects._process(MisoEffectsBar.REDRAW_S)

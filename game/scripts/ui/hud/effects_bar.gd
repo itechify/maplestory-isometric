@@ -93,7 +93,9 @@ static func time_text(seconds: float) -> String:
 func _make_cell(id: String) -> Control:
 	var cell := VBoxContainer.new()
 	cell.set_meta("effect_id", id)
-	cell.mouse_filter = MOUSE_FILTER_PASS
+	# STOP, like an item slot: the tooltip shows, and a click on the icon never reaches the world (mouse attacks come
+	# from unhandled input only).
+	cell.mouse_filter = MOUSE_FILTER_STOP
 	cell.add_theme_constant_override("separation", 0)
 	var icon := MisoSkillIcon.new()
 	icon.name = "Icon"
