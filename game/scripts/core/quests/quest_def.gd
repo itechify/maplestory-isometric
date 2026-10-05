@@ -66,6 +66,23 @@ var quiz: Dictionary = {}
 ## The canonical dialogue block {on_accept, on_completion} (either may be {}).
 var dialogue: Dictionary = {}
 var journal_lines: PackedStringArray = []
+## MeowDB's "Missable" tag (live quest tracker, recorded by the provenance step); false when the record has none.
+var missable: bool = false
+## MeowDB quest group ("Mai's Training"), "" for a standalone quest (and for some first steps: 1006 has none).
+var quest_group: String = ""
+## The chain this quest belongs to (canonical quest_line): its quest ids in order, this quest's 1-based position
+## and the chain length. Empty / 0 for a standalone quest.
+var chain_steps: PackedStringArray = []
+var chain_position: int = 0
+var chain_total: int = 0
+## Where the start and end NPCs stand (canonical start_maps / end_maps; "" when the record has none).
+var start_map_id: String = ""
+var start_map_name: String = ""
+var end_map_id: String = ""
+var end_map_name: String = ""
+## Adaptation: re-issue lost accept items even though MeowDB has no "lost" branch (misostory/quests/<id>.json
+## "reissue_lost_accept_items", e.g. Roger's Apple in 1002).
+var reissue_adapted: bool = false
 ## The raw canonical record and adaptation record ({} when none).
 var record: Dictionary = {}
 var adaptation: Dictionary = {}
@@ -170,7 +187,34 @@ static func from_records(rec: Dictionary, adapt: Dictionary = {}, grants_from_pr
 	d.dialogue = {"on_accept": QuestJson.dict(dlg.get("on_accept")), "on_completion": QuestJson.dict(dlg.get("on_completion"))}
 	d.quiz = QuestJson.dict(d.dialogue["on_completion"].get("quiz"))
 	d.journal_lines = QuestJson.strings(QuestJson.dict(rec.get("journal")).get("lines"))
+
+	# "missable" may be a plain flag or a sourced value ({"value": true, "source": ...}).
+	var miss: Variant = rec.get("missable")
+	d.missable = QuestJson.b(QuestJson.dict(miss).get("value")) if miss is Dictionary else QuestJson.b(miss)
+	d.quest_group = QuestJson.s(rec.get("quest_group"))
+	var line := QuestJson.dict(rec.get("quest_line"))
+	for st: Variant in QuestJson.arr(line.get("steps")):
+		var sid := QuestJson.s(QuestJson.dict(st).get("quest_id"))
+		if not sid.is_empty():
+			d.chain_steps.append(sid)
+	if d.chain_steps.size() > 1:
+		d.chain_total = QuestJson.i(line.get("total"), d.chain_steps.size())
+		d.chain_position = QuestJson.i(line.get("position"), d.chain_steps.find(d.id) + 1)
+	else:
+		d.chain_steps = PackedStringArray()
+	var smap := _first(rec.get("start_maps"))
+	var emap := _first(rec.get("end_maps"))
+	d.start_map_id = QuestJson.s(smap.get("map_id"))
+	d.start_map_name = QuestJson.s(smap.get("map_name"))
+	d.end_map_id = QuestJson.s(emap.get("map_id"), d.start_map_id)
+	d.end_map_name = QuestJson.s(emap.get("map_name"), d.start_map_name)
+	d.reissue_adapted = QuestJson.b(QuestJson.dict(adapt.get("reissue_lost_accept_items")).get("value"))
 	return d
+
+
+## True when lost accept items are re-issued: MeowDB has a "lost" branch, or the adaptation asks for it.
+func reissues_lost_items() -> bool:
+	return not accept_items.is_empty() and (has_branch("on_completion", "lost_items") or reissue_adapted)
 
 
 ## Objectives of one kind.
@@ -253,6 +297,12 @@ func _accept_item_index(item_id: String) -> int:
 		if String(accept_items[idx]["item_id"]) == item_id:
 			return idx
 	return -1
+
+
+## The first entry of a canonical array as a Dictionary ({} when empty or not an array).
+static func _first(v: Variant) -> Dictionary:
+	var a := QuestJson.arr(v)
+	return QuestJson.dict(a[0]) if not a.is_empty() else {}
 
 
 ## [{item_id, count}] from a canonical item array (entries without an item_id are dropped).

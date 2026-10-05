@@ -3,8 +3,11 @@ extends MisoWindow
 ## The Quest log (toggle_quests, Q / L). Three lists: In Progress, Available (quests the character can accept now,
 ## those whose start NPC stands on the current map first and marked "nearby": canonical npcs/<id>.json
 ## locations[].map_id, see npc_is_on_map) and Completed. The selected quest
-## shows its journal text, its objectives with check boxes and counts ("Snail 7/10", "Return to Mai") and its
-## canonical rewards (EXP, mesos, fame, items, random and selectable item groups).
+## shows its status (with MeowDB's "Missable" tag when the record has it), the start and turn-in NPCs with their maps
+## ("From Sam (Snail Hunting Ground I)  ·  turn in to Mai (A Split Road)"), its chain ("Mai's Training 2/3" and the
+## steps, ticked when completed), its journal text, its objectives with check boxes and counts ("Snail 7/10",
+## "Talk to Mai"; "Return to Roger" only for an NPC already met), its canonical rewards (EXP, mesos, fame, items,
+## random and selectable item groups) and, once completed, the random reward actually received.
 ##
 ## Everything is read from QuestEngine (quest_summaries / quest_summary / availability / definition); the window
 ## never changes quest state. It refreshes on quest_* events and on inventory changes (item-collection counts are
@@ -213,7 +216,8 @@ func _fill_list() -> void:
 		elif current_tab == TAB_AVAILABLE and bool(e.get("nearby", false)):
 			mark = "  [nearby]"
 		b.text = String(e.get("name", qid)) + mark
-		b.tooltip_text = String(e.get("name", qid))
+		var chain := chain_text(e.get("chain", {}))
+		b.tooltip_text = String(e.get("name", qid)) + ("\n" + chain if chain != "" else "")
 		b.set_meta("quest_id", qid)
 		b.button_pressed = qid == selected_quest
 		if mark != "":
@@ -238,21 +242,23 @@ func _fill_detail() -> void:
 	var start_npc: Dictionary = db.npc(String(s.get("start_npc_id", ""))) if db != null else {}
 	# "Available nearby" (read by _status_text for a quest not started yet), as in the list.
 	s["nearby"] = npc_is_on_map(start_npc, env.current_map_id())
+	if String(s.get("start_npc_name", "")) == "":
+		s["start_npc_name"] = String(start_npc.get("name", ""))
 	detail_box.add_child(_label(String(s.get("name", selected_quest)), &"MisoTitle"))
-	var start_name := String(start_npc.get("name", ""))
-	var end_name := String(s.get("end_npc_name", ""))
-	var who: PackedStringArray = []
-	if start_name != "":
-		who.append("From %s" % start_name)
-	if end_name != "" and end_name != start_name:
-		who.append("turn in to %s" % end_name)
 	var status_text := _status_text(s)
-	if not who.is_empty():
-		status_text += "  ·  " + ", ".join(who)
+	if bool(s.get("missable", false)):
+		# MeowDB's own tag on the live quest tracker; MisoStory does not interpret it.
+		status_text += "  ·  Missable"
 	var status_l := _label(status_text, &"MisoDim")
 	if String(s.get("status", "")) == QuestLog.IN_PROGRESS and bool(s.get("can_complete", false)):
 		status_l.add_theme_color_override("font_color", MisoTheme.GOLD)
 	detail_box.add_child(status_l)
+	var who := npc_line(s)
+	if who != "":
+		detail_box.add_child(_label(who, &"MisoSmall"))
+	var chain: Dictionary = s.get("chain", {})
+	if not chain.is_empty():
+		_add_chain_rows(chain)
 	var journal := String(s.get("journal", "")).strip_edges()
 	if journal != "":
 		detail_box.add_child(_label(journal, &"MisoSmall"))
@@ -286,6 +292,73 @@ func _fill_detail() -> void:
 		detail_box.add_child(_label("Rewards", &"MisoHeading"))
 		for r: Control in rewards:
 			detail_box.add_child(r)
+	var received := received_line(s, db)
+	if received != "":
+		detail_box.add_child(_label(received, &"MisoGood"))
+
+
+## "From Sam (Snail Hunting Ground I)  ·  turn in to Mai (A Split Road)", or "From Roger (Mushroom Town)" when the
+## same NPC starts and ends the quest. NPC and map names are canonical (quest start_maps / end_maps).
+static func npc_line(s: Dictionary) -> String:
+	var start_name := String(s.get("start_npc_name", ""))
+	var end_name := String(s.get("end_npc_name", ""))
+	var parts: PackedStringArray = []
+	if start_name != "":
+		parts.append("From %s%s" % [start_name, _where(String(s.get("start_map_name", "")))])
+	if end_name != "" and String(s.get("end_npc_id", "")) != String(s.get("start_npc_id", "")):
+		parts.append("turn in to %s%s" % [end_name, _where(String(s.get("end_map_name", "")))])
+	return "  ·  ".join(parts)
+
+
+## The chain line ("Mai's Training 2/3") for a summary's chain (QuestEngine.chain_info), "" for a standalone quest.
+static func chain_text(chain: Dictionary) -> String:
+	if chain.is_empty():
+		return ""
+	return "%s %d/%d" % [String(chain.get("name", "")), int(chain.get("position", 0)), int(chain.get("total", 0))]
+
+
+## "Received: Green Headband" for a completed quest whose random reward was recorded (QuestLog rewards_received);
+## "" otherwise (no random reward, or a completion saved before rewards were recorded).
+static func received_line(s: Dictionary, db: ContentDB) -> String:
+	if String(s.get("status", "")) != QuestLog.COMPLETED or not bool(s.get("rewards_recorded", false)):
+		return ""
+	var names: PackedStringArray = []
+	for p: Variant in (s.get("rewards_received", {}) as Dictionary).get("random_picks", []):
+		var pd: Dictionary = p
+		var item_id := String(pd.get("item_id", ""))
+		var nm := String(db.item(item_id).get("name", item_id)) if db != null else item_id
+		var qty := int(pd.get("qty", 1))
+		names.append(nm + (" x%d" % qty if qty > 1 else ""))
+	return "" if names.is_empty() else "Received: %s" % ", ".join(names)
+
+
+static func _where(map_name: String) -> String:
+	return " (%s)" % map_name if map_name != "" else ""
+
+
+## The chain heading and one row per step, ticked when completed; the selected quest's step is highlighted.
+func _add_chain_rows(chain: Dictionary) -> void:
+	var head := _label(chain_text(chain), &"MisoGold")
+	head.set_meta("chain", true)
+	detail_box.add_child(head)
+	for st: Variant in chain.get("steps", []):
+		var sd: Dictionary = st
+		var done := String(sd.get("status", "")) == QuestLog.COMPLETED
+		var line := HBoxContainer.new()
+		line.add_theme_constant_override("separation", 6)
+		var box := TextureRect.new()
+		box.texture = MisoTheme.check_texture(done)
+		box.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+		box.custom_minimum_size = Vector2(18, 18)
+		line.add_child(box)
+		var tl := _label(String(sd.get("name", "")), &"MisoSmall", 270.0)
+		if String(sd.get("quest_id", "")) == selected_quest:
+			tl.add_theme_color_override("font_color", MisoTheme.GOLD)
+		elif done:
+			tl.add_theme_color_override("font_color", MisoTheme.GOOD)
+		line.add_child(tl)
+		line.set_meta("chain_step", String(sd.get("quest_id", "")))
+		detail_box.add_child(line)
 
 
 func _status_text(s: Dictionary) -> String:
