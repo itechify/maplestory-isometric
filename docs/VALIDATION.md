@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 17695, triangles (evaluated, incl. instances): 9,197,895
+Objects: 17707, triangles (evaluated, incl. instances): 9,199,727
 
 | check | ok | detail |
 |---|---|---|
@@ -11,7 +11,7 @@ Objects: 17695, triangles (evaluated, incl. instances): 9,197,895
 | no_hidden_objects | yes | 0 hidden (colliders exempt): [] |
 | materials | yes | 0 meshes missing materials: [] |
 | instances | yes | 0 broken instances |
-| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (374,235) |
+| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (376,067) |
 | world_polygon_budget | yes | WORLD layer 3,352,201 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
 | floating_props | yes | 0 of 4083 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
@@ -26,7 +26,7 @@ Objects: 17695, triangles (evaluated, incl. instances): 9,197,895
 | one_way_ledge | yes | 1/1 ledges: [{'trail': 'Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000', 'height_m': 2.4, 'height_max_m': 2.4, 'face_offset_max_abs_m': 0.005, 'bounds_m': [2.049, 2.6], 'found |
 | player_spawns | yes | 25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane |
 | spawn_regions | yes | 15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns |
-| collision_tags | yes | 1949 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
+| collision_tags | yes | 1952 Terrain / Plinth / WORLD meshes: 1208 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
 | no_swallowed_exceptions | yes | 0 recorded: [] |
 
 ## Triangle budget
@@ -35,7 +35,7 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 
 | layer | triangles | budget | ok |
 |---|---|---|---|
-| 1000000 FieldWestOfAmherst_1000000 | 374,235 | 400,000 | yes |
+| 1000000 FieldWestOfAmherst_1000000 | 376,067 | 400,000 | yes |
 | 60000 Southperry_60000 | 371,142 | 400,000 | yes |
 | 1000006 HuntingGroundMidForest2_1000006 | 342,843 | 400,000 | yes |
 | 40001 SnailHuntingGround2_40001 | 308,927 | 400,000 | yes |
@@ -61,14 +61,14 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
 | WORLD (plinth, hull, trails, scenery, clouds) | 3,352,201 | 3,500,000 | yes |
-| total | 9,197,895 | | |
+| total | 9,199,727 | | |
 
 ## Top 10 assets by instanced triangles
 
 | asset | instances | tris / instance (with outline) | total |
 |---|---|---|---|
 | `Tree_Round_B` | 177 | 2,472 | 437,544 |
-| `Rock_Cliff_Stone` | 8154 | 50 | 407,700 |
+| `Rock_Cliff_Stone` | 8163 | 50 | 408,150 |
 | `Tree_Round_A` | 174 | 2,312 | 402,288 |
 | `Tree_Birch_Yellow` | 159 | 2,112 | 335,808 |
 | `Tree_Tall_A` | 74 | 3,984 | 294,816 |

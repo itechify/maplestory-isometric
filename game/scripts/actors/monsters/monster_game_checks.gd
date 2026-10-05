@@ -116,6 +116,10 @@ func _debug_commands() -> void:
 	var total_before := Progression.total_exp_at(c.level, c.exp, db)
 	var kills_before := ms.kills
 	out = String(dbg.call("run", "kill all"))
+	# Read the slots at once: the global spawn tick (7.56 s) may legitimately refill them during the frames awaited below
+	# (a flaky failure under full-suite load before this was taken here).
+	var alive_after_kill := inst.alive_count()
+	var tick_at_kill := inst.last_tick_index
 	_check("kill all", out.begins_with("killed %d in %s" % [live + 3, MAP]) and out.contains("through the monster's own death")
 		and not out.contains("no EXP/drops"), out)
 	_check("every monster died through debug_kill()", ms.kills - kills_before == live + 3, "%d deaths" % (ms.kills - kills_before))
@@ -149,7 +153,10 @@ func _debug_commands() -> void:
 	_check("the loot system put every drop on the ground", loot_system != null and _spawned_drops == records,
 		"%d records, %d ground drops" % [records, _spawned_drops])
 	_info("drops: %d loot_dropped events, %d ground drops" % [_loot.size(), _spawned_drops])
-	_check("every slot dead after the kills", inst.alive_count() == 0, "%d alive" % inst.alive_count())
+	_check("every slot dead after the kills", alive_after_kill == 0, "%d alive right after kill all" % alive_after_kill)
+	if inst.alive_count() > 0:
+		_check("slots alive again only through a spawn tick", inst.last_tick_index > tick_at_kill,
+			"%d alive, tick %d -> %d" % [inst.alive_count(), tick_at_kill, inst.last_tick_index])
 	var debug_released := 0
 	for r in released:
 		if r[0] in spawns or int(r[1]) < 0:

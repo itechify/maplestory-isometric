@@ -404,6 +404,11 @@ def build(m):
     m.terrace("P27_Knoll", geo.rounded_rect(7.6, 46.8, 10.2, 49.8, 1.0), top=Z_ARM + 1.8, bottom=Z_ARM - 0.3)
     m.terrace("P23_Step", geo.ellipse(19.6, 37.6, 2.4, 1.9, 18), top=Z_P24, bottom=Z_ARM - 0.3)
     m.terrace("P25_Ledge", geo.rounded_rect(10.2, 35.2, 17.6, 40.8, 1.6), top=Z_P25, bottom=-0.5)
+    # Fill the ground-level gap enclosed by P17 (south), P20 (west), P21 (east) and P25's rounded corner (north): a
+    # player who dropped into it faced 6-7 m walls on every side (Iteration Two Test C replay, trap_probe at local
+    # (12.6, 0, -33.6)). 0.2 m below the 6.4 m caps on either side, so every neighbour is a walkable step and no cap is
+    # coplanar with another; it tucks under P20, P21 and P25 where they overlap.
+    m.terrace("P17_P25_Fill", [(9.5, 32.4), (13.3, 32.4), (13.3, 37.4), (9.5, 37.4)], top=Z_ARM - 0.2, bottom=-0.5)
     m.terrace("P29_In04Knoll", [(8.8, 40.4), (24.0, 40.0), (29.8, 41.0), (29.8, 49.6), (8.8, 49.6)], top=Z_P29,
               bottom=-0.5)
     m.ramp("R_P25_P29", (13.6, 37.0, Z_P25), (13.6, 41.4, Z_P29), 2.6)

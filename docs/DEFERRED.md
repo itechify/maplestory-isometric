@@ -38,8 +38,8 @@ purpose.
 
 - An export-gate check that the anchor-to-arrival segment is clear at body height (the climbable-vs-trigger check is
   done: sidecar_diff fails when a ladder is grabbable with Up from inside a press-Up trigger).
-- A flood-fill trap survey of every map (MAP_ARCHITECTURE L1's "flood fill" is not built). The A Split Road pocket is
-  fixed in the source, and `test_d_stuck` guards it.
+- A flood-fill trap survey of every map (MAP_ARCHITECTURE L1's "flood fill" is not built). The playtests found two
+  pockets (A Split Road, The Field West of Amherst). Both are fixed in the source and guarded by `trap_probe`; more may exist.
 - Harness:
   - a precise pickup approach (RouteBot stops 0.75 m away, outside the 0.625 m canonical pickup box)
   - seed repeatability across windowed and headless runs

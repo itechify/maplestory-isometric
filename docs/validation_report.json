@@ -30,7 +30,7 @@
   },
   "polygon_budget": {
    "ok": true,
-   "detail": "maps over 400,000: {}; largest 1000000 (374,235)"
+   "detail": "maps over 400,000: {}; largest 1000000 (376,067)"
   },
   "world_polygon_budget": {
    "ok": true,
@@ -90,7 +90,7 @@
   },
   "collision_tags": {
    "ok": true,
-   "detail": "1949 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
+   "detail": "1952 Terrain / Plinth / WORLD meshes: 1208 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
   },
   "no_swallowed_exceptions": {
    "ok": true,
@@ -205,7 +205,7 @@
   }
  ],
  "stats": {
-  "total_triangles": 9197895,
+  "total_triangles": 9199727,
   "world_triangles": 3352201,
   "triangles_by_map": {
    "0": 99184,
@@ -219,7 +219,7 @@
    "60000": 371142,
    "60001": 75405,
    "20001": 36964,
-   "1000000": 374235,
+   "1000000": 376067,
    "1000001": 223436,
    "1000002": 268476,
    "1000003": 155749,
@@ -243,9 +243,9 @@
    },
    {
     "asset": "Rock_Cliff_Stone",
-    "instances": 8154,
+    "instances": 8163,
     "tris_per_instance": 50,
-    "total": 407700
+    "total": 408150
    },
    {
     "asset": "Tree_Round_A",
@@ -3718,8 +3718,8 @@
     ]
    }
   },
-  "objects": 17695,
-  "meshes": 2637,
+  "objects": 17707,
+  "meshes": 2640,
   "materials": 200
  },
  "exceptions": [],
