@@ -248,8 +248,9 @@ Details carry the relevant numbers, for example `stat_too_low {stat, required, a
 ## Testing
 
 ```bash
-ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drops mesos   # 147 tests, 12 files (with test_shop_ui_window)
-ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references
+ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drop mesos    # items, shops, drops (test_drop*, test_drops_*)
+ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references + drop policy
+node --test tools/sources/test/                                                      # the drop merge against the captures and the crosswalk
 ```
 
 | File | Covers |
