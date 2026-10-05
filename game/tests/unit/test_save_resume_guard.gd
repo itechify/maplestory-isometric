@@ -2,9 +2,9 @@ extends TestCase
 ## The resume-point guard of the load chain (ArrivalResolver.resolve_load, docs/runtime/SAVES.md): a saved resume
 ## point is used only while its map's content_hash still equals the map_content_hash saved with it. The hash covers the
 ## map chunk's collision and that of every shared world chunk overlapping the map's region (MapDefinitions.resume_hash).
-## When that collision changed (an Iteration Three trap fix, say), the player arrives at the saved entry instead of a position
-## vetted against geometry that no longer exists. Saves without a hash, and builds without the world export, keep the
-## physical validation alone.
+## When that collision changed (an Iteration Three trap fix, say), the player arrives at the saved entry instead of a
+## position vetted against geometry that no longer exists. Saves without a hash, and builds without the world export,
+## keep the physical validation alone.
 
 const MAP := "000000042"
 const IT2_DIR := "res://tests/data/saves/it2"

@@ -804,7 +804,8 @@ static func resume_hash(map_hash: String, footprint: PackedVector2Array, world: 
 	return {"hash": ";".join(parts).sha256_text().substr(0, map_hash.length()), "chunks": chunks}
 
 
-## One exported spawn area / region -> {name, species, polygon, surface_y, weight, y_lo, y_hi, exclude}. `exclude`
+## One exported spawn area / region -> {name, species, polygon, surface_y, weight, weight_from_points, y_lo, y_hi,
+## exclude}. `weight` is the authored proxy count `points` (weight_from_points) or else the area in m^2. `exclude`
 ## holds the region's authored avoid zones (sidecar exclude_xz, world XZ polygons: Blender m.mobs(avoid=...)), which
 ## SpawnSlotPlanner keeps slots out of.
 func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
@@ -833,6 +834,7 @@ func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
 			exclude.append(ep)
 	return {"name": area_name, "species": species, "polygon": poly,
 		"surface_y": float(a.get("surface_y", a.get("y", def.base_y))), "weight": maxf(weight, 0.0001),
+		"weight_from_points": float(a.get("points", 0)) > 0.0,
 		"y_lo": float(band[0]) if has_band else NAN, "y_hi": float(band[1]) if has_band else NAN, "exclude": exclude}
 
 
