@@ -981,7 +981,9 @@ class MapCtx:
 
         The area is also recorded as an authored spawn region (spawn_region) tagged with this species; the exporter
         ships it as a polygon (sidecar `spawn_regions`). The proxies are visual placeholders only: the runtime
-        spawns MeowDB's species and counts inside the regions."""
+        spawns MeowDB's species and counts inside the regions. `avoid` (polygons or circles, as in scatter) keeps
+        the proxies out and is exported with the region as its exclusions (sidecar exclude_xz), so the runtime's
+        slots keep out too (a plaza, flower beds, a glade clearing)."""
         asset_name = MOB_ASSETS[mob_name]
         r = core.rng(self.slug, "mob", mob_name, seed)
         pts = self.scatter([asset_name], area, count, seed=seed, min_dist=min_dist, scale=(0.95, 1.05),
@@ -991,31 +993,36 @@ class MapCtx:
                        scale=1.0 + r.uniform(0, 0.2))
         self.spawns.append({"mob": mob_name, "count": len(pts), "points": pts})
         self.spawn_region(f"{mob_name.replace(' ', '')}_{seed}", area, species=(mob_name,), z_band=z_band,
-                          proxies=len(pts), source="m.mobs")
+                          proxies=len(pts), source="m.mobs", exclude=avoid)
         return pts
 
-    def spawn_region(self, name, area, species=(), z_band=None, tiers=(), proxies=0, source="m.spawn_region"):
+    def spawn_region(self, name, area, species=(), z_band=None, tiers=(), proxies=0, source="m.spawn_region",
+                     exclude=()):
         """An authored monster spawn area (local polygon or (cx, cy, r) circle) on walkable ground.
 
         species: optional species hints (MeowDB decides the real species and counts); z_band: (zmin, zmax) local
-        height filter, as in m.mobs, for areas that overlap several tiers; tiers: optional struct.json tier ids.
-        A region with the same polygon and z_band as an earlier one is merged into it (species are unioned), so
-        two m.mobs calls over one area give one region. Stored in the collection's spawn_regions_json."""
-        if isinstance(area, tuple) and len(area) == 3 and not isinstance(area[0], (tuple, list)):
-            cx, cy, rad = area
-            poly = geo.ellipse(cx, cy, rad, rad, 20)
-        else:
-            poly = list(area)
-        poly = [[round(float(px), 3), round(float(py), 3)] for px, py in poly]
+        height filter, as in m.mobs, for areas that overlap several tiers; tiers: optional struct.json tier ids;
+        exclude: local polygons or (cx, cy, r) circles inside the area where no monster may spawn (m.mobs passes its
+        avoid zones), exported as the region's exclude_xz. A region with the same polygon and z_band as an earlier
+        one is merged into it (species, tiers and exclusions are unioned), so two m.mobs calls over one area give one
+        region. Every species the region names that has a kit proxy (MOB_ASSETS) is built into the monster library,
+        so the runtime has a model for it even where no representative proxy is scattered. Stored in the
+        collection's spawn_regions_json."""
+        poly = _zone_poly(area)
         zb = None if z_band is None else [round(float(z_band[0]), 3), round(float(z_band[1]), 3)]
+        excl = [_zone_poly(z) for z in exclude]
+        for sp in species:
+            if sp in MOB_ASSETS:
+                kit.ensure(MOB_ASSETS[sp])
         for reg in self.spawn_regions:
             if reg["polygon"] == poly and reg["z_band"] == zb:
                 reg["species"] = sorted(set(reg["species"]) | set(species))
                 reg["tiers"] = sorted(set(reg["tiers"]) | set(tiers))
                 reg["proxies"] += proxies
+                reg["exclude"] += [e for e in excl if e not in reg["exclude"]]
                 return reg
         reg = {"name": name, "polygon": poly, "z_band": zb, "species": sorted(set(species)), "tiers": sorted(set(tiers)),
-               "proxies": proxies, "source": source}
+               "proxies": proxies, "source": source, "exclude": excl}
         names = {r_["name"] for r_ in self.spawn_regions}
         k = 2
         while reg["name"] in names:
@@ -1291,3 +1298,11 @@ def _in_zone(x, y, zone):
         cx, cy, r = zone
         return (x - cx) ** 2 + (y - cy) ** 2 < r * r
     return geo.point_in_poly(x, y, zone)
+
+
+def _zone_poly(zone):
+    """A local polygon (list of [x, y] rounded to mm) from a polygon or a (cx, cy, r) circle (20-gon)."""
+    if isinstance(zone, tuple) and len(zone) == 3 and not isinstance(zone[0], (tuple, list)):
+        cx, cy, rad = zone
+        zone = geo.ellipse(cx, cy, rad, rad, 20)
+    return [[round(float(px), 3), round(float(py), 3)] for px, py in zone]

@@ -19,7 +19,7 @@
   "see_through_fade_s": 0.2,
   "see_through_min_cover_m": 0.25,
   "reasons": {
-    "model_fit": "The proxy (or the placeholder) is scaled so its height equals the canonical sprite height (sprite_size_px[1]) x WorldScale.actor, the same factor that sizes the touch zone and the attack boxes, so the body you see is the body you hit and that hurts you.",
+    "model_fit": "The proxy (or the fallback body when the library lacks it) is scaled so its height equals the canonical sprite height (sprite_size_px[1]) x WorldScale.actor, the same factor that sizes the touch zone and the attack boxes, so the body you see is the body you hit and that hurts you.",
     "probe_ahead_m": "MAP_ARCHITECTURE section 4.7.4: before stepping, probe 0.6 m ahead for ground.",
     "ledge_tolerance_m": "MAP_ARCHITECTURE section 4.7.4: ground must exist within +/-0.45 m of the feet at the probe (the player's step_up_m); otherwise it is a ledge (or a step too high) and the monster turns (a jumper first tries a hop).",
     "wall_probe_height_m": "MAP_ARCHITECTURE section 4.7.4: probe for a wall at 0.3 m above the feet.",

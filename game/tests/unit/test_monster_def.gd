@@ -145,10 +145,8 @@ func test_peace_monster_touch_rule() -> void:
 func test_models_and_capsules() -> void:
 	for id in SPECIES:
 		var d := MonsterDef.build(id, db())
-		if id == "1":
-			assert_false(d.has_model(), "Tutorial Jr. Sentinel has no proxy: placeholder")
-		else:
-			assert_true(d.model.begins_with("Mob_"), "%s model" % id)
+		# Every species has a proxy since Iteration Three (the Tutorial Jr. Sentinel: Mob_TutorialJrSentinel).
+		assert_true(d.has_model() and d.model.begins_with("Mob_"), "%s model %s" % [id, d.model])
 		assert_true(d.capsule_radius_m > 0.0 and d.capsule_radius_m <= d.touch_size_m.x * 0.5 + 1e-6, "%s capsule inside the touch zone" % id)
 		assert_near(d.capsule_height_m, d.touch_size_m.y, 0.02, "%s capsule height = touch zone height" % id)
 

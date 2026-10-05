@@ -15,18 +15,26 @@ from . import REGISTRY, asset
 # Monster proxy scale on top of the modelled size (classic sprite px vs. a ~65 px player sprite, plus a little
 # MapleStory exaggeration so mobs read at the 30-40 m Gameplay ortho scales). Heights with the 1.5 m player:
 # Snail ~0.70 m (37x26 px sprite), Blue/Red Snail ~0.77 m (35x34 px), Shroom ~0.78 m (36x36 px),
-# Orange Mushroom ~1.21 m (63x58 px).
+# Orange Mushroom ~1.21 m (63x58 px). The game fits every proxy to its canonical sprite height anyway
+# (misostory/monsters/_shared.json model_fit), so what matters here is the shape: each proxy's footprint along its
+# facing stays within about 1.1x of its canonical touch-zone width (the body you see is the body you hit).
 MOB_SCALE = {"Mob_Snail": 1.25, "Mob_BlueSnail": 1.35, "Mob_RedSnail": 1.35, "Mob_Shroom": 1.15,
              "Mob_OrangeMushroom": 1.1}
 
 
 def _rescale(coll, name):
-    """Scale an asset's meshes about the ground-contact origin (the ink outline is added afterwards by
-    kit.ensure, so its thickness is unaffected)."""
+    """Scale an asset's meshes about the ground-contact origin and stand them on z = 0 (the lowest vertex at the
+    feet, so no proxy floats or sinks); the ink outline is added afterwards by kit.ensure, so its thickness is
+    unaffected."""
     m = Matrix.Scale(MOB_SCALE.get(name, 1.0), 4)
-    for ob in coll.objects:
-        if ob.type == "MESH":
-            ob.data.transform(m)
+    meshes = [ob for ob in coll.objects if ob.type == "MESH"]
+    for ob in meshes:
+        ob.data.transform(m)
+    zs = [(ob.matrix_world @ v.co).z for ob in meshes for v in ob.data.vertices]
+    if zs and abs(min(zs)) > 1e-4:
+        lift = Matrix.Translation((0.0, 0.0, -min(zs)))
+        for ob in meshes:
+            ob.data.transform(lift)
 
 
 # ---------------------------------------------------------------------------
@@ -249,35 +257,41 @@ def _spiral_shell(mb, loc, r, base, dark, light=None):
 
 @asset("Mob_Snail", "Monsters", footprint=1.0, tags=("mob",))
 def mob_snail(coll):
-    """Snail (100100): low pale-lavender slug, single sleepy eye on a raised head, teal shell."""
+    """Snail (100100): low pale-lavender slug, single sleepy eye on a raised head, teal shell.
+
+    Iteration Three: the slug and shell sit closer together, so the footprint along its facing is about its 37 px
+    touch-zone width (it was 1.2x) and its base stands on the ground (it floated 5 cm)."""
     mb = MeshBuilder()
-    mb.sphere(0.2, loc=(0, -0.05, 0.1), scale=(0.85, 2.0, 0.55), mat="M_Grad_snail_slug_dk__snail_slug", subdiv=2,
+    mb.sphere(0.2, loc=(0, -0.05, 0.1), scale=(0.85, 1.75, 0.55), mat="M_Grad_snail_slug_dk__snail_slug", subdiv=2,
               flatten_bottom=0.5)
-    mb.cyl(0.08, 0.24, loc=(0, -0.36, 0.1), rot=(-18, 0, 0), mat="M_Flat_snail_slug", verts=10, r2=0.07)
-    mb.sphere(0.12, loc=(0, -0.42, 0.36), mat="M_Flat_snail_slug", subdiv=2)
-    mb.box((0.1, 0.03, 0.025), loc=(0, -0.53, 0.37), mat="M_Eye_Black")
+    mb.cyl(0.08, 0.24, loc=(0, -0.31, 0.1), rot=(-18, 0, 0), mat="M_Flat_snail_slug", verts=10, r2=0.07)
+    mb.sphere(0.12, loc=(0, -0.37, 0.36), mat="M_Flat_snail_slug", subdiv=2)
+    mb.box((0.1, 0.03, 0.025), loc=(0, -0.48, 0.37), mat="M_Eye_Black")
     mb.build("Mob_Snail_Body", coll, smooth=True, sharp_angle=60)
     sh = MeshBuilder()
-    _spiral_shell(sh, (0, 0.1, 0.33), 0.23, "snail_teal", "snail_teal_dk", "snail_teal_lt")
+    _spiral_shell(sh, (0, 0.07, 0.33), 0.23, "snail_teal", "snail_teal_dk", "snail_teal_lt")
     sh.build("Mob_Snail_Shell", coll, smooth=True, sharp_angle=60)
     _rescale(coll, "Mob_Snail")
 
 
 def _blob_snail(coll, name, shell, shell_dk):
-    """Blue/Red Snail (100101/130101): cream dumpling body, two lidded eyes on top, colored shell."""
+    """Blue/Red Snail (100101/130101): cream dumpling body, two lidded eyes on top, colored shell.
+
+    Iteration Three: a slimmer body and the shell further forward over it, so the footprint along its facing is
+    about 1.1x its 35 px touch-zone width (it was 1.3x)."""
     mb = MeshBuilder()
-    mb.cyl(0.25, 0.3, loc=(0, -0.08, 0.0), mat="M_Grad_blob_cream_dk__blob_cream", verts=16, r2=0.16)
-    mb.sphere(0.25, loc=(0, -0.08, 0.06), scale=(1.0, 1.0, 0.45), mat="M_Flat_blob_cream", subdiv=2,
+    mb.cyl(0.23, 0.3, loc=(0, -0.08, 0.0), mat="M_Grad_blob_cream_dk__blob_cream", verts=16, r2=0.15)
+    mb.sphere(0.23, loc=(0, -0.08, 0.06), scale=(1.0, 1.0, 0.45), mat="M_Flat_blob_cream", subdiv=2,
               flatten_bottom=0.2)
     mb.sphere(0.17, loc=(0, -0.1, 0.3), mat="M_Flat_blob_cream", subdiv=2)
     for sx in (-1, 1):
         mb.sphere(0.085, loc=(sx * 0.08, -0.2, 0.44), mat="M_Eye_White", subdiv=2)
         mb.sphere(0.035, loc=(sx * 0.08, -0.27, 0.43), mat="M_Eye_Black", subdiv=1)
         mb.sphere(0.09, loc=(sx * 0.08, -0.2, 0.47), scale=(1.05, 1.05, 0.6), mat="M_Flat_lid_tan", subdiv=2)
-    mb.box((0.08, 0.02, 0.015), loc=(0, -0.3, 0.2), mat="M_Eye_Black")
+    mb.box((0.08, 0.02, 0.015), loc=(0, -0.28, 0.2), mat="M_Eye_Black")
     mb.build(name + "_Body", coll, smooth=True, sharp_angle=60)
     sh = MeshBuilder()
-    _spiral_shell(sh, (0, 0.17, 0.32), 0.25, shell, shell_dk)
+    _spiral_shell(sh, (0, 0.08, 0.32), 0.24, shell, shell_dk)
     sh.build(name + "_Shell", coll, smooth=True, sharp_angle=60)
     _rescale(coll, name)
 
@@ -314,9 +328,12 @@ def mob_shroom(coll):
 
 @asset("Mob_OrangeMushroom", "Monsters", footprint=1.4, tags=("mob",))
 def mob_orange_mushroom(coll):
-    """Orange Mushroom (1210102): white dumpling body with a cute face, tilted orange cap with yellow spots."""
+    """Orange Mushroom (1210102): white dumpling body with a cute face, tilted orange cap with yellow spots.
+
+    Iteration Three: the body reaches the ground (its flattened base floated 0.13 m, 0.18 m in the game), with its top
+    where it was; fitted to the canonical sprite height the cap then spans about its 63 px touch-zone width."""
     mb = MeshBuilder()
-    mb.sphere(0.42, loc=(0, 0, 0.32), scale=(1.0, 0.95, 0.78), mat="M_Flat_om_body", subdiv=3, flatten_bottom=0.55)
+    mb.sphere(0.42, loc=(0, 0, 0.2474), scale=(1.0, 0.95, 0.953), mat="M_Flat_om_body", subdiv=3, flatten_bottom=0.55)
     for sx in (-1, 1):
         mb.sphere(0.05, loc=(sx * 0.13, -0.38, 0.38), scale=(0.8, 0.5, 1.2), mat="M_Eye_Black", subdiv=1)
         mb.sphere(0.06, loc=(sx * 0.22, -0.35, 0.28), scale=(1.2, 0.4, 0.7), mat="M_Flat_cheek_pink", subdiv=1)
@@ -330,8 +347,35 @@ def mob_orange_mushroom(coll):
     _rescale(coll, "Mob_OrangeMushroom")
 
 
+@asset("Mob_TutorialJrSentinel", "Monsters", footprint=0.6, tags=("mob",))
+def mob_tutorial_jr_sentinel(coll):
+    """Tutorial Jr. Sentinel (MeowDB monster 1, East Entrance to Mushroom Town): MeowDB calls it 'a training dummy
+    ... completely harmless and serves as target practice'. A small stone sentinel: a plinth, a tapered stone body
+    with a mossy band, a round stone head with one glowing eye between two small ear plates, and a short crest.
+    Tall and slim like its 40 x 68 px sprite; the game fits it to the sprite height (1.7 m), where its body is about
+    as wide as its 21 px touch zone and its head 1.2x."""
+    mb = MeshBuilder()
+    mb.cyl(0.22, 0.1, loc=(0, 0, 0), mat="M_Flat_rock_dk", verts=10, r2=0.2)
+    mb.cyl(0.19, 0.62, loc=(0, 0, 0.08), mat="M_Grad_rock_dk__rock", verts=12, r2=0.15)
+    mb.torus(0.175, 0.03, loc=(0, 0, 0.36), mat="M_Flat_rock_moss", u=16, v=4)
+    for sx in (-1, 1):
+        mb.sphere(0.07, loc=(sx * 0.16, 0, 0.66), mat="M_Flat_rock", subdiv=2)
+    mb.build("Mob_TutorialJrSentinel_Body", coll, smooth=True, sharp_angle=50)
+    hd = MeshBuilder()
+    hd.sphere(0.24, loc=(0, 0, 0.95), scale=(1.0, 0.95, 0.92), mat="M_Flat_rock", subdiv=2)
+    hd.sphere(0.075, loc=(0, -0.215, 0.98), scale=(1.0, 0.5, 1.0), mat="M_Glow_portal_core", subdiv=2)
+    hd.torus(0.085, 0.015, loc=(0, -0.215, 0.98), rot=(90, 0, 0), mat="M_Flat_rock_dk", u=12, v=3)
+    for sx in (-1, 1):
+        hd.box((0.03, 0.09, 0.14), loc=(sx * 0.2, 0.0, 1.0), rot=(0, sx * 15, 0), mat="M_Flat_rock_dk")
+    hd.cyl(0.07, 0.16, loc=(0, 0, 1.13), mat="M_Flat_rock_dk", verts=6, r2=0.0)
+    hd.build("Mob_TutorialJrSentinel_Head", coll, smooth=True, sharp_angle=50)
+    _rescale(coll, "Mob_TutorialJrSentinel")
+
+
 MOB_ASSETS = {
-    # canonical classic Maple Island mobs (GMS v8): Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom
+    # canonical classic Maple Island mobs (GMS v8): Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom; and the
+    # Tutorial Jr. Sentinel of MeowDB's 000000030 (built into the library by its spawn regions: MapCtx.spawn_region)
+    "Tutorial Jr. Sentinel": "Mob_TutorialJrSentinel",
     "Snail": "Mob_Snail",
     "Blue Snail": "Mob_BlueSnail",
     "Red Snail": "Mob_RedSnail",

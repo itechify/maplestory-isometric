@@ -1,7 +1,7 @@
 class_name MonsterVisual
 extends Node3D
-## Presentation of one monster (child "Visual" of a Monster): the Iteration One proxy model (or a labelled
-## placeholder), facing, a walk bob timed by the canonical move clip, a hit flinch over the canonical hit clip, an HP
+## Presentation of one monster (child "Visual" of a Monster): its proxy model from _library.glb (or a named stone
+## fallback body when the library lacks it), facing, a walk bob timed by the canonical move clip, a hit flinch over the canonical hit clip, an HP
 ## bar over the head once damaged, the spawn fade-in and the death fade over the canonical die time, and the
 ## see-through silhouette. Reads its Monster every frame and never changes gameplay state.
 ##
@@ -446,8 +446,10 @@ static func _bar_material(c: Color, priority: int) -> StandardMaterial3D:
 	return m
 
 
-## The Tutorial Jr. Sentinel (or any monster without a proxy): a stone body at the canonical sprite size, with a
-## label that says it is a placeholder.
+## Any monster whose proxy the library lacks (every Maple Island species has one since Iteration Three: the Tutorial
+## Jr. Sentinel is Mob_TutorialJrSentinel): a stone body at the canonical sprite size with the monster's name over
+## it. Its node keeps the "PlaceholderTag" name and the "placeholder" metadata for tools; nothing the player reads says
+## "placeholder".
 func _placeholder(d: MonsterDef) -> Node3D:
 	var root := Node3D.new()
 	var mat := StandardMaterial3D.new()
@@ -482,7 +484,7 @@ func _placeholder(d: MonsterDef) -> Node3D:
 	root.add_child(eye)
 	var tag := Label3D.new()
 	tag.name = "PlaceholderTag"
-	tag.text = "%s (placeholder)" % d.name
+	tag.text = d.name
 	tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	tag.font_size = 48
 	tag.outline_size = 14
