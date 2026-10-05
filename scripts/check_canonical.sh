@@ -5,7 +5,10 @@
 #
 #   bash scripts/check_canonical.sh               # exit 0 = every extractor reproduces the committed files
 #   bash scripts/check_canonical.sh --keep        # keep the temporary copy (its path is printed) to inspect a diff
-#   CHECK_CANONICAL_DIR=<dir> bash scripts/check_canonical.sh   # use <dir> (emptied first) instead of mktemp
+#   CHECK_CANONICAL_DIR=<dir> bash scripts/check_canonical.sh   # use <dir> (emptied first) instead of mktemp; refused
+#                                                 # unless it is new or empty, or an earlier run's folder, and it is
+#                                                 # neither /, $HOME, the repository (or above it) nor inside it outside
+#                                                 # _scratch/ (exit 2)
 #
 # The extractors run in their documented order (docs/canonical/README.md "Regenerating"): maps, monsters (+ drops and
 # breakables), npcs, quests, shops, formulas, items, then build_sources_index. Each starts from an empty output folder
@@ -33,13 +36,38 @@ if [[ ! -d "$REPO/tools/meowdb/.cache" ]]; then
   exit 2
 fi
 
+MARKER=".check_canonical_workdir"
 if [[ -n "${CHECK_CANONICAL_DIR:-}" ]]; then
-  WORK="$CHECK_CANONICAL_DIR"
+  # The folder is emptied, so refuse anything that is not clearly a scratch folder of this script: the filesystem
+  # root, $HOME, the repository, a folder that contains the repository, a folder inside it other than _scratch/, or a
+  # non-empty folder an earlier run of this script did not create (it leaves $MARKER).
+  if ! mkdir -p "$CHECK_CANONICAL_DIR" 2>/dev/null; then
+    echo "check_canonical: cannot create CHECK_CANONICAL_DIR '$CHECK_CANONICAL_DIR'"
+    echo "CANONICAL_CHECK_FAILED"
+    exit 2
+  fi
+  WORK="$(cd "$CHECK_CANONICAL_DIR" && pwd -P)"
+  repo_real="$(cd "$REPO" && pwd -P)"
+  home_real="$(cd "${HOME:-/}" 2>/dev/null && pwd -P || echo /)"
+  refuse=""
+  if [[ "$WORK" == "/" || "$WORK" == "$home_real" || "$repo_real/" == "$WORK/"* ]]; then
+    refuse="it is /, \$HOME, the repository or a folder containing it"
+  elif [[ "$WORK/" == "$repo_real/"* && "$WORK/" != "$repo_real/_scratch/"?* ]]; then
+    refuse="it is inside the repository but not under _scratch/"
+  elif [[ -n "$(ls -A "$WORK" 2>/dev/null)" && ! -e "$WORK/$MARKER" ]]; then
+    refuse="it is not empty and was not created by this script (no $MARKER)"
+  fi
+  if [[ -n "$refuse" ]]; then
+    echo "check_canonical: refusing CHECK_CANONICAL_DIR '$CHECK_CANONICAL_DIR' ($WORK): $refuse; it would be emptied"
+    echo "CANONICAL_CHECK_FAILED"
+    exit 2
+  fi
   rm -rf "$WORK"
   mkdir -p "$WORK"
 else
   WORK="$(mktemp -d)"
 fi
+touch "$WORK/$MARKER"
 cleanup() { [[ "$KEEP" == "1" ]] || rm -rf "$WORK"; }
 trap cleanup EXIT
 
