@@ -497,6 +497,21 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `trap_probe` | escape attempts from known former trap spots | world |
 | `test_skills`, `test_box` | the Beginner skills and the Wooden Boxes (Iteration Three packages) | skills, breakables |
 
+## Findings (2026-10-05)
+
+- **A possible pocket in The Field West of Amherst (000001000).** Twice in Test A (leg 24, in01 to Dangerous Forest),
+  a Snail's knockback dropped the walker off the in01 terrace to map-local (29.0, 0.0, -40.6), world (173.4, 5.0,
+  520.2). `walk_probe` finds no plan from there to in01 or to the map's arrival (routes, the grid and the linked plans
+  all fail; the walk stalls at once). `trap_probe` calls the spot "not a trap" because one try moved 7.2 m flat,
+  although no try rose at all: the flat-distance rule the audit flagged. Test A now reports such a spot as a WARN with
+  its coordinates and warps back to retry the leg; the spot belongs to the world package's stuck-region scan.
+- **Heena's perch** (000000001): its stairs start on the arrival side, so from Sera's hill no approach to Heena can be
+  planned; `PlaytestKit.talk` walks back to the arrival and tries again (1000-1001 pass).
+- **Knockback and the survival guard:** a touch that stops a walk is often followed by a knockback that carries the
+  monster out of reach before the walk returns; the guard therefore records that it fired. A fight back takes the
+  monster that hit (`nearest_monster` opts `target`), never a namesake on another tier, and does not chase it
+  (`face_and_attack_nearest` opts `chase` false): chasing one 8 m below had walked the player off its trail.
+
 ## The talk rule
 
 `WorldNpc.in_range`: the NPC's talk Area3D (a sphere of `interaction_radius_m`, 1.6 m, centred 0.8 m above the NPC's
