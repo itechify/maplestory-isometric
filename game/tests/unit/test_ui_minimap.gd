@@ -52,6 +52,11 @@ class FakePlayer extends Node3D:
 	var facing := Vector3(1, 0, 0)
 
 
+## The Game autoload's character_replaced signal (a load or a new character swaps the live character).
+class FakeGame extends RefCounted:
+	signal character_replaced(reason: String)
+
+
 var bus: Node = null
 var nodes: Array[Node] = []
 
@@ -60,6 +65,7 @@ func parity_keys() -> Dictionary:
 	return {
 		"test_the_title_strip_names_the_map_and_shows_the_id_in_debug_mode": ["ui:map-name-display", "ui:minimap-map-id-debug"],
 		"test_m_folds_the_map_to_the_title_and_is_quiet_under_a_modal": ["ui:key-bindings", "ui:map-name-display"],
+		"test_a_load_or_a_new_character_re_reads_the_map": ["ui:map-name-display"],
 		"test_npc_dots_follow_the_quests": ["ui:quest-indicators", "quest:1006"],
 		"test_portals_npcs_shops_and_hover_text": ["ui:shop-indication", "ui:portal-cue", "npc:16", "npc:15"],
 		"test_name_tags_mark_shopkeepers_and_transport": ["ui:shop-indication", "npc:15", "npc:16", "npc:20", "npc:21"],
@@ -149,10 +155,10 @@ func _session(map_id: String) -> Node:
 
 
 ## The minimap scene on `map_id`, configured like the shell does, with the stand-ins.
-func _minimap(map_id: String, c: CharacterState = null, ctx: GameContext = null) -> Dictionary:
+func _minimap(map_id: String, c: CharacterState = null, ctx: GameContext = null, game: Object = null) -> Dictionary:
 	var mm: MisoMinimap = load("res://scenes/ui/minimap.tscn").instantiate()
 	var ms := _session(map_id)
-	var env := MisoUiEnv.isolated(c if c != null else _character(), db(), bus, ctx)
+	var env := MisoUiEnv.isolated(c if c != null else _character(), db(), bus, ctx, game)
 	env.map_session = ms
 	var dbg := FakeDebug.new()
 	var p := FakePlayer.new()
@@ -206,6 +212,30 @@ func test_the_title_strip_names_the_map_and_shows_the_id_in_debug_mode() -> void
 	bus.emit_signal("map_entered", "999999999", MAI_MAP)
 	assert_eq(mm.name_label.text, "999999999", "an unknown map shows its id")
 	assert_eq(mm.view.model, null, "and no picture")
+
+
+## A load (Events.game_loaded) or a swapped character (Game.character_replaced) re-reads the current map without a
+## map_entered; leaving the tree lets go of the game's signal.
+func test_a_load_or_a_new_character_re_reads_the_map() -> void:
+	var game := FakeGame.new()
+	var r := _minimap(SAM_MAP, null, null, game)
+	var mm: MisoMinimap = r["minimap"]
+	var ms: Node = r["session"]
+	assert_eq(mm.map_id, SAM_MAP, "the session's map")
+	ms.current_map = MAI_MAP
+	game.character_replaced.emit("load")
+	assert_eq(mm.map_id, MAI_MAP, "character_replaced: the current map again")
+	assert_eq(mm.name_label.text, _name(MAI_MAP), "with its canonical name")
+	assert_true(mm.view.model != null and mm.view.model.map_id == MAI_MAP, "and its picture")
+	assert_true(bus.has_signal("game_loaded"), "the bus has game_loaded")
+	ms.current_map = SOUTHPERRY
+	bus.emit_signal("game_loaded", "slot_1")
+	assert_eq(mm.map_id, SOUTHPERRY, "game_loaded: the loaded map")
+	assert_eq(mm.name_label.text, _name(SOUTHPERRY), "with its canonical name")
+	_parent().remove_child(mm)
+	assert_true(game.get_signal_connection_list("character_replaced").is_empty(), "out of the tree: disconnected from Game")
+	_parent().add_child(mm)
+	assert_false(game.get_signal_connection_list("character_replaced").is_empty(), "back in the tree: connected again")
 
 
 func test_m_folds_the_map_to_the_title_and_is_quiet_under_a_modal() -> void:
@@ -288,7 +318,11 @@ func test_player_arrow_follows_the_player_and_the_trail() -> void:
 	assert_true(Rect2(Vector2.ZERO, mm.view.size).has_point(mm.view.player_marker()["pos"]), "still inside the picture")
 	(r["session"] as Node).call("set_trail", "T_000000040_east00__000000041_west00", "000000041")
 	assert_eq(mm.snapshot()["trail_tag"], _name("000000041"), "trail_changed: tagged with the destination's canonical name")
+	var tag := mm.view.trail_tag_layout()
+	assert_true(not tag.is_empty() and tag["text"] == "-> %s" % _name("000000041"), "the tag is laid out: %s" % tag)
+	assert_true(not tag.is_empty() and Rect2(Vector2.ZERO, mm.view.size).encloses(tag["rect"]), "inside the picture: %s" % tag)
 	(r["session"] as Node).call("set_trail", "", "")
+	assert_true(mm.view.trail_tag_layout().is_empty(), "no tag laid out off the trail")
 	assert_eq(mm.snapshot()["trail_tag"], "", "off the trail: no tag")
 	mm.player = null
 	mm.refresh_player()

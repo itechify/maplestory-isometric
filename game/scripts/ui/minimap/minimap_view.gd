@@ -320,9 +320,31 @@ func _draw_markers(ci: Control) -> void:
 			ci.draw_circle(at, NPC_R, NPC_DOT)
 		MapIcons.draw_role(ci, String(n["role"]), at + Vector2(MARKER_R + 2.0, -MARKER_R), ICON_R)
 	if font != null:
+		# The trail tag wins over a destination name it would overlap (that name is usually its own, or on hover).
+		var tag := trail_tag_layout()
 		for l: Dictionary in label_layout():
+			if not tag.is_empty() and (tag["rect"] as Rect2).intersects(l["rect"]):
+				continue
 			_text(ci, font, l["rect"].position + Vector2(2.0, font.get_ascent(LABEL_SIZE)), l["text"], LABEL)
 	_draw_player(ci, font)
+
+
+## The trail tag as the next draw places it: {"text", "base" (the text's baseline origin), "rect"} ({} off trails or
+## without a player): "-> <destination>" beside the arrow, on the picture's side of it.
+func trail_tag_layout() -> Dictionary:
+	var font := _label_font()
+	var pm := player_marker()
+	if pm.is_empty() or trail_dest_name == "" or font == null:
+		return {}
+	var pos: Vector2 = pm["pos"]
+	var text := TRAIL_PREFIX + trail_dest_name
+	var sz := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE)
+	var ascent := font.get_ascent(LABEL_SIZE)
+	var inward := (size * 0.5 - pos).normalized() if (size * 0.5 - pos).length_squared() > 1.0 else Vector2.UP
+	var centre := pos + inward * (PLAYER_R + 4.0 + sz.x * 0.5 * absf(inward.x) + sz.y * 0.5 * absf(inward.y))
+	var base := centre + Vector2(-sz.x * 0.5, ascent * 0.5)
+	base = base.clamp(Vector2(2, ascent + 2), size - Vector2(sz.x + 2, 2))
+	return {"text": text, "base": base, "rect": Rect2(base - Vector2(0.0, ascent), sz)}
 
 
 func _draw_player(ci: Control, font: Font) -> void:
@@ -332,16 +354,10 @@ func _draw_player(ci: Control, font: Font) -> void:
 	var pos: Vector2 = pm["pos"]
 	var dir := Vector2.from_angle(float(pm["angle"])) if bool(pm["clamped"]) else model.projection.project_dir(player_facing)
 	MapIcons.draw_arrow(ci, pos, dir, PLAYER_R, PLAYER)
-	if trail_dest_name == "" or font == null:
+	var tag := trail_tag_layout()
+	if tag.is_empty() or font == null:
 		return
-	# On a trail: "-> <destination>" beside the arrow, on the picture's side of it.
-	var text := TRAIL_PREFIX + trail_dest_name
-	var sz := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE)
-	var inward := (size * 0.5 - pos).normalized() if (size * 0.5 - pos).length_squared() > 1.0 else Vector2.UP
-	var centre := pos + inward * (PLAYER_R + 4.0 + sz.x * 0.5 * absf(inward.x) + sz.y * 0.5 * absf(inward.y))
-	var base := centre + Vector2(-sz.x * 0.5, font.get_ascent(LABEL_SIZE) * 0.5)
-	base = base.clamp(Vector2(2, font.get_ascent(LABEL_SIZE) + 2), size - Vector2(sz.x + 2, 2))
-	_text(ci, font, base, text, MisoTheme.ACCENT_LIGHT)
+	_text(ci, font, tag["base"], tag["text"], MisoTheme.ACCENT_LIGHT)
 
 
 func _text(ci: Control, font: Font, base: Vector2, text: String, color: Color) -> void:
