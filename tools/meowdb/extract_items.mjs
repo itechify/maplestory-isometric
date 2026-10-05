@@ -1,12 +1,18 @@
 // Extract the Maple Island item set from MeowDB MS Classic into game/data/canonical/items/<item id>.json
 // (one item per file, MeowDB item ids).
 //
-//   node tools/meowdb/extract_items.mjs            # cache-first (tools/meowdb/.cache); fetches only what is missing
-//   node tools/meowdb/extract_items.mjs --refresh  # re-download every page (new retrieved_at values)
+//   node tools/meowdb/extract_items.mjs            # offline: tools/meowdb/.cache, then the dated captures (lib.mjs)
+//   MEOWDB_ALLOW_NETWORK=1 node tools/meowdb/extract_items.mjs --refresh   # re-download (off by default; see lib.mjs)
 //
 // Which items: ITEM_IDS below (the ids referenced by the maps / monsters / drops / quests / npcs / shops domains),
 // plus every item in game/data/canonical/shops/*.json and the Beginner starter weapons in
 // game/data/canonical/formulas/beginner.json (both are already in ITEM_IDS; the script stops if one is not).
+//
+// API-only items: when an item has no /item-db/<id> page in the cache (and the network is off) but its item API body
+// was captured by hand (tools/meowdb/captures/items_api.json, served by lib.mjs), the record is built from that body
+// alone (buildItemFromApiOnly): every value cites the capture in field_sources, and every field only the item page
+// shows (max per stack, the Tradeable tag, MSEA drops, quest rewards, change history, ...) is null and listed in gaps.
+// Green Apple (242) is the one such item (Iteration Three decision D3-1).
 //
 // Pages read per item (all cache-first through lib.mjs, so retrieved_at comes from the cache meta):
 //   /item-db/<id>                              primary: everything rendered server-side (header, requirements, stat
@@ -29,7 +35,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL } from './lib.mjs';
+import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL, hasCached, networkAllowed } from './lib.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -43,6 +49,9 @@ const ITEM_IDS = [
   724, 731, 900, 933, 934, 935, 937, 938, 939, 940, 945, 960, 963, 1157, 1160, 1163, 1168, 1175, 1177, 1181, 1195,
   1305, 1308, 1314, 1317, 1325, 1327, 1439, 1440, 235, 239, 269, 271, 438, 585, 1158, 1161, 1306, 439, 440, 559, 708,
   712, 525, 238, 240, 273, 551,
+  // Iteration Three: Green Apple, a Hidden Street drop member of the Snail, Blue Snail, Shroom and Red Snail with a
+  // KuroDB chance (decision D3-6). API-only: built from tools/meowdb/captures/items_api.json.
+  242,
 ].map(String);
 
 const GUIDE_PATH = '/guides/beginners-guide-first-steps-in-maple-world';
@@ -58,7 +67,7 @@ const freshFetches = [];
 const CHECKS = { description_vs_page: 0, description_vs_cot2_text: 0, stat_rows_vs_api: 0, base_stats_vs_rows: 0, quest_reward_chance_vs_quest_page: 0, shop_rows_vs_shops_domain: 0, drop_rows_vs_drops_domain: 0 };
 async function get(u) {
   const r = u.startsWith('http') ? await fetchUrl(u) : await fetchPage(u);
-  if (!r.fromCache) freshFetches.push(r.url);
+  if (!r.fromCache && !r.fromCapture) freshFetches.push(r.url);
   return r;
 }
 const at = (r) => ({ url: r.url, retrieved_at: r.retrieved_at });
@@ -898,6 +907,130 @@ function buildItem(id, page, pageRes, api, apiRes, drops, dropsRes, monsters, st
 }
 
 // ---------------------------------------------------------------------------------------------------------------
+// API-only items (see the header). The item API body holds name, type, subtype, the in-game description, the icon key,
+// the level and job requirement, consumable amounts and the NPC sell-back price, plus previewSources (up to three
+// drop and shop names, with "more" flags). Everything else is shown only on the item page.
+const API_ONLY_STAT_KEYS = new Set(['price', 'hpRecover', 'mpRecover', 'fullness', 'slotMax', 'untradeable', 'unitPrice', 'reqStr', 'reqDex', 'reqInt', 'reqLuk', 'reqFame', 'reqJob']);
+const API_ONLY_PAGE_GAPS = [
+  'tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured',
+  'sources.msea_reference_drops: shown only on the item page, which was not captured',
+  'sources.quest_rewards: shown only on the item page, which was not captured',
+  'sources.breakables: shown only on the item page, which was not captured',
+  'sources.crafting_recipes: shown only on the item page, which was not captured',
+  'used_in: the "Needed By" lists are shown only on the item page, which was not captured',
+  'change_history: shown only on the item page, which was not captured',
+];
+
+function buildItemFromApiOnly(id, api, apiRes) {
+  const s = api.stats || {};
+  for (const k of Object.keys(s)) if (!API_ONLY_STAT_KEYS.has(k)) throw new Error('item ' + id + ': API-only path does not handle stats.' + k + ' (it needs the item page)');
+  if (api.type === 'Equip' || s.successRate != null || s.hpRecoverBonus != null) throw new Error('item ' + id + ': equipment, scrolls and chairs need the item page');
+  const cap = apiRes.capture ?? null;
+  const ref = (from) => ({
+    url: apiRes.url, retrieved_at: apiRes.retrieved_at,
+    ...(cap ? { capture: cap.capture, capture_pointer: cap.pointer } : {}),
+    from,
+  });
+  const fieldSources = {};
+  const gaps = [];
+  const notes = [];
+  const type = api.type ?? null;
+  const subtype = api.subtype ?? null;
+  for (const [field, from] of [['name', 'name'], ['type', 'type'], ['subtype', 'subtype'], ['description', 'description'], ['game_item_id', 'iconKey']]) fieldSources[field] = ref(from);
+
+  const jobRaw = s.reqJob ?? api.reqJob ?? null;
+  const requirements = {
+    level: api.levelReq ?? null,
+    job: jobRaw ? jobRaw.split('/').map((x) => x.trim()) : null,
+    job_raw: jobRaw,
+    str: s.reqStr ?? 0, dex: s.reqDex ?? 0, int: s.reqInt ?? 0, luk: s.reqLuk ?? 0, fame: s.reqFame ?? 0,
+  };
+  fieldSources.requirements = ref('levelReq, reqJob and stats.req* (an absent stat requirement is 0, as on the item pages)');
+
+  let consumable = null;
+  for (const [k, out] of Object.entries(CONSUMABLE_KEYS)) {
+    if (s[k] == null) continue;
+    consumable = consumable || {};
+    consumable[out] = s[k];
+    fieldSources['consumable.' + out] = ref('stats.' + k);
+  }
+
+  let sellPrice = null, sellBasis = null, sellSource = null;
+  if (s.price != null) {
+    sellPrice = s.price;
+    sellBasis = s.slotMax != null ? 'per_unit' : 'per_item'; // same rule as buildItem's API fallback
+    sellSource = 'item_api';
+    fieldSources.sell_price_mesos = ref('stats.price');
+    if (s.slotMax == null) gaps.push('sell_price_basis: the item page\'s "NPC Sell-back" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem');
+  } else gaps.push('sell_price_mesos: the item API gives no NPC sell-back value');
+
+  const maxStack = s.slotMax ?? null;
+  if (maxStack != null) fieldSources.max_stack = ref('stats.slotMax');
+  else gaps.push('max_stack: the item API omits slotMax and "Max per Stack" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read');
+
+  // previewSources lists up to three names; an empty list with more* false means MeowDB has none at all.
+  const preview = api.previewSources || {};
+  const previewList = (key, more, field) => {
+    if (Array.isArray(preview[key]) && preview[key].length === 0 && preview[more] === false) {
+      fieldSources[field] = ref('previewSources.' + key + ' (empty, ' + more + ' false)');
+      return [];
+    }
+    gaps.push(field + ': the item API preview names ' + JSON.stringify(preview[key] ?? null) + '; the full list is on the item page, which was not captured');
+    return null;
+  };
+  const shops = previewList('shops', 'moreShops', 'sources.shops');
+  const monsterDrops = previewList('drops', 'moreDrops', 'sources.monster_drops');
+  gaps.push(...API_ONLY_PAGE_GAPS);
+
+  notes.push('API-only record: no /msclassic/item-db/' + id + ' page is cached or captured, so every value comes from the MeowDB item API body'
+    + (cap ? ' read by hand in a normal browser and saved in ' + cap.capture + ' (' + cap.pointer + '; Iteration Three decision D3-1)' : ' in the local cache') + '.');
+  if (cap?.read_at_note) notes.push('retrieved_at ' + apiRes.retrieved_at + ' is ' + cap.read_at_note + '.');
+
+  const out = {
+    id,
+    name: api.name,
+    game_item_id: api.iconKey ?? null,
+    type,
+    subtype,
+    inventory_tab: TAB_BY_TYPE[type] ?? null,
+    equip_slot: null,
+    quest_item: subtype === 'Quest Item',
+    description: api.description ?? null,
+    requirements,
+    stats: {},
+    weapon: null,
+    consumable,
+    scroll: null,
+    setup: null,
+    npc_buy_price_mesos: null,
+    sell_price_mesos: sellPrice,
+    sell_price_basis: sellBasis,
+    sell_price_source: sellSource,
+    recharge_cost_mesos_per_unit: s.unitPrice ?? null,
+    max_stack: maxStack,
+    tradeable: s.untradeable ? false : null,
+    gender: null,
+    sources: {
+      shops,
+      monster_drops: monsterDrops,
+      msea_reference_drops: null,
+      msea_reference_note: null,
+      quest_rewards: null,
+      breakables: null,
+      crafting_recipes: null,
+    },
+    used_in: { quests: null, recipes: null },
+    change_history: null,
+    derived_fields: ['inventory_tab', 'equip_slot', 'quest_item', 'npc_buy_price_mesos', 'requirements.job'],
+    source: source(apiRes.url, apiRes.retrieved_at, cap ? { capture: cap.capture } : {}),
+    field_sources: Object.fromEntries(Object.entries(fieldSources).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))),
+    notes,
+    gaps,
+  };
+  return out;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
 async function main() {
   // Scope: requested ids + every shop item + Beginner starter weapons
   const ids = new Set(ITEM_IDS);
@@ -927,7 +1060,17 @@ async function main() {
   let monsters = null;
   const items = [];
   const questPages = new Map(); // quest id -> {pools, itemRefs, ref}; only quests with a random-reward share on an item page
+  const apiOnly = [];
   for (const id of allIds) {
+    if (!hasCached(itemPagePath(id)) && !networkAllowed()) {
+      // No item page offline: build from the item API body (cache, else the hand-read capture; get() throws if neither).
+      const apiRes = await get(itemApiUrl(id));
+      const api = JSON.parse(apiRes.text);
+      if (String(api.id) !== id) throw new Error('item API returned id ' + api.id + ' for ' + id);
+      items.push(buildItemFromApiOnly(id, api, apiRes));
+      apiOnly.push(id + (apiRes.fromCapture ? ' (' + apiRes.capture.capture + ')' : ' (cache)'));
+      continue;
+    }
     const pageRes = await get(itemPagePath(id));
     const apiRes = await get(itemApiUrl(id));
     const dropsRes = await get(dropsApiUrl(id));
@@ -1001,6 +1144,7 @@ async function main() {
   const nGaps = items.reduce((a, x) => a + (x.gaps?.length || 0), 0);
   const nDisc = items.reduce((a, x) => a + (x.discrepancies?.length || 0), 0);
   console.log('cross-checks: ' + JSON.stringify(CHECKS));
+  if (apiOnly.length) console.log('API-only items (no item page; built from the item API body): ' + apiOnly.join(', '));
   console.log(`items: ${items.length} written to ${path.relative(ROOT, OUT_DIR)} (gaps ${nGaps}, discrepancies ${nDisc}, fresh fetches ${freshFetches.length})`);
 }
 

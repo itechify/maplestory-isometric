@@ -4,9 +4,10 @@
   "authority": "MeowDB MS Classic (https://meowdb.com/msclassic)",
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
-    "records": 191,
-    "distinct_source_urls": 413,
-    "external_values": 0
+    "records": 192,
+    "distinct_source_urls": 414,
+    "external_values": 0,
+    "capture_files": 1
   },
   "records": [
     {
@@ -888,6 +889,24 @@
       "external": [],
       "gap_count": 0,
       "discrepancy_count": 0
+    },
+    {
+      "domain": "items",
+      "id": "242",
+      "name": "Green Apple",
+      "file": "res://data/canonical/items/242.json",
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
+      ],
+      "external": [],
+      "gap_count": 9,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/items_api.json"
+      ]
     },
     {
       "domain": "items",

@@ -1,0 +1,150 @@
+{
+  "id": "242",
+  "name": "Green Apple",
+  "game_item_id": "2010007",
+  "type": "Use",
+  "subtype": "Food",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A sour and crunchy green apple.\nRestores 30 MP.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": {
+    "mp_restore": 30
+  },
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 3,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_api",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": null,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [],
+    "msea_reference_drops": null,
+    "msea_reference_note": null,
+    "quest_rewards": null,
+    "breakables": null,
+    "crafting_recipes": null
+  },
+  "used_in": {
+    "quests": null,
+    "recipes": null
+  },
+  "change_history": null,
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+    "retrieved_at": "2026-10-05T08:17Z",
+    "capture": "tools/meowdb/captures/items_api.json"
+  },
+  "field_sources": {
+    "consumable.mp_restore": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "stats.mpRecover"
+    },
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "description"
+    },
+    "game_item_id": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "iconKey"
+    },
+    "name": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "name"
+    },
+    "requirements": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "levelReq, reqJob and stats.req* (an absent stat requirement is 0, as on the item pages)"
+    },
+    "sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "stats.price"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "previewSources.drops (empty, moreDrops false)"
+    },
+    "sources.shops": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "previewSources.shops (empty, moreShops false)"
+    },
+    "subtype": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "subtype"
+    },
+    "type": {
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "capture": "tools/meowdb/captures/items_api.json",
+      "capture_pointer": "/items/242/body",
+      "from": "type"
+    }
+  },
+  "notes": [
+    "API-only record: no /msclassic/item-db/242 page is cached or captured, so every value comes from the MeowDB item API body read by hand in a normal browser and saved in tools/meowdb/captures/items_api.json (/items/242/body; Iteration Three decision D3-1).",
+    "retrieved_at 2026-10-05T08:17Z is approximate: the capture records only the reading session, \"2026-10-05 ~08:17Z\" (method text), not a per-item time."
+  ],
+  "gaps": [
+    "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem",
+    "max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read",
+    "tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured",
+    "sources.msea_reference_drops: shown only on the item page, which was not captured",
+    "sources.quest_rewards: shown only on the item page, which was not captured",
+    "sources.breakables: shown only on the item page, which was not captured",
+    "sources.crafting_recipes: shown only on the item page, which was not captured",
+    "used_in: the \"Needed By\" lists are shown only on the item page, which was not captured",
+    "change_history: shown only on the item page, which was not captured"
+  ]
+}
