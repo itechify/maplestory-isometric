@@ -66,11 +66,15 @@ func _ready() -> void:
 func setup(p: BreakablePlacement, p_size_m: Vector3, p_hits_to_break: int, hits_taken: int, is_broken_now: bool,
 		p_system: Node = null) -> void:
 	placement = p
-	size_m = p_size_m
 	hits_to_break = p_hits_to_break
 	system = p_system
 	name = "WoodenBox_%s_%d" % [p.map_id, p.index]
 	transform = p.transform
+	# _ready() builds the crate at the default size when the box enters the tree before setup(): build it again at
+	# the box's own body size.
+	if model != null and not p_size_m.is_equal_approx(size_m):
+		_clear_model()
+	size_m = p_size_m
 	if model == null:
 		_build()
 	sync(hits_taken, is_broken_now)
@@ -269,6 +273,16 @@ func _build() -> void:
 	_flash_mat.albedo_color = Color(1, 1, 1, 0.7)
 	_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+
+
+## Frees the crate (setup() builds it again at a new size).
+func _clear_model() -> void:
+	if model != null:
+		remove_child(model)
+		model.free()
+	model = null
+	lid = null
+	_meshes.clear()
 
 
 func _box(parent: Node3D, size: Vector3, pos: Vector3, mat: Material) -> MeshInstance3D:

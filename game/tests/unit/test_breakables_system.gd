@@ -127,6 +127,28 @@ func test_boxes_follow_the_live_state() -> void:
 	assert_eq(tree.get_nodes_in_group(&"miso_breakables").size(), 0, "released boxes leave the group")
 
 
+## The crate is built at the box's body size (breakables.json box.touch_px through WorldScale.actor), also when that
+## differs from the default the node starts with.
+func test_the_crate_is_built_at_the_box_size() -> void:
+	var b := sys.live_boxes()[0]
+	assert_true(_body_size(b).is_equal_approx(BreakableRules.size_m(db())), "body %s at size_m %s" % [_body_size(b), BreakableRules.size_m(db())])
+	var big := WoodenBox.new()
+	(Engine.get_main_loop() as SceneTree).current_scene.add_child(big)
+	var place := BreakablePlacement.new()
+	place.map_id = def.map_id
+	place.index = 0
+	big.setup(place, Vector3(1.2, 0.9, 1.2), hits(), 0, false)
+	assert_true(_body_size(big).is_equal_approx(Vector3(1.2, 0.9, 1.2)), "a 1.2 x 0.9 m box is built at that size: %s" % _body_size(big))
+	assert_eq(big.model.get_child_count(), b.model.get_child_count(), "one crate, not two")
+	big.free()
+
+
+## The plank body's size (the first mesh of the model).
+func _body_size(b: WoodenBox) -> Vector3:
+	var mi := b.model.get_child(0) as MeshInstance3D
+	return (mi.mesh as BoxMesh).size if mi != null and mi.mesh is BoxMesh else Vector3.ZERO
+
+
 ## Frees queued nodes (released boxes are queue_free'd).
 func await_free() -> void:
 	for n in (Engine.get_main_loop() as SceneTree).get_nodes_in_group(&"miso_breakables"):
@@ -228,6 +250,34 @@ func test_a_broken_box_comes_back_after_its_respawn_s() -> void:
 	assert_eq(box.hits_left(), hits(), "with no hits")
 	assert_eq(back, [1], "box_respawned once")
 	assert_true(bool(sys.land_hit(box).counted), "and takes hits again")
+
+
+## A respawn that the state brings about inside a hit (MapInstanceState.hit_breakable ticks the placements first) must
+## reach the box node too: a hit on another box, landed before the system's own frame tick, would otherwise leave the
+## respawned box intact in the state but broken (hidden, no attack target) in the world.
+func test_a_respawn_inside_another_hit_reaches_the_box() -> void:
+	var back: Array = []
+	sys.box_respawned.connect(func(b: WoodenBox) -> void: back.append(b.index()))
+	var boxes := sys.live_boxes()
+	for k in hits():
+		sys.land_hit(boxes[1])
+	assert_true(boxes[1].is_broken(), "box 1 broken")
+	now += float(st.breakables[1].respawn_s)
+	# No sys.tick() in between: the next landed hit (box 0) is the first thing to see the clock.
+	assert_true(bool(sys.land_hit(boxes[0]).counted), "the hit on box 0 counts")
+	assert_true(st.is_breakable_intact(1), "the state brought box 1 back")
+	assert_false(boxes[1].is_broken(), "and so does its node")
+	assert_eq(boxes[1].hits_left(), hits(), "with every hit left")
+	assert_eq(back, [1], "box_respawned once")
+	var targets: Array = sys.attack_candidates().map(func(c: Dictionary) -> int: return int(c.spawn_order))
+	assert_true(1 in targets, "box 1 is an attack target again: %s" % str(targets))
+	sys.tick(0.0)
+	assert_eq(back, [1], "the frame tick does not announce it twice")
+	# Candidates follow the state, never only the node: a node out of step with its state is no target while broken.
+	for k in hits():
+		st.hit_breakable(2, now, hits())
+	assert_false(2 in sys.attack_candidates().map(func(c: Dictionary) -> int: return int(c.spawn_order)),
+		"a box broken in the state is no target even before its node shows it")
 
 
 func test_attack_candidates_are_the_intact_boxes() -> void:

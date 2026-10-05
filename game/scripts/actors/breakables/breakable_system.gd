@@ -107,7 +107,13 @@ func tick(_delta: float) -> void:
 		realize(st)
 	if state == null:
 		return
-	for i in state.tick_breakables(_now()):
+	_bring_back(state.tick_breakables(_now()))
+
+
+## Shows the placements `indices` came back (MapInstanceState.tick_breakables) on their boxes and announces them. Every
+## path that ticks the state passes its result here, so a box node never stays broken after its state came back.
+func _bring_back(indices: PackedInt32Array) -> void:
+	for i in indices:
 		var box: WoodenBox = boxes.get(i, null)
 		if box != null and is_instance_valid(box):
 			box.show_respawn()
@@ -197,7 +203,8 @@ func attack_candidates() -> Array:
 	if px == Vector2.ZERO:
 		return out
 	for box in live_boxes():
-		if not box.is_broken():
+		# The state decides (a node is only its picture).
+		if state != null and state.is_breakable_intact(box.index()):
 			out.append({"node": box, "feet": box.global_position, "touch_px": px, "depth_px": px.x,
 				"spawn_order": box.index(), "kind": "breakable"})
 	return out
@@ -221,7 +228,10 @@ func land_hit(box: WoodenBox, _source: String = "attack") -> Dictionary:
 	if box == null or not is_instance_valid(box) or state == null or boxes.get(box.index(), null) != box:
 		return out
 	var n := hits_to_break(box.placement.breakable_id)
-	var r := state.hit_breakable(box.index(), _now(), n)
+	var now := _now()
+	# Placements whose time came are brought back on their nodes first: hit_breakable would tick them silently.
+	_bring_back(state.tick_breakables(now))
+	var r := state.hit_breakable(box.index(), now, n)
 	out.merge(r, true)
 	if not bool(r.counted):
 		return out
