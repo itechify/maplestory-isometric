@@ -2,8 +2,9 @@ extends TestCase
 ## The playtest harness's strict no-cheat mode (docs/runtime/PLAYTEST_HARNESS.md "Strict mode"): the Debug
 ## autoload counts every command it dispatches whoever runs it, a strict report fails on a console or api step taken
 ## after the strict step and on any violation or ledger mismatch, PlaytestLedger explains every change that went
-## through the game's own services and flags a direct write, and the strict scenarios (and the shared PlaytestKit)
-## contain no cheat call outside their setup functions.
+## through the game's own services and flags a direct write, the strict scenarios (and the shared PlaytestKit and quest
+## runner) contain no cheat call outside their setup functions, and the harness files every strict step runs through
+## (driver, walker, grid navigation, input, runner) contain none outside their counted console and api paths.
 
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const KIT := "res://tools/playtest/playtest_kit.gd"
@@ -37,6 +38,25 @@ const FORBIDDEN: PackedStringArray = ["place_player", "Debug.run", "debug().call
 	"FileAccess.WRITE", "save_now(", "SaveService."]
 ## Lines a FORBIDDEN entry matches that are not a cheat (a synthetic input event's own position).
 const ALLOWED: PackedStringArray = ["ev.global_position = ev.position"]
+## The harness code every strict step runs through besides the kit and the quest runner: the driver (input, UI clicks,
+## dialogue, saves), the walker and its grid navigation, the input injector and the runner. Scanned with the same
+## FORBIDDEN list, so a helper that teleports or writes AP/HP under a play step fails here, not only at runtime.
+const HARNESS: PackedStringArray = ["res://tools/playtest/playtest_driver.gd", "res://tools/playtest/playtest_walker.gd",
+	"res://tools/playtest/playtest_grid_nav.gd", "res://tools/playtest/playtest_input.gd",
+	"res://tools/playtest/playtest_runner.gd"]
+## The harness's counted console and api paths: {file: {function: [FORBIDDEN entries it may use]}}. Such a call is
+## allowed only below a line of the same function that opens a counted step (COUNTED_STEP): the step is logged as
+## "api" or "console", so strict mode counts it and the run fails if it happens after the strict step. An entry that
+## matches nothing any more is stale and fails the scan (a renamed function must be renamed here too).
+const COUNTED_PATHS := {
+	"playtest_driver.gd": {
+		"new_game": ["start_new_game("],
+		"save_game": ["save_now("],
+		"console": ["call(\"run\""],
+	},
+}
+## Opening a counted step (PlaytestDriver._begin with an api or console kind).
+const COUNTED_STEP: PackedStringArray = ["_begin(PlaytestReport.KIND_API", "_begin(PlaytestReport.KIND_CONSOLE"]
 
 
 func parity_keys() -> Dictionary:
@@ -45,6 +65,8 @@ func parity_keys() -> Dictionary:
 		"test_ledger_explains_service_changes_and_flags_direct_writes": ["mechanic:no-console-playthrough"],
 		"test_strict_scenarios_and_the_kit_make_no_cheat_calls": ["mechanic:no-console-playthrough"],
 		"test_the_cheat_scan_flags_service_calls_teleports_and_console_outside_setup": ["mechanic:no-console-playthrough"],
+		"test_the_harness_makes_no_cheat_call_outside_its_counted_paths": ["mechanic:no-console-playthrough"],
+		"test_the_harness_scan_allows_a_listed_call_only_after_its_counted_step": ["mechanic:no-console-playthrough"],
 	}
 
 
@@ -183,6 +205,84 @@ func test_the_cheat_scan_flags_service_calls_teleports_and_console_outside_setup
 		assert_true(Array(v).any(func(x: String) -> bool: return x.contains(want)), "flags %s: %s" % [want, v])
 	assert_eq(cheat_calls("func _setup_x() -> void:\n\tawait d.console(\"give 270 5\")", "ok.gd"), PackedStringArray(),
 		"console() inside a _setup function is setup")
+
+
+func test_the_harness_makes_no_cheat_call_outside_its_counted_paths() -> void:
+	var used := {}
+	for path in HARNESS:
+		assert_true(FileAccess.file_exists(path), "%s exists (the scan covers it)" % path)
+		var r := harness_cheat_calls(FileAccess.get_file_as_string(path), path.get_file(), COUNTED_PATHS.get(path.get_file(), {}))
+		for v in r["findings"]:
+			assert_true(false, v)
+		for k in r["used"]:
+			used["%s|%s" % [path.get_file(), k]] = true
+	for file in COUNTED_PATHS:
+		for fn in COUNTED_PATHS[file]:
+			for bad in COUNTED_PATHS[file][fn]:
+				assert_true(used.has("%s|%s|%s" % [file, fn, bad]),
+					"COUNTED_PATHS %s %s() %s matches nothing any more: stale (renamed? update the whitelist)" % [file, fn, bad])
+
+
+func test_the_harness_scan_allows_a_listed_call_only_after_its_counted_step() -> void:
+	# The scan itself must be able to fail: a synthetic driver.
+	var src := "\n".join(PackedStringArray([
+		"func save_game() -> Dictionary:",
+		"\tvar err := main.save_now()",
+		"\tvar j := _begin(PlaytestReport.KIND_API, \"MainShell.save_now\")",
+		"\terr = main.save_now()",
+		"func walk_to(p: Vector3) -> void:",
+		"\tmain.save_now()",
+		"\tplayer().global_position = p",
+		"func console(cmd: String) -> String:",
+		"\tvar i := _begin(PlaytestReport.KIND_CONSOLE, \"console\", cmd)",
+		"\treturn str(dbg.call(\"run\", cmd))",
+		"func helper() -> void:",
+		"\tawait console(\"level 10\")",
+		"\t# main.save_now() in a comment is not a call",
+	]))
+	var counted := {"save_game": ["save_now("], "console": ["call(\"run\""]}
+	var r := harness_cheat_calls(src, "synthetic_driver.gd", counted)
+	var v: PackedStringArray = r["findings"]
+	assert_eq(v.size(), 4, "the call before the counted step, the unlisted function's call, the teleport and the console call: %s" % v)
+	assert_true(Array(v).any(func(x: String) -> bool: return x.contains(":2 ") and x.contains("before its counted step")), "line 2: %s" % v)
+	assert_true(Array(v).any(func(x: String) -> bool: return x.contains(":6 (walk_to)") and x.contains("save_now(")), "line 6: %s" % v)
+	assert_true(Array(v).any(func(x: String) -> bool: return x.contains(":7 (walk_to)") and x.contains("global_position = ")), "line 7: %s" % v)
+	assert_true(Array(v).any(func(x: String) -> bool: return x.contains(":12") and x.contains("console() outside")), "line 12: %s" % v)
+	assert_eq((r["used"] as Dictionary).keys().size(), 2, "both listed paths were used after their counted step: %s" % r["used"])
+
+
+## The cheat calls in a harness file: the cheat_calls() rules, except that a FORBIDDEN entry `counted` lists for the
+## enclosing function ({function: [entries]}, COUNTED_PATHS) is allowed below a line of that function that opens a
+## counted step (COUNTED_STEP). Returns {"findings": PackedStringArray, "used": {"<function>|<entry>": true}}.
+static func harness_cheat_calls(text: String, file: String, counted: Dictionary) -> Dictionary:
+	var out := PackedStringArray()
+	var used := {}
+	var fn := ""
+	var opened := false
+	var n := 0
+	for line in text.split("\n"):
+		n += 1
+		var t := line.strip_edges()
+		if t.begins_with("func ") or t.begins_with("static func "):
+			fn = t.get_slice("(", 0).get_slice(" ", t.get_slice("(", 0).get_slice_count(" ") - 1)
+			opened = false
+		if t.begins_with("#") or Array(ALLOWED).any(func(a: String) -> bool: return t.contains(a)):
+			continue
+		if Array(COUNTED_STEP).any(func(s: String) -> bool: return t.contains(s)):
+			opened = true
+		for bad in FORBIDDEN:
+			if not t.contains(bad):
+				continue
+			var listed := Array(counted.get(fn, [])).has(bad)
+			if listed and opened:
+				used["%s|%s" % [fn, bad]] = true
+			elif listed:
+				out.append("%s:%d (%s) calls %s before its counted step (a COUNTED_STEP line): %s" % [file, n, fn, bad, t])
+			else:
+				out.append("%s:%d (%s) calls %s: %s" % [file, n, fn, bad, t])
+		if t.contains("console(") and not t.contains("func console(") and not fn.begins_with("_setup"):
+			out.append("%s:%d: console() outside a _setup function (%s): %s" % [file, n, fn, t])
+	return {"findings": out, "used": used}
 
 
 ## The cheat calls in the source of a strict scenario: one line per FORBIDDEN match outside comments and ALLOWED
