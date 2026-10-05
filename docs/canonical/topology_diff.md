@@ -114,7 +114,8 @@ MeowDB has 24 connections (23 two-way, 1 one-way); Iteration One has 24 (20 two-
 | 000001012 / 000001014 | 000001012:west00 <-> 000001014:east00 | 1010002:west00 <-> 1010004:east00 | same |
 | 000001020 / 000001021 | 000001020:in00 <-> 000001021:out00 | 1020000:in00 <-> 1020001:out00 | same |
 
-Iteration One's `layout.py` LINKS (20 trail links), DOOR_LINKS (4 interiors on the remote interior stage) and ONE_WAY (10000:in00, 20000:in00, 30000:in00, 40000:in00) cover the same 24 map pairs; the ONE_WAY set is where the direction changes land.
+Iteration One's `layout.py` LINKS (20 trail links), DOOR_LINKS (4 interiors on the remote interior stage) and ONE_WAY (10000:in00, 20000:in00, 30000:in00, 40000:in00, the landing anchors of the one-way connections in `docs/topology.json`) cover the same 24 map pairs; the ONE_WAY set is where the direction changes land.
+Today's `layout.py` ONE_WAY is (40000:in00): exactly the landing anchor of MeowDB's one-way link, as headline 1 recommends.
 
 ## 4. Every difference, by impact
 
@@ -133,7 +134,7 @@ Columns: MeowDB value, Iteration One value (GMS v8 baseline), change, impact, re
 | 000000030 East Entrance to Mushroom Town [30000] | monster | Tutorial Jr. Sentinel | 6 | 0 | species added | Spawn Tutorial Jr. Sentinel (MeowDB id 1) here; Iteration One has no Tutorial Jr. Sentinel proxy in EastEntranceMushroomTown_30000. |
 | 000000030 East Entrance to Mushroom Town [30000] | npc | Todd (MeowDB npc 7) | on 000000030 at (-21,202) | absent from all 25 maps | NPC added | Add an NPC proxy for Todd to EastEntranceMushroomTown_30000 near MeowDB's (-21,202). |
 | 000000030 East Entrance to Mushroom Town [30000] | portal | portal in00 | type 2 -> 000000020:out00 | arrival point only (pt 1, no target) | arrival-only point became an exit | Promote the existing Blender anchor 30000:in00 (an arrival marker today) to an exit portal to 20000:out00. Its MeowDB position (-218,217) equals the v8 arrival point, so the anchor needs no move. |
-| 000000040 Snail Hunting Ground I [40000] | monster | Blue Snail | 0 | 16 | species removed | Do not spawn Blue Snail here. Drop the 2 representative Blue Snail proxy(ies) in SnailHuntingGround1_40000 from the runtime. |
+| 000000040 Snail Hunting Ground I [40000] | monster | Blue Snail | 0 | 16 | species removed | Do not spawn Blue Snail here. |
 | 000000040 Snail Hunting Ground I [40000] | npc | Sam (MeowDB npc 9) | on 000000040 at (1602,211) | absent from all 25 maps | NPC added | Add an NPC proxy for Sam to SnailHuntingGround1_40000 near MeowDB's (1602,211). |
 | 000000050 A Split Road [50000] | npc | Mai (MeowDB npc 11) | on 000000050 at (1891,-182) | on 1010000 Amherst | NPC moved to another map | Move Mai from the Amherst_1010000 collection to ASplitRoad_50000; choose a 3D spot that matches MeowDB's relative position. |
 | 000000060 Southperry [60000] | npc | Maple Administrator (v8 npc 9010000) | absent from all 25 maps | on 60000 at (-181,287) | NPC removed | Do not spawn Maple Administrator: MeowDB has no such NPC on Maple Island. The Blender proxy (built_npcs) should be excluded from the runtime NPC list. |
@@ -226,26 +227,26 @@ in Blender (`built_mobs`/`built_npcs` in docs/manifest.json: 1-2 representative 
 | 000000020 [20000] | - | - | - | Nina (4) | Nina (2102) |
 | 000000021 [20001] | - | - | - | Sen (5) | Sen (2001) |
 | 000000030 [30000] | 6: Tutorial Jr. Sentinel 6 | - | - | Todd (7), Peter (6) | Peter (2002) |
-| 000000040 [40000] | 40: Snail 40 | 49: Snail 33, Blue Snail 16 | Snail 1, Blue Snail 2 | Robin (8), Sam (9) | Robin (2003) |
-| 000000041 [40001] | 45: Snail 32, Blue Snail 13 | 67: Snail 43, Blue Snail 24 | Snail 1, Blue Snail 2 | - | - |
-| 000000042 [40002] | 42: Snail 20, Blue Snail 21, Red Snail 1 | 75: Snail 36, Blue Snail 26, Red Snail 13 | Snail 1, Blue Snail 1, Red Snail 1 | - | - |
-| 000000050 [50000] | 42: Blue Snail 17, Shroom 14, Red Snail 11 | 56: Blue Snail 25, Red Snail 13, Shroom 18 | Blue Snail 1, Shroom 1, Red Snail 1 | Maria (10), Mai (11) | Maria (2103) |
+| 000000040 [40000] | 40: Snail 40 | 49: Snail 33, Blue Snail 16 | Snail 15 | Robin (8), Sam (9) | Robin (2003) |
+| 000000041 [40001] | 45: Snail 32, Blue Snail 13 | 67: Snail 43, Blue Snail 24 | Snail 11, Blue Snail 7 | - | - |
+| 000000042 [40002] | 42: Snail 20, Blue Snail 21, Red Snail 1 | 75: Snail 36, Blue Snail 26, Red Snail 13 | Snail 8, Blue Snail 6, Red Snail 4 | - | - |
+| 000000050 [50000] | 42: Blue Snail 17, Shroom 14, Red Snail 11 | 56: Blue Snail 25, Red Snail 13, Shroom 18 | Blue Snail 5, Shroom 6, Red Snail 5 | Maria (10), Mai (11) | Maria (2103) |
 | 000000060 [60000] | - | - | - | Yoona (13), Bari (14), Shanks (15), Biggs (12) | Yoona (20100), Biggs (20002), Bari (20001), Shanks (22000), Paul (9000000), Tia (9010001), Maple Administrator (9010000) |
 | 000000061 [60001] | - | - | - | Pan (16) | Pan (21000) |
-| 000001000 [1000000] | 66: Snail 7, Blue Snail 13, Shroom 17, Red Snail 24, Orange Mushroom 5 | 90: Snail 16, Blue Snail 20, Red Snail 26, Shroom 21, Orange Mushroom 7 | Snail 1, Shroom 2, Red Snail 1, Blue Snail 1, Orange Mushroom 1 | - | - |
-| 000001001 [1000001] | 40: Snail 12, Blue Snail 7, Shroom 12, Red Snail 5, Orange Mushroom 4 | 46: Snail 16, Blue Snail 10, Red Snail 5, Shroom 11, Orange Mushroom 4 | Orange Mushroom 2, Shroom 1, Snail 1, Red Snail 1, Blue Snail 1 | - | - |
-| 000001002 [1000002] | 34: Snail 14, Blue Snail 3, Red Snail 5, Orange Mushroom 12 | 35: Snail 15, Blue Snail 3, Red Snail 5, Orange Mushroom 12 | Orange Mushroom 1, Red Snail 1, Blue Snail 1, Snail 1 | - | - |
-| 000001003 [1000003] | 35: Snail 7, Shroom 23, Orange Mushroom 5 | 42: Snail 9, Shroom 28, Orange Mushroom 5 | Shroom 1, Orange Mushroom 1, Snail 1 | - | - |
-| 000001004 [1000004] | 41: Snail 11, Blue Snail 19, Red Snail 11 | 47: Snail 17, Blue Snail 19, Red Snail 11 | Snail 1, Blue Snail 1, Red Snail 1 | - | - |
-| 000001005 [1000005] | 44: Snail 14, Blue Snail 12, Shroom 10, Red Snail 8 | 59: Snail 21, Blue Snail 16, Red Snail 10, Shroom 12 | Shroom 1, Snail 1, Blue Snail 1, Red Snail 1 | - | - |
-| 000001006 [1000006] | 45: Snail 10, Blue Snail 16, Shroom 7, Red Snail 6, Orange Mushroom 6 | 51: Snail 13, Blue Snail 17, Red Snail 6, Shroom 9, Orange Mushroom 6 | Snail 1, Orange Mushroom 1, Blue Snail 1, Red Snail 1, Shroom 1 | - | - |
+| 000001000 [1000000] | 66: Snail 7, Blue Snail 13, Shroom 17, Red Snail 24, Orange Mushroom 5 | 90: Snail 16, Blue Snail 20, Red Snail 26, Shroom 21, Orange Mushroom 7 | Snail 4, Shroom 5, Red Snail 5, Blue Snail 4, Orange Mushroom 4 | - | - |
+| 000001001 [1000001] | 40: Snail 12, Blue Snail 7, Shroom 12, Red Snail 5, Orange Mushroom 4 | 46: Snail 16, Blue Snail 10, Red Snail 5, Shroom 11, Orange Mushroom 4 | Orange Mushroom 2, Shroom 4, Snail 2, Red Snail 2, Blue Snail 1 | - | - |
+| 000001002 [1000002] | 34: Snail 14, Blue Snail 3, Red Snail 5, Orange Mushroom 12 | 35: Snail 15, Blue Snail 3, Red Snail 5, Orange Mushroom 12 | Orange Mushroom 8, Red Snail 2, Blue Snail 2, Snail 5 | - | - |
+| 000001003 [1000003] | 35: Snail 7, Shroom 23, Orange Mushroom 5 | 42: Snail 9, Shroom 28, Orange Mushroom 5 | Shroom 7, Orange Mushroom 2, Snail 2 | - | - |
+| 000001004 [1000004] | 41: Snail 11, Blue Snail 19, Red Snail 11 | 47: Snail 17, Blue Snail 19, Red Snail 11 | Snail 5, Blue Snail 4, Red Snail 4 | - | - |
+| 000001005 [1000005] | 44: Snail 14, Blue Snail 12, Shroom 10, Red Snail 8 | 59: Snail 21, Blue Snail 16, Red Snail 10, Shroom 12 | Shroom 4, Snail 5, Blue Snail 2, Red Snail 2 | - | - |
+| 000001006 [1000006] | 45: Snail 10, Blue Snail 16, Shroom 7, Red Snail 6, Orange Mushroom 6 | 51: Snail 13, Blue Snail 17, Red Snail 6, Shroom 9, Orange Mushroom 6 | Snail 3, Orange Mushroom 5, Blue Snail 4, Red Snail 1, Shroom 2 | - | - |
 | 000001010 [1010000] | - | - | - | Lucas (17), Pio (18), Rain (19) | Lucas (12000), Mai (12100), Rain (12101), Pio (10000) |
 | 000001011 [1010001] | - | - | - | Sid (20) | Sid (11000) |
 | 000001012 [1010002] | - | - | - | - | - |
 | 000001013 [1010003] | - | - | - | Lucy (21) | Lucy (11100) |
-| 000001014 [1010004] | 34: Snail 6, Blue Snail 10, Red Snail 12, Orange Mushroom 6 | 43: Snail 10, Blue Snail 16, Red Snail 17 | Blue Snail 1, Red Snail 1, Snail 1 | - | - |
-| 000001020 [1020000] | 38: Snail 3, Blue Snail 11, Red Snail 12, Orange Mushroom 12 | 52: Snail 8, Blue Snail 19, Red Snail 13, Orange Mushroom 12 | Snail 1, Blue Snail 1, Orange Mushroom 1, Red Snail 1 | - | - |
-| 000001021 [1020001] | 25: Snail 9, Blue Snail 8, Red Snail 4, Orange Mushroom 4 | 25: Snail 9, Blue Snail 8, Red Snail 4, Orange Mushroom 4 | Snail 1, Orange Mushroom 1, Blue Snail 1, Red Snail 1 | - | - |
+| 000001014 [1010004] | 34: Snail 6, Blue Snail 10, Red Snail 12, Orange Mushroom 6 | 43: Snail 10, Blue Snail 16, Red Snail 17 | Blue Snail 5, Red Snail 5, Snail 2, Orange Mushroom 1 | - | - |
+| 000001020 [1020000] | 38: Snail 3, Blue Snail 11, Red Snail 12, Orange Mushroom 12 | 52: Snail 8, Blue Snail 19, Red Snail 13, Orange Mushroom 12 | Snail 2, Blue Snail 5, Orange Mushroom 5, Red Snail 3 | - | - |
+| 000001021 [1020001] | 25: Snail 9, Blue Snail 8, Red Snail 4, Orange Mushroom 4 | 25: Snail 9, Blue Snail 8, Red Snail 4, Orange Mushroom 4 | Snail 3, Orange Mushroom 2, Blue Snail 2, Red Snail 1 | - | - |
 
 Island total: MeowDB 577 monster spawn points, Iteration One v8 737.
 
