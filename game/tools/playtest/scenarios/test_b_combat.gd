@@ -918,8 +918,9 @@ func _local(pos: Vector3) -> Vector3:
 
 ## Stands in monsters of `mob` without attacking (walking into the nearest one again after each knockback) until `n`
 ## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry. A monster
-## the walk could not bring within reach (it paces a terrace above or below the player and stays on its floor) is
-## skipped for the next nearest one; the skips are forgotten when no other monster of the species is left.
+## a finished walk could not bring within reach (it paces a terrace above or below the player and stays on its floor)
+## is skipped for the next nearest one; a walk that only ran out of time keeps the target. The skips are forgotten when
+## no other monster of the species is left.
 func _touch_probe(mob: String, n: int, max_s: float) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "touch_probe", "walk into %s without attacking until %d touches" % [_mob_name(mob), n])
 	var p := d.player()
@@ -944,8 +945,10 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 			await d.wait(1.0)
 			continue
 		if out_of_reach.call(m):
-			await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": 6.0, "retries": 0})
-			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m):
+			var w: Dictionary = await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": 6.0, "retries": 0})
+			# Only a walk that ended (stopped next to it, stalled, fell) and still left it out of reach skips it; a walk
+			# that ran out of time on a long route made progress, and the next pass walks on toward the nearest one.
+			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m) and String(w.get("result", "")) != "TIMEOUT":
 				skip[m.get_instance_id()] = true
 				skipped += 1
 			continue
