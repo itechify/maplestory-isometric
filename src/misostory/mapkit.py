@@ -1006,8 +1006,9 @@ class MapCtx:
         avoid zones), exported as the region's exclude_xz. A region with the same polygon and z_band as an earlier
         one is merged into it (species, tiers and exclusions are unioned), so two m.mobs calls over one area give one
         region. Every species the region names that has a kit proxy (MOB_ASSETS) is built into the monster library,
-        so the runtime has a model for it even where no representative proxy is scattered. Stored in the
-        collection's spawn_regions_json."""
+        so the runtime has a model for it; a region authored directly (no m.mobs proxies) also gets one representative
+        proxy of each such species, so the Blender scene shows every MeowDB species of the map (validate.py fidelity).
+        Stored in the collection's spawn_regions_json."""
         poly = _zone_poly(area)
         zb = None if z_band is None else [round(float(z_band[0]), 3), round(float(z_band[1]), 3)]
         excl = [_zone_poly(z) for z in exclude]
@@ -1021,6 +1022,13 @@ class MapCtx:
                 reg["proxies"] += proxies
                 reg["exclude"] += [e for e in excl if e not in reg["exclude"]]
                 return reg
+        if source == "m.spawn_region" and proxies == 0:
+            for sp in sorted(set(species)):
+                if sp in MOB_ASSETS:
+                    pts = self.scatter([MOB_ASSETS[sp]], poly, 1, seed=f"region:{name}", min_dist=2.2, scale=(0.95, 1.05),
+                                       avoid=excl, collection=self.col_mobs, z_band=z_band)
+                    self.spawns.append({"mob": sp, "count": len(pts), "points": pts})
+                    proxies += len(pts)
         reg = {"name": name, "polygon": poly, "z_band": zb, "species": sorted(set(species)), "tiers": sorted(set(tiers)),
                "proxies": proxies, "source": source, "exclude": excl}
         names = {r_["name"] for r_ in self.spawn_regions}
