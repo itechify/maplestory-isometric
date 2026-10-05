@@ -5,7 +5,10 @@ extends Node3D
 ##   - a MapleStory-style name tag under the feet and the quest marker above the head (screen-space Controls in the
 ##     interaction system's overlay layer), shown only for NPCs of the current map that are on screen;
 ##   - a subtle idle bob of the NPC's model;
-##   - facing the player while the player talks to this NPC, then turning back.
+##   - facing the player while the player talks to this NPC, then turning back;
+##   - now and then a speech bubble with one of the NPC's canonical idle-chatter lines (NpcSpeechBubble), timed by
+##     NpcBubbleSchedule from data/misostory/npcs/_speech_bubbles.json (MeowDB gives the lines, not the timing), only
+##     while the NPC is on the current map, on screen and not in a conversation.
 ## The marker state comes from NpcInteraction.marker(npc_id), refreshed a few times a second (cheap: only current-map
 ## NPCs ask). Presentation constants (bob, turn rate, refresh period) are cosmetic and live here.
 
@@ -23,6 +26,11 @@ var npc_name: String = ""
 var title: String = ""
 var tag: NpcNameTag = null
 var marker: QuestMarker = null
+var bubble: NpcSpeechBubble = null
+## When the next bubble shows and which line (null without content).
+var bubbles: NpcBubbleSchedule = null
+## The NPC's canonical definition (idle lines for the bubbles); null without content.
+var def: NpcDef = null
 ## () -> NpcInteraction (null allowed: no markers, no facing).
 var talk_provider: Callable = Callable()
 ## () -> Node3D player (null allowed).
@@ -47,7 +55,8 @@ static func attach(p_npc: Node3D, overlay: Control, db: ContentDB) -> NpcPresent
 	var existing := p_npc.get_node_or_null(NODE_NAME)
 	if existing is NpcPresenter:
 		var p0 := existing as NpcPresenter
-		if p0.tag == null or not is_instance_valid(p0.tag) or p0.marker == null or not is_instance_valid(p0.marker):
+		if p0.tag == null or not is_instance_valid(p0.tag) or p0.marker == null or not is_instance_valid(p0.marker) \
+				or p0.bubble == null or not is_instance_valid(p0.bubble):
 			p0._make_overlay_controls(overlay)
 		return p0
 	var p := NpcPresenter.new()
@@ -65,6 +74,9 @@ func setup(p_npc: Node3D, overlay: Control, db: ContentDB) -> void:
 	if npc_name.is_empty():
 		npc_name = String(rec.get("name", npc_id))
 	title = String(rec.get("function_title", "")) if rec.get("function_title") is String else ""
+	if not rec.is_empty():
+		def = NpcDef.from_records(rec, db.miso_entity("npcs", npc_id))
+		bubbles = NpcBubbleSchedule.for_npc(npc_id, db)
 	_phase = float(absi(hash(npc_id)) % 997) / 997.0 * TAU
 	_visual = npc.get_node_or_null("Visual") as Node3D
 	if _visual != null:
@@ -87,13 +99,16 @@ func _make_overlay_controls(overlay: Control) -> void:
 	tag.visible = false
 	marker = QuestMarker.new()
 	marker.name = "Marker_%s" % npc_id
+	bubble = NpcSpeechBubble.new()
+	bubble.name = "Bubble_%s" % npc_id
 	if overlay != null:
 		overlay.add_child(tag)
 		overlay.add_child(marker)
+		overlay.add_child(bubble)
 
 
 func _exit_tree() -> void:
-	for c in [tag, marker]:
+	for c in [tag, marker, bubble]:
 		if c != null and is_instance_valid(c):
 			c.queue_free()
 
@@ -125,6 +140,27 @@ func update(delta: float) -> void:
 		refresh_marker()
 	marker.visible = on_screen and marker.state != ""
 	marker.advance(delta)
+	_update_bubble(delta, on_screen, cam)
+
+
+## Ticks the bubble schedule; shows a new canonical line when one falls due and keeps the bubble above the head (and
+## above the quest marker when it shows). A conversation with this NPC hides it at once.
+func _update_bubble(delta: float, on_screen: bool, cam: Camera3D) -> void:
+	if bubble == null or not is_instance_valid(bubble) or bubbles == null or def == null:
+		return
+	var talking := is_talking()
+	if talking:
+		bubbles.hide_now()
+	var line := bubbles.tick(delta, on_screen and not talking)
+	if line >= 0:
+		bubble.set_line(def.idle_line(line), line)
+	bubble.visible = on_screen and not talking and bubbles.is_showing() and bubble.text != ""
+	if bubble.visible and cam != null:
+		var lift := height + MARKER_GAP_M
+		var head := cam.unproject_position(npc.global_position + Vector3.UP * lift)
+		if marker.visible:
+			head.y -= QuestMarker.SIZE.y + 2.0
+		bubble.place_above(head)
 
 
 ## True while the NPC belongs to the current map (WorldNpc.interaction_enabled).
