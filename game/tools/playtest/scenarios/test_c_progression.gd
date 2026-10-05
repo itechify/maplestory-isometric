@@ -982,6 +982,16 @@ func _phase_checks() -> void:
 		other_exp.is_empty(), ", ".join(other_exp))
 	d.check("phase %d: every kill gave its canonical monster EXP" % d.phase, exp_events > 0 and exp_mismatch.is_empty(),
 		"%d EXP events, %d EXP, %d kills %s; %s" % [exp_events, exp_total, kills, kills_by_id, "; ".join(exp_mismatch)])
+	# A hunter that reaches no monster all phase long stands somewhere it cannot leave (a world trap, as F1-9 found):
+	# name the spot so it can be probed (trap_probe, walk_probe).
+	var stranded := kills == 0 and int(fight_fail.get("could not reach the monster", 0)) >= 20
+	var top_cell := ""
+	for cell: Variant in unreachable_cells:
+		if top_cell == "" or int(unreachable_cells[cell]) > int(unreachable_cells[top_cell]):
+			top_cell = String(cell)
+	d.check("phase %d: the hunter is not stranded (it reached a monster)" % d.phase, not stranded,
+		"every one of %d targets unreachable, mostly from map-local cell %s: a possible trap (trap_probe / walk_probe)"
+			% [int(fight_fail.get("could not reach the monster", 0)), top_cell] if stranded else "")
 	d.check("phase %d: one EXP award per monster death" % d.phase, exp_events == kills, "%d awards, %d deaths" % [exp_events, kills])
 	d.check("phase %d: level, EXP and the HUD EXP gauge follow the canonical EXP table after every fight" % d.phase,
 		progress_issues.is_empty(), "%d fights checked; %s" % [progress_checks, "; ".join(progress_issues)])

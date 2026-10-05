@@ -500,6 +500,12 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 
 ## Findings (2026-10-05)
 
+- **A trap in The Field West of Amherst (000001000), confirmed.** Test C's hunter (seed 1, final harness) ended phase
+  1 at map-local (62.5, 0.0, -37.5), world (196.9, 5.0, 541.9), below terraces 4-9 m up; the Continue of phase 2
+  resumed it there, and in the whole phase it reached none of 393 targets ("phase 2: every kill gave its canonical
+  monster EXP" fails with 0 kills; the scenario now also fails "the hunter is not stranded" and names the cell).
+  `trap_probe` FAILs the spot (best escape 1.92 m, rise 0.00 m) and `walk_probe` finds no plan to the arrival. Same
+  conditions as F1-9 (walled pocket, autosave and Continue resume inside it). For the world package.
 - **A possible pocket in The Field West of Amherst (000001000).** Twice in Test A (leg 24, in01 to Dangerous Forest),
   a Snail's knockback dropped the walker off the in01 terrace to map-local (29.0, 0.0, -40.6), world (173.4, 5.0,
   520.2). `walk_probe` finds no plan from there to in01 or to the map's arrival (routes, the grid and the linked plans
