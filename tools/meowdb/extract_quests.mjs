@@ -16,6 +16,12 @@
 //   /_data/safe-to-sell.json      MeowDB dataset of items needed by quests (qty): cross-check of every hand-in count,
 //                                 the only MeowDB count for Roger's Apple (1002), and its ambiguous item-name list
 //
+// One dated capture (read by hand, never fetched; decision D3-2), through tools/sources/captures.mjs:
+//   tools/meowdb/captures/quest_tracker_maple_island.txt   the live quest tracker filtered to Maple Island: each quest's
+//                                 tags ("COT2 · Missable"), which the cached pages do not carry. Written as missable and
+//                                 tracker_tags with provenance.<field> citing the capture; the row's name, start NPC,
+//                                 level and chain step are cross-checked against the cached quest object.
+//
 // Quizzes: MeowDB marks the correct choice. Where it does not (1018), the choice is inferred only from MeowDB's own
 // dialogue (QUIZ_INFERENCES, guarded on the quoted lines) and labelled correct_choice_basis "inferred_from_meowdb_responses".
 //
@@ -26,6 +32,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL } from './lib.mjs';
+import { loadCaptures } from '../sources/captures.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -767,6 +774,10 @@ async function buildQuest(id, indexQuest, ctx) {
   }
   gaps.push('MeowDB does not say which "On completion" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows.');
 
+  // --- live tracker tags (dated capture, decision D3-2) -----------------------------------------------------
+  const tracker = trackerRowFor(qid, q, startNpc.name, questLine, ctx);
+  if (!tracker) gaps.push(`The quest tracker capture (${ctx.tracker.file}) has no row for this quest, so missable and tracker_tags are null.`);
+
   // --- assemble --------------------------------------------------------------------------------------------
   const repeatType = q.isDaily ? 'daily' : q.isWeekly ? 'weekly' : q.isRepeatable ? 'repeatable' : null;
   const record = {
@@ -798,6 +809,8 @@ async function buildQuest(id, indexQuest, ctx) {
     repeatable: repeatType !== null,
     repeat_type: repeatType,
     self_start: !!q.selfStart,
+    missable: tracker ? tracker.tags.includes('Missable') : null,
+    tracker_tags: tracker ? tracker.tags : null,
     objectives: {
       monster_kills: monsterKills,
       item_collection: itemCollection,
@@ -834,6 +847,7 @@ async function buildQuest(id, indexQuest, ctx) {
       entries: descLines.slice(1),
     },
     dialogue,
+    ...(tracker ? { provenance: { missable: trackerSource(tracker, ctx), tracker_tags: trackerSource(tracker, ctx) } } : {}),
     source: source(pg.url, pg.retrieved_at),
     field_sources: fieldSources,
     cross_checks: [
@@ -848,6 +862,68 @@ async function buildQuest(id, indexQuest, ctx) {
     discrepancies: discrepancies.map(({ key, ...d }) => d),
   };
   return record;
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+// The live quest tracker capture (tags per quest)
+// ---------------------------------------------------------------------------------------------------------------
+
+/**
+ * Maple Island rows of the quest tracker capture, keyed by quest name:
+ * {name, raw, level, npc, tags: ["COT2", "Missable"], step, total, collapsed}. A row reads
+ * "<name>  [Level N · ]<start NPC> · Maple Island · <tag> · <tag>  [Step k of n]"; the page collapses a long chain into
+ * one row ("Rain's Maple Quiz 1 … 7 ... Step 1 … 7 of 7"), which is expanded into one row per quest ("Rain's Maple
+ * Quiz 1" ... "Rain's Maple Quiz 7", steps 1 to 7). Any line naming Maple Island that does not parse is a problem.
+ */
+function trackerRows(tracker) {
+  const rows = new Map();
+  for (const line of tracker.text.split('\n')) {
+    if (!line.includes(` · ${REGION_NAME} · `)) continue;
+    const m = /^\s*(.+?)\s{2,}(.+?)\s*$/.exec(line);
+    if (!m) { fail(`quest tracker capture: unreadable row ${JSON.stringify(line)}`); continue; }
+    let rest = m[2];
+    let step = null, total = null;
+    const st = /\s{2,}Step (.+) of (\d+)$/.exec(rest);
+    if (st) { step = st[1]; total = Number(st[2]); rest = rest.slice(0, st.index); }
+    const parts = rest.split(' · ').map((s) => s.trim());
+    const level = /^Level (\d+)$/.exec(parts[0] ?? '');
+    if (level) parts.shift();
+    const [npc, region, ...tags] = parts;
+    if (region !== REGION_NAME || !npc || tags.length === 0) { fail(`quest tracker capture: unreadable row ${JSON.stringify(line)}`); continue; }
+    const base = { raw: line.trim(), level: level ? Number(level[1]) : null, npc, tags, total };
+    const range = /^(.+) (\d+) … (\d+)$/.exec(m[1]);
+    const stepRange = step ? /^(\d+) … (\d+)$/.exec(step) : null;
+    if (range) {
+      const [lo, hi] = [Number(range[2]), Number(range[3])];
+      if (!stepRange || Number(stepRange[1]) !== lo || Number(stepRange[2]) !== hi) fail(`quest tracker capture: collapsed row ${JSON.stringify(m[1])} has steps ${JSON.stringify(step)}`);
+      for (let i = lo; i <= hi; i++) rows.set(`${range[1]} ${i}`, { ...base, name: `${range[1]} ${i}`, step: i, collapsed: true });
+    } else {
+      rows.set(m[1], { ...base, name: m[1], step: step == null ? null : Number(step), collapsed: false });
+    }
+  }
+  return rows;
+}
+
+/** The tracker row for quest `q` (the cached quest object), cross-checked; null (with a problem) when absent. */
+function trackerRowFor(qid, q, startNpcName, questLine, ctx) {
+  const row = ctx.trackerRows.get(q.name);
+  if (!row) { fail(`${qid} ${q.name}: no row in the quest tracker capture (${ctx.tracker.file})`); return null; }
+  ctx.trackerUsed.add(q.name);
+  if (row.npc !== startNpcName) fail(`${qid}: quest tracker start NPC ${JSON.stringify(row.npc)} != ${JSON.stringify(startNpcName)}`);
+  if ((row.level ?? 0) !== q.levelMin) fail(`${qid}: quest tracker level ${row.level ?? '(none)'} != levelMin ${q.levelMin}`);
+  const pos = questLine ? questLine.position : null;
+  const tot = questLine ? questLine.total : null;
+  if (row.step !== pos || row.total !== tot) fail(`${qid}: quest tracker step ${row.step} of ${row.total} != quest line ${pos} of ${tot}`);
+  return row;
+}
+
+/** The C7 source object citing the tracker capture for a field read from `row`. */
+function trackerSource(row, ctx) {
+  const t = ctx.tracker;
+  const src = { authority: 'MeowDB MS Classic', url: t.url, read_at: t.read_at, capture: t.file, method: t.method, raw_value: row.raw };
+  if (t.read_at_note) src.read_at_note = t.read_at_note;
+  if (row.collapsed) src.note = `The tracker shows this chain as one collapsed row ("${row.raw.split(/\s{2,}/)[0]}"); its tags apply to each quest of the chain.`;
+  return src;
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -908,7 +984,9 @@ async function main() {
   for (const id of viaNpcs) if (!selIds.has(id)) fail(`quest ${id} is given/turned in by a Maple Island NPC but its area is not ${REGION_NAME}`);
   for (const id of selIds) if (!viaNpcs.has(id)) fail(`quest ${id} has area ${REGION_NAME} but no Maple Island NPC lists it`);
 
-  const ctx = { index: indexPg, ui, npcIndex, sts };
+  const tracker = loadCaptures().meowdb.quest_tracker;
+  if (!tracker) throw new Error('quest tracker capture missing (tools/meowdb/captures/quest_tracker_maple_island.txt)');
+  const ctx = { index: indexPg, ui, npcIndex, sts, tracker, trackerRows: trackerRows(tracker), trackerUsed: new Set() };
   fs.mkdirSync(OUT_DIR, { recursive: true });
   const written = [];
   for (const iq of selected) {
@@ -917,6 +995,8 @@ async function main() {
     writeJson(path.join(OUT_DIR, `${rec.id}.json`), rec);
     written.push(rec);
   }
+  // Every Maple Island row of the live tracker is one of the selected quests (D3-2: the same 20).
+  for (const name of ctx.trackerRows.keys()) if (!ctx.trackerUsed.has(name)) fail(`quest tracker capture lists "${name}", which is not a selected ${REGION_NAME} quest`);
   // stale files from an earlier run that are no longer selected
   for (const f of fs.readdirSync(OUT_DIR)) if (f.endsWith('.json') && !selIds.has(f.replace(/\.json$/, ''))) fail(`stale file ${f} in ${OUT_DIR}`);
 

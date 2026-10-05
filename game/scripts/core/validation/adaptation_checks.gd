@@ -47,10 +47,14 @@ const META_KEYS := ["id", "kind", "description", "title", "name", "label", "note
 	"reason", "verified", "verification", "verified_by", "verified_against", "source", "sources", "source_url",
 	"source_urls", "retrieved_at", "schema", "schema_version", "version", "see", "doc", "docs", "external", "gaps",
 	"discrepancies", "match_basis", "reasons", "provenance"]
-const META_SUFFIXES := ["_reason", "_note", "_notes", "_verified", "_source", "_source_url", "_description",
-	"_comment", "_doc", "_label"]
-## A verified: true value must say what it was verified against with one of these keys on the same object.
-const VERIFICATION_KEYS := ["source_url", "verification", "verified_by", "verified_against"]
+const META_SUFFIXES := ["_reason", "_note", "_notes", "_verified", "_verified_against", "_source", "_source_url",
+	"_description", "_comment", "_doc", "_label"]
+## A verified: true value must say what it was verified against: a `verified_against` on the same object (for a
+## `<key>_verified: true` sibling flag, `<key>_verified_against` or `verified_against`), a non-empty string or a
+## non-empty list of them: a canonical record, a URL, or a decision or brief section (the project owner's natural-regen
+## rule is verified against "docs/ITERATION_THREE_BRIEF.md: Natural HP Regeneration"). Anything else is not accepted:
+## a value nobody can say was checked is verified: false with its reason.
+const VERIFIED_AGAINST := "verified_against"
 ## WorldScale (scripts/core/world_scale.gd) reads these factors; each must be a positive number.
 const WORLD_SCALE_FACTORS := ["horizontal_px_to_m", "vertical_px_to_m", "actor_px_to_m"]
 const DEFAULT_WORLD_DIR := "res://assets/world"
@@ -152,7 +156,8 @@ func _check_domain_file(folder: String, label: String, key: String, data: Varian
 ## sibling "<key>_verified" (or "<prefix>_verified"), or its object or any enclosing object has "verified"; both
 ## must be bools. So one top-level reason + verified covers a whole file, and per-entry reasons refine it. Arrays
 ## are transparent.
-## A verified: true flag must say what it was checked against (VERIFICATION_KEYS on the same object).
+## A verified: true flag must say what it was checked against (VERIFIED_AGAINST on the same object), else it is an
+## error.
 func check_convention(label: String, id: String, data: Variant) -> void:
 	var missing_reason := {}
 	var missing_verified := {}
@@ -177,9 +182,9 @@ func _cover(label: String, id: String, node: Variant, path: String, has_reason: 
 		if dict.has("verified"):
 			if dict.verified is bool:
 				verified_here = true
-				if dict.verified and not _has_any(dict, VERIFICATION_KEYS):
-					report.warning("adaptation", label, id, "%s is true but nothing says what it was verified against (%s)" % [
-						_join(path, "verified"), ", ".join(PackedStringArray(VERIFICATION_KEYS))])
+				if dict.verified:
+					_check_verified_against(label, id, _join(path, "verified"), dict.get(VERIFIED_AGAINST, null),
+						_join(path, VERIFIED_AGAINST))
 			else:
 				report.error("adaptation", label, id, "%s must be true or false" % _join(path, "verified"))
 		var reasons: Dictionary = {}
@@ -195,6 +200,10 @@ func _cover(label: String, id: String, node: Variant, path: String, has_reason: 
 			var key := str(k)
 			if key.ends_with("_verified") and not (dict[k] is bool):
 				report.error("adaptation", label, id, "%s must be true or false" % _join(path, key))
+			elif key.ends_with("_verified") and dict[k]:
+				var own := key + "_against"
+				_check_verified_against(label, id, _join(path, key), dict.get(own, dict.get(VERIFIED_AGAINST, null)),
+					_join(path, own))
 			if key.ends_with("_reason") and not ValidationUtil.non_empty(dict[k]):
 				report.error("adaptation", label, id, "%s must be a non-empty string" % _join(path, key))
 			if is_meta_key(key):
@@ -236,11 +245,22 @@ static func _has_sibling(dict: Dictionary, key: String, suffix: String) -> bool:
 	return false
 
 
-static func _has_any(dict: Dictionary, keys: Array) -> bool:
-	for k in keys:
-		if dict.has(k):
-			return true
-	return false
+## A true verified flag at `flag_path` needs `against` (read from `against_path`): a non-empty string or a non-empty
+## list of non-empty strings (VERIFIED_AGAINST).
+func _check_verified_against(label: String, id: String, flag_path: String, against: Variant, against_path: String) -> void:
+	if against == null:
+		report.error("adaptation", label, id,
+			"%s is true but has no %s saying what it was verified against (a canonical record, a URL, or a decision or brief section); a value nobody can say was checked is verified: false with its reason" % [
+				flag_path, against_path])
+		return
+	var ok := ValidationUtil.non_empty(against)
+	if against is Array:
+		ok = not against.is_empty()
+		for v in against:
+			ok = ok and ValidationUtil.non_empty(v)
+	if not ok:
+		report.error("adaptation", label, id, "%s must be a non-empty string or a non-empty list of them, got %s" % [
+			against_path, var_to_str(against)])
 
 
 static func _join(path: String, key: String) -> String:
@@ -688,11 +708,7 @@ func _check_combat(label: String, id: String, data: Variant) -> void:
 	var skills: Variant = data.get("fixed_damage_skills", null) if data is Dictionary else null
 	if not (skills is Dictionary):
 		return
-	var known := {}
-	for formula_id in db.ids("formulas"):
-		for s in ValidationUtil.as_array(db.formula(formula_id).get("skills", [])):
-			if s is Dictionary and s.get("skill_id", null) is String:
-				known[s.skill_id] = true
+	var known := ReferenceChecks.skill_definitions(db)
 	for skill_id in skills:
 		if not known.has(str(skill_id)):
 			report.error("adaptation", label, id, "fixed_damage_skills.%s is not a canonical skill id (formulas skills[].skill_id)" % str(skill_id))

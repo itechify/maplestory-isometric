@@ -1,0 +1,565 @@
+{
+  "description": "Hand-maintained declarations for tools/parity/build_parity.mjs (docs/MAPLE_ISLAND_PARITY.md). categories.<id>.runtime and mechanics[].runtime declare the code an entry needs before it can be more than 'missing': every path or glob in files must exist and every contains marker must be found in a file matching its glob; partial names an older implementation that makes the entries 'partial' with its issue. A runtime declaration only says the code exists; evidence (parity-tagged checks) is what verifies an entry. Keys of mechanics, cross_reference and canonical_verification are the parity keys tests tag (contract C6). canonical_verification[].requires names a state the shipped data must be in before the row can be more than partial ({\"drops_schema_version\": 2}: every drop record is schema v2, contract C1; until then the tagged tests prove only the validator rule, not the data). out_of_scope maps a key to why Iteration Three leaves it out.",
+  "categories": {
+    "maps": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/maps/map_definition.gd",
+          "game/scripts/world/island_world.gd"
+        ]
+      }
+    },
+    "portals": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/maps/portal_def.gd",
+          "game/scripts/world/world_portal.gd"
+        ]
+      }
+    },
+    "monster-species": {
+      "runtime": {
+        "files": [
+          "game/scripts/actors/monsters/monster_def.gd",
+          "game/scripts/actors/monsters/monster.gd"
+        ]
+      }
+    },
+    "monster-populations": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/maps/spawn_model.gd",
+          "game/scripts/actors/monsters/monster_system.gd"
+        ]
+      }
+    },
+    "monster-spawn-rules": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/maps/spawn_model.gd"
+        ]
+      }
+    },
+    "monster-stats": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/combat/monster_combat_stats.gd"
+        ]
+      }
+    },
+    "monster-drops": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/drops/drop_roller.gd"
+        ]
+      }
+    },
+    "meso-drops": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/drops/drop_rates.gd",
+          "game/scripts/core/items/mesos.gd"
+        ]
+      }
+    },
+    "items": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/items/item_def.gd",
+          "game/scripts/core/items/inventory.gd"
+        ]
+      }
+    },
+    "equipment": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/items/equipment.gd"
+        ]
+      }
+    },
+    "consumables": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/items/consumables.gd"
+        ]
+      }
+    },
+    "npcs": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/npcs/npc_def.gd",
+          "game/scripts/world/world_npc.gd"
+        ]
+      }
+    },
+    "shops": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/shop/shop_service.gd",
+          "game/scripts/ui/npc/shop_window.gd"
+        ]
+      }
+    },
+    "quests": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/quests/quest_engine.gd",
+          "game/scripts/core/quests/quest_service.gd"
+        ]
+      }
+    },
+    "quest-chains": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/quests/quest_engine.gd"
+        ]
+      }
+    },
+    "quest-objectives": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/quests/quest_engine.gd"
+        ]
+      }
+    },
+    "quest-rewards": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/quests/quest_engine.gd"
+        ]
+      }
+    },
+    "beginner-skills": {
+      "runtime": {
+        "files": [
+          "game/scripts/**/*skill*.gd"
+        ],
+        "note": "the Beginner skills (contract C3: skills, sp, cooldowns, effects)"
+      }
+    },
+    "breakables": {
+      "runtime": {
+        "files": [
+          "game/scripts/**/*breakable*.gd"
+        ],
+        "note": "the Wooden Box runtime (contract C8)"
+      }
+    },
+    "chairs": {
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "&\"seated\""
+          }
+        ],
+        "note": "sitting on a chair (contracts C4 and C5: the seated activity)"
+      }
+    },
+    "cross-reference-validation": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/validation/reference_checks.gd",
+          "game/scripts/core/validation/integrity_checks.gd"
+        ]
+      }
+    },
+    "canonical-verification": {
+      "runtime": {
+        "files": [
+          "game/scripts/core/validation/provenance_authorities.gd",
+          "game/scripts/core/validation/drop_record_checks.gd",
+          "game/scripts/core/validation/provenance_report.gd"
+        ]
+      }
+    }
+  },
+  "mechanics": [
+    {
+      "key": "mechanic:natural-hp-regen",
+      "name": "Natural HP regeneration: 10 HP per 10 s of standing still or sitting; walking, jumping and attacking pause the clock",
+      "brief": "Natural HP Regeneration",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "func activity("
+          }
+        ],
+        "partial": {
+          "files": [
+            "game/scripts/actors/combat/natural_recovery.gd"
+          ],
+          "issue": "the Iteration Two placeholder (its rest timer resets on movement; the owner rule pauses it on the player activity, contract C4)"
+        }
+      },
+      "adaptations": [
+        "game/data/misostory/recovery.json"
+      ]
+    },
+    {
+      "key": "mechanic:no-natural-mp-regen",
+      "name": "No natural MP recovery (MeowDB documents none; not inferred from the HP rule)",
+      "brief": "Other Natural Recovery",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "func activity("
+          }
+        ]
+      }
+    },
+    {
+      "key": "mechanic:sitting",
+      "name": "Sitting down and standing up; movement, jumps, attacks, skills, knockback, death and warps stand the player up",
+      "brief": "Sitting and Chairs",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "&\"seated\""
+          }
+        ]
+      }
+    },
+    {
+      "key": "mechanic:chair-regen",
+      "name": "A chair's own HP bonus per interval while seated, on its own clock",
+      "brief": "Phase 9: Chairs and Sitting",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "&\"seated\""
+          },
+          {
+            "glob": "game/scripts/**/*.gd",
+            "text": "hp_recovery_bonus"
+          }
+        ]
+      }
+    },
+    {
+      "key": "mechanic:death-respawn",
+      "name": "Death and respawn at the return map",
+      "brief": "Phase 18: Regression Pass",
+      "runtime": {
+        "files": [
+          "game/scripts/game/death_controller.gd",
+          "game/scripts/game/death_rules.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:monster-respawn",
+      "name": "Monster respawn timing and mob rate",
+      "brief": "Spawn Timing",
+      "runtime": {
+        "files": [
+          "game/scripts/core/maps/spawn_model.gd",
+          "game/scripts/actors/monsters/monster_system.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:loot-pickup",
+      "name": "Item drops land in the world and can be picked up",
+      "brief": "Phase 12: World Interaction Polish",
+      "runtime": {
+        "files": [
+          "game/scripts/actors/loot/loot_system.gd",
+          "game/scripts/actors/loot/ground_drop.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:meso-pickup",
+      "name": "Meso bags drop, show their amount, are collected and saved",
+      "brief": "Meso Drops",
+      "runtime": {
+        "files": [
+          "game/scripts/actors/loot/loot_system.gd",
+          "game/scripts/core/items/mesos.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:portal-transition",
+      "name": "Portals and map transitions",
+      "brief": "Phase 18: Regression Pass",
+      "runtime": {
+        "files": [
+          "game/scripts/world/portal_interactor.gd",
+          "game/scripts/autoload/map_session.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:stuck-region-scan",
+      "name": "Automated stuck-region scan over all 25 maps",
+      "brief": "Phase 13: Full Stuck-Region Scan",
+      "runtime": {
+        "files": [
+          "game/tools/stuck_scan*.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:minimap",
+      "name": "Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode)",
+      "brief": "Phase 11: Minimap",
+      "runtime": {
+        "files": [
+          "game/scripts/**/*minimap*.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:quest-indicators",
+      "name": "NPC quest markers (available, in progress, ready to turn in)",
+      "brief": "Quest Indicators",
+      "runtime": {
+        "files": [
+          "game/scripts/actors/npcs/quest_marker.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:quest-log",
+      "name": "Quest log with objectives, quantities, NPC, state and chain progress",
+      "brief": "Quest Log",
+      "runtime": {
+        "files": [
+          "game/scripts/ui/windows/quest_window.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:random-quest-rewards",
+      "name": "Random quest rewards are weighted draws, recorded in the save",
+      "brief": "Random Quest Rewards",
+      "runtime": {
+        "files": [
+          "game/scripts/core/quests/quest_engine.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:quiz-quests",
+      "name": "Quiz quests: question, answers, wrong-answer behaviour, progression",
+      "brief": "Quiz Quests",
+      "runtime": {
+        "files": [
+          "game/scripts/core/dialogue/dialogue_runner.gd",
+          "game/scripts/core/quests/quest_engine.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:skill-window",
+      "name": "Skill window: levels, SP allocation, binding, persistence",
+      "brief": "Skill UI",
+      "runtime": {
+        "files": [
+          "game/scripts/ui/**/*skill*.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:ap-allocation",
+      "name": "AP allocation",
+      "brief": "Beginner Mechanics",
+      "runtime": {
+        "files": [
+          "game/scripts/ui/windows/stats_window.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:level-up-feedback",
+      "name": "Level-up and AP-available feedback",
+      "brief": "Phase 12: World Interaction Polish",
+      "runtime": {
+        "files": [
+          "game/scripts/ui/hud/level_up_flourish.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:inventory-full-warning",
+      "name": "Inventory-full warning",
+      "brief": "Phase 12: World Interaction Polish",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/ui/hud/hud.gd",
+            "text": "_on_inventory_full"
+          }
+        ]
+      }
+    },
+    {
+      "key": "mechanic:insufficient-mesos-warning",
+      "name": "Insufficient-mesos warning in shops",
+      "brief": "Phase 3: Complete Shop Pass",
+      "runtime": {
+        "contains": [
+          {
+            "glob": "game/scripts/core/shop/shop_service.gd",
+            "text": "insufficient_mesos"
+          }
+        ]
+      }
+    },
+    {
+      "key": "mechanic:save-load",
+      "name": "Saving and loading every Maple Island system (Phase 14 list)",
+      "brief": "Phase 14: Complete Save-State Audit",
+      "runtime": {
+        "files": [
+          "game/scripts/autoload/save_service.gd",
+          "game/scripts/core/save/save_document.gd"
+        ]
+      }
+    },
+    {
+      "key": "mechanic:save-migration",
+      "name": "Iteration Two saves migrate to the current schema",
+      "brief": "Phase 14: Complete Save-State Audit",
+      "runtime": {
+        "files": [
+          "game/scripts/core/save/save_migrations.gd"
+        ]
+      }
+    }
+  ],
+  "cross_reference": [
+    {
+      "key": "xref:quest-reward-item",
+      "name": "Quest reward items resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:quest-objective-item",
+      "name": "Quest objective, accept and hand-in items resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:quest-monster",
+      "name": "Quest kill targets resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:quest-npc",
+      "name": "Quest NPCs resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:monster-drop",
+      "name": "Monster drop items resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:shop-item",
+      "name": "Shop items resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:map-monster",
+      "name": "Map monsters resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:map-npc",
+      "name": "Map NPCs resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:portal-destination",
+      "name": "Portal destinations resolve; the portal graph is connected",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:skill-reference",
+      "name": "Skill references resolve; no skill is defined twice",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:chair-item",
+      "name": "Chair items resolve and are Setup items with setup data",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:breakable-drop",
+      "name": "Breakable drops resolve",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:no-duplicate-ids",
+      "name": "No duplicate canonical ids",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:no-placeholder-names",
+      "name": "No placeholder names",
+      "brief": "Phase 16"
+    },
+    {
+      "key": "xref:no-silent-missing-refs",
+      "name": "No silent missing references (every category counted, out-of-scope skips listed)",
+      "brief": "Phase 16"
+    }
+  ],
+  "canonical_verification": [
+    {
+      "key": "canon:provenance-per-property",
+      "name": "Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture",
+      "brief": "Phase 17: Provenance Audit",
+      "requires": {
+        "drops_schema_version": 2
+      }
+    },
+    {
+      "key": "canon:membership-chance-separate",
+      "name": "Drop membership and drop chance are recorded from separate sources",
+      "brief": "Drop Provenance",
+      "requires": {
+        "drops_schema_version": 2
+      }
+    },
+    {
+      "key": "canon:probability-conversion",
+      "name": "Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1])",
+      "brief": "Probability Handling",
+      "requires": {
+        "drops_schema_version": 2
+      }
+    },
+    {
+      "key": "canon:kuro-only-excluded",
+      "name": "KuroDB-only items never enter a drop table",
+      "brief": "Item drop rule",
+      "requires": {
+        "drops_schema_version": 2
+      }
+    },
+    {
+      "key": "canon:unresolved-visible",
+      "name": "Unresolved values stay null and are reported, never guessed",
+      "brief": "Missing KuroDB Probability",
+      "requires": {
+        "drops_schema_version": 2
+      }
+    },
+    {
+      "key": "canon:adaptations-explained",
+      "name": "Every MisoStory adaptation carries a reason and a verified flag (verified only against something named)",
+      "brief": "Source-of-Truth Policy"
+    }
+  ],
+  "out_of_scope": {
+    "chair:525": "The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope)",
+    "item:525": "The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope)"
+  }
+}

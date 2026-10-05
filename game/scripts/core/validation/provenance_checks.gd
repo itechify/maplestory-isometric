@@ -556,14 +556,9 @@ func _expected_row(domain_name: String, key: String, rec: Dictionary) -> Diction
 	var fs: Variant = rec.get("field_sources", {})
 	if fs is Dictionary:
 		for f in fs:
-			var v: Variant = fs[f]
-			if v is Dictionary:
-				if v.get("url", null) is String and v.url != "":
-					extra[v.url] = true
-				if v.get("pages", null) is Array:
-					for p in v.pages:
-						if p is Dictionary and p.get("url", null) is String and p.url != "":
-							extra[p.url] = true
+			for u in _field_source_urls(fs[f]):
+				if u != "":
+					extra[u] = true
 	var urls := extra.duplicate()
 	if src.get("url", null) is String and src.url != "":
 		urls[src.url] = true

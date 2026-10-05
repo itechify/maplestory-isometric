@@ -7,6 +7,9 @@
 #   bash scripts/validate_data.sh --strict               # warnings fail too
 #   bash scripts/validate_data.sh --json report.json     # also write the report as JSON
 #   bash scripts/validate_data.sh --world-dir res://...  # Blender export to check the crosswalk slugs against
+#   bash scripts/validate_data.sh --report               # also write the provenance validation report:
+#                                                        # docs/provenance_report.json + docs/PROVENANCE_REPORT.md
+#                                                        # (or --report-json <path> / --report-md <path>)
 #   ISOLATE=<name> bash scripts/validate_data.sh ...     # run in a private copy (_scratch/godot_runs/<name>/game), as
 #                                                        # scripts/test.sh does, so concurrent runs never share .godot/
 #   VALIDATE_TIMEOUT_S=300 bash scripts/validate_data.sh # outer time limit in seconds (default 180)
@@ -20,15 +23,21 @@ REPO="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT="$REPO/game"
 TIMEOUT_S="${VALIDATE_TIMEOUT_S:-180}"
 
-# Resolve --json to an absolute path before Godot changes the frame of reference.
+# Resolve output paths to absolute paths before Godot changes the frame of reference (an ISOLATE run executes in a
+# mirror). --report names the repository's docs/ files.
+abs_path() {
+  local out="$1"
+  [[ "$out" = /* || "$out" =~ ^[A-Za-z]: || "$out" = res://* ]] || out="$PWD/$out"
+  cygpath -m "$out" 2>/dev/null || echo "$out"
+}
 ARGS=()
 while [[ $# -gt 0 ]]; do
-  if [[ "$1" == "--json" && $# -gt 1 ]]; then
-    out="$2"
-    [[ "$out" = /* || "$out" =~ ^[A-Za-z]: || "$out" = res://* ]] || out="$PWD/$out"
-    out="$(cygpath -m "$out" 2>/dev/null || echo "$out")"
-    ARGS+=("--json" "$out")
+  if [[ ( "$1" == "--json" || "$1" == "--report-json" || "$1" == "--report-md" ) && $# -gt 1 ]]; then
+    ARGS+=("$1" "$(abs_path "$2")")
     shift 2
+  elif [[ "$1" == "--report" ]]; then
+    ARGS+=("--report-json" "$(abs_path "$REPO/docs/provenance_report.json")" "--report-md" "$(abs_path "$REPO/docs/PROVENANCE_REPORT.md")")
+    shift
   else
     ARGS+=("$1")
     shift

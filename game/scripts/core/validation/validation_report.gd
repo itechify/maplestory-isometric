@@ -20,6 +20,9 @@ const WARNING := "warning"
 var findings: Array[Dictionary] = []
 ## "<domain>/<id>: <field> -> <target>/<ref> (<why>)" for every reference skipped as deliberately out of scope.
 var out_of_scope: PackedStringArray = []
+## rule -> how many out_of_scope lines it skipped ("monsters.spawns[].map_id -> maps (maple_island: false)"). Printed in
+## every report (format_text), so a rule that suddenly skips more never goes unnoticed; the lines need --verbose.
+var out_of_scope_by_rule: Dictionary = {}
 ## Free-form counters filled by the validator (records checked, references resolved, ...).
 var stats: Dictionary = {}
 
@@ -37,6 +40,12 @@ func warning(check: String, domain: String, id: String, message: String) -> void
 ## Records a finding with an explicit severity ("error" or "warning").
 func add(severity: String, check: String, domain: String, id: String, message: String) -> void:
 	findings.append({"severity": severity, "domain": domain, "id": id, "message": message, "check": check})
+
+
+## Lists a reference skipped as deliberately out of scope: `line` names it, `rule` groups it in the summary.
+func skip(line: String, rule: String) -> void:
+	out_of_scope.append(line)
+	out_of_scope_by_rule[rule] = int(out_of_scope_by_rule.get(rule, 0)) + 1
 
 
 ## Adds one to a named counter in stats.
@@ -83,13 +92,19 @@ func matching(check: String = "", domain: String = "", id: String = "", severity
 	return out
 
 
-## One line per finding, errors first, then a summary line.
+## One line per finding, errors first, then one line per out-of-scope rule with its count ("SKIPPED (out of scope)
+## 125 x monsters.spawns[].map_id -> maps (maple_island: false)"), every skipped reference when
+## `include_out_of_scope` (--verbose), and a summary line.
 func format_text(include_out_of_scope: bool = false) -> String:
 	var lines: PackedStringArray = []
 	for f in errors():
 		lines.append(_format_finding(f))
 	for f in warnings():
 		lines.append(_format_finding(f))
+	var rules: Array = out_of_scope_by_rule.keys()
+	rules.sort()
+	for rule in rules:
+		lines.append("SKIPPED (out of scope) %d x %s" % [int(out_of_scope_by_rule[rule]), rule])
 	if include_out_of_scope:
 		for s in out_of_scope:
 			lines.append("SKIPPED (out of scope) " + s)
@@ -115,6 +130,7 @@ func to_dict() -> Dictionary:
 		"warnings": warning_count(),
 		"findings": findings.duplicate(true),
 		"out_of_scope": Array(out_of_scope),
+		"out_of_scope_by_rule": out_of_scope_by_rule.duplicate(),
 		"stats": stats.duplicate(),
 	}
 

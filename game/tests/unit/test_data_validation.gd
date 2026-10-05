@@ -6,6 +6,19 @@ extends TestCase
 static var _report: ValidationReport = null
 
 
+## The shipped-data run proves every Phase 16 category resolves with no dangling, duplicate or placeholder entry.
+func parity_keys() -> Dictionary:
+	var xref: Array = []
+	for category in ReferenceChecks.PHASE16_CATEGORIES:
+		xref.append("xref:" + category)
+	xref.append_array(["xref:no-duplicate-ids", "xref:no-placeholder-names", "xref:no-silent-missing-refs"])
+	return {
+		"test_shipped_data_has_no_errors": xref,
+		"test_references_and_portals_were_resolved": ["xref:portal-destination", "xref:no-silent-missing-refs"],
+		"test_every_canonical_record_was_checked": ["xref:no-silent-missing-refs"],
+	}
+
+
 func _shipped() -> ValidationReport:
 	if _report == null:
 		_report = DataValidator.validate(db())

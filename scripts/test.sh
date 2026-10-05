@@ -7,12 +7,28 @@
 #                                                # agents/processes can test concurrently without fighting over .godot/
 #   ISOLATE=<name> INCLUDE_WORLD=1 bash ...      # same, but also mirror assets/world (needed by world/actor tests)
 #                                                # (an isolated copy always gets tools/*/captures next to game/)
+#   TEST_EVIDENCE_OUT=<file> bash scripts/test.sh   # also write the machine-readable test evidence (contract C6):
+#                                                # {run_at, commit, totals, tests: [{file, name, ok, parity}]}
 #
 # An import pass runs first so new class_name scripts are registered. Prints TESTS_PASSED / TESTS_FAILED and exits
 # non-zero on failure.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT="$REPO/game"
+
+# The evidence path is resolved before Godot runs (an ISOLATE run executes in a mirror), and the commit under test is
+# recorded with it (tools/parity/build_parity.mjs reports it).
+if [[ -n "${TEST_EVIDENCE_OUT:-}" ]]; then
+  out="$TEST_EVIDENCE_OUT"
+  [[ "$out" = /* || "$out" =~ ^[A-Za-z]: ]] || out="$PWD/$out"
+  mkdir -p "$(dirname "$out")"
+  TEST_EVIDENCE_OUT="$(cygpath -m "$out" 2>/dev/null || echo "$out")"
+  export TEST_EVIDENCE_OUT
+  if [[ -z "${TEST_EVIDENCE_COMMIT:-}" ]]; then
+    TEST_EVIDENCE_COMMIT="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || true)"
+  fi
+  export TEST_EVIDENCE_COMMIT
+fi
 
 if [[ -n "${ISOLATE:-}" ]]; then
   DEST="$REPO/_scratch/godot_runs/$ISOLATE"

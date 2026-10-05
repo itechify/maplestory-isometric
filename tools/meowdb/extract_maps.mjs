@@ -482,8 +482,20 @@ function loadIterationOne() {
   const doorLinks = [...block('DOOR_LINKS').matchAll(/\((\d+),\s*"(\w+)",\s*(\d+),\s*"(\w+)"\)/g)]
     .map((x) => ({ map: Number(x[1]), portal: x[2], interior: Number(x[3]), interior_portal: x[4] }));
   const oneWay = [...block('ONE_WAY').matchAll(/\((\d+),\s*"(\w+)"\)/g)].map((x) => ({ map: Number(x[1]), portal: x[2] }));
-  failIf(links.length !== 20 || doorLinks.length !== 4 || oneWay.length !== 4, `layout.py parse: ${links.length} LINKS, ${doorLinks.length} DOOR_LINKS, ${oneWay.length} ONE_WAY`);
-  return { topo, manifest, entities, portalsXml, links, doorLinks, oneWay };
+  // Parse checks against Iteration One's own topology rather than fixed counts: layout.py is the live Blender layout
+  // and changes (Iteration Two kept only the arrival of MeowDB's one-way link in ONE_WAY, as headline 1 recommends);
+  // docs/topology.json does not. LINKS (trails) and DOOR_LINKS (interiors) together must join exactly the map pairs
+  // of docs/topology.json, once each, and every ONE_WAY anchor must be an arrival point of its map there.
+  const pairOf = (a, b) => [a, b].sort((x, y) => x - y).join('~');
+  const layoutPairs = [...links.map((l) => pairOf(l.child, l.parent)), ...doorLinks.map((d) => pairOf(d.map, d.interior))];
+  const topoPairs = topo.connections.map((c) => pairOf(c.a, c.b));
+  failIf(new Set(layoutPairs).size !== layoutPairs.length || layoutPairs.length !== topoPairs.length || topoPairs.some((p) => !layoutPairs.includes(p)),
+    `layout.py parse: ${links.length} LINKS + ${doorLinks.length} DOOR_LINKS do not join exactly the ${topoPairs.length} map pairs of docs/topology.json`);
+  const arrivalOf = (o) => (topo.maps.find((t) => t.id === o.map)?.arrival_points || []).some((a) => a.portal === o.portal);
+  failIf(oneWay.length === 0 || !oneWay.every(arrivalOf), `layout.py parse: ONE_WAY ${JSON.stringify(oneWay)} must name arrival points of docs/topology.json`);
+  // ONE_WAY as Iteration One built it: the landing anchors of the one-way connections in docs/topology.json.
+  const oneWayIterationOne = topo.connections.filter((c) => !c.bidirectional).map((c) => ({ map: c.b, portal: c.b_portal }));
+  return { topo, manifest, entities, portalsXml, links, doorLinks, oneWay, oneWayIterationOne };
 }
 
 /** Pair every MeowDB map with an Iteration One map by evidence (never by id arithmetic). */
@@ -807,7 +819,15 @@ function renderDiff(maps, I1, cw, X) {
   for (const r of linkRows) L.push(`| ${r.pair.replace('~', ' / ')} | ${esc(r.meowdb)} | ${esc(r.iteration_one)} | ${r.change === 'same' ? 'same' : '**' + r.change + '**'} |`);
   L.push('');
   L.push(`Iteration One's \`layout.py\` LINKS (${I1.links.length} trail links), DOOR_LINKS (${I1.doorLinks.length} interiors on the remote interior stage) and ONE_WAY ` +
-    `(${I1.oneWay.map((o) => `${o.map}:${o.portal}`).join(', ')}) cover the same 24 map pairs; the ONE_WAY set is where the direction changes land.`, '');
+    `(${I1.oneWayIterationOne.map((o) => `${o.map}:${o.portal}`).join(', ')}, the landing anchors of the one-way connections in \`docs/topology.json\`) ` +
+    'cover the same 24 map pairs; the ONE_WAY set is where the direction changes land.');
+  // MeowDB's one-way links, as the GMS anchors they land on (the arrival-only markers layout.py ONE_WAY should hold).
+  const landings = linkRows.filter((r) => r.ml && !r.ml.two_way && r.il).map((r) => `${g[r.ml.b]}:${r.il.b === r.ml.b ? r.il.b_portal : r.il.a_portal}`).sort();
+  const current = I1.oneWay.map((o) => `${o.map}:${o.portal}`).sort();
+  const sameSet = landings.length === current.length && landings.every((x, i) => x === current[i]);
+  L.push(`Today's \`layout.py\` ONE_WAY is (${current.join(', ')}): ` + (sameSet
+    ? `exactly the landing anchor${landings.length === 1 ? '' : 's'} of MeowDB's one-way link${landings.length === 1 ? '' : 's'}, as headline 1 recommends.`
+    : `**not** the landing anchors of MeowDB's one-way links (${landings.join(', ') || 'none'}); headline 1's adaptation is not applied.`), '');
 
   L.push('## 4. Every difference, by impact', '');
   L.push('Columns: MeowDB value, Iteration One value (GMS v8 baseline), change, impact, recommended adaptation. Map ids are MeowDB ids; the GMS id is in brackets.', '');

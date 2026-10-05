@@ -5,6 +5,11 @@ extends RefCounted
 ## A test file is res://tests/unit/test_<topic>.gd extending TestCase; every method named test_* runs once on a
 ## fresh instance. Assertions record failures and keep going so one run reports everything. Use the shared content
 ## (`db()`) for canonical-data tests; never depend on autoload state, so tests stay deterministic.
+##
+## A test file may also declare which canonical or brief requirements its tests prove (contract C6), with an optional
+## `func parity_keys() -> Dictionary` mapping test method names to parity keys, e.g.
+## `{"test_1006_end_to_end": ["quest:1006"]}`. The runner records them in its test evidence (TEST_EVIDENCE_OUT, see
+## tests/test_runner.gd) and fails a parity_keys() that names a missing test or a malformed key.
 
 static var _shared_db: ContentDB = null
 

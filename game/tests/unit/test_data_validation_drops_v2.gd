@@ -297,3 +297,24 @@ func test_placeholder_runtime_survives_a_v2_table() -> void:
 	for row in rows:
 		if row.item_id == "":
 			assert_ne(row.excluded, "", "the unresolved member never rolls")  # [drops package] reason: DropRates.UNRESOLVED_*
+
+
+## The brief's "Probability Handling" and "Drop Testing" rules these validator tests prove (parity keys, contract C6;
+## added by the validation package: the drops package owns these tests and may extend the map).
+func parity_keys() -> Dictionary:
+	var conversion := ["canon:probability-conversion"]
+	return {
+		"test_probability_above_one": conversion,
+		"test_negative_probability": conversion,
+		"test_one_over_n_read_as_a_percentage": conversion,
+		"test_percentage_read_as_one_over_n": conversion,
+		"test_truncated_probability": conversion,
+		"test_reactor_value_needs_an_interpretation": conversion,
+		"test_probability_and_normalized_value_must_agree": conversion,
+		"test_kuro_only_item_added_as_a_kurodb_member": ["canon:kuro-only-excluded"],
+		"test_kuro_only_item_smuggled_in_with_a_hidden_street_source": ["canon:kuro-only-excluded"],
+		"test_unresolved_entry_has_no_probability": ["canon:unresolved-visible"],
+		"test_unresolved_meso_and_ambiguous_item_are_valid": ["canon:unresolved-visible"],
+		"test_hidden_street_may_not_supply_a_probability": ["canon:membership-chance-separate"],
+		"test_missing_chance_source_on_a_resolved_entry": ["canon:membership-chance-separate"],
+	}
