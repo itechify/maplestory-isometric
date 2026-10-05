@@ -74,21 +74,24 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
   A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
   buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
-- **Skills.** Each level from 2 gives 1 SP (canonical). K opens the Skills window: "+" spends SP on Three Snails,
-  Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a key 1-8; that key
-  casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by skill level).
+- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
+  Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
+  Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
+  key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
+  skill level).
 - **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
   (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
   have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up.
 - **Natural recovery.** 10 HP for every 10 s you stand still or sit, the project owner's rule. Walking, jumping,
-  climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved. Seated on The Green Relaxer you
-  also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover naturally (MeowDB documents none).
+  climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved.
+  Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
+  naturally (MeowDB documents none).
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
   landed basic attacks and comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only
   while Pio's quest is in progress.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
-  an exit when its name does not fit: two of the eight on 000001000), NPCs with their quest markers and shop or boat
-  icons, and your arrow. The hidden portal to Tomato Field is not shown.
+  an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
+  the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The hidden portal to Tomato Field is not shown.
 - **Finishing Maple Island.** Talk to Shanks in Southperry (000000060) at level 7 or higher with 300 mesos (the
   canonical route to Lith Harbor). He lists any unfinished Maple Island quests, then asks whether to sail. Yes shows the
   "End of Maple Island" screen: Victoria Island is not in this build, so nobody travels, no mesos are taken, and you
@@ -123,9 +126,10 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
   filters, totals, tests: [{file, name, ok, failures, parity}]}`. A test file declares parity keys with an optional
   `func parity_keys() -> Dictionary`; a key that names a missing test, or is malformed, fails as `<file>::parity_keys`.
   The commit recorded is `git rev-parse HEAD`, whether or not the tree is clean.
-- **The Jolt body cap.** Godot 4.7.2's Jolt integration does not reuse the body slots of freed collision objects
-  within one process, so a test process that builds and frees the island more than about ten times aborted with exit
-  code 3 and printed nothing (the suite seemed to stop after `test_traversal_routes`). `game/project.godot` sets
+- **The Jolt body cap.** Godot 4.7.2's Jolt integration evidently does not reuse the body slots of freed collision
+  objects within one process (inferred from the fix below; the engine side was not root-caused), so a test process
+  that builds and frees the island more than about ten times aborted with exit code 3 and printed nothing (the suite
+  seemed to stop after `test_traversal_routes`). `game/project.godot` sets
   `physics/jolt_physics_3d/limits/max_bodies=65536` (the default is 10240); with it 16 builds pass, and the full suite
   runs to its totals. The game itself builds the island once. If the suite ever stops without `TESTS_PASSED` or
   `TESTS_FAILED`, suspect this limit first.
@@ -153,7 +157,8 @@ bash scripts/playtest_quests.sh                                   # every Maple 
 
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
   copy of `game/` under `_scratch/godot_runs/`.
-- Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with every Wooden Box),
+- Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
+  then every box of the other five maps: 16 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
   hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `kit` (PlaytestKit's
@@ -194,8 +199,9 @@ ISOLATE=stuck INCLUDE_WORLD=1 bash scripts/test.sh stuck_scan playtest_traps
 TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap_probe
 ```
 
-The tool exits 1 on a CONFIRMED trap the allowlist (`game/data/misostory/stuck_allowlist.json`, empty) does not list,
-on an UNENTERABLE component its reviewed list does not list, and on escapable ground outside every map region. The
+The tool exits 1 on a CONFIRMED trap the allowlist's `entries` do not list (`game/data/misostory/stuck_allowlist.json`;
+empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (13 components
+reviewed by hand) does not list, and on escapable ground outside every map region. The
 final Iteration Three scan reports 0 confirmed traps; every former trap (54 spots) is replayed by `trap_probe`.
 
 ## Run canonical-data validation

@@ -446,8 +446,9 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
 - **Tests:** `test_breakables_state.gd`, `test_breakables_placement.gd` (with the world: every box on real collision,
   standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
   the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
-  `bash scripts/playtest.sh test_box` (Pio's quest with real swings, then every one of the 19 boxes) and the
-  every-quest set's 1012 chain.
+  `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
+  real reload, then every box of the other five maps: 16 of the 19 broken, since the quest needs three of Amherst's
+  six) and the every-quest set's 1012 chain.
 
 ## Damage numbers (`DamageNumbers`)
 

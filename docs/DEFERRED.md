@@ -98,7 +98,7 @@ items were left on purpose or found along the way.
 - Quest markers over NPCs are drawn even where the HUD bar covers them.
 - Flat untextured green slopes fill 40-50% of the arrival frames at 000000040, 000000050 and 000001010.
 - The minimap's fold state lasts for the session only; there is no "Map [M]" button on the status bar; on
-  000001000 two of eight exit names show only on hover.
+  000001000 three of eight exit names show only on hover (43 of the island's 46 named in the suite's layout).
 
 ## Gameplay and feel
 
@@ -167,7 +167,8 @@ items were left on purpose or found along the way.
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
   a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. On the
   integrated build `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 25 of 25 maps and 47 of 47 portals on
-  foot, no death) and so does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77
+  foot, no death; a review run of the same seed passed 477 checks but the walker died twice, on legs 22 in 000001000
+  and 46 in 000001020, and retried each leg after a console warp, so "no death" is not yet reliable) and so does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77
   checks, 0 failed, level 10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the
   canonical +100 (a soft check) and one death in 000001000.
 - **Docs outside this list's owner:** `runtime/DEBUG_TOOLS.md` still calls the `drops` simulation "placeholder
@@ -185,7 +186,7 @@ items were left on purpose or found along the way.
 | Iteration Two item | Iteration Three |
 |---|---|
 | Verify the remaining quests by playthrough | Done: the every-quest set plays all 20 in the real game, strict after setup (20 of 20 on seed 1) |
-| Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; `test_box` breaks all 19 |
+| Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; all 19 stand on real collision (`test_breakables_placement`), and `test_box` breaks 16 of them in the real game (Pio's quest needs three of Amherst's six; of the other three, one takes two hits for the reload check and two are only shown) |
 | Beginner skills and the skills window | Done: SP, the Skills window (K), typed quickslots, the three skills |
 | Sitting and chairs | Done: X, The Green Relaxer, the chair's own bonus clock |
 | Drop chances and meso amounts as placeholders | Done: KuroDB chances on Hidden Street (monsters) and MeowDB (Wooden Box) membership, meso amounts from MeowDB and Hidden Street; what no source gives is unresolved and never rolls |

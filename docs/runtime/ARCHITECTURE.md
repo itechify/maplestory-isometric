@@ -117,8 +117,8 @@ naming the emitter; Iteration Three added only additive ones (`player_sat_down` 
 - Tests extend `TestCase`, use `db()` for the real shipped content, and must be deterministic: every random roll
   goes through an injectable RNG (`RandomNumberGenerator` with a fixed seed in tests).
 - One test process builds the island many times; `project.godot` raises Jolt's body cap
-  (`physics/jolt_physics_3d/limits/max_bodies` 65536) because freed collision bodies' slots are not reused within a
-  process (HOWTO "Run automated tests").
+  (`physics/jolt_physics_3d/limits/max_bodies` 65536) because freed collision bodies' slots are evidently not reused
+  within a process (inferred from the fix, not root-caused; HOWTO "Run automated tests").
 - Real-game playthroughs: `bash scripts/playtest.sh <scenario>` and `bash scripts/playtest_quests.sh`
   ([PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md)).
 

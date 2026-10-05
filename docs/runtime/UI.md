@@ -312,8 +312,10 @@ N" and a star burst.
     an outward chevron and its canonical destination name beside it (nearest exits first; outward, above, below,
     right, left or a corner, slid along the picture's edge where needed, covering no other name or glyph; a name
     with no free place covers as little of the NPC dots as it can, and the dots are drawn over it). Every map with up
-    to five exits names them all; The Field West of Amherst names six of its eight, the other two are read by
-    hovering. A door with a shopkeeper behind it has a gold coin (Southperry to Pan, Amherst to Sid and Lucy).
+    to five exits names them all; The Field West of Amherst names five of its eight in the suite's layout (the
+    player away: `test_ui_minimap_world` prints "43 of 46 exits named"), the others are read by hovering; which ones
+    show depends on where the player stands. A door with a shopkeeper behind it has a gold coin (Southperry to Pan,
+    Amherst to Sid and Lucy).
   - NPCs: a yellow dot, or the quest marker's own badge colour and glyph ("!" available, "..." in progress, "?" ready
     to turn in, from `QuestEngine.npc_marker`, the rule of the badge over the NPC's head) for every NPC of the map, on
     screen or not; a coin beside shopkeepers and a boat beside Shanks (Transport).

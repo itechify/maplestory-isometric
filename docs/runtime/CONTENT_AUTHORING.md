@@ -207,8 +207,9 @@ Monsters spawn at slots the runtime plans on Blender's spawn regions; MeowDB's 2
    own actor and size entry. The hit rule (one landed basic attack, nearest box) and the exact respawn clock are in
    `breakables.json`. Box state is never saved.
 4. **Verify:** `test_breakables_placement.gd` checks every placement against the real collision (with the world),
-   `bash scripts/playtest.sh test_box` breaks every box in the real game, and the `boxes` console command shows the
-   current map's boxes.
+   `bash scripts/playtest.sh test_box` breaks boxes in the real game (Amherst's until Pio's quest is done, then every
+   box of the other five maps: 16 of the 19), and the `boxes` console command shows the current map's boxes. A
+   breakable on a new map needs that map added to `test_box`'s `OTHER_BOX_MAPS`.
 
 ## Add a skill
 

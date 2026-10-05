@@ -508,8 +508,8 @@ chunks, **trails** (`TrailLoader`), ground (`ground_all`, gate heights, `finish_
 `IslandWorld.ground_faces(map_id) -> PackedVector3Array` (Iteration Three, for the minimap) returns the walkable
 triangles of the map's collision chunk (its `Ground*` bodies), in island coordinates, cached per map; it is empty for
 an unknown map or before the build. A test process that builds the island many times needs Jolt's raised body cap
-(`project.godot` `physics/jolt_physics_3d/limits/max_bodies` 65536): freed bodies' slots are not reused within a
-process, and the eleventh build used to abort the process.
+(`project.godot` `physics/jolt_physics_3d/limits/max_bodies` 65536): freed bodies' slots are evidently not reused
+within a process (inferred from the fix, not root-caused), and the eleventh build used to abort the process.
 
 Collision comes from the `.collision.glb` files (Godot builds the `-colonly` / `-convcolonly` shapes); the world
 then reassigns layers by body name:

@@ -50,7 +50,9 @@ bash scripts/playtest_quests.sh # every Maple Island quest played in the real ga
 - **Canonical drops with their sources kept apart.** Monster drop membership comes from Hidden Street's per-monster
   lists and the Wooden Box's from MeowDB; drop and meso-drop chances from KuroDB, only for items on both lists; meso
   amounts from MeowDB (the Snail) or Hidden Street. Every value keeps its raw source text, URL and dated capture, and
-  a member no source gives a chance for never drops and stays visible in validation (owner decisions D3-3 to D3-9).
+  a member no source gives a chance for never drops and stays visible in validation (decisions D3-3 to D3-9 in the
+  iteration log; the Snail's meso amount and the quest-gate rule are the orchestrator's readings of the brief, not
+  owner decisions).
 - **Beginner mechanics:** natural HP recovery by the project owner's rule (10 HP per 10 s standing still or sitting,
   paused by moving, jumping or attacking), sitting and The Green Relaxer, the three Beginner skills with SP, a Skills
   window and skill quickslots.
