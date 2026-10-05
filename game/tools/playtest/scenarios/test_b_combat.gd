@@ -432,7 +432,7 @@ func _on_loot(list: Array, at: Vector3, map_id: String) -> void:
 	var mob := _last_killed
 	var table := {}
 	for e: Dictionary in db.drop_table(mob).get("entries", []):
-		table[String(e.get("item_id", ""))] = String(e.get("status", ""))
+		table[str(e.get("item_id", ""))] = String(e.get("status", ""))  # [drops package] item_id null when unresolved
 	var meso := DropRates.meso_rule(mob, db)
 	var rec := {"mob": mob, "map": map_id, "drops": list.duplicate(true), "at": at}
 	for dr: Dictionary in list:

@@ -1,16 +1,29 @@
 class_name DropRates
 extends RefCounted
-## Resolves the placeholder drop chances, quantities and meso amounts in data/misostory/drop_rates.json against the
-## canonical drop tables (data/canonical/drops/<owner id>.json), plus the ground rules in data/misostory/drops.json.
-## MeowDB publishes the drop LISTS only; every chance/quantity/meso number resolved here is a labelled placeholder.
+## Reads the canonical drop records (data/canonical/drops/<owner id>.json, schema v2, contract C1) for the roller:
+## which entries may roll and at what chance, how many, under which quest gate, and the meso bag. Plus the ground rules
+## in data/misostory/drops.json (lifetime, ownership, scatter) and the canonical pickup box.
 ##
-## Pure and read-only. Every resolved value carries a "source" string saying which level of drop_rates.json it came
-## from, so debug overlays and tests can show exactly why an item drops at a given rate.
+## Every chance, quantity and meso amount comes from the record and nowhere else (C1): membership from Hidden Street
+## (monsters) or MeowDB (the Wooden Box), chances from KuroDB, meso amounts from MeowDB or Hidden Street. A member the
+## sources leave unresolved (no KuroDB chance, or no local MeowDB item) stays visible with chance 0 and the reason in
+## "excluded", and never rolls. A table that is not schema v2 supplies no chances at all.
+##
+## Pure and read-only. Each row says where its chance came from ("source"), so debug output and tests can show why an
+## item drops at the rate it does.
 
+## Why an entry never rolls (DropRates.effective_entries "excluded").
+const UNRESOLVED_CHANCE := "unresolved_chance"
+const UNRESOLVED_ITEM := "unresolved_item"
+const UNKNOWN_ITEM := "unknown_item"
+const INVALID_CHANCE := "invalid_chance"
+const NOT_V2 := "not_v2"
 
-static func _rates(db: ContentDB) -> Dictionary:
-	var t: Variant = db.miso_table("drop_rates")
-	return t if t is Dictionary else {}
+## The context key DropRoller.roll reads (contract C2).
+const CTX_QUESTS := "quests_in_progress"
+
+## The meso amount distribution the roller implements; data/misostory/drop_rates.json must name it.
+const MESO_DISTRIBUTION := "uniform_integer_inclusive"
 
 
 static func _ground(db: ContentDB) -> Dictionary:
@@ -28,115 +41,139 @@ static func owner_kind(owner_id: String, db: ContentDB) -> String:
 	return String(db.drop_table(owner_id).get("owner", {}).get("kind", ""))
 
 
-## Every canonical entry of the owner's table with its resolved rate, in canonical order:
-## {"item_id", "status", "disputed", "chance", "min_quantity", "max_quantity", "excluded" (reason or ""),
-##  "source" (where chance came from)}. Excluded entries have chance 0 and are never rolled.
+## True when the owner's table is a schema v2 record (contract C1).
+static func is_v2(owner_id: String, db: ContentDB) -> bool:
+	return DropRecordChecks.is_v2(db.drop_table(owner_id))
+
+
+## Every member of the owner's table in canonical order, with what the roller may do with it:
+##   {"key", "name", "item_id" ("" when unresolved), "chance" (0 when it never rolls), "min_quantity", "max_quantity",
+##    "quest_gate" (MeowDB quest id, or ""), "excluded" ("" when it may roll, else UNRESOLVED_CHANCE / UNRESOLVED_ITEM /
+##    UNKNOWN_ITEM / INVALID_CHANCE / NOT_V2), "source" (where the chance came from: "KuroDB '2.00% base | Qty 1'"),
+##    "item_state" (item_resolution.state), "chance_state"}
+## A gated entry is not excluded: whether it rolls depends on the quests in progress (DropRoller.roll's context).
 static func effective_entries(owner_id: String, db: ContentDB) -> Array:
 	var out: Array = []
-	var rates := _rates(db)
 	var table := db.drop_table(owner_id)
-	var overrides: Dictionary = rates.get("owner_item_overrides", {}).get(owner_id, {})
-	var item_overrides: Dictionary = rates.get("item_overrides", {})
-	var status_rules: Dictionary = rates.get("status_rules", {})
-	var disputed_rule: Dictionary = rates.get("disputed_entries", {})
-	var global_mult := float(rates.get("global_rate_multiplier", 1.0))
-	for e in table.get("entries", []):
-		# A schema v2 entry (contract C1) may have item_id null (an unresolved member): it resolves to no item and is
-		# excluded like an unknown item. String(null) would be a script error.
+	var v2 := DropRecordChecks.is_v2(table)
+	for e in ValidationUtil.as_array(table.get("entries", [])):
+		if not (e is Dictionary):
+			continue
 		var raw_id: Variant = e.get("item_id", null)
 		var item_id := "" if raw_id == null else str(raw_id)
-		var status := str(e.get("status", ""))
-		var disputed: bool = e.get("disputed") == true
-		var row := {"item_id": item_id, "status": status, "disputed": disputed, "chance": 0.0, "min_quantity": 1,
-			"max_quantity": 1, "excluded": "", "source": ""}
-		var rec := db.item(item_id)
-		if rec.is_empty():
-			row.excluded = "unknown_item"
-			out.append(row)
-			continue
-		var chain: Array = []
-		var names: PackedStringArray = []
-		var override_level: Variant = overrides.get(item_id, null)
-		if override_level is Dictionary:
-			chain.append(override_level)
-			names.append("owner_item_overrides.%s.%s" % [owner_id, item_id])
-		var item_level: Variant = item_overrides.get(item_id, null)
-		if item_level is Dictionary:
-			chain.append(item_level)
-			names.append("item_overrides.%s" % item_id)
-		var type_name := String(rec.get("type", "")) if rec.get("type") != null else ""
-		var subtype_name := String(rec.get("subtype", "")) if rec.get("subtype") != null else ""
-		var sub_key := "%s/%s" % [type_name, subtype_name]
-		var sub_level: Variant = rates.get("subtype_rates", {}).get(sub_key, null)
-		if sub_level is Dictionary:
-			chain.append(sub_level)
-			names.append("subtype_rates.%s" % sub_key)
-		var type_level: Variant = rates.get("type_rates", {}).get(type_name, null)
-		if type_level is Dictionary:
-			chain.append(type_level)
-			names.append("type_rates.%s" % type_name)
-		chain.append(rates.get("default_rate", {}))
-		names.append("default_rate")
-
-		var chance := 0.0
-		for i in chain.size():
-			if (chain[i] as Dictionary).has("chance"):
-				chance = float(chain[i].chance)
-				row.source = names[i]
-				break
-		for field in ["min_quantity", "max_quantity"]:
-			for level in chain:
-				if (level as Dictionary).has(field):
-					row[field] = maxi(1, int(level[field]))
-					break
-		row.max_quantity = maxi(int(row.min_quantity), int(row.max_quantity))
-
-		var is_override := override_level is Dictionary or item_level is Dictionary
-		if not is_override:
-			var rule: Dictionary = status_rules.get(status, {})
-			if rule.get("enabled") != true:
-				row.excluded = "status:%s" % status
-			elif disputed and disputed_rule.get("enabled") != true:
-				row.excluded = "disputed"
-			else:
-				chance *= float(rule.get("rate_multiplier", 1.0))
-		row.chance = 0.0 if row.excluded != "" else clampf(chance * global_mult, 0.0, 1.0)
+		var res: Variant = e.get("item_resolution", null)
+		var gate: Variant = e.get("quest_gate", null)
+		var qty: Variant = e.get("quantity", null)
+		var cs: Variant = e.get("chance_source", null)
+		var row := {"key": str(e.get("key", item_id)), "name": str(e.get("name", e.get("item_name", ""))), "item_id": item_id,
+			"chance": 0.0, "min_quantity": 1, "max_quantity": 1, "quest_gate": "", "excluded": "", "source": "",
+			"item_state": str(res.get("state", "")) if res is Dictionary else "",
+			"chance_state": str(e.get("chance_state", ""))}
+		if gate is Dictionary and gate.get("quest_id", null) != null:
+			row.quest_gate = str(gate.quest_id)
+		if cs is Dictionary:
+			row.source = "%s '%s'" % [str(cs.get("authority", "")), str(cs.get("raw_value", ""))]
+		var p: Variant = e.get("probability", null)
+		if not v2:
+			row.excluded = NOT_V2
+		elif row.chance_state != "resolved" or p == null:
+			row.excluded = UNRESOLVED_CHANCE
+		elif raw_id == null:
+			row.excluded = UNRESOLVED_ITEM
+		elif not db.has("items", item_id):
+			row.excluded = UNKNOWN_ITEM
+		elif not ValidationUtil.is_number(p) or is_nan(float(p)) or float(p) < 0.0 or float(p) > 1.0:
+			row.excluded = INVALID_CHANCE
+		if qty is Dictionary and ValidationUtil.is_number(qty.get("min", null)) and ValidationUtil.is_number(qty.get("max", null)):
+			row.min_quantity = maxi(1, int(qty.min))
+			row.max_quantity = maxi(int(row.min_quantity), int(qty.max))
+		if row.excluded == "":
+			row.chance = float(p)
 		out.append(row)
 	return out
 
 
-## The meso rule for an owner: {"chance", "min", "max", "source"}; chance 0 when the owner drops no mesos.
+## The meso rule for an owner: {"chance", "min", "max", "source", "excluded"}. chance is 0 (and "excluded" says why)
+## unless the record's meso amount and meso chance are both resolved (C1); the amount is a uniform integer in
+## [min, max]. A null meso block means the owner never drops mesos ("no_mesos").
 static func meso_rule(owner_id: String, db: ContentDB) -> Dictionary:
-	var cfg: Dictionary = _rates(db).get("mesos", {})
+	var out := {"chance": 0.0, "min": 0, "max": 0, "source": "", "excluded": ""}
 	var table := db.drop_table(owner_id)
-	var canon: Dictionary = table.get("meso", {}) if table.get("meso") is Dictionary else {}
-	var out := {"chance": 0.0, "min": 0, "max": 0, "source": ""}
-	if table.is_empty() or owner_kind(owner_id, db) != "monster" or String(canon.get("status", "")) == "not_applicable":
-		out.source = "no_mesos"
+	if table.is_empty():
+		out.excluded = "no_table"
 		return out
-	out.chance = float(cfg.get("chance", 0.0))
-	var sources: PackedStringArray = ["mesos.chance"]
-	if cfg.get("use_player_reports") == true and str(canon.get("status", "")) == "player_reports" \
-			and canon.get("median_min") != null and canon.get("median_max") != null:
-		out.min = int(canon.median_min)
-		out.max = int(canon.median_max)
-		sources.append("canonical player reports")
-	else:
-		var level := int(db.monster(owner_id).get("level", 1))
-		var per: Dictionary = cfg.get("per_level", {})
-		out.min = maxi(1, int(floor(level * float(per.get("min", 0.0)))))
-		out.max = maxi(int(out.min), int(ceil(level * float(per.get("max", 0.0)))))
-		sources.append("mesos.per_level")
-	var by_owner: Variant = cfg.get("by_owner", {}).get(owner_id, null)
-	if by_owner is Dictionary:
-		for k in ["chance", "min", "max"]:
-			if by_owner.has(k):
-				out[k] = float(by_owner[k]) if k == "chance" else int(by_owner[k])
-		sources.append("mesos.by_owner.%s" % owner_id)
-	out.chance = clampf(float(out.chance), 0.0, 1.0)
-	out.max = maxi(int(out.min), int(out.max))
-	out.source = ", ".join(sources)
+	if not DropRecordChecks.is_v2(table):
+		out.excluded = NOT_V2
+		return out
+	var meso: Variant = table.get("meso", null)
+	if not (meso is Dictionary):
+		out.excluded = "no_mesos"
+		return out
+	var amount_src: Variant = meso.get("amount_source", null)
+	var chance_src: Variant = meso.get("chance_source", null)
+	var parts: PackedStringArray = []
+	if amount_src is Dictionary:
+		parts.append("amount %s '%s'" % [str(amount_src.get("authority", "")), str(amount_src.get("raw_value", ""))])
+	if chance_src is Dictionary:
+		parts.append("chance %s '%s'" % [str(chance_src.get("authority", "")), str(chance_src.get("raw_value", ""))])
+	out.source = ", ".join(parts)
+	var lo: Variant = meso.get("min", null)
+	var hi: Variant = meso.get("max", null)
+	var p: Variant = meso.get("probability", null)
+	if str(meso.get("amount_state", "")) != "resolved" or not ValidationUtil.is_number(lo) or not ValidationUtil.is_number(hi):
+		out.excluded = "unresolved_amount"
+		return out
+	if str(meso.get("chance_state", "")) != "resolved" or not ValidationUtil.is_number(p):
+		out.excluded = UNRESOLVED_CHANCE
+		return out
+	if is_nan(float(p)) or float(p) < 0.0 or float(p) > 1.0 or int(lo) < 1 or int(hi) < int(lo):
+		out.excluded = INVALID_CHANCE
+		return out
+	out.chance = float(p)
+	out.min = int(lo)
+	out.max = int(hi)
 	return out
+
+
+## The members and meso values that never roll because a source leaves them unresolved, for validation, debug and
+## the parity report: [{"owner", "key", "name", "what" ("chance" | "item" | "meso amount" | "meso chance"),
+## "reason"}]. Gated entries are not listed (they roll while their quest is in progress).
+static func unresolved(owner_id: String, db: ContentDB) -> Array:
+	var out: Array = []
+	for row in effective_entries(owner_id, db):
+		if row.excluded == "":
+			continue
+		var what := "item" if row.excluded in [UNRESOLVED_ITEM, UNKNOWN_ITEM] else "chance"
+		var reason := str(row.excluded)
+		if row.excluded == UNRESOLVED_ITEM:
+			reason = "item %s" % row.item_state
+		out.append({"owner": owner_id, "key": row.key, "name": row.name, "what": what, "reason": reason})
+	var meso := meso_rule(owner_id, db)
+	if meso.excluded == "unresolved_amount" or meso.excluded == UNRESOLVED_CHANCE:
+		out.append({"owner": owner_id, "key": "mesos", "name": "mesos",
+			"what": "meso amount" if meso.excluded == "unresolved_amount" else "meso chance", "reason": meso.excluded})
+	return out
+
+
+## The quests in progress named by a roll context (contract C2: ctx.quests_in_progress); empty when absent.
+static func quests_in_progress(ctx: Dictionary) -> PackedStringArray:
+	var q: Variant = ctx.get(CTX_QUESTS, null)
+	if q is PackedStringArray:
+		return q
+	var out := PackedStringArray()
+	if q is Array:
+		for id in q:
+			out.append(str(id))
+	return out
+
+
+## True when a resolved row may roll under the given quests in progress: not excluded, and ungated or its gate quest
+## in progress (C1 runtime rule).
+static func may_roll(row: Dictionary, quests: PackedStringArray) -> bool:
+	if str(row.get("excluded", "")) != "" or float(row.get("chance", 0.0)) <= 0.0:
+		return false
+	var gate := str(row.get("quest_gate", ""))
+	return gate == "" or quests.has(gate)
 
 
 ## Seconds a drop stays on the ground (data/misostory/drops.json, unverified).
@@ -174,58 +211,44 @@ static func pickup_box_m(db: ContentDB) -> Dictionary:
 	return out
 
 
-## Problems in drop_rates.json: overrides naming an unknown owner or an item not on that owner's table, missing
-## reasons / verified flags, chances outside [0, 1]. Empty when everything is consistent. Works over v1 and schema v2
-## drop tables (the canonical tables themselves are validated by DataValidator: DropRecordChecks for v2).
+## Keys of data/misostory/drop_rates.json that would supply a chance, quantity or meso amount. The file may hold none
+## of them at any depth (C1: nothing outside the canonical records supplies those values).
+const RATE_KEYS := ["chance", "probability", "rate", "rate_multiplier", "global_rate_multiplier", "min_quantity",
+	"max_quantity", "quantity", "min", "max", "amount", "per_level", "type_rates", "subtype_rates", "default_rate",
+	"item_overrides", "owner_item_overrides", "by_owner"]
+
+
+## Problems in data/misostory/drop_rates.json, the file that documents the drop runtime's MisoStory interpretations:
+## it must be labelled (verified: false, a reason), hold no rate, quantity or meso number (RATE_KEYS, or any number at
+## all), and name the meso amount distribution the roller implements (MESO_DISTRIBUTION). Empty when consistent.
 static func validate(db: ContentDB) -> PackedStringArray:
 	var errors: PackedStringArray = []
-	var rates := _rates(db)
-	if rates.is_empty():
+	var t: Variant = db.miso_table("drop_rates")
+	if not (t is Dictionary):
 		errors.append("data/misostory/drop_rates.json is missing")
 		return errors
+	var rates: Dictionary = t
 	if rates.get("verified") != false:
 		errors.append("drop_rates.json must say verified: false")
-	var levels: Array = [["default_rate", rates.get("default_rate", {})]]
-	for key in ["type_rates", "subtype_rates", "item_overrides"]:
-		var section: Dictionary = rates.get(key, {})
-		for k in section:
-			levels.append(["%s.%s" % [key, k], section[k]])
-	var owners: Dictionary = rates.get("owner_item_overrides", {})
-	for owner_id in owners:
-		if not has_table(owner_id, db):
-			errors.append("owner_item_overrides.%s: no canonical drop table" % owner_id)
-			continue
-		var listed := {}
-		for e in db.drop_table(owner_id).get("entries", []):
-			if e.get("item_id", null) is String:  # schema v2 entries may be unresolved (item_id null)
-				listed[e.item_id] = true
-		for item_id in owners[owner_id]:
-			if not listed.has(item_id):
-				errors.append("owner_item_overrides.%s.%s: item not on that drop table" % [owner_id, item_id])
-			levels.append(["owner_item_overrides.%s.%s" % [owner_id, item_id], owners[owner_id][item_id]])
-	for item_id in rates.get("item_overrides", {}):
-		if not db.has("items", item_id):
-			errors.append("item_overrides.%s: unknown item" % item_id)
-	var by_owner: Dictionary = rates.get("mesos", {}).get("by_owner", {})
-	for owner_id in by_owner:
-		if not has_table(owner_id, db):
-			errors.append("mesos.by_owner.%s: no canonical drop table" % owner_id)
-		levels.append(["mesos.by_owner.%s" % owner_id, by_owner[owner_id]])
-	levels.append(["mesos", rates.get("mesos", {})])
-	levels.append(["mesos.per_level", rates.get("mesos", {}).get("per_level", {})])
-	for s in rates.get("status_rules", {}):
-		levels.append(["status_rules.%s" % s, rates.status_rules[s]])
-	levels.append(["disputed_entries", rates.get("disputed_entries", {})])
-	for pair in levels:
-		var where: String = pair[0]
-		var level: Variant = pair[1]
-		if not (level is Dictionary):
-			errors.append("%s: not an object" % where)
-			continue
-		if String(level.get("reason", "")).strip_edges() == "":
-			errors.append("%s: missing reason" % where)
-		if level.get("verified") != false:
-			errors.append("%s: must say verified: false" % where)
-		if level.has("chance") and (float(level.chance) < 0.0 or float(level.chance) > 1.0):
-			errors.append("%s: chance outside [0, 1]" % where)
+	if String(rates.get("reason", "")).strip_edges() == "":
+		errors.append("drop_rates.json needs a reason")
+	_find_rate_values(rates, "", errors)
+	var dist: Variant = rates.get("meso_amount_distribution", null)
+	if not (dist is Dictionary) or str(dist.get("value", "")) != MESO_DISTRIBUTION:
+		errors.append("drop_rates.json meso_amount_distribution.value must be \"%s\" (what DropRoller implements)" % MESO_DISTRIBUTION)
 	return errors
+
+
+static func _find_rate_values(node: Variant, path: String, errors: PackedStringArray) -> void:
+	if node is Dictionary:
+		for k in node:
+			var key := str(k)
+			var child := key if path == "" else "%s.%s" % [path, key]
+			if key in RATE_KEYS:
+				errors.append("drop_rates.json %s: a chance, quantity or meso value outside the canonical drop records (contract C1)" % child)
+			_find_rate_values(node[k], child, errors)
+	elif node is Array:
+		for i in node.size():
+			_find_rate_values(node[i], "%s[%d]" % [path, i], errors)
+	elif ValidationUtil.is_number(node) and not (node is bool):
+		errors.append("drop_rates.json %s: holds the number %s; the file documents rules, it supplies no values" % [path, str(node)])

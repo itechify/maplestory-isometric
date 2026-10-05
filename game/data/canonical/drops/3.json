@@ -1,536 +1,853 @@
 {
   "id": "3",
   "name": "Blue Snail drop table",
+  "schema_version": 2,
   "owner": {
     "kind": "monster",
     "id": "3",
     "name": "Blue Snail"
   },
-  "rates_canonical": false,
+  "membership_authority": "Hidden Street",
   "entries": [
     {
-      "item_id": "209",
-      "item_name": "Arrows for Bows",
-      "category": "Use",
-      "subcategory": "Arrow",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
-      },
-      "disputed": false,
-      "community_drop_entry_id": "419",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2060000"
-    },
-    {
-      "item_id": "213",
-      "item_name": "Arrows for Crossbows",
-      "category": "Use",
-      "subcategory": "Arrow",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
-      },
-      "disputed": false,
-      "community_drop_entry_id": "420",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2061000"
-    },
-    {
-      "item_id": "270",
-      "item_name": "Red Potion",
-      "category": "Use",
-      "subcategory": "Potion",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 9,
-        "downvotes": 0,
-        "score": 9
-      },
-      "disputed": false,
-      "community_drop_entry_id": "68",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2000000",
-      "msea_detail_text": "Potion"
-    },
-    {
-      "item_id": "321",
-      "item_name": "Amethyst Ore",
-      "category": "Etc",
-      "subcategory": "Gem",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
-      },
-      "disputed": false,
-      "community_drop_entry_id": "424",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4020001"
-    },
-    {
-      "item_id": "324",
-      "item_name": "Opal Ore",
-      "category": "Etc",
-      "subcategory": "Gem",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 0,
-        "downvotes": 1,
-        "score": -1
-      },
-      "disputed": true,
-      "community_drop_entry_id": "491",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4020004"
-    },
-    {
+      "key": "blue-snail-shell",
+      "name": "Blue Snail Shell",
       "item_id": "349",
-      "item_name": "Blue Snail Shell",
-      "category": "Etc",
-      "subcategory": "Monster Drop",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 14,
-        "downvotes": 0,
-        "score": 14
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 349 'Blue Snail Shell'."
       },
-      "disputed": false,
-      "community_drop_entry_id": "2",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4000002",
-      "msea_detail_text": "Monster Drop"
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Etc. drop: Blue Snail Shell",
+        "categories": [
+          "Etc. drop"
+        ]
+      },
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100101",
+        "read_at": "2026-10-05T07:44:50.614Z",
+        "capture": "tools/kurodb/captures/100101.json",
+        "kuro_item_id": "4000000",
+        "kuro_name": "Blue Snail Shell",
+        "match_method": "exact",
+        "raw_value": "100% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 1,
+        "conversion": "100 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
+      },
+      "chance_state": "resolved",
+      "probability": 1,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "414",
-      "item_name": "Iron Ore",
-      "category": "Etc",
-      "subcategory": "Ore & Mineral",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 14,
-        "downvotes": 0,
-        "score": 14
+      "key": "blue-bandana",
+      "name": "Blue Bandana",
+      "item_id": null,
+      "item_resolution": {
+        "state": "not_in_snapshot",
+        "method": "exact",
+        "candidates": [
+          "721"
+        ],
+        "note": "MeowDB's npc-shops.html (and item-db_349.html) link item-db/721 as 'Blue Bandana'. No local definition."
       },
-      "disputed": false,
-      "community_drop_entry_id": "74",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4010001"
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Common equipment: Blue Bandana, Red Bandana, Blue Headband, Pan Lid",
+        "categories": [
+          "Common equipment"
+        ]
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "417",
-      "item_name": "Silver Ore",
-      "category": "Etc",
-      "subcategory": "Ore & Mineral",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 0,
-        "downvotes": 1,
-        "score": -1
+      "key": "red-bandana",
+      "name": "Red Bandana",
+      "item_id": null,
+      "item_resolution": {
+        "state": "not_in_snapshot",
+        "method": "exact",
+        "candidates": [
+          "720"
+        ],
+        "note": "MeowDB's npc-shops.html (and item-db_351.html) link item-db/720 as 'Red Bandana'. No local definition."
       },
-      "disputed": true,
-      "community_drop_entry_id": "490",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4010004"
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Common equipment: Blue Bandana, Red Bandana, Blue Headband, Pan Lid",
+        "categories": [
+          "Common equipment"
+        ]
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "483",
-      "item_name": "Monster Card",
-      "category": "Etc",
-      "subcategory": "Quest Item",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 1,
-        "score": 0
-      },
-      "disputed": true,
-      "community_drop_entry_id": "250",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4031045",
-      "msea_detail_text": "Quest Item"
-    },
-    {
-      "item_id": "558",
-      "item_name": "Razor",
-      "category": "Equip",
-      "subcategory": "Dagger",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 2,
-        "downvotes": 1,
-        "score": 1
-      },
-      "disputed": false,
-      "community_drop_entry_id": "601",
-      "item_level_req": 5,
-      "req_job": null,
-      "meowdb_icon_key": "1332000"
-    },
-    {
+      "key": "blue-headband",
+      "name": "Blue Headband",
       "item_id": "715",
-      "item_name": "Blue Headband",
-      "category": "Equip",
-      "subcategory": "Hat",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 715 'Blue Headband'."
       },
-      "disputed": false,
-      "community_drop_entry_id": "421",
-      "item_level_req": 5,
-      "req_job": null,
-      "meowdb_icon_key": "1002007"
-    },
-    {
-      "item_id": "934",
-      "item_name": "Grey T-Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Common equipment: Blue Bandana, Red Bandana, Blue Headband, Pan Lid",
+        "categories": [
+          "Common equipment"
+        ]
       },
-      "disputed": false,
-      "community_drop_entry_id": "717",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1040002"
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "935",
-      "item_name": "Undershirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "key": "pan-lid",
+      "name": "Pan Lid",
+      "item_id": null,
+      "item_resolution": {
+        "state": "not_in_snapshot",
+        "method": "none",
+        "candidates": [],
+        "note": "No MeowDB item of that name in the 1050 cached files. Whether MeowDB MS Classic has it at all was not checked (no web access); it is not claimed absent from Classic."
       },
-      "disputed": false,
-      "community_drop_entry_id": "423",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1040003",
-      "msea_detail_text": "Any"
-    },
-    {
-      "item_id": "937",
-      "item_name": "White Tube Top",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Common equipment: Blue Bandana, Red Bandana, Blue Headband, Pan Lid",
+        "categories": [
+          "Common equipment"
+        ]
       },
-      "disputed": false,
-      "community_drop_entry_id": "425",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1041001"
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "939",
-      "item_name": "Green T-Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "key": "hardwood-wand",
+      "name": "Hardwood Wand",
+      "item_id": null,
+      "item_resolution": {
+        "state": "not_in_snapshot",
+        "method": "exact",
+        "candidates": [
+          "650"
+        ],
+        "note": "MeowDB's npc-shops.html (and item-db_356.html) link item-db/650 as 'Hardwood Wand'. No local definition."
       },
-      "disputed": false,
-      "community_drop_entry_id": "422",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1041003"
-    },
-    {
-      "item_id": "945",
-      "item_name": "Brown Training Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Magician equipment: Hardwood Wand",
+        "categories": [
+          "Magician equipment"
+        ]
       },
-      "disputed": false,
-      "community_drop_entry_id": "682",
-      "item_level_req": 10,
-      "req_job": "Mage",
-      "meowdb_icon_key": "1040007"
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "960",
-      "item_name": "Blue One-lined T-Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 5,
-        "downvotes": 0,
-        "score": 5
+      "key": "blue-cloth-vest-m",
+      "name": "Blue Cloth Vest (M)",
+      "item_id": null,
+      "item_resolution": {
+        "state": "ambiguous",
+        "method": "normalized",
+        "candidates": [
+          "949",
+          "958"
+        ],
+        "note": "Two MeowDB items are named 'Blue Cloth Vest': 949 (npc-shops.html) and 958 (listed on item-db_960.html). Neither is local and neither page with a gender is cached, so the (M) suffix cannot pick one."
       },
-      "disputed": false,
-      "community_drop_entry_id": "270",
-      "item_level_req": 12,
-      "req_job": null,
-      "meowdb_icon_key": "1040013",
-      "msea_detail_text": "Lv 12 · Any"
-    },
-    {
-      "item_id": "963",
-      "item_name": "Red Striped T-Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 3,
-        "downvotes": 0,
-        "score": 3
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Thief equipment: Blue Cloth Vest (M)",
+        "categories": [
+          "Thief equipment"
+        ]
       },
-      "disputed": false,
-      "community_drop_entry_id": "362",
-      "item_level_req": 12,
-      "req_job": null,
-      "meowdb_icon_key": "1041015",
-      "msea_detail_text": "Lv 12 · Any"
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "1157",
-      "item_name": "Blue Jean Shorts",
-      "category": "Equip",
-      "subcategory": "Bottom",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "key": "red-potion",
+      "name": "Red Potion",
+      "item_id": "270",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 270 'Red Potion'."
       },
-      "disputed": false,
-      "community_drop_entry_id": "681",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1060001"
-    },
-    {
-      "item_id": "1181",
-      "item_name": "Grey Thick Sweat Pants",
-      "category": "Equip",
-      "subcategory": "Bottom",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 3,
-        "downvotes": 0,
-        "score": 3
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Orange Potion, Green Apple, Arrow for Bow",
+        "categories": [
+          "Useable drop"
+        ]
       },
-      "disputed": false,
-      "community_drop_entry_id": "363",
-      "item_level_req": 12,
-      "req_job": null,
-      "meowdb_icon_key": "1060011",
-      "msea_detail_text": "Lv 12 · Any"
-    },
-    {
-      "item_id": "1440",
-      "item_name": "Brown Duo",
-      "category": "Equip",
-      "subcategory": "Gloves",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100101",
+        "read_at": "2026-10-05T07:44:50.614Z",
+        "capture": "tools/kurodb/captures/100101.json",
+        "kuro_item_id": "2000000",
+        "kuro_name": "Red Potion",
+        "match_method": "exact",
+        "raw_value": "2.00% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 0.02,
+        "conversion": "2.00 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
       },
-      "disputed": false,
-      "community_drop_entry_id": "719",
-      "item_level_req": 15,
-      "req_job": "Thief",
-      "meowdb_icon_key": "1082005"
+      "chance_state": "resolved",
+      "probability": 0.02,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "59",
-      "item_name": "Cape Magic Def. Scroll: Intermediate",
-      "category": "Use",
-      "subcategory": "Scroll",
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": null,
-      "req_job_text": null,
-      "msea_detail_text": "Scroll",
-      "meowdb_icon_key": "2041005"
+      "key": "blue-potion",
+      "name": "Blue Potion",
+      "item_id": "273",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 273 'Blue Potion'."
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Orange Potion, Green Apple, Arrow for Bow",
+        "categories": [
+          "Useable drop"
+        ]
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "595",
-      "item_name": "Iron Mace",
-      "category": "Equip",
-      "subcategory": null,
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": 20,
-      "req_job_text": "Warrior/Mage",
-      "msea_detail_text": "Lv 20 · Warrior/Mage",
-      "meowdb_icon_key": "1322008"
+      "key": "orange-potion",
+      "name": "Orange Potion",
+      "item_id": "271",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 271 'Orange Potion'."
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Orange Potion, Green Apple, Arrow for Bow",
+        "categories": [
+          "Useable drop"
+        ]
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "green-apple",
+      "name": "Green Apple",
+      "item_id": "242",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 242 'Green Apple' (items/242.json, from tools/meowdb/captures/items_api.json)."
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Orange Potion, Green Apple, Arrow for Bow",
+        "categories": [
+          "Useable drop"
+        ]
+      },
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100101",
+        "read_at": "2026-10-05T07:44:50.614Z",
+        "capture": "tools/kurodb/captures/100101.json",
+        "kuro_item_id": "2010009",
+        "kuro_name": "Green Apple",
+        "match_method": "exact",
+        "raw_value": "2.00% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 0.02,
+        "conversion": "2.00 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
+      },
+      "chance_state": "resolved",
+      "probability": 0.02,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "arrow-for-bow",
+      "name": "Arrow for Bow",
+      "item_id": "209",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "alias_with_evidence",
+        "candidates": [],
+        "note": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/blue-snail",
+        "read_at": "2026-10-05T08:03:36.825Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Orange Potion, Green Apple, Arrow for Bow",
+        "categories": [
+          "Useable drop"
+        ]
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": []
     }
   ],
+  "excluded_kuro_only": [
+    {
+      "kuro_item_id": "2380001",
+      "name": "Blue Snail Card",
+      "raw_value": "26% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "4030012",
+      "name": "Monster Card",
+      "raw_value": "12.50% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "4010001",
+      "name": "Steel Ore",
+      "raw_value": "0.90% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "4020001",
+      "name": "Amethyst Ore",
+      "raw_value": "0.90% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "4010004",
+      "name": "Silver Ore",
+      "raw_value": "0.70% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "4020004",
+      "name": "Opal Ore",
+      "raw_value": "0.70% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1040013",
+      "name": "Blue One-lined T-Shirt",
+      "raw_value": "0.0800% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1040017",
+      "name": "Grey / Brown Training Shirt",
+      "raw_value": "0.0800% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1041012",
+      "name": "Red-Striped T-Shirt",
+      "raw_value": "0.0800% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1060004",
+      "name": "Grey Thick Sweat Pants",
+      "raw_value": "0.0800% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1060013",
+      "name": "Grey / Brown Training Pants",
+      "raw_value": "0.0800% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "1040006",
+      "name": "Undershirt",
+      "raw_value": "0.0700% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    },
+    {
+      "kuro_item_id": "2041006",
+      "name": "Scroll for Cape for HP",
+      "raw_value": "0.0300% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    }
+  ],
+  "meowdb_reference": {
+    "note": "MeowDB's community-voted Classic drop list (with votes) and its read-only MSEA list, from the live page. Reference only: monster drop membership comes from Hidden Street (D3-6). item_id is MeowDB's own id for the name in its cached lists (null when the cache does not name it or no local item exists).",
+    "source": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/3",
+      "read_at": "2026-10-05T07:47:34.120Z",
+      "capture": "tools/meowdb/captures/monster_3.json"
+    },
+    "community_drops": [
+      {
+        "name": "Blue Snail Shell",
+        "category": "ETC",
+        "detail": "Monster Drop",
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14,
+        "disputed": false,
+        "item_id": "349"
+      },
+      {
+        "name": "Iron Ore",
+        "category": "ETC",
+        "detail": "Ore & Mineral",
+        "upvotes": 14,
+        "downvotes": 0,
+        "score": 14,
+        "disputed": false,
+        "item_id": "414"
+      },
+      {
+        "name": "Amethyst Ore",
+        "category": "ETC",
+        "detail": "Gem",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "321"
+      },
+      {
+        "name": "Monster Card",
+        "category": "ETC",
+        "detail": "Quest Item",
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "item_id": "483"
+      },
+      {
+        "name": "Opal Ore",
+        "category": "ETC",
+        "detail": "Gem",
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": -1,
+        "disputed": true,
+        "item_id": "324"
+      },
+      {
+        "name": "Silver Ore",
+        "category": "ETC",
+        "detail": "Ore & Mineral",
+        "upvotes": 0,
+        "downvotes": 1,
+        "score": -1,
+        "disputed": true,
+        "item_id": "417"
+      },
+      {
+        "name": "Red Potion",
+        "category": "USE",
+        "detail": "Potion",
+        "upvotes": 9,
+        "downvotes": 0,
+        "score": 9,
+        "disputed": false,
+        "item_id": "270"
+      },
+      {
+        "name": "Arrows for Bows",
+        "category": "USE",
+        "detail": "Arrow",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "209"
+      },
+      {
+        "name": "Arrows for Crossbows",
+        "category": "USE",
+        "detail": "Arrow",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "213"
+      },
+      {
+        "name": "Blue One-lined T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5,
+        "disputed": false,
+        "item_id": "960"
+      },
+      {
+        "name": "Grey Thick Sweat Pants",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "item_id": "1181"
+      },
+      {
+        "name": "Red Striped T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "item_id": "963"
+      },
+      {
+        "name": "White Tube Top",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "item_id": "937"
+      },
+      {
+        "name": "Razor",
+        "category": "EQUIPMENT",
+        "detail": "Lv 5 · Any",
+        "upvotes": 2,
+        "downvotes": 1,
+        "score": 1,
+        "disputed": false,
+        "item_id": "558"
+      },
+      {
+        "name": "Blue Headband",
+        "category": "EQUIPMENT",
+        "detail": "Lv 5 · Any",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "715"
+      },
+      {
+        "name": "Blue Jean Shorts",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "1157"
+      },
+      {
+        "name": "Brown Duo",
+        "category": "EQUIPMENT",
+        "detail": "Lv 15 · Thief",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "1440"
+      },
+      {
+        "name": "Brown Training Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Lv 10 · Mage",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "945"
+      },
+      {
+        "name": "Green T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "939"
+      },
+      {
+        "name": "Grey T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "934"
+      },
+      {
+        "name": "Undershirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "item_id": "935"
+      }
+    ],
+    "msea_reference": [
+      {
+        "name": "Blue Snail Shell",
+        "category": "ETC",
+        "detail": "Monster Drop",
+        "item_id": "349"
+      },
+      {
+        "name": "Monster Card",
+        "category": "ETC",
+        "detail": "Quest Item",
+        "item_id": "483"
+      },
+      {
+        "name": "Red Potion",
+        "category": "USE",
+        "detail": "Potion",
+        "item_id": "270"
+      },
+      {
+        "name": "Cape Magic Def. Scroll: Intermediate",
+        "category": "USE",
+        "detail": "Scroll",
+        "item_id": "59"
+      },
+      {
+        "name": "Grey Thick Sweat Pants",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "item_id": "1181"
+      },
+      {
+        "name": "Iron Mace",
+        "category": "EQUIPMENT",
+        "detail": "Lv 20 · Warrior/Mage",
+        "item_id": "595"
+      },
+      {
+        "name": "Blue One-lined T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "item_id": "960"
+      },
+      {
+        "name": "Red Striped T-Shirt",
+        "category": "EQUIPMENT",
+        "detail": "Lv 12 · Any",
+        "item_id": "963"
+      },
+      {
+        "name": "Undershirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "item_id": "935"
+      }
+    ]
+  },
   "meso": {
-    "status": "no_data",
-    "canonical": false,
-    "chance": null,
-    "report_count": 0,
-    "trusted_report_count": 0,
-    "median_min": null,
-    "median_max": null,
-    "reports": [],
-    "note": "Player-submitted totals seen from ONE kill. MeowDB's report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published."
+    "amount_state": "resolved",
+    "min": 4,
+    "max": 4,
+    "amount_source": {
+      "authority": "Hidden Street",
+      "url": "https://bc.hidden-street.net/monster/blue-snail",
+      "read_at": "2026-10-05T08:03:36.825Z",
+      "capture": "tools/hiddenstreet/captures/monsters.json",
+      "raw_value": "Mesos: 4",
+      "interpretation": null,
+      "decision": "D3-5",
+      "meowdb_note": "MeowDB (https://meowdb.com/msclassic/monsters/3, read 2026-10-05T07:47:34.120Z): \"No meso reports yet.\""
+    },
+    "chance_state": "resolved",
+    "probability": 0.4,
+    "chance_source": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100101",
+      "read_at": "2026-10-05T07:44:50.614Z",
+      "capture": "tools/kurodb/captures/100101.json",
+      "raw_value": "40% base | Meso drop",
+      "format": "percent_base",
+      "normalized_probability": 0.4,
+      "conversion": "40 / 100"
+    },
+    "discrepancies": []
+  },
+  "provenance": {
+    "membership": {
+      "authority": "Hidden Street",
+      "url": "https://bc.hidden-street.net/monster/blue-snail",
+      "read_at": "2026-10-05T08:03:36.825Z",
+      "capture": "tools/hiddenstreet/captures/monsters.json",
+      "decision": "D3-6",
+      "version_note": "Front page, 'Before Chaos', posted 21 June 2011: 'This site is archived directly from our GMS database ... with its Big Bang updates and changes.' It is post-Big-Bang GMS (v0.96 era), a different game version from MapleStory Classic World (MeowDB). Its stats differ from MeowDB's (Snail HP 15 here, 45 on MeowDB)."
+    },
+    "probability": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100101",
+      "read_at": "2026-10-05T07:44:50.614Z",
+      "capture": "tools/kurodb/captures/100101.json",
+      "decision": "D3-3",
+      "site_updated_label": "Updated 10/2/2026"
+    },
+    "mesos.amount": {
+      "authority": "Hidden Street",
+      "url": "https://bc.hidden-street.net/monster/blue-snail",
+      "read_at": "2026-10-05T08:03:36.825Z",
+      "capture": "tools/hiddenstreet/captures/monsters.json",
+      "decision": "D3-5"
+    },
+    "mesos.probability": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100101",
+      "read_at": "2026-10-05T07:44:50.614Z",
+      "capture": "tools/kurodb/captures/100101.json",
+      "decision": "D3-5"
+    }
   },
   "source": {
     "authority": "MeowDB MS Classic",
-    "url": "https://meowdb.com/msclassic/api/drops?monsterId=3",
-    "retrieved_at": "2026-10-04T10:07:01.651Z"
+    "url": "https://meowdb.com/msclassic/monsters/3",
+    "retrieved_at": "2026-10-05T07:47:34.120Z",
+    "capture": "tools/meowdb/captures/monster_3.json"
   },
   "field_sources": {
-    "msea_reference_entries": {
-      "url": "https://meowdb.com/msclassic/monsters/3",
-      "retrieved_at": "2026-10-04T10:07:00.438Z",
-      "note": "\"MSEA reference drops\" (Read-only) section of the monster page"
-    },
-    "meso": {
-      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=3",
-      "retrieved_at": "2026-10-04T10:07:02.848Z"
+    "meowdb_reference.item_ids": {
+      "url": "https://meowdb.com/msclassic/api/drops?monsterId=3",
+      "retrieved_at": "2026-10-04T10:07:01.651Z",
+      "note": "MeowDB item ids for the reference lists, matched by name within MeowDB's own cached drop list and the cached page's MSEA list (https://meowdb.com/msclassic/monsters/3)"
     }
   },
-  "notes": [
-    "classic_confirmed = listed in \"Drops (MS Classic) - Community sourced\": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.",
-    "disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted (\"haven't seen it\") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.",
-    "msea_reference = listed only in \"MSEA reference drops\": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.",
-    "An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).",
-    "chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.",
-    "meowdb_icon_key is MeowDB's icon asset key (looks like a WZ id); it is NOT the item id. Use item_id."
-  ],
   "gaps": [
-    "drop chance per item: not published by MeowDB",
-    "quantity per drop: not published by MeowDB",
-    "meso amount formula / meso drop chance: not published; only player reports (see meso)"
+    "chance unresolved: \"Blue Bandana\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "item unresolved: \"Blue Bandana\" (not_in_snapshot, MeowDB candidates 721), so it never rolls; see its item_resolution.note",
+    "chance unresolved: \"Red Bandana\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "item unresolved: \"Red Bandana\" (not_in_snapshot, MeowDB candidates 720), so it never rolls; see its item_resolution.note",
+    "chance unresolved: \"Blue Headband\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "chance unresolved: \"Pan Lid\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "item unresolved: \"Pan Lid\" (not_in_snapshot), so it never rolls; see its item_resolution.note",
+    "chance unresolved: \"Hardwood Wand\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "item unresolved: \"Hardwood Wand\" (not_in_snapshot, MeowDB candidates 650), so it never rolls; see its item_resolution.note",
+    "chance unresolved: \"Blue Cloth Vest (M)\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "item unresolved: \"Blue Cloth Vest (M)\" (ambiguous, MeowDB candidates 949, 958), so it never rolls; see its item_resolution.note",
+    "chance unresolved: \"Blue Potion\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "chance unresolved: \"Orange Potion\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)",
+    "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)"
+  ],
+  "discrepancies": [],
+  "notes": [
+    "Membership: Hidden Street's \"Before Chaos\" drop lists (https://bc.hidden-street.net/monster/blue-snail, read 2026-10-05T08:03:36.825Z): post-Big-Bang GMS v0.96, a different game version from MapleStory Classic, used by the project owner's decision D3-6. Every member stays in entries; one without a KuroDB chance or a local item never rolls.",
+    "Chance: KuroDB (https://playkuro.com/database/#monsters/100101, read 2026-10-05T07:44:50.614Z, \"Updated 10/2/2026\"), only for members its page also lists, joined by name through tools/sources/crosswalk/drop_items.json (D3-4). KuroDB \"<p>% base\" is the chance before any server-wide drop-rate multiplier; MisoStory applies none (multiplier 1).",
+    "excluded_kuro_only: KuroDB rows for this monster that no member matches. They never drop (KuroDB never adds a member, D3-6).",
+    "Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress. The meso bag rolls only when its amount and chance are both resolved; the amount is a uniform integer in [min, max]."
   ]
 }

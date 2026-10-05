@@ -617,7 +617,7 @@ func _dropped_equipment_section(d: PlaytestDriver, bought: Array) -> void:
 				c.equipment.item_in(def.equip_slot) == id and int(_stat_texts(d).get("wdef", "-1")) == w0 + _wdef(d, id),
 				"%s '%s', W.DEF %s" % [def.equip_slot, c.equipment.item_in(def.equip_slot), _stat_texts(d).get("wdef", "?")])
 	if dropped.is_empty():
-		d.note("no equipment dropped in this run (placeholder Equip rate 0.005 per listed piece): Pan's pieces are the equipment")
+		d.note("no equipment dropped in this run (the only rolling equipment on Maple Island is three boots/sandals at KuroDB's 0.08%, Red Snail and Orange Mushroom): Pan's pieces are the equipment")
 	await d.close_window("equipment")
 	await d.close_window("inventory")
 	await d.close_window("stats")
@@ -886,7 +886,7 @@ func _check_pickups(d: PlaytestDriver, acct: Dictionary, start_mesos: int) -> vo
 	var allowed := {}
 	for mob: String in (acct["killed_mobs"] as Dictionary):
 		for e: Variant in db.drop_table(mob).get("entries", []):
-			allowed[String((e as Dictionary).get("item_id", ""))] = true
+			allowed[str((e as Dictionary).get("item_id", ""))] = true  # item_id is null for an unresolved member
 	var off_table := PackedStringArray()
 	for id: String in picked_items:
 		if not allowed.has(id):

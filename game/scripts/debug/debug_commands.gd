@@ -63,7 +63,7 @@ func install() -> void:
 	# Monsters.
 	d.register_command("spawn", "spawn <monster> [n]: n debug monsters around the player (non-canonical, never in a slot)", _cmd_spawn)
 	d.register_command("kill", "kill [nearest|all]: kill live monsters (their own death path when they have one)", _cmd_kill)
-	d.register_command("drops", "drops <monster> [kills] [seed]: simulate kills with DropRoller (placeholder rates)", _cmd_drops)
+	d.register_command("drops", "drops <monster|owner id> [kills] [seed]: simulate kills with DropRoller (canonical records: Hidden Street/MeowDB membership, KuroDB chances; the character's quests gate quest drops); lists unresolved members", _cmd_drops)
 	d.register_command("monsters", "monsters [name]: search monster ids", _cmd_search.bind("monsters"))
 	# Character.
 	d.register_command("exp", "exp <n>: gain n EXP through Game.gain_exp (level-ups, AP, SP, HP/MP as in play)", _cmd_exp)
@@ -602,25 +602,39 @@ func _cmd_drops(args: PackedStringArray) -> String:
 		nums.push_front(int(words[words.size() - 1]))
 		words = words.slice(0, words.size() - 1)
 	var db := dbg.get_db()
-	var r := DebugResolve.monster_id(" ".join(words), db)
-	if not bool(r.ok):
-		return "drops: " + String(r.error)
+	var owner := " ".join(words)
+	if not db.has("drops", owner):  # a breakable's owner id ("0000001") is used as is; anything else names a monster
+		var r := DebugResolve.monster_id(owner, db)
+		if not bool(r.ok):
+			return "drops: " + String(r.error)
+		owner = String(r.id)
 	var kills := nums[0] if nums.size() > 0 else DEFAULT_SIM_KILLS
 	if kills < 1 or kills > 1000000:
 		return "drops: kills must be 1..1000000"
 	var rng := RandomNumberGenerator.new()
 	rng.seed = nums[1] if nums.size() > 1 else 1
-	var sim := DropRoller.simulate(String(r.id), kills, db, rng)
-	var lines: PackedStringArray = ["%s (%s), %d kills, seed %d (placeholder rates: data/misostory/drop_rates.json):" % [
-		_name("monsters", String(r.id)), r.id, kills, rng.seed]]
-	lines.append("  mesos %d total in %d drops" % [int(sim.mesos), int(sim.meso_drops)])
-	var ids: Array = (sim.items as Dictionary).keys()
-	ids.sort()
-	for id in ids:
-		lines.append("  %s %s x%d (%d kills, %.2f%%)" % [id, _name("items", String(id)), int(sim.items[id]),
-			int(sim.item_drops[id]), 100.0 * float(sim.item_drops[id]) / float(kills)])
-	if ids.is_empty():
-		lines.append("  no items")
+	var ctx := DropRoller.context_for(dbg.get_character())
+	var quests := DropRates.quests_in_progress(ctx)
+	var sim := DropRoller.simulate(owner, kills, db, rng, ctx)
+	var table := db.drop_table(owner)
+	var lines: PackedStringArray = ["%s (%s), %d kills, seed %d, quests in progress [%s] (canonical record drops/%s.json):" % [
+		String(table.get("owner", {}).get("name", owner)), owner, kills, rng.seed, ", ".join(quests), owner]]
+	var meso := DropRates.meso_rule(owner, db)
+	if float(meso.chance) > 0.0:
+		lines.append("  mesos %d total in %d bags (%.2f%%; configured %.2f%% of %d-%d, %s)" % [int(sim.mesos),
+			int(sim.meso_drops), 100.0 * float(sim.meso_drops) / float(kills), 100.0 * float(meso.chance), int(meso.min),
+			int(meso.max), meso.source])
+	else:
+		lines.append("  mesos: none (%s)" % meso.excluded)
+	for e in DropRates.effective_entries(owner, db):
+		var label := "%s %s" % [e.item_id if e.item_id != "" else "-", e.name]
+		if e.excluded != "":
+			lines.append("  %s: never rolls (%s)" % [label, e.excluded])
+			continue
+		var gate := " gated to quest %s%s" % [e.quest_gate, "" if quests.has(e.quest_gate) else " (not in progress)"] if e.quest_gate != "" else ""
+		var n := int((sim.item_drops as Dictionary).get(e.item_id, 0))
+		lines.append("  %s x%d (%d kills, %.4f%%; configured %.4f%%, %s)%s" % [label, int((sim.items as Dictionary).get(e.item_id, 0)),
+			n, 100.0 * float(n) / float(kills), 100.0 * float(e.chance), e.source, gate])
 	return "\n".join(lines)
 
 

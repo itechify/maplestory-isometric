@@ -37,8 +37,13 @@ func _expect_drop(r: ValidationReport, check: String, contains: String, owner: S
 func test_fixture_passes_the_validator() -> void:
 	var r := run_validator(_clone_with(_fixture()))
 	expect_no_new(r)
-	assert_eq(int(r.stats.get("drop_records_v2_checked", 0)), 1, "one v2 record checked")
-	assert_eq(int(r.stats.get("drop_entries_v2_checked", 0)), 4, "its four entries checked")
+	# [drops package] The shipped records are v2 too: the fixture replaces drops/2's entries with its four.
+	var shipped_entries := 0
+	for id in db().ids("drops"):
+		shipped_entries += ValidationUtil.as_array(db().drop_table(id).get("entries", [])).size()
+	assert_eq(int(r.stats.get("drop_records_v2_checked", 0)), db().ids("drops").size(), "every v2 record checked")
+	assert_eq(int(r.stats.get("drop_entries_v2_checked", 0)),
+		shipped_entries - ValidationUtil.as_array(db().drop_table(OWNER).entries).size() + 4, "the fixture's four entries checked")
 	assert_true(int(r.stats.get("provenance_sources_checked", 0)) >= 13, "4 record-level + 4 membership + 3 chance + 2 meso sources")
 
 
@@ -55,10 +60,10 @@ func test_fixture_holds_the_task_cases() -> void:
 	assert_eq([f.meso.min, f.meso.max, f.meso.probability], [2.0, 2.0, 0.4])
 
 
-func test_shipped_drop_records_are_still_v1() -> void:
-	# Another package converts them; until then the v1 rules and the placeholder rates apply unchanged.
+func test_shipped_drop_records_are_v2() -> void:
+	# [drops package] tools/meowdb/extract_monsters.mjs (through tools/sources/drops_merge.mjs) writes them as v2.
 	for id in db().ids("drops"):
-		assert_false(DropRecordChecks.is_v2(db().drop_table(id)), "drops/%s is v1" % id)
+		assert_true(DropRecordChecks.is_v2(db().drop_table(id)), "drops/%s is v2" % id)
 	assert_eq(baseline().matching("drop_record").size(), 0, "no drop_record findings on the shipped data")
 
 
@@ -80,7 +85,8 @@ func test_unresolved_meso_and_ambiguous_item_are_valid() -> void:
 	var e := _entry(f, "green-apple")
 	e.item_id = null
 	e.item_resolution = {"state": "ambiguous", "method": "none", "candidates": ["486", "495"], "note": "test"}
-	expect_no_new(run_validator(_clone_with(f)))
+	# [drops package] Valid means no new error: DropChecks lists the never-rolling values as drop_unresolved warnings.
+	expect_no_new(run_validator(_clone_with(f)), "", "error")
 
 
 # --- corrupted copies fail -----------------------------------------------------------------------------------
@@ -160,7 +166,11 @@ func test_quest_gate_on_a_real_quest_is_valid() -> void:
 	var f := _fixture()
 	var quest_id := db().ids("quests")[0]
 	_entry(f, "snail-shell").quest_gate = {"quest_id": quest_id, "basis": "test: Quest Item required by the quest"}
-	expect_no_new(run_validator(_clone_with(f)))
+	# [drops package] The shape and the reference are valid; DropChecks' C1 gate rule then rejects a gate on 348.
+	var r := run_validator(_clone_with(f))
+	expect_no_new(r, "drop_record")
+	expect_no_new(r, "reference")
+	_expect_drop(r, "drop_policy", "the C1 quest-gate rule gives no gate, the record says quest %s" % quest_id)
 
 
 func test_hidden_street_may_not_supply_a_probability() -> void:
@@ -208,7 +218,8 @@ func test_reactor_value_needs_an_interpretation() -> void:
 	_entry(f, "snail-shell").probability = 0.25
 	_expect_drop(run_validator(_clone_with(f)), "drop_record", "is an interpretation; say so in interpretation")
 	cs.interpretation = "1/N (decision D3-7)"
-	expect_no_new(run_validator(_clone_with(f)))
+	# [drops package] DropChecks also wants the reactor quantity labelled and the conversion text; not this test's subject.
+	expect_no_new(run_validator(_clone_with(f)), "drop_record")
 
 
 func test_probability_and_normalized_value_must_agree() -> void:
@@ -278,11 +289,11 @@ func test_duplicate_keys_and_items() -> void:
 # --- the runtime still copes ---------------------------------------------------------------------------------
 
 func test_placeholder_runtime_survives_a_v2_table() -> void:
-	# The roller is rewritten by another package; until then DropRates must not crash on a v2 table (item_id null).
+	# DropRates must not crash on a v2 table (item_id null).
 	var c := _clone_with(_fixture())
 	assert_eq(DropRates.validate(c).size(), 0, "drop_rates.json still validates against a v2 table")
 	var rows := DropRates.effective_entries(OWNER, c)
 	assert_eq(rows.size(), 4)
 	for row in rows:
 		if row.item_id == "":
-			assert_eq(row.excluded, "unknown_item", "the unresolved member never rolls")
+			assert_ne(row.excluded, "", "the unresolved member never rolls")  # [drops package] reason: DropRates.UNRESOLVED_*

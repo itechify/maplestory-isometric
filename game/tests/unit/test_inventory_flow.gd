@@ -3,7 +3,7 @@ extends TestCase
 ## consumable, equip the equipment, verify the resulting stats, save (JSON), reload, and confirm everything persists.
 ## Every number is read from canonical data or the rolled drops; nothing is typed in.
 
-const SWORD := "541"       # Sword: on Snail's canonical drop table, no requirements
+const SWORD := "541"       # Sword: on MeowDB's Snail reference list (drops/2.json meowdb_reference), no requirements
 const RED_POTION := "270"  # Red Potion: on Snail's canonical drop table
 
 
@@ -28,10 +28,13 @@ func test_obtain_use_equip_save_reload() -> void:
 	var c := CharacterState.new()
 	var s := ItemService.new(c, db())
 	var now := 100.0
+	# [drops package] Membership is Hidden Street's list (D3-6): Red Potion rolls; the Sword is on MeowDB's reference list.
 	var snail_items := {}
 	for e in db().drop_table("2").entries:
-		snail_items[String(e.item_id)] = true
-	assert_true(snail_items.has(RED_POTION) and snail_items.has(SWORD), "precondition: Snails drop both")
+		snail_items[str(e.item_id)] = true
+	for e in db().drop_table("2").meowdb_reference.community_drops:
+		snail_items[str(e.item_id)] = true
+	assert_true(snail_items.has(RED_POTION) and snail_items.has(SWORD), "precondition: Snail records name both")
 	# 1. Obtain: a meso bag from a Snail kill, plus a potion and a weapon as ground records (same shape a kill makes).
 	var ground := _snail_meso_records(now)
 	assert_eq(ground.size(), 1, "a seeded Snail hunt drops mesos")
@@ -46,7 +49,7 @@ func test_obtain_use_equip_save_reload() -> void:
 		if rec.kind == "mesos":
 			meso_amount += int(rec.amount)
 	var snail_meso: Dictionary = db().drop_table("2").meso
-	assert_between(float(meso_amount), float(snail_meso.median_min), float(snail_meso.median_max), "Snail mesos")
+	assert_between(float(meso_amount), float(snail_meso.min), float(snail_meso.max), "Snail mesos")  # [drops package] C1 meso
 	assert_eq(c.mesos, meso_amount)
 	assert_eq(c.inventory.count(RED_POTION), 2)
 	assert_eq(c.inventory.count(SWORD), 1)

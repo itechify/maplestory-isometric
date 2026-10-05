@@ -14,6 +14,7 @@ extends RefCounted
 ##   load            ContentDB load errors (unparsable JSON, a domain file whose top level is not an object)
 ##   ids, schema, provenance, external, sources_index      ProvenanceChecks (+ the ProvenanceAuthorities registry)
 ##   drop_record (+ provenance)                            DropRecordChecks (schema v2 drop records, contract C1)
+##   drop_policy, drop_unresolved                          DropChecks (the drop policy over the shipped records)
 ##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
 ##   validator       a script error inside any of the above (see validate())
@@ -67,6 +68,7 @@ func run() -> ValidationReport:
 	var provenance := ProvenanceChecks.new(db, report, options)
 	provenance.run()
 	DropRecordChecks.new(db, report, provenance).run()
+	DropChecks.new(db, report).run()
 	var refs := ReferenceChecks.new(db, report)
 	refs.run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()

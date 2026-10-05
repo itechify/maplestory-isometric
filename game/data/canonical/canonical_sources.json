@@ -5,9 +5,9 @@
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
     "records": 192,
-    "distinct_source_urls": 414,
+    "distinct_source_urls": 430,
     "external_values": 0,
-    "capture_files": 1
+    "capture_files": 16
   },
   "records": [
     {
@@ -37,12 +37,39 @@
       "name": "Wooden Box drop table",
       "file": "res://data/canonical/drops/0000001.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001",
-      "retrieved_at": "2026-10-04T10:07:46.821Z",
-      "field_source_urls": [],
+      "url": "https://meowdb.com/msclassic/breakables/0000001",
+      "retrieved_at": "2026-10-05T07:49:44.592Z",
+      "field_source_urls": [
+        "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001"
+      ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 4,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/kurodb/captures/reactor_2001_items.json",
+        "tools/meowdb/captures/breakable_0000001.txt"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/breakables/0000001"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#items/2010000",
+            "https://playkuro.com/database/#items/2010002",
+            "https://playkuro.com/database/#items/4031161",
+            "https://playkuro.com/database/#items/4031162"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -50,15 +77,37 @@
       "name": "Tutorial Jr. Sentinel drop table",
       "file": "res://data/canonical/drops/1.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=1",
-      "retrieved_at": "2026-10-04T10:06:55.625Z",
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "retrieved_at": "2026-10-05T07:49:19.434Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
-        "https://meowdb.com/msclassic/monsters/1"
+        "https://meowdb.com/msclassic/api/drops?monsterId=1"
       ],
       "external": [],
-      "gap_count": 4,
-      "discrepancy_count": 0
+      "gap_count": 1,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/9300018.json",
+        "tools/meowdb/captures/monster_1.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/tutorial-jr-sentinel"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/9300018"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -66,15 +115,53 @@
       "name": "Snail drop table",
       "file": "res://data/canonical/drops/2.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=2",
-      "retrieved_at": "2026-10-04T10:06:58.031Z",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-05T07:47:01.065Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=2",
-        "https://meowdb.com/msclassic/monsters/2"
+        "https://meowdb.com/msclassic/api/drops?monsterId=2"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 12,
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/100100.json",
+        "tools/meowdb/captures/monster_2.txt"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/snail"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/2"
+          ]
+        },
+        "mesos.probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/100100"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/100100"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -82,15 +169,53 @@
       "name": "Blue Snail drop table",
       "file": "res://data/canonical/drops/3.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=3",
-      "retrieved_at": "2026-10-04T10:07:01.651Z",
+      "url": "https://meowdb.com/msclassic/monsters/3",
+      "retrieved_at": "2026-10-05T07:47:34.120Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=3",
-        "https://meowdb.com/msclassic/monsters/3"
+        "https://meowdb.com/msclassic/api/drops?monsterId=3"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 14,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/100101.json",
+        "tools/meowdb/captures/monster_3.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/blue-snail"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/blue-snail"
+          ]
+        },
+        "mesos.probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/100101"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/100101"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -98,15 +223,53 @@
       "name": "Shroom drop table",
       "file": "res://data/canonical/drops/4.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=4",
-      "retrieved_at": "2026-10-04T10:07:05.261Z",
+      "url": "https://meowdb.com/msclassic/monsters/4",
+      "retrieved_at": "2026-10-05T07:48:07.614Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=4",
-        "https://meowdb.com/msclassic/monsters/4"
+        "https://meowdb.com/msclassic/api/drops?monsterId=4"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 20,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/120100.json",
+        "tools/meowdb/captures/monster_4.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/shroom"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/shroom"
+          ]
+        },
+        "mesos.probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/120100"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/120100"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -114,15 +277,53 @@
       "name": "Red Snail drop table",
       "file": "res://data/canonical/drops/5.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=5",
-      "retrieved_at": "2026-10-04T10:07:08.887Z",
+      "url": "https://meowdb.com/msclassic/monsters/5",
+      "retrieved_at": "2026-10-05T07:48:29.502Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=5",
-        "https://meowdb.com/msclassic/monsters/5"
+        "https://meowdb.com/msclassic/api/drops?monsterId=5"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 16,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/130101.json",
+        "tools/meowdb/captures/monster_5.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/red-snail"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/red-snail"
+          ]
+        },
+        "mesos.probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/130101"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/130101"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -130,15 +331,53 @@
       "name": "Orange Mushroom drop table",
       "file": "res://data/canonical/drops/9.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=9",
-      "retrieved_at": "2026-10-04T10:07:14.912Z",
+      "url": "https://meowdb.com/msclassic/monsters/9",
+      "retrieved_at": "2026-10-05T07:48:54.363Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=9",
-        "https://meowdb.com/msclassic/monsters/9"
+        "https://meowdb.com/msclassic/api/drops?monsterId=9"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 20,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/hiddenstreet/captures/monsters.json",
+        "tools/kurodb/captures/1210102.json",
+        "tools/meowdb/captures/monster_9.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/orange-mushroom"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "Hidden Street"
+          ],
+          "urls": [
+            "https://bc.hidden-street.net/monster/orange-mushroom"
+          ]
+        },
+        "mesos.probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/1210102"
+          ]
+        },
+        "probability": {
+          "authorities": [
+            "KuroDB"
+          ],
+          "urls": [
+            "https://playkuro.com/database/#monsters/1210102"
+          ]
+        }
+      }
     },
     {
       "domain": "formulas",
@@ -2467,7 +2706,10 @@
       ],
       "external": [],
       "gap_count": 6,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_1.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2484,7 +2726,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_2.txt"
+      ]
     },
     {
       "domain": "monsters",
@@ -2501,7 +2746,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_3.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2518,7 +2766,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_4.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2535,7 +2786,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_5.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2552,7 +2806,10 @@
       ],
       "external": [],
       "gap_count": 6,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_9.json"
+      ]
     },
     {
       "domain": "npcs",

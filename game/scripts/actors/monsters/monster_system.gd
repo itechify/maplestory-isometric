@@ -199,7 +199,8 @@ func apply_player_hit(m: Monster, res: DamageResult, attacker: Node3D) -> void:
 
 
 ## Called by a Monster when it dies: the canonical EXP through Game.gain_exp, Events.monster_killed, and the
-## monster's canonical drop table rolled at once (DropRoller with the placeholder rates) and announced with
+## monster's canonical drop record rolled at once (DropRoller, with the character's quests in progress for quest-gated
+## drops, contract C2) and announced with
 ## Events.loot_dropped(drops, feet position, map_id) when anything dropped.
 func on_monster_died(m: Monster) -> void:
 	kills += 1
@@ -214,7 +215,7 @@ func on_monster_died(m: Monster) -> void:
 			Progression.gain_exp(_character(), amount, _db())
 		exp_awarded += amount
 	_emit(&"monster_killed", [id, map_id])
-	var drops := DropRoller.roll(id, _db(), _rng())
+	var drops := DropRoller.roll(id, _db(), _rng(), DropRoller.context_for(_character()))
 	if not drops.is_empty():
 		_emit(&"loot_dropped", [drops, m.global_position, map_id])
 	_free.erase(m)

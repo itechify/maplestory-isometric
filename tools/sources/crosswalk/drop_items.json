@@ -1,0 +1,622 @@
+{
+  "id": "drop_items",
+  "description": "Reviewed name crosswalk for the canonical drop records (contract C1; decisions D3-4, D3-6, D3-7, D3-8). One row per member of each drop owner's membership list: the 6 Maple Island monsters (membership = Hidden Street's 'Before Chaos' drop lists, tools/hiddenstreet/captures/monsters.json) and the Wooden Box (membership = MeowDB's live breakable page, tools/meowdb/captures/breakable_0000001.txt). Each row joins the member, BY NAME, to a local MeowDB item (game/data/canonical/items/<id>.json) and to a row of the owner's KuroDB page (tools/kurodb/captures). Read only by tools/sources/drops_merge.mjs, which fails on any member without a row, any row without a member, and any claim the captures or the local items do not support.",
+  "reviewed_at": "2026-10-05",
+  "reviewed_by": "drops package (Iteration Three), from the dated captures and the local MeowDB cache; starting point: the drops auditor's table (docs/review/it3_audit.json, domain 'drops'), every row re-checked",
+  "rules": [
+    "Never join by id across sites. KuroDB, MeowDB and Hidden Street ids are unrelated: KuroDB 4000019 is Snail Shell while MeowDB's game_item_id 4000001 is Snail Shell, and KuroDB 4000001 is Orange Mushroom Cap; KuroDB Apple 2010000 equals the MeowDB game_item_id of Roger's Apple (235). kuro_item_id is only ever used to find a row on the same KuroDB page.",
+    "match methods: exact = the same name, character for character (list whitespace trimmed); normalized = equal under tools/sources/parse.mjs normalizeItemName, with a gender suffix '(M)'/'(F)' compared against the MeowDB item's own gender field; alias_with_evidence = different names joined by the evidence written in the row; none = no match.",
+    "meowdb.state: resolved = a local MeowDB item (game/data/canonical/items/<id>.json) is the member; not_in_snapshot = MeowDB has (or may have) the item but no local definition exists (candidates lists the MeowDB ids seen in the cache); ambiguous = several MeowDB items fit and nothing offline decides between them. An unresolved member stays in the record with item_id null and never rolls.",
+    "kurodb.state: matched = the owner's KuroDB page has a row for this member (its chance is used); none = it has none (the chance stays unresolved and the member never rolls). A KuroDB row that no member matches is written to excluded_kuro_only: KuroDB never adds a member (D3-6). A 'candidate' records a KuroDB row that may be this member but is not accepted (D3-8); it is excluded with the reason given.",
+    "Evidence names files of the local MeowDB cache (tools/meowdb/.cache, git-ignored) and the dated captures (tools/*/captures)."
+  ],
+  "owners": {
+    "1": {
+      "name": "Tutorial Jr. Sentinel",
+      "kind": "monster",
+      "hidden_street_slug": "tutorial-jr-sentinel",
+      "kuro_monster_id": "9300018",
+      "rows": [
+        {
+          "name": "Jr. Sentinel Shellpiece",
+          "meowdb": {"state": "resolved", "item_id": "347", "method": "exact", "candidates": ["347", "2584"],
+            "evidence": "MeowDB has two items named 'Jr. Sentinel Shellpiece' (347, icon key 4000000; 2584, icon key 4000067). 347 is the one MeowDB's own Tutorial Jr. Sentinel drop list uses (api_drops_q_monsterId_1.html) and the one quest 1005's itemRefs name (docs/canonical/quests.md, discrepancy 1); 2584 is needed by a Victoria Island quest."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4031802", "kuro_name": "Jr. Sentinel Shellpiece", "method": "exact",
+            "evidence": "tools/kurodb/captures/9300018.json: 'Jr. Sentinel Shellpiece' 100.00% base | Qty 1 | Quest 1035 (the page's only row)."},
+          "reviewer_note": "KuroDB flags the row 'Quest 1035'; under the C1 gate rule (D3-9) it is recorded as corroboration only: 347 is MeowDB subtype 'Monster Drop', so the entry is not quest-gated."
+        }
+      ]
+    },
+    "2": {
+      "name": "Snail",
+      "kind": "monster",
+      "hidden_street_slug": "snail",
+      "kuro_monster_id": "100100",
+      "rows": [
+        {
+          "name": "Snail Shell",
+          "meowdb": {"state": "resolved", "item_id": "348", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 348 'Snail Shell' (items/348.json); also on MeowDB's own Snail drop list."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4000019", "kuro_name": "Snail Shell", "method": "exact",
+            "evidence": "tools/kurodb/captures/100100.json row 'Snail Shell' 100% base | Qty 1. Id trap: KuroDB 4000019 vs MeowDB game_item_id 4000001."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Training Shirt (M)",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "normalized", "candidates": ["944"],
+            "evidence": "MeowDB's npc-shops.html links item-db/944 as 'Blue Training Shirt' (and item-db_945.html lists 944 next to Brown Training Shirt); no other MeowDB item of that name in the cache. No local definition, and 944's gender is not in the cache, so the (M) suffix cannot be checked."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100100.json."},
+          "reviewer_note": "Listed by Hidden Street under Common and Magician equipment."
+        },
+        {
+          "name": "Wooden Buckler",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["916"],
+            "evidence": "MeowDB's npc-shops.html and quest-tracker_all.html link item-db/916 as 'Wooden Buckler'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Wooden Mallet",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["625"],
+            "evidence": "MeowDB's npc-shops.html links item-db/625 as 'Wooden Mallet' (also guides_attack-speed-and-animation-times.html). No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100100.json."},
+          "reviewer_note": "Listed by Hidden Street under Warrior, Bowman and Thief equipment."
+        },
+        {
+          "name": "Brown Apprentice Hat",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["727"],
+            "evidence": "MeowDB's npc-shops.html (and item-db_356.html) link item-db/727 as 'Brown Apprentice Hat'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Cloth Pants (M)",
+          "meowdb": {"state": "resolved", "item_id": "1168", "method": "normalized", "candidates": ["1168", "1177"],
+            "evidence": "MeowDB has two 'Red Cloth Pants': 1168 (gender male) and 1177 (gender female), both local; the (M) suffix selects 1168 by its gender field."},
+          "kurodb": {"state": "none", "evidence": "No Red Cloth Pants row on tools/kurodb/captures/100100.json (KuroDB's Red Snail page has two Red Cloth Pants rows; that is a different monster)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Potion",
+          "meowdb": {"state": "resolved", "item_id": "270", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 270 'Red Potion'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2000000", "kuro_name": "Red Potion", "method": "exact",
+            "evidence": "tools/kurodb/captures/100100.json row 'Red Potion' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Potion",
+          "meowdb": {"state": "resolved", "item_id": "273", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 273 'Blue Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Green Apple",
+          "meowdb": {"state": "resolved", "item_id": "242", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 242 'Green Apple' (items/242.json, built from the item API capture tools/meowdb/captures/items_api.json; MeowDB's item search for 'Green Apple' returned 242 and Apple 236)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2010009", "kuro_name": "Green Apple", "method": "exact",
+            "evidence": "tools/kurodb/captures/100100.json row 'Green Apple' 2.00% base | Qty 1."},
+          "reviewer_note": "Green Apple restores 30 MP (MeowDB); not the same item as Apple (236)."
+        },
+        {
+          "name": "Arrow for Bow",
+          "meowdb": {"state": "resolved", "item_id": "209", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/100100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Crossbow",
+          "meowdb": {"state": "resolved", "item_id": "213", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Crossbows' (items/213.json); MeowDB's own npc-shops.html links item-db/213 with the text 'Arrow for Crossbow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/100100.json."},
+          "reviewer_note": ""
+        }
+      ]
+    },
+    "3": {
+      "name": "Blue Snail",
+      "kind": "monster",
+      "hidden_street_slug": "blue-snail",
+      "kuro_monster_id": "100101",
+      "rows": [
+        {
+          "name": "Blue Snail Shell",
+          "meowdb": {"state": "resolved", "item_id": "349", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 349 'Blue Snail Shell'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4000000", "kuro_name": "Blue Snail Shell", "method": "exact",
+            "evidence": "tools/kurodb/captures/100101.json row 'Blue Snail Shell' 100% base | Qty 1. Id trap: KuroDB 4000000 is MeowDB's game_item_id of Jr. Sentinel Shellpiece (347)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Bandana",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["721"],
+            "evidence": "MeowDB's npc-shops.html (and item-db_349.html) link item-db/721 as 'Blue Bandana'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Bandana",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["720"],
+            "evidence": "MeowDB's npc-shops.html (and item-db_351.html) link item-db/720 as 'Red Bandana'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Headband",
+          "meowdb": {"state": "resolved", "item_id": "715", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 715 'Blue Headband'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Pan Lid",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "none", "candidates": [],
+            "evidence": "No MeowDB item of that name in the 1050 cached files. Whether MeowDB MS Classic has it at all was not checked (no web access); it is not claimed absent from Classic."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Hardwood Wand",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["650"],
+            "evidence": "MeowDB's npc-shops.html (and item-db_356.html) link item-db/650 as 'Hardwood Wand'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Cloth Vest (M)",
+          "meowdb": {"state": "ambiguous", "item_id": null, "method": "normalized", "candidates": ["949", "958"],
+            "evidence": "Two MeowDB items are named 'Blue Cloth Vest': 949 (npc-shops.html) and 958 (listed on item-db_960.html). Neither is local and neither page with a gender is cached, so the (M) suffix cannot pick one."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Potion",
+          "meowdb": {"state": "resolved", "item_id": "270", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 270 'Red Potion'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2000000", "kuro_name": "Red Potion", "method": "exact",
+            "evidence": "tools/kurodb/captures/100101.json row 'Red Potion' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Potion",
+          "meowdb": {"state": "resolved", "item_id": "273", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 273 'Blue Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Orange Potion",
+          "meowdb": {"state": "resolved", "item_id": "271", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 271 'Orange Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Green Apple",
+          "meowdb": {"state": "resolved", "item_id": "242", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 242 'Green Apple' (items/242.json, from tools/meowdb/captures/items_api.json)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2010009", "kuro_name": "Green Apple", "method": "exact",
+            "evidence": "tools/kurodb/captures/100101.json row 'Green Apple' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Bow",
+          "meowdb": {"state": "resolved", "item_id": "209", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/100101.json."},
+          "reviewer_note": ""
+        }
+      ]
+    },
+    "4": {
+      "name": "Shroom",
+      "kind": "monster",
+      "hidden_street_slug": "shroom",
+      "kuro_monster_id": "120100",
+      "rows": [
+        {
+          "name": "Mushroom Spore",
+          "meowdb": {"state": "resolved", "item_id": "350", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 350 'Mushroom Spore'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4000011", "kuro_name": "Mushroom Spore", "method": "exact",
+            "evidence": "tools/kurodb/captures/120100.json row 'Mushroom Spore' 100% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Yellow Bandana",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["722"],
+            "evidence": "MeowDB's npc-shops.html links item-db/722 as 'Yellow Bandana'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Double Axe",
+          "meowdb": {"state": "resolved", "item_id": "577", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 577 'Double Axe'. The Hidden Street list writes 'Double Axe ,' (a space before the comma); list whitespace is trimmed, the name is the same."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json (KuroDB's Orange Mushroom page has a Double Axe row; that is a different monster)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Smelly Gomushin",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["1319"],
+            "evidence": "MeowDB's npc-shops.html links item-db/1319 as 'Smelly Gomushin'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Swimming Cap",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["717"],
+            "evidence": "MeowDB's npc-shops.html links item-db/717 as 'Blue Swimming Cap'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Work Gloves",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["1435"],
+            "evidence": "MeowDB's quest-tracker_all.html and guides_beginners-guide-first-steps-in-maple-world.html link item-db/1435 as 'Work Gloves'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Lolico Armor (M)",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "normalized", "candidates": ["943"],
+            "evidence": "MeowDB's npc-shops.html links item-db/943 with the text 'Blue Lolico Armor (M)' (MeowDB's shop list appends the gender suffix, as for 'Grey Thick Sweat Pants (M)' = 1181). No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Orange Lolica Armor (F)",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "normalized", "candidates": ["951"],
+            "evidence": "MeowDB's npc-shops.html links item-db/951 with the text 'Orange Lolica Armor (F)'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Wooden Samurai Sword",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "none", "candidates": [],
+            "evidence": "No MeowDB item of that name in the 1050 cached files. Whether MeowDB MS Classic has it was not checked (no web access)."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Wooden Sword",
+          "meowdb": {"state": "resolved", "item_id": "608", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 608 'Wooden Sword'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json (KuroDB's Red Snail page has one; that is a different monster)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Black Ghetto Beanie",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["735"],
+            "evidence": "MeowDB's npc-shops.html links item-db/735 as 'Black Ghetto Beanie'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Potion",
+          "meowdb": {"state": "resolved", "item_id": "270", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 270 'Red Potion'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2000000", "kuro_name": "Red Potion", "method": "exact",
+            "evidence": "tools/kurodb/captures/120100.json row 'Red Potion' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Bow",
+          "meowdb": {"state": "resolved", "item_id": "209", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Crossbow",
+          "meowdb": {"state": "resolved", "item_id": "213", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Crossbows' (items/213.json); MeowDB's own npc-shops.html links item-db/213 with the text 'Arrow for Crossbow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/120100.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Green Apple",
+          "meowdb": {"state": "resolved", "item_id": "242", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 242 'Green Apple' (items/242.json, from tools/meowdb/captures/items_api.json)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2010009", "kuro_name": "Green Apple", "method": "exact",
+            "evidence": "tools/kurodb/captures/120100.json row 'Green Apple' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        }
+      ]
+    },
+    "5": {
+      "name": "Red Snail",
+      "kind": "monster",
+      "hidden_street_slug": "red-snail",
+      "kuro_monster_id": "130101",
+      "rows": [
+        {
+          "name": "Red Snail Shell",
+          "meowdb": {"state": "resolved", "item_id": "351", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 351 'Red Snail Shell'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4000016", "kuro_name": "Red Snail Shell", "method": "exact",
+            "evidence": "tools/kurodb/captures/130101.json row 'Red Snail Shell' 100% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Brown Skullcap",
+          "meowdb": {"state": "resolved", "item_id": "708", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 708 'Brown Skullcap'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Metal Axe",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["617"],
+            "evidence": "MeowDB's npc-shops.html links item-db/617 as 'Metal Axe' (also the attack-speed and beginner guides). No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": "Listed by Hidden Street under Common, Warrior, Bowman and Thief equipment."
+        },
+        {
+          "name": "Blue Headband",
+          "meowdb": {"state": "resolved", "item_id": "715", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 715 'Blue Headband'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Bandana",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["720"],
+            "evidence": "MeowDB's npc-shops.html (and item-db_351.html) link item-db/720 as 'Red Bandana'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Black Gomushin",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["1318"],
+            "evidence": "MeowDB's npc-shops.html links item-db/1318 as 'Black Gomushin'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Grey Thick Sweat Pants (M)",
+          "meowdb": {"state": "resolved", "item_id": "1181", "method": "normalized", "candidates": [],
+            "evidence": "MeowDB item 1181 'Grey Thick Sweat Pants', gender male; MeowDB's own npc-shops.html links item-db/1181 as 'Grey Thick Sweat Pants (M)'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json (KuroDB's Blue Snail page has a 'Grey Thick Sweat Pants' row; that is a different monster)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Brown Woodsman Boots",
+          "meowdb": {"state": "resolved", "item_id": "1325", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 1325 'Brown Woodsman Boots'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "1072060", "kuro_name": "Brown Woodsman Boots", "method": "exact",
+            "evidence": "tools/kurodb/captures/130101.json row 'Brown Woodsman Boots' 0.0800% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Black Cloth Pants (M)",
+          "meowdb": {"state": "ambiguous", "item_id": null, "method": "normalized", "candidates": ["1170", "1179"],
+            "evidence": "Two MeowDB items are named 'Black Cloth Pants': 1170 (npc-shops.html; listed next to male Red Cloth Pants 1168 on item-db_1168.html) and 1179 (next to female 1177 on item-db_1177.html). Neither is local; the gender is inferred from neighbours only, which is not evidence."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Pistol",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "none", "candidates": [],
+            "evidence": "No MeowDB item of that name in the 1050 cached files (a Pirate weapon). Whether MeowDB MS Classic has it was not checked (no web access)."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Potion",
+          "meowdb": {"state": "resolved", "item_id": "270", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 270 'Red Potion'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2000000", "kuro_name": "Red Potion", "method": "exact",
+            "evidence": "tools/kurodb/captures/130101.json row 'Red Potion' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Potion",
+          "meowdb": {"state": "resolved", "item_id": "273", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 273 'Blue Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Orange Potion",
+          "meowdb": {"state": "resolved", "item_id": "271", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 271 'Orange Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Green Apple",
+          "meowdb": {"state": "resolved", "item_id": "242", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 242 'Green Apple' (items/242.json, from tools/meowdb/captures/items_api.json)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2010009", "kuro_name": "Green Apple", "method": "exact",
+            "evidence": "tools/kurodb/captures/130101.json row 'Green Apple' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Bow",
+          "meowdb": {"state": "resolved", "item_id": "209", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/130101.json."},
+          "reviewer_note": ""
+        }
+      ]
+    },
+    "9": {
+      "name": "Orange Mushroom",
+      "kind": "monster",
+      "hidden_street_slug": "orange-mushroom",
+      "kuro_monster_id": "1210102",
+      "rows": [
+        {
+          "name": "Orange Mushroom Cap",
+          "meowdb": {"state": "resolved", "item_id": "356", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 356 'Orange Mushroom Cap'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4000001", "kuro_name": "Orange Mushroom Cap", "method": "exact",
+            "evidence": "tools/kurodb/captures/1210102.json row 'Orange Mushroom Cap' 100% base | Qty 1. Id trap: KuroDB 4000001 is MeowDB's game_item_id of Snail Shell (348)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Omok Piece : Mushroom",
+          "meowdb": {"state": "ambiguous", "item_id": null, "method": "normalized", "candidates": ["486", "495", "498"],
+            "evidence": "MeowDB has three items named 'Omok Piece: Mushroom' (486, 495, 498; tools/meowdb/captures/items_api.json), all Etc/Quest Item with no drop sources. Nothing offline picks one (decision D3-8)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4030001", "kuro_name": "Omok Piece : Mushroom", "method": "exact",
+            "evidence": "tools/kurodb/captures/1210102.json row 'Omok Piece : Mushroom' 1.00% base | Qty 1."},
+          "reviewer_note": "The chance is known (1%) but the item is not, so the entry never rolls until the owner picks a MeowDB id (D3-8)."
+        },
+        {
+          "name": "Red Swimming Cap",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["718"],
+            "evidence": "MeowDB's npc-shops.html links item-db/718 as 'Red Swimming Cap'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Yellow Bandana",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["722"],
+            "evidence": "MeowDB's npc-shops.html links item-db/722 as 'Yellow Bandana'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Headband",
+          "meowdb": {"state": "resolved", "item_id": "711", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 711 'Red Headband'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Crossbow",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["672"],
+            "evidence": "MeowDB's npc-shops.html links item-db/672 as 'Crossbow'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Yellow Avelin (F)",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "normalized", "candidates": ["956"],
+            "evidence": "MeowDB's npc-shops.html links item-db/956 with the text 'Yellow Avelin (F)'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Brown Hard Leather Boots",
+          "meowdb": {"state": "resolved", "item_id": "1314", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 1314 'Brown Hard Leather Boots'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "1072015", "kuro_name": "Brown Hard Leather Boots", "method": "exact",
+            "evidence": "tools/kurodb/captures/1210102.json row 'Brown Hard Leather Boots' 0.0800% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Cloth Pants (M)",
+          "meowdb": {"state": "ambiguous", "item_id": null, "method": "normalized", "candidates": ["1169", "1178"],
+            "evidence": "Two MeowDB items are named 'Blue Cloth Pants': 1169 (npc-shops.html; next to male 1168 on item-db_1168.html) and 1178 (next to female 1177 on item-db_1177.html). Neither is local; the gender is inferred from neighbours only."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Black Cloth Pants (F)",
+          "meowdb": {"state": "ambiguous", "item_id": null, "method": "normalized", "candidates": ["1170", "1179"],
+            "evidence": "Two MeowDB items are named 'Black Cloth Pants' (1170, 1179); see the Red Snail's 'Black Cloth Pants (M)'. Neither is local."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Garnier",
+          "meowdb": {"state": "not_in_snapshot", "item_id": null, "method": "exact", "candidates": ["680"],
+            "evidence": "MeowDB's npc-shops.html links item-db/680 as 'Garnier'. No local definition."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Ninja Sandals",
+          "meowdb": {"state": "resolved", "item_id": "1327", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 1327 'Red Ninja Sandals'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "1072031", "kuro_name": "Red Ninja Sandals", "method": "exact",
+            "evidence": "tools/kurodb/captures/1210102.json row 'Red Ninja Sandals' 0.0800% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Red Potion",
+          "meowdb": {"state": "resolved", "item_id": "270", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 270 'Red Potion'."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2000000", "kuro_name": "Red Potion", "method": "exact",
+            "evidence": "tools/kurodb/captures/1210102.json row 'Red Potion' 2.00% base | Qty 1."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Orange Potion",
+          "meowdb": {"state": "resolved", "item_id": "271", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 271 'Orange Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Blue Potion",
+          "meowdb": {"state": "resolved", "item_id": "273", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 273 'Blue Potion'."},
+          "kurodb": {"state": "none", "evidence": "No row of that name on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Arrow for Bow",
+          "meowdb": {"state": "resolved", "item_id": "209", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."},
+          "kurodb": {"state": "none", "evidence": "No arrow row on tools/kurodb/captures/1210102.json."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Scroll for Shoes for Jump 10%",
+          "meowdb": {"state": "resolved", "item_id": "177", "method": "alias_with_evidence", "candidates": [],
+            "evidence": "MeowDB names scrolls by grade. 177 'Shoes Jump Scroll: Greater' is a Shoes Jump scroll with success_rate_pct 10 and no destruction (items/177.json scroll block), and MeowDB's own Orange Mushroom page lists 'Shoes Jump Scroll: Greater' in its MSEA reference drops (tools/meowdb/captures/monster_9.json). MeowDB's scroll table (cached chunk _next_static_chunks_6549-*.js) has one other 10% Shoes Jump scroll, 'Shoes Jump Scroll: Chaos' (destroys on failure, no local definition); Hidden Street's plain 'Scroll for Shoes for Jump 10%' (no 'Dark') is read as the non-destroying one."},
+          "kurodb": {"state": "none",
+            "evidence": "tools/kurodb/captures/1210102.json has 'Scroll for Shoes for Jump' (item 2040705, 0.0300% base | Qty 1) with no success rate in its name; KuroDB's item page 2040705 was not read (the Cloudflare check had returned), so it is not accepted as this member (D3-8).",
+            "candidate": {"kuro_item_id": "2040705", "kuro_name": "Scroll for Shoes for Jump",
+              "reason": "possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Excluded until a hand read confirms it."}},
+          "reviewer_note": "Item resolved, chance unresolved: never rolls until KuroDB item 2040705 is read by hand."
+        }
+      ]
+    },
+    "0000001": {
+      "name": "Wooden Box",
+      "kind": "breakable",
+      "kuro_reactor_id": "2001",
+      "kuro_reactor_identity": "KuroDB has no breakables section; reactor drops appear on item pages. Reactor 2001 is taken to be MeowDB's Wooden Box: it is the only reactor that drops both Old Wooden Board and Rusty Screw for Pio's recycling quest plus Apple (tools/kurodb/captures/reactor_2001_items.json reactor_identity_inference).",
+      "rows": [
+        {
+          "name": "Old Wooden Board",
+          "meowdb": {"state": "resolved", "item_id": "442", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 442 'Old Wooden Board' (the breakable's own drop list, api_breakable-drops_q_breakableId_0000001.html)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4031162", "kuro_name": "Old Wooden Board", "method": "exact",
+            "evidence": "tools/kurodb/captures/reactor_2001_items.json item page 4031162: REACTOR DROPS 'Reactor 2001' 'Chance value 1 | Quest 1008'."},
+          "reviewer_note": "MeowDB subtype 'Quest Item', required by quest 1012: quest-gated under the C1 rule (D3-9). KuroDB's 'Quest 1008' is its own quest id, recorded as corroboration."
+        },
+        {
+          "name": "Rusty Screw",
+          "meowdb": {"state": "resolved", "item_id": "441", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 441 'Rusty Screw' (the breakable's own drop list)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "4031161", "kuro_name": "Rusty Screw", "method": "exact",
+            "evidence": "tools/kurodb/captures/reactor_2001_items.json item page 4031161: REACTOR DROPS 'Reactor 2001' 'Chance value 1 | Quest 1008'."},
+          "reviewer_note": "Gated to quest 1012 like Old Wooden Board."
+        },
+        {
+          "name": "Apple",
+          "meowdb": {"state": "resolved", "item_id": "236", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 236 'Apple' (the breakable's own drop list)."},
+          "kurodb": {"state": "matched", "kuro_item_id": "2010000", "kuro_name": "Apple", "method": "exact",
+            "evidence": "tools/kurodb/captures/reactor_2001_items.json item page 2010000: REACTOR DROPS 'Reactor 2001' 'Chance value 4'. Id trap: KuroDB 2010000 is MeowDB's game_item_id of Roger's Apple (235)."},
+          "reviewer_note": ""
+        },
+        {
+          "name": "Egg",
+          "meowdb": {"state": "resolved", "item_id": "237", "method": "exact", "candidates": [],
+            "evidence": "MeowDB item 237 'Egg' (the breakable's own drop list)."},
+          "kurodb": {"state": "none",
+            "evidence": "KuroDB's Egg page (item 2010002, tools/kurodb/captures/reactor_2001_items.json) lists reactor drops only for reactors 9102000 and 9102001, not 2001."},
+          "reviewer_note": "Membership is MeowDB's; the chance is unresolved, so Egg never drops from the box (D3-7). No quest needs it."
+        }
+      ]
+    }
+  }
+}

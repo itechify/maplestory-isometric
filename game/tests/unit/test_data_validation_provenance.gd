@@ -206,7 +206,10 @@ func test_per_property_kurodb_and_hidden_street_sources_are_accepted() -> void:
 		"owner_level": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/3", "retrieved_at": "2026-10-04T09:57:41Z"}})
 	var r := run_validator(cid[0])
 	expect_no_new(r)
-	assert_eq(int(r.stats.get("provenance_sources_checked", 0)), 5, "every property source was checked")
+	# [drops package] The shipped drop records are v2 and carry their own sources: count the replaced block's change.
+	var replaced := (db().drop_table(cid[1]).get("provenance", {}) as Dictionary).size()
+	assert_eq(int(r.stats.get("provenance_sources_checked", 0)) - int(baseline().stats.get("provenance_sources_checked", 0)),
+		5 - replaced, "every property source was checked")
 
 
 func test_kurodb_may_not_supply_membership() -> void:
@@ -285,8 +288,8 @@ func test_project_owner_needs_a_decision() -> void:
 func test_v1_records_keep_the_v1_rules() -> void:
 	# No provenance block, no schema_version: exactly the old checks. A foreign authority in `source` still fails,
 	# and a KuroDB field source still needs an external entry; the registry does not loosen v1.
-	assert_eq(baseline().matching("provenance", "", "", "error").size(), 0, "the shipped (v1) data has no provenance errors")
-	assert_false(baseline().stats.has("drop_records_v2_checked"), "no shipped drop record is v2")
+	assert_eq(baseline().matching("provenance", "", "", "error").size(), 0, "the shipped data has no provenance errors")
+	# [drops package] The shipped drop records are v2 now; every other domain is still v1.
 	var c := clone_db()
 	var item_id := c.ids("items")[0]
 	c.item(item_id).source.authority = "KuroDB"
@@ -306,11 +309,19 @@ func test_capture_lookup_is_live_on_the_shipped_data() -> void:
 	var id := first_id_where(c, "items", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "built from a capture")
 	var r := run_validator(c, {"capture_files": {}})
 	expect_new(r, "error", "provenance", "items", id, "source.capture names tools/meowdb/captures/items_api.json, which does not exist (looked under the injected capture_files)")
-	expect_no_new(run_validator(c, {"capture_files": {"tools/meowdb/captures/items_api.json": true}}))
+	# [drops package] The v2 drop records cite captures too: inject every capture the shipped index lists.
+	var cited := {}
+	for row in db().canonical[""]["canonical_sources"].records:
+		for cap in row.get("capture_files", []):
+			cited[cap] = true
+	assert_true(cited.has("tools/meowdb/captures/items_api.json"))
+	expect_no_new(run_validator(c, {"capture_files": cited}))
 
 
 func test_sources_index_lists_capture_files_and_property_sources() -> void:
-	var cid := _with_drop_provenance({"probability": _src(KURO_SRC)}, true)
+	# [drops package] The shipped drop records already cite every KuroDB capture, so the injected block cites a capture
+	# file no record cites (it exists: the folder's README) to move totals.capture_files.
+	var cid := _with_drop_provenance({"probability": _src(KURO_SRC, {"capture": "tools/kurodb/captures/README.md"})}, true)
 	var r := run_validator(cid[0])
 	expect_new(r, "error", "sources_index", INDEX, "drops/%s" % cid[1], "capture_files, property_sources")
 	expect_new(r, "error", "sources_index", INDEX, INDEX, "totals.capture_files")
@@ -319,7 +330,13 @@ func test_sources_index_lists_capture_files_and_property_sources() -> void:
 	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/items_api.json"], "the shipped index lists the capture")
 	var p := ProvenanceChecks.new(cid[0], ValidationReport.new())
 	var expected := p.index_row("drops", cid[1], cid[0].drop_table(cid[1]))
-	assert_eq(expected.property_sources, {"probability": {"authorities": ["KuroDB"], "urls": [KURO_SRC.url]}})
+	# [drops package] The v2 record's own entries add their KuroDB page to "probability".
+	var urls := [KURO_SRC.url]
+	for e in cid[0].drop_table(cid[1]).entries:
+		if e.chance_source is Dictionary and not (e.chance_source.url in urls):
+			urls.append(e.chance_source.url)
+	urls.sort()
+	assert_eq(expected.property_sources.probability, {"authorities": ["KuroDB"], "urls": urls})
 
 
 func test_source_object_rules() -> void:
