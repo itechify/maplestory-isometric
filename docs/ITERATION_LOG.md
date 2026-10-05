@@ -240,9 +240,34 @@ b85dec0).
 ## Phase B3: baseline
 
 The build, Blender validation (0 high, 0 medium, 21 low), the full suite with the exported world (1145 tests) and
-canonical data validation all pass. Of the eleven real-game scenarios, ten pass. `test_b_combat` fails one check: an
-attack hit a Snail 0.75–1.4 m *behind* the player 2 times out of 6 probes. `test_c_progression` (killing only, no
-quests) reaches level 8 in about 2.2 hours of game time and picks up 1,649 mesos under the old placeholder rates.
+canonical data validation all pass. Of the eleven real-game scenarios, ten pass. `test_b_combat` fails one check, its
+reach probe, with 2 "behind" hits out of 6. The audit showed this is a harness defect, not a combat defect. The probe
+counted a hit on *any* monster as a hit on the probe Snail, and both hits landed on a second Snail in front of the
+player and to its left, inside the canonical swing window. The probe Snail stayed 1.34–1.40 m behind and was never hit.
+`test_c_progression` (killing only, no quests) reaches level 8 in about 2.2 hours of game time and picks up 1,649 mesos
+under the old placeholder rates.
+
+## Phase A3: read-only audit (11 domain auditors)
+
+The auditors compared every domain with the cache and the dated captures (raw results:
+`review/it3_audit.json`). The quest, NPC, shop, item and monster-stat data, and all 577 spawn counts, already match
+MeowDB. Random quest rewards are weighted draws, the Rain quizzes are real menus, and the quest markers and the most
+important world feedback exist. What is missing or wrong:
+
+- **Blockers:**
+  - There is no Wooden Box runtime, so Pio's quest (1012) cannot be completed.
+  - The Green Relaxer cannot be sat on, because there is no sitting at all.
+  - The validator rejects every non-MeowDB authority, and no capture is ever read, so drops still run on placeholders.
+  - There is no minimap.
+  - A new class of player traps exists: slots 2.3–2.6 m deep where a map corner's rounded plinth meets the square
+    containment ring. One was confirmed with real input, and `trap_probe` wrongly passes another.
+- **Missing features:** natural recovery resets instead of pausing; the Beginner skills, the skill window and SP use
+  are absent; quest-gated drops are absent; and the save does not record the random rewards received.
+- **Gaps elsewhere:** 16 of 20 quests have never been played in the real game; the quest log shows no chain progress;
+  monster spawns ignore NPC spaces and can respawn inside the player; floor-walking monsters can leave their floor;
+  and no stuck-region scan or clean end-to-end playthrough exists.
+
+Interfaces for the parallel work are fixed in [`runtime/ITERATION_THREE_CONTRACTS.md`](runtime/ITERATION_THREE_CONTRACTS.md).
 
 ## Phase D3: sources and data decisions
 
