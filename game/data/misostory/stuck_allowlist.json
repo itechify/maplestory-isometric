@@ -1,0 +1,8 @@
+{
+  "id": "stuck_allowlist",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "reason": "The reviewed, intended dead ends of the stuck-region scan (game/tools/stuck_scan.gd, docs/runtime/STUCK_SCAN.md). A CONFIRMED component (the real PlayerController could get in and not out) that is not listed here fails tests/unit/test_stuck_scan.gd. Only places a designer reviewed and chose to keep belong here, each with its reason; a trap found by the scan is fixed in the Blender source instead (brief Phase 13: no teleport failsafes over bad terrain).",
+  "description": "entries[]: {map_id (MeowDB id), local ([x, y, z] map-local Godot coordinates of a point in the dead end; Blender-local xy = (x, -z)), radius_m (a component matches when one of its nodes lies within this distance), reason, owner}. Empty: no intended dead end exists on Maple Island.",
+  "entries": []
+}
