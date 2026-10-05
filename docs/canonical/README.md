@@ -30,11 +30,12 @@ credit and a link, but asks that bulk collection, mirroring, or a dataset "whose
 cleared with **contact@meowdb.com** first. Its [Terms of Service](https://meowdb.com/terms) forbid automated
 collection without permission.
 
-The extractors in `tools/meowdb/` fetched roughly 300 pages once (2026-10-04), rate-limited, into a git-ignored local
-cache, before those terms were reviewed. Since then:
+The extractors in `tools/meowdb/` made 524 requests once (2026-10-04, one per 1.2 s, into a git-ignored local cache)
+before those terms were reviewed: about 230 pages, 210 `/msclassic/api/` calls and 84 JavaScript bundles. Since then:
 
-- `tools/meowdb/lib.mjs` is **cache-only**: it throws instead of fetching unless `MEOWDB_ALLOW_NETWORK=1` is set.
-  Do not set it until MeowDB has granted permission.
+- After the review the extractors were made cache-only. Later the same day the project owner re-enabled network
+  access: `tools/meowdb/lib.mjs` again fetches uncached pages live, and `--refresh` re-fetches cached ones. This is
+  the owner's decision, not a permission from MeowDB.
 - Verbatim MeowDB site code (`docs/canonical/oracles/*.js.txt`) and the raw page cache stay out of git.
 - Before MisoStory is published or the dataset redistributed, ask MeowDB for permission (their policy says they
   grant most good-faith requests), and keep the attribution line above in credits.

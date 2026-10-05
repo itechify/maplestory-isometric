@@ -1,9 +1,8 @@
 // MeowDB MS Classic fetch/cache/extract helpers (development-time only; the game never talks to MeowDB).
 //
-// - Cache-only by default: every page was stored once under tools/meowdb/.cache/ (git-ignored) with its retrieval time,
-//   and the extractors re-run from that cache. Network access needs MEOWDB_ALLOW_NETWORK=1 and should only be enabled
-//   once MeowDB has granted permission (their Terms forbid automated collection without it; see docs/canonical/README.md).
-// - When enabled: >= 1.2 s between network requests across ALL processes; --refresh re-fetches cached pages.
+// - Cache-first: a page is fetched once and stored under tools/meowdb/.cache/ (git-ignored) with its retrieval time, and
+//   later runs re-read it from there; uncached pages are fetched live. --refresh re-fetches cached pages.
+// - >= 1.2 s between network requests across ALL processes. MeowDB's reuse policy: docs/canonical/README.md.
 // - Pages are Next.js App Router pages; the data lives in the React Server Component ("flight") payload pushed via
 //   self.__next_f.push([1, "..."]). rsc() decodes it; jsonAt()/objectsWithKey() pull plain JSON values out of it.
 import fs from 'node:fs';
@@ -64,12 +63,6 @@ export async function fetchUrl(url, { refresh = process.argv.includes('--refresh
     const meta = JSON.parse(fs.readFileSync(metaFile, 'utf8'));
     const body = fs.readFileSync(htmlFile, 'utf8');
     return { html: body, text: body, url: meta.url, retrieved_at: meta.retrieved_at, fromCache: true };
-  }
-  if (process.env.MEOWDB_ALLOW_NETWORK !== '1') {
-    // MeowDB's Terms of Service forbid automated collection without permission, and its Content Reuse Policy
-    // (https://meowdb.com/reuse) asks that bulk collection be cleared with contact@meowdb.com first. The extractors
-    // therefore run cache-only by default; see docs/canonical/README.md before enabling network access.
-    throw new Error(`not cached: ${url} (network access is disabled; see docs/canonical/README.md)`);
   }
   for (let attempt = 1; attempt <= 4; attempt++) {
     await gate();

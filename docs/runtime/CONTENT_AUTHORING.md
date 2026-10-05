@@ -9,8 +9,9 @@ prove it works. Two rules hold throughout:
 - **Everything MeowDB does not publish is a MisoStory adaptation** in `game/data/misostory/`, with a `reason` and
   `"verified": false`. `bash scripts/validate_data.sh` enforces both rules.
 
-> **MeowDB access.** The extractors are cache-only. New pages need `MEOWDB_ALLOW_NETWORK=1`, and MeowDB's terms ask
-> for permission before bulk collection (contact@meowdb.com). Get that permission before extracting new content.
+> **MeowDB access.** The extractors fetch uncached pages live (rate-limited) and re-read cached ones; `--refresh`
+> re-fetches. MeowDB's reuse policy still asks that a published dataset be cleared with contact@meowdb.com
+> ([`../canonical/README.md`](../canonical/README.md)).
 
 ## What is already in
 
