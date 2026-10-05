@@ -14,7 +14,7 @@
   "equipment_max_stack": 1,
   "equipment_max_stack_reason": "MeowDB has no 'Max per Stack' row for any Equip item (items.md Gaps; max_stack is null on all 55 equips). Equipment is unstackable: one piece per slot, so each piece can carry per-instance data (future scroll results, stat rolls).",
   "unpublished_max_stack": 1,
-  "unpublished_max_stack_reason": "Fallback for a non-equipment item whose canonical max_stack is null; 1 is the conservative choice so an unknown item can never overfill a slot. One item hits it: Green Apple (242), whose only source is a hand-read item API capture (tools/meowdb/captures/items_api.json) without the item page's 'Max per Stack' row, so each Use slot holds one Green Apple until that page is read (items/242.json gaps).",
+  "unpublished_max_stack_reason": "Fallback for a non-equipment item whose canonical max_stack is null; 1 is the conservative choice so an unknown item can never overfill a slot. No shipped item hits it: Green Apple, 242, did until its item page was read by hand (tools/meowdb/captures/item_242.txt, Max per Stack 100). An item that needs it must be named here as (<id>) and documented in its record's gaps (test_items_canonical).",
   "meso_cap": 2147483647,
   "meso_cap_reason": "MeowDB documents no meso cap. 2,147,483,647 is the signed 32-bit limit of a classic meso counter (not from MeowDB, unverified); it exists so mesos can never overflow. Picking up or earning past it adds only up to the cap; a sale that would pass it is refused.",
   "equipment_slots": [

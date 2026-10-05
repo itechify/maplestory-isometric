@@ -1,7 +1,7 @@
 // Offline loader for the dated, hand-read source captures (Iteration Three decisions D3-1..D3-8):
 //
-//   tools/meowdb/captures/       MeowDB MS Classic pages re-read in a normal browser (monster, breakable and quest pages,
-//                                the quest tracker) and item API bodies (items_api.json)
+//   tools/meowdb/captures/       MeowDB MS Classic pages re-read in a normal browser (monster, breakable, quest and item
+//                                pages, the quest tracker) and item API bodies (items_api.json)
 //   tools/kurodb/captures/       KuroDB monster pages and reactor item pages (drop and meso probabilities only)
 //   tools/hiddenstreet/captures/ Hidden Street "Before Chaos" monster pages (drop membership and meso amounts only)
 //
@@ -15,6 +15,7 @@
 //   c.kurodb.monsters['100100'].rows[0]   // {kuro_item_id: "4000019", name: "Snail Shell", raw: "100% base | Qty 1", ...}
 //   c.hiddenstreet.monsters.snail.mesos   // {raw: "Mesos: 1", state: "resolved", min: 1, max: 1}
 //   c.meowdb.monsters['2'].meso.report    // {raw: "Mesos: 2 per kill | 1 report", min: 2, max: 2, reports: 1, ...}
+//   c.meowdb.item_pages['242'].rows['Max per Stack']   // {label: "Max per Stack", raw: "100", value: 100}
 //
 // Every capture object has {file (repo-relative, forward slashes), authority, url, read_at, method, sha256}.
 import fs from 'node:fs';
@@ -65,7 +66,7 @@ export function apiCaptureFor(url, { root = REPO_ROOT } = {}) {
 
 function load(root) {
   const out = {
-    meowdb: { monsters: {}, breakables: {}, items_api: null, quests: {}, quest_tracker: null },
+    meowdb: { monsters: {}, breakables: {}, items_api: null, item_pages: {}, quests: {}, quest_tracker: null },
     kurodb: { monsters: {}, reactor_items: null },
     hiddenstreet: { monsters: {}, site: null, version_note: null },
     files: [],
@@ -131,6 +132,10 @@ function loadOne(out, site, name, text, meta) {
     }
     if ((m = /^quest_(\d+)\.txt$/.exec(name))) {
       out.meowdb.quests[m[1]] = meowdbQuest(m[1], textCapture(text), meta);
+      return;
+    }
+    if ((m = /^item_(\d+)\.txt$/.exec(name))) {
+      out.meowdb.item_pages[m[1]] = meowdbItemPage(m[1], textCapture(text), meta);
       return;
     }
     if (name === 'quest_tracker_maple_island.txt') {
@@ -372,6 +377,84 @@ function meowdbQuest(id, raw, meta) {
   q.random_rewards = lines.map((l) => /^(.+) x(\d+) (\d+(?:\.\d+)?)%$/.exec(l)).filter(Boolean).map((r) => ({ name: r[1], qty: Number(r[2]), share_pct_text: r[3], raw: r[0] }));
   q.text = raw.body;
   return q;
+}
+
+/** Row labels of an item page's card (each followed by its value line), as tools/meowdb/extract_items.mjs knows them. */
+export const ITEM_PAGE_ROWS = new Set(['HP Recovery', 'MP Recovery', 'NPC Sell-back', 'NPC Sell-back (per unit)', 'Max per Stack', 'Recharge Cost']);
+/** Tags an item page's card shows as a line of their own. */
+export const ITEM_PAGE_TAGS = new Set(['Tradeable', 'Untradeable', 'Male + Female', 'Male only', 'Female only']);
+/** Section headings of an item page (the card ends at the first one). */
+const ITEM_PAGE_SECTIONS = [/^Where to buy$/, /^Dropped By$/, /^MSEA Reference Drops$/, /^Quest Reward$/, /^Needed By$/,
+  /^Found in Breakables$/, /^Craftable/, /^Change history$/];
+
+/**
+ * An item page's rendered text ("item_<id>.txt"), trimmed to the record by the person who read it. Only what the text
+ * shows is parsed: the heading, the "<type> · <subtype> · No. <id>" line, the card's value rows (ITEM_PAGE_ROWS) and
+ * tags, the one description line, and the sections present (Dropped By, MSEA Reference Drops, the Change history
+ * label). A section the trimmed text leaves out is absent (`sections`), never read as empty. Every row value must be
+ * a number ("+30", "3 mesos", "100"), the page number must be the file's id, the URL must be the item's page, and the
+ * MSEA count line must match the monsters listed; anything else in the card is an error.
+ */
+function meowdbItemPage(id, raw, meta) {
+  const lines = raw.body.split('\n').map((s) => s.trim()).filter(Boolean);
+  const p = { ...meta, item_id: id, url: raw.header.url, read_at: raw.header.read_at, method: raw.header.method ?? null, purpose: raw.header.purpose ?? null };
+  requireReadAt(p, meta.file);
+  if (p.url !== `https://meowdb.com/msclassic/item-db/${id}`) throw new Error(`URL ${JSON.stringify(p.url)} is not the page of item ${id}`);
+  p.name = after(lines, '/');
+  const hi = lines.findIndex((l) => /^.+ · No\. \d+$/.test(l));
+  if (hi < 0) throw new Error('no "<type> · <subtype> · No. <id>" line');
+  const hm = /^(.+?)(?: · (.+?))? · No\. (\d+)$/.exec(lines[hi]);
+  p.type = hm[1];
+  p.subtype = hm[2] ?? null;
+  p.number = hm[3];
+  if (Number(p.number) !== Number(id)) throw new Error(`the page says No. ${p.number}, the file is item ${id}`);
+  const isSection = (l) => ITEM_PAGE_SECTIONS.some((re) => re.test(l));
+  let end = lines.findIndex((l, i) => i > hi && isSection(l));
+  if (end < 0) end = lines.length;
+  p.rows = {};
+  p.tags = [];
+  const description = [];
+  for (let i = hi + 1; i < end; i++) {
+    const l = lines[i];
+    if (ITEM_PAGE_ROWS.has(l)) {
+      const v = lines[i + 1];
+      const n = /^[+-]?([\d,]+)(?: mesos)?$/.exec(v ?? '');
+      if (i + 1 >= end || !n) throw new Error(`row ${JSON.stringify(l)} has no numeric value (got ${JSON.stringify(v)})`);
+      if (p.rows[l]) throw new Error(`row ${JSON.stringify(l)} appears twice`);
+      p.rows[l] = { label: l, raw: v, value: Number(v.replace(/[^\d-]/g, '')) };
+      i++;
+    } else if (ITEM_PAGE_TAGS.has(l)) p.tags.push(l);
+    else description.push(l);
+  }
+  if (description.length > 1) throw new Error(`the card has lines no reader knows: ${JSON.stringify(description)}`);
+  p.description = description[0] ?? null;
+  // Sections: each heading's lines up to the next heading.
+  p.sections = [];
+  const body = {};
+  for (let i = end; i < lines.length; i++) {
+    if (!isSection(lines[i])) continue;
+    const j = lines.findIndex((l, k) => k > i && isSection(l));
+    body[lines[i]] = lines.slice(i + 1, j < 0 ? lines.length : j);
+    p.sections.push(lines[i]);
+  }
+  const dropped = body['Dropped By'];
+  p.community_drops_none = dropped ? dropped.includes('No drops reported yet.') : null;
+  p.msea_reference = null;
+  const msea = body['MSEA Reference Drops'];
+  if (msea) {
+    const cm = /^Read-only · (\d+) monsters?$/.exec(msea[0] ?? '');
+    if (!cm) throw new Error(`MSEA Reference Drops: expected "Read-only · N monster(s)", got ${JSON.stringify(msea[0])}`);
+    p.msea_reference = pairs(msea.slice(1), 'MSEA Reference Drops').map(([monster, lv]) => {
+      const m = /^Lv (\d+)$/.exec(lv);
+      if (!m) throw new Error(`MSEA Reference Drops: ${JSON.stringify(monster)} has no "Lv N" line (got ${JSON.stringify(lv)})`);
+      return { monster_name: monster, monster_level: Number(m[1]), raw: `${monster} | ${lv}` };
+    });
+    if (p.msea_reference.length !== Number(cm[1])) throw new Error(`MSEA Reference Drops: "${msea[0]}" but ${p.msea_reference.length} monsters listed`);
+  }
+  const ch = body['Change history'];
+  p.change_history_label = ch ? ch[0] ?? null : null;
+  p.text = raw.body;
+  return p;
 }
 
 function meowdbQuestTracker(raw, meta) {

@@ -27,16 +27,22 @@
   "setup": null,
   "npc_buy_price_mesos": null,
   "sell_price_mesos": 3,
-  "sell_price_basis": "per_item",
-  "sell_price_source": "item_api",
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
   "recharge_cost_mesos_per_unit": null,
-  "max_stack": null,
-  "tradeable": null,
+  "max_stack": 100,
+  "tradeable": true,
   "gender": null,
   "sources": {
     "shops": [],
     "monster_drops": [],
-    "msea_reference_drops": null,
+    "msea_reference_drops": [
+      {
+        "monster_id": "700004",
+        "monster_name": "Mano",
+        "monster_level": 20
+      }
+    ],
     "msea_reference_note": null,
     "quest_rewards": null,
     "breakables": null,
@@ -52,7 +58,8 @@
     "equip_slot",
     "quest_item",
     "npc_buy_price_mesos",
-    "requirements.job"
+    "requirements.job",
+    "sources.msea_reference_drops[].monster_id"
   ],
   "source": {
     "authority": "MeowDB MS Classic",
@@ -82,6 +89,12 @@
       "capture_pointer": "/items/242/body",
       "from": "iconKey"
     },
+    "max_stack": {
+      "url": "https://meowdb.com/msclassic/item-db/242",
+      "read_at": "2026-10-05T22:11:30.520Z",
+      "capture": "tools/meowdb/captures/item_242.txt",
+      "from": "\"Max per Stack\" row: 100"
+    },
     "name": {
       "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
       "retrieved_at": "2026-10-05T08:17Z",
@@ -96,12 +109,17 @@
       "capture_pointer": "/items/242/body",
       "from": "levelReq, reqJob and stats.req* (an absent stat requirement is 0, as on the item pages)"
     },
+    "sell_price_basis": {
+      "url": "https://meowdb.com/msclassic/item-db/242",
+      "read_at": "2026-10-05T22:11:30.520Z",
+      "capture": "tools/meowdb/captures/item_242.txt",
+      "from": "the row label \"NPC Sell-back (per unit)\""
+    },
     "sell_price_mesos": {
-      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
-      "retrieved_at": "2026-10-05T08:17Z",
-      "capture": "tools/meowdb/captures/items_api.json",
-      "capture_pointer": "/items/242/body",
-      "from": "stats.price"
+      "url": "https://meowdb.com/msclassic/item-db/242",
+      "read_at": "2026-10-05T22:11:30.520Z",
+      "capture": "tools/meowdb/captures/item_242.txt",
+      "from": "\"NPC Sell-back (per unit)\" row: 3 mesos"
     },
     "sources.monster_drops": {
       "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
@@ -109,6 +127,17 @@
       "capture": "tools/meowdb/captures/items_api.json",
       "capture_pointer": "/items/242/body",
       "from": "previewSources.drops (empty, moreDrops false)"
+    },
+    "sources.msea_reference_drops": {
+      "url": "https://meowdb.com/msclassic/item-db/242",
+      "read_at": "2026-10-05T22:11:30.520Z",
+      "capture": "tools/meowdb/captures/item_242.txt",
+      "from": "the \"MSEA Reference Drops\" section (monster name and \"Lv N\"; the monster id is resolved by name and level, see sources.msea_reference_drops[].monster_id)"
+    },
+    "sources.msea_reference_drops[].monster_id": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW): the one monster with that name and level"
     },
     "sources.shops": {
       "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
@@ -124,6 +153,12 @@
       "capture_pointer": "/items/242/body",
       "from": "subtype"
     },
+    "tradeable": {
+      "url": "https://meowdb.com/msclassic/item-db/242",
+      "read_at": "2026-10-05T22:11:30.520Z",
+      "capture": "tools/meowdb/captures/item_242.txt",
+      "from": "the \"Tradeable\" tag"
+    },
     "type": {
       "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
       "retrieved_at": "2026-10-05T08:17Z",
@@ -133,18 +168,16 @@
     }
   },
   "notes": [
-    "API-only record: no /msclassic/item-db/242 page is cached or captured, so every value comes from the MeowDB item API body read by hand in a normal browser and saved in tools/meowdb/captures/items_api.json (/items/242/body; Iteration Three decision D3-1).",
-    "retrieved_at 2026-10-05T08:17Z is approximate: the capture records only the reading session, \"2026-10-05 ~08:17Z\" (method text), not a per-item time."
+    "API-only record: no /msclassic/item-db/242 page is cached, so the record is built from the MeowDB item API body read by hand in a normal browser and saved in tools/meowdb/captures/items_api.json (/items/242/body; Iteration Three decision D3-1).",
+    "retrieved_at 2026-10-05T08:17Z is approximate: the capture records only the reading session, \"2026-10-05 ~08:17Z\" (method text), not a per-item time.",
+    "The item page was read by hand in a normal browser on 2026-10-05T22:11:30.520Z and its rendered text saved in tools/meowdb/captures/item_242.txt (trimmed to the record): max_stack, tradeable, the NPC sell-back row (sell_price_mesos, sell_price_basis) and the MSEA reference drops come from it (field_sources); its name, type, subtype, number, recovery rows, sell-back value, description and \"Dropped By\" list are cross-checked with the item API body and agree with it.",
+    "sources.msea_reference_note is null: the section's explanatory paragraph is not in the trimmed capture tools/meowdb/captures/item_242.txt."
   ],
   "gaps": [
-    "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem",
-    "max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read",
-    "tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured",
-    "sources.msea_reference_drops: shown only on the item page, which was not captured",
-    "sources.quest_rewards: shown only on the item page, which was not captured",
-    "sources.breakables: shown only on the item page, which was not captured",
-    "sources.crafting_recipes: shown only on the item page, which was not captured",
-    "used_in: the \"Needed By\" lists are shown only on the item page, which was not captured",
-    "change_history: shown only on the item page, which was not captured"
+    "sources.quest_rewards: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+    "sources.breakables: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+    "sources.crafting_recipes: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+    "used_in: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+    "change_history: the capture of the item page (tools/meowdb/captures/item_242.txt) shows only the section's label (\"updated in COT2\"), not its rows"
   ]
 }

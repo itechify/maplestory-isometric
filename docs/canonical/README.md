@@ -17,7 +17,7 @@ property of Nexon Co., Ltd.
 | npcs | the 21 Maple Island NPCs with dialogue | [npcs.md](npcs.md) |
 | quests | the 20 Maple Island quests (1000–1019), with the live tracker's tags (all "Missable", "COT2") | [quests.md](quests.md) |
 | shops | Pan, Sid, Lucy | [shops.md](shops.md) |
-| items | the 96 items those reference (Green Apple, 242, built from a hand-read API capture) | [items.md](items.md) |
+| items | the 96 items those reference (Green Apple, 242, built from a hand-read API capture and a hand-read text capture of its item page) | [items.md](items.md) |
 | formulas | EXP table, Beginner rules, damage, accuracy, derived stats, attack speed and styles, spawn model, HP/MP gain, movement, recovery, death, loot rules | [formulas.md](formulas.md) |
 | parity vectors (tests only) | 818 golden vectors computed by MeowDB's own calculators → `game/tests/data/parity_vectors.json` | [oracles.md](oracles.md) |
 
@@ -77,7 +77,7 @@ node tools/meowdb/extract_npcs.mjs
 node tools/meowdb/extract_quests.mjs      # + missable / tracker_tags from the quest tracker capture
 node tools/meowdb/extract_shops.mjs
 node tools/meowdb/extract_formulas.mjs
-node tools/meowdb/extract_items.mjs       # Green Apple (242) from its item API capture (API-only record)
+node tools/meowdb/extract_items.mjs       # Green Apple (242) from its item API and item page captures (API-only record)
 node tools/meowdb/extract_monsters.mjs    # monsters/, drops/ (through tools/sources/drops_merge.mjs), breakables/
 node tools/meowdb/oracle_vectors.mjs      # tests/data/parity_vectors.json (+ local-only oracle extracts)
 node tools/meowdb/build_sources_index.mjs # canonical_sources.json (capture files and per-property authorities too)

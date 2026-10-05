@@ -386,13 +386,6 @@
       "resolves": "whether KuroDB's Orange Mushroom row 'Scroll for Shoes for Jump' (2040705, \"0.0300% base | Qty 1\") is Hidden Street's 'Scroll for Shoes for Jump 10%' (MeowDB 177), and so this member's chance",
       "decision": "D3-8",
       "why": "Not a source-data gap: KuroDB's Orange Mushroom page has a candidate row with a chance; only its item page, which names the scroll's success rate, was never read (the Cloudflare check had returned). The crosswalk records it as a candidate (tools/sources/crosswalk/drop_items.json), and the member never rolls until the read."
-    },
-    "item:242": {
-      "read": "MeowDB item page https://meowdb.com/msclassic/item-db/242 (Green Apple), by hand in a browser",
-      "resolves": "its 'Max per Stack' (the runtime holds one per Use slot by the inventory.json unpublished_max_stack adaptation until then), its Tradeable/Untradeable tag (the runtime treats the unknown tag as tradeable) and its NPC Sell-back basis",
-      "decision": "D3-1",
-      "fields": ["max_stack", "tradeable", "sell_price_basis"],
-      "why": "An API-only record (tools/meowdb/captures/items_api.json): these values are published on the item page, which was not captured, so they are pending, not missing from MeowDB. test_items_canonical checks the documented fallbacks; the entry stays open until the page is read and extract_items regenerates the record."
     }
   }
 }

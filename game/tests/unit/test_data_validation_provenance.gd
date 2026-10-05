@@ -367,7 +367,9 @@ func test_sources_index_lists_capture_files_and_property_sources() -> void:
 	expect_new(r, "error", "sources_index", INDEX, INDEX, "totals.capture_files")
 	var row := _index_row(db(), "items", first_id_where(db(), "items",
 		func(rec: Dictionary) -> bool: return rec.get("source", {}).has("capture"), "built from a capture"))
-	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/items_api.json"], "the shipped index lists the capture")
+	# Green Apple (242) cites its item API capture and the text capture of its item page (sorted, as the index lists them).
+	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/item_242.txt", "tools/meowdb/captures/items_api.json"],
+		"the shipped index lists both captures")
 	var p := ProvenanceChecks.new(cid[0], ValidationReport.new())
 	var expected := p.index_row("drops", cid[1], cid[0].drop_table(cid[1]))
 	# [drops package] The v2 record's own entries add their KuroDB page to "probability".

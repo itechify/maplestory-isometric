@@ -49,7 +49,9 @@ Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Ever
    - the quest tracker: `node tools/meowdb/extract_quests.mjs` (`missable` and `tracker_tags` of every quest; a quest
      with no tracker row fails the run, so a new region needs its own tracker capture);
    - an item API body (`tools/meowdb/captures/items_api.json`): `node tools/meowdb/extract_items.mjs` builds an item
-     with no cached page from the API body alone (Green Apple, 242).
+     with no cached page from the API body alone (Green Apple, 242); a text capture of that item's page
+     (`tools/meowdb/captures/item_<id>.txt`) then supplies the rows it shows (Max per Stack, the Tradeable tag, the
+     NPC Sell-back row and basis, the MSEA reference drops), each cited to the capture.
 
    `extract_monsters.mjs` resolves drop members against the local items and quests, so after adding an item, re-run
    it. Run an extractor twice: the output must be byte-identical.

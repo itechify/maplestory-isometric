@@ -11,9 +11,9 @@ extends TestCase
 ## shop or hit-zone table) with the true one expected, so every comparison is shown to fail when the two sides differ
 ## (a changed expected record alone can trip the record's own derivation checks instead of the comparison). Documented
 ## adaptations are asserted as documented: equipment stacks by data/misostory/inventory.json equipment_max_stack, an
-## unpublished max_stack (Green Apple, 242) by unpublished_max_stack, and only when the record's gaps and that table's
-## reason both say so. Green Apple's stack size, tradeable tag and sell-back basis are on its item page, which was never
-## captured, so its parity entry stays a pending source read whatever this file proves (tools/parity/rules.json).
+## unpublished max_stack by unpublished_max_stack, and only when the record's gaps and that table's reason both say so
+## (no shipped item has one since Green Apple's item page was read, tools/meowdb/captures/item_242.txt: the stack
+## comparison's mutation test shows the fallback on a private copy of the content).
 
 const ITEMS_DIR := "res://data/canonical/items"
 ## The canonical stat rows the runtime turns into Equipment.BONUS_KEYS, written from docs/canonical/items.md ("hp" is
@@ -147,9 +147,27 @@ func test_stack_comparison_can_fail() -> void:
 	_expect_caught(_stack_problems, "209", "max_stack", 100, "max_stack")
 	_expect_caught(_stack_problems, "270", "inventory_tab", "etc", "tab")
 	_expect_caught(_stack_problems, "541", "max_stack", 5, "max_stack")
-	# Green Apple: the fallback stack counts only while its record documents the missing value.
+	# Green Apple's stack comes from its item page capture now (Max per Stack 100).
 	_expect_caught(_stack_problems, "242", "max_stack", 30, "max_stack")
-	_expect_caught(_stack_problems, "242", "gaps", [], "documented")
+	# The unpublished-stack fallback (no shipped item uses it any more) counts only while the record's gaps and
+	# inventory.json's reason both document the missing value: shown on a private copy of the content where Green
+	# Apple's record has no max_stack again.
+	var unpub := _set_path(_set_path(_canonical("242"), "max_stack", null), "gaps",
+		["max_stack: (test) the item page's \"Max per Stack\" row was not read"])
+	var inv: Dictionary = (db().miso_table("inventory") as Dictionary).duplicate(true)
+	inv["unpublished_max_stack_reason"] = "(test) Green Apple (242) has no published stack size"
+	var fallback := _db_with_miso_table(_db_with_record("items", "242", unpub.duplicate(true)), "inventory", inv)
+	var ok := _stack_problems("242", unpub, fallback)
+	assert_eq(ok.size(), 0, "a documented unpublished stack holds unpublished_max_stack (%d): %s" % [
+		int(inv.get("unpublished_max_stack", -1)), "; ".join(ok)])
+	assert_true(_mentions(_stack_problems("242", _set_path(unpub, "gaps", []), fallback), "documented"),
+		"a null max_stack the record's gaps do not document is caught")
+	var undocumented := inv.duplicate(true)
+	undocumented["unpublished_max_stack_reason"] = "(test) names no item"
+	assert_true(_mentions(_stack_problems("242", unpub, _db_with_miso_table(fallback, "inventory", undocumented)), "not documented"),
+		"a fallback inventory.json's reason does not name is caught")
+	assert_true(_mentions(_stack_problems("242", _set_path(unpub, "max_stack", 30), fallback), "max_stack"),
+		"a runtime fallback stack other than the record's is caught")
 	# The runtime side: the game reads a different stack size than the canonical file says.
 	assert_true(_mentions(_stack_problems("270", _canonical("270"), _db_with("270", "max_stack", 7)), "max_stack"),
 		"a runtime stack of 7 for Red Potion is caught")
@@ -871,6 +889,18 @@ func _db_with_record(domain: String, id: String, rec: Dictionary) -> ContentDB:
 	records[id] = rec
 	d.canonical[domain] = records
 	d.miso = db().miso
+	d.loaded = true
+	return d
+
+
+## A private copy of `base` whose game/data/misostory table `basename` is `table` (`base` is untouched).
+func _db_with_miso_table(base: ContentDB, basename: String, table: Dictionary) -> ContentDB:
+	var d := ContentDB.new()
+	d.canonical = base.canonical
+	d.miso = base.miso.duplicate()
+	var root: Dictionary = (base.miso.get("", {}) as Dictionary).duplicate()
+	root[basename] = table
+	d.miso[""] = root
 	d.loaded = true
 	return d
 

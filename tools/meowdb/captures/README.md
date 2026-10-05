@@ -13,7 +13,8 @@ browser on 2026-10-05 and saved here.
 | `breakable_0000001.txt` | Wooden Box | the box's drop membership (Old Wooden Board, Rusty Screw, Apple, Egg; D3-7), hits to break, the maps it spawns on |
 | `quest_tracker_maple_island.txt` | the quest tracker, Maple Island area | that the cached 20 quests (1000-1019) are still the whole Maple Island set (D3-2), their chains, and the `Missable` and `COT2` tags written into every quest record |
 | `quest_1008.txt` | Lucas's Reply | a spot check that the cached quest pages still match the live site (random reward table, dialogue); no record reads it |
-| `items_api.json` | item API bodies 242, 486, 495, 498 | Green Apple (242), a Hidden Street drop with no cached item page: its record is built from this body alone (`extract_items.mjs`, served by `lib.mjs` for exactly that URL). The three "Omok Piece: Mushroom" items, which leave that Orange Mushroom drop ambiguous (D3-8) |
+| `items_api.json` | item API bodies 242, 486, 495, 498 | Green Apple (242), a Hidden Street drop with no cached item page: its record is built from this body (`extract_items.mjs`, served by `lib.mjs` for exactly that URL). The three "Omok Piece: Mushroom" items, which leave that Orange Mushroom drop ambiguous (D3-8) |
+| `item_242.txt` | Green Apple's item page (read 2026-10-05T22:11:30.520Z) | the rows the API body lacks: Max per Stack 100, the Tradeable tag, "NPC Sell-back (per unit)" 3 mesos (the per-unit basis) and the MSEA reference drop (Mano, Lv 20); `extract_items.mjs` reads them into `items/242.json` and cross-checks the rest of the text with the API body |
 
 One exception to "read by navigating", recorded in D3-1: items 495, 498 and 242 were read through the page's own
 `fetch()` at human pace (3 requests, 1.5 s apart), not by opening each URL. `items_api.json` records only a session
@@ -21,7 +22,9 @@ time in its `method` text, so the loader derives its read time and flags it `rea
 
 ## Formats
 
-- **`.txt`**: `KEY: value` header lines, a `---` line, then the rendered page text trimmed to the record. `URL` and
+- **`.txt`**: `KEY: value` header lines, a `---` line, then the rendered page text trimmed to the record. An item page
+  (`item_<id>.txt`) is read only for what its text shows: the card's value rows and tags, the description line and the
+  sections present; a section the trimmed text leaves out is never read as empty. `URL` and
   `READ_AT` (ISO 8601 with a zone) are required; `METHOD` and `PURPOSE` say how and why it was read, and a value may
   continue on indented lines. The quest tracker capture's `READ_AT_NOTE` explains its normalised read time.
 - **`monster_<id>.json`**: `{url, read_at, method, head, drops, maple_island_map_rows}`, the page text split into the

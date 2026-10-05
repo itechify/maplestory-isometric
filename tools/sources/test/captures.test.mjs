@@ -25,7 +25,7 @@ test('every capture value carries an ISO 8601 read_at', () => {
   const all = [
     ...Object.values(c.kurodb.monsters), ...Object.values(c.kurodb.reactor_items.items), ...Object.values(c.hiddenstreet.monsters),
     ...Object.values(c.meowdb.monsters), ...Object.values(c.meowdb.breakables), ...Object.values(c.meowdb.quests),
-    c.meowdb.quest_tracker, ...Object.values(c.meowdb.items_api.items),
+    c.meowdb.quest_tracker, ...Object.values(c.meowdb.items_api.items), ...Object.values(c.meowdb.item_pages),
   ];
   assert.ok(all.length >= 25);
   for (const x of all) assert.ok(isIsoTimestamp(x.read_at), `${x.file}: ${x.read_at}`);
@@ -125,6 +125,44 @@ test('MeowDB breakable, quest and items_api captures', () => {
   assert.equal(apple.body.name, 'Green Apple');
   assert.equal(apple.read_at_approximate, true);
   assert.match(apple.read_at_note, /~08:17Z/);
+});
+
+test('MeowDB item page capture: Green Apple (242), only what the trimmed text shows', () => {
+  const p = c.meowdb.item_pages['242'];
+  assert.equal(p.url, 'https://meowdb.com/msclassic/item-db/242');
+  assert.equal(p.read_at, '2026-10-05T22:11:30.520Z');
+  assert.deepEqual([p.name, p.type, p.subtype, p.number], ['Green Apple', 'Use', 'Food', '0242']);
+  assert.deepEqual(Object.fromEntries(Object.entries(p.rows).map(([k, r]) => [k, r.value])),
+    { 'MP Recovery': 30, 'NPC Sell-back (per unit)': 3, 'Max per Stack': 100 });
+  assert.deepEqual(p.tags, ['Tradeable']);
+  assert.equal(p.description, 'A sour and crunchy green apple. Restores 30 MP.');
+  assert.deepEqual(p.sections, ['Dropped By', 'MSEA Reference Drops', 'Change history']);
+  assert.equal(p.community_drops_none, true);
+  assert.deepEqual(p.msea_reference.map((m) => [m.monster_name, m.monster_level]), [['Mano', 20]]);
+  assert.equal(p.change_history_label, 'updated in COT2');
+});
+
+test('an item page capture that does not parse is an error', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'captures-item-'));
+  for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(REPO_ROOT, dir), path.join(root, dir), { recursive: true });
+  const f = path.join(root, 'tools/meowdb/captures/item_242.txt');
+  const good = fs.readFileSync(f, 'utf8');
+  // Each mutation is loaded from a fresh copy (loadCaptures caches per root).
+  let n = 0;
+  const expectError = (mutate, re) => {
+    fs.writeFileSync(f, mutate(good));
+    const r = path.join(root, `r${++n}`);
+    for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(root, dir), path.join(r, dir), { recursive: true });
+    fs.writeFileSync(f, good);
+    assert.throws(() => loadCaptures({ root: r }), re);
+  };
+  expectError((t) => t.replace('No. 0242', 'No. 0243'), /No\. 0243, the file is item 242/);
+  expectError((t) => t.replace('item-db/242', 'item-db/243'), /is not the page of item 242/);
+  expectError((t) => t.replace('Max per Stack\n100', 'Max per Stack\nmany'), /"Max per Stack" has no numeric value/);
+  expectError((t) => t.replace('Tradeable\n', 'Tradeable\nRequired Level\n'), /lines no reader knows/);
+  expectError((t) => t.replace('Read-only · 1 monster', 'Read-only · 2 monsters'), /but 1 monsters listed/);
+  expectError((t) => t.replace('Lv 20', 'Level 20'), /has no "Lv N" line/);
+  fs.rmSync(root, { recursive: true, force: true });
 });
 
 test('apiCaptureFor serves exact API URLs only', () => {

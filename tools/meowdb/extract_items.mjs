@@ -12,7 +12,12 @@
 // was captured by hand (tools/meowdb/captures/items_api.json, served by lib.mjs), the record is built from that body
 // alone (buildItemFromApiOnly): every value cites the capture in field_sources, and every field only the item page
 // shows (max per stack, the Tradeable tag, MSEA drops, quest rewards, change history, ...) is null and listed in gaps.
-// Green Apple (242) is the one such item (Iteration Three decision D3-1).
+// When the item page itself was then read by hand and its rendered text saved (tools/meowdb/captures/item_<id>.txt,
+// parsed by tools/sources/captures.mjs), the rows that capture shows are read from it instead (Max per Stack, the
+// Tradeable/Untradeable tag, the NPC Sell-back row and its per-unit/per-item basis, the MSEA Reference Drops), each
+// citing it in field_sources (url, read_at, capture), and the rest of what it shows is cross-checked with the API body;
+// a section the trimmed capture leaves out stays a gap. Green Apple (242) is the one such item (Iteration Three
+// decision D3-1; its page capture was read on 2026-10-05).
 //
 // Pages read per item (all cache-first through lib.mjs, so retrieved_at comes from the cache meta):
 //   /item-db/<id>                              primary: everything rendered server-side (header, requirements, stat
@@ -36,6 +41,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL, hasCached, networkAllowed } from './lib.mjs';
+import { loadCaptures } from '../sources/captures.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -64,7 +70,7 @@ const SHOP_PRICE_TITLE = 'Every price in this shop was read from in-game footage
 
 const freshFetches = [];
 // Counters of cross-checks performed (printed at the end so a silent no-op check is visible).
-const CHECKS = { description_vs_page: 0, description_vs_cot2_text: 0, stat_rows_vs_api: 0, base_stats_vs_rows: 0, quest_reward_chance_vs_quest_page: 0, shop_rows_vs_shops_domain: 0, drop_rows_vs_drops_domain: 0 };
+const CHECKS = { description_vs_page: 0, description_vs_cot2_text: 0, stat_rows_vs_api: 0, base_stats_vs_rows: 0, quest_reward_chance_vs_quest_page: 0, shop_rows_vs_shops_domain: 0, drop_rows_vs_drops_domain: 0, item_page_capture_vs_api: 0, msea_monster_ids_by_name: 0 };
 async function get(u) {
   const r = u.startsWith('http') ? await fetchUrl(u) : await fetchPage(u);
   if (!r.fromCache && !r.fromCapture) freshFetches.push(r.url);
@@ -921,7 +927,19 @@ const API_ONLY_PAGE_GAPS = [
   'change_history: shown only on the item page, which was not captured',
 ];
 
-function buildItemFromApiOnly(id, api, apiRes) {
+// The item page's rows an API-only record reads from a hand-read text capture of that page
+// (tools/meowdb/captures/item_<id>.txt, parsed by tools/sources/captures.mjs): the page label -> what it settles.
+const PAGE_CAPTURE_CONSUMABLE_ROWS = { 'HP Recovery': 'hpRecover', 'MP Recovery': 'mpRecover' };
+
+/**
+ * page: the parsed text capture of the item page (captures.mjs meowdb.item_pages[id]) or null. With it, the rows the
+ * capture shows are read from it (Max per Stack, the Tradeable/Untradeable tag, the NPC Sell-back row with its basis,
+ * the MSEA Reference Drops), each citing the capture (url, read_at, capture), and their gaps go; the rows it also
+ * shows that the item API gives (name, type, subtype, number, HP/MP Recovery, sell-back value, description) are
+ * cross-checked, a difference recorded in discrepancies with the page chosen (as buildItem does). A section the
+ * trimmed capture leaves out stays a gap.
+ */
+function buildItemFromApiOnly(id, api, apiRes, page = null) {
   const s = api.stats || {};
   for (const k of Object.keys(s)) if (!API_ONLY_STAT_KEYS.has(k)) throw new Error('item ' + id + ': API-only path does not handle stats.' + k + ' (it needs the item page)');
   if (api.type === 'Equip' || s.successRate != null || s.hpRecoverBonus != null) throw new Error('item ' + id + ': equipment, scrolls and chairs need the item page');
@@ -931,12 +949,34 @@ function buildItemFromApiOnly(id, api, apiRes) {
     ...(cap ? { capture: cap.capture, capture_pointer: cap.pointer } : {}),
     from,
   });
+  const pageRef = (from) => ({ url: page.url, read_at: page.read_at, capture: page.file, from });
   const fieldSources = {};
   const gaps = [];
   const notes = [];
+  const discrepancies = [];
   const type = api.type ?? null;
   const subtype = api.subtype ?? null;
   for (const [field, from] of [['name', 'name'], ['type', 'type'], ['subtype', 'subtype'], ['description', 'description'], ['game_item_id', 'iconKey']]) fieldSources[field] = ref(from);
+  const pageRow = (label) => (page ? page.rows[label] ?? null : null);
+  if (page) {
+    // Cross-checks of what both sources show. The page is primary for its own rows (as in buildItem); the in-game
+    // description stays the item API's text field.
+    for (const [field, pv, av] of [['name', page.name, api.name], ['type', page.type, type], ['subtype', page.subtype, subtype]]) {
+      CHECKS.item_page_capture_vs_api++;
+      if ((pv ?? null) !== (av ?? null)) throw new Error('item ' + id + ': ' + page.file + ' shows ' + field + ' ' + JSON.stringify(pv) + ', the item API ' + JSON.stringify(av));
+    }
+    const norm = (t) => (t ?? '').replace(/\s+/g, ' ').trim();
+    if (page.description != null) {
+      CHECKS.item_page_capture_vs_api++;
+      if (norm(page.description) !== norm(api.description)) discrepancies.push({ field: 'description', item_page: page.description, item_api: api.description, chosen: api.description, reason: 'item API description is the in-game text field' });
+    }
+    for (const [label, k] of Object.entries(PAGE_CAPTURE_CONSUMABLE_ROWS)) {
+      const r = pageRow(label);
+      if (!r) continue;
+      CHECKS.item_page_capture_vs_api++;
+      if (s[k] !== r.value) throw new Error('item ' + id + ': ' + page.file + ' shows ' + label + ' ' + r.raw + ', the item API stats.' + k + ' ' + s[k] + ' (a value the API-only path takes from the API)');
+    }
+  }
 
   const jobRaw = s.reqJob ?? api.reqJob ?? null;
   const requirements = {
@@ -956,7 +996,17 @@ function buildItemFromApiOnly(id, api, apiRes) {
   }
 
   let sellPrice = null, sellBasis = null, sellSource = null;
-  if (s.price != null) {
+  const sellRow = pageRow('NPC Sell-back (per unit)') ?? pageRow('NPC Sell-back');
+  if (sellRow) {
+    // The item page's row, as buildItem reads it: its value, and its label gives the basis.
+    sellPrice = sellRow.value;
+    sellBasis = sellRow.label === 'NPC Sell-back (per unit)' ? 'per_unit' : 'per_item';
+    sellSource = 'item_page';
+    fieldSources.sell_price_mesos = pageRef('"' + sellRow.label + '" row: ' + sellRow.raw);
+    fieldSources.sell_price_basis = pageRef('the row label "' + sellRow.label + '"');
+    CHECKS.item_page_capture_vs_api++;
+    if (s.price != null && s.price !== sellPrice) discrepancies.push({ field: 'sell_price_mesos', item_page: sellPrice, item_api: s.price, chosen: sellPrice, reason: 'item page is the primary source' });
+  } else if (s.price != null) {
     sellPrice = s.price;
     sellBasis = s.slotMax != null ? 'per_unit' : 'per_item'; // same rule as buildItem's API fallback
     sellSource = 'item_api';
@@ -964,9 +1014,28 @@ function buildItemFromApiOnly(id, api, apiRes) {
     if (s.slotMax == null) gaps.push('sell_price_basis: the item page\'s "NPC Sell-back" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem');
   } else gaps.push('sell_price_mesos: the item API gives no NPC sell-back value');
 
-  const maxStack = s.slotMax ?? null;
-  if (maxStack != null) fieldSources.max_stack = ref('stats.slotMax');
+  const stackRow = pageRow('Max per Stack');
+  let maxStack = s.slotMax ?? null;
+  if (stackRow) {
+    if (maxStack != null && maxStack !== stackRow.value) discrepancies.push({ field: 'max_stack', item_page: stackRow.value, item_api: maxStack, chosen: stackRow.value, reason: 'item page is the primary source' });
+    maxStack = stackRow.value;
+    fieldSources.max_stack = pageRef('"Max per Stack" row: ' + stackRow.raw);
+  } else if (maxStack != null) fieldSources.max_stack = ref('stats.slotMax');
   else gaps.push('max_stack: the item API omits slotMax and "Max per Stack" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read');
+
+  const tradeTag = page ? page.tags.find((t) => t === 'Tradeable' || t === 'Untradeable') ?? null : null;
+  const tradeable = tradeTag === 'Tradeable' ? true : tradeTag === 'Untradeable' ? false : (s.untradeable ? false : null);
+  if (tradeTag) {
+    fieldSources.tradeable = pageRef('the "' + tradeTag + '" tag');
+    if (tradeTag === 'Tradeable' && s.untradeable === true) discrepancies.push({ field: 'tradeable', item_page: 'Tradeable', item_api: 'untradeable: true', chosen: true, reason: 'item page is the primary source' });
+  }
+
+  // MSEA Reference Drops: the rendered text names the monster and its level; the id (a link on the page) is resolved
+  // in main() against the monster list bundled with the item pages (resolveMseaMonsterIds).
+  const msea = page?.msea_reference ? page.msea_reference.map((m) => ({ monster_id: null, monster_name: m.monster_name, monster_level: m.monster_level })) : null;
+  if (msea) {
+    fieldSources['sources.msea_reference_drops'] = pageRef('the "MSEA Reference Drops" section (monster name and "Lv N"; the monster id is resolved by name and level, see sources.msea_reference_drops[].monster_id)');
+  }
 
   // previewSources lists up to three names; an empty list with more* false means MeowDB has none at all.
   const preview = api.previewSources || {};
@@ -980,11 +1049,34 @@ function buildItemFromApiOnly(id, api, apiRes) {
   };
   const shops = previewList('shops', 'moreShops', 'sources.shops');
   const monsterDrops = previewList('drops', 'moreDrops', 'sources.monster_drops');
-  gaps.push(...API_ONLY_PAGE_GAPS);
+  if (page?.community_drops_none === true && Array.isArray(monsterDrops) && monsterDrops.length === 0) CHECKS.item_page_capture_vs_api++; // "No drops reported yet." agrees
+  else if (page?.community_drops_none === true && monsterDrops == null) throw new Error('item ' + id + ': ' + page.file + ' says no drops are reported but the item API preview names some');
+  if (!page) gaps.push(...API_ONLY_PAGE_GAPS);
+  else {
+    // The page was read, but its capture is trimmed: a field is settled only by what the capture shows.
+    for (const g of API_ONLY_PAGE_GAPS) {
+      const field = g.split(':')[0];
+      if (field === 'tradeable') {
+        if (!tradeTag) gaps.push('tradeable: the capture of the item page (' + page.file + ') shows no Tradeable/Untradeable tag');
+      } else if (field === 'sources.msea_reference_drops') {
+        if (!msea) gaps.push('sources.msea_reference_drops: the capture of the item page (' + page.file + ') does not include the section');
+      } else if (field === 'change_history' && page.change_history_label != null) {
+        gaps.push('change_history: the capture of the item page (' + page.file + ') shows only the section\'s label ("' + page.change_history_label + '"), not its rows');
+      } else gaps.push(field + ': shown only on the item page; its capture (' + page.file + ') is trimmed to the record and does not include it');
+    }
+  }
 
-  notes.push('API-only record: no /msclassic/item-db/' + id + ' page is cached or captured, so every value comes from the MeowDB item API body'
+  notes.push('API-only record: no /msclassic/item-db/' + id + ' page is ' + (page ? 'cached' : 'cached or captured') + ', so '
+    + (page ? 'the record is built from' : 'every value comes from') + ' the MeowDB item API body'
     + (cap ? ' read by hand in a normal browser and saved in ' + cap.capture + ' (' + cap.pointer + '; Iteration Three decision D3-1)' : ' in the local cache') + '.');
   if (cap?.read_at_note) notes.push('retrieved_at ' + apiRes.retrieved_at + ' is ' + cap.read_at_note + '.');
+  if (page) {
+    notes.push('The item page was read by hand in a normal browser on ' + page.read_at + ' and its rendered text saved in ' + page.file
+      + ' (trimmed to the record): max_stack, tradeable, the NPC sell-back row (sell_price_mesos, sell_price_basis) and the MSEA reference drops come from it'
+      + ' (field_sources); its name, type, subtype, number, recovery rows, sell-back value, description and "Dropped By" list are cross-checked with the item API body'
+      + (discrepancies.length ? ' (differences in discrepancies).' : ' and agree with it.'));
+    if (msea) notes.push('sources.msea_reference_note is null: the section\'s explanatory paragraph is not in the trimmed capture ' + page.file + '.');
+  }
 
   const out = {
     id,
@@ -1008,12 +1100,12 @@ function buildItemFromApiOnly(id, api, apiRes) {
     sell_price_source: sellSource,
     recharge_cost_mesos_per_unit: s.unitPrice ?? null,
     max_stack: maxStack,
-    tradeable: s.untradeable ? false : null,
+    tradeable,
     gender: null,
     sources: {
       shops,
       monster_drops: monsterDrops,
-      msea_reference_drops: null,
+      msea_reference_drops: msea,
       msea_reference_note: null,
       quest_rewards: null,
       breakables: null,
@@ -1027,7 +1119,31 @@ function buildItemFromApiOnly(id, api, apiRes) {
     notes,
     gaps,
   };
+  if (discrepancies.length) out.discrepancies = discrepancies;
   return out;
+}
+
+/**
+ * MSEA reference rows read from a text capture name the monster but not its id (a link on the page). Each gets the id
+ * of the one monster with that name and level in the monster list bundled with the item pages (the list buildItem
+ * names community drops with); none or several is an error.
+ */
+function resolveMseaMonsterIds(items, monsters) {
+  for (const it of items) {
+    const rows = it.sources?.msea_reference_drops;
+    if (!Array.isArray(rows) || !rows.some((r) => r.monster_id == null)) continue;
+    if (!monsters) throw new Error('item ' + it.id + ': no monster list to resolve its MSEA reference monsters');
+    for (const r of rows) {
+      if (r.monster_id != null) continue;
+      const hits = [...monsters.map.entries()].filter(([, m]) => m.name === r.monster_name && m.level === r.monster_level);
+      if (hits.length !== 1) throw new Error('item ' + it.id + ': MSEA monster "' + r.monster_name + '" Lv ' + r.monster_level + ' matches ' + hits.length + ' monsters in the bundled list');
+      r.monster_id = hits[0][0];
+      CHECKS.msea_monster_ids_by_name++;
+    }
+    it.field_sources['sources.msea_reference_drops[].monster_id'] = { ...monsters.ref, from: 'monster list bundled with the item page (export IW): the one monster with that name and level' };
+    it.field_sources = Object.fromEntries(Object.entries(it.field_sources).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+    if (!it.derived_fields.includes('sources.msea_reference_drops[].monster_id')) it.derived_fields.push('sources.msea_reference_drops[].monster_id');
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1067,8 +1183,10 @@ async function main() {
       const apiRes = await get(itemApiUrl(id));
       const api = JSON.parse(apiRes.text);
       if (String(api.id) !== id) throw new Error('item API returned id ' + api.id + ' for ' + id);
-      items.push(buildItemFromApiOnly(id, api, apiRes));
-      apiOnly.push(id + (apiRes.fromCapture ? ' (' + apiRes.capture.capture + ')' : ' (cache)'));
+      // A hand-read text capture of the item page (tools/meowdb/captures/item_<id>.txt), when there is one.
+      const pageCap = loadCaptures().meowdb.item_pages[id] ?? null;
+      items.push(buildItemFromApiOnly(id, api, apiRes, pageCap));
+      apiOnly.push(id + (apiRes.fromCapture ? ' (' + apiRes.capture.capture + ')' : ' (cache)') + (pageCap ? ' + item page ' + pageCap.file : ''));
       continue;
     }
     const pageRes = await get(itemPagePath(id));
@@ -1091,6 +1209,12 @@ async function main() {
     }
     if (String(api.id) !== id) throw new Error('item API returned id ' + api.id + ' for ' + id);
     items.push(buildItem(id, page, pageRes, api, apiRes, drops, dropsRes, monsters, starter, questPages));
+  }
+
+  resolveMseaMonsterIds(items, monsters);
+  // A hand-read item page capture is read only by the API-only path; one nothing read would be silently ignored.
+  for (const [cid, pc] of Object.entries(loadCaptures().meowdb.item_pages)) {
+    if (!apiOnly.some((x) => x.startsWith(cid + ' '))) throw new Error(pc.file + ': item ' + cid + ' is not an API-only item of this extract, so nothing reads the capture');
   }
 
   // "Required Ammunition" is shown as a name only; resolve it to an id when exactly one extracted item has that name.
