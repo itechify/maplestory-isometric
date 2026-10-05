@@ -1,16 +1,17 @@
-# MisoStory: Maple Island, Iteration One
+# MisoStory: Maple Island
 
 > What would classic Maple Island have felt like if MapleStory had originally been an isometric 3D game?
 
-This repository builds **all 25 classic Maple Island maps** (GMS v0.08–v0.22 era) as one geographically
+**Iteration One** builds **all 25 classic Maple Island maps** (GMS v0.08–v0.22 era) as one geographically
 coherent, floating 3D island in **Blender 5.2**. It uses an orthographic isometric camera and a stylized,
 hand-crafted, MapleStory-inspired look. Python generates everything deterministically: the `.blend` is a build
 artifact, and the scripts and data are the source. The `.blend` and renders are not committed. Build them with one
 command, or download them from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest).
+**Iteration Two** turns that island into a playable game (below).
 
 ![Island overview](docs/images/island_overview.jpg)
 
-## Play it (Iteration Two, work in progress)
+## Play it (Iteration Two)
 
 Iteration Two turns the island into a playable **Godot 4.7** game (`game/`), using gameplay data from
 [MeowDB MS Classic](https://meowdb.com/msclassic) (see [`docs/canonical/README.md`](docs/canonical/README.md)).
@@ -21,7 +22,7 @@ How-to (build, test, validate, debug): [`docs/runtime/HOWTO.md`](docs/runtime/HO
 ```bash
 bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
 bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)
-bash scripts/test.sh            # 900+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+bash scripts/test.sh            # 1100+ headless tests;  bash scripts/validate_data.sh checks the canonical data
 ```
 
 | Keys | Action |
@@ -173,12 +174,16 @@ geometry and materials are original. Do not redistribute those folders.
 
 ## Known limitations
 
-Full list and Iteration Two plans: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
+Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
 
-- **Static dioramas.** There is no character controller, combat or game systems. NPCs and monsters are static proxies
-  placed to establish scale and show spawn areas, not classic spawn counts.
-- **Traversal is validated, not simulated.** `traversal.py` walks every declared route over the real geometry
-  (steps, slopes, ladders, gaps, portal reachability), but no navmesh or physics character has walked the island.
+- **Placeholder art.** Characters and monsters are Iteration One's static chibi proxies (no rigs or animation
+  beyond procedural bob and lunge); the Tutorial Jr. Sentinel is a grey placeholder. There is no audio.
+- **Iteration Two scope.** One Beginner on Maple Island: no job advancement, skills window, sitting, minimap, the ship
+  to Victoria Island, or multiplayer. All 20 Maple Island quests run through the generic engine, but only 1002, 1006
+  and 1007 → 1008 are verified by real-game playthroughs. Drop chances and meso amounts are labelled placeholders
+  (MeowDB publishes none). Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
+- **Playthroughs are automated.** Tests A–G pass as scripted real-input runs of the real game
+  ([`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md)); a human playthrough is still to come.
 - **Approximate platform translation.** Maps keep the classic tier structure, ladders, ropes, landmarks and route
   rhythm, not pixel-exact footholds. Vertical scale is about 0.55-0.7 m per classic 60 px tier, capped near 14 m.
 - **Interiors are staged remotely.** The four interiors (20001, 60001, 1010001, 1010003) are cutaway rooms on an
