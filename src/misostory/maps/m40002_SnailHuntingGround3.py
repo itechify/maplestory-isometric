@@ -217,6 +217,10 @@ def build(m):
     # (its east end juts forward into a small bastion so the exit gate has room on both sides)
     m.terrace("T3_RidgeEast", [(51.8, 34.0), (58.4, 33.8), (59.6, 31.6), (64.6, 31.2), (64.4, 45.4), (63.6, 46.4),
                                (51.8, 46.6)], top=T3, bottom=-0.5)
+    # (its cut back corner left a body-wide hole at plinth level inside the containment ring's corner, 12.5 m under
+    # the ridge; Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md: filled 0.2 m below the ridge)
+    m.terrace("T3_Corner_Fill", [(62.8, 44.6), (64.9, 44.6), (64.9, 46.9), (62.8, 46.9)], top=T3 - 0.2, bottom=-0.5,
+              style="grass_rock", fringe=False, stones=False)
     # the crest skyline: a continuous rock RIM along the ridge's back edge - wide, shallow grass-capped teeth
     # every 6-8 m (tops <= 14.5 m) joined by low rim walls 0.8-1.1 m tall. A gap at x 39.6-44.8 holds the
     # grove's back trees. The crest walk (Main, y ~42.5) stays >= 1.5 m in front of the rim.

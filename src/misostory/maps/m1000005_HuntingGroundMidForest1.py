@@ -427,6 +427,10 @@ def build(m):
     m.terrace("Canopy_T6", [(26.6, 25.6), (29.5, 25.2), (32.5, 25.6), (35.5, 25.2), (38.8, 25.5), (38.8, 37.0),
                             (26.0, 37.0)], top=T6, bottom=-0.5)
     _climb(m, "Ladder_T8_T6", 28.4, 24.9, T8, T6)
+    # (the slot between the branch's back edge and the canopy, west of the ladder, was a body-wide shaft 9-11 m deep
+    # to the forest floor; Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md: filled 0.2 m below T8)
+    m.terrace("Branch_Canopy_Slot_Fill", [(25.6, 24.4), (27.9, 24.4), (27.9, 25.7), (25.6, 25.7)], top=T8 - 0.2,
+              bottom=-0.5)
     m.terrace("Ledge_T4", [(30.4, 32.6), (33.4, 32.4), (36.4, 32.6), (36.4, 36.8), (30.4, 36.8)], top=T4,
               bottom=T6 - 0.5, style="grass_stone")
     _climb(m, "Ladder_T6_T4", 33.4, 32.0, T6, T4)

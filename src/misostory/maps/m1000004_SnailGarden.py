@@ -286,9 +286,15 @@ def build(m):
     turf_step(m, "Step_T10_T7", 30.1, 31.6, 21.5, 2.4, (T10 + T7) / 2, T10)
 
     # ---------------- upper ledges + top beds ----------------
-    m.terrace("Ledge_T4", geo.rounded_rect(31.0, 23.6, 35.0, 27.6, 0.8), top=T4, bottom=T10 - 0.4)
+    # The upper ledges and top beds reach down to the ground: floating at T10 - 0.4 over the back of the map they
+    # roofed a 61 m2 room at plinth level (x 30-40.8, y 24-31, 7 m high), open through the slot between stone T7 and
+    # this ledge (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md: the real controller did not get in,
+    # but nothing could have got out).
+    m.terrace("Ledge_T4", geo.rounded_rect(31.0, 23.6, 35.0, 27.6, 0.8), top=T4, bottom=-0.5)
     m.ladder("Ladder_T10_T4", 33.0, 23.05, T10, T4, facing=90)
-    m.terrace("Ledge_T5", geo.rounded_rect(35.0, 23.6, 40.8, 27.8, 0.8), top=T5, bottom=T10 - 0.4)
+    # (the slot between stone T7 and this ledge, 0.8 m wide and now 8 m deep, is filled 0.2 m below T7)
+    m.terrace("T7_T4_Slot_Fill", [(29.8, 24.0), (31.6, 24.0), (31.6, 27.6), (29.8, 27.6)], top=T7 - 0.2, bottom=-0.5)
+    m.terrace("Ledge_T5", geo.rounded_rect(35.0, 23.6, 40.8, 27.8, 0.8), top=T5, bottom=-0.5)
     # (kept forward of the T2 lip so the T5 -> T2 rope stands on flat ground beside it)
     turf_step(m, "Step_T5_T4", 34.7, 36.1, 25.15, 2.0, (T5 + T4) / 2, T5)
     # (down to the ground: floating at T21 - 0.4 it left a 1.85 m high cavern under itself, entered off the back
@@ -298,7 +304,7 @@ def build(m):
     ye_t0b = cap_edge(m, 27.9, 23.6, T0)
     rope("Rope_T9_T0", 23.5, ye_t0a, T9, T0)
     rope("Rope_T7_T0", 27.9, ye_t0b, T7, T0)
-    m.terrace("PurpleBed_T2", [(29.8, 27.4), (36.6, 27.4), (36.6, 31.0), (29.8, 31.0)], top=T2, bottom=T10 - 0.4)
+    m.terrace("PurpleBed_T2", [(29.8, 27.4), (36.6, 27.4), (36.6, 31.0), (29.8, 31.0)], top=T2, bottom=-0.5)
     ye_t2 = cap_edge(m, 35.8, 25.8, T2)
     rope("Rope_T5_T2", 35.8, ye_t2, T5, T2)
     # the real body faces behind those three ropes (the kit rope hangs ~0.12 m in front of them): the trellises
@@ -306,7 +312,7 @@ def build(m):
     fy_t0a = face_y(m, 23.5, ye_t0a - 1.0, T9, T0) or ye_t0a + 0.25
     fy_t0b = face_y(m, 27.9, ye_t0b - 1.0, T7, T0) or ye_t0b + 0.25
     fy_t2 = face_y(m, 35.8, ye_t2 - 1.0, T5, T2) or ye_t2 + 0.25
-    m.terrace("CarrotBed_T3", [(36.4, 27.8), (40.8, 27.8), (40.8, 31.0), (36.4, 31.0)], top=T3, bottom=T10 - 0.4)
+    m.terrace("CarrotBed_T3", [(36.4, 27.8), (40.8, 27.8), (40.8, 31.0), (36.4, 31.0)], top=T3, bottom=-0.5)
     # classic: a 60 px hop between T3 and T2; one turf step keeps it walkable both ways
     turf_step(m, "Step_T3_T2", 36.4, 37.8, 30.0, 1.8, (T3 + T2) / 2, T3)
 

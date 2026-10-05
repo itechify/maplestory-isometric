@@ -1038,17 +1038,23 @@ func _group(g: MapGraph) -> void:
 	for i in groups.size():
 		for u in groups[i]:
 			comp_of[u] = i
-	# The ways in: edges from escapable reachable nodes onto each component (one pass over the graph).
+	# The ways in: edges from escapable reachable nodes onto each component (one pass over the graph), bucketed by
+	# kind so that a component with many slides still keeps its long drops and hops (each bucket capped).
 	var ins: Array = []
 	for i in groups.size():
-		ins.append([])
+		ins.append({})
 	for v in count:
 		if g.fwd[v] == 0 or g.bwd[v] == 0:
 			continue
 		for e: Array in g.out_edges(v):
 			var ci := comp_of[int(e[0])]
-			if ci >= 0 and (ins[ci] as Array).size() < IN_EDGES * 16:
-				(ins[ci] as Array).append(_edge_info(g, v, int(e[0]), int(e[1])))
+			if ci < 0:
+				continue
+			var by_kind: Dictionary = ins[ci]
+			var bucket: Array = by_kind.get(int(e[1]), [])
+			if bucket.size() < IN_EDGES * 32:
+				bucket.append(_edge_info(g, v, int(e[0]), int(e[1])))
+				by_kind[int(e[1])] = bucket
 	for i in groups.size():
 		g.components.append(_component_summary(g, i, groups[i], ins[i]))
 
@@ -1068,9 +1074,8 @@ func _edge_info(g: MapGraph, v: int, u: int, kind: int) -> Dictionary:
 
 
 ## What a component is: its nodes, area, centre and height span in map-local and Blender-local coordinates, what the
-## floor is, and the ways in (in_edges: up to IN_EDGES edges from escapable reachable nodes, the likeliest first:
-## walks and drops, then slides, longer drops and hops, each by the smallest height change).
-func _component_summary(g: MapGraph, index: int, members: PackedInt32Array, ins: Array) -> Dictionary:
+## floor is, and the ways in (in_edges: up to IN_EDGES edges from escapable reachable nodes, _pick_ins()).
+func _component_summary(g: MapGraph, index: int, members: PackedInt32Array, ins_by_kind: Dictionary) -> Dictionary:
 	var c := Vector3.ZERO
 	var y_lo := INF
 	var y_hi := -INF
@@ -1093,11 +1098,7 @@ func _component_summary(g: MapGraph, index: int, members: PackedInt32Array, ins:
 	var member_set := {}
 	for u in members:
 		member_set[u] = true
-	ins.sort_custom(func(x: Dictionary, y: Dictionary) -> bool:
-		var kx := _kind_rank(String(x.kind))
-		var ky := _kind_rank(String(y.kind))
-		return kx < ky or (kx == ky and absf(float(x.dy)) < absf(float(y.dy))))
-	var in_edges := ins.slice(0, IN_EDGES)
+	var in_edges := _pick_ins(ins_by_kind)
 	var drop := -float(in_edges[0].dy) if not in_edges.is_empty() else 0.0
 	return {"id": "%s#%d" % [g.map_id, index], "map_id": g.map_id, "nodes": members.size(),
 		"area_m2": snappedf(members.size() * cell * cell, 0.01), "anchor": anchor, "anchor_world": ap,
@@ -1119,6 +1120,39 @@ func _count_in(nodes: PackedInt32Array, member_set: Dictionary) -> int:
 ## How likely an edge kind is the way a player gets in (lower first).
 func _kind_rank(kind: String) -> int:
 	return ["walk", "drop", "slide", "long drop", "hop", "ladder", "jump"].find(kind)
+
+
+## The ways in the verification replays (up to IN_EDGES): taken in turns from every kind present, likeliest kind
+## first (walks and drops, then slides, longer drops and hops), within a kind by the smallest height change, and from
+## a take-off node not used yet while there is one. Every kind of way in is tried, however many slides a component has.
+func _pick_ins(ins_by_kind: Dictionary) -> Array:
+	var kinds: Array = ins_by_kind.keys()
+	kinds.sort_custom(func(x: int, y: int) -> bool: return _kind_rank(EDGE_NAMES[x]) < _kind_rank(EDGE_NAMES[y]))
+	var queues: Array = []
+	for k in kinds:
+		var q: Array = (ins_by_kind[k] as Array).duplicate()
+		q.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return absf(float(x.dy)) < absf(float(y.dy)))
+		queues.append(q)
+	var out: Array = []
+	var used := {}
+	var progress := true
+	while out.size() < IN_EDGES and progress:
+		progress = false
+		for q: Array in queues:
+			if out.size() >= IN_EDGES or q.is_empty():
+				continue
+			# The first edge from an unused take-off node, else the first edge.
+			var at := 0
+			for j in q.size():
+				if not used.has(int(q[j].from)):
+					at = j
+					break
+			var e: Dictionary = q[at]
+			q.remove_at(at)
+			used[int(e.from)] = true
+			out.append(e)
+			progress = true
+	return out
 
 
 ## What the component's floor is: collider names (chunk/body) with how many sampled nodes stand on each.

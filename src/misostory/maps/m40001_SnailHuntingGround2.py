@@ -241,6 +241,9 @@ def build(m):
     for i, (n, x, y) in enumerate([("T34", 41.2, 19.4), ("T33", 43.6, 20.2), ("T30", 46.0, 19.6),
                                    ("T29", 48.3, 19.0)]):
         stone(m, n, x, y, 2.0, MESA + (i + 1) * STEP)
+    # the crevice between T30, T29, the T31 shelf and the mid terrace was a body-wide hole 3.7 m deep at plinth
+    # level (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md): a rock fill 0.2 m below T30
+    stone(m, "T29_T30_Crevice_Fill", 47.7, 21.0, 1.3, MESA + 3 * STEP - 0.2, ry=0.9)
     # T31 shelf (L-shaped: a front shelf plus a back bay under the stacked pair)
     m.terrace("T31_Shelf", [(49.6, 14.4), (57.2, 14.6), (57.0, 21.2), (54.2, 21.6), (54.0, 30.6), (47.4, 30.6),
                             (47.2, 21.8), (49.4, 21.0)], top=T31, bottom=-0.5)
