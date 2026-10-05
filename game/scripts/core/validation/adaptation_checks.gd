@@ -11,6 +11,9 @@ extends RefCounted
 ##                entity files, not an entity file (misostory/monsters/_shared.json: values every species shares), so
 ##                it is not matched against canonical ids; the convention, sweep and external checks still apply
 ##   external     `external` lists follow the canonical rule (field, source_url, reason, verified: false)
+##   provenance   a top-level `provenance` block {<property>: source object} follows the authority registry
+##                (ProvenanceChecks.check_source_object, contract C7), e.g. the project owner's natural-regen rule
+##                ({"authority": "Project owner", "decision": "..."}); every `capture` key names an existing capture
 ## plus its file-specific check from FILE_SCHEMAS. Required files are checked even when absent.
 ##
 ## Adding a new adaptation file needs no change here as long as it follows the convention. To add file-specific
@@ -43,7 +46,7 @@ const NPC_BEHAVIORS := ["quest", "shop", "transport", "talk"]
 const META_KEYS := ["id", "kind", "description", "title", "name", "label", "note", "notes", "comment", "comments",
 	"reason", "verified", "verification", "verified_by", "verified_against", "source", "sources", "source_url",
 	"source_urls", "retrieved_at", "schema", "schema_version", "version", "see", "doc", "docs", "external", "gaps",
-	"discrepancies", "match_basis", "reasons"]
+	"discrepancies", "match_basis", "reasons", "provenance"]
 const META_SUFFIXES := ["_reason", "_note", "_notes", "_verified", "_source", "_source_url", "_description",
 	"_comment", "_doc", "_label"]
 ## A verified: true value must say what it was verified against with one of these keys on the same object.
@@ -110,6 +113,8 @@ func _check_file(folder: String, key: String, data: Variant) -> void:
 		refs.sweep(label, key, data)
 	if data is Dictionary:
 		provenance.check_external(label, key, data.get("external", null))
+		provenance.check_provenance_block(label, key, data.get("provenance", null))
+	provenance.check_capture_paths(label, key, data)
 	if folder != "" and folder in ValidationUtil.canonical_domains(db) and not is_shared_table(key):
 		_check_domain_file(folder, label, key, data)
 	var method: String = schema.get("check", "")

@@ -24,6 +24,30 @@ func clone_db() -> ContentDB:
 	return c
 
 
+## Rewrites the clone's canonical_sources.json as tools/meowdb/build_sources_index.mjs would for its current records
+## (ProvenanceChecks.index_row / index_totals), so a test that injects or edits a record's provenance sees only the
+## findings it caused, not a stale index.
+func reindex(c: ContentDB) -> void:
+	var p := ProvenanceChecks.new(c, ValidationReport.new())
+	var rows: Array = []
+	for domain_name in ValidationUtil.canonical_domains(c):
+		for key in c.ids(domain_name):
+			if not ("/" in key):
+				rows.append(p.index_row(domain_name, key, c.get_entity(domain_name, key)))
+	var index: Dictionary = c.canonical[""]["canonical_sources"]
+	index["records"] = rows
+	index["totals"] = p.index_totals()
+
+
+## A JSON test fixture (res://tests/data/...) as a Dictionary; fails the test when it is missing or not an object.
+func load_fixture(path: String) -> Dictionary:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if not (parsed is Dictionary):
+		fail("fixture %s is missing or not a JSON object" % path)
+		return {}
+	return parsed
+
+
 ## Sidecars matching the crosswalk (slug -> {map_id: gms_v8_id}), so the slug check runs without the Blender export.
 func sidecars_for(c: ContentDB) -> Dictionary:
 	var out := {}

@@ -41,8 +41,11 @@ static func effective_entries(owner_id: String, db: ContentDB) -> Array:
 	var disputed_rule: Dictionary = rates.get("disputed_entries", {})
 	var global_mult := float(rates.get("global_rate_multiplier", 1.0))
 	for e in table.get("entries", []):
-		var item_id := String(e.get("item_id", ""))
-		var status := String(e.get("status", ""))
+		# A schema v2 entry (contract C1) may have item_id null (an unresolved member): it resolves to no item and is
+		# excluded like an unknown item. String(null) would be a script error.
+		var raw_id: Variant = e.get("item_id", null)
+		var item_id := "" if raw_id == null else str(raw_id)
+		var status := str(e.get("status", ""))
 		var disputed: bool = e.get("disputed") == true
 		var row := {"item_id": item_id, "status": status, "disputed": disputed, "chance": 0.0, "min_quantity": 1,
 			"max_quantity": 1, "excluded": "", "source": ""}
@@ -172,7 +175,8 @@ static func pickup_box_m(db: ContentDB) -> Dictionary:
 
 
 ## Problems in drop_rates.json: overrides naming an unknown owner or an item not on that owner's table, missing
-## reasons / verified flags, chances outside [0, 1]. Empty when everything is consistent.
+## reasons / verified flags, chances outside [0, 1]. Empty when everything is consistent. Works over v1 and schema v2
+## drop tables (the canonical tables themselves are validated by DataValidator: DropRecordChecks for v2).
 static func validate(db: ContentDB) -> PackedStringArray:
 	var errors: PackedStringArray = []
 	var rates := _rates(db)
@@ -193,7 +197,8 @@ static func validate(db: ContentDB) -> PackedStringArray:
 			continue
 		var listed := {}
 		for e in db.drop_table(owner_id).get("entries", []):
-			listed[String(e.get("item_id", ""))] = true
+			if e.get("item_id", null) is String:  # schema v2 entries may be unresolved (item_id null)
+				listed[e.item_id] = true
 		for item_id in owners[owner_id]:
 			if not listed.has(item_id):
 				errors.append("owner_item_overrides.%s.%s: item not on that drop table" % [owner_id, item_id])

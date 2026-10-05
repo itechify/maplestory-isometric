@@ -12,7 +12,8 @@ extends RefCounted
 ##
 ## The checks, in order (see docs/runtime/DATA_VALIDATION.md):
 ##   load            ContentDB load errors (unparsable JSON, a domain file whose top level is not an object)
-##   ids, schema, provenance, external, sources_index      ProvenanceChecks
+##   ids, schema, provenance, external, sources_index      ProvenanceChecks (+ the ProvenanceAuthorities registry)
+##   drop_record (+ provenance)                            DropRecordChecks (schema v2 drop records, contract C1)
 ##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
 ##   validator       a script error inside any of the above (see validate())
@@ -23,6 +24,8 @@ const VALIDATOR_CHECK := "validator"
 ## Options:
 ##   world_dir: String          where the Blender export sidecars live (default "res://assets/world")
 ##   world_sidecars: Dictionary slug -> sidecar Dictionary; replaces the disk lookup (tests)
+##   repo_root: String          the folder holding tools/*/captures (default: the folder above res://)
+##   capture_files: Dictionary  capture path -> true; replaces the disk lookup of cited captures (tests)
 var options: Dictionary
 var db: ContentDB
 var report := ValidationReport.new()
@@ -61,8 +64,9 @@ func run() -> ValidationReport:
 	if ValidationUtil.canonical_domains(db).is_empty():
 		report.error("load", "load", "", "no canonical data loaded (is game/data/canonical present?)")
 		return report
-	var provenance := ProvenanceChecks.new(db, report)
+	var provenance := ProvenanceChecks.new(db, report, options)
 	provenance.run()
+	DropRecordChecks.new(db, report, provenance).run()
 	var refs := ReferenceChecks.new(db, report)
 	refs.run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()

@@ -1,8 +1,15 @@
 extends DataValidationTestCase
 ## Negative tests: duplicate or mismatched canonical ids, missing or foreign provenance, malformed external entries,
-## a stale canonical_sources.json, missing required fields and loader errors are all caught.
+## a stale canonical_sources.json, missing required fields and loader errors are all caught. Provenance v2 (contract
+## C7): per-property sources from the authority registry are accepted, and every misuse of an authority is caught.
 
 const INDEX := "canonical_sources"
+
+## Real citations from the dated captures (tools/kurodb/captures/100101.json, tools/hiddenstreet/captures/monsters.json).
+const KURO_SRC := {"authority": "KuroDB", "url": "https://playkuro.com/database/#monsters/100101",
+	"read_at": "2026-10-05T07:44:50.614Z", "capture": "tools/kurodb/captures/100101.json", "decision": "D3-3"}
+const HS_SRC := {"authority": "Hidden Street", "url": "https://bc.hidden-street.net/monster/blue-snail",
+	"read_at": "2026-10-05T08:03:36.825Z", "capture": "tools/hiddenstreet/captures/monsters.json", "decision": "D3-6"}
 
 
 func test_unbroken_copy_has_no_provenance_errors() -> void:
@@ -169,6 +176,196 @@ func _index_row(c: ContentDB, domain_name: String, id: String) -> Dictionary:
 			return row
 	fail("canonical_sources.json has no row for %s/%s" % [domain_name, id])
 	return {}
+
+
+# --- provenance v2: the authority registry (contract C7) -------------------------------------------------------
+
+## A clone with `block` as the `provenance` of the first monster-owned drop record (its index rebuilt); [clone, id].
+func _with_drop_provenance(block: Dictionary, keep_index: bool = false) -> Array:
+	var c := clone_db()
+	var id := first_id_where(c, "drops", func(t: Dictionary) -> bool: return t.owner.kind == "monster", "owned by a monster")
+	c.drop_table(id)["provenance"] = block
+	if not keep_index:
+		reindex(c)
+	return [c, id]
+
+
+func _src(base: Dictionary, changes: Dictionary = {}) -> Dictionary:
+	var d := base.duplicate(true)
+	for k in changes:
+		if changes[k] == null:
+			d.erase(k)
+		else:
+			d[k] = changes[k]
+	return d
+
+
+func test_per_property_kurodb_and_hidden_street_sources_are_accepted() -> void:
+	var cid := _with_drop_provenance({"membership": _src(HS_SRC), "probability": _src(KURO_SRC),
+		"mesos.amount": _src(HS_SRC), "mesos.probability": _src(KURO_SRC),
+		"owner_level": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/3", "retrieved_at": "2026-10-04T09:57:41Z"}})
+	var r := run_validator(cid[0])
+	expect_no_new(r)
+	assert_eq(int(r.stats.get("provenance_sources_checked", 0)), 5, "every property source was checked")
+
+
+func test_kurodb_may_not_supply_membership() -> void:
+	var cid := _with_drop_provenance({"membership": _src(KURO_SRC)})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1],
+		"provenance.membership: KuroDB may not supply 'membership' (it may supply: probability, mesos.probability)")
+
+
+func test_hidden_street_may_not_supply_a_probability() -> void:
+	var cid := _with_drop_provenance({"probability": _src(HS_SRC), "mesos.probability": _src(HS_SRC)})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.probability: Hidden Street may not supply 'probability'")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.mesos.probability: Hidden Street may not supply 'mesos.probability'")
+
+
+func test_non_meowdb_source_needs_read_at_and_capture() -> void:
+	var cid := _with_drop_provenance({"probability": _src(KURO_SRC, {"read_at": null}),
+		"membership": _src(HS_SRC, {"capture": null}), "mesos.amount": _src(HS_SRC, {"read_at": "2026-10-05T08:0x"})})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.probability: needs read_at, an ISO 8601 timestamp")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.membership: Hidden Street values need capture")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.mesos.amount: needs read_at")
+
+
+func test_missing_capture_file() -> void:
+	var cid := _with_drop_provenance({"probability": _src(KURO_SRC, {"capture": "tools/kurodb/captures/zz_missing.json"})})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1],
+		"provenance.probability.capture names tools/kurodb/captures/zz_missing.json, which does not exist")
+
+
+func test_capture_path_must_be_a_repo_path_under_tools_captures() -> void:
+	for bad in ["../tools/kurodb/captures/100101.json", "game/data/canonical/items/242.json",
+			"tools/kurodb/captures/../../../README.md", "C:/repo/tools/kurodb/captures/100101.json",
+			"tools\\kurodb\\captures\\100101.json", "tools/kurodb/100101.json"]:
+		var cid := _with_drop_provenance({"probability": _src(KURO_SRC, {"capture": bad})})
+		expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1], "is not a capture path")
+
+
+func test_unknown_authority() -> void:
+	var cid := _with_drop_provenance({"probability": {"authority": "Some Wiki", "url": "https://example.com/snail",
+		"read_at": "2026-10-05T00:00:00Z"}})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1], "authority \"Some Wiki\" is not registered")
+
+
+func test_urls_must_belong_to_the_authority() -> void:
+	var cid := _with_drop_provenance({
+		"probability": _src(KURO_SRC, {"url": "https://playkuro.com.evil/database/#monsters/100101"}),
+		"membership": _src(HS_SRC, {"url": "https://meowdb.com/msclassic/monsters/3"}),
+		"mesos.probability": _src(KURO_SRC, {"url": null}),
+	})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "is not a KuroDB page")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.membership: url \"https://meowdb.com/msclassic/monsters/3\" is not a Hidden Street page")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.mesos.probability: KuroDB needs a url")
+	# Several pages of one site (the Wooden Box chances come from four KuroDB item pages): `urls`.
+	var ok := _with_drop_provenance({"probability": _src(KURO_SRC, {"url": null,
+		"urls": ["https://playkuro.com/database/#items/2010000", "https://playkuro.com/database/#items/4031161"]})})
+	expect_no_new(run_validator(ok[0]))
+
+
+func test_project_owner_needs_a_decision() -> void:
+	var c := clone_db()
+	var combat: Dictionary = c.miso[""]["combat"]
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner"}}
+	expect_new(run_validator(c), "error", "provenance", "misostory", "combat", "provenance.natural_recovery: needs decision")
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner",
+		"decision": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration"}}
+	expect_no_new(run_validator(c))
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner", "decision": "D3-5"}}
+	expect_no_new(run_validator(c))
+	combat["provenance"] = {"natural_recovery": {"authority": "KuroDB", "url": "https://playkuro.com/database/#x",
+		"read_at": "2026-10-05T07:44:50.614Z", "capture": "tools/kurodb/captures/100101.json"}}
+	expect_new(run_validator(c), "error", "provenance", "misostory", "combat", "KuroDB may not supply 'natural_recovery'")
+
+
+func test_v1_records_keep_the_v1_rules() -> void:
+	# No provenance block, no schema_version: exactly the old checks. A foreign authority in `source` still fails,
+	# and a KuroDB field source still needs an external entry; the registry does not loosen v1.
+	assert_eq(baseline().matching("provenance", "", "", "error").size(), 0, "the shipped (v1) data has no provenance errors")
+	assert_false(baseline().stats.has("drop_records_v2_checked"), "no shipped drop record is v2")
+	var c := clone_db()
+	var item_id := c.ids("items")[0]
+	c.item(item_id).source.authority = "KuroDB"
+	c.item(item_id).source.url = "https://playkuro.com/database/#items/2000000"
+	var r := run_validator(c)
+	expect_new(r, "error", "provenance", "items", item_id, "source.authority must be \"MeowDB MS Classic\"")
+	expect_new(r, "error", "provenance", "items", item_id, "is not a MeowDB MS Classic page")
+	var c2 := clone_db()
+	var mon := c2.ids("monsters")[0]
+	c2.monster(mon)["field_sources"] = {"zz": {"url": "https://playkuro.com/database/#monsters/100100"}}
+	expect_new(run_validator(c2), "error", "provenance", "monsters", mon, "not on meowdb.com and has no external entry")
+
+
+func test_capture_lookup_is_live_on_the_shipped_data() -> void:
+	# Item 242 (Green Apple) is built from the item API capture; with an empty injected capture list its citations fail.
+	var c := clone_db()
+	var id := first_id_where(c, "items", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "built from a capture")
+	var r := run_validator(c, {"capture_files": {}})
+	expect_new(r, "error", "provenance", "items", id, "source.capture names tools/meowdb/captures/items_api.json, which does not exist (looked under the injected capture_files)")
+	expect_no_new(run_validator(c, {"capture_files": {"tools/meowdb/captures/items_api.json": true}}))
+
+
+func test_sources_index_lists_capture_files_and_property_sources() -> void:
+	var cid := _with_drop_provenance({"probability": _src(KURO_SRC)}, true)
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "sources_index", INDEX, "drops/%s" % cid[1], "capture_files, property_sources")
+	expect_new(r, "error", "sources_index", INDEX, INDEX, "totals.capture_files")
+	var row := _index_row(db(), "items", first_id_where(db(), "items",
+		func(rec: Dictionary) -> bool: return rec.get("source", {}).has("capture"), "built from a capture"))
+	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/items_api.json"], "the shipped index lists the capture")
+	var p := ProvenanceChecks.new(cid[0], ValidationReport.new())
+	var expected := p.index_row("drops", cid[1], cid[0].drop_table(cid[1]))
+	assert_eq(expected.property_sources, {"probability": {"authorities": ["KuroDB"], "urls": [KURO_SRC.url]}})
+
+
+func test_source_object_rules() -> void:
+	var p := ProvenanceChecks.new(ContentDB.new(), ValidationReport.new(), {"capture_files": {}})
+	var cases := [
+		# [property, source, owner kind, expected problem substring or "" for valid]
+		["probability", KURO_SRC, "", ""],
+		["probability", _src(KURO_SRC, {"decision": null}), "", ""],
+		["membership", HS_SRC, "monster", ""],
+		["membership", HS_SRC, "breakable", "does not describe breakable drop owners"],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/2", "retrieved_at": "2026-10-04T09:57:41Z"}, "", ""],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/2"}, "", "needs read_at"],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassicfake/2", "read_at": "2026-10-04T09:57:41Z"}, "", "is not a MeowDB MS Classic page"],
+		["probability", _src(KURO_SRC, {"url": "https://playkuro.com/database/#"}), "", "is not a KuroDB page"],
+		["probability", _src(KURO_SRC, {"urls": []}), "", "urls must be a non-empty list"],
+		["mesos.amount", _src(KURO_SRC), "", "KuroDB may not supply 'mesos.amount'"],
+		["quantity", _src(KURO_SRC), "", "KuroDB may not supply 'quantity'"],
+		["natural_recovery", {"authority": "Project owner", "decision": "D3"}, "", "needs decision"],
+		["natural_recovery", {"authority": "Project owner", "decision": "owner rule, see D3-7"}, "", ""],
+		["natural_recovery", {"authority": "Project owner", "decision": "D3-7", "read_at": "yesterday"}, "", "needs read_at"],
+		["probability", _src(KURO_SRC, {"decision": "decided"}), "", "needs decision"],
+		["probability", "KuroDB", "", "must be an object"],
+		["probability", {"authority": null}, "", "is not registered"],
+	]
+	for case in cases:
+		var problems := p.source_object_problems(case[0], case[1], case[2])
+		var want: String = case[3]
+		if want == "":
+			assert_eq(problems.size(), 0, "%s %s: %s" % [case[0], str(case[1]), str(problems)])
+		else:
+			assert_true(problems.size() > 0 and want in "\n".join(problems), "%s %s: expected '%s', got %s" % [case[0], str(case[1]), want, str(problems)])
+
+
+func test_registry_rules() -> void:
+	assert_true(ProvenanceAuthorities.allows("KuroDB", "probability"))
+	assert_true(ProvenanceAuthorities.allows("KuroDB", "mesos.probability"))
+	assert_false(ProvenanceAuthorities.allows("KuroDB", "membership"))
+	assert_true(ProvenanceAuthorities.allows("Hidden Street", "membership"))
+	assert_true(ProvenanceAuthorities.allows("Hidden Street", "mesos.amount"))
+	assert_false(ProvenanceAuthorities.allows("Hidden Street", "probability"))
+	assert_true(ProvenanceAuthorities.allows("MeowDB MS Classic", "membership"))
+	assert_true(ProvenanceAuthorities.allows("Project owner", "natural_recovery"))
+	assert_false(ProvenanceAuthorities.has("Hidden Street (Before Chaos)"))
+	assert_true(ProvenanceAuthorities.url_allowed("Hidden Street", "https://bc.hidden-street.net/monster/snail"))
+	assert_false(ProvenanceAuthorities.url_allowed("Hidden Street", "https://bc.hidden-street.net.evil/monster/snail"))
+	assert_false(ProvenanceAuthorities.url_allowed("KuroDB", "https://playkuro.com/database/"))
 
 
 func test_empty_content_is_an_error() -> void:

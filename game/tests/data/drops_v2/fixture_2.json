@@ -1,0 +1,268 @@
+{
+  "id": "2",
+  "name": "Snail drop table",
+  "schema_version": 2,
+  "owner": {
+    "kind": "monster",
+    "id": "2",
+    "name": "Snail"
+  },
+  "membership_authority": "Hidden Street",
+  "entries": [
+    {
+      "key": "snail-shell",
+      "name": "Snail Shell",
+      "item_id": "348",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": ""
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/snail",
+        "read_at": "2026-10-05T08:03:43.486Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Etc. drop: Snail Shell"
+      },
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100100",
+        "read_at": "2026-10-05T07:46:19.383Z",
+        "capture": "tools/kurodb/captures/100100.json",
+        "kuro_item_id": "4000019",
+        "kuro_name": "Snail Shell",
+        "match_method": "exact",
+        "raw_value": "100% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 1.0,
+        "conversion": "100 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
+      },
+      "chance_state": "resolved",
+      "probability": 1.0,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "red-potion",
+      "name": "Red Potion",
+      "item_id": "270",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": ""
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/snail",
+        "read_at": "2026-10-05T08:03:43.486Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Green Apple, Arrow for Bow, Arrow for Crossbow"
+      },
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100100",
+        "read_at": "2026-10-05T07:46:19.383Z",
+        "capture": "tools/kurodb/captures/100100.json",
+        "kuro_item_id": "2000000",
+        "kuro_name": "Red Potion",
+        "match_method": "exact",
+        "raw_value": "2.00% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 0.02,
+        "conversion": "2.00 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
+      },
+      "chance_state": "resolved",
+      "probability": 0.02,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "green-apple",
+      "name": "Green Apple",
+      "item_id": "242",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact",
+        "candidates": [],
+        "note": "MeowDB item 242, from the item API capture (tools/meowdb/captures/items_api.json)"
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/snail",
+        "read_at": "2026-10-05T08:03:43.486Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Useable drop: Red Potion, Blue Potion, Green Apple, Arrow for Bow, Arrow for Crossbow"
+      },
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/100100",
+        "read_at": "2026-10-05T07:46:19.383Z",
+        "capture": "tools/kurodb/captures/100100.json",
+        "kuro_item_id": "2010009",
+        "kuro_name": "Green Apple",
+        "match_method": "exact",
+        "raw_value": "2.00% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 0.02,
+        "conversion": "2.00 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null
+      },
+      "chance_state": "resolved",
+      "probability": 0.02,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "wooden-buckler",
+      "name": "Wooden Buckler",
+      "item_id": null,
+      "item_resolution": {
+        "state": "not_in_snapshot",
+        "method": "none",
+        "candidates": [],
+        "note": "Test fixture: no MeowDB item definition is cached or captured for this name."
+      },
+      "membership_source": {
+        "authority": "Hidden Street",
+        "url": "https://bc.hidden-street.net/monster/snail",
+        "read_at": "2026-10-05T08:03:43.486Z",
+        "capture": "tools/hiddenstreet/captures/monsters.json",
+        "raw_value": "Common equipment: Blue Training Shirt (M), Wooden Buckler"
+      },
+      "chance_source": null,
+      "chance_state": "unresolved",
+      "probability": null,
+      "quantity": null,
+      "quest_gate": null,
+      "notes": [
+        "KuroDB's Snail page has no Wooden Buckler row, so the chance is unresolved and the entry never rolls (decision D3-6)."
+      ]
+    }
+  ],
+  "excluded_kuro_only": [
+    {
+      "kuro_item_id": "2380000",
+      "name": "Snail Card",
+      "raw_value": "26% base | Qty 1",
+      "reason": "not on the membership list (KuroDB never adds members)"
+    }
+  ],
+  "meowdb_reference": {
+    "community_drops": [
+      {
+        "item_id": "413",
+        "name": "Bronze Ore",
+        "upvotes": 16,
+        "downvotes": 1
+      },
+      {
+        "item_id": "348",
+        "name": "Snail Shell",
+        "upvotes": 13,
+        "downvotes": 0
+      }
+    ],
+    "msea_reference": [
+      {
+        "item_id": "348",
+        "name": "Snail Shell"
+      }
+    ]
+  },
+  "meso": {
+    "amount_state": "resolved",
+    "min": 2,
+    "max": 2,
+    "amount_source": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt",
+      "raw_value": "Mesos: 2 per kill | 1 report",
+      "interpretation": null
+    },
+    "chance_state": "resolved",
+    "probability": 0.4,
+    "chance_source": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100100",
+      "read_at": "2026-10-05T07:46:19.383Z",
+      "capture": "tools/kurodb/captures/100100.json",
+      "raw_value": "40% base | Meso drop",
+      "format": "percent_base",
+      "normalized_probability": 0.4,
+      "conversion": "40 / 100"
+    },
+    "discrepancies": [
+      {
+        "authority": "Hidden Street",
+        "raw_value": "Mesos: 1",
+        "note": "MeowDB report kept (D3-5)"
+      }
+    ]
+  },
+  "provenance": {
+    "membership": {
+      "authority": "Hidden Street",
+      "url": "https://bc.hidden-street.net/monster/snail",
+      "read_at": "2026-10-05T08:03:43.486Z",
+      "capture": "tools/hiddenstreet/captures/monsters.json",
+      "decision": "D3-6"
+    },
+    "probability": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100100",
+      "read_at": "2026-10-05T07:46:19.383Z",
+      "capture": "tools/kurodb/captures/100100.json",
+      "decision": "D3-3"
+    },
+    "mesos.amount": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt",
+      "decision": "D3-5"
+    },
+    "mesos.probability": {
+      "authority": "KuroDB",
+      "url": "https://playkuro.com/database/#monsters/100100",
+      "read_at": "2026-10-05T07:46:19.383Z",
+      "capture": "tools/kurodb/captures/100100.json",
+      "decision": "D3-5"
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/api/drops?monsterId=2",
+    "retrieved_at": "2026-10-04T10:06:58.031Z"
+  },
+  "field_sources": {},
+  "gaps": [],
+  "discrepancies": [],
+  "notes": [
+    "Test fixture (game/tests/data/drops_v2/fixture_2.json): a small contract C1 record for the Snail built from the dated captures, with 4 of the 11 Hidden Street members. tools/sources/test/fixture.test.mjs checks every raw value against the captures; game/tests/unit/test_data_validation_drops_v2.gd validates it and corrupted copies."
+  ]
+}

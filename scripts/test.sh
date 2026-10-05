@@ -6,6 +6,7 @@
 #   ISOLATE=<name> bash scripts/test.sh ...      # run in a private copy (_scratch/godot_runs/<name>/game) so several
 #                                                # agents/processes can test concurrently without fighting over .godot/
 #   ISOLATE=<name> INCLUDE_WORLD=1 bash ...      # same, but also mirror assets/world (needed by world/actor tests)
+#                                                # (an isolated copy always gets tools/*/captures next to game/)
 #
 # An import pass runs first so new class_name scripts are registered. Prints TESTS_PASSED / TESTS_FAILED and exits
 # non-zero on failure.
@@ -28,6 +29,15 @@ if [[ -n "${ISOLATE:-}" ]]; then
     # world tests see "no export" instead of sidecars without their glbs.
     rm -rf "$DEST/game/assets/world"
   fi
+  # Mirror the dated source captures (tools/*/captures): the data validator checks that every capture a record cites
+  # exists, and looks for tools/ next to the project (res://../tools), as in the repository.
+  rm -rf "$DEST/tools"
+  for d in "$REPO"/tools/*/captures; do
+    [[ -d "$d" ]] || continue
+    rel="${d#"$REPO"/}"
+    mkdir -p "$DEST/$rel"
+    cp -r "$d/." "$DEST/$rel/"
+  done
   PROJECT="$DEST/game"
 fi
 

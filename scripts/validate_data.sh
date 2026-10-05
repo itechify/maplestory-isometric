@@ -47,6 +47,15 @@ if [[ -n "${ISOLATE:-}" ]]; then
     mkdir -p "$DEST/game/assets/world"
     cp "$PROJECT"/assets/world/*.json "$DEST/game/assets/world/" 2>/dev/null || true
   fi
+  # Mirror the dated source captures (tools/*/captures), as scripts/test.sh does: the validator checks that every
+  # capture a record cites exists, next to the project (res://../tools).
+  rm -rf "$DEST/tools"
+  for d in "$REPO"/tools/*/captures; do
+    [[ -d "$d" ]] || continue
+    rel="${d#"$REPO"/}"
+    mkdir -p "$DEST/$rel"
+    cp -r "$d/." "$DEST/$rel/"
+  done
   PROJECT="$DEST/game"
 fi
 

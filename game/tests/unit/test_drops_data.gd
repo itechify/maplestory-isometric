@@ -5,11 +5,33 @@ extends TestCase
 
 func test_every_drop_item_exists() -> void:
 	for owner_id in db().ids("drops"):
-		var table := db().drop_table(owner_id)
-		assert_has(["monster", "breakable"], String(table.owner.kind), "%s owner kind" % owner_id)
+		_check_table_items(owner_id, db().drop_table(owner_id), db())
+
+
+func test_v2_drop_table_items_exist_or_are_unresolved() -> void:
+	# The same check over a schema v2 record (contract C1): the fixture built from the dated captures.
+	var fixture: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/drops_v2/fixture_2.json"))
+	assert_true(fixture is Dictionary, "fixture loads")
+	if fixture is Dictionary:
+		assert_true(DropRecordChecks.is_v2(fixture))
+		_check_table_items("2", fixture, db())
+
+
+## v1 (MeowDB community lists, rates_canonical false): every entry names an item. v2 (contract C1): an entry names an
+## item exactly when item_resolution.state is "resolved"; an unresolved member keeps item_id null and never rolls.
+func _check_table_items(owner_id: String, table: Dictionary, content: ContentDB) -> void:
+	assert_has(["monster", "breakable"], String(table.owner.kind), "%s owner kind" % owner_id)
+	if not DropRecordChecks.is_v2(table):
 		assert_eq(table.get("rates_canonical"), false, "%s rates are not canonical" % owner_id)
 		for e in table.entries:
-			assert_true(db().has("items", String(e.item_id)), "drops/%s lists unknown item %s" % [owner_id, e.item_id])
+			assert_true(content.has("items", String(e.item_id)), "drops/%s lists unknown item %s" % [owner_id, e.item_id])
+		return
+	for e in table.entries:
+		var resolved: bool = e.item_resolution.state == "resolved"
+		if resolved:
+			assert_true(e.item_id is String and content.has("items", e.item_id), "drops/%s %s: resolved item %s exists" % [owner_id, e.key, str(e.item_id)])
+		else:
+			assert_eq(e.item_id, null, "drops/%s %s: an unresolved member has no item id (it never rolls)" % [owner_id, e.key])
 
 
 func test_every_monster_has_its_drop_table() -> void:
