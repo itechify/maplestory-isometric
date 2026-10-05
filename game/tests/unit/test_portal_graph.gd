@@ -14,7 +14,8 @@ func defs() -> MapDefinitions:
 
 
 ## Contract C6. The three whole-graph tests compare every canonical portal with its MeowDB record, so they prove each
-## portal:<map>/<name> key.
+## portal:<map>/<name> key. The returnMap test checks the respawn map against the canonical record, not that anything
+## is saved, so it proves no persistence key.
 func parity_keys() -> Dictionary:
 	var portals: Array = []
 	for id in db().ids("maps"):
@@ -25,7 +26,7 @@ func parity_keys() -> Dictionary:
 		"test_destination_resolution_is_unique_and_matches_meowdb_derivation": portals + ["xref:portal-destination"],
 		"test_directed_graph_equals_meowdb": portals + ["xref:portal-destination"],
 		"test_bfs_from_start_reaches_all_25_maps": ["xref:portal-destination"],
-		"test_every_map_reaches_its_return_map": ["mechanic:death-respawn", "persistence:respawn-information"],
+		"test_every_map_reaches_its_return_map": ["mechanic:death-respawn"],
 	}
 
 
