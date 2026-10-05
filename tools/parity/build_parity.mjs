@@ -20,7 +20,8 @@
 //   tools/parity/rules.json                      the runtime declarations, mechanics, validation rows, out-of-scope keys
 //   docs/provenance_report.json                  validation findings per record (bash scripts/validate_data.sh --report)
 //   --tests <file>                               unit test evidence (TEST_EVIDENCE_OUT=<file> bash scripts/test.sh)
-//   --playtest <file|dir>                        playtest report.json files (a directory is searched for report.json)
+//   --playtest <file|dir>                        playtest report.json files (a directory is searched for report.json;
+//                                                a report reached twice, e.g. a directory inside another, counts once)
 //   the code under game/, scripts/ and tools/    to check the runtime declarations
 // Options: --provenance <file> (default docs/provenance_report.json), --out-json <file>, --out-md <file>.
 // The state rule is in tools/parity/parity.mjs and in the generated markdown.
@@ -119,7 +120,9 @@ function playtestFiles(arg) {
 function main() {
   const o = parseArgs(process.argv.slice(2));
   const tests = o.tests.map((f) => ({ file: rel(f), doc: readJson(f) }));
-  const playtests = o.playtests.flatMap(playtestFiles).map((f) => ({ file: rel(f), doc: readJson(f) }));
+  // One entry per report file: `--playtest _scratch/pt --playtest _scratch/pt/<run>` must not count a run twice.
+  const playtests = [...new Set(o.playtests.flatMap(playtestFiles).map((f) => rel(f)))].sort()
+    .map((f) => ({ file: f, doc: readJson(path.join(ROOT, f)) }));
   const provenance = fs.existsSync(o.provenance) ? readJson(o.provenance) : null;
   if (!provenance) console.warn(`no provenance report at ${rel(o.provenance)} (bash scripts/validate_data.sh --report): validation findings are not applied`);
   const doc = buildParity({
