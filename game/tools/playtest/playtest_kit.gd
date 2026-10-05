@@ -21,7 +21,10 @@ extends RefCounted
 ##   combat    hunt(mob_ids, cond, opts)  survive(opts)  threat(opts)  pickup(radius, max_s)
 ##   death     is_dead()  respawn(opts)
 ##   contracts activity()  sit()  stand()  use_chair(id)  cast_skill(id)  breakables()  break_box(box, opts)
+##   skills    learn_skill(id)  bind_skill(id, key)  throw_at(target, opts)  (the Skills window, K; Three Snails)
 ##   record    snapshot()  bag_delta(a, b, skip)  total_exp()  checkpoint(tag)  log_clock()  log_since(t)
+##             track()  carry_totals()  play_s()  local_pos()   (the progression audit, kept in d.carry)
+##   death     let_monsters_win(mob_ids, opts)  (stand among monsters without fighting until the player dies)
 ##
 ## The contract helpers (sit, chairs, skills, Wooden Boxes) are written against docs/runtime/
 ## ITERATION_THREE_CONTRACTS.md C4/C5/C3/C8 and degrade to {"ok": false, "why": "... is not built"} until the
@@ -56,6 +59,13 @@ const REST_MOVES := 4
 const UNSTICK_STALLED_M := 1.0
 const UNSTICK_PUSH_S := 1.5
 const UNSTICK_M := 2.5
+## A monster a fight back could not reach without a chase (on a ledge just above or below) stops counting as a threat
+## for this long (game s): otherwise a walk it touched is interrupted again at once, and the fight back fails again,
+## faster than the touch is forgotten (seed 2 of the every-quest set spun 24 times in 2 s on Snail Hunting Ground I).
+const SHUN_S := 4.0
+## Three Snails: where to stand from the target for a throw, well inside the canonical 50-300 px band (px, actor
+## scale), as test_skills does.
+const THROW_FROM_PX := 150.0
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -84,7 +94,15 @@ var survival := {"drinks": 0, "rests": 0, "rest_s": 0.0, "fights_back": 0, "inte
 ## The HUD log lines on screen the moment a converse() goal quest completed.
 var on_screen_at_complete: PackedStringArray = []
 var shots: int = 0
+## Mesos and items picked up from the ground with Z this process (pickup()): the meso bags are monster drops (the
+## Wooden Box drops no mesos, drops/0000001.json).
+var picked_mesos: int = 0
+var picked_bags: int = 0
+var picked_items: int = 0
+## Monster instance id -> game second until which threat() skips it (SHUN_S).
+var _shunned := {}
 var _connected := false
+var _tracking := false
 
 
 func _init(p_d: PlaytestDriver) -> void:
@@ -123,6 +141,95 @@ func exp_since(t0: float) -> Array:
 		if float(e[2]) >= t0:
 			out.append([e[0], e[1]])
 	return out
+
+
+# =================================================================================================================
+# The progression audit: what the whole run did, kept in d.carry (survives reload_process)
+# =================================================================================================================
+
+## Records the run's progression into d.carry as it happens (a long scenario's audit; idempotent): "visited_maps"
+## {map: play_s at first arrival}, "kills_by_mob" {mob: n}, "exp_by_source" {"monster:<id>" | "quest:<id>" | "death":
+## sum}, "level_at" {level: play_s}, "deaths" [{map, play_s}], "respawns" [{map, play_s}], "mesos_flow" {in, out},
+## "items_gained" {item: n}, "items_lost" {item: n}, "items_used" {item: n}, "skills_used" {skill: n}, "sat" {chair: n}.
+## The current map counts as visited. Call it after every new_game / continue_game.
+func track() -> void:
+	_visit(d.current_map(), "")
+	if _tracking:
+		return
+	_tracking = true
+	var ev := d.events()
+	ev.connect(&"map_entered", func(map_id: String, _prev: String) -> void: _visit(map_id, _prev))
+	ev.connect(&"monster_killed", func(mob: String, _map: String) -> void: _bump("kills_by_mob", mob, 1))
+	ev.connect(&"exp_gained", func(amount: int, source: String) -> void: _bump("exp_by_source", source if source != "" else "(none)", amount))
+	ev.connect(&"leveled_up", func(lv: int) -> void:
+		var at: Dictionary = d.carry.get("level_at", {})
+		at[str(lv)] = snappedf(play_s(), 0.1)
+		d.carry["level_at"] = at)
+	ev.connect(&"player_died", func(map_id: String) -> void: _append("deaths", {"map": map_id, "play_s": snappedf(play_s(), 0.1),
+		"level": d.character().level, "pos": local_pos()}))
+	ev.connect(&"player_respawned", func(map_id: String) -> void: _append("respawns", {"map": map_id, "play_s": snappedf(play_s(), 0.1)}))
+	ev.connect(&"mesos_changed", func(_m: int, delta: int) -> void: _bump("mesos_flow", "in" if delta > 0 else "out", absi(delta)))
+	ev.connect(&"item_gained", func(id: String, n: int) -> void: _bump("items_gained", id, n))
+	ev.connect(&"item_lost", func(id: String, n: int) -> void: _bump("items_lost", id, n))
+	ev.connect(&"item_used", func(id: String) -> void: _bump("items_used", id, 1))
+	ev.connect(&"skill_used", func(id: String, _lv: int) -> void: _bump("skills_used", id, 1))
+	ev.connect(&"player_sat_down", func(id: String) -> void: _bump("sat", id if id != "" else "(ground)", 1))
+
+
+func _visit(map_id: String, _prev: String) -> void:
+	if map_id == "":
+		return
+	var v: Dictionary = d.carry.get("visited_maps", {})
+	if not v.has(map_id):
+		v[map_id] = snappedf(play_s(), 0.1)
+	d.carry["visited_maps"] = v
+
+
+func _bump(key: String, sub: String, n: int) -> void:
+	var m: Dictionary = d.carry.get(key, {})
+	m[sub] = int(m.get(sub, 0)) + n
+	d.carry[key] = m
+
+
+func _append(key: String, row: Dictionary) -> void:
+	var a: Array = d.carry.get(key, [])
+	a.append(row)
+	d.carry[key] = a
+
+
+## Adds this process's pickup and survival counters into d.carry["totals"] (call before reload_process; the counters
+## start again at 0 in the next process). Idempotent within a process.
+func carry_totals() -> void:
+	var t: Dictionary = d.carry.get("totals", {})
+	var mine := {"picked_mesos": picked_mesos, "picked_bags": picked_bags, "picked_items": picked_items,
+		"damage_taken": damage_taken, "touches": touches.size(), "kit_deaths": deaths.size(),
+		"drinks": int(survival["drinks"]), "rests": int(survival["rests"]), "rest_s": float(survival["rest_s"]),
+		"fights_back": int(survival["fights_back"]), "unsticks": int(survival.get("unsticks", 0)),
+		"travel_hops": travel_rows.size(), "travel_failed": travel_rows.filter(func(r: Dictionary) -> bool: return not bool(r["ok"])).size()}
+	var per: Dictionary = t.get("per_phase", {})
+	per[str(d.phase)] = mine
+	t["per_phase"] = per
+	var sum := {}
+	for ph: Variant in per:
+		for key: String in (per[ph] as Dictionary):
+			sum[key] = float(sum.get(key, 0.0)) + float((per[ph] as Dictionary)[key])
+	t["sum"] = sum
+	d.carry["totals"] = t
+
+
+## Game seconds played in this run so far: the earlier phases' game time (report.phases) plus this phase's.
+func play_s() -> float:
+	var s := d.game_s()
+	if d.report != null:
+		for ph: Dictionary in d.report.phases:
+			s += float(ph.get("game_s", 0.0))
+	return s
+
+
+## The player's map-local position, rounded to 0.1 m (a finding's "where").
+func local_pos() -> String:
+	var p := d.player()
+	return _local(p.global_position) if p != null and is_instance_valid(p) else "?"
 
 
 # =================================================================================================================
@@ -193,15 +300,22 @@ func checkpoint(tag: String) -> Dictionary:
 	var etc := {}
 	for row: Dictionary in (d.inventory_summary().get("etc", []) as Array):
 		etc[String(row["item_id"])] = int(etc.get(String(row["item_id"]), 0)) + int(row["qty"])
-	var row := {"tag": tag, "phase": d.phase, "game_s": snappedf(d.game_s(), 0.1), "map": d.current_map(),
-		"level": c.level, "exp": c.exp, "total_exp": total_exp(), "mesos": c.mesos, "ap": c.ap, "sp": c.sp,
-		"hp": c.hp, "stats": c.base_stats.duplicate(), "equipment": c.equipment.equipped(), "etc": etc,
+	var use := {}
+	for r2: Dictionary in (d.inventory_summary().get("use", []) as Array):
+		use[String(r2["item_id"])] = int(use.get(String(r2["item_id"]), 0)) + int(r2["qty"])
+	var row := {"tag": tag, "phase": d.phase, "game_s": snappedf(d.game_s(), 0.1), "play_s": snappedf(play_s(), 0.1),
+		"play_time_s": snappedf(float(c.get("play_time_s")) if c.get("play_time_s") != null else -1.0, 0.1),
+		"map": d.current_map(), "level": c.level, "exp": c.exp, "total_exp": total_exp(), "mesos": c.mesos, "ap": c.ap,
+		"sp": c.sp, "hp": c.hp, "max_hp": StatCalculator.max_hp(c, db), "mp": c.mp, "stats": c.base_stats.duplicate(),
+		"equipment": c.equipment.equipped(), "etc": etc, "use": use,
+		"skills": (c.get("skills") as Dictionary).duplicate() if c.get("skills") is Dictionary else {},
+		"deaths": (d.carry.get("deaths", []) as Array).size(),
 		"quests": {"in_progress": Array(c.quests.active_ids()), "completed": Array(c.quests.completed_ids())}}
 	var all: Array = d.carry.get("checkpoints", [])
 	all.append(row)
 	d.carry["checkpoints"] = all
-	d.note("checkpoint %s: L%d %d EXP (total %d), %d mesos, equipment %s, ETC %s, quests done %s" % [tag, c.level, c.exp,
-		int(row["total_exp"]), c.mesos, row["equipment"], etc, row["quests"]["completed"]])
+	d.note("checkpoint %s: L%d %d EXP (total %d), %d mesos, equipment %s, ETC %s, quests done %s, play %.0f s" % [tag, c.level,
+		c.exp, int(row["total_exp"]), c.mesos, row["equipment"], etc, row["quests"]["completed"], float(row["play_s"])])
 	return row
 
 
@@ -467,7 +581,7 @@ func threat(opts: Dictionary = {}) -> Node3D:
 		if not is_instance_valid(m) or not bool(m.call("is_alive")):
 			continue
 		var id := String(m.get("def").get("id"))
-		if ignore.has(id) or (only_beatable and not beatable(m)):
+		if ignore.has(id) or (only_beatable and not beatable(m)) or shunned(m):
 			continue
 		var dy := absf(m.global_position.y - p.global_position.y)
 		var dd := Vector2(m.global_position.x - p.global_position.x, m.global_position.z - p.global_position.z).length()
@@ -517,7 +631,20 @@ func survive(opts: Dictionary = {}) -> Dictionary:
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if bool(f.get("ok", false)):
 				await pickup(4.0, 6.0)
+			elif is_instance_valid(t) and String(f.get("why", "")).contains("out of reach"):
+				# On a ledge just above or below: not a threat the player can answer; walk on (SHUN_S).
+				shun(t)
 	return out
+
+
+## Stops counting a monster as a threat for SHUN_S game seconds (a fight back could not reach it).
+func shun(m: Node3D) -> void:
+	_shunned[m.get_instance_id()] = d.game_s() + SHUN_S
+	survival["shunned"] = int(survival.get("shunned", 0)) + 1
+
+
+func shunned(m: Node3D) -> bool:
+	return float(_shunned.get(m.get_instance_id(), -1.0)) > d.game_s()
 
 
 ## The HP consumable to drink: the held one that restores the most HP ("" when none).
@@ -1348,6 +1475,15 @@ func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
 	out["refused"] = refused.size()
 	out["left"] = left
 	out["ok"] = left == 0
+	var bag_mesos := 0
+	for rec: Dictionary in out["records"]:
+		if String(rec.get("kind", "")) == "mesos":
+			picked_bags += 1
+			bag_mesos += int(rec.get("amount", 0))
+		else:
+			picked_items += int(rec.get("amount", 1))
+	picked_mesos += bag_mesos
+	out["mesos"] = bag_mesos
 	d._end(step, bool(out["ok"]), "%d picked, %d refused, %d left; map-local %s -> %s" % [int(out["picked"]),
 		int(out["refused"]), left, from, _local(p.global_position)])
 	return out
@@ -1550,6 +1686,174 @@ func cast_skill(skill_id: String) -> Dictionary:
 		return _cooldown(skill_id) > cd0 or _has_effect(skill_id) or activity() == &"attacking", 1.0)
 	return {"ok": cast, "key": key, "why": "" if cast else "no cooldown, effect or attack after the key",
 		"cooldown": _cooldown(skill_id), "effect": _has_effect(skill_id), "sp": c.sp}
+
+
+## The Skills window (K), or null.
+func skills_window() -> Node:
+	return d.windows().call("window_by_name", "skills") if d.windows() != null and d.windows().has_method("window_by_name") else null
+
+
+## Spends one SP on a skill with the mouse: K opens the Skills window, a click on the skill's "+" (test_skills' way).
+## Returns {"ok" (the level rose by one), "level0", "level1", "sp0", "sp1", "why"}. Await it.
+func learn_skill(skill_id: String) -> Dictionary:
+	var c := d.character()
+	var lv0 := SkillBook.level_of(c, skill_id)
+	var out := {"ok": false, "level0": lv0, "level1": lv0, "sp0": c.sp, "sp1": c.sp, "why": ""}
+	if not await d.open_window("skills"):
+		out["why"] = "K did not open the Skills window"
+		return out
+	var w := skills_window()
+	var plus: Variant = (w.get("plus_buttons") as Dictionary).get(skill_id) if w != null else null
+	if not (plus is Button):
+		out["why"] = "no '+' for %s in the Skills window" % skill_id
+		await d.close_window("skills")
+		return out
+	await d.click(plus as Button)
+	await d.frames(2)
+	out["level1"] = SkillBook.level_of(c, skill_id)
+	out["sp1"] = c.sp
+	out["ok"] = int(out["level1"]) == lv0 + 1 and c.sp == int(out["sp0"]) - 1
+	if not bool(out["ok"]):
+		out["why"] = "'+' did not raise the level (status: %s)" % d.window_text("skills").left(160).replace("\n", " | ")
+	await d.close_window("skills")
+	return out
+
+
+## Puts a learned skill on a quickslot key with the Skills window's Set key picker (K, the skill's row, Set key, the
+## key). Returns {"ok" (bound), "key", "why"}. Await it.
+func bind_skill(skill_id: String, key: String) -> Dictionary:
+	var c := d.character()
+	if not await d.open_window("skills"):
+		return {"ok": false, "key": key, "why": "K did not open the Skills window"}
+	var w := skills_window()
+	var row: Variant = (w.get("rows") as Dictionary).get(skill_id) if w != null else null
+	if not (row is Dictionary):
+		await d.close_window("skills")
+		return {"ok": false, "key": key, "why": "no row for %s" % skill_id}
+	await d.click((row as Dictionary)["panel"])
+	await d.click(w.get("key_button"))
+	var kb: Variant = (w.get("key_buttons") as Dictionary).get(key)
+	if kb is Button:
+		await d.click(kb as Button)
+	await d.frames(2)
+	await d.close_window("skills")
+	var ok := MisoQuickslots.skill_for(c, key) == skill_id
+	return {"ok": ok, "key": key, "why": "" if ok else "key %s holds %s" % [key, str(c.quickslots.get(key))]}
+
+
+## Throws Three Snails (the skill's quickslot key) at `target` from inside its canonical band (THROW_FROM_PX), as
+## test_skills does: walks to about 150 px from it, faces it and taps the key once per throw until opts "casts" (1)
+## throws resolved on it, the target died, or opts "max_s" (40) passed. Every hit is heard on PlayerSkills.cast_resolved.
+## Returns {"ok" (a throw hit it), "casts", "hits", "damage" [final], "killed", "mp0", "mp1", "shells0", "shells1",
+## "why"}. Await it.
+func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
+	var snails := "0001000"
+	var c := d.character()
+	var p := d.player()
+	var key := skill_key(snails)
+	var def := SkillDef.of(snails, db)
+	var shell := String(def.item_cost(maxi(1, SkillBook.level_of(c, snails)))["item_id"]) if def != null else ""
+	var out := {"ok": false, "casts": 0, "hits": 0, "damage": [], "killed": false, "mp0": c.mp, "mp1": c.mp,
+		"shells0": c.inventory.count(shell), "shells1": 0, "why": ""}
+	if key == "" or target == null or not is_instance_valid(target):
+		out["why"] = "Three Snails is on no quickslot" if key == "" else "no target"
+		return out
+	var skills: Node = p.get_node_or_null(^"PlayerSkills")
+	if skills == null:
+		out["why"] = "the player has no PlayerSkills node"
+		return out
+	var died := [false]
+	var on_died := func(m: Node) -> void:
+		if m == target:
+			died[0] = true
+	d.monsters().connect(&"monster_died", on_died)
+	var hits := [0]
+	var damage: Array = []
+	var on_cast := func(sid: String, t: Node, res: DamageResult) -> void:
+		if sid == snails and t == target and res != null and not res.missed:
+			hits[0] += 1
+			damage.append(res.final)
+	skills.connect(&"cast_resolved", on_cast)
+	var casts0 := int(skills.get("casts"))
+	var want := int(opts.get("casts", 1))
+	var ideal := WorldScale.actor(THROW_FROM_PX)
+	var t0 := d.game_s()
+	while not died[0] and int(skills.get("casts")) - casts0 < want and d.game_s() - t0 < float(opts.get("max_s", 40.0)):
+		await d.get_tree().process_frame
+		d.input.reassert()
+		if not is_instance_valid(target) or not bool(target.call("is_alive")) or is_dead():
+			break
+		var to := target.global_position - p.global_position
+		var dy := to.y
+		to.y = 0.0
+		var dist := to.length()
+		if dist > 6.0 or absf(dy) > 1.0:
+			d.input.release_movement()
+			var tgt := target
+			await d.walk_to(d.walker.grounded(target.global_position), {"max_s": 6.0, "within_m": ideal,
+				"stop_when": func() -> bool: return not is_instance_valid(tgt) or _flat_m(tgt.global_position, p.global_position) <= ideal})
+			continue
+		var dir := to.normalized() if dist > 0.01 else p.facing
+		if dist > ideal + 1.0:
+			d.input.set_move_world(dir, p.view_right, p.view_forward)
+			continue
+		if dist < ideal - 1.5:
+			d.input.set_move_world(-dir, p.view_right, p.view_forward)
+			continue
+		d.input.release_movement()
+		if p.facing.dot(dir) < cos(deg_to_rad(12.0)):
+			d.input.set_move_world(dir * 0.2, p.view_right, p.view_forward)
+			await d.get_tree().physics_frame
+			await d.get_tree().process_frame
+			d.input.release_movement()
+			continue
+		if not p.is_grounded() or bool(d.combat().call("is_attacking")):
+			continue
+		await d.tap(StringName("quickslot_%s" % key))
+		await d.wait(0.1)
+	d.input.release_movement()
+	if d.monsters().is_connected(&"monster_died", on_died):
+		d.monsters().disconnect(&"monster_died", on_died)
+	skills.disconnect(&"cast_resolved", on_cast)
+	out["casts"] = int(skills.get("casts")) - casts0
+	out["hits"] = hits[0]
+	out["damage"] = damage
+	out["killed"] = died[0]
+	out["mp1"] = c.mp
+	out["shells1"] = c.inventory.count(shell)
+	out["ok"] = hits[0] > 0
+	if not bool(out["ok"]):
+		out["why"] = "no throw hit it in %.0f s (%d casts)" % [d.game_s() - t0, int(out["casts"])]
+	return out
+
+
+## Lets monsters win, the way a player who stops defending dies: walks into the nearest live monster of `mob_ids`
+## (any species when empty) again and again with real input, never attacking, never drinking, until the player dies
+## or opts "max_s" (300) pass. No game state is touched: every hit is the monster's contact damage. Returns {"ok"
+## (died), "touches", "damage", "map", "pos", "time_s", "why"}. Await it.
+func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
+	var out := {"ok": false, "touches": 0, "damage": 0, "map": d.current_map(), "pos": local_pos(), "time_s": 0.0, "why": ""}
+	var t0 := d.game_s()
+	var tc0 := touches.size()
+	var dmg0 := damage_taken
+	while not is_dead() and d.game_s() - t0 < float(opts.get("max_s", 300.0)):
+		var m := nearest_of(mob_ids, {"max_dist_m": 40.0})
+		if m == null:
+			await d.wait(1.0)
+			continue
+		var tgt := m
+		var since := last_touch_s
+		await d.walk_to(d.walker.grounded(m.global_position), {"max_s": 4.0, "retries": 0, "within_m": 0.15,
+			"stop_when": func() -> bool: return is_dead() or last_touch_s > since or not is_instance_valid(tgt)})
+		await d.wait(0.3)
+	out["ok"] = is_dead()
+	out["touches"] = touches.size() - tc0
+	out["damage"] = damage_taken - dmg0
+	out["pos"] = local_pos()
+	out["time_s"] = snappedf(d.game_s() - t0, 0.1)
+	if not bool(out["ok"]):
+		out["why"] = "still alive after %.0f s (%d touches, %d damage)" % [float(out["time_s"]), int(out["touches"]), int(out["damage"])]
+	return out
 
 
 func _cooldown(skill_id: String) -> float:
