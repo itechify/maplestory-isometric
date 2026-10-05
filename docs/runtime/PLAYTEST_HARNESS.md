@@ -92,14 +92,16 @@ func max_seconds() -> float:      # game-time budget of one phase (the watchdog)
 	return 600.0
 
 func run(d: PlaytestDriver) -> void:
+	var k := PlaytestKit.new(d)                          # the shared composite play
 	if d.phase == 0:
 		var ng: Dictionary = await d.new_game("Tester", "female", "541", {"str": 9})
 		if not d.check("new game", ng.ok, ng.why):
 			return
-		await d.console("warp 000000040")                  # setup: logged as a console step
-		var f: Dictionary = await d.fight_until(func() -> bool: return d.state().exp >= 10, 120.0)
-		d.check("fought to 10 EXP", f.ok, "%d kills" % f.kills)
-		await d.pickup_all_nearby()
+		await _setup_warp(d)                             # setup: logged as a console step
+		d.begin_strict("after the setup warp")           # optional: no cheat from here on (see "Strict mode")
+		k.connect_bus()
+		var h: Dictionary = await k.hunt(["2"], func() -> bool: return d.state().exp >= 10, {"max_s": 120.0})
+		d.check("fought to 10 EXP", h.ok, "%d kills" % h.kills, ["monster:2"])   # the parity key it proves
 		d.carry["inventory"] = d.character().inventory.to_dict()    # survives the reload, with its Godot types
 		await d.reload_process()                             # Quit Game: the process ends here
 		return
@@ -107,6 +109,9 @@ func run(d: PlaytestDriver) -> void:
 	await d.continue_game()
 	var diff := PlaytestDriver.diff(d.carry["inventory"], d.character().inventory.to_dict())
 	d.check("the inventory survives a real reload", diff == "", diff)
+
+func _setup_warp(d: PlaytestDriver) -> void:         # console calls of a strict scenario live in _setup* functions
+	await d.console("warp 000000040")
 ```
 
 Rules:
