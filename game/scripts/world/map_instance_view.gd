@@ -44,6 +44,8 @@ var deferred_respawns: int = 0
 var _queue: Array[int] = []
 ## Queued slots that came back on a respawn tick (only these wait for the player to move away).
 var _respawning: Dictionary = {}
+## Slots whose respawn has waited at least one frame for the player (respawn_waited).
+var _waited: Dictionary = {}
 var _arrival := Vector3.ZERO
 var _pool: Dictionary = {}
 var _fading: Array[Dictionary] = []
@@ -81,6 +83,7 @@ func release() -> void:
 	nodes.clear()
 	_queue.clear()
 	_respawning.clear()
+	_waited.clear()
 	_fading.clear()
 	state = null
 	def = null
@@ -95,6 +98,7 @@ func notify_killed(slot_index: int) -> bool:
 	nodes.erase(slot_index)
 	_queue.erase(slot_index)
 	_respawning.erase(slot_index)
+	_waited.erase(slot_index)
 	if n != null and is_instance_valid(n):
 		_release_node(n, slot_index)
 	return true
@@ -191,11 +195,19 @@ func _process(delta: float) -> void:
 		if _respawning.has(i) and respawn_blocked(i):
 			_queue.append(i)
 			deferred_respawns += 1
+			_waited[i] = true
 			continue
 		_respawning.erase(i)
 		_spawn(i)
+		_waited.erase(i)
 		budget -= 1
 	_advance_fades(delta)
+
+
+## True while slot `i`'s respawn has waited for the player to move away; still true inside the monster_spawned
+## signal of its realization (listeners can tell a held-back respawn from one on its tick), false afterwards.
+func respawn_waited(i: int) -> bool:
+	return _waited.has(i)
 
 
 ## True when slot `i`'s respawn must wait: the player's feet are within spawns.respawn_player_clearance_m of it.

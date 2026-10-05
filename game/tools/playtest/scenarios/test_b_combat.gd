@@ -472,8 +472,11 @@ func _on_view_spawned(node: Node3D, slot: SpawnSlot) -> void:
 	var boundary := k * tick
 	var died_at: float = _pending_deaths.get(key, -1.0)
 	_pending_deaths.erase(key)
+	# A respawn the view held back while the player stood on its slot (presentation.json
+	# spawns.respawn_player_clearance_m) came back in the state on its tick and appears late by design.
+	var waited := bool(_view.call("respawn_waited", slot.index)) if _view.has_method("respawn_waited") else false
 	spawn_refills.append({"map": map, "slot": slot.index, "mob": slot.mob_id, "clock": snappedf(now, 0.001),
-		"boundary": snappedf(boundary, 0.001), "delay": snappedf(now - boundary, 0.0001),
+		"boundary": snappedf(boundary, 0.001), "delay": snappedf(now - boundary, 0.0001), "waited_for_player": waited,
 		"died_at": snappedf(died_at, 0.001), "killed_this_visit": died_at >= 0.0,
 		"eligible": died_at < 0.0 or died_at + cool <= boundary + 1e-6,
 		"same_slot_since_death": snappedf(now - died_at, 0.001) if died_at >= 0.0 else -1.0})
@@ -1261,8 +1264,9 @@ func _measure_visual(mob: String) -> void:
 			best = m
 	if best == null:
 		return
-	var f := Vector3(best.facing.x, 0.0, best.facing.z).normalized()
-	var lat := Vector3.UP.cross(f)
+	# In the model's own frame (the Visual node turns toward the facing over time, so the facing at this instant may
+	# not be where the model points): x = forward (its +Z), y = up, z = lateral (its X).
+	var inv := best.visual.global_transform.affine_inverse()
 	var lo := Vector3(INF, INF, INF)
 	var hi := -lo
 	for n: Node in best.visual.model.find_children("*", "MeshInstance3D", true, false):
@@ -1271,9 +1275,8 @@ func _measure_visual(mob: String) -> void:
 			continue
 		var ab := mi.get_aabb()
 		for k in 8:
-			var w := mi.global_transform * ab.get_endpoint(k)
-			var r := w - best.global_position
-			var c := Vector3(r.dot(f), r.y, r.dot(lat))
+			var r := inv * (mi.global_transform * ab.get_endpoint(k))
+			var c := Vector3(r.z, r.y, r.x)
 			lo = lo.min(c)
 			hi = hi.max(c)
 	if lo.x == INF:
@@ -1566,20 +1569,24 @@ func _evaluate() -> void:
 	var cool_s := float(spawn_f.get("wave_point_cooldown_s", 0.0))
 	var off_tick := 0
 	var not_eligible := 0
+	var held := 0
 	var delays: Array = []
 	var same_slot: Array = []
 	for r: Dictionary in spawn_refills:
-		delays.append(float(r["delay"]))
-		if float(r["delay"]) < -1e-3 or float(r["delay"]) > 0.1:
-			off_tick += 1
+		if bool(r.get("waited_for_player", false)):
+			held += 1
+		else:
+			delays.append(float(r["delay"]))
+			if float(r["delay"]) < -1e-3 or float(r["delay"]) > 0.1:
+				off_tick += 1
 		if not bool(r["eligible"]):
 			not_eligible += 1
 		if bool(r["killed_this_visit"]):
 			same_slot.append(float(r["same_slot_since_death"]))
 	d.check("respawn: every refill appears on a %.2f s global tick, only from a slot whose death + %.0f s cooldown has passed" % [
 		tick_s, cool_s], spawn_refills.size() >= 3 and off_tick == 0 and not_eligible == 0,
-		"%d refills while in the map, %d off a tick boundary (delay after the boundary %.4f..%.4f s), %d from a slot not yet eligible; %d refilled a slot killed on this visit, %.2f..%.2f s after its death" % [
-			spawn_refills.size(), off_tick, _amin(delays), _amax(delays), not_eligible, same_slot.size(), _amin(same_slot), _amax(same_slot)])
+		"%d refills while in the map, %d off a tick boundary (delay after the boundary %.4f..%.4f s), %d from a slot not yet eligible; %d refilled a slot killed on this visit, %.2f..%.2f s after its death; %d held back until the player left the slot (respawn clearance)" % [
+			spawn_refills.size(), off_tick, _amin(delays), _amax(delays), not_eligible, same_slot.size(), _amin(same_slot), _amax(same_slot), held])
 	var caps := {}
 	for c: Dictionary in capacity_checks:
 		caps[c["map"]] = "%d/%d (canonical %d)" % [int(c["capacity"]), (db.map(String(c["map"])).get("spawns", []) as Array).size(), int(c["canonical_capacity"])]

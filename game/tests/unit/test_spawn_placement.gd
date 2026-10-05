@@ -197,12 +197,17 @@ func test_a_respawn_is_never_realized_on_the_player() -> void:
 	assert_eq(state.alive_count(), state.capacity, "at capacity")
 	assert_false(view.nodes.has(i), "but it is not realized on the player")
 	assert_true(view.deferred_respawns > 0, "it waited")
+	assert_true(view.respawn_waited(i), "the view says the respawn is waiting")
 	for k in 5:
 		view._process(0.0)
 	assert_false(view.nodes.has(i), "still waiting while the player stays")
+	var seen_waited: Array = []
+	view.monster_spawned.connect(func(_n: Node3D, slot: SpawnSlot) -> void: seen_waited.append(view.respawn_waited(slot.index)))
 	player_at[0] = Vector3(50, 0, 50)
 	view._process(0.0)
 	assert_true(view.nodes.has(i), "realized once the player moved away")
+	assert_eq(seen_waited, [true], "listeners of monster_spawned can tell it was held back")
+	assert_false(view.respawn_waited(i), "and it is forgotten afterwards")
 	assert_eq(view.live_count(), state.alive_count(), "every alive slot realized")
 	for n in view.get_children():
 		n.free()
