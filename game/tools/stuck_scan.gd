@@ -71,6 +71,8 @@ const SWEEP_DIRECTIONS := 16
 const SAMPLES := 3
 const MAX_TRIES := 120
 const ENTER_TICKS := 120
+## In-edges replayed per component (the report lists the first 3).
+const IN_EDGES := 8
 ## How far (xz) from the start a try may end before its end point becomes a new start (depth search).
 const RESTART_M := 1.0
 const MAX_STARTS := 3
@@ -82,10 +84,26 @@ const DIRS := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 ## One map's walkability graph and its result.
 class MapGraph:
 	extends RefCounted
+	# --- what is scanned: StuckScan.map_graph() fills it from the island; a test may fill it by hand --------------
 	var map_id: String = ""
-	var def: MapDefinition = null
+	var name: String = ""
+	## Map-local -> world (MapDefinition.frame); identity for a hand-made graph.
+	var frame: Transform3D = Transform3D.IDENTITY
 	## Region polygons sampled (world XZ): the map's footprint, then the zones of its trails.
 	var polygons: Array[PackedVector2Array] = []
+	## Fall recovery height: a walk-off with nothing above it below is a fall-out, and no node lies below it.
+	var kill_y: float = -INF
+	## Where players appear (feet): player spawns, portal arrivals, the authored route points.
+	var entry_points: PackedVector3Array = PackedVector3Array()
+	## Ladders, ropes and vines (the map's sidecar climbables).
+	var climbables: Array[ClimbableDef] = []
+	## The canonical portals that accept a press (exits), and the gates of this map's trails into the other maps (a
+	## node past such a gate plane, inside its corridor and height band, has crossed into the other map's region).
+	var exit_portals: Array[PortalDef] = []
+	var exit_gates: Array[GateDef] = []
+	## Plain exit boxes (feet inside one have left): hand-made graphs.
+	var exit_boxes: Array[AABB] = []
+	# --- the graph ------------------------------------------------------------------------------------------------
 	var cell: float = DEFAULT_CELL_M
 	## World XZ of the centre of cell (0, 0); column c = ix * nz + iz.
 	var origin: Vector2 = Vector2.ZERO
@@ -130,13 +148,15 @@ class MapGraph:
 	var fall_outs: int = 0
 	var fall_out_samples: PackedVector3Array = PackedVector3Array()
 	var stats: Dictionary = {}
-	## The canonical portals that accept a press (exits), and the gates of this map's trails into the other maps (a
-	## node past such a gate plane, inside its corridor and height band, has crossed into the other map's region).
-	var exit_portals: Array[PortalDef] = []
-	var exit_gates: Array[GateDef] = []
 
 	func node_count() -> int:
 		return node_pos.size()
+
+	func to_local(p: Vector3) -> Vector3:
+		return frame.affine_inverse() * p
+
+	func to_world(local: Vector3) -> Vector3:
+		return frame * local
 
 	## The x index of column c (its z index is c % nz).
 	@warning_ignore("integer_division")
@@ -229,8 +249,15 @@ var _n_sweeps: int = 0
 
 ## A scanner over `w`'s physics space (the island must be built). `options`: cell (m), exclude (Array[RID]), host.
 static func create(w: IslandWorld, content: ContentDB, options: Dictionary = {}) -> StuckScan:
+	return create_in(w, content, options, w)
+
+
+## A scanner over the physics space of `node` (any Node3D in the tree), for hand-made graphs (scan(), verify());
+## map_graph(), scan_map() and run() also need `island`.
+static func create_in(node: Node3D, content: ContentDB, options: Dictionary = {}, island: IslandWorld = null) -> StuckScan:
 	var s := StuckScan.new()
-	s.world = w
+	var w := node
+	s.world = island
 	s.db = content
 	s.model = MovementModel.from_db(content)
 	s.cell = float(options.get("cell", DEFAULT_CELL_M))
@@ -287,17 +314,58 @@ func _setup_queries() -> void:
 # Scanning
 # =================================================================================================================
 
-## Builds, searches and groups one map's graph (no verification). Needs the island built (world.defs grounded).
+## The graph of one map of the island, ready to scan(): its footprint and the zones of its trails, kill_y, entries
+## (player spawns, every portal's arrival, the authored route points), exits (press-Up portals, the far gates of its
+## trails) and climbables. Needs the island built (world.defs grounded).
+func map_graph(map_id: String) -> MapGraph:
+	var def := world.defs.get_def(map_id)
+	var g := MapGraph.new()
+	g.map_id = map_id
+	g.name = def.map_name
+	g.frame = def.frame
+	g.kill_y = def.kill_y
+	g.polygons.append(def.footprint)
+	g.y_top = def.y_max + 2.0
+	for t in world.defs.trails_of(map_id):
+		if not t.has_geometry():
+			continue
+		var z := t.zone_polygon()
+		if z.size() >= 3:
+			g.polygons.append(z)
+			g.y_top = maxf(g.y_top, t.y_hi + 2.0)
+		var gate := t.gate_into(t.other_map(map_id))
+		if gate != null:
+			g.exit_gates.append(gate)
+	for p in def.canonical_portals():
+		if p.has_anchor and p.accepts_press():
+			g.exit_portals.append(p)
+	for xf in def.player_spawns:
+		g.entry_points.append(xf.origin)
+	for p in def.portals:
+		g.entry_points.append(p.spawn_transform.origin)
+	for r in def.sidecar.get("routes", []):
+		if not (r is Dictionary):
+			continue
+		for q in (r as Dictionary).get("points", []):
+			if q is Array and (q as Array).size() >= 3:
+				g.entry_points.append(Vector3(float(q[0]), float(q[1]), float(q[2])))
+	g.climbables = ClimbableDef.list_from_sidecar(def.sidecar.get("climbables", []))
+	return g
+
+
+## Scans one map of the island: scan(map_graph(map_id)).
 func scan_map(map_id: String) -> MapGraph:
+	return scan(map_graph(map_id))
+
+
+## Samples, links, searches and groups `g` (no verification; see verify()). Fills g.stats.
+func scan(g: MapGraph) -> MapGraph:
 	var t0 := Time.get_ticks_msec()
 	_n_rays = 0
 	_n_shapes = 0
 	_n_sweeps = 0
-	var g := MapGraph.new()
-	g.map_id = map_id
-	g.def = world.defs.get_def(map_id)
 	g.cell = cell
-	_frame(g)
+	_grid(g)
 	_sample(g)
 	var t_sample := Time.get_ticks_msec() - t0
 	_ladders(g)
@@ -323,38 +391,19 @@ func scan_map(map_id: String) -> MapGraph:
 	return g
 
 
-## The grid over the map's footprint and the zones of its trails, and the height range sampled.
-func _frame(g: MapGraph) -> void:
-	var def := g.def
-	g.polygons.append(def.footprint)
-	var y_hi := def.y_max
-	for t in world.defs.trails_of(def.map_id):
-		if not t.has_geometry():
-			continue
-		var z := t.zone_polygon()
-		if z.size() >= 3:
-			g.polygons.append(z)
-			y_hi = maxf(y_hi, t.y_hi)
+## A world-aligned grid (cells at multiples of `cell`, so every scan of a map samples the same columns) over the
+## graph's polygons, and the bottom of its columns.
+func _grid(g: MapGraph) -> void:
 	var lo := Vector2(INF, INF)
 	var hi := Vector2(-INF, -INF)
 	for poly in g.polygons:
 		for v in poly:
 			lo = Vector2(minf(lo.x, v.x), minf(lo.y, v.y))
 			hi = Vector2(maxf(hi.x, v.x), maxf(hi.y, v.y))
-	# A world-aligned grid (cells at multiples of `cell`), so every scan of a map samples the same columns.
 	g.origin = Vector2(floor(lo.x / cell) * cell, floor(lo.y / cell) * cell)
 	g.nx = int(ceil((hi.x - g.origin.x) / cell)) + 1
 	g.nz = int(ceil((hi.y - g.origin.y) / cell)) + 1
-	g.y_top = y_hi + 2.0
-	g.y_bottom = def.kill_y - 0.5
-	# The exits: the press-Up portals, and the gates into the maps at the far ends of this map's trails.
-	for t in world.defs.trails_of(def.map_id):
-		var gate := t.gate_into(t.other_map(def.map_id))
-		if gate != null and t.has_geometry():
-			g.exit_gates.append(gate)
-	for p in def.canonical_portals():
-		if p.has_anchor and p.accepts_press():
-			g.exit_portals.append(p)
+	g.y_bottom = g.kill_y - 0.5 if is_finite(g.kill_y) else g.y_top - 100.0
 
 
 func _sample(g: MapGraph) -> void:
@@ -369,7 +418,7 @@ func _sample(g: MapGraph) -> void:
 		for v in poly:
 			r = r.expand(v)
 		rects.append(r)
-	var kill_y := g.def.kill_y
+	var kill_y := g.kill_y
 	for ix in g.nx:
 		var x := g.origin.x + ix * cell
 		for iz in g.nz:
@@ -471,7 +520,7 @@ func _first_at_or_below(g: MapGraph, c: int, y: float) -> int:
 ##   by jumping      feet below that band but a jump apex inside it (Up held in the air grabs; descend_only too)
 ##   from the top    feet within climb_top_grab_radius of top_exit or the line and within 0.6 of the top: Down grabs
 func _ladders(g: MapGraph) -> void:
-	var list := ClimbableDef.list_from_sidecar(g.def.sidecar.get("climbables", []))
+	var list := g.climbables
 	var grab := model.climb_grab_radius
 	var top_grab := model.climb_top_grab_radius
 	var reach := model.jump_apex - MARGIN_M
@@ -539,7 +588,7 @@ func _edges(g: MapGraph) -> void:
 	var step := model.step_up
 	var snap := model.snap_down
 	var hop_top := model.jump_apex + model.step_up
-	var kill_y := g.def.kill_y
+	var kill_y := g.kill_y
 	var nz := g.nz
 	for a in count:
 		g.e_off[a] = g.e_dst.size()
@@ -697,33 +746,20 @@ func _hops(g: MapGraph, a: int, pa: Vector3, ix: int, iz: int, hop_top: float) -
 
 ## Entries (forward seeds) and exits (backward seeds).
 func _ends(g: MapGraph) -> void:
-	var def := g.def
 	var seen := {}
-	var points := PackedVector3Array()
-	for xf in def.player_spawns:
-		points.append(xf.origin)
-	for p in def.portals:
-		points.append(p.spawn_transform.origin)
-	for r in def.sidecar.get("routes", []):
-		if not (r is Dictionary):
-			continue
-		for q in (r as Dictionary).get("points", []):
-			if q is Array and (q as Array).size() >= 3:
-				points.append(Vector3(float(q[0]), float(q[1]), float(q[2])))
-	for p in points:
+	for p in g.entry_points:
 		var n := g.node_near(p, SNAP_UP_M, SNAP_DOWN_M, 2)
 		if n >= 0 and not seen.has(n):
 			seen[n] = true
 			g.entries.append(n)
-	var exit_seen := {}
 	for n in g.node_count():
 		if exit_reason(g, g.node_pos[n]) != "":
-			exit_seen[n] = true
 			g.exits.append(n)
 
 
 ## Why feet at `p` have left this map's play: "portal <id>" inside a press-Up trigger, "map <id>" past the gate of a
-## trail into another map (inside its corridor and height band: the GateMonitor's arm rule), else "".
+## trail into another map (inside its corridor and height band: the GateMonitor's arm rule), "exit <i>" inside a
+## hand-made graph's exit box, else "".
 func exit_reason(g: MapGraph, p: Vector3) -> String:
 	var probe := p + Vector3.UP * 0.1
 	for portal in g.exit_portals:
@@ -732,6 +768,9 @@ func exit_reason(g: MapGraph, p: Vector3) -> String:
 	for gate in g.exit_gates:
 		if gate.signed_distance(p) > 0.0 and gate.in_box(p):
 			return "map " + gate.map_id
+	for i in g.exit_boxes.size():
+		if g.exit_boxes[i].has_point(probe):
+			return "exit %d" % i
 	return ""
 
 
@@ -952,45 +991,78 @@ func _jump_lands(g: MapGraph, pa: Vector3, pb: Vector3) -> bool:
 	return true
 
 
-## Groups the flagged nodes into components (connected through any edge, either way, or as walking neighbours) and
-## summarises each.
+## Groups the flagged nodes into components (connected through any edge between them, either way) and summarises
+## each, largest first.
 func _group(g: MapGraph) -> void:
 	var count := g.node_count()
-	var comp := PackedInt32Array()
-	comp.resize(count)
-	comp.fill(-1)
-	var groups: Array[PackedInt32Array] = []
-	for s in count:
-		if g.fwd[s] == 0 or g.bwd[s] == 1 or comp[s] >= 0:
+	# Union-find over every edge (certain, into, refined jumps) between flagged nodes, either way.
+	var parent := PackedInt32Array()
+	parent.resize(count)
+	for i in count:
+		parent[i] = i
+	for u in count:
+		if g.fwd[u] == 0 or g.bwd[u] == 1:
 			continue
-		var id := groups.size()
-		var members := PackedInt32Array([s])
-		comp[s] = id
-		var head := 0
-		while head < members.size():
-			var u := members[head]
-			head += 1
-			var nbrs := PackedInt32Array()
-			for k in range(g.e_off[u], g.e_off[u + 1]):
-				nbrs.append(g.e_dst[k])
-			for k in range(g.i_off[u], g.i_off[u + 1]):
-				nbrs.append(g.i_dst[k])
-			for k in range(g.r_off[u], g.r_off[u + 1]):
-				nbrs.append(g.r_src[k])
-			for v in nbrs:
-				if g.fwd[v] == 1 and g.bwd[v] == 0 and comp[v] < 0:
-					comp[v] = id
-					members.append(v)
-		groups.append(members)
+		for e: Array in g.out_edges(u):
+			var v: int = e[0]
+			if g.fwd[v] == 1 and g.bwd[v] == 0:
+				var ru := _root(parent, u)
+				var rv := _root(parent, v)
+				if ru != rv:
+					parent[maxi(ru, rv)] = mini(ru, rv)
+	var by_root := {}
+	for u in count:
+		if g.fwd[u] == 0 or g.bwd[u] == 1:
+			continue
+		var r := _root(parent, u)
+		if not by_root.has(r):
+			by_root[r] = PackedInt32Array()
+		var m: PackedInt32Array = by_root[r]
+		m.append(u)
+		by_root[r] = m
+	var groups: Array[PackedInt32Array] = []
+	for r in by_root:
+		groups.append(by_root[r])
 	groups.sort_custom(func(x: PackedInt32Array, y: PackedInt32Array) -> bool: return x.size() > y.size())
+	var comp_of := PackedInt32Array()
+	comp_of.resize(count)
+	comp_of.fill(-1)
 	for i in groups.size():
-		g.components.append(_component_summary(g, i, groups[i]))
+		for u in groups[i]:
+			comp_of[u] = i
+	# The ways in: edges from escapable reachable nodes onto each component (one pass over the graph).
+	var ins: Array = []
+	for i in groups.size():
+		ins.append([])
+	for v in count:
+		if g.fwd[v] == 0 or g.bwd[v] == 0:
+			continue
+		for e: Array in g.out_edges(v):
+			var ci := comp_of[int(e[0])]
+			if ci >= 0 and (ins[ci] as Array).size() < IN_EDGES * 16:
+				(ins[ci] as Array).append(_edge_info(g, v, int(e[0]), int(e[1])))
+	for i in groups.size():
+		g.components.append(_component_summary(g, i, groups[i], ins[i]))
+
+
+func _root(parent: PackedInt32Array, i: int) -> int:
+	while parent[i] != i:
+		parent[i] = parent[parent[i]]
+		i = parent[i]
+	return i
+
+
+func _edge_info(g: MapGraph, v: int, u: int, kind: int) -> Dictionary:
+	var pv := g.node_pos[v]
+	var pu := g.node_pos[u]
+	return {"from": v, "to": u, "kind": EDGE_NAMES[kind], "from_local": _r3(g.to_local(pv)), "to_local": _r3(g.to_local(pu)),
+		"dy": snappedf(pu.y - pv.y, 0.01)}
 
 
 ## What a component is: its nodes, area, centre and height span in map-local and Blender-local coordinates, what the
-## floor is, and the edges that lead into it from escapable ground.
-func _component_summary(g: MapGraph, index: int, members: PackedInt32Array) -> Dictionary:
-	var def := g.def
+## floor is, and the ways in (in_edges: up to IN_EDGES edges from escapable reachable nodes, the likeliest first:
+## walks and drops, then slides, longer drops and hops, each by the smallest height change).
+func _component_summary(g: MapGraph, index: int, members: PackedInt32Array, ins: Array) -> Dictionary:
 	var c := Vector3.ZERO
 	var y_lo := INF
 	var y_hi := -INF
@@ -1009,63 +1081,36 @@ func _component_summary(g: MapGraph, index: int, members: PackedInt32Array) -> D
 			best = d
 			anchor = u
 	var ap := g.node_pos[anchor]
-	var local := def.to_local(ap)
+	var local := g.to_local(ap)
 	var member_set := {}
 	for u in members:
 		member_set[u] = true
-	var in_edges := _in_edges(g, members, member_set)
-	var drop := 0.0
-	for e: Dictionary in in_edges:
-		drop = maxf(drop, float(e.dy) * -1.0)
+	ins.sort_custom(func(x: Dictionary, y: Dictionary) -> bool:
+		var kx := _kind_rank(String(x.kind))
+		var ky := _kind_rank(String(y.kind))
+		return kx < ky or (kx == ky and absf(float(x.dy)) < absf(float(y.dy))))
+	var in_edges := ins.slice(0, IN_EDGES)
+	var drop := -float(in_edges[0].dy) if not in_edges.is_empty() else 0.0
 	return {"id": "%s#%d" % [g.map_id, index], "map_id": g.map_id, "nodes": members.size(),
 		"area_m2": snappedf(members.size() * cell * cell, 0.01), "anchor": anchor, "anchor_world": ap,
 		"local": _r3(local), "blender_local_xy": [snappedf(local.x, 0.01), snappedf(-local.z, 0.01)],
-		"y_local": [snappedf(y_lo - def.frame.origin.y, 0.01), snappedf(y_hi - def.frame.origin.y, 0.01)],
-		"floor": _floor_kinds(g, members), "in_edges": in_edges, "drop_m": snappedf(drop, 0.01),
-		"members": members, "verdict": "", "allowlisted": ""}
+		"y_local": [snappedf(y_lo - g.frame.origin.y, 0.01), snappedf(y_hi - g.frame.origin.y, 0.01)],
+		"floor": _floor_kinds(g, members), "in_edges": in_edges, "drop_m": snappedf(maxf(drop, 0.0), 0.01),
+		"entries_inside": _count_in(g.entries, member_set), "members": members, "verdict": "", "allowlisted": ""}
 
 
-## Up to 3 edges from escapable reachable nodes into the component (certain edges first).
-func _in_edges(g: MapGraph, members: PackedInt32Array, member_set: Dictionary) -> Array[Dictionary]:
-	var out: Array[Dictionary] = []
-	var seen := {}
-	var step := maxi(1, int(members.size() / 400.0))
-	for mi in range(0, members.size(), step):
-		var u := members[mi]
-		var cu := g.node_col[u]
-		var ix0 := g.col_ix(cu)
-		var iz0 := cu % g.nz
-		for dx in range(-DROP_CELLS, DROP_CELLS + 1):
-			for dz in range(-DROP_CELLS, DROP_CELLS + 1):
-				var ix := ix0 + dx
-				var iz := iz0 + dz
-				if ix < 0 or iz < 0 or ix >= g.nx or iz >= g.nz:
-					continue
-				var col := ix * g.nz + iz
-				var first := g.col_first[col]
-				if first < 0:
-					continue
-				for k in g.col_count[col]:
-					var v := g.surf_node[first + k]
-					if v < 0 or seen.has(v) or g.fwd[v] == 0 or g.bwd[v] == 0:
-						continue
-					seen[v] = true
-					for e: Array in g.out_edges(v):
-						if member_set.has(int(e[0])):
-							var pv := g.node_pos[v]
-							var pu := g.node_pos[int(e[0])]
-							out.append({"from": v, "to": int(e[0]), "kind": EDGE_NAMES[int(e[1])],
-								"from_local": _r3(g.def.to_local(pv)), "to_local": _r3(g.def.to_local(pu)),
-								"dy": snappedf(pu.y - pv.y, 0.01)})
-							break
-		if out.size() >= 6:
-			break
-	out.sort_custom(func(x: Dictionary, y: Dictionary) -> bool: return _kind_rank(String(x.kind)) < _kind_rank(String(y.kind)))
-	return out.slice(0, 3)
+## How many of `nodes` are in `member_set` (entries inside a component: a route point or a spawn there).
+func _count_in(nodes: PackedInt32Array, member_set: Dictionary) -> int:
+	var n := 0
+	for u in nodes:
+		if member_set.has(u):
+			n += 1
+	return n
 
 
+## How likely an edge kind is the way a player gets in (lower first).
 func _kind_rank(kind: String) -> int:
-	return EDGE_NAMES.find(kind)
+	return ["walk", "drop", "slide", "long drop", "hop", "ladder", "jump"].find(kind)
 
 
 ## What the component's floor is: collider names (chunk/body) with how many sampled nodes stand on each.
@@ -1105,8 +1150,8 @@ func verify(g: MapGraph) -> void:
 	var pw := PlayerTestWorld.create(db, host)
 	var p := pw.spawn_player(g.node_pos[g.components[0].anchor] + Vector3.UP * 0.05)
 	p.collision_mask = WorldLayers.PLAYER_MASK
-	p.add_climbables_from_sidecar(g.def.sidecar.get("climbables", []))
-	p.kill_y = g.def.kill_y
+	p.set_climbables(g.climbables.duplicate())
+	p.kill_y = g.kill_y
 	for comp in g.components:
 		_verify_component(g, pw, comp)
 	pw.free_all()
@@ -1138,7 +1183,8 @@ func _verify_component(g: MapGraph, pw: PlayerTestWorld, comp: Dictionary) -> vo
 			all_out = false
 	var verdict := VERDICT_CLEARED
 	if not all_out:
-		verdict = VERDICT_CONFIRMED if entered or comp.in_edges.is_empty() else VERDICT_UNENTERABLE
+		# Entered by replaying a way in, or reachable from an entry inside it (a spawn or a route point).
+		verdict = VERDICT_CONFIRMED if entered or int(comp.entries_inside) > 0 else VERDICT_UNENTERABLE
 	comp["verdict"] = verdict
 	comp["entered"] = entered
 	comp["enter_how"] = enter_how
@@ -1226,7 +1272,7 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
 	var tries := 0
 	var best_rise := 0.0
 	var origin_y := g.node_pos[start].y
-	var out := {"escaped": false, "how": "", "tries": 0, "start_local": _r3(g.def.to_local(g.node_pos[start]))}
+	var out := {"escaped": false, "how": "", "tries": 0, "start_local": _r3(g.to_local(g.node_pos[start]))}
 	var si := 0
 	while si < starts.size() and tries < MAX_TRIES:
 		var s := starts[si]
@@ -1249,7 +1295,7 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
 			best_rise = maxf(best_rise, float(r.best_y) - origin_y)
 			if bool(r.escaped):
 				out["escaped"] = true
-				out["how"] = "%s from local %s: %s" % [_plan_text(plan, g), _r3(g.def.to_local(s)), r.why]
+				out["how"] = "%s from local %s: %s" % [_plan_text(plan, g), _r3(g.to_local(s)), r.why]
 				out["tries"] = tries
 				out["best_rise_m"] = snappedf(best_rise, 0.01)
 				return out
@@ -1267,7 +1313,7 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
 
 
 func _plan_text(plan: Dictionary, g: MapGraph) -> String:
-	var what := "toward local %s" % [_r3(g.def.to_local(plan.to))] if plan.has("to") else "direction %s" % [_r3(plan.dir)]
+	var what := "toward local %s" % [_r3(g.to_local(plan.to))] if plan.has("to") else "direction %s" % [_r3(plan.dir)]
 	return "%s, jump %s" % [what, plan.jump]
 
 
@@ -1328,7 +1374,7 @@ func escape_reason(g: MapGraph, at: Vector3, grounded: bool) -> String:
 	if grounded:
 		var n := g.node_near(at, 0.3, 0.3, 1)
 		if n >= 0 and g.bwd[n] == 1:
-			return "stands on escapable ground at local %s" % [_r3(g.def.to_local(at))]
+			return "stands on escapable ground at local %s" % [_r3(g.to_local(at))]
 	return ""
 
 
@@ -1413,11 +1459,11 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true) 
 				totals.new_traps += 1
 				traps.append(entry)
 		var row := g.stats.duplicate()
-		row["name"] = g.def.map_name
-		row["kill_y_local"] = snappedf(g.def.kill_y - g.def.frame.origin.y, 0.01)
+		row["name"] = g.name
+		row["kill_y_local"] = snappedf(g.kill_y - g.frame.origin.y, 0.01)
 		var fo: Array = []
 		for q in g.fall_out_samples:
-			fo.append(_r3(g.def.to_local(q)))
+			fo.append(_r3(g.to_local(q)))
 		row["fall_out_samples_local"] = fo
 		row["components"] = comps
 		per_map[id] = row
@@ -1438,13 +1484,14 @@ func report_component(g: MapGraph, comp: Dictionary) -> Dictionary:
 	var hit := _allowlisted(g, comp)
 	comp["allowlisted"] = hit
 	var out := {}
-	for k in ["id", "nodes", "area_m2", "local", "blender_local_xy", "y_local", "drop_m", "floor", "verdict",
+	for k in ["id", "nodes", "area_m2", "local", "blender_local_xy", "y_local", "drop_m", "entries_inside", "floor", "verdict",
 			"entered", "enter_how", "verify_ms"]:
 		if comp.has(k):
 			out[k] = comp[k]
 	var edges: Array = []
 	for e: Dictionary in comp.in_edges:
-		edges.append({"kind": e.kind, "from_local": e.from_local, "to_local": e.to_local, "dy": e.dy})
+		if edges.size() < 3:
+			edges.append({"kind": e.kind, "from_local": e.from_local, "to_local": e.to_local, "dy": e.dy})
 	out["in_edges"] = edges
 	if comp.has("samples"):
 		out["samples"] = comp.samples
@@ -1461,7 +1508,7 @@ func _allowlisted(g: MapGraph, comp: Dictionary) -> String:
 		var l: Array = (e as Dictionary).get("local", [])
 		if l.size() < 3:
 			continue
-		var at := g.def.to_world(Vector3(float(l[0]), float(l[1]), float(l[2])))
+		var at := g.to_world(Vector3(float(l[0]), float(l[1]), float(l[2])))
 		var radius := float((e as Dictionary).get("radius_m", 1.0))
 		for u: int in comp.members:
 			if g.node_pos[u].distance_to(at) <= radius:
