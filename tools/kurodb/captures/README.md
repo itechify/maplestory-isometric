@@ -1,8 +1,9 @@
 # KuroDB captures (drop probabilities only)
 
 KuroDB (<https://playkuro.com/database/>, the KuroMS player database) is MisoStory's **narrow secondary authority**: it
-supplies drop and meso-drop *probabilities* for drops whose *membership* MeowDB MS Classic already confirms. It never
-adds an item to a drop table, and nothing else is taken from it (its monster stats, ids and maps belong to a different
+supplies drop and meso-drop *probabilities* for drops whose *membership* another source already establishes: Hidden
+Street's per-monster drop lists for monsters (owner decision D3-6) and MeowDB for the Wooden Box. It never adds an item
+to a drop table, and nothing else is taken from it (its monster stats, ids and maps belong to a different
 game version: its Snail has 8 HP, MeowDB's has 45).
 
 These files are dated, hand-read captures. KuroDB sits behind a Cloudflare bot check (automated requests get HTTP 403),
