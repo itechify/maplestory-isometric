@@ -15,7 +15,9 @@ Tomato Field, three blocked portal arrivals, route ends a standing player could 
 classes data instead of name words (§5 item 6, [`collision_tags`](#classification-rules)). A third round (M2) made
 the last trail walkable: 000001014 (Snail Field of Flowers) moved 12.9 m so the 000001012 ↔ 000001014 trail can leave
 Townstreet's corridor and stay outside both containment rings, and the 000000030 yellow house's cap got a collision
-prism ([overhead hulls](#classification-rules)). The sidecar fields they added are listed in the
+prism ([overhead hulls](#classification-rules)). A fourth round made every NPC talkable on foot: Heena, Roger and
+Nina stood on perches no player could reach (the game talks in person, classic clicked them from below), so each got
+stairs (and Roger a gap in his hedge and fence). The sidecar fields they added are listed in the
 [changelog](#sidecar-changelog); every change so far is additive.
 
 ## Running it
@@ -648,6 +650,55 @@ radius of the centreline or the centreline enters another map's region; low (lis
 edge or a gate jamb is closer than the gap: today 5, all on trails the runtime already walks (the 000001006 bridge
 past 000001002's ring, 0.49 m; 000001004's ring on its trail's edge, 0.76 m; the A Split Road east exits; the
 Tomato Field lane's jamb).
+
+**2026-10-04: source-world fixes, round 4** (NPC access: WORLD_RUNTIME "NPC talk zones"; the `npcs` playtest
+survey found 5 of 21 NPCs a walking player could not talk to)
+
+No field was added, removed or retyped (`sidecar_diff`: `added_paths []`, `SIDECAR_DIFF_OK True`; 30 contract tests
+pass on the staged export). The truth first, with the real controller (a scratch probe on the round-3 export: a
+floor height map around each NPC, every standable cell's distance to the talk zone, and real jumps toward the NPC
+from 12 directions, holding the move and the jump key): **Heena** (000000001) stands on her bush's collision prism,
+1.64 m above the plateau, and **Nina** (000000020) on her stump's islet, 2.0 m above the lawn; both are above the
+1.35 m jump reach (apex 0.9 m at Jump 100 + the 0.45 m step), no jump came within reach of the zone and no climbable
+leads up. **Roger** (000000010) stands in his garden 3.0 m above the street; the hedge top in front is 1.55 m above
+the street, also out of reach. The two shopkeepers Sid and Lucy (and Pan, inside by 8 mm) are a talk-zone matter,
+fixed in data (`presentation.json npc.talk_zones`), not here. Value changes:
+
+- **Heena's stair (000000001).** `Steps_HeenaBush`: a wooden flight up the bush's east flank, 8 risers of 0.205 m over
+  2.4 m (walked, no jump), 1.2 m wide, its top tread 0.1 m onto the bush's prism top (Heena's feet height) and a 1 m
+  landing on over the grass clump, so Blender's ground index reaches the crown. East keeps it off the spawn and the
+  `Main` route below the bush's south side; its risers face the camera. Route `ToHeena`: `Main` -> the stair -> the
+  crown, 1.1 m from Heena.
+- **Roger's garden steps (000000010).** `Steps_RogerGarden`: a stone flight (the map's stone, `M_StoneWall` /
+  `M_Rock`) straight up the hedge face from the street to Roger, 15 risers of 0.2 m over 4.9 m, 1.8 m wide, fitted to
+  the garden's cap edge. The hedge row stops 0.1 m either side of it (two `Hedge_Wall_4m`, x-scaled 1.325 and 1.125,
+  instead of three), and `X10000_VegFence` is now one 3.6 m run of four posts placed twice (x 16.2 to 19.8 and 22.5
+  to 26.1) with the opening between them: a single 9.6 m run would have kept its prisms across any gap in its mesh.
+  Roger keeps his place in the crop gap, 1.2 m behind the fence line; the street `Planter` moved from (20.4, 18.6) to
+  (18.6, 19.0), clear of the flight's foot. Route `ToRoger`: `Main` -> up the steps -> through the gap, 1.1 m from
+  Roger. This answers the research's open question ("stay unreachable, or become walkable via a stair?") with a
+  visible stair, because Roger starts the first quest (Roger's Apple, Test E).
+- **Nina's stump stair (000000020).** `Steps_NinaStump`: a wooden flight up the stump on the camera-facing side
+  (bearing 313°, halfway between the roots at 283° and 343°), 10 risers of 0.2 m over 2.8 m, fitted to the islet's
+  cap edge. The stump's buttress roots are a separate asset now, `X20000_NinaStumpRoots` (Foliage, `stump`: passable
+  like every stump and log): in one asset with the trunk, their tips made the stump's prism a 3.8 m circle, an
+  invisible ledge 1.5 m outside the bark, 1.86 m above the lawn, that no stair to the bark could meet.
+  `X20000_NinaStump` is the trunk alone: a 2.23 m prism, its top 1.86 m above the lawn. The hanging vine that
+  dangled over the stair's head moved to the islet's south-west side. Route `ToNina`: `Main` -> across the lawn -> up
+  the stair, 1.1 m from Nina.
+- The new stairs are kept out of the maps' scattered grass and flowers (their `avoid` lists).
+- Totals: 184 routes (was 181), 6,278 route points (was 6,231), all 368 route ends clear (was 362); 2,452 prop hulls
+  (was 2,451: one more fence run, one hedge fewer); route check 15,789 samples, 12 overhead samples (9 step, 3 climb
+  or drop, 0 body) as before; Ground triangles +836 / +1,384 / +994 in 000000001 / 000000010 / 000000020 (the
+  stairs). The other chunks differ only by float-level decimation.
+- Checks on this export: `validate.py` 0 high / 0 medium / 21 low as before (traversal walks the three new routes both
+  ways; `props_near_routes` still 16 low); the `npcs` playtest scenario, now hard checks, talks to all 21 NPCs on
+  foot from their arrivals, Heena, Roger and Nina over their routes, and every player pressing on toward an NPC
+  ends at least 0.4 m inside its talk zone (WORLD_RUNTIME "NPC talk zones"); the full suite
+  (`ISOLATE=npc-reach INCLUDE_WORLD=1 bash scripts/test.sh`) ran 1,119 tests with 0 failures and 0 skips: the route
+  sweep 366 / 366 (was 360: the three new routes both ways), the link runs 87 / 87 with 20 / 20 trails walkable, both
+  tours 0 / 0 / 0 / 0, `test_world_static` 0 errors and 0 warnings, and `smoke` now talks to Roger on foot (0
+  warnings, no `goto npc 3`).
 
 ## Files
 

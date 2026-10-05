@@ -70,6 +70,7 @@
    "routes": [
     "Main",
     "ToHouseDoor",
+    "ToHeena",
     "BluffLadder"
    ],
    "traversal_ok": true
@@ -127,7 +128,8 @@
    "built_mobs": {},
    "routes": [
     "Main",
-    "ToYellowHouse"
+    "ToYellowHouse",
+    "ToRoger"
    ],
    "traversal_ok": true
   },
@@ -192,6 +194,7 @@
    "routes": [
     "Main",
     "ToSensHouse",
+    "ToNina",
     "SkyIslet"
    ],
    "traversal_ok": true

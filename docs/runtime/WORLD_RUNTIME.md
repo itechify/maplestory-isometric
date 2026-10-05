@@ -435,9 +435,42 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
     Debug spawns are made by the console through `monster_factory` and parented here, but they are never in
     `nodes`.
 - **NPCs**: all 21 MeowDB NPCs are created once at load (`WorldNpc`: proxy model, metadata `npc_id` (MeowDB),
-  `npc_name`, `map_id`, group `npcs`, a `TalkArea` Area3D of `npc.interaction_radius_m`). Markers are matched by
+  `npc_name`, `map_id`, group `npcs`, a `TalkArea` Area3D: the NPC's talk zone, below). Markers are matched by
   `meowdb_npc_id`, else by name; Blender NPCs MeowDB does not list are ignored and reported; a MeowDB NPC without a
   marker is placed next to `player_spawns[0]` with a warning. Interaction is enabled only in `current_map`.
+
+### NPC talk zones
+
+The interact key talks to a current-map NPC whose talk zone overlaps the player's body (`WorldNpc.in_range`, through
+`IslandWorld.nearest_interactable`; a body off the player layer falls back to its feet within
+`npc.interaction_radius_m` of the NPC's). The zone is the NPC's `TalkArea`, a `SphereShape3D` centred above the NPC's
+feet, sized by `WorldTuning.talk_zone(npc_id)` (`WorldNpc.talk_radius_m`, `talk_centre_height_m`, `talk_profile`):
+
+| Profile | NPCs | Radius | Centre above the feet | Why |
+|---|---|---|---|---|
+| `default` | every NPC no profile lists (18) | `npc.interaction_radius_m`, 1.6 m | `npc.talk_centre_height_m`, 0.8 m | a little more than the 1.5 m body: the player walks up to the NPC |
+| `across_counter` | Pan (16), Sid (20), Lucy (21): the NPC of every canonical shop | 2.4 m | 0.8 m | shopkeepers serve across their counter (Test G). A player pressed against the counter stands 1.90, 2.10 and 1.90 m from them and 0.45, 0.45 and 0.8 m lower; the 1.6 m sphere left that body 0.00, 0.20 and 0.04 m outside |
+
+`presentation.json npc.talk_zones` holds the profiles (`npcs`, `radius_m`, `centre_height_m`, `reason`, `verified`).
+The first profile by name that lists an NPC wins. `WorldTuning.talk_zone_errors()` reports a profile without NPCs, a
+radius, a centre height or a reason, and an NPC listed by two profiles; `IslandWorld` adds those and any listed NPC no
+map places to its build errors (the L1 build must have none). The centre height used to be half the radius; it is
+its own key now, so a larger zone reaches further without rising. A larger zone is only for scenery a player talks
+across: an NPC standing where no player can go is fixed in the source world (blender_export.md, round 4: Heena,
+Roger and Nina).
+
+**Reach on foot.** The `npcs` playtest scenario (`game/tools/playtest/scenarios/npcs.gd`, PLAYTEST_HARNESS.md) is the
+check: for every NPC, a console warp to its map (setup), then `talk_to()` from the map's arrival with real input
+(the routes, with their stairs and ladders, and the grid planner) and the interact key. Every conversation must open
+(a hard check, no `soft_check`). Then, with the window closed, the player presses on toward the NPC with real movement
+input for at most 1.5 s, and must end **at least 0.4 m inside the zone** (`talk_gap <= -0.4`) with the prompt still
+offering that NPC. The margins are logged (one note per NPC, and `report.json carry.npc_margins`);
+`test_npc_reach_scenario.gd` runs it. On the round-4 export (2026-10-04, headless, seed 1, about 26 s wall): 21 of 21
+open on foot, Heena, Roger and Nina over their new stairs (`ToHeena`, `ToRoger`, `ToNina`). Pressed in, the 18
+NPCs in the open end 1.63 to 1.67 m inside their zone (the feet 0.23 to 0.27 m from the NPC's), and the three
+shopkeepers end against their counters: Pan 0.83 m inside (feet 1.87 m from him), Sid 0.61 m (2.09 m), Lucy 0.79 m
+(1.87 m). Before (round 3, the 1.6 m zone): Heena 0.52 m short, Roger and Nina no path at all, Sid 0.18 m and Lucy
+0.01 m short, Pan 0.008 m inside.
 
 
 ## World loading, collision and containment
@@ -580,7 +613,7 @@ Every value below lives in data with its reason; none is in code.
 | `presentation.json:trails` | side walls 0.3 m out, 3 m above / 2.5 m below the edge; zone margin 1 m, band ±5 m; top faces within 45° of level | §4.3, §4.6; the flanks are walkable and steeper than the floor angle |
 | `presentation.json:region_invariant` | 10 Hz, 5 samples in a row | §4.3 |
 | `presentation.json:fall_recovery` | kill_y = lowest walkable of the map and its trails - 6 m, sea slab 2 m | §4.6 |
-| `presentation.json:npc` | talk radius 1.6 m, fallback spacing 2.5 m | no MeowDB talk range |
+| `presentation.json:npc` | talk zone: a 1.6 m sphere centred 0.8 m above the NPC's feet; `talk_zones.across_counter`: 2.4 m for Pan, Sid and Lucy; fallback spacing 2.5 m | no MeowDB talk range (classic NPCs are clicked); shopkeepers serve across their counter ("NPC talk zones") |
 | `presentation.json:session` | fallback map 000000001, location refresh 0.25 s | §4.9 step 4; fresh save points |
 | `death.json:respawn_player_spawn_index` | 0 | MeowDB gives the returnMap, not which player spawn (open question 1). Moved from `presentation.json:respawn.player_spawn_index`; `WorldTuning.value("respawn", "player_spawn_index")` still answers through `MOVED_KEYS` |
 | `maps/000000060.json:region_extensions` | `ship_victoria`: the ship's ring line on its deck-level outline (bulwarks + 0.31 to 0.41 m, the quarterdeck's stern edge, across the bow notch), the layout ring kept below 5.6 m under it | the ship is moored outside the layout rectangle; without it the deck is "void" and the ring stands across the gangplank; a looser line leaves pockets to hang in or fall through ("Region extensions") |
@@ -627,6 +660,8 @@ bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://to
 | `test_map_session.gd` | L0 | guards, event order, 40 → 30 rejected, walk-only gate rejected by press, doors, death/respawn (4 maps), ring buffer, cache round trip and eviction, load chain, save block, debug hooks (edge works, doors refuse it); `reset()`; the death commit |
 | `test_portal_one_way_ledge.gd` | L0/L1 | the 30 → 40 ledge invariant: `MovementModel.jump_apex_at_cap()` + `step_up` + 0.3 m ≤ the exported ledge height (2.4 m) ≤ 2.6 m; the face on 40's arrival gate plane (footprint + 1 m) within 0.1 m; player_spawns[0] on the landing |
 | `test_map_sidecar_tolerance.gd` | L0 | missing Todd/Sam/Mai markers → logged fallback; the Phase 1 export shape; unknown added fields; authored fields win |
+| `test_world_talk_zones.gd` | L0 | `WorldTuning.talk_zone`: the default zone from `npc.interaction_radius_m` / `talk_centre_height_m` (where the old half-the-radius rule put it); `across_counter` lists exactly the NPCs of the canonical shops, reaches further and is not raised, has a reason and `verified: false`; the shipped profiles are sound and `talk_zone_errors` catches a duplicate listing, a missing reason or radius and an empty profile (the first profile by name wins); `WorldNpc` builds its sphere with the zone's radius at its centre height (NAN keeps half the radius) |
+| `test_npc_reach_scenario.gd` | L2 (export) | the `npcs` playtest scenario in child processes: PASS with no soft check, 21 NPCs talked to on foot from their arrival, each with a player pressing on at least 0.4 m inside its talk zone (`carry.npc_margins`), only `warp` console steps |
 | `test_world_static.gd` | L1 | the island builds with **0 errors and 0 warnings**; collision layered; every arrival, player_spawns[0], NPC and slot grounded, capsule-clear, in its own map, outside other triggers and keep-outs; every ring closed except its gate gaps (probed along every ring line), the gaps open in edge mode and plugged in warp mode; 20 trails, 20 wall bodies, 40 plugs; every gate on its ring line with its portal's normal; the ribbon between the gates in no map region and in its zone; kill_y below the trails; side walls beside every ribbon edge and never on it; no other map's ring on a ribbon (except the one known case, `KNOWN_RING_CROWDING`); the ledge gate = the sidecar's gate plane; no gap wider than its corridor; no containment wall within a body capsule of any route point (every trail mouth plugged); a region extension's ring vertices on the map's ring line, and its kept wall closed below its height and open above |
 | `test_traversal_routes.gd` | L2 | the route sweep (`TraversalBot.sweep`): every route of all 25 maps, both ways (one_way once), 360 runs, **0 failures** |
 | `test_traversal_links.gd` | L2/L3 | three child processes of `traversal_bot.tscn`: the link runs (87, **0 failures**, all 20 trails walkable, the ledge blocks 40 → 30), the Test A tour walking the trails and the tour in warp mode (each 38 legs, ok, **0 recoveries, 0 stalls, 0 violations, 0 teleports**) |
@@ -654,7 +689,8 @@ it. Times are game time at 60 ticks/s.
 ## Source world status
 
 The Blender source is clean for warp mode (blender_export.md, "source-world fixes, round 2"): the L1 build settles
-nothing and warns about nothing, the route sweep passes 360 / 360. Since round 3 all 20 trails walk (M2). Findings:
+nothing and warns about nothing, the route sweep passes every route both ways (366 runs since round 4 added three).
+Since round 3 all 20 trails walk (M2); since round 4 every NPC is talked to on foot. Findings:
 
 1. **000001012 ↔ 000001014: fixed in round 3, now walked.** It was kept warp: the trail turned back in a hairpin and
    climbed inside 000001012's 1 m ring band (25 ribbon points up to 2.31 m inside its ring line), so the ring wall
@@ -687,6 +723,12 @@ nothing and warns about nothing, the route sweep passes 360 / 360. Since round 3
 6. **Trail centrelines in the export.** `World_Trails.json trails[]` should carry `centreline` ([[x, y, z], ...] from
    the from end) and `half_width_m` (or per-point `half_widths_m`); the runtime then stops deriving them from the
    meshes (`TrailGeometry`, a stopgap that has to cut grid T-junctions and bend folds).
+
+7. **NPC access: fixed in round 4.** Heena (on her bush, 1.64 m above the plateau), Nina (on her stump, 2.0 m above
+   the lawn) and Roger (in his garden, 3.0 m above the street, behind a hedge 1.55 m high) stood where no walk or
+   jump reaches (the reach is 1.35 m); classic players clicked them from below. Round 4 gave each a walked stair (and
+   Roger a gap in his hedge and fence) and a route to them, and split the roots off Nina's stump so its prism is the
+   bark (blender_export.md). The shopkeepers behind counters are a talk-zone adaptation instead ("NPC talk zones").
 
 The yellow mushroom house on 000000030: its cap overhangs its colliding walls (the brim is 12 m across and starts
 2.8 m to 3 m above the ground). Round 3 gave the cap and brim an `overhead_hull` prism, 2.82 to 6.54 m above the

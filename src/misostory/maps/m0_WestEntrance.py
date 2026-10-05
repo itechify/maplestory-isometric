@@ -10,6 +10,9 @@ Classic (GMS v8) structure, from docs/research/maps/0_WestEntranceMushroomTown_0
 its south-east corner (east, then south, then east again) so the descent reads as a
 terraced slope instead of a straight staircase. The lane runs along the front-east,
 the laundry bluff rises behind it with its ladder face toward the camera.
+
+Iteration Two: Heena still stands on her bush's crown, but the game talks to NPCs in person (the interact key, no
+click from below), so a short wooden stair climbs the bush's east flank to her.
 """
 
 import math
@@ -28,6 +31,9 @@ PLATEAU = 3 * U  # T1
 STEP2 = 2 * U  # T2
 STEP3 = 1 * U  # T3
 BLUFF = 4 * U  # T5
+HEENA_CROWN = 1.64  # Heena's bush: the top of its collision prism above the plateau (where she stands)
+HEENA_STAIR_TOP = 1.75  # the stair's top tread, from the bush centre (its prism reaches ~1.85 m east)
+HEENA_STAIR_FOOT = 4.15  # 2.4 m run: 0.3 m treads
 
 
 # ---------------------------------------------------------------- local assets
@@ -182,6 +188,13 @@ def build(m):
     m.terrace("HeenaClump", geo.ellipse(hx, hy, 0.95, 0.85, 14), top=PLATEAU + 2 * U, bottom=PLATEAU + 1.35,
               wobble_amt=0.1)
     m.npc("Heena", hx, hy, rot=25)
+    # Heena is talked to in person (Iteration Two: the interact key needs the player beside her, no click from below),
+    # so a little wooden stair climbs the bush's east flank onto its flat crown: 8 risers of 0.2 m (walked, never
+    # jumped). The crown the player stands on is the bush's collision prism, HEENA_CROWN above the plateau (its top is
+    # Heena's feet); the top tread overlaps it by 0.1 m and the landing runs on over the grass clump (Blender's ground
+    # for the route). East keeps the flight off the spawn and the Main route below the bush's south side.
+    m.stairs("Steps_HeenaBush", (hx + HEENA_STAIR_FOOT, hy, PLATEAU), (hx + HEENA_STAIR_TOP, hy, PLATEAU + HEENA_CROWN),
+             1.2, step_h=0.2, overshoot=1.0)
     # the laundry bluff: clothesline, basket, Sera, red-berry shrubs, a butterfly on the post
     m.place("Clothesline_Laundry", 27.6, 17.4, rot=0)
     # the basket stands on Sera's west side: at (24.6, 16.5) it sat on the BluffLadder walk to her (the route
@@ -231,7 +244,7 @@ def build(m):
     m.place("Flower_Bed_Large", 11.5, 24.6, rot=20, scale=0.8)
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A", "Flower_Patch_B"], geo.rect(0, 9, 13.5, 27), 12, seed=1,
               min_dist=1.6, avoid=[geo.rect(1.5, 11.2, 14, 15.4), (8.0, 22.0, 4.8), (hx, hy, 2.0),
-                                   geo.rect(7, 15, 9.8, 19)])
+                                   geo.rect(7, 15, 9.8, 19), geo.rect(4.4, 15.2, 7.8, 17.2)])
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A"], geo.rect(21, 15.5, 32, 28), 8, seed=2, min_dist=1.6,
               avoid=[geo.rect(23, 16, 32, 18.6), (26.0, 16.0, 1.4), geo.rect(22, 21.4, 31, 23.8), (22.4, 19.2, 1.0)])
     m.scatter(["Grass_Tuft_A", "Flower_Patch_B"], geo.rect(13, 10, 21, 28), 5, seed=3, min_dist=1.5,
@@ -268,6 +281,9 @@ def build(m):
                      (a0[0] + 0.7, 13.5), (16.7, 12.0), (16.4, b1[1] + 0.4), (16.4, b0[1] - 0.4), (17.4, b0[1] - 1.0),
                      (19.4, 6.4), (c1[0] - 0.4, 6.4), (c0[0] + 0.4, 6.4), (26.5, 7.6), (31.0, 10.0)])
     m.route("ToHouseDoor", [(7.5, 13.4), (8.4, 17.0), (9.0, 18.5)])
+    # Main -> up Heena's stair onto her bush (ends on the crown, 1.1 m from her: inside her talk zone)
+    m.route("ToHeena", [(8.0, 13.6), (7.5, 15.4), (2.8 + HEENA_STAIR_FOOT + 0.5, 16.2),
+                        (2.8 + HEENA_STAIR_TOP - 0.1, 16.2), (3.9, 16.2)])
     # lane -> up the bluff ladder -> Sera -> along the laundry lines (one route through the climb)
     m.route("BluffLadder", [(26.3, 7.5), (25.8, 8.5), (26.0, 11.0), (26.0, 13.3), (26.0, 15.6), (25.0, 16.8), (24.4, 17.8),
                             (27.6, 19.2), (30.0, 21.5)])

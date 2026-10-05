@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 17687, triangles (evaluated, incl. instances): 9,195,250
+Objects: 17695, triangles (evaluated, incl. instances): 9,198,046
 
 | check | ok | detail |
 |---|---|---|
@@ -14,7 +14,7 @@ Objects: 17687, triangles (evaluated, incl. instances): 9,195,250
 | polygon_budget | yes | maps over 400,000: {}; largest 1000000 (374,235) |
 | world_polygon_budget | yes | WORLD layer 3,352,201 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
-| floating_props | yes | 0 of 4082 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
+| floating_props | yes | 0 of 4083 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
 | props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 16 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
 | fidelity | yes | 21 NPC proxies vs MeowDB 21 NPCs (by MeowDB id and name); monster proxies and spawn-region species vs MeowDB species |
 | traversal | yes | maps failing traversal: [] |
@@ -26,7 +26,7 @@ Objects: 17687, triangles (evaluated, incl. instances): 9,195,250
 | one_way_ledge | yes | 1/1 ledges: [{'trail': 'Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000', 'height_m': 2.4, 'height_max_m': 2.4, 'face_offset_max_abs_m': 0.005, 'bounds_m': [2.049, 2.6], 'found |
 | player_spawns | yes | 25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane |
 | spawn_regions | yes | 15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns |
-| collision_tags | yes | 1946 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
+| collision_tags | yes | 1949 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
 | no_swallowed_exceptions | yes | 0 recorded: [] |
 
 ## Triangle budget
@@ -52,16 +52,16 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | 30000 EastEntranceMushroomTown_30000 | 161,549 | 400,000 | yes |
 | 40000 SnailHuntingGround1_40000 | 160,036 | 400,000 | yes |
 | 1000003 MushroomGarden_1000003 | 155,749 | 400,000 | yes |
-| 10000 MushroomTown_10000 | 132,563 | 400,000 | yes |
-| 20000 MushroomTown_20000 | 115,661 | 400,000 | yes |
-| 0 WestEntranceMushroomTown_0 | 98,348 | 400,000 | yes |
+| 10000 MushroomTown_10000 | 132,989 | 400,000 | yes |
+| 20000 MushroomTown_20000 | 117,195 | 400,000 | yes |
+| 0 WestEntranceMushroomTown_0 | 99,184 | 400,000 | yes |
 | 60001 SouthperryArmorStore_60001 | 75,405 | 400,000 | yes |
 | 1010002 AmherstTownstreet_1010002 | 73,052 | 400,000 | yes |
 | 1010003 AmherstDepartmentStore_1010003 | 58,720 | 400,000 | yes |
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
 | WORLD (plinth, hull, trails, scenery, clouds) | 3,352,201 | 3,500,000 | yes |
-| total | 9,195,250 | | |
+| total | 9,198,046 | | |
 
 ## Top 10 assets by instanced triangles
 

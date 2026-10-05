@@ -11,10 +11,22 @@ var placement: NpcPlacement = null
 var interaction_enabled: bool = false
 var talk_area: Area3D = null
 var visual: Node3D = null
+## The talk zone (WorldTuning.talk_zone): a sphere of talk_radius_m centred talk_centre_height_m above the feet.
+var talk_radius_m: float = 0.0
+var talk_centre_height_m: float = 0.0
+## The npc.talk_zones profile the zone came from ("default" when none lists this NPC).
+var talk_profile: String = "default"
 
 
-## Configures the node (call after it is in the tree). `radius` is presentation.json npc.interaction_radius_m.
-func setup(pl: NpcPlacement, library: ProxyLibrary, radius: float) -> void:
+## Configures the node (call after it is in the tree). `radius` and `centre_height` describe the talk zone, a sphere
+## centred `centre_height` above the NPC's feet (WorldTuning.talk_zone: presentation.json npc.interaction_radius_m
+## and npc.talk_centre_height_m, or a npc.talk_zones profile such as the shopkeepers' "across_counter"). A NAN
+## centre_height keeps the old rule, half the radius.
+func setup(pl: NpcPlacement, library: ProxyLibrary, radius: float, centre_height: float = NAN,
+		profile: String = "default") -> void:
+	talk_radius_m = radius
+	talk_centre_height_m = radius * 0.5 if is_nan(centre_height) else centre_height
+	talk_profile = profile
 	placement = pl
 	name = ("NPC_%s_%s" % [pl.npc_id, pl.npc_name]).validate_node_name()
 	global_transform = pl.transform
@@ -35,7 +47,7 @@ func setup(pl: NpcPlacement, library: ProxyLibrary, radius: float) -> void:
 	var sphere := SphereShape3D.new()
 	sphere.radius = radius
 	cs.shape = sphere
-	cs.position = Vector3.UP * (radius * 0.5)
+	cs.position = Vector3.UP * talk_centre_height_m
 	talk_area.add_child(cs)
 	add_child(talk_area)
 	set_interaction_enabled(false)

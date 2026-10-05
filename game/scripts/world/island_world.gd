@@ -377,12 +377,22 @@ func _stage_nodes() -> void:
 		node.setup(p, library)
 		node.watched = player  # set_player() may have run before the build finished
 		portal_nodes[p.key()] = node
-	var radius := tuning.num("npc", "interaction_radius_m")
+	build_errors.append_array(tuning.talk_zone_errors())
+	var placed := {}
+	for id in defs.ids():
+		for pl in defs.get_def(id).npc_definitions:
+			placed[pl.npc_id] = true
+	var profiles := tuning.talk_zone_profiles()
+	for pname: String in profiles:
+		for nid: Variant in (profiles[pname] as Dictionary).get("npcs", []):
+			if not placed.has(str(nid)):
+				build_errors.append("presentation.json npc.talk_zones.%s lists npc %s, which no map places" % [pname, str(nid)])
 	for id in defs.ids():
 		for pl in defs.get_def(id).npc_definitions:
 			var n := WorldNpc.new()
 			npcs_root.add_child(n)
-			n.setup(pl, library, radius)
+			var zone := tuning.talk_zone(pl.npc_id)
+			n.setup(pl, library, float(zone.radius_m), float(zone.centre_height_m), String(zone.profile))
 			npc_nodes[pl.npc_id] = n
 	instance_view.library = library
 	instance_view.tuning = tuning

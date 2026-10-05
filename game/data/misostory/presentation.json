@@ -75,8 +75,18 @@
   },
   "npc": {
     "interaction_radius_m": 1.6,
+    "talk_centre_height_m": 0.8,
     "fallback_spacing_m": 2.5,
-    "reason": "MeowDB documents no talk range (classic NPCs are clicked). The interact key talks to a current-map NPC within 1.6 m, a little more than the 1.5 m body height, so the player has to walk up to the NPC. Until the Blender export had markers for every MeowDB NPC (MAP_ARCHITECTURE section 3.3: Todd, Sam, Mai), a missing one stood next to player_spawns[0], 2.5 m apart along the map frame, with a warning; the runtime keeps that fallback for future content.",
+    "talk_zones": {
+      "across_counter": {
+        "npcs": ["16", "20", "21"],
+        "radius_m": 2.4,
+        "centre_height_m": 0.8,
+        "reason": "Shopkeepers serve across their counter, as in classic (Test G: buy and sell). Pan (16), Sid (20) and Lucy (21), the three MeowDB shop NPCs of Maple Island (canonical shops/*.json npc_id), stand behind counters: a player pressed against the counter front stands 1.90, 2.10 and 1.90 m from them horizontally, and they stand 0.45, 0.45 and 0.8 m above the shop floor. With the default 1.6 m sphere that body was 0.00, 0.20 and 0.04 m outside the zone (playtest probe 2026-10-04), so Sid and Lucy could not be talked to on foot and Pan only with no margin. A 2.4 m sphere, still centred 0.8 m above the NPC's feet, takes in a player standing anywhere along the middle of the counter front, and one pressed against it in front of the keeper is 0.83 (Pan), 0.61 (Sid) and 0.79 m (Lucy) inside (the npcs playtest scenario checks at least 0.4 m, 2026-10-04). Each keeper is the only NPC of his or her shop, so the larger zone cannot take the prompt from another NPC.",
+        "verified": false
+      }
+    },
+    "reason": "MeowDB documents no talk range (classic NPCs are clicked). The interact key talks to a current-map NPC whose talk zone overlaps the player's body: a sphere of 1.6 m (a little more than the 1.5 m body height) centred 0.8 m above the NPC's feet, so the player has to walk up to the NPC. talk_zones lists NPCs whose zone differs, each profile with its own reason (WorldTuning.talk_zone). NPCs placed where a player cannot stand are fixed in the source world, not with a larger zone (docs/runtime/blender_export.md, round 4). Until the Blender export had markers for every MeowDB NPC (MAP_ARCHITECTURE section 3.3: Todd, Sam, Mai), a missing one stood next to player_spawns[0], 2.5 m apart along the map frame, with a warning; the runtime keeps that fallback for future content.",
     "verified": false
   },
   "session": {

@@ -14,6 +14,11 @@ beside it, the big yellow brown-streaked mushroom house with its barrel chimney,
 overhanging the garden's east corner as in 2D. Behind the meadow, Roger's tool shed and the
 village well stand on the back lawn. No other houses: the town distinction comes from each
 map's own landmark.
+
+Iteration Two: classic Roger is clicked from the street; the game talks to NPCs in person, so the garden is no longer
+display only. A stone flight climbs the hedge face from the street to Roger, through a gap in the hedge row and in the
+vegetable fence (the docs/research open question "become walkable via a stair", answered with a visible one because
+Roger starts the first quest).
 """
 
 import math
@@ -29,38 +34,40 @@ GAMEPLAY_SCALE = 30.0
 
 STREET_Z = 1.2
 GARDEN_Z = STREET_Z + 3.0
+ROGER_STEPS_X = 21.5  # the garden steps run up the hedge face on Roger's line
+ROGER_STEPS_W = 1.8
 
 
 # ---------------------------------------------------------------- local assets
 @asset("X10000_VegFence", "Props", footprint=1.0, tags=("prop", "farm"))
 def _veg_fence(coll):
-    """Roger's vegetable-garden fence (v8 object at (327,44)): a 9.6 m run of stout posts with
-    two strands of blue rope, a row of leafy crops right behind it. Gap behind the middle where
-    Roger stands. Runs along local X, crops on the +Y side."""
+    """Roger's vegetable-garden fence (v8 object at (327,44)): one 3.6 m run of four stout posts with two strands of
+    blue rope and a row of leafy crops right behind it. Runs along local X, crops on the +Y side. The map places two
+    runs either side of the garden steps, so the gap where Roger stands is a real opening: a prop collides as one
+    convex prism per instance, which a gap inside a single 9.6 m run would have filled."""
     mb = MeshBuilder()
-    n = 9
+    n = 4
     for k in range(n):
-        x = -4.8 + k * 1.2
+        x = -1.8 + k * 1.2
         mb.box((0.14, 0.14, 0.95), loc=(x, 0, 0.42), mat="M_Wood", bevel=0.03, segs=1)
         mb.cyl(0.1, 0.08, loc=(x, 0, 0.9), mat="M_Wood_Dark", verts=8)
     for z in (0.42, 0.74):
-        mb.box((9.7, 0.05, 0.06), loc=(0, 0, z), mat="M_Flat_roof_blue")
+        mb.box((3.7, 0.05, 0.06), loc=(0, 0, z), mat="M_Flat_roof_blue")
     mb.build("X10000_VegFence", coll, smooth=False)
     crops = MeshBuilder()
     k = 0
-    x = -4.4
-    while x < 4.5:
-        if not (-1.0 < x < 2.0):  # Roger's gap
-            crops.sphere(0.27, loc=(x, 0.55, 0.22), scale=(1.15, 1.1, 0.75), mat="M_Leaf_B", subdiv=2, lumpy=0.18,
-                         seed=k)
-            if k % 2:
-                crops.sphere(0.11, loc=(x + 0.1, 0.4, 0.36), mat="M_Tomato", subdiv=1)
-            else:
-                crops.cyl(0.07, 0.24, loc=(x - 0.08, 0.42, 0.3), rot=(180, 0, 0), mat="M_Flat_roof_orange",
-                          verts=6, r2=0.0)
-            k += 1
-        x += 0.72
-    crops.box((9.4, 0.8, 0.12), loc=(0, 0.55, 0.04), mat="M_Path_Dirt", bevel=0.05, segs=1)
+    x = -1.6
+    while x < 1.7:
+        crops.sphere(0.27, loc=(x, 0.55, 0.22), scale=(1.15, 1.1, 0.75), mat="M_Leaf_B", subdiv=2, lumpy=0.18,
+                     seed=k)
+        if k % 2:
+            crops.sphere(0.11, loc=(x + 0.1, 0.4, 0.36), mat="M_Tomato", subdiv=1)
+        else:
+            crops.cyl(0.07, 0.24, loc=(x - 0.08, 0.42, 0.3), rot=(180, 0, 0), mat="M_Flat_roof_orange",
+                      verts=6, r2=0.0)
+        k += 1
+        x += 0.8
+    crops.box((3.4, 0.8, 0.12), loc=(0, 0.55, 0.04), mat="M_Path_Dirt", bevel=0.05, segs=1)
     crops.build("X10000_VegFence_Crops", coll, smooth=True, sharp_angle=50)
 
 
@@ -229,11 +236,19 @@ def build(m):
     m.place("Bush_B", 40.2, 24.2, rot=10)
 
     # Roger's terrace: hedge face toward the street, the blue-rope vegetable fence along its top edge,
-    # crop rows behind it, a watering can and the scarecrow
-    m.place("Hedge_Wall_4m", 15.2, 23.6, rot=0)
-    m.place("Hedge_Wall_4m", 19.2, 23.4, rot=0)
-    m.place("Hedge_Wall_4m", 23.2, 23.6, rot=0, scale=(0.95, 1, 1))
-    m.place("X10000_VegFence", 21.0, 24.9, rot=0)
+    # crop rows behind it, a watering can and the scarecrow.
+    # Iteration Two talks to NPCs in person (the interact key, no click from the street), so the garden gets steps:
+    # one stone flight climbs the hedge face from the street straight up to Roger, through a gap in the hedge row
+    # and in the fence (15 risers of 0.2 m, walked, never jumped). The hedges and the two fence runs stop either
+    # side of it; Roger keeps his place among the crops, behind the gap.
+    sx = ROGER_STEPS_X
+    hw = ROGER_STEPS_W / 2 + 0.1  # the hedges stop 0.1 m short of the flight's sides
+    m.place("Hedge_Wall_4m", 15.2, 23.6, rot=0, scale=((sx - hw - 15.2) / 4.0, 1, 1))
+    m.place("Hedge_Wall_4m", sx + hw, 23.6, rot=0, scale=((27.0 - sx - hw) / 4.0, 1, 1))
+    m.stairs("Steps_RogerGarden", (sx, 19.2, STREET_Z), (sx, 24.1, GARDEN_Z), ROGER_STEPS_W, mat="M_StoneWall",
+             side_mat="M_Rock", step_h=0.2, fit_edge=True)
+    m.place("X10000_VegFence", 18.0, 24.9, rot=0)
+    m.place("X10000_VegFence", 24.3, 24.9, rot=0)
     m.npc("Roger", 21.5, 26.1, rot=-10)
     for i, (x, y) in enumerate([(18.8, 28.0), (23.4, 28.0), (18.8, 29.8), (23.4, 29.8), (18.8, 31.6),
                                 (23.4, 31.6)]):
@@ -273,7 +288,7 @@ def build(m):
 
     # --- street furniture (north side) ------------------------------------------------------
     m.place("Lamp_Post", 17.0, 17.6, rot=180)
-    m.place("Planter", 20.4, 18.6, rot=0, scale=0.8)
+    m.place("Planter", 18.6, 19.0, rot=0, scale=0.8)  # beside (not on) the foot of Roger's garden steps
     m.place("Bench", 24.0, 18.6, rot=180)
     m.place("Lamp_Post", 28.6, 17.4, rot=180)
     m.place("Bench", 34.2, 17.6, rot=180)
@@ -316,7 +331,7 @@ def build(m):
     m.place("Tree_Round_B", 40.6, 34.8, rot=120, scale=0.85)
     m.fence([(13.5, 3.2), (26, 2.8), (41.5, 4.2)])
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A", "Flower_Patch_B"], geo.rect(12, 3, 42, 23), 16, seed=4,
-              min_dist=1.6, avoid=[geo.rect(12, 11, 42, 16.5), geo.rect(29, 15, 33, 25)])
+              min_dist=1.6, avoid=[geo.rect(12, 11, 42, 16.5), geo.rect(29, 15, 33, 25), geo.rect(20.0, 18.2, 23.0, 24.2)])
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A"], geo.rect(0, 0, 11, 22), 6, seed=6, min_dist=1.4,
               avoid=[geo.rect(0, 4.4, 9.2, 16.4), geo.rect(5, 8.5, 13.5, 15.5)])
     m.scatter(["Grass_Tuft_A", "Flower_Patch_B"], geo.rect(1, 22, 13, 34), 5, seed=7, min_dist=1.4,
@@ -332,3 +347,5 @@ def build(m):
     # ends on the door path 1.35 m in front of the door plane: a run can start there clear of the house's
     # collision (at 1.1 m the 0.3 m body touched its prism)
     m.route("ToYellowHouse", [(31.2, 14.6), (30.9, 19.0), (dx + 0.05, dy - 1.35)])
+    # Main -> up the garden steps -> through the fence gap to Roger (ends 1.1 m from him: inside his talk zone)
+    m.route("ToRoger", [(ROGER_STEPS_X, 14.5), (ROGER_STEPS_X, 18.6), (ROGER_STEPS_X, 24.5), (ROGER_STEPS_X, 25.0)])

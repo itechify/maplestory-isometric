@@ -42,7 +42,7 @@
   },
   "floating_props": {
    "ok": true,
-   "detail": "0 of 4082 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
+   "detail": "0 of 4083 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
   },
   "props_near_routes": {
    "ok": true,
@@ -90,7 +90,7 @@
   },
   "collision_tags": {
    "ok": true,
-   "detail": "1946 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
+   "detail": "1949 Terrain / Plinth / WORLD meshes: 1206 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
   },
   "no_swallowed_exceptions": {
    "ok": true,
@@ -205,12 +205,12 @@
   }
  ],
  "stats": {
-  "total_triangles": 9195250,
+  "total_triangles": 9198046,
   "world_triangles": 3352201,
   "triangles_by_map": {
-   "0": 98348,
-   "10000": 132563,
-   "20000": 115661,
+   "0": 99184,
+   "10000": 132989,
+   "20000": 117195,
    "30000": 161549,
    "40000": 160036,
    "40001": 308927,
@@ -1225,6 +1225,7 @@
      [
       "Main",
       "ToHouseDoor",
+      "ToHeena",
       "BluffLadder"
      ]
     ],
@@ -1234,7 +1235,8 @@
     "route_groups": [
      [
       "Main",
-      "ToYellowHouse"
+      "ToYellowHouse",
+      "ToRoger"
      ]
     ],
     "orphan_routes": []
@@ -1244,6 +1246,7 @@
      [
       "Main",
       "ToSensHouse",
+      "ToNina",
       "SkyIslet"
      ]
     ],
@@ -3715,8 +3718,8 @@
     ]
    }
   },
-  "objects": 17687,
-  "meshes": 2633,
+  "objects": 17695,
+  "meshes": 2637,
   "materials": 200
  },
  "exceptions": [],
