@@ -1,8 +1,8 @@
 # Iteration log
 
 This log records the major problems found during building and review, and how each was corrected, for Iteration One
-(the Blender island) and Iteration Two (the playable game). Entries are
-grouped by development phase, in order.
+(the Blender island), Iteration Two (the playable game) and Iteration Three (complete canonical Maple Island). Entries
+are grouped by development phase, in order.
 
 # Iteration One: the Blender island
 
@@ -229,3 +229,30 @@ The fix round was launched as eight owner-scoped groups. Partway through, every 
 | F1-9 | The final Test C replay failed one check, "every kill gave its canonical monster EXP": its phase 2 had 0 kills. The hunter had fallen into a second walled pocket, in The Field West of Amherst (000001000, local x 10-12.7, y 32.9-36.6, between P17, P20, P21 and P25), and autosave plus Continue resumed it there. A new `trap_probe` scenario confirmed it: no try got further than 3.95 m from the spot or gained any height. | A filler terrace `P17_P25_Fill` at 6.2 m (one walkable 0.2 m step to every lower neighbour, no coplanar caps). `trap_probe` now probes every known former trap from its landing surface, and `test_playtest_traps.gd` keeps both escapable. A real-game monster check that raced the 7.56 s spawn tick under full-suite load now reads the slots at once. |
 
 The suite has 1140 tests, all passing; `validate.py` reports 0 high and 0 medium; and the export gates pass. Deliverables written: `docs/runtime/PLAYTHROUGH_REPORT.md`, `HOWTO.md`, `CONTENT_AUTHORING.md`, and the Iteration Two section of `docs/DEFERRED.md`.
+
+---
+
+# Iteration Three: complete canonical Maple Island
+
+Brief: [`ITERATION_THREE_BRIEF.md`](ITERATION_THREE_BRIEF.md). Started 2026-10-05 from the Iteration Two build (commit
+b85dec0).
+
+## Phase B3: baseline
+
+The build, Blender validation (0 high, 0 medium, 21 low), the full suite with the exported world (1145 tests) and
+canonical data validation all pass. Of the eleven real-game scenarios, ten pass. `test_b_combat` fails one check: an
+attack hit a Snail 0.75–1.4 m *behind* the player 2 times out of 6 probes. `test_c_progression` (killing only, no
+quests) reaches level 8 in about 2.2 hours of game time and picks up 1,649 mesos under the old placeholder rates.
+
+## Phase D3: sources and data decisions
+
+| # | Problem found | Decision |
+|---|---|---|
+| D3-1 | The brief forbids repeating Iteration Two's automated MeowDB collection, but `tools/meowdb/lib.mjs` had been set to fetch live again (R2-11). | The extractors are cache-only again (they need `MEOWDB_ALLOW_NETWORK=1`). Newer MeowDB facts come in as dated captures of pages read by hand in a normal browser (`tools/meowdb/captures/`). One exception, recorded honestly: three item records (495, 498, 242) were read through the page's own `fetch()` at human pace instead of by navigating. |
+| D3-2 | Is the cached quest list (2026-10-04) still the complete Maple Island set? | The live quest tracker, read once in a browser on 2026-10-05, lists the same 20 quests (1000–1019): 5 chains and 4 standalone quests, all "Missable". The total of 278 quests also matches the cache. |
+| D3-3 | KuroDB, the brief's source for drop probabilities, sits behind a Cloudflare bot check: automated requests get HTTP 403. | The project owner passed the check in the browser preview. The 6 Maple Island monster pages and 4 item pages (for the Wooden Box drops) were then read one at a time and saved verbatim in `tools/kurodb/captures/`. |
+| D3-4 | KuroDB, MeowDB and Hidden Street use unrelated item ids. Snail Shell is 4000019 on KuroDB and has `game_item_id` 4000001 on MeowDB, and some items are named differently on each site. | Drops are joined through a reviewed name crosswalk. Each entry records how it matched (exact, normalized, alias with evidence, or none), and ambiguous names stay unresolved. |
+| D3-5 | MeowDB has a meso amount for only one Maple Island monster (Snail: 2 per kill, from one player report). The other five say "No meso reports yet", both in the cache and live. | By the owner's decision, Hidden Street's Before Chaos archive gives the missing amounts: Blue Snail 4, Shroom 4–6, Red Snail 8–12, Orange Mushroom 9–13. The Tutorial Jr. Sentinel's amount is "?", and KuroDB gives it no meso row, so it drops no mesos. The Snail keeps MeowDB's 2, and Hidden Street's 1 is recorded as a discrepancy. The meso drop chance comes from KuroDB: 40% for each of the five regular monsters. |
+| D3-6 | MeowDB's monster drop lists are community votes: some entries are voted down, and the live lists already differ from the cache (The Green Relaxer is gone from the Snail's). | By the owner's decision, **monster item-drop membership comes from Hidden Street's per-monster drop lists**, which overrides the brief's "membership = MeowDB". Hidden Street's archive is post-Big-Bang GMS v0.96, a different game version, and its provenance says so. KuroDB supplies chances only for items on both lists. A Hidden Street item without a KuroDB chance stays in the table as unresolved and never drops, and a KuroDB-only item is never added. MeowDB's own lists stay in the records as reference, with their votes. |
+| D3-7 | KuroDB shows breakable (reactor) drops as "Chance value N", not as a percentage. The Wooden Box's Old Wooden Board and Rusty Screw are on the path through Pio's quest. | By the owner's decision, N is read as 1/N and labelled an interpretation; this matches the OdinMS-family reactor code. Board and Screw are 100% (quest-gated to Pio's quest), Apple is 25%, and Egg is unresolved, because KuroDB lists no Egg drop for this reactor. The Wooden Box keeps MeowDB's drop membership, because Hidden Street has no breakables. |
+| D3-8 | Hidden Street's "Omok Piece : Mushroom", an Orange Mushroom drop with a KuroDB chance of 1%, matches three MeowDB items (486, 495, 498). All three are quest items with no drop sources. | Left unresolved instead of guessing. |
