@@ -383,7 +383,11 @@ func test_consistency_warnings_for_one_sided_npc_placement() -> void:
 	c.map(town).npcs.remove_at(0)
 	var r := run_validator(c)
 	expect_new(r, "warning", "consistency", "npcs", npc_id, "does not place this NPC")
-	expect_no_new(r, "", "error")
+	# For the reference checks it is one-sided (a warning); the NPC catalog the game uses cannot place the NPC, which
+	# GameplayDataChecks reports as its only error (test_data_validation_gameplay.gd).
+	expect_no_new(r, "reference", "error")
+	expect_no_new(r, "consistency", "error")
+	expect_new(r, "error", GameplayDataChecks.NPC_CHECK, "npcs", npc_id, "not listed on map %s" % town)
 
 
 static func _derived_portal_index(rec: Dictionary) -> int:

@@ -16,6 +16,8 @@ extends RefCounted
 ##   drop_record (+ provenance)                            DropRecordChecks (schema v2 drop records, contract C1)
 ##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
+##   quest_data, npc_data, dialogue_data   GameplayDataChecks (QuestCatalog / NpcCatalog / NpcDialogueBuilder
+##                   validation, run only when everything above found no error)
 ##   validator       a script error inside any of the above (see validate())
 
 ## Check slug (and domain) of the findings that report a script error inside the validator itself.
@@ -71,6 +73,8 @@ func run() -> ValidationReport:
 	refs.run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()
 	refs.flush()
+	# Last: the game's own quest / NPC / dialogue validation assumes the structurally valid data checked above.
+	GameplayDataChecks.new(db, report).run()
 	return report
 
 
