@@ -252,9 +252,9 @@ No game defect blocked the player in any run, and none was fixed in game code by
 - **H6: three playtest parity tags named no manifest entry** (`mechanic:quest-random-rewards` and
   `mechanic:quest-persistence` in the every-quest scenario, and drop tags built from the item id, `drop:9/356`); they
   are now `mechanic:random-quest-rewards`, `mechanic:save-load` and the drop entry's schema-v2 slug
-  (`drop:9/orange-mushroom-cap`, `drop:3/blue-snail-shell`). The every-quest evidence of this report was taken just
-  before the drop-tag fix, so its two drop tags still use the item id; a re-run of 1011 after the fix carries the
-  slugs.
+  (`drop:9/orange-mushroom-cap`, `drop:3/blue-snail-shell`). The evidence runs of this report (the playthrough and
+  the every-quest set) were taken just before the drop-tag fix, so their drop tags still use the item id; a re-run of
+  1011 after the fix carries the slugs. No check or verdict depends on a tag.
 
 ## The every-quest set and the other real-game scenarios of this package
 
