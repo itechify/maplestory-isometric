@@ -70,6 +70,8 @@ const TARGETS := 4
 const SWEEP_DIRECTIONS := 16
 const SAMPLES := 3
 const MAX_TRIES := 120
+## The try budget for a component no replayed way in reached (it can only be CLEARED or UNENTERABLE).
+const UNENTERED_TRIES := 24
 const ENTER_TICKS := 120
 ## In-edges replayed per component (the report lists the first 3).
 const IN_EDGES := 8
@@ -1173,11 +1175,16 @@ func _verify_component(g: MapGraph, pw: PlayerTestWorld, comp: Dictionary) -> vo
 			enter_how = "%s (%s edge from local %s)" % [r, e.kind, e.from_local]
 			break
 	# 2. Can it get out? From up to SAMPLES members.
+	# A component the controller could not get into can only be CLEARED or UNENTERABLE, never a failure: a smaller
+	# search (one sample, UNENTERED_TRIES) says which.
+	var reached := entered or int(comp.entries_inside) > 0
 	var samples := _samples(g, members)
+	if not reached:
+		samples = samples.slice(0, 1)
 	var results: Array[Dictionary] = []
 	var all_out := true
 	for s in samples:
-		var r := _escape(g, pw, s)
+		var r := _escape(g, pw, s, MAX_TRIES if reached else UNENTERED_TRIES)
 		results.append(r)
 		if not bool(r.escaped):
 			all_out = false
@@ -1267,14 +1274,14 @@ func _place(pw: PlayerTestWorld, at: Vector3) -> PlayerController:
 ## run-up), then in SWEEP_DIRECTIONS directions (walking, hopping), with Up pressed for ladders. A try whose end is a
 ## new flagged place more than RESTART_M away becomes another start (up to MAX_STARTS). Returns {escaped, how, tries,
 ## best_rise_m, start_local, end_local}.
-func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
+func _escape(g: MapGraph, pw: PlayerTestWorld, start: int, budget: int = MAX_TRIES) -> Dictionary:
 	var starts: Array[Vector3] = [g.node_pos[start]]
 	var tries := 0
 	var best_rise := 0.0
 	var origin_y := g.node_pos[start].y
 	var out := {"escaped": false, "how": "", "tries": 0, "start_local": _r3(g.to_local(g.node_pos[start]))}
 	var si := 0
-	while si < starts.size() and tries < MAX_TRIES:
+	while si < starts.size() and tries < budget:
 		var s := starts[si]
 		si += 1
 		var plans: Array[Dictionary] = []
@@ -1288,7 +1295,7 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int) -> Dictionary:
 			plans.append({"dir": d, "jump": "none", "ticks": SWEEP_TICKS})
 			plans.append({"dir": d, "jump": "hold", "ticks": SWEEP_TICKS})
 		for plan in plans:
-			if tries >= MAX_TRIES:
+			if tries >= budget:
 				break
 			tries += 1
 			var r := _try(g, pw, s, plan)
@@ -1378,8 +1385,9 @@ func escape_reason(g: MapGraph, at: Vector3, grounded: bool) -> String:
 	return ""
 
 
-## The `count` escapable nodes nearest to feet `p` (horizontal distance, spread over different directions).
-func nearest_escapable(g: MapGraph, p: Vector3, count: int) -> PackedInt32Array:
+## The `count` escapable nodes nearest to feet `p` (horizontal distance, spread over different directions), at or
+## above `min_y`.
+func nearest_escapable(g: MapGraph, p: Vector3, count: int, min_y: float = -INF) -> PackedInt32Array:
 	var out := PackedInt32Array()
 	var c0 := g.column_at(p.x, p.z)
 	if c0 < 0:
@@ -1403,7 +1411,7 @@ func nearest_escapable(g: MapGraph, p: Vector3, count: int) -> PackedInt32Array:
 					continue
 				for k in g.col_count[col]:
 					var n := g.surf_node[first + k]
-					if n < 0 or g.bwd[n] == 0:
+					if n < 0 or g.bwd[n] == 0 or g.node_pos[n].y < min_y:
 						continue
 					var dv := Vector2(dx, dz).normalized()
 					var distinct := true
