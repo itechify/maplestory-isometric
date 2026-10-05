@@ -452,6 +452,9 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 | `test_monster_see_through.gd` | the rule (inside, at and past the radius, the hysteresis, dead, zero radius); the values reach every species from `_shared.json` (radius at least the camera's nearby radius; a malformed colour is an error); the fill: one shared ShaderMaterial, `stencil_mode read, write, compare_greater, 36`, no depth test, both faces, priority below labels, numbers and the HP bar, and `STENCIL_REF` below `PlayerVisual.STENCIL_REF`; lit and ink surfaces write the stencil on copies shared between monsters while the originals stay untouched; the fill mesh is one surface holding every surface's triangles (merged once per source mesh, a one-surface mesh used as it is) and is never occlusion-culled; with the world export, every surface of the real Snail proxy (ink shells included) writes the stencil, each fill is one surface over the whole mesh, and the library stays untouched; the placeholder in place (no fill under its tag); a visual rebuilt from the placeholder to a library model never edits the library's shared material; the fade in and out (alpha follows, hidden when off) through `step_see_through` and `advance`; death drops it at once and ignores requests, and the flash and death fade never touch the fill; `MonsterSystem.update_see_through` by distance (near, edge, past, far), the player walking in and back (hysteresis), a killed monster, no player |
 | `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit (the Tutorial Jr. Sentinel's too) and the named fallback body without a library (never called a placeholder); the HP bar and the death fade over the canonical time |
 | `test_monster_world.gd` | INCLUDE_WORLD: the island built synchronously, the factory installed on the world's view, maps 030/040/050/1002/1020 realized to capacity with real monsters (all six species), 12 s of stepping each: no falls, no recoveries, inside the mob region and the footprint, on walkable ground, every species wanders, Orange Mushrooms hop; no portal trigger of those maps reaches into the mob region and no monster ever stands in a trigger |
+| `test_spawn_placement.gd` | slots keep `slot_npc_clearance_m` from NPCs; a 16 m² region keeps 8 m² per slot and spills the rest, a species shares its regions by weight; authored exclusions are no room and no slot lands in them; INCLUDE_WORLD: on the island every slot is clear of every NPC and exclusion, no region crowded past the map's own density; a respawn is held back while the player stands on its slot and appears once the player leaves (`respawn_waited` inside `monster_spawned`) |
+| `test_spawn_model.gd` | (spawns) the tick, cooldown and capacity rules; the mob rate is ignored by the shipped switch, and turned on (`presentation.json map_mob_rate.apply`) it multiplies capacity, capped at the spawn points, in `MapInstanceState` too |
+| `tools/sources/test/check_spawn_captures.test.mjs` | `node --test tools/sources/test/`: the 51 canonical spawn rows equal the dated captures; a changed count, mob rate or missing row is reported |
 
 ### Sandbox
 
@@ -484,6 +487,32 @@ disc, so a snail facing the camera reads as a thin vertical stripe (proxy art). 
 slot sits against the mushroom house, its 1.7 m body partly inside the roof: the slot planner's clearance capsule is
 0.8 m tall (WORLD_RUNTIME, presentation.json spawns.clearance_height_m). The sandbox bot walks in straight lines and
 cannot path around buildings, so it made no attack on that map.
+
+## Verified in the real game (Iteration Three)
+
+`test_b_combat` (headless, seeds 1, 2 and 3 on the rebuilt export: 53 checks, 0 failed each) and the new
+`test_b_population` (79 checks, 0 failed):
+
+- **Reach probes.** Each probe is classified by the identity of what the attack hit, and every tap waits for a front
+  with no other monster in reach of any Sword presentation. The probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in
+  front were never hit (6 + 6 whiffs per seed). The Iteration Three baseline failure ("2 behind hits") was a bystander
+  Snail 2.1 m in front of the player, counted because the probe recorded "something was hit".
+- **Stagger** 0.600 s on every staggered monster (137-140 tracks per seed), the oracle reading the canonical STAGGER
+  field before the hit clip. **Mid-hop hits:** 1-6 per seed landed on an airborne Orange Mushroom; every one staggered
+  and was pushed away from the attacker, never toward it (now a check, was WARN #43).
+- **Visuals:** all six species show their proxy (the Tutorial Jr. Sentinel's included) on their feet, within 1.35x of
+  their touch zone in the model's own frame (now a check).
+- **Respawns** stay on the 7.56 s tick (49-56 refills per seed, none off-tick); a respawn the view held back because the
+  bot stood on its slot is listed apart (`MapInstanceView.respawn_waited`).
+- **Population, all 15 hunting maps:** one slot per MeowDB spawn point with the canonical species counts (577 in all),
+  the solo capacity live after the first fill (426 in all) and again after `kill all` on the respawn ticks; every
+  slot placed (strict, relaxed or pinned) clear of every arrival (4 m) and NPC (2.5 m; Sam is now 4.3 m from the
+  nearest 000000040 slot); after 8 s of wandering every grounded monster stands on its floor inside its mob region; no
+  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited (204
+  frames) and appeared once the player left.
+- Known in the harness: in seed 2 the bot, standing still among Orange Mushrooms for the scenario's final 14 s, dies at
+  the very end (pacing monsters keep walking over a player who stands on their line); its open knockback track now
+  counts as interrupted instead of lost.
 
 ## Verified in the real game (wave-2 review)
 
