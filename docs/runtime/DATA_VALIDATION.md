@@ -14,7 +14,7 @@ bash scripts/validate_data.sh --json report.json   # also write the report as JS
 bash scripts/validate_data.sh --world-dir <res://...>   # Blender export to check crosswalk slugs against
 ISOLATE=<name> bash scripts/validate_data.sh       # private copy under _scratch/godot_runs/<name>/ (as scripts/test.sh)
 VALIDATE_TIMEOUT_S=300 bash scripts/validate_data.sh    # outer time limit (default 180 s)
-GODOT=/path/to/godot.exe bash scripts/validate_data.sh  # binary override, passed through to scripts/godot.sh
+GODOT=/path/to/godot bash scripts/validate_data.sh      # binary override, passed through to scripts/godot.sh
 ```
 
 | Exit | Meaning |

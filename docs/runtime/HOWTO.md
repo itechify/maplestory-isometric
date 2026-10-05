@@ -5,10 +5,14 @@ it is not at `C:\Program Files\Blender Foundation\Blender 5.2\`). Godot 4.7.2 is
 `%LOCALAPPDATA%\MisoStory\godot\4.7.2\` (override with `GODOT=...`). Node is only needed to re-run the MeowDB
 extractors.
 
+On **Linux** the same commands run in bash: the scripts use `blender` from `PATH` (or `BLENDER=...`), and `godot` from
+`PATH` when it is 4.7.2, else download Godot to `~/.local/share/MisoStory/godot/4.7.2/`. Use `B=blender` and
+`PY=python3` in the snippets below.
+
 ## Build the Blender environment
 
 ```bash
-B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=blender
 "$B" -b --factory-startup --python scripts/build_island.py        # -> MapleIsland.blend (~1 min)
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
@@ -29,7 +33,7 @@ and gate it before replacing the game's copy, as the Blender rounds do:
 
 ```bash
 "$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out _scratch/export_staging
-PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"
+PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging   # SIDECAR_DIFF_OK True
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py  # all OK
 ```

@@ -40,15 +40,15 @@ bash scripts/test.sh            # 1100+ headless tests;  bash scripts/validate_d
 
 ## Quick start
 
-| What | Command (Git Bash, Windows) |
+| What | Command (Git Bash on Windows; on Linux use `blender` and `python3`) |
 |---|---|
 | Get the built island without building | Download `MapleIsland.blend` and `renders-final.zip` from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest), or `gh release download --repo itechify/maplestory-isometric` |
-| Build the whole island → `MapleIsland.blend` | `"/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python scripts/build_island.py` |
+| Build the whole island → `MapleIsland.blend` | `blender -b --factory-startup --python scripts/build_island.py` |
 | Build + render every camera | `... --python scripts/build_island.py -- --render final` |
 | Render cameras from an existing .blend | `blender -b MapleIsland.blend --python scripts/render_review.py -- <tag> [camera filters] [--debug]` |
 | Build/render one map while authoring | `blender -b --factory-startup --python scripts/build_map.py -- <mapId> --debug` |
 | Validate the island | `blender -b MapleIsland.blend --python scripts/validate.py` → `docs/VALIDATION.md` |
-| Export the topology manifest | `"<blender>/5.2/python/bin/python.exe" scripts/export_manifest.py` |
+| Export the topology manifest | `"<blender>/5.2/python/bin/python.exe" scripts/export_manifest.py` (Linux: `python3 scripts/export_manifest.py`) |
 | Asset gallery | `blender -b --factory-startup --python scripts/asset_gallery.py -- out.png Asset_A Asset_B ...` |
 
 **Blender version:** 5.2.2 LTS, with EEVEE, Standard view transform and soft principled shading. A full build

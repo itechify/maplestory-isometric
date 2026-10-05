@@ -1,7 +1,8 @@
 """Export the built island's topology / map manifest.
 
 Runs with Blender's bundled Python (no bpy needed; scripts/build_island.py also runs it after every build):
-"/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe" scripts/export_manifest.py
+"/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe" scripts/export_manifest.py   # Windows
+python3 scripts/export_manifest.py   # Linux, where Blender uses the system Python
 
 Inputs (all read-only):
   * src/misostory/layout.py: placement, links, arrival-only anchors (layout.is_arrival_only);

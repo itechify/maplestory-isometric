@@ -4,14 +4,20 @@
 #   bash scripts/build_runtime.sh            # (re)build MapleIsland.blend if missing or older than the Blender source,
 #                                            # then export, import, validate
 #   bash scripts/build_runtime.sh --rebuild  # always rebuild MapleIsland.blend first
-#   BLENDER=/path/to/blender.exe bash scripts/build_runtime.sh
+#   BLENDER=/path/to/blender bash scripts/build_runtime.sh
 #
 # Takes about 6 minutes on the dev machine (island build ~1 min, export ~4 min, Godot import ~15 s). The export goes
 # to game/assets/world/ (git-ignored). Afterwards, play with:  bash scripts/play.sh
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"
-B="${BLENDER:-/c/Program Files/Blender Foundation/Blender 5.2/blender.exe}"
+if [[ -n "${BLENDER:-}" ]]; then
+  B="$BLENDER"
+elif command -v blender >/dev/null 2>&1; then
+  B="$(command -v blender)"
+else
+  B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+fi
 
 # A .blend left over from another branch (e.g. the Iteration One release) is stale whenever the generator changed.
 stale=""

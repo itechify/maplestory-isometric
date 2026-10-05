@@ -1,6 +1,6 @@
 """Tests of the Blender -> runtime export contract (src/misostory/sidecar_diff.py), plain Python, no bpy.
 
-    PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"
+    PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3
     "$PY" src/misostory/test_sidecar_contract.py                                     # the shipped game/assets/world
     MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py   # a staged export
 

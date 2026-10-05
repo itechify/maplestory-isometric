@@ -344,6 +344,7 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
 3. Build and render:
    ```
    "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python scripts/build_map.py -- <MAPID> --out "C:/Users/itech/Coding/maplestory-isometric/renders/_maps/<MAPID>" --debug
+   blender -b --factory-startup --python scripts/build_map.py -- <MAPID> --out "$PWD/renders/_maps/<MAPID>" --debug   # Linux
    ```
    It prints `MAP_STATUS`, `MAP_TRAVERSAL` and the rendered file paths. Overview and gameplay views are
    rendered, plus `_debug` versions showing routes (magenta), spawn rings and NPC beacons. Add

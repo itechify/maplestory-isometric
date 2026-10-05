@@ -22,7 +22,8 @@ commits like that would add gigabytes, slow every clone, and push the repo past 
 ## Everyday workflow
 
 ```bash
-B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Blender 5.2.2 LTS
+B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Blender 5.2.2 LTS (Windows, Git Bash)
+B=blender                                                         # Linux: Blender 5.2 on PATH
 
 # while authoring one map: build it alone, render its cameras, read MAP_TRAVERSAL_OK / PLAYER_IN_FRAME_OK
 "$B" -b --factory-startup --python scripts/build_map.py -- <mapId> --debug

@@ -4,7 +4,7 @@
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TAG="$1"; N="${2:-3}"; shift; shift || true
-B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
+B="${BLENDER:-$(command -v blender || echo "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe")}"
 BLEND="$ROOT/MapleIsland.blend"
 # list cameras
 CAMS=$("$B" -b "$BLEND" --python-expr "import bpy; print('CAMS:' + ','.join(sorted(o.name for o in bpy.data.objects if o.type == 'CAMERA')))" 2>/dev/null | grep '^CAMS:' | sed 's/^CAMS://')

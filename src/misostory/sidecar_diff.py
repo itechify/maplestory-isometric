@@ -1,6 +1,6 @@
 """Verify a fresh runtime export against the shipped one before copying it over (no bpy; any Python 3).
 
-    PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"
+    PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3
     "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging [--json out.json]
 
 Checks (exit code 1 when any fails):

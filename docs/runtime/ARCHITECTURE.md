@@ -20,8 +20,8 @@ game/data/canonical/**   MeowDB MS Classic facts      game/data/misostory/**   i
 ## Engine and conventions
 
 - **Godot 4.7.2**, GDScript, Forward+ renderer, Jolt physics, 60 physics ticks/s. Get the binary with
-  `bash scripts/godot.sh --version` (downloads to `%LOCALAPPDATA%/MisoStory/godot/4.7.2/` on first use; override
-  with `GODOT=...`).
+  `bash scripts/godot.sh --version` (downloads to `%LOCALAPPDATA%/MisoStory/godot/4.7.2/` on first use, on Linux
+  to `~/.local/share/MisoStory/godot/4.7.2/` unless a 4.7.2 `godot` is on `PATH`; override with `GODOT=...`).
 - **Coordinates:** Godot is Y-up, meters. Blender Z-up meters convert exactly as the glTF exporter does:
   `godot = (x, z, -y)` of Blender. MapleStory pixel values from MeowDB (y down) are only ever converted through
   `WorldScale` (`game/data/misostory/world_scale.json`), never with ad-hoc constants.

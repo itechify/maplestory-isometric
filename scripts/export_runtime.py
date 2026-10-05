@@ -1,6 +1,9 @@
 """Blender -> Godot runtime export: glTF chunks, gameplay sidecars and simplified collision.
 
-    "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b MapleIsland.blend \
+With `blender` meaning /usr/bin/blender on Linux or "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" on
+Windows (Git Bash):
+
+    blender -b MapleIsland.blend \
         --python scripts/export_runtime.py -- --out game/assets/world
 
 Options (after ``--``):
