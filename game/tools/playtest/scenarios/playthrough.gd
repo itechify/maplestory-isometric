@@ -747,32 +747,32 @@ func _chair() -> bool:
 	if not d.check("The Green Relaxer is in the Set-up tab (1012's reward)", c.inventory.count(CHAIR) > 0,
 			"held %d" % c.inventory.count(CHAIR), ["chair:" + CHAIR]):
 		return false
-	# A quiet spot: the map's arrival.
-	await k.walk_safely("spawn:0", {"max_s": 30.0})
+	# Right after the respawn (the death step comes first) HP is low: the player sits where it stands (Amherst is a
+	# town; a walk with the survival policy would drink a potion first).
 	var hp0 := c.hp
 	var r: Dictionary = await k.use_chair(CHAIR)
 	d.check("a double-click on The Green Relaxer seats the player", bool(r["ok"]), str(r), ["chair:" + CHAIR, "mechanic:sitting"])
 	var setup: Dictionary = db.item(CHAIR).get("setup", {}) if db.item(CHAIR).get("setup") is Dictionary else {}
 	var interval := float(setup.get("interval_s", 10.0))
 	var bonus := int(setup.get("hp_recovery_bonus", 0))
-	var seated_s := interval * 2.0 + 1.0
+	var seated_s := interval + 1.0
 	var mx := StatCalculator.max_hp(c, db)
 	await d.wait(seated_s)
 	var healed := c.hp - hp0
 	var still := k.activity() == &"seated"
 	d.check("seated for %.0f s: still seated, HP %d -> %d of %d" % [seated_s, hp0, c.hp, mx], still,
 		"activity %s" % k.activity(), ["chair:" + CHAIR, "mechanic:sitting"])
-	# Two intervals seated: the chair's own clock starts at the sit (2 bonus ticks), natural recovery's clock is the
-	# saved one (at least 2 ticks of misostory/recovery.json natural_hp in 21 s). With room for all of it, HP rises by
-	# at least 2 x bonus + 2 x the natural tick; otherwise it reaches Max HP.
+	# One interval seated: the chair's own clock starts at the sit (one bonus tick), natural recovery's clock is the
+	# saved one (one or two ticks of misostory/recovery.json natural_hp in 11 s). With room for all of it, HP rises by
+	# the bonus plus one or two natural ticks; otherwise it reaches Max HP.
 	var rec: Variant = db.miso_table("recovery")
 	var natural: Dictionary = ((rec as Dictionary).get("natural_hp", {}) as Dictionary) if rec is Dictionary else {}
 	var nat_tick := int(natural.get("hp_per_tick", 10))
-	var want_min := 2 * bonus + 2 * nat_tick
+	var want_min := bonus + nat_tick
 	if mx - hp0 >= want_min + nat_tick:
-		d.check("seated %.0f s at HP %d of %d: HP +%d, at least the chair's 2 x %d plus natural recovery's 2 x %d" % [seated_s,
-			hp0, mx, healed, bonus, nat_tick], healed >= want_min and healed <= want_min + nat_tick, "HP %d -> %d" % [hp0, c.hp],
-			["chair:" + CHAIR, "mechanic:chair-regen"])
+		d.check("seated %.0f s at HP %d of %d: HP +%d = the chair's %d plus natural recovery's %d per tick (one or two ticks)"
+			% [seated_s, hp0, mx, healed, bonus, nat_tick], healed >= want_min and healed <= want_min + nat_tick,
+			"HP %d -> %d" % [hp0, c.hp], ["chair:" + CHAIR, "mechanic:chair-regen"])
 	elif hp0 < mx:
 		d.soft_check("HP rose while seated (the chair's %d HP per %.0f s plus natural recovery)" % [bonus, interval],
 			healed > 0, "HP %d -> %d of %d" % [hp0, c.hp, mx], ["mechanic:chair-regen"])
