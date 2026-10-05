@@ -407,7 +407,9 @@ chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` a
   below its level (no offer marker, the engine says unavailable); `level N`; `quest accept` + `quest complete <id>
   force` for prerequisites outside the chain; a save through the pause menu; Quit Game.
 - **Phase 1 on, play** (strict from the Continue): for each quest of the chain, by its live status so a restart
-  resumes anywhere: the NPC's offer marker and the Quest Log's Available tab; the offer accepted in the dialogue; the
+  resumes anywhere: for a quest whose items come from a breakable gated to it (1012 under contract C1), one Wooden Box
+  broken before the accept, which must drop none of them; the NPC's offer marker and the Quest Log's Available tab;
+  the offer accepted in the dialogue; the
   accept items in the bag; the HUD log; the marker after the accept; the Quest Log's In Progress tab; then the
   objectives (kills with the attack key in the hunt map, drops picked up with Z, Wooden Boxes broken, items used by
   double-click, levels reached by hunting when a later quest needs them); the turn-in NPC's completable marker; for a

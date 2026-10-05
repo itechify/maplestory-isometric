@@ -179,6 +179,7 @@ func _offer(qid: String) -> bool:
 	if not d.check("%s: walked to %s's map %s" % [qid, p["start"]["npc_name"], p["start"]["map"]],
 			await k.travel_to(String(p["start"]["map"])), d.current_map(), pq):
 		return false
+	await _gate_probe(qid)
 	await k.approach(npc)
 	var m0 := await k.marker(npc)
 	d.check("%s: %s's marker offers it (gold !; the engine agrees)" % [qid, p["start"]["npc_name"]],
@@ -224,6 +225,36 @@ func _offer(qid: String) -> bool:
 	if _talk_only(qid) and not _reloaded_once():
 		await _mid_reload(qid, "after the accept")
 	return true
+
+
+## The quest gate in the real game (contracts C1/C2): when the quest's items come from a breakable whose drop entries
+## are gated to it, one box broken before the accept must drop none of them.
+func _gate_probe(qid: String) -> void:
+	var gated := PackedStringArray()
+	var owner := ""
+	for iobj: Dictionary in (plans[qid] as Dictionary)["items"]:
+		for s: Dictionary in iobj["sources"]:
+			if String(s["kind"]) == "breakable" and String(s.get("quest_gate", "")) == qid:
+				gated.append(String(iobj["item_id"]))
+				owner = String(s["owner"])
+	if gated.is_empty():
+		return
+	var pq := _pq(qid) + ["breakable:%s" % owner]
+	if k.breakables().is_empty():
+		d.soft_check("%s: a Wooden Box to break before the accept (contract C8)" % qid, false,
+			"no unbroken box in %s (group miso_breakables)" % d.current_map(), pq)
+		return
+	var c := d.character()
+	var before := {}
+	for id in gated:
+		before[id] = c.inventory.count(id)
+	var r: Dictionary = await k.break_box(null)
+	var got := PackedStringArray()
+	for id in gated:
+		if c.inventory.count(id) != int(before[id]):
+			got.append("%s %+d" % [k.item_name(id), c.inventory.count(id) - int(before[id])])
+	d.check("%s: a Wooden Box broken before the accept drops none of %s (gated to the quest)" % [qid, gated],
+		bool(r["ok"]) and got.is_empty(), "%s; gained %s" % [r, got], pq)
 
 
 ## True when `m` (a marker read) shows an offer for `qid` at its NPC.
