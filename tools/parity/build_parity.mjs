@@ -10,6 +10,10 @@
 // through scripts/playtest_quests.sh --out <dir>, the clean-character playthrough), then this script with the evidence
 // and report paths. The generated markdown ends its "Evidence used" section with the exact command it was built with.
 // Playtest checks count with their own parity keys plus those tools/parity/rules.json playtest_tags gives them.
+// The clean-character playthrough: pass its report (or directory) with one more --playtest. Its checks verify the
+// playthrough:<slug> rows (rules.json mechanics with category "playthrough") when they carry those keys (or a
+// playtest_tags rule for that scenario gives them), and only when the report is a clean run: strict mode ok and not
+// one console or api step in the report (parity.mjs cleanRun). Its quest:, npc:, map: ... keys count as usual.
 //
 // Inputs (offline, deterministic; nothing is fetched):
 //   game/data/canonical, game/data/misostory     the entities (maps, portals, monsters, drops, items, quests, ...)

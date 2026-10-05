@@ -190,7 +190,13 @@ test('rule rows: categories, aliases, real-game flags and source-data gaps', () 
   assert.ok(doc.source_data_gaps.some((g) => g.key === 'mechanic:natural-mp-regen'));
   assert.equal(find(doc, 'playthrough:reach-southperry').state, 'implemented', 'the playthrough category needs the real game');
   assert.equal(find(doc, 'mechanic:strict-guard').state, 'verified', 'real_game false waives it for one row');
-  const real = build({ rules, playtests: [play([{ i: 0, name: 'in Southperry', ok: true, parity: ['playthrough:reach-southperry'] }], 'playthrough')] });
+  const check = [{ i: 0, name: 'in Southperry', ok: true, parity: ['playthrough:reach-southperry'] }];
+  const setup = build({ rules, playtests: [play(check, 'playthrough')] });
+  assert.equal(find(setup, 'playthrough:reach-southperry').state, 'implemented', 'a run that is not strict is not a clean-character run');
+  const clean = (doc, steps) => ({ ...doc, doc: { ...doc.doc, strict: { enabled: true, ok: true }, counts: { steps } } });
+  const withConsole = build({ rules, playtests: [clean(play(check, 'playthrough'), { play: 9, console: 1, api: 0 })] });
+  assert.equal(find(withConsole, 'playthrough:reach-southperry').state, 'implemented', 'one console step (even setup) is not clean');
+  const real = build({ rules, playtests: [clean(play(check, 'playthrough'), { play: 9, console: 0, api: 0 })] });
   assert.equal(find(real, 'playthrough:reach-southperry').state, 'verified');
   assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:x', name: 'x', accepts: ['mechanic:mesos-saved'] }] } }),
     /mechanic:mesos-saved is accepted by both/);

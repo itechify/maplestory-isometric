@@ -289,6 +289,8 @@
     {"scenario": "save_it2_continue", "match": "^after the v2 reload: Sam's Suggestion \\(1006\\) is still completed$", "keys": ["persistence:quest-completion"], "why": "as above"},
     {"scenario": "save_it2_continue", "match": "^after the v2 reload: quickslot 1 is a typed item binding$", "keys": ["persistence:quickslots"], "why": "as above"},
 
+    {"scenario": "test_c_progression", "match": "^(?:a clean level-1 Beginner \\(canonical beginner\\.json|starts in the canonical start map \\d{9}$)", "keys": ["mechanic:new-character"], "why": "a character made through the real screens is the canonical Beginner"},
+    {"scenario": "test_d_inventory", "match": "^the new character holds the canonical starting kit$", "keys": ["mechanic:new-character"], "why": "the canonical starter kit"},
     {"scenario": "test_c_progression", "match": "^L\\d+: the stat window equals MeowDB's character builder", "keys": ["canon:meowdb-formula-parity", "mechanic:ap-allocation"], "why": "the stat window after real AP clicks equals MeowDB's own calculator"},
     {"scenario": "test_c_progression", "match": "^L\\d+: contact damage bounds = MeowDB avoidability-sim for every Maple Island monster$", "keys": ["canon:meowdb-formula-parity", "mechanic:monster-touch-damage"], "why": "contact damage bounds equal MeowDB's own calculator"},
     {"scenario": "test_c_progression", "match": "^phase \\d+: (?:level, EXP and the HUD EXP gauge follow the canonical EXP table|every level-up gives \\+AP, \\+SP, the canonical HP/MP|canonical EXP to next level = MeowDB's EXP calculator)", "keys": ["mechanic:level-up-gains"], "why": "levelling by real kills follows the canonical tables"},

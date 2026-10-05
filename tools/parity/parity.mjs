@@ -126,7 +126,7 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards, chains and the clean-character playthrough rows need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.',
   source_data_gap: 'The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
   evidence: 'A unit test declares the keys it proves in its file\'s parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.',
@@ -166,6 +166,7 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
   }
   for (const p of playtests) {
     const scenario = p.doc.scenario ?? null;
+    const clean = cleanRun(p.doc);
     const rules = arr(tagRules).map((rule, i) => ({ rule, i, matched: 0 }))
       .filter((r) => (Array.isArray(r.rule.scenario) ? r.rule.scenario : [r.rule.scenario]).includes(scenario));
     for (const c of arr(p.doc.checks)) {
@@ -177,11 +178,21 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
         r.matched++;
         for (const k of extra) keys.add(k);
       }
-      for (const k of [...keys].sort()) add(k, !!c.ok, { kind: 'playtest', id: `${scenario ?? p.file}#${c.i ?? '?'} ${c.name}` });
+      for (const k of [...keys].sort()) add(k, !!c.ok, { kind: 'playtest', id: `${scenario ?? p.file}#${c.i ?? '?'} ${c.name}`, ...(clean ? { clean: true } : {}) });
     }
     if (tagStats) for (const r of rules) tagStats.push({ file: p.file, scenario, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
   }
   return ev;
+}
+
+/**
+ * A clean-character run: strict mode on and ok, and not one console or api step in the whole report (no setup either),
+ * so everything after character creation was played with real input. Only such a report's checks can verify the
+ * clean-character playthrough rows (brief Definition of Done, Gameplay: "From a completely clean character").
+ */
+export function cleanRun(report) {
+  const steps = report?.counts?.steps ?? {};
+  return report?.strict?.enabled === true && report?.strict?.ok === true && Number(steps.console ?? 1) === 0 && Number(steps.api ?? 1) === 0;
 }
 
 /**
@@ -514,13 +525,16 @@ function finish(e, ctx, all) {
   if (rt.state === 'partial' && rt.note) e.issues.push(`runtime partial: ${rt.note}`);
   if (failed.length) e.issues.push(`${failed.length} tagged check(s) failed`);
   const needsRealGame = typeof e.real_game === 'boolean' ? e.real_game : REAL_GAME_CATEGORIES.has(e.category);
-  const real = needsRealGame ? passed.filter((p) => p.kind === 'playtest') : passed;
+  // The clean-character playthrough rows count only checks of a clean run (cleanRun: strict, no console or api step).
+  const needsClean = needsRealGame && e.category === 'playthrough';
+  const real = needsRealGame ? passed.filter((p) => p.kind === 'playtest' && (!needsClean || p.clean)) : passed;
   if (e.issues.length) e.state = 'partial';
   else if (e.source_data_gap) e.state = 'partial';
   else if (real.length) e.state = 'verified';
   else {
     e.state = 'implemented';
-    if (passed.length && needsRealGame) e.notes.push('unit-tested only: needs a real-game (playtest) check');
+    if (needsClean) e.notes.push('needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step)');
+    else if (passed.length && needsRealGame) e.notes.push('unit-tested only: needs a real-game (playtest) check');
   }
 }
 
