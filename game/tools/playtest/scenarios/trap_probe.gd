@@ -1,6 +1,8 @@
 extends PlaytestScenario
-## trap_probe: is a spot a trap? Places the player on the surface a falling player lands on over a map-local point (an
-## API teleport: setup for the diagnosis), then tries to get out with real input. A try escapes only when it reaches
+## trap_probe: is a spot a trap? Places the player at a map-local point (an API teleport: setup for the diagnosis): on
+## the old floor when it is still open ground (the live scan has a node at the spot's height), else on the surface a
+## falling player lands on over it (a fill, a terrace that now reaches the ground); then tries to get out with real
+## input. A try escapes only when it reaches
 ## the map's main traversal graph: the player stands on ground the stuck-region scan marks escapable (StuckScan, run on
 ## the live island for that map: from there the player can walk, drop, jump or climb to a portal), stands in a press-Up
 ## portal trigger, or crosses a trail gate into the next map. Moving along the floor of a pit is not an escape: the old
@@ -74,6 +76,10 @@ const KNOWN_TRAPS := [
 	["000001004", Vector3(35.44, 0.0, -27.75), "Snail Garden: room under the upper ledges (solid now)"],
 	["000001004", Vector3(30.65, 0.0, -26.40), "Snail Garden: slot between stone T7 and ledge T4 (fill)"],
 	["000001005", Vector3(27.66, 0.0, -24.93), "Hunting Ground Middle of the Forest I: shaft by the T8/T6 ladder (fill)"],
+	# Iteration Three review: traps entered by a running jump the first scanner did not model (fill)
+	["000001021", Vector3(-0.67, 1.2, -15.72), "Tomato Field: slot behind the west hedges, by the gate (fill)"],
+	["000001021", Vector3(-0.69, 1.2, -16.5), "Tomato Field: slot behind the west hedges (fill)"],
+	["000001021", Vector3(-0.57, 1.2, -17.6), "Tomato Field: slot behind the west hedges (fill)"],
 ]
 ## Frames of one try, the extra frames a try keeps going while the player climbs, and the settle time before it.
 const TRY_FRAMES := 180
@@ -123,15 +129,24 @@ func _probe(d: PlaytestDriver, map: String, local: Vector3, rise: float, graphs:
 			int(st.escapable), int(st.flagged), int(st.components), Time.get_ticks_msec() - t0])
 	var g: StuckScan.MapGraph = graphs[map]
 	var spot := def.to_world(local)
-	# Stand on the surface a falling player would land on (the first hit from above), not inside whatever solid now
-	# fills the old floor: a filled pocket is then probed from its fill.
-	var space := p.get_world_3d().direct_space_state
-	var q := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 20.0, spot + Vector3.DOWN * 5.0, WorldLayers.PLAYER_MASK, [p.get_rid()])
-	var hit := space.intersect_ray(q)
-	if not hit.is_empty():
-		d.note("landing surface over the spot: local y %.2f (the given spot is local y %.2f)" % [
-			def.to_local(hit.position as Vector3).y, local.y])
-		spot = hit.position
+	# Where to stand. When the old trap floor is still open ground (a node of the live graph within SNAP of the spot's
+	# height: a pocket whose fix is a way up, or a fix that came undone), on it. Otherwise (the floor is buried in a
+	# fill, a terrace that now reaches the ground, the plinth), on the surface a falling player would land on over the
+	# spot (the first hit from above), not inside the solid: a filled pocket is then probed from its fill. Landing
+	# from above alone would stand on the terrace over a cavern that reopened under it, and pass.
+	var open := g.node_near(spot, StuckScan.SNAP_UP_M, StuckScan.SNAP_DOWN_M, 1)
+	if open >= 0:
+		d.note("the old floor is open ground: probing from local y %.2f (the given spot is local y %.2f)" % [
+			def.to_local(g.node_pos[open]).y, local.y])
+		spot = g.node_pos[open]
+	else:
+		var space := p.get_world_3d().direct_space_state
+		var q := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 20.0, spot + Vector3.DOWN * 5.0, WorldLayers.PLAYER_MASK, [p.get_rid()])
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty():
+			d.note("the old floor is closed; landing surface over the spot: local y %.2f (the given spot is local y %.2f)" % [
+				def.to_local(hit.position as Vector3).y, local.y])
+			spot = hit.position
 	var need_y := spot.y + rise - 0.1 if rise > 0.0 else -INF
 	var plans: Array[Dictionary] = []
 	for n in scan.nearest_escapable(g, spot, TARGETS, need_y):

@@ -2,13 +2,16 @@ extends TestCase
 ## The stuck-region scan (game/tools/stuck_scan.gd, docs/runtime/STUCK_SCAN.md).
 ##
 ## Model tests on hand-made worlds (PlayerTestWorld boxes, no export needed): a pit deeper than any jump is a
-## CONFIRMED trap, a 1 m step is not, a ladder out of a pit makes it escapable, a descend-only rope does not, and a
-## surface inside a closed solid is never a node.
+## CONFIRMED trap, a 1 m step is not, a ladder out of a pit makes it escapable, a descend-only rope does not, a walled
+## yard reached only by a running jump off a tower is a CONFIRMED trap, and a surface inside a closed solid is never a
+## node.
 ##
 ## The island test (INCLUDE_WORLD=1; a SKIP line without the export) scans all 25 maps, verifies every flagged
 ## component with the real PlayerController and fails on any CONFIRMED trap that game/data/misostory/
-## stuck_allowlist.json does not list (the allowlist holds only reviewed, intended dead ends). STUCK_REPORT_OUT=<file>
-## also writes the report document (docs/runtime/stuck_report.json is that document, regenerated at milestones).
+## stuck_allowlist.json does not list (the allowlist holds only reviewed, intended dead ends), on a map whose scan has
+## no entries, exits or reachable ground, and on escapable ground outside every map region and trail zone.
+## STUCK_REPORT_OUT=<file> also writes the report document (docs/runtime/stuck_report.json is that document,
+## regenerated at milestones).
 
 const PIT_HALF := 1.5
 const AREA_HALF := 8.0
@@ -28,6 +31,7 @@ func parity_keys() -> Dictionary:
 		"test_a_ladder_out_of_a_pit_is_not_a_trap": ["mechanic:stuck-region-scan"],
 		"test_a_descend_only_rope_out_of_a_pit_is_a_trap": ["mechanic:stuck-region-scan"],
 		"test_a_surface_inside_a_solid_is_not_a_node": ["mechanic:stuck-region-scan"],
+		"test_a_yard_reached_only_by_a_running_jump_is_a_confirmed_trap": ["mechanic:stuck-region-scan"],
 	}
 
 
@@ -71,6 +75,34 @@ func test_a_descend_only_rope_out_of_a_pit_is_a_trap() -> void:
 	assert_false(pit.is_empty(), "a descend-only rope is no way out")
 	if not pit.is_empty():
 		assert_eq(String(pit.verdict), StuckScan.VERDICT_CONFIRMED, "the controller cannot climb a descend-only rope")
+	w.free_all()
+
+
+## A walled yard (2.2 m walls, no way out) that a player gets into only with a running jump off a 3.4 m tower 2.3 m
+## away: the forward search must carry a jump that far and that low (the first scanner's hops stopped at 3 cells and
+## 1.5 m down, and its walk-offs at 5 cells, so it never reached such places: 000001021's slot behind the west hedges
+## and 000001006's pocket under the out00 bridge).
+func test_a_yard_reached_only_by_a_running_jump_is_a_confirmed_trap() -> void:
+	var w := PlayerTestWorld.create(db())
+	w.add_box(Vector3(0.0, -0.5, 0.0), Vector3(AREA_HALF * 2.0, 1.0, AREA_HALF * 2.0))
+	# the tower (top 3.4) with a ladder up its west face
+	w.add_box(Vector3(-1.0, 1.7, 0.0), Vector3(1.0, 3.4, 2.0))
+	# the yard: x 1.5..5.5, z -2..2, walled 2.2 m high all round
+	w.add_box(Vector3(1.4, 1.1, 0.0), Vector3(0.2, 2.2, 4.4))
+	w.add_box(Vector3(5.6, 1.1, 0.0), Vector3(0.2, 2.2, 4.4))
+	w.add_box(Vector3(3.5, 1.1, -2.1), Vector3(4.4, 2.2, 0.2))
+	w.add_box(Vector3(3.5, 1.1, 2.1), Vector3(4.4, 2.2, 0.2))
+	var ladder := ClimbableDef.from_sidecar({"name": "TowerLadder", "kind": "ladder", "descend_only": false,
+		"bottom": [-1.55, 0.0, 0.0], "top": [-1.55, 3.4, 0.0], "foot_ground": [-1.85, 0.0, 0.0],
+		"top_exit": [-1.0, 3.4, 0.0], "facing_xz": [1.0, 0.0]})
+	var r := _scan(w, [ladder])
+	var g: StuckScan.MapGraph = r.graph
+	var top := g.node_near(Vector3(-1.0, 3.4, 0.0), 0.3, 0.3, 1)
+	assert_true(top >= 0 and g.fwd[top] == 1, "the tower top is reached by its ladder")
+	var yard := _component_at(g, Vector3(3.5, 0.0, 0.0))
+	assert_false(yard.is_empty(), "the yard is flagged: a running jump off the tower lands in it (%s)" % str(_verdicts(g)))
+	if not yard.is_empty():
+		assert_eq(String(yard.verdict), StuckScan.VERDICT_CONFIRMED, "the real controller jumps in and cannot get out")
 	w.free_all()
 
 
@@ -119,6 +151,17 @@ func test_every_map_has_no_unlisted_trap() -> void:
 		int(t.maps), int(t.nodes), int(t.flagged), int(t.components), int(t.confirmed), int(t.allowlisted), int(t.cleared),
 		int(t.unenterable), int(t.ms)])
 	assert_eq(int(t.maps), 25, "every map scanned")
+	assert_eq(int(t.unverified), 0, "every flagged component verified")
+	# The scan only finds traps it can reach: a map with no entries, no exits or nothing reachable would pass vacuously.
+	for id: String in (doc.maps as Dictionary):
+		var row: Dictionary = doc.maps[id]
+		assert_true(int(row.entries) > 0 and int(row.exits) > 0 and int(row.reachable) > 0,
+			"%s: the scan has entries (%d), exits (%d) and reachable ground (%d)" % [id, int(row.entries), int(row.exits),
+			int(row.reachable)])
+		# The main traversal graph stays inside the regions: escapable ground outside every map region and trail zone is
+		# a hole in the containment (000001006 had one under its out00 bridge, the way into a trap).
+		assert_eq(int(row.outside_regions_escapable), 0, "%s: escapable ground outside every region, e.g. at map-local %s" % [
+			id, row.outside_regions_samples_local])
 	for trap: Dictionary in doc.traps:
 		fail("%s: a trap (%d nodes, %.2f m2) at map-local %s, Blender-local xy %s, %.2f m below its way in %s: %s" % [trap.id,
 			int(trap.nodes), float(trap.area_m2), trap.local, trap.blender_local_xy, float(trap.drop_m),

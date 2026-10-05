@@ -1,12 +1,12 @@
 {
   "generated_by": "game/tools/stuck_scan_tool.tscn",
-  "generated_at": "2026-10-05T16:52:25Z",
+  "generated_at": "2026-10-05T17:38:11Z",
   "engine": "4.7.2-stable (official)",
   "verified": true,
   "maps_requested": [
     "all"
   ],
-  "build_ms": 1167,
+  "build_ms": 1040,
   "allowlist": "game/data/misostory/stuck_allowlist.json",
   "params": {
     "cell_m": 0.35,
@@ -23,31 +23,36 @@
     "margin_m": 0.2,
     "climb_grab_radius_m": 0.8,
     "climb_top_grab_radius_m": 0.9,
-    "max_jump_down_m": 1.5
+    "max_jump_down_m": 1.5,
+    "leap_max_drop_m": 12.0,
+    "hop_reach_cells": 16,
+    "drop_reach_cells": 13
   },
   "totals": {
     "maps": 25,
-    "nodes": 491625,
-    "certain_edges": 3630002,
-    "into_edges": 1366081,
-    "reachable": 372052,
-    "flagged": 419,
+    "nodes": 491630,
+    "certain_edges": 3630167,
+    "into_edges": 2901111,
+    "reachable": 373506,
+    "flagged": 408,
     "components": 38,
     "confirmed": 0,
-    "cleared": 24,
-    "unenterable": 14,
+    "cleared": 25,
+    "unenterable": 13,
     "unverified": 0,
     "allowlisted": 0,
     "new_traps": 0,
-    "fall_outs": 4925,
-    "ms": 53661
+    "fall_outs": 4929,
+    "outside_regions": 160,
+    "outside_regions_escapable": 0,
+    "ms": 101035
   },
   "traps": [],
   "maps": {
     "000000001": {
       "nodes": 7807,
       "certain_edges": 56684,
-      "into_edges": 28180,
+      "into_edges": 58148,
       "refined_jumps": 0,
       "entries": 100,
       "exits": 93,
@@ -57,20 +62,23 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 271,
-      "edges_ms": 211,
-      "ms": 538,
+      "sample_ms": 242,
+      "edges_ms": 498,
+      "ms": 801,
       "rays": 60981,
       "shape_queries": 30132,
-      "sweeps": 53059,
+      "sweeps": 113483,
       "name": "Mushroom Town - West Entrance",
       "kill_y_local": -6.04,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000010": {
       "nodes": 13321,
       "certain_edges": 97779,
-      "into_edges": 42935,
+      "into_edges": 85798,
       "refined_jumps": 4,
       "entries": 86,
       "exits": 190,
@@ -80,20 +88,23 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 444,
-      "edges_ms": 362,
-      "ms": 923,
+      "sample_ms": 496,
+      "edges_ms": 1265,
+      "ms": 1947,
       "rays": 76263,
       "shape_queries": 47600,
-      "sweeps": 80132,
+      "sweeps": 166423,
       "name": "Mushroom Town",
       "kill_y_local": -6.15,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000020": {
       "nodes": 13782,
       "certain_edges": 102712,
-      "into_edges": 35630,
+      "into_edges": 74307,
       "refined_jumps": 0,
       "entries": 155,
       "exits": 190,
@@ -103,35 +114,38 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 415,
-      "edges_ms": 302,
-      "ms": 846,
+      "sample_ms": 504,
+      "edges_ms": 986,
+      "ms": 1678,
       "rays": 101109,
       "shape_queries": 45985,
-      "sweeps": 65479,
+      "sweeps": 143302,
       "name": "Mushroom Town",
       "kill_y_local": -6.15,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000021": {
       "nodes": 1515,
       "certain_edges": 10020,
-      "into_edges": 7692,
+      "into_edges": 15667,
       "refined_jumps": 6,
       "entries": 39,
       "exits": 31,
-      "reachable": 1327,
+      "reachable": 1340,
       "escapable": 1340,
       "flagged_before_refine": 14,
       "flagged": 0,
       "components": [],
       "fall_outs": 188,
-      "sample_ms": 27,
-      "edges_ms": 65,
-      "ms": 104,
+      "sample_ms": 29,
+      "edges_ms": 204,
+      "ms": 254,
       "rays": 6195,
       "shape_queries": 2806,
-      "sweeps": 14551,
+      "sweeps": 30786,
       "name": "Mushroom Town Townstreet",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -215,16 +229,19 @@
           0.0,
           -0.65
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000030": {
       "nodes": 14411,
       "certain_edges": 105112,
-      "into_edges": 49357,
+      "into_edges": 108860,
       "refined_jumps": 12,
       "entries": 193,
       "exits": 153,
-      "reachable": 13378,
+      "reachable": 13386,
       "escapable": 14361,
       "flagged_before_refine": 143,
       "flagged": 19,
@@ -254,7 +271,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.46, 2.6, -13.65])",
-          "verify_ms": 666,
+          "verify_ms": 749,
           "in_edges": [
             {
               "kind": "slide",
@@ -379,16 +396,16 @@
             {
               "kind": "long drop",
               "from_local": [
-                28.5,
-                1.19,
-                -25.76
+                28.77,
+                8.96,
+                -28.29
               ],
               "to_local": [
                 29.32,
                 0.0,
                 -25.19
               ],
-              "dy": -1.19
+              "dy": -8.96
             },
             {
               "kind": "hop",
@@ -421,24 +438,27 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 520,
-      "edges_ms": 407,
-      "ms": 1053,
+      "sample_ms": 616,
+      "edges_ms": 1510,
+      "ms": 2329,
       "rays": 107755,
       "shape_queries": 54098,
-      "sweeps": 94373,
+      "sweeps": 219210,
       "name": "East Entrance to Mushroom Town",
       "kill_y_local": -6.4,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000040": {
       "nodes": 29744,
       "certain_edges": 223667,
-      "into_edges": 65907,
+      "into_edges": 137683,
       "refined_jumps": 2,
       "entries": 296,
       "exits": 124,
-      "reachable": 28379,
+      "reachable": 28401,
       "escapable": 29591,
       "flagged_before_refine": 8,
       "flagged": 3,
@@ -468,7 +488,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [-0.19, 1.2, -16.21])",
-          "verify_ms": 84,
+          "verify_ms": 95,
           "in_edges": [
             {
               "kind": "slide",
@@ -503,7 +523,7 @@
               "from_local": [
                 -0.54,
                 0.0,
-                -17.96
+                -19.01
               ],
               "to_local": [
                 -0.54,
@@ -552,7 +572,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (hop edge from local [34.81, 4.6, -33.01])",
-          "verify_ms": 3,
+          "verify_ms": 4,
           "in_edges": [
             {
               "kind": "hop",
@@ -585,12 +605,12 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 805,
-      "edges_ms": 621,
-      "ms": 1658,
+      "sample_ms": 978,
+      "edges_ms": 2140,
+      "ms": 3503,
       "rays": 202371,
       "shape_queries": 85298,
-      "sweeps": 126831,
+      "sweeps": 275673,
       "name": "Snail Hunting Ground I",
       "kill_y_local": -8.48,
       "fall_out_samples_local": [
@@ -609,27 +629,30 @@
           -5.49,
           -11.31
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000041": {
       "nodes": 45671,
       "certain_edges": 347702,
-      "into_edges": 83076,
+      "into_edges": 175873,
       "refined_jumps": 8,
       "entries": 430,
       "exits": 191,
-      "reachable": 24420,
+      "reachable": 24444,
       "escapable": 24790,
       "flagged_before_refine": 174,
       "flagged": 0,
       "components": [],
       "fall_outs": 651,
-      "sample_ms": 1757,
-      "edges_ms": 938,
-      "ms": 3004,
+      "sample_ms": 2032,
+      "edges_ms": 3048,
+      "ms": 5540,
       "rays": 376740,
       "shape_queries": 128845,
-      "sweeps": 162895,
+      "sweeps": 357477,
       "name": "Snail Hunting Ground II",
       "kill_y_local": -8.24,
       "fall_out_samples_local": [
@@ -713,16 +736,19 @@
           -8.0,
           -20.01
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000042": {
       "nodes": 45628,
       "certain_edges": 341177,
-      "into_edges": 76830,
+      "into_edges": 159991,
       "refined_jumps": 51,
       "entries": 428,
       "exits": 187,
-      "reachable": 25792,
+      "reachable": 25816,
       "escapable": 26153,
       "flagged_before_refine": 510,
       "flagged": 26,
@@ -752,7 +778,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [15.39, 9.18, -38.12])",
-          "verify_ms": 8,
+          "verify_ms": 10,
           "in_edges": [
             {
               "kind": "drop",
@@ -858,7 +884,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 122,
+          "verify_ms": 140,
           "in_edges": [
             {
               "kind": "slide",
@@ -942,7 +968,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 512,
+          "verify_ms": 571,
           "in_edges": [
             {
               "kind": "slide",
@@ -1026,7 +1052,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 63,
+          "verify_ms": 78,
           "in_edges": [
             {
               "kind": "slide",
@@ -1110,7 +1136,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [41.83, 2.6, -15.13])",
-          "verify_ms": 61,
+          "verify_ms": 77,
           "in_edges": [
             {
               "kind": "slide",
@@ -1194,7 +1220,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 151,
+          "verify_ms": 174,
           "in_edges": [
             {
               "kind": "slide",
@@ -1255,12 +1281,12 @@
         }
       ],
       "fall_outs": 1494,
-      "sample_ms": 2920,
-      "edges_ms": 994,
-      "ms": 4231,
+      "sample_ms": 2894,
+      "edges_ms": 2703,
+      "ms": 6094,
       "rays": 550888,
       "shape_queries": 176992,
-      "sweeps": 148326,
+      "sweeps": 321413,
       "name": "Snail Hunting Ground III",
       "kill_y_local": -6.29,
       "fall_out_samples_local": [
@@ -1344,16 +1370,19 @@
           -5.0,
           -5.3
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000050": {
       "nodes": 24045,
       "certain_edges": 176902,
-      "into_edges": 63502,
+      "into_edges": 132587,
       "refined_jumps": 26,
       "entries": 379,
       "exits": 285,
-      "reachable": 23360,
+      "reachable": 23381,
       "escapable": 23891,
       "flagged_before_refine": 122,
       "flagged": 3,
@@ -1383,7 +1412,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.18, 2.96, -12.96])",
-          "verify_ms": 306,
+          "verify_ms": 295,
           "in_edges": [
             {
               "kind": "slide",
@@ -1467,7 +1496,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 697,
+          "verify_ms": 724,
           "in_edges": [
             {
               "kind": "slide",
@@ -1528,12 +1557,12 @@
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 1778,
-      "edges_ms": 657,
-      "ms": 2666,
-      "rays": 329773,
+      "sample_ms": 2085,
+      "edges_ms": 2078,
+      "ms": 4504,
+      "rays": 329777,
       "shape_queries": 139026,
-      "sweeps": 122063,
+      "sweeps": 264408,
       "name": "A Split Road",
       "kill_y_local": -6.04,
       "fall_out_samples_local": [
@@ -1557,18 +1586,21 @@
           -4.25,
           -26.79
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000060": {
       "nodes": 32180,
-      "certain_edges": 231070,
-      "into_edges": 134577,
-      "refined_jumps": 31,
+      "certain_edges": 231063,
+      "into_edges": 286661,
+      "refined_jumps": 33,
       "entries": 431,
       "exits": 117,
-      "reachable": 27995,
-      "escapable": 32057,
-      "flagged_before_refine": 1567,
+      "reachable": 28571,
+      "escapable": 32059,
+      "flagged_before_refine": 1571,
       "flagged": 28,
       "components": [
         {
@@ -1596,7 +1628,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [77.56, 7.2, 0.99])",
-          "verify_ms": 51,
+          "verify_ms": 47,
           "in_edges": [
             {
               "kind": "slide",
@@ -1702,7 +1734,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 884,
+          "verify_ms": 789,
           "in_edges": [
             {
               "kind": "slide",
@@ -1786,7 +1818,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 593,
+          "verify_ms": 592,
           "in_edges": [
             {
               "kind": "slide",
@@ -1842,7 +1874,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 480,
+          "verify_ms": 568,
           "in_edges": [
             {
               "kind": "slide",
@@ -1926,7 +1958,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 383,
+          "verify_ms": 479,
           "in_edges": [
             {
               "kind": "slide",
@@ -1987,12 +2019,12 @@
         }
       ],
       "fall_outs": 231,
-      "sample_ms": 2333,
-      "edges_ms": 1289,
-      "ms": 3945,
-      "rays": 386857,
+      "sample_ms": 2659,
+      "edges_ms": 4605,
+      "ms": 7730,
+      "rays": 386861,
       "shape_queries": 216318,
-      "sweeps": 249852,
+      "sweeps": 560811,
       "name": "Southperry",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -2076,16 +2108,19 @@
           6.5,
           7.09
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000000061": {
       "nodes": 1519,
       "certain_edges": 9614,
-      "into_edges": 8354,
+      "into_edges": 18323,
       "refined_jumps": 1,
       "entries": 64,
       "exits": 34,
-      "reachable": 1224,
+      "reachable": 1228,
       "escapable": 1364,
       "flagged_before_refine": 43,
       "flagged": 42,
@@ -2115,7 +2150,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [12.25, 1.91, -7.85])",
-          "verify_ms": 104,
+          "verify_ms": 144,
           "in_edges": [
             {
               "kind": "drop",
@@ -2221,7 +2256,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [13.3, 0.9, -6.45])",
-          "verify_ms": 2,
+          "verify_ms": 3,
           "in_edges": [
             {
               "kind": "drop",
@@ -2282,12 +2317,12 @@
         }
       ],
       "fall_outs": 342,
-      "sample_ms": 25,
-      "edges_ms": 68,
-      "ms": 114,
+      "sample_ms": 34,
+      "edges_ms": 266,
+      "ms": 329,
       "rays": 6072,
       "shape_queries": 2848,
-      "sweeps": 16239,
+      "sweeps": 38206,
       "name": "Southperry Armor Store",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -2371,19 +2406,22 @@
           7.7,
           -0.5
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001000": {
-      "nodes": 67270,
-      "certain_edges": 502427,
-      "into_edges": 128848,
-      "refined_jumps": 31,
+      "nodes": 67265,
+      "certain_edges": 502437,
+      "into_edges": 271284,
+      "refined_jumps": 7,
       "entries": 587,
-      "exits": 688,
-      "reachable": 36276,
-      "escapable": 38349,
-      "flagged_before_refine": 523,
-      "flagged": 174,
+      "exits": 691,
+      "reachable": 36271,
+      "escapable": 38356,
+      "flagged_before_refine": 512,
+      "flagged": 163,
       "components": [
         {
           "id": "000001000#0",
@@ -2410,7 +2448,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 434,
+          "verify_ms": 656,
           "in_edges": [
             {
               "kind": "slide",
@@ -2494,7 +2532,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [66.77, 1.19, -17.46])",
-          "verify_ms": 11,
+          "verify_ms": 19,
           "in_edges": [
             {
               "kind": "slide",
@@ -2577,90 +2615,6 @@
         },
         {
           "id": "000001000#2",
-          "nodes": 12,
-          "area_m2": 1.47,
-          "local": [
-            65.88,
-            10.97,
-            -101.81
-          ],
-          "blender_local_xy": [
-            65.88,
-            101.81
-          ],
-          "y_local": [
-            10.97,
-            11.69
-          ],
-          "drop_m": 7.31,
-          "entries_inside": 0,
-          "floor": {
-            "HuntingGroundMidForest2_1000006_collision/Ground (walkable)": 12
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 379,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                67.14,
-                19.0,
-                -101.88
-              ],
-              "to_local": [
-                66.93,
-                11.69,
-                -102.16
-              ],
-              "dy": -7.31
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                67.07,
-                19.08,
-                -101.39
-              ],
-              "to_local": [
-                66.86,
-                10.97,
-                -101.67
-              ],
-              "dy": -8.11
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                67.14,
-                19.0,
-                -101.88
-              ],
-              "to_local": [
-                66.86,
-                10.97,
-                -101.67
-              ],
-              "dy": -8.03
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                65.88,
-                10.97,
-                -101.81
-              ],
-              "best_rise_m": 1.44
-            }
-          ]
-        },
-        {
-          "id": "000001000#3",
           "nodes": 1,
           "area_m2": 0.12,
           "local": [
@@ -2684,7 +2638,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 469,
+          "verify_ms": 624,
           "in_edges": [
             {
               "kind": "slide",
@@ -2744,7 +2698,7 @@
           ]
         },
         {
-          "id": "000001000#4",
+          "id": "000001000#3",
           "nodes": 1,
           "area_m2": 0.12,
           "local": [
@@ -2768,7 +2722,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [32.94, 3.88, -27.46])",
-          "verify_ms": 6,
+          "verify_ms": 9,
           "in_edges": [
             {
               "kind": "drop",
@@ -2828,6 +2782,62 @@
           ]
         },
         {
+          "id": "000001000#4",
+          "nodes": 1,
+          "area_m2": 0.12,
+          "local": [
+            62.2,
+            6.36,
+            -27.6
+          ],
+          "blender_local_xy": [
+            62.2,
+            27.6
+          ],
+          "y_local": [
+            6.36,
+            6.36
+          ],
+          "drop_m": 0.04,
+          "entries_inside": 0,
+          "floor": {
+            "FieldWestOfAmherst_1000000_collision/FieldWestOfAmherst_1000000_Tree_Birch_Teal_08_hull0 (blocking)": 1
+          },
+          "verdict": "CLEARED",
+          "entered": true,
+          "enter_how": "hop (hop edge from local [60.94, 6.4, -29.27])",
+          "verify_ms": 31,
+          "in_edges": [
+            {
+              "kind": "hop",
+              "from_local": [
+                60.94,
+                6.4,
+                -29.27
+              ],
+              "to_local": [
+                62.2,
+                6.36,
+                -27.6
+              ],
+              "dy": -0.04
+            }
+          ],
+          "samples": [
+            {
+              "escaped": true,
+              "how": "via local [62.2, 6.36, -27.6] toward local [61.22, 4.0, -27.73], jump hold from local [62.2, 6.36, -27.6]: stands on escapable ground at local [60.35, 4.0, -27.86]",
+              "tries": 1,
+              "start_local": [
+                62.2,
+                6.36,
+                -27.6
+              ],
+              "best_rise_m": 0.0
+            }
+          ]
+        },
+        {
           "id": "000001000#5",
           "nodes": 1,
           "area_m2": 0.12,
@@ -2852,7 +2862,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 626,
+          "verify_ms": 893,
           "in_edges": [
             {
               "kind": "slide",
@@ -2913,12 +2923,12 @@
         }
       ],
       "fall_outs": 707,
-      "sample_ms": 3852,
-      "edges_ms": 1370,
-      "ms": 5913,
-      "rays": 748599,
-      "shape_queries": 247171,
-      "sweeps": 249686,
+      "sample_ms": 4885,
+      "edges_ms": 4885,
+      "ms": 10935,
+      "rays": 748619,
+      "shape_queries": 247180,
+      "sweeps": 539496,
       "name": "The Field West of Amherst",
       "kill_y_local": -6.79,
       "fall_out_samples_local": [
@@ -3002,18 +3012,42 @@
           -5.0,
           -28.02
         ]
+      ],
+      "outside_regions": 80,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": [
+        [
+          62.61,
+          8.0,
+          -96.27
+        ],
+        [
+          62.82,
+          8.0,
+          -95.99
+        ],
+        [
+          63.03,
+          8.0,
+          -95.71
+        ],
+        [
+          62.67,
+          8.0,
+          -96.76
+        ]
       ]
     },
     "000001001": {
       "nodes": 13271,
       "certain_edges": 96129,
-      "into_edges": 46844,
-      "refined_jumps": 5,
+      "into_edges": 98144,
+      "refined_jumps": 6,
       "entries": 231,
       "exits": 90,
-      "reachable": 11795,
-      "escapable": 12028,
-      "flagged_before_refine": 28,
+      "reachable": 11820,
+      "escapable": 12049,
+      "flagged_before_refine": 49,
       "flagged": 13,
       "components": [
         {
@@ -3041,7 +3075,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [29.39, 1.56, -10.02])",
-          "verify_ms": 129,
+          "verify_ms": 180,
           "in_edges": [
             {
               "kind": "drop",
@@ -3074,14 +3108,14 @@
             {
               "kind": "long drop",
               "from_local": [
-                28.62,
+                29.88,
                 1.59,
-                -9.91
+                -9.94
               ],
               "to_local": [
-                29.48,
+                29.08,
                 0.0,
-                -10.51
+                -11.09
               ],
               "dy": -1.59
             }
@@ -3136,7 +3170,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 194,
+          "verify_ms": 249,
           "in_edges": [
             {
               "kind": "slide",
@@ -3220,7 +3254,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.28, 1.56, -0.82])",
-          "verify_ms": 4,
+          "verify_ms": 6,
           "in_edges": [
             {
               "kind": "slide",
@@ -3304,7 +3338,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.66, 1.57, -10.05])",
-          "verify_ms": 214,
+          "verify_ms": 241,
           "in_edges": [
             {
               "kind": "slide",
@@ -3323,9 +3357,9 @@
             {
               "kind": "long drop",
               "from_local": [
-                32.69,
+                32.64,
                 5.39,
-                -10.2
+                -8.45
               ],
               "to_local": [
                 31.23,
@@ -3365,12 +3399,12 @@
         }
       ],
       "fall_outs": 144,
-      "sample_ms": 548,
-      "edges_ms": 424,
-      "ms": 1060,
+      "sample_ms": 722,
+      "edges_ms": 1794,
+      "ms": 2690,
       "rays": 109638,
       "shape_queries": 46662,
-      "sweeps": 92725,
+      "sweeps": 204170,
       "name": "In a Small Forest",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -3454,27 +3488,30 @@
           0.0,
           -23.07
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001002": {
       "nodes": 12726,
       "certain_edges": 93673,
-      "into_edges": 42908,
-      "refined_jumps": 3,
+      "into_edges": 92366,
+      "refined_jumps": 4,
       "entries": 297,
       "exits": 91,
-      "reachable": 12082,
-      "escapable": 12356,
-      "flagged_before_refine": 173,
+      "reachable": 12156,
+      "escapable": 12360,
+      "flagged_before_refine": 177,
       "flagged": 0,
       "components": [],
       "fall_outs": 55,
-      "sample_ms": 773,
-      "edges_ms": 407,
-      "ms": 1274,
+      "sample_ms": 1004,
+      "edges_ms": 1467,
+      "ms": 2635,
       "rays": 139091,
       "shape_queries": 59054,
-      "sweeps": 81499,
+      "sweeps": 186762,
       "name": "Dangerous Forest",
       "kill_y_local": -6.84,
       "fall_out_samples_local": [
@@ -3558,16 +3595,19 @@
           -6.01,
           -16.96
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001003": {
       "nodes": 10476,
       "certain_edges": 75569,
-      "into_edges": 37024,
+      "into_edges": 76983,
       "refined_jumps": 0,
       "entries": 205,
       "exits": 94,
-      "reachable": 9660,
+      "reachable": 9662,
       "escapable": 9908,
       "flagged_before_refine": 17,
       "flagged": 17,
@@ -3598,7 +3638,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 372,
+          "verify_ms": 542,
           "in_edges": [
             {
               "kind": "slide",
@@ -3682,7 +3722,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [32.23, 11.57, -25.08])",
-          "verify_ms": 10,
+          "verify_ms": 15,
           "in_edges": [
             {
               "kind": "slide",
@@ -3766,7 +3806,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (drop edge from local [26.03, 12.81, -30.27])",
-          "verify_ms": 46,
+          "verify_ms": 72,
           "in_edges": [
             {
               "kind": "drop",
@@ -3827,12 +3867,12 @@
         }
       ],
       "fall_outs": 56,
-      "sample_ms": 726,
-      "edges_ms": 291,
-      "ms": 1093,
+      "sample_ms": 956,
+      "edges_ms": 1217,
+      "ms": 2323,
       "rays": 173185,
       "shape_queries": 59889,
-      "sweeps": 71150,
+      "sweeps": 154433,
       "name": "Mushroom Garden",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -3916,27 +3956,30 @@
           -2.0,
           -16.94
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001004": {
       "nodes": 11467,
       "certain_edges": 81937,
-      "into_edges": 45723,
+      "into_edges": 98787,
       "refined_jumps": 5,
       "entries": 257,
       "exits": 96,
-      "reachable": 11186,
+      "reachable": 11188,
       "escapable": 11440,
       "flagged_before_refine": 461,
       "flagged": 0,
       "components": [],
       "fall_outs": 2,
-      "sample_ms": 941,
-      "edges_ms": 396,
-      "ms": 1415,
-      "rays": 196193,
+      "sample_ms": 1280,
+      "edges_ms": 1651,
+      "ms": 3093,
+      "rays": 196198,
       "shape_queries": 75534,
-      "sweeps": 86246,
+      "sweeps": 197250,
       "name": "Snail Garden",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -3950,16 +3993,19 @@
           -2.0,
           -26.11
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001005": {
       "nodes": 14529,
       "certain_edges": 106318,
-      "into_edges": 55425,
+      "into_edges": 124689,
       "refined_jumps": 0,
       "entries": 304,
       "exits": 90,
-      "reachable": 14218,
+      "reachable": 14223,
       "escapable": 14522,
       "flagged_before_refine": 7,
       "flagged": 7,
@@ -3989,7 +4035,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [-0.41, 5.33, -16.45])",
-          "verify_ms": 434,
+          "verify_ms": 500,
           "in_edges": [
             {
               "kind": "drop",
@@ -4050,26 +4096,29 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 635,
-      "edges_ms": 532,
-      "ms": 1281,
+      "sample_ms": 825,
+      "edges_ms": 2229,
+      "ms": 3259,
       "rays": 119667,
       "shape_queries": 56679,
-      "sweeps": 105244,
+      "sweeps": 255384,
       "name": "Hunting Ground Middle of the Forest I",
       "kill_y_local": -6.0,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001006": {
-      "nodes": 20865,
-      "certain_edges": 155265,
-      "into_edges": 58970,
-      "refined_jumps": 3,
+      "nodes": 20850,
+      "certain_edges": 155124,
+      "into_edges": 138659,
+      "refined_jumps": 2,
       "entries": 345,
       "exits": 85,
-      "reachable": 19962,
-      "escapable": 20766,
-      "flagged_before_refine": 89,
+      "reachable": 19943,
+      "escapable": 20751,
+      "flagged_before_refine": 83,
       "flagged": 80,
       "components": [
         {
@@ -4097,7 +4146,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 406,
+          "verify_ms": 605,
           "in_edges": [
             {
               "kind": "slide",
@@ -4158,12 +4207,12 @@
         }
       ],
       "fall_outs": 299,
-      "sample_ms": 1188,
-      "edges_ms": 549,
-      "ms": 1882,
-      "rays": 180892,
-      "shape_queries": 78362,
-      "sweeps": 112076,
+      "sample_ms": 1461,
+      "edges_ms": 2525,
+      "ms": 4276,
+      "rays": 181006,
+      "shape_queries": 78434,
+      "sweeps": 283385,
       "name": "Hunting Ground Middle of the Forest II",
       "kill_y_local": -8.24,
       "fall_out_samples_local": [
@@ -4247,27 +4296,51 @@
           0.81,
           -3.14
         ]
+      ],
+      "outside_regions": 80,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": [
+        [
+          11.66,
+          -3.0,
+          7.26
+        ],
+        [
+          11.91,
+          -3.0,
+          7.5
+        ],
+        [
+          12.16,
+          -3.0,
+          7.75
+        ],
+        [
+          11.66,
+          -3.0,
+          6.76
+        ]
       ]
     },
     "000001010": {
       "nodes": 51804,
       "certain_edges": 394396,
-      "into_edges": 111526,
+      "into_edges": 235397,
       "refined_jumps": 3,
       "entries": 246,
       "exits": 324,
-      "reachable": 23923,
+      "reachable": 24295,
       "escapable": 26351,
       "flagged_before_refine": 8,
       "flagged": 0,
       "components": [],
       "fall_outs": 54,
-      "sample_ms": 1925,
-      "edges_ms": 1173,
-      "ms": 3524,
+      "sample_ms": 2547,
+      "edges_ms": 3906,
+      "ms": 7082,
       "rays": 430255,
       "shape_queries": 150816,
-      "sweeps": 213369,
+      "sweeps": 465351,
       "name": "Amherst",
       "kill_y_local": -7.08,
       "fall_out_samples_local": [
@@ -4351,12 +4424,15 @@
           -6.0,
           -21.89
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001011": {
       "nodes": 1488,
       "certain_edges": 9422,
-      "into_edges": 8859,
+      "into_edges": 18862,
       "refined_jumps": 0,
       "entries": 60,
       "exits": 39,
@@ -4366,12 +4442,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 229,
-      "sample_ms": 27,
-      "edges_ms": 74,
-      "ms": 111,
+      "sample_ms": 34,
+      "edges_ms": 279,
+      "ms": 332,
       "rays": 6025,
       "shape_queries": 2996,
-      "sweeps": 16985,
+      "sweeps": 39052,
       "name": "Amherst Weapon Store",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -4455,12 +4531,15 @@
           0.91,
           -1.75
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001012": {
       "nodes": 7665,
       "certain_edges": 52875,
-      "into_edges": 34228,
+      "into_edges": 72411,
       "refined_jumps": 2,
       "entries": 54,
       "exits": 176,
@@ -4470,20 +4549,23 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 265,
-      "edges_ms": 298,
-      "ms": 623,
+      "sample_ms": 325,
+      "edges_ms": 1056,
+      "ms": 1486,
       "rays": 45525,
       "shape_queries": 20911,
-      "sweeps": 64896,
+      "sweeps": 142037,
       "name": "Amherst Townstreet",
       "kill_y_local": -7.34,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001013": {
       "nodes": 1451,
       "certain_edges": 8876,
-      "into_edges": 9593,
+      "into_edges": 20247,
       "refined_jumps": 5,
       "entries": 68,
       "exits": 37,
@@ -4517,7 +4599,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 166,
+          "verify_ms": 202,
           "in_edges": [
             {
               "kind": "slide",
@@ -4578,12 +4660,12 @@
         }
       ],
       "fall_outs": 428,
-      "sample_ms": 28,
-      "edges_ms": 81,
-      "ms": 123,
+      "sample_ms": 33,
+      "edges_ms": 288,
+      "ms": 343,
       "rays": 5940,
       "shape_queries": 2862,
-      "sweeps": 18548,
+      "sweeps": 41000,
       "name": "Amherst Department Store",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -4667,27 +4749,30 @@
           7.7,
           -0.55
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001014": {
       "nodes": 14881,
       "certain_edges": 107966,
-      "into_edges": 54419,
+      "into_edges": 115048,
       "refined_jumps": 1,
       "entries": 270,
       "exits": 81,
-      "reachable": 12953,
+      "reachable": 12956,
       "escapable": 13660,
       "flagged_before_refine": 5,
       "flagged": 0,
       "components": [],
       "fall_outs": 35,
-      "sample_ms": 835,
-      "edges_ms": 556,
-      "ms": 1505,
+      "sample_ms": 1003,
+      "edges_ms": 1812,
+      "ms": 3003,
       "rays": 142179,
       "shape_queries": 61802,
-      "sweeps": 104002,
+      "sweeps": 227929,
       "name": "Snail Field of Flowers",
       "kill_y_local": -7.54,
       "fall_out_samples_local": [
@@ -4771,12 +4856,15 @@
           -6.85,
           -28.79
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001020": {
       "nodes": 18283,
       "certain_edges": 133933,
-      "into_edges": 58828,
+      "into_edges": 123707,
       "refined_jumps": 6,
       "entries": 335,
       "exits": 172,
@@ -4810,7 +4898,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 683,
+          "verify_ms": 790,
           "in_edges": [
             {
               "kind": "slide",
@@ -4894,7 +4982,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 473,
+          "verify_ms": 574,
           "in_edges": [
             {
               "kind": "slide",
@@ -4978,7 +5066,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 463,
+          "verify_ms": 564,
           "in_edges": [
             {
               "kind": "slide",
@@ -5039,12 +5127,12 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 1369,
-      "edges_ms": 549,
-      "ms": 2079,
-      "rays": 288401,
-      "shape_queries": 112614,
-      "sweeps": 110476,
+      "sample_ms": 1646,
+      "edges_ms": 1841,
+      "ms": 3757,
+      "rays": 288397,
+      "shape_queries": 112615,
+      "sweeps": 245085,
       "name": "The Field East of Amherst",
       "kill_y_local": -6.84,
       "fall_out_samples_local": [
@@ -5063,30 +5151,57 @@
           -4.25,
           -26.51
         ]
-      ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     },
     "000001021": {
-      "nodes": 15826,
-      "certain_edges": 108777,
-      "into_edges": 76846,
-      "refined_jumps": 4,
+      "nodes": 15851,
+      "certain_edges": 109080,
+      "into_edges": 160629,
+      "refined_jumps": 14,
       "entries": 260,
       "exits": 83,
-      "reachable": 14903,
-      "escapable": 15674,
-      "flagged_before_refine": 88,
+      "reachable": 15206,
+      "escapable": 15725,
+      "flagged_before_refine": 143,
       "flagged": 0,
       "components": [],
-      "fall_outs": 0,
-      "sample_ms": 1236,
-      "edges_ms": 626,
-      "ms": 1991,
-      "rays": 242273,
-      "shape_queries": 91296,
-      "sweeps": 142653,
+      "fall_outs": 4,
+      "sample_ms": 1544,
+      "edges_ms": 2148,
+      "ms": 3922,
+      "rays": 242495,
+      "shape_queries": 91511,
+      "sweeps": 317820,
       "name": "Tomato Field",
       "kill_y_local": -6.0,
-      "fall_out_samples_local": []
+      "fall_out_samples_local": [
+        [
+          35.5,
+          -2.0,
+          -21.25
+        ],
+        [
+          35.48,
+          -2.0,
+          -22.03
+        ],
+        [
+          35.48,
+          -2.0,
+          -22.03
+        ],
+        [
+          35.46,
+          -2.0,
+          -22.81
+        ]
+      ],
+      "outside_regions": 0,
+      "outside_regions_escapable": 0,
+      "outside_regions_samples_local": []
     }
   }
 }

@@ -50,10 +50,13 @@ const MARGIN_M := 0.2
 const MAX_JUMP_DOWN_M := 1.5
 ## Arc samples of a certain jump (capsule sweeps between consecutive samples).
 const ARC_SAMPLES := 6
-## Unswept hops (into edges) reach this many cells away.
-const HOP_CELLS := 3
-## Longer drops (into edges) reach at most this many cells away.
-const DROP_CELLS := 5
+## Hops and longer drops (into edges) are looked for down to this far below the take-off: their horizontal reach is the
+## controller's, a running jump (or a walk-off) at walk speed with the fall time of that height (gravity, the
+## max_fall_speed cap, coyote time), so the column range follows from it (_reach_cells). A jump off a ledge carries
+## much further than one cell per 0.35 m of drop: before Iteration Three's review the hops stopped at 3 cells and
+## 1.5 m down and the drops at 5 cells, and the scan never saw the ways into a slot behind 000001021's west wall top
+## and a pocket under the 000001000 / 000001006 trail.
+const LEAP_MAX_DROP_M := 12.0
 ## A sample point (entry, verification probe) snaps to a node within this height above / below it.
 const SNAP_UP_M := 0.6
 const SNAP_DOWN_M := 0.6
@@ -286,7 +289,9 @@ func params() -> Dictionary:
 		"body_height_m": model.body_height, "walk_speed_mps": model.walk_speed, "gravity_mps2": model.gravity,
 		"jump_apex_m": model.jump_apex, "jump_velocity_mps": model.jump_velocity,
 		"certain_jump_reach_m": _jump_reach(), "margin_m": MARGIN_M, "climb_grab_radius_m": model.climb_grab_radius,
-		"climb_top_grab_radius_m": model.climb_top_grab_radius, "max_jump_down_m": MAX_JUMP_DOWN_M}
+		"climb_top_grab_radius_m": model.climb_top_grab_radius, "max_jump_down_m": MAX_JUMP_DOWN_M,
+		"leap_max_drop_m": LEAP_MAX_DROP_M, "hop_reach_cells": _reach_cells(model.jump_velocity),
+		"drop_reach_cells": _reach_cells(0.0)}
 
 
 ## Highest ledge a certain jump lands on, above the take-off (jump apex + step_up - MARGIN_M).
@@ -656,11 +661,40 @@ func _edges(g: MapGraph) -> void:
 	g.i_off[count] = g.i_dst.size()
 
 
-## Into edges for a walk-off at node a in direction dv: columns 2..DROP_CELLS away whose first surface below the feet
-## a falling body at walk speed can reach (horizontal travel = walk_speed x fall time), swept.
+## Seconds until the feet of a body launched upward at v0 (0: a walk-off) are `drop` below the take-off (a negative
+## drop: above it, on the way down), with the controller's gravity and max_fall_speed cap. A height the arc never
+## reaches gives the apex time.
+func _air_time(v0: float, drop: float) -> float:
+	var grav := model.gravity
+	var disc := v0 * v0 + 2.0 * grav * drop
+	if disc < 0.0:
+		return v0 / grav
+	var t := (v0 + sqrt(disc)) / grav
+	var vmax := model.max_fall_speed
+	var t_cap := (v0 + vmax) / grav
+	if vmax > 0.0 and t > t_cap:
+		var y_cap := v0 * t_cap - 0.5 * grav * t_cap * t_cap
+		t = t_cap + (y_cap + drop) / vmax
+	return t
+
+
+## Horizontal reach (m) of a body launched upward at v0 that comes down `drop` below the take-off: walk speed over the
+## air time plus coyote time (a jump pressed just after walking off still fires), plus the feet's radius.
+func _reach(v0: float, drop: float) -> float:
+	return model.walk_speed * (_air_time(v0, drop) + model.coyote_time) + model.foot_radius
+
+
+## The most columns along a grid direction (the axis: the diagonal reaches fewer) a hop or a drop of LEAP_MAX_DROP_M can
+## carry the body.
+func _reach_cells(v0: float) -> int:
+	return int(ceil(_reach(v0, LEAP_MAX_DROP_M + model.step_up) / cell))
+
+
+## Into edges for a walk-off at node a in direction dv: columns 2.. away whose first surface below the feet a falling
+## body at walk speed can reach (_reach of a walk-off), swept.
 func _long_drops(g: MapGraph, a: int, pa: Vector3, ix: int, iz: int, dv: Vector2i) -> void:
 	var step_len := cell * Vector2(dv).length()
-	for k in range(2, DROP_CELLS + 1):
+	for k in range(2, _reach_cells(0.0) + 1):
 		var jx := ix + dv.x * k
 		var jz := iz + dv.y * k
 		if jx < 0 or jz < 0 or jx >= g.nx or jz >= g.nz:
@@ -674,8 +708,7 @@ func _long_drops(g: MapGraph, a: int, pa: Vector3, ix: int, iz: int, dv: Vector2
 		var fall := pa.y - g.surf_y[s]
 		if fall < model.snap_down:
 			return  # the ground comes back up: a later column is no longer a drop
-		var reach := model.walk_speed * sqrt(2.0 * fall / model.gravity) + model.foot_radius
-		if step_len * k > reach:
+		if step_len * k > _reach(0.0, fall):
 			continue
 		var b := g.surf_node[s]
 		if b < 0:
@@ -712,17 +745,21 @@ func _slides(g: MapGraph, pa: Vector3, c: int, y: float) -> void:
 				g.i_kind.append(Edge.SLIDE)
 
 
-## Into edges for jumps from a boundary node: in each direction, the top surface of the columns 1..HOP_CELLS away that
-## a jump could land on (at most jump_apex + step_up above the feet, at most MAX_JUMP_DOWN_M below; a lower landing is
-## a drop). Swept as an L (up to the apex, across, down onto it) rather than along the arc: generous, but never
-## through a wall or into a solid.
+## Into edges for jumps from a boundary node: in each direction, the top surface of the columns 1.. away that a running
+## jump could land on: at most jump_apex + step_up above the feet, and no further than the jump carries the body
+## before its feet sink step_up below that surface (_reach: walk speed over the air time, so a jump off a ledge reaches
+## further the lower it lands, down to LEAP_MAX_DROP_M). Swept as an L (up to the apex, across, down onto it) rather
+## than along the arc: generous, but never through a wall or into a solid.
 func _hops(g: MapGraph, a: int, pa: Vector3, ix: int, iz: int, hop_top: float) -> void:
 	var top := pa + Vector3.UP * model.jump_apex
 	if not _sweep(pa, top):
 		return
+	var v0 := model.jump_velocity
+	var cells := _reach_cells(v0)
 	for d in 8:
 		var dv: Vector2i = DIRS[d]
-		for k in range(1, HOP_CELLS + 1):
+		var step_len := cell * Vector2(dv).length()
+		for k in range(1, cells + 1):
 			var jx := ix + dv.x * k
 			var jz := iz + dv.y * k
 			if jx < 0 or jz < 0 or jx >= g.nx or jz >= g.nz:
@@ -739,7 +776,7 @@ func _hops(g: MapGraph, a: int, pa: Vector3, ix: int, iz: int, hop_top: float) -
 			var lp := g.node_pos[b]
 			if k == 1 and lp.y <= pa.y + model.step_up:
 				continue  # a walk or a drop, already an edge
-			if lp.y < pa.y - MAX_JUMP_DOWN_M:
+			if pa.y - lp.y > LEAP_MAX_DROP_M or step_len * k > _reach(v0, pa.y - lp.y + model.step_up):
 				continue
 			var over := Vector3(lp.x, top.y, lp.z)
 			if not _sweep(top, over):
@@ -1534,12 +1571,13 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 	var per_map := {}
 	var totals := {"maps": 0, "nodes": 0, "certain_edges": 0, "into_edges": 0, "reachable": 0, "flagged": 0,
 		"components": 0, "confirmed": 0, "cleared": 0, "unenterable": 0, "unverified": 0, "allowlisted": 0,
-		"new_traps": 0, "fall_outs": 0}
+		"new_traps": 0, "fall_outs": 0, "outside_regions": 0, "outside_regions_escapable": 0}
 	var traps: Array[Dictionary] = []
 	for id in ids:
 		if not world.defs.has_map(id):
 			continue
 		var g := scan_map(id)
+		var outside := outside_regions(g)
 		if do_verify:
 			verify(g)
 		if png_dir != "":
@@ -1570,8 +1608,13 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 		for q in g.fall_out_samples:
 			fo.append(_r3(g.to_local(q)))
 		row["fall_out_samples_local"] = fo
+		row["outside_regions"] = outside.count
+		row["outside_regions_escapable"] = outside.escapable
+		row["outside_regions_samples_local"] = outside.samples
 		row["components"] = comps
 		per_map[id] = row
+		totals.outside_regions += int(outside.count)
+		totals.outside_regions_escapable += int(outside.escapable)
 		totals.maps += 1
 		totals.nodes += int(g.stats.nodes)
 		totals.certain_edges += int(g.stats.certain_edges)
@@ -1582,6 +1625,34 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 		totals.fall_outs += g.fall_outs
 	totals["ms"] = Time.get_ticks_msec() - t0
 	return {"params": params(), "totals": totals, "traps": traps, "maps": per_map}
+
+
+## Forward-reachable nodes of `g` outside every map region and trail zone (RegionIndex "void"): {count, escapable,
+## samples (map-local, up to 4 escapable ones first)}. The containment should never let a body there (RegionMonitor
+## fails dev builds on it); an escapable one is on the main traversal graph, so a player walks out of the regions and
+## back. Iteration Three's review found 6 such nodes in 000001006 (out under the out00 bridge, a walk-out that led into
+## a trap). Needs the island (world.region_index); zero counts without it.
+func outside_regions(g: MapGraph) -> Dictionary:
+	if world == null or world.region_index == null:
+		return {"count": 0, "escapable": 0, "samples": []}
+	var count := 0
+	var escapable := 0
+	var esc_samples: Array = []
+	var other: Array = []
+	for i in g.node_count():
+		if g.fwd[i] == 0:
+			continue
+		var p := g.node_pos[i]
+		if not world.region_index.maps_at(p).is_empty() or not world.region_index.trails_at(p).is_empty():
+			continue
+		count += 1
+		if g.bwd[i] == 1:
+			escapable += 1
+			if esc_samples.size() < 4:
+				esc_samples.append(_r3(g.to_local(p)))
+		elif other.size() < 4:
+			other.append(_r3(g.to_local(p)))
+	return {"count": count, "escapable": escapable, "samples": (esc_samples + other).slice(0, 4)}
 
 
 ## The JSON-ready summary of a component (with its allowlist match, if any).

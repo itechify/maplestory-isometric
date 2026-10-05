@@ -94,7 +94,7 @@
   },
   "collision_tags": {
    "ok": true,
-   "detail": "2033 Terrain / Plinth / WORLD meshes: 1261 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
+   "detail": "2037 Terrain / Plinth / WORLD meshes: 1263 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
   },
   "no_swallowed_exceptions": {
    "ok": true,
@@ -209,7 +209,7 @@
   }
  ],
  "stats": {
-  "total_triangles": 9271656,
+  "total_triangles": 9274328,
   "world_triangles": 3349268,
   "triangles_by_map": {
    "0": 99184,
@@ -229,14 +229,14 @@
    "1000003": 158291,
    "1000004": 216015,
    "1000005": 267112,
-   "1000006": 342827,
+   "1000006": 343587,
    "1010000": 249060,
    "1010001": 38776,
    "1010002": 72778,
    "1010003": 58720,
    "1010004": 267316,
    "1020000": 311826,
-   "1020001": 291553
+   "1020001": 293465
   },
   "top_assets_by_instanced_triangles": [
    {
@@ -3723,8 +3723,8 @@
    }
   },
   "ring_band": {},
-  "objects": 18017,
-  "meshes": 2723,
+  "objects": 18021,
+  "meshes": 2727,
   "materials": 200
  },
  "exceptions": [],

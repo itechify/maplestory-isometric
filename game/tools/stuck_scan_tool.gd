@@ -11,8 +11,9 @@ extends Node
 ## flagged component with the real PlayerController (unless --no-verify), matches them against
 ## data/misostory/stuck_allowlist.json, prints STUCK lines and a STUCK_SUMMARY, and writes the report as JSON to --out
 ## (default: docs/runtime/stuck_report.json next to the project, the committed copy). Exits 0 only when no
-## CONFIRMED component is missing from the allowlist. Run it on the real game/ directory (not an ISOLATE copy) when
-## the default --out should land in the repository's docs. --png writes a top-down picture of each map into <dir>
+## CONFIRMED component is missing from the allowlist and no escapable node lies outside every region
+## (StuckScan.outside_regions). Run it on the real game/ directory (not an ISOLATE copy) when the default --out
+## should land in the repository's docs. --png writes a top-down picture of each map into <dir>
 ## (StuckScan.heatmap(): green escapable, red flagged, grey unreachable) for inspection.
 ## --inspect takes map-local points of one map (--map) and prints, for each, what the graph says about it
 ## (StuckScan.describe(): its regions, the surfaces of its column with their node state, the forward path from an
@@ -86,9 +87,9 @@ func _ready() -> void:
 				int(c.nodes), float(c.area_m2), c.local, c.blender_local_xy, float(c.drop_m),
 				(" [allowlisted: %s]" % c.allowlisted) if c.has("allowlisted") else ""])
 	var t: Dictionary = doc.totals
-	print("STUCK_SUMMARY maps=%d nodes=%d flagged=%d components=%d confirmed=%d cleared=%d unenterable=%d allowlisted=%d new_traps=%d (%d ms)" % [
+	print("STUCK_SUMMARY maps=%d nodes=%d flagged=%d components=%d confirmed=%d cleared=%d unenterable=%d allowlisted=%d new_traps=%d outside_regions=%d (escapable %d) (%d ms)" % [
 		int(t.maps), int(t.nodes), int(t.flagged), int(t.components), int(t.confirmed), int(t.cleared), int(t.unenterable),
-		int(t.allowlisted), int(t.new_traps), int(t.ms)])
+		int(t.allowlisted), int(t.new_traps), int(t.outside_regions), int(t.outside_regions_escapable), int(t.ms)])
 	var f := FileAccess.open(out_path, FileAccess.WRITE)
 	if f != null:
 		f.store_string(JSON.stringify(_plain(report), "  ", false) + "\n")
@@ -96,7 +97,7 @@ func _ready() -> void:
 		print("STUCK_REPORT " + out_path)
 	else:
 		push_error("[stuck_scan] cannot write %s" % out_path)
-	get_tree().quit(0 if int(t.new_traps) == 0 else 1)
+	get_tree().quit(0 if int(t.new_traps) == 0 and int(t.outside_regions_escapable) == 0 else 1)
 
 
 ## --inspect: scans (and verifies) the one --map and prints StuckScan.describe() of every point.

@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 18017, triangles (evaluated, incl. instances): 9,271,656
+Objects: 18021, triangles (evaluated, incl. instances): 9,274,328
 
 | check | ok | detail |
 |---|---|---|
@@ -27,7 +27,7 @@ Objects: 18017, triangles (evaluated, incl. instances): 9,271,656
 | player_spawns | yes | 25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane |
 | spawn_regions | yes | 15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns |
 | ring_band | yes | 21/21 exterior maps have walkable ground within step_up (0.45 m) of their base all along the ring line inset by the body radius (footprint + 0.70 m; gate corridors and rim edges skipped) |
-| collision_tags | yes | 2033 Terrain / Plinth / WORLD meshes: 1261 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
+| collision_tags | yes | 2037 Terrain / Plinth / WORLD meshes: 1263 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
 | no_swallowed_exceptions | yes | 0 recorded: [] |
 
 ## Triangle budget
@@ -38,11 +38,11 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 |---|---|---|---|
 | 1000000 FieldWestOfAmherst_1000000 | 391,938 | 400,000 | yes |
 | 60000 Southperry_60000 | 371,142 | 400,000 | yes |
-| 1000006 HuntingGroundMidForest2_1000006 | 342,827 | 400,000 | yes |
+| 1000006 HuntingGroundMidForest2_1000006 | 343,587 | 400,000 | yes |
 | 40001 SnailHuntingGround2_40001 | 318,818 | 400,000 | yes |
 | 1020000 FieldEastOfAmherst_1020000 | 311,826 | 400,000 | yes |
 | 40002 SnailHuntingGround3_40002 | 308,063 | 400,000 | yes |
-| 1020001 TomatoField_1020001 | 291,553 | 400,000 | yes |
+| 1020001 TomatoField_1020001 | 293,465 | 400,000 | yes |
 | 1000002 DangerousForest_1000002 | 271,532 | 400,000 | yes |
 | 1010004 SnailFieldOfFlowers_1010004 | 267,316 | 400,000 | yes |
 | 1000005 HuntingGroundMidForest1_1000005 | 267,112 | 400,000 | yes |
@@ -62,7 +62,7 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
 | WORLD (plinth, hull, trails, scenery, clouds) | 3,349,268 | 3,500,000 | yes |
-| total | 9,271,656 | | |
+| total | 9,274,328 | | |
 
 ## Top 10 assets by instanced triangles
 
