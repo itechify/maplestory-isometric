@@ -45,7 +45,7 @@ const HP_RESUME := 0.8
 const REST_MAX_S := 150.0
 ## How far (m) from every live monster a resting spot should be, and the longest walk (m) to one.
 const REST_CLEAR_M := 9.0
-const REST_WALK_MAX_M := 40.0
+const REST_WALK_MAX_M := 25.0
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -470,10 +470,10 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 	var t0 := d.game_s()
 	survival["rests"] = int(survival["rests"]) + 1
 	var spot := _rest_spot()
-	# A far spot means a long walk at low HP past the same monsters: rest where the player is instead.
+	# A far spot means a long walk at low HP past the same monsters: rest where the player is instead. On the way, a
+	# new touch ends the walk (resting there beats walking on through the monsters).
 	if spot != Vector3.INF and spot.distance_to(d.player().global_position) <= REST_WALK_MAX_M:
-		await d.walk_to(spot, {"max_s": 25.0, "retries": 0, "within_m": 1.5,
-			"stop_when": func() -> bool: return is_dead()})
+		await d.walk_to(spot, {"max_s": 25.0, "retries": 0, "within_m": 1.5, "stop_when": _new_touch_or_death()})
 	if bool(opts.get("sit", false)):
 		await sit()
 	var moves := 0
@@ -489,14 +489,19 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 			# Too strong to fight: move to the quietest spot and rest there.
 			moves += 1
 			var away := _rest_spot()
-			if away != Vector3.INF:
-				await d.walk_to(away, {"max_s": 25.0, "retries": 0, "within_m": 1.5,
-					"stop_when": func() -> bool: return is_dead()})
+			if away != Vector3.INF and away.distance_to(d.player().global_position) <= REST_WALK_MAX_M:
+				await d.walk_to(away, {"max_s": 25.0, "retries": 0, "within_m": 1.5, "stop_when": _new_touch_or_death()})
 				continue
 		await d.wait(0.5)
 	var s := d.game_s() - t0
 	survival["rest_s"] = float(survival["rest_s"]) + s
 	return s
+
+
+## A stop_when for a walk at low HP: the player died, or a monster touched it after the walk began.
+func _new_touch_or_death() -> Callable:
+	var since := last_touch_s
+	return func() -> bool: return is_dead() or last_touch_s > since
 
 
 ## The player spawn or portal arrival of the current map farthest from the nearest live monster, when the player
