@@ -171,7 +171,7 @@ items were left on purpose or found along the way.
   000001000 and 46 in 000001020, and retried each leg after a console warp, so "no death" is not yet reliable) and so
   does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77 checks, 0 failed, level
   10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the canonical +100 (a soft
-  check) and one death in 000001000 (a review run: 77 checks, 0 failed, one warning, the same death at level 8).
+  check) and one death in 000001000 (a review run: 77 checks, 0 failed, one warning: also one death in 000001000, at level 8).
 - **`ui_minimap` fails on the integrated build** (1 of 231 checks, seed 1, review run): its "level-up: the SP line"
   check expects the minimap package's "You have 1 SP to distribute (press K)." while the skills package's HUD writes
   "You have 1 SP to spend (press K)."; the unit test `test_ui_minimap_feedback.gd` was updated at the merge, the
