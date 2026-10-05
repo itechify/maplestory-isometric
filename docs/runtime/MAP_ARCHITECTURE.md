@@ -463,8 +463,9 @@ planner places by Blender's species-tagged regions instead (the v8-era `m.mobs` 
 - **Shares and density.** Slot by slot, a species' slot goes to its tagged region with the most weight per slot of
   that species already there (a proportional share), as long as the region keeps at least
   `spawns.min_area_per_slot_m2` (8 m²) of room per slot counting every species. When none can, the slot spills to the
-  least crowded region of the map. On the shipped export 64 of 577 slots spill (Tomato Field's 25 slots have 5.4 m²
-  each in all; 000001001's BlueSnail_6 no longer holds 16 slots in 88 m²).
+  least crowded region of the map. On the shipped export 83 of 577 slots spill (test_spawn_slots, flat-ground
+  planning; Tomato Field's 25 slots have 5.4 m² each in all; 000001001's BlueSnail_6 no longer holds 16 slots in
+  88 m²).
 - **Clearances.** A slot stands at least `slot_min_spacing_m` (1.2 m) from other slots, `slot_portal_clearance_m`
   (4 m) from every arrival and player_spawns[0], and `slot_npc_clearance_m` (2.5 m: the 1.6 m talk sphere plus the
   widest touch-zone half-width) from every NPC of the map (Sam stood inside 000000040's Snail_3 region). Sampling
