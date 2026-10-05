@@ -9,7 +9,8 @@ extends PlaytestScenario
 ## through the real title and creation screens, a warp to the first quest's start map, the first quest's level and
 ## the prerequisite quests outside the chain (quest accept + quest complete force). Before the level is set, a
 ## level-gated quest is checked to be refused (no offer marker, the engine says unavailable). The pause menu saves
-## and Quit Game ends the process.
+## and Quit Game ends the process. A chain that needs none of that setup (1000-1001: Heena stands in the creation map)
+## turns strict mode on right after character creation instead.
 ## Phase 1 starts from that save (Continue) and turns STRICT mode on: from here no console command, no api fallback
 ## and no change to the character the event bus did not announce. Every quest of the chain is then PLAYED with real
 ## input: availability (the NPC's marker, the Quest Log's Available tab), the offer accepted in the dialogue, the
@@ -97,6 +98,11 @@ func _setup_phase() -> void:
 			p["prerequisites"], _kills_text(p), _items_text(p), p["uses"], (p["quiz"] as Dictionary).get("text", "-"), p["rewards"]])
 	var setup := PlaytestQuestPlan.setup_for(ids, db)
 	d.carry["setup"] = setup
+	# A chain that needs no setup at all (its first quest starts in the creation map, at the creation level, with no
+	# prerequisite) is strict from character creation: the run proves a console-free playthrough from the very start.
+	if d.current_map() == String(setup["map"]) and int(setup["level"]) <= d.character().level \
+			and (setup["complete"] as PackedStringArray).is_empty():
+		d.begin_strict("after character creation")
 	var first := ids[0]
 	var fp: Dictionary = plans[first]
 	if d.current_map() != String(setup["map"]):
@@ -370,7 +376,8 @@ func _collect_from_boxes(qid: String, iobj: Dictionary, src: Dictionary) -> bool
 	var need := int(iobj["count"])
 	var boxes := k.breakables(true)
 	if not d.check("%s: Wooden Boxes stand in %s (group miso_breakables, contract C8)" % [qid, d.current_map()],
-			not boxes.is_empty(), "the breakables runtime is not built: %s comes only from the Wooden Box" % iobj["name"], pq):
+			not boxes.is_empty(), ("%d boxes" % boxes.size()) if not boxes.is_empty() else
+			"the breakables runtime is not built: %s comes only from the Wooden Box" % iobj["name"], pq):
 		return false
 	var maps: Array = Array(src["maps"])
 	var t0 := d.game_s()
@@ -386,6 +393,11 @@ func _collect_from_boxes(qid: String, iobj: Dictionary, src: Dictionary) -> bool
 			d.check("%s: a Wooden Box broke after %d landed hits (canonical hits_to_break %d)" % [qid, int(r["hits"]),
 				int(db.get_entity("breakables", String(src["owner"])).get("hits_to_break", -1))],
 				int(r["hits"]) == int(db.get_entity("breakables", String(src["owner"])).get("hits_to_break", -1)), str(r), pq)
+			# The save and restart in the middle, as for a monster drop: at half of this item (box state is not
+			# persisted, C8, so the next phase finds the boxes whole again and breaks on).
+			var half := maxi(1, floori(need / 2.0))
+			if not _reloaded(qid) and c.inventory.count(id) >= half and _still_need(qid):
+				await _mid_reload(qid, "at %d/%d %s" % [c.inventory.count(id), need, iobj["name"]])
 			continue
 		# Every box here is broken: the next map that has boxes, or a wait for the respawns.
 		mi = (mi + 1) % maps.size()
@@ -393,7 +405,7 @@ func _collect_from_boxes(qid: String, iobj: Dictionary, src: Dictionary) -> bool
 			await k.travel_to(String(maps[mi]))
 		else:
 			await d.wait(10.0)
-	return d.check("%s: %s x%d from %d broken Wooden Boxes (held %d)" % [qid, iobj["name"], need, broken, c.inventory.count(id)],
+	return d.check("%s: %s x%d, %d Wooden Boxes broken in this phase (held %d)" % [qid, iobj["name"], need, broken, c.inventory.count(id)],
 		not _still_need(qid), "", pq + ["item:" + id])
 
 
@@ -511,9 +523,9 @@ func _check_rewards(qid: String, snap: Dictionary, t0: float) -> void:
 	var want := {}
 	for it: Dictionary in rew["items"]:
 		want[String(it["item_id"])] = int(want.get(String(it["item_id"]), 0)) + int(it["count"])
-	for iobj: Dictionary in p["items"]:
-		var id := String(iobj["item_id"])
-		want[id] = int(want.get(id, 0)) - int(iobj["count"])
+	for it: Dictionary in p["hand_ins"]:
+		var id := String(it["item_id"])
+		want[id] = int(want.get(id, 0)) - int(it["count"])
 	var delta := PlaytestKit.bag_delta(snap["bag"], after["bag"], [])
 	var picks := PackedStringArray()
 	var bad := PackedStringArray()

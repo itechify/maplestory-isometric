@@ -51,6 +51,11 @@ const REST_CLEAR_M := 9.0
 const REST_WALK_MAX_M := 25.0
 ## How many times one rest walks away from a monster that comes close before it fights back instead.
 const REST_MOVES := 4
+## unstick(): a walk that ends closer than UNSTICK_STALLED_M (m) to where it began "stalled where it began"; each push
+## lasts at most UNSTICK_PUSH_S (game s) and succeeds once the feet stand UNSTICK_M (m) from the start.
+const UNSTICK_STALLED_M := 1.0
+const UNSTICK_PUSH_S := 1.5
+const UNSTICK_M := 2.5
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -75,7 +80,7 @@ var travel_rows: Array = []
 ## Hops that ended in a console warp (non-strict scenarios only).
 var fallbacks: PackedStringArray = []
 ## Survival policy counters: potions drunk, rests, rest seconds, fights back, interrupts of a walk.
-var survival := {"drinks": 0, "rests": 0, "rest_s": 0.0, "fights_back": 0, "interrupts": 0}
+var survival := {"drinks": 0, "rests": 0, "rest_s": 0.0, "fights_back": 0, "interrupts": 0, "unsticks": 0}
 ## The HUD log lines on screen the moment a converse() goal quest completed.
 var on_screen_at_complete: PackedStringArray = []
 var shots: int = 0
@@ -250,9 +255,15 @@ func travel_to(to_map: String, opts: Dictionary = {}) -> bool:
 		var cur := d.current_map()
 		var hop := String(path[1])
 		var t0 := d.game_s()
+		var at0 := d.player().global_position
 		var r: Dictionary = await _trail_safely(cur, hop, opts)
 		if d.current_map() == cur and not is_dead():
 			r = await _trail_safely(cur, hop, opts)
+		if d.current_map() == cur and not is_dead() and _flat_m(d.player().global_position, at0) < UNSTICK_STALLED_M:
+			# Both walks stalled where they began (a ledge corner whose way off the planners do not take): step off it as a
+			# player would, then walk the trail once more.
+			if bool((await unstick()).get("ok", false)):
+				r = await _trail_safely(cur, hop, opts)
 		var ok := d.current_map() == hop
 		travel_rows.append({"from": cur, "to": hop, "ok": ok, "how": String(r.get("how", "")), "via": String(r.get("via", "")),
 			"time_s": snappedf(d.game_s() - t0, 0.1), "issues": ", ".join(r.get("issues", PackedStringArray()))})
@@ -313,16 +324,19 @@ func _trail_safely(from_map: String, to_map: String, opts: Dictionary) -> Dictio
 
 ## Walks to `target` (any walk_to target) in the current map with the survival policy: a monster about to touch the
 ## player (threat()) is fought when opts "on_threat" is "fight" (default) or ignored ("ignore"), and below opts
-## "hp_floor" (HP_FLOOR) of Max HP the player drinks or rests (survive()). Other opts go to walk_to. Returns the last
+## "hp_floor" (HP_FLOOR) of Max HP the player drinks or rests (survive()). With opts "unstick" (false), a walk that
+## stalls where it began is followed by unstick() and one more walk. Other opts go to walk_to. Returns the last
 ## walk_to result plus "interrupts". Await it.
 func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 	var r: Dictionary = {}
 	var n := 0
 	var map0 := d.current_map()
+	var at0 := d.player().global_position
 	var orig: Callable = opts.get("stop_when", Callable())
 	var interrupt := interrupt_when(opts)
 	var fired := [false]
 	var o := opts.duplicate()
+	o.erase("unstick")
 	o["stop_when"] = func() -> bool:
 		if orig.is_valid() and bool(orig.call()):
 			return true
@@ -338,8 +352,64 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 		n += 1
 		survival["interrupts"] = int(survival["interrupts"]) + 1
 		await survive(opts)
+	if bool(opts.get("unstick", false)) and not bool(r.get("ok", false)) and d.current_map() == map0 and not is_dead() \
+			and _flat_m(d.player().global_position, at0) < UNSTICK_STALLED_M:
+		if bool((await unstick()).get("ok", false)):
+			r = await d.walk_to(target, o)
 	r["interrupts"] = n
 	return r
+
+
+## Gets the player off a spot where every planned walk stalls at once (a ledge corner whose way off neither the
+## routes nor the grid takes, though a player just steps off or jumps): straight real-input pushes in 8 directions,
+## then with a jump, each for at most UNSTICK_PUSH_S, until the feet stand UNSTICK_M from where they began. A logged
+## "kit.unstick" step. Returns {"ok", "moved_m", "dir", "jump", "from", "to"} (map-local). Await it.
+func unstick() -> Dictionary:
+	var step := d._begin(PlaytestReport.KIND_PLAY, "kit.unstick", d.current_map())
+	var p := d.player()
+	var start := p.global_position
+	var out := {"ok": false, "moved_m": 0.0, "dir": -1, "jump": false, "from": _local(start), "to": ""}
+	for jump: bool in [false, true]:
+		for k in 8:
+			if is_dead() or d.dialogue_open():
+				break
+			var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
+			var a := p.global_position
+			var f0 := Engine.get_physics_frames()
+			var jumped := false
+			while Engine.get_physics_frames() - f0 < int(UNSTICK_PUSH_S * Engine.physics_ticks_per_second):
+				d.input.set_move_world(dir, p.view_right, p.view_forward)
+				if jump and not jumped and Engine.get_physics_frames() - f0 > 10:
+					jumped = true
+					await d.input.tap_action(&"jump")
+				await d.get_tree().process_frame
+				d.input.reassert()
+				if _flat_m(p.global_position, start) >= UNSTICK_M:
+					break
+			d.input.release_movement()
+			await d.wait_idle(3.0)
+			var moved := _flat_m(p.global_position, start)
+			out["moved_m"] = snappedf(maxf(float(out["moved_m"]), moved), 0.01)
+			if moved >= UNSTICK_M:
+				out["ok"] = true
+				out["dir"] = k
+				out["jump"] = jump
+				break
+			if _flat_m(p.global_position, a) > 0.3:
+				# A push that moved a little but not far enough: back toward the start for the next direction.
+				await d.walk_to(start, {"max_s": 3.0, "retries": 0, "within_m": 0.3, "planner": "grid"})
+		if bool(out["ok"]):
+			break
+	out["to"] = _local(p.global_position)
+	survival["unsticks"] = int(survival.get("unsticks", 0)) + 1
+	d.note("unstick in %s: %s" % [d.current_map(), out])
+	d._end(step, bool(out["ok"]), "%s -> %s, %.1f m (dir %d%s)" % [out["from"], out["to"], float(out["moved_m"]),
+		int(out["dir"]), ", jump" if bool(out["jump"]) else ""])
+	return out
+
+
+static func _flat_m(a: Vector3, b: Vector3) -> float:
+	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
 ## The walk interrupt of the survival policy, as a stop_when Callable for any walk (scenarios that walk with the
@@ -605,7 +675,8 @@ func respawn(opts: Dictionary = {}) -> Dictionary:
 ## talk_to, as a player keeps trying: a death on the way is a WARN (play, not a quest failure), the notice's OK, the
 ## walk back to the NPC's map and another approach (at most 3). When no approach point can be planned from where the
 ## player stands (below a perch whose stairs start elsewhere), the player walks back to the map's arrival (player
-## spawn 0), where every NPC's way starts (the npcs survey), and tries once more from there. The result carries
+## spawn 0), where every NPC's way starts (the npcs survey), and tries once more from there; a player whose walk to
+## the arrival stalls where it began steps off the spot first (unstick()). The result carries
 ## "pre": a snapshot taken right before the approach that opened the chat ("t", "clock", "notices" too), the
 ## baseline of a reward check: a quest with no completion text completes the moment the chat opens. Await it.
 func talk(npc_id: String) -> Dictionary:
@@ -631,7 +702,7 @@ func talk(npc_id: String) -> Dictionary:
 			from_spawn = true
 			d.note("%s cannot be reached from here (%s): walking back to the map's arrival and trying again" % [
 				npc_name(npc_id), String(v.get("why", "")).left(120)])
-			await walk_safely("spawn:0", {"max_s": 60.0})
+			await walk_safely("spawn:0", {"max_s": 60.0, "unstick": true})
 			continue
 		d.soft_check("the walk up to %s (%s) ends alive" % [npc_name(npc_id), map], false,
 			"died on the approach (attempt %d): HP %d at the start, %d damage from %d touches since (%s)" % [attempt + 1, hp0,
@@ -1215,11 +1286,16 @@ func close_shop() -> bool:
 ## straight onto the landing point with half-strength input until the drop is inside the box. Returns {"ok" (none
 ## left in reach), "picked", "records", "refused", "left"}. Await it.
 func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
+	# A logged step (as the driver's pickup_all_nearby is): its walks move the player, and the report must show where
+	# to (a walk onto a drop below a ledge can end in a pocket).
+	var step := d._begin(PlaytestReport.KIND_PLAY, "kit.pickup", "%.1f m" % radius_m)
 	var out := {"ok": false, "picked": 0, "records": [], "refused": 0, "left": 0}
 	var ls := d.loot()
 	var p := d.player()
 	if ls == null or p == null:
+		d._end(step, false, "no loot system")
 		return out
+	var from := _local(p.global_position)
 	var refused := {}
 	var on_picked := func(rec: Dictionary, _res: Dictionary) -> void: (out["records"] as Array).append(rec)
 	var on_refused := func(rec: Dictionary, _res: Dictionary) -> void: refused[String(rec.get(LootPickupRules.UID_KEY, ""))] = true
@@ -1272,7 +1348,17 @@ func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
 	out["refused"] = refused.size()
 	out["left"] = left
 	out["ok"] = left == 0
+	d._end(step, bool(out["ok"]), "%d picked, %d refused, %d left; map-local %s -> %s" % [int(out["picked"]),
+		int(out["refused"]), left, from, _local(p.global_position)])
 	return out
+
+
+## A world point in the current map's frame, rounded to 0.1 m (for step results).
+func _local(at: Vector3) -> String:
+	var w := d.world()
+	if w == null or not w.defs.has_map(d.current_map()):
+		return str(at.snappedf(0.1))
+	return str(w.defs.get_def(d.current_map()).to_local(at).snappedf(0.1))
 
 
 ## The precise final approach: half-strength steps straight at `landing` for at most a second, until `done` holds
@@ -1362,7 +1448,7 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 				var slots: Array = d.world().defs.get_def(d.current_map()).monster_spawn_definitions
 				if not slots.is_empty():
 					slot_i = (slot_i + 7) % slots.size()
-					await walk_safely("slot:%d" % slot_i, {"max_s": 20.0})
+					await walk_safely("slot:%d" % slot_i, {"max_s": 20.0, "unstick": true})
 				exclude.clear()
 			else:
 				await d.wait(1.0)

@@ -4,13 +4,17 @@ extends PlaytestScenario
 ## Amherst Department Store): AP spent through the stats window, Lucy's shop opened by talking, Red Potions bought
 ## and one sold back at canonical prices, a potion bound to a quickslot by a mouse drag and used with its key, one
 ## drunk through the Item window, the sandals equipped by a double-click, a checkpoint, and the contract helpers
-## (sit, the Beginner skills, the Wooden Boxes) asked what they can do: each passes once its package is merged and
-## is a WARN until then.
+## (The Green Relaxer from the Set-up tab and the X key, the Beginner skills, the Wooden Boxes) asked what they can
+## do: the chair and the box checks pass once the mechanics and breakables packages are merged and are a WARN until
+## then. cast_skill needs a learned skill bound to a quickslot, which this scenario cannot set up (the Skills window
+## comes with the skills package), so it stays a WARN here; test_skills casts through the real window.
 
 const STORE := "000001013"
 const LUCY := "21"
 const POTION := "270"
 const SANDALS := "1305"
+## The Green Relaxer (canonical items/522.json: a Setup item with setup data, contract C5's chair).
+const CHAIR := "522"
 const KEY := "1"
 
 var d: PlaytestDriver = null
@@ -36,6 +40,7 @@ func run(p_d: PlaytestDriver) -> void:
 	await _setup_console("mesos 1000")
 	await _setup_console("level 3")
 	await _setup_console("give %s 1" % SANDALS)
+	await _setup_console("give %s 1" % CHAIR)
 	await _setup_console("warp %s" % STORE)
 	var c := d.character()
 
@@ -78,8 +83,16 @@ func run(p_d: PlaytestDriver) -> void:
 		str(cp).left(200))
 
 	# --- contract helpers: WARN until their packages land -------------------------------------------------------------
+	# The chair (C5: The Green Relaxer, a Setup item with setup data) is in the bag from the setup.
+	var ch: Dictionary = await k.use_chair(CHAIR)
+	d.soft_check("use_chair: a double-click on the chair in the Set-up tab seats the player (contracts C4/C5)",
+		bool(ch["ok"]), str(ch), ["chair:" + CHAIR])
+	if bool(ch["ok"]):
+		var up0: Dictionary = await k.stand()
+		d.check("stand: a step stands the player up from the chair", bool(up0["ok"]), str(up0), ["chair:" + CHAIR])
 	var st: Dictionary = await k.sit()
-	d.soft_check("sit (X): seated (contracts C4/C5; needs a chair the character owns)", bool(st["ok"]), str(st))
+	d.soft_check("sit (X): seated on the first chair the character owns (contracts C4/C5)", bool(st["ok"]), str(st),
+		["chair:" + CHAIR])
 	if bool(st["ok"]):
 		var up: Dictionary = await k.stand()
 		d.check("stand: a step stands the player up", bool(up["ok"]), str(up))
