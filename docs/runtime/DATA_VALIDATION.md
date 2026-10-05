@@ -373,9 +373,10 @@ each is in the record's `gaps` and in [`../PROVENANCE_REPORT.md`](../PROVENANCE_
 without the Blender export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning.
 
 The last data warning was `misostory/new_character` `starting_sp`, `verified: true` with nothing saying against what.
-Its reason quotes `formulas/beginner.json sp.calculator_caveat` ("a Beginner has 0 SP at level 1"), so it now carries
-that as `verified_against`. `portal_adaptations.json one_way_allowlist` named its check in a `verification` key, now
-`verified_against`.
+No MeowDB page states a starting SP number: the Beginner's guide says only "You earn 9 SP by the time you hit level 10
+(1 per level-up, 9 level-ups from 1 to 10)", so 0 at level 1 is arithmetic, not a published value. The entry is now
+`verified: false` with that reason (an adaptation, never a restated canonical value). `portal_adaptations.json
+one_way_allowlist` named its check in a `verification` key, now `verified_against`.
 
 Earlier runs also warned about three dialogue links. Two of them, "Grendel the Really Old" (npc 313) in `npcs/7` and
 `quests/1005`, are MeowDB links to an off-island NPC and are now skipped as out of scope. The third, "Jr. Sentinel

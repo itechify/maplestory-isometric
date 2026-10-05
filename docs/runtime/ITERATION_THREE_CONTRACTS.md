@@ -102,7 +102,7 @@ these fields:
 
 | Field | Shape | Owner of the behaviour |
 |---|---|---|
-| `natural_recovery` | `{"hp_rest_s": float}`: eligible seconds accumulated toward the next tick, in [0, interval) | mechanics |
+| `natural_recovery` | `{"hp_rest_s": float}`: eligible seconds accumulated toward the next tick, in [0, interval). `CharacterState.from_dict` holds a loaded value to that range (`clamp_rest_s`, interval = `recovery.json natural_hp.tick_s`): below 0 or not a number becomes 0, a whole tick or more becomes one tick's worth less `NaturalRecoveryRule.EPSILON_S`, so a hand-edited save pays at most one tick at once | mechanics |
 | `skills` | `{skill_id: level}` with canonical ids (`"0001000"` Three Snails, `"0001001"` Recovery, `"0001002"` Nimble Feet) | skills |
 | `sp` | int (exists) | skills |
 | `cooldowns` | `{skill_id: remaining_s}`: remaining seconds, never absolute clock times | skills |

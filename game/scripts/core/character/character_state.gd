@@ -13,6 +13,11 @@ const STAT_KEYS: PackedStringArray = ["str", "dex", "int", "luk"]
 ## Quickslot binding kinds (C3): {"kind": QUICKSLOT_ITEM | QUICKSLOT_SKILL, "id": String}.
 const QUICKSLOT_ITEM := "item"
 const QUICKSLOT_SKILL := "skill"
+## Where the natural HP tick length lives (natural_tick_s(): the C3 range of a loaded hp_rest_s).
+const RECOVERY_TABLE := "res://data/misostory/recovery.json"
+
+## natural_tick_s() cache (-1 = not read yet).
+static var _natural_tick_s: float = -1.0
 
 var name: String = ""
 ## "male" / "female" (chosen at creation; gendered equipment checks it), or "" when unknown.
@@ -42,7 +47,7 @@ var effects: Array = []
 ## Skill cooldowns: skill_id -> remaining seconds (C3; never absolute clock times, so they survive a restart).
 var cooldowns: Dictionary = {}
 ## Natural HP recovery clock (C3/C4): {"hp_rest_s": eligible seconds accumulated toward the next tick}. Saved so a
-## quit/continue does not discard the paused time.
+## quit/continue does not discard the paused time. from_dict() clamps a loaded value into [0, tick_s) (clamp_rest_s).
 var natural_recovery: Dictionary = {"hp_rest_s": 0.0}
 
 var inventory: Inventory = Inventory.new()
@@ -146,7 +151,7 @@ static func from_dict(d: Dictionary) -> CharacterState:
 			c.cooldowns[str(skill_id)] = maxf(0.0, float(cds[skill_id]))
 	var nr: Variant = d.get("natural_recovery", {})
 	var rest: Variant = (nr as Dictionary).get("hp_rest_s", 0.0) if nr is Dictionary else 0.0
-	c.natural_recovery = {"hp_rest_s": maxf(0.0, float(rest)) if _is_number(rest) else 0.0}
+	c.natural_recovery = {"hp_rest_s": clamp_rest_s(float(rest) if _is_number(rest) else 0.0, natural_tick_s())}
 	c.inventory = Inventory.from_dict(d.get("inventory", {}))
 	c.equipment = Equipment.from_dict(d.get("equipment", {}))
 	c.quests = QuestLog.from_dict(d.get("quests", {}))
@@ -160,3 +165,28 @@ static func from_dict(d: Dictionary) -> CharacterState:
 
 static func _is_number(v: Variant) -> bool:
 	return (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT) and is_finite(float(v))
+
+
+## The natural HP clock read back from a save, inside contract C3's range [0, tick_s): a negative value starts at 0,
+## and a value at or above one tick (only a hand-edited save, or a save made under a longer tick_s, holds one) becomes
+## one tick's worth less NaturalRecoveryRule.EPSILON_S, so the next eligible step pays exactly one tick instead of
+## several at once. `tick_s` <= 0 (the rule is not available) applies the lower bound only: no tick is invented.
+static func clamp_rest_s(rest_s: float, tick_s: float) -> float:
+	var r := maxf(0.0, rest_s) if is_finite(rest_s) else 0.0
+	if tick_s > NaturalRecoveryRule.EPSILON_S:
+		r = minf(r, tick_s - NaturalRecoveryRule.EPSILON_S)
+	return r
+
+
+## The natural HP tick length from data/misostory/recovery.json natural_hp.tick_s (the owner's rule, the file
+## NaturalRecoveryRule.from_db reads), or 0 when the file does not give a positive number. Read once per process.
+static func natural_tick_s() -> float:
+	if _natural_tick_s < 0.0:
+		_natural_tick_s = 0.0
+		var text := FileAccess.get_file_as_string(RECOVERY_TABLE) if FileAccess.file_exists(RECOVERY_TABLE) else ""
+		var table: Variant = JSON.parse_string(text) if text != "" else null
+		var hp: Variant = (table as Dictionary).get("natural_hp", null) if table is Dictionary else null
+		var tick: Variant = (hp as Dictionary).get("tick_s", null) if hp is Dictionary else null
+		if _is_number(tick) and float(tick) > 0.0:
+			_natural_tick_s = float(tick)
+	return _natural_tick_s
