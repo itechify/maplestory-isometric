@@ -234,7 +234,8 @@ func refresh_player() -> void:
 
 ## What the minimap shows now, for playtests and tests: {map_id, title, expanded, debug_id, portals (ids), portal_dests
 ## (map ids), shop_doors (ids), npcs (ids), markers ({npc id: state}), roles ({npc id: role}), labels (portal ids
-## with a drawn name), ground (triangles), ground_source, player_in_view, player_clamped, trail_tag}.
+## with a drawn name), ground (triangles), ground_source, meshes (ground meshes the picture draws: one per tier),
+## player_in_view, player_clamped, trail_tag}.
 func snapshot() -> Dictionary:
 	var m := view.model
 	var pm := view.player_marker()
@@ -245,6 +246,7 @@ func snapshot() -> Dictionary:
 		"portals": PackedStringArray(), "portal_dests": PackedStringArray(), "shop_doors": PackedStringArray(),
 		"npcs": PackedStringArray(), "markers": _states.duplicate(), "roles": {}, "labels": labels,
 		"ground": m.ground_count() if m != null else 0, "ground_source": m.ground_source if m != null else "",
+		"meshes": view.mesh_count(),
 		"player_in_view": bool(pm.get("in_view", false)), "player_clamped": bool(pm.get("clamped", false)),
 		"trail_tag": view.trail_dest_name}
 	if m == null:

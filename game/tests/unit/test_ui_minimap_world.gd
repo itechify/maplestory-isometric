@@ -9,6 +9,8 @@ extends TestCase
 
 ## The doors the brief's shop indication is about (Pan, Sid, Lucy): cross-checked against the canonical derivation.
 const SHOP_DOORS := ["000000060.in00", "000001010.in00", "000001010.in02"]
+## Maps with at most this many visible portals name every exit on the picture (all but 000001000's eight).
+const ALL_NAMED_MAX := 5
 
 var world: IslandWorld = null
 
@@ -106,6 +108,7 @@ func _check_models(w: IslandWorld) -> void:
 	var canonical_npcs := 0
 	var shop_doors: PackedStringArray = []
 	var roles := {}
+	var labelled := 0
 	for id in w.defs.ids():
 		var def := w.defs.get_def(id)
 		var rec := db().map(id)
@@ -158,6 +161,8 @@ func _check_models(w: IslandWorld) -> void:
 		canonical_npcs += _canonical_npcs(id).size()
 		# The player's first spawn is on the drawn map.
 		assert_true(m.bounds.has_point(m.project(def.player_spawn(0).origin)), "%s: player_spawns[0] inside the bounds" % id)
+		labelled += _check_labels(id, m)
+	print("minimap: %d of %d exits named on the picture" % [labelled, shown_portals])
 	assert_eq(shown_portals, canonical_visible, "every visible canonical portal is shown, island-wide")
 	assert_eq(npc_dots, canonical_npcs, "every canonical NPC has a dot")
 	shop_doors.sort()
@@ -174,6 +179,36 @@ func _check_models(w: IslandWorld) -> void:
 			shops += 1
 			assert_eq(roles.get(nid, ""), MapIcons.ROLE_SHOP, "shopkeeper %s has the coin" % nid)
 	assert_true(shops > 0 and roles.values().has(MapIcons.ROLE_TRANSPORT), "shops %d, and a transport NPC: %s" % [shops, roles])
+
+
+## The destination names as the picture lays them out (MisoMinimapView.label_layout, the player away): inside the
+## picture, never over another name or any portal glyph, and every exit named on every map with at most
+## ALL_NAMED_MAX visible portals (all but the 8-exit 000001000, whose other names are read by hovering). Returns the
+## number of names placed.
+func _check_labels(id: String, m: MinimapModel) -> int:
+	var v := MisoMinimapView.new()
+	v.set_model(m)
+	var labels := v.label_layout()
+	var area := Rect2(Vector2.ZERO, v.size)
+	var placed: Array[Rect2] = []
+	var glyph := Vector2.ONE * (MisoMinimapView.PORTAL_R + 1.0)
+	for l: Dictionary in labels:
+		var r: Rect2 = l["rect"]
+		assert_true(area.encloses(r), "%s: the name of %s %s inside the picture %s" % [id, l["id"], r, v.size])
+		for o in placed:
+			assert_false(o.intersects(r), "%s: the name of %s %s over another name %s" % [id, l["id"], r, o])
+		for p: Dictionary in m.portals:
+			var g := Rect2(v.to_px(p["pos"]) - glyph, glyph * 2.0)
+			assert_false(g.intersects(r), "%s: the name of %s %s over the glyph of %s %s" % [id, l["id"], r, p["id"], g])
+		placed.append(r)
+	if m.portals.size() <= ALL_NAMED_MAX:
+		var named := PackedStringArray()
+		for l: Dictionary in labels:
+			named.append(String(l["id"]))
+		assert_eq(labels.size(), m.portals.size(),
+			"%s: every exit named on the picture (%s of %s)" % [id, named, m.portal_ids()])
+	v.free()
+	return labels.size()
 
 
 func _check_hidden_portal_and_lane(w: IslandWorld) -> void:

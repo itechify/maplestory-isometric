@@ -14,6 +14,8 @@ var title_label: Label = null
 ## MapIcons.ROLE_SHOP, MapIcons.ROLE_TRANSPORT or "".
 var role: String = ""
 var role_icon: Control = null
+## The function title given to set_texts ("" for none).
+var _title: String = ""
 
 
 func _init() -> void:
@@ -42,20 +44,26 @@ func _init() -> void:
 
 func set_texts(npc_name: String, title: String = "") -> void:
 	name_label.text = npc_name
-	title_label.text = title
-	title_label.visible = not title.is_empty()
-	reset_size()
+	_title = title
+	_sync_title()
 
 
 ## Shows the role icon (MapIcons.ROLE_SHOP / ROLE_TRANSPORT; "" hides it). A Transport NPC without a function title gets
-## the canonical role name on the second line.
+## the canonical role name on the second line (and loses it again with the role). Either call may come first.
 func set_role(p_role: String) -> void:
 	role = p_role
 	role_icon.visible = role != ""
 	role_icon.queue_redraw()
-	if role == MapIcons.ROLE_TRANSPORT and title_label.text.is_empty():
-		title_label.text = MapIcons.TRANSPORT_ROLE
-		title_label.visible = true
+	_sync_title()
+
+
+## The second line: the function title given to set_texts, else "Transport" for a Transport NPC, else none.
+func _sync_title() -> void:
+	var t := _title
+	if t.is_empty() and role == MapIcons.ROLE_TRANSPORT:
+		t = MapIcons.TRANSPORT_ROLE
+	title_label.text = t
+	title_label.visible = not t.is_empty()
 	reset_size()
 
 

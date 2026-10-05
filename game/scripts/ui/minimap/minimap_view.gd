@@ -92,6 +92,11 @@ func set_model(m: MinimapModel) -> void:
 	_refit()
 
 
+## Number of ground meshes the picture draws (one per height tier; 0 without a model or ground).
+func mesh_count() -> int:
+	return _meshes.size()
+
+
 ## The size this control wants for `m`: the map's bounds scaled to fit MAX_SIZE (at most MAX_PX_PER_M), never
 ## narrower than MIN_WIDTH.
 static func preferred_size(m: MinimapModel) -> Vector2:
@@ -166,26 +171,31 @@ func describe_at(px: Vector2) -> String:
 	return best
 
 
-## Where the destination names go: [{id, text, rect}], nearest portal to the player first, each where it fits
-## (beside its glyph, outward first, then above, below, right, left) without covering another label, a portal glyph,
-## an NPC dot or its icon, or leaving the picture. A name that fits nowhere is left out: hovering its portal still
-## shows it (describe_at). The player's arrow is not avoided (the names would jump as the player walks); it is drawn
-## on top.
+## Where the destination names go: [{id, text, rect}], nearest portal to the player first. Each name goes beside its
+## glyph (outward first, then above, below, right, left and the four corners; each of these also slid along the
+## picture's edge when it would leave it) where it covers no other name, no portal glyph or shop coin, no NPC dot or
+## icon, and stays inside the picture. A name with no such place then takes the place that covers the least of the NPC
+## dots (still never another name or a portal glyph; the dots are drawn over it). A name that fits nowhere is left
+## out: hovering its portal still shows it (describe_at). The player's arrow is not avoided (the names would jump as
+## the player walks); it is drawn on top.
 func label_layout() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var font := _label_font()
 	if model == null or font == null:
 		return out
+	# Never covered: portal glyphs, their shop coins and the names already placed.
 	var taken: Array[Rect2] = []
 	for p: Dictionary in model.portals:
 		taken.append(Rect2(to_px(p["pos"]) - Vector2.ONE * (PORTAL_R + 1.0), Vector2.ONE * (PORTAL_R + 1.0) * 2.0))
 		if bool(p["dest_shop"]):
 			taken.append(Rect2(to_px(p["pos"]) + Vector2(PORTAL_R + 1.0 - ICON_R, -PORTAL_R - 1.0 - ICON_R), Vector2.ONE * ICON_R * 2.0))
+	# Covered only by a name with no free place, as little as possible.
+	var dots: Array[Rect2] = []
 	for n: Dictionary in model.npcs:
 		var at := to_px(n["pos"])
-		taken.append(Rect2(at - Vector2.ONE * MARKER_R, Vector2.ONE * MARKER_R * 2.0))
+		dots.append(Rect2(at - Vector2.ONE * MARKER_R, Vector2.ONE * MARKER_R * 2.0))
 		if String(n["role"]) != "":
-			taken.append(Rect2(at + Vector2(MARKER_R + 2.0 - ICON_R, -MARKER_R - ICON_R), Vector2.ONE * ICON_R * 2.0))
+			dots.append(Rect2(at + Vector2(MARKER_R + 2.0 - ICON_R, -MARKER_R - ICON_R), Vector2.ONE * ICON_R * 2.0))
 	var order: Array[Dictionary] = []
 	for p: Dictionary in model.portals:
 		order.append(p)
@@ -194,24 +204,52 @@ func label_layout() -> Array[Dictionary]:
 		order.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 			return (a["pos"] as Vector2).distance_squared_to(me) < (b["pos"] as Vector2).distance_squared_to(me))
 	var area := Rect2(Vector2(2, 2), size - Vector2(4, 4))
-	for p in order:
-		var text := String(p["dest_name"])
-		var sz := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE) + Vector2(4, 0)
-		var at := to_px(p["pos"])
-		var dir: Vector2 = p["out_dir"]
-		var gap := PORTAL_R + 3.0
-		var candidates := [at + dir * (gap + sz.x * 0.5 * absf(dir.x) + sz.y * 0.5 * absf(dir.y)) - sz * 0.5,
-			at + Vector2(-sz.x * 0.5, -gap - sz.y), at + Vector2(-sz.x * 0.5, gap),
-			at + Vector2(gap, -sz.y * 0.5), at + Vector2(-gap - sz.x, -sz.y * 0.5),
-			at + Vector2(gap * 0.6, -gap * 0.6 - sz.y), at + Vector2(-gap * 0.6 - sz.x, -gap * 0.6 - sz.y),
-			at + Vector2(gap * 0.6, gap * 0.6), at + Vector2(-gap * 0.6 - sz.x, gap * 0.6)]
-		for corner: Vector2 in candidates:
-			var r := Rect2(corner.round(), sz)
-			if not area.encloses(r) or taken.any(func(o: Rect2) -> bool: return o.intersects(r)):
+	var pending: Array[Dictionary] = []
+	for relaxed in [false, true]:
+		for p: Dictionary in (pending if relaxed else order):
+			var text := String(p["dest_name"])
+			var sz := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE) + Vector2(4, 0)
+			var best := Rect2()
+			var best_cost := INF
+			for corner: Vector2 in label_candidates(to_px(p["pos"]), p["out_dir"], sz, area):
+				var r := Rect2(corner.round(), sz)
+				if not area.encloses(r) or taken.any(func(o: Rect2) -> bool: return o.intersects(r)):
+					continue
+				var cost := 0.0
+				for d in dots:
+					cost += d.intersection(r).get_area() if d.intersects(r) else 0.0
+				if cost < best_cost:
+					best = r
+					best_cost = cost
+				if cost == 0.0:
+					break
+			if best_cost == INF or (best_cost > 0.0 and not relaxed):
+				if not relaxed:
+					pending.append(p)
 				continue
-			taken.append(r)
-			out.append({"id": String(p["id"]), "text": text, "rect": r})
-			break
+			taken.append(best)
+			out.append({"id": String(p["id"]), "text": text, "rect": best})
+	return out
+
+
+## The top-left corners tried for a name of size `sz` beside the portal glyph at `at` (px) whose way out is `dir`:
+## outward, above, below, right, left, then the four corners (clear of the glyph's own box on both axes), then each of
+## them slid back inside `area` where it would leave it (so the name still touches its glyph's row or column).
+static func label_candidates(at: Vector2, dir: Vector2, sz: Vector2, area: Rect2) -> Array[Vector2]:
+	var gap := PORTAL_R + 3.0
+	var corner := PORTAL_R + 2.0
+	var out: Array[Vector2] = [at + dir * (gap + sz.x * 0.5 * absf(dir.x) + sz.y * 0.5 * absf(dir.y)) - sz * 0.5,
+		at + Vector2(-sz.x * 0.5, -gap - sz.y), at + Vector2(-sz.x * 0.5, gap),
+		at + Vector2(gap, -sz.y * 0.5), at + Vector2(-gap - sz.x, -sz.y * 0.5),
+		at + Vector2(corner, -corner - sz.y), at + Vector2(-corner - sz.x, -corner - sz.y),
+		at + Vector2(corner, corner), at + Vector2(-corner - sz.x, corner)]
+	if sz.x > area.size.x or sz.y > area.size.y:
+		return out
+	for i in out.size():
+		# Floored: label_layout rounds the corner, which must not push the name back over the edge.
+		var slid := out[i].clamp(area.position.ceil(), (area.end - sz).floor())
+		if not out.has(slid):
+			out.append(slid)
 	return out
 
 
@@ -310,6 +348,14 @@ func _draw_markers(ci: Control) -> void:
 		MapIcons.draw_chevron(ci, at + out * (PORTAL_R + 4.0), out, 3.5, MapIcons.PORTAL_CORE)
 		if bool(p["dest_shop"]):
 			MapIcons.draw_coin(ci, at + Vector2(PORTAL_R + 1.0, -PORTAL_R - 1.0), ICON_R)
+	if font != null:
+		# The trail tag wins over a destination name it would overlap (that name is usually its own, or on hover).
+		# Names go under the NPC dots: a name with no free place may cover a dot, which must stay readable.
+		var tag := trail_tag_layout()
+		for l: Dictionary in label_layout():
+			if not tag.is_empty() and (tag["rect"] as Rect2).intersects(l["rect"]):
+				continue
+			_text(ci, font, l["rect"].position + Vector2(2.0, font.get_ascent(LABEL_SIZE)), l["text"], LABEL)
 	for n: Dictionary in model.npcs:
 		var at := to_px(n["pos"])
 		var st := String(marker_states.get(n["npc_id"], ""))
@@ -319,13 +365,6 @@ func _draw_markers(ci: Control) -> void:
 			ci.draw_circle(at, NPC_R + 1.0, MapIcons.ICON_EDGE)
 			ci.draw_circle(at, NPC_R, NPC_DOT)
 		MapIcons.draw_role(ci, String(n["role"]), at + Vector2(MARKER_R + 2.0, -MARKER_R), ICON_R)
-	if font != null:
-		# The trail tag wins over a destination name it would overlap (that name is usually its own, or on hover).
-		var tag := trail_tag_layout()
-		for l: Dictionary in label_layout():
-			if not tag.is_empty() and (tag["rect"] as Rect2).intersects(l["rect"]):
-				continue
-			_text(ci, font, l["rect"].position + Vector2(2.0, font.get_ascent(LABEL_SIZE)), l["text"], LABEL)
 	_draw_player(ci, font)
 
 
