@@ -99,16 +99,6 @@ static func drop_context(character: CharacterState) -> Dictionary:
 
 
 ## Rolls a broken box's loot: DropRoller.roll(owner_id, db, rng, ctx), contract C2 (gated entries roll only while
-## their quest is in progress). Until the drops package's v2 roller lands, DropRoller.roll takes no context: it is
-## then called without one, and its placeholder table has no gate. The arity is read from the Callable, so this
-## switches to the C2 call by itself once the roller takes the context.
+## their quest is in progress).
 static func roll_drops(owner_id: String, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary) -> Array:
-	var roll: Callable = DropRoller.roll
-	var out: Variant = roll.call(owner_id, db, rng, ctx) if roller_takes_context() else roll.call(owner_id, db, rng)
-	return out if out is Array else []
-
-
-## True when DropRoller.roll takes the C2 roll context (a fourth argument).
-static func roller_takes_context() -> bool:
-	var roll: Callable = DropRoller.roll
-	return roll.get_argument_count() >= 4
+	return DropRoller.roll(owner_id, db, rng, ctx)

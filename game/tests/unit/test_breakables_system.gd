@@ -319,9 +319,6 @@ func test_the_console_lists_the_boxes() -> void:
 
 
 func test_gated_drops_through_the_real_roller() -> void:
-	if not BreakableRules.roller_takes_context():
-		print("SKIP test_gated_drops_through_the_real_roller: DropRoller.roll takes no roll context yet (contract C2 lands with the drops package)")
-		return
 	var fixture: Variant = JSON.parse_string(FileAccess.get_file_as_string(FIXTURE))
 	assert_true(fixture is Dictionary, "fixture %s" % FIXTURE)
 	var c := ContentDB.new()
