@@ -39,7 +39,7 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 | (default) | `--headless --fixed-fps 60`: deterministic game time. Screenshots are skipped (logged, never a failure) |
 | `--windowed` | `--resolution 1600x900 --disable-vsync`, still `--fixed-fps 60`, so it gives the same results as headless, with pictures |
 | `--realtime` | with `--windowed`, drops `--fixed-fps`: game time follows the wall clock (for feel checks only; results may vary) |
-| `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1, so a run is repeatable |
+| `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1. The rolls repeat, but two runs of one seed can still part ways on a physics outcome (see "Findings"), so a long run is one sample |
 | `--max-s <s>` | the game-time budget of one phase (default: the scenario's `max_seconds()`) |
 | `--max-wall-s <s>` | the wall-time budget of one phase (default: three times the game budget, at least 900 and at most 3300, so it fires before the outer 3600 s timeout) |
 | `--quest <spec>` | for the `quest` scenario: `1002`, `1013-1019` or `1006,1009,1010` (the `QUEST` environment variable does the same) |
@@ -352,7 +352,7 @@ the driver's real input and reads the live game; nothing writes game state, so e
 |---|---|
 | bus | `connect_bus()` (EXP awards, quest events, touches), `exp_since(t0)`, `damage_taken`, `touches`, `touched_recently()` |
 | travel | `travel_to(map, opts)`: map by map over the canonical portals (`portal_path(db, from, to)`, a breadth-first search that knows 000000030 -> 000000040 is one-way), each hop a `walk_trail` with one retry, deaths answered with OK. opts `fallback_warp` (non-strict scenarios only: a failed hop becomes a WARN and a logged console warp; otherwise a failed check), `safe` (default true: the survival policy on the trails). `travel_rows`, `travel_text()`, `fallbacks` |
-| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
+| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. `unstick()`: off a spot where every planned walk stalls at once (a ledge corner whose way off neither planner takes, though a player steps off or jumps), real-input pushes in 8 directions, then with a jump, until the feet are 2.5 m away (a logged `kit.unstick` step); `walk_safely` opts `unstick` uses it after a walk that stalled where it began, and so do the talk retry's walk to the arrival, the hunt's slot tour and a trail hop that stalled twice where it began. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
 | NPCs | `approach(npc)` (to 3.5 m, so the marker is on screen), `talk(npc)` (talk_to; a death on the way is a WARN and a retry; an NPC that cannot be planned to from where the player stands is tried again from the map's arrival; the result carries `pre`, the reward baseline taken right before the chat opened), `marker(npc)` (the presenter's state and the engine's), `quest_window(qid, tab)`, `row_has`, `rows_text` |
 | conversations | `converse(goals, opts)`: goals `quest id -> "accept" \| "decline" \| "complete" \| "quiz_wrong[:rank]"`. A menu picks the entry of a goal not met yet (else End Chat), a Yes/No answers Y only for an "accept" of a quest not started, lines are paged with Enter, and a quiz menu (node `q<id>.quiz`) is answered with the canonical correct choice or the requested wrong one. Returns the pages, the banners and the quiz answers with the line shown after each |
 | quizzes | `PlaytestKit.quiz_answer(db, qid)` (static): the correct choice by the canonical `correct_choice_index` (1018's is inferred and says so in `basis`), the question, the choices, and each wrong choice with the wrong-answer line MeowDB lists for it (in choice order, as the game pairs them) |
@@ -480,6 +480,13 @@ the canonical 4 hits and dropped one of each; the save and restart came at 1/3 R
 **Strict from character creation.** Since the review, 1000-1001 (no setup at all) runs strict from the step after
 `new_game`: phase 0 strict ok, 0 console steps in the whole run.
 
+**Review re-run (2026-10-05, seed 1, the harness after the review fixes).** 19 of 20 PASS, every chain strict ok,
+the same check counts per chain as the table above; 1012 fails only at "Wooden Boxes stand in 000001010". Random
+rewards: 1008 708 Brown Skullcap, 1011 559 Fruit Knife. A run before `unstick()` existed failed 1009 on the A Split
+Road ledge (see "Findings"). The `kit` scenario with the mechanics and breakables packages merged in a scratch copy:
+`use_chair` (a double-click on The Green Relaxer), `sit` (X) and both stands PASS, the store's Wooden Box is found;
+only `cast_skill` stays a WARN.
+
 ## Cost
 
 Headless runs are faster than game time, plus about 20-30 s to mirror and import a fresh copy (`PLAYTEST_REUSE_COPY=1`
@@ -511,7 +518,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
-| `walk_probe` | can the walker get from a map-local spot to a target (`WALK_MAP`, `WALK_FROM`, `WALK_TO`)? The plan and the walk, for walks a scenario saw fail from an odd spot | harness |
+| `walk_probe` | can the walker get from a map-local spot to a target (`WALK_MAP`, `WALK_FROM`, `WALK_TO`)? The plan and the walk, for walks a scenario saw fail from an odd spot; `WALK_TO=talk:<npc>` plays `PlaytestKit.talk` instead (approach points, the walk back to the arrival, `unstick`) | harness |
 | `test_b_combat` | Test B: every species, hit detection, damage windows, touch damage, knockback, death, EXP | monsters |
 | `test_c_progression` | Test C: a clean Beginner levels only by killing, AP through the stats window, every number against canonical data and MeowDB vectors (uses the kit) | harness |
 | `test_d_inventory` | Test D: pickups, use by double-click and quickslot, equipment, persistence across a process restart | drops |
@@ -541,6 +548,16 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   all fail; the walk stalls at once). `trap_probe` calls the spot "not a trap" because one try moved 7.2 m flat,
   although no try rose at all: the flat-distance rule the audit flagged. Test A now reports such a spot as a WARN with
   its coordinates and warps back to retry the leg; the spot belongs to the world package's stuck-region scan.
+- **A ledge corner at A Split Road (000000050), a harness gap (review, 2026-10-05).** A seed-1 run of 1006,1009,1010
+  ended a Red Snail fight on the 3.8 m ledge at map-local (48.7, 3.8, -15.3). From there the routes and the grid both
+  plan a way that stalls at once (a wall 1.9 m on), so the approach to Mai, all four talk points and the walk back to
+  the arrival stalled, and 1009 failed at "Mai can be talked to for the turn-in". `trap_probe` calls the spot no trap
+  (a 3.8 m drop or a jump gets out): the planners do not take the way off. `PlaytestKit.unstick()` now steps off such
+  a spot; `WALK_TO=talk:11` from it opens Mai's chat after one unstick.
+- **Runs of one seed are not exactly repeatable.** Two headless seed-1 runs of the same chain (the engineer's and the
+  review's) diverged in phase 2: the same trail walk took 10.6 s / 31.7 m and 8.7 s / 25.9 m, and the runs went
+  different ways from there. `--seed` fixes the game's random rolls, not every physics outcome, so a result is one
+  sample; the every-quest table was taken on three seeds for that reason.
 - **Heena's perch** (000000001): its stairs start on the arrival side, so from Sera's hill no approach to Heena can be
   planned; `PlaytestKit.talk` walks back to the arrival and tries again (1000-1001 pass).
 - **Knockback and the survival guard:** a touch that stops a walk is often followed by a knockback that carries the
