@@ -28,6 +28,7 @@ func parity_keys() -> Dictionary:
 		"test_sitting_is_eligible": ["mechanic:natural-hp-regen-sitting"],
 		"test_full_hp_holds_the_clock_and_never_exceeds_max_hp": regen,
 		"test_save_and_load_keep_the_paused_clock": regen,
+		"test_a_death_pauses_the_clock_so_a_tick_can_land_right_after_the_respawn": regen,
 		"test_chair_bonus_runs_on_its_own_clock_while_seated": ["chair:522", "mechanic:chair-hp-bonus"],
 		"test_node_pauses_for_real_walking_jumping_and_attacking": regen + ["mechanic:natural-hp-regen-pause-walking",
 			"mechanic:natural-hp-regen-pause-jumping", "mechanic:natural-hp-regen-pause-attacking"],
@@ -288,6 +289,50 @@ func test_save_and_load_keep_the_paused_clock() -> void:
 		healed += nr.step(TICK)
 	assert_eq(g.character.hp, 20, "a replaced character does not inherit the old clock")
 	g.free()
+	nr.player.free()
+	nr.free()
+
+
+## A death pauses the clock and does not reset it (contract C4), so a clock banked close to a full interval completes
+## its tick within a second of standing still after the respawn: the respawn HP of death.json (50) becomes 60. This is
+## test_f_death's old "[D6.1] after OK: HP 60 instead of 50" (wave 2 review): the game follows the owner's rule; the
+## scenario now adds the ticks the banked clock allows.
+func test_a_death_pauses_the_clock_so_a_tick_can_land_right_after_the_respawn() -> void:
+	var g := _fake_game(1)
+	g.character.base_max_hp = 200
+	var nr := _detached_node(g)
+	nr.player = _still_stub()
+	var s := FakeSession.new()
+	nr.session = s
+	var healed := 0
+	for _i in int(round(9.5 * 60.0)):
+		healed += nr.step(TICK)
+	assert_eq(healed, 0, "9.5 s standing at HP 1: no tick yet")
+	assert_near(_clock(g), 9.5, 0.02, "9.5 s banked")
+	# The killing touch (HP 0), then the death commit (death.json: HP 50 while dead) under the death notice.
+	g.character.hp = 0
+	g.dead = true
+	for _i in 30:
+		healed += nr.step(TICK)
+	g.character.hp = 50
+	for _i in int(round(3.0 * 60.0)):
+		healed += nr.step(TICK)
+	assert_eq(nr.last_activity, &"dead")
+	assert_eq(healed, 0, "no tick while dead")
+	assert_near(_clock(g), 9.5, 0.02, "the death paused the clock, it did not reset it")
+	# OK: the respawn transition (MapSession not idle), then the player stands in town.
+	g.dead = false
+	s.idle = false
+	for _i in 60:
+		healed += nr.step(TICK)
+	assert_eq(healed, 0, "the respawn warp pauses too")
+	s.idle = true
+	for _i in int(round(0.6 * 60.0)):
+		healed += nr.step(TICK)
+	assert_eq(g.character.hp, 60, "0.6 s after the respawn the banked clock completes its tick: 50 + 10")
+	assert_near(_clock(g), 0.1, 0.02, "and the clock starts the next interval")
+	g.free()
+	s.free()
 	nr.player.free()
 	nr.free()
 
