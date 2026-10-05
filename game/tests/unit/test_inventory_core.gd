@@ -194,6 +194,21 @@ func test_from_dict_never_drops_items_past_capacity() -> void:
 	assert_true(back.capacity("use") >= 6)
 
 
+## A hand-edited or corrupt save with a huge capacity or slot index loads without allocating that many slots
+## (Inventory.MAX_SAVED_SLOTS, a structural guard): the items are kept, in the first free slots.
+func test_from_dict_bounds_a_huge_saved_capacity_or_index() -> void:
+	var back := Inventory.from_dict({"capacity": {"use": 2000000000, "etc": 1e18},
+		"slots": {"use": [{"index": 1500000000, "item_id": RED_POTION, "qty": 3}],
+			"etc": [{"index": 9.0e15, "item_id": SNAIL_SHELL, "qty": 2}]}})
+	assert_eq(back.capacity("use"), Inventory.MAX_SAVED_SLOTS, "the capacity is kept at the guard")
+	assert_true(back.capacity("etc") <= Inventory.MAX_SAVED_SLOTS, "a float capacity too")
+	assert_eq(back.count(RED_POTION), 3, "the item is kept")
+	assert_eq(back.get_slot("use", 0).item_id, RED_POTION, "in the first free slot")
+	assert_eq(back.count(SNAIL_SHELL), 2)
+	# A capacity under the guard is still the save's (slot expansions are save state).
+	assert_eq(Inventory.from_dict({"capacity": {"use": 48}}).capacity("use"), 48)
+
+
 func test_character_state_round_trip_keeps_inventory() -> void:
 	var c := CharacterState.new()
 	c.inventory = _populated()
