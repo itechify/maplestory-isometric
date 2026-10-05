@@ -93,6 +93,10 @@ test('v1 drop records are partial; v2 unresolved members are source-data gaps; r
   assert.match(find(doc, 'drop:9/snail-shell').issues[0], /placeholder/);
   assert.equal(find(doc, 'meso:9').state, 'partial');
   assert.equal(find(doc, 'drop:2/snail-shell').state, 'verified');
+  assert.deepEqual(find(doc, 'drop:2/snail-shell').accepts, ['drop:2/348'], 'the item-id form a playtest check uses');
+  const byId = build({ playtests: [play([{ i: 0, name: 'shells picked up', ok: true, parity: ['drop:2/348'] }])] });
+  assert.equal(find(byId, 'drop:2/snail-shell').state, 'verified');
+  assert.deepEqual(byId.inputs.unknown_evidence_keys, []);
   const buckler = find(doc, 'drop:2/wooden-buckler');
   assert.equal(buckler.source_data_gap, true);
   assert.equal(buckler.state, 'partial', 'evidence cannot verify an unresolved probability');

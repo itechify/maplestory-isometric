@@ -111,7 +111,7 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
         checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length,
         rule_tagged_checks: tagStats.filter((s) => s.file === p.file).reduce((n, s) => n + s.matched, 0),
         failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`) })),
-      playtest_tag_rules_unmatched: tagStats.filter((s) => s.matched === 0).map((s) => ({ file: s.file, rule: s.rule })),
+      playtest_tag_rules_unmatched: unmatchedTagRules(tagStats),
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
       unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k) && !accepted.has(k)).sort(),
@@ -150,7 +150,8 @@ export function tagKeysFor(rule, scenario, name) {
 /**
  * key -> {passed: [...], failed: [...]} from unit test evidence and playtest checks (hard checks only). Playtest checks
  * keep their own parity keys and gain those of every matching rules.json playtest_tags rule (each key once per check).
- * tagStats (optional, filled in) receives one {file, rule, matched} per report and rule of its scenario.
+ * tagStats (optional, filled in) receives one {file, rule, matched} per report and rule of its scenario; a rule that
+ * matches no check in any report of its scenario is what playtest_tag_rules_unmatched lists (unmatchedTagRules).
  */
 export function collectEvidence(tests, playtests, tagRules = [], tagStats = null) {
   const ev = new Map();
@@ -178,9 +179,26 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
       }
       for (const k of [...keys].sort()) add(k, !!c.ok, { kind: 'playtest', id: `${scenario ?? p.file}#${c.i ?? '?'} ${c.name}` });
     }
-    if (tagStats) for (const r of rules) tagStats.push({ file: p.file, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
+    if (tagStats) for (const r of rules) tagStats.push({ file: p.file, scenario, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
   }
   return ev;
+}
+
+/**
+ * The playtest_tags rules that matched no check in any of the reports of their scenario (renamed checks would
+ * otherwise silently stop counting): [{rule, scenarios, reports}]. A rule whose scenario has no report is not listed.
+ */
+export function unmatchedTagRules(tagStats) {
+  const byRule = new Map();
+  for (const s of tagStats) {
+    const r = byRule.get(s.rule) ?? { rule: s.rule, scenarios: new Set(), reports: 0, matched: 0 };
+    r.scenarios.add(s.scenario);
+    r.reports++;
+    r.matched += s.matched;
+    byRule.set(s.rule, r);
+  }
+  return [...byRule.values()].filter((r) => r.matched === 0)
+    .map((r) => ({ rule: r.rule, scenarios: [...r.scenarios].sort(), reports: r.reports }));
 }
 
 /** "domain/id" -> [error messages] from the provenance report's validation findings. */
@@ -302,6 +320,9 @@ function enumerate(ctx) {
     };
     const slugCount = new Map();
     for (const e of arr(t.entries)) if (e.key == null) slugCount.set(slugOf(e), (slugCount.get(slugOf(e)) ?? 0) + 1);
+    // An entry also accepts drop:<owner>/<item id> (the form playtest checks use) when that item id is its own alone.
+    const idCount = new Map();
+    for (const e of arr(t.entries)) if (e.item_id != null) idCount.set(String(e.item_id), (idCount.get(String(e.item_id)) ?? 0) + 1);
     for (const e of arr(t.entries)) {
       const label = e.name ?? e.item_name ?? e.item_id;
       let key = e.key;
@@ -309,8 +330,9 @@ function enumerate(ctx) {
         key = slugOf(e);
         if (slugCount.get(key) > 1) key = `${key}-${e.item_id}`;
       }
+      const byId = e.item_id != null && idCount.get(String(e.item_id)) === 1 && String(e.item_id) !== key ? [`drop:${id}/${e.item_id}`] : [];
       const ent = entry(breakable ? 'breakables' : 'monster-drops', `drop:${id}/${key}`, `${name(breakable ? 'breakables' : 'monsters', owner.id)}: ${label}`,
-        { record: `drops/${id}`, item_id: e.item_id ?? null });
+        { record: `drops/${id}`, item_id: e.item_id ?? null, accepts: byId });
       if (!v2) {
         ent.issues.push('schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6)');
       } else {
@@ -557,7 +579,9 @@ export function toMarkdown(doc) {
   }
   if (doc.inputs.provenance) L.push(`- Provenance report: ${doc.inputs.provenance.records} records, ${doc.inputs.provenance.errors} errors, ${doc.inputs.provenance.warnings} warnings`);
   if (doc.inputs.unknown_evidence_keys.length) L.push(`- Tagged keys that name no manifest entry: ${doc.inputs.unknown_evidence_keys.map((k) => `\`${k}\``).join(', ')}`);
-  for (const u of arr(doc.inputs.playtest_tag_rules_unmatched)) L.push(`- A playtest_tags rule matched no check of \`${u.file}\` (renamed checks?): \`${esc(u.rule)}\``);
+  for (const u of arr(doc.inputs.playtest_tag_rules_unmatched)) {
+    L.push(`- A playtest_tags rule matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')} (renamed checks?): \`${esc(u.rule)}\``);
+  }
   L.push('');
   L.push('Regenerate with the same inputs (`--check` instead of writing compares the committed files):', '');
   L.push('```bash', regenerateCommand(doc.inputs), '```', '');

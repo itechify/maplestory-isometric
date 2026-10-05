@@ -7,6 +7,22 @@ const ORANGE := "239"
 const ROGERS_APPLE := "235"
 
 
+## Contract C6: each test compares an item's restore with its canonical consumable record; the Lucy test covers every
+## Potion and Food row of her canonical stock.
+func parity_keys() -> Dictionary:
+	var lucy: Array = []
+	for row in db().shop("maple-road-lucy").items:
+		if String(row.item_subtype) in ["Potion", "Food"]:
+			lucy.append("item:" + String(row.item_id))
+	return {
+		"test_potion_restores_documented_hp_and_decrements": ["item:" + RED_POTION],
+		"test_mp_item_restores_mp_and_respects_max_mp": ["item:" + ORANGE],
+		"test_rogers_apple_works": ["item:" + ROGERS_APPLE],
+		"test_every_potion_and_food_lucy_sells_works": lucy,
+		"test_use_persists_through_save_round_trip": ["persistence:inventory", "persistence:hp-mp"],
+	}
+
+
 func _char(hp: int = 10, mp: int = 0) -> CharacterState:
 	var c := CharacterState.new()
 	c.base_max_hp = 1000

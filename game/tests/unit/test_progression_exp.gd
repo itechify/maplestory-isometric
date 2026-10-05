@@ -3,6 +3,21 @@ extends TestCase
 ## the level-up heal, the new-character setup and the death EXP penalty.
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {
+		"test_new_character_is_a_meowdb_beginner": ["mechanic:new-character"],
+		"test_exp_thresholds": ["mechanic:level-up-gains"],
+		"test_single_level_up_effects": ["mechanic:level-up-gains"],
+		"test_several_level_ups_at_once": ["mechanic:level-up-gains"],
+		"test_beginner_progression_to_level_11": ["mechanic:level-up-gains"],
+		"test_allocate_ap": ["mechanic:ap-allocation"],
+		"test_ap_is_retained_and_changes_derived_stats": ["mechanic:ap-allocation"],
+		"test_death_penalty_example": ["mechanic:death-respawn"],
+		"test_death_penalty_luk_table": ["mechanic:death-respawn"],
+	}
+
+
 func _fresh() -> CharacterState:
 	var c := CharacterState.new()
 	Progression.init_new_character(c, db())

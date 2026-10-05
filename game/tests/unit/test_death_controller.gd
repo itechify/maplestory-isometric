@@ -10,6 +10,14 @@ extends TestCase
 const SESSION_SCRIPT := "res://scripts/autoload/map_session.gd"
 const SLOT := "death1"
 
+
+## Contract C6: the Test F flows at the rules level.
+func parity_keys() -> Dictionary:
+	return {
+		"test_test_f_deaths_in_40_and_1014": ["mechanic:death-respawn"],
+		"test_test_f_death_quit_reload_in_40_and_1014": ["mechanic:death-respawn", "persistence:respawn-information"],
+	}
+
 var root := ""
 var ms: Node = null
 var svc: SaveService = null

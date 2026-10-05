@@ -8,13 +8,24 @@ extends DataValidationTestCase
 
 
 func parity_keys() -> Dictionary:
+	# Membership and chance are checked entry by entry against the dated captures (every monster entry; the box's
+	# entries), so those tests prove each drop:<owner>/<key>; the meso test checks each monster's meso record.
+	var monster_drops: Array = []
+	var mesos: Array = []
+	for owner_id in _monsters():
+		mesos.append("meso:" + owner_id)
+		for e in db().drop_table(owner_id).entries:
+			monster_drops.append("drop:%s/%s" % [owner_id, String(e.key)])
+	var box_drops: Array = []
+	for e in db().drop_table("0000001").entries:
+		box_drops.append("drop:0000001/" + String(e.key))
 	return {
 		"test_membership_is_exactly_the_hidden_street_lists": ["mechanic:drop-membership-authoritative",
-			"monster:1", "monster:2", "monster:3", "monster:4", "monster:5", "monster:9"],
-		"test_box_membership_is_meowdbs_live_list": ["breakable:0000001", "mechanic:drop-membership-authoritative"],
+			"monster:1", "monster:2", "monster:3", "monster:4", "monster:5", "monster:9"] + monster_drops,
+		"test_box_membership_is_meowdbs_live_list": ["breakable:0000001", "mechanic:drop-membership-authoritative"] + box_drops,
 		"test_kurodb_only_rows_never_enter": ["mechanic:kurodb-only-excluded"],
-		"test_chances_quote_the_kurodb_capture": ["mechanic:drop-chance-from-kurodb"],
-		"test_meso_amount_and_chance_sources": ["mechanic:meso-amount-source", "mechanic:meso-chance-source"],
+		"test_chances_quote_the_kurodb_capture": ["mechanic:drop-chance-from-kurodb"] + monster_drops + box_drops,
+		"test_meso_amount_and_chance_sources": ["mechanic:meso-amount-source", "mechanic:meso-chance-source"] + mesos,
 		"test_unknown_probabilities_stay_visible": ["mechanic:unresolved-drops-visible"],
 		"test_kurodb_only_row_added_back_fails": ["mechanic:kurodb-only-excluded"],
 		"test_meso_chance_from_meowdb_fails": ["mechanic:meso-chance-source"],

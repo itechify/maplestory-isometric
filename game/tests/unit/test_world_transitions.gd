@@ -17,6 +17,16 @@ const PLAYER_SCENE := "res://scenes/actors/player.tscn"
 const QUIT_AFTER_FRAMES := 60000
 
 
+## Contract C6: both runs press Up at every canonical portal in the exported world (arrival, grounding, event order),
+## so they prove each portal:<map>/<name> key; they also die and respawn. Needs INCLUDE_WORLD=1 (else a SKIP line).
+func parity_keys() -> Dictionary:
+	var keys: Array = ["mechanic:portal-transition", "mechanic:death-respawn"]
+	for id in db().ids("maps"):
+		for p in db().map(id).get("portals", []):
+			keys.append("portal:%s/%s" % [id, String(p.name)])
+	return {"test_l2_world_transitions": keys, "test_l2_world_transitions_with_the_real_player": keys}
+
+
 func test_l2_world_transitions() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_l2_world_transitions: game/assets/world not present (run with INCLUDE_WORLD=1)")

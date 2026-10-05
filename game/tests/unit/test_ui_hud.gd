@@ -19,6 +19,17 @@ var nodes: Array = []
 var counts: Dictionary = {}
 
 
+## Contract C6: the Phase 12 feedback each test checks.
+func parity_keys() -> Dictionary:
+	return {
+		"test_level_up_flourish_and_ap_badge": ["ui:level-up-feedback", "ui:ap-notification", "ui:sp-notification"],
+		"test_map_banner_shows_street_and_name": ["ui:map-name-display"],
+		"test_trail_line_shows_the_destination_while_on_a_trail": ["ui:portal-cue"],
+		"test_notice_log_logs_every_gain_and_drops_only_repeated_notices": ["ui:item-pickup-feedback", "mechanic:inventory-full-warning"],
+		"test_quickslot_bind_use_decrement_and_persist": ["persistence:quickslots"],
+	}
+
+
 func before_each() -> void:
 	bus = load("res://scripts/autoload/events.gd").new()
 	counts = {}

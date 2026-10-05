@@ -3,6 +3,15 @@ extends ParityTestCase
 ## MeowDB's character builder (game/tests/data/parity_vectors.json).
 
 
+## Contract C6 (Definition of Done: MeowDB parity tests still pass).
+func parity_keys() -> Dictionary:
+	return {
+		"test_character_stats_and_damage_window": ["canon:meowdb-formula-parity"],
+		"test_guide_lv30_warrior_stats": ["canon:meowdb-formula-parity"],
+		"test_fixture_builds_total_ap": ["canon:meowdb-formula-parity"],
+	}
+
+
 func _check_builder_vector(v: Dictionary) -> void:
 	var inp: Dictionary = v["inputs"]
 	var out: Dictionary = v["outputs"]

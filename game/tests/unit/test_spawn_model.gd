@@ -124,6 +124,12 @@ func test_capacity_table_equals_appendix_b_and_meowdb_estimates() -> void:
 
 
 func parity_keys() -> Dictionary:
+	# The capacity table test checks every map's spawn-point count and solo capacity against MeowDB's own estimate:
+	# the spawn rule (spawn-rule:<map>) of each map that has monsters.
+	var rules: Array = []
+	for id in db().ids("maps"):
+		if not (db().map(id).get("monsters", []) as Array).is_empty():
+			rules.append("spawn-rule:" + id)
 	return {
 		"test_reads_the_canonical_record": ["mechanic:spawn-respawn-tick"],
 		"test_player_scalar_table": ["mechanic:spawn-capacity"],
@@ -131,5 +137,5 @@ func parity_keys() -> Dictionary:
 		"test_mob_rate_is_ignored": ["mechanic:spawn-mob-rate"],
 		"test_the_mob_rate_switch_is_live": ["mechanic:spawn-mob-rate"],
 		"test_respawn_is_the_first_tick_at_or_after_death_plus_cooldown": ["mechanic:spawn-respawn-tick"],
-		"test_capacity_table_equals_appendix_b_and_meowdb_estimates": ["mechanic:spawn-capacity"],
+		"test_capacity_table_equals_appendix_b_and_meowdb_estimates": ["mechanic:spawn-capacity"] + rules,
 	}

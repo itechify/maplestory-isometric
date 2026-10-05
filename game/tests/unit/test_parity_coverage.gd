@@ -30,6 +30,11 @@ const COVERED: Dictionary = {
 }
 
 
+## Contract C6 (Definition of Done: MeowDB parity tests still pass, coverage intact).
+func parity_keys() -> Dictionary:
+	return {"test_every_mechanic_is_covered": ["canon:meowdb-formula-parity"], "test_vectors_agree_with_guide": ["canon:meowdb-formula-parity"]}
+
+
 func test_every_mechanic_is_covered() -> void:
 	var seen := {}
 	for v in parity_doc().get("vectors", []):

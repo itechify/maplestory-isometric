@@ -13,6 +13,22 @@ func defs() -> MapDefinitions:
 	return _defs
 
 
+## Contract C6. The three whole-graph tests compare every canonical portal with its MeowDB record, so they prove each
+## portal:<map>/<name> key.
+func parity_keys() -> Dictionary:
+	var portals: Array = []
+	for id in db().ids("maps"):
+		for p in db().map(id).get("portals", []):
+			portals.append("portal:%s/%s" % [id, String(p.name)])
+	return {
+		"test_every_meowdb_portal_has_exactly_one_portal_def": portals,
+		"test_destination_resolution_is_unique_and_matches_meowdb_derivation": portals + ["xref:portal-destination"],
+		"test_directed_graph_equals_meowdb": portals + ["xref:portal-destination"],
+		"test_bfs_from_start_reaches_all_25_maps": ["xref:portal-destination"],
+		"test_every_map_reaches_its_return_map": ["mechanic:death-respawn", "persistence:respawn-information"],
+	}
+
+
 func test_builds_without_errors() -> void:
 	assert_eq(defs().errors.size(), 0, "build errors: %s" % "; ".join(defs().errors))
 	assert_eq(defs().ids().size(), 25, "map count")

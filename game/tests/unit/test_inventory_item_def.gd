@@ -3,6 +3,16 @@ extends TestCase
 ## so these tests check the mapping, not MeowDB's numbers.
 
 
+## Contract C6: only the items whose values a test compares with their canonical record (the whole-set test checks
+## that every item builds, not its values, so it proves no item:<id> key).
+func parity_keys() -> Dictionary:
+	return {
+		"test_stat_lines_map_to_bonus_keys": ["item:711", "item:1440"],
+		"test_consumable_effects": ["item:270", "item:239", "item:269"],
+		"test_weapon_type_family_action_and_speed": ["item:541"],
+	}
+
+
 func test_every_canonical_item_builds() -> void:
 	for id in db().ids("items"):
 		var def := ItemDef.of(id, db())

@@ -6,6 +6,17 @@ extends ParityTestCase
 const JS_EPSILON := 2.220446049250313e-16
 
 
+## Contract C6: every test replays MeowDB's own calculators (Definition of Done: MeowDB parity tests still pass).
+func parity_keys() -> Dictionary:
+	var out := {}
+	for t in ["test_accuracy_vs_monster", "test_acc_milestones", "test_accuracy_grid", "test_incoming_hit_grid",
+			"test_incoming_damage_curve", "test_shield_guard_chance", "test_avoid_and_incoming_vs_monster", "test_mob_hit_danger"]:
+		out[t] = ["canon:meowdb-formula-parity"]
+	out["test_monster_touch_damage_display"] = ["canon:meowdb-formula-parity", "mechanic:monster-touch-damage"]
+	out["test_monster_records_touch_estimate"] = ["canon:meowdb-formula-parity", "mechanic:monster-touch-damage"]
+	return out
+
+
 func _check_acc_milestones(out: Dictionary, plv: int, mlv: int, eva: float, id: String) -> void:
 	assert_rel(CombatFormula.acc_needed_for_hit_chance(JS_EPSILON, plv, mlv, eva, db()), float(out["min"]), id + " min")
 	assert_rel(CombatFormula.acc_needed_for_hit_chance(100.0, plv, mlv, eva, db()), float(out["max"]), id + " max")

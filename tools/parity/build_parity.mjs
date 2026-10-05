@@ -128,7 +128,9 @@ function main() {
   if (doc.inputs.unknown_evidence_keys.length) {
     console.warn(`${doc.inputs.unknown_evidence_keys.length} tagged key(s) name no manifest entry (a typo, or a row missing from rules.json): ${doc.inputs.unknown_evidence_keys.join(', ')}`);
   }
-  for (const u of doc.inputs.playtest_tag_rules_unmatched) console.warn(`playtest_tags rule ${u.rule} matched no check of ${u.file}`);
+  for (const u of doc.inputs.playtest_tag_rules_unmatched) {
+    console.warn(`playtest_tags rule ${u.rule} matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')}`);
+  }
   const json = JSON.stringify(doc, null, 2) + '\n';
   const md = toMarkdown(doc) + '\n';
   const t = doc.totals.all;
