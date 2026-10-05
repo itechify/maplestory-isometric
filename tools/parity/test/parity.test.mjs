@@ -116,7 +116,42 @@ test('quests need real-game evidence; objectives and rewards accept their quest 
   assert.equal(find(one, 'reward:1006/exp').state, 'verified');
   assert.equal(find(one, 'chain:1006').state, 'implemented', 'one member still implemented');
   const both = build({ playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }])] });
-  assert.equal(find(both, 'chain:1006').state, 'verified');
+  assert.equal(find(both, 'chain:1006').state, 'implemented', 'every member verified, but no check of a link of the chain');
+  assert.ok(find(both, 'chain:1006').notes.some((n) => /needs a passing real-game check tagged with this key/.test(n)));
+  const link = { i: 2, name: '1006: its follow-up 1009 (Mai\'s Training) is available at level 3', ok: true, parity: ['quest:1006', 'quest:1009'] };
+  const tagRule = { scenario: 'quest_run', match: '^1006: its follow-up 1009 \\(.+\\) is available at level \\d+$', keys: ['chain:1006'], why: 't' };
+  const linked = buildParity({ canonical: canonical(), miso: {}, rules: { ...RULES, playtest_tags: [tagRule] }, runtime: runtime(), tests: [],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }, link])] });
+  assert.equal(find(linked, 'chain:1006').state, 'verified', 'members verified and a passing real-game link check');
+  assert.equal(find(linked, 'chain:1006').evidence.passed_count, 1);
+  const unitLink = build({ tests: [unit([{ file: 't.gd', name: 'test_chain', ok: true, parity: ['chain:1006'] }])],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }])] });
+  assert.equal(find(unitLink, 'chain:1006').state, 'implemented', 'a unit test is not a real-game link check');
+  const brokenLink = buildParity({ canonical: canonical(), miso: {}, rules: { ...RULES, playtest_tags: [tagRule] }, runtime: runtime(), tests: [],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }, { ...link, ok: false }])] });
+  assert.equal(find(brokenLink, 'chain:1006').state, 'partial', 'a failing link check');
+  assert.match(find(brokenLink, 'chain:1006').issues.join(), /1 tagged check\(s\) failed/);
+  assert.match(toMarkdown(linked), /\*\*chains\*\*: A quest chain/, 'the States section states the chain rule');
+});
+
+test('spawn-rule rows list the mob-rate switch and say whether the rate is applied; adaptation sections must exist', () => {
+  const miso = { presentation: { map_mob_rate: { apply: false, reason: 'r', verified: false }, fall_recovery: { reason: 'r', verified: false } } };
+  const doc = buildParity({ canonical: canonical(), miso, rules: RULES, runtime: runtime(), tests: [], playtests: [] });
+  const sr = find(doc, 'spawn-rule:000000040');
+  assert.deepEqual(sr.adaptations, ['game/data/misostory/presentation.json#map_mob_rate']);
+  assert.match(sr.name, /MeowDB mob rate 1 \(not applied: presentation\.json map_mob_rate\)/);
+  assert.ok(sr.notes.some((n) => /deliberately not applied/.test(n)));
+  const on = buildParity({ canonical: canonical(), miso: { presentation: { map_mob_rate: { apply: true, verified: false } } }, rules: RULES, runtime: runtime(), tests: [], playtests: [] });
+  assert.match(find(on, 'spawn-rule:000000040').name, /\(applied: /);
+  const bare = build();
+  assert.deepEqual(find(bare, 'spawn-rule:000000040').adaptations, [], 'no presentation.json: nothing listed');
+  const withRow = (adaptations) => ({ ...RULES, mechanics: [...RULES.mechanics, { key: 'mechanic:fall-damage', name: 'f', source_gaps: ['g'], adaptations }] });
+  const ok = buildParity({ canonical: canonical(), miso, rules: withRow(['game/data/misostory/presentation.json#fall_recovery', 'game/data/misostory/none.json']), runtime: runtime() });
+  assert.deepEqual(find(ok, 'mechanic:fall-damage').adaptations, ['game/data/misostory/presentation.json#fall_recovery'], 'a missing file is not listed');
+  assert.equal(find(ok, 'mechanic:fall-damage').source_data_gap, true);
+  assert.match(toMarkdown(ok), /adaptation: presentation\.json#fall_recovery/);
+  assert.throws(() => buildParity({ canonical: canonical(), miso, rules: withRow(['game/data/misostory/presentation.json#no_such_section']), runtime: runtime() }),
+    /has no section "no_such_section"/, 'a stale section fails the build');
 });
 
 test('a failing tagged check, a soft check and a validation error', () => {

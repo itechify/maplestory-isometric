@@ -12,9 +12,10 @@
 //   implemented  the runtime is there, the data validates and every unresolved value is a documented source-data gap,
 //                but no passing check is tagged with the entry's key
 //   verified     as implemented, plus at least one passing check tagged with the entry's key (or a key it accepts, e.g.
-//                an objective accepts its quest's key) and no failing one. Quests, their objectives and rewards (and so
-//                their chains) need that check from the real game: a playtest report.json check, not a unit test (brief
-//                "Full Quest Playthrough Requirement"). A drop probability can only be verified when its sources
+//                an objective accepts its quest's key) and no failing one. Quests, their objectives and rewards need
+//                that check from the real game: a playtest report.json check, not a unit test (brief "Full Quest
+//                Playthrough Requirement"). A chain is derived from its member quests and also needs a real-game
+//                check of one of its links (RULE_TEXT.chains). A drop probability can only be verified when its sources
 //                resolve (a KuroDB chance for a member of the membership list); an unresolved one is a source-data gap.
 //   source_data_gap  (a flag next to the state) the entry cannot be completed because the sources were read and do not
 //                give a value (KuroDB's page for that monster has no row for the member; Hidden Street gives no meso
@@ -150,7 +151,8 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
+  chains: 'A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner\'s "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.',
   source_data_gap: 'The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
   pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
@@ -332,6 +334,30 @@ function recordGaps(rec) {
   return arr(rec?.gaps).map(String);
 }
 
+/** The adaptation every spawn-rule row lists: the switch that decides whether the canonical mob rate is applied. */
+export const MOB_RATE_ADAPTATION = 'game/data/misostory/presentation.json#map_mob_rate';
+
+/** presentation.json map_mob_rate as {apply, verified}, or null when the file or the section is absent. */
+function mobRateAdaptation(miso) {
+  const m = miso?.presentation?.map_mob_rate;
+  return m && typeof m === 'object' ? { apply: m.apply === true, verified: m.verified ?? null } : null;
+}
+
+/**
+ * A rules.json adaptation reference: "game/data/misostory/<file>.json", or "<file>.json#<key>" for one top-level
+ * section of it. Returns the reference when the file exists, null when it does not (the row lists no adaptation), and
+ * throws when the file exists without the named section (a stale reference).
+ */
+export function adaptationRef(ref, miso) {
+  const [file, section] = String(ref).split('#');
+  const data = miso[file.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')];
+  if (!data) return null;
+  if (section !== undefined && !(typeof data === 'object' && Object.hasOwn(data, section))) {
+    throw new Error(`rules.json: adaptation ${ref}: ${file} has no section ${JSON.stringify(section)}`);
+  }
+  return ref;
+}
+
 function enumerate(ctx) {
   const { canonical: C, miso, rules } = ctx;
   const out = [];
@@ -353,8 +379,17 @@ function enumerate(ctx) {
     const species = new Map();
     for (const s of arr(m.monsters)) species.set(String(s.id), s);
     if (species.size) {
-      out.push(entry('monster-spawn-rules', `spawn-rule:${id}`, `${m.name}: mob rate ${m.mob_rate ?? '?'}, ${arr(m.spawns).length} spawn points`,
-        { record: `maps/${id}` }));
+      // The canonical rule names the map's MeowDB mob rate; whether the runtime applies it is the MisoStory switch
+      // presentation.json map_mob_rate (an owner decision between MeowDB pages), so the row says which and lists it.
+      const mobRate = mobRateAdaptation(miso);
+      const rateText = `MeowDB mob rate ${m.mob_rate ?? '?'}${mobRate ? ` (${mobRate.apply ? 'applied' : 'not applied'}: presentation.json map_mob_rate)` : ''}`;
+      const sr = entry('monster-spawn-rules', `spawn-rule:${id}`, `${m.name}: ${arr(m.spawns).length} spawn points, ${rateText}`,
+        { record: `maps/${id}`, adaptations: mobRate ? [MOB_RATE_ADAPTATION] : [] });
+      if (mobRate) {
+        sr.notes.push(`mob rate ${m.mob_rate ?? '?'} ${mobRate.apply ? 'applied' : 'deliberately not applied'} (presentation.json map_mob_rate.apply ` +
+          `${mobRate.apply}, verified: ${mobRate.verified}; capacity = floor(spawn points x player scalar)${mobRate.apply ? ' x mob rate, capped at the spawn points' : ''})`);
+      }
+      out.push(sr);
     }
     for (const [mob, s] of species) {
       out.push(entry('monster-populations', `population:${id}/${mob}`, `${m.name}: ${s.name} x${s.count ?? '?'}`,
@@ -512,7 +547,7 @@ function enumerate(ctx) {
     const category = m.category ?? 'map-mechanics';
     if (!RULE_ROW_CATEGORIES.has(category)) throw new Error(`rules.json: ${m.key} names an unknown category ${category}`);
     const ent = entry(category, m.key, m.name, { brief: m.brief ?? null, accepts: [...arr(m.accepts)], rule_accepts: arr(m.accepts),
-      ...(typeof m.real_game === 'boolean' ? { real_game: m.real_game } : {}), adaptations: arr(m.adaptations).filter((a) => miso[a.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')]) });
+      ...(typeof m.real_game === 'boolean' ? { real_game: m.real_game } : {}), adaptations: arr(m.adaptations).map((a) => adaptationRef(a, miso)).filter(Boolean) });
     if (m.runtime !== undefined || category === 'map-mechanics') ent.runtime_spec = m.runtime ?? null;
     if (arr(m.source_gaps).length) {
       ent.source_data_gap = true;
@@ -628,13 +663,19 @@ function finish(e, ctx, all) {
   const shown = [...passed.filter((p) => p.kind === 'playtest'), ...passed.filter((p) => p.kind !== 'playtest')].slice(0, EVIDENCE_LISTED);
   e.evidence = { passed_count: passed.length, failed_count: failed.length, passed: shown, failed };
   if (e.category === 'quest-chains') {
+    // RULE_TEXT.chains: derived from the member quests, plus the chain's own real-game link checks.
     const members = e.members.map((m) => all.get(`quest:${m}`)).filter(Boolean);
     const states = members.map((m) => m.state);
+    const links = passed.filter((p) => p.kind === 'playtest');
+    if (failed.length) e.issues.push(`${failed.length} tagged check(s) failed`);
     if (rt.state === 'absent' || states.includes('missing')) e.state = 'missing';
-    else if (states.length !== e.members.length || states.includes('partial')) e.state = 'partial';
-    else if (states.every((s) => s === 'verified')) e.state = 'verified';
+    else if (states.length !== e.members.length || states.includes('partial') || failed.length) e.state = 'partial';
+    else if (states.every((s) => s === 'verified') && links.length) e.state = 'verified';
     else e.state = 'implemented';
     e.notes.push(`members: ${e.members.map((m, i) => `${m} ${states[i] ?? 'absent'}`).join(', ')}`);
+    if (e.state === 'implemented' && states.every((s) => s === 'verified')) {
+      e.notes.push('needs a passing real-game check tagged with this key (a link of the chain: a follow-up available right after its predecessor was completed)');
+    }
     return;
   }
   if (rt.state === 'absent') {
@@ -717,7 +758,7 @@ export function toMarkdown(doc) {
   L.push('`report.json` files. Do not edit: change the data, the code, the tests or `tools/parity/rules.json` and regenerate.');
   L.push('Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).', '');
   L.push('## States', '');
-  for (const s of [...STATES, 'source_data_gap', 'pending_source_read', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
+  for (const s of [...STATES, 'chains', 'source_data_gap', 'pending_source_read', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
   L.push('- Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries');
   L.push('  `parity`. "Implemented" is a declaration (`tools/parity/rules.json`: the runtime files or code markers per category');
   L.push('  and mechanic); only evidence makes an entry verified.', '');
