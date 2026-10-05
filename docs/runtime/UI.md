@@ -29,7 +29,7 @@ So every change it makes fires the usual `Events`.
 | `assets/fonts/nunito/` | | `Nunito-Variable.ttf` (google/fonts, unmodified), `OFL.txt`, `SOURCE.md` |
 | `scenes/ui/hud.tscn` → `scripts/ui/hud/hud.gd` | `MisoHud` | HUD root, `setup(ctx)` |
 | `scripts/ui/hud/status_bar.gd` | `MisoStatusBar` | Bottom bar: level, name, job, HP/MP/EXP gauges, mesos, window buttons, quickslots |
-| `scripts/ui/hud/quickslot_bar.gd` | `MisoQuickslotBar` | The 8 quickslots (bind by drop, use, move, clear) |
+| `scripts/ui/hud/quickslot_bar.gd` | `MisoQuickslotBar` | The 8 quickslots (bind by drop, use, move, clear); item slots and skill slots (icon, MP greying, cooldown sweep) |
 | `scripts/ui/hud/notice_log.gd` | `MisoNoticeLog` | Message log (fading lines + history) |
 | `scripts/ui/hud/map_banner.gd` | `MisoMapBanner` | Street + map name on arrival; on a trail, the "-> destination" line under the map name |
 | `scripts/ui/hud/level_up_flourish.gd` | `MisoLevelUpFlourish` | "LEVEL UP!" pop with procedural stars |
@@ -38,18 +38,21 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/windows/equipment_window.gd` + `doll_backdrop.gd` | `MisoEquipmentWindow`, `MisoDollBackdrop` | Equipment (E) |
 | `scripts/ui/windows/stats_window.gd` | `MisoStatsWindow` | Character Stats (C) |
 | `scripts/ui/windows/quest_window.gd` | `MisoQuestWindow` | Quest Log (Q / L) |
+| `scripts/ui/windows/skills_window.gd` | `MisoSkillsWindow` | Skills (K): levels, SP, "+", description, Set key, drag to a quickslot |
 | `scripts/ui/common/ui_env.gd` | `MisoUiEnv` | Resolves character / content / bus / game / map session / quest engine / ctx for in-game, standalone and tests |
 | `scripts/ui/common/miso_window.gd` | `MisoWindow` | Base window: title strip, key hint, close, drag, clamp, ctx registration, status line |
 | `scripts/ui/common/item_slot.gd` | `MisoItemSlot` | One item square: icon, count, caption, key label, click/double-click/right-click/hover, drag-and-drop hooks |
 | `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Procedural item icon (shape per category/item, tint from the name) |
+| `scripts/ui/common/skill_icon.gd` | `MisoSkillIcon` | Procedural skill icon (shells, heart, winged boot) with the dim and cooldown-sweep overlays |
 | `scripts/ui/common/item_tooltip.gd` | `MisoItemTooltip` | Inspect card; `describe()` is the pure part |
 | `scripts/ui/common/gauge.gd` | `MisoGauge` | Bar + tag + outlined value text |
 | `scripts/ui/common/coin_icon.gd` | `MisoCoinIcon` | Procedural meso coin |
-| `scripts/ui/common/quickslots.gd` | `MisoQuickslots` | Quickslot bindings in `CharacterState.quickslots` (bind / unbind / move / use / notify) |
+| `scripts/ui/common/quickslots.gd` | `MisoQuickslots` | Typed quickslot bindings in `CharacterState.quickslots` (bind / bind_skill / unbind / move / use / notify) |
 | `scripts/ui/common/ui_text.gd` | `MisoUiText` | Player-facing wording: result messages, log lines, objective rows |
 | `scripts/ui/common/sandbox/ui_sandbox.tscn` | | UI sandbox (populated character, screenshots) |
 | `scripts/ui/common/sandbox/ui_game_check.tscn` | | Screenshot check through the real game shell (`main.tscn`) |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
+| `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
 
 ## Integration (game shell)
 
@@ -178,9 +181,11 @@ character on each event. No character object is cached.
 - **`MisoWindowsRoot`**:
   - `setup(ctx)`, `configure(env)`;
   - `window_by_name(name)`, `open_window`, `close_window`, `toggle_window`, `is_open`, `close_all`, `refresh_open`;
-  - `default_position(name)` and `window_width(name)` (the first-open placement);
+  - `default_position(name)`, `window_width(name)` and `window_size(name)` (the first-open placement: `LEFT_ROW`,
+    `RIGHT_ROW`, and `BELOW` for the Skills window, which opens under the Quest Log because the five windows are
+    wider together than the screen);
   - `show_item_tooltip(item_id, opts, anchor)` and `hide_item_tooltip()`;
-  - the windows: `inventory`, `equipment`, `stats`, `quests`.
+  - the windows: `inventory`, `equipment`, `stats`, `quests`, `skills`.
 
 ### Windows
 
@@ -194,8 +199,13 @@ character on each event. No character object is cached.
 - **`MisoEquipmentWindow`**: `unequip_slot(slot) -> result`, `equip_from_inventory(item_id, index) -> result` and
   `bonus_lines()`. Slots come from `ItemsConfig.equipment_slots(db)`; a slot the layout does not know is still
   placed, in the bottom rows.
-- **`MisoStatsWindow`**: `add_point(stat) -> bool`, `value_text(key)` and `static allocatable_stats(db)` (canonical
-  `beginner.json ap.allocatable_stats`).
+- **`MisoStatsWindow`**: `add_point(stat) -> bool`, `value_text(key)`, `sp_label` and `static allocatable_stats(db)`
+  (canonical `beginner.json ap.allocatable_stats`).
+- **`MisoSkillsWindow`**: `add_point(skill_id) -> bool` (`SkillBook.learn`, then `Events.skill_leveled` and
+  `stats_changed` and an autosave request), `select_skill(id)`, `assign_quickslot(key, skill_id = selected) -> bool`,
+  `level_text(id)`, and the parts `rows` (per skill: `panel`, `icon` (a `SkillIconCell` drag source), `name`,
+  `level`, `effect`, `plus`), `plus_buttons`, `key_buttons`, `key_button`, `sp_label`. Rows come from
+  `SkillDef.catalog(job, db)`.
 - **`MisoQuestWindow`**: `select_tab("in_progress" | "available" | "completed")`, `select_quest(id)`,
   `objective_rows()` and `detail_texts()`.
 
@@ -205,12 +215,20 @@ character on each event. No character object is cached.
 - **Status bar.** Lv. (gold), name, job (canonical `formulas/<job>.json name`); HP and MP gauges with "cur / max"; the
   EXP gauge with "cur / needed [12.34%]" ("MAX" at the cap); mesos with a coin. From the death to the end of the
   respawn the HP gauge reads "0 / max"; the EXP bar drops at the death (the penalty's `exp_gained(-lost, "death")`).
-- **Window buttons.** `Item [I]`, `Equip [E]`, `Stat [C]`, `Quest [Q]`. Each key label comes from the InputMap. While
-  AP is unspent, the Stat button turns orange and reads `Stat [C] +5`.
-- **Quickslots.** Eight slots, 1-8:
-  - each shows the key, the icon, and the inventory count (0 = greyed);
+- **Window buttons.** `Item [I]`, `Equip [E]`, `Quest [Q]` / `Stat [C]`, `Skill [K]` (3 + 2). Each key label comes from the
+  InputMap. While AP is unspent, the Stat button turns orange and reads `Stat [C] +5`; while SP is unspent, the
+  Skill button does the same (`Skill [K] +1`; `MisoStatusBar.set_sp`, called by `MisoHud.refresh_all`).
+- **Quickslots.** Eight slots, 1-8. A binding is typed, `{"kind": "item" | "skill", "id"}` (contract C3); a bare item
+  id from an older save still reads as an item:
+  - an item slot shows the key, the icon, and the inventory count (0 = greyed). A consumable is used through
+    `ItemService.use_item`; a chair (a Setup item with setup data, The Green Relaxer) emits
+    `Events.chair_use_requested(item_id)` for the sitting system;
+  - a skill slot shows the skill's icon, greyed while the character lacks the MP or the shell item for its level, with
+    the cooldown as a dark sweep and the seconds left; it casts through the player's `PlayerSkills`
+    (`MisoQuickslots.use_skill`), and a refusal with a reason ("Nimble Feet is not ready yet (164 s).", "Not enough MP
+    for Recovery.", "Three Snails needs a Snail Shell.") goes to the log. Its hover shows the skill's name and level;
   - press the key or double-click the slot to use it;
-  - drop a consumable from the inventory on a slot to bind it;
+  - drop a consumable or a chair from the inventory, or a learned skill from the Skills window, on a slot to bind it;
   - drag between slots to move a binding; right-click to clear it.
 
 **Message log.** Fading lines above the bar:
@@ -220,7 +238,7 @@ character on each event. No character object is cached.
 | `item_gained` | "You have gained an item (Red Potion x5)" |
 | `mesos_changed` | "You have gained mesos (+12)" when delta > 0; "You have spent 50 mesos." when delta < 0; nothing for delta 0 (a refresh) |
 | `exp_gained` | "You have gained experience (+15)" when amount > 0; nothing for amount <= 0 (a refresh: the death penalty's -N, or 0), though the EXP bar still redraws |
-| `leveled_up` | "Congratulations! You have reached level N." plus "You have N AP to distribute (press C)." |
+| `leveled_up` | "Congratulations! You have reached level N." plus "You have N AP to distribute (press C)." and, while SP is unspent, "You have N SP to spend (press K)." |
 | `quest_started`, `quest_completed`, `quest_forfeited` | "Quest started: ...", "Quest complete: ...", "Quest forfeited: ..." |
 | `quest_progressed` | "Sam's Suggestion: Snail 7/10". The HUD compares objective counts with the last ones it saw, so the line names what moved (`MisoHud.quest_progress_line`); an NPC talked to en route reads "...: spoke to Mai". The turn-in talk (`npc_talk` purpose `turn_in`, the completion act) adds no line: "Quest complete: ..." follows. Nothing nameable moved: no line |
 | `inventory_full` | "Your inventory is full." |
@@ -264,13 +282,24 @@ a 2400 x 900 window keeps it centred (before the fix it stayed at x 800 of 2400)
 
 **Character Stats (C).**
 - Name, Job, Level, EXP "cur / needed (pct)", HP, MP, Fame.
-- Ability Points (gold while above 0), and STR/DEX/INT/LUK as total, with "(base + bonus)" when gear adds to it.
+- Ability Points (gold while above 0), Skill Points [K] (gold while above 0; spent in the Skills window), and
+  STR/DEX/INT/LUK as total, with "(base + bonus)" when gear adds to it.
 - An orange "+" per allocatable stat while AP > 0. Each stat keeps its own row, with its value beside its name, at any
   AP: the "+" sits in a cell (`MisoStatsWindow.PlusCell`) that keeps the button's size while the button is hidden. A
   `GridContainer` skips hidden children, so hiding the bare button at 0 AP used to reflow the 3-column grid into
   "STR 9 DEX" / "8 INT 4" / "LUK 4" (playtest Test C).
 - Damage "min ~ max" (the `StatCalculator` stat window), ACC, AVOID, W.DEF, M.DEF, Magic (`matk`, MagicTotal),
   Speed %, Jump %.
+
+**Skills (K).** One row per skill the character's job can learn (`SkillDef.catalog`: the canonical Beginner skills
+Three Snails, Recovery, Nimble Feet), each with its procedural icon, name, "Lv. x / 3" and the current level's MeowDB
+effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent Skill Points in the header.
+- An orange "+" per skill while SP is left and the skill is below its max level: one SP, one level (`SkillBook.learn`;
+  no refunds).
+- Clicking a row selects it: the description shows the cast position, the description, the current level and the next
+  level's effect.
+- A learned skill's icon drags onto a HUD quickslot; or select it, press `Set key` and pick 1-8.
+- It opens under the Quest Log (`MisoWindowsRoot.BELOW`).
 
 **Quest Log (Q / L).** In Progress, Available and Completed tabs, each with a count.
 - In Progress entries that are ready to turn in show "[ready]".
@@ -405,8 +434,11 @@ staying disconnected after a reparent.
 - **Only the HUD's gauge reads 0 while dead.** A Character Stats window left open at the death (non-modal windows
   stay open) shows the character's HP on its next refresh, which is the respawn HP once the respawn's refresh arrives.
   The notice covers the middle of the screen, and the window is rarely open then.
-- **Quickslots hold consumables only.** Skills will need the same `CharacterState.quickslots` map with a typed value
-  (for example `{"kind": "skill", "id"}`). `MisoQuickslots.item_for` already reads ids defensively.
+- **The inventory's `Set key` still binds consumables only.** A chair reaches a quickslot by dragging it from the
+  Set-up tab onto the bar (`MisoQuickslots.can_bind` accepts it); the inventory window belongs to the items/sitting
+  work.
+- **Skill slots poll.** The bar redraws its skill slots every 0.1 s while any is bound (every frame during a
+  cooldown) instead of listening to MP and cooldown events.
 - **Not built.** Dropping or discarding items, item sorting, a split-stack dialog and a forfeit button in the quest
   log. `QuestService.forfeit` exists, but the brief does not ask for this.
 - **Sandbox location.** The sandbox scenes live under `scripts/ui/common/sandbox/`, because this system owns no path
