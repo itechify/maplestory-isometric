@@ -69,6 +69,7 @@ func parity_keys() -> Dictionary:
 		"test_npc_dots_follow_the_quests": ["ui:quest-indicators", "quest:1006"],
 		"test_portals_npcs_shops_and_hover_text": ["ui:shop-indication", "ui:portal-cue", "npc:16", "npc:15"],
 		"test_name_tags_mark_shopkeepers_and_transport": ["ui:shop-indication", "npc:15", "npc:16", "npc:20", "npc:21"],
+		"test_name_tag_role_line_follows_the_role": ["ui:shop-indication"],
 	}
 
 
@@ -402,3 +403,45 @@ func test_name_tags_mark_shopkeepers_and_transport() -> void:
 		else:
 			assert_false(rec.get("shop") is Dictionary, "NPC %s: no shop, no coin" % nid)
 	assert_true(shops >= 3 and transports >= 1, "Maple Island's shopkeepers (%d) and Shanks (%d)" % [shops, transports])
+
+
+## The places tried for a destination name: none of the nine sides or corners touches the portal's own glyph box (the
+## first corners did, so a name could never go there), the slid copies end inside the picture, and near every edge and
+## corner of the picture some place fits.
+func test_label_candidates_clear_the_glyph_and_slide_inside() -> void:
+	var area := Rect2(Vector2(2, 2), Vector2(226, 166))
+	var half := Vector2.ONE * (MisoMinimapView.PORTAL_R + 1.0)
+	var sz := Vector2(120.4, 16.0)
+	for at: Vector2 in [Vector2(115, 85), Vector2(222, 12), Vector2(8, 160), Vector2(10, 12), Vector2(222, 160)]:
+		for dir: Vector2 in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2(0.7, 0.7).normalized()]:
+			var cs := MisoMinimapView.label_candidates(at, dir, sz, area)
+			assert_true(cs.size() >= 9, "%s: the nine sides and corners" % at)
+			for i in 9:
+				assert_false(Rect2(cs[i], sz).intersects(Rect2(at - half, half * 2.0)),
+					"%s %s: candidate %d %s clears the glyph" % [at, dir, i, cs[i]])
+			for i in range(9, cs.size()):
+				assert_true(area.encloses(Rect2(cs[i].round(), sz)), "%s: slid candidate %s inside %s" % [at, cs[i], area])
+			var fits := cs.filter(func(c: Vector2) -> bool:
+				var r := Rect2(c.round(), sz)
+				return area.encloses(r) and not r.intersects(Rect2(at - half, half * 2.0)))
+			assert_false(fits.is_empty(), "%s %s: some place inside the picture beside the glyph" % [at, dir])
+
+
+## The tag's second line in any call order: the function title wins, "Transport" fills in only for a Transport NPC
+## without one, and goes again with the role.
+func test_name_tag_role_line_follows_the_role() -> void:
+	var tag := NpcNameTag.new()
+	nodes.append(tag)
+	tag.set_role(MapIcons.ROLE_TRANSPORT)
+	tag.set_texts("Shanks")
+	assert_true(tag.title_label.visible and tag.title_label.text == MapIcons.TRANSPORT_ROLE, "role first, then the texts")
+	tag.set_role("")
+	assert_false(tag.title_label.visible or tag.role_icon.visible, "no role: no 'Transport' line, no icon")
+	assert_eq(tag.title_label.text, "", "the role's line is gone")
+	tag.set_texts("Pan", "Armor Seller")
+	tag.set_role(MapIcons.ROLE_SHOP)
+	assert_eq(tag.title_label.text, "Armor Seller", "a shopkeeper keeps the function title")
+	tag.set_role(MapIcons.ROLE_TRANSPORT)
+	assert_eq(tag.title_label.text, "Armor Seller", "a function title is never replaced by the role")
+	tag.set_texts("Shanks", "")
+	assert_eq(tag.title_label.text, MapIcons.TRANSPORT_ROLE, "texts without a title: the role's line again")

@@ -6,7 +6,8 @@ extends PlaytestScenario
 ## open -> the player placed mid-trail: the arrow carries "-> <destination>" -> every one of the 25 maps (console warp,
 ## setup only): title, portal markers (exactly the visible canonical portals: no arrival gate, no hidden portal), NPC
 ## dots (exactly the canonical NPCs), shop badges on the doors to Pan, Sid and Lucy, the collision ground drawn, the
-## arrow on the picture after arrival, and the NPC name tags' shop / transport icons; a screenshot per map (windowed)
+## picture on screen with its ground meshes, every exit named on the picture (maps with up to five exits), the arrow
+## on the picture after arrival, and the NPC name tags' shop / transport icons; a screenshot per map (windowed)
 ## -> Phase 12 feedback through real kills in 000000040 to level 2: the flourish, the level, AP and SP lines, hits,
 ## pickup lines. Ends with no engine error raised from the minimap's scripts.
 
@@ -14,6 +15,8 @@ const START_MAP := "000000001"
 const HEENA := "1"
 ## Snail Hunting Ground I: the first hunting map (Phase 12 feedback through real kills).
 const HUNT_MAP := "000000040"
+## Maps with at most this many visible portals name every exit on the picture (all but 000001000's eight).
+const ALL_NAMED_MAX := 5
 
 
 func description() -> String:
@@ -87,6 +90,17 @@ func run(d: PlaytestDriver) -> void:
 		d.check("%s: title %s" % [id, _title(d, id)], s["title"] == _title(d, id), str(s["title"]))
 		d.check("%s: the collision ground is drawn" % id, s["ground_source"] == MinimapModel.SOURCE_COLLISION and int(s["ground"]) > 0,
 			"%s, %d triangles" % [s["ground_source"], int(s["ground"])])
+		var screen := Rect2(Vector2.ZERO, mm.get_viewport_rect().size)
+		d.check("%s: the picture is on screen with its ground meshes" % id, mm.view.is_visible_in_tree()
+			and int(s["meshes"]) > 0 and mm.view.size.x > 0.0 and mm.view.size.y > 0.0 and screen.encloses(mm.get_global_rect()),
+			"visible %s, %d meshes, picture %s, minimap %s on %s" % [mm.view.is_visible_in_tree(), int(s["meshes"]),
+			mm.view.size, mm.get_global_rect(), screen])
+		if want.size() <= ALL_NAMED_MAX:
+			var named: PackedStringArray = (s["labels"] as PackedStringArray).duplicate()
+			named.sort()
+			var sorted_want := want.duplicate()
+			sorted_want.sort()
+			d.check("%s: every exit is named on the picture" % id, named == sorted_want, "%s of %s" % [named, sorted_want])
 		d.check("%s: portal markers = the visible canonical portals %s" % [id, want], s["portals"] == want, str(s["portals"]))
 		d.check("%s: NPC dots = the canonical NPCs %s" % [id, npcs], got_npcs == npcs, str(got_npcs))
 		d.check("%s: the player's arrow is on the picture" % id, bool(s["player_in_view"]), str(mm.view.player_marker()))
