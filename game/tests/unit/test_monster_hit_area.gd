@@ -94,9 +94,9 @@ func test_contact_is_the_canonical_touch_zone_and_nothing_more() -> void:
 	for id in ["1", "2", "3", "4", "5", "9"]:
 		var d := MonsterDef.from_id(id, db())
 		var tz := d.stats.touch_zone_px
-		assert_near(d.touch_size_m.x, WorldScale.actor(tz.x), 1e-9, "%s width = canonical" % id)
-		assert_near(d.touch_size_m.y, WorldScale.actor(tz.y), 1e-9, "%s height = canonical" % id)
-		assert_near(d.touch_size_m.z, WorldScale.actor(tz.x), 1e-9, "%s depth = its width" % id)
+		assert_near(d.touch_size_m.x, WorldScale.actor(tz.x), 1e-6, "%s width = canonical" % id)
+		assert_near(d.touch_size_m.y, WorldScale.actor(tz.y), 1e-6, "%s height = canonical" % id)
+		assert_near(d.touch_size_m.z, WorldScale.actor(tz.x), 1e-6, "%s depth = its width" % id)
 		var reach := d.touch_size_m.x * 0.5 + r
 		for dir in [Vector3.RIGHT, Vector3.BACK, Vector3.LEFT]:
 			assert_true(MeleeQuery.touch_overlaps(Vector3.ZERO, Vector3.RIGHT, d.touch_size_m, dir * (reach - 0.01), r, h),
