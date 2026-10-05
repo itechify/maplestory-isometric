@@ -171,7 +171,9 @@ The two pockets the harness package suspected in 000001000 (map-local (29.0, 0, 
 under the fills of round 1 (`P21_P29_Gap_Fill`, `P26b_Notch_Fill`): no node stands at plinth level there, and
 `trap_probe` lands on the fills and escapes at once.
 
-Every former trap is in `trap_probe`'s `KNOWN_TRAPS` (53 spots), which `test_playtest_traps.gd` runs in the real game.
+Every former trap is in `trap_probe`'s `KNOWN_TRAPS` (51 spots), which `test_playtest_traps.gd` runs in the real game.
+With the world in the suite, `test_stuck_scan.gd` takes 55-85 s and `test_playtest_traps.gd` about 2 minutes (the
+probe itself 111 s of wall time); the full suite with the world ran 1,193 tests in 6 minutes.
 
 ### The final scan, per map
 
