@@ -6,6 +6,15 @@ var root := ""
 var store: SaveStore
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_second_write_keeps_one_backup": ["mechanic:atomic-save-backup"],
+		"test_failed_write_leaves_the_old_save_intact": ["mechanic:atomic-save-backup"],
+		"test_restore_backup_and_corrupt_save_never_overwrites_a_good_backup": ["mechanic:atomic-save-backup"],
+		"test_pre_migration_copy_is_made_once_and_deleted_with_the_slot": ["mechanic:save-migration"],
+	}
+
+
 func before_each() -> void:
 	root = "user://_tests/save_store_%d_%d" % [Time.get_ticks_usec(), randi()]
 	store = SaveStore.new(root)
