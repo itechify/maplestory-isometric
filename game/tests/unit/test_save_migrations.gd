@@ -1,9 +1,26 @@
 extends TestCase
-## Save schema versioning: the version is written, the v0 -> v1 migration converts a real pre-versioning save,
-## steps run in order, and newer/unknown versions are refused with an error code instead of loading.
+## Save schema versioning: the version is written, the v0 -> v1 migration converts a real pre-versioning save, the
+## v1 -> v2 step (contract C3) reshapes exactly what it documents, steps run in order, newer/unknown versions are
+## refused with an error code instead of loading, and the first save over an older file keeps a copy of it. Real
+## Iteration Two saves are covered by test_save_it2_fixtures.gd.
 
 var root := ""
 var svc: SaveService
+
+
+func parity_keys() -> Dictionary:
+	return {
+		"test_v0_save_migrates_to_v1": ["mechanic:save-migration"],
+		"test_v1_to_v2_types_quickslots": ["mechanic:save-migration", "persistence:quickslots"],
+		"test_v1_to_v2_marks_completed_rewards_unrecorded": ["mechanic:save-migration",
+			"persistence:random-rewards-received"],
+		"test_v1_to_v2_clears_effects_and_adds_the_timers": ["mechanic:save-migration",
+			"persistence:skill-cooldowns-buffs", "persistence:natural-regen-timer"],
+		"test_v1_to_v2_leaves_everything_else_alone": ["mechanic:save-migration"],
+		"test_first_save_over_an_it2_save_keeps_a_pre_migration_copy": ["mechanic:save-migration",
+			"mechanic:atomic-save-backup"],
+		"test_backup_only_it2_slot_keeps_the_backup_as_the_copy": ["mechanic:save-migration"],
+	}
 
 
 func before_each() -> void:
@@ -98,7 +115,8 @@ func test_v0_save_migrates_to_v1() -> void:
 	if not r.ok():
 		return
 	assert_eq(r.version_found, 0, "detected as v0")
-	assert_eq(r.migrations_applied, PackedStringArray(["v0_flat_character_to_v1_envelope"]), "step applied")
+	assert_eq(r.migrations_applied, PackedStringArray(["v0_flat_character_to_v1_envelope",
+		"v1_typed_quickslots_quest_rewards"]), "v0 -> v1, then v1 -> v2")
 	assert_eq(int(r.document["save_version"]), SaveMigrations.CURRENT_VERSION, "document is current after migration")
 	assert_eq(String(r.document["game"]), SaveDocument.GAME_ID)
 	var c := r.character
@@ -179,7 +197,8 @@ func test_newer_or_invalid_versions_are_refused() -> void:
 
 func test_missing_step_is_an_error() -> void:
 	var m := SaveMigrations.new()
-	var out := m.migrate({"save_version": 1}, 2)
+	var cur := SaveMigrations.CURRENT_VERSION
+	var out := m.migrate({"save_version": cur}, cur + 1)
 	assert_eq(out["error"], ERR_INVALID_DATA)
 	assert_true(String(out["message"]).contains("no migration"), String(out["message"]))
 	var none := SaveMigrations.new(false)
@@ -189,3 +208,177 @@ func test_missing_step_is_an_error() -> void:
 func test_unrecognisable_objects_are_corrupt_not_v0() -> void:
 	_write_json("junk", {"hello": "world"})
 	assert_eq(svc.read_save("junk").error, ERR_FILE_CORRUPT, "an object that is neither v0 nor enveloped")
+
+
+# --- v1 -> v2 (contract C3) -----------------------------------------------------------------------------------
+
+## A real Iteration Two (v1) save, parsed and number-normalized the way decode() hands it to the steps.
+func _v1_doc() -> Dictionary:
+	var raw: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://tests/data/saves/it2/d_inventory.json"))
+	return SaveDocument.normalize_numbers(raw)
+
+
+## Runs only the v1 -> v2 step on `doc` (through the registry, as decode() does).
+func _to_v2(doc: Dictionary) -> Dictionary:
+	var out := SaveMigrations.new().migrate(doc, 2)
+	assert_eq(out["error"], OK, String(out["message"]))
+	assert_eq(out["applied"], PackedStringArray(["v1_typed_quickslots_quest_rewards"]), "one step")
+	return out["doc"]
+
+
+func test_current_version_is_2() -> void:
+	assert_eq(SaveMigrations.CURRENT_VERSION, 2, "Iteration Three writes save_version 2")
+	assert_true(SaveMigrations.new().has_step(1), "with a v1 -> v2 step")
+
+
+func test_v1_to_v2_types_quickslots() -> void:
+	var doc := _v1_doc()
+	doc["character"]["quickslots"] = {
+		"1": "237", "2": 270, "3": {"kind": "skill", "id": "0001000"}, "4": null, "5": "",
+		"6": {"kind": "item", "id": "271"}, "7": {"kind": "spell", "id": "x"}, "8": [1], "9": {"kind": "item"},
+	}
+	var v2 := _to_v2(doc)
+	assert_eq(v2["character"]["quickslots"], {
+		"1": {"kind": "item", "id": "237"}, "2": {"kind": "item", "id": "270"},
+		"3": {"kind": "skill", "id": "0001000"}, "6": {"kind": "item", "id": "271"},
+	}, "bare ids become item bindings, typed ones stay, the rest is dropped")
+	assert_eq(int(v2["save_version"]), 2)
+
+
+func test_v1_to_v2_marks_completed_rewards_unrecorded() -> void:
+	var doc := _v1_doc()
+	var entries: Dictionary = doc["character"]["quests"]["quests"]
+	entries["1008"] = (entries["1006"] as Dictionary).duplicate(true)
+	entries["1008"]["rewards_received"] = {"recorded": true, "items": [{"item_id": "713", "qty": 1}]}
+	entries["1009"] = (entries["1006"] as Dictionary).duplicate(true)
+	entries["1009"]["status"] = "in_progress"
+	var v2 := _to_v2(doc)
+	var q: Dictionary = v2["character"]["quests"]
+	assert_eq(int(q["format"]), 2, "quests.format 2")
+	assert_eq(q["quests"]["1006"]["rewards_received"], {"recorded": false}, "v1 completion: nothing was recorded")
+	assert_eq(q["quests"]["1008"]["rewards_received"], {"recorded": true, "items": [{"item_id": "713", "qty": 1}]},
+		"an existing record is kept")
+	assert_false((q["quests"]["1009"] as Dictionary).has("rewards_received"), "in progress: untouched")
+	var before: Dictionary = entries["1006"]
+	for field: String in before:
+		assert_eq(q["quests"]["1006"][field], before[field], "1006 %s unchanged" % field)
+
+
+func test_v1_to_v2_clears_effects_and_adds_the_timers() -> void:
+	var doc := _v1_doc()
+	doc["character"]["effects"] = [{"id": "nimble_feet", "until": 512.25}]
+	var v2 := _to_v2(doc)
+	assert_eq(v2["character"]["effects"], [], "v1 effects (clock times) are dropped")
+	assert_eq(v2["character"]["cooldowns"], {}, "cooldowns added")
+	assert_eq(v2["character"]["natural_recovery"], {"hp_rest_s": 0.0}, "recovery clock added")
+	# A late v1 build already wrote both timers: kept as they are.
+	doc["character"]["cooldowns"] = {"0001001": 30.5}
+	doc["character"]["natural_recovery"] = {"hp_rest_s": 4.25}
+	v2 = _to_v2(doc)
+	assert_eq(v2["character"]["cooldowns"], {"0001001": 30.5})
+	assert_eq(v2["character"]["natural_recovery"], {"hp_rest_s": 4.25})
+
+
+func test_v1_to_v2_leaves_everything_else_alone() -> void:
+	var doc := _v1_doc()
+	var v2 := _to_v2(doc)
+	for k: String in doc:
+		if k != "character" and k != "save_version":
+			assert_eq(v2[k], doc[k], "%s unchanged" % k)
+	for k: String in doc["character"]:
+		if not (k in ["quickslots", "quests", "effects"]):
+			assert_eq(v2["character"][k], doc["character"][k], "character.%s unchanged" % k)
+	assert_false(doc["character"].has("cooldowns"), "the input document is not modified")
+
+
+# --- the one-time pre-migration copy ----------------------------------------------------------------------------
+
+const IT2_FIXTURE := "res://tests/data/saves/it2/d_inventory.json"
+
+
+## A Game node on `svc` that saves wherever the character says (no MapSession).
+func _game() -> GameState:
+	var game := GameState.new()
+	game.db = db()
+	game.save_service = svc
+	game.event_bus = svc.event_bus
+	game.log_warnings = false
+	svc.game_node = game
+	svc.can_save_override = func() -> bool: return true
+	svc.world_provider = func(ch: CharacterState) -> Dictionary: return SaveDocument.world_from_character(ch)
+	return game
+
+
+func _install_bytes(file_name: String, source: String) -> void:
+	DirAccess.make_dir_recursive_absolute(root)
+	var f := FileAccess.open(root.path_join(file_name), FileAccess.WRITE)
+	f.store_buffer(FileAccess.get_file_as_bytes(source))
+	f.close()
+
+
+func _bytes(file_name: String) -> PackedByteArray:
+	return FileAccess.get_file_as_bytes(root.path_join(file_name))
+
+
+func test_first_save_over_an_it2_save_keeps_a_pre_migration_copy() -> void:
+	_install_bytes("it2.json", IT2_FIXTURE)
+	var original := FileAccess.get_file_as_bytes(IT2_FIXTURE)
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK, "the Iteration Two save continues")
+	assert_false(FileAccess.file_exists(root.path_join("it2.json.pre-v1")), "loading alone writes nothing")
+	assert_eq(game.save_game("it2"), OK, "first save")
+	assert_eq(_bytes("it2.json.pre-v1"), original, "the v1 file is kept byte for byte")
+	assert_eq(svc.read_save("it2").version_found, SaveMigrations.CURRENT_VERSION, "the save itself is current")
+	game.character.mesos += 1
+	assert_eq(game.save_game("it2"), OK, "second save")
+	assert_eq(SaveMigrations.version_of(svc.store().read_document("it2", true)["data"]), SaveMigrations.CURRENT_VERSION,
+		"the backup no longer holds the v1 file after two saves")
+	assert_eq(_bytes("it2.json.pre-v1"), original, "but the copy survives, unchanged")
+	assert_eq(svc.keep_pre_migration_copy("it2"), PackedInt32Array(), "nothing older is left to copy")
+	var listed := svc.list_saves()
+	assert_eq(listed.size(), 1, "the copy is not a slot")
+	assert_eq(svc.delete_save("it2"), OK)
+	assert_false(FileAccess.file_exists(root.path_join("it2.json.pre-v1")), "deleting the slot deletes its copy")
+	game.free()
+
+
+## A slot whose save file is missing loads its backup; the first save then writes the save without rotating, and the
+## second would replace that backup, so the backup is what must be kept.
+func test_backup_only_it2_slot_keeps_the_backup_as_the_copy() -> void:
+	_install_bytes("it2.json.bak", IT2_FIXTURE)
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK, "the backup loads")
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(_bytes("it2.json.pre-v1"), FileAccess.get_file_as_bytes(IT2_FIXTURE), "the v1 backup is kept")
+	game.free()
+
+
+func test_an_existing_copy_is_never_replaced_and_current_saves_make_none() -> void:
+	_install_bytes("it2.json", IT2_FIXTURE)
+	_install_bytes("it2.json.pre-v1", "res://tests/data/saves/it2/g_shop.json")
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK)
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(_bytes("it2.json.pre-v1"), FileAccess.get_file_as_bytes("res://tests/data/saves/it2/g_shop.json"),
+		"the first copy ever made stays")
+	assert_eq(game.new_game({"slot": "fresh"}), OK)
+	assert_eq(game.save_game("fresh"), OK)
+	var dir := DirAccess.open(root)
+	for f in dir.get_files():
+		assert_false(f.begins_with("fresh.json.pre-v"), "a current save makes no copy: %s" % f)
+	game.free()
+
+
+func test_v1_parts_of_the_wrong_type_still_load_as_corrupt() -> void:
+	var c := CharacterFactory.create(CharacterFactory.default_params(db()), db()).character
+	var doc := SaveDocument.build(c, {}, "2026-10-05T00:00:00Z", db())
+	doc["save_version"] = 1
+	for bad: Array in [["quickslots", "237"], ["quests", 5], ["effects", "none"]]:
+		var d := doc.duplicate(true)
+		d["character"][bad[0]] = bad[1]
+		_write_json("bad", d)
+		assert_eq(svc.read_save("bad").error, ERR_FILE_CORRUPT, "a v1 %s of the wrong type stays corrupt" % bad[0])
+	var no_char := {"save_version": 1, "game": SaveDocument.GAME_ID}
+	_write_json("bad", no_char)
+	assert_eq(svc.read_save("bad").error, ERR_FILE_CORRUPT, "a v1 envelope without a character is corrupt, not unmigratable")

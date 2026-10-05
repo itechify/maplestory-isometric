@@ -10,6 +10,9 @@ extends RefCounted
 ## SaveService's schema version with a migration when a field changes meaning.
 
 const STAT_KEYS: PackedStringArray = ["str", "dex", "int", "luk"]
+## Quickslot binding kinds (C3): {"kind": QUICKSLOT_ITEM | QUICKSLOT_SKILL, "id": String}.
+const QUICKSLOT_ITEM := "item"
+const QUICKSLOT_SKILL := "skill"
 
 var name: String = ""
 ## "male" / "female" (chosen at creation; gendered equipment checks it), or "" when unknown.
@@ -50,7 +53,9 @@ var quests: QuestLog = QuestLog.new()
 var location: Dictionary = {}
 ## Canonical returnMap of the current map (recomputed on load; saved because the brief requires it).
 var respawn_reference: String = ""
-## Quickslot bindings: slot index (String) -> item id. Presentation preference, but saved.
+## Quickslot bindings: key ("1".."8") -> {"kind": "item" | "skill", "id": String} (save_version 2, contract C3; the
+## v1 -> v2 migration turns a saved bare item id into an item binding). Presentation preference, but saved. Read item
+## bindings through quickslot_item_id(), which also accepts a bare id.
 var quickslots: Dictionary = {}
 ## Free-form progression flags for scripted content (e.g. "tutorial_seen").
 var flags: Dictionary = {}
@@ -59,6 +64,22 @@ var play_time_s: float = 0.0
 
 func get_base_stat(key: String) -> int:
 	return int(base_stats.get(key, 0))
+
+
+## The item id a quickslot binding names: a {"kind": "item", "id"} binding, or a bare item id (the save_version 1
+## shape, which code that predates typed bindings may still write); "" for a skill binding or anything else (an id
+## that is not text or a number, e.g. a container from a hand edit, names no item).
+static func quickslot_item_id(binding: Variant) -> String:
+	if binding is Dictionary:
+		var b: Dictionary = binding
+		var id: Variant = b.get("id", "")
+		if str(b.get("kind", "")) != QUICKSLOT_ITEM or not (typeof(id) in [TYPE_STRING, TYPE_STRING_NAME, TYPE_INT,
+				TYPE_FLOAT]):
+			return ""
+		return ItemDef.id_of(id)
+	if typeof(binding) == TYPE_STRING or typeof(binding) == TYPE_STRING_NAME or typeof(binding) == TYPE_INT:
+		return ItemDef.id_of(binding)
+	return ""
 
 
 func to_dict() -> Dictionary:
@@ -86,7 +107,7 @@ func to_dict() -> Dictionary:
 		"quests": quests.to_dict(),
 		"location": location.duplicate(true),
 		"respawn_reference": respawn_reference,
-		"quickslots": quickslots.duplicate(),
+		"quickslots": quickslots.duplicate(true),
 		"flags": flags.duplicate(true),
 		"play_time_s": play_time_s,
 	}
@@ -111,16 +132,31 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.fame = int(d.get("fame", 0))
 	c.mesos = int(d.get("mesos", 0))
 	c.skills = (d.get("skills", {}) as Dictionary).duplicate(true)
-	c.effects = (d.get("effects", []) as Array).duplicate(true)
-	c.cooldowns = (d.get("cooldowns", {}) as Dictionary).duplicate(true)
+	# Remaining seconds come back as floats (JSON turned 12.0 into 12). An effect that is not an object with a numeric
+	# remaining_s, or a cooldown that is not a number, breaks the C3 shape and is dropped; a recovery clock that is not
+	# a number starts at 0. A malformed (hand-edited) value never stops the load.
+	for e: Variant in (d.get("effects", []) as Array):
+		if e is Dictionary and _is_number((e as Dictionary).get("remaining_s", null)):
+			var effect := (e as Dictionary).duplicate(true)
+			effect["remaining_s"] = float(effect["remaining_s"])
+			c.effects.append(effect)
+	var cds: Dictionary = d.get("cooldowns", {})
+	for skill_id: Variant in cds:
+		if _is_number(cds[skill_id]):
+			c.cooldowns[str(skill_id)] = maxf(0.0, float(cds[skill_id]))
 	var nr: Variant = d.get("natural_recovery", {})
-	c.natural_recovery = {"hp_rest_s": maxf(0.0, float((nr as Dictionary).get("hp_rest_s", 0.0)))} if nr is Dictionary else {"hp_rest_s": 0.0}
+	var rest: Variant = (nr as Dictionary).get("hp_rest_s", 0.0) if nr is Dictionary else 0.0
+	c.natural_recovery = {"hp_rest_s": maxf(0.0, float(rest)) if _is_number(rest) else 0.0}
 	c.inventory = Inventory.from_dict(d.get("inventory", {}))
 	c.equipment = Equipment.from_dict(d.get("equipment", {}))
 	c.quests = QuestLog.from_dict(d.get("quests", {}))
 	c.location = (d.get("location", {}) as Dictionary).duplicate(true)
 	c.respawn_reference = String(d.get("respawn_reference", ""))
-	c.quickslots = (d.get("quickslots", {}) as Dictionary).duplicate()
+	c.quickslots = (d.get("quickslots", {}) as Dictionary).duplicate(true)
 	c.flags = (d.get("flags", {}) as Dictionary).duplicate(true)
 	c.play_time_s = float(d.get("play_time_s", 0.0))
 	return c
+
+
+static func _is_number(v: Variant) -> bool:
+	return (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT) and is_finite(float(v))

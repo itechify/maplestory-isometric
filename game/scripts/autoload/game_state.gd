@@ -50,9 +50,11 @@ var autosave_retry_s: float = 1.0
 ## Save on window close when allowed.
 var autosave_on_quit: bool = true
 ## Events signals that request an autosave (progress milestones). MapSession also requests one when a transition
-## reaches IDLE (MAP_ARCHITECTURE.md §4.5 step 15); requests are debounced, so overlaps cost nothing.
-const AUTOSAVE_TRIGGERS: PackedStringArray = ["map_entered", "leveled_up", "quest_started", "quest_completed",
-	"quest_forfeited"]
+## reaches IDLE (MAP_ARCHITECTURE.md §4.5 step 15); requests are debounced, so overlaps cost nothing. Quest progress
+## (a kill, use, talk or visit that moves an objective) is one of them, so a crash never loses more than the
+## debounce window of it; a burst of kills still saves at most once per autosave_max_delay_s.
+const AUTOSAVE_TRIGGERS: PackedStringArray = ["map_entered", "leveled_up", "quest_started", "quest_progressed",
+	"quest_completed", "quest_forfeited"]
 ## Errors from the last rejected new_game() (for the creation screen).
 var last_creation_errors: PackedStringArray = []
 ## Injection seams (tests): null = the Saves autoload / Data.db / the Events autoload.
@@ -213,6 +215,9 @@ func apply_loaded_save(result: SaveLoadResult) -> Error:
 	_install(result.character, result.slot, REASON_LOAD)
 	if result.source == "backup":
 		_emit(&"notice", ["Save %s was loaded from its backup (the save file was missing)." % result.slot])
+	if not result.unknown_item_ids.is_empty():
+		_emit(&"notice", [("This save holds %d item(s) this version does not know (%s). They are kept, but cannot be "
+			+ "used or equipped.") % [result.unknown_item_ids.size(), ", ".join(result.unknown_item_ids)]])
 	_emit(&"game_loaded", [result.slot])
 	return OK
 

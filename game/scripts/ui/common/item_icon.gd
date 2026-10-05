@@ -39,6 +39,8 @@ const COLOR_WORDS: Array = [
 ]
 
 const OUTLINE_COLOR := Color(0.06, 0.07, 0.10, 0.95)
+## The neutral token of an item the item data does not define, so it reads as inert.
+const UNKNOWN_COLOR := Color(0.62, 0.62, 0.66)
 const METAL := Color(0.82, 0.86, 0.92)
 const WOOD := Color(0.62, 0.42, 0.22)
 
@@ -48,12 +50,13 @@ func _init() -> void:
 	custom_minimum_size = Vector2(32, 32)
 
 
-## Shows an item (or nothing for ""). `db` resolves the canonical record; unknown ids draw a "?" token.
+## Shows an item (or nothing for ""). `db` resolves the canonical record; an id it does not define (an unknown item
+## kept from an older save, docs/runtime/SAVES.md) draws a grey "?" token.
 func set_item(p_item_id: String, db: ContentDB) -> void:
 	item_id = p_item_id
 	var def: ItemDef = ItemDef.of(item_id, db) if item_id != "" and db != null else null
 	shape = shape_for(def) if item_id != "" else ""
-	color = color_for(def, item_id)
+	color = color_for(def, item_id) if def != null else UNKNOWN_COLOR
 	queue_redraw()
 
 

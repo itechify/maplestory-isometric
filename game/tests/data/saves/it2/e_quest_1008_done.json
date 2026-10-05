@@ -1,0 +1,181 @@
+{
+	"character": {
+		"ap": 10,
+		"base_max_hp": 82,
+		"base_max_mp": 29,
+		"base_stats": {
+			"dex": 4,
+			"int": 4,
+			"luk": 4,
+			"str": 13
+		},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "585"
+				}
+			},
+			"version": 1
+		},
+		"exp": 51,
+		"fame": 0,
+		"flags": {},
+		"gender": "female",
+		"hp": 17,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [
+					{
+						"index": 0,
+						"item_id": "713",
+						"qty": 1
+					}
+				],
+				"etc": [],
+				"setup": [],
+				"use": [
+					{
+						"index": 0,
+						"item_id": "237",
+						"qty": 3
+					}
+				]
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 3,
+		"location": {
+			"entry": {
+				"map_id": "000000050",
+				"portal_id": "east00"
+			},
+			"map_id": "000000050",
+			"resume": {
+				"facing_deg": 171.51022954576692,
+				"local_pos": [
+					14.237548828125,
+					2.799999713897705,
+					-19.139732360839844
+				],
+				"map_content_hash": "9df259dc7e14e093"
+			}
+		},
+		"mesos": 0,
+		"mp": 29,
+		"name": "QuestE",
+		"play_time_s": 490.2833333332161,
+		"quests": {
+			"format": 1,
+			"quests": {
+				"1002": {
+					"completed_at": 45.79999999999868,
+					"completions": 1,
+					"progress": {
+						"kills": {},
+						"other": {},
+						"talked": [
+							"3"
+						],
+						"used": {
+							"235": 1
+						},
+						"visited": []
+					},
+					"started_at": 44.2833333333321,
+					"status": "completed"
+				},
+				"1006": {
+					"completed_at": 311.78333333337844,
+					"completions": 1,
+					"progress": {
+						"kills": {
+							"2": 10
+						},
+						"other": {},
+						"talked": [
+							"11"
+						],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 147.266666666676,
+					"status": "completed"
+				},
+				"1007": {
+					"completed_at": 422.41666666661115,
+					"completions": 1,
+					"progress": {
+						"kills": {},
+						"other": {},
+						"talked": [
+							"17"
+						],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 337.48333333335506,
+					"status": "completed"
+				},
+				"1008": {
+					"completed_at": 506.8499999998677,
+					"completions": 1,
+					"progress": {
+						"kills": {},
+						"other": {},
+						"talked": [
+							"10"
+						],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 422.4333333332778,
+					"status": "completed"
+				}
+			}
+		},
+		"quickslots": {},
+		"respawn_reference": "000000060",
+		"skills": {},
+		"sp": 2
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 3,
+		"map_id": "000000050",
+		"map_name": "A Split Road",
+		"name": "QuestE",
+		"play_time_s": 490.2833333332161
+	},
+	"save_version": 1,
+	"saved_at": "2026-10-05T07:59:36Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000000050",
+				"portal_id": "east00"
+			},
+			"map_id": "000000050",
+			"resume": {
+				"facing_deg": 171.51022954576692,
+				"local_pos": [
+					14.237548828125,
+					2.799999713897705,
+					-19.139732360839844
+				],
+				"map_content_hash": "9df259dc7e14e093"
+			}
+		},
+		"respawn_reference": "000000060"
+	}
+}

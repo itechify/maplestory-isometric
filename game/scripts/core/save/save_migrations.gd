@@ -10,7 +10,7 @@ extends RefCounted
 ## (tests/unit/test_save_migrations.gd). Never edit an existing step: old saves in the wild depend on it.
 
 ## The schema version this build writes. SaveService.SAVE_VERSION is this constant.
-const CURRENT_VERSION := 1
+const CURRENT_VERSION := 2
 ## Version reported for a document whose "save_version" is present but not a whole number >= 0.
 const INVALID_VERSION := -1
 
@@ -23,6 +23,7 @@ var _names: Dictionary = {}
 func _init(include_builtin: bool = true) -> void:
 	if include_builtin:
 		register(0, "v0_flat_character_to_v1_envelope", _v0_to_v1)
+		register(1, "v1_typed_quickslots_quest_rewards", _v1_to_v2)
 
 
 ## Registers (or replaces) the step from_version -> from_version + 1.
@@ -125,3 +126,56 @@ func _v0_to_v1(old: Dictionary) -> Dictionary:
 		"world": world,
 		"meta": {},
 	}
+
+
+## v1 -> v2 (Iteration Three, ITERATION_THREE_CONTRACTS.md C3). Only the character block is reshaped; the envelope,
+## world, location, inventory and equipment pass through unchanged. A part that has the wrong type is left as it is,
+## so SaveDocument's type check still reports the file as corrupt.
+##   - quickslots: a bare item id (String, or a number from a hand edit) becomes {"kind": "item", "id"}; a binding
+##     that already has that shape is kept; anything else (null, an empty id, a container) is dropped, because v1
+##     could only bind item ids.
+##   - quests: "format" 2, and every completed entry without "rewards_received" gets {"recorded": false}. v1 never
+##     recorded what a completion gave (random picks included), and nothing may be inferred from the inventory, so
+##     the record says exactly that. In-progress entries are untouched.
+##   - effects: cleared. v1 had no effect producer (every Iteration Two save holds []), and the shape it allowed used
+##     per-process clock times that mean nothing after a restart.
+##   - cooldowns {} and natural_recovery {"hp_rest_s": 0.0} are written when absent; values already present (a late
+##     v1 build wrote both) are kept.
+func _v1_to_v2(doc: Dictionary) -> Dictionary:
+	var cd: Variant = doc.get("character", null)
+	if not (cd is Dictionary):
+		return doc
+	var c: Dictionary = cd
+	var slots: Variant = c.get("quickslots", null)
+	if slots is Dictionary:
+		var typed := {}
+		for key: Variant in slots:
+			var v: Variant = (slots as Dictionary)[key]
+			if v is Dictionary:
+				var kind := str((v as Dictionary).get("kind", ""))
+				var bound := SaveDocument.as_text((v as Dictionary).get("id", ""))
+				if kind in ["item", "skill"] and bound != "":
+					typed[str(key)] = {"kind": kind, "id": bound}
+				continue
+			var id := SaveDocument.as_text(v)
+			if id != "":
+				typed[str(key)] = {"kind": "item", "id": id}
+		c["quickslots"] = typed
+	var quests: Variant = c.get("quests", null)
+	if quests is Dictionary:
+		var q: Dictionary = quests
+		q["format"] = 2
+		var entries: Variant = q.get("quests", null)
+		if entries is Dictionary:
+			for quest_id: Variant in entries:
+				var e: Variant = (entries as Dictionary)[quest_id]
+				if e is Dictionary and str((e as Dictionary).get("status", "")) == "completed" \
+						and not (e as Dictionary).has("rewards_received"):
+					(e as Dictionary)["rewards_received"] = {"recorded": false}
+	if c.get("effects", null) is Array:
+		c["effects"] = []
+	if not c.has("cooldowns"):
+		c["cooldowns"] = {}
+	if not c.has("natural_recovery"):
+		c["natural_recovery"] = {"hp_rest_s": 0.0}
+	return doc

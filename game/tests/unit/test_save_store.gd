@@ -6,6 +6,15 @@ var root := ""
 var store: SaveStore
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_second_write_keeps_one_backup": ["mechanic:atomic-save-backup"],
+		"test_failed_write_leaves_the_old_save_intact": ["mechanic:atomic-save-backup"],
+		"test_restore_backup_and_corrupt_save_never_overwrites_a_good_backup": ["mechanic:atomic-save-backup"],
+		"test_pre_migration_copy_is_made_once_and_deleted_with_the_slot": ["mechanic:save-migration"],
+	}
+
+
 func before_each() -> void:
 	root = "user://_tests/save_store_%d_%d" % [Time.get_ticks_usec(), randi()]
 	store = SaveStore.new(root)
@@ -137,6 +146,26 @@ func test_list_and_delete() -> void:
 	assert_eq(store.list_slots(), PackedStringArray(["b"]))
 	assert_eq(store.delete("a"), ERR_FILE_NOT_FOUND, "deleting twice")
 	assert_eq(store.delete("../b"), ERR_INVALID_PARAMETER)
+
+
+func test_pre_migration_copy_is_made_once_and_deleted_with_the_slot() -> void:
+	assert_eq(store.keep_copy("a", false, 1), ERR_FILE_NOT_FOUND, "nothing to copy yet")
+	store.write_document("a", {"gen": 1})
+	store.write_document("a", {"gen": 2})
+	assert_eq(store.keep_copy("a", true, 1), OK, "the backup copied")
+	assert_true(store.has_pre_copy("a", 1))
+	assert_eq(FileAccess.get_file_as_bytes(store.pre_copy_path_of("a", 1)),
+		FileAccess.get_file_as_bytes(store.backup_path_of("a")), "byte for byte")
+	assert_eq(store.keep_copy("a", false, 1), ERR_ALREADY_EXISTS, "never replaced")
+	assert_eq(int(store.read_document("a")["data"]["gen"]), 2, "the save is untouched")
+	assert_eq(store.keep_copy("../a", false, 1), ERR_INVALID_PARAMETER)
+	assert_eq(store.list_slots(), PackedStringArray(["a"]), "a copy is not a slot")
+	store.write_document("ab", {"gen": 1})
+	assert_eq(store.keep_copy("ab", false, 0), OK)
+	assert_eq(store.delete("a"), OK)
+	assert_false(store.has_pre_copy("a", 1), "deleted with its slot")
+	assert_true(store.has_pre_copy("ab", 0), "another slot's copy stays")
+	assert_true(store.has("ab"))
 
 
 func test_restore_backup_and_corrupt_save_never_overwrites_a_good_backup() -> void:
