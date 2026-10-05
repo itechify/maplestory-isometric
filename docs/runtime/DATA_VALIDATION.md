@@ -28,9 +28,11 @@ GODOT=/path/to/godot bash scripts/validate_data.sh      # binary override, passe
 An isolated run copies the small `game/assets/world/*.json` sidecars (and `index.json`) but not the glTF chunks, and
 mirrors `tools/*/captures/` next to the copy (as `scripts/test.sh` does), because the validator checks that every
 cited capture file exists at `res://../tools/...`. The last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`.
-Shipped data at the time of writing: 0 errors, 0 warnings (`--strict` passes), 158 out-of-scope references skipped
-(listed per rule in every report), 192 canonical records, 29 adaptation files, 47 portals, 25 sidecars, 51 capture
-paths, 40 per-property sources, 2,111 references and 3,088 names checked; the quest, NPC and dialogue validation ran.
+Shipped data on the integrated Iteration Three build (2026-10-05): 0 errors and 54 warnings, all `drop_unresolved`
+(the drop members no source gives a chance or an item for, listed by design), so `--strict` exits 1; 158 out-of-scope
+references skipped (listed per rule in every report); 192 canonical records, 37 adaptation files, 47 portals, 25
+sidecars, 203 capture paths, 172 per-property sources, 7 schema v2 drop records with 75 entries, 2,194 references and
+3,260 names checked; the quest, NPC and dialogue validation ran.
 
 Every report lists the out-of-scope skips grouped by rule (`SKIPPED (out of scope) 125 x monsters.spawns[].map_id ->
 maps (maple_island: false)`); `--verbose` adds one line per skipped reference. The summary's stats include one
@@ -46,6 +48,7 @@ DataValidator.validate(db, options)   scripts/core/validation/data_validator.gd 
    ├─ ProvenanceChecks                ids, schema, provenance (v1 source + per-property sources + captures), external,
    │                                  sources_index; the rules per authority come from ProvenanceAuthorities.REGISTRY
    ├─ DropRecordChecks                drop_record (+ provenance): schema v2 drop records (contract C1)
+   ├─ DropChecks                      drop_policy, drop_unresolved: the drop policy over the shipped records
    ├─ ReferenceChecks                 reference (+ skill references), dialogue_link, portal (+ portal graph), drop_owner,
    │                                  drop_table, consistency; counts refs.<Phase 16 category>
    ├─ IntegrityChecks                 chair, name (placeholders), duplicate
@@ -98,13 +101,15 @@ on broken input cannot make a negative test pass for the wrong reason.
 | `schema` | error | a field consumers rely on is missing or mistyped (`REQUIRED_FIELDS` in `provenance_checks.gd`: e.g. maps need `portals`, `player_spawns`, `return_map_id`; monsters `level`, `hp`, `exp`) |
 | `provenance` | error | no `source`; `source.authority` ≠ `"MeowDB MS Classic"`; `source.url` not under `https://meowdb.com/msclassic`, `https://meowdb.com/_data/` or `https://meowdb.com/api/` (path-boundary match, so `meowdb.com.evil` or `/msclassicfake` fail); `source.retrieved_at` not an ISO 8601 date-time with a zone, or not a real date and time (month 13, Feb 30, hour 24 fail); a `field_sources` URL (`url`, `fallback_url`, `pages[].url`, `urls[]`) outside `https://meowdb.com/` without a matching `external` entry; a JSON file directly in `game/data/canonical/` other than `canonical_sources.json` (no domain, so no id, provenance or index check would see it). **v2, per property:** a source object (record-level `provenance.<property>`, a v2 drop entry's `membership_source` / `chance_source`, the meso `amount_source` / `chance_source`, an adaptation file's `provenance.<property>`) that breaks the [authority registry](#provenance-authorities): an unregistered authority, an authority that may not supply that property, a URL off the authority's site, a missing or non-ISO `read_at`, a missing `capture` or `decision`. **Captures:** any `capture` key (any depth, canonical or adaptation) that is not a repo path under `tools/<site>/captures/` or names a file that does not exist |
 | `drop_record` | error | a schema v2 drop record (contract C1) that breaks the [v2 rules](#drop-records-schema-v2); a `schema_version` other than 2 or absent on a drop record |
+| `drop_policy` | error (one warning) | `DropChecks` (`scripts/core/validation/drop_checks.gd`) holds the shipped records to the drop policy: `data/misostory/drop_rates.json` supplies no chance, quantity or meso number and names the meso distribution the roller implements (`DropRates.validate`); every drop record is schema v2; membership comes from Hidden Street for monsters and MeowDB for breakables; every resolved chance comes from KuroDB and every meso amount from MeowDB or Hidden Street; `normalized_probability`, `probability`, the conversion text, the quantity (`Qty`), KuroDB's quest flag and the meso range equal an exact re-reading of the raw value (`DropChance`); a reactor row's quantity is a labelled adaptation with `verified: false`; a resolved item exists locally; quest gates follow the C1 rule (D3-9) and say `verified: false`; no `excluded_kuro_only` row is an entry's chance source; an unresolved member whose item, or one of its MeowDB candidates, a Maple Island quest objective asks for is a progression blocker. A resolved chance of 0 is a warning (it never drops) |
+| `drop_unresolved` | warning | each drop member or meso value that never rolls because a source leaves its chance or its item unresolved, so missing probabilities stay visible (54 on the shipped data); an unresolved member whose MeowDB candidate has become a local item asks for a crosswalk review |
 | `external` | error | an `external` entry (canonical or adaptation) without `field`, an http(s) `source_url`, a `reason`, or `verified: false` |
 | `sources_index` | error | `canonical_sources.json` missing; a record not listed; a listed record that no longer exists; a row whose `name`, `file`, `authority`, `url`, `retrieved_at`, `field_source_urls`, `external` entries (`field`, `source_url`, `verified`, in order), `gap_count`, `discrepancy_count`, `capture_files` or `property_sources` (`{property: {authorities, urls}}`; both written only when non-empty) differs from what `tools/meowdb/build_sources_index.mjs` would write now; `totals` off (`records`, `distinct_source_urls` (property source URLs included), `external_values`, `capture_files`); a nested canonical folder (the builder does not index them). Fix: rerun the builder |
 | `reference` | error | an id that does not resolve (rules below), or an id that is not a string |
 | `portal` | error | `to_map_id` missing or unknown; `to_portal` names no portal of the destination; `to_portal_derivation` other than `reverse_lookup`/`none` (absent = an explicit `to_portal`); a `reverse_lookup` `to_portal` that does not lead back, or whose destination has more than one portal back (maps.md requires the unique one); `none` with a `to_portal`, or `none` while the destination does have a portal back (stale: rerun `extract_maps.mjs`); a null `to_portal` whose destination has no `player_spawns`; two portals with one name on a map. **Portal graph** (MAP_ARCHITECTURE §4.13 L0): a map not reachable through portals from `new_character.json` `start_location.map_id`; a one-way link (no portal back) missing from `portal_adaptations.json` `one_way_allowlist` (each half skipped when its adaptation file is absent) |
 | `drop_owner` | error | a drop table without `owner {kind: monster/breakable, id}`, an unknown owner, or `owner.id` ≠ table id |
 | `drop_table` | error | a monster's or breakable's `drop_table` not of the form `drops/<id>.json`, or naming a missing table |
-| `dialogue_link` | warning | a dialogue link (`ref: {kind|type, id}`) with an unknown kind or no string id (anywhere); a link in an **adaptation** file to a record not in the dataset (the game still shows the text and the reference, with no record behind it). A canonical link outside the dataset is skipped as out of scope instead (see [Dialogue links](#dialogue-links)) |
+| `dialogue_link` | warning | a dialogue link (`ref: {kind\|type, id}`) with an unknown kind or no string id (anywhere); a link in an **adaptation** file to a record not in the dataset (the game still shows the text and the reference, with no record behind it). A canonical link outside the dataset is skipped as out of scope instead (see [Dialogue links](#dialogue-links)) |
 | `consistency` | warning | one-sided facts: a map places an NPC whose `locations` omit it (or the reverse); a shop's NPC does not name the shop; a quest NPC stands on none of the quest's maps; a map's `monsters[]` and `spawns[]` disagree; a drop table owned by another record |
 | `chair` | error / warning | a chair reference (formulas `chairs[].item_id`, `formulas/recovery.json`) that is not a usable chair (contract C5): not type `Setup`, no `setup` block, `setup.hp_recovery_bonus` not a number ≥ 0 or `setup.interval_s` not > 0; an item with a `setup` block whose type is not `Setup`; a formulas chair whose `additional_hp_per_tick` / `tick_interval_s` disagree with the item's `setup` (warning) |
 | `name` | error | a placeholder name: any `name` or `*_name` string (canonical or adaptation, outside the provenance and commentary subtrees) that is empty, `?`, contains "placeholder", the words TODO / TBD / FIXME, starts with "Unknown", or reads "Item 1234". Two records may share a real name (Red Cloth Pants, 1168 male and 1177 female) |
@@ -278,9 +283,11 @@ unless noted):
   raw value is a `Meso drop` row.
 
 `quantity.source` (`"KuroDB 'Qty 1'"` in C1) is free text, not a source object, so the registry does not apply to it;
-a `provenance.quantity` naming KuroDB would be rejected (KuroDB supplies probabilities only). The runtime still rolls
-the v1 records with the placeholder rates; `DropRates` skips a v2 entry with `item_id: null` instead of crashing.
-The fixture `tests/data/drops_v2/fixture_2.json` is a valid v2 Snail record built from the captures.
+a `provenance.quantity` naming KuroDB would be rejected (KuroDB supplies probabilities only). Every shipped drop record
+is schema v2 (written by `tools/meowdb/extract_monsters.mjs` through `tools/sources/drops_merge.mjs`), and the runtime
+reads only v2 records: an entry rolls only with a resolved chance and item and, if gated, its quest in progress
+([ITEMS.md](ITEMS.md)). The fixture `tests/data/drops_v2/fixture_2.json` is a valid v2 Snail record built from the
+captures.
 
 ### The adaptation convention (game/data/misostory)
 
@@ -313,8 +320,8 @@ natural-regen rule is the model case (contract C4; the mechanics package writes 
 ```
 
 Rule 3 is deliberately lenient at the file level: in the shipped data only per-record files (`dialogue/*`,
-`npcs/15`, `quests/1002`) and `drop_rates.json`'s structural keys (`canonical`, `resolution_order`) rely on the
-file's top-level `reason`; every tuning value in the table files has its own.
+`npcs/15`, `quests/1002`) and `drop_rates.json`'s structural key `canonical` rely on the file's top-level `reason`;
+every tuning value in the table files has its own.
 
 Metadata keys need no reason: `id`, `kind`, `description`, `title`, `name`, `label`, `note(s)`, `comment(s)`,
 `reason(s)`, `verified`, `verification`, `verified_by`, `verified_against`, `source(s)`, `source_url(s)`,
@@ -348,7 +355,7 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 |---|---|
 | `map_id_crosswalk.json` (required; convention and sweep off) | rows `{meowdb_id\|map_id, iteration_one_slug\|blender_slug, gms_v8_id, match_basis}`; one row per canonical map (count = canonical map count), no duplicate MeowDB id, slug or GMS id; each row has a `match_basis`. Each slug has `game/assets/world/<slug>.json` with a numeric `map_id` equal to `gms_v8_id`, and a chunk in the export's `index.json`; every map chunk in `index.json` has a row (warning); no export at all is a single warning |
 | `world_scale.json` | `horizontal_px_to_m`, `vertical_px_to_m`, `actor_px_to_m` are positive numbers (WorldScale reads them) |
-| `drop_rates.json` | `item_overrides` keys are items; `owner_item_overrides` keys are drop tables and their keys items (warning when the table does not list the item); `mesos.by_owner` keys are drop tables; every `chance` in [0, 1]; quantities and `{min, max}` ranges (`mesos.per_level`) non-negative and ordered; `type_rates`/`subtype_rates` keys match some canonical item (warning) |
+| `drop_rates.json` | Iteration Two's placeholder structure (`item_overrides`, `owner_item_overrides`, `mesos.by_owner`, `type_rates`): keys resolve and chances lie in [0, 1]. The shipped file has none of these keys any more (it holds only `meso_amount_distribution` and `quest_gate_rule`), so this check finds nothing; the rule that the file supplies no number is `drop_policy` (`DropChecks` / `DropRates.validate`) |
 | `new_character.json` | `start_location.spawn_index` is one of the start map's player spawns (its `map_id` also seeds the portal-graph reachability check) |
 | `inventory.json` | every canonical weapon's subtype has a `weapon_subtypes` entry |
 | `combat.json` | `fixed_damage_skills` keys are canonical skill ids (`formulas/*.json skills[].skill_id`) |
@@ -358,8 +365,12 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 
 ## Current warnings on the shipped data
 
-None (`--strict` passes). Runs without the Blender export (plain `ISOLATE=` test runs) add one
-`crosswalk/world_assets` warning.
+54 `drop_unresolved` warnings, one per drop member that never rolls (the Wooden Box's Egg; 53 members of the six
+monsters' lists): 24 have a local item but no KuroDB chance, and 30 have no unambiguous local item (ambiguous names,
+items missing from the local snapshot). They are the brief's "missing probability stays visible" rule, not defects;
+each is in the record's `gaps` and in [`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md), and
+[`../DEFERRED.md`](../DEFERRED.md) names the open cases. `--strict` therefore exits 1 on the shipped data. Runs
+without the Blender export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning.
 
 The last data warning was `misostory/new_character` `starting_sp`, `verified: true` with nothing saying against what.
 Its reason quotes `formulas/beginner.json sp.calculator_caveat` ("a Beginner has 0 SP at level 1"), so it now carries
@@ -384,8 +395,9 @@ Phase 17 report through `ProvenanceReport` (`scripts/core/validation/provenance_
   authority, URLs, `read_at` (or the cache's `retrieved_at`), capture, decision and raw value. The record also carries
   its validation findings, which the parity generator reads.
 - **unresolved**, by domain: every record's `gaps` (a value the source does not give: null or absent, never guessed),
-  and in drop records every member without a chance (v2: unresolved, never drops; v1: null, still rolled from the
-  placeholder `misostory/drop_rates.json`), every unresolved item and every unresolved or placeholder meso value.
+  and in drop records every member without a chance (unresolved, never drops; a v1 record would also list its
+  placeholder rates, and none ships), every unresolved item and every unresolved meso value. On the integrated
+  Iteration Three data: 523 unresolved values, and 117 adaptation objects, 3 of them verified.
 - **adaptations**: every object in `game/data/misostory` that carries a verified flag, with `verified_against` and its
   reason (its own, its `<key>_reason`s or reasons map, or the nearest enclosing one).
 - **counts**: records per domain, property rows per authority, capture files, unresolved values per domain,
@@ -430,7 +442,9 @@ prove; the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY
 evidence. Most `canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
 (`provenance-per-property`, `membership-chance-separate`, `probability-conversion`, `kuro-only-excluded`,
 `unresolved-visible`) also need the shipped data in that state (`tools/parity/rules.json` `requires`: every drop record
-schema v2); until then the manifest keeps them `partial`.
+schema v2). Since the drops package's records landed they are verified by the tests alone; before, the manifest kept
+them `partial`. The drop policy's own tests are `test_drop_sources.gd`, `test_drop_chance.gd`, `test_drops_data.gd`,
+`test_drops_roller.gd` and `test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an

@@ -1,9 +1,10 @@
-# How to (Iteration Two)
+# How to (Iterations Two and Three)
 
 Every command runs from the repo root in **Git Bash** on Windows. Blender 5.2 must be installed (set `BLENDER=...` if
 it is not at `C:\Program Files\Blender Foundation\Blender 5.2\`). Godot 4.7.2 is downloaded on first use to
-`%LOCALAPPDATA%\MisoStory\godot\4.7.2\` (override with `GODOT=...`). Node is only needed to re-run the MeowDB
-extractors.
+`%LOCALAPPDATA%\MisoStory\godot\4.7.2\` (override with `GODOT=...`; `bash scripts/godot.sh --version` fetches it).
+Node is needed for the source tools: the MeowDB extractors, the capture loader and crosswalk (`tools/sources/`), the
+parity manifest (`tools/parity/`) and their tests.
 
 On **Linux** the same commands run in bash: the scripts use `blender` from `PATH` (or `BLENDER=...`), and `godot` from
 `PATH` when it is 4.7.2, else download Godot to `~/.local/share/MisoStory/godot/4.7.2/`. Use `B=blender` and
@@ -19,6 +20,8 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=ble
 ```
 
 The generator is `src/misostory/` (maps in `maps/m<id>_*.py`). Authoring rules: [`../AUTHORING.md`](../AUTHORING.md).
+The integrated Iteration Three island validates with 0 high, 0 medium and 21 low findings. `validate.py` now also runs
+`ring_band`, the Blender-side guard against the map-corner trap slots (see "Run the stuck-region scan").
 
 ## Export the environment and import it into the game
 
@@ -39,7 +42,8 @@ MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_co
 ```
 
 Then replace `game/assets/world/` with the staging folder. Never keep a backup of it under `game/assets/`: everything
-there is git-ignored except `.gitignore`.
+there is git-ignored except `.gitignore`. After any change to a map module or `world.py`, also run the stuck-region
+scan and its tests (below) before merging: a new trap fails the suite.
 
 ## Launch the game
 
@@ -49,6 +53,50 @@ bash scripts/play.sh --fullscreen
 bash scripts/play.sh --editor     # open the project in the Godot editor
 ```
 
+## Play Maple Island to the end
+
+| Keys | Action |
+|---|---|
+| W A S D | move (8 directions, relative to the camera) |
+| Space / Alt | jump |
+| J / Ctrl / left click | attack (also breaks Wooden Boxes: 4 landed hits) |
+| F | talk to the NPC in front of you |
+| Up arrow | enter a portal, grab a ladder or rope (W/S or Up/Down to climb) |
+| Z | pick up drops |
+| X | sit on your first chair, or stand up |
+| I / E / C / Q (or L) / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
+| 1 - 8 | quickslots: potions, food, a chair or a learned skill |
+| M | fold the minimap to its title strip (the map name stays) |
+| Esc | close the newest window, else the pause menu (save, load, controls, quit) |
+| ` (backtick) / F3 | developer console / debug overlay (F3 also shows the canonical map id on the minimap) |
+
+- **Quests.** The Quest Log (Q) lists Available, In Progress and Completed quests, a chain's steps ("Mai's Training
+  2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
+  A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
+  buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
+- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
+  Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
+  Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
+  key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
+  skill level).
+- **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
+  (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
+  have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up.
+- **Natural recovery.** 10 HP for every 10 s you stand still or sit, the project owner's rule. Walking, jumping,
+  climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved.
+  Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
+  naturally (MeowDB documents none).
+- **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
+  landed basic attacks and comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only
+  while Pio's quest is in progress.
+- **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
+  an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
+  the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The hidden portal to Tomato Field is not shown.
+- **Finishing Maple Island.** Talk to Shanks in Southperry (000000060) at level 7 or higher with 300 mesos (the
+  canonical route to Lith Harbor). He lists any unfinished Maple Island quests, then asks whether to sail. Yes shows the
+  "End of Maple Island" screen: Victoria Island is not in this build, so nobody travels, no mesos are taken, and you
+  stay in Southperry. The boundary is recorded as `flags.maple_island_departure_ready_at`.
+
 ## Create a clean save
 
 On the title screen choose **New Game**, then pick a name, gender, starter weapon (the canonical creation weapons 541,
@@ -56,44 +104,205 @@ On the title screen choose **New Game**, then pick a name, gender, starter weapo
 Saves live in Godot's user folder for the project (`%APPDATA%\Godot\app_userdata\MisoStory\saves\`). To wipe a slot
 from inside the game, open the console and run `reset_save [slot]` (alias `reset`), or `delete_save <slot>`.
 
+Saves are `save_version` 2. An Iteration Two save (version 1) loads through the v1 to v2 migration. The first time this
+build writes over an older save it keeps the old file once, byte for byte, as `<slot>.json.pre-v<N>` (`delete_save` and
+`reset_save` remove it too). To check Iteration Two save compatibility in the real game:
+`ISOLATE=<name> bash scripts/playtest.sh save_it2_continue` ([SAVES.md](SAVES.md)).
+
 ## Run automated tests
 
 ```bash
-bash scripts/test.sh                       # every headless test (~3 min; 1140 tests)
-bash scripts/test.sh combat parity         # only files whose name contains a filter
-ISOLATE=me INCLUDE_WORLD=1 bash scripts/test.sh   # in a private copy (parallel-safe), with the exported world
+bash scripts/test.sh                                # every headless test file
+bash scripts/test.sh combat parity                  # only files whose name contains a filter
+ISOLATE=me INCLUDE_WORLD=1 bash scripts/test.sh     # in a private copy (parallel-safe), with the exported world
+ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
 ```
 
-Real-game playthroughs (the brief's Tests A–G; see [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md)):
+- The full suite with the world is 1509 tests in 167 files and takes 9-10 minutes; the stuck-region scan
+  (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe (`test_playtest_traps.gd`, about 2 minutes) are the
+  slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a `game/assets/world/` in the project you run).
+- `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
+- `TEST_EVIDENCE_OUT=<file>` also writes the machine-readable test evidence (contract C6): `{format, run_at, commit,
+  filters, totals, tests: [{file, name, ok, failures, parity}]}`. A test file declares parity keys with an optional
+  `func parity_keys() -> Dictionary`; a key that names a missing test, or is malformed, fails as `<file>::parity_keys`.
+  The commit recorded is `git rev-parse HEAD`, whether or not the tree is clean.
+- **The Jolt body cap.** Godot 4.7.2's Jolt integration evidently does not reuse the body slots of freed collision
+  objects within one process (inferred from the fix below; the engine side was not root-caused), so a test process
+  that builds and frees the island more than about ten times aborted with exit code 3 and printed nothing (the suite
+  seemed to stop after `test_traversal_routes`). `game/project.godot` sets
+  `physics/jolt_physics_3d/limits/max_bodies=65536` (the default is 10240); with it 16 builds pass, and the full suite
+  runs to its totals. The game itself builds the island once. If the suite ever stops without `TESTS_PASSED` or
+  `TESTS_FAILED`, suspect this limit first.
+
+Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
-bash scripts/playtest.sh test_e_quest            # headless; report in _scratch/... (path printed)
-bash scripts/playtest.sh test_a_traversal --windowed --out "$PWD/_scratch/tour"
+node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, spawn-row check (52 tests)
+node --test tools/parity/test/      # the parity state rule (9 tests)
 ```
 
-The scenarios are in `game/tools/playtest/scenarios/` and the harness is documented in
-[PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md).
+## Run real-game playtests
+
+The harness plays the real main scene with real input ([PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md)). Each run writes
+`report.json` and `report.md`; the exit code is 0 only when the report passes.
+
+```bash
+bash scripts/playtest.sh --list                                   # the scenarios
+bash scripts/playtest.sh test_e_quest                             # headless; report path printed
+ISOLATE=<name> bash scripts/playtest.sh test_box --out "$PWD/_scratch/pt/box" --seed 2
+bash scripts/playtest.sh test_a_traversal --windowed --out "$PWD/_scratch/tour"   # with screenshots
+bash scripts/playtest.sh quest --quest 1012                       # one quest or chain of the every-quest set
+bash scripts/playtest_quests.sh                                   # every Maple Island quest (7-10 min)
+```
+
+- Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
+  copy of `game/` under `_scratch/godot_runs/`.
+- Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
+  then every box of the other five maps: 16 of the 19 broken),
+  `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
+  seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
+  hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `kit` (PlaytestKit's
+  reference run), `trap_probe` and `walk_probe` (single spots). Tests A-G are as in Iteration Two.
+- **The every-quest set.** `scripts/playtest_quests.sh [--jobs N] [--seed N] [--out DIR] [--isolate PREFIX]
+  [chains...]` runs the `quest` scenario once per chain (`--list` prints the 9 chains), `--jobs` at a time (default 3)
+  in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one
+  row per quest (PASS, FAIL or NOT_PLAYED, checks, the random reward drawn) and one per chain. Exit 0 only when every
+  quest passes. One chain alone: `bash scripts/playtest.sh quest --quest 1013-1019` (or `1002`, `1006,1009,1010`, or
+  `QUEST=<spec>`). On the integrated Iteration Three build the whole set passes, 20 of 20 quests on seed 1 with every
+  chain strict ok, in about 7 minutes with `--jobs 3`; 1012 now plays with the Wooden Boxes.
+- **Strict mode.** A scenario that calls `d.begin_strict(reason)` may use no developer help after that step: a
+  console command is refused, an api fallback, any developer command or any change to EXP, mesos, items or quests the
+  event bus did not announce is a violation. `report.json` carries a `strict` block (`console_steps`, `api_steps`,
+  `debug_commands`, `ledger`, `violations`, `ok`), and a report passes only when it is ok. The `quest` scenario is
+  strict after its setup save (1000-1001 from character creation).
+- **Parity keys.** A playtest check may carry keys (`d.check(name, cond, details, ["quest:1005"])`); `report.json`
+  keeps them per check and sums them per key. Quests, objectives, rewards and chains become "verified" in the parity
+  manifest only through tagged playtest checks.
+
+## Run the stuck-region scan
+
+The scan finds walkable places a player can get into but not out of, on all 25 maps, and verifies each finding with
+the real player controller ([STUCK_SCAN.md](STUCK_SCAN.md)).
+
+```bash
+# every map, verified; writes docs/runtime/stuck_report.json (run on game/, not an ISOLATE copy); exit 1 on a new trap
+bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn
+# some maps, graph only, written elsewhere, with top-down pictures
+bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- --map 000000041,000001010 \
+    --no-verify --png "$PWD/_scratch/stuck_png" --out "$PWD/_scratch/stuck.json"
+# inspect map-local points by hand (column surfaces, the forward path, the nearest escapable ground)
+bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- --map 000001004 --no-verify \
+    --inspect "35.44,0,-27.75;30.65,0,-26.4"
+# the guards in the suite (with the world)
+ISOLATE=stuck INCLUDE_WORLD=1 bash scripts/test.sh stuck_scan playtest_traps
+# one spot in the real game, with real input
+TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap_probe
+```
+
+The tool exits 1 on a CONFIRMED trap the allowlist's `entries` do not list (`game/data/misostory/stuck_allowlist.json`;
+empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (13 components
+reviewed by hand) does not list, and on escapable ground outside every map region. The
+final Iteration Three scan reports 0 confirmed traps; every former trap (54 spots) is replayed by `trap_probe`.
 
 ## Run canonical-data validation
 
 ```bash
-bash scripts/validate_data.sh              # exit 1 on a broken reference, 2 if the validator itself is broken
-bash scripts/validate_data.sh --strict     # warnings fail too
+bash scripts/validate_data.sh              # exit 1 on a data error, 2 if the validator itself is broken
+bash scripts/validate_data.sh --verbose    # also list the references skipped as out of scope
+bash scripts/validate_data.sh --report     # also write docs/provenance_report.json and docs/PROVENANCE_REPORT.md
+bash scripts/validate_data.sh --report-json _scratch/prov.json --report-md _scratch/prov.md   # the report elsewhere
+ISOLATE=me bash scripts/validate_data.sh   # in a private copy
 ```
 
 It runs the game's own loader over `game/data/canonical` and `game/data/misostory`
-([DATA_VALIDATION.md](DATA_VALIDATION.md)). To regenerate the canonical data from the local MeowDB cache, see
-[`../canonical/README.md`](../canonical/README.md).
+([DATA_VALIDATION.md](DATA_VALIDATION.md)): references, provenance per authority (MeowDB, KuroDB, Hidden Street,
+Project owner) with capture files that must exist, the schema v2 drop records and the drop policy, adaptations
+(`verified: true` needs `verified_against`), and the quest, NPC and dialogue validation. On the integrated build it
+passes with 0 errors and 54 warnings: the 54 drop members that never roll (`drop_unresolved`, listed by design). So
+`--strict` (warnings fail too) exits 1 until those source gaps are resolved. The provenance report is deterministic:
+regenerating it over unchanged data gives the same files.
+
+Two more source checks, both offline:
+
+```bash
+node tools/sources/check_spawn_captures.mjs   # the 51 canonical spawn rows against the dated MeowDB captures
+bash scripts/check_canonical.sh               # every extractor re-run cache-only in a temp copy, diffed byte for byte
+```
+
+`check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
+extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
+a missing cache. **On the integrated Iteration Three build it exits 2**: `extract_monsters.mjs` now resolves drop
+members against the local items and quests (`tools/sources/drops_merge.mjs`), but the script empties
+`game/data/canonical/items` and runs `extract_items` after `extract_monsters`. A copy of the script with
+`extract_items` (and `extract_quests`) before `extract_monsters` passes with every canonical file the same (see
+[`../DEFERRED.md`](../DEFERRED.md)). To regenerate canonical data, see [`../canonical/README.md`](../canonical/README.md).
+
+## Build the parity manifest
+
+`docs/MAPLE_ISLAND_PARITY.md` and `docs/maple_island_parity.json` give every in-scope entry (maps, portals, monsters,
+populations, drops, items, NPCs, shops, quests and their objectives and rewards, skills, breakables, chairs, mechanics)
+a state: missing, partial, implemented or verified. They are generated from the data, the provenance report and test
+evidence:
+
+```bash
+ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
+bash scripts/validate_data.sh --report
+bash scripts/playtest_quests.sh --out "$PWD/_scratch/ev/quests"        # and any other playtests, each with --out
+node tools/parity/build_parity.mjs --tests _scratch/ev/full.json --playtest _scratch/ev/quests
+node tools/parity/build_parity.mjs --check --tests _scratch/ev/full.json --playtest _scratch/ev/quests
+```
+
+`--playtest` takes a report.json or a folder searched for them; repeat `--tests` and `--playtest` as needed.
+`--out-json` / `--out-md` write elsewhere. `--check` exits 1 when the committed files differ from a fresh build; it
+needs the same inputs the committed build used (its "Evidence used" section lists them), which live in git-ignored
+`_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one.
+
+## Capture a source page by hand
+
+Newer MeowDB facts, KuroDB chances and Hidden Street drop lists come into the project only as dated captures of pages
+read by a person in a normal browser (decisions D3-1, D3-3 and D3-6 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)).
+No tool fetches them: MeowDB's terms forbid automated collection, and KuroDB and Hidden Street sit behind a Cloudflare
+check.
+
+1. Open the page in a browser and read it. Copy the rendered text, trimmed to the record.
+2. Save it under the authority's folder with a name the loader knows (`tools/meowdb/captures/README.md`,
+   `tools/kurodb/captures/README.md`, `tools/hiddenstreet/captures/README.md`). A MeowDB `.txt` capture starts with a
+   header, then a `---` line, then the page text:
+
+   ```
+   URL: https://meowdb.com/msclassic/monsters/2
+   READ_AT: 2026-10-05T07:47:01.065Z
+   METHOD: manual page view in a normal browser; rendered page text, trimmed to the record
+   PURPOSE: (optional) why the page was read
+   ---
+   <the page text>
+   ```
+
+   `READ_AT` must be an ISO 8601 time with a zone. A header value may continue on indented lines. JSON captures carry
+   `url`, `read_at` and `method` fields instead. To update a value, read the page again and replace the capture with
+   the new reading and its own read time; never edit a captured text by hand.
+3. Check it loads: `tools/sources/captures.mjs` reads every file in the three folders (README.md is skipped) and stops
+   on an unknown file name, a missing or non-ISO read time, or rows that are not in the captured text. A new kind of page
+   needs a reader there first.
+
+   ```bash
+   node -e "import('./tools/sources/captures.mjs').then(m => console.log(m.loadCaptures().files.length, 'capture files'))"
+   node --test tools/sources/test/
+   ```
+
+4. Regenerate what reads it ([CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) "Canonical data from dated captures"), then
+   `bash scripts/validate_data.sh`. Every value taken from a capture cites the capture's path and the page URL, and the
+   validator checks that the file exists.
 
 ## Run the combat and formula tests
 
 ```bash
-bash scripts/test.sh combat parity stats progression
+bash scripts/test.sh combat parity stats progression skills
 ```
 
 `test_parity_*` replays the 818 golden vectors computed by MeowDB's own calculators
-(`game/tests/data/parity_vectors.json`). `test_combat_*` covers every stage of the damage pipeline. The formulas are
-documented in [COMBAT.md](COMBAT.md).
+(`game/tests/data/parity_vectors.json`). `test_combat_*` covers every stage of the damage pipeline and `test_skills_*`
+the Beginner skills. The formulas are documented in [COMBAT.md](COMBAT.md).
 
 ## Teleport between maps
 
@@ -111,22 +320,36 @@ where                     # map, region, position, session state
 ```
 give 270 10               # 10 Red Potions (MeowDB item id)
 give "Red Potion" 10      # by name
+give 522                  # The Green Relaxer (a chair)
 mesos 5000
 clearinv use              # empty one tab (or all tabs)
 ```
 
-## Grant EXP
+## Grant EXP, quests and skills
 
 ```
 exp 100                   # level-ups, AP, SP and HP/MP growth happen as in play
 level 8                   # set the level consistently (AP/SP/HP/MP)
-quest complete 1006       # quest commands: quest accept|complete|forfeit|reset <id>, quests
+quest complete 1006       # quest accept|complete|forfeit|reset <id> [force], quests
+skills                    # skill levels, SP, cooldowns and active effects
+cast recovery             # cast a learned skill now (by id or name)
+```
+
+## Drops and Wooden Boxes
+
+```
+drops 2 1000              # simulate 1000 Snail kills: observed vs configured rates, each chance's KuroDB source,
+                          # and why a member never rolls (unresolved chance or item); quest gates follow your quests
+drops 0000001 500         # the same for the Wooden Box
+loot 2 5                  # roll five Snail kills' loot at your feet (quest-gated drops follow your quests)
+boxes                     # the current map's Wooden Boxes: placement, hits taken, respawn countdown
 ```
 
 ## Enable debug overlays
 
 - **F3** toggles the overlay: FPS, map and street, session state, position (world and map-local), region, HP and
-  states, monsters alive against capacity, and the next spawn tick.
+  states, monsters alive against capacity, and the next spawn tick. The minimap shows the canonical map id while it is
+  on.
 - Draw layers (console): `collision on`, `spawns on`, `portaldata on`, `npcs on`, `bounds on`, `mobregion on`,
   `rings on`, `safeground on`, or `draw all on`.
 - `god on` makes you invulnerable, `heal` refills HP and MP, `spawn 2 5` spawns five Snails, and `kill all` kills them

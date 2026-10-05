@@ -14,6 +14,7 @@ to ask whether the live character is dead (see "Dead characters cannot use items
 | `game/scripts/core/items/inventory.gd` | `Inventory` | Five-tab inventory (**contract**) |
 | `game/scripts/core/items/equipment.gd` | `Equipment` | Equipped pieces, requirements, slot conflicts (**contract**) |
 | `game/scripts/core/items/consumables.gd` | `Consumables` | Using potions and food |
+| `game/scripts/core/items/chairs.gd` | `Chairs` | Using a chair: sit down or stand up through the player (contract C5) |
 | `game/scripts/core/items/mesos.gd` | `Mesos` | Meso add/spend rules and the cap |
 | `game/scripts/core/items/item_codes.gd` | `ItemCodes` | Result codes and default messages |
 | `game/scripts/core/items/item_service.gd` | `ItemService` | The seam: mutates a `CharacterState` and emits `Events` |
@@ -118,7 +119,15 @@ No canonical number appears in code. Tests read expected values from the same re
 - **Consumables.** These are flat `hp_restore` / `mp_restore`. Percentage restores (`hp_restore_pct`, floored) and
   buffs (`consumable.buffs`, returned in the result for the effect system) are supported as data, but no current item
   has them. Restores are clamped to `StatCalculator.max_hp` / `max_mp`, and one unit is consumed. A potion used at
-  full HP is still consumed. Pet Food, scrolls, chairs, equipment and Etc items return `not_usable`.
+  full HP is still consumed. Pet Food, scrolls, equipment and Etc items return `not_usable`; so does a chair passed
+  to `Consumables.use`, because chairs go through `ItemService.use_item` to `Chairs.use` (below).
+- **Chairs** (contract C5). A chair is a Setup item with canonical `setup` data (`ItemDef.is_chair()`: The Green
+  Relaxer, 522; the Sky-blue Wooden Chair, 525, is off-island). `ItemService.use_item(chair)` is not consumed: it
+  hands the chair to `Chairs.use`, which sits the player down on it, stands it up when it already sits on that chair,
+  or moves it over to another chair (`{"action": "sit" | "stand"}`). `Chairs.sit_key` is the X key: stand up, or sit
+  on the first chair in the Set-up tab (an adaptation, `recovery.json sitting`). Refusals: `not_enough_items` (not
+  owned), `level_too_low`, `dead`, `cannot_sit` (the player is walking, airborne, in a modal or warp), `no_chair`. The
+  seated state itself and the chair's bonus clock belong to the player ([PLAYER_AND_CAMERA.md](PLAYER_AND_CAMERA.md)).
 - **Dead characters cannot use items** (`dead`, checked after the item checks). "Dead" is not "HP 0": the game
   shell takes a death's loss at the moment of death (GAME_SHELL.md "Death and respawn"), so while the death notice is
   up the character already holds its respawn HP (`death.json`). `Consumables.is_dead(character, db, dead_check)` is
@@ -147,7 +156,11 @@ No canonical number appears in code. Tests read expected values from the same re
   The citizenship discount has a hook (`price_for`) that returns the base price, because no Maple Island shop is
   eligible. Cost and units are saturating products, so an absurd quantity reads as unaffordable instead of wrapping
   to a small 64-bit cost. Selling pays the item's canonical `sell_price_mesos` per unit (`per_unit`) or per item (`per_item`),
-  from any shop. MeowDB documents no sell restrictions. Shop equipment is clean (empty instance data).
+  from any shop. MeowDB documents no sell restrictions; MisoStory adds one: a shop refuses to buy a quest-critical
+  item (a quest item, an untradeable item, or one handed out on accept) below the quantity an in-progress quest still
+  needs (`quest_item_needed`, `QuestItemGuard`, `misostory/quests/_quest_items.json`), because selling Roger's Apple
+  during 1002 made the quest uncompletable. Tradeable drops stay sellable. Shop equipment is clean (empty instance
+  data).
 - **Drops.** `DropRoller.roll(owner, db, rng, ctx)` first rolls one meso bag (when the record's meso amount and chance
   are both resolved; the amount is a uniform integer in `[min, max]`), then each rolling entry in the record's order.
   An entry rolls when its chance is resolved and its item is a local item, and, if it has a `quest_gate`, only while
@@ -238,9 +251,10 @@ English line. The codes are:
 | `ok`, `unknown_item`, `invalid_quantity` | all |
 | `inventory_full`, `not_enough_items` | inventory |
 | `insufficient_mesos`, `meso_cap` | mesos |
-| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused` | shops |
+| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused`, `quest_item_needed` | shops |
 | `not_equipment`, `unknown_slot`, `slot_empty`, `level_too_low`, `job_mismatch`, `stat_too_low`, `fame_too_low`, `gender_mismatch` | equipment |
 | `not_usable`, `dead` | consumables |
+| `cannot_sit`, `no_chair` (and `not_enough_items`, `level_too_low`, `dead`) | chairs |
 
 Details carry the relevant numbers, for example `stat_too_low {stat, required, actual}` and buy
 `{cost, units, mesos}`.
@@ -248,7 +262,7 @@ Details carry the relevant numbers, for example `stat_too_low {stat, required, a
 ## Testing
 
 ```bash
-ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drop mesos    # items, shops, drops (test_drop*, test_drops_*)
+ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drop mesos chairs   # items, shops, drops, chairs
 ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references + drop policy
 node --test tools/sources/test/                                                      # the drop merge against the captures and the crosswalk
 ```
@@ -264,6 +278,8 @@ node --test tools/sources/test/                                                 
 | `test_consumable_dead.gd` | an injected dead check refuses use at positive HP, HP 0 is dead whatever the check says, the check runs at each use and after the item checks, `ItemService.dead_check` refuses silently, `default_dead_check` resolves to `Game.is_character_dead` for the live character only (on a private `GameState` and against the autoload, unchanged), and a committed death (private MapSession and `DeathRules`) refuses potions at the respawn HP until the respawn, leaving the `MapSession` autoload as it was |
 | `test_mesos_wallet.gd` | add/spend validation, never negative, cap, `mesos_changed`, persistence |
 | `test_shop_buy_sell.gd` | stock equals canonical rows, price x quantity, exact affordability, insufficient mesos, full inventory, clean equipment, bad requests, sell-back, 0-value sales, meso cap, `sell_slot`, signals, no 64-bit cost wrap |
+| `test_shop_quest_items.gd` | the sell guard (a quest item an in-progress quest still needs is refused, and says why; the rest sells) and Roger's re-issue of a lost apple during 1002 |
+| `test_chairs_use.gd` | chairs are the Setup items with setup data; the canonical bonus; the first chair in slot order; the refusals; use sits and stands; a quickslot-bound chair sits the live player (PLAYER_AND_CAMERA.md) |
 | `test_drops_data.gd` | every record v2 and through the drop policy, every member's item exists or is unresolved, `drop_rates.json` supplies no value, every rolling chance names its KuroDB row, the rolling members per owner, quest items (under their quest) and Three Snails shells obtainable, meso amount and chance sources |
 | `test_drops_roller.gd` | same seed gives the same drops (with and without a quest context), only rolling entries drop, unresolved members never do, Board and Screw only during 1012 (and the gate costs its roll), tutorial shellpiece every kill, meso amounts cover [min, max], box never drops mesos, a v1 table supplies nothing, rolled drops picked up, ground records (lifetime, owner window, scatter in px and m), canonical pickup box through `WorldScale.actor` |
 | `test_drop_chance.gd` | the exact raw-value readers: the captured KuroDB percentages, the 1/N reactor reading, truncation and double-division traps, impossible values rejected, meso rows and amounts, every shipped raw value read back |
@@ -277,7 +293,11 @@ node --test tools/sources/test/                                                 
 - **Requirement basis.** Total stats are used, as the brief says. `items.md` calls the fields "minimum base stat".
   Re-check against MeowDB when possible.
 - **Not built yet.** Scroll application (failure, slot use), equipment stat variance on drops, recharging, pets and
-  pet food, chairs (sitting is another system's job). MeowDB documents none of these.
+  pet food. MeowDB documents none of these. Chairs work (above).
+- **The Green Relaxer can be sold.** The sell guard holds only what an in-progress quest needs, and no quest needs
+  the chair after 1012; whether to protect it (untradeable, not obtainable again) is an owner decision.
+- **A chair refused for level** reads "You need to be level N to equip that." (`MisoUiText.result_message` words
+  `level_too_low` for equipment); only 525, an off-island chair, has a level requirement.
 - **Unresolved drops.** 54 drop members never roll until a source resolves them (see
   [`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-v2-records)); the validator lists each one.
 - **Shop rules live in `inventory.json`.** The `shop` section is there only because this system owns no shop

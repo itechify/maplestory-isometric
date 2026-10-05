@@ -1,4 +1,4 @@
-# Player controller and gameplay camera (Iteration Two)
+# Player controller and gameplay camera (Iterations Two and Three)
 
 This system covers the brief's Phase 3 (controls, isometric movement, jumping, camera) and the movement side of
 Phase 4 (step-up, slopes, clutter). It also implements MAP_ARCHITECTURE §4.11 (camera bounds) and the §4.13 InputSource
@@ -159,8 +159,9 @@ SafeGround and the floor sync are unchanged.
   alive). The ways in:
   - double-click the chair in the inventory's Set-up tab, or select it and press Sit (`MisoInventoryWindow`, through
     `ItemService.use_item`, which hands chairs to `Chairs.use` on the shell's player);
-  - a quickslot bound to the chair (`MisoQuickslots.use` → `ItemService.use_item`; making chairs bindable is
-    `MisoQuickslots.can_bind`);
+  - a quickslot bound to the chair (`MisoQuickslots.use` → `ItemService.use_item`; `MisoQuickslots.can_bind`
+    accepts chairs, so a chair is bound by a drag from the Set-up tab onto the HUD bar or with the inventory's Set
+    key);
   - X (`sit`): `sit_key()` sits on the first chair in the Set-up tab, or announces "You do not have a chair to sit
     on." (`ItemCodes.NO_CHAIR`). An adaptation (`recovery.json` sitting): MeowDB documents no sitting without a chair
     and no map benches on Maple Island.
@@ -459,9 +460,9 @@ show instead:
   body, which shows only as the X-ray fill (no outline, no dither). An explicit exception would need a data rule; the
   review left it because the player stays readable (screenshots in `_scratch/review-camera/shots`).
 
-- Monsters have no X-ray or outline of their own: a cliff or terrain (which never fades) can still hide a monster
-  the camera does not cover with a hole. A matching see-through pass in `MonsterVisual` (its own stencil reference,
-  not 37) is requested from the monster system.
+- Monsters have their own see-through silhouette since Iteration Two's P4 round (`MonsterVisual`, stencil 36,
+  MONSTERS_AND_COMBAT_RUNTIME.md "See-through silhouette"); it relies on the player's `STENCIL_REF` (37) staying above
+  36, so another system that writes the stencil must not take 36 or 37.
 - The dither leaves 10% of an occluder's pixels inside a hole (`occluder_dither_strength`), so the occluder still
   reads as present; the X-ray fill paints the player through those dots, and monsters behind them show through a
   sparse screen of dots.
@@ -487,8 +488,8 @@ show instead:
 - `IslandWorld` with `load_visuals = true` segfaults in headless runs (threaded visual load in the dummy renderer), so
   the sandbox's `--world` mode loads collision only when headless.
 - `set_input_enabled(false)` (dialogue, transitions) gates only the controller. Systems that read
-  `player.input_source` directly (PortalInteractor) still see presses, so they should also check
-  `player.is_input_enabled()`; PortalInteractor does not yet.
+  `player.input_source` directly still see presses, so they must also check `player.is_input_enabled()`;
+  PortalInteractor does (since Iteration Two's P3-1, through `IslandWorld.player_input_block()`).
 - The bounds clamp works on the ground plane at the followed ground height. Terrain much higher or lower than the
   player near a map edge shifts what is visible there by about 1.2 × the height difference (cot 40°), which the 6 m
   overscan mostly absorbs.

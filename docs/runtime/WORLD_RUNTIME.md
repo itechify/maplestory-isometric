@@ -1,11 +1,13 @@
-# World runtime (Iteration Two, milestone M2: walkable island)
+# World runtime (Iteration Two, milestone M2: walkable island; Iteration Three)
 
 This is the runtime side of [`MAP_ARCHITECTURE.md`](MAP_ARCHITECTURE.md): the island loaded in Godot, the 25 MeowDB
 maps as gameplay instances, portals, `MapSession`, spawns, NPC placement, containment, fall recovery and, since
 milestone **M2**, the walkable trails. Players walk from map to map along Iteration One's 20 trails, or press Up at
 any portal. There is always exactly one current map: a walk changes it only at a **gate** (MAP_ARCHITECTURE §4.4),
-through the same `MapSession.transition()` a press-Up uses. Flood fill (L1), ambient neighbours and occluder
-dithering are not built; their seams are listed at the end.
+through the same `MapSession.transition()` a press-Up uses. Iteration Three added the Wooden Box placements to the map
+instance, the spawn rules of its monster package (NPC clearance, density, exclusions, no respawn on the player), a
+ground query for the minimap, and the L1 flood fill as the stuck-region scan ([STUCK_SCAN.md](STUCK_SCAN.md)).
+Ambient neighbours and occluder dithering are not built; their seams are listed at the end.
 
 ## Files
 
@@ -397,11 +399,25 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
   - it stands 1.2 m from other slots and 4 m from every arrival.
 
   Species and counts are never changed. `maps/<id>.json spawn_slot_overrides` may pin a position.
+
+  **Iteration Three** (MAP_ARCHITECTURE §4.7.1 "As built"): a slot also keeps `spawns.slot_npc_clearance_m` (2.5 m)
+  from every NPC of its map and stays out of its region's authored exclusions (sidecar `exclude_xz`, from `m.mobs`
+  avoid zones); regions are filled species by species up to `spawns.min_area_per_slot_m2` (8 m²) of room per slot,
+  and only then do the remaining slots spill to the least crowded region. `SpawnSlotPlanner.arrival_points(def)` and
+  `npc_points(def)` give the same clearances to the Wooden Box planner. Capacity comes from
+  `SpawnModel.capacity_for_map`, which applies MeowDB's map mob rate only when `presentation.json map_mob_rate.apply`
+  is true (it is false: a decision between MeowDB pages that disagree).
 - **`MapInstanceState`** (pure):
   - `fresh()` fills to capacity at once with a seeded RNG (open question 6);
   - `tick(now)` processes the tick boundaries since the last call (closed form, so a day away replays in
     microseconds);
   - `kill(i, now)`; `snapshot()` / `from_snapshot()` (fast-forwarded); survivors keep their HP.
+  - **Breakables** (Iteration Three, contract C8): `breakables[i] = {id, hits, respawn_at (-1 while intact),
+    respawn_s}`, one per canonical `reactors[i]` of the map (the placement index). `hit_breakable(i, now,
+    hits_to_break)` counts a landed hit and breaks the box at `hits_to_break`; `tick_breakables(now)` brings a box
+    back exactly `respawn_s` after its break on `Game.clock` (not on the 7.56 s spawn tick). They travel in the
+    snapshot (key `breakables`), so a parked map keeps its broken boxes in `MapStateCache`, and they are never saved.
+    `BreakableSystem` shows them (MONSTERS_AND_COMBAT_RUNTIME.md "Breakables").
 
   Only MeowDB spawn points are slots. `SpawnSlot.NO_SLOT` (-1, placement `"debug"`: the debug console's `spawn`
   builds such a slot itself, `SpawnSlot.synthetic(...)` makes the same shape) and any out-of-range index are "no
@@ -417,10 +433,13 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
     too.
 - **`MapStateCache`**: LRU of the 4 most recently left maps; eviction means the next visit is `fresh()`.
 - **`MapInstanceView`** (current map only): realizes nearest-first, at most 8 per frame, with default proxies fading
-  in over 0.3 s. It ticks on `Game.clock`, and `release()` writes survivor HP back.
+  in over 0.3 s. It ticks on `Game.clock`, and `release()` writes survivor HP back. A slot is not realized while the
+  player's feet are within `spawns.respawn_player_clearance_m` (2 m) of it (Iteration Three): it stays alive in the
+  state and waits until the player moves away (`respawn_waited(i)` tells listeners why).
   - **Hooks for the monster system.** `monster_factory: Callable(mob_id: String, slot: SpawnSlot) -> Node3D`. The
     default is the static `_library.glb` proxy: sidecar species → proxy, else `Mob_<Name>`, else a labelled
-    placeholder (for example the Tutorial Jr. Sentinel). `monster_releaser: Callable(node)` is optional.
+    placeholder (no Maple Island species needs one since Iteration Three added `Mob_TutorialJrSentinel`).
+    `monster_releaser: Callable(node)` is optional.
   - **Spawned nodes** carry metadata `spawn_slot`, `mob_id`, `map_id`. Report deaths with `notify_killed(slot)` or
     `notify_node_killed(node)`, or give the node a `died` signal.
   - `notify_node_killed(node)` and `slot_of(node)` accept only the node this view spawned for that slot. A debug
@@ -485,6 +504,12 @@ shopkeepers end against their counters: Pan 0.83 m inside (feet 1.87 m from him)
 hook) and `world_ready()` at the end (about 1.5 s with visuals on the dev machine); `build_now()` is the
 synchronous variant for tests and tools. All 31 chunks stay resident (`AllResident`, §4.12). Stages: data, sky/sun,
 chunks, **trails** (`TrailLoader`), ground (`ground_all`, gate heights, `finish_trails()`, `RegionIndex`), nodes.
+
+`IslandWorld.ground_faces(map_id) -> PackedVector3Array` (Iteration Three, for the minimap) returns the walkable
+triangles of the map's collision chunk (its `Ground*` bodies), in island coordinates, cached per map; it is empty for
+an unknown map or before the build. A test process that builds the island many times needs Jolt's raised body cap
+(`project.godot` `physics/jolt_physics_3d/limits/max_bodies` 65536): freed bodies' slots are evidently not reused
+within a process (inferred from the fix, not root-caused), and the eleventh build used to abort the process.
 
 Collision comes from the `.collision.glb` files (Godot builds the `-colonly` / `-convcolonly` shapes); the world
 then reassigns layers by body name:
@@ -745,9 +770,12 @@ from the house's centre; a prism out to the brim's 6 m would let it go.
 
 ## Not built yet (M3 seams)
 
-- **Flood-fill coverage** (§4.13 L1): not built. The trail walls, ring gaps and region checks are proved by the L1
-  probes and the L2/L3 walks instead.
-- **Result caching** of the per-map route runs by content hash (the whole traversal takes about a minute).
+- **Flood-fill coverage** (§4.13 L1): built in Iteration Three as the stuck-region scan (`game/tools/stuck_scan.gd`,
+  [STUCK_SCAN.md](STUCK_SCAN.md)): every map's walkable graph on the real collision, each suspect component replayed
+  with the real controller; 0 confirmed traps on the final world. Not built: the check that every NPC talk zone, spawn
+  slot, portal trigger and Wooden Box placement can be reached from the map's entries.
+- **Result caching** of the per-map route runs and scan results by content hash (the whole traversal takes about a
+  minute, the scan 80-110 s).
 - `assemble_world.gd` / `world_index.json`: the join still runs at load (about 1 s with the trail ribbons).
 - Ambient neighbours, occluder dithering (the camera system has its own), lighting presets and BGM playback (only
   the `environment_changed` signal).

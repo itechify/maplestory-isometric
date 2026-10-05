@@ -1,4 +1,4 @@
-# Live monsters and the player's combat (Iteration Two, wave 2)
+# Live monsters, breakables and the player's combat (Iterations Two and Three)
 
 This system puts the monsters and the fighting into the real scene: brief Phase 7 (monster framework, the Maple Island
 monster set, monster behaviour, spawn-system integration) and the in-world half of Phase 8 (attacks, hit detection,
@@ -408,6 +408,48 @@ started over on every movement, attack or monster touch), which is gone.
   a move key and a warp stand up; Quit Game with 4.40 s banked; after Continue the player stands, 4.40 s are restored
   and complete the next tick, and X sits again.
 
+## Breakables: the Wooden Box (Iteration Three, contract C8)
+
+The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placements on six maps (000001000: 5,
+000001010: 6, 000001011: 2, 000001012: 2, 000001013: 1, 000001014: 3). It is hit like a monster, but it is not one.
+
+| Path | Class | Role |
+|---|---|---|
+| `scripts/core/breakables/breakable_rules.gd` | `BreakableRules` | pure: the canonical record (`hits_to_break` 4), the map's `reactors[]` placements (index, id, `respawn_s`), the adaptation table, the drop roll |
+| `scripts/core/breakables/breakable_placement_planner.gd` | `BreakablePlacementPlanner` | pure: places each placement on walkable ground, seeded per map, the way `SpawnSlotPlanner` places spawn slots |
+| `scripts/core/breakables/breakable_placement.gd` | `BreakablePlacement` | one planned placement: key `<map_id>:<index>`, breakable id, position, respawn time |
+| `scripts/core/maps/map_instance_state.gd` | `MapInstanceState.breakables` | the live state: `{id, hits, respawn_at (-1 intact), respawn_s}` per placement; `hit_breakable`, `tick_breakables`; in the map's snapshot |
+| `scripts/actors/breakables/breakable_system.gd` | `BreakableSystem` | the current map's boxes in the scene (`scenes/systems/breakable_system.tscn`, installed after the loot system): realizes them from the live state, lands hits, rolls drops, brings boxes back; the `boxes` console command |
+| `scripts/actors/breakables/wooden_box.gd` | `WoodenBox` | presentation only: a procedural crate (lighter, faintly glowing planks), hit flash, wobble, break and respawn; group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()` |
+| `data/misostory/breakables.json` | | the box's body (`box.touch_px` 30 x 30), the hit rule, the respawn clock and the placement rules (all `verified: false`) |
+
+- **Placement.** MeowDB's `x_px` / `y_px` are 2D and not used (as for spawns). Candidates come from the map's spawn
+  areas clipped to its mob region, else (towns and interiors, which have no species-tagged regions) from its floor and
+  region extensions. A box keeps a clear capsule, stays out of portal triggers and keep-outs, 3.5 m from portals and
+  arrivals, 1.2 m from spawn slots, 2.5 m from other boxes and outside NPC talk zones, needs 5 of 8 standing points
+  around it, and must be in the gameplay camera's sight (checked against collision: a colliderless canopy can still
+  hang over one). A map always gets the same boxes.
+- **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
+  one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
+  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Another attack source
+  may call `land_hit(box)` or `box.receive_hit(...)`; Three Snails does not (it searches monsters only), so skills do
+  not break boxes today (an open owner question).
+- **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
+  with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (1/1, only while Pio's quest
+  1012 is in progress), Apple (1/4); the Egg never rolls (no KuroDB value) and the box drops no mesos. The loot goes
+  out through `Events.loot_dropped` at the box.
+- **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
+  monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the
+  breakable page's single 120 s). The box is not solid (classic reactors never block movement).
+- **Not saved.** Box state lives in the map instance (parked with the map in `MapStateCache`) and never in a save; a
+  reload rebuilds every box intact (`test_breakables_persistence.gd`).
+- **Tests:** `test_breakables_state.gd`, `test_breakables_placement.gd` (with the world: every box on real collision,
+  standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
+  the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
+  `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
+  real reload, then every box of the other five maps: 16 of the 19 broken, since the quest needs three of Amherst's
+  six) and the every-quest set's 1012 chain.
+
 ## Damage numbers (`DamageNumbers`)
 
 Billboarded `Label3D`s drawn over everything (`no_depth_test`) with a thick dark outline, sized in screen pixels from
@@ -659,9 +701,8 @@ box (two identical frames differ by 0 px, so nothing else moves).
   held J or Ctrl, so removing it is better for the keys too.
 - Ranged weapons always use their close-range branch (no projectiles, no ranged search bands); no crouched attack.
   No Maple Island creation weapon is ranged.
-- The Wooden Box breakable (`0000001`) is not built.
-- The death EXP penalty (`Progression.apply_death_penalty`) is not applied here; it belongs in
-  `MapSession.death_rules`.
+- The death EXP penalty (`Progression.apply_death_penalty`) is not applied here: the game shell applies it at the
+  moment of death through `MapSession.death_commit` (GAME_SHELL.md "Death and respawn (Phase 9)").
 - Monsters keep moving while a modal dialogue is open (as in classic); they stop only with the scene tree's pause.
 - Trees between the camera and a fight fade (OcclusionFader) but can still hide the player (camera system).
 - **See-through silhouette.** It is a flat tint: the hidden monster's shape, not its colours or its species. A cover

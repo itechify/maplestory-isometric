@@ -440,22 +440,26 @@ requirement (`quest:1005`, `npc:15`, `shop:maple-road-lucy`, `mechanic:quest-rew
 | `tests/unit/test_npc_shanks_departure.gd` | Shanks: level 6 refused, level 7 with 299 mesos refused, a ready character reaches the boundary (flag = game clock, saved; no mesos taken; no travel; the canonical route in the effect), the unfinished-quest list (chains grouped, completed ones left out), No leaves nothing, boarding re-checks the fare, no boundary = `not_built`, a charging boundary takes the fare |
 | `tests/unit/test_shop_quest_items.gd` | the sell guard: Roger's Apple during 1002 (refused with the message; an extra copy sells; free once eaten), Shellpieces during 1005 (only the 3 needed are held), tradeable drops for 1011 stay sellable, Sera's Mirror during 1001, the adaptation switch, the shop window's check line and status; Roger re-issues a lost apple (canonical line after, no duplicate while held, 1002 then completes), no room = the system line, one menu entry |
 
-**Real-game coverage.** The real-game scenario `test_e_quest` plays 1002, 1006, 1007 and 1008 (and 1006 across a
-save and reload). The other 16 quests (1000, 1001, 1003, 1004, 1005, 1009, 1010, 1011, 1012, 1013-1019) and the
-Shanks boundary are unit-tested only; the playtest harness builds the every-quest real-game set.
+**Real-game coverage.** Every one of the 20 quests is played in the real game with real input by the every-quest set
+(`bash scripts/playtest_quests.sh`, PLAYTEST_HARNESS.md): offer, accept, objectives, saves and process restarts in
+the middle, the exact reward and the follow-ups, strict after a logged setup. On the integrated Iteration Three build it passes 20 of
+20 (seed 1, 2026-10-05). `test_e_quest` also plays 1002, 1006 (across a save and reload), 1007 and 1008. The Shanks
+boundary and the speech bubbles are unit-tested; their real-key scenarios were checked during the quests package
+(22 and 4 checks) but are not committed.
 
 Data validation for this system is `QuestCatalog.new(db).validate()`, `NpcCatalog.new(db).validate()` and
-`NpcDialogueBuilder.new(db).validate_all()`. The tests assert that all three are clean. `scripts/validate_data.sh`
-(`DataValidator`, owned by the validation system) does not call them yet, so an unsupported `other` objective in new
-quest data is reported by the unit tests but not by the headless data validation until it does.
+`NpcDialogueBuilder.new(db).validate_all()`. The tests assert that all three are clean, and `scripts/validate_data.sh`
+runs them too (`GameplayDataChecks`, checks `quest_data`, `npc_data`, `dialogue_data`; DATA_VALIDATION.md) once the
+structural checks found no error.
 
 ## Known gaps
 
 - An NPC with both quests and a shop shows the shop only when it has no quest entry (no such NPC on Maple Island).
 - The amount and timing of Roger's apple, its re-issue, and the quiz retry rule are unverified adaptations (see
   above). There is still no player-facing forfeit.
-- `quest_progressed` does not request an autosave (`Game.AUTOSAVE_TRIGGERS`, owned by the shell), so mid-quest kill
-  and use counts are saved at the next milestone or manual save.
+- `quest_progressed` requests a debounced autosave since the save package added it to `Game.AUTOSAVE_TRIGGERS`, so
+  mid-quest kill and use counts survive a crash.
+- `flags.maple_island_departure_ready_at` is overwritten at every boarding, so it records the latest, not the first.
 - The Green Relaxer (522, untradeable, 1012's reward) can be sold: no in-progress quest needs it, so the sell guard
   does not hold it. Whether to protect it is an owner decision.
 - Sera's "Did you give my mirror to Heena?" and Sen's "What did my sister say?" read as mid-quest lines but show

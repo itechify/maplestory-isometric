@@ -1,8 +1,9 @@
-# HUD and character windows (Iteration Two)
+# HUD and character windows (Iterations Two and Three)
 
 This system is brief Phase 18 (HUD), Phase 17 (quest UI), the Phase 11 inventory UI, the equipment UI and the Phase 6
-stat/AP window. Iteration Three adds the **minimap** (Iteration Three brief Phase 11, "Minimap" below) and the
-persistent map name. It also provides **MisoTheme**, the shared look every MisoStory UI uses. The visual language is
+stat/AP window. Iteration Three adds the **minimap** (Iteration Three brief Phase 11, "Minimap" below), the
+persistent map name, the **Skills window** (K) with skill quickslots, chairs in the inventory's Set-up tab, and the
+Quest Log's chain progress, NPC maps and Missable tag. It also provides **MisoTheme**, the shared look every MisoStory UI uses. The visual language is
 MapleStory-inspired and built entirely in code:
 
 - soft blue-grey translucent windows with light borders and rounded corners;
@@ -255,8 +256,8 @@ character on each event. No character object is cached.
 - **Quickslots.** Eight slots, 1-8. A binding is typed, `{"kind": "item" | "skill", "id"}` (contract C3); a bare item
   id from an older save still reads as an item:
   - an item slot shows the key, the icon, and the inventory count (0 = greyed). A consumable is used through
-    `ItemService.use_item`; a chair (a Setup item with setup data, The Green Relaxer) emits
-    `Events.chair_use_requested(item_id)` for the sitting system;
+    `ItemService.use_item`, and so is a chair (a Setup item with setup data, The Green Relaxer): `ItemService` hands
+    it to `Chairs.use`, which sits the player down on it or stands it up (contract C5);
   - a skill slot shows the skill's icon, greyed while the character lacks the MP or the shell item for its level, with
     the cooldown as a dark sweep and the seconds left; it casts through the player's `PlayerSkills`
     (`MisoQuickslots.use_skill`), and a refusal with a reason ("Nimble Feet is not ready yet (164 s).", "Not enough MP
@@ -311,8 +312,10 @@ N" and a star burst.
     an outward chevron and its canonical destination name beside it (nearest exits first; outward, above, below,
     right, left or a corner, slid along the picture's edge where needed, covering no other name or glyph; a name
     with no free place covers as little of the NPC dots as it can, and the dots are drawn over it). Every map with up
-    to five exits names them all; The Field West of Amherst names six of its eight, the other two are read by
-    hovering. A door with a shopkeeper behind it has a gold coin (Southperry to Pan, Amherst to Sid and Lucy).
+    to five exits names them all; The Field West of Amherst names five of its eight in the suite's layout (the
+    player away: `test_ui_minimap_world` prints "43 of 46 exits named"), the others are read by hovering; which ones
+    show depends on where the player stands. A door with a shopkeeper behind it has a gold coin (Southperry to Pan,
+    Amherst to Sid and Lucy).
   - NPCs: a yellow dot, or the quest marker's own badge colour and glyph ("!" available, "..." in progress, "?" ready
     to turn in, from `QuestEngine.npc_marker`, the rule of the badge over the NPC's head) for every NPC of the map, on
     screen or not; a coin beside shopkeepers and a boat beside Shanks (Transport).
@@ -503,8 +506,11 @@ the visible canonical portals, NPC dots equal to the canonical NPCs, the arrow o
 transport icons, and island-wide the shop badges on exactly the three shop doors. Last, the Phase 12 feedback through
 real play: Snails killed in Snail Hunting Ground I up to level 2 (8 kills with seed 1), then the flourish, the level,
 AP and SP lines in the log, the hits announced (`monster_hit`, the damage numbers' source) and every pickup announced
-with the HUD's own line; no engine error from the minimap. Last run (2026-10-05, review): 231 checks passed headless and
-windowed; the windowed run writes one screenshot per map.
+with the HUD's own line; no engine error from the minimap. Last run on the minimap package (2026-10-05, review): 231
+checks passed headless and windowed; the windowed run writes one screenshot per map. **On the integrated Iteration
+Three build it fails 1 of 231** (headless, seed 1): "level-up: the SP line" still expects "You have 1 SP to distribute
+(press K)." (`ui_minimap.gd`), but the skills package's HUD writes "You have 1 SP to spend (press K)." (`hud.gd`;
+the unit test `test_ui_minimap_feedback.gd` follows the HUD). The scenario's expected line needs the HUD's wording.
 
 **Review (iteration 2).** An adversarial review drove the real `main.tscn` (quick start) with real input events
 (`Input.parse_input_event`: keys, mouse moves, clicks, double-clicks, right-clicks and drags) through 63 checks: the
@@ -526,11 +532,9 @@ staying disconnected after a reparent.
   them. The fold state is not saved (it lasts the session).
 - **The minimap shows no monsters and no Wooden Boxes,** as classic minimaps do not.
 - **Phase 12 follow-ups outside the HUD and minimap** (found by the `ui_minimap` real-play check and the review):
-  SP is announced only by the level-up log line; a "Skill [K] +N" badge belongs on the status bar
-  (`status_bar.gd`) and an SP row in the stats or skills window. Monsters without a proxy show the Label3D
-  "Tutorial Jr. Sentinel (placeholder)" in normal play (`monster_visual.gd`). The quest log shows no chain
-  progression or NPC location (`quest_window.gd`, `quest_def.gd`). X (sit) and K (skills) are listed on the Controls
-  panel and named by the SP line; their handlers come from the chairs and skills work.
+  all closed at the Iteration Three integration. The status bar's Skill button carries an SP badge
+  (`status_bar.gd set_sp`) and the stats window an SP row; the Tutorial Jr. Sentinel has a proxy and no label says
+  "placeholder"; the Quest Log shows chain progress and the NPCs' maps; X (sit) and K (skills) have their handlers.
 
 - **The trail line follows `RegionMonitor`'s sampling** (10 Hz, MapSession emits only changes). At a trail mouth the
   line appears or clears up to a tenth of a second after the step. A player who stands on the seam between a map
@@ -541,9 +545,9 @@ staying disconnected after a reparent.
 - **Only the HUD's gauge reads 0 while dead.** A Character Stats window left open at the death (non-modal windows
   stay open) shows the character's HP on its next refresh, which is the respawn HP once the respawn's refresh arrives.
   The notice covers the middle of the screen, and the window is rarely open then.
-- **The inventory's `Set key` still binds consumables only.** A chair reaches a quickslot by dragging it from the
-  Set-up tab onto the bar (`MisoQuickslots.can_bind` accepts it); the inventory window belongs to the items/sitting
-  work.
+- **Chairs on quickslots.** Since the integration the inventory's `Set key` follows `MisoQuickslots.can_bind`, which
+  accepts chairs, as dragging a chair from the Set-up tab onto the bar always did; a bound chair key sits or stands
+  through `ItemService.use_item`.
 - **Skill slots poll.** The bar redraws its skill slots every 0.1 s while any is bound (every frame during a
   cooldown) instead of listening to MP and cooldown events.
 - **Not built.** Dropping or discarding items, item sorting, a split-stack dialog and a forfeit button in the quest

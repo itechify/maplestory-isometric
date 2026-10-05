@@ -1,4 +1,4 @@
-# MisoStory runtime map architecture (Iteration Two)
+# MisoStory runtime map architecture (Iteration Two; as built through Iteration Three)
 
 Status: **decided**, 2026-10-04. This is the map/world contract that [`ARCHITECTURE.md`](ARCHITECTURE.md) points to. It
 covers map identity, portals, transitions, per-map gameplay state, saves, export chunking, the camera, performance
@@ -492,6 +492,12 @@ planner places by Blender's species-tagged regions instead (the v8-era `m.mobs` 
 - `snapshot(now)` and `fast_forward(now)` replay the missed tick boundaries in closed form. On Maple Island this
   usually refills to capacity after about 13 s away.
 - Survivors restore **at their slot**, with their HP kept. Drops past `expires_at` are discarded.
+- **Breakables** (Iteration Three, contract C8): `breakables[i] = {id, hits, respawn_at, respawn_s}`, one per canonical
+  `reactors[i]` (the placement index). `hit_breakable(i, now, hits_to_break)` counts landed hits;
+  `tick_breakables(now)` brings a broken box back exactly `respawn_s` after the break on the game clock (not on the
+  spawn tick). They are in the snapshot, parked with the map in `MapStateCache`, and never saved. Their 3D positions
+  come from `BreakablePlacementPlanner`, the way spawn slots come from `SpawnSlotPlanner` (MeowDB's `x_px`/`y_px`
+  are not used).
 
 #### 4.7.3 MapStateCache
 
@@ -882,8 +888,11 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
 
 ### 4.15 Victoria Island and Iteration Three
 
-- **Iteration Three content** (all of Maple Island) needs only data: canonical maps, NPC and monster records, and
-  spawn regions. No system changes.
+- **Iteration Three content** (all of Maple Island) needed only data on the map side, as planned: canonical maps,
+  NPC and monster records, and spawn regions. As built, the map model gained the Wooden Box placements in
+  `MapInstanceState` (above), spawn exclusions and clearances (§4.7.1 "As built"), a ground query for the minimap
+  (`IslandWorld.ground_faces`), and the L1 flood fill as the stuck-region scan (§4.13); the rest of Iteration Three
+  (drops, skills, chairs, quests, the minimap) lives in other systems.
 - **Victoria** adds `world_space` values per continent. Links are `edge` only where a continuous geography is
   authored. Dungeons, towers, the subway and multi-portal pairs are `warp` links to pocket stages, like the
   interiors.
@@ -911,7 +920,7 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
 |---|---|---|
 | **M0 Pipeline** | `export_runtime.py`, `assemble_world.gd`, `build_runtime.sh`, crosswalk, canonical maps, L0 and L1 checks, perf flythrough | all 25 maps load in one scene; L0 and L1 green; perf gate measured. On failure, adopt `GraphRadius` before M1. |
 | **M1 Playable in warp mode** | `MapSession`, `PortalGraph`, `portal.tscn`, doors, `force_link_mode: warp`, closed containment, `SafeGround`, spawns and instances, death and respawn, save location, camera bounds | per-portal, door, death and save L2 tests green; the L3 tour green in warp mode. **This is Option A's playable result, and Test A is unblocked here.** |
-| **M2 Walkable island** | gates, `GateMonitor`, gate gaps and plugs, trail walls, `RegionIndex` invariant, Blender changes 1–2, flood fill, trail bot runs, equivalence tests, trail HUD line | full L1–L3 green in edge mode, including 40 → 30 failing; `force_link_mode: warp` still green. **Status 2026-10-04:** runtime done (gates, plugs, walls, invariant, `MapSession.trail_changed`); L1, L2 links and the L3 tour green in edge and warp mode with all 20 trails walkable (000001012 ↔ 000001014 since the Blender round-3 re-route, no `link_modes.overrides`); the trail HUD line shows: `MisoHud` listens to `trail_changed` and holds "-> <destination map name>" under the map name while the player is on a trail (WORLD_RUNTIME.md "Region index and the identity invariant", UI.md); flood fill not built |
+| **M2 Walkable island** | gates, `GateMonitor`, gate gaps and plugs, trail walls, `RegionIndex` invariant, Blender changes 1–2, flood fill, trail bot runs, equivalence tests, trail HUD line | full L1–L3 green in edge mode, including 40 → 30 failing; `force_link_mode: warp` still green. **Status 2026-10-04:** runtime done (gates, plugs, walls, invariant, `MapSession.trail_changed`); L1, L2 links and the L3 tour green in edge and warp mode with all 20 trails walkable (000001012 ↔ 000001014 since the Blender round-3 re-route, no `link_modes.overrides`); the trail HUD line shows: `MisoHud` listens to `trail_changed` and holds "-> <destination map name>" under the map name while the player is on a trail (WORLD_RUNTIME.md "Region index and the identity invariant", UI.md); flood fill not built (Iteration Three built it as the stuck-region scan, STUCK_SCAN.md) |
 | **M3 Feel** | ambient neighbours (flag), occluder dithering, environment presets, World Review changes (Blender 7) | the playthrough report signs off on movement, camera and the World Review |
 
 ## 7. Open questions
@@ -926,7 +935,8 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
    unverified. Solo play uses only the 75% point. Re-check the page at each milestone; it was last updated
    2026-08-24.
 5. **Hidden portal UX.** Type 1 gets no swirl and no prompt. Confirm in playtest that players find the Tomato Field
-   lane; the hedge lane is the in-world hint.
+   lane; the hedge lane is the in-world hint. The Iteration Three minimap leaves the portal off too (as classic
+   minimaps do); whether to show it is an open owner decision (DEFERRED.md).
 6. **First fill.** A fresh instance fills to capacity immediately, rather than waiting for the first 7.56 s tick.
    This matches classic feel but is not stated by MeowDB.
 7. **Walk-through gates** are an adaptation, since every MeowDB portal is press-Up. Keep them on by default and

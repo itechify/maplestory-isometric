@@ -1053,12 +1053,14 @@ Resolved by MeowDB's own calculator code (chunk `5253-8d210be12f2a3111.js`, exce
 - Stat caps (STR/DEX/INT/LUK, ACC, EVA, DEF); only Speed 140 / Jump 120 are documented.
 - Whether AP can go into Max HP / Max MP and how much it gives.
 - Level-up heal amount (only implied that levelling up heals).
-- Natural HP/MP regeneration amounts, interval, and what "not in combat" means; sitting on the ground; the base resting regen that a chair's "additional" 30 HP / 10 s is added to.
+- Natural HP/MP regeneration amounts, interval, and what "not in combat" means; sitting on the ground; the base resting regen that a chair's "additional" 30 HP / 10 s is added to. (MisoStory uses the project owner's rule for HP, 10 HP per 10 s still or seated, in `game/data/misostory/recovery.json`; MP stays without natural recovery.)
 - Which of Punch 1 / Punch 2 a bare-handed attack plays (the "equal odds" sentence exists only on weapon item pages).
 - Potion use cooldown / lock.
-- Drop expiry time, drop ownership duration, drop scatter, item drop chances, meso drop amount formula.
+- Drop expiry time, drop ownership duration, drop scatter, item drop chances, meso drop amount formula. (Iteration
+  Three takes drop and meso chances from KuroDB and meso amounts from MeowDB's player report or Hidden Street, per
+  monster, in the drop records: [monsters.md](monsters.md).)
 - HP/MP after respawn, respawn delay, any item/meso loss on death; town or Beginner exceptions to the EXP loss (none listed).
-- Player knockback horizontal speed/distance and when it triggers; monster knockback distance and stagger time (only "a mob with 500 KB needs 500+ damage to stagger").
+- Player knockback horizontal speed/distance and when it triggers; monster knockback distance (only "a mob with 500 KB needs 500+ damage to stagger"). The monster stagger time was a gap here too; the live monster pages publish it since ("STAGGER 0.6 seconds", read 2026-10-05: `stagger_ms` in the monster records), though `formulas/movement.json` `monster_knockback.gaps` still lists it until the formulas extractor reads the captures.
 - Whether Three Snails uses the hit roll, level-gap scale and criticals: not stated explicitly (its page lists "Target hit eligibility" as a conditional factor, which suggests the shared hit check applies); its terrain interaction ("not confirmed").
 - Recovery's HP tick interval; Recovery / Nimble Feet cast animation ("Timing unavailable").
 - Party EXP split between members.
