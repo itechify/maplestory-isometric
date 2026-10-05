@@ -1215,11 +1215,16 @@ func close_shop() -> bool:
 ## straight onto the landing point with half-strength input until the drop is inside the box. Returns {"ok" (none
 ## left in reach), "picked", "records", "refused", "left"}. Await it.
 func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
+	# A logged step (as the driver's pickup_all_nearby is): its walks move the player, and the report must show where
+	# to (a walk onto a drop below a ledge can end in a pocket).
+	var step := d._begin(PlaytestReport.KIND_PLAY, "kit.pickup", "%.1f m" % radius_m)
 	var out := {"ok": false, "picked": 0, "records": [], "refused": 0, "left": 0}
 	var ls := d.loot()
 	var p := d.player()
 	if ls == null or p == null:
+		d._end(step, false, "no loot system")
 		return out
+	var from := _local(p.global_position)
 	var refused := {}
 	var on_picked := func(rec: Dictionary, _res: Dictionary) -> void: (out["records"] as Array).append(rec)
 	var on_refused := func(rec: Dictionary, _res: Dictionary) -> void: refused[String(rec.get(LootPickupRules.UID_KEY, ""))] = true
@@ -1272,7 +1277,17 @@ func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
 	out["refused"] = refused.size()
 	out["left"] = left
 	out["ok"] = left == 0
+	d._end(step, bool(out["ok"]), "%d picked, %d refused, %d left; map-local %s -> %s" % [int(out["picked"]),
+		int(out["refused"]), left, from, _local(p.global_position)])
 	return out
+
+
+## A world point in the current map's frame, rounded to 0.1 m (for step results).
+func _local(at: Vector3) -> String:
+	var w := d.world()
+	if w == null or not w.defs.has_map(d.current_map()):
+		return str(at.snappedf(0.1))
+	return str(w.defs.get_def(d.current_map()).to_local(at).snappedf(0.1))
 
 
 ## The precise final approach: half-strength steps straight at `landing` for at most a second, until `done` holds

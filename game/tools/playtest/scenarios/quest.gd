@@ -376,7 +376,8 @@ func _collect_from_boxes(qid: String, iobj: Dictionary, src: Dictionary) -> bool
 	var need := int(iobj["count"])
 	var boxes := k.breakables(true)
 	if not d.check("%s: Wooden Boxes stand in %s (group miso_breakables, contract C8)" % [qid, d.current_map()],
-			not boxes.is_empty(), "the breakables runtime is not built: %s comes only from the Wooden Box" % iobj["name"], pq):
+			not boxes.is_empty(), ("%d boxes" % boxes.size()) if not boxes.is_empty() else
+			"the breakables runtime is not built: %s comes only from the Wooden Box" % iobj["name"], pq):
 		return false
 	var maps: Array = Array(src["maps"])
 	var t0 := d.game_s()
@@ -404,7 +405,7 @@ func _collect_from_boxes(qid: String, iobj: Dictionary, src: Dictionary) -> bool
 			await k.travel_to(String(maps[mi]))
 		else:
 			await d.wait(10.0)
-	return d.check("%s: %s x%d from %d broken Wooden Boxes (held %d)" % [qid, iobj["name"], need, broken, c.inventory.count(id)],
+	return d.check("%s: %s x%d, %d Wooden Boxes broken in this phase (held %d)" % [qid, iobj["name"], need, broken, c.inventory.count(id)],
 		not _still_need(qid), "", pq + ["item:" + id])
 
 
