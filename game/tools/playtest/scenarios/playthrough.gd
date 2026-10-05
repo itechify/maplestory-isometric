@@ -539,9 +539,12 @@ func _skill_name(sid: String) -> String:
 # AP, consumables, equipment
 # =================================================================================================================
 
-## Spends unspent AP through the stats window (the hunts do it too).
+## Spends unspent AP through the stats window (the hunts do it too), and unspent SP through the Skills window once
+## Three Snails is learned (the first SP waits for the first_skill step).
 func _allocate_ap() -> void:
 	var c := d.character()
+	if c.sp > 0 and SkillBook.level_of(c, THREE_SNAILS) > 0:
+		await _learn_skills()
 	if c.ap <= 0:
 		return
 	var ap0 := c.ap
@@ -953,6 +956,11 @@ func _finish(complete: bool) -> void:
 	for m in db.ids("maps"):
 		d.check("map %s %s visited on foot" % [m, db.map(m).get("name", "")], visited.has(m), "first at %s s" % visited.get(m, "-"),
 			["map:" + m])
+	# Every NPC.
+	var talked: Dictionary = d.carry.get("talked_to", {})
+	for npc in db.ids("npcs"):
+		d.check("%s (NPC %s) talked to on foot" % [k.npc_name(npc), npc], talked.has(npc), "%d conversations" % int(talked.get(npc, 0)),
+			["npc:" + npc])
 	# Every monster type.
 	var kills: Dictionary = d.carry.get("kills_by_mob", {})
 	for mob in db.ids("monsters"):

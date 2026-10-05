@@ -20,6 +20,8 @@ ISOLATE=<your-name> bash scripts/playtest.sh <scenario> --out _scratch/playtest/
 bash scripts/playtest.sh --list                     # the scenarios
 bash scripts/playtest.sh quest --quest 1013-1019    # one quest chain of the every-quest set (strict after setup)
 bash scripts/playtest_quests.sh                     # every quest: one run per chain, 3 in parallel, one table
+PLAYTEST_TIMEOUT_S=7500 bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out _scratch/pt/seed1
+                                                    # the clean-character playthrough: creation to Shanks, strict
 ```
 
 The script mirrors `game/` (with the exported world) into `_scratch/godot_runs/$ISOLATE/game`, the same way
@@ -43,6 +45,12 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 | `--max-s <s>` | the game-time budget of one phase (default: the scenario's `max_seconds()`) |
 | `--max-wall-s <s>` | the wall-time budget of one phase (default: three times the game budget, at least 900 and at most 3300, so it fires before the outer 3600 s timeout) |
 | `--quest <spec>` | for the `quest` scenario: `1002`, `1013-1019` or `1006,1009,1010` (the `QUEST` environment variable does the same) |
+| `--resume` | continue a run in `--out` that stopped between phases (below): its report and saves are kept and the next phase starts with `--continue-run`. Development only: the report then mixes the code of two runs |
+
+`PLAYTEST_STOP_PHASE=<n>` stops the run before phase `n` starts and leaves the report `RELOADING` (exit 1). With a
+copy of that `--out` directory and `--resume`, a long scenario's later phase can be replayed after a code change
+without playing the earlier phases again (the playthrough was developed this way). `PLAYTHROUGH_STOP=<step>` ends the
+`playthrough` scenario after one of its steps.
 
 **Exit code:**
 
@@ -63,7 +71,8 @@ watchdog normally stops the run first.
 | `game/tools/playtest/playtest_kit.gd` | `PlaytestKit` | the composite play every scenario shares: travel, talk, conversations and quizzes, markers, the Quest Log, item use, AP, shops, precise pickup, hunting with a survival policy, deaths, and the contract helpers for sitting, chairs, skills and Wooden Boxes (see "PlaytestKit") |
 | `game/tools/playtest/playtest_ledger.gd` | `PlaytestLedger` | strict mode's bookkeeping: every change to EXP, mesos, items and quests must be announced by the event bus |
 | `game/tools/playtest/playtest_quest_plan.gd` | `PlaytestQuestPlan` | how to play a quest, derived from canonical data only (see "Quest plans") |
-| `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json` |
+| `game/tools/playtest/playtest_quest_runner.gd` | `PlaytestQuestRunner` | plays one quest step by step with real input (offer, objectives, turn-in, rewards, follow-ups) and records its evidence; `quest` and `playthrough` both use it (see "The quest runner") |
+| `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json`; `--combine` merges several runs (seeds) into the per-quest evidence report |
 | `game/tools/playtest/playtest_input.gd` | `PlaytestInput` | real input: keys, actions (analog movement), mouse, typing; held state and focus re-assert |
 | `game/tools/playtest/playtest_walker.gd` | `PlaytestWalker` | path planning and following with real input (RouteBot steering) |
 | `game/tools/playtest/playtest_grid_nav.gd` | `PlaytestGridNav` | A* on the real collision, for targets the route network does not reach |
@@ -134,7 +143,8 @@ Rules:
 - **Phases.** `reload_process()` ends the process the way a player does: the pause menu's Quit Game, then the shell
   saves and quits. The runner then starts a new process with `phase + 1` on the same save directory and calls
   `run()` again. Branch on `d.phase`. Values travel in `d.carry`, which is written with `var_to_str`, so ints stay
-  ints and vectors stay vectors. A run has at most 8 phases.
+  ints and vectors stay vectors. A run has at most 12 phases (8 before the clean-character playthrough, which
+  restarts the process seven times).
 
 ## The driver API
 
@@ -352,7 +362,7 @@ the driver's real input and reads the live game; nothing writes game state, so e
 |---|---|
 | bus | `connect_bus()` (EXP awards, quest events, touches), `exp_since(t0)`, `damage_taken`, `touches`, `touched_recently()` |
 | travel | `travel_to(map, opts)`: map by map over the canonical portals (`portal_path(db, from, to)`, a breadth-first search that knows 000000030 -> 000000040 is one-way), each hop a `walk_trail` with one retry, deaths answered with OK. opts `fallback_warp` (non-strict scenarios only: a failed hop becomes a WARN and a logged console warp; otherwise a failed check), `safe` (default true: the survival policy on the trails). `travel_rows`, `travel_text()`, `fallbacks` |
-| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. `unstick()`: off a spot where every planned walk stalls at once (a ledge corner whose way off neither planner takes, though a player steps off or jumps), real-input pushes in 8 directions, then with a jump, until the feet are 2.5 m away (a logged `kit.unstick` step); `walk_safely` opts `unstick` uses it after a walk that stalled where it began, and so do the talk retry's walk to the arrival, the hunt's slot tour and a trail hop that stalled twice where it began. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
+| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. A monster a fight back cannot reach without a chase (a ledge just above or below) is shunned for `SHUN_S` (4 s): it stops counting as a threat and the walk goes on (`shun()`, `shunned()`; without it seed 2 of the 1006 chain spun 24 interrupts in 2 s of game time at the foot of a Snail Hunting Ground I ledge and failed its trail hop). `unstick()`: off a spot where every planned walk stalls at once (a ledge corner whose way off neither planner takes, though a player steps off or jumps), real-input pushes in 8 directions, then with a jump, until the feet are 2.5 m away (a logged `kit.unstick` step); `walk_safely` opts `unstick` uses it after a walk that stalled where it began, and so do the talk retry's walk to the arrival, the hunt's slot tour and a trail hop that stalled twice where it began. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
 | NPCs | `approach(npc)` (to 3.5 m, so the marker is on screen), `talk(npc)` (talk_to; a death on the way is a WARN and a retry; an NPC that cannot be planned to from where the player stands is tried again from the map's arrival; the result carries `pre`, the reward baseline taken right before the chat opened), `marker(npc)` (the presenter's state and the engine's), `quest_window(qid, tab)`, `row_has`, `rows_text` |
 | conversations | `converse(goals, opts)`: goals `quest id -> "accept" \| "decline" \| "complete" \| "quiz_wrong[:rank]"`. A menu picks the entry of a goal not met yet (else End Chat), a Yes/No answers Y only for an "accept" of a quest not started, lines are paged with Enter, and a quiz menu (node `q<id>.quiz`) is answered with the canonical correct choice or the requested wrong one. Returns the pages, the banners and the quiz answers with the line shown after each |
 | quizzes | `PlaytestKit.quiz_answer(db, qid)` (static): the correct choice by the canonical `correct_choice_index` (1018's is inferred and says so in `basis`), the question, the choices, and each wrong choice with the wrong-answer line MeowDB lists for it (in choice order, as the game pairs them) |
@@ -363,7 +373,9 @@ the driver's real input and reads the live game; nothing writes game state, so e
 | hunting | `hunt(mob_ids, cond, opts)`: the survival policy first, whatever is hitting the player, then the nearest wanted monster with the attack key, the drops picked up after every kill, unspent AP spent through the stats window (`ap_plan`), deaths answered and the walk back to `map`, a tour of the spawn slots when nothing is in sight. `nearest_of(mob_ids)` |
 | deaths | `is_dead()`, `death_notice()`, `respawn(opts)` (the notice's OK; the row goes to `deaths`) |
 | contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8: walk up, face, attack until broken, pick up). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
-| record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, equipment, ETC items and quest states into `d.carry["checkpoints"]` and a note: the brief's progression audit), `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
+| skills | `learn_skill(id)` (K, then the skill's "+" with the mouse; one SP), `bind_skill(id, key)` (the skill's row, Set key, the key), `throw_at(target, opts)` (Three Snails from inside its canonical band: walks to about 150 px, faces, taps the skill's key; every hit heard on `PlayerSkills.cast_resolved`), `skills_window()` |
+| death | `let_monsters_win(mob_ids, opts)`: the player stops defending and walks into the nearest monster again and again (real input, no attack, no potion) until it dies; every hit is the monster's own contact damage |
+| record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, AP, SP, HP, MP, stats, equipment, ETC and Use items, skills, deaths, quest states, `play_s` (the run's game time over every phase) and `play_time_s` (the character's own saved clock) into `d.carry["checkpoints"]` and a note: the brief's progression audit), `track()` (from the event bus into `d.carry`, across phases: `visited_maps`, `kills_by_mob`, `exp_by_source`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_gained`/`lost`/`used`, `skills_used`, `sat`), `carry_totals()` (this process's pickup and survival counters, per phase and summed: `picked_mesos` and `picked_bags` count the meso bags picked up with Z), `play_s()`, `local_pos()`, `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
 
 ## Strict mode
 
@@ -414,6 +426,31 @@ An objective that only an unresolved drop could supply is listed in `blocked` as
 first quest's level and start map, the prerequisites outside the chain, prerequisites first), `chains(db)` is the
 every-quest set (one chain per canonical quest line, each standalone quest alone), `parse_ids` and `chain_spec` name
 chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` are public.
+
+## The quest runner
+
+`PlaytestQuestRunner` (`game/tools/playtest/playtest_quest_runner.gd`) plays one quest at a time, step by step, with
+the kit's real input and the plan's canonical facts. The `quest` scenario and the clean-character `playthrough` both
+play their quests through it, so a quest is checked the same way in both.
+
+| Call | Does |
+|---|---|
+| `offer(qid)` | below the quest's `min_level`: checks the refusal, then hunts to the level; walks to the start NPC's map; for a quest whose items come from a breakable gated to it, breaks one box first (it must drop none of them); the NPC's marker, the engine and the Quest Log's Available tab; the accept in the dialogue (Yes); the accept items in the bag; the HUD log; the marker after the accept; the In Progress tab |
+| `objectives(qid)` | from the live progress: kills with the attack key in the hunt map, items from their best source (monster drops picked up with Z, Wooden Boxes broken), items used by a double-click; the Quest Log row after each kill objective |
+| `turn_in(qid)` | the turn-in NPC's completable marker; a quiz with one wrong answer first (its canonical line, the quest still in progress), then the canonical answer; the completion; `check_rewards()`: total EXP + `rewards.exp` in one `quest:<id>` EXP event, mesos + `rewards.mesos`, the fixed items, one item of each random group, the canonical hand-ins taken, nothing else in the bag, and the C3 `rewards_received` record; the HUD log and the Completed tab |
+| `after(qid)` | each canonical follow-up is available (or level-gated) and its NPC's marker offers it when the NPC is in this map |
+| `play(qid)` | all four from the quest's live status |
+| `mid_reload(tag, when)` / `verify_mid()` | the save through the pause menu and Quit Game; after the next Continue, the quest log, level, EXP, mesos, bag and map are the saved ones and the Quest Log still lists the quest |
+| `results(ids)` | the per-quest verdicts into `d.carry["quest_results"]` |
+
+`mid_reload_policy` decides where a run restarts in the middle of a quest: `"auto"` (the `quest` scenario: each quest
+with objectives once, at half of its first kill or item objective, and the run's first talk-only quest right after
+its accept), `"listed"` (only the quests in `mid_reload_quests`; the playthrough lists 1009 and 1012) or `"off"`.
+
+What each quest showed is kept in `d.carry["quest_evidence"][qid]` (it survives the restarts): the offer (marker,
+engine, Quest Log, level), the gate probe, the accept (pages, items, Quest Log row), each objective's progress and
+source, the quiz answers, the completion, the rewards (EXP and mesos against canonical, the bag change, the random
+pick, the `rewards_received` record), the follow-ups and the mid-quest restart. `PlaytestQuestSummary` renders it.
 
 ## The every-quest set
 
@@ -526,9 +563,15 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload | harness |
 | `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling | harness |
 | `test_feel_*` | the movement, camera, ledge, gate and route feel reviews (`test_feel_common` is their library) | harness |
+| `playthrough` | the clean-character playthrough: creation to Shanks' departure boundary, strict from the step after character creation (see "The clean-character playthrough") | harness |
+| `npc_shanks` | Shanks' departure boundary: refused below level 7 and without the fare, the guide's sentence and the unfinished quests, Yes -> End of Maple Island (no voyage, no fare taken, the flag set), Space ignored, Enter and Esc close it, the flag survives a reload (setup: warp, level, mesos) | harness (from quests) |
+| `npc_bubbles` | NPC speech bubbles in Amherst: every text one of the NPC's canonical idle lines, none while talking (strict after the setup warp) | harness (from quests) |
 | `regen` | natural HP recovery in the real game | mechanics |
 | `trap_probe` | escape attempts from known former trap spots | world |
 | `test_skills`, `test_box` | the Beginner skills and the Wooden Boxes (Iteration Three packages) | skills, breakables |
+| `test_b_population` | the monster population of all 15 hunting maps | monsters |
+| `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
+| `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2 | UI |
 
 ## Findings (2026-10-05)
 

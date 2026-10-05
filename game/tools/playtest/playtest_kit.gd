@@ -150,7 +150,8 @@ func exp_since(t0: float) -> Array:
 ## Records the run's progression into d.carry as it happens (a long scenario's audit; idempotent): "visited_maps"
 ## {map: play_s at first arrival}, "kills_by_mob" {mob: n}, "exp_by_source" {"monster:<id>" | "quest:<id>" | "death":
 ## sum}, "level_at" {level: play_s}, "deaths" [{map, play_s}], "respawns" [{map, play_s}], "mesos_flow" {in, out},
-## "items_gained" {item: n}, "items_lost" {item: n}, "items_used" {item: n}, "skills_used" {skill: n}, "sat" {chair: n}.
+## "items_gained" {item: n}, "items_lost" {item: n}, "items_used" {item: n}, "skills_used" {skill: n}, "sat" {chair: n},
+## "talked_to" {npc: conversations opened}.
 ## The current map counts as visited. Call it after every new_game / continue_game.
 func track() -> void:
 	_visit(d.current_map(), "")
@@ -174,6 +175,7 @@ func track() -> void:
 	ev.connect(&"item_used", func(id: String) -> void: _bump("items_used", id, 1))
 	ev.connect(&"skill_used", func(id: String, _lv: int) -> void: _bump("skills_used", id, 1))
 	ev.connect(&"player_sat_down", func(id: String) -> void: _bump("sat", id if id != "" else "(ground)", 1))
+	ev.connect(&"dialogue_opened", func(npc: String) -> void: _bump("talked_to", npc, 1))
 
 
 func _visit(map_id: String, _prev: String) -> void:
@@ -1836,16 +1838,34 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	var t0 := d.game_s()
 	var tc0 := touches.size()
 	var dmg0 := damage_taken
+	var p := d.player()
+	var skip := {}
 	while not is_dead() and d.game_s() - t0 < float(opts.get("max_s", 300.0)):
-		var m := nearest_of(mob_ids, {"max_dist_m": 40.0})
+		var m := _same_tier_monster(mob_ids, skip)
 		if m == null:
+			skip.clear()
 			await d.wait(1.0)
 			continue
 		var tgt := m
 		var since := last_touch_s
-		await d.walk_to(d.walker.grounded(m.global_position), {"max_s": 4.0, "retries": 0, "within_m": 0.15,
+		# The planned walk ends about 0.75 m short (RouteBot's arrival), so the last step is straight at the monster's
+		# live position with real input until it touches the player (or 3 s pass).
+		await d.walk_to(d.walker.grounded(m.global_position), {"max_s": 6.0, "retries": 0, "within_m": 1.2,
 			"stop_when": func() -> bool: return is_dead() or last_touch_s > since or not is_instance_valid(tgt)})
-		await d.wait(0.3)
+		var f0 := Engine.get_physics_frames()
+		while is_instance_valid(tgt) and bool(tgt.call("is_alive")) and not is_dead() and last_touch_s <= since \
+				and Engine.get_physics_frames() - f0 < 3 * Engine.physics_ticks_per_second:
+			var to := tgt.global_position - p.global_position
+			to.y = 0.0
+			if to.length() > 4.0:
+				break
+			d.input.set_move_world(to.normalized() if to.length() > 0.05 else p.facing, p.view_right, p.view_forward)
+			await d.get_tree().process_frame
+			d.input.reassert()
+		d.input.release_movement()
+		if last_touch_s <= since and is_instance_valid(tgt):
+			skip[tgt.get_instance_id()] = true
+		await d.wait(0.2)
 	out["ok"] = is_dead()
 	out["touches"] = touches.size() - tc0
 	out["damage"] = damage_taken - dmg0
@@ -1854,6 +1874,28 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	if not bool(out["ok"]):
 		out["why"] = "still alive after %.0f s (%d touches, %d damage)" % [float(out["time_s"]), int(out["touches"]), int(out["damage"])]
 	return out
+
+
+## The nearest live monster of `mob_ids` on the player's tier (within 1 m of height), not in `skip`; null when none.
+func _same_tier_monster(mob_ids: Array, skip: Dictionary) -> Node3D:
+	var p := d.player()
+	var ms := d.monsters()
+	if p == null or ms == null:
+		return null
+	var best: Node3D = null
+	var best_d := 40.0
+	for m: Node3D in ms.call("live_monsters"):
+		if not is_instance_valid(m) or not bool(m.call("is_alive")) or skip.has(m.get_instance_id()):
+			continue
+		if not mob_ids.is_empty() and not mob_ids.has(String(m.get("def").get("id"))):
+			continue
+		if absf(m.global_position.y - p.global_position.y) > 1.0:
+			continue
+		var dd := _flat_m(m.global_position, p.global_position)
+		if dd < best_d:
+			best_d = dd
+			best = m
+	return best
 
 
 func _cooldown(skill_id: String) -> float:
