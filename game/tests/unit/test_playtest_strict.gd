@@ -131,6 +131,7 @@ func test_strict_scenarios_and_the_kit_make_no_cheat_calls() -> void:
 		if FileAccess.get_file_as_string(path).contains("begin_strict("):
 			files.append(path)
 			strict_n += 1
+	assert_true(strict_n >= 1, "at least one strict scenario (quest.gd)")
 	for path in files:
 		var fn := ""
 		var n := 0

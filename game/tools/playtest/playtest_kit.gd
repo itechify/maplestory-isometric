@@ -33,6 +33,8 @@ const THREAT_M := 2.2
 const THREAT_DY_M := 1.2
 ## A walk that is interrupted more often than this gives up (a monster pinned on the path, a death spiral).
 const MAX_INTERRUPTS := 12
+## How long (game s) a touch keeps its monster a threat to a walk.
+const TOUCH_MEMORY_S := 1.5
 ## Default survival policy: drink or rest below this share of Max HP, and rest until this share.
 const HP_FLOOR := 0.4
 const HP_RESUME := 0.8
@@ -316,8 +318,9 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 	return r
 
 
-## The walk interrupt of the survival policy: a threat to fight, or HP below the floor (when there is a way to heal
-## or a chance to rest).
+## The walk interrupt of the survival policy: HP below the floor, or (on_threat "fight") a monster that touched the
+## player in the last TOUCH_MEMORY_S and is still next to it. A monster merely passing by never stops a walk: a
+## player walks past snails and only turns on the one that keeps hitting.
 func _interrupt_when(opts: Dictionary) -> Callable:
 	var floor_frac := float(opts.get("hp_floor", HP_FLOOR))
 	var fight := String(opts.get("on_threat", "fight")) == "fight"
@@ -326,7 +329,12 @@ func _interrupt_when(opts: Dictionary) -> Callable:
 			return false
 		if hp_frac() < floor_frac:
 			return true
-		return fight and threat(opts) != null
+		return fight and touched_recently() and threat(opts) != null
+
+
+## True when a monster damaged the player in the last TOUCH_MEMORY_S (connect_bus() hears it).
+func touched_recently() -> bool:
+	return d.game_s() - last_touch_s < TOUCH_MEMORY_S
 
 
 func hp_frac() -> float:
@@ -408,11 +416,17 @@ func best_heal_item() -> String:
 	var best_hp := 0
 	for row: Dictionary in (d.inventory_summary().get("use", []) as Array):
 		var id := String(row["item_id"])
-		var hp := int((db.item(id).get("consumable", {}) as Dictionary).get("hp_restore", 0))
+		var hp := hp_restore(id)
 		if hp > best_hp and c.inventory.count(id) > 0:
 			best_hp = hp
 			best = id
 	return best
+
+
+## The canonical HP an item restores (items/<id>.json consumable.hp_restore; 0 for anything else, arrows included).
+func hp_restore(item_id: String) -> int:
+	var cons: Variant = db.item(item_id).get("consumable")
+	return int((cons as Dictionary).get("hp_restore", 0)) if cons is Dictionary and (cons as Dictionary).get("hp_restore") != null else 0
 
 
 ## Rests: walks to the player spawn or portal arrival farthest from the live monsters (when one is closer than
@@ -528,13 +542,16 @@ func respawn(opts: Dictionary = {}) -> Dictionary:
 # =================================================================================================================
 
 ## talk_to, as a player keeps trying: a death on the way is a WARN (play, not a quest failure), the notice's OK, the
-## walk back to the NPC's map and another approach (at most 3). The result carries "pre": a snapshot taken right
-## before the approach that opened the chat ("t", "clock", "notices" too), the baseline of a reward check: a quest
-## with no completion text completes the moment the chat opens. Await it.
+## walk back to the NPC's map and another approach (at most 3). When no approach point can be planned from where the
+## player stands (below a perch whose stairs start elsewhere), the player walks back to the map's arrival (player
+## spawn 0), where every NPC's way starts (the npcs survey), and tries once more from there. The result carries
+## "pre": a snapshot taken right before the approach that opened the chat ("t", "clock", "notices" too), the
+## baseline of a reward check: a quest with no completion text completes the moment the chat opens. Await it.
 func talk(npc_id: String) -> Dictionary:
 	var map := d.current_map()
 	var v: Dictionary = {}
-	for attempt in 3:
+	var from_spawn := false
+	for attempt in 4:
 		var hp0 := d.character().hp
 		var dmg0 := damage_taken
 		var tc0 := touches.size()
@@ -545,8 +562,16 @@ func talk(npc_id: String) -> Dictionary:
 		on_screen_at_complete = []
 		v = await d.talk_to(npc_id)
 		v["pre"] = pre
-		if bool(v.get("open", false)) or not is_dead():
+		if bool(v.get("open", false)):
 			return v
+		if not is_dead():
+			if from_spawn or d.current_map() != map:
+				return v
+			from_spawn = true
+			d.note("%s cannot be reached from here (%s): walking back to the map's arrival and trying again" % [
+				npc_name(npc_id), String(v.get("why", "")).left(120)])
+			await walk_safely("spawn:0", {"max_s": 60.0})
+			continue
 		d.soft_check("the walk up to %s (%s) ends alive" % [npc_name(npc_id), map], false,
 			"died on the approach (attempt %d): HP %d at the start, %d damage from %d touches since (%s)" % [attempt + 1, hp0,
 				damage_taken - dmg0, touches.size() - tc0, ", ".join(touches.slice(tc0))])
@@ -951,7 +976,7 @@ func use_item(item_id: String, via: String = "double_click") -> Dictionary:
 ## "row" (a readable line). Await it.
 func drink(item_id: String) -> Dictionary:
 	var c := d.character()
-	var restore := int((db.item(item_id).get("consumable", {}) as Dictionary).get("hp_restore", 0))
+	var restore := hp_restore(item_id)
 	var mx := StatCalculator.max_hp(c, db)
 	var hp0 := c.hp
 	var r := await use_item(item_id, "button")
