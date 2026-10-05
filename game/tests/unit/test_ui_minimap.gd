@@ -309,6 +309,7 @@ func test_portals_npcs_shops_and_hover_text() -> void:
 	assert_eq(s["portals"], want, "the visible canonical portals, no arrival gate")
 	assert_eq(s["ground_source"], MinimapModel.SOURCE_COLLISION, "the world's ground faces")
 	assert_eq(s["ground"], 4, "the four upward triangles; the underside is left out")
+	assert_eq(MisoMinimapView.build_meshes(mm.view.model).size(), 2, "one ground mesh per tier (the base and the terrace)")
 	for p: Dictionary in mm.view.model.portals:
 		var shops := MinimapModel.shopkeepers_on(db(), String(p["dest_map_id"]))
 		assert_eq(String(p["id"]) in s["shop_doors"], not shops.is_empty(), "%s: shop badge iff a shopkeeper inside" % p["id"])

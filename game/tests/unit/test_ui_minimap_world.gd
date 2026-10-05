@@ -113,6 +113,7 @@ func test_models_on_every_map() -> void:
 		assert_eq(m.map_name, String(rec["name"]), "%s: canonical name" % id)
 		assert_eq(m.street_name, String(rec["street_name"]), "%s: canonical street" % id)
 		assert_eq(m.ground_source, MinimapModel.SOURCE_COLLISION, "%s: drawn from the collision ground" % id)
+		assert_eq(m.interior, def.is_interior(), "%s: interior floors iff an interior stage" % id)
 		assert_true(m.ground_count() > 0 and m.ground_tiers.size() == m.ground_count(), "%s: %d ground triangles" % [id, m.ground_count()])
 		var sorted := true
 		for i in range(1, m.ground_tiers.size()):

@@ -39,6 +39,8 @@ const SOURCE_FOOTPRINT := "footprint"
 var map_id: String = ""
 var map_name: String = ""
 var street_name: String = ""
+## An interior stage (MapDefinition.is_interior): the view draws floors, not grass.
+var interior: bool = false
 var projection: MinimapProjection = null
 ## The content's rectangle in minimap metres (ground, footprint, portals, NPCs, climbables; trails may leave it).
 var bounds: Rect2 = Rect2()
@@ -71,6 +73,7 @@ static func build(def: MapDefinition, defs: MapDefinitions, db: ContentDB, groun
 	if def == null:
 		return m
 	m.map_id = def.map_id
+	m.interior = def.is_interior()
 	m.projection = p_projection if p_projection != null else MinimapProjection.for_map(def)
 	if m.projection == null:
 		m.projection = top_down()

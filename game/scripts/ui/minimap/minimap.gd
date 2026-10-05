@@ -102,6 +102,7 @@ func _init() -> void:
 	fold_button.focus_mode = Control.FOCUS_NONE
 	fold_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
 	fold_button.custom_minimum_size = Vector2(24, 22)
+	fold_button.add_theme_font_size_override("font_size", 18)
 	fold_button.pressed.connect(toggle)
 	row.add_child(fold_button)
 	view = MisoMinimapView.new()
