@@ -33,8 +33,14 @@ var fame: int = 0
 var mesos: int = 0
 ## skill_id -> level (Beginner skills; future jobs).
 var skills: Dictionary = {}
-## Active timed effects (future: buffs, debuffs, status). Each entry is a Dictionary owned by the effect system.
+## Active timed effects (buffs, heal-over-time). Each entry is a Dictionary owned by the effect system:
+## {"id", "source", "remaining_s", "data"} (ITERATION_THREE_CONTRACTS.md C3; remaining seconds, never clock times).
 var effects: Array = []
+## Skill cooldowns: skill_id -> remaining seconds (C3; never absolute clock times, so they survive a restart).
+var cooldowns: Dictionary = {}
+## Natural HP recovery clock (C3/C4): {"hp_rest_s": eligible seconds accumulated toward the next tick}. Saved so a
+## quit/continue does not discard the paused time.
+var natural_recovery: Dictionary = {"hp_rest_s": 0.0}
 
 var inventory: Inventory = Inventory.new()
 var equipment: Equipment = Equipment.new()
@@ -73,6 +79,8 @@ func to_dict() -> Dictionary:
 		"mesos": mesos,
 		"skills": skills.duplicate(true),
 		"effects": effects.duplicate(true),
+		"cooldowns": cooldowns.duplicate(true),
+		"natural_recovery": natural_recovery.duplicate(true),
 		"inventory": inventory.to_dict(),
 		"equipment": equipment.to_dict(),
 		"quests": quests.to_dict(),
@@ -104,6 +112,9 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.mesos = int(d.get("mesos", 0))
 	c.skills = (d.get("skills", {}) as Dictionary).duplicate(true)
 	c.effects = (d.get("effects", []) as Array).duplicate(true)
+	c.cooldowns = (d.get("cooldowns", {}) as Dictionary).duplicate(true)
+	var nr: Variant = d.get("natural_recovery", {})
+	c.natural_recovery = {"hp_rest_s": maxf(0.0, float((nr as Dictionary).get("hp_rest_s", 0.0)))} if nr is Dictionary else {"hp_rest_s": 0.0}
 	c.inventory = Inventory.from_dict(d.get("inventory", {}))
 	c.equipment = Equipment.from_dict(d.get("equipment", {}))
 	c.quests = QuestLog.from_dict(d.get("quests", {}))
