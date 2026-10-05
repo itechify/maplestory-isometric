@@ -10,7 +10,8 @@ extends TestCase
 ## with the true one expected), so every comparison is shown to fail when the two sides differ. Documented
 ## adaptations are asserted as documented: equipment stacks by data/misostory/inventory.json equipment_max_stack, an
 ## unpublished max_stack (Green Apple, 242) by unpublished_max_stack, and only when the record's gaps and that table's
-## reason both say so.
+## reason both say so. Green Apple's stack size, tradeable tag and sell-back basis are on its item page, which was never
+## captured, so its parity entry stays a pending source read whatever this file proves (tools/parity/rules.json).
 
 const ITEMS_DIR := "res://data/canonical/items"
 ## The canonical stat rows the runtime turns into Equipment.BONUS_KEYS, written from docs/canonical/items.md ("hp" is
