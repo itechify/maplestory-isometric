@@ -202,9 +202,9 @@ fit together.
   Fruit Knife hunt), because the hunts take what attacks the player and travel through hunting maps fights back. The
   quests are 51-63% of all EXP earned, so they, not grinding, carry the island.
 - **Time.** Level 7 came after 22-25 minutes of game time (at Rain's quizzes) and Shanks after 38-43 minutes (with a
-  4-minute level-8 hunt when the Fruit Knife is drawn). For comparison, Iteration Two's Test C, which levels by killing only, needed
-  about 2.2 hours to reach level 8 (the Phase B3 baseline in [ITERATION_LOG.md](../ITERATION_LOG.md)). Nothing here
-  points to an implementation fault; the pace is the canonical rewards' pace.
+  4-minute level-8 hunt when the Fruit Knife is drawn). For comparison, Iteration Two's Test C, which levels by killing
+  only, needed about 2.2 hours to reach level 8 (the Phase B3 baseline in [ITERATION_LOG.md](../ITERATION_LOG.md)).
+  Nothing here points to an implementation fault; the pace is the canonical rewards' pace.
 - **Mesos.** Expected meso-bag income per kill from the canonical drop tables is 0.8 (Snail), 1.6 (Blue Snail), 2.0
   (Shroom), 4.0 (Red Snail) and 4.4 (Orange Mushroom); the runs' kills predict 261, 196 and 164 mesos against 234, 238
   and 202 picked up, inside the variance of a 40% drop chance over 80-127 kills. The quests' 300 mesos equal Shanks'
@@ -276,8 +276,8 @@ No game defect blocked the player in any run, and none was fixed in game code by
 ## The every-quest set and the other real-game scenarios of this package
 
 - **Every quest:** 20 of 20 PASS on seeds 1, 2 and 3 (520 / 523 / 523 quest checks in the final evidence run), strict
-  after each chain's logged setup; per-quest evidence in [QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md). 1012 now passes with the
-  real Wooden Box: the box broken before the accept drops none of the gated items.
+  after each chain's logged setup; per-quest evidence in [QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
+  1012 now passes with the real Wooden Box: the box broken before the accept drops none of the gated items.
 - **`npc_shanks`** (the quests package's scratch check, adopted): PASS, 26 checks. Shanks refuses level 1 with the
   canonical level 7 and level 7 without the 300-meso fare; with the fare he gives the guide's sentence, lists the
   unfinished Maple Island quests and offers the voyage; Yes opens the End of Maple Island screen (no fare taken, still

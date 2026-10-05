@@ -437,19 +437,19 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 | `tests/unit/test_data_fixture.gd` | `DataValidationTestCase`: deep-copies the shipped ContentDB, injects sidecars, compares against the unbroken copy so each negative test asserts only the finding it caused, and fails a test whose validator run crashed |
 
 Each file declares in `parity_keys()` (contract C6) which Phase 16 rows (`xref:<category>`, `xref:no-duplicate-ids`,
-`xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests
-prove; the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test
-evidence. Most `canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
+`xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests prove;
+the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test evidence. Most
+`canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
 (`provenance-per-property`, `membership-chance-separate`, `probability-conversion`, `kuro-only-excluded`,
 `unresolved-visible`) also need the shipped data in that state (`tools/parity/rules.json` `requires`: every drop record
 schema v2). Since the drops package's records landed they are verified by the tests alone; before, the manifest kept
 them `partial`. The manifest (format 3) also separates two kinds of open value it finds in the records and rules: a
 `source_data_gap` (the sources were read and give nothing: a `drop_unresolved` member with no KuroDB chance, an item no
 source names; excused) and a `pending_source_read` (the value is published on a page nobody has read yet:
-`tools/parity/rules.json` `pending_source_reads`, or a drop record's excluded KuroDB candidate row; never excused).
-The validator itself treats both the same way (an unresolved value stays visible in `gaps` or as `drop_unresolved`);
-the label is the manifest's. The drop policy's own tests are `test_drop_sources.gd`, `test_drop_chance.gd`, `test_drops_data.gd`,
-`test_drops_roller.gd` and `test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
+`tools/parity/rules.json` `pending_source_reads`, or a drop record's excluded KuroDB candidate row; never excused). The
+validator itself treats both the same way (an unresolved value stays visible in `gaps` or as `drop_unresolved`); the
+label is the manifest's. The drop policy's own tests are `test_drop_sources.gd`, `test_drop_chance.gd`,
+`test_drops_data.gd`, `test_drops_roller.gd` and `test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an

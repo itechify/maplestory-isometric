@@ -126,19 +126,20 @@ items were left on purpose or found along the way.
   run, both conditional checks whose condition did not occur (`test_c_progression` had no death, so no death-penalty
   check; `ui_minimap` found nothing dropped nearby, so no pickup-announcement check); both keys are verified by other
   evidence.
-- **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue findings. The progression-blocker check is
-  conservative (it ignores other sources of an item). The test evidence records `git rev-parse HEAD` even for a dirty
-  tree, and `build_parity.mjs --check` neither detects stale evidence nor runs without the git-ignored evidence files.
+- **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue
+  findings. The progression-blocker check is conservative (it ignores other sources of an item). The test evidence
+  records `git rev-parse HEAD` even for a dirty tree, and `build_parity.mjs --check` neither detects stale evidence nor
+  runs without the git-ignored evidence files.
 - **Crosswalk notes:** the 65 crosswalk reviewer notes were written by script from checked facts; an owner pass may
   be wanted.
 - **The stuck-region scan's limits** ([`runtime/STUCK_SCAN.md`](runtime/STUCK_SCAN.md)): verification replays only the
-  last edge into a component; hops are swept as an L at apex height; a body wedged on two rims over a narrow gap is
-  not modelled; Southperry's double-sided trimesh defeats the buried-surface
-  test (4 ring-top components are listed UNENTERABLE). `validate.py ring_band` measures only from the map's base
-  height, and the containment ring leaves every gate gap open from top to bottom (the one raised trail mouth,
-  000001006 out00, is closed in the source). Not built: caching scan results by collision content hash (the scan
-  costs 80-110 s in the suite); the reachability of every NPC talk zone, spawn slot, portal trigger and Wooden Box
-  placement from the map's entries is checked by `ReachCheck` (`test_reachability.gd`). 000001000 is at 391,938 of its 400,000-triangle budget.
+  last edge into a component; hops are swept as an L at apex height; a body wedged on two rims over a narrow gap is not
+  modelled; Southperry's double-sided trimesh defeats the buried-surface test (4 ring-top components are listed
+  UNENTERABLE). `validate.py ring_band` measures only from the map's base height, and the containment ring leaves every
+  gate gap open from top to bottom (the one raised trail mouth, 000001006 out00, is closed in the source). Not built:
+  caching scan results by collision content hash (the scan costs 80-110 s in the suite); the reachability of every NPC
+  talk zone, spawn slot, portal trigger and Wooden Box placement from the map's entries is checked by `ReachCheck`
+  (`test_reachability.gd`). 000001000 is at 391,938 of its 400,000-triangle budget.
 - **Saves:** `skill_used` and `skill_leveled` are not autosave triggers (the Skills window requests one itself). A
   save made on a trail arrives at the trail's mouth on Continue, by design (MAP_ARCHITECTURE §4.9).
 - **Mechanics:** `PlayerController.activity()` reads `attacking`, not `seated`, on the one tick an attack or cast
