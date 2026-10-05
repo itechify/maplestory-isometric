@@ -477,7 +477,8 @@ pick, the `rewards_received` record), the follow-ups and the mid-quest restart. 
   when the quest log has it); the HUD log and the Completed tab; and each follow-up's availability and marker.
 - **Save and restart in the middle:** a save through the pause menu and Quit Game at the half of the first kill or
   item objective of each quest (a monster drop or a Wooden Box item alike), after the accept of the first quest with
-  nothing to hunt, and after the middle quest of a chain of three or more. The next phase checks the quest log,
+  nothing to hunt, and once between two quests at the middle of a chain of three or more (after quest
+  `floor(n / 2)`: after 1006 in 1006,1009,1010, after 1015 in 1013-1019). The next phase checks the quest log,
   level, EXP, mesos, bag and map against the saved ones and the Quest Log's In Progress row.
 - Every quest check carries `quest:<id>`; `d.carry["quest_results"]` holds the per-quest verdict. The table
   (`PlaytestQuestSummary`) fails every quest of a chain whose strict block was violated, or whose report has a fatal

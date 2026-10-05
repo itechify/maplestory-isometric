@@ -33,6 +33,14 @@ both PASS); those runs differ only in the chair step and the end-of-run EXP audi
 failed 1 check on seed 1 and 3 on seed 2: harness defects in the Wooden Box approach and the Three Snails throw
 (findings H2 and H3 below), both fixed.
 
+**Review re-run** (the package's final harness, `5bf2687`, same command, other runs in parallel on the machine):
+PASS on seeds 1, 2 and 3 with 616, 616 and 617 checks, 0 failed, 0 warnings, 8 processes each, strict ok (0
+console, 0 api, 0 developer commands, 0 ledger mismatches); 2,291 / 2,249 / 2,156 s of game time and 313 / 321 /
+336 s of wall time; level 7 at the end with 395 / 363 / 314 mesos; 1008 drew 712 Black / 713 Green / 715 Blue
+Headband and 1011 the Razor each time; one death each. Seeds 2 and 3 logged the G1 warning (Amherst), seed 1 none.
+The draws and the physics differ from the evidence runs above (seed 1 bought the sandals on Pan's first visit with
+64 mesos, so no refusal was checked there), which is why the check counts differ by a few.
+
 ## Strict mode: the proof of a console-free run
 
 | | Seed 1 | Seed 2 | Seed 3 |
@@ -127,7 +135,7 @@ Every item below is a check of the run (or a group of checks) that passed on all
 | begin Maple Island | strict mode from the next step; Heena's 1000 offered by her marker in 000000001 |
 | complete the opening/tutorial content | 1000-1005 played and completed (Heena, Sera, Roger, Nina, Sen, Todd, Peter), Robin talked to; every quest check of the runner passed |
 | fight every Maple Island monster type | "X fought and killed" for all 6 species (seed 1: 3 Tutorial Jr. Sentinels, 16 Snails, 44 Blue Snails, 28 Shrooms, 33 Red Snails, 1 Orange Mushroom) and "N kills gave the canonical EXP each" per species |
-| obtain normal monster drops | "monster drops picked up with Z": 135 / 94 / 90 items; quest drops (Jr. Sentinel Shellpiece, Blue Snail Shell, Orange Mushroom Cap) collected for 1005 and 1011 |
+| obtain normal monster drops | "monster drops picked up with Z": 135 / 94 / 90 items (the count is every item picked up with Z, so it also holds the few items of 1012's Wooden Boxes); the monster-only loot in the checkpoints (Snail Shell, Blue Snail Shell, Mushroom Spore, Red Snail Shell, Orange Mushroom Cap); quest drops (Jr. Sentinel Shellpiece, Blue Snail Shell, Orange Mushroom Cap) collected for 1005 and 1011 |
 | obtain mesos through actual monster drops | "mesos from monster meso bags picked up": 358 mesos in 61 bags / 127 in 27 / 203 in 34 (the Wooden Box drops no mesos, so every bag was a monster's) |
 | level naturally | "level 8 / 7 reached naturally: EXP only from kills, quest rewards and the death penalty"; every kill's EXP and every quest's EXP equal to canonical data (see the progression review) |
 | allocate AP | "every AP spent through the stats window (35 / 30 / 30 points over 7 / 6 / 6 levels)": each point a mouse click on the stats window's "+" |
@@ -226,7 +234,9 @@ No game defect blocked the player in any run, and none was fixed in game code by
   stops inside the gate's own trigger, and `IslandWorld.validate_resume` refuses any point inside a non-arrival
   portal's trigger. The fallback is the entry, 0.7 m away, so the player sees nothing wrong. Expected: a spot the
   game itself delivered the player to should resume without a warning (accept the entry portal's own trigger, or
-  move edge arrivals out of their trigger). This warning is the only engine message of the runs.
+  move edge arrivals out of their trigger). This warning is the only engine message of the runs. It depends on where
+  the walk happens to stop after the gate: in the review re-runs at `5bf2687` seed 2 logged the Amherst warning
+  again and so did seed 3, while seed 1 resumed silently (see "Review re-run" under "Result").
 - **G2 (note, canonical): the Fruit Knife needs level 8**, one more than Shanks asks; see the progression review.
 
 **Harness (fixed in this package):**
@@ -254,7 +264,9 @@ No game defect blocked the player in any run, and none was fixed in game code by
   are now `mechanic:random-quest-rewards`, `mechanic:save-load` and the drop entry's schema-v2 slug
   (`drop:9/orange-mushroom-cap`, `drop:3/blue-snail-shell`). The evidence runs of this report (the playthrough and
   the every-quest set) were taken just before the drop-tag fix, so their drop tags still use the item id; a re-run of
-  1011 after the fix carries the slugs. No check or verdict depends on a tag.
+  1011 after the fix carries the slugs. No check or verdict depends on a tag. The review re-runs at `5bf2687` (the
+  every-quest set on seeds 1-3 and the playthrough on seeds 1-3) carry only slugs, and `build_parity.mjs` over them
+  lists no tagged key that names no manifest entry.
 
 ## The every-quest set and the other real-game scenarios of this package
 

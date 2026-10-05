@@ -56,8 +56,14 @@ canonical data only; nothing about a quest is hard-coded.
   - **Follow-ups:** each canonical follow-up is available at once (or level-gated) and its NPC's marker offers it.
   - **Mid-quest save and restart:** each quest with objectives saves through the pause menu and quits the process at
     half of its first kill or item objective; the run's first talk-only quest right after its accept; a chain of three
-    or more once more after its middle quest. After Continue in a new process the quest log, level, EXP, mesos, bag
+    or more once more between two quests, at the middle of the chain (after quest `floor(n / 2)`: after 1006 in
+    1006,1009,1010 and after 1015 in 1013-1019). After Continue in a new process the quest log, level, EXP, mesos, bag
     and map must be the saved ones and the Quest Log must still list the quest.
+  - **Quests without a restart of their own:** 1001, 1004, 1008 and 1014-1019 have nothing to hunt and are not the
+    first talk-only quest of their run, so their "Mid-quest save and restart" row is "-". The between-quests restart
+    of 1013-1019 (after 1015, with 1016-1019 not yet accepted) belongs to no quest and shows in no row; it is checked
+    as `between: ...` in that chain's report. The clean-character playthrough also restarts the process with 1007,
+    1008, 1009, 1010, 1011 and 1012 in progress ([PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md)).
 
 Notes on reading the tables:
 
@@ -85,6 +91,14 @@ Notes on reading the tables:
 - **First evidence run on this harness (`r1`, commit `ee0a209`):** 20/20 on seeds 1, 2 and 3. Between that run and the
   one reported here `PlaytestKit.break_box` changed (a tier-aware approach; see PLAYTHROUGH_REPORT.md), so every seed
   was run again.
+- **Review re-run (the package's final harness, `5bf2687`):** 20/20 on seeds 1, 2 and 3, every chain strict ok, 0
+  warnings; 523, 523 and 520 quest checks; 2,046 / 2,314 / 1,952 game s and 331 / 421 / 313 wall s summed over the
+  chains (other runs in parallel on the machine); 1008 drew 713 Green / 712 Black / 713 Green Headband and 1011 the
+  Fruit Knife each time; the drop tags are the schema-v2 slugs (`drop:3/blue-snail-shell`,
+  `drop:9/orange-mushroom-cap`). Seed 3's 1009 has 3 checks fewer: its 5 Red Snails were all killed during the Blue
+  Snail and Shroom hunts, so the Red Snail objective needed no hunt of its own (the walk, kill and Quest Log row
+  checks of that objective did not run). The quest runner now records such an objective in the evidence as
+  "already 5 of 5", as it does for an item already held.
 
 ## Per quest, per seed
 

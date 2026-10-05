@@ -19,7 +19,7 @@ extends PlaytestScenario
 ## used by double-click, quizzes answered in the menu, one wrong answer first), the turn-in, the exact canonical
 ## rewards (EXP, mesos, items, one item of each random group), and the follow-up's availability. A save and a
 ## process restart happen in the middle (mid-objective of each quest with objectives, after the accept of the first
-## talk-only quest, and after the middle quest of a long chain); the next phase checks the progress survived.
+## talk-only quest, and between two quests at the middle of a long chain); the next phase checks the progress survived.
 ## Every quest check carries the parity key quest:<id>; d.carry["quest_results"] is the per-quest verdict and
 ## d.carry["quest_evidence"] what each quest showed (PlaytestQuestSummary's per-quest report).
 
@@ -177,7 +177,8 @@ func _play_phase() -> void:
 	qr.results(ids)
 
 
-## After the middle quest of a chain of 3 or more: one more save and restart between quests.
+## At the middle of a chain of 3 or more, after quest floor(n / 2) (1006 of 1006,1009,1010; 1015 of 1013-1019): one
+## more save and restart, between two quests.
 func _maybe_reload_between(qid: String) -> void:
 	if ids.size() < 3 or qid != ids[floori(ids.size() / 2.0) - 1] or (d.carry.get("reloaded", {}) as Dictionary).has("between"):
 		return

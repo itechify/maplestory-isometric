@@ -221,6 +221,12 @@ func objectives(qid: String) -> bool:
 		var mob := String(kobj["mob_id"])
 		var need := int(kobj["count"])
 		if c.quests.kills(qid, mob) >= need:
+			# Met before its own hunt (the kills came in an earlier objective's hunt): no hunt, but the evidence row
+			# says so, as an item already held does.
+			if not rows.any(func(r: Dictionary) -> bool: return String(r.get("mob_id", "")) == mob):
+				rows.append({"kind": "kill", "what": "%s x%d" % [kobj["name"], need], "mob_id": mob, "where": d.current_map(),
+					"progress": "already %d of %d (killed in the earlier hunts)" % [c.quests.kills(qid, mob), need], "ok": true})
+				ev["objectives"] = rows
 			continue
 		var map := String(kobj["hunt_map"])
 		if not d.check("%s: walked to %s to hunt %s" % [qid, map, kobj["name"]], await k.travel_to(map), d.current_map(), pq):
@@ -241,9 +247,9 @@ func objectives(qid: String) -> bool:
 		var row := "%s %d/%d" % [kobj["name"], mini(c.quests.kills(qid, mob), need), need]
 		await d.close_window("quests")
 		var met := c.quests.kills(qid, mob) >= need
-		rows.append({"kind": "kill", "what": "%s x%d" % [kobj["name"], need], "where": map, "progress": "%d -> %d of %d"
-			% [k0, c.quests.kills(qid, mob), need], "log_row": PlaytestKit.rows_text(qw["rows"]), "ok": met,
-			"kills": int(h.get("kills", 0)), "time_s": float(h.get("time_s", 0.0))})
+		rows.append({"kind": "kill", "what": "%s x%d" % [kobj["name"], need], "mob_id": mob, "where": map,
+			"progress": "%d -> %d of %d" % [k0, c.quests.kills(qid, mob), need], "log_row": PlaytestKit.rows_text(qw["rows"]),
+			"ok": met, "kills": int(h.get("kills", 0)), "time_s": float(h.get("time_s", 0.0))})
 		ev["objectives"] = rows
 		if not d.check("%s: %d %s killed with the attack key in %s (%d -> %d of %d)" % [qid, need, kobj["name"], map, k0,
 				c.quests.kills(qid, mob), need], met, "%s; Quest Log rows %s" % [h,
