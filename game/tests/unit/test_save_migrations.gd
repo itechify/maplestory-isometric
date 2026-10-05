@@ -17,6 +17,9 @@ func parity_keys() -> Dictionary:
 		"test_v1_to_v2_clears_effects_and_adds_the_timers": ["mechanic:save-migration",
 			"persistence:skill-cooldowns-buffs", "persistence:natural-regen-timer"],
 		"test_v1_to_v2_leaves_everything_else_alone": ["mechanic:save-migration"],
+		"test_first_save_over_an_it2_save_keeps_a_pre_migration_copy": ["mechanic:save-migration",
+			"mechanic:atomic-save-backup"],
+		"test_backup_only_it2_slot_keeps_the_backup_as_the_copy": ["mechanic:save-migration"],
 	}
 
 
@@ -286,6 +289,85 @@ func test_v1_to_v2_leaves_everything_else_alone() -> void:
 		if not (k in ["quickslots", "quests", "effects"]):
 			assert_eq(v2["character"][k], doc["character"][k], "character.%s unchanged" % k)
 	assert_false(doc["character"].has("cooldowns"), "the input document is not modified")
+
+
+# --- the one-time pre-migration copy ----------------------------------------------------------------------------
+
+const IT2_FIXTURE := "res://tests/data/saves/it2/d_inventory.json"
+
+
+## A Game node on `svc` that saves wherever the character says (no MapSession).
+func _game() -> GameState:
+	var game := GameState.new()
+	game.db = db()
+	game.save_service = svc
+	game.event_bus = svc.event_bus
+	game.log_warnings = false
+	svc.game_node = game
+	svc.can_save_override = func() -> bool: return true
+	svc.world_provider = func(ch: CharacterState) -> Dictionary: return SaveDocument.world_from_character(ch)
+	return game
+
+
+func _install_bytes(file_name: String, source: String) -> void:
+	DirAccess.make_dir_recursive_absolute(root)
+	var f := FileAccess.open(root.path_join(file_name), FileAccess.WRITE)
+	f.store_buffer(FileAccess.get_file_as_bytes(source))
+	f.close()
+
+
+func _bytes(file_name: String) -> PackedByteArray:
+	return FileAccess.get_file_as_bytes(root.path_join(file_name))
+
+
+func test_first_save_over_an_it2_save_keeps_a_pre_migration_copy() -> void:
+	_install_bytes("it2.json", IT2_FIXTURE)
+	var original := FileAccess.get_file_as_bytes(IT2_FIXTURE)
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK, "the Iteration Two save continues")
+	assert_false(FileAccess.file_exists(root.path_join("it2.json.pre-v1")), "loading alone writes nothing")
+	assert_eq(game.save_game("it2"), OK, "first save")
+	assert_eq(_bytes("it2.json.pre-v1"), original, "the v1 file is kept byte for byte")
+	assert_eq(svc.read_save("it2").version_found, SaveMigrations.CURRENT_VERSION, "the save itself is current")
+	game.character.mesos += 1
+	assert_eq(game.save_game("it2"), OK, "second save")
+	assert_eq(SaveMigrations.version_of(svc.store().read_document("it2", true)["data"]), SaveMigrations.CURRENT_VERSION,
+		"the backup no longer holds the v1 file after two saves")
+	assert_eq(_bytes("it2.json.pre-v1"), original, "but the copy survives, unchanged")
+	assert_eq(svc.keep_pre_migration_copy("it2"), PackedInt32Array(), "nothing older is left to copy")
+	var listed := svc.list_saves()
+	assert_eq(listed.size(), 1, "the copy is not a slot")
+	assert_eq(svc.delete_save("it2"), OK)
+	assert_false(FileAccess.file_exists(root.path_join("it2.json.pre-v1")), "deleting the slot deletes its copy")
+	game.free()
+
+
+## A slot whose save file is missing loads its backup; the first save then writes the save without rotating, and the
+## second would replace that backup, so the backup is what must be kept.
+func test_backup_only_it2_slot_keeps_the_backup_as_the_copy() -> void:
+	_install_bytes("it2.json.bak", IT2_FIXTURE)
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK, "the backup loads")
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(_bytes("it2.json.pre-v1"), FileAccess.get_file_as_bytes(IT2_FIXTURE), "the v1 backup is kept")
+	game.free()
+
+
+func test_an_existing_copy_is_never_replaced_and_current_saves_make_none() -> void:
+	_install_bytes("it2.json", IT2_FIXTURE)
+	_install_bytes("it2.json.pre-v1", "res://tests/data/saves/it2/g_shop.json")
+	var game := _game()
+	assert_eq(game.load_game("it2"), OK)
+	assert_eq(game.save_game("it2"), OK)
+	assert_eq(_bytes("it2.json.pre-v1"), FileAccess.get_file_as_bytes("res://tests/data/saves/it2/g_shop.json"),
+		"the first copy ever made stays")
+	assert_eq(game.new_game({"slot": "fresh"}), OK)
+	assert_eq(game.save_game("fresh"), OK)
+	var dir := DirAccess.open(root)
+	for f in dir.get_files():
+		assert_false(f.begins_with("fresh.json.pre-v"), "a current save makes no copy: %s" % f)
+	game.free()
 
 
 func test_v1_parts_of_the_wrong_type_still_load_as_corrupt() -> void:

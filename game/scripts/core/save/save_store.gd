@@ -2,9 +2,11 @@ class_name SaveStore
 extends RefCounted
 ## Save-slot files in one directory, as JSON. No game knowledge: it stores and returns Dictionaries.
 ##
-##   <root>/<slot>.json       the save
-##   <root>/<slot>.json.bak   the previous good save (one generation)
-##   <root>/<slot>.json.tmp   transient, only while a write is in progress
+##   <root>/<slot>.json          the save
+##   <root>/<slot>.json.bak      the previous good save (one generation)
+##   <root>/<slot>.json.tmp      transient, only while a write is in progress
+##   <root>/<slot>.json.pre-vN   a one-time copy of the last schema-N save, kept when a newer build first saves over
+##                               it (SaveService decides when; keep_copy() makes it and never replaces it)
 ##
 ## Writes are atomic in effect: the new text goes to .tmp, is read back and checked, the current save is copied to
 ## .bak (only if it still parses), and then .tmp is renamed over the save. A failure at any step leaves the previous
@@ -14,6 +16,8 @@ extends RefCounted
 const EXT := ".json"
 const BAK_SUFFIX := ".bak"
 const TMP_SUFFIX := ".tmp"
+## Followed by the schema version of the copied file: "<slot>.json.pre-v1".
+const PRE_SUFFIX := ".pre-v"
 ## Slot names are file names: letters, digits, "_" and "-", 1 to 32 characters (no paths, no dots).
 const SLOT_PATTERN := "^[A-Za-z0-9_-]{1,32}$"
 ## Windows device names, refused in any letter case: "CON.json" still opens the console device, "NUL.json" the
@@ -47,6 +51,33 @@ func backup_path_of(slot: String) -> String:
 
 func tmp_path_of(slot: String) -> String:
 	return path_of(slot) + TMP_SUFFIX
+
+
+## The one-time copy of the slot's last schema-`version` save.
+func pre_copy_path_of(slot: String, version: int) -> String:
+	return path_of(slot) + PRE_SUFFIX + str(version)
+
+
+func has_pre_copy(slot: String, version: int) -> bool:
+	return is_valid_slot(slot) and FileAccess.file_exists(pre_copy_path_of(slot, version))
+
+
+## Copies the slot's save (or its backup) byte for byte to pre_copy_path_of(slot, version), once: an existing copy
+## is never replaced (ERR_ALREADY_EXISTS). ERR_FILE_NOT_FOUND when there is nothing to copy.
+func keep_copy(slot: String, from_backup: bool, version: int) -> Error:
+	if not is_valid_slot(slot):
+		return ERR_INVALID_PARAMETER
+	var src := backup_path_of(slot) if from_backup else path_of(slot)
+	if not FileAccess.file_exists(src):
+		return ERR_FILE_NOT_FOUND
+	var dst := pre_copy_path_of(slot, version)
+	if FileAccess.file_exists(dst):
+		return ERR_ALREADY_EXISTS
+	var err := DirAccess.copy_absolute(src, dst)
+	if err == OK and FileAccess.get_file_as_bytes(dst) != FileAccess.get_file_as_bytes(src):
+		DirAccess.remove_absolute(dst)
+		err = ERR_FILE_CANT_WRITE
+	return err
 
 
 ## True if the slot's save file exists (it may still be corrupt; read it to know).
@@ -137,12 +168,19 @@ func read_document(slot: String, from_backup: bool = false) -> Dictionary:
 	return {"error": OK, "data": json.data, "message": ""}
 
 
-## Deletes the save, its backup and any leftover temp file. ERR_FILE_NOT_FOUND if none existed.
+## Deletes the save, its backup, its pre-migration copies and any leftover temp file. ERR_FILE_NOT_FOUND if none
+## existed.
 func delete(slot: String) -> Error:
 	if not is_valid_slot(slot):
 		return ERR_INVALID_PARAMETER
 	var found := false
-	for path in [path_of(slot), backup_path_of(slot), tmp_path_of(slot)]:
+	var paths: Array = [path_of(slot), backup_path_of(slot), tmp_path_of(slot)]
+	var dir := DirAccess.open(root)
+	if dir != null:
+		for f in dir.get_files():
+			if f.begins_with(slot + EXT + PRE_SUFFIX) and f.trim_prefix(slot + EXT + PRE_SUFFIX).is_valid_int():
+				paths.append(root.path_join(f))
+	for path: String in paths:
 		if FileAccess.file_exists(path):
 			found = true
 			var err := DirAccess.remove_absolute(path)
