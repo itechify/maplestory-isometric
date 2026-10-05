@@ -18,6 +18,8 @@ bash scripts/playtest.sh smoke                      # headless; prints PLAYTEST 
 bash scripts/playtest.sh fight --windowed           # a 1600x900 window; screenshot() writes PNGs
 ISOLATE=<your-name> bash scripts/playtest.sh <scenario> --out _scratch/playtest/mine --seed 3
 bash scripts/playtest.sh --list                     # the scenarios
+bash scripts/playtest.sh quest --quest 1013-1019    # one quest chain of the every-quest set (strict after setup)
+bash scripts/playtest_quests.sh                     # every quest: one run per chain, 3 in parallel, one table
 ```
 
 The script mirrors `game/` (with the exported world) into `_scratch/godot_runs/$ISOLATE/game`, the same way
@@ -40,6 +42,7 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 | `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1, so a run is repeatable |
 | `--max-s <s>` | the game-time budget of one phase (default: the scenario's `max_seconds()`) |
 | `--max-wall-s <s>` | the wall-time budget of one phase (default: three times the game budget, at least 900 and at most 3300, so it fires before the outer 3600 s timeout) |
+| `--quest <spec>` | for the `quest` scenario: `1002`, `1013-1019` or `1006,1009,1010` (the `QUEST` environment variable does the same) |
 
 **Exit code:**
 
@@ -56,18 +59,23 @@ watchdog normally stops the run first.
 
 | Path | Class | Role |
 |---|---|---|
-| `game/tools/playtest/playtest_driver.gd` | `PlaytestDriver` | the API scenarios call: boots main.tscn, plays, logs steps and checks |
+| `game/tools/playtest/playtest_driver.gd` | `PlaytestDriver` | the API scenarios call: boots main.tscn, plays, logs steps and checks, strict mode |
+| `game/tools/playtest/playtest_kit.gd` | `PlaytestKit` | the composite play every scenario shares: travel, talk, conversations and quizzes, markers, the Quest Log, item use, AP, shops, precise pickup, hunting with a survival policy, deaths, and the contract helpers for sitting, chairs, skills and Wooden Boxes (see "PlaytestKit") |
+| `game/tools/playtest/playtest_ledger.gd` | `PlaytestLedger` | strict mode's bookkeeping: every change to EXP, mesos, items and quests must be announced by the event bus |
+| `game/tools/playtest/playtest_quest_plan.gd` | `PlaytestQuestPlan` | how to play a quest, derived from canonical data only (see "Quest plans") |
+| `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json` |
 | `game/tools/playtest/playtest_input.gd` | `PlaytestInput` | real input: keys, actions (analog movement), mouse, typing; held state and focus re-assert |
 | `game/tools/playtest/playtest_walker.gd` | `PlaytestWalker` | path planning and following with real input (RouteBot steering) |
 | `game/tools/playtest/playtest_grid_nav.gd` | `PlaytestGridNav` | A* on the real collision, for targets the route network does not reach |
-| `game/tools/playtest/playtest_report.gd` | `PlaytestReport` | steps, checks, screenshots, errors, phases; `report.json` / `report.md` |
+| `game/tools/playtest/playtest_report.gd` | `PlaytestReport` | steps, checks (with parity keys), screenshots, errors, phases, the strict block; `report.json` / `report.md` |
 | `game/tools/playtest/playtest_scenario.gd` | `PlaytestScenario` | base class of a scenario |
-| `game/tools/playtest/playtest_runner.gd` + `.tscn` | | one process (phase) of a run: arguments, seeds, error guards, watchdog, report |
+| `game/tools/playtest/playtest_runner.gd` + `.tscn` | | one process (phase) of a run: arguments, seeds, error guards, watchdog, strict reconciliation, report |
 | `game/tools/playtest/playtest_engine_log.gd` | `PlaytestEngineLog` | records push_error and engine errors (reported, not fatal) |
 | `game/tools/playtest/playtest_process.gd` | `PlaytestProcess` | runs a scenario's phases in child processes and reads the report (unit tests, tools) |
-| `game/tools/playtest/scenarios/*.gd` | | the scenarios: `smoke`, `fight`, `reload`, `api`, `npcs`, `counter` |
+| `game/tools/playtest/scenarios/*.gd` | | the scenarios (see "Scenarios") |
 | `scripts/playtest.sh` | | the command line: mirror, import, phases, exit code |
-| `game/tests/unit/test_playtest_report.gd`, `test_playtest_smoke.gd` | | the tests (see "Tests") |
+| `scripts/playtest_quests.sh` | | the every-quest set: the `quest` scenario once per chain in parallel copies, then the table |
+| `game/tests/unit/test_playtest_*.gd` | | the tests (see "Tests") |
 
 ## Writing a scenario
 
@@ -107,11 +115,17 @@ Rules:
   background and the scenario races it.
 - **Play first, console for setup only.** `console()` steps are counted apart from play steps in the report, so a
   reader can tell legitimate play from setup. A shell call the UI could not make is an `api` step and carries the
-  reason.
+  reason. A scenario that must prove a console-free run calls `d.begin_strict(reason)` after its setup (see "Strict
+  mode"); its console calls then live only in functions named `_setup*` (a unit test enforces it).
+- **Use the kit for composite play.** `var k := PlaytestKit.new(d)`: travel between maps, talking, conversations,
+  quizzes, markers, item use, AP, shops, hunting and deaths are written once there. Do not copy them into a scenario.
 - **`check()` fails the run; `soft_check()` only warns.** Use `soft_check` for a known issue the scenario must surface
-  without blocking the rest of the flow. An example is an NPC a player cannot reach; see "Findings".
+  without blocking the rest of the flow (a feature another package has not built yet, say).
+- **Tag what a check proves.** `d.check(name, cond, details, ["quest:1005", "monster:1"])`: the parity keys of
+  contract C6 (`<category>:<id>`). `report.json` keeps them per check and sums them per key.
 - **Do not hard-code canonical numbers.** Read them from `d.db()` (`ContentDB`), `ShopService`, `MonsterDef`,
-  `StatCalculator` and the like. The sample `fight` compares the EXP it gains against `MonsterDef.exp_reward`.
+  `StatCalculator` and the like. The sample `fight` compares the EXP it gains against `MonsterDef.exp_reward`; the
+  `quest` scenario reads every quest fact through `PlaytestQuestPlan`.
 - **Phases.** `reload_process()` ends the process the way a player does: the pause menu's Quit Game, then the shell
   saves and quits. The runner then starts a new process with `phase + 1` on the same save directory and calls
   `run()` again. Branch on `d.phase`. Values travel in `d.carry`, which is written with `var_to_str`, so ints stay
@@ -189,10 +203,11 @@ Step kinds:
 
 | Call | Does |
 |---|---|
-| `console(cmd)` | `Debug.run(cmd)`, the console's own path, and waits for a warp it started. A `console` step |
+| `console(cmd)` | `Debug.run(cmd)`, the console's own path, and waits for a warp it started. A `console` step. In strict mode the command is refused (it never runs) and a failed check records it |
+| `begin_strict(reason)` / `is_strict()` | strict mode from this step on, for the rest of the run (see "Strict mode") |
 | `screenshot(name)` | `<out>/shots/NN_p<phase>_<name>.png` when windowed; headless it is logged as skipped |
 | `state()` | flow, map and name, MapSession state and last transition, position (world, local and region), floor, climbing, dead, input, facing, level, EXP, HP/MP and their maxima, AP/SP, mesos, base stats, the inventory summary, equipment, quests (in progress and completed), modal, open windows, dialogue and shop |
-| `check(name, cond, details)` / `soft_check(...)` / `note(text)` | PASS/FAIL lines, WARN lines, free notes |
+| `check(name, cond, details, parity)` / `soft_check(...)` / `note(text)` | PASS/FAIL lines, WARN lines, free notes; `parity` is an optional array of contract C6 keys the check proves |
 | `PlaytestDriver.diff(a, b)` | `""` when the values are equal (numbers with tolerance, an int equals the same float), else where they first differ |
 | `frames(n)`, `wait(s)`, `wait_until(cond, max_s)`, `game_s()` | game time: physics frames / 60 |
 | accessors | `main`, `ctx()`, `world()`, `player()`, `session()`, `game()`, `character()`, `db()`, `events()`, `debug()`, `system(name)`, `monsters()`, `loot()`, `interaction()`, `npc_ui()`, `dialogue()`, `shop()`, `windows()`, `hud()`, `combat()`, `walker`, `input`, `notices` (the `Events.notice` lines heard) |
@@ -248,24 +263,28 @@ still, and that time is not counted as a stall.
 
 ## Report
 
-`report.json`, format 1:
+`report.json`, format 2 (format 1 plus `strict`, `strict_raw`, `parity`, `counts.parity_keys` and the checks'
+`parity`):
 
 | Key | Content |
 |---|---|
-| `scenario`, `result`, `seed`, `windowed`, `args`, `finished`, `reload_requested` | `result` is `PASS` (finished, at least one check, no failed check, no fatal error), `FAIL`, or `RELOADING` between phases |
+| `scenario`, `result`, `seed`, `windowed`, `args`, `finished`, `reload_requested` | `result` is `PASS` (finished, at least one check, no failed check, no fatal error, and in strict mode no violation), `FAIL`, or `RELOADING` between phases |
 | `totals` | `{game_s, wall_s}` over all phases |
 | `phases` | `[{phase, started_at, game_s, wall_s, end}]`; `end` is `done`, `reload`, `timeout` or `error` |
-| `counts` | `steps` `{play, console, api, observe}` (top level), `checks`, `checks_failed`, `warnings`, `errors`, `engine_errors`, `screenshots`, `input_reasserts` |
-| `checks` | `[{i, phase, name, ok, details, at_game_s, step, soft}]` |
+| `counts` | `steps` `{play, console, api, observe}` (top level), `checks`, `checks_failed`, `warnings`, `errors`, `engine_errors`, `screenshots`, `input_reasserts`, `parity_keys` |
+| `strict` | `{"enabled": false}`, or `{enabled, reason, since {phase, step, game_s}, console_steps, api_steps, debug_commands, ledger {reconciled, heard, mismatches}, violations [{phase, kind, detail}], ok}`: the proof of a no-cheat run (see "Strict mode"). `strict_raw` is the same block without the counted steps (what the next phase reads back) |
+| `parity` | per parity key: `{checks, passed, failed, warned}` |
+| `checks` | `[{i, phase, name, ok, details, at_game_s, step, soft, parity?}]` |
 | `steps` | `[{i, phase, depth, kind, name, detail, ok, result, at_game_s, game_s, wall_s, fallback?}]` |
 | `screenshots` | `[{name, phase, path \| skipped + reason}]` |
 | `errors` | fatal: `[{phase, kind (script, scenario, timeout, harness), message}]` |
 | `engine_errors` | not fatal: push_error, engine errors and warnings while the scenario ran |
 | `notes`, `carry` (readable), `carry_var` | `carry_var` holds the typed copy |
 
-`report.md` holds the same report as a header and tables: Errors, Checks (PASS, **FAIL**, WARN), Steps (nested steps
-indented with `·`), Screenshots, Engine errors, Notes and Phases. Console lines while a run plays: `PLAYTEST STEP`,
-`PLAYTEST CHECK PASS|FAIL|WARN`, `PLAYTEST FALLBACK`, `PLAYTEST NOTE`, and at the end `PLAYTEST_RESULT`,
+`report.md` holds the same report as a header (with the strict verdict) and tables: Strict violations, Errors, Checks
+(PASS, **FAIL**, WARN, with their parity keys), Parity keys, Steps (nested steps indented with `·`), Screenshots,
+Engine errors, Notes and Phases. Console lines while a run plays: `PLAYTEST STEP`, `PLAYTEST CHECK PASS|FAIL|WARN`,
+`PLAYTEST FALLBACK`, `PLAYTEST NOTE`, and at the end `PLAYTEST_RESULT` (with `strict ok|VIOLATED|off`),
 `PLAYTEST_FAILED_CHECK`, `PLAYTEST_ERROR` and `PLAYTEST_REPORT <path>`.
 
 **Errors and the watchdog:**
@@ -312,59 +331,164 @@ indented with `·`), Screenshots, Engine errors, Notes and Phases. Console lines
 - **The console teleports.** `goto` and `warp` are setup. A `goto` can put the player where no walk leads (the pocket
   behind Lucy's counter). Warp back to the map's spawn before walking on.
 - **Monsters push.** Contact damage knocks the player back, and a walk in a hunting ground can stall on it. The
-  walker re-plans once. A scenario that only needs to walk past can `console("god on")`, which is logged as setup.
+  walker re-plans once. Walk with the kit (`travel_to`, `walk_safely`, `approach`): a monster that keeps hitting the
+  player is fought and low HP is healed or rested (see "PlaytestKit"). A scenario that is not about survival can still
+  `console("god on")`, which is logged as setup.
+- **New `class_name` scripts need an import.** Godot learns a new class from the import (`--import`). `playtest.sh`
+  and `test.sh` import their private copies; when you check a new script by hand in `game/`, import it first.
 
-## Sample scenarios
+## PlaytestKit
 
-| Scenario | Proves | Headless (2026-10-04, fixed fps) |
-|---|---|---|
-| `smoke` | new game through the title and creation screens, route Main of 000000001, the trail to 000000010 across the gate, Roger (WARN when unreachable, then a logged `goto npc 3`), F, Esc, save, quit to title, Continue: the same map, place and character | 16 checks, 1 WARN, about 55 s game, 12 s wall |
-| `fight` | in 000000040, after a console warp: the attack key against Snails until a kill drops loot (bounded), canonical EXP for every kill, the drop picked up with Z | 9 checks. Seed 1 gives 2 kills, 6 attacks, 4 hits, a 2-meso drop |
-| `reload` | phase 0: new game, a walk, Quit Game; phase 1 (a new process): Continue, the same map, place and character (`carry`, `diff`) | 16 checks, 2 processes, about 7 s wall |
-| `api` | every remaining call: `press`/`tap`, windows by key and `window_text`, the grid planner, Lucy's shop (the window's price checked against `ShopService.row_for`, the canonical data; buy 2 at 50, sell 1 back at 5), a door with Up, End Chat on Rain, Sam's pages with `next()` and his offer declined with `choose("no")`, a mouse `click` on Resume, `state()` | 28 checks, 2 WARN |
-| `npcs` | a survey: `talk_to` every NPC of the 25 maps on foot from its map's arrival; the unreachable ones are WARN, with how close the body came to the talk zone | 21 NPCs, 16 reached, 5 WARN, about 25 s wall |
-| `counter` | talk to Pan (16) across his counter in 000000061 on foot, after a console warp: the walk ends at the counter, the lean brings the body into the talk zone at 1.94 m feet to feet, and `talk_gap` agrees with the game's prompt | 7 checks |
+`var k := PlaytestKit.new(d)` (`game/tools/playtest/playtest_kit.gd`) holds the composite play that every scenario used
+to copy (Test C and Test E use it; Test D and the others still carry their own copies). Everything it does goes through
+the driver's real input and reads the live game; nothing writes game state, so every kit call is legal in strict mode.
 
-## Findings (2026-10-04)
+| Area | Calls |
+|---|---|
+| bus | `connect_bus()` (EXP awards, quest events, touches), `exp_since(t0)`, `damage_taken`, `touches`, `touched_recently()` |
+| travel | `travel_to(map, opts)`: map by map over the canonical portals (`portal_path(db, from, to)`, a breadth-first search that knows 000000030 -> 000000040 is one-way), each hop a `walk_trail` with one retry, deaths answered with OK. opts `fallback_warp` (non-strict scenarios only: a failed hop becomes a WARN and a logged console warp; otherwise a failed check), `safe` (default true: the survival policy on the trails). `travel_rows`, `travel_text()`, `fallbacks` |
+| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP) or a monster that hit the player in the last 1.5 s is still next to it (`on_threat` "fight"; "ignore" keeps walking). Then the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 40 m away) and stands still until `hp_resume` (0.8), fighting back what comes close; a monster that keeps hitting is fought. Monsters that merely pass by never stop a walk |
+| NPCs | `approach(npc)` (to 3.5 m, so the marker is on screen), `talk(npc)` (talk_to; a death on the way is a WARN and a retry; an NPC that cannot be planned to from where the player stands is tried again from the map's arrival; the result carries `pre`, the reward baseline taken right before the chat opened), `marker(npc)` (the presenter's state and the engine's), `quest_window(qid, tab)`, `row_has`, `rows_text` |
+| conversations | `converse(goals, opts)`: goals `quest id -> "accept" \| "decline" \| "complete" \| "quiz_wrong[:rank]"`. A menu picks the entry of a goal not met yet (else End Chat), a Yes/No answers Y only for an "accept" of a quest not started, lines are paged with Enter, and a quiz menu (node `q<id>.quiz`) is answered with the canonical correct choice or the requested wrong one. Returns the pages, the banners and the quiz answers with the line shown after each |
+| quizzes | `PlaytestKit.quiz_answer(db, qid)` (static): the correct choice by the canonical `correct_choice_index` (1018's is inferred and says so in `basis`), the question, the choices, and each wrong choice with the wrong-answer line MeowDB lists for it (in choice order, as the game pairs them) |
+| items | `use_item(id, via)` (`double_click`, `button` or `quickslot`), `drink(id)` (the canonical restore it should give, as `want_hp`), `equip(id)`, `bind_quickslot(id, key)` (a mouse drag onto the HUD slot), `double_click(control)`, `drag(a, b)`, `hp_restore(id)` |
+| AP | `stats_window()`, `click_plus(stat)`, `allocate_ap(["str", "dex"])` (the stats window's "+" with the mouse) |
+| shops | `open_shop(npc)` (talk, page the greeting), `buy(id, qty)`, `sell(id, qty)`, `close_shop()` |
+| loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z |
+| hunting | `hunt(mob_ids, cond, opts)`: the survival policy first, whatever is hitting the player, then the nearest wanted monster with the attack key, the drops picked up after every kill, unspent AP spent through the stats window (`ap_plan`), deaths answered and the walk back to `map`, a tour of the spawn slots when nothing is in sight. `nearest_of(mob_ids)` |
+| deaths | `is_dead()`, `death_notice()`, `respawn(opts)` (the notice's OK; the row goes to `deaths`) |
+| contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8: walk up, face, attack until broken, pick up). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
+| record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, equipment, ETC items and quest states into `d.carry["checkpoints"]` and a note: the brief's progression audit), `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
 
-The `npcs` survey found that **5 of 21 NPCs cannot be talked to by a walking player**.
+## Strict mode
 
-The talk rule is `WorldNpc.in_range`: the NPC's talk Area3D overlaps the player's body. The Area3D is a sphere of
-`interaction_radius_m` (1.6 m, `presentation.json`) centred 0.8 m above the NPC's feet; the body is a capsule of radius
-0.3 m from 0.45 to 1.5 m above the player's feet. The fallback is feet within 1.6 m of the NPC's feet. On level
-ground, a player whose feet are about 1.9 m from the NPC can therefore still talk. `talk_gap` measures the rule, and
-the gap below is the closest the body came to the zone on foot (walks from the map's arrival over the routes and the
-grid, then the lean):
+`d.begin_strict(reason)` proves a run used no developer help after a point ("after the setup save" in the `quest`
+scenario; "after character creation" for a clean playthrough). From that step on, for every later phase too:
 
-| NPC | Map | Gap | Where they stand |
+- `console()` refuses the command (it never runs), records a violation and fails a check.
+- An api fallback (a shell call because the UI did not respond) records a violation and fails a check.
+- `DebugTools.commands_run` counts every command the Debug autoload dispatches, whoever calls it (the console, `run`,
+  `call_command`, a test). The driver takes it at boot and at `begin_strict`; any increase in a strict phase is a
+  violation, so a command run behind the driver's back is caught too.
+- `PlaytestLedger` reconciles the character against the event bus at every phase end, before a new game and at Quit to
+  Title: total EXP against the sum of `exp_gained`, mesos against the `mesos_changed` deltas, every item's count in the
+  inventory plus the equipment against `item_gained - item_lost`, and every quest status change against its
+  `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
+  adding to the inventory, completing a quest) is a mismatch.
+- The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit) and fails on teleports,
+  `Debug.run`, direct writes to the character or its services, and console calls outside `_setup*` functions.
+
+What it does not prove: that a scenario never reads state the UI does not show (reading is allowed), and that the
+setup before the strict step was minimal (the console steps before it are listed in the report and the every-quest
+table).
+
+## Quest plans
+
+`PlaytestQuestPlan.plan(qid, db)` derives how to play a quest from canonical data only, so no scenario hard-codes quest
+knowledge: the start and end NPCs and maps (`start_npc`, `start_maps`, `end_npc`, `end_maps`), `min_level`,
+prerequisites, the chain (`quest_line`), follow-ups, the accept items (canonical `items_given_on_accept` plus MisoStory
+`accept_items` adaptations, flagged), the kill objectives with the maps whose canonical spawns hold the monster and
+the hunt map (fewest portal hops from the start map to the hunt and on to the turn-in, then the most spawns), the item
+objectives with every source (monster and breakable drop tables: schema v2 entries by `chance_state`, `probability`
+and `quest_gate`; Iteration Two tables by membership and the placeholder rate DropRates resolves) and the best one to
+farm, the item-use objectives, the quiz answer key and the rewards. An objective that only an unresolved drop could
+supply is listed in `blocked` as a source-data gap, never faked. `setup_for(ids)` says what a chain needs first (the
+first quest's level and start map, the prerequisites outside the chain, prerequisites first), `chains(db)` is the
+every-quest set (one chain per canonical quest line, each standalone quest alone), `parse_ids` and `chain_spec` name
+chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` are public.
+
+## The every-quest set
+
+`scenarios/quest.gd` plays one quest or one chain (`--quest 1013-1019`, or `QUEST=...`):
+
+- **Phase 0, setup** (the only console use, every command a logged console step): a new game through the title and
+  creation screens; a warp to the first quest's start map; for a level-gated first quest, a check that it is refused
+  below its level (no offer marker, the engine says unavailable); `level N`; `quest accept` + `quest complete <id>
+  force` for prerequisites outside the chain; a save through the pause menu; Quit Game.
+- **Phase 1 on, play** (strict from the Continue): for each quest of the chain, by its live status so a restart
+  resumes anywhere: the NPC's offer marker and the Quest Log's Available tab; the offer accepted in the dialogue; the
+  accept items in the bag; the HUD log; the marker after the accept; the Quest Log's In Progress tab; then the
+  objectives (kills with the attack key in the hunt map, drops picked up with Z, Wooden Boxes broken, items used by
+  double-click, levels reached by hunting when a later quest needs them); the turn-in NPC's completable marker; for a
+  quiz, one wrong answer first (its canonical line, the quest still in progress), then the canonical answer; the exact
+  reward (total EXP + `rewards.exp` with one `quest:<id>` EXP event, mesos, fixed items, one item of each random
+  group, the hand-ins taken, nothing else in the bag; the C3 `rewards_received` record when the quest log has it); the
+  HUD log and the Completed tab; and each follow-up's availability and marker.
+- **Save and restart in the middle:** a save through the pause menu and Quit Game at the half of the first kill or
+  item objective of each quest, after the accept of the first quest with nothing to hunt, and after the middle quest
+  of a chain of three or more. The next phase checks the quest log, level, EXP, mesos, bag and map against the saved
+  ones and the Quest Log's In Progress row.
+- Every quest check carries `quest:<id>`; `d.carry["quest_results"]` holds the per-quest verdict.
+
+`scripts/playtest_quests.sh` runs every chain (`--list` prints them; `test_playtest_quest_plan.gd` keeps the list equal
+to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mirrored and imported once, then
+`PlaytestQuestSummary` writes `<out>/quests.md` and `<out>/quests.json`: one row per quest (PASS, FAIL or NOT_PLAYED,
+its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
+game and wall time).
+
+## Cost
+
+Headless runs are faster than game time, plus about 20-30 s to mirror and import a fresh copy (`PLAYTEST_REUSE_COPY=1`
+skips it; `playtest_quests.sh` does that for every chain after a worker's first).
+
+| Run | Game time | Wall time | Ratio |
 |---|---|---|---|
-| Heena (1) | 000000001 | 0.52 m | on a perch 1.6 m above the ground around it (more than the 1.35 m jump reach). The perch top is wide enough that the ground below never comes within reach of the zone |
-| Roger (3) | 000000010 | no path | on a terrace 3 to 4 m above every ground around it, with no stairs or climbable (Roger's Apple, Test E) |
-| Nina (4) | 000000020 | no path | there is standing room in talk range, but no route or grid path connects it to the map's ground |
-| Sid (20) | 000001011 | 0.18 m | behind his counter, 0.45 m above the shop floor: a player pressed against it is 2.08 m from him horizontally; a shopkeeper (Test G) |
-| Lucy (21) | 000001013 | 0.01 m | in a pocket behind her counter, 0.8 m above the shop floor: a player pressed against the counter is 1.87 m from her horizontally, 1 cm out of the zone; a shopkeeper (Test G) |
+| `smoke` | 54 s | 8 s | 7x |
+| `test_e_quest` | 1040 s (2 phases) | 137 s | 7.6x |
+| `test_c_progression` (to level 7, Iteration Two baseline) | 8032 s | 1074 s | 7.5x |
+| `quest --quest 1002` | 60 s (3 phases) | 9 s | 6.5x |
+| `quest --quest 1006,1009,1010` | 608 s (6 phases) | 94 s | 6.5x |
+| `quest --quest 1011` | 1033 s (3 phases) | 175 s | 5.9x |
+| `playtest_quests.sh --jobs 4` (all 9 chains) | about 2500 s summed | about 8 min | |
 
-Pan (16, 000000061), the third shopkeeper, **can** be talked to: a player pressed against his counter is 1.89 m from
-him horizontally (1.94 m feet to feet) and 0.008 m inside the zone (the `counter` scenario and its test). That margin
-is under a centimetre, so the world-side fix below should cover him too.
+## Scenarios
 
-The earlier main-scene checks placed the player in front of the NPC with `place_player`, so they never walked there.
-The fix belongs to the world runtime (NPC placement, or a larger talk zone for NPCs behind counters). Until then,
-scenarios that need these NPCs use `soft_check` plus a `console("goto npc <id>")`, as `smoke` and `api` do.
+| Scenario | Proves | Owner |
+|---|---|---|
+| `smoke` | new game through the screens, route Main of 000000001, the trail to 000000010 across the gate, Roger, F, Esc, save, quit to title, Continue: the same map, place and character | harness |
+| `fight` | in 000000040: the attack key against Snails until a kill drops loot, canonical EXP per kill, the drop picked up with Z | harness |
+| `reload` | phase 0: new game, a walk, Quit Game; phase 1: Continue, the same map, place and character | harness |
+| `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
+| `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
+| `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
+| `quest` | the every-quest set (see above) | harness |
+| `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
+| `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
+| `test_b_combat` | Test B: every species, hit detection, damage windows, touch damage, knockback, death, EXP | monsters |
+| `test_c_progression` | Test C: a clean Beginner levels only by killing, AP through the stats window, every number against canonical data and MeowDB vectors (uses the kit) | harness |
+| `test_d_inventory` | Test D: pickups, use by double-click and quickslot, equipment, persistence across a process restart | drops |
+| `test_e_quest` | Test E: 1002, 1006 twice (one with a save, Quit to Title, Continue and a process restart at 5/10), 1007 -> 1008 (uses the kit) | harness |
+| `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload | harness |
+| `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling | harness |
+| `test_feel_*` | the movement, camera, ledge, gate and route feel reviews (`test_feel_common` is their library) | harness |
+| `regen` | natural HP recovery in the real game | mechanics |
+| `trap_probe` | escape attempts from known former trap spots | world |
+| `test_skills`, `test_box` | the Beginner skills and the Wooden Boxes (Iteration Three packages) | skills, breakables |
 
-An earlier version of `talk_to` (2026-10-04) treated the rule as feet to feet in 3D, within 1.45 m, and sampled
-approach points only out to 1.3 m. Under that model it also reported Pan as unreachable.
+## The talk rule
+
+`WorldNpc.in_range`: the NPC's talk Area3D (a sphere of `interaction_radius_m`, 1.6 m, centred 0.8 m above the NPC's
+feet) overlaps the player's body (a capsule of radius 0.3 m from 0.45 to 1.5 m above the feet); the fallback is feet
+within 1.6 m of the NPC's feet. `talk_gap` measures it. The 2026-10-04 survey found 5 of 21 NPCs unreachable on foot
+(Heena, Roger and Nina on perches, Sid and Lucy behind counters); round V1-1 gave them walkable stairs and an
+`across_counter` talk-zone profile, and the `npcs` scenario now passes 21/21 with every margin at least 0.6 m
+(PLAYTHROUGH_REPORT.md). Heena's stairs start on the arrival side of her perch, so from Sera's hill there is no planned
+way up; `PlaytestKit.talk` then walks back to the arrival and tries again.
 
 ## Tests
 
 ```bash
-ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # 9 tests; the three runs SKIP without the world
+ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the scenario runs SKIP without the world
 ```
 
 | File | Covers |
 |---|---|
-| `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
-| `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step (the documented `goto npc`), the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule) |
+| `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
+| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios and the kit make no cheat call |
+| `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
+| `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports |
+| `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged |
 
 ## Lineage
 

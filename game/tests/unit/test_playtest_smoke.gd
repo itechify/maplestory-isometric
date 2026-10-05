@@ -6,6 +6,11 @@ extends TestCase
 ## prints one SKIP line per test without it.
 
 
+## Contract C6: the quest run proves Roger's Apple through real play.
+func parity_keys() -> Dictionary:
+	return {"test_quest_scenario_plays_1002_in_strict_mode": ["quest:1002", "mechanic:no-console-playthrough"]}
+
+
 func test_smoke_scenario_runs_clean_through_the_runner() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_smoke_scenario_runs_clean_through_the_runner: game/assets/world not present (run with INCLUDE_WORLD=1)")
@@ -58,6 +63,29 @@ func test_reload_scenario_continues_in_a_second_process() -> void:
 		assert_eq(String((phases[1] as Dictionary).get("end", "")), "done", "the second finishes")
 	assert_true(int((r.report.get("counts", {}) as Dictionary).get("checks", 0)) >= 15, "reload runs its checks in both phases")
 	print("  [playtest reload] %s in %d processes, %d ms wall" % [r.report.get("result", "?"), r.exit_codes.size(), r.elapsed_ms])
+	_remove_tree(r.out_dir)
+
+
+func test_quest_scenario_plays_1002_in_strict_mode() -> void:
+	# The cheapest chain of the every-quest set (scripts/playtest_quests.sh): setup in phase 0, strict play after it,
+	# a save and process restart after the accept, every quest check tagged quest:1002.
+	if not WorldSidecars.exists():
+		print("SKIP test_quest_scenario_plays_1002_in_strict_mode: game/assets/world not present (run with INCLUDE_WORLD=1)")
+		return
+	var out := "user://_tests/playtest_quest_%d_%d" % [Time.get_ticks_usec(), randi()]
+	var r := PlaytestProcess.run("quest", {"out": out, "extra": PackedStringArray(["--quest", "1002"])})
+	_assert_clean(r, "quest 1002")
+	var st: Dictionary = r.report.get("strict", {})
+	assert_true(bool(st.get("enabled", false)) and bool(st.get("ok", false)), "strict and clean: %s" % st)
+	assert_eq(int(st.get("console_steps", -1)), 0, "no console step after the setup")
+	assert_eq(int(st.get("debug_commands", -1)), 0, "no developer command after the setup")
+	assert_eq((r.report.get("phases", []) as Array).size(), 3, "setup, accept + save, restart + finish")
+	var pk: Dictionary = (r.report.get("parity", {}) as Dictionary).get("quest:1002", {})
+	assert_true(int(pk.get("checks", 0)) >= 20 and int(pk.get("failed", -1)) == 0, "quest:1002 checks %s" % pk)
+	var res: Dictionary = ((r.report.get("carry", {}) as Dictionary).get("quest_results", {}) as Dictionary).get("1002", {})
+	assert_eq(String(res.get("result", "")), "PASS", "the per-quest verdict")
+	print("  [playtest quest 1002] %s: %d checks, strict %s, %d ms wall" % [r.report.get("result", "?"),
+		int((r.report.get("counts", {}) as Dictionary).get("checks", 0)), st.get("ok"), r.elapsed_ms])
 	_remove_tree(r.out_dir)
 
 
