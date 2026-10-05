@@ -3,8 +3,9 @@ extends PlaytestScenario
 ## setup for the diagnosis, like trap_probe) and walks to the target with the walker's planners, reporting the plan
 ## and the walk. For walks a scenario saw fail from an odd spot (a knockback off a terrace):
 ##   WALK_MAP=000001000 WALK_FROM="29.0,0,-40.6" WALK_TO="portal:in01" bash scripts/playtest.sh walk_probe
-## WALK_TO is any walk_to target ("portal:<id>", "npc:<id>", "local:x,y,z", "spawn:<n>"). The check fails when the walk
-## does not arrive.
+## WALK_TO is any walk_to target ("portal:<id>", "npc:<id>", "local:x,y,z", "spawn:<n>"), or "talk:<npc id>": then
+## PlaytestKit.talk() plays it as the scenarios do (its approach points, the walk back to the arrival, unstick()) and
+## the check is that the conversation opens. The check fails when the walk does not arrive.
 
 
 func description() -> String:
@@ -37,6 +38,14 @@ func run(d: PlaytestDriver) -> void:
 		spot = hit.position
 	w.place_player(Transform3D(p.global_transform.basis, spot + Vector3.UP * 0.05))
 	await d.wait(0.5)
+	if target.begins_with("talk:"):
+		var k := PlaytestKit.new(d)
+		var npc := target.trim_prefix("talk:")
+		var v: Dictionary = await k.talk(npc)
+		d.check("PlaytestKit.talk(%s) from local %s opens the conversation" % [npc, OS.get_environment("WALK_FROM")],
+			bool(v.get("open", false)), "%s; ended at local %s; unsticks %d" % [String(v.get("why", "")).left(200),
+				def.to_local(p.global_position), int(k.survival.get("unsticks", 0))])
+		return
 	var t := d.resolve_target(target)
 	if not d.check("the target resolves", bool(t["ok"]), String(t.get("why", ""))):
 		return
