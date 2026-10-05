@@ -19,7 +19,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/ev/full.json`: run 2026-10-05T10:35:36Z, commit acfa6a3d7f79c8c55d542b60cdd93051b12ee201, 1221 tests, 0 failed
+- Unit tests `_scratch/ev/final.json`: run 2026-10-05T10:46:28Z, commit 1bb9a8eb50bc6926df58f5a7d7d7ba367f03ca67, 1221 tests, 0 failed
 - Playtest `_scratch/pt/smoke/report.json`: smoke seed 1, PASS, 16 checks (0 tagged)
 - Provenance report: 192 records, 0 errors, 0 warnings
 
