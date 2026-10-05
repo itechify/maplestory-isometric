@@ -52,7 +52,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 356 is \"Orange Mushroom Cap\" (Etc/Monster Drop), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Orange Mushroom Cap\" (4000001) \"100% base | Qty 1\" = 100%, so it rolls at 1."
+      ]
     },
     {
       "key": "omok-piece-mushroom",
@@ -132,7 +134,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/718 next to \"Red Swimming Cap\" (npc-shops.html, npc-shops_item-efficiency_beginner.html), but game/data/canonical/items/718.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "yellow-bandana",
@@ -161,7 +165,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/722 next to \"Yellow Bandana\" (item-db_724.html, npc-shops.html), but game/data/canonical/items/722.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "red-headband",
@@ -188,7 +194,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 711 is \"Red Headband\" (Equip/Hat), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "crossbow",
@@ -217,7 +225,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/672 next to \"Crossbow\" (npc-shops.html), but game/data/canonical/items/672.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "yellow-avelin-f",
@@ -246,7 +256,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/956 next to \"Yellow Avelin\" (npc-shops.html), but game/data/canonical/items/956.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "brown-hard-leather-boots",
@@ -291,7 +303,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 1314 is \"Brown Hard Leather Boots\" (Equip/Shoes), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Brown Hard Leather Boots\" (1072015) \"0.0800% base | Qty 1\" = 0.08%, so it rolls at 0.0008."
+      ]
     },
     {
       "key": "blue-cloth-pants-m",
@@ -321,7 +335,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: candidates 1169 / 1178 (none local); no offline source gives their gender, so the (M) cannot pick one and the row is left ambiguous rather than guessed; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "black-cloth-pants-f",
@@ -351,7 +367,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: candidates 1170 / 1179 (none local); no offline source gives their gender, so the (F) cannot pick one and the row is left ambiguous rather than guessed; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "garnier",
@@ -380,7 +398,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/680 next to \"Garnier\" (npc-shops.html), but game/data/canonical/items/680.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "red-ninja-sandals",
@@ -425,7 +445,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 1327 is \"Red Ninja Sandals\" (Equip/Shoes), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Red Ninja Sandals\" (1072031) \"0.0800% base | Qty 1\" = 0.08%, so it rolls at 0.0008."
+      ]
     },
     {
       "key": "red-potion",
@@ -470,7 +492,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 270 is \"Red Potion\" (Use/Potion), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Red Potion\" (2000000) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
+      ]
     },
     {
       "key": "orange-potion",
@@ -497,7 +521,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 271 is \"Orange Potion\" (Use/Potion), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "blue-potion",
@@ -524,7 +550,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 273 is \"Blue Potion\" (Use/Potion), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "arrow-for-bow",
@@ -551,7 +579,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 209 is \"Arrows for Bows\" (Use/Arrow), an alias_with_evidence match (the evidence above); none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "scroll-for-shoes-for-jump-10",
@@ -994,7 +1024,7 @@
     "chance unresolved: \"Orange Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
     "chance unresolved: \"Blue Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
     "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)"
+    "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls"
   ],
   "discrepancies": [],
   "notes": [
