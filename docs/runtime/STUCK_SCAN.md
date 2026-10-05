@@ -219,12 +219,12 @@ the swept drop rejected.
 |---|---|---|
 | 000000050#1 | (48.37, 2.2, -28.03) | one column of floor 3.2 m below the terrace around it: the opening above is narrower than the body |
 | 000000060#1-#4 | (69.75-76.64, 4.6, 1.3-1.5) | the top of Southperry's containment ring, 1.9 m under the front terrain: inside the solid terrain, which the face-count test cannot see on Southperry's double-sided trimesh (Limits) |
-| 000001000#0, 000001006#0 | (65.4, 8.0, -98.37) / (14.14, -3.0, 4.78) | one place seen from both ends of the trail 000001000 in05 - 000001006 out00: Dangerous Forest's ground 9.9 m under the trail, outside every map region at that height; the trail's side walls keep the body on the trail (in a release build RegionMonitor would recover a body there) |
+| 000001000#0, 000001006#0 | (65.4, 8.0, -98.37) / (14.14, -3.0, 4.78) | the same ground under the trail 000001000 in05 - 000001006 out00, seen from the zones of both maps (80 nodes, 9.87 m down, on both): Dangerous Forest's ground 9.9 m under the trail, outside every map region at that height; the trail's side walls keep the body on the trail (in a release build RegionMonitor would recover a body there) |
 | 000001000#2 | (65.88, 10.97, -101.81) | the same under that trail, on 000001006's ground |
 | 000001000#3, #5 | (9.95, 0, -39.94), (80.63, 0, -48.5) | one column of plinth floor between terraces, 8.4 m and 4.2 m down: openings narrower than the body |
 | 000001003#0 | (29.82, 5.2, -17.37) | 1.8 m² of P03's floor under the caps of the mid mushroom stair, against P10's wall: the gaps between the cap rims and the wall are 0.2-0.55 m, narrower than the body |
 | 000001020#0-#2 | (39.91, 0, -23.59), (31.66, 5.0, -30.22), (21.03, 5.6, -30.26) | one column each, 5-5.8 m below the bands: openings narrower than the body |
 
-Every UNENTERABLE component's ways in are slides (a fall along a wall that the body's sweep does not clear) and, for
-000000050#1, 000001000#3 and 000001020#0, long drops; the verification replayed them all (walking, creeping, hopping)
-without getting in.
+Every UNENTERABLE component's ways in are slides (a fall along a wall that the body's sweep does not clear) and,
+for 000000050#1, 000001000#3, 000001003#0 and 000001020#0, long drops; the verification replayed them all (walking,
+creeping, hopping) without getting in.
