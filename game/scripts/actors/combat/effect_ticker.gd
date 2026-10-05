@@ -10,8 +10,8 @@ extends Node
 ##     PlayerController's speed and the stat window follow;
 ##   - any effect that ends announces Events.effects_changed.
 ## The character is re-read every tick (Game replaces it on load), so a loaded save's effects and cooldowns carry on
-## from their saved remaining seconds. At Events.player_died the skill effects end (misostory/skills.json
-## effects_on_death; cooldowns keep counting down).
+## from their saved remaining seconds. At Events.player_died the skill effects end and the cooldowns keep counting
+## down (misostory/skills.json effects_on_death end_effects / keep_cooldowns; each switch is honoured either way).
 
 var player: Node3D = null
 ## The PlayerCombat whose collaborators this resolves through (and whose autostep it follows).
@@ -21,6 +21,8 @@ var db: ContentDB = null
 var game: Node = null
 var character: CharacterState = null
 var bus: Object = null
+## The misostory/skills.json rules (tests pass an edited table through SkillRules.from_table); null = SkillRules.of(db).
+var rules: SkillRules = null
 ## Run step() from _physics_process (also requires the PlayerCombat's autostep; tests turn that off).
 var autostep: bool = true
 
@@ -86,8 +88,25 @@ func end_skill_effects() -> Array:
 
 func _on_player_died(_map_id: String) -> void:
 	var d := _db()
-	if d != null and SkillRules.of(d).end_effects_on_death:
+	if rules == null and d == null:
+		return
+	var r := rules if rules != null else SkillRules.of(d)
+	if r.end_effects_on_death:
 		end_skill_effects()
+	if not r.keep_cooldowns_on_death:
+		clear_cooldowns()
+
+
+## Clears every skill cooldown (death, when misostory/skills.json effects_on_death.keep_cooldowns is false). Returns
+## how many were running.
+func clear_cooldowns() -> int:
+	var c := _character()
+	if c == null or c.cooldowns.is_empty():
+		return 0
+	var n := c.cooldowns.size()
+	c.cooldowns.clear()
+	_emit(&"effects_changed")
+	return n
 
 
 func _connect_bus() -> void:

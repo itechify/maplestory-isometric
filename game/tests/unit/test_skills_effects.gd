@@ -13,7 +13,7 @@ func parity_keys() -> Dictionary:
 		"test_speed_bonuses_stop_at_the_canonical_cap": ["mechanic:timed-effects"],
 		"test_a_heal_over_time_heals_exactly_its_total_in_equal_ticks": ["mechanic:timed-effects", "skill:0001001"],
 		"test_cooldowns_count_down_and_clear": ["mechanic:timed-effects"],
-		"test_effects_and_cooldowns_survive_a_save_mid_way": ["mechanic:skill-persistence"],
+		"test_effects_and_cooldowns_survive_a_save_mid_way": ["mechanic:skill-persistence", "persistence:skill-cooldowns-buffs"],
 	}
 
 

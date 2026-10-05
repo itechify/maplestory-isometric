@@ -215,7 +215,11 @@ and a malformed entry from an older save is dropped. At death the skill effects 
 | `three_snails` | a whiff still spends the shell and MP; no wall or platform check; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill"; no projectile speed is published |
 | `effects_on_death` | skill effects end at death, cooldowns keep running | undocumented |
 
+`SkillRules` reads `three_snails.terrain_check` but only accepts `false` (no wall or platform test exists; `true` is
+reported as an error). The debug console's `cast` command casts past the input hold of the open console itself
+(`PlayerSkills.cast(id, true)`); every other refusal still applies.
 
+## Canonical sources used
 
 `formulas/damage.json` (physical, magic, defense, elements, level_gap, critical, final_clamp, special branches,
 odds), `formulas/accuracy.json` (derived ACC, EVA, outgoing/incoming hit, darkness, guards, incoming damage,
@@ -282,7 +286,7 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_progression_exp.gd` | thresholds, single/multiple level-ups, the cap, AP/SP, HP/MP growth to level 11, allocation, death penalty |
 | `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
 | `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
-| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death; refusals; a seated player stands up |
+| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits

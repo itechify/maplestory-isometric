@@ -9,7 +9,8 @@ extends TestCase
 func parity_keys() -> Dictionary:
 	return {
 		"test_skills_scenario_passes_in_the_real_game": ["skill:0001000", "skill:0001001", "skill:0001002",
-			"mechanic:sp-allocation", "mechanic:skill-persistence", "ui:skill-window"],
+			"mechanic:sp-allocation", "mechanic:skill-persistence", "ui:skill-window", "ui:sp-notification",
+			"persistence:skills", "persistence:sp", "persistence:quickslots", "persistence:skill-cooldowns-buffs"],
 	}
 
 

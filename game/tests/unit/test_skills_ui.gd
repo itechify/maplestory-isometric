@@ -20,7 +20,7 @@ func parity_keys() -> Dictionary:
 	return {
 		"test_skills_window_opens_on_k_and_lists_the_canonical_skills": ["ui:skill-window", "skill:0001000",
 			"skill:0001001", "skill:0001002"],
-		"test_plus_spends_sp_and_announces_it": ["ui:skill-window", "mechanic:sp-allocation"],
+		"test_plus_spends_sp_and_announces_it": ["ui:skill-window", "mechanic:sp-allocation", "ui:sp-notification"],
 		"test_set_key_and_drag_bind_a_learned_skill": ["ui:skill-window", "persistence:quickslots"],
 		"test_a_skill_quickslot_casts_and_shows_mp_and_cooldown": ["ui:skill-window", "skill:0001002"],
 		"test_quickslot_values_are_typed_and_read_legacy_ids": ["persistence:quickslots"],

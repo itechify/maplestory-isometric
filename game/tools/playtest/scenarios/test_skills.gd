@@ -7,7 +7,8 @@ extends PlaytestScenario
 ## (Recovery) heals exactly its canonical total over 30 s while the player walks (walking pauses natural recovery) and
 ## starts its 2 min cooldown, and key 3 (Nimble Feet) raises the walk speed by the canonical Speed bonus. Quit Game and
 ## Continue: the skill levels, the quickslot bindings and the running cooldowns come back, and the restored cooldown
-## still refuses key 2. Every number is read from canonical data (SkillDef), never written here.
+## still refuses key 2; once it runs out key 2 casts Recovery again, and a death (an api setup step) ends that heal while
+## the cooldowns keep counting. Every number is read from canonical data (SkillDef), never written here.
 
 const FIELD := "000000040"
 const TOWN := "000000010"
@@ -22,7 +23,7 @@ const THROW_FROM_PX := 150.0
 
 
 func description() -> String:
-	return "Beginner skills: SP from a level-up, '+' in the Skills window, keys 1-3, a Three Snails kill, Recovery's heal, Nimble Feet's speed, save/reload"
+	return "Beginner skills: SP from a level-up, '+' in the Skills window, keys 1-3, a Three Snails kill, Recovery's heal, Nimble Feet's speed, save/reload, a death ends the effects"
 
 
 func max_seconds() -> float:
@@ -288,6 +289,35 @@ func _phase_reload(d: PlaytestDriver) -> void:
 	var bar: Node = d.hud().get("status").get("quickslots")
 	d.check("the HUD shows the skills on keys 1-3 after the reload", bar.call("skill_on", "1") == SNAILS
 		and bar.call("skill_on", "2") == RECOVERY and bar.call("skill_on", "3") == NIMBLE, "")
+	await _death_ends_effects(d)
+
+
+## After the restored cooldown runs out key 2 casts Recovery again; a death then ends the running effect and keeps the
+## cooldowns (misostory/skills.json effects_on_death), through the game's own Events bus and death flow.
+func _death_ends_effects(d: PlaytestDriver) -> void:
+	var c := d.character()
+	var def := SkillDef.of(RECOVERY, d.db())
+	var ticker: EffectTicker = d.player().get_node(^"EffectTicker")
+	await d.wait(EffectBook.cooldown_left(c, RECOVERY) + 0.5)
+	d.check("the restored Recovery cooldown ran out", EffectBook.cooldown_left(c, RECOVERY) == 0.0,
+		"%.1f s" % EffectBook.cooldown_left(c, RECOVERY))
+	var mp0 := c.mp
+	await d.tap(&"quickslot_2")
+	d.check("key 2 casts Recovery again once its cooldown is over", EffectBook.has(c, PlayerSkills.effect_id(RECOVERY))
+		and c.mp == mp0 - def.mp_cost(1), "MP %d -> %d, %s" % [mp0, c.mp, str(c.effects)])
+	var nimble_left := EffectBook.cooldown_left(c, NIMBLE)
+	var i := d._begin(PlaytestReport.KIND_API, "Game.damage_player", "setup: a death with Recovery running (no console command kills the player)")
+	d.game().damage_player(c.hp)
+	d._end(i, true, "HP %d" % c.hp)
+	await d.wait(1.0)
+	d.check("the player died", bool(d.game().is_character_dead()), "HP %d" % c.hp)
+	d.check("the death ended Recovery's heal", not EffectBook.has(c, PlayerSkills.effect_id(RECOVERY)), str(c.effects))
+	d.check("the cooldowns kept counting through the death", EffectBook.cooldown_left(c, RECOVERY) > def.cooldown_s(1) - 5.0
+		and EffectBook.cooldown_left(c, NIMBLE) > 0.0 and EffectBook.cooldown_left(c, NIMBLE) < nimble_left,
+		"Recovery %.1f s, Nimble Feet %.1f s" % [EffectBook.cooldown_left(c, RECOVERY), EffectBook.cooldown_left(c, NIMBLE)])
+	var healed0 := ticker.healed
+	await d.wait(def.duration_s(1) / 4.0)
+	d.check("no Recovery tick heals the dead character", ticker.healed == healed0, "%d HP" % (ticker.healed - healed0))
 
 
 static func _name(d: PlaytestDriver, sid: String) -> String:

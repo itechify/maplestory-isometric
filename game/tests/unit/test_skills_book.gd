@@ -259,3 +259,10 @@ func test_skill_rules_read_the_adaptation_table() -> void:
 	assert_true(broken.errors.size() >= 4, "missing sections and a bad value are reported: %s" % "; ".join(broken.errors))
 	assert_eq(broken.recovery_tick_s, 0.0, "a bad tick turns the ticks off (one heal at the end)")
 	assert_eq(SkillRules.from_table(null).errors.size(), 1, "a missing table is one error")
+	# terrain_check has no runtime behind it: true is an error, never a switch that silently does nothing.
+	assert_false(r.terrain_check, "no wall or platform test (canonical: not confirmed)")
+	var walls: Dictionary = t.duplicate(true)
+	walls["three_snails"]["terrain_check"] = true
+	var w := SkillRules.from_table(walls)
+	assert_eq(w.errors.size(), 1, "terrain_check true is reported: %s" % "; ".join(w.errors))
+	assert_false(w.terrain_check, "and read as false")

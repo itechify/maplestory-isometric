@@ -74,14 +74,17 @@ func _ready() -> void:
 ## Casts a skill now if the rules allow it. Returns {ok, code, skill_id, level, ...}: on success also "lockout_s",
 ## "target" (Three Snails: the monster hit or null) and "result"; on a refusal "code" is a SkillBook code (and
 ## "cooldown_left", "item_id", "mp" when they explain it). A refusal changes nothing.
-func cast(skill_id: String) -> Dictionary:
+## `ignore_input_hold` is for the debug console's `cast` command only: the open console holds the player's input
+## (GameContext.push_modal), which would refuse every console cast as "busy". It skips only that one check; death,
+## hit-stun, a running attack or cast and every SkillBook rule still refuse.
+func cast(skill_id: String, ignore_input_hold: bool = false) -> Dictionary:
 	var d := _db()
 	var c := _character()
 	if player == null or not is_instance_valid(player) or d == null or c == null:
 		return _refuse(skill_id, {"code": SkillBook.UNAVAILABLE})
 	if _is_dead():
 		return _refuse(skill_id, {"code": SkillBook.DEAD})
-	if not _can_act():
+	if not _can_act(ignore_input_hold):
 		return _refuse(skill_id, {"code": SkillBook.BUSY})
 	var check := SkillBook.check_cast(c, skill_id, d, position_now())
 	if not check.ok:
@@ -316,8 +319,8 @@ func _refuse(skill_id: String, check: Dictionary) -> Dictionary:
 	return out
 
 
-func _can_act() -> bool:
-	if player.has_method("is_input_enabled") and not bool(player.call("is_input_enabled")):
+func _can_act(ignore_input_hold: bool = false) -> bool:
+	if not ignore_input_hold and player.has_method("is_input_enabled") and not bool(player.call("is_input_enabled")):
 		return false
 	if "in_hitstun" in player and bool(player.get("in_hitstun")):
 		return false
@@ -444,5 +447,6 @@ func _cmd_cast(args: PackedStringArray) -> String:
 			sid = def.id
 	if sid == "":
 		return "no skill '%s'" % want
-	var res := cast(sid)
+	# The console is open while this runs and holds the player's input: cast past that hold (only).
+	var res := cast(sid, true)
 	return "cast %s" % sid if res.ok else "refused: %s %s" % [String(res.code), refusal_text(res, _db())]

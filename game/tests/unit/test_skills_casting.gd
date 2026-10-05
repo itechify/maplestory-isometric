@@ -275,6 +275,17 @@ func test_effects_end_at_death_and_cooldowns_keep_running() -> void:
 	assert_true(c.effects.is_empty(), "the skill effects ended at death (misostory/skills.json)")
 	assert_eq(rig.events_named("stats_changed").size(), 1, "the speed bonus left: stats_changed")
 	assert_true(EffectBook.cooldown_left(c, NIMBLE) > 0.0 and EffectBook.cooldown_left(c, RECOVERY) > 0.0, "cooldowns kept")
+	# Both switches are honoured: a table that keeps the effects and drops the cooldowns does exactly that.
+	var table: Dictionary = (db().miso_table("skills") as Dictionary).duplicate(true)
+	table["effects_on_death"]["end_effects"] = false
+	table["effects_on_death"]["keep_cooldowns"] = false
+	var edited := SkillRules.from_table(table)
+	assert_eq(edited.errors.size(), 0, "the edited table reads cleanly")
+	_ticker().rules = edited
+	EffectBook.add(c, PlayerSkills.effect_id(NIMBLE), "skill:" + NIMBLE, 5.0, {"bonuses": {"speed": 10}})
+	rig.bus.emit_signal(&"player_died", "000000040")
+	assert_true(c.cooldowns.is_empty(), "keep_cooldowns false: the cooldowns cleared at death")
+	assert_true(EffectBook.has(c, PlayerSkills.effect_id(NIMBLE)), "end_effects false: the effect stays")
 
 
 func test_refusals_change_nothing() -> void:
@@ -302,6 +313,23 @@ func test_refusals_change_nothing() -> void:
 	assert_eq(String(ps.cast(NIMBLE).code), SkillBook.DEAD, "not while dead")
 	assert_eq(snapshot.call(), before, "no refusal paid anything or started a cooldown")
 	assert_eq(rig.events_named("skill_used").size(), 0, "no skill_used")
+
+
+func test_the_console_cast_passes_only_the_consoles_input_hold() -> void:
+	var ps := _spawn({NIMBLE: 1, SNAILS: 1})
+	var p := rig.w.player
+	var c := rig.character()
+	# What the open debug console does (GameContext.push_modal): the player's input is held.
+	p.set_input_enabled(false)
+	assert_eq(String(ps.cast(NIMBLE).code), SkillBook.BUSY, "a key press is refused while a modal holds the input")
+	assert_eq(ps._cmd_cast(PackedStringArray(["nimble", "feet"])), "cast %s" % NIMBLE, "the console's 'cast' still casts")
+	assert_true(EffectBook.has(c, PlayerSkills.effect_id(NIMBLE)), "Nimble Feet is active")
+	# Only the input hold is skipped: the skill rules and the death check still refuse.
+	assert_true(ps._cmd_cast(PackedStringArray([SNAILS])).begins_with("refused: %s" % SkillBook.NO_ITEM), "no shell")
+	p.set_input_enabled(true)
+	p.die()
+	_tick_all(5)
+	assert_true(ps._cmd_cast(PackedStringArray([NIMBLE])).begins_with("refused: %s" % SkillBook.DEAD), "not while dead")
 
 
 func test_casting_stands_a_seated_player_up() -> void:
