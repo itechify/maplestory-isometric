@@ -115,7 +115,7 @@ ISOLATE=me INCLUDE_WORLD=1 bash scripts/test.sh     # in a private copy (paralle
 ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
 ```
 
-- The full suite with the world is 1509 tests in 167 files and takes about 9 minutes; the stuck-region scan
+- The full suite with the world is 1509 tests in 167 files and takes 9-10 minutes; the stuck-region scan
   (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe (`test_playtest_traps.gd`, about 2 minutes) are the
   slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a `game/assets/world/` in the project you run).
 - `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
@@ -148,7 +148,7 @@ bash scripts/playtest.sh test_e_quest                             # headless; re
 ISOLATE=<name> bash scripts/playtest.sh test_box --out "$PWD/_scratch/pt/box" --seed 2
 bash scripts/playtest.sh test_a_traversal --windowed --out "$PWD/_scratch/tour"   # with screenshots
 bash scripts/playtest.sh quest --quest 1012                       # one quest or chain of the every-quest set
-bash scripts/playtest_quests.sh                                   # every Maple Island quest (about 8-10 min)
+bash scripts/playtest_quests.sh                                   # every Maple Island quest (7-10 min)
 ```
 
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
@@ -163,7 +163,8 @@ bash scripts/playtest_quests.sh                                   # every Maple 
   in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one
   row per quest (PASS, FAIL or NOT_PLAYED, checks, the random reward drawn) and one per chain. Exit 0 only when every
   quest passes. One chain alone: `bash scripts/playtest.sh quest --quest 1013-1019` (or `1002`, `1006,1009,1010`, or
-  `QUEST=<spec>`). On the integrated build `quest --quest 1012` passes with the Wooden Boxes (44 checks, strict ok).
+  `QUEST=<spec>`). On the integrated Iteration Three build the whole set passes, 20 of 20 quests on seed 1 with every
+  chain strict ok, in about 7 minutes with `--jobs 3`; 1012 now plays with the Wooden Boxes.
 - **Strict mode.** A scenario that calls `d.begin_strict(reason)` may use no developer help after that step: a
   console command is refused, an api fallback, any developer command or any change to EXP, mesos, items or quests the
   event bus did not announce is a violation. `report.json` carries a `strict` block (`console_steps`, `api_steps`,
