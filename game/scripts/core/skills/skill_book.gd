@@ -22,10 +22,12 @@ const POSITION := "wrong_position"
 const COOLDOWN := "cooldown"
 const NO_MP := "not_enough_mp"
 const NO_ITEM := "no_item"
-## Runtime refusals (PlayerSkills): dead, input held (modal, warp, knockback), an attack or cast in progress.
+## Runtime refusals (PlayerSkills): dead, input held (modal, warp, knockback), an attack or cast in progress; an
+## attack skill with nothing in its search band when misostory/skills.json says a whiff is not cast.
 const DEAD := "dead"
 const BUSY := "busy"
 const UNAVAILABLE := "unavailable"
+const NO_TARGET := "no_target"
 
 
 ## The level the character has in a skill (0 = not learned).
