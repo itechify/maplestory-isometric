@@ -244,6 +244,15 @@ func test_attack_candidates_are_the_intact_boxes() -> void:
 	assert_eq(st.breakable_hits(2), 1, "one hit")
 
 
+func test_the_console_lists_the_boxes() -> void:
+	for k in hits():
+		sys.land_hit(sys.live_boxes()[1])
+	var text := sys._cmd_boxes(PackedStringArray())
+	assert_true(text.begins_with("%s: 3 boxes, %d hits to break" % [def.map_id, hits()]), text)
+	assert_true("%s:0" % def.map_id in text and "intact, 0 hits" in text, "intact rows: " + text)
+	assert_true("broken, back in 90 s" in text, "the broken box and its respawn: " + text)
+
+
 func test_gated_drops_through_the_real_roller() -> void:
 	if not BreakableRules.roller_takes_context():
 		print("SKIP test_gated_drops_through_the_real_roller: DropRoller.roll takes no roll context yet (contract C2 lands with the drops package)")
