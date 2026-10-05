@@ -7,6 +7,11 @@ extends TestCase
 var rig: MonsterTestRig
 
 
+## Contract C6: a landed attack shows its own final damage as a number, a miss shows MISS (Phase 12 damage feedback).
+func parity_keys() -> Dictionary:
+	return {"test_hits_and_misses_are_announced_and_shown": ["ui:damage-feedback"]}
+
+
 func before_each() -> void:
 	rig = MonsterTestRig.create(db(), 99)
 	rig.floor(40.0)
