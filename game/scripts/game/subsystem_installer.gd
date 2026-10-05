@@ -25,6 +25,9 @@ const STATUS_NO_SETUP := "no_setup"
 const DEFAULT_SUBSYSTEMS := [
 	{"name": "MonsterSystem", "scene": "res://scenes/systems/monster_system.tscn", "parent": PARENT_SYSTEMS},
 	{"name": "LootSystem", "scene": "res://scenes/systems/loot_system.tscn", "parent": PARENT_SYSTEMS},
+	# Breakables (Iteration Three, contract C8): after MonsterSystem (it adds the PlayerCombat whose swings hit boxes)
+	# and LootSystem (it puts a broken box's drops on the ground).
+	{"name": "BreakableSystem", "scene": "res://scenes/systems/breakable_system.tscn", "parent": PARENT_SYSTEMS},
 	{"name": "InteractionSystem", "scene": "res://scenes/systems/interaction_system.tscn", "parent": PARENT_SYSTEMS},
 	{"name": "HUD", "scene": "res://scenes/ui/hud.tscn", "parent": PARENT_UI},
 	{"name": "Windows", "scene": "res://scenes/ui/windows.tscn", "parent": PARENT_UI},

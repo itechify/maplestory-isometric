@@ -1,0 +1,40 @@
+{
+  "id": "breakables",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "The Wooden Box (MeowDB breakable 0000001) in the isometric world. Canonical facts stay canonical: hits_to_break and the drop table come from canonical/breakables/0000001.json, and each placement's map and respawn_s from canonical/maps/<id>.json reactors[] (the placement index is that list's index). Everything below is a MisoStory choice where MeowDB publishes nothing: the box's size, what counts as a hit, the respawn clock, and where a placement stands in 3D. Read by BreakableRules and BreakablePlacementPlanner (scripts/core/breakables/), contract C8.",
+  "reason": "MeowDB's breakable page gives only the hit count, the maps, the per-map counts, the respawn time and the community drop list; reactor size, hit rules beyond 'basic attacks', and 3D positions are not published (breakables/0000001.json gaps).",
+  "box": {
+    "touch_px": [30, 30],
+    "reason": "The box's body for the attack overlap test, in MapleStory px like a monster's canonical touch_zone_px: [width, height] anchored at the bottom centre, as deep as it is wide (combat.json isometric_reach touch_zone_depth 'width'), converted with WorldScale.actor (0.75 m). MeowDB publishes no reactor size; 30 x 30 px is a knee-high crate next to the 1.5 m player, small enough for the canonical basic-attack boxes (thrust 14-30 px above the feet, swings up to 61 px, the crouched attack 14 px) to reach it from 0.1 to about 2 m away. The box is not solid: classic reactors never block movement, so a box cannot close a route, trap the player or push monsters.",
+    "verified": false
+  },
+  "hit_rule": {
+    "hits_per_landed_attack": 1,
+    "boxes_per_attack": 1,
+    "reason": "MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. An attack source other than the basic attack (a Three Snails projectile) counts one hit when it asks BreakableSystem.land_hit for a box it reached. Audit open question: the owner may still rule on skills.",
+    "verified": false
+  },
+  "respawn": {
+    "align_to_spawn_tick": false,
+    "reason": "A broken box comes back exactly respawn_s after the break (canonical maps/<id>.json reactors[i].respawn_s, per placement: 120/120/120/180/90 s on 000001000, 120 s elsewhere), on the pausable game clock. MeowDB does not say whether reactors wait for the 7.56 s monster spawn tick (spawn_rate.json covers monsters only), so they do not. The live breakable page shows one value per map (120 s); the map page's per-placement values are kept, as canonical breakables/0000001.json discrepancies records. Like monsters and ground drops, box state lives in the map instance only and never reaches a save (contract C3).",
+    "verified": false
+  },
+  "placement": {
+    "attempts": 160,
+    "candidates_per_box": 8,
+    "tier_tolerance_m": 0.6,
+    "clearance_radius_m": 0.45,
+    "clearance_height_m": 0.8,
+    "min_spacing_m": 2.5,
+    "portal_clearance_m": 3.5,
+    "spawn_slot_clearance_m": 1.2,
+    "npc_clearance_m": 0.8,
+    "approach_m": 1.0,
+    "approach_directions": 8,
+    "approach_min_free": 5,
+    "camera_sight_m": 20,
+    "reason": "Contract C8 (a recorded adaptation, like the monster spawn slots of MAP_ARCHITECTURE section 4.7.1): MeowDB's x_px/y_px are 2D side-view coordinates and are not used; each placement samples walkable ground inside the map's exported spawn areas clipped to its mob region (any species), or, for maps without areas (the town 000001010 and the interiors 000001011, 000001012 and 000001013) and for any placement the areas cannot hold, the walkable floor of the mob region and the region extensions, first on the map's base floor tier (within tier_tolerance_m of base_y, so a box does not land on a terrace, a counter or a ledge), then on any walkable top surface. The sampling is seeded by hash('<map_id>:box:<index>'), so it is deterministic per map. A candidate must stand on walkable collision with a clearance capsule of clearance_radius_m x clearance_height_m clear of walls, outside the spawn keep-outs, outside every portal trigger and at least portal_clearance_m from every portal anchor, arrival and player_spawns[0], at least min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster spawn slot, and npc_clearance_m outside every NPC's talk zone (presentation.json npc.talk_zones; the counter keepers' 2.4 m); at least approach_min_free of approach_directions points approach_m around it must be grounded on the box's tier with the player's grounding capsule clear, so a walking player can stand beside it and swing; and the line from the top of its clearance capsule toward the map's gameplay camera must be free of walkable, blocking and scenery collision for camera_sight_m, so a box is seen from afar instead of tucked behind a house or a tree (the first box playtest found one in the corner behind Pio's neighbour's house). Of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept (an even spread). attempts bounds each pass; only when no pass finds a spot in the camera's sight is one out of sight taken ('_unseen', logged); a placement that finds nothing is 'unplaced' and logged.",
+    "verified": false
+  }
+}

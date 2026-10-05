@@ -1,0 +1,79 @@
+{
+  "id": "0000001",
+  "name": "Wooden Box drop table",
+  "schema_version": 2,
+  "owner": {"kind": "breakable", "id": "0000001", "name": "Wooden Box"},
+  "membership_authority": "MeowDB MS Classic",
+  "notes": ["Test fixture shaped like contract C1 (test_breakables_system.gd): the drops package writes the real record. Values follow decision D3-7 and the dated captures it names."],
+  "entries": [
+    {
+      "key": "apple", "name": "Apple", "item_id": "236",
+      "item_resolution": {"state": "resolved", "method": "exact", "candidates": [], "note": ""},
+      "membership_source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z", "capture": "tools/meowdb/captures/breakable_0000001.txt", "raw_value": "Apple\nFood"},
+      "chance_source": {"authority": "KuroDB", "url": "https://playkuro.com/database/#items/2010000", "read_at": "2026-10-05T07:50:58.092Z",
+        "capture": "tools/kurodb/captures/reactor_2001_items.json", "kuro_item_id": "2010000", "kuro_name": "Apple", "match_method": "exact",
+        "raw_value": "Chance value 4", "format": "reactor_chance_value", "normalized_probability": 0.25,
+        "conversion": "1 / 4 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
+        "kuro_quest_condition": null},
+      "chance_state": "resolved", "probability": 0.25,
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
+      "quest_gate": null, "notes": []
+    },
+    {
+      "key": "egg", "name": "Egg", "item_id": "237",
+      "item_resolution": {"state": "resolved", "method": "exact", "candidates": [], "note": ""},
+      "membership_source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z", "capture": "tools/meowdb/captures/breakable_0000001.txt", "raw_value": "Egg\nFood"},
+      "chance_source": null,
+      "chance_state": "unresolved", "probability": null, "quantity": null,
+      "quest_gate": null, "notes": ["KuroDB lists no Egg drop for reactor 2001 (decision D3-7): unresolved, never rolls"]
+    },
+    {
+      "key": "rusty-screw", "name": "Rusty Screw", "item_id": "441",
+      "item_resolution": {"state": "resolved", "method": "exact", "candidates": [], "note": ""},
+      "membership_source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z", "capture": "tools/meowdb/captures/breakable_0000001.txt", "raw_value": "Rusty Screw\nQuest Item"},
+      "chance_source": {"authority": "KuroDB", "url": "https://playkuro.com/database/#items/4031161", "read_at": "2026-10-05T07:50:48.209Z",
+        "capture": "tools/kurodb/captures/reactor_2001_items.json", "kuro_item_id": "4031161", "kuro_name": "Rusty Screw", "match_method": "exact",
+        "raw_value": "Chance value 1 | Quest 1008", "format": "reactor_chance_value", "normalized_probability": 1.0,
+        "conversion": "1 / 1 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
+        "kuro_quest_condition": "1008"},
+      "chance_state": "resolved", "probability": 1.0,
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
+      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)",
+        "rule": "C1 quest-gate rule: a MisoStory derivation", "decision": "D3-9", "verified": false},
+      "notes": []
+    },
+    {
+      "key": "old-wooden-board", "name": "Old Wooden Board", "item_id": "442",
+      "item_resolution": {"state": "resolved", "method": "exact", "candidates": [], "note": ""},
+      "membership_source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z", "capture": "tools/meowdb/captures/breakable_0000001.txt", "raw_value": "Old Wooden Board\nQuest Item"},
+      "chance_source": {"authority": "KuroDB", "url": "https://playkuro.com/database/#items/4031162", "read_at": "2026-10-05T07:50:30.002Z",
+        "capture": "tools/kurodb/captures/reactor_2001_items.json", "kuro_item_id": "4031162", "kuro_name": "Old Wooden Board", "match_method": "exact",
+        "raw_value": "Chance value 1 | Quest 1008", "format": "reactor_chance_value", "normalized_probability": 1.0,
+        "conversion": "1 / 1 (interpretation, decision D3-7)", "interpretation": "Chance value N read as 1/N (decision D3-7)",
+        "kuro_quest_condition": "1008"},
+      "chance_state": "resolved", "probability": 1.0,
+      "quantity": {"min": 1, "max": 1, "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
+        "adaptation": {"value": "one item per successful roll", "reason": "fixture: KuroDB reactor rows give no quantity (decision D3-7)", "verified": false}},
+      "quest_gate": {"quest_id": "1012", "basis": "MeowDB subtype Quest Item, required by quest 1012 (contract C1 quest-gate rule, D3-9)",
+        "rule": "C1 quest-gate rule: a MisoStory derivation", "decision": "D3-9", "verified": false},
+      "notes": []
+    }
+  ],
+  "excluded_kuro_only": [],
+  "meowdb_reference": {"community_drops": [], "msea_reference": []},
+  "meso": null,
+  "provenance": {
+    "membership": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001",
+      "read_at": "2026-10-05T07:49:44.592Z", "capture": "tools/meowdb/captures/breakable_0000001.txt", "decision": "D3-7"},
+    "probability": {"authority": "KuroDB", "url": "https://playkuro.com/database/#items/4031162",
+      "read_at": "2026-10-05T07:50:30.002Z", "capture": "tools/kurodb/captures/reactor_2001_items.json", "decision": "D3-7"}
+  },
+  "source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/breakables/0000001", "retrieved_at": "2026-10-05T07:49:44.592Z"},
+  "field_sources": {}, "gaps": [], "discrepancies": []
+}
