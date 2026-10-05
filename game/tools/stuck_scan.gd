@@ -1579,6 +1579,95 @@ func _allowlisted(g: MapGraph, comp: Dictionary) -> String:
 	return ""
 
 
+## What the graph says about a map-local point, for inspecting a finding by hand (stuck_scan_tool.tscn --inspect):
+## the regions holding it, every surface of its column (local height, collider, normal, node and its forward /
+## backward / component state), the forward path from an entry to the node nearest it (every edge that is not a walk),
+## and the nearest escapable nodes. One line per fact.
+func describe(g: MapGraph, local: Vector3) -> PackedStringArray:
+	var lines := PackedStringArray()
+	var p := g.to_world(local)
+	var c := g.column_at(p.x, p.z)
+	var regions := "?"
+	if world != null and world.region_index != null:
+		var trails := PackedStringArray()
+		for t in world.region_index.trails_at(p):
+			trails.append(t.link_id)
+		regions = "maps %s, trails %s" % [world.region_index.maps_at(p), trails]
+	lines.append("point local %s: %s; column %d" % [_r3(local), regions, c])
+	if c < 0 or g.col_first[c] < 0:
+		lines.append("  not sampled (outside the map's region and its trail zones)")
+		return lines
+	var comp_of := {}
+	for ci in g.components.size():
+		for u in (g.components[ci].members as PackedInt32Array):
+			comp_of[u] = String(g.components[ci].id)
+	var cx := g.origin.x + g.col_ix(c) * g.cell
+	var cz := g.origin.y + (c % g.nz) * g.cell
+	for k in g.col_count[c]:
+		var s := g.col_first[c] + k
+		var y := g.surf_y[s]
+		_ray.from = Vector3(cx, y + 0.05, cz)
+		_ray.to = Vector3(cx, y - 0.05, cz)
+		var h := space.intersect_ray(_ray)
+		var what := "?"
+		var ny := NAN
+		if not h.is_empty():
+			ny = (h.normal as Vector3).y
+			var col: Object = h.get("collider")
+			if col is Node:
+				what = "%s/%s" % [(col as Node).get_parent().name, (col as Node).name]
+			if col is CollisionObject3D:
+				what += " (%s)" % WorldLayers.NAMES.get((col as CollisionObject3D).collision_layer, "layer %d" % (col as CollisionObject3D).collision_layer)
+		var n := g.surf_node[s]
+		var state := "not standable (steep, body blocked, buried or below kill_y)"
+		if n >= 0:
+			state = "node %d fwd %d bwd %d%s" % [n, g.fwd[n], g.bwd[n], (" in " + String(comp_of[n])) if comp_of.has(n) else ""]
+		lines.append("  surface local y %.2f n.y %.2f %s: %s" % [y - g.frame.origin.y, ny, what, state])
+	var target := g.node_near(p, SNAP_UP_M, SNAP_DOWN_M, 2)
+	if target < 0:
+		lines.append("  no node within %.1f m of the point's height nearby" % SNAP_UP_M)
+		return lines
+	# The forward path: breadth-first over every edge from the entries, with parents.
+	var parent := PackedInt32Array()
+	parent.resize(g.node_count())
+	parent.fill(-2)
+	var kind := PackedByteArray()
+	kind.resize(g.node_count())
+	var queue := PackedInt32Array()
+	for s in g.entries:
+		parent[s] = -1
+		queue.append(s)
+	var head := 0
+	while head < queue.size() and parent[target] == -2:
+		var u := queue[head]
+		head += 1
+		for e: Array in g.out_edges(u):
+			var v: int = e[0]
+			if parent[v] == -2:
+				parent[v] = u
+				kind[v] = e[1]
+				queue.append(v)
+	if parent[target] == -2:
+		lines.append("  node %d at local %s: no entry reaches it" % [target, _r3(g.to_local(g.node_pos[target]))])
+	else:
+		var path := PackedInt32Array()
+		var u := target
+		while u >= 0:
+			path.append(u)
+			u = parent[u]
+		path.reverse()
+		lines.append("  forward path to node %d (%d steps; walks between the lines):" % [target, path.size() - 1])
+		for i in path.size():
+			var m := path[i]
+			if i == 0 or i == path.size() - 1 or kind[m] != Edge.WALK or g.bwd[m] != g.bwd[path[i - 1]]:
+				lines.append("    %s local %s bwd %d" % [EDGE_NAMES[kind[m]] if i > 0 else "entry", _r3(g.to_local(g.node_pos[m])),
+					g.bwd[m]])
+	for n in nearest_escapable(g, g.node_pos[target], TARGETS):
+		lines.append("  escapable nearby: local %s (%.2f m away, dy %.2f)" % [_r3(g.to_local(g.node_pos[n])),
+			g.node_pos[n].distance_to(g.node_pos[target]), g.node_pos[n].y - g.node_pos[target].y])
+	return lines
+
+
 ## A top-down picture of the graph in map-local (Blender) axes, x right and y (= -z) up, one pixel per cell: for each
 ## column its top node, green by height when it is escapable, red when flagged (CONFIRMED: bright, else dull), grey
 ## when nothing reaches it; white entries, yellow exits, black where no node stands. For inspection only.
