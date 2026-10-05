@@ -86,6 +86,31 @@ func test_small_regions_do_not_clump_and_spill_to_roomier_ones() -> void:
 		assert_eq(int(plain[i]), 0, "no density rule: slot %d in the small region" % i)
 
 
+## One species' overflow never takes another species' own room: the Snails' 16 m^2 region holds 2 of their 5 slots,
+## and the 3 left over spill only after the Blue Snails have their own region (41 m^2: room for exactly their 5 slots
+## at 8 m^2 each). Spilling slot by slot in species order let the Snails (id "2") take 3 of that room first, so 3 Blue
+## Snails had to spill and the last one landed in the Snails' region.
+func test_one_species_overflow_never_displaces_another_species() -> void:
+	var tuning := _tuning()
+	var min_area := tuning.num("spawns", "min_area_per_slot_m2")
+	var small := _area("Snail_7", "Snail", _square(2, 2, 4))  # 16 m^2
+	var blue := _area("BlueSnail_1", "Blue Snail", _square(10, 2, sqrt(5.0 * min_area + 1.0)))  # room for exactly 5 slots
+	var areas: Array[Dictionary] = [small, blue]
+	var def := _map(10, "2", areas)
+	for i in range(5, 10):
+		def.monster_spawn_definitions[i].mob_id = "3"
+	var got := SpawnSlotPlanner._assign_areas(def, SpawnSlotPlanner._areas_for(def, tuning), min_area)
+	assert_eq(got.size(), 10, "every slot assigned")
+	var snails_home := 0
+	for i in 5:
+		if int(got[i]) == 0:
+			snails_home += 1
+	# 10 slots in 57 m^2 cannot all keep 8 m^2: the spill evens the crowding out over both regions.
+	assert_true(snails_home >= int(floor(16.0 / min_area)), "the Snails fill their own region first (%d)" % snails_home)
+	for i in range(5, 10):
+		assert_eq(int(got[i]), 1, "Blue Snail slot %d stays in its own region" % i)
+
+
 func test_a_species_shares_its_regions_by_weight() -> void:
 	var tuning := _tuning()
 	var a := _area("Snail_1", "Snail", _square(2, 2, 10))  # 100 m^2
@@ -221,6 +246,7 @@ func parity_keys() -> Dictionary:
 	return {
 		"test_slots_keep_clear_of_npcs": ["mechanic:spawn-placement-npc-clearance"],
 		"test_small_regions_do_not_clump_and_spill_to_roomier_ones": ["mechanic:spawn-density"],
+		"test_one_species_overflow_never_displaces_another_species": ["mechanic:spawn-density"],
 		"test_a_species_shares_its_regions_by_weight": ["mechanic:spawn-density"],
 		"test_authored_exclusions_keep_slots_out": ["mechanic:spawn-placement-exclusions"],
 		"test_island_slots_keep_clear_of_npcs_and_exclusions": ["mechanic:spawn-placement-npc-clearance", "mechanic:spawn-density"],

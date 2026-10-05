@@ -10,7 +10,8 @@ extends RefCounted
 ##      a species' slot goes to its area with the most weight per slot already given (the authored proxy count
 ##      `points`, else the area in m^2: a proportional share), as long as that area keeps at least
 ##      spawns.min_area_per_slot_m2 of room per slot counting every species; when none of its areas can, the slot
-##      spills to the least crowded area of the map (density control: no clumps in small regions);
+##      spills, after every species has had its own areas, to the least crowded area of the map (density control: no
+##      clumps in small regions, and no species pushed out of its own areas by another's overflow);
 ##   2. a slot samples points inside its area with a RandomNumberGenerator seeded by hash("<map_id>:<index>"), so
 ##      placement is deterministic per slot;
 ##   3. a sample is accepted when the topmost surface there is walkable (first on the area's own tier, within
@@ -262,12 +263,14 @@ static func _areas_for(def: MapDefinition, tuning: WorldTuning) -> Array[Diction
 	return out
 
 
-## Index into `areas` for every slot (by slot.index). Species by species (sorted ids) and slot by slot (index order):
-## the slot goes to the species' candidate area (its species-tagged areas, else the untagged ones, else every area)
-## with the most weight per slot of that species already there (a proportional share, ties to the earlier area), among
-## the candidates that still leave `min_area_per_slot` m^2 of room per slot counting every species. When no candidate
-## can, the slot spills to the area of the whole map with the most room per slot (the least crowded). With
-## min_area_per_slot 0 this is the plain proportional share.
+## Index into `areas` for every slot (by slot.index), in two passes so one species' overflow never takes the room of
+## another species' own areas.
+## Pass 1, species by species (sorted ids) and slot by slot (index order): the slot goes to the species' candidate area
+## (its species-tagged areas, else the untagged ones, else every area) with the most weight per slot of that species
+## already there (a proportional share, ties to the earlier area), among the candidates that still leave
+## `min_area_per_slot` m^2 of room per slot counting every slot placed so far. A slot no candidate can take waits.
+## Pass 2, the waiting slots in the same order: each spills to the area of the whole map with the most room per slot
+## (the least crowded). With min_area_per_slot 0 this is the plain proportional share (nothing waits).
 static func _assign_areas(def: MapDefinition, areas: Array[Dictionary], min_area_per_slot: float = 0.0) -> Dictionary:
 	var by_species := {}
 	for s in def.monster_spawn_definitions:
@@ -278,6 +281,7 @@ static func _assign_areas(def: MapDefinition, areas: Array[Dictionary], min_area
 	var load: Array[int] = []
 	load.resize(areas.size())
 	load.fill(0)
+	var waiting: Array[int] = []
 	var species_ids: Array = by_species.keys()
 	species_ids.sort()
 	for mob_id in species_ids:
@@ -308,15 +312,21 @@ static func _assign_areas(def: MapDefinition, areas: Array[Dictionary], min_area
 					pick_share = share
 					pick = i
 			if pick < 0:
-				var roomiest := -INF
-				for i in areas.size():
-					var per_slot := _room(areas[i]) / float(load[i] + 1)
-					if per_slot > roomiest + 1e-9:
-						roomiest = per_slot
-						pick = i
+				waiting.append(int(slot_index))
+				continue
 			out[int(slot_index)] = pick
 			load[pick] += 1
 			mine[pick] += 1
+	for slot_index in waiting:
+		var pick := -1
+		var roomiest := -INF
+		for i in areas.size():
+			var per_slot := _room(areas[i]) / float(load[i] + 1)
+			if per_slot > roomiest + 1e-9:
+				roomiest = per_slot
+				pick = i
+		out[slot_index] = pick
+		load[pick] += 1
 	return out
 
 

@@ -460,12 +460,15 @@ planner places by Blender's species-tagged regions instead (the v8-era `m.mobs` 
 - **Regions.** Each sidecar `spawn_regions` entry is clipped to the mob region; its authored exclusions
   (`exclude_xz`: the `avoid` zones of `m.mobs`, such as A Split Road's junction plaza, Snail Garden's flower beds and
   Dangerous Forest's glade) are taken out of its room and no slot samples inside them.
-- **Shares and density.** Slot by slot, a species' slot goes to its tagged region with the most weight per slot of
-  that species already there (a proportional share), as long as the region keeps at least
-  `spawns.min_area_per_slot_m2` (8 m²) of room per slot counting every species. When none can, the slot spills to the
-  least crowded region of the map. On the shipped export 83 of 577 slots spill (test_spawn_slots, flat-ground
-  planning; Tomato Field's 25 slots have 5.4 m² each in all; 000001001's BlueSnail_6 no longer holds 16 slots in
-  88 m²).
+- **Shares and density.** Two passes. First, slot by slot, a species' slot goes to its tagged region with the most
+  weight per slot of that species already there (a proportional share), as long as the region keeps at least
+  `spawns.min_area_per_slot_m2` (8 m²) of room per slot counting every slot placed so far; a slot no tagged region
+  can take waits. Then the waiting slots spill to the least crowded region of the map. Spilling only after every
+  species has its own regions keeps one species' overflow from taking another species' room (the first Iteration
+  Three planner spilled at once, in species order, and moved 83 slots, 25 of 45 on 000001006). On the shipped export
+  58 of 577 slots spill (test_spawn_slots, flat-ground planning), all on maps with under 18 m² of region room per slot;
+  Tomato Field's 25 slots have 5.1 m² each in all, so there the spill only evens the crowding out; 000001001's
+  BlueSnail_6 no longer holds 16 slots in 88 m² (11 now).
 - **Clearances.** A slot stands at least `slot_min_spacing_m` (1.2 m) from other slots, `slot_portal_clearance_m`
   (4 m) from every arrival and player_spawns[0], and `slot_npc_clearance_m` (2.5 m: the 1.6 m talk sphere plus the
   widest touch-zone half-width) from every NPC of the map (Sam stood inside 000000040's Snail_3 region). Sampling
