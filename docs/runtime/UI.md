@@ -464,8 +464,11 @@ picture; M folds it to the title strip (the name stays) and back; F3 adds the ma
 while Heena's conversation is open; the arrow is tagged with the destination on a trail. It then warps (console,
 setup only) through all 25 maps and checks on each: the title, the collision ground drawn, portal markers equal to
 the visible canonical portals, NPC dots equal to the canonical NPCs, the arrow on the picture, the name tags' shop and
-transport icons, and island-wide the shop badges on exactly the three shop doors; no engine error from the minimap.
-Last run (2026-10-05): 174 checks passed headless and windowed; the windowed run writes one screenshot per map.
+transport icons, and island-wide the shop badges on exactly the three shop doors. Last, the Phase 12 feedback through
+real play: Snails killed in Snail Hunting Ground I up to level 2 (8 kills with seed 1), then the flourish, the level,
+AP and SP lines in the log, the hits announced (`monster_hit`, the damage numbers' source) and every pickup announced
+with the HUD's own line; no engine error from the minimap. Last run (2026-10-05): 182 checks passed headless and
+windowed; the windowed run writes one screenshot per map.
 
 **Review (iteration 2).** An adversarial review drove the real `main.tscn` (quick start) with real input events
 (`Input.parse_input_event`: keys, mouse moves, clicks, double-clicks, right-clicks and drags) through 63 checks: the
