@@ -3,14 +3,15 @@ extends Node
 ## res://tools/stuck_scan_tool.tscn:
 ##
 ##   bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- \
-##       [--map <id>[,...]] [--no-verify] [--cell <m>] [--out <file>]
+##       [--map <id>[,...]] [--no-verify] [--cell <m>] [--out <file>] [--png <dir>]
 ##
 ## Builds the island (collision only) through IslandWorld.build_now(), scans every map (or --map), verifies every
 ## flagged component with the real PlayerController (unless --no-verify), matches them against
 ## data/misostory/stuck_allowlist.json, prints STUCK lines and a STUCK_SUMMARY, and writes the report as JSON to --out
 ## (default: docs/runtime/stuck_report.json next to the project, the committed copy). Exits 0 only when no
 ## CONFIRMED component is missing from the allowlist. Run it on the real game/ directory (not an ISOLATE copy) when
-## the default --out should land in the repository's docs.
+## the default --out should land in the repository's docs. --png writes a top-down picture of each map into <dir>
+## (StuckScan.heatmap(): green escapable, red flagged, grey unreachable) for inspection.
 
 
 func _ready() -> void:
@@ -19,6 +20,7 @@ func _ready() -> void:
 	var do_verify := true
 	var cell := StuckScan.DEFAULT_CELL_M
 	var out_path := ProjectSettings.globalize_path("res://").path_join("../docs/runtime/stuck_report.json").simplify_path()
+	var png_dir := ""
 	var i := 0
 	while i < args.size():
 		var has_value := i + 1 < args.size()
@@ -37,6 +39,10 @@ func _ready() -> void:
 				if has_value:
 					out_path = args[i + 1]
 					i += 1
+			"--png":
+				if has_value:
+					png_dir = args[i + 1]
+					i += 1
 		i += 1
 	await get_tree().process_frame
 	var t0 := Time.get_ticks_msec()
@@ -52,7 +58,7 @@ func _ready() -> void:
 	if not world.build_errors.is_empty():
 		push_error("[stuck_scan] island build errors: %s" % "; ".join(world.build_errors))
 	var scan := StuckScan.create(world, db, {"cell": cell, "host": self})
-	var doc := scan.run(maps, do_verify)
+	var doc := scan.run(maps, do_verify, png_dir)
 	var report := {"generated_by": "game/tools/stuck_scan_tool.tscn", "generated_at": Time.get_datetime_string_from_system(true) + "Z",
 		"engine": Engine.get_version_info().get("string", ""), "verified": do_verify,
 		"maps_requested": maps if not maps.is_empty() else PackedStringArray(["all"]), "build_ms": build_ms,

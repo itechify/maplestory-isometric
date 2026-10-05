@@ -1424,8 +1424,9 @@ func nearest_escapable(g: MapGraph, p: Vector3, count: int) -> PackedInt32Array:
 # =================================================================================================================
 
 ## Scans (and verifies) `maps` (MeowDB ids; empty = every map) and returns the report document
-## (docs/runtime/stuck_report.json). Components are matched against the allowlist.
-func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true) -> Dictionary:
+## (docs/runtime/stuck_report.json). Components are matched against the allowlist. `png_dir` (optional): writes a
+## top-down picture of each map there (heatmap()).
+func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, png_dir: String = "") -> Dictionary:
 	var t0 := Time.get_ticks_msec()
 	var ids := maps if not maps.is_empty() else world.defs.ids()
 	var per_map := {}
@@ -1439,6 +1440,8 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true) 
 		var g := scan_map(id)
 		if do_verify:
 			verify(g)
+		if png_dir != "":
+			heatmap(g).save_png(png_dir.path_join("stuck_%s.png" % id))
 		var comps: Array = []
 		for comp in g.components:
 			var entry := report_component(g, comp)
@@ -1514,3 +1517,58 @@ func _allowlisted(g: MapGraph, comp: Dictionary) -> String:
 			if g.node_pos[u].distance_to(at) <= radius:
 				return String((e as Dictionary).get("reason", "allowlisted"))
 	return ""
+
+
+## A top-down picture of the graph in map-local (Blender) axes, x right and y (= -z) up, one pixel per cell: for each
+## column its top node, green by height when it is escapable, red when flagged (CONFIRMED: bright, else dull), grey
+## when nothing reaches it; white entries, yellow exits, black where no node stands. For inspection only.
+func heatmap(g: MapGraph, scale: int = 2) -> Image:
+	var lo := Vector2(INF, INF)
+	var hi := Vector2(-INF, -INF)
+	for poly in g.polygons.slice(0, 1):
+		for v in poly:
+			var l := g.to_local(Vector3(v.x, g.frame.origin.y, v.y))
+			lo = Vector2(minf(lo.x, l.x), minf(lo.y, -l.z))
+			hi = Vector2(maxf(hi.x, l.x), maxf(hi.y, -l.z))
+	lo -= Vector2(2.0, 2.0)
+	hi += Vector2(2.0, 2.0)
+	var w := int(ceil((hi.x - lo.x) / cell))
+	var h := int(ceil((hi.y - lo.y) / cell))
+	var img := Image.create(w * scale, h * scale, false, Image.FORMAT_RGB8)
+	img.fill(Color.BLACK)
+	var confirmed := {}
+	for comp in g.components:
+		if String(comp.get("verdict", "")) == VERDICT_CONFIRMED:
+			for u in (comp.members as PackedInt32Array):
+				confirmed[u] = true
+	var y_span := maxf(g.y_top - g.frame.origin.y, 1.0)
+	var marks := {}
+	for n in g.entries:
+		marks[n] = Color.WHITE
+	for n in g.exits:
+		marks[n] = Color.YELLOW
+	for px in w:
+		for py in h:
+			var local := Vector3(lo.x + (px + 0.5) * cell, 0.0, -(hi.y - (py + 0.5) * cell))
+			var wp := g.to_world(local)
+			var c := g.column_at(wp.x, wp.z)
+			if c < 0 or g.col_first[c] < 0:
+				continue
+			var top := -1
+			for k in g.col_count[c]:
+				var n := g.surf_node[g.col_first[c] + k]
+				if n >= 0:
+					top = n
+					break
+			if top < 0:
+				continue
+			var t := clampf((g.node_pos[top].y - g.frame.origin.y + 6.0) / (y_span + 6.0), 0.0, 1.0)
+			var col := Color(0.15, 0.25 + 0.75 * t, 0.15)
+			if g.fwd[top] == 0:
+				col = Color(0.25 + 0.4 * t, 0.25 + 0.4 * t, 0.25 + 0.4 * t)
+			elif g.bwd[top] == 0:
+				col = Color(1.0, 0.1, 0.1) if confirmed.has(top) else Color(0.6, 0.2, 0.5)
+			if marks.has(top):
+				col = marks[top]
+			img.fill_rect(Rect2i(px * scale, py * scale, scale, scale), col)
+	return img
