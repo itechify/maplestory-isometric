@@ -1,11 +1,11 @@
 class_name DropRoller
 extends RefCounted
-## Turns a monster kill (or a broken Wooden Box) into the list of things that land on the ground, using the canonical
-## drop table (which items) and the placeholder rates in data/misostory/drop_rates.json (how often, how many, how many
-## mesos), resolved by DropRates. Pure: no scene tree, and every random number comes from the RNG passed in, so the
-## same seed always gives the same drops.
+## Turns a monster kill (or a broken Wooden Box) into the list of things that land on the ground, from the owner's
+## canonical drop record (schema v2, contract C1) as DropRates reads it: membership from Hidden Street / MeowDB, chances
+## from KuroDB, meso amounts from MeowDB / Hidden Street. Pure: no scene tree, and every random number comes from the RNG
+## passed in, so the same seed, data and context always give the same drops.
 ##
-##   var drops := DropRoller.roll(monster_id, Data.db, Game.rng)
+##   var drops := DropRoller.roll(monster_id, Data.db, Game.rng, DropRoller.context_for(Game.character))
 ##   # -> [{"kind": "mesos", "amount": 4}, {"kind": "item", "item_id": "349", "qty": 1}, ...]
 ##
 ##   var recs := DropRoller.ground_records(drops, Game.clock, "player", Data.db)   # expires_at, owner, scatter
@@ -13,19 +13,33 @@ extends RefCounted
 ##
 ## The caller (map instance / drop actors) places the records, drops them once expires_at passes, checks
 ## may_pick_up and DropRates.pickup_box_m, and hands a picked-up record to ItemService.pickup(rec).
+##
+## Roll rule (C1): an entry rolls only when its chance is resolved, its item resolves to a local item, and it has no
+## quest gate or the gate quest is in progress (ctx.quests_in_progress, contract C2; no context = gated entries never
+## roll). Unresolved entries never roll. The meso bag rolls only when its amount and chance are both resolved, and the
+## amount is a uniform integer in [min, max].
 
 
-## Rolls one kill of `owner_id` (monster id or breakable id). Order: the meso bag first (if any), then items in the
-## canonical table's order. Each eligible roll costs one randf() (plus one randi_range when it drops), so results
-## are reproducible for a given seed and data. Unknown owners drop nothing.
-static func roll(owner_id: String, db: ContentDB, rng: RandomNumberGenerator) -> Array:
+## The roll context for a character (contract C2): {"quests_in_progress": its QuestLog.active_ids()}; {} without one.
+static func context_for(character: CharacterState) -> Dictionary:
+	if character == null or character.quests == null:
+		return {}
+	return {DropRates.CTX_QUESTS: character.quests.active_ids()}
+
+
+## Rolls one kill of `owner_id` (monster id or breakable id). Order: the meso bag first (if any), then the entries in
+## the record's order. Every entry with a resolved chance and item costs one randf(), gated or not, and a drop costs a
+## randi_range only when its quantity is a range (every captured quantity is "Qty 1"), so a quest starting or ending
+## never shifts the rolls of the other entries. A meso drop costs one randi_range for its amount. Unknown owners drop
+## nothing.
+static func roll(owner_id: String, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary = {}) -> Array:
 	if not DropRates.has_table(owner_id, db):
 		return []
-	return roll_resolved(DropRates.effective_entries(owner_id, db), DropRates.meso_rule(owner_id, db), rng)
+	return roll_resolved(DropRates.effective_entries(owner_id, db), DropRates.meso_rule(owner_id, db), rng, ctx)
 
 
 ## Rolls already-resolved rates (DropRates.effective_entries / meso_rule), for callers that roll one owner often.
-static func roll_resolved(entries: Array, meso: Dictionary, rng: RandomNumberGenerator) -> Array:
+static func roll_resolved(entries: Array, meso: Dictionary, rng: RandomNumberGenerator, ctx: Dictionary = {}) -> Array:
 	var out: Array = []
 	var meso_chance := float(meso.get("chance", 0.0))
 	if meso_chance > 0.0:
@@ -34,14 +48,18 @@ static func roll_resolved(entries: Array, meso: Dictionary, rng: RandomNumberGen
 			var amount := rng.randi_range(int(meso.min), int(meso.max))
 			if amount > 0:
 				out.append({"kind": "mesos", "amount": amount})
+	var quests := DropRates.quests_in_progress(ctx)
 	for e in entries:
 		var chance := float(e.chance)
-		if chance <= 0.0:
+		if chance <= 0.0 or String(e.get("excluded", "")) != "":
 			continue
 		var r := rng.randf()
+		if not DropRates.may_roll(e, quests):
+			continue
 		if chance >= 1.0 or r < chance:
-			out.append({"kind": "item", "item_id": String(e.item_id),
-				"qty": rng.randi_range(int(e.min_quantity), int(e.max_quantity))})
+			var lo := int(e.min_quantity)
+			var hi := int(e.max_quantity)
+			out.append({"kind": "item", "item_id": String(e.item_id), "qty": rng.randi_range(lo, hi) if hi > lo else lo})
 	return out
 
 
@@ -89,22 +107,26 @@ static func may_pick_up(record: Dictionary, who: String, now: float) -> bool:
 	return owner == "" or owner == who or now >= float(record.get("free_at", 0.0))
 
 
-## Rolls `kills` kills and sums them: {"kills", "mesos" (total), "meso_drops" (kills that dropped mesos),
-## "items" {item_id: total qty}, "item_drops" {item_id: kills that dropped it}}. For tests, balance checks and the
-## debug console.
-static func simulate(owner_id: String, kills: int, db: ContentDB, rng: RandomNumberGenerator) -> Dictionary:
+## Rolls `kills` kills under the roll context `ctx` and sums them: {"kills", "mesos" (total), "meso_drops" (kills that
+## dropped mesos), "meso_amounts" {amount: bags}, "items" {item_id: total qty}, "item_drops" {item_id: kills that
+## dropped it}}. For tests, the offline simulation and the debug console. A simulation only checks that the roller
+## behaves as configured; it is never a source of a chance.
+static func simulate(owner_id: String, kills: int, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary = {}) -> Dictionary:
 	var entries := DropRates.effective_entries(owner_id, db) if DropRates.has_table(owner_id, db) else []
 	var meso := DropRates.meso_rule(owner_id, db)
 	var items := {}
 	var item_drops := {}
+	var meso_amounts := {}
 	var mesos := 0
 	var meso_drops := 0
 	for i in kills:
-		for d in roll_resolved(entries, meso, rng):
+		for d in roll_resolved(entries, meso, rng, ctx):
 			if d.kind == "mesos":
 				mesos += int(d.amount)
 				meso_drops += 1
+				meso_amounts[int(d.amount)] = int(meso_amounts.get(int(d.amount), 0)) + 1
 			else:
 				items[d.item_id] = int(items.get(d.item_id, 0)) + int(d.qty)
 				item_drops[d.item_id] = int(item_drops.get(d.item_id, 0)) + 1
-	return {"kills": kills, "mesos": mesos, "meso_drops": meso_drops, "items": items, "item_drops": item_drops}
+	return {"kills": kills, "mesos": mesos, "meso_drops": meso_drops, "meso_amounts": meso_amounts, "items": items,
+		"item_drops": item_drops}

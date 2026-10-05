@@ -5,9 +5,16 @@
 // Outputs (one entity per file):
 //   game/data/canonical/monsters/<monster_id>.json     e.g. monsters/2.json  (Snail)
 //   game/data/canonical/drops/<owner_id>.json          monsters/<id> -> drops/<id>.json; breakable 0000001 -> drops/0000001.json
+//                                                      schema v2 records (contract C1) built by tools/sources/drops_merge.mjs
+//                                                      from the dated captures + the reviewed crosswalk (this extractor is
+//                                                      their single writer)
 //   game/data/canonical/breakables/<breakable_id>.json e.g. breakables/0000001.json (Wooden Box)
 //
-// Sources (all MeowDB MS Classic; see docs/canonical/monsters.md):
+// Dated hand-read captures (tools/*/captures, read through tools/sources/captures.mjs; decisions D3-1 to D3-9):
+//   tools/meowdb/captures/monster_<id>.*    live monster pages: STAGGER (stagger_ms), meso report, community lists
+//   drop records: Hidden Street membership, KuroDB chances, MeowDB / Hidden Street meso amounts (see drops_merge.mjs)
+//
+// Sources (MeowDB MS Classic cache; see docs/canonical/monsters.md):
 //   /maps/<id>                              which monsters / breakables are on the 25 maps (the monster list is DERIVED here)
 //   /monsters/<id>                          detail page (stats rendered into the RSC tree; spawn table as JSON props)
 //   /msclassic/api/drops?monsterId=<id>     "Drops (MS Classic) - Community sourced" (client-side on the page)
@@ -23,6 +30,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as L from './lib.mjs';
+import { loadCaptures } from '../sources/captures.mjs';
+import { buildDropRecords } from '../sources/drops_merge.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, '..', '..');
@@ -493,7 +502,22 @@ function parseBreakablesList(html) {
 // ---------------------------------------------------------------------------------------------------------------------
 const ELEMENT_NOTE = 'raw = MeowDB simulator element string; "" matches the page label "No elemental affinity". The meaning of non-empty tokens (e.g. "fire-strong") is not documented on the pages read; none occur on Maple Island monsters';
 
-function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormula, mobRate, damageTaken) {
+/**
+ * The live page's "STAGGER" block ("STAGGER\n0.6 seconds\nHow long the mob is staggered for when knocked back."), read
+ * from the dated capture (tools/meowdb/captures/monster_<id>.*): {ms, value, explanation} or null when the capture has
+ * none. Seconds become whole milliseconds with exact decimal arithmetic (up to 3 decimals; more is an error).
+ */
+function liveStagger(live) {
+  if (!live) return null;
+  const lines = live.text.split('\n').map((s) => s.trim()).filter(Boolean);
+  const at = lines.indexOf('STAGGER');
+  if (at < 0) return null;
+  const m = /^(\d+)(?:\.(\d{1,3}))?\s+seconds?$/.exec(lines[at + 1] ?? '');
+  if (!m) throw new Error(`${live.file}: unreadable STAGGER value ${JSON.stringify(lines[at + 1])}`);
+  return { ms: Number(m[1]) * 1000 + Number((m[2] ?? '').padEnd(3, '0')), value: lines[at + 1], explanation: lines[at + 2] ?? null };
+}
+
+function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormula, mobRate, damageTaken, live) {
   const R = raw.rows[id];
   const rawSpeed = raw.speed[id];
   const dis = [];
@@ -617,11 +641,14 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
 
   const mesosSummary = mesos.json.summary;
   if (!P.touch_damage_estimate) gaps.push('touch damage estimate not shown on the page');
-  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only; no canonical meso formula or drop chance (see drops/${id}.json)`));
-  gaps.push('drop chances and quantities: MeowDB gives none (see drops/' + id + '.json)');
+  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/${id}.json takes the meso chance from KuroDB, decision D3-5)`));
+  gaps.push('drop chances and quantities: MeowDB gives none; drops/' + id + '.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)');
   gaps.push('kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB\'s simulator data chunk (field_sources)');
   gaps.push('attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)');
-  gaps.push('monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published'
+  const stagger = liveStagger(live);
+  gaps.push((stagger
+    ? 'monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published'
+    : 'monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published')
     + (damageTaken.playerKnockbackSection ? `; the "Knockback Airtime" model on ${damageTaken.url} sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters` : ''));
   if (pagePeace && P.touch_zone_px) {
     const peaceTitle = P.other_attributes.find((a) => a.label === 'Peace')?.title;
@@ -662,6 +689,7 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
     accuracy: P.acc,
     avoidability: avoid,
     knockback_threshold_damage: R.kb,
+    stagger_ms: stagger ? stagger.ms : null,
     speed,
     speed_label: P.speed_label,
     movement: { label: P.movement_label, description: P.movement_description },
@@ -704,6 +732,12 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
       avoidability: dashSrc('avoid'),
       speed: P.speed_display_raw !== null ? fsrc(pg.url, pg.retrieved_at, 'page "(speed n)"; raw table agrees') : rawSrc(`page shows only the label "${P.speed_label}"; raw value from the simulator speed map`),
       knockback_threshold_damage: rawSrc(`raw "kb"; meaning per MeowDB glossary (${glossary.url}, retrieved ${glossary.retrieved_at}): "knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger"`),
+      ...(stagger ? {
+        stagger_ms: {
+          url: live.url, retrieved_at: live.read_at, capture: live.file,
+          note: `live page "STAGGER ${stagger.value}"${stagger.explanation ? ` ("${stagger.explanation}")` : ''}, read by hand in a normal browser (decision D3-1); seconds converted to whole milliseconds. The 2026-10-04 cache predates the field`,
+        },
+      } : {}),
       flags: rawSrc('boss/undead/auto_aggressive/tags from raw "tags"; non_aggressive from the page "Peace" attribute (raw "nonAgg" agrees)'),
       element: rawSrc('label from the page; raw from the simulator table'),
       hp_recovery: rawSrc('raw "hpRec"'),
@@ -720,95 +754,16 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
   };
 }
 
-/** Merge community + MSEA lists into one entry per item. */
-function buildDropTable(owner, community, msea, mesos, extra = {}) {
-  const entries = new Map();
-  for (const d of community.json.drops) {
-    entries.set(String(d.itemId), {
-      item_id: String(d.itemId),
-      item_name: d.itemName,
-      category: d.itemType,
-      subcategory: d.itemSubtype,
-      status: 'classic_confirmed',
-      also_in_msea_reference: false,
-      chance: null,
-      min_quantity: null,
-      max_quantity: null,
-      votes: { upvotes: d.upvotes, downvotes: d.downvotes, score: d.score },
-      disputed: d.score <= 0, // derived here: net votes not positive (MeowDB's API has no confidence field)
-      community_drop_entry_id: String(d.id),
-      item_level_req: d.itemLevelReq,
-      req_job: d.reqJob,
-      meowdb_icon_key: d.itemIconKey,
-    });
-  }
-  const mseaGroupToType = { Etc: 'Etc', Use: 'Use', Equipment: 'Equip', Setup: 'Setup', Cash: 'Cash', 'Cash Equip': 'Cash Equip' };
-  for (const m of msea?.items || []) {
-    const ex = entries.get(m.item_id);
-    if (ex) { ex.also_in_msea_reference = true; ex.msea_detail_text = m.detail_text; continue; }
-    const category = mseaGroupToType[m.group] ?? m.group;
-    const isEquip = category === 'Equip';
-    // equipment rows show "Lv 17 · Any" / "Any" (requirement); other rows show the subtype ("Potion", "Scroll")
-    const req = isEquip ? /^(?:Lv (\d+)\s*·\s*)?(.+)$/.exec(m.detail_text || '') : null;
-    entries.set(m.item_id, {
-      item_id: m.item_id,
-      item_name: m.item_name,
-      category,
-      subcategory: isEquip ? null : m.detail_text,
-      status: 'msea_reference',
-      also_in_msea_reference: true,
-      chance: null,
-      min_quantity: null,
-      max_quantity: null,
-      votes: null,
-      disputed: null,
-      community_drop_entry_id: null,
-      item_level_req: req && req[1] ? Number(req[1]) : null,
-      req_job_text: req ? req[2] : null,
-      msea_detail_text: m.detail_text,
-      meowdb_icon_key: m.icon_key,
-    });
-  }
-  const statusRank = { classic_confirmed: 0, msea_reference: 1 };
-  const sorted = [...entries.values()].sort((a, b) => statusRank[a.status] - statusRank[b.status] || Number(a.item_id) - Number(b.item_id));
-  // same display name, different MeowDB item ids: never match drops by name
-  const byName = new Map();
-  for (const e of sorted) byName.set(e.item_name, [...(byName.get(e.item_name) || []), e]);
-  const sameName = [...byName.values()].filter((list) => list.length > 1);
-  if (sameName.length) {
-    extra = { ...extra, notes: [...(extra.notes || []), ...sameName.map((list) => `"${list[0].item_name}" appears under ${list.length} different MeowDB item ids (${list.map((e) => `${e.item_id} ${e.status}, icon key ${e.meowdb_icon_key}`).join('; ')}). They are distinct items; always key by item_id.`)] };
-  }
-  const meso = mesos
-    ? {
-      status: mesos.json.summary.count > 0 ? 'player_reports' : 'no_data',
-      canonical: false,
-      chance: null,
-      report_count: mesos.json.summary.count,
-      trusted_report_count: mesos.json.summary.trustedCount,
-      median_min: mesos.json.summary.count > 0 ? mesos.json.summary.medianMin : null,
-      median_max: mesos.json.summary.count > 0 ? mesos.json.summary.medianMax : null,
-      reports: [...mesos.json.reports].sort((a, b) => a.id - b.id).map((x) => ({
-        report_id: String(x.id),
-        min_mesos: x.minMesos,
-        max_mesos: x.maxMesos,
-        drop_chance_pct_as_submitted: x.dropChancePct,
-        upvotes: x.upvotes,
-        downvotes: x.downvotes,
-        score: x.score,
-        created_at: x.createdAt,
-        updated_at: x.updatedAt,
-      })),
-      note: 'Player-submitted totals seen from ONE kill. MeowDB\'s report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published.',
-    }
-    : { status: 'not_applicable', canonical: false, chance: null, note: 'MeowDB has no meso reports for breakables' };
+/**
+ * MeowDB's cached data for one drop owner, as tools/sources/drops_merge.mjs reads it: the community drop list API (ids
+ * by name for the reference lists), the cached page's MSEA list and the meso-report API (monsters only).
+ */
+function meowdbDropCache(community, msea, mesos, pageUrl) {
   return {
-    id: owner.id,
-    name: `${owner.name} drop table`,
-    owner,
-    rates_canonical: false,
-    entries: sorted,
-    meso,
-    ...extra,
+    community: { url: community.url, retrieved_at: community.retrieved_at, drops: community.json.drops },
+    msea: (msea?.items || []).map((m) => ({ item_id: m.item_id, item_name: m.item_name })),
+    msea_page: msea ? { url: pageUrl } : null,
+    mesos: mesos ? { url: mesos.url, retrieved_at: mesos.retrieved_at, json: mesos.json } : null,
   };
 }
 
@@ -838,44 +793,24 @@ async function main() {
   const dmgText = L.pageText(dmgPg.html).replace(/\s+/g, ' ');
   const damageTaken = { url: dmgPg.url, playerKnockbackSection: /After You Get Hit .*?Knockback Airtime/.test(dmgText) };
 
-  const itemIds = new Set();
+  const captures = loadCaptures(); // dated hand-read pages: live monster pages (STAGGER) and the drop-record inputs
+  const meowdbCache = {}; // per drop owner: MeowDB's cached lists, read here and handed to the drop merge
   for (const id of monsterIds) {
     const pg = await page('/monsters/' + id);
     const P = parseMonsterPage(pg.html, id);
     const community = await api('/msclassic/api/drops?monsterId=' + id);
     const mesos = await api('/msclassic/api/mesos-reports?monsterId=' + id);
     const mobRate = { ...mobRateBase, tip: await monsterPageMobRateTip(pg.html) };
-    const monster = buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormula, mobRate, damageTaken);
+    const monster = buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormula, mobRate, damageTaken, captures.meowdb.monsters[id] ?? null);
     L.writeJson(path.join(OUT, 'monsters', id + '.json'), monster);
 
     if (P.msea) {
       const declared = num((/(\d+) items?$/.exec(P.msea.header_text || '') || [])[1]);
       if (declared !== P.msea.items.length) warn(`monster ${id}: MSEA header says ${declared}, parsed ${P.msea.items.length}`);
     }
-    const table = buildDropTable({ kind: 'monster', id, name: P.name }, community, P.msea, mesos, {
-      source: L.source(community.url, community.retrieved_at),
-      field_sources: {
-        msea_reference_entries: { url: pg.url, retrieved_at: pg.retrieved_at, note: '"MSEA reference drops" (Read-only) section of the monster page' },
-        meso: { url: mesos.url, retrieved_at: mesos.retrieved_at },
-      },
-      notes: [
-        'classic_confirmed = listed in "Drops (MS Classic) - Community sourced": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.',
-        'disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted ("haven\'t seen it") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.',
-        'msea_reference = listed only in "MSEA reference drops": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.',
-        'An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).',
-        'chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.',
-        'meowdb_icon_key is MeowDB\'s icon asset key (looks like a WZ id); it is NOT the item id. Use item_id.',
-      ],
-      gaps: [
-        'drop chance per item: not published by MeowDB',
-        'quantity per drop: not published by MeowDB',
-        'meso amount formula / meso drop chance: not published; only player reports (see meso)',
-        ...(P.msea ? [] : ['MSEA reference drops: section absent on the page for this monster']),
-      ],
-    });
-    L.writeJson(path.join(OUT, 'drops', id + '.json'), table);
-    for (const e of table.entries) itemIds.add(e.item_id);
-    console.log(`monster ${id} ${P.name}: lv${P.level} hp${P.hp} exp${P.exp}; ${table.entries.length} drop entries; ${P.locations.length} spawn maps; ${P.quests.length} quests`);
+    meowdbCache[id] = meowdbDropCache(community, P.msea, mesos, pg.url);
+    if (monster.stagger_ms == null) warn(`monster ${id}: no live capture with a STAGGER value; stagger_ms is null`);
+    console.log(`monster ${id} ${P.name}: lv${P.level} hp${P.hp} exp${P.exp} stagger ${monster.stagger_ms} ms; ${P.locations.length} spawn maps; ${P.quests.length} quests`);
   }
 
   // breakables
@@ -939,23 +874,24 @@ async function main() {
       notes: ['MeowDB calls breakables "reactors" in map data (map page key "reactors", label from "breakableLabels").'],
     };
     L.writeJson(path.join(OUT, 'breakables', bid + '.json'), entity);
-    const table = buildDropTable({ kind: 'breakable', id: bid, name: B.name }, drops, null, null, {
-      source: L.source(drops.url, drops.retrieved_at),
-      notes: [
-        'classic_confirmed = listed in the breakable page\'s "Drops (MS Classic) - Community sourced"; votes are up/down votes. No chance or quantity is published.',
-        'disputed (derived by the extractor) = votes.score <= 0.',
-        'MeowDB has no MSEA reference list and no meso reports for breakables.',
-        'Rusty Screw and Old Wooden Board are Etc "Quest Item" drops; quest gating (who can loot them) is not stated on the breakable page.',
-        'meowdb_icon_key is MeowDB\'s icon asset key; it is NOT the item id. Use item_id.',
-      ],
-      gaps: ['drop chance per item: not published', 'quantity per drop: not published', 'whether breakables drop mesos: not published'],
-    });
-    L.writeJson(path.join(OUT, 'drops', bid + '.json'), table);
-    for (const e of table.entries) itemIds.add(e.item_id);
-    console.log(`breakable ${bid} ${B.name}: ${B.hits_to_break} hits; ${placements.length} Maple Island placements; ${table.entries.length} drop entries`);
+    meowdbCache[bid] = meowdbDropCache(drops, null, null, pg.url);
+    console.log(`breakable ${bid} ${B.name}: ${B.hits_to_break} hits; ${placements.length} Maple Island placements`);
   }
 
-  console.log('referenced item ids:', [...itemIds].sort((a, b) => Number(a) - Number(b)).join(','));
+  // Drop records (contract C1): Hidden Street / MeowDB membership, KuroDB chances, the reviewed crosswalk. The merge must
+  // cover exactly the drop owners found on the 25 maps.
+  const { records, summary } = buildDropRecords({ captures, meowdbCache });
+  const owners = [...monsterIds, ...breakableIds];
+  if (owners.slice().sort().join() !== Object.keys(records).sort().join()) {
+    throw new Error(`drop owners on the maps (${owners.join(', ')}) differ from the merged records (${Object.keys(records).join(', ')})`);
+  }
+  const itemIds = new Set();
+  for (const id of owners) {
+    L.writeJson(path.join(OUT, 'drops', id + '.json'), records[id]);
+    for (const e of records[id].entries) if (e.item_id != null) itemIds.add(e.item_id);
+  }
+  for (const line of summary) console.log('drops', line);
+  console.log('resolved drop member item ids:', [...itemIds].sort((a, b) => Number(a) - Number(b)).join(','));
   console.log('discrepancies:', discrepancies.length);
   for (const d of discrepancies) console.log('  ', JSON.stringify(d));
 }

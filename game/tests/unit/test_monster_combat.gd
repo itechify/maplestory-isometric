@@ -105,7 +105,7 @@ func test_every_species_dies_to_the_basic_attack_with_its_own_canonical_exp_and_
 			assert_eq(killed[0].slice(1), [id, "000001020"], "%s: monster_killed(id, map)" % rec["name"])
 		var table := {}
 		for e in db().drop_table(id).get("entries", []):
-			table[String(e["item_id"])] = true
+			table[str(e["item_id"])] = true  # [drops package] null for an unresolved member
 		for l in r.events_named("loot_dropped"):
 			for d in l[1]:
 				if String(d["kind"]) == "item":
@@ -138,7 +138,7 @@ func test_drops_are_the_canonical_table_rolled_once_at_death() -> void:
 		assert_eq(String(loot[0][3]), "000000040", "map id")
 		var table := {}
 		for e in db().drop_table("2")["entries"]:
-			table[String(e["item_id"])] = true
+			table[str(e["item_id"])] = true  # [drops package] null for an unresolved member
 		for d in loot[0][1]:
 			if String(d["kind"]) == "item":
 				assert_true(table.has(String(d["item_id"])), "item %s is in the canonical table" % d["item_id"])

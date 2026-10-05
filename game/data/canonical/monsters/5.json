@@ -19,6 +19,7 @@
   "accuracy": 45,
   "avoidability": 0,
   "knockback_threshold_damage": 1,
+  "stagger_ms": 600,
   "speed": -50,
   "speed_label": "Slow",
   "movement": {
@@ -930,6 +931,12 @@
       "retrieved_at": "2026-10-04T10:05:48.947Z",
       "note": "raw \"kb\"; meaning per MeowDB glossary (https://meowdb.com/msclassic/guides/maplestory-classic-glossary, retrieved 2026-10-04T10:09:34.025Z): \"knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger\""
     },
+    "stagger_ms": {
+      "url": "https://meowdb.com/msclassic/monsters/5",
+      "retrieved_at": "2026-10-05T07:48:29.502Z",
+      "capture": "tools/meowdb/captures/monster_5.json",
+      "note": "live page \"STAGGER 0.6 seconds\" (\"How long the mob is staggered for when knocked back.\"), read by hand in a normal browser (decision D3-1); seconds converted to whole milliseconds. The 2026-10-04 cache predates the field"
+    },
     "flags": {
       "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
       "retrieved_at": "2026-10-04T10:05:48.947Z",
@@ -963,10 +970,10 @@
   },
   "gaps": [
     "mesos per kill: no player reports on MeowDB (see drops/5.json)",
-    "drop chances and quantities: MeowDB gives none (see drops/5.json)",
+    "drop chances and quantities: MeowDB gives none; drops/5.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)",
     "kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)",
     "attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)",
-    "monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters"
+    "monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters"
   ],
   "discrepancies": [
     {

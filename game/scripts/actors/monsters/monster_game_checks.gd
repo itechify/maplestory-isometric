@@ -182,7 +182,7 @@ func _debug_commands() -> void:
 static func _in_table(db: ContentDB, killed: Array, item: String) -> bool:
 	for k in killed:
 		for e in db.drop_table(String(k[0])).get("entries", []):
-			if String((e as Dictionary).get("item_id", "")) == item:
+			if str((e as Dictionary).get("item_id", "")) == item:  # [drops package] null for an unresolved member
 				return true
 	return false
 

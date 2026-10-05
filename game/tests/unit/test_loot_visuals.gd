@@ -51,11 +51,16 @@ func test_meso_art_changes_with_the_amount() -> void:
 
 func test_every_drop_table_item_and_meso_tier_builds_a_model() -> void:
 	var v := vis()
+	# Every resolved member of a drop record (an unresolved one has item_id null and never drops) and every MeowDB
+	# reference item the records name.
 	var seen := {}
 	for owner in db().ids("drops"):
-		for e: Dictionary in db().drop_table(owner).get("entries", []):
-			seen[String(e.get("item_id", ""))] = true
-	assert_true(seen.size() > 50, "drop tables list items")
+		var table := db().drop_table(owner)
+		var ref: Dictionary = table.get("meowdb_reference", {}) if table.get("meowdb_reference") is Dictionary else {}
+		for e: Dictionary in table.get("entries", []) + ref.get("community_drops", []) + ref.get("msea_reference", []):
+			if e.get("item_id", null) is String:
+				seen[String(e.item_id)] = true
+	assert_true(seen.size() > 50, "drop records name items (%d)" % seen.size())
 	var drops: Array = []
 	for id: String in seen:
 		drops.append({"kind": "item", "item_id": id, "qty": 1})
