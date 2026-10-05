@@ -1,0 +1,192 @@
+URL: https://meowdb.com/msclassic/monsters/2
+READ_AT: 2026-10-05T07:47:01.065Z
+METHOD: manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the record
+---
+Monster Database
+/
+Snail
+NO. 002
+STANDARD · BESTIARY
+Snail
+LEVEL
+1
+No elemental affinity
+MESOS PER KILL
+2
+from 1 player report
+See reports
+
+The weakest wild creature in MapleStory Classic. Snails are slow-moving mollusks found across Maple Island and Victoria Island. They drop Snail Shells, one of the first monster drops new adventurers collect.
+
+HP
+45
+EXP
+2
+TOUCH DMG
+3-4
+Base 3
+M.DMG
+—
+P.DEF
+—
+M.DEF
+—
+ACC
+33
+AVOID
+—
+37 x 26 px touch damage zone
+SPEED
+Slow(speed -65)
+MOVEMENT
+Stays on its floor
+Walks back and forth on the floor it spawns on.
+KNOCKBACK
+1 damage
+STAGGER
+0.6 seconds
+How long the mob is staggered for when knocked back.
+OTHER ATTRIBUTES
+MP 30
+Mesos dropped
+Community sourced
+
+Mesos players have seen from one kill of this monster. If it drops several meso bags at once, add them together and report the total.
+
+Mesos: 2 per kill | 1 report
+Drops (MS Classic)
+Community sourced
+
+Items players have personally seen drop in-game. Upvote what you've seen, downvote what you haven't.
+
+ETC
+3
+Bronze Ore
+Ore & Mineral
+▲
+16
+▼
+1
+Snail Shell
+Monster Drop
+▲
+13
+▼
+0
+Garnet Ore
+Gem
+▲
+7
+▼
+0
+USE
+3
+Arrows for Crossbows
+Arrow
+▲
+6
+▼
+0
+Arrows for Bows
+Arrow
+▲
+4
+▼
+0
+Red Potion
+Potion
+▲
+4
+▼
+0
+EQUIPMENT
+6
+Sword
+Any
+▲
+3
+▼
+0
+Green Skullcap
+Lv 5 · Any
+▲
+2
+▼
+0
+Green Headband
+Lv 5 · Any
+▲
+1
+▼
+0
+Green T-Shirt
+Any
+▲
+1
+▼
+0
+Red Striped Top
+Any
+▲
+1
+▼
+0
+White Undershirt
+Any
+▲
+1
+▼
+0
+MSEA reference drops
+Read-only · 9 items
+
+Classic World appears to draw from the pre-Big-Bang MapleSEA drop tables. This list is historical reference only and shows what this monster dropped in old MapleSEA. If you spot any of these drop in Classic, add them to the confirmed list above so we can verify the overlap.
+
+ETC
+1
+Snail Shell
+Monster Drop
+USE
+3
+Red Potion
+Potion
+Cape Magic Def. Scroll: Intermediate
+Scroll
+Cape Weapon Def. Scroll: Intermediate
+Scroll
+EQUIPMENT
+5
+Ice Jeans
+Lv 17 · Any
+Red Miniskirt
+Any
+Green Headband
+Lv 5 · Any
+Sword
+Any
+White Undershirt
+Any
+Associated Quests
+Sam's Suggestion
+Defeat Snail x10
+Maple Island
+·
+Lv 1+
+Map Locations (37)
+MAP	COUNT	SHARE	TYPES	MOB RATE	RESPAWN
+Snail Hunting Ground IMaple Road	40	40/40 100%	1	1.0x	~7.5s
+Snail Hunting Ground IIMaple Road	32	32/45 71%	2	1.0x	~7.5s
+Snail Hunting Ground IIIMaple Road	20	20/42 48%	3	1.0x	~7.5s
+Dangerous ForestRainbow Street	14	14/34 41%	4	1.0x	~7.5s
+Hunting Ground Middle of the Forest IRainbow Street	14	14/44 32%	4	1.0x	~7.5s
+In a Small ForestRainbow Street	12	12/40 30%	5	1.3x	~7.5s
+Snail GardenRainbow Street	11	11/41 27%	3	1.0x	~7.5s
+Hunting Ground Middle of the Forest IIRainbow Street	10	10/45 22%	5	1.0x	~7.5s
+Tomato FieldRainbow Street	9	9/25 36%	4	1.0x	~7.5s
+The Field West of AmherstRainbow Street	7	7/66 11%	5	1.3x	~7.5s
+Mushroom GardenRainbow Street	7	7/35 20%	3	1.0x	~7.5s
+Snail Field of FlowersRainbow Street	6	6/34 18%	4	1.2x	~7.5s
+The Field East of AmherstRainbow Street	3	3/38 8%	4	1.0x	~7.5s
+(Victoria Island and dungeon rows omitted: out of scope)
+Change history
+updated in COT2

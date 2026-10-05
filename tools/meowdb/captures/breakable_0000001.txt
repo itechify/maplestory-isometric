@@ -1,0 +1,64 @@
+URL: https://meowdb.com/msclassic/breakables/0000001
+READ_AT: 2026-10-05T07:49:44.592Z
+METHOD: manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the record
+---
+Breakables
+/
+Wooden Box
+Wooden Box
+
+Breakable id 0000001 · spawns on 6 maps · breaks in 4 hits
+
+4 hits to break
+DROPS (MS CLASSIC)
+Community sourced
+
+Items players have personally seen drop from this breakable in-game. Upvote what you've seen, downvote what you haven't.
+
+ETC
+2
+Old Wooden Board
+Quest Item
+▲
+2
+▼
+0
+Rusty Screw
+Quest Item
+▲
+2
+▼
+0
+USE
+2
+Apple
+Food
+▲
+2
+▼
+0
+Egg
+Food
+▲
+2
+▼
+0
+SPAWNS ON THESE MAPS
+Amherst
+Rainbow Street
+×6 · 120s
+Amherst Department Store
+Rainbow Street
+×1 · 120s
+Amherst Townstreet
+Rainbow Street
+×2 · 120s
+Amherst Weapon Store
+Rainbow Street
+×2 · 120s
+Snail Field of Flowers
+Rainbow Street
+×3 · 120s
+The Field West of Amherst
+Rainbow Street
+×5 · 120s
