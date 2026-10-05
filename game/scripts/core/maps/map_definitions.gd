@@ -119,10 +119,11 @@ func clearance_height(mob_id: String) -> float:
 	return SpawnSlotPlanner.clearance_height(mob_id, tuning, body_heights)
 
 
-## Solo capacity of a map (SpawnModel; mobRate ignored).
+## Capacity of a map (SpawnModel.capacity_for_map: the map's mob rate counts only when presentation.json
+## map_mob_rate.apply is on).
 func capacity_of(map_id: String, players: int = 1) -> int:
 	var def := get_def(map_id)
-	return spawn_model.capacity(def.spawn_point_count(), players) if def != null else 0
+	return spawn_model.capacity_for_map(map_id, def.spawn_point_count(), players) if def != null else 0
 
 
 ## Snaps every transform onto collision (portal arrivals and anchors, player spawns, NPCs) and plans the spawn
@@ -764,7 +765,9 @@ func _apply_sidecar(def: MapDefinition, sc: Dictionary) -> void:
 			def.spawn_areas.append(_parse_area(a, def))
 
 
-## One exported spawn area / region -> {name, species, polygon, surface_y, weight}.
+## One exported spawn area / region -> {name, species, polygon, surface_y, weight, y_lo, y_hi, exclude}. `exclude`
+## holds the region's authored avoid zones (sidecar exclude_xz, world XZ polygons: Blender m.mobs(avoid=...)), which
+## SpawnSlotPlanner keeps slots out of.
 func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
 	var species := PackedStringArray()
 	var sv: Variant = a.get("species", a.get("mobs", null))
@@ -784,9 +787,14 @@ func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
 		area_name += "/" + ",".join(species)
 	var band: Variant = a.get("y_band", null)
 	var has_band := band is Array and (band as Array).size() >= 2 and band[0] != null and band[1] != null
+	var exclude: Array[PackedVector2Array] = []
+	for ex in a.get("exclude_xz", []):
+		var ep := WorldSidecars.poly_xz(ex)
+		if ep.size() >= 3:
+			exclude.append(ep)
 	return {"name": area_name, "species": species, "polygon": poly,
 		"surface_y": float(a.get("surface_y", a.get("y", def.base_y))), "weight": maxf(weight, 0.0001),
-		"y_lo": float(band[0]) if has_band else NAN, "y_hi": float(band[1]) if has_band else NAN}
+		"y_lo": float(band[0]) if has_band else NAN, "y_hi": float(band[1]) if has_band else NAN, "exclude": exclude}
 
 
 func _apply_portal_marker(pd: PortalDef, marker: Dictionary, def: MapDefinition) -> void:

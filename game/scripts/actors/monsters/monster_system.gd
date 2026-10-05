@@ -159,6 +159,13 @@ func spawn_monster(mob_id: String, xform: Transform3D, def: MapDefinition = null
 	return m
 
 
+## The player's feet, or null without a player (MapInstanceView.player_position: the respawn clearance).
+func player_feet() -> Variant:
+	if player == null or not is_instance_valid(player) or not player.is_inside_tree():
+		return null
+	return player.global_position
+
+
 ## Every live (not dying) monster: the view's slot monsters, debug spawns under the view, and free spawns.
 func live_monsters() -> Array[Monster]:
 	var out: Array[Monster] = []
@@ -336,6 +343,8 @@ func use_view(v: MapInstanceView) -> void:
 	view = v
 	view.monster_factory = make_monster
 	view.monster_releaser = release_monster
+	# Respawns wait while the player stands on their slot (presentation.json spawns.respawn_player_clearance_m).
+	view.player_position = player_feet
 	if view.state != null and view.def != null:
 		var st := view.state
 		var d := view.def
@@ -492,3 +501,5 @@ func _exit_tree() -> void:
 			view.monster_factory = Callable(view, &"default_factory")
 		if view.monster_releaser == Callable(self, &"release_monster"):
 			view.monster_releaser = Callable()
+		if view.player_position == Callable(self, &"player_feet"):
+			view.player_position = Callable()
