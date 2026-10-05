@@ -2,6 +2,11 @@
 //
 //   node tools/parity/build_parity.mjs --tests <evidence.json> [--tests ...] [--playtest <report.json | dir> ...]
 //   node tools/parity/build_parity.mjs --check ...      # exit 1 when the committed files differ from a fresh build
+//                                                        # (pass the same --tests / --playtest the committed build used:
+//                                                        # its "Evidence used" section lists them)
+//
+// Usual sequence: TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh, then
+// bash scripts/validate_data.sh --report, playtests with --out, then this script with the evidence and report paths.
 //
 // Inputs (offline, deterministic; nothing is fetched):
 //   game/data/canonical, game/data/misostory     the entities (maps, portals, monsters, drops, items, quests, ...)
