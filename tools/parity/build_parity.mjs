@@ -28,8 +28,16 @@
 //   the code under game/, scripts/ and tools/    to check the runtime declarations
 // Options: --provenance <file> (default docs/provenance_report.json), --out-json <file>, --out-md <file>.
 // The state rule is in tools/parity/parity.mjs and in the generated markdown.
+//
+// Evidence provenance (contract C6): unit evidence records its commit, a dirty flag and world_present; a playtest
+// report.json records its commit and a dirty flag ("git"). The keys of a unit test that needs the exported world
+// (its file names INCLUDE_WORLD) are refused from evidence that did not record the world present. On the console only
+// (the manifest must not depend on the checkout), this script warns when evidence records no commit or a dirty tree,
+// when evidence commits differ from each other, and when an evidence commit's game/, tools/ or scripts/ tree differs
+// from HEAD's (git rev-parse <commit>:<tree>).
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { buildParity, toMarkdown } from './parity.mjs';
 
@@ -105,6 +113,59 @@ function loadRuntime() {
   return { files, read: (p) => { if (!cache.has(p)) cache.set(p, fs.readFileSync(path.join(ROOT, p), 'utf8')); return cache.get(p); } };
 }
 
+/** The trees whose code the evidence proves (the manifest's states hold for the code the evidence ran on). */
+export const CODE_TREES = ['game', 'tools', 'scripts'];
+
+/** `git <args>` in the repository, trimmed; null when git fails (no git, or the object is not in this clone). */
+function git(args) {
+  try {
+    return execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Console warnings about where the evidence came from (contract C6 provenance), never written into the manifest (it
+ * must not depend on the checkout): evidence without a commit, evidence from a dirty tree or several commits, evidence
+ * commits that differ from each other, and evidence commits whose game/, tools/ or scripts/ tree differs from HEAD's.
+ * `gitFn(args)` runs git (injectable for tests). Returns the warning lines.
+ */
+export function provenanceWarnings(inputs, gitFn = git) {
+  const out = [];
+  const items = [
+    ...inputs.tests.map((t) => ({ what: `unit evidence ${t.file}`, commit: t.commit, dirty: t.dirty, mixed: false })),
+    ...inputs.playtests.map((p) => ({ what: `playtest ${p.file}`, commit: p.commit, dirty: p.dirty, mixed: p.mixed })),
+  ];
+  const noCommit = items.filter((i) => !i.commit);
+  if (noCommit.length) {
+    out.push(`${noCommit.length} evidence file(s) record no commit, so nothing ties them to the code: ${noCommit.slice(0, 5).map((i) => i.what).join('; ')}${noCommit.length > 5 ? '; ...' : ''}`);
+  }
+  for (const i of items) {
+    if (i.dirty === true) out.push(`${i.what} ran on a dirty tree (game/, tools/ or scripts/ differed from commit ${i.commit})`);
+    if (i.mixed) out.push(`${i.what} spans several commits (its phases ran on different code)`);
+  }
+  const commits = [...new Set(items.map((i) => i.commit).filter(Boolean))].sort();
+  if (commits.length > 1) {
+    out.push(`the evidence comes from ${commits.length} commits: ${commits.map((c) => `${c.slice(0, 10)} (${items.filter((i) => i.commit === c).length} file(s))`).join(', ')}`);
+  }
+  if (!commits.length) return out;
+  const head = Object.fromEntries(CODE_TREES.map((t) => [t, gitFn(['rev-parse', `HEAD:${t}`])]));
+  for (const c of commits) {
+    const differs = [];
+    for (const t of CODE_TREES) {
+      const tree = gitFn(['rev-parse', `${c}:${t}`]);
+      if (tree == null || head[t] == null) {
+        differs.push(`${t}/ (cannot compare: is ${c.slice(0, 10)} in this clone?)`);
+        continue;
+      }
+      if (tree !== head[t]) differs.push(`${t}/`);
+    }
+    if (differs.length) out.push(`evidence commit ${c.slice(0, 10)} differs from HEAD in ${differs.join(', ')}: the states it gives may not hold for the code at HEAD`);
+  }
+  return out;
+}
+
 /** report.json files: the file itself, or every report.json under a directory. */
 function playtestFiles(arg) {
   if (!fs.existsSync(arg)) throw new Error(`playtest report not found: ${arg}`);
@@ -148,6 +209,14 @@ function main() {
   if (doc.inputs.unmatched_kuro_candidates.length) {
     console.warn(`excluded KuroDB candidate rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.join('; ')}`);
   }
+  for (const t of doc.inputs.tests) {
+    if (t.world_refused?.tests) {
+      const keys = t.world_refused.keys;
+      console.warn(`${t.file}: ${t.world_refused.tests} world-dependent test(s) refused, the run did not record the world present ` +
+        `(INCLUDE_WORLD=1); ${keys.length} key(s): ${keys.slice(0, 12).join(', ')}${keys.length > 12 ? ', ...' : ''}`);
+    }
+  }
+  for (const w of provenanceWarnings(doc.inputs)) console.warn(`provenance: ${w}`);
   const json = JSON.stringify(doc, null, 2) + '\n';
   const md = toMarkdown(doc) + '\n';
   const t = doc.totals.all;
@@ -164,9 +233,13 @@ function main() {
   console.log(`${summary}\nwrote ${rel(o.outJson)} and ${rel(o.outMd)}`);
 }
 
-try {
-  main();
-} catch (e) {
-  console.error(`build_parity: ${e.message}`);
-  process.exit(2);
+// Run only as a script (tools/parity/test imports provenanceWarnings).
+const norm = (p) => (process.platform === 'win32' ? path.resolve(p).toLowerCase() : path.resolve(p));
+if (process.argv[1] && norm(process.argv[1]) === norm(fileURLToPath(import.meta.url))) {
+  try {
+    main();
+  } catch (e) {
+    console.error(`build_parity: ${e.message}`);
+    process.exit(2);
+  }
 }

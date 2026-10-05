@@ -86,7 +86,12 @@ const arr = (v) => (Array.isArray(v) ? v : []);
  */
 export function buildParity({ canonical, miso, rules, runtime, provenance = null, tests = [], playtests = [] }) {
   const tagStats = [];
-  const evidence = collectEvidence(tests, playtests, arr(rules.playtest_tags), tagStats);
+  const refused = [];
+  const worldTest = (file) => {
+    const p = `game/tests/unit/${file}`;
+    return !!runtime?.files?.has(p) && needsWorld(runtime.read(p));
+  };
+  const evidence = collectEvidence(tests, playtests, arr(rules.playtest_tags), tagStats, { worldTest, refused });
   const findings = recordFindings(provenance);
   const runtimeOf = (spec) => runtimeState(spec, runtime);
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
@@ -124,8 +129,14 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
     generated_by: 'node tools/parity/build_parity.mjs',
     rule: RULE_TEXT,
     inputs: {
-      tests: tests.map((t) => ({ file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, totals: t.doc.totals ?? null })),
+      tests: tests.map((t) => {
+        const mine = refused.filter((x) => x.evidence === t.file);
+        return { file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, dirty: t.doc.dirty ?? null,
+          world_present: typeof t.doc.world_present === 'boolean' ? t.doc.world_present : null, totals: t.doc.totals ?? null,
+          world_refused: { tests: mine.length, keys: [...new Set(mine.flatMap((x) => x.keys))].sort() } };
+      }),
       playtests: playtests.map((p) => ({ file: p.file, scenario: p.doc.scenario ?? null, result: p.doc.result ?? null, seed: p.doc.seed ?? null,
+        ...gitOf(p.doc),
         checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length,
         rule_tagged_checks: tagStats.filter((s) => s.file === p.file).reduce((n, s) => n + s.matched, 0),
         failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`),
@@ -180,7 +191,7 @@ export function tagKeysFor(rule, scenario, name) {
  * tagStats (optional, filled in) receives one {file, rule, matched} per report and rule of its scenario; a rule that
  * matches no check in any report of its scenario is what playtest_tag_rules_unmatched lists (unmatchedTagRules).
  */
-export function collectEvidence(tests, playtests, tagRules = [], tagStats = null) {
+export function collectEvidence(tests, playtests, tagRules = [], tagStats = null, { worldTest = null, refused = null } = {}) {
   const ev = new Map();
   const add = (key, ok, item) => {
     if (!ev.has(key)) ev.set(key, { passed: [], failed: [] });
@@ -188,6 +199,13 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
   };
   for (const t of tests) {
     for (const r of arr(t.doc.tests)) {
+      // A test that needs the exported world passes with a SKIP line without it: its keys count only from a run that
+      // recorded the world present (contract C6 world_present; older evidence records nothing, so it does not count).
+      const needs = typeof r.needs_world === 'boolean' ? r.needs_world : !!worldTest?.(String(r.file));
+      if (needs && t.doc.world_present !== true) {
+        if (arr(r.parity).length) refused?.push({ evidence: t.file, test: `${String(r.file).replace(/\.gd$/, '')}::${r.name}`, keys: arr(r.parity) });
+        continue;
+      }
       for (const k of arr(r.parity)) add(k, !!r.ok, { kind: 'unit', id: `${String(r.file).replace(/\.gd$/, '')}::${r.name}` });
     }
   }
@@ -210,6 +228,20 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
     if (tagStats) for (const r of rules) tagStats.push({ file: p.file, scenario, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
   }
   return ev;
+}
+
+/**
+ * What marks a unit test file as needing the exported world (game/tests/test_runner.gd WORLD_MARKER): its SKIP line
+ * says "run with INCLUDE_WORLD=1". Evidence entries carry needs_world (format 2); for older evidence the generator reads
+ * the test file itself.
+ */
+export const WORLD_MARKER = 'INCLUDE_WORLD';
+export const needsWorld = (source) => String(source ?? '').includes(WORLD_MARKER);
+
+/** A playtest report's provenance (report.json "git", contract C6): {commit, dirty, mixed, reused_copy}, nulls when absent. */
+export function gitOf(report) {
+  const g = report?.git && typeof report.git === 'object' ? report.git : {};
+  return { commit: g.commit ?? null, dirty: typeof g.dirty === 'boolean' ? g.dirty : null, mixed: g.mixed === true, reused_copy: g.reused_copy === true };
 }
 
 /**
@@ -764,9 +796,17 @@ export function toMarkdown(doc) {
   L.push('  and mechanic); only evidence makes an entry verified.', '');
   L.push('## Evidence used', '');
   if (!doc.inputs.tests.length && !doc.inputs.playtests.length) L.push('No evidence files were given.');
-  for (const t of doc.inputs.tests) L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed`);
+  const tree = (dirty) => (dirty === true ? 'dirty tree' : dirty === false ? 'clean tree' : 'tree state not recorded');
+  for (const t of doc.inputs.tests) {
+    const wr = t.world_refused ?? { tests: 0, keys: [] };
+    L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'} (${tree(t.dirty)}), ` +
+      `world ${t.world_present === true ? 'present' : t.world_present === false ? 'absent' : 'not recorded'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed` +
+      `${wr.tests ? `; ${wr.tests} world-dependent test(s) refused (the run did not record the world present): ${wr.keys.map((k) => `\`${k}\``).join(', ')}` : ''}`);
+  }
   for (const p of doc.inputs.playtests) {
-    L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
+    L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ` +
+      `${p.commit ? `commit ${p.commit} (${tree(p.dirty)}${p.mixed ? ', several commits' : ''}${p.reused_copy ? ', reused copy' : ''})` : 'commit not recorded'}, ` +
+      `${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
       `${arr(p.failed_checks).length ? `; failed: ${p.failed_checks.map((f) => esc(f)).join('; ')}` : ''}` +
       `${p.clean_run === true ? '; a clean run (counts for the playthrough rows)' : p.clean_run === false ? `; not a clean run: ${esc(arr(p.not_clean_because).join('; '))}` : ''}`);
   }
@@ -785,15 +825,21 @@ export function toMarkdown(doc) {
   L.push('How the evidence is made (each step writes git-ignored files under `_scratch/`):', '');
   L.push('1. `TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh`: the full unit suite.');
   L.push('   `INCLUDE_WORLD=1` is required: without the exported world the world tests (test_world_transitions,');
-  L.push('   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass, and their keys would count.');
+  L.push('   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass. The evidence records');
+  L.push('   `world_present`, its commit and a `dirty` flag; the keys of a test that needs the world (its file names');
+  L.push('   `INCLUDE_WORLD`) are refused from a run that did not record the world present.');
   L.push('2. `bash scripts/validate_data.sh --report`: `provenance_report.json` (validation findings per record).');
   L.push('3. `ISOLATE=<name> bash scripts/playtest.sh <scenario> --out _scratch/pt/<scenario>` for every scenario listed above, and');
-  L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.');
+  L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set. Each report.json records the');
+  L.push('   commit it played and a dirty flag (`git`).');
   L.push('4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the');
   L.push('   `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run');
   L.push('   (a passing report, strict mode ok, no console or api step, and the departure boundary reached: its final check');
   L.push(`   "${DEPARTURE_BOUNDARY_CHECK}" passed and no PLAYTHROUGH_STOP flag).`);
-  L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).', '');
+  L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).');
+  L.push('   It warns on the console (not in this file, which must not depend on the checkout) when evidence records no commit');
+  L.push('   or a dirty tree, when the evidence commits differ from each other, and when an evidence commit\'s `game/`, `tools/`');
+  L.push('   or `scripts/` tree differs from HEAD\'s: the states above hold for the code the evidence ran on.', '');
   L.push('```bash', regenerateCommand(doc.inputs), '```', '');
   L.push('## Totals', '');
   const t = doc.totals;

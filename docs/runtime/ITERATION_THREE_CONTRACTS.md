@@ -133,10 +133,20 @@ skill, knockback, death or warp stands the player up. While seated: natural reco
 
 ## C6. Machine-readable test evidence
 
-- `TEST_EVIDENCE_OUT=<file> bash scripts/test.sh ...` makes the unit test runner write
-  `{"run_at", "totals", "tests": [{"file", "name", "ok", "parity": [keys]}]}`. A test declares parity keys through
-  an optional `func parity_keys() -> Dictionary` in its file, mapping test names to `["quest:1005", ...]`.
-- A playtest check may carry `"parity": [keys]`, and `report.json` keeps them.
+- `TEST_EVIDENCE_OUT=<file> bash scripts/test.sh ...` makes the unit test runner write (format 2)
+  `{"run_at", "commit", "dirty", "world_present", "totals", "tests": [{"file", "name", "ok", "parity": [keys],
+  "needs_world"}]}`. A test declares parity keys through an optional `func parity_keys() -> Dictionary` in its file,
+  mapping test names to `["quest:1005", ...]`. `commit` is the checked-out commit and `dirty` whether `game/`, `tools/`
+  or `scripts/` held changes or untracked files (`null` when git could not tell); `world_present` is whether the run
+  saw the exported world (`INCLUDE_WORLD=1`); a test `needs_world` when its file names `INCLUDE_WORLD` (it prints SKIP
+  and passes without the world), and the parity generator refuses its keys from a run without the world (and from
+  older evidence that does not record it).
+- A playtest check may carry `"parity": [keys]`, and `report.json` keeps them. `report.json` also records
+  `"git": {"commit", "dirty", "mixed", "reused_copy"}` (from `scripts/playtest.sh`: the first phase's commit, whether
+  any phase's tree was dirty, whether the phases ran different commits, whether a reused copy was played).
+- `tools/parity/build_parity.mjs` warns on the console, never in the manifest, when evidence records no commit or a
+  dirty tree, when the evidence commits differ from each other, and when an evidence commit's `game/`, `tools/` or
+  `scripts/` tree differs from HEAD's.
 - Parity keys are `<category>:<id>`, for example `quest:1005`, `monster:2`, `npc:7`, `shop:maple-road-pan`,
   `item:348`, `map:000000010`, `portal:000000010/out00`, `skill:0001000`, `breakable:0000001`,
   `mechanic:natural-hp-regen`, `drop:2/snail-shell` and `chair:522`.
