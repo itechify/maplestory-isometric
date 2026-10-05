@@ -91,6 +91,8 @@ var _building: bool = false
 var _player_mode: ProcessMode = PROCESS_MODE_INHERIT
 ## The GameContext given to set_context() (duck-typed: is_modal_active()).
 var _context: Object = null
+## map id -> PackedVector3Array: ground_faces() cache.
+var _ground_faces: Dictionary = {}
 
 
 func _ready() -> void:
@@ -734,6 +736,43 @@ func nearest_interactable(pos: Vector3) -> Dictionary:
 			best_d = d
 			best = {"kind": "npc", "node": n, "id": n.npc_id(), "distance": d}
 	return best
+
+
+## The walkable ground of a map as triangles (three points each) in the island's coordinates (those of
+## MapDefinition): the faces of its collision chunk's Ground* bodies (meta "chunk" == the map's slug), each shape's
+## faces moved by its CollisionShape3D's transform (ConcavePolygonShape3D.get_faces() is shape-local). Cached per map
+## id; empty for an unknown map, a world not built yet, or a chunk without ground trimeshes. Raw: nothing is
+## filtered (the minimap, MinimapModel, keeps what it draws).
+func ground_faces(map_id: String) -> PackedVector3Array:
+	if _ground_faces.has(map_id):
+		return _ground_faces[map_id]
+	var out := PackedVector3Array()
+	var def := defs.get_def(map_id) if defs != null else null
+	if def == null or def.slug == "" or collision_root == null or not is_built:
+		return out
+	for body in collision_root.find_children("Ground*", "StaticBody3D", true, false):
+		if String(body.get_meta("chunk", "")) != def.slug:
+			continue
+		for cs in body.find_children("*", "CollisionShape3D", true, false):
+			var shape := (cs as CollisionShape3D).shape as ConcavePolygonShape3D
+			if shape == null:
+				continue
+			out.append_array(_relative_xform(cs as Node3D) * shape.get_faces())
+	_ground_faces[map_id] = out
+	return out
+
+
+## `n`'s transform in this world's space (its global transform when the world sits at the origin).
+func _relative_xform(n: Node3D) -> Transform3D:
+	if n.is_inside_tree() and is_inside_tree():
+		return global_transform.affine_inverse() * n.global_transform
+	var xf := Transform3D.IDENTITY
+	var cur: Node = n
+	while cur != null and cur != self:
+		if cur is Node3D:
+			xf = (cur as Node3D).transform * xf
+		cur = cur.get_parent()
+	return xf
 
 
 ## Overlay data: build state, counts, the player's region.
