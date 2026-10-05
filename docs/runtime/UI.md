@@ -1,7 +1,8 @@
 # HUD and character windows (Iteration Two)
 
 This system is brief Phase 18 (HUD), Phase 17 (quest UI), the Phase 11 inventory UI, the equipment UI and the Phase 6
-stat/AP window. It also provides **MisoTheme**, the shared look every MisoStory UI uses. The visual language is
+stat/AP window. Iteration Three adds the **minimap** (Iteration Three brief Phase 11, "Minimap" below) and the
+persistent map name. It also provides **MisoTheme**, the shared look every MisoStory UI uses. The visual language is
 MapleStory-inspired and built entirely in code:
 
 - soft blue-grey translucent windows with light borders and rounded corners;
@@ -51,16 +52,24 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/common/ui_text.gd` | `MisoUiText` | Player-facing wording: result messages, log lines, objective rows |
 | `scripts/ui/common/sandbox/ui_sandbox.tscn` | | UI sandbox (populated character, screenshots) |
 | `scripts/ui/common/sandbox/ui_game_check.tscn` | | Screenshot check through the real game shell (`main.tscn`) |
+| `scenes/ui/minimap.tscn` → `scripts/ui/minimap/minimap.gd` | `MisoMinimap` | Minimap root, `setup(ctx)`: title strip (street, map name, debug map id), M, the picture, `snapshot()` |
+| `scripts/ui/minimap/minimap_view.gd` | `MisoMinimapView` | The picture: ground meshes by tier, portals, NPC dots, the player's arrow, labels, hover text |
+| `scripts/ui/minimap/minimap_model.gd` | `MinimapModel` | Pure: what the minimap shows for one map (ground, portals, NPCs, climbables, trails), in minimap metres |
+| `scripts/ui/minimap/minimap_projection.gd` | `MinimapProjection` | Pure: world point → the gameplay camera's image plane; fit, clamp |
+| `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
+| `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
 ## Integration (game shell)
 
 `SubsystemInstaller` already does what is needed:
 
-1. It instantiates `res://scenes/ui/hud.tscn` (root `MisoHud`) and `res://scenes/ui/windows.tscn` (root
-   `MisoWindowsRoot`) under `ctx.ui_root`, HUD first so windows draw above it.
-2. It calls `setup(ctx)` on each.
+1. It instantiates `res://scenes/ui/hud.tscn` (root `MisoHud`), `res://scenes/ui/minimap.tscn` (root
+   `MisoMinimap`) and `res://scenes/ui/windows.tscn` (root `MisoWindowsRoot`) under `ctx.ui_root`, in that order, so
+   windows draw above the minimap and the minimap above the HUD.
+2. It calls `setup(ctx)` on each. The minimap also takes `ctx.world` (the map definitions and their ground),
+   `ctx.player` and `ctx.camera` from the context.
 
 `setup(ctx)` builds a `MisoUiEnv.from_ctx(ctx)` and connects to the `Events` autoload and to `Game.character_replaced`
 (the HUD also to `MapSession.trail_changed`). It reads `Game.character`, `Data.db`, `Game.quests`,
@@ -178,6 +187,30 @@ character on each event. No character object is cached.
   `clear_trail()`, `is_showing()`, `is_trail_showing()`, `advance(delta)` (tests), `static map_name(map_id, db)`
   (canonical `name`, the id when unknown), and the labels `street_label`, `name_label`, `trail_label`. Centred at the
   top of its parent, and recentred on the parent's `resized`.
+- **`MisoMinimap`** (`minimap.tscn`, group `miso_minimap`):
+  - `setup(ctx)`, `configure(env)` (tests set the stand-ins `world`, `player`, `camera_rig` and `debug` first);
+  - `refresh_all()`, `show_map(map_id)`, `model_for(map_id)` (built once per map id; not kept while the world is still
+    loading);
+  - `toggle()`, `set_expanded(on)`, `is_expanded()`; `title_text()` ("street · name", plus " [id]" in debug mode),
+    `debug_mode()`;
+  - `refresh_markers()`, `refresh_player()`, `advance(delta)` (tests);
+  - `snapshot()` for playtests and tests: `{map_id, title, expanded, debug_id, portals, portal_dests, shop_doors,
+    npcs, markers, roles, labels, ground, ground_source, player_in_view, player_clamped, trail_tag}`;
+  - parts: `street_label`, `name_label`, `id_label`, `fold_button`, `view`.
+- **`MisoMinimapView`** (`minimap.view`): `set_model(m)`, `update_dynamic(...)`, `to_px(q)`, `player_marker()`
+  (`{pos, clamped, in_view, angle}`), `label_layout()` (`[{id, text, rect}]`), `trail_tag_layout()` (`{text, base,
+  rect}`; a destination name it would overlap is not drawn), `describe_at(px)` (the hover text),
+  `static preferred_size(m)`, `static build_meshes(m)`, `static tier_color(tier, interior)`.
+- **`MinimapModel`** (pure): `static build(def, defs, db, ground_faces := [], projection := null)`; fields `map_id`,
+  `map_name`, `street_name`, `interior`, `projection`, `bounds`, `ground` + `ground_tiers` (lower tiers first),
+  `ground_source` (`collision` | `footprint`), `outline`, `routes`, `climbables`, `portals`, `npcs`, `trails`;
+  `portal(id)`, `npc(id)`, `portal_ids()`, `npc_ids()`, `ground_count()`, `static shopkeepers_on(db, map_id)`,
+  `static leaves(trail, map_id)` (a one-way trail is a way out only at its from end).
+- **`MinimapProjection`** (pure): `static from_basis(b)`, `from_xform_array(a)`, `for_map(def, live_basis)`;
+  `project(p)`, `project_dir(d)`, `depth(p)`, `bounds_of(points)`; `static fit(bounds, size, margin, max_scale)`,
+  `scale_of(xf)`, `clamp_to_rect(pt, rect)`.
+- **`MapIcons`** (static): `npc_role(rec)` (`shop` | `transport` | ""), `draw_role`, `draw_coin`, `draw_boat`,
+  `draw_swirl`, `draw_door`, `draw_chevron`, `draw_arrow`, `draw_marker_dot`.
 - **`MisoWindowsRoot`**:
   - `setup(ctx)`, `configure(env)`;
   - `window_by_name(name)`, `open_window`, `close_window`, `toggle_window`, `is_open`, `close_all`, `refresh_open`;
@@ -252,8 +285,40 @@ bag to one "Your inventory is full.", and shows a loot pickup once: its `Events.
 `item_gained` / `mesos_changed` line again (`LootPickupRules.pickup_notice`). "You have spent ..." has its own tone,
 `spend`, coloured as info but never dropped.
 
-**Banner and flourish.** On `map_entered` the banner shows the canonical `street_name` above `name`, then fades. On
-`leveled_up`, the flourish shows "LEVEL UP!", "Level N" and a star burst.
+**Banner and flourish.** On `map_entered` the banner shows the canonical `street_name` above `name`, then fades (the
+minimap's title strip keeps the name on screen afterwards). On `leveled_up`, the flourish shows "LEVEL UP!", "Level
+N" and a star burst.
+
+**Minimap (M).** Top left (12, 12), on by default, never needing the debug console:
+
+- **Title strip**, always shown: the canonical `street_name` (gold) above the canonical `name`. While the debug
+  overlay is on (F3, `Debug.overlay_enabled`) the canonical map id is added under them. The "-" / "+" button and M
+  fold the picture away to this strip and back; the strip stays, so the map's name is on screen at all times. The
+  fold survives map changes and loads for the session. Nothing happens on M while a modal (dialogue, shop, console,
+  menu) owns the keyboard.
+- **The picture** is the map seen through the gameplay camera, scaled down (`MinimapProjection`: u = p · right,
+  v = −(p · up) with the camera basis): what is up on screen is up on the minimap, and raised terraces sit higher, as
+  in the game view. It fits the map's bounds into at most 330 x 215 px (at most 9 px per metre, at least 230 px wide).
+  - Ground: the map's walkable collision (`IslandWorld.ground_faces`), upward faces only, coloured by height tier
+    (1.5 m steps, grass tones; floor tones in interiors), drawn lowest first, each tier over a darker copy shifted
+    down by one tier's projected height, which reads as the terrace's front face. Without collision (a tool, a test)
+    the footprint is filled and the authored routes are drawn instead.
+  - Ladders, ropes and vines (sidecar climbables) as short brown lines; the walkable trails leaving the map as dashed
+    stubs from their portal. The one-way trail 000000030 → 000000040 has a stub on 000000030 only: on 000000040 it
+    ends at the arrival gate below a ledge that cannot be climbed, so it is no way out.
+  - Portals: the visible canonical (MeowDB type 2) portals only, a swirl for an edge and a door for a door, each with
+    an outward chevron and its canonical destination name where the name fits (nearest exits first; on dense maps
+    such as The Field West of Amherst, with 8 exits, the rest are read by hovering). A door with a shopkeeper behind
+    it has a gold coin (Southperry to Pan, Amherst to Sid and Lucy).
+  - NPCs: a yellow dot, or the quest marker's own badge colour and glyph ("!" available, "..." in progress, "?" ready
+    to turn in, from `QuestEngine.npc_marker`, the rule of the badge over the NPC's head) for every NPC of the map, on
+    screen or not; a coin beside shopkeepers and a boat beside Shanks (Transport).
+  - The player: an orange arrow pointing where the character faces. Off the picture (far along a trail) it is held
+    on the edge, pointing the way; on a trail it carries "-> <destination name>".
+  - Hovering a portal or an NPC shows a tooltip: "Portal to Snail Hunting Ground II (Maple Road)", "Shop: Pan",
+    "Mai" with "Quest ready to turn in", "Shanks, Transport".
+- It is rebuilt on `map_entered`, `game_loaded` and `Game.character_replaced`; quest dots re-read on quest, item and
+  level events and every 0.5 s; the arrow moves at 15 Hz.
 
 **Trail line** (MAP_ARCHITECTURE §4.11). While the player walks a trail (`MapSession.trail_destination` non-empty,
 announced by `MapSession.trail_changed(dest_map_id)` from the world's `RegionMonitor`), the banner shows the current
@@ -361,11 +426,19 @@ doc comment.
 | The trail line's prefix is the ASCII "-> " | Nunito (the MisoTheme font) has no U+2192 arrow; Godot would draw a system fallback glyph, which differs per platform |
 | UI drags (an item out of a slot, a window by its title) leave the "attack" action alone | The left button is an attack binding. `PlayerCombat` (`MouseAttackGate`) counts the mouse only through presses no GUI control consumed, outside a GUI drag, so a drag across the world never swings. Releasing the action at a drag start (the earlier workaround) also cut a held J; `test_ui_drag_attack` pins both from the UI side. Also checked in the real `main.tscn` (review, 2026-10-04, keyboard player, real input events): a world click swings once; a potion dragged from the inventory across the world for 60 ticks and dropped there does not swing; J held through such a drag keeps repeating at the 0.72 s lockout; a Character Stats window dragged by its title and clamped at the bottom-right corner does not swing |
 | The HP gauge reads 0 between `player_died` and `player_respawned` | Classic shows the dead character at 0; the shell takes the death's loss (and sets the respawn HP) at the moment of death, so the gauge must not follow the character's HP then |
+| The minimap is drawn from the 3D world through the gameplay camera's projection, never from MeowDB's minimap block | The canonical block is a 2D size and centre in px (0 x 0 for the three shops) with Nexon art; its frame does not match the isometric layout. The brief asks to adapt the isometric map. The basis is the live rig's `view_basis`, else the sidecar's `cameras.gameplay.xform` (the same on all 25 maps, and equal to camera.json's default; `test_ui_minimap_world` checks it) |
+| The ground comes from the collision Ground trimeshes at runtime, upward faces only | No re-export is needed and it is the walkable truth. The Ground trimeshes are closed volumes (as many faces point down as up, down to 13 m below the base), and their steep faces are cliff sides; neither is seen from the camera. Faces whose centroid is more than 2 m outside the footprint are left out |
+| Hidden portals (MeowDB type 1: 000001020 in00 to Tomato Field) and their hedge lane are not shown; arrival gates are not shown | Classic minimaps hide hidden portals; the type-1 portal has no swirl and no prompt in the world either. Arrival gates are adaptation geometry, not exits. Whether a player should be led to Tomato Field is an open owner question (see "Known gaps") |
+| M folds the picture to the title strip instead of hiding everything | The title strip is the persistent map name (Phase 12); a hidden minimap would take the name with it |
+| "Debug mode" for the map id is the debug overlay (F3, `Debug.overlay_enabled` / `overlay_toggled`) | It is the existing developer switch, available in every build; the id must not need the console |
+| Placed top left, under the windows | The classic place. The Stats and Quest windows open over it (they are installed later, so they draw above); the debug overlay is top right and the banner top centre, so neither covers it |
+| A shop is marked by a coin on the door that leads to it and on the shopkeeper's name tag; Shanks gets a boat and "Transport" (his canonical MeowDB role) on his tag | All three shopkeepers stand in interiors, so from the town only the door could hint at a shop (Phase 12 "shop indication"). The role comes from the canonical record (`MapIcons.npc_role`: a `shop`, or the roles "Shopkeeper" / "Transport") |
+| Destination labels are placed greedily, nearest exit first, and left out where they would overlap or leave the picture | A 330 px picture cannot hold eight long canonical names (000001000). Hovering always gives the name, so none is lost |
 
 ## Testing
 
 ```bash
-ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 38 tests
+ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 60 tests (17 of them the minimap's: test_ui_minimap)
 ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 ```
 
@@ -374,6 +447,10 @@ ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 | `test_ui_theme.gd` | The theme builds and caches; every type variation is registered with the right base; the vendored Nunito loads (not the fallback) with its OFL text; weights differ; helpers (`thousands`, labels, gauges, check textures, panel and button styles) |
 | `test_ui_hud.gd` | `hud.tscn` root has `setup`; initial values from the character (level, name, canonical job name, HP/MP, mesos separators, EXP percent, 8 quickslots); values follow `hp_changed`, `mp_changed`, `mesos_changed` (no line for delta 0), `exp_gained`, `item_gained`, `inventory_full`, `notice`, `equipment_changed`; `exp_gained` amounts <= 0 (the death penalty's -N, and 0) redraw the bar with no line; level-up flourish and the AP highlight; map banner (canonical street and name, fade timeline, no trail line); the trail line on a private `map_session.gd` (`set_trail`): "-> " + the destination's canonical name under the current map's, held past the arrival banner's time, a refresh does not restart it, cleared by "" (fades out), back on mid-fade fades in from there, shown at once for a HUD set up on a trail, a gate commit (clear, then `map_entered`) leaves the new map's banner with no line, the way back after turning round, an unknown id shows the id, re-entering the tree re-syncs and keeps listening, `reset()` clears it; a held banner stays centred when the HUD resizes (wider and narrower than 1600 px) and the next banner is centred for the new width; the HP gauge at 0 from `player_died` to `player_respawned` through `stats_changed`, `hp_changed`, `equipment_changed`, `leveled_up` and `game_loaded` (the character holding its respawn HP), the HP back at the respawn, an announced death (HP above 0) also 0; `character_replaced` re-reads `is_character_dead()` (a stand-in game: still dead = 0, alive = its HP), a HUD configured during a death starts at 0; log cap, history, dedupe, fade; quickslot bind → use → count decrements → HP restored → `item_used` → the key path → JSON save round trip keeps the binding → empty stack greys out with a notice; non-consumables refused; drop, move, unbind; quest progress lines through a real `QuestService`; leaving and re-entering the tree keeps listening and redraws; no character or content: nothing breaks |
 | `test_ui_windows.gd` | `windows.tscn` root has `setup` and four closed windows; inventory tabs and slots from the live inventory, counts, mesos, live refresh on pickup; use and equip through `ItemService` (`item_used`, `equipment_changed`, previous weapon back in the bag), a level-requirement refusal with message and notice, Etc not usable; quickslot assignment and drag-move (`ItemService.move`); equipment doll covers every slot, W.ATK contribution, unequip with a full Equip tab refused gracefully, then unequip and re-equip by drop; stats window: "+" only with AP, every derived value equals `StatCalculator.snapshot`, `Game.allocate_ap` (a real `GameState` on a private bus) spends AP and moves the damage range, "+" hidden at 0 AP; quest log: Sam's Suggestion available, then "Snail 7/10" after 7 `monster_killed` events through an attached `QuestService`, the turn-in row, the canonical EXP and item rewards, capped and ticked at 10/10; the ctx window stack (newest closes first, re-focus, close button, `window_changed`); hotkeys toggle and stay quiet under a modal; HUD buttons open windows through the group; standalone Esc; the four default window rects are disjoint and on screen whatever the opening order; a real mouse press on a slot of a back window (`Viewport.push_input`) makes it the newest, so Esc closes it first; dragging a window by its title follows the pointer, clamps at the edges and leaves the attack action alone; tooltip rows (unmet requirement red, met plain, effect, price, description) and hover in the window; every canonical item has an icon shape |
+| `test_ui_minimap_projection.gd` | No world: `project()` equals a real orthographic `Camera3D`'s `unproject_position` up to one scale and offset (20 points); further and higher points sit higher; `for_map` prefers the live basis; `fit` keeps the aspect and the margin; `clamp_to_rect` keeps the direction |
+| `test_ui_minimap_world.gd` | With the world (SKIP without), one island build for the file (a test process survives about ten builds; the suite makes nine): `IslandWorld.ground_faces` on all 25 maps (non-empty, in the footprint, in the chunk's height range, cached); `MinimapModel` on all 25 maps against the canonical records: name and street, upward ground by tier, portal markers = the type-2 portals with their canonical destination names, NPC dots = the canonical NPCs, shop badges exactly on the doors to Pan, Sid and Lucy, role icons, interior floors, `player_spawns[0]` inside the bounds; the hidden portal, its lane and arrival gates never shown; trail stubs only where the map's own canonical portals lead (no stub back up the one-way 30 → 40 on 000000040); every sidecar camera is the rig's default view; the footprint fallback |
+| `test_ui_minimap.gd` | No world (stand-in maps from the canonical records): the scene installs after the HUD; the title and the debug id following the overlay; M and the fold button, quiet under a modal, folded across a map change; Sam "!" → "..." after accepting 1006 and Mai "?" after the kills, through a real `QuestService`; the arrow follows the player, clamps off the map, the trail tag; portals, shop badges, role icons, hover text, labels inside the picture; every canonical NPC's name tag through the real `NpcPresenter` (coin, boat, "Transport") |
+| `test_ui_minimap_feedback.gd` | The level-up SP line (and none without SP); the map name stays on the minimap after the banner fades, also folded |
 | `test_ui_drag_attack.gd` | UI drags against the real `PlayerCombat` (a `MonsterTestRig` world with a keyboard player) and the real windows scene, through `Input.parse_input_event`: a potion dragged out of the inventory over the world (a real GUI drag: `_get_drag_data` runs) never swings, pressed, held or released there, the attack action stays pressed, the drop changes nothing, and a later world click attacks; J held through that drag keeps repeating at the lockout rate (during and after it); a window dragged by its title across the world and clamped at the edge never swings, and J held next to it repeats |
 
 All UI tests use a private `events.gd` bus and `MisoUiEnv.isolated(...)`. They never read or change autoload state
@@ -412,6 +489,19 @@ the scene refuses to run unless the copy's `project.godot` sets `application/con
 `custom_user_dir_name`. Set that in the ISOLATE copy only. Last run (2026-10-04): 14 checks ok on 000000001 (trail
 to 000000010, "-> Mushroom Town").
 
+**The minimap in the real game.** `ISOLATE=<name> bash scripts/playtest.sh ui_minimap [--windowed]` (scenario
+`game/tools/playtest/scenarios/ui_minimap.gd`, PLAYTEST_HARNESS.md) starts a new game through the screens and checks,
+with real keys, that the minimap is installed and unfolded with the canonical title and the player's arrow on the
+picture; M folds it to the title strip (the name stays) and back; F3 adds the map id and takes it away; M is quiet
+while Heena's conversation is open; the arrow is tagged with the destination on a trail. It then warps (console,
+setup only) through all 25 maps and checks on each: the title, the collision ground drawn, portal markers equal to
+the visible canonical portals, NPC dots equal to the canonical NPCs, the arrow on the picture, the name tags' shop and
+transport icons, and island-wide the shop badges on exactly the three shop doors. Last, the Phase 12 feedback through
+real play: Snails killed in Snail Hunting Ground I up to level 2 (8 kills with seed 1), then the flourish, the level,
+AP and SP lines in the log, the hits announced (`monster_hit`, the damage numbers' source) and every pickup announced
+with the HUD's own line; no engine error from the minimap. Last run (2026-10-05): 182 checks passed headless and
+windowed; the windowed run writes one screenshot per map.
+
 **Review (iteration 2).** An adversarial review drove the real `main.tscn` (quick start) with real input events
 (`Input.parse_input_event`: keys, mouse moves, clicks, double-clicks, right-clicks and drags) through 63 checks: the
 installer and `setup(ctx)`, HUD values, I/E/C/Q and Esc (newest window first, then pause, nothing while paused),
@@ -424,6 +514,13 @@ raised by a click on its slots or buttons, title dragging that read the OS curso
 staying disconnected after a reparent.
 
 ## Known gaps and requests
+
+- **Tomato Field is not on any minimap.** The hidden portal 000001020 in00 (MeowDB type 1) and its hedge lane stay
+  off the minimap, as on a classic minimap, and the world shows no swirl or prompt there either. A player has to find
+  the lane. Showing it (always, faintly, or once Tomato Field has been visited) is an owner decision.
+- **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
+  them. The fold state is not saved (it lasts the session).
+- **The minimap shows no monsters and no Wooden Boxes,** as classic minimaps do not.
 
 - **The trail line follows `RegionMonitor`'s sampling** (10 Hz, MapSession emits only changes). At a trail mouth the
   line appears or clears up to a tenth of a second after the step. A player who stands on the seam between a map

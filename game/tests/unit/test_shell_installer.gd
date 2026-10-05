@@ -147,7 +147,7 @@ func test_the_default_list_is_data() -> void:
 		assert_true(String(e["parent"]) in [SubsystemInstaller.PARENT_SYSTEMS, SubsystemInstaller.PARENT_UI], "parent key")
 		names.append(String(e["name"]))
 	assert_eq(names, PackedStringArray(["MonsterSystem", "LootSystem", "BreakableSystem", "InteractionSystem", "HUD",
-		"Windows", "NpcUI", "DebugUI"]), "the wave-2 subsystems (+ Iteration Three's BreakableSystem), gameplay systems first")
+		"Minimap", "Windows", "NpcUI", "DebugUI"]), "the wave-2 subsystems (+ Iteration Three's BreakableSystem and Minimap), gameplay systems first")
 	var scenes: PackedStringArray = []
 	for e: Dictionary in SubsystemInstaller.DEFAULT_SUBSYSTEMS:
 		scenes.append(String(e["scene"]))

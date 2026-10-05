@@ -24,6 +24,8 @@ var npc: Node3D = null
 var npc_id: String = ""
 var npc_name: String = ""
 var title: String = ""
+## The name tag's role icon (MapIcons.npc_role of the canonical record: shop coin, transport boat, or "").
+var role: String = ""
 var tag: NpcNameTag = null
 var marker: QuestMarker = null
 var bubble: NpcSpeechBubble = null
@@ -74,6 +76,7 @@ func setup(p_npc: Node3D, overlay: Control, db: ContentDB) -> void:
 	if npc_name.is_empty():
 		npc_name = String(rec.get("name", npc_id))
 	title = String(rec.get("function_title", "")) if rec.get("function_title") is String else ""
+	role = MapIcons.npc_role(rec)
 	if not rec.is_empty():
 		def = NpcDef.from_records(rec, db.miso_entity("npcs", npc_id))
 		bubbles = NpcBubbleSchedule.for_npc(npc_id, db)
@@ -96,6 +99,7 @@ func _make_overlay_controls(overlay: Control) -> void:
 	tag = NpcNameTag.new()
 	tag.name = "Tag_%s" % npc_id
 	tag.set_texts(npc_name, title)
+	tag.set_role(role)
 	tag.visible = false
 	marker = QuestMarker.new()
 	marker.name = "Marker_%s" % npc_id

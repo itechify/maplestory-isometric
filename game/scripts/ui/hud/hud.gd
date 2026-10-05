@@ -5,7 +5,8 @@ extends Control
 ##     mesos; buttons that open the character windows; the quickslot bar;
 ##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
 ##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
-##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices;
+##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
+##     level-up the unspent AP and SP;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
