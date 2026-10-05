@@ -52,7 +52,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 350 is \"Mushroom Spore\" (Etc/Monster Drop), an exact match; KuroDB tools/kurodb/captures/120100.json row \"Mushroom Spore\" (4000011) \"100% base | Qty 1\" = 100%, so it rolls at 1."
+      ]
     },
     {
       "key": "yellow-bandana",
@@ -81,7 +83,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/722 next to \"Yellow Bandana\" (item-db_724.html, npc-shops.html), but game/data/canonical/items/722.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "double-axe",
@@ -108,7 +112,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 577 is \"Double Axe\" (Equip/One-Handed Axe), an exact match; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "smelly-gomushin",
@@ -137,7 +143,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/1319 next to \"Smelly Gomushin\" (item-db_1317.html, npc-shops.html), but game/data/canonical/items/1319.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "blue-swimming-cap",
@@ -166,7 +174,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/717 next to \"Blue Swimming Cap\" (item-db_715.html, npc-shops.html), but game/data/canonical/items/717.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "work-gloves",
@@ -195,7 +205,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/1435 next to \"Work Gloves\" (guides_beginners-guide-first-steps-in-maple-world.html, quest-tracker_all.html), but game/data/canonical/items/1435.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "blue-lolico-armor-m",
@@ -224,7 +236,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/943 next to \"Blue Lolico Armor\" (item-db_940.html, item-db_945.html), but game/data/canonical/items/943.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "orange-lolica-armor-f",
@@ -253,7 +267,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/951 next to \"Orange Lolica Armor\" (npc-shops.html), but game/data/canonical/items/951.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "wooden-samurai-sword",
@@ -280,7 +296,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: \"Wooden Samurai Sword\" occurs in none of the 526 cached MeowDB files, so no MeowDB id can be named offline; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "wooden-sword",
@@ -307,7 +325,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 608 is \"Wooden Sword\" (Equip/Two-Handed Sword), an exact match; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "black-ghetto-beanie",
@@ -336,7 +356,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/735 next to \"Black Ghetto Beanie\" (npc-shops.html), but game/data/canonical/items/735.json does not exist, so the item stays unresolved; none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "red-potion",
@@ -381,7 +403,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 270 is \"Red Potion\" (Use/Potion), an exact match; KuroDB tools/kurodb/captures/120100.json row \"Red Potion\" (2000000) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
+      ]
     },
     {
       "key": "arrow-for-bow",
@@ -408,7 +432,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 209 is \"Arrows for Bows\" (Use/Arrow), an alias_with_evidence match (the evidence above); none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "arrow-for-crossbow",
@@ -435,7 +461,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 213 is \"Arrows for Crossbows\" (Use/Arrow), an alias_with_evidence match (the evidence above); none of the 13 item rows on KuroDB tools/kurodb/captures/120100.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "green-apple",
@@ -480,7 +508,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 242 is \"Green Apple\" (Use/Food), an exact match; KuroDB tools/kurodb/captures/120100.json row \"Green Apple\" (2010009) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
+      ]
     }
   ],
   "excluded_kuro_only": [

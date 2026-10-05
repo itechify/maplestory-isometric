@@ -52,7 +52,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 351 is \"Red Snail Shell\" (Etc/Monster Drop), an exact match; KuroDB tools/kurodb/captures/130101.json row \"Red Snail Shell\" (4000016) \"100% base | Qty 1\" = 100%, so it rolls at 1."
+      ]
     },
     {
       "key": "brown-skullcap",
@@ -79,7 +81,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 708 is \"Brown Skullcap\" (Equip/Hat), an exact match; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "metal-axe",
@@ -140,7 +144,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 715 is \"Blue Headband\" (Equip/Hat), an exact match; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "red-bandana",
@@ -169,7 +175,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/720 next to \"Red Bandana\" (item-db_351.html, npc-shops.html), but game/data/canonical/items/720.json does not exist, so the item stays unresolved; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "black-gomushin",
@@ -198,7 +206,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: the MeowDB cache links item-db/1318 next to \"Black Gomushin\" (item-db_1317.html, npc-shops.html), but game/data/canonical/items/1318.json does not exist, so the item stays unresolved; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "grey-thick-sweat-pants-m",
@@ -225,7 +235,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 1181 is \"Grey Thick Sweat Pants\" (Equip/Bottom, gender male), a normalized match; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "brown-woodsman-boots",
@@ -270,7 +282,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 1325 is \"Brown Woodsman Boots\" (Equip/Shoes), an exact match; KuroDB tools/kurodb/captures/130101.json row \"Brown Woodsman Boots\" (1072060) \"0.0800% base | Qty 1\" = 0.08%, so it rolls at 0.0008."
+      ]
     },
     {
       "key": "black-cloth-pants-m",
@@ -300,7 +314,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: candidates 1170 / 1179 (none local); no offline source gives their gender, so the (M) cannot pick one and the row is left ambiguous rather than guessed; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "pistol",
@@ -327,7 +343,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: \"Pistol\" occurs in none of the 526 cached MeowDB files, so no MeowDB id can be named offline; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "red-potion",
@@ -372,7 +390,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 270 is \"Red Potion\" (Use/Potion), an exact match; KuroDB tools/kurodb/captures/130101.json row \"Red Potion\" (2000000) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
+      ]
     },
     {
       "key": "blue-potion",
@@ -399,7 +419,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 273 is \"Blue Potion\" (Use/Potion), an exact match; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "orange-potion",
@@ -426,7 +448,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 271 is \"Orange Potion\" (Use/Potion), an exact match; none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     },
     {
       "key": "green-apple",
@@ -471,7 +495,9 @@
         "source": "KuroDB 'Qty 1'"
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 242 is \"Green Apple\" (Use/Food), an exact match; KuroDB tools/kurodb/captures/130101.json row \"Green Apple\" (2010009) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
+      ]
     },
     {
       "key": "arrow-for-bow",
@@ -498,7 +524,9 @@
       "probability": null,
       "quantity": null,
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 209 is \"Arrows for Bows\" (Use/Arrow), an alias_with_evidence match (the evidence above); none of the 22 item rows on KuroDB tools/kurodb/captures/130101.json is this item, so its chance stays unresolved and it never rolls."
+      ]
     }
   ],
   "excluded_kuro_only": [

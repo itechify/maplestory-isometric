@@ -18,13 +18,15 @@ Each row has:
   item's `gender`.
 - `kurodb`: `state` (`matched` | `none`) with `kuro_item_id`, `kuro_name`, `method`, `evidence`; optionally a
   `candidate` row that may be the member but is not accepted (it is excluded with the given reason, D3-8).
-- `reviewer_note`.
+- `reviewer_note` (required, never empty): the reviewer's verdict on the row, what was re-checked and what follows (it
+  rolls, or why it never does). The merge copies it into the record entry's `notes[0]`.
 
 `tools/sources/drops_merge.mjs` reads it (through `tools/meowdb/extract_monsters.mjs`, the single writer of
 `game/data/canonical/drops/*.json`) and fails on anything the captures or the local items do not support: a member
 without a row, a row without a member, a KuroDB claim that is not on the page (by KuroDB's own id and name), a `none`
 whose page does list the member, a resolved item that is not local or whose name does not match, an unresolved row
-whose candidate has become a local item. A KuroDB row no member claims becomes an `excluded_kuro_only` row.
+whose candidate has become a local item, a row without a reviewer note. A KuroDB row no member claims becomes an
+`excluded_kuro_only` row.
 
 ## Changing a row
 

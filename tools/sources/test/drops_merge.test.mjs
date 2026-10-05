@@ -214,6 +214,21 @@ test('a resolved item must exist locally and match by name; an unresolved one wh
   throwsMerge(() => merge({ items: withBuckler }), /candidate 916 is now a local item/);
 });
 
+test('every crosswalk row carries a reviewer note, and the record entry keeps it', () => {
+  for (const id of OWNER_IDS) {
+    for (const row of crosswalk.owners[id].rows) {
+      assert.ok(typeof row.reviewer_note === 'string' && row.reviewer_note.trim() !== '', `${id} "${row.name}": reviewer_note`);
+      const e = records[id].entries.find((x) => x.name === row.name);
+      assert.equal(e.notes[0], row.reviewer_note, `drops/${id} "${row.name}": notes[0] is the reviewer note`);
+    }
+  }
+  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Blue Potion').reviewer_note = ''; }) }), /"Blue Potion": reviewer_note is required/);
+  throwsMerge(() => merge({ crosswalk: mutate((cw) => { delete rowOf(cw, '0000001', 'Egg').reviewer_note; }) }), /"Egg": reviewer_note is required/);
+  // A member whose possible KuroDB row was not accepted says so in its gap (not "no row").
+  const gap = records['9'].gaps.find((g) => g.includes('"Scroll for Shoes for Jump 10%"') && g.startsWith('chance unresolved'));
+  assert.match(gap, /possible row Scroll for Shoes for Jump \(2040705, "0\.0300% base \| Qty 1"\) that is not accepted/);
+});
+
 test('crosswalk helpers', () => {
   assert.throws(() => resolveMeowdbItem('Pan Lid', { state: 'resolved', item_id: null, method: 'none', candidates: [], evidence: 'x' }, items, 't'), DropMergeError);
   assert.equal(matchKuroRow('Egg', { state: 'none', evidence: 'x' }, [{ kuro_item_id: '1', name: 'Apple' }], 't'), null);

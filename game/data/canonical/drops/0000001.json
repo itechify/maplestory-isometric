@@ -176,7 +176,9 @@
         }
       },
       "quest_gate": null,
-      "notes": []
+      "notes": [
+        "Re-checked: local MeowDB 236 is \"Apple\" (Use/Food), an exact match; KuroDB item page 2010000 \"Apple\" (tools/kurodb/captures/reactor_2001_items.json) gives \"Reactor 2001\" \"Chance value 4\", read as 1 / 4 = 0.25 under D3-7; the page's other reactors (1302000, 9102000, 9102001) are not used: reactor 2001 is taken as the Wooden Box (kuro_reactor_identity)."
+      ]
     },
     {
       "key": "egg",

@@ -20,6 +20,7 @@ func parity_keys() -> Dictionary:
 		"test_meso_chance_from_meowdb_fails": ["mechanic:meso-chance-source"],
 		"test_unknown_item_id_is_an_error_not_a_crash": ["mechanic:drop-item-ids-resolve"],
 		"test_progression_item_that_never_rolls_is_a_blocker": ["quest:1011", "mechanic:unresolved-drops-visible"],
+		"test_a_rate_put_back_into_drop_rates_json_fails_the_data_validator": ["mechanic:no-placeholder-drop-rates"],
 	}
 
 
@@ -324,3 +325,18 @@ func test_unknown_item_id_is_an_error_not_a_crash() -> void:
 	expect_new(r, "error", "drop_policy", "drops", "2", "item 99999 is not a local MeowDB item")
 	assert_true(DropRates.effective_entries("2", c).any(func(row: Dictionary) -> bool:
 		return row.key == "red-potion" and row.excluded == DropRates.UNKNOWN_ITEM), "and it never rolls")
+
+
+func test_a_rate_put_back_into_drop_rates_json_fails_the_data_validator() -> void:
+	# C1: nothing outside the records supplies a chance, quantity or meso amount. The data validator (not only the unit
+	# test of DropRates.validate) refuses a placeholder rate or any number in data/misostory/drop_rates.json.
+	expect_no_new(baseline(), "drop_policy")
+	assert_eq(baseline().matching("drop_policy", "misostory", "drop_rates").size(), 0, "the shipped file holds no rate")
+	var c := clone_db()
+	(c.miso[""]["drop_rates"] as Dictionary)["subtype_rates"] = {"Etc/Monster Drop": {"chance": 0.4}}
+	var r := _validate(c)
+	expect_new(r, "error", "drop_policy", "misostory", "drop_rates", "subtype_rates: a chance, quantity or meso value outside the canonical drop records")
+	expect_new(r, "error", "drop_policy", "misostory", "drop_rates", "holds the number 0.4")
+	var dist := clone_db()
+	(dist.miso[""]["drop_rates"] as Dictionary)["meso_amount_distribution"]["value"] = "normal"
+	expect_new(_validate(dist), "error", "drop_policy", "misostory", "drop_rates", "meso_amount_distribution.value must be")

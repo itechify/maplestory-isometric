@@ -17,7 +17,8 @@
 // member without a crosswalk row or a row without a member, a KuroDB row claimed by two members, a "none" row whose
 // KuroDB page does list the member, a resolved item that does not exist locally or whose name does not match, an
 // unresolved item whose candidate is now local (review the row), an unparsable raw value, a quest item two quests ask
-// for. A KuroDB row no member claims becomes an excluded_kuro_only row (KuroDB never adds a member).
+// for, a row without a reviewer_note. A KuroDB row no member claims becomes an excluded_kuro_only row (KuroDB never adds
+// a member).
 //
 //   import { buildDropRecords } from '../sources/drops_merge.mjs';
 //   const { records } = buildDropRecords({ meowdbCache });   // {"1": {...}, ..., "0000001": {...}}
@@ -268,8 +269,10 @@ function hsMembershipSource(hs, member) {
   };
 }
 
-function entryNotes(row, extra = []) {
-  return [...(row.reviewer_note ? [row.reviewer_note] : []), ...extra];
+/** The entry's notes: the row's reviewer note (required: every crosswalk row is reviewed) and any extra lines. */
+function entryNotes(row, where, extra = []) {
+  if (typeof row.reviewer_note !== 'string' || row.reviewer_note.trim() === '') fail(`${where}: reviewer_note is required (every crosswalk row records the reviewer's verdict)`);
+  return [row.reviewer_note, ...extra];
 }
 
 function buildMonsterRecord(ownerId, cw, ctx) {
@@ -317,7 +320,7 @@ function buildMonsterRecord(ownerId, cw, ctx) {
       if (!cand.reason) fail(`${rw}: a candidate KuroDB row needs a reason`);
       candidates.set(`${cand.kuro_item_id}|${cand.kuro_name}`, cand.reason);
     }
-    const notes = entryNotes(row, cand ? [`KuroDB candidate row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}"), excluded: ${cand.reason}`] : []);
+    const notes = entryNotes(row, rw, cand ? [`KuroDB candidate row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}"), excluded: ${cand.reason}`] : []);
     const entry = {
       key: entryKey(m.name),
       name: m.name,
@@ -331,7 +334,8 @@ function buildMonsterRecord(ownerId, cw, ctx) {
       quest_gate: deriveQuestGate(item_id, false, items, quests, k?.quest ?? null),
       notes,
     };
-    if (!k) gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list but KuroDB's ${cw.name} page (${kuro.file}) has no row for it, so it never rolls (D3-6)`);
+    if (!k && cand) gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls`);
+    else if (!k) gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list but KuroDB's ${cw.name} page (${kuro.file}) has no row for it, so it never rolls (D3-6)`);
     if (!item_id) gaps.push(`item unresolved: "${m.name}" (${item_resolution.state}${item_resolution.candidates.length ? `, MeowDB candidates ${item_resolution.candidates.join(', ')}` : ''}), so it never rolls; see its item_resolution.note`);
     entries.push(entry);
   }
@@ -501,7 +505,7 @@ function buildBreakableRecord(ownerId, cw, ctx) {
       probability: drop ? drop.row.probability : null,
       quantity: drop ? structuredClone(REACTOR_QUANTITY) : null,
       quest_gate: deriveQuestGate(item_id, marksQuest, items, quests, drop?.row.quest ?? null),
-      notes: entryNotes(row),
+      notes: entryNotes(row, rw),
     };
     if (!drop) gaps.push(`chance unresolved: "${m.name}" is on MeowDB's ${cw.name} list but no read KuroDB page gives reactor ${cw.kuro_reactor_id} a value for it, so it never drops (D3-7)`);
     if (!item_id) gaps.push(`item unresolved: "${m.name}" (${item_resolution.state})`);
