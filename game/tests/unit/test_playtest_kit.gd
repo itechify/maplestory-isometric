@@ -64,6 +64,17 @@ func test_portal_path_follows_canonical_portals_and_one_way_links() -> void:
 	assert_eq(PlaytestKit.portal_path(db(), "000000050", "000000050"), ["000000050"], "already there")
 
 
+func test_quickslot_keys_read_both_save_shapes() -> void:
+	# Iteration Two saves bind a bare item id; contract C3 binds {"kind": "item" | "skill", "id"}.
+	var qs := {"1": "270", "2": {"kind": "item", "id": "237"}, "3": {"kind": "skill", "id": "0001000"}}
+	assert_eq(PlaytestKit.quickslot_key(qs, "item", "270"), "1", "a bare item id")
+	assert_eq(PlaytestKit.quickslot_key(qs, "item", "237"), "2", "a C3 item entry")
+	assert_eq(PlaytestKit.quickslot_key(qs, "skill", "0001000"), "3", "a C3 skill entry (Three Snails)")
+	assert_eq(PlaytestKit.quickslot_key(qs, "skill", "270"), "", "an item is not a skill")
+	assert_eq(PlaytestKit.quickslot_key(qs, "item", "0001000"), "", "a skill is not an item")
+	assert_eq(PlaytestKit.quickslot_key({}, "skill", "0001001"), "", "nothing bound")
+
+
 func test_node_quest_and_bag_bookkeeping() -> void:
 	assert_eq(PlaytestKit.node_quest("q1013.quiz"), "1013")
 	assert_eq(PlaytestKit.node_quest("q1006.offer.0"), "1006")

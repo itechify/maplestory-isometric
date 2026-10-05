@@ -35,6 +35,9 @@ const THREAT_DY_M := 1.2
 const MAX_INTERRUPTS := 12
 ## How long (game s) a touch keeps its monster a threat to a walk.
 const TOUCH_MEMORY_S := 1.5
+## A monster more than this many levels above the player is not fought back on a walk or a rest (it is walked away
+## from); a hunt's wanted species is fought whatever its level.
+const FIGHT_LEVEL_GAP := 3
 ## Default survival policy: drink or rest below this share of Max HP, and rest until this share.
 const HP_FLOOR := 0.4
 const HP_RESUME := 0.8
@@ -280,11 +283,11 @@ func _trail_safely(from_map: String, to_map: String, opts: Dictionary) -> Dictio
 		return await d.walk_trail(from_map, to_map)
 	var r: Dictionary = {}
 	for _k in MAX_INTERRUPTS:
-		var o := {"stop_when": _interrupt_when(opts)}
+		var o := {"stop_when": interrupt_when(opts)}
 		r = await d.walk_trail(from_map, to_map, o)
 		if d.current_map() != from_map or is_dead():
 			return r
-		if not bool(_interrupt_when(opts).call()):
+		if not bool(interrupt_when(opts).call()):
 			return r
 		survival["interrupts"] = int(survival["interrupts"]) + 1
 		await survive(opts)
@@ -304,7 +307,7 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 	var orig: Callable = opts.get("stop_when", Callable())
 	for _k in MAX_INTERRUPTS:
 		var o := opts.duplicate()
-		var interrupt := _interrupt_when(opts)
+		var interrupt := interrupt_when(opts)
 		o["stop_when"] = func() -> bool: return bool(interrupt.call()) or (orig.is_valid() and bool(orig.call()))
 		r = await d.walk_to(target, o)
 		if d.current_map() != map0 or is_dead() or (orig.is_valid() and bool(orig.call())):
@@ -318,18 +321,31 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 	return r
 
 
-## The walk interrupt of the survival policy: HP below the floor, or (on_threat "fight") a monster that touched the
-## player in the last TOUCH_MEMORY_S and is still next to it. A monster merely passing by never stops a walk: a
-## player walks past snails and only turns on the one that keeps hitting.
-func _interrupt_when(opts: Dictionary) -> Callable:
+## The walk interrupt of the survival policy, as a stop_when Callable for any walk (scenarios that walk with the
+## driver directly pass it too): HP below the floor, or (on_threat "fight") a monster the player can beat that
+## touched it in the last TOUCH_MEMORY_S and is still next to it. A monster merely passing by never stops a walk (a
+## player walks past snails and only turns on the one that keeps hitting), and neither does one far above the
+## player's level (FIGHT_LEVEL_GAP): the player walks on and heals or rests when HP runs low.
+func interrupt_when(opts: Dictionary = {}) -> Callable:
 	var floor_frac := float(opts.get("hp_floor", HP_FLOOR))
 	var fight := String(opts.get("on_threat", "fight")) == "fight"
+	var o := opts.duplicate()
+	o["beatable_only"] = true
 	return func() -> bool:
 		if is_dead() or d.character() == null:
 			return false
 		if hp_frac() < floor_frac:
 			return true
-		return fight and touched_recently() and threat(opts) != null
+		return fight and touched_recently() and threat(o) != null
+
+
+## True when the player can fight `m` (a live monster node): its canonical level is at most FIGHT_LEVEL_GAP above
+## the player's.
+func beatable(m: Node3D) -> bool:
+	var def: Variant = m.get("def") if is_instance_valid(m) else null
+	var st: Variant = def.get("stats") if def != null else null
+	var lv := int(st.get("level")) if st != null and st.get("level") != null else 0
+	return lv <= d.character().level + FIGHT_LEVEL_GAP
 
 
 ## True when a monster damaged the player in the last TOUCH_MEMORY_S (connect_bus() hears it).
@@ -344,13 +360,15 @@ func hp_frac() -> float:
 
 
 ## The live monster about to touch the player: within THREAT_M horizontally on the same tier, or the one that
-## touched the player in the last second. null when none. opts "ignore_mobs": species never treated as threats.
+## touched the player in the last second. null when none. opts "ignore_mobs": species never treated as threats;
+## "beatable_only": only monsters the player can fight (beatable()).
 func threat(opts: Dictionary = {}) -> Node3D:
 	var ms := d.monsters()
 	var p := d.player()
 	if ms == null or p == null:
 		return null
 	var ignore: Array = opts.get("ignore_mobs", [])
+	var only_beatable := bool(opts.get("beatable_only", false))
 	var best: Node3D = null
 	var best_d := float(opts.get("threat_m", THREAT_M))
 	var touched := d.game_s() - last_touch_s < 1.0
@@ -358,7 +376,7 @@ func threat(opts: Dictionary = {}) -> Node3D:
 		if not is_instance_valid(m) or not bool(m.call("is_alive")):
 			continue
 		var id := String(m.get("def").get("id"))
-		if ignore.has(id):
+		if ignore.has(id) or (only_beatable and not beatable(m)):
 			continue
 		var dy := absf(m.global_position.y - p.global_position.y)
 		var dd := Vector2(m.global_position.x - p.global_position.x, m.global_position.z - p.global_position.z).length()
@@ -398,7 +416,9 @@ func survive(opts: Dictionary = {}) -> Dictionary:
 	if hp_frac() < floor_frac and not is_dead():
 		out["rested_s"] = await rest(resume, opts)
 	elif String(opts.get("on_threat", "fight")) == "fight":
-		var t := threat(opts)
+		var o := opts.duplicate()
+		o["beatable_only"] = true
+		var t := threat(o)
 		if t != null and not is_dead():
 			var f: Dictionary = await d.face_and_attack_nearest(15.0, {"mob_id": String(t.get("def").get("id")),
 				"max_dist_m": 6.0})
@@ -443,14 +463,23 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 			"stop_when": func() -> bool: return is_dead()})
 	if bool(opts.get("sit", false)):
 		await sit()
+	var moves := 0
 	while hp_frac() < until and d.game_s() - t0 < float(opts.get("rest_max_s", REST_MAX_S)) and not is_dead():
 		var t := threat({"threat_m": 3.0})
-		if t != null:
+		if t != null and beatable(t):
 			await d.face_and_attack_nearest(15.0, {"mob_id": String(t.get("def").get("id")), "max_dist_m": 6.0})
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if hp_frac() < 0.2 and best_heal_item() != "":
 				await drink(best_heal_item())
 			continue
+		if t != null and moves < 4:
+			# Too strong to fight: move to the quietest spot and rest there.
+			moves += 1
+			var away := _rest_spot()
+			if away != Vector3.INF:
+				await d.walk_to(away, {"max_s": 25.0, "retries": 0, "within_m": 1.5,
+					"stop_when": func() -> bool: return is_dead()})
+				continue
 		await d.wait(0.5)
 	var s := d.game_s() - t0
 	survival["rest_s"] = float(survival["rest_s"]) + s
@@ -1009,11 +1038,18 @@ func equip(item_id: String) -> Dictionary:
 ## The quickslot key ("1".."8") an item is bound to ("" when none). Reads both quickslot shapes: the bare item id
 ## and contract C3's {"kind": "item", "id"}.
 func quickslot_of(item_id: String) -> String:
-	var qs: Dictionary = d.character().quickslots
-	for key: Variant in qs:
-		var v: Variant = qs[key]
-		if (v is String and String(v) == item_id) or (v is Dictionary and String((v as Dictionary).get("kind", "item")) == "item"
-				and String((v as Dictionary).get("id", (v as Dictionary).get("item_id", ""))) == item_id):
+	return quickslot_key(d.character().quickslots, "item", item_id)
+
+
+## The key of `quickslots` (CharacterState.quickslots) bound to an item or a skill ("" when none). An entry is a bare
+## item id (Iteration Two saves) or contract C3's {"kind": "item" | "skill", "id"}.
+static func quickslot_key(quickslots: Dictionary, kind: String, id: String) -> String:
+	for key: Variant in quickslots:
+		var v: Variant = quickslots[key]
+		if kind == "item" and v is String and String(v) == id:
+			return String(key)
+		if v is Dictionary and String((v as Dictionary).get("kind", "item")) == kind \
+				and String((v as Dictionary).get("id", (v as Dictionary).get("item_id", ""))) == id:
 			return String(key)
 	return ""
 
@@ -1262,8 +1298,10 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 		if hp_frac() < float(opts.get("hp_floor", HP_FLOOR)):
 			await survive(opts)
 			continue
-		# Something that is touching the player is fought first, whatever its species.
+		# Something that is touching the player is fought first: a wanted species, or any the player can beat.
 		var t := threat({"threat_m": 1.6})
+		if t != null and not beatable(t) and not mob_ids.has(String(t.get("def").get("id"))):
+			t = null
 		var target_node := t if t != null else nearest_of(mob_ids, {"max_dist_m": search, "exclude": exclude})
 		if target_node == null:
 			idle += 1
@@ -1355,12 +1393,7 @@ func use_chair(item_id: String) -> Dictionary:
 
 ## The quickslot key a skill is bound to (contract C3: quickslots {key: {"kind": "skill", "id"}}), "" when none.
 func skill_key(skill_id: String) -> String:
-	var qs: Dictionary = d.character().quickslots
-	for key: Variant in qs:
-		var v: Variant = qs[key]
-		if v is Dictionary and String((v as Dictionary).get("kind", "")) == "skill" and String((v as Dictionary).get("id", "")) == skill_id:
-			return String(key)
-	return ""
+	return quickslot_key(d.character().quickslots, "skill", skill_id)
 
 
 ## Casts a Beginner skill with its quickslot key (contract C3; the skills package binds skills to quickslots). The

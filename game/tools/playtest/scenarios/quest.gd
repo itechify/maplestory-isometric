@@ -168,10 +168,14 @@ func _offer(qid: String) -> bool:
 	var c := d.character()
 	var pq := _pq(qid)
 	var npc := String(p["start"]["npc"])
-	if c.level < int(p["min_level"]) and not await _reach_level(int(p["min_level"]), String(p["start"]["map"])):
-		d.check("%s: level %d reached by play for its canonical min_level" % [qid, int(p["min_level"])], false,
-			"level %d" % c.level, pq)
-		return false
+	if c.level < int(p["min_level"]):
+		# A later quest of the chain above the character's level: refused now, offered once play reaches the level.
+		d.check("%s is refused below its canonical level %d (level %d: the engine says unavailable)" % [qid,
+			int(p["min_level"]), c.level], not d.game().quests.engine.is_available(qid), "", pq)
+		if not await _reach_level(int(p["min_level"]), String(p["start"]["map"])):
+			d.check("%s: level %d reached by play for its canonical min_level" % [qid, int(p["min_level"])], false,
+				"level %d" % c.level, pq)
+			return false
 	if not d.check("%s: walked to %s's map %s" % [qid, p["start"]["npc_name"], p["start"]["map"]],
 			await k.travel_to(String(p["start"]["map"])), d.current_map(), pq):
 		return false

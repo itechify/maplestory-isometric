@@ -13,6 +13,9 @@ extends PlaytestScenario
 ##
 ## Env options (setup only): PLAYA_GOD=1 runs with `god on` (logged), PLAYA_LEGS=a-b runs a slice of the tour (the
 ## slice starts with a console warp to its first map's arrival).
+## The walker is monster-aware (PlaytestKit's survival policy): a monster it can beat that keeps hitting it is fought,
+## and below 40% HP it drinks what it holds or walks away and rests, then walks the leg on. These interruptions are
+## not leg attempts; each leg counts them ("survival").
 
 const START := "000000001"
 ## The tour after the start map: [to_map, tag]. "journey" = the island's natural order; "check" = a leg that exists
@@ -48,6 +51,7 @@ const DOOR_ARRIVE_M := 0.15
 const KILL_Y_MARGIN_M := 2.0
 
 var d: PlaytestDriver = null
+var kit: PlaytestKit = null
 var hits := {"n": 0, "dmg": 0, "deaths": 0}
 var banner_at_entry := {}
 var trail_seen := {}
@@ -82,6 +86,8 @@ func run(driver: PlaytestDriver) -> void:
 	if OS.get_environment("PLAYA_GOD") == "1":
 		await d.console("god on")
 		d.note("SETUP: god mode on (PLAYA_GOD=1): contact damage cannot kill or knock the walker off the tour")
+	kit = PlaytestKit.new(d)
+	kit.connect_bus()
 	var ev := d.events()
 	ev.connect("player_damaged", _on_damaged)
 	ev.connect("player_died", _on_died)
@@ -155,21 +161,29 @@ func _leg(i: int, from: String, to: String, tag: String) -> Dictionary:
 		leg["plan_grid_m"] = pl["grid_m"]
 		if edge:
 			trail_seen.clear()
+			var guard := kit.interrupt_when()
 			var stop := func() -> bool:
 				_sample_trail_line()
-				return d.current_map() == to
-			res = await d.walk_trail(from, to, {"stop_when": stop, "planner": pl["planner"]})
-			var legs: Array = res.get("legs", [])
-			if legs.size() >= 1:
-				leg["approach_s"] = float(leg["approach_s"]) + float((legs[0] as Dictionary).get("time_s", 0.0))
-				leg["approach_m"] = float(leg["approach_m"]) + float((legs[0] as Dictionary).get("distance_m", 0.0))
-			if legs.size() >= 2:
-				leg["trail_s"] = float(leg["trail_s"]) + float((legs[1] as Dictionary).get("time_s", 0.0))
-				leg["trail_m"] = float(leg["trail_m"]) + float((legs[1] as Dictionary).get("distance_m", 0.0))
+				return d.current_map() == to or bool(guard.call())
+			for _s in PlaytestKit.MAX_INTERRUPTS:
+				res = await d.walk_trail(from, to, {"stop_when": stop, "planner": pl["planner"]})
+				var legs: Array = res.get("legs", [])
+				if legs.size() >= 1:
+					leg["approach_s"] = float(leg["approach_s"]) + float((legs[0] as Dictionary).get("time_s", 0.0))
+					leg["approach_m"] = float(leg["approach_m"]) + float((legs[0] as Dictionary).get("distance_m", 0.0))
+				if legs.size() >= 2:
+					leg["trail_s"] = float(leg["trail_s"]) + float((legs[1] as Dictionary).get("time_s", 0.0))
+					leg["trail_m"] = float(leg["trail_m"]) + float((legs[1] as Dictionary).get("distance_m", 0.0))
+				if d.current_map() != from or kit.is_dead() or not bool(guard.call()):
+					break
+				# A monster that keeps hitting, or low HP: the survival policy, then the leg goes on (not an attempt).
+				leg["survival"] = int(leg.get("survival", 0)) + 1
+				await kit.survive()
 		else:
 			var td := d.game_s()
 			# enter_portal walks with the default planner; walk to the door first with the chosen one.
-			var wd: Dictionary = await d.walk_to("portal:" + src.portal_id, {"planner": pl["planner"], "within_m": 1.0})
+			var wd: Dictionary = await kit.walk_safely("portal:" + src.portal_id, {"planner": pl["planner"], "within_m": 1.0})
+			leg["survival"] = int(leg.get("survival", 0)) + int(wd.get("interrupts", 0))
 			leg["approach_m"] = float(leg["approach_m"]) + float(wd.get("distance_m", 0.0))
 			res = await d.enter_portal(src.portal_id)
 			leg["approach_s"] = float(leg["approach_s"]) + d.game_s() - td
@@ -247,10 +261,10 @@ func _leg(i: int, from: String, to: String, tag: String) -> Dictionary:
 	visited[to] = true
 	if first_visit:
 		await _first_arrival(to, src)
-	var line := "LEG %02d %s %s->%s (%s) %s: approach %.1f s/%.1f m, trail %.1f s/%.1f m, arrive %.1f s/%.1f m, total %.1f s; planner %s (plans: routes %.0f m, grid %.0f m); hits %d dmg %d deaths %d; attempts %d%s" % [
+	var line := "LEG %02d %s %s->%s (%s) %s: approach %.1f s/%.1f m, trail %.1f s/%.1f m, arrive %.1f s/%.1f m, total %.1f s; planner %s (plans: routes %.0f m, grid %.0f m); hits %d dmg %d deaths %d; attempts %d, survival stops %d%s" % [
 		i, tag, from, to, src.key(), leg["how"], leg["approach_s"], leg["approach_m"], leg["trail_s"], leg["trail_m"],
 		leg["arrive_s"], leg["arrive_m"], leg["total_s"], leg.get("planner", ""), float(leg.get("plan_routes_m", -1.0)), float(leg.get("plan_grid_m", -1.0)), leg["hits"], leg["damage"], leg["deaths"], leg["attempts"],
-		"" if iss.is_empty() else "; issues: " + " | ".join(iss)]
+		int(leg.get("survival", 0)), "" if iss.is_empty() else "; issues: " + " | ".join(iss)]
 	d.note(line)
 	d.soft_check("leg %d %s -> %s walked cleanly (one attempt, no stall, no issue)" % [i, from, to],
 		int(leg["attempts"]) == 1 and iss.is_empty(), " | ".join(iss))
