@@ -314,6 +314,8 @@ func _on_attack_resolved(target: Node, res: DamageResult) -> void:
 	var rec := {"t": snappedf(float(s.get("t", 0.0)), 0.001), "map": s.get("map", ""), "action": s.get("action", ""),
 		"pres": s.get("pres", ""), "level": int(s.get("level", 0)), "probe": s.get("probe", "")}
 	var actual_iid := target.get_instance_id() if target != null else 0
+	# Which monster the attack hit (0 = a whiff): the reach probes classify by identity, never by "something was hit".
+	rec["iid"] = actual_iid
 	if actual_iid != expected_iid:
 		target_mismatch.append({"t": rec["t"], "map": rec["map"], "pres": rec["pres"], "actual": actual_iid,
 			"expected": expected_iid, "cands": _cand_summary(s.get("cands", []))})
@@ -999,36 +1001,100 @@ func _tap_attack(tag: String) -> Dictionary:
 	return {}
 
 
+## Reach probes: the player stands 0.75-1.4 m in front of a probe Snail facing away ("behind"), or 3.2-3.9 m
+## ("far") / 2.25-2.55 m ("edge") from it facing it, and taps attack once. Each probe is classified by the identity
+## of what the attack hit (_classify_probe): the probe Snail ("target_hit"), another monster ("bystander_hit") or
+## nothing ("whiff"). Before every tap the front must be clear (_front_clear): no other live monster may overlap any of
+## the Sword's standing presentations, because a provoked bystander walks back into reach between taps. The baseline
+## failure counted a bystander Snail 2.1 m in front of the player as a hit "behind" (ITERATION_LOG Phase B3).
 func _reach_probes() -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "reach_probes", "Snails behind the player (0.75-1.4 m) and in front beyond reach (3.2-3.9 m)")
 	var kinds := [["behind", 0.75, 1.4, false], ["far", 3.2, 3.9, true], ["edge", 2.25, 2.55, true]]
 	var want := 3 if quick else 6
+	var skipped_bystander := 0
 	for k: Array in kinds:
 		var got := 0
 		var tries := 0
-		while got < want and tries < want * 4:
+		var skip := {}
+		while got < want and tries < want * 6:
 			tries += 1
 			await _heal_if_low()
-			var m := d.nearest_monster({"mob_id": "2", "max_dist_m": 40.0}) as Monster
+			var m := d.nearest_monster({"mob_id": "2", "max_dist_m": 40.0, "exclude": skip}) as Monster
 			if m == null:
+				skip.clear()
 				await d.wait(1.0)
 				continue
 			var placed: bool = await _stand_at(m, float(k[1]), float(k[2]), bool(k[3]))
-			if not placed:
+			if not placed or not is_instance_valid(m) or not m.is_alive():
+				continue
+			var target_iid := m.get_instance_id()
+			if not _front_clear(_cands_now(), d.character().level, target_iid):
+				# Another monster is in reach in front: this spot cannot tell a probe hit from a bystander hit. Try the
+				# next Snail (or this one again once the others have moved on).
+				skipped_bystander += 1
+				skip[target_iid] = true
+				await d.wait(0.5)
 				continue
 			var rec := await _tap_attack("probe_" + String(k[0]))
 			if rec.is_empty():
 				continue
 			got += 1
 			var g := _geom(d.player().global_position, d.player().facing, m.global_position) if is_instance_valid(m) else {}
-			probes.append({"kind": k[0], "hit": rec.has("mob"), "mob": rec.get("mob", ""), "pres": rec.get("pres", ""),
-				"nearest": rec.get("nearest", {}), "fwd_m": rec.get("fwd_m", snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001))})
+			var outcome := _classify_probe(rec, target_iid)
+			probes.append({"kind": k[0], "outcome": outcome, "hit": outcome == "target_hit", "mob": rec.get("mob", ""),
+				"pres": rec.get("pres", ""), "nearest": rec.get("nearest", {}), "target_iid": target_iid,
+				"hit_iid": int(rec.get("iid", 0)), "fwd_m": rec.get("fwd_m", snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)),
+				"target_fwd_m": snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)})
 			await d.wait(0.8)
 	var counts := {}
 	for p: Dictionary in probes:
-		var key := "%s_%s" % [p["kind"], "hit" if bool(p["hit"]) else "whiff"]
+		var key := "%s_%s" % [p["kind"], String(p.get("outcome", "whiff"))]
 		counts[key] = int(counts.get(key, 0)) + 1
-	d._end(i, true, str(counts))
+	d._end(i, true, "%s; %d spots skipped (another monster in reach in front)" % [counts, skipped_bystander])
+
+
+## The Sword's standing presentations (every swing and stab the weapon's ordinary attack can draw).
+func _standing_presentations() -> PackedStringArray:
+	var w := WeaponProfile.for_weapon_id(WEAPON, db)
+	var out := PackedStringArray()
+	if w == null:
+		return out
+	for action: String in ["swing", "stab"]:
+		out.append_array(w.presentations_for(action))
+	return out
+
+
+## Player-frame geometry of every live monster now: [{"iid", "mob", "fwd_px", "up_px", "lat_px"}].
+func _cands_now() -> Array:
+	var out: Array = []
+	var p := d.player()
+	for m: Monster in d.monsters().live_monsters():
+		var g := _geom(p.global_position, p.facing, m.global_position)
+		g["iid"] = m.get_instance_id()
+		g["mob"] = m.def.id
+		out.append(g)
+	return out
+
+
+## True when no candidate other than `exclude_iid` overlaps any of the Sword's standing presentations (the canonical
+## oracle, _oracle_overlap): a tap from here can only hit the probe target or nothing. `cands` as _cands_now().
+func _front_clear(cands: Array, level: int, exclude_iid: int) -> bool:
+	var pres_list := _standing_presentations()
+	for g: Dictionary in cands:
+		if int(g.get("iid", 0)) == exclude_iid:
+			continue
+		for pres: String in pres_list:
+			if _oracle_overlap(pres, level, g, String(g["mob"])):
+				return false
+	return true
+
+
+## How a reach probe's attack ended: "target_hit" (the probe Snail itself was hit), "bystander_hit" (another monster
+## was) or "whiff" (nothing). `rec` is the attack record (_on_attack_resolved: "mob" and "iid" on a hit).
+static func _classify_probe(rec: Dictionary, target_iid: int) -> String:
+	if not rec.has("mob"):
+		return "whiff"
+	return "target_hit" if int(rec.get("iid", 0)) == target_iid else "bystander_hit"
 
 
 func _latency_probe() -> void:
@@ -1272,12 +1338,15 @@ func _evaluate() -> void:
 			behind_hits += 1
 	d.note("hit geometry: target feet %.2f..%.2f m along the facing, |lateral| <= %.2f m; %d hits with the feet behind the player (swingO2 reaches 5 px behind); whiff reasons %s" % [
 		fwd_min, fwd_max, lat_max, behind_hits, reasons])
+	# Classified by the identity of what was hit: only a hit on the probe Snail itself counts; a bystander hit is
+	# neither (check #22 above still verifies that every hit, bystanders included, is the oracle's target).
 	var pk := {}
 	for pr: Dictionary in probes:
-		var key := "%s_%s" % [pr["kind"], "hit" if bool(pr["hit"]) else "whiff"]
+		var key := "%s_%s" % [pr["kind"], String(pr.get("outcome", "whiff"))]
 		pk[key] = int(pk.get(key, 0)) + 1
-	d.check("reach probes: a Snail 0.75-1.4 m behind and one 3.2-3.9 m in front are never hit",
-		int(pk.get("behind_hit", 0)) == 0 and int(pk.get("far_hit", 0)) == 0 and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1,
+	d.check("reach probes: the probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in front are never hit",
+		int(pk.get("behind_target_hit", 0)) == 0 and int(pk.get("far_target_hit", 0)) == 0 \
+			and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1,
 		"%s" % [pk])
 	# --- misses ---------------------------------------------------------------------------------------------------
 	var miss_out := 0

@@ -96,3 +96,47 @@ func test_reach_oracle_agrees_with_melee_query() -> void:
 						assert_eq(mine, theirs, "%s %s at fwd %d lat %d up %.0f" % [mob, pres, fwd, lat, up])
 						n += 1
 	assert_true(n > 10000, "grid size %d" % n)
+
+
+## The reach probes' front check (test_b_combat._front_clear): a bystander inside swingO1's canonical box makes the
+## front unclear; the probe target itself, a monster 1 m behind, one 1.3 m to the side and one 3.2 m ahead do not.
+func test_front_clear_sees_bystanders_in_reach() -> void:
+	var s := _oracle()
+	var pres: PackedStringArray = s.call("_standing_presentations")
+	assert_eq(Array(pres).filter(func(p: String) -> bool: return p.begins_with("swing")).size(), 3, "three swings: %s" % pres)
+	assert_eq(Array(pres).filter(func(p: String) -> bool: return p.begins_with("stab")).size(), 2, "two stabs: %s" % pres)
+	var target := {"iid": 7, "mob": "2", "fwd_px": -50.0, "up_px": 0.0, "lat_px": 0.0}
+	var in_swing := {"iid": 8, "mob": "2", "fwd_px": 60.0, "up_px": 0.0, "lat_px": 0.0}
+	var behind := {"iid": 9, "mob": "2", "fwd_px": -40.0, "up_px": 0.0, "lat_px": 0.0}
+	var side := {"iid": 10, "mob": "2", "fwd_px": 40.0, "up_px": 0.0, "lat_px": 52.0}
+	var far := {"iid": 11, "mob": "2", "fwd_px": 128.0, "up_px": 0.0, "lat_px": 0.0}
+	assert_true(s.call("_front_clear", [target, behind, side, far], 1, 7), "nothing but the target and out-of-reach monsters")
+	assert_false(s.call("_front_clear", [target, in_swing], 1, 7), "a Snail 1.5 m in front is in reach")
+	# The baseline's bystander: fwd +2.14 m, lat -1.06 m (inside swingO1's mirrored reach and the 60 px depth band).
+	var k := WorldScale.actor(1.0)
+	var baseline := {"iid": 12, "mob": "2", "fwd_px": 2.142 / k, "up_px": 0.0, "lat_px": -1.063 / k}
+	assert_false(s.call("_front_clear", [target, baseline], 1, 7), "the baseline's bystander was in reach")
+	# The probe target itself never counts, wherever it stands.
+	var target_in_front := {"iid": 7, "mob": "2", "fwd_px": 60.0, "up_px": 0.0, "lat_px": 0.0}
+	assert_true(s.call("_front_clear", [target_in_front], 1, 7), "the target is excluded")
+
+
+## The reach probes classify by identity (test_b_combat._classify_probe): only a hit on the probe Snail itself is a
+## target hit; a hit on another monster is a bystander hit; no hit is a whiff.
+func test_probe_outcome_is_classified_by_the_hit_target() -> void:
+	assert_eq(Scenario._classify_probe({"t": 1.0, "nearest": {}}, 7), "whiff")
+	assert_eq(Scenario._classify_probe({"mob": "2", "iid": 7}, 7), "target_hit")
+	assert_eq(Scenario._classify_probe({"mob": "2", "iid": 8}, 7), "bystander_hit")
+	assert_eq(Scenario._classify_probe({"mob": "2"}, 7), "bystander_hit", "a hit without an identity is never the target")
+
+
+func parity_keys() -> Dictionary:
+	return {
+		"test_damage_window_by_hand": ["mechanic:player-damage-window"],
+		"test_damage_window_agrees_with_combat_formula": ["mechanic:player-damage-window"],
+		"test_touch_window_by_hand_and_against_combat_formula": ["mechanic:monster-touch-damage"],
+		"test_reach_oracle_cases": ["mechanic:basic-attack-hitboxes"],
+		"test_reach_oracle_agrees_with_melee_query": ["mechanic:basic-attack-hitboxes", "mechanic:isometric-reach-depth"],
+		"test_front_clear_sees_bystanders_in_reach": ["mechanic:basic-attack-hitboxes"],
+		"test_probe_outcome_is_classified_by_the_hit_target": ["mechanic:basic-attack-hitboxes"],
+	}
