@@ -195,12 +195,16 @@ func _set_hp(d: PlaytestDriver, hp: int) -> void:
 
 
 ## A real mouse double-click on a control (MisoItemSlot activates on a press with double_click set): move, press,
-## release, then the second press flagged double_click, release. Logged as a play step.
+## release, then the second press flagged double_click, release. Logged as a play step. A slot a player cannot click
+## (off the screen or covered: PlaytestDriver.pointer_onto) is not pressed, and a failed check says why.
 func _double_click(d: PlaytestDriver, target: Control) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "double_click", str(target.get_path()))
 	var at := target.get_global_transform_with_canvas() * (target.size * 0.5)
-	d.input.mouse_move(at)
-	await d.frames(1)
+	var why := await d.pointer_onto(target, at)
+	if why != "":
+		d._end(i, false, why)
+		d.check("a player can double-click %s" % String(target.name), false, why)
+		return
 	d.input.mouse_button(at, true)
 	await d.frames(1)
 	d.input.mouse_button(at, false)

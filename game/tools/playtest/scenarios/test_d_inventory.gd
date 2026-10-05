@@ -1018,57 +1018,15 @@ static func _center(c: Control) -> Vector2:
 	return c.get_global_transform_with_canvas() * (c.size * 0.5)
 
 
-## A real double-click: press, release, then the second press with double_click set (the flag the OS sets), and
-## release. `probe` is read right before and right after the second press (dispatch is synchronous).
+## A real double-click (PlaytestKit.double_click: refused, with a failed check, when a player cannot click the
+## control). `probe` is read right before and right after the second press (dispatch is synchronous).
 func _double_click(d: PlaytestDriver, c: Control, probe: Callable = Callable()) -> Dictionary:
-	var at := _center(c)
-	d.input.mouse_move(at)
-	await d.frames(1)
-	d.input.mouse_button(at, true)
-	await d.frames(1)
-	d.input.mouse_button(at, false)
-	await d.frames(1)
-	var before: Variant = probe.call() if probe.is_valid() else null
-	var ev := InputEventMouseButton.new()
-	ev.button_index = MOUSE_BUTTON_LEFT
-	ev.pressed = true
-	ev.double_click = true
-	ev.button_mask = MOUSE_BUTTON_MASK_LEFT
-	ev.position = d.input.to_window(at)
-	ev.global_position = ev.position
-	Input.parse_input_event(ev)
-	Input.flush_buffered_events()
-	var after: Variant = probe.call() if probe.is_valid() else null
-	await d.frames(1)
-	d.input.mouse_button(at, false)
-	await d.frames(1)
-	return {"before": before, "after": after}
+	return await PlaytestKit.new(d).double_click(c, probe)
 
 
-## A real GUI drag: press on `from`, move past the drag threshold, glide onto `to`, release.
+## A real GUI drag (PlaytestKit.drag: refused, with a failed check, when a player cannot point at either end).
 func _drag(d: PlaytestDriver, from: Control, to: Control) -> Dictionary:
-	var vp := d.get_viewport()
-	var a := _center(from)
-	var b := _center(to)
-	d.input.mouse_move(b)
-	await d.frames(1)
-	var hov := vp.gui_get_hovered_control()
-	var topmost := hov != null and (hov == to or to.is_ancestor_of(hov))
-	d.input.mouse_move(a)
-	await d.frames(1)
-	d.input.mouse_button(a, true)
-	await d.frames(1)
-	d.input.mouse_move(a + Vector2(12, 0))
-	await d.frames(1)
-	d.input.mouse_move(a + Vector2(24, 0))
-	await d.frames(1)
-	var dragging := vp.gui_is_dragging()
-	for k in range(1, 7):
-		d.input.mouse_move(a.lerp(b, k / 6.0))
-		await d.frames(1)
-	d.input.mouse_button(b, false)
-	await d.frames(2)
-	return {"dragging": dragging, "target_topmost": topmost}
+	return await PlaytestKit.new(d).drag(from, to)
 
 
 ## Hovers a slot and returns the tooltip's rows ([] when none shows).

@@ -234,14 +234,25 @@ func mouse_button(at: Vector2, pressed: bool, button: MouseButton = MOUSE_BUTTON
 ## Moves to `at`, presses and releases the button one frame apart. Returns the control the pointer hovered when it
 ## pressed (null over the world). Await it.
 func click_at(at: Vector2, button: MouseButton = MOUSE_BUTTON_LEFT) -> Control:
+	var hovered := await hover(at)
+	await press_release(at, button)
+	return hovered
+
+
+## Moves the pointer to `at` and returns the control the GUI now finds under it (the frontmost one that takes the
+## mouse, across every canvas layer; null over the world). Await it.
+func hover(at: Vector2) -> Control:
 	mouse_move(at)
 	await tree().process_frame
-	var hovered := viewport().gui_get_hovered_control()
+	return viewport().gui_get_hovered_control()
+
+
+## Presses and releases the button at `at`, one frame apart (the pointer is already there: hover()). Await it.
+func press_release(at: Vector2, button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
 	mouse_button(at, true, button)
 	await tree().process_frame
 	mouse_button(at, false, button)
 	await tree().process_frame
-	return hovered
 
 
 # --- state --------------------------------------------------------------------------------------------------------
