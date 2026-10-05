@@ -433,8 +433,8 @@ func survive(opts: Dictionary = {}) -> Dictionary:
 		o["beatable_only"] = true
 		var t := threat(o)
 		if t != null and not is_dead():
-			var f: Dictionary = await d.face_and_attack_nearest(15.0, {"mob_id": String(t.get("def").get("id")),
-				"max_dist_m": 6.0})
+			# That monster, not the nearest of its species (horizontally nearest can be one on another tier).
+			var f: Dictionary = await d.face_and_attack_nearest(15.0, {"target": t, "max_dist_m": 6.0, "chase": false})
 			out["fought"] = int(out["fought"]) + 1
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if bool(f.get("ok", false)):
@@ -480,7 +480,7 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 	while hp_frac() < until and d.game_s() - t0 < float(opts.get("rest_max_s", REST_MAX_S)) and not is_dead():
 		var t := threat({"threat_m": 3.0})
 		if t != null and beatable(t):
-			await d.face_and_attack_nearest(15.0, {"mob_id": String(t.get("def").get("id")), "max_dist_m": 6.0})
+			await d.face_and_attack_nearest(15.0, {"target": t, "max_dist_m": 6.0, "chase": false})
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if hp_frac() < 0.2 and best_heal_item() != "":
 				await drink(best_heal_item())
@@ -1354,7 +1354,8 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 				await d.wait(1.0)
 			continue
 		idle = 0
-		var r: Dictionary = await d.face_and_attack_nearest(20.0, {"mob_id": String(target_node.get("def").get("id")),
+		# The chosen monster itself (a namesake nearer on the map's plan view can stand on another tier).
+		var r: Dictionary = await d.face_and_attack_nearest(20.0, {"target": target_node, "mob_id": String(target_node.get("def").get("id")),
 			"max_dist_m": search, "exclude": exclude})
 		out["fights"] = int(out["fights"]) + 1
 		if bool(r["ok"]):

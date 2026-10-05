@@ -17,9 +17,9 @@ extends PlaytestScenario
 ## hit must take exactly its damage off the monster's HP (canonical max HP), and every monster touch against
 ## accuracy.json incoming_damage (bounds cross-checked with MeowDB's avoidability-sim vectors). Like a player, the
 ## hunter picks up drops with Z (PlaytestKit.pickup: the precise last step into the canonical pickup box) and drinks a
-## Red Potion through the Item window (I, Use tab, slot, Use) below 40% HP. Natural HP recovery exists (it only runs
-## while the hunter stands still, so a hunter that keeps fighting barely gets any), and a death is handled as a
-## player does: OK on the notice, the canonical EXP penalty is checked, and the character walks back from town. The
+## Red Potion through the Item window (I, Use tab, slot, Use) below 40% HP; without one it rests (PlaytestKit.rest:
+## away from the monsters, standing still for natural HP recovery) to 80%. A death is handled as a player does: OK on
+## the notice, the canonical EXP penalty is checked, and the character walks back from town. The
 ## scenario reloads the process after level 5 (persistence check, then the stat window is re-verified) and keeps
 ## hunting in later phases until PLAYC_TARGET (env, default 10), the per-phase budget or MAX_PHASE. Travel, deaths,
 ## potions, pickups and screenshots are PlaytestKit's. Run it with
@@ -122,6 +122,9 @@ var pickup_steps := 0
 var potions_used := 0
 var potion_issues: Array = []
 var potion_rows: Array = []
+## Rests below 40% HP without a potion, and their game seconds.
+var rests := 0
+var rest_s := 0.0
 ## Where the player stood (map-local, rounded to 1 m) when a target could not be reached: cell -> count, plus samples.
 var unreachable_cells := {}
 var unreachable_samples: Array = []
@@ -297,6 +300,13 @@ func _hunt(target: int) -> void:
 		var c := d.character()
 		if c.hp < POTION_AT * StatCalculator.max_hp(c, db) and c.inventory.count(POTION) > 0 and potion_issues.size() < 5:
 			await _drink()
+			continue
+		if c.hp < POTION_AT * StatCalculator.max_hp(c, db) and c.inventory.count(POTION) == 0:
+			# No potion: rest as a player does (PlaytestKit.rest: away from the monsters, standing still for natural
+			# recovery, fighting back what it can beat) until 80% of Max HP.
+			var rs := await kit.rest(PlaytestKit.HP_RESUME)
+			rests += 1
+			rest_s += rs
 			continue
 		var opts := {"max_dist_m": SEARCH_M, "exclude": exclude}
 		var target_node := d.nearest_monster(opts)
@@ -1012,8 +1022,8 @@ func _phase_checks() -> void:
 	if potions_used > 0:
 		d.soft_check("phase %d: Red Potions drunk through the Item window restore the canonical 100 HP" % d.phase,
 			potion_issues.is_empty(), "%d potions; %s" % [potions_used, "; ".join(potion_issues)])
-	d.soft_check("phase %d: the hunter never died (it fights on below 40%% HP without a potion; natural recovery only runs while standing still)"
-		% d.phase, deaths.is_empty(), "%d deaths: %s" % [deaths.size(), deaths])
+	d.soft_check("phase %d: the hunter never died (below 40%% HP it drinks a Red Potion, or rests for natural recovery)"
+		% d.phase, deaths.is_empty(), "%d deaths, %d rests (%.0f s): %s" % [deaths.size(), rests, rest_s, deaths])
 	d.soft_check("phase %d: every trail walked on foot (no console fallback)" % d.phase, kit.fallbacks.is_empty(),
 		", ".join(kit.fallbacks))
 	d.note("phase %d: %d fights, %d kills %s, %d EXP from kills, %d landed hits checked (%d crits), %d whiffs, fight failures %s"

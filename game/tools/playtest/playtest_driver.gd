@@ -1023,12 +1023,16 @@ func find_portal(portal_name: String) -> PortalDef:
 # =================================================================================================================
 
 ## The nearest live monster in the current map (horizontal distance), or null. opts: "mob_id", "max_dist_m"
-## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true).
+## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true), "target" (a monster node: that one while it lives, e.g. the
+## one that just hit the player, never a namesake on another tier).
 func nearest_monster(opts: Dictionary = {}) -> Node3D:
 	var ms := monsters()
 	var p := player()
 	if ms == null or p == null:
 		return null
+	var forced: Variant = opts.get("target")
+	if forced is Node3D and is_instance_valid(forced) and bool((forced as Node3D).call("is_alive")):
+		return forced
 	var best: Node3D = null
 	var best_d := float(opts.get("max_dist_m", FIGHT_MAX_DIST_M))
 	var exclude: Dictionary = opts.get("exclude", {})
@@ -1046,7 +1050,8 @@ func nearest_monster(opts: Dictionary = {}) -> Node3D:
 
 ## Picks the nearest live monster, walks up to it (over the routes when it is far or on another tier, straight at it
 ## when close), faces it and attacks with the attack key until it dies or `max_s` pass. Reach comes from the weapon's
-## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster.
+## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster, plus
+## "chase" (true; false: never walk over the routes after it, give up when it is far or on another tier).
 ## Returns {"ok" (killed), "target" (mob id), "attacks", "hits", "misses" (rolled MISS), "whiffs" (nothing in reach),
 ## "damage", "time_s", "why"}. Await it.
 func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dictionary:
@@ -1101,6 +1106,10 @@ func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dict
 			best_t = game_s()
 		var stuck := game_s() - best_t > FIGHT_STUCK_S and dist > ideal
 		if dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
+			if not bool(opts.get("chase", true)):
+				# A fight back, not a hunt: no walk over the routes after it.
+				out["why"] = "out of reach without a chase (%.1f m away, %.1f m up/down)" % [dist, dy]
+				break
 			if routed >= 3:
 				out["why"] = "could not reach the monster (%.1f m away, %.1f m up/down)" % [dist, dy]
 				break
