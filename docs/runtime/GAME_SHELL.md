@@ -28,7 +28,7 @@ The shell puts these together in the right order and gives them screens.
 | `game/scripts/game/creation_model.gd` | `CreationModel` (pure): the creation screen's state, validation and stat preview |
 | `game/scripts/game/save_slot_index.gd` | `SaveSlotIndex` (pure): which slot Continue loads, which slot a new game uses |
 | `game/scripts/game/game_context.gd` | `GameContext`: the fixed contract handed to every subsystem (see "Changes to shared files") |
-| `game/scripts/ui/screens/*.gd` | the screens, built in code: `TitleScreen`, `TitleBackdrop`, `CreationScreen`, `LoadingScreen`, `SlotList`, `PauseMenu`, `ControlsPanel`, `DeathNotice`, `ScreenKit` (shared builders) |
+| `game/scripts/ui/screens/*.gd` | the screens, built in code: `TitleScreen`, `TitleBackdrop`, `CreationScreen`, `LoadingScreen`, `SlotList`, `PauseMenu`, `ControlsPanel`, `DeathNotice`, `DepartureScreen` (Iteration Three: "End of Maple Island" at Shanks' boat, INTERACTION_AND_NPC_UI.md), `ScreenKit` (shared builders) |
 | `game/scripts/autoload/game_state.gd` | the `Game` autoload: the shell adds the quest wiring, HP/MP helpers, `gender`, `close_game()` and `save_as_is()` |
 | `game/data/misostory/death.json` | the death adaptation: rule order and HP/MP after a respawn (its `respawn_player_spawn_index` belongs to the world runtime) |
 | `game/scenes/ui/screens/shell_checks.tscn` + `game/scripts/game/checks/shell_checks.gd` | drives the real main scene for the flow tests and the screenshots |
@@ -122,6 +122,7 @@ ARCHITECTURE.md "Shared contracts":
    |---|---|---|
    | MonsterSystem | `res://scenes/systems/monster_system.tscn` | systems |
    | LootSystem | `res://scenes/systems/loot_system.tscn` | systems |
+   | BreakableSystem | `res://scenes/systems/breakable_system.tscn` | systems |
    | InteractionSystem | `res://scenes/systems/interaction_system.tscn` | systems |
    | HUD | `res://scenes/ui/hud.tscn` | ui_root |
    | Minimap | `res://scenes/ui/minimap.tscn` | ui_root |
