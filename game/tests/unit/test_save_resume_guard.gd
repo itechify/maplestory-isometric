@@ -20,6 +20,7 @@ func parity_keys() -> Dictionary:
 		"test_it2_fixtures_resume_only_on_unchanged_maps": ["persistence:current-map", "mechanic:save-migration"],
 		"test_resume_hash_covers_the_shared_chunks_the_region_overlaps": ["persistence:current-map"],
 		"test_with_the_world_the_island_maps_cover_their_shared_chunks": ["persistence:current-map"],
+		"test_the_validator_is_told_the_saved_entry": ["persistence:current-map"],
 	}
 
 
@@ -82,6 +83,44 @@ func test_without_both_hashes_only_the_physical_check_applies() -> void:
 	var refused := ArrivalResolver.resolve_load(_location(null), defs, func(_m: String, _p: Vector3) -> bool: return false,
 		"000000001")
 	assert_eq(String(refused.step), ArrivalResolver.STEP_ENTRY, "the physical check still refuses bad points")
+
+
+## G1 (wave 3): the load chain tells a three-argument validator the saved entry (IslandWorld.validate_resume excuses
+## that portal's own trigger, because an accepted resume arrives through it and activate_map disarms it), and an
+## accepted resume records that same entry as its arrival. No entry, or an entry in another map, reaches the validator
+## as null; a two-argument validator is still called with the map and the point alone.
+func test_the_validator_is_told_the_saved_entry() -> void:
+	var seen: Array = []
+	var three := func(m: String, p: Vector3, entry: ArrivalRef) -> bool:
+		seen.append([m, p, entry])
+		return entry != null and entry.is_portal() and entry.portal_id == "west00"
+	var r := ArrivalResolver.resolve_load(_location(null), defs, three, "000000001")
+	assert_eq(seen.size(), 1, "the point is offered once")
+	assert_eq(String(seen[0][0]), MAP, "with its map")
+	assert_true((seen[0][1] as Vector3).is_equal_approx(defs.get_def(MAP).to_world(Vector3(4.0, 0.5, -2.0))), "the saved point")
+	var heard: Variant = seen[0][2]
+	assert_true(heard is ArrivalRef and (heard as ArrivalRef).map_id == MAP and (heard as ArrivalRef).portal_id == "west00",
+		"and the saved entry: %s" % str(heard))
+	assert_eq(String(r.step), ArrivalResolver.STEP_RESUME, "accepted because of its entry")
+	assert_eq((r.arrival as ArrivalRef).portal_id, "west00", "an accepted resume arrives through the saved entry")
+	# No entry: the validator hears null (this one then refuses) and the chain falls to player_spawns[0].
+	var no_entry := _location(null)
+	no_entry.erase("entry")
+	seen.clear()
+	var r2 := ArrivalResolver.resolve_load(no_entry, defs, three, "000000001")
+	assert_true(seen.size() == 1 and seen[0][2] == null, "no saved entry: the validator hears null")
+	assert_eq(String(r2.step), ArrivalResolver.STEP_PLAYER_SPAWN, "refused, no entry: player_spawns[0]")
+	# An entry in another map is dropped (logged) before the validator is asked.
+	var foreign := _location(null)
+	foreign["entry"] = {"map_id": "000000001", "portal_id": "east00"}
+	seen.clear()
+	var r3 := ArrivalResolver.resolve_load(foreign, defs, three, "000000001")
+	assert_true(seen.size() == 1 and seen[0][2] == null, "an entry of another map reaches the validator as null")
+	assert_eq(String(r3.step), ArrivalResolver.STEP_PLAYER_SPAWN, "and excuses nothing")
+	# A two-argument validator (the older tests' lambdas) is still called, with the map and the point.
+	validated = []
+	assert_eq(String(_resolve(_location(null)).step), ArrivalResolver.STEP_RESUME, "two arguments: still validated")
+	assert_eq(validated.size(), 1, "called once")
 
 
 ## The guard covers the shared world chunks too (MapDefinitions.resume_hash): a trap fix may land in World_Plinths,

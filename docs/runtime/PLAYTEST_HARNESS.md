@@ -357,10 +357,10 @@ Engine errors, Notes and Phases. Console lines while a run plays: `PLAYTEST STEP
 ## PlaytestKit
 
 `var k := PlaytestKit.new(d)` (`game/tools/playtest/playtest_kit.gd`) holds the composite play that every scenario used
-to copy (Tests A, C and E, `quest`, `playthrough`, `kit`, `npc_bubbles`, `npc_shanks`, `pause_load` and `walk_probe` use
-it; `test_b_combat`, `test_d_inventory`, `test_f_death` and `test_g_shop` still carry their own copies of some helpers).
-Everything it does goes through
-the driver's real input and reads the live game; nothing writes game state, so every kit call is legal in strict mode.
+to copy (`test_a_traversal`, Tests C and E, `quest`, `playthrough`, `kit`, `npc_bubbles`, `npc_shanks`, `pause_load`,
+`test_box` (its Three Snails throw) and `walk_probe` use it; `test_b_combat`, `test_d_inventory`, `test_f_death` and
+`test_g_shop` still carry their own copies of some helpers). Everything it does goes through the driver's real input
+and reads the live game; nothing writes game state, so every kit call is legal in strict mode.
 
 | Area | Calls |
 |---|---|
