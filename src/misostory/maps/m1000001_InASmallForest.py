@@ -272,6 +272,12 @@ def build(m):
 
     m.terrace("P24_Ridge", [(16.8, 22.4), (34.4, 23.0), (34.8, 34.6), (16.4, 34.6), (16.4, 28.6), (16.8, 26.0)],
               top=Z_P24, bottom=-0.5)
+    # The strip east of the ridge and behind P14 (x 34.4-38.6, y 23-34.6) was plinth-level ground walled in by the
+    # ridge, P14 and the containment ring: a player who stepped off P14's back edge dropped 4.4 m into it and could
+    # not get out (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md). Filled 0.2 m below P14, so it is
+    # a back shelf of the arrival ledge.
+    m.terrace("P14_BackShelf_Fill", [(34.0, 23.0), (38.6, 23.0), (38.6, 34.6), (34.4, 34.6)], top=Z_P14 - 0.2,
+              bottom=-0.5)
     m.stairs("St_P14_P24", (33.0, 15.4, Z_P14), (33.0, 23.1, Z_P24), 2.6, step_h=0.2)
     # the three classic ropes hanging off the ridge like curtains (x 811 / 890 / 981)
     m.ladder("Vine_P24_A", 25.8, 22.1, 0.0, Z_P24, facing=90, kind="rope")

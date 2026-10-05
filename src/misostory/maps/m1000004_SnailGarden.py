@@ -266,6 +266,12 @@ def build(m):
     m.terrace("CarrotBed_T1", [(-0.8, 24.0), (9.4, 24.2), (9.4, 26.6), (-0.8, 27.0)], top=T1, bottom=T21 - 0.4,
               wobble_amt=0.1)
     rope("Rope_T6_T1", 1.2, cap_edge(m, 1.2, 22.8, T1), T6, T1)
+    # Two pockets of the back lane walled in by the column (Iteration Three stuck-region scan): behind the door
+    # block (between it, T6, T8 and the ring) a turf step halfway up to the door block's top; between T8, T11, T6
+    # and the carrot bed a rock fill 0.2 m below T11.
+    turf_step(m, "Step_Lane_T13", -0.8, 1.2, 17.6, 1.6, (T21 + T13) / 2, T21)
+    m.terrace("Stone_T8_T11_Fill", [(2.8, 22.4), (5.8, 22.4), (5.8, 24.2), (2.8, 24.2)], top=T11 - 0.2,
+              bottom=T21 - 0.4, style="grass_rock", stones=False, wobble_amt=0.05)
     # the door hill at the foot of the column, its front face toward the courtyard and the camera
     m.terrace("DoorHill", [(-0.8, 31.0), (-0.8, 26.4), (9.0, 26.0), (9.6, 25.6), (12.2, 25.6), (12.6, 26.4),
                            (11.4, 27.4), (11.3, 31.0)], top=DOOR_HILL, bottom=T21 - 0.4, stones=False)
@@ -285,7 +291,9 @@ def build(m):
     m.terrace("Ledge_T5", geo.rounded_rect(35.0, 23.6, 40.8, 27.8, 0.8), top=T5, bottom=T10 - 0.4)
     # (kept forward of the T2 lip so the T5 -> T2 rope stands on flat ground beside it)
     turf_step(m, "Step_T5_T4", 34.7, 36.1, 25.15, 2.0, (T5 + T4) / 2, T5)
-    m.terrace("Summit_T0", [(19.8, 25.0), (28.6, 25.0), (28.6, 31.0), (20.0, 31.0)], top=T0, bottom=T21 - 0.4)
+    # (down to the ground: floating at T21 - 0.4 it left a 1.85 m high cavern under itself, entered off the back
+    # lane's edge and with no way out; Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md)
+    m.terrace("Summit_T0", [(19.8, 25.0), (28.6, 25.0), (28.6, 31.0), (20.0, 31.0)], top=T0, bottom=-0.5)
     ye_t0a = cap_edge(m, 23.5, 23.6, T0)
     ye_t0b = cap_edge(m, 27.9, 23.6, T0)
     rope("Rope_T9_T0", 23.5, ye_t0a, T9, T0)
@@ -322,6 +330,10 @@ def build(m):
     rope9_x, rope10_x = st["T14"][0] + 0.1, st["T17"][0] + 0.3
     rope("Rope_T14_T9", rope9_x, cap_edge(m, rope9_x, st["T14"][1], T9), st["T14"][2], T9)
     rope("Rope_T17_T10", rope10_x, cap_edge(m, rope10_x, st["T17"][1], T10), st["T17"][2], T10)
+    # the plinth-level nook behind the west posts (between the shelf's east edge, T9 and the posts T18 / T14) was a
+    # pit a player fell into from the shelf (Iteration Three stuck-region scan): filled 0.2 m below the shelf
+    m.terrace("Shelf_Nook_Fill", [(17.6, 16.4), (20.2, 16.4), (20.2, 18.4), (17.6, 18.4)], top=T21 - 0.2,
+              bottom=-0.5, style="grass_rock", stones=False, wobble_amt=0.05)
 
     # ---------------- paths ----------------
     m.path("Path_Courtyard", [(14.0, 29.8), (14.0, 28.0), (13.6, 22.0), (13.0, 15.0), (12.6, 10.4), (12.9, 7.6),

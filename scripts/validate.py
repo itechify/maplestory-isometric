@@ -1561,6 +1561,10 @@ def sec_ring_band():
         rim = LY.RIM_EDGE.get(mid)
         poly = LY.footprint_world(mid, origins, margin=inset)  # local corners (0,0) (L,0) (L,D) (0,D) grown by inset
         names = ["front", "right", "back", "left"]  # edge i runs from poly[i] to poly[i + 1]
+        o = origins[mid]
+        yaw = math.radians(LY.world_yaw(mid))
+        beyond = {"front": lambda lx, ly: ly < 0.0, "back": lambda lx, ly: ly > m["D"],
+                  "left": lambda lx, ly: lx < 0.0, "right": lambda lx, ly: lx > m["L"]}
         worst, pits = None, []
         for i in range(4):
             if rim == names[i]:
@@ -1574,6 +1578,11 @@ def sec_ring_band():
                 x, y = ax + (bx - ax) * t, ay + (by - ay) * t
                 if any(math.hypot(x - g[0], y - g[1]) < LY.GATE_HALF_WIDTH_M + RING_BAND_GATE_CLEAR_M for g in gates):
                     continue
+                if rim:  # the rim edge's own band (past the quay, over the island's rim) belongs to the rim
+                    dx, dy = x - o[0], y - o[1]
+                    lx, ly = dx * math.cos(-yaw) - dy * math.sin(-yaw), dx * math.sin(-yaw) + dy * math.cos(-yaw)
+                    if beyond[rim](lx, ly):
+                        continue
                 h = bvh.ray_cast(Vector((x, y, base + 40.0)), Vector((0, 0, -1)), 200.0) if bvh else (None,)
                 depth = None if h[0] is None else round(base - h[0].z, 2)
                 if depth is not None and depth <= step_up + 0.02:
@@ -1584,8 +1593,6 @@ def sec_ring_band():
         if pits:
             n_bad += 1
             # Report each pit run once (the samples cluster at corners), in map-local Blender coordinates.
-            o = origins[mid]
-            yaw = math.radians(LY.world_yaw(mid))
             runs = []
             for x, y, depth in pits:
                 dx, dy = x - o[0], y - o[1]

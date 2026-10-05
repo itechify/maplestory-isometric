@@ -368,10 +368,10 @@ def _hang_vines(m, pts, dy=-1.0):
                 rot=(i * 29) % 30 - 15, scale=(1.0, 1.0, sz), name="FaceVine")
 
 
-def _vine(m, name, x, y, z0, z1):
+def _vine(m, name, x, y, z0, z1, facing=90):
     """A climbable leafy green vine: the kit vine (hung plumb against the face from a leaf clump on the lip),
     thickened with this forest's chunky leaf segments along the strand where the kit actually hung it."""
-    obj = m.ladder(name, x, y, z0, z1, facing=90, kind="vine")
+    obj = m.ladder(name, x, y, z0, z1, facing=facing, kind="vine")
     lo, hi = m.origin.z + z0 + 0.6, m.origin.z + z1 - 0.6
     mid = [v.co for v in obj.data.vertices if lo < v.co.z < hi]
     sx, sy = x, y
@@ -470,6 +470,10 @@ def build(m):
     _vine(m, "Vine_1410", 33.6, 15.0, G3, P01C)
     _vine(m, "Vine_286", 13.6, 26.0, P01A, RIDGE)
     _vine(m, "Vine_1349", 32.4, 25.4, P01C, P02)
+    # the back yard behind the battlements (the shelf behind the ridge, x 7-20, y 31-37) was walled in by the
+    # ridge, the stumps and the containment ring: a player who dropped into it from the crenels could not climb out
+    # (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md). A vine up P04's back face is its way out.
+    _vine(m, "Vine_BackYard", 13.7, 35.4, P01A, RIDGE, facing=-90)
 
     # ================= dressing =================
     # --- entry bluff: irises by the exit, kept low so the ravine opens up behind it

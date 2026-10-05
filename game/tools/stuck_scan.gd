@@ -1441,7 +1441,7 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 		if do_verify:
 			verify(g)
 		if png_dir != "":
-			heatmap(g).save_png(png_dir.path_join("stuck_%s.png" % id))
+			heatmap(g, 5).save_png(png_dir.path_join("stuck_%s.png" % id))
 		var comps: Array = []
 		for comp in g.components:
 			var entry := report_component(g, comp)

@@ -22,10 +22,12 @@ STEP = 3.0  # plinth terrace step height
 # 4.6). At 0.8 m with 6.4 m round corners it did not, and the Iteration Three stuck-region scan (docs/runtime/
 # STUCK_SCAN.md) found slots 2.3-2.6 m deep at the map corners beside those edges, between the plinth top and the ring
 # wall, that no jump climbs out of.
-THIN_MARGIN_M = 1.5
-# Every plinth corner covers the footprint corner pushed out this far on both axes (the containment ring's corner),
-# with CORNER_SLACK_M to spare for the outline's resampling and smoothing (rounded_footprint(cover=...)).
-CORNER_COVER_M = 1.0
+# (1.2 m, with the cap's 0.28 m lip, stays inside every trail's flat junction exit, at least 1.5 m long.)
+THIN_MARGIN_M = 1.2
+# Every plinth corner covers the footprint corner pushed out this far on both axes: the farthest a body's centre gets
+# inside the ring (ring offset 1.0 m - body radius 0.3 m) plus 0.15 m, with CORNER_SLACK_M to spare for the outline's
+# resampling and smoothing (rounded_footprint(cover=...)).
+CORNER_COVER_M = 0.85
 CORNER_SLACK_M = 0.2
 
 
@@ -96,7 +98,7 @@ def rounded_footprint(mid, origins, margin, corner=6.0, seed=0, wobble_amt=1.2, 
     """front: margin on the local -y edge if different (e.g. a map whose front edge is the island cliff).
     sides: {'left'|'right'|'front'|'back': margin} overrides per edge.
     cover: when set, no corner is rounder than lets it cover the footprint corner pushed out by `cover` on both axes
-    (corner_radius); the plinth top passes footprint + CORNER_COVER_M, the containment ring line."""
+    (corner_radius): plinth() passes CORNER_COVER_M, so no corner leaves a slot inside the containment ring."""
     m = LY.MAPS[mid]
     o = origins[mid]
     sm = dict(sides or {})

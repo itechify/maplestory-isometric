@@ -270,8 +270,20 @@ def build(m):
     m.ladder("Rope_2520", 56.1, 30.6, T22, T12, facing=90, kind="rope")
     # (its east end is pulled back and rounded so it no longer stacks flush above T22's east wall; its
     # front comes forward to y ~38.5 east of the arch so the grove and the walk both fit)
+    # (its east end reaches the edge + 0.9 m: at x 64.4 it left a body-wide plinth-level strip beside it, walled
+    # by the containment ring, that a player fell into off the summit and could not leave)
     m.terrace("T0_Summit", [(27.2, 40.8), (28.6, 39.0), (34.4, 39.0), (37.2, 41.1), (39.4, 41.2), (41.0, 38.7),
-                            (62.0, 38.4), (63.6, 39.1), (64.4, 40.6), (64.4, 44.6), (27.2, 44.6)], top=SUMMIT,
+                            (62.0, 38.4), (63.6, 39.1), (64.9, 40.9), (64.9, 44.6), (27.2, 44.6)], top=SUMMIT,
+              bottom=-0.5)
+    # Pockets the Iteration Three stuck-region scan found walled in between these bands (docs/runtime/STUCK_SCAN.md):
+    # the plinth-level slot behind T22 under T12 and the summit (the camera-facing east slot) gets a rope up T22's
+    # back face; the crack between T23 and T13, the notch between the summit, T12 and the arch's east leg, and the
+    # gap between T31, T22 and T12 are filled 0.2 m below the neighbour they join.
+    m.ladder("Rope_Slot_T22", 62.6, 31.8, 0.0, T22, facing=-90, kind="rope")
+    m.terrace("T23_T13_Fill", [(-0.8, 30.7), (10.0, 30.7), (10.0, 31.2), (6.0, 31.8), (-0.8, 33.0)],
+              top=MID + STEP - 0.2, bottom=-0.5)
+    m.terrace("T12_Notch_Fill", [(36.4, 38.4), (38.4, 38.4), (38.8, 41.6), (36.6, 41.6)], top=T12 - 0.2, bottom=-0.5)
+    m.terrace("T31_Corner_Fill", [(53.4, 29.9), (55.0, 29.9), (55.0, 31.6), (53.4, 31.6)], top=T31 - 0.2,
               bottom=-0.5)
 
     # ================= the V: pillar + stacked pairs (in front of the arch) =================
