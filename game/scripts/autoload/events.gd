@@ -22,6 +22,10 @@ signal player_damaged(amount: int, source_monster_id: String)
 signal player_missed_by(source_monster_id: String)
 signal player_died(map_id: String)
 signal player_respawned(map_id: String)
+## Sitting (contract C5), emitted by the PlayerController: the player sat down on chair item `chair_id`, or stood up
+## (`reason`: move, jump, attack, sit_key, chair, knockback, death, climb, teleport, warp, chair_lost, character, ...).
+signal player_sat_down(chair_id: String)
+signal player_stood_up(reason: String)
 
 # --- combat -------------------------------------------------------------------------------------------------
 signal monster_hit(monster_id: String, damage: int, critical: bool)

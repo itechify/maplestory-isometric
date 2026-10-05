@@ -3,11 +3,14 @@ extends MisoWindow
 ## The Item Inventory window (toggle_inventory, I): the five classic tabs (Equip / Use / Set-up / Etc / Cash), a
 ## slot grid sized from the live Inventory, procedural icons with stack counts, an inspect tooltip, mesos, and the
 ## actions:
-##   - double-click (or select + Enter, or the action button): use a consumable / equip a piece of equipment;
+##   - double-click (or select + Enter, or the action button): use a consumable / equip a piece of equipment / sit on a
+##     chair in the Set-up tab, or stand up from the chair the player sits on (ItemService.use_item -> Chairs.use);
 ##   - drag a slot onto another slot of the same tab: move / merge / swap (ItemService.move);
-##   - drag a consumable onto a HUD quickslot, or select it and press "Set key" then a key 1-8: bind a quickslot.
+##   - drag a consumable onto a HUD quickslot, or select it and press "Set key" then a key 1-8: bind a quickslot (any
+##     item MisoQuickslots.can_bind accepts).
 ## Every change goes through ItemService, so Events (inventory_changed, item_used, equipment_changed ...) fire and
-## the HUD, quests and saves hear about it. Failures are shown in the window and as an Events.notice line.
+## the HUD, quests and saves hear about it. Failures are shown in the window and as an Events.notice line. A chair is
+## used on the shell's player (env.ctx.player), the seated-state owner.
 
 ## Slots per grid row (presentation; the slot count itself comes from Inventory.capacity()).
 const COLUMNS := 4
@@ -105,6 +108,10 @@ func _build() -> void:
 	body.add_child(key_picker)
 
 	status_label = add_status_line("Double-click an item to use or equip it.")
+	# The Sit / Stand label follows the player's seat, whoever changed it (X, a quickslot, a move key).
+	if env != null:
+		for sig in ["player_sat_down", "player_stood_up"]:
+			env.connect_bus(sig, _on_seat_changed)
 
 
 func refresh() -> void:
@@ -156,7 +163,8 @@ func select_slot(index: int) -> void:
 	_update_actions()
 
 
-## Uses (consumable) or equips (equipment) the item in a slot of the current tab. Returns the service result.
+## Uses (consumable), equips (equipment) or sits on / stands up from (chair) the item in a slot of the current tab.
+## Returns the service result.
 func activate_slot(index: int) -> Dictionary:
 	if index < 0 or index >= slots.size() or slots[index].is_empty() or env == null:
 		return {"ok": false, "code": "slot_empty"}
@@ -170,6 +178,11 @@ func activate_slot(index: int) -> Dictionary:
 		res = items.equip(item_id, index if current_tab == "equip" else -1)
 		if res.get("ok", false):
 			set_status("Equipped %s." % def.name)
+	elif def != null and def.is_chair():
+		items.seat = _seat()
+		res = items.use_item(item_id)
+		if res.get("ok", false):
+			set_status("You sit on %s." % def.name if String(res.get("action", "")) == "sit" else "You stand up.")
 	elif def != null and def.is_consumable():
 		res = items.use_item(item_id)
 		if res.get("ok", false):
@@ -237,15 +250,36 @@ func _update_actions() -> void:
 	if def != null and def.is_equipment():
 		action_button.text = "Equip"
 		action_button.disabled = false
+	elif def != null and def.is_chair():
+		action_button.text = "Stand" if _seated_on(def.id) else "Sit"
+		action_button.disabled = false
 	elif def != null and def.is_consumable():
 		action_button.text = "Use"
 		action_button.disabled = false
 	else:
 		action_button.text = "Use"
 		action_button.disabled = true
-	key_button.disabled = def == null or not def.is_consumable()
+	key_button.disabled = def == null or not MisoQuickslots.can_bind(def.id, env.get_db())
 	if key_button.disabled:
 		key_picker.visible = false
+
+
+## The player that sits on chairs: the shell's player (env.ctx.player), or null (Chairs.seat_for then finds the live
+## player for the live character).
+func _seat() -> Object:
+	var p: Object = env.ctx.player if env != null and env.ctx != null else null
+	return p if p != null and p.has_method("sit") else null
+
+
+## True while the player sits on the chair `item_id`.
+func _seated_on(item_id: String) -> bool:
+	var s := _seat()
+	return s != null and bool(s.call("is_seated")) and String(s.call("seated_chair_id")) == item_id
+
+
+func _on_seat_changed(_what: String = "") -> void:
+	if visible:
+		_update_actions()
 
 
 func _on_context(slot: MisoItemSlot) -> void:
@@ -262,6 +296,8 @@ func _on_hover(slot: MisoItemSlot, inside: bool) -> void:
 		var hint := ""
 		if def != null and def.is_equipment():
 			hint = "Double-click to equip"
+		elif def != null and def.is_chair():
+			hint = "Double-click to sit or stand up"
 		elif def != null and def.is_consumable():
 			hint = "Double-click to use  ·  drag to a quickslot"
 		tooltip_host.call("show_item_tooltip", slot.item_id, {"qty": slot.qty, "data": slot.data, "hint": hint}, slot)

@@ -1,7 +1,16 @@
 extends TestCase
-## Natural HP recovery in the real game: the "regen" playtest scenario (no recovery while walking with real input, then
-## one combat.json natural_recovery tick per interval while standing still, never above max HP) runs headless through
-## PlaytestProcess and must PASS. Needs the Blender export (INCLUDE_WORLD=1); prints a SKIP line without it.
+## Natural HP recovery and sitting in the real game: the "regen" playtest scenario (recovery.json natural_hp: 6 s still
+## + 5 s walking + 4 s still reach one tick, jumping and attacking pause the clock, The Green Relaxer sits the player
+## down and adds its own +30 per 10 s, move keys and warps stand up, the clock survives Quit Game + Continue and the
+## seat does not) runs headless through PlaytestProcess and must PASS. Needs the Blender export (INCLUDE_WORLD=1);
+## prints a SKIP line without it.
+
+
+func parity_keys() -> Dictionary:
+	return {"test_regen_scenario_passes_in_the_real_game": ["mechanic:natural-hp-regen",
+		"mechanic:natural-hp-regen-pause-walking", "mechanic:natural-hp-regen-pause-jumping",
+		"mechanic:natural-hp-regen-pause-attacking", "mechanic:natural-hp-regen-sitting", "mechanic:sitting", "chair:522",
+		"mechanic:chair-hp-bonus"]}
 
 
 func test_regen_scenario_passes_in_the_real_game() -> void:

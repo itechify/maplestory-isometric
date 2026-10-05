@@ -1,0 +1,40 @@
+{
+  "id": "recovery",
+  "kind": "misostory_adaptation",
+  "description": "Natural recovery and sitting. natural_hp is the project owner's rule (docs/ITERATION_THREE_BRIEF.md, 'Resolve Iteration Two Placeholder: Natural HP Regeneration' and 'Natural HP Regeneration'; contract C4), verified against the brief, not a MeowDB value: MeowDB documents natural regeneration only qualitatively (data/canonical/formulas/recovery.json natural_regeneration, documented_values false). natural_mp records a source gap. chair_bonus and sitting are MisoStory adaptations around the canonical chair data (items/<id>.json setup.hp_recovery_bonus every setup.interval_s, read from the item record at runtime and never repeated here). Read by scripts/core/character/natural_recovery_rule.gd (NaturalRecoveryRule) and scripts/core/items/chairs.gd (Chairs); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md and docs/runtime/PLAYER_AND_CAMERA.md.",
+  "natural_hp": {
+    "hp_per_tick": 10,
+    "tick_s": 10.0,
+    "eligible_activities": [
+      "still",
+      "seated"
+    ],
+    "reason": "The owner's rule: 10 HP per 10 seconds of eligible regeneration time. Eligible: standing still and sitting, which are PlayerController.activity() 'still' (grounded, no movement input, horizontal speed about zero) and 'seated' (contract C4). Every other activity (walking, jumping or any airborne state, attacking or casting, climbing, hit-stun, dead, other such as a warp) pauses the clock and never resets it, so 6 s still, 5 s walking and 4 s still reach the tick. There is no out-of-combat delay. HP never goes above Max HP, and while HP is full the clock holds (contract C4). The clock is CharacterState.natural_recovery.hp_rest_s, so a save keeps it. This replaces Iteration Two's adaptation (combat.json natural_recovery: a 5 s combat delay and a timer that restarted on every movement).",
+    "verified": true,
+    "verified_against": "docs/ITERATION_THREE_BRIEF.md (Natural HP Regeneration)"
+  },
+  "natural_mp": {
+    "mp_per_tick": null,
+    "tick_s": null,
+    "status": "unresolved_source_gap",
+    "reason": "No natural MP recovery. MeowDB documents none: formulas/recovery.json natural_regeneration.mp_per_tick is null and its gaps say 'Whether natural regeneration also restores MP is not stated'; the only MP sources in the cache are consumables (Orange, Lemon, Blue Potion) and the level-up heal. The brief forbids inferring an MP rule from the HP rule ('Do not invent matching MP behavior merely for symmetry'), so the values stay null and this stays an open gap until MeowDB or the owner supplies a rule.",
+    "verified": false
+  },
+  "chair_bonus": {
+    "stand_resets_clock": true,
+    "full_hp_holds_clock": true,
+    "reason": "Canonical: a chair restores 'an additional 30 HP every 10 seconds' while sitting on it (items/522.json setup.hp_recovery_bonus 30, interval_s 10; formulas/recovery.json chairs stacks_with_natural_regen true). Contract C5 puts that bonus on its own clock, added on top of natural recovery (which is eligible while seated): 10 s seated on The Green Relaxer gives 10 + 30 HP. MeowDB does not say when the chair's 10 s start or what happens to them when the player stands. stand_resets_clock: the chair clock runs only while seated on a chair and starts again at 0 at each sit (the seated state is not saved either). full_hp_holds_clock: like the natural clock, it holds while HP is full. Never above Max HP.",
+    "verified": false
+  },
+  "sitting": {
+    "sit_key_chair": "first_owned",
+    "reason": "MeowDB documents sitting on chairs (items/522.json, quest 1016's 'press the sit key') but no sitting without a chair and no map benches on Maple Island, so there is no ground sit. The sit key (X, Controls 'sit') toggles: seated, it stands the player up; standing, it sits on the first chair in the Set-up tab (sit_key_chair 'first_owned', the only value Chairs supports), and with no chair it shows 'You do not have a chair to sit on.' A chair is also used from the Set-up tab (double-click or the Sit button) or a quickslot. Sitting needs the player grounded, still, alive and free of modal windows; any movement, jump, attack, skill, knockback, death, climb, warp or teleport stands the player up, and the press that stands the player up does not also move or jump that tick (contract C5). The seated state is never saved (contract C3).",
+    "verified": false
+  },
+  "provenance": {
+    "natural_hp": {
+      "authority": "Project owner",
+      "decision": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration; Natural HP Regeneration (contract C4)"
+    }
+  }
+}

@@ -333,20 +333,48 @@ tick 30 monsters again with no debug spawn among them.
 ## Natural HP recovery (`NaturalRecovery`)
 
 MeowDB documents natural regeneration only qualitatively ("When you're not in combat, just standing still will slowly
-restore your HP"; `formulas/recovery.json` natural_regeneration, documented_values false), so the numbers are a
-MisoStory adaptation in `data/misostory/combat.json` `natural_recovery` (verified false, reason in the file):
-10 HP every 10 s, after 5 s without combat, only while standing still. MP does not recover on its own (MeowDB names HP
-only).
+restore your HP"; `formulas/recovery.json` natural_regeneration, documented_values false). The rule is the project
+owner's (docs/ITERATION_THREE_BRIEF.md "Natural HP Regeneration", contract C4), recorded in
+`data/misostory/recovery.json` `natural_hp` with `provenance.natural_hp` authority "Project owner" and
+`verified: true` against the brief:
 
-- `scripts/core/character/natural_recovery_rule.gd` (`NaturalRecoveryRule`): the pure rule. A missing config key is a
-  data error (no invented default).
-- `scripts/actors/combat/natural_recovery.gd` (`NaturalRecovery`): added to the player by `MonsterSystem.attach_player`
-  after `PlayerCombat`. It reports "resting" (alive, grounded, horizontal speed under 0.05 m/s, not climbing, not in
-  hit-stun, MapSession idle), counts `PlayerCombat.attack_started`, `Events.player_damaged` and
-  `Events.player_missed_by` as combat, and heals through `Game.change_hp`, so the HUD sees every tick.
-- Tests: `test_natural_recovery.gd` (the rule, the shipped config is an unverified adaptation over a canonical gap) and
-  `test_playtest_regen.gd`, which runs the `regen` scenario in the real game: no recovery during 12 s of walking, then
-  +10 HP after 10 s standing still, +10 more 10 s later, capped at max HP.
+- **10 HP per 10 s of eligible time.** Eligible activities (`natural_hp.eligible_activities`, read against
+  `PlayerController.activity()`): `still` (grounded, no movement input, about zero speed) and `seated`.
+- **Pause, never reset.** Every other activity (walking, jumping, attacking or casting, climbing, hit-stun, dead, a
+  warp) leaves the clock where it is, so 6 s still + 5 s walking + 4 s still reach the tick. There is no
+  out-of-combat delay: a monster touch only matters through what it does to the activity (a knockback is hit-stun).
+- **Max HP.** HP never goes above Max HP, and while HP is full (or 0) the clock holds.
+- **Saved.** The clock is `CharacterState.natural_recovery.hp_rest_s` (contract C3): the node reads it from the live
+  character before each step and writes it back after, so a save keeps the paused time, Continue restores it, and a
+  new or replaced character uses its own.
+- **Chairs.** While seated on a chair, the chair's canonical bonus (`items/<id>.json` `setup.hp_recovery_bonus` every
+  `setup.interval_s`; The Green Relaxer: 30 HP every 10 s) runs on its own clock on top (contract C5): 10 s on The
+  Green Relaxer give 10 + 30 HP. When that clock starts and whether it holds at full HP are adaptations
+  (`recovery.json` `chair_bonus`, verified false): it starts again at 0 at each sit and holds while HP is full.
+- **MP.** No natural MP recovery: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
+  `unresolved_source_gap`). The brief forbids inferring one from the HP rule.
+
+This replaces Iteration Two's adaptation (`combat.json` `natural_recovery`: a 5 s out-of-combat delay and a rest that
+started over on every movement, attack or monster touch), which is gone.
+
+- `scripts/core/character/natural_recovery_rule.gd` (`NaturalRecoveryRule`): the pure rule (`step(dt, activity, hp,
+  max_hp, chair_hp, chair_interval_s)`, `rest_s`, `chair_rest_s`). A missing config key is a data error (no invented
+  default). Ticks are counted with a 1 µs tolerance, so 600 physics ticks of 1/60 s are exactly 10 s.
+- `scripts/actors/combat/natural_recovery.gd` (`NaturalRecovery`): added to the player by `MonsterSystem.attach_player`.
+  It runs after the player and PlayerCombat (`process_physics_priority` 20), reads `player.activity()` (`dead` while
+  `Game.is_character_dead()`, `other` while MapSession is not idle), adds the seated chair's bonus (`Chairs.bonus`)
+  and heals through `Game.change_hp`, so the HUD sees every tick.
+- Tests: `test_natural_recovery.gd` covers the brief's list: 10 continuous eligible seconds, 9.9 s, partial
+  accumulation (6 + 5 + 4), movement, jump and attack pauses, resume after a pause, sitting, full HP, save/load
+  (through a JSON round trip of `CharacterState` and a character swap). It also covers the chair clock, the MP gap,
+  and the node on a real `PlayerController` (walking, held jump, a stub PlayerCombat attacking, a dialogue, a warp).
+  `test_playtest_regen.gd` runs the `regen` scenario in the real game with real input; see
+  [PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) for the harness. Run on 2026-10-05: 29 checks PASS over 2 processes. The
+  checks: 6 s still bank 6.00 s; 5 s walking leave them at 6.00 s; 4.00 s more give one tick; 5 s of held jump move
+  the clock 2.25 → 2.27 s; 7 held swings move it 2.40 → 2.42 s; the clock then resumes to the next tick; X without a
+  chair says so; a double-click on The Green Relaxer in the Set-up tab sits; 10 s seated give 5 → 45 HP (+10 +30);
+  a move key and a warp stand up; Quit Game with 4.40 s banked; after Continue the player stands, 4.40 s are restored
+  and complete the next tick, and X sits again.
 
 ## Damage numbers (`DamageNumbers`)
 

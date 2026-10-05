@@ -11,9 +11,9 @@ signal closed
 const CONTROLS_SCRIPT := preload("res://scripts/autoload/controls.gd")
 const BINDINGS: Dictionary = CONTROLS_SCRIPT.BINDINGS
 const LABELS: Dictionary = CONTROLS_SCRIPT.LABELS
-## Reserved actions with no handler yet (no sitting, no skills window, no minimap): hidden from the list. Take one off
-## when its feature lands; test_shell_screens fails while a hidden action is named by another script.
-const NOT_AVAILABLE: PackedStringArray = ["sit", "toggle_skills", "toggle_minimap"]
+## Reserved actions with no handler yet (no skills window, no minimap): hidden from the list. Take one off when its
+## feature lands; test_shell_screens fails while a hidden action is named by another script.
+const NOT_AVAILABLE: PackedStringArray = ["toggle_skills", "toggle_minimap"]
 ## Mouse button names for "mouse:<n>" bindings.
 const MOUSE_NAMES := {1: "Left click", 2: "Right click", 3: "Middle click"}
 
