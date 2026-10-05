@@ -434,26 +434,26 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
-### Results (2026-10-05, the Iteration Three base build with this harness, seeds 1 and 3)
+### Results (2026-10-05, the Iteration Three base build with this harness, seeds 1, 2 and 3)
 
 On each seed 19 of 20 quests pass in the real game with real input, every chain strict after its setup (0 console
 steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches). 1012 (Pio) is blocked by design: Rusty Screw and
 Old Wooden Board come only from the Wooden Box, and the base build has no breakables runtime (contract C8), so its run
 fails at "Wooden Boxes stand in 000001010" right after the accept. The WARNs are the C3 `rewards_received` record of
-1008 and 1011, which the quest log does not keep yet. Checks per quest are the same on both seeds; the random rewards
+1008 and 1011, which the quest log does not keep yet. Checks per quest are the same on every seed; the random rewards
 and the times differ.
 
-| Chain | Quests | Result (checks) | Setup console steps | Phases | Game s (seed 1 / 3) | Wall s (seed 1 / 3) | Random reward (seed 1 / 3) |
+| Chain | Quests | Result (checks) | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
 |---|---|---|---|---|---|---|---|
-| 1000-1001 | Sera's Mirror | PASS (45) | 0 | 3 | 74 / 76 | 14 / 14 | |
-| 1002 | Roger's Apple | PASS (25) | 1 | 3 | 54 / 48 | 11 / 11 | |
-| 1003-1004 | Nina and Sen's dinner | PASS (44) | 1 | 3 | 96 / 101 | 15 / 16 | |
-| 1005 | Todd's How-to-Hunt | PASS (27) | 1 | 3 | 104 / 77 | 15 / 16 | |
-| 1006, 1009, 1010 | Mai's Training | PASS (93) | 1 | 6 | 757 / 574 | 148 / 121 | |
-| 1007-1008 | the letters | PASS (48, 1 WARN) | 2 | 3 | 420 / 313 | 71 / 68 | 712 Black Headband / 713 Green Headband |
-| 1011 | Biggs's collection | PASS (30, 1 WARN) | 2 | 3 | 533 / 1112 | 93 / 186 | 559 Fruit Knife / 559 Fruit Knife |
-| 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 19 / 33 | 9 / 6 | |
-| 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 58 / 59 | 26 / 24 | |
+| 1000-1001 | Sera's Mirror | PASS (45) | 0 | 3 | 74 / 79 / 76 | 14 / 13 / 14 | |
+| 1002 | Roger's Apple | PASS (25) | 1 | 3 | 54 / 57 / 48 | 11 / 10 / 11 | |
+| 1003-1004 | Nina and Sen's dinner | PASS (44) | 1 | 3 | 96 / 100 / 101 | 15 / 15 / 16 | |
+| 1005 | Todd's How-to-Hunt | PASS (27) | 1 | 3 | 104 / 94 / 77 | 15 / 13 / 16 | |
+| 1006, 1009, 1010 | Mai's Training | PASS (93) | 1 | 6 | 757 / 612 / 574 | 148 / 94 / 121 | |
+| 1007-1008 | the letters | PASS (48, 1 WARN) | 2 | 3 | 420 / 407 / 313 | 71 / 66 / 68 | 712 Black / 714 Yellow / 713 Green Headband |
+| 1011 | Biggs's collection | PASS (30, 1 WARN) | 2 | 3 | 533 / 1144 / 1112 | 93 / 155 / 186 | 559 Fruit Knife on all three |
+| 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 19 / 39 / 33 | 9 / 6 / 6 | |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 58 / 81 / 59 | 26 / 20 / 24 | |
 
 ## Cost
 
