@@ -16,7 +16,8 @@ extends RefCounted
 ## Job formulas plug in through JOBS (slug -> base class + advancements) and the per-class tables in canonical data
 ## (accuracy.json by_job, hp_mp_gain.json per_class); nothing assumes a Beginner.
 ##
-## Effects: each entry of CharacterState.effects may carry "bonuses": {key: number} with BONUS_KEYS / EXTRA_BONUS_KEYS.
+## Effects: each entry of CharacterState.effects may carry "data": {"bonuses": {key: number}} (EffectBook; older entries:
+## a top-level "bonuses") with BONUS_KEYS / EXTRA_BONUS_KEYS.
 
 ## Bonus keys beyond Equipment.BONUS_KEYS that equipment or effects may carry.
 const EXTRA_BONUS_KEYS: PackedStringArray = ["attack_power", "crit_rate_pct", "crit_damage_pct", "max_hp_pct",
@@ -150,11 +151,17 @@ static func shield_stats(equipment: Equipment, shield_id: String, db: ContentDB)
 	return db.item(shield_id).get("stats", {})
 
 
-## Sums the "bonuses" dictionaries of active effects.
+## Sums the bonuses of active effects: each entry's "data": {"bonuses": {...}} (the contract C3 shape EffectBook
+## writes, e.g. Nimble Feet's {"speed": 10}) and, for older entries, a top-level "bonuses".
 static func effect_bonuses(effects: Array) -> Dictionary:
 	var out := {}
 	for e in effects:
-		if e is Dictionary and (e as Dictionary).get("bonuses", null) is Dictionary:
+		if not (e is Dictionary):
+			continue
+		var data: Variant = (e as Dictionary).get("data", null)
+		if data is Dictionary and (data as Dictionary).get("bonuses", null) is Dictionary:
+			_merge(out, data["bonuses"])
+		if (e as Dictionary).get("bonuses", null) is Dictionary:
 			_merge(out, e["bonuses"])
 	return out
 

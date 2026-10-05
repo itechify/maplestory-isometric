@@ -31,6 +31,11 @@ extends Node
 ## (root_on_ground, input_buffer_s, basic_attack_targets, lunge_m, lunge_s; each with its reason). A missing or
 ## malformed value is an error (`errors`, push_error) and that feature stays off (no root, no buffer, one target, no
 ## lunge): there is no fallback tuning number in code.
+##
+## Skills. On entering the tree this node gives the player its PlayerSkills and EffectTicker siblings (the Beginner
+## skills and the timed-effect clock; see those classes). A skill cast shares this node's lockout through
+## begin_lockout(), so one timer decides "busy": a basic attack cannot start during a cast or a cast during an attack,
+## and is_attacking() is true while either is in progress (contract C4: activity "attacking").
 
 signal attack_started(action: String, presentation: String, lockout_s: float)
 ## After the hit test, once per target hit: `target` is the monster and `result` its DamageResult. A whiff emits it
@@ -54,8 +59,12 @@ var rng: RandomNumberGenerator = null
 var character: CharacterState = null
 ## Optional FX node (AttackFx) when there is no system.
 var fx: AttackFx = null
-## Run step() from _physics_process (tests turn it off and call step() themselves).
+## Run step() from _physics_process (tests turn it off and call step() themselves). The PlayerSkills and EffectTicker
+## siblings follow this flag too.
 var autostep: bool = true
+## The player's skills and its timed-effect clock (siblings under the player, made by ensure_skill_nodes()).
+var skills: PlayerSkills = null
+var effects: EffectTicker = null
 
 # --- feel (combat.json player_attack; loaded in _ready, or by load_feel()) ----------------------------------------
 ## A ground attack plants the player for its lockout.
@@ -101,6 +110,33 @@ func _ready() -> void:
 	if _mouse_observer == null:
 		_mouse_observer = MouseAttackGate.Observer.new(_mouse)
 		add_child(_mouse_observer, false, Node.INTERNAL_MODE_FRONT)
+	# A player still setting up its children (a scene being instanced) cannot take siblings yet.
+	if player != null and player.is_node_ready():
+		ensure_skill_nodes()
+	elif player != null:
+		ensure_skill_nodes.call_deferred()
+
+
+## Gives the player its "PlayerSkills" and "EffectTicker" children (reused when present) wired to this node.
+func ensure_skill_nodes() -> void:
+	if player == null or not is_instance_valid(player):
+		return
+	skills = player.get_node_or_null(^"PlayerSkills") as PlayerSkills
+	if skills == null:
+		skills = PlayerSkills.new()
+		skills.name = "PlayerSkills"
+		skills.combat = self
+		skills.player = player
+		player.add_child(skills)
+	skills.combat = self
+	skills.player = player
+	effects = player.get_node_or_null(^"EffectTicker") as EffectTicker
+	if effects == null:
+		effects = EffectTicker.new()
+		effects.name = "EffectTicker"
+		effects.combat = self
+		player.add_child(effects)
+	effects.combat = self
 
 
 func _physics_process(delta: float) -> void:
@@ -222,8 +258,46 @@ func attack() -> Node:
 	return last_target
 
 
+## True while a basic attack or a skill cast is in progress (its lockout has not run out).
 func is_attacking() -> bool:
 	return lockout_left > 0.0
+
+
+## Starts a lockout of `seconds` for a skill cast (PlayerSkills): no attack or other cast until it ends. With `plant`,
+## a cast started on the ground plants the player like a ground attack (combat.json player_attack root_on_ground).
+## Absorbs the previous lockout's sub-tick overshoot, as attack() does.
+func begin_lockout(seconds: float, plant: bool) -> void:
+	if seconds <= 0.0:
+		return
+	lockout_left = seconds + minf(0.0, lockout_left)
+	_buffered = 0.0
+	if plant and root_on_ground and player != null and player.has_method("is_grounded") and bool(player.call("is_grounded")):
+		_ensure_lock()
+		_lock.locked = true
+
+
+## The collaborators this node resolved (db, Game, character, RNG, event bus), for its PlayerSkills / EffectTicker.
+func content_db() -> ContentDB:
+	return _db()
+
+
+func game_node() -> Node:
+	return _game()
+
+
+func live_character() -> CharacterState:
+	return _character()
+
+
+func roll_rng() -> RandomNumberGenerator:
+	return _rng()
+
+
+## The event bus: the system's (MonsterSystem.events) when it has one, else the Events autoload.
+func event_bus() -> Object:
+	if system != null and system.get("events") is Object:
+		return system.get("events")
+	return get_node_or_null(^"/root/Events") if is_inside_tree() else null
 
 
 ## Leaving the player (system torn down, scene swap): never leave it planted. The lock is released and the wrapped

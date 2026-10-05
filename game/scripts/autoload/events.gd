@@ -56,6 +56,14 @@ signal shop_open_requested(shop_id: String, npc_id: String)
 signal shop_opened(shop_id: String)
 signal shop_closed(shop_id: String)
 
+# --- skills and timed effects (Iteration Three) -------------------------------------------------------------
+## One SP bought a skill level (SkillBook.learn; emitter: the skill window, MisoSkillsWindow).
+signal skill_leveled(skill_id: String, level: int)
+## A skill was cast: its costs were paid and its cooldown started (emitter: PlayerSkills).
+signal skill_used(skill_id: String, level: int)
+## A timed effect (Nimble Feet, Recovery) started or ended (emitters: PlayerSkills, EffectTicker).
+signal effects_changed()
+
 # --- persistence / ui ---------------------------------------------------------------------------------------
 signal game_saved(slot: String)
 signal game_loaded(slot: String)
