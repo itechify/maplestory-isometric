@@ -99,6 +99,12 @@ func test_items_that_cannot_be_used() -> void:
 		var res := Consumables.use(c, id, db())
 		assert_eq(res.code, ItemCodes.NOT_USABLE, id)
 		assert_eq(c.inventory.count(id), 1, "%s not consumed" % id)
+	# The chair is not a consumable, but it is usable: ItemService.use_item sits on it (Chairs.use, test_chairs_use.gd)
+	# instead of refusing it, and never consumes it.
+	assert_true(ItemDef.of("522", db()).is_chair(), "522 is a chair")
+	var chair_use := ItemService.new(c, db()).use_item("522")
+	assert_ne(chair_use.code, ItemCodes.NOT_USABLE, "ItemService does not refuse the chair as unusable: %s" % chair_use)
+	assert_eq(c.inventory.count("522"), 1, "the chair is never consumed")
 	assert_eq(Consumables.use(c, RED_POTION, db()).code, ItemCodes.NOT_ENOUGH_ITEMS)
 	assert_eq(Consumables.use(c, "nope", db()).code, ItemCodes.UNKNOWN_ITEM)
 

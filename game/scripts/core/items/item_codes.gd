@@ -26,6 +26,9 @@ const FAME_TOO_LOW := "fame_too_low"
 const GENDER_MISMATCH := "gender_mismatch"
 const NOT_USABLE := "not_usable"
 const DEAD := "dead"
+## Chairs (scripts/core/items/chairs.gd, contract C5).
+const CANNOT_SIT := "cannot_sit"
+const NO_CHAIR := "no_chair"
 
 const _MESSAGES := {
 	OK: "Done.",
@@ -50,6 +53,8 @@ const _MESSAGES := {
 	GENDER_MISMATCH: "That item is for the other gender.",
 	NOT_USABLE: "That item cannot be used.",
 	DEAD: "You cannot do that while dead.",
+	CANNOT_SIT: "You cannot sit down right now.",
+	NO_CHAIR: "You do not have a chair to sit on.",
 }
 
 

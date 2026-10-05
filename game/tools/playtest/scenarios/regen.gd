@@ -18,10 +18,10 @@ func run(d: PlaytestDriver) -> void:
 	var ng: Dictionary = await d.new_game("Rester", "male", "541", {"str": 5, "dex": 4})
 	if not d.check("new game", bool(ng["ok"]), String(ng["why"])):
 		return
-	var cfg: Dictionary = (Data.db.miso_table("combat") as Dictionary)["natural_recovery"]
+	var cfg: Dictionary = (Data.db.miso_table("recovery") as Dictionary)["natural_hp"]
 	var per_tick := int(cfg["hp_per_tick"])
 	var tick_s := float(cfg["tick_s"])
-	var delay_s := float(cfg["delay_s"])
+	var delay_s := 0.0
 	var c := d.character()
 	var max_hp := StatCalculator.max_hp(c, Data.db)
 	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp", "setup: HP %d -> 10 (no console HP setter)" % c.hp)

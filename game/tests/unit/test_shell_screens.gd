@@ -104,7 +104,7 @@ func test_controls_list_covers_every_working_binding() -> void:
 	var by_action := {}
 	for r in rows:
 		by_action[r["action"]] = r
-	for action: String in ["sit", "toggle_skills", "toggle_minimap"]:
+	for action: String in ["toggle_skills", "toggle_minimap"]:
 		assert_true(ControlsPanel.BINDINGS.has(action), "%s stays reserved in Controls.BINDINGS" % action)
 		assert_true(ControlsPanel.NOT_AVAILABLE.has(action), "%s is listed as not available yet" % action)
 		assert_false(by_action.has(action), "the panel does not advertise %s: nothing handles it yet" % action)
@@ -119,9 +119,10 @@ func test_controls_list_covers_every_working_binding() -> void:
 	holder.add_child(panel)
 	for l: Node in panel.find_children("*", "Label", true, false):
 		shown.append((l as Label).text)
-	for label: String in ["Sit", "Skills", "Minimap"]:
+	for label: String in ["Skills", "Minimap"]:
 		assert_false(shown.has(label), "no '%s' row on the panel: %s" % [label, ", ".join(shown)])
 	assert_true(shown.has("Jump"), "the working rows are drawn")
+	assert_true(shown.has("Sit"), "sitting works (PlayerController, X): its row is drawn")
 	assert_eq(by_action["jump"]["label"], ControlsPanel.LABELS["jump"], "labels from Controls.LABELS")
 	assert_true(String(by_action["jump"]["keys"]).contains("Space"), "Space jumps: %s" % by_action["jump"]["keys"])
 	assert_true(String(by_action["attack"]["keys"]).contains("Left click"), "mouse binding named")

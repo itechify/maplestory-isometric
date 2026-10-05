@@ -206,7 +206,9 @@ func test_per_property_kurodb_and_hidden_street_sources_are_accepted() -> void:
 		"owner_level": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/3", "retrieved_at": "2026-10-04T09:57:41Z"}})
 	var r := run_validator(cid[0])
 	expect_no_new(r)
-	assert_eq(int(r.stats.get("provenance_sources_checked", 0)), 5, "every property source was checked")
+	# Counted over the shipped data's own provenance blocks (misostory/recovery.json natural_hp) plus these five.
+	var shipped := int(baseline().stats.get("provenance_sources_checked", 0))
+	assert_eq(int(r.stats.get("provenance_sources_checked", 0)) - shipped, 5, "every property source was checked")
 
 
 func test_kurodb_may_not_supply_membership() -> void:
