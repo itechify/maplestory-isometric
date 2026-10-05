@@ -5,6 +5,8 @@ extends RefCounted
 ## sources; these checks hold the records to the policy and re-read every raw value exactly (DropChance):
 ##
 ##   drop_policy (errors)
+##     - data/misostory/drop_rates.json holds no chance, quantity or meso number and names the meso distribution the
+##       roller implements (DropRates.validate): nothing outside the records supplies those values (C1)
 ##     - every drop record is schema v2: a v1 record (MeowDB community lists) supplies no chance, so it cannot ship
 ##     - membership authority by owner kind: Hidden Street for monsters (D3-6), MeowDB MS Classic for breakables (D3-7)
 ##     - every resolved item chance and every meso chance comes from KuroDB; a meso amount from MeowDB or Hidden Street
@@ -58,6 +60,11 @@ func _init(content: ContentDB, into: ValidationReport) -> void:
 
 
 func run() -> void:
+	# data/misostory/drop_rates.json documents the runtime's interpretations and must supply no chance, quantity or
+	# meso number (C1). Checked here so the data validator (scripts/validate_data.sh) refuses one, not only a unit test.
+	if db.miso_table("drop_rates") is Dictionary:
+		for message in DropRates.validate(db):
+			report.error("drop_policy", "misostory", "drop_rates", message)
 	for id in db.ids("drops"):
 		var rec: Dictionary = db.drop_table(id)
 		if not DropRecordChecks.is_v2(rec):
@@ -116,7 +123,7 @@ func _check_entry(id: String, e: Dictionary) -> void:
 	# The items this member may be: its item, or (while the item is unresolved) its MeowDB candidates.
 	var maybe: PackedStringArray = []
 	if not resolved:
-		never.append("chance unresolved (no KuroDB value for this member)")
+		never.append("chance unresolved (no accepted KuroDB value for this member; see the record's gaps)")
 	if item_id == null:
 		never.append("item unresolved (%s)" % state)
 		var cands: Array = ValidationUtil.as_array(res.get("candidates", [])) if res is Dictionary else []

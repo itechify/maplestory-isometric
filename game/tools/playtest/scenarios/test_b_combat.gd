@@ -430,9 +430,12 @@ func _on_killed(mob: String, _map_id: String) -> void:
 
 func _on_loot(list: Array, at: Vector3, map_id: String) -> void:
 	var mob := _last_killed
+	# [drops package] The rolling members of the species' canonical drop record (contract C1: chance and item resolved;
+	# a gated one rolls only in its quest). A member the sources leave unresolved is on the record but must never drop.
 	var table := {}
-	for e: Dictionary in db.drop_table(mob).get("entries", []):
-		table[str(e.get("item_id", ""))] = String(e.get("status", ""))  # [drops package] item_id null when unresolved
+	for row: Dictionary in DropRates.effective_entries(mob, db):
+		if String(row.get("excluded", "")) == "":
+			table[String(row.item_id)] = true
 	var meso := DropRates.meso_rule(mob, db)
 	var rec := {"mob": mob, "map": map_id, "drops": list.duplicate(true), "at": at}
 	for dr: Dictionary in list:
@@ -443,7 +446,7 @@ func _on_loot(list: Array, at: Vector3, map_id: String) -> void:
 		else:
 			var id := String(dr.get("item_id", ""))
 			if not table.has(id):
-				loot_bad.append({"mob": mob, "drop": dr, "why": "item not in drops/%s.json" % mob})
+				loot_bad.append({"mob": mob, "drop": dr, "why": "item is not a rolling member of drops/%s.json" % mob})
 	loot_events.append(rec)
 
 
@@ -1471,7 +1474,7 @@ func _evaluate() -> void:
 	for l: Dictionary in loot_events:
 		drop_items += (l["drops"] as Array).size()
 		with_drop += 1
-	d.check("drops: every dropped item is in the killed species' canonical drop table, every drop appears on the ground",
+	d.check("drops: every dropped item is a rolling member of the killed species' canonical drop record, every drop appears on the ground",
 		with_drop > 0 and loot_bad.is_empty() and ground_nodes.size() == drop_items,
 		"%d of %d kills dropped %d things, %d ground nodes, %d outside the table %s" % [with_drop, kills.size(), drop_items,
 			ground_nodes.size(), loot_bad.size(), JSON.stringify(loot_bad.slice(0, 3))])

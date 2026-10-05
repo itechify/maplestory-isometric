@@ -33,7 +33,10 @@ const WEAPON := "585"
 const FILLER := "1305"
 const KEY := "1"
 ## Game seconds spent hunting A Split Road for mesos at most. Re-measured with the canonical drop records (KuroDB 40%
-## meso chance, MeowDB / Hidden Street amounts): ~2.3 mesos and ~8.3 s per kill, 150 mesos in about 550 s (seed 1).
+## meso chance, MeowDB / Hidden Street amounts), seed 1: one run took 66 kills / 548 s for 151 mesos (29 bags), another
+## 94 kills / 1011 s for 158 mesos (30 bags; one death). Runs of one seed differ, so the hunt may stop at the budget short
+## of its 150-meso goal; the check needs only 2 x Pan's price (100), which at those rates comes after about 360 s and
+## 640 s of hunting.
 const HUNT_BUDGET_S := 1100.0
 const PICK_RADIUS_M := 10.0
 

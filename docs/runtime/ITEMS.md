@@ -195,8 +195,8 @@ Every value below is marked `"verified": false` with a reason in its file. The v
 
 Every chance, quantity and meso amount comes from the owner's canonical drop record, `data/canonical/drops/<owner>.json`
 (schema v2; field reference in [`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-v2-records)).
-Nothing else supplies one: `DropRates.validate` refuses any rate, quantity or meso number in `drop_rates.json`, and a
-table that is not v2 rolls nothing.
+Nothing else supplies one: `DropRates.validate` refuses any rate, quantity or meso number in `drop_rates.json` (the data
+validator reports it as a `drop_policy` error through `DropChecks`), and a table that is not v2 rolls nothing.
 
 | Property | Source |
 |---|---|
