@@ -14,12 +14,12 @@
     "tests": [
       {
         "file": "_scratch/ev/full.json",
-        "run_at": "2026-10-05T18:53:31Z",
-        "commit": "8b81b52661ae46f75553b3d53e91c27fce39e1f3",
+        "run_at": "2026-10-05T19:22:23Z",
+        "commit": "049b30f5c321ed58140260bd65ecb5f4dc8f7a13",
         "totals": {
           "failed": 0,
           "files": 167,
-          "ms": 583104,
+          "ms": 675364,
           "tests": 1509
         }
       }
@@ -80,8 +80,8 @@
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
-        "checks": 116,
-        "tagged_checks": 95,
+        "checks": 112,
+        "tagged_checks": 92,
         "rule_tagged_checks": 16,
         "failed_checks": []
       },
@@ -150,7 +150,7 @@
         "scenario": "test_a_traversal",
         "result": "PASS",
         "seed": 1,
-        "checks": 477,
+        "checks": 475,
         "tagged_checks": 0,
         "rule_tagged_checks": 163,
         "failed_checks": []
@@ -162,7 +162,7 @@
         "seed": 1,
         "checks": 53,
         "tagged_checks": 0,
-        "rule_tagged_checks": 44,
+        "rule_tagged_checks": 38,
         "failed_checks": []
       },
       {
@@ -190,9 +190,9 @@
         "scenario": "test_c_progression",
         "result": "PASS",
         "seed": 1,
-        "checks": 75,
+        "checks": 77,
         "tagged_checks": 0,
-        "rule_tagged_checks": 39,
+        "rule_tagged_checks": 41,
         "failed_checks": []
       },
       {
@@ -200,7 +200,7 @@
         "scenario": "test_d_inventory",
         "result": "PASS",
         "seed": 1,
-        "checks": 90,
+        "checks": 89,
         "tagged_checks": 0,
         "rule_tagged_checks": 35,
         "failed_checks": []
@@ -210,7 +210,7 @@
         "scenario": "test_e_quest",
         "result": "PASS",
         "seed": 1,
-        "checks": 103,
+        "checks": 102,
         "tagged_checks": 67,
         "rule_tagged_checks": 2,
         "failed_checks": []
@@ -282,8 +282,8 @@
     "all": {
       "missing": 0,
       "partial": 58,
-      "implemented": 93,
-      "verified": 485,
+      "implemented": 95,
+      "verified": 483,
       "source_data_gap": 56,
       "out_of_scope": 2,
       "entries": 638
@@ -373,8 +373,8 @@
       "equipment": {
         "missing": 0,
         "partial": 0,
-        "implemented": 49,
-        "verified": 6,
+        "implemented": 51,
+        "verified": 4,
         "source_data_gap": 0,
         "out_of_scope": 0,
         "entries": 55
@@ -542,7 +542,7 @@
         "entries": 7
       }
     },
-    "open_for_exit": 95
+    "open_for_exit": 97
   },
   "source_data_gaps": [
     {
@@ -1429,12 +1429,12 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#425 leg 48 000001000 -> 000000050: in 000000050 (A Split Road)",
+                "id": "test_a_traversal#423 leg 48 000001000 -> 000000050: in 000000050 (A Split Road)",
                 "key": "map:000000050"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#457 leg 52 000000060 -> 000000050: in 000000050 (A Split Road)",
+                "id": "test_a_traversal#455 leg 52 000000060 -> 000000050: in 000000050 (A Split Road)",
                 "key": "map:000000050"
               },
               {
@@ -1473,17 +1473,17 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#434 leg 49 000000050 -> 000000060: in 000000060 (Southperry)",
+                "id": "test_a_traversal#432 leg 49 000000050 -> 000000060: in 000000060 (Southperry)",
                 "key": "map:000000060"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#450 leg 51 000000061 -> 000000060: in 000000060 (Southperry)",
+                "id": "test_a_traversal#448 leg 51 000000061 -> 000000060: in 000000060 (Southperry)",
                 "key": "map:000000060"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#466 leg 53 000000050 -> 000000060: in 000000060 (Southperry)",
+                "id": "test_a_traversal#464 leg 53 000000050 -> 000000060: in 000000060 (Southperry)",
                 "key": "map:000000060"
               },
               {
@@ -1526,7 +1526,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#443 leg 50 000000060 -> 000000061: in 000000061 (Southperry Armor Store)",
+                "id": "test_a_traversal#441 leg 50 000000060 -> 000000061: in 000000061 (Southperry Armor Store)",
                 "key": "map:000000061"
               },
               {
@@ -1562,27 +1562,27 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#189 leg 21 000000050 -> 000001000: in 000001000 (The Field West of Amherst)",
+                "id": "test_a_traversal#188 leg 21 000000050 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#207 leg 23 000001001 -> 000001000: in 000001000 (The Field West of Amherst)",
+                "id": "test_a_traversal#206 leg 23 000001001 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#225 leg 25 000001002 -> 000001000: in 000001000 (The Field West of Amherst)",
+                "id": "test_a_traversal#224 leg 25 000001002 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#243 leg 27 000001003 -> 000001000: in 000001000 (The Field West of Amherst)",
+                "id": "test_a_traversal#242 leg 27 000001003 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#261 leg 29 000001004 -> 000001000: in 000001000 (The Field West of Amherst)",
+                "id": "test_a_traversal#260 leg 29 000001004 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               }
             ],
@@ -1613,7 +1613,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#198 leg 22 000001000 -> 000001001: in 000001001 (In a Small Forest)",
+                "id": "test_a_traversal#197 leg 22 000001000 -> 000001001: in 000001001 (In a Small Forest)",
                 "key": "map:000001001"
               },
               {
@@ -1664,7 +1664,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#216 leg 24 000001000 -> 000001002: in 000001002 (Dangerous Forest)",
+                "id": "test_a_traversal#215 leg 24 000001000 -> 000001002: in 000001002 (Dangerous Forest)",
                 "key": "map:000001002"
               },
               {
@@ -1710,7 +1710,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#234 leg 26 000001000 -> 000001003: in 000001003 (Mushroom Garden)",
+                "id": "test_a_traversal#233 leg 26 000001000 -> 000001003: in 000001003 (Mushroom Garden)",
                 "key": "map:000001003"
               },
               {
@@ -1761,7 +1761,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#252 leg 28 000001000 -> 000001004: in 000001004 (Snail Garden)",
+                "id": "test_a_traversal#251 leg 28 000001000 -> 000001004: in 000001004 (Snail Garden)",
                 "key": "map:000001004"
               },
               {
@@ -1812,7 +1812,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#271 leg 30 000001000 -> 000001005: in 000001005 (Hunting Ground Middle of the Forest I)",
+                "id": "test_a_traversal#269 leg 30 000001000 -> 000001005: in 000001005 (Hunting Ground Middle of the Forest I)",
                 "key": "map:000001005"
               },
               {
@@ -1863,7 +1863,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#289 leg 32 000001000 -> 000001006: in 000001006 (Hunting Ground Middle of the Forest II)",
+                "id": "test_a_traversal#287 leg 32 000001000 -> 000001006: in 000001006 (Hunting Ground Middle of the Forest II)",
                 "key": "map:000001006"
               },
               {
@@ -1900,27 +1900,27 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#307 leg 34 000001000 -> 000001010: in 000001010 (Amherst)",
+                "id": "test_a_traversal#305 leg 34 000001000 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#323 leg 36 000001011 -> 000001010: in 000001010 (Amherst)",
+                "id": "test_a_traversal#321 leg 36 000001011 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#337 leg 38 000001013 -> 000001010: in 000001010 (Amherst)",
+                "id": "test_a_traversal#335 leg 38 000001013 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#371 leg 42 000001012 -> 000001010: in 000001010 (Amherst)",
+                "id": "test_a_traversal#369 leg 42 000001012 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#407 leg 46 000001020 -> 000001010: in 000001010 (Amherst)",
+                "id": "test_a_traversal#405 leg 46 000001020 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               }
             ],
@@ -1953,7 +1953,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#316 leg 35 000001010 -> 000001011: in 000001011 (Amherst Weapon Store)",
+                "id": "test_a_traversal#314 leg 35 000001010 -> 000001011: in 000001011 (Amherst Weapon Store)",
                 "key": "map:000001011"
               },
               {
@@ -1990,12 +1990,12 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#344 leg 39 000001010 -> 000001012: in 000001012 (Amherst Townstreet)",
+                "id": "test_a_traversal#342 leg 39 000001010 -> 000001012: in 000001012 (Amherst Townstreet)",
                 "key": "map:000001012"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#362 leg 41 000001014 -> 000001012: in 000001012 (Amherst Townstreet)",
+                "id": "test_a_traversal#360 leg 41 000001014 -> 000001012: in 000001012 (Amherst Townstreet)",
                 "key": "map:000001012"
               },
               {
@@ -2043,7 +2043,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#330 leg 37 000001010 -> 000001013: in 000001013 (Amherst Department Store)",
+                "id": "test_a_traversal#328 leg 37 000001010 -> 000001013: in 000001013 (Amherst Department Store)",
                 "key": "map:000001013"
               },
               {
@@ -2079,7 +2079,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#353 leg 40 000001012 -> 000001014: in 000001014 (Snail Field of Flowers)",
+                "id": "test_a_traversal#351 leg 40 000001012 -> 000001014: in 000001014 (Snail Field of Flowers)",
                 "key": "map:000001014"
               },
               {
@@ -2130,12 +2130,12 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#380 leg 43 000001010 -> 000001020: in 000001020 (The Field East of Amherst)",
+                "id": "test_a_traversal#378 leg 43 000001010 -> 000001020: in 000001020 (The Field East of Amherst)",
                 "key": "map:000001020"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#398 leg 45 000001021 -> 000001020: in 000001020 (The Field East of Amherst)",
+                "id": "test_a_traversal#396 leg 45 000001021 -> 000001020: in 000001020 (The Field East of Amherst)",
                 "key": "map:000001020"
               },
               {
@@ -2181,7 +2181,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#389 leg 44 000001020 -> 000001021: in 000001021 (Tomato Field)",
+                "id": "test_a_traversal#387 leg 44 000001020 -> 000001021: in 000001021 (Tomato Field)",
                 "key": "map:000001021"
               },
               {
@@ -2886,7 +2886,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#190 leg 21 000000050.east00: the transition is 000000050 -> 000001000 via gate through east00",
+                "id": "test_a_traversal#189 leg 21 000000050.east00: the transition is 000000050 -> 000001000 via gate through east00",
                 "key": "portal:000000050/east00"
               },
               {
@@ -2932,12 +2932,12 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#435 leg 49 000000050.east01: the transition is 000000050 -> 000000060 via gate through east01",
+                "id": "test_a_traversal#433 leg 49 000000050.east01: the transition is 000000050 -> 000000060 via gate through east01",
                 "key": "portal:000000050/east01"
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#467 leg 53 000000050.east01: the transition is 000000050 -> 000000060 via gate through east01",
+                "id": "test_a_traversal#465 leg 53 000000050.east01: the transition is 000000050 -> 000000060 via gate through east01",
                 "key": "portal:000000050/east01"
               },
               {
@@ -3024,7 +3024,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#444 leg 50 000000060.in00: the transition is 000000060 -> 000000061 via door through in00",
+                "id": "test_a_traversal#442 leg 50 000000060.in00: the transition is 000000060 -> 000000061 via door through in00",
                 "key": "portal:000000060/in00"
               },
               {
@@ -3070,7 +3070,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#458 leg 52 000000060.west00: the transition is 000000060 -> 000000050 via gate through west00",
+                "id": "test_a_traversal#456 leg 52 000000060.west00: the transition is 000000060 -> 000000050 via gate through west00",
                 "key": "portal:000000060/west00"
               },
               {
@@ -3116,7 +3116,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#451 leg 51 000000061.out00: the transition is 000000061 -> 000000060 via door through out00",
+                "id": "test_a_traversal#449 leg 51 000000061.out00: the transition is 000000061 -> 000000060 via door through out00",
                 "key": "portal:000000061/out00"
               },
               {
@@ -3162,7 +3162,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#308 leg 34 000001000.east00: the transition is 000001000 -> 000001010 via gate through east00",
+                "id": "test_a_traversal#306 leg 34 000001000.east00: the transition is 000001000 -> 000001010 via gate through east00",
                 "key": "portal:000001000/east00"
               },
               {
@@ -3208,7 +3208,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#199 leg 22 000001000.in00: the transition is 000001000 -> 000001001 via gate through in00",
+                "id": "test_a_traversal#198 leg 22 000001000.in00: the transition is 000001000 -> 000001001 via gate through in00",
                 "key": "portal:000001000/in00"
               },
               {
@@ -3254,7 +3254,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#217 leg 24 000001000.in01: the transition is 000001000 -> 000001002 via gate through in01",
+                "id": "test_a_traversal#216 leg 24 000001000.in01: the transition is 000001000 -> 000001002 via gate through in01",
                 "key": "portal:000001000/in01"
               },
               {
@@ -3300,7 +3300,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#235 leg 26 000001000.in02: the transition is 000001000 -> 000001003 via gate through in02",
+                "id": "test_a_traversal#234 leg 26 000001000.in02: the transition is 000001000 -> 000001003 via gate through in02",
                 "key": "portal:000001000/in02"
               },
               {
@@ -3346,7 +3346,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#253 leg 28 000001000.in03: the transition is 000001000 -> 000001004 via gate through in03",
+                "id": "test_a_traversal#252 leg 28 000001000.in03: the transition is 000001000 -> 000001004 via gate through in03",
                 "key": "portal:000001000/in03"
               },
               {
@@ -3392,7 +3392,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#272 leg 30 000001000.in04: the transition is 000001000 -> 000001005 via gate through in04",
+                "id": "test_a_traversal#270 leg 30 000001000.in04: the transition is 000001000 -> 000001005 via gate through in04",
                 "key": "portal:000001000/in04"
               },
               {
@@ -3438,7 +3438,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#290 leg 32 000001000.in05: the transition is 000001000 -> 000001006 via gate through in05",
+                "id": "test_a_traversal#288 leg 32 000001000.in05: the transition is 000001000 -> 000001006 via gate through in05",
                 "key": "portal:000001000/in05"
               },
               {
@@ -3484,7 +3484,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#426 leg 48 000001000.west00: the transition is 000001000 -> 000000050 via gate through west00",
+                "id": "test_a_traversal#424 leg 48 000001000.west00: the transition is 000001000 -> 000000050 via gate through west00",
                 "key": "portal:000001000/west00"
               },
               {
@@ -3530,7 +3530,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#208 leg 23 000001001.out00: the transition is 000001001 -> 000001000 via gate through out00",
+                "id": "test_a_traversal#207 leg 23 000001001.out00: the transition is 000001001 -> 000001000 via gate through out00",
                 "key": "portal:000001001/out00"
               },
               {
@@ -3576,7 +3576,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#226 leg 25 000001002.out01: the transition is 000001002 -> 000001000 via gate through out01",
+                "id": "test_a_traversal#225 leg 25 000001002.out01: the transition is 000001002 -> 000001000 via gate through out01",
                 "key": "portal:000001002/out01"
               },
               {
@@ -3622,7 +3622,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#244 leg 27 000001003.out00: the transition is 000001003 -> 000001000 via gate through out00",
+                "id": "test_a_traversal#243 leg 27 000001003.out00: the transition is 000001003 -> 000001000 via gate through out00",
                 "key": "portal:000001003/out00"
               },
               {
@@ -3668,7 +3668,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#262 leg 29 000001004.out00: the transition is 000001004 -> 000001000 via gate through out00",
+                "id": "test_a_traversal#261 leg 29 000001004.out00: the transition is 000001004 -> 000001000 via gate through out00",
                 "key": "portal:000001004/out00"
               },
               {
@@ -3714,7 +3714,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#281 leg 31 000001005.out00: the transition is 000001005 -> 000001000 via gate through out00",
+                "id": "test_a_traversal#279 leg 31 000001005.out00: the transition is 000001005 -> 000001000 via gate through out00",
                 "key": "portal:000001005/out00"
               },
               {
@@ -3760,7 +3760,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#299 leg 33 000001006.out00: the transition is 000001006 -> 000001000 via gate through out00",
+                "id": "test_a_traversal#297 leg 33 000001006.out00: the transition is 000001006 -> 000001000 via gate through out00",
                 "key": "portal:000001006/out00"
               },
               {
@@ -3806,7 +3806,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#381 leg 43 000001010.east00: the transition is 000001010 -> 000001020 via gate through east00",
+                "id": "test_a_traversal#379 leg 43 000001010.east00: the transition is 000001010 -> 000001020 via gate through east00",
                 "key": "portal:000001010/east00"
               },
               {
@@ -3852,7 +3852,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#317 leg 35 000001010.in00: the transition is 000001010 -> 000001011 via door through in00",
+                "id": "test_a_traversal#315 leg 35 000001010.in00: the transition is 000001010 -> 000001011 via door through in00",
                 "key": "portal:000001010/in00"
               },
               {
@@ -3898,7 +3898,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#345 leg 39 000001010.in01: the transition is 000001010 -> 000001012 via gate through in01",
+                "id": "test_a_traversal#343 leg 39 000001010.in01: the transition is 000001010 -> 000001012 via gate through in01",
                 "key": "portal:000001010/in01"
               },
               {
@@ -3944,7 +3944,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#331 leg 37 000001010.in02: the transition is 000001010 -> 000001013 via door through in02",
+                "id": "test_a_traversal#329 leg 37 000001010.in02: the transition is 000001010 -> 000001013 via door through in02",
                 "key": "portal:000001010/in02"
               },
               {
@@ -3990,7 +3990,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#417 leg 47 000001010.west00: the transition is 000001010 -> 000001000 via gate through west00",
+                "id": "test_a_traversal#415 leg 47 000001010.west00: the transition is 000001010 -> 000001000 via gate through west00",
                 "key": "portal:000001010/west00"
               },
               {
@@ -4036,7 +4036,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#324 leg 36 000001011.out00: the transition is 000001011 -> 000001010 via door through out00",
+                "id": "test_a_traversal#322 leg 36 000001011.out00: the transition is 000001011 -> 000001010 via door through out00",
                 "key": "portal:000001011/out00"
               },
               {
@@ -4082,7 +4082,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#372 leg 42 000001012.out00: the transition is 000001012 -> 000001010 via gate through out00",
+                "id": "test_a_traversal#370 leg 42 000001012.out00: the transition is 000001012 -> 000001010 via gate through out00",
                 "key": "portal:000001012/out00"
               },
               {
@@ -4128,7 +4128,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#354 leg 40 000001012.west00: the transition is 000001012 -> 000001014 via gate through west00",
+                "id": "test_a_traversal#352 leg 40 000001012.west00: the transition is 000001012 -> 000001014 via gate through west00",
                 "key": "portal:000001012/west00"
               },
               {
@@ -4174,7 +4174,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#338 leg 38 000001013.out00: the transition is 000001013 -> 000001010 via door through out00",
+                "id": "test_a_traversal#336 leg 38 000001013.out00: the transition is 000001013 -> 000001010 via door through out00",
                 "key": "portal:000001013/out00"
               },
               {
@@ -4220,7 +4220,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#363 leg 41 000001014.east00: the transition is 000001014 -> 000001012 via gate through east00",
+                "id": "test_a_traversal#361 leg 41 000001014.east00: the transition is 000001014 -> 000001012 via gate through east00",
                 "key": "portal:000001014/east00"
               },
               {
@@ -4266,7 +4266,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#390 leg 44 000001020.in00: the transition is 000001020 -> 000001021 via gate through in00",
+                "id": "test_a_traversal#388 leg 44 000001020.in00: the transition is 000001020 -> 000001021 via gate through in00",
                 "key": "portal:000001020/in00"
               },
               {
@@ -4312,7 +4312,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#408 leg 46 000001020.west00: the transition is 000001020 -> 000001010 via gate through west00",
+                "id": "test_a_traversal#406 leg 46 000001020.west00: the transition is 000001020 -> 000001010 via gate through west00",
                 "key": "portal:000001020/west00"
               },
               {
@@ -4358,7 +4358,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#399 leg 45 000001021.out00: the transition is 000001021 -> 000001020 via gate through out00",
+                "id": "test_a_traversal#397 leg 45 000001021.out00: the transition is 000001021 -> 000001020 via gate through out00",
                 "key": "portal:000001021/out00"
               },
               {
@@ -4423,7 +4423,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
@@ -4448,7 +4448,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#6 Tutorial Jr. Sentinel: at least 30 landed hits and 2 kills by real attacks",
+                "id": "test_b_combat#26 damage: Tutorial Jr. Sentinel, 30 hits all inside the canonical per-hit window",
                 "key": "monster:1"
               }
             ],
@@ -4477,7 +4477,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -4492,17 +4492,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#11 Snail: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster:2"
-              },
-              {
-                "kind": "playtest",
                 "id": "test_b_combat#27 damage: Snail, 30 hits all inside the canonical per-hit window",
                 "key": "monster:2"
               },
               {
                 "kind": "playtest",
                 "id": "test_e_quest#28 A: 10 Snails killed with the attack key: 1006 counts 0 -> 10 (target 10)",
+                "key": "monster:2"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_e_quest#66 B: 5 Snails killed with the attack key: 1006 counts 0 -> 5 (target 5)",
                 "key": "monster:2"
               }
             ],
@@ -4531,12 +4531,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#67 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
+                "id": "quest#66 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
                 "key": "monster:3"
               },
               {
@@ -4546,17 +4546,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#14 Blue Snail: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster:3"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#28 damage: Blue Snail, 31 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#28 damage: Blue Snail, 38 hits all inside the canonical per-hit window",
                 "key": "monster:3"
               },
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
+                "key": "monster:3"
+              },
+              {
+                "kind": "unit",
+                "id": "test_monster_hit_area::test_every_proxy_stands_on_its_feet_and_matches_its_touch_zone",
                 "key": "monster:3"
               }
             ],
@@ -4585,12 +4585,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#70 1009: 10 Shroom killed with the attack key in 000000050 (2 -> 10 of 10)",
+                "id": "quest#69 1009: 10 Shroom killed with the attack key in 000000050 (0 -> 10 of 10)",
                 "key": "monster:4"
               },
               {
@@ -4600,17 +4600,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#16 Shroom: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster:4"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#29 damage: Shroom, 30 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#29 damage: Shroom, 32 hits all inside the canonical per-hit window",
                 "key": "monster:4"
               },
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
+                "key": "monster:4"
+              },
+              {
+                "kind": "unit",
+                "id": "test_monster_floor::test_a_walker_paces_back_and_forth_on_its_line",
                 "key": "monster:4"
               }
             ],
@@ -4639,22 +4639,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 5,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#73 1009: 5 Red Snail killed with the attack key in 000000050 (1 -> 5 of 5)",
-                "key": "monster:5"
-              },
-              {
-                "kind": "playtest",
                 "id": "test_b_combat#17 Red Snail (5) canonically spawns in 000000050, 10 live here",
-                "key": "monster:5"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#18 Red Snail: at least 30 landed hits and 2 kills by real attacks",
                 "key": "monster:5"
               },
               {
@@ -4665,6 +4655,16 @@
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
+                "key": "monster:5"
+              },
+              {
+                "kind": "unit",
+                "id": "test_monster_hit_area::test_every_proxy_stands_on_its_feet_and_matches_its_touch_zone",
+                "key": "monster:5"
+              },
+              {
+                "kind": "unit",
+                "id": "test_playtest_quest_plan::test_1009_hunts_three_species_at_mai",
                 "key": "monster:5"
               }
             ],
@@ -4694,12 +4694,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#104 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
+                "id": "quest#100 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
                 "key": "monster:9"
               },
               {
@@ -4709,17 +4709,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#21 Orange Mushroom: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster:9"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#31 damage: Orange Mushroom, 30 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#31 damage: Orange Mushroom, 31 hits all inside the canonical per-hit window",
                 "key": "monster:9"
               },
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
+                "key": "monster:9"
+              },
+              {
+                "kind": "unit",
+                "id": "test_monster_floor::test_a_hit_mid_hop_is_pushed_away_from_the_attacker",
                 "key": "monster:9"
               }
             ],
@@ -4757,14 +4757,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#3 Tutorial Jr. Sentinel (1) canonically spawns in 000000030, 4 live here",
-                "key": "population:000000030/1"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#2 000000030: 6 slots = MeowDB spawn points, species { \"1\": 6 }",
@@ -4783,6 +4778,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#5 000000030: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000000030"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#6 000000030: back at capacity 4 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000000030"
               }
             ],
@@ -4805,14 +4805,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#8 Snail (2) canonically spawns in 000000040, 30 live here",
-                "key": "population:000000040/2"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#7 000000040: 40 slots = MeowDB spawn points, species { \"2\": 40 }",
@@ -4831,6 +4826,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#10 000000040: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000000040"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#11 000000040: back at capacity 30 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000000040"
               }
             ],
@@ -5093,14 +5093,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#13 Blue Snail (3) canonically spawns in 000000050, 13 live here",
-                "key": "population:000000050/3"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#23 000000050: 42 slots = MeowDB spawn points, species { \"3\": 17, \"4\": 14, \"5\": 11 }",
@@ -5119,6 +5114,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#26 000000050: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000000050"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#27 000000050: back at capacity 31 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000000050"
               }
             ],
@@ -5141,14 +5141,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#15 Shroom (4) canonically spawns in 000000050, 12 live here",
-                "key": "population:000000050/4"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#23 000000050: 42 slots = MeowDB spawn points, species { \"3\": 17, \"4\": 14, \"5\": 11 }",
@@ -5167,6 +5162,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#26 000000050: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000000050"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#27 000000050: back at capacity 31 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000000050"
               }
             ],
@@ -5189,14 +5189,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#17 Red Snail (5) canonically spawns in 000000050, 10 live here",
-                "key": "population:000000050/5"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#23 000000050: 42 slots = MeowDB spawn points, species { \"3\": 17, \"4\": 14, \"5\": 11 }",
@@ -5215,6 +5210,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#26 000000050: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000000050"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#27 000000050: back at capacity 31 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000000050"
               }
             ],
@@ -6965,14 +6965,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#20 Orange Mushroom (9) canonically spawns in 000001020, 11 live here",
-                "key": "population:000001020/9"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_population#68 000001020: 38 slots = MeowDB spawn points, species { \"2\": 3, \"3\": 11, \"5\": 12, \"9\": 12 }",
@@ -6991,6 +6986,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_population#71 000001020: after 8 s every grounded monster is on its floor, inside the mob region",
+                "key": "spawn-rule:000001020"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_population#72 000001020: back at capacity 28 on the respawn ticks after kill all; no respawn within 2.0 m of the player",
                 "key": "spawn-rule:000001020"
               }
             ],
@@ -7923,14 +7923,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#6 Tutorial Jr. Sentinel: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:1"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#26 damage: Tutorial Jr. Sentinel, 30 hits all inside the canonical per-hit window",
@@ -7949,6 +7944,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_combat#3 Tutorial Jr. Sentinel (1) canonically spawns in 000000030, 4 live here",
+                "key": "monster:1"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_combat#4 Peace rule: walking into an unprovoked Tutorial Jr. Sentinel deals nothing",
                 "key": "monster:1"
               }
             ],
@@ -7971,14 +7971,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#11 Snail: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:2"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#27 damage: Snail, 30 hits all inside the canonical per-hit window",
@@ -7997,6 +7992,11 @@
               {
                 "kind": "playtest",
                 "id": "test_b_combat#8 Snail (2) canonically spawns in 000000040, 30 live here",
+                "key": "monster:2"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_combat#27 damage: Snail, 30 hits all inside the canonical per-hit window",
                 "key": "monster:2"
               }
             ],
@@ -8019,17 +8019,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_b_combat#14 Blue Snail: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:3"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#28 damage: Blue Snail, 31 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#28 damage: Blue Snail, 38 hits all inside the canonical per-hit window",
                 "key": "monster-stats:3"
               },
               {
@@ -8039,12 +8034,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#67 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
+                "id": "quest#66 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
                 "key": "monster:3"
               },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#13 Blue Snail (3) canonically spawns in 000000050, 13 live here",
+                "key": "monster:3"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_combat#28 damage: Blue Snail, 38 hits all inside the canonical per-hit window",
                 "key": "monster:3"
               }
             ],
@@ -8067,17 +8067,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_b_combat#16 Shroom: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:4"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#29 damage: Shroom, 30 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#29 damage: Shroom, 32 hits all inside the canonical per-hit window",
                 "key": "monster-stats:4"
               },
               {
@@ -8087,12 +8082,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#70 1009: 10 Shroom killed with the attack key in 000000050 (2 -> 10 of 10)",
+                "id": "quest#69 1009: 10 Shroom killed with the attack key in 000000050 (0 -> 10 of 10)",
                 "key": "monster:4"
               },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#15 Shroom (4) canonically spawns in 000000050, 12 live here",
+                "key": "monster:4"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_combat#29 damage: Shroom, 32 hits all inside the canonical per-hit window",
                 "key": "monster:4"
               }
             ],
@@ -8115,14 +8115,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#18 Red Snail: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:5"
-              },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#30 damage: Red Snail, 31 hits all inside the canonical per-hit window",
@@ -8135,12 +8130,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#73 1009: 5 Red Snail killed with the attack key in 000000050 (1 -> 5 of 5)",
+                "id": "test_b_combat#17 Red Snail (5) canonically spawns in 000000050, 10 live here",
                 "key": "monster:5"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#17 Red Snail (5) canonically spawns in 000000050, 10 live here",
+                "id": "test_b_combat#30 damage: Red Snail, 31 hits all inside the canonical per-hit window",
+                "key": "monster:5"
+              },
+              {
+                "kind": "unit",
+                "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
                 "key": "monster:5"
               }
             ],
@@ -8163,17 +8163,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_b_combat#21 Orange Mushroom: at least 30 landed hits and 2 kills by real attacks",
-                "key": "monster-stats:9"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_b_combat#31 damage: Orange Mushroom, 30 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#31 damage: Orange Mushroom, 31 hits all inside the canonical per-hit window",
                 "key": "monster-stats:9"
               },
               {
@@ -8183,12 +8178,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#104 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
+                "id": "quest#100 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
                 "key": "monster:9"
               },
               {
                 "kind": "playtest",
                 "id": "test_b_combat#20 Orange Mushroom (9) canonically spawns in 000001020, 11 live here",
+                "key": "monster:9"
+              },
+              {
+                "kind": "playtest",
+                "id": "test_b_combat#31 damage: Orange Mushroom, 31 hits all inside the canonical per-hit window",
                 "key": "monster:9"
               }
             ],
@@ -10470,7 +10470,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 2)",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
                 "key": "drop:9/356"
               },
               {
@@ -11257,7 +11257,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 2)",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
                 "key": "item:356"
               },
               {
@@ -11990,18 +11990,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 0,
             "failed_count": 0,
-            "passed": [
-              {
-                "kind": "unit",
-                "id": "test_inventory_item_def::test_stat_lines_map_to_bonus_keys",
-                "key": "item:1440"
-              }
-            ],
+            "passed": [],
             "failed": []
           },
-          "state": "verified"
+          "state": "implemented"
         },
         {
           "category": "equipment",
@@ -12018,18 +12012,12 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 0,
             "failed_count": 0,
-            "passed": [
-              {
-                "kind": "unit",
-                "id": "test_inventory_item_def::test_weapon_type_family_action_and_speed",
-                "key": "item:541"
-              }
-            ],
+            "passed": [],
             "failed": []
           },
-          "state": "verified"
+          "state": "implemented"
         },
         {
           "category": "equipment",
@@ -13043,7 +13031,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#25 double-clicking Egg in the inventory (after the hunt) uses one: HP 100 + canonical 60 (Max HP 130)",
+                "id": "test_d_inventory#19 double-clicking Egg in the inventory (while hurt) uses one: HP 6 + canonical 60 (Max HP 82)",
                 "key": "item:237"
               },
               {
@@ -13411,7 +13399,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_e_quest#46 Maria can be talked to on foot",
+                "id": "test_e_quest#45 Maria can be talked to on foot",
                 "key": "npc:10"
               }
             ],
@@ -13447,17 +13435,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#33 1006: Mai can be talked to for the turn-in",
+                "id": "quest#32 1006: Mai can be talked to for the turn-in",
                 "key": "npc:11"
               },
               {
                 "kind": "playtest",
-                "id": "quest#52 1009: Mai can be talked to on foot",
+                "id": "quest#51 1009: Mai can be talked to on foot",
                 "key": "npc:11"
               },
               {
                 "kind": "playtest",
-                "id": "quest#77 1009: Mai can be talked to for the turn-in",
+                "id": "quest#73 1009: Mai can be talked to for the turn-in",
                 "key": "npc:11"
               }
             ],
@@ -13736,7 +13724,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_e_quest#50 Lucas can be talked to on foot",
+                "id": "test_e_quest#49 Lucas can be talked to on foot",
                 "key": "npc:17"
               }
             ],
@@ -14306,7 +14294,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_e_quest#62 B: Sam can be talked to on foot",
+                "id": "test_e_quest#61 B: Sam can be talked to on foot",
                 "key": "npc:9"
               }
             ],
@@ -14421,7 +14409,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#85 sold one Leather Sandals back to Pan at the canonical price",
+                "id": "test_d_inventory#84 sold one Leather Sandals back to Pan at the canonical price",
                 "key": "shop:maple-road-pan"
               },
               {
@@ -15008,7 +14996,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -15018,22 +15006,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -15070,22 +15058,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -16526,7 +16514,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -16536,22 +16524,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -16574,7 +16562,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -16584,22 +16572,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -16622,7 +16610,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -16632,22 +16620,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -16670,7 +16658,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -16680,22 +16668,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -16728,22 +16716,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -16776,22 +16764,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -18129,7 +18117,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -18139,22 +18127,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -18177,7 +18165,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
@@ -18187,22 +18175,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#40 1006: its follow-up 1009 (Mai's Training) is available at level 4",
+                "id": "quest#39 1006: its follow-up 1009 (Mai's Training) is available at level 3",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#49 1009: walked to Mai's map 000000050",
+                "id": "quest#48 1009: walked to Mai's map 000000050",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#50 1009: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#49 1009: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1009"
               },
               {
                 "kind": "playtest",
-                "id": "quest#51 1009: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#50 1009: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1009"
               }
             ],
@@ -18235,22 +18223,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -18283,22 +18271,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -18331,22 +18319,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#84 1009: its follow-up 1010 (Mai's Final Training) is available at level 6",
+                "id": "quest#80 1009: its follow-up 1010 (Mai's Final Training) is available at level 5",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#86 1010: walked to Mai's map 000000050",
+                "id": "quest#82 1010: walked to Mai's map 000000050",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#87 1010: Mai's marker offers it (gold !; the engine agrees)",
+                "id": "quest#83 1010: Mai's marker offers it (gold !; the engine agrees)",
                 "key": "quest:1010"
               },
               {
                 "kind": "playtest",
-                "id": "quest#88 1010: the Quest Log's Available tab lists it before the accept",
+                "id": "quest#84 1010: the Quest Log's Available tab lists it before the accept",
                 "key": "quest:1010"
               }
             ],
@@ -19016,7 +19004,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
@@ -19086,7 +19074,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_c_progression#60 phase 2: every level-up gives +AP, +SP, the canonical HP/MP and the full heal",
+                "id": "test_c_progression#62 phase 2: every level-up gives +AP, +SP, the canonical HP/MP and the full heal",
                 "key": "mechanic:beginner-sp-gain"
               },
               {
@@ -21433,12 +21421,12 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#36 1011: the bag changed by exactly the canonical rewards and hand-ins (random pick: 558 Razor)",
+                "id": "quest#36 1011: the bag changed by exactly the canonical rewards and hand-ins (random pick: 559 Fruit Knife)",
                 "key": "mechanic:quest-random-rewards"
               },
               {
                 "kind": "playtest",
-                "id": "test_e_quest#55 1008 completed at Maria: the reply handed in, EXP exactly +50 (canonical), one item of the random group",
+                "id": "test_e_quest#54 1008 completed at Maria: the reply handed in, EXP exactly +50 (canonical), one item of the random group",
                 "key": "mechanic:quest-random-rewards"
               },
               {
@@ -22175,7 +22163,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -22245,12 +22233,12 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#28 damage: Blue Snail, 31 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#28 damage: Blue Snail, 38 hits all inside the canonical per-hit window",
                 "key": "mechanic:player-damage-window"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#29 damage: Shroom, 30 hits all inside the canonical per-hit window",
+                "id": "test_b_combat#29 damage: Shroom, 32 hits all inside the canonical per-hit window",
                 "key": "mechanic:player-damage-window"
               },
               {
@@ -22830,7 +22818,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#21 every picked item is a rolling member of a killed monster's canonical drop record",
+                "id": "test_d_inventory#24 every picked item is a rolling member of a killed monster's canonical drop record",
                 "key": "mechanic:drop-membership-authoritative"
               },
               {
@@ -22935,22 +22923,22 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 2)",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
                 "key": "mechanic:loot-pickup"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#20 every item held came from a Z pickup or the quest reward (less the ones used)",
+                "id": "test_d_inventory#23 every item held came from a Z pickup or the quest reward (less the ones used)",
                 "key": "mechanic:loot-pickup"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#21 every picked item is a rolling member of a killed monster's canonical drop record",
+                "id": "test_d_inventory#24 every picked item is a rolling member of a killed monster's canonical drop record",
                 "key": "mechanic:loot-pickup"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#22 stackable pickups merge into stacks (canonical max_stack)",
+                "id": "test_d_inventory#25 stackable pickups merge into stacks (canonical max_stack)",
                 "key": "mechanic:loot-pickup"
               }
             ],
@@ -23080,7 +23068,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#19 every meso came from a meso bag picked up with Z (+ the canonical quest reward)",
+                "id": "test_d_inventory#22 every meso came from a meso bag picked up with Z (+ the canonical quest reward)",
                 "key": "mechanic:meso-pickup"
               },
               {
@@ -23435,7 +23423,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#75 the game resumes in the map it was saved in",
+                "id": "test_d_inventory#74 the game resumes in the map it was saved in",
                 "key": "mechanic:save-load"
               },
               {
@@ -23542,7 +23530,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#58 after Quit to Title and Continue: base_stats persists exactly",
+                "id": "test_d_inventory#57 after Quit to Title and Continue: base_stats persists exactly",
                 "key": "persistence:ap-stats"
               }
             ],
@@ -23743,12 +23731,12 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#55 after Quit to Title and Continue: equipment persists exactly",
+                "id": "test_d_inventory#54 after Quit to Title and Continue: equipment persists exactly",
                 "key": "persistence:equipment"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#66 after Quit Game and a new process: equipment persists exactly",
+                "id": "test_d_inventory#65 after Quit Game and a new process: equipment persists exactly",
                 "key": "persistence:equipment"
               },
               {
@@ -24229,17 +24217,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#57 after Quit to Title and Continue: quickslots persists exactly",
+                "id": "test_d_inventory#56 after Quit to Title and Continue: quickslots persists exactly",
                 "key": "persistence:quickslots"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#68 after Quit Game and a new process: quickslots persists exactly",
+                "id": "test_d_inventory#67 after Quit Game and a new process: quickslots persists exactly",
                 "key": "persistence:quickslots"
               },
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#76 quickslot 1 still uses Egg after the reload",
+                "id": "test_d_inventory#75 quickslot 1 still uses Egg after the reload",
                 "key": "persistence:quickslots"
               },
               {
@@ -24308,7 +24296,7 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
               {
@@ -24650,7 +24638,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_d_inventory#81 the Equipment window says why",
+                "id": "test_d_inventory#80 the Equipment window says why",
                 "key": "mechanic:inventory-full-warning"
               },
               {
@@ -25865,7 +25853,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_c_progression#62 phase 2: the HUD announces each level-up (log lines, Stat button +AP)",
+                "id": "test_c_progression#64 phase 2: the HUD announces each level-up (log lines, Stat button +AP)",
                 "key": "ui:ap-notification"
               },
               {
@@ -26107,7 +26095,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_c_progression#62 phase 2: the HUD announces each level-up (log lines, Stat button +AP)",
+                "id": "test_c_progression#64 phase 2: the HUD announces each level-up (log lines, Stat button +AP)",
                 "key": "ui:level-up-feedback"
               },
               {
@@ -26402,7 +26390,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 92,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -27538,7 +27526,7 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#475 every canonical portal used (47 of 47)",
+                "id": "test_a_traversal#473 every canonical portal used (47 of 47)",
                 "key": "xref:portal-destination"
               },
               {
@@ -27968,7 +27956,7 @@
           "brief": "Definition of Done: Canonical Verification",
           "in_scope": true,
           "evidence": {
-            "passed_count": 36,
+            "passed_count": 38,
             "failed_count": 0,
             "passed": [
               {
