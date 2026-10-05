@@ -32,7 +32,8 @@ const WEAPON := "585"
 ## Filler for the full Equip tab (Leather Sandals, sold by Pan: it can be sold back to him).
 const FILLER := "1305"
 const KEY := "1"
-## Game seconds spent hunting A Split Road for mesos at most (probe: ~2.7 mesos and ~7.5 s per kill).
+## Game seconds spent hunting A Split Road for mesos at most. Re-measured with the canonical drop records (KuroDB 40%
+## meso chance, MeowDB / Hidden Street amounts): ~2.3 mesos and ~8.3 s per kill, 150 mesos in about 550 s (seed 1).
 const HUNT_BUDGET_S := 1100.0
 const PICK_RADIUS_M := 10.0
 
