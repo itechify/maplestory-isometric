@@ -16,13 +16,27 @@
 //                their chains) need that check from the real game: a playtest report.json check, not a unit test (brief
 //                "Full Quest Playthrough Requirement"). A drop probability can only be verified when its sources
 //                resolve (a KuroDB chance for a member of the membership list); an unresolved one is a source-data gap.
-//   source_data_gap  (a flag next to the state) the entry cannot be completed because the sources do not give a value
-//                (KuroDB has no chance for that member; Hidden Street gives no meso amount): it is excused from the
-//                exit criterion "every in-scope entry verified".
+//   source_data_gap  (a flag next to the state) the entry cannot be completed because the sources were read and do not
+//                give a value (KuroDB's page for that monster has no row for the member; Hidden Street gives no meso
+//                amount): it is excused from the exit criterion "every in-scope entry verified".
+//   pending_source_read  (a flag next to the state, never set together with source_data_gap) a value the entry needs
+//                is published on a page nobody has read yet, so it is NOT a source-data gap and is NOT excused: the
+//                entry stays partial and counts as open until the page is read and the data updated. A drop record
+//                marks one itself: a KuroDB row drops_merge.mjs excluded as a possible match for a member (any
+//                excluded_kuro_only reason but the KuroDB-only one) makes that member's unresolved chance pending, even
+//                when undeclared. Other entries are declared in rules.json pending_source_reads (the read that resolves
+//                it, and for a record the fields its gaps name). A declaration the data no longer supports fails the
+//                build (stale), so a finished read cannot stay labelled pending. An entry that also has a real gap
+//                (e.g. an item no source names) stays a source-data gap, with the pending part listed beside it.
 //   in_scope     false for content outside Iteration Three (rules.json out_of_scope, e.g. the Lith Harbor chair).
 import { entryKey } from '../sources/parse.mjs';
 
-export const FORMAT = 2;
+export const FORMAT = 3;
+/**
+ * The excluded_kuro_only reason tools/sources/drops_merge.mjs gives a KuroDB row that matches no member. Any other
+ * reason is a crosswalk "candidate": a row that may be a member but was not accepted (decision D3-8).
+ */
+export const KURO_ONLY_REASON = 'not on the membership list (KuroDB never adds members)';
 /** How many passing checks an entry lists in the JSON (all are counted; failing ones are always all listed). */
 export const EVIDENCE_LISTED = 5;
 export const STATES = ['missing', 'partial', 'implemented', 'verified'];
@@ -75,8 +89,9 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
   const findings = recordFindings(provenance);
   const runtimeOf = (spec) => runtimeState(spec, runtime);
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
-  const ctx = { canonical, miso, rules, evidence, findings, categoryRuntime, runtimeOf };
+  const ctx = { canonical, miso, rules, evidence, findings, categoryRuntime, runtimeOf, unmatchedCandidates: [] };
   const entries = enumerate(ctx);
+  const undeclaredPending = applyPendingReads(entries, rules, canonical);
   // A key names exactly one entry: evidence tagged with a shared key would silently count for every entry holding it.
   const seenKeys = new Set();
   const duplicateKeys = new Set();
@@ -117,9 +132,14 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
       unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k) && !accepted.has(k)).sort(),
+      // Entries a drop record marks pending (an excluded KuroDB candidate row) that rules.json does not declare yet.
+      undeclared_pending_reads: undeclaredPending,
+      // Excluded KuroDB candidate rows whose member could not be found in the record's entries (their notes).
+      unmatched_kuro_candidates: ctx.unmatchedCandidates.sort(),
     },
     totals,
     source_data_gaps: sourceDataGaps(out),
+    pending_source_reads: pendingSourceReads(out),
     categories: out,
   };
 }
@@ -129,7 +149,8 @@ export const RULE_TEXT = {
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
   verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.',
-  source_data_gap: 'The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
+  source_data_gap: 'The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
+  pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
   evidence: 'A unit test declares the keys it proves in its file\'s parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.',
 };
@@ -271,7 +292,7 @@ const escapeRe = (s) => s.replace(/[.+^${}()|[\]\\?]/g, '\\$&');
 
 function entry(category, key, name, extra = {}) {
   return { category, key, name, accepts: [], record: null, issues: [], source_gaps: [], source_data_gap: false,
-    adaptations: [], notes: [], ...extra };
+    pending_source_read: false, pending_reads: [], adaptations: [], notes: [], ...extra };
 }
 
 function recordGaps(rec) {
@@ -336,6 +357,13 @@ function enumerate(ctx) {
     // An entry also accepts drop:<owner>/<item id> (the form playtest checks use) when that item id is its own alone.
     const idCount = new Map();
     for (const e of arr(t.entries)) if (e.item_id != null) idCount.set(String(e.item_id), (idCount.get(String(e.item_id)) ?? 0) + 1);
+    // KuroDB rows excluded as a possible match for a member (drops_merge.mjs writes the member's note "KuroDB candidate
+    // row <name> (<kuro id>, ..."): that member's chance is published but unread, a pending read and not a gap.
+    const candidates = v2 ? arr(t.excluded_kuro_only).filter((x) => x?.reason && x.reason !== KURO_ONLY_REASON) : [];
+    const candidateOf = (e) => candidates.filter((x) => arr(e.notes).some((n) => String(n).startsWith(`KuroDB candidate row ${x.name} (${x.kuro_item_id},`)));
+    for (const x of candidates) {
+      if (!arr(t.entries).some((e) => candidateOf(e).includes(x))) ctx.unmatchedCandidates.push(`drops/${id}: KuroDB ${x.kuro_item_id} ${x.name}`);
+    }
     for (const e of arr(t.entries)) {
       const label = e.name ?? e.item_name ?? e.item_id;
       let key = e.key;
@@ -354,8 +382,16 @@ function enumerate(ctx) {
           ent.source_gaps.push(`item ${e.item_resolution?.state ?? 'unresolved'}${arr(e.item_resolution?.candidates).length ? ` (candidates ${e.item_resolution.candidates.join(', ')})` : ''}: never drops`);
         }
         if (e.chance_state !== 'resolved') {
-          ent.source_data_gap = true;
-          ent.source_gaps.push('no KuroDB chance for this member: never drops');
+          const cand = candidateOf(e);
+          if (cand.length) {
+            for (const x of cand) {
+              ent.pending_reads.push({ read: `KuroDB item ${x.kuro_item_id} ("${x.name}", ${x.raw_value ?? '?'} on this monster's page)`,
+                resolves: 'whether that row is this member, and so its chance', decision: null, detail: x.reason, declared: false });
+            }
+          } else {
+            ent.source_data_gap = true;
+            ent.source_gaps.push('no KuroDB chance for this member: never drops');
+          }
         }
         if (e.quest_gate) ent.notes.push(`quest-gated to ${e.quest_gate.quest_id}`);
       }
@@ -487,6 +523,52 @@ export function dataRequirementIssues(requires, canonical) {
   return out;
 }
 
+/**
+ * Applies rules.json pending_source_reads and sets every entry's pending_source_read flag; returns the keys a drop
+ * record marks pending (an excluded KuroDB candidate row) that are not declared. A declaration is
+ *   {read: the page whose read resolves it, resolves: what it settles, decision: the log row (optional),
+ *    fields: [record fields] (an entry other than a drop: each must still be named by one of the record's gaps)}
+ * and fails the build when the data no longer supports it: a drop entry without an unread KuroDB candidate row, or a
+ * record whose gaps no longer name a declared field (the read was done: remove the declaration). An entry with a real
+ * source-data gap stays excused as one; its pending reads are listed beside it, but it is not flagged pending.
+ */
+export function applyPendingReads(entries, rules, canonical) {
+  const byKey = new Map(entries.map((e) => [e.key, e]));
+  const declared = rules.pending_source_reads ?? {};
+  for (const key of Object.keys(declared).sort()) {
+    const d = declared[key] ?? {};
+    const e = byKey.get(key);
+    if (!e) throw new Error(`rules.json pending_source_reads: ${key} names no entry`);
+    if (!d.read || !d.resolves) throw new Error(`rules.json pending_source_reads: ${key} needs "read" and "resolves"`);
+    const detected = e.pending_reads.filter((r) => !r.declared);
+    const base = { read: String(d.read), resolves: String(d.resolves), decision: d.decision ?? null, declared: true };
+    if (e.key.startsWith('drop:')) {
+      if (!detected.length) {
+        throw new Error(`rules.json pending_source_reads: ${key} is stale: its drop record has no unread KuroDB candidate row ` +
+          'for it any more (the read was done or the entry resolved): remove the declaration');
+      }
+      e.pending_reads = [{ ...base, detail: detected.map((r) => r.detail).join('; ') }];
+      continue;
+    }
+    const fields = arr(d.fields).map(String);
+    if (!fields.length) throw new Error(`rules.json pending_source_reads: ${key} needs "fields" (the record fields its gaps name)`);
+    const [domain, id] = String(e.record ?? '').split('/');
+    const gaps = arr(canonical?.[domain]?.[id]?.gaps).map(String);
+    const stale = fields.filter((f) => !gaps.some((g) => g.startsWith(f)));
+    if (stale.length) {
+      throw new Error(`rules.json pending_source_reads: ${key} is stale: record ${e.record ?? '?'} has no gap for ${stale.join(', ')} ` +
+        'any more (the read was done): remove the declaration');
+    }
+    e.pending_reads.push({ ...base, fields, detail: gaps.filter((g) => fields.some((f) => g.startsWith(f))).join('; ') });
+  }
+  const undeclared = [];
+  for (const e of entries) {
+    if (e.pending_reads.some((r) => !r.declared)) undeclared.push(e.key);
+    e.pending_source_read = !e.source_data_gap && e.pending_reads.length > 0;
+  }
+  return undeclared.sort();
+}
+
 // --- state ------------------------------------------------------------------------------------------------------
 
 function finish(e, ctx, all) {
@@ -535,6 +617,7 @@ function finish(e, ctx, all) {
   const real = needsRealGame ? passed.filter((p) => p.kind === 'playtest' && (!needsClean || p.clean)) : passed;
   if (e.issues.length) e.state = 'partial';
   else if (e.source_data_gap) e.state = 'partial';
+  else if (e.pending_source_read) e.state = 'partial'; // a value still to be read: never verified, never excused
   else if (real.length) e.state = 'verified';
   else {
     e.state = 'implemented';
@@ -544,7 +627,7 @@ function finish(e, ctx, all) {
 }
 
 function totalsOf(categories) {
-  const blank = () => ({ missing: 0, partial: 0, implemented: 0, verified: 0, source_data_gap: 0, out_of_scope: 0, entries: 0 });
+  const blank = () => ({ missing: 0, partial: 0, implemented: 0, verified: 0, source_data_gap: 0, pending_source_read: 0, out_of_scope: 0, entries: 0 });
   const all = blank();
   const by = {};
   for (const c of categories) {
@@ -555,11 +638,13 @@ function totalsOf(categories) {
         if (!e.in_scope) { tt.out_of_scope++; continue; }
         tt[e.state]++;
         if (e.source_data_gap) tt.source_data_gap++;
+        if (e.pending_source_read) tt.pending_source_read++;
       }
     }
     by[c.category] = t;
   }
-  // The exit criterion: every in-scope entry verified, except documented source-data gaps.
+  // The exit criterion: every in-scope entry verified, except documented source-data gaps (a pending source read is
+  // not one: it stays open until the page is read).
   const open = [];
   for (const c of categories) for (const e of c.entries) if (e.in_scope && e.state !== 'verified' && !e.source_data_gap) open.push(e.key);
   return { all, by_category: by, open_for_exit: open.length };
@@ -573,6 +658,19 @@ function sourceDataGaps(categories) {
   return out;
 }
 
+/** The pending source reads (in scope or not), listed apart from the source-data gaps: [{key, category, name, reads}]. */
+function pendingSourceReads(categories) {
+  const out = [];
+  for (const c of categories) {
+    for (const e of c.entries) {
+      if (e.pending_source_read) out.push({ key: e.key, category: c.category, name: e.name, in_scope: e.in_scope, reads: e.pending_reads });
+    }
+  }
+  return out;
+}
+
+const readText = (r) => `read ${r.read}${r.decision ? ` (decision ${r.decision})` : ''} to settle ${r.resolves}`;
+
 // --- markdown ---------------------------------------------------------------------------------------------------
 
 const esc = (v) => String(v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
@@ -585,7 +683,7 @@ export function toMarkdown(doc) {
   L.push('`report.json` files. Do not edit: change the data, the code, the tests or `tools/parity/rules.json` and regenerate.');
   L.push('Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).', '');
   L.push('## States', '');
-  for (const s of [...STATES, 'source_data_gap', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
+  for (const s of [...STATES, 'source_data_gap', 'pending_source_read', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
   L.push('- Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries');
   L.push('  `parity`. "Implemented" is a declaration (`tools/parity/rules.json`: the runtime files or code markers per category');
   L.push('  and mechanic); only evidence makes an entry verified.', '');
@@ -600,6 +698,12 @@ export function toMarkdown(doc) {
   if (doc.inputs.unknown_evidence_keys.length) L.push(`- Tagged keys that name no manifest entry: ${doc.inputs.unknown_evidence_keys.map((k) => `\`${k}\``).join(', ')}`);
   for (const u of arr(doc.inputs.playtest_tag_rules_unmatched)) {
     L.push(`- A playtest_tags rule matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')} (renamed checks?): \`${esc(u.rule)}\``);
+  }
+  if (arr(doc.inputs.undeclared_pending_reads).length) {
+    L.push(`- Pending source reads a drop record marks that \`tools/parity/rules.json\` \`pending_source_reads\` does not declare: ${doc.inputs.undeclared_pending_reads.map((k) => `\`${k}\``).join(', ')}`);
+  }
+  if (arr(doc.inputs.unmatched_kuro_candidates).length) {
+    L.push(`- Excluded KuroDB candidate rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.map((k) => esc(k)).join('; ')}`);
   }
   L.push('');
   L.push('How the evidence is made (each step writes git-ignored files under `_scratch/`):', '');
@@ -617,20 +721,36 @@ export function toMarkdown(doc) {
   L.push('## Totals', '');
   const t = doc.totals;
   L.push(`${t.all.entries} entries: ${t.all.verified} verified, ${t.all.implemented} implemented, ${t.all.partial} partial, ${t.all.missing} missing; ` +
-    `${t.all.source_data_gap} source-data gaps, ${t.all.out_of_scope} out of scope. **${t.open_for_exit}** in-scope entries are neither verified nor a ` +
-    'source-data gap (the exit criterion needs 0).', '');
-  L.push('| Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Out of scope |');
-  L.push('|---|---|---|---|---|---|---|---|');
+    `${t.all.source_data_gap} source-data gaps, ${t.all.pending_source_read} pending source reads (not excused), ${t.all.out_of_scope} out of scope. ` +
+    `**${t.open_for_exit}** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).`, '');
+  L.push('| Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Pending source reads | Out of scope |');
+  L.push('|---|---|---|---|---|---|---|---|---|');
   for (const c of doc.categories) {
     const x = t.by_category[c.category];
-    L.push(`| [${c.title}](#${anchor(c.title)}) | ${x.entries} | ${x.verified} | ${x.implemented} | ${x.partial} | ${x.missing} | ${x.source_data_gap} | ${x.out_of_scope} |`);
+    L.push(`| [${c.title}](#${anchor(c.title)}) | ${x.entries} | ${x.verified} | ${x.implemented} | ${x.partial} | ${x.missing} | ${x.source_data_gap} | ${x.pending_source_read} | ${x.out_of_scope} |`);
   }
   L.push('');
   L.push('## Source-data gaps', '');
+  L.push('Values the sources were read for and do not give. These entries are excused from the exit criterion.', '');
   if (!doc.source_data_gaps.length) L.push('None recorded.');
-  for (const g of doc.source_data_gaps) L.push(`- \`${g.key}\` ${esc(g.name)}: ${esc(g.gaps.join('; '))}`);
+  const byKey = new Map(doc.categories.flatMap((c) => c.entries).map((e) => [e.key, e]));
+  for (const g of doc.source_data_gaps) {
+    const pend = arr(byKey.get(g.key)?.pending_reads);
+    const also = pend.length ? `; also pending, moot while the gap stands: ${pend.map(readText).join('; ')}` : '';
+    L.push(`- \`${g.key}\` ${esc(g.name)}: ${esc(g.gaps.join('; ') + also)}`);
+  }
   L.push('', 'Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in');
   L.push('[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").', '');
+  L.push('## Pending source reads', '');
+  L.push('Values a source publishes on a page nobody has read yet. They are not source-data gaps and are not excused: each entry');
+  L.push('stays partial and counts as open for the exit criterion until the page is read and the data regenerated (its declaration');
+  L.push('in `tools/parity/rules.json` `pending_source_reads` then fails the build as stale and is removed).', '');
+  if (!doc.pending_source_reads.length) L.push('None recorded.');
+  for (const p of doc.pending_source_reads) {
+    const reads = p.reads.map((r) => `${readText(r)}${r.detail ? `. ${r.detail}` : ''}`).join(' / ');
+    L.push(`- \`${p.key}\` ${esc(p.name)}${p.in_scope ? '' : ' (out of scope)'}: ${esc(reads)}`);
+  }
+  L.push('');
   L.push('## Open entries', '');
   L.push('In-scope entries that are neither verified nor a source-data gap, by category, with why.', '');
   let anyOpen = false;
@@ -638,7 +758,8 @@ export function toMarkdown(doc) {
     const open = c.entries.filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap);
     if (!open.length) continue;
     anyOpen = true;
-    const why = (e) => e.issues[0] ?? (e.state === 'implemented' ? (e.notes.find((n) => /needs a/.test(n)) ?? 'no passing check is tagged with its key') : e.state);
+    const why = (e) => e.issues[0] ?? (e.pending_source_read ? `pending source read (${e.pending_reads.map((r) => r.read).join('; ')})` : null) ??
+      (e.state === 'implemented' ? (e.notes.find((n) => /needs a/.test(n)) ?? 'no passing check is tagged with its key') : e.state);
     const groups = new Map();
     for (const e of open) {
       const w = `${e.state}: ${why(e)}`;
@@ -659,9 +780,10 @@ export function toMarkdown(doc) {
     L.push('| Key | Name | State | Evidence | Gaps | Notes |');
     L.push('|---|---|---|---|---|---|');
     for (const e of c.entries) {
-      const state = e.in_scope ? `${e.state}${e.source_data_gap ? ' (source-data gap)' : ''}` : `${e.state} (out of scope)`;
+      const flag = e.source_data_gap ? ' (source-data gap)' : e.pending_source_read ? ' (pending source read)' : '';
+      const state = e.in_scope ? `${e.state}${flag}` : `${e.state}${flag} (out of scope)`;
       const ev = [`${e.evidence.passed_count} pass`, e.evidence.failed_count ? `**${e.evidence.failed_count} fail**` : null].filter(Boolean).join(', ');
-      const notes = [...e.issues, ...e.notes, ...e.adaptations.map((a) => `adaptation: ${a.replace('game/data/misostory/', '')}`)];
+      const notes = [...e.issues, ...e.pending_reads.map((r) => `pending: ${readText(r)}`), ...e.notes, ...e.adaptations.map((a) => `adaptation: ${a.replace('game/data/misostory/', '')}`)];
       L.push(`| \`${e.key}\` | ${esc(e.name)} | ${state} | ${ev} | ${e.source_gaps.length || ''} | ${esc(notes.join('; '))} |`);
     }
     L.push('');

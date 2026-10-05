@@ -3,7 +3,7 @@
 // playtests (and which of them count), v1 and v2 drop records, source-data gaps, chains, out-of-scope keys.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence } from '../parity.mjs';
+import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence, KURO_ONLY_REASON } from '../parity.mjs';
 
 const RUNTIME_FILES = ['game/scripts/core/quests/quest_engine.gd', 'game/scripts/core/drops/drop_roller.gd', 'game/scripts/core/maps/map_definition.gd',
   'game/scripts/old_regen.gd'];
@@ -252,4 +252,80 @@ test('a canonical-verification row about the drop data stays partial while any d
   const c = canonical();
   delete c.drops['9'];
   assert.equal(find(build({ canonical: c, rules, tests: evidence }), 'canon:membership-chance-separate').state, 'verified', 'every drop record v2');
+});
+
+test('a pending source read is its own label: never excused, never verified, listed apart from the gaps; stale declarations fail', () => {
+  // A drop member whose chance is unresolved while the record excludes a KuroDB row as a possible match for it (a
+  // crosswalk candidate, decision D3-8), next to a member KuroDB truly has no row for (a source-data gap).
+  const withCandidate = () => {
+    const c = canonical();
+    c.drops['2'].entries.push({ key: 'jump-scroll', name: 'Scroll for Shoes for Jump 10%', item_id: '348', item_resolution: { state: 'resolved' },
+      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), excluded: possible match, page not read'] });
+    c.drops['2'].excluded_kuro_only = [
+      { kuro_item_id: '2380000', name: 'Snail Card', raw_value: '26% base | Qty 1', reason: KURO_ONLY_REASON },
+      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', reason: 'possible match, page not read' },
+    ];
+    c.items['237'].gaps = ['max_stack: shown only on the item page, which was not captured', 'sources.breakables: not captured'];
+    return c;
+  };
+  const evidence = [unit([{ file: 't.gd', name: 'test_all', ok: true, parity: ['drop:2/jump-scroll', 'item:237', 'item:348'] }])];
+  const undeclared = build({ canonical: withCandidate(), tests: evidence });
+  const scroll = find(undeclared, 'drop:2/jump-scroll');
+  assert.equal(scroll.source_data_gap, false, 'a published but unread chance is not a source-data gap');
+  assert.equal(scroll.pending_source_read, true, 'the record alone marks it, even undeclared');
+  assert.equal(scroll.state, 'partial', 'passing evidence cannot verify it');
+  assert.deepEqual(scroll.source_gaps, [], 'no gap text claims KuroDB has no chance');
+  assert.match(scroll.pending_reads[0].read, /KuroDB item 2040705/);
+  assert.deepEqual(undeclared.inputs.undeclared_pending_reads, ['drop:2/jump-scroll']);
+  assert.ok(!undeclared.source_data_gaps.some((g) => g.key === 'drop:2/jump-scroll'), 'not listed with the gaps');
+  assert.deepEqual(undeclared.pending_source_reads.map((p) => p.key), ['drop:2/jump-scroll']);
+  assert.equal(find(undeclared, 'drop:2/wooden-buckler').source_data_gap, true, 'a member KuroDB has no row for stays a gap');
+  const open = undeclared.categories.flatMap((c) => c.entries).filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap).map((e) => e.key);
+  assert.ok(open.includes('drop:2/jump-scroll'), 'counted open for the exit criterion');
+  assert.equal(undeclared.totals.open_for_exit, open.length);
+  assert.equal(undeclared.totals.all.pending_source_read, 1);
+  assert.equal(undeclared.totals.by_category['monster-drops'].pending_source_read, 1);
+  assert.equal(find(undeclared, 'item:237').state, 'verified', 'record gaps alone do not make an item pending');
+  // Declared: the drop keeps its pending label with the declared read; a record entry needs the fields its gaps name.
+  const rules = { ...RULES, pending_source_reads: {
+    'drop:2/jump-scroll': { read: 'KuroDB item page 2040705', resolves: 'the chance', decision: 'D3-8' },
+    'item:237': { read: 'MeowDB item page 237', resolves: 'its max stack', fields: ['max_stack'] },
+  } };
+  const declared = build({ canonical: withCandidate(), rules, tests: evidence });
+  assert.deepEqual(declared.inputs.undeclared_pending_reads, []);
+  assert.equal(find(declared, 'drop:2/jump-scroll').pending_reads[0].read, 'KuroDB item page 2040705');
+  const egg = find(declared, 'item:237');
+  assert.equal(egg.pending_source_read, true);
+  assert.equal(egg.state, 'partial', 'a passing item test cannot verify a value still to be read');
+  assert.equal(find(declared, 'item:348').state, 'verified');
+  assert.deepEqual(declared.pending_source_reads.map((p) => p.key), ['drop:2/jump-scroll', 'item:237']);
+  const md = toMarkdown(declared);
+  assert.ok(md.includes('\n## Pending source reads\n'));
+  assert.match(md, /- `item:237` Egg \(Use\): read MeowDB item page 237 to settle its max stack\. max_stack: shown only on the item page/);
+  assert.match(md, /\| `drop:2\/jump-scroll` \| .* \| partial \(pending source read\) \|/);
+  assert.match(md, /partial: pending source read \(KuroDB item page 2040705\): `drop:2\/jump-scroll`/);
+  // An entry with a real gap stays excused; its pending part is listed beside the gap.
+  const both = withCandidate();
+  both.drops['2'].entries.find((e) => e.key === 'jump-scroll').item_resolution = { state: 'ambiguous', candidates: ['1', '2'] };
+  both.drops['2'].entries.find((e) => e.key === 'jump-scroll').item_id = null;
+  const mixed = find(build({ canonical: both, rules, tests: evidence }), 'drop:2/jump-scroll');
+  assert.equal(mixed.source_data_gap, true);
+  assert.equal(mixed.pending_source_read, false);
+  assert.equal(mixed.pending_reads.length, 1);
+  // Stale declarations fail: the read was done (the chance resolved, the candidate gone; the gap removed), or no entry.
+  const read = withCandidate();
+  read.drops['2'].excluded_kuro_only = read.drops['2'].excluded_kuro_only.slice(0, 1);
+  read.drops['2'].entries.find((e) => e.key === 'jump-scroll').chance_state = 'resolved';
+  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale/);
+  const pageRead = withCandidate();
+  pageRead.items['237'].gaps = [];
+  assert.throws(() => build({ canonical: pageRead, rules }), /item:237 is stale: record items\/237 has no gap for max_stack/);
+  assert.throws(() => build({ canonical: withCandidate(), rules: { ...RULES, pending_source_reads: { 'item:999': { read: 'x', resolves: 'y', fields: ['a'] } } } }),
+    /item:999 names no entry/);
+  assert.throws(() => build({ canonical: withCandidate(), rules: { ...RULES, pending_source_reads: { 'item:237': { read: 'x', resolves: 'y' } } } }),
+    /item:237 needs "fields"/);
+  // A candidate row whose member cannot be found is reported.
+  const lost = withCandidate();
+  lost.drops['2'].entries.find((e) => e.key === 'jump-scroll').notes = [];
+  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump']);
 });
