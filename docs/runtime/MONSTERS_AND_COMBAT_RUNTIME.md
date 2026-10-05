@@ -513,6 +513,14 @@ cannot path around buildings, so it made no attack on that map.
 - Known in the harness: in seed 2 the bot, standing still among Orange Mushrooms for the scenario's final 14 s, dies at
   the very end (pacing monsters keep walking over a player who stands on their line); its open knockback track now
   counts as interrupted instead of lost.
+- **The bot after floor-bound walkers** (review). A monster on a terrace above or below the player no longer walks
+  down to it, so `test_b_combat` picks fight, touch-probe and reach-probe targets on the player's own tier (within
+  1.5 / 0.8 / 0.3 m of its feet) and walks to another tier over the routes only when none is left on its own; a reach
+  probe taps only on level ground and the check fails on one that does not (a seed-2 run had probed all 18 from 9 m
+  below a terrace and passed on height whiffs); an attack call that leaves the player pressed against a wall replans
+  over the grid. Seed 2 on 000000040 stayed sensitive to load: two runs there failed (once the bot fell to the low
+  ground under every live Snail, once it stood still for 250 s even under the grid and route walkers) and neither
+  reproduced on a frozen copy.
 
 ## Verified in the real game (wave-2 review)
 
