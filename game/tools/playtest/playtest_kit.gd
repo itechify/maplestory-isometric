@@ -837,6 +837,14 @@ static func row_has(rows: Array, text: String, done: bool) -> bool:
 	return false
 
 
+## True when a row's text contains `needle` (the turn-in row names the NPC whatever its verb: "Return to Mai").
+static func row_contains(rows: Array, needle: String) -> bool:
+	for r: Dictionary in rows:
+		if String(r.get("text", "")).contains(needle):
+			return true
+	return false
+
+
 static func rows_text(rows: Array) -> String:
 	var out: PackedStringArray = []
 	for r: Dictionary in rows:

@@ -322,8 +322,8 @@ func _accept_sam(who: String) -> bool:
 		pq + ["mechanic:quest-indicators"])
 	var qw := await k.quest_window(Q_SAM, "in_progress")
 	var want := _kill_row(0)
-	d.check("%s: the Quest Log shows 1006 In Progress with '%s' and 'Return to Mai'" % [who, want], bool(qw["listed"])
-		and PlaytestKit.row_has(qw["rows"], want, false) and PlaytestKit.row_has(qw["rows"], "Return to %s" % k.npc_name(MAI), false),
+	d.check("%s: the Quest Log shows 1006 In Progress with '%s' and a turn-in row naming Mai" % [who, want], bool(qw["listed"])
+		and PlaytestKit.row_has(qw["rows"], want, false) and PlaytestKit.row_contains(qw["rows"], k.npc_name(MAI)),
 		PlaytestKit.rows_text(qw["rows"]), pq + ["mechanic:quest-log"])
 	if who == "A":
 		await k.shot("questlog_0_of_10")
