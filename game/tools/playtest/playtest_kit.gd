@@ -80,6 +80,9 @@ var _connected := false
 func _init(p_d: PlaytestDriver) -> void:
 	d = p_d
 	db = d.db()
+	# The survival policy needs the touches from the start (a kit made after boot always has the bus).
+	if d.events() != null:
+		connect_bus()
 
 
 # =================================================================================================================
@@ -477,14 +480,18 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 	if bool(opts.get("sit", false)):
 		await sit()
 	var moves := 0
+	var ignored := {}
 	while hp_frac() < until and d.game_s() - t0 < float(opts.get("rest_max_s", REST_MAX_S)) and not is_dead():
 		var t := threat({"threat_m": 3.0})
-		if t != null and beatable(t):
-			await d.face_and_attack_nearest(15.0, {"target": t, "max_dist_m": 6.0, "chase": false})
+		if t != null and beatable(t) and not ignored.has(t.get_instance_id()):
+			var f: Dictionary = await d.face_and_attack_nearest(15.0, {"target": t, "max_dist_m": 6.0, "chase": false})
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if hp_frac() < 0.2 and best_heal_item() != "":
 				await drink(best_heal_item())
-			continue
+			if bool(f.get("ok", false)):
+				continue
+			# Out of reach without a chase (a ledge just above): leave it be for this rest, and move or wait below.
+			ignored[t.get_instance_id()] = true
 		if t != null and moves < 4:
 			# Too strong to fight: move to the quietest spot and rest there.
 			moves += 1

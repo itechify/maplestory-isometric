@@ -212,6 +212,14 @@ func _leg(i: int, from: String, to: String, tag: String) -> Dictionary:
 			var back: Dictionary = await d.walk_to(start_pos, {"planner": "grid", "max_s": 60.0, "within_m": 1.0})
 			if not bool(back.get("ok", false)):
 				iss.append("try %d: could not walk back: %s" % [attempt + 1, "; ".join(back.get("issues", PackedStringArray()))])
+		elif _no_way_up(start_pos) and _no_way_up(src.anchor_ground):
+			# No plan leads anywhere from here (a knockback dropped the walker into a pocket): a world finding. Surface
+			# it with the spot, then warp back to the leg's start (setup) so the tour can go on.
+			var here := d.player().global_position
+			d.soft_check("leg %d: the walker can walk on from where it stands in %s" % [i, from], false,
+				"no plan to the leg's start or to %s from world %s (map-local %s): a possible pocket (probe it with walk_probe / trap_probe)"
+				% [src.key(), _v(here), _v(w.defs.get_def(from).to_local(here))])
+			await _recover_from_pocket(from, i)
 		else:
 			break
 	leg["total_s"] = snappedf(d.game_s() - t0, 0.01)
@@ -381,6 +389,18 @@ func _probe_between(a: Vector3, b: Vector3, label: String) -> void:
 			parts.append("ray at %.1f m hits %s at %s (normal %s, layer %d)" % [h, nm, _v(hit["position"]), _v(hit["normal"]),
 				(col as CollisionObject3D).collision_layer if col is CollisionObject3D else -1])
 	d.note("%s: from %s: %s" % [label, _v(a), "; ".join(parts)])
+
+
+## True when `target` lies above or below the walker's tier (more than step_up) and no planner finds a way there.
+func _no_way_up(target: Vector3) -> bool:
+	var p := d.player()
+	return absf(target.y - p.global_position.y) > p.model.step_up and String(d.walker.plan(target)["how"]) == "straight"
+
+
+func _recover_from_pocket(from: String, i: int) -> void:
+	d.note("leg %d: stuck with no plan in %s; warping back to %s's arrival (setup) to retry the leg" % [i, d.current_map(), from])
+	await d.console("warp " + from)
+	await d.wait_idle(5.0)
 
 
 func _recover_from_death(from: String, i: int) -> void:

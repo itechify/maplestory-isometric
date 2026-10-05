@@ -485,6 +485,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
+| `walk_probe` | can the walker get from a map-local spot to a target (`WALK_MAP`, `WALK_FROM`, `WALK_TO`)? The plan and the walk, for walks a scenario saw fail from an odd spot | harness |
 | `test_b_combat` | Test B: every species, hit detection, damage windows, touch damage, knockback, death, EXP | monsters |
 | `test_c_progression` | Test C: a clean Beginner levels only by killing, AP through the stats window, every number against canonical data and MeowDB vectors (uses the kit) | harness |
 | `test_d_inventory` | Test D: pickups, use by double-click and quickslot, equipment, persistence across a process restart | drops |
