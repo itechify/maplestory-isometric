@@ -200,6 +200,10 @@ def build(m):
     m.ladder("Rope_1530", 37.6, 23.7, T15, T7E - 0.8, facing=90, kind="rope")
     stone(m, "T10", 37.6, 28.4, 1.8, T7E - 0.4)
     stone(m, "T9", 40.2, 29.4, 1.8, T7E)
+    # the courtyard on T15 between T7E, the stones T10 / T9 and T8 was walled in 2-2.8 m high: a player who dropped
+    # into it could not climb out (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md). One more stepping
+    # stone, a 1.0 m hop above the courtyard and below T10, is its way out.
+    stone(m, "T10b_CourtyardStep", 38.6, 31.2, 1.3, T15 + 1.0, ry=1.0)
     m.terrace("T8_UpperEast", [(42.4, 27.4), (52, 27.6), (58.8, 27.8), (59.0, 38.0), (42.0, 38.0), (41.6, 31.0)],
               top=T8, bottom=-0.5)
     m.ladder("Ladder_2585", 57.4, 27.35, T13, T8, facing=90)
@@ -213,6 +217,10 @@ def build(m):
     # (its east end juts forward into a small bastion so the exit gate has room on both sides)
     m.terrace("T3_RidgeEast", [(51.8, 34.0), (58.4, 33.8), (59.6, 31.6), (64.6, 31.2), (64.4, 45.4), (63.6, 46.4),
                                (51.8, 46.6)], top=T3, bottom=-0.5)
+    # (its cut back corner left a body-wide hole at plinth level inside the containment ring's corner, 12.5 m under
+    # the ridge; Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md: filled 0.2 m below the ridge)
+    m.terrace("T3_Corner_Fill", [(62.8, 44.6), (64.9, 44.6), (64.9, 46.9), (62.8, 46.9)], top=T3 - 0.2, bottom=-0.5,
+              style="grass_rock", fringe=False, stones=False)
     # the crest skyline: a continuous rock RIM along the ridge's back edge - wide, shallow grass-capped teeth
     # every 6-8 m (tops <= 14.5 m) joined by low rim walls 0.8-1.1 m tall. A gap at x 39.6-44.8 holds the
     # grove's back trees. The crest walk (Main, y ~42.5) stays >= 1.5 m in front of the rim.
@@ -237,6 +245,10 @@ def build(m):
     stone(m, "T6_Chimney1", 14.4, 37.0, 1.8, T6, ry=1.3)
     stone(m, "T5_Chimney2", 12.4, 38.7, 1.6, T5, ry=1.3)
     stone(m, "T4_Chimney3", 14.3, 40.3, 1.7, T4, ry=1.2)
+    # the chimney's back-west corner behind T5 was a pit on T7W's floor, 2.4 m under T5 (Iteration Three stuck-region
+    # scan): a rock ledge just under T5 fills it
+    m.terrace("T5_ChimneyBack", [(9.9, 38.6), (12.9, 38.6), (12.9, 41.8), (9.9, 41.8)], top=T5 - 0.2, bottom=-0.5,
+              style="grass_rock", fringe=False, lip=0.08, wobble_amt=0.12, resample_step=0.9)
     m.ladder("Rope_453", 15.2, 35.3, T7W, T6, facing=90, kind="rope")
     m.ladder("Rope_355", 13.4, 37.25, T6, T5, facing=90, kind="rope")
     m.ladder("Rope_296", 13.0, 39.1, T5, T4, facing=90, kind="rope")

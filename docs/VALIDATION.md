@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 17707, triangles (evaluated, incl. instances): 9,199,727
+Objects: 18021, triangles (evaluated, incl. instances): 9,274,328
 
 | check | ok | detail |
 |---|---|---|
@@ -11,10 +11,10 @@ Objects: 17707, triangles (evaluated, incl. instances): 9,199,727
 | no_hidden_objects | yes | 0 hidden (colliders exempt): [] |
 | materials | yes | 0 meshes missing materials: [] |
 | instances | yes | 0 broken instances |
-| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (376,067) |
-| world_polygon_budget | yes | WORLD layer 3,352,201 triangles (budget 3,500,000) |
+| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (391,938) |
+| world_polygon_budget | yes | WORLD layer 3,349,268 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
-| floating_props | yes | 0 of 4083 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
+| floating_props | yes | 0 of 4082 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
 | props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 16 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
 | fidelity | yes | 21 NPC proxies vs MeowDB 21 NPCs (by MeowDB id and name); monster proxies and spawn-region species vs MeowDB species |
 | traversal | yes | maps failing traversal: [] |
@@ -26,7 +26,8 @@ Objects: 17707, triangles (evaluated, incl. instances): 9,199,727
 | one_way_ledge | yes | 1/1 ledges: [{'trail': 'Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000', 'height_m': 2.4, 'height_max_m': 2.4, 'face_offset_max_abs_m': 0.005, 'bounds_m': [2.049, 2.6], 'found |
 | player_spawns | yes | 25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane |
 | spawn_regions | yes | 15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns |
-| collision_tags | yes | 1952 Terrain / Plinth / WORLD meshes: 1208 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
+| ring_band | yes | 21/21 exterior maps have walkable ground within step_up (0.45 m) of their base all along the ring line inset by the body radius (footprint + 0.70 m; gate corridors and rim edges skipped) |
+| collision_tags | yes | 2037 Terrain / Plinth / WORLD meshes: 1263 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
 | no_swallowed_exceptions | yes | 0 recorded: [] |
 
 ## Triangle budget
@@ -35,40 +36,40 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 
 | layer | triangles | budget | ok |
 |---|---|---|---|
-| 1000000 FieldWestOfAmherst_1000000 | 376,067 | 400,000 | yes |
+| 1000000 FieldWestOfAmherst_1000000 | 391,938 | 400,000 | yes |
 | 60000 Southperry_60000 | 371,142 | 400,000 | yes |
-| 1000006 HuntingGroundMidForest2_1000006 | 342,843 | 400,000 | yes |
-| 40001 SnailHuntingGround2_40001 | 308,927 | 400,000 | yes |
-| 40002 SnailHuntingGround3_40002 | 299,693 | 400,000 | yes |
-| 1020000 FieldEastOfAmherst_1020000 | 294,763 | 400,000 | yes |
-| 1020001 TomatoField_1020001 | 291,553 | 400,000 | yes |
-| 1000002 DangerousForest_1000002 | 268,476 | 400,000 | yes |
-| 1000005 HuntingGroundMidForest1_1000005 | 264,727 | 400,000 | yes |
-| 1010004 SnailFieldOfFlowers_1010004 | 263,144 | 400,000 | yes |
+| 1000006 HuntingGroundMidForest2_1000006 | 343,587 | 400,000 | yes |
+| 40001 SnailHuntingGround2_40001 | 318,818 | 400,000 | yes |
+| 1020000 FieldEastOfAmherst_1020000 | 311,826 | 400,000 | yes |
+| 40002 SnailHuntingGround3_40002 | 308,063 | 400,000 | yes |
+| 1020001 TomatoField_1020001 | 293,465 | 400,000 | yes |
+| 1000002 DangerousForest_1000002 | 271,532 | 400,000 | yes |
+| 1010004 SnailFieldOfFlowers_1010004 | 267,316 | 400,000 | yes |
+| 1000005 HuntingGroundMidForest1_1000005 | 267,112 | 400,000 | yes |
 | 1010000 Amherst_1010000 | 249,060 | 400,000 | yes |
-| 1000001 InASmallForest_1000001 | 223,436 | 400,000 | yes |
-| 1000004 SnailGarden_1000004 | 207,473 | 400,000 | yes |
+| 1000001 InASmallForest_1000001 | 226,696 | 400,000 | yes |
+| 1000004 SnailGarden_1000004 | 216,015 | 400,000 | yes |
 | 50000 ASplitRoad_50000 | 193,647 | 400,000 | yes |
 | 30000 EastEntranceMushroomTown_30000 | 161,549 | 400,000 | yes |
 | 40000 SnailHuntingGround1_40000 | 160,036 | 400,000 | yes |
-| 1000003 MushroomGarden_1000003 | 155,749 | 400,000 | yes |
+| 1000003 MushroomGarden_1000003 | 158,291 | 400,000 | yes |
 | 10000 MushroomTown_10000 | 132,989 | 400,000 | yes |
 | 20000 MushroomTown_20000 | 117,195 | 400,000 | yes |
 | 0 WestEntranceMushroomTown_0 | 99,184 | 400,000 | yes |
 | 60001 SouthperryArmorStore_60001 | 75,405 | 400,000 | yes |
-| 1010002 AmherstTownstreet_1010002 | 73,052 | 400,000 | yes |
+| 1010002 AmherstTownstreet_1010002 | 72,778 | 400,000 | yes |
 | 1010003 AmherstDepartmentStore_1010003 | 58,720 | 400,000 | yes |
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
-| WORLD (plinth, hull, trails, scenery, clouds) | 3,352,201 | 3,500,000 | yes |
-| total | 9,199,727 | | |
+| WORLD (plinth, hull, trails, scenery, clouds) | 3,349,268 | 3,500,000 | yes |
+| total | 9,274,328 | | |
 
 ## Top 10 assets by instanced triangles
 
 | asset | instances | tris / instance (with outline) | total |
 |---|---|---|---|
 | `Tree_Round_B` | 177 | 2,472 | 437,544 |
-| `Rock_Cliff_Stone` | 8163 | 50 | 408,150 |
+| `Rock_Cliff_Stone` | 8389 | 50 | 419,450 |
 | `Tree_Round_A` | 174 | 2,312 | 402,288 |
 | `Tree_Birch_Yellow` | 159 | 2,112 | 335,808 |
 | `Tree_Tall_A` | 74 | 3,984 | 294,816 |

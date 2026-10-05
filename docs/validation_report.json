@@ -30,11 +30,11 @@
   },
   "polygon_budget": {
    "ok": true,
-   "detail": "maps over 400,000: {}; largest 1000000 (376,067)"
+   "detail": "maps over 400,000: {}; largest 1000000 (391,938)"
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,352,201 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 3,349,268 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
@@ -42,7 +42,7 @@
   },
   "floating_props": {
    "ok": true,
-   "detail": "0 of 4083 instances (299 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
+   "detail": "0 of 4082 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
   },
   "props_near_routes": {
    "ok": true,
@@ -88,9 +88,13 @@
    "ok": true,
    "detail": "15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns"
   },
+  "ring_band": {
+   "ok": true,
+   "detail": "21/21 exterior maps have walkable ground within step_up (0.45 m) of their base all along the ring line inset by the body radius (footprint + 0.70 m; gate corridors and rim edges skipped)"
+  },
   "collision_tags": {
    "ok": true,
-   "detail": "1952 Terrain / Plinth / WORLD meshes: 1208 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
+   "detail": "2037 Terrain / Plinth / WORLD meshes: 1263 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: []"
   },
   "no_swallowed_exceptions": {
    "ok": true,
@@ -205,34 +209,34 @@
   }
  ],
  "stats": {
-  "total_triangles": 9199727,
-  "world_triangles": 3352201,
+  "total_triangles": 9274328,
+  "world_triangles": 3349268,
   "triangles_by_map": {
    "0": 99184,
    "10000": 132989,
    "20000": 117195,
    "30000": 161549,
    "40000": 160036,
-   "40001": 308927,
-   "40002": 299693,
+   "40001": 318818,
+   "40002": 308063,
    "50000": 193647,
    "60000": 371142,
    "60001": 75405,
    "20001": 36964,
-   "1000000": 376067,
-   "1000001": 223436,
-   "1000002": 268476,
-   "1000003": 155749,
-   "1000004": 207473,
-   "1000005": 264727,
-   "1000006": 342843,
+   "1000000": 391938,
+   "1000001": 226696,
+   "1000002": 271532,
+   "1000003": 158291,
+   "1000004": 216015,
+   "1000005": 267112,
+   "1000006": 343587,
    "1010000": 249060,
    "1010001": 38776,
-   "1010002": 73052,
+   "1010002": 72778,
    "1010003": 58720,
-   "1010004": 263144,
-   "1020000": 294763,
-   "1020001": 291553
+   "1010004": 267316,
+   "1020000": 311826,
+   "1020001": 293465
   },
   "top_assets_by_instanced_triangles": [
    {
@@ -243,9 +247,9 @@
    },
    {
     "asset": "Rock_Cliff_Stone",
-    "instances": 8163,
+    "instances": 8389,
     "tris_per_instance": 50,
-    "total": 408150
+    "total": 419450
    },
    {
     "asset": "Tree_Round_A",
@@ -2307,7 +2311,7 @@
      4.5,
      10.5
     ],
-    "ground_gap_m": 0.0,
+    "ground_gap_m": -0.0,
     "trigger_clearance_m": 2.4,
     "nearest_trigger": "in00"
    },
@@ -2316,7 +2320,7 @@
      4.0,
      13.5
     ],
-    "ground_gap_m": 0.0,
+    "ground_gap_m": -0.0,
     "trigger_clearance_m": 1.9,
     "nearest_trigger": "in00"
    },
@@ -2461,7 +2465,7 @@
      13.6,
      11.8
     ],
-    "ground_gap_m": 0.0,
+    "ground_gap_m": -0.0,
     "trigger_clearance_m": 11.5,
     "nearest_trigger": "west00"
    },
@@ -3718,8 +3722,9 @@
     ]
    }
   },
-  "objects": 17707,
-  "meshes": 2640,
+  "ring_band": {},
+  "objects": 18021,
+  "meshes": 2727,
   "materials": 200
  },
  "exceptions": [],

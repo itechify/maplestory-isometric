@@ -188,11 +188,21 @@ def build(m):
     # P07's back edge is notched to y ~22 at x 20-25 so the east mushroom stair behind it shows its caps
     m.terrace("Central_P07", [(17.5, 14.5), (21, 13.2), (25.6, 12.8), (26.5, 17), (26, 21), (25.3, 22.0),
                               (23.0, 21.9), (20.4, 22.1), (18.9, 21.7), (17.8, 20.5)], top=P07, bottom=-0.5)
+    # The three upper terraces reach down to the ground: when they floated on the terraces in front (bottoms at
+    # P03 / BACKBED / P10 - 0.4), the ground under their unsupported parts (x 26-36.8, y 18.6-31) was a hidden
+    # cavern a player dropped into from P07 and could not leave (Iteration Three stuck-region scan,
+    # docs/runtime/STUCK_SCAN.md).
     m.terrace("Upper_P10", [(27.2, 18.0), (36.8, 18.0), (36.8, 24.6), (30, 24.6), (27.5, 23.5)], top=P10,
-              bottom=P03 - 0.4)
+              bottom=-0.5)
     m.terrace("Top_P14", [(25.8, 24.2), (31.5, 23.8), (32.5, 26), (32.2, 31.0), (25.8, 31.0)], top=P14,
-              bottom=BACKBED - 0.4)
-    m.terrace("TopRight_P13", [(32.0, 25.2), (36.8, 25.0), (36.8, 31.0), (32.0, 31.0)], top=P13, bottom=P10 - 0.4)
+              bottom=-0.5)
+    m.terrace("TopRight_P13", [(32.0, 25.2), (36.8, 25.0), (36.8, 31.0), (32.0, 31.0)], top=P13, bottom=-0.5)
+    # the notch behind P07 (between P07, the back bed, P10 and P14) and the corner of P03 walled in by P07, P10 and
+    # the mid mushroom stair: filled 0.2 m below the back bed and P07, so neither is a pit
+    m.terrace("P07_Notch_Fill", [(25.0, 20.8), (27.8, 20.8), (27.8, 24.6), (25.0, 24.6)], top=BACKBED - 0.2,
+              bottom=-0.5)
+    m.terrace("P03_Corner_Fill", [(26.0, 17.6), (27.6, 17.6), (27.6, 20.9), (26.0, 20.9)], top=P07 - 0.2,
+              bottom=-0.5)
     # classic: a 60 px hop between P14 and P13; three stone treads keep it walkable both ways
     m.stairs("Steps_P13_P14", (34.0, 28.2, P13), (31.9, 28.2, P14), 2.2, **stone)
 

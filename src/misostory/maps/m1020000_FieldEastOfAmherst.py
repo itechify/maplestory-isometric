@@ -179,6 +179,23 @@ def build(m):
                   bottom=-0.5)
     m.terrace("T33", [(35.0, 27.2), (39.2, 27.2), (39.4, 32.0), (38.6, 36.8), (35.0, 36.8)], top=T33_Z,
               bottom=-0.5)
+
+    # ================= no pits behind the bands =================
+    # Ground-level pockets walled in by the bands were pits a player fell into and could not leave (Iteration Three
+    # stuck-region scan, docs/runtime/STUCK_SCAN.md): the west hollow behind the plateau (between it, T18, T19 and
+    # WestHigh) gets a STEP like the front hollows; the others are filled 0.2 m below the neighbour they join: the
+    # nook between T18, T19, T13 and the berry shelf, the slivers between the stepping stones and the berry shelf,
+    # the strip behind the berry shelf under the upper stones, and the hollow between T11, T23, the nook and the
+    # east plateau.
+    m.terrace("WestStep_Back", geo.rounded_rect(-0.8, 19.4, 5.2, 22.8, 0.8), top=STEP, bottom=-0.5)
+    m.terrace("Stone_T18_Nook_Fill", [(12.4, 19.5), (15.6, 19.5), (15.6, 23.8), (12.4, 23.8)], top=STONE - 0.2,
+              bottom=-0.5)
+    m.terrace("Stone_Row_Back_Fill", [(12.6, 18.6), (31.0, 18.6), (31.0, 20.6), (12.6, 20.6)], top=STONE - 0.2,
+              bottom=-0.5)
+    m.terrace("Berry_Back_Fill", [(15.4, 26.6), (31.0, 26.6), (31.0, 30.8), (15.4, 30.8)], top=BERRY - 0.2,
+              bottom=-0.5)
+    m.terrace("EastPlateau_Hollow_Fill", [(43.2, 20.6), (47.4, 20.4), (49.0, 22.6), (49.0, 24.6), (42.6, 24.6),
+                                          (42.6, 22.0)], top=PLAT - 0.2, bottom=-0.5)
     _hop(m, "Hop_T33_Crown", (37.7, 33.6, T33_Z), (35.4, 33.6, CROWN), 2.5)
 
     # ================= climbables (5 ladders + 6 knotted ropes on pegs) =================

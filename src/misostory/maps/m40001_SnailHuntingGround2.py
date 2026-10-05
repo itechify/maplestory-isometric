@@ -210,8 +210,10 @@ def build(m):
     # spring at the T23 cliff foot to a spill over the meadow's front rim; water 0.3 m below the grass
     left, right, _h, _r = creek_banks(0.0)
     notch = [p for p in creek_poly(0.0, ymin=-1.0) if p[1] > -1.0]
-    m.terrace("Meadow", [(-1, -1), (_cut_at(left, -1.0), -1.0)] + notch +
-              [(_cut_at(right, -1.0), -1.0), (26.5, -1), (29.6, 2.5), (29.2, 8.5), (28.8, 18.9), (-1, 18.9)],
+    # (its west edge, the west00 trail end, overhangs 1.5 m: past the plinth's thin rim, which is 0.6 m lower; a rim
+    # sticking out beyond the meadow sank the trail's junction to its height, a 0.6 m step at the gate)
+    m.terrace("Meadow", [(-1.5, -1), (_cut_at(left, -1.0), -1.0)] + notch +
+              [(_cut_at(right, -1.0), -1.0), (26.5, -1), (29.6, 2.5), (29.2, 8.5), (28.8, 18.9), (-1.5, 18.9)],
               top=MEADOW, bottom=-0.5, smooth_iters=1, resample_step=1.2, wobble_amt=0.15)
     m.terrace("Creek_Bed", creek_poly(0.7), top=MEADOW - 0.45, bottom=-0.5, style="dirt", fringe=False,
               stones=False, smooth_iters=1, resample_step=1.0, wobble_amt=0.1, walkable=False)
@@ -239,6 +241,9 @@ def build(m):
     for i, (n, x, y) in enumerate([("T34", 41.2, 19.4), ("T33", 43.6, 20.2), ("T30", 46.0, 19.6),
                                    ("T29", 48.3, 19.0)]):
         stone(m, n, x, y, 2.0, MESA + (i + 1) * STEP)
+    # the crevice between T30, T29, the T31 shelf and the mid terrace was a body-wide hole 3.7 m deep at plinth
+    # level (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md): a rock fill 0.2 m below T30
+    stone(m, "T29_T30_Crevice_Fill", 47.7, 21.0, 1.3, MESA + 3 * STEP - 0.2, ry=0.9)
     # T31 shelf (L-shaped: a front shelf plus a back bay under the stacked pair)
     m.terrace("T31_Shelf", [(49.6, 14.4), (57.2, 14.6), (57.0, 21.2), (54.2, 21.6), (54.0, 30.6), (47.4, 30.6),
                             (47.2, 21.8), (49.4, 21.0)], top=T31, bottom=-0.5)
@@ -270,8 +275,20 @@ def build(m):
     m.ladder("Rope_2520", 56.1, 30.6, T22, T12, facing=90, kind="rope")
     # (its east end is pulled back and rounded so it no longer stacks flush above T22's east wall; its
     # front comes forward to y ~38.5 east of the arch so the grove and the walk both fit)
+    # (its east end reaches the edge + 0.9 m: at x 64.4 it left a body-wide plinth-level strip beside it, walled
+    # by the containment ring, that a player fell into off the summit and could not leave)
     m.terrace("T0_Summit", [(27.2, 40.8), (28.6, 39.0), (34.4, 39.0), (37.2, 41.1), (39.4, 41.2), (41.0, 38.7),
-                            (62.0, 38.4), (63.6, 39.1), (64.4, 40.6), (64.4, 44.6), (27.2, 44.6)], top=SUMMIT,
+                            (62.0, 38.4), (63.6, 39.1), (64.9, 40.9), (64.9, 44.6), (27.2, 44.6)], top=SUMMIT,
+              bottom=-0.5)
+    # Pockets the Iteration Three stuck-region scan found walled in between these bands (docs/runtime/STUCK_SCAN.md):
+    # the plinth-level slot behind T22 under T12 and the summit (the camera-facing east slot) gets a rope up T22's
+    # back face; the crack between T23 and T13, the notch between the summit, T12 and the arch's east leg, and the
+    # gap between T31, T22 and T12 are filled 0.2 m below the neighbour they join.
+    m.ladder("Rope_Slot_T22", 62.6, 31.8, 0.0, T22, facing=-90, kind="rope")
+    m.terrace("T23_T13_Fill", [(-0.8, 30.7), (10.0, 30.7), (10.0, 31.2), (6.0, 31.8), (-0.8, 33.0)],
+              top=MID + STEP - 0.2, bottom=-0.5)
+    m.terrace("T12_Notch_Fill", [(36.4, 38.4), (38.4, 38.4), (38.8, 41.6), (36.6, 41.6)], top=T12 - 0.2, bottom=-0.5)
+    m.terrace("T31_Corner_Fill", [(53.4, 29.9), (55.0, 29.9), (55.0, 31.6), (53.4, 31.6)], top=T31 - 0.2,
               bottom=-0.5)
 
     # ================= the V: pillar + stacked pairs (in front of the arch) =================

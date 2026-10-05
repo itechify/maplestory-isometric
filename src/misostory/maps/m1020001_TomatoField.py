@@ -270,6 +270,13 @@ def build(m):
         m.place("Hedge_Wall_4m", x, y, rot=90, scale=(1.0, 1.0, 1.05))
     m.place("Hedge_Wall_4m", 0.3, 1.0, rot=90, scale=(1.0, 1.0, 1.05))
     m.place("Hedge_Wall_4m", 0.3, 5.0, rot=90, scale=(0.9, 1.0, 1.05))
+    # The strip of the west bank behind the west hedges (x -1 to -0.25, between the hedge and the containment ring)
+    # was a slot a player fell into off the hedge tops (reached by hopping onto the back hedge from the furrow and
+    # walking along the hedges): 1.6 m down to the bank, walled by the hedge, the gate and the ring, with no way back
+    # up (Iteration Three review of the stuck-region scan, docs/runtime/STUCK_SCAN.md). Filled to just under the hedge
+    # tops, so a body that steps off them lands on the fill and steps back.
+    m.terrace("WestHedge_Back_Fill", [(-0.9, 14.6), (0.05, 14.6), (0.05, 28.0), (-0.9, 28.0)], top=BANK + 1.4,
+              bottom=-0.5, fringe=False, stones=False, wobble_amt=0.05, smooth_iters=1, resample_step=1.0)
     m.place("Sign_Board", 6.0, 9.4, rot=30)
     m.place("Tree_Birch_Orange", 2.6, 25.6, rot=20, scale=1.05)
     m.place("Tree_Autumn_A", 6.4, 27.4, rot=100, scale=1.0)

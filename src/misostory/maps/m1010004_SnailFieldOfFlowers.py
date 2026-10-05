@@ -203,6 +203,13 @@ def build(m):
                                  (24.8, 20.4), (21.0, 20.8), (15.5, 20.6), (12.8, 18.6)], top=T6, bottom=-0.5)
     m.terrace("WestKnoll_T7", geo.ellipse(8.9, 18.7, 3.8, 2.8, 22), top=T7, bottom=-0.5, wobble_amt=0.1)
     m.terrace("FarWestKnoll_T9", geo.ellipse(3.0, 19.4, 2.7, 2.0, 18), top=T9, bottom=-0.5, wobble_amt=0.1)
+    # Plinth-level slivers walled in between the knolls, the bowl rim and the meadows' front edges were pits a
+    # player fell into off a meadow or a knoll (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md).
+    # Each is filled 0.2 m below the low neighbour it joins.
+    m.terrace("Knoll_T7_T6_Fill", [(10.4, 18.8), (14.4, 18.8), (14.4, 21.9), (10.4, 21.9)], top=T7 - 0.2,
+              bottom=-0.5)
+    m.terrace("Rim_T9_Fill", [(-0.8, 18.2), (1.2, 18.2), (1.2, 21.4), (-0.8, 21.4)], top=RIMB - 0.2, bottom=-0.5)
+    m.terrace("Knoll_T8_Fill", [(24.2, 19.8), (26.0, 19.8), (26.0, 22.2), (24.2, 22.2)], top=T8 - 0.2, bottom=-0.5)
     stone(m, "EastKnoll_T8", 26.9, 19.2, 2.4, 2.2, T8)
     stone(m, "EastKnoll_T10", 31.2, 18.6, 2.4, 2.4, T10)
     # the curving stone stair from the wide east rim up to T10: rock drums with flagstone tops and a grass rim
