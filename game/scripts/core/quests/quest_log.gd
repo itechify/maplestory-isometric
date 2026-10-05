@@ -15,20 +15,33 @@ extends RefCounted
 ##     },
 ##     "started_at":   float,        # game clock (Game.clock seconds) when accepted, -1 if never
 ##     "completed_at": float,        # game clock of the last completion, -1 if never
-##     "completions":  int           # times completed (repeatable quests can exceed 1)
+##     "completions":  int,          # times completed (repeatable quests can exceed 1)
+##     "rewards_received": {         # completed entries only: what the last completion actually gave (contract C3)
+##       "exp": int, "mesos": int,                       # EXP and mesos actually added
+##       "items": [{"item_id", "qty"}],                  # every item granted (fixed, random and selected rewards)
+##       "random_picks": [{"group", "item_id", "qty"}]   # the weighted draws; group = index into rewards.random
+##     }                                                 # or {"recorded": false}: completed before format 2
 ##   }
 ## Item collection is never stored: it is checked against live inventory counts, as in classic MapleStory.
 ## A quest with no entry is "not_started". The contract (class name, to_dict, from_dict) is fixed.
+##
+## Format 2 (Iteration Three) adds rewards_received. from_dict reads format 1 (a completed entry gains
+## {"recorded": false}) and keeps keys it does not know at every level (the log, an entry, its progress), so a save
+## written by a newer build loses nothing when this one writes it back.
 
 const NOT_STARTED := "not_started"
 const IN_PROGRESS := "in_progress"
 const COMPLETED := "completed"
 const STATUSES: PackedStringArray = [NOT_STARTED, IN_PROGRESS, COMPLETED]
 ## Bump with a migration in from_dict when the entry format changes meaning.
-const FORMAT_VERSION := 1
+const FORMAT_VERSION := 2
+## The rewards record of a completion this build did not see (format 1 saves, or complete() without rewards).
+const UNRECORDED_REWARDS := {"recorded": false}
 
 ## quest_id -> entry (see the class comment).
 var entries: Dictionary = {}
+## Top-level keys of a loaded log this build does not know, written back unchanged by to_dict.
+var extra: Dictionary = {}
 
 
 # --- queries --------------------------------------------------------------------------------------------------
@@ -108,6 +121,18 @@ func other_value(quest_id: String, key: String) -> Variant:
 	return progress(quest_id)["other"].get(key, null)
 
 
+## What the last completion gave ({exp, mesos, items, random_picks}), {"recorded": false} for a completion this
+## build did not see, or {} when the quest was never completed.
+func rewards_received(quest_id: String) -> Dictionary:
+	return QuestJson.dict(entries.get(quest_id, {}).get("rewards_received")).duplicate(true)
+
+
+## True when the last completion's rewards were recorded (format 2).
+func rewards_recorded(quest_id: String) -> bool:
+	var r := rewards_received(quest_id)
+	return r.has("exp") and QuestJson.b(r.get("recorded"), true)
+
+
 # --- transitions (called by QuestEngine) ----------------------------------------------------------------------
 
 ## Marks the quest accepted at game-clock time `now`, with fresh progress.
@@ -118,12 +143,15 @@ func start(quest_id: String, now: float) -> void:
 	e["started_at"] = now
 
 
-## Marks the quest completed at game-clock time `now`.
-func complete(quest_id: String, now: float) -> void:
+## Marks the quest completed at game-clock time `now`. `rewards` is what the completion gave
+## ({exp, mesos, items: [{item_id, qty}], random_picks: [{group, item_id, qty}]}, QuestEngine.complete passes it);
+## without it the completion's rewards are recorded as {"recorded": false}.
+func complete(quest_id: String, now: float, rewards: Dictionary = {}) -> void:
 	var e := _entry(quest_id)
 	e["status"] = COMPLETED
 	e["completed_at"] = now
 	e["completions"] = int(e.get("completions", 0)) + 1
+	e["rewards_received"] = _clean_rewards(rewards) if rewards.has("exp") else UNRECORDED_REWARDS.duplicate()
 
 
 ## Drops an in-progress quest: back to "completed" if it was completed before (repeatable), else no entry at all.
@@ -184,13 +212,20 @@ func set_other(quest_id: String, key: String, value: Variant) -> void:
 # --- persistence ----------------------------------------------------------------------------------------------
 
 func to_dict() -> Dictionary:
-	return {"format": FORMAT_VERSION, "quests": entries.duplicate(true)}
+	var out := extra.duplicate(true)
+	out["format"] = FORMAT_VERSION
+	out["quests"] = entries.duplicate(true)
+	return out
 
 
 ## Rebuilds a log from to_dict() output, including after a JSON round trip (floats become ints where meant).
-## An empty or missing dictionary gives an empty log.
+## An empty or missing dictionary gives an empty log. Reads format 1 (completed entries gain
+## rewards_received {"recorded": false} unless the save migration already wrote one) and keeps unknown keys.
 static func from_dict(d: Dictionary) -> QuestLog:
 	var ql := QuestLog.new()
+	for k: Variant in d:
+		if not (str(k) in ["format", "quests"]):
+			ql.extra[str(k)] = d[k]
 	var quests: Variant = d.get("quests", {})
 	if not (quests is Dictionary):
 		return ql
@@ -202,13 +237,17 @@ static func from_dict(d: Dictionary) -> QuestLog:
 		var st := QuestJson.s(src.get("status"), NOT_STARTED)
 		if not (st in STATUSES) or st == NOT_STARTED:
 			continue
-		var e := {
-			"status": st,
-			"progress": _clean_progress(src.get("progress", {})),
-			"started_at": QuestJson.f(src.get("started_at"), -1.0),
-			"completed_at": QuestJson.f(src.get("completed_at"), -1.0),
-			"completions": QuestJson.i(src.get("completions"), 1 if st == COMPLETED else 0),
-		}
+		# Unknown keys first, so the known ones below always win with their cleaned values.
+		var e: Dictionary = src.duplicate(true)
+		e["status"] = st
+		e["progress"] = _clean_progress(src.get("progress", {}))
+		e["started_at"] = QuestJson.f(src.get("started_at"), -1.0)
+		e["completed_at"] = QuestJson.f(src.get("completed_at"), -1.0)
+		e["completions"] = QuestJson.i(src.get("completions"), 1 if st == COMPLETED else 0)
+		if src.get("rewards_received") is Dictionary:
+			e["rewards_received"] = _clean_rewards(src["rewards_received"])
+		elif st == COMPLETED:
+			e["rewards_received"] = UNRECORDED_REWARDS.duplicate()
 		ql.entries[str(raw_id)] = e
 	return ql
 
@@ -231,9 +270,40 @@ static func _empty_progress() -> Dictionary:
 	return {"kills": {}, "used": {}, "talked": [], "visited": [], "other": {}}
 
 
-static func _clean_progress(v: Variant) -> Dictionary:
-	var p := _empty_progress()
+## A rewards_received record with JSON floats turned back into ints; unknown keys (and "recorded") are kept.
+static func _clean_rewards(v: Variant) -> Dictionary:
 	var src := QuestJson.dict(v)
+	var r: Dictionary = src.duplicate(true)
+	if not src.has("exp") and not src.has("items"):
+		# Nothing recorded (a format 1 completion migrated by the save, or a record of unknown shape).
+		return r
+	r["exp"] = QuestJson.i(src.get("exp"))
+	r["mesos"] = QuestJson.i(src.get("mesos"))
+	var items: Array = []
+	for it: Variant in QuestJson.arr(src.get("items")):
+		var itd := QuestJson.dict(it)
+		var row: Dictionary = itd.duplicate(true)
+		row["item_id"] = QuestJson.s(itd.get("item_id"))
+		row["qty"] = QuestJson.i(itd.get("qty"))
+		items.append(row)
+	r["items"] = items
+	var picks: Array = []
+	for p: Variant in QuestJson.arr(src.get("random_picks")):
+		var pd := QuestJson.dict(p)
+		var row: Dictionary = pd.duplicate(true)
+		row["group"] = QuestJson.i(pd.get("group"))
+		row["item_id"] = QuestJson.s(pd.get("item_id"))
+		row["qty"] = QuestJson.i(pd.get("qty"))
+		picks.append(row)
+	r["random_picks"] = picks
+	return r
+
+
+## Progress with JSON floats turned back into ints; unknown progress keys are kept as they are.
+static func _clean_progress(v: Variant) -> Dictionary:
+	var src := QuestJson.dict(v)
+	var p: Dictionary = src.duplicate(true)
+	p.merge(_empty_progress(), true)
 	var kills_src := QuestJson.dict(src.get("kills"))
 	for k: Variant in kills_src:
 		p["kills"][str(k)] = QuestJson.i(kills_src[k])

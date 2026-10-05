@@ -338,9 +338,9 @@ func answer_quiz(quest_id: String, choice_index: int) -> Dictionary:
 
 
 ## Rolls the rewards a completion would grant, without granting anything:
-## {"ok", "reason", "items": [{item_id, count}], "random_picks": [...], "selection_pick": {}}.
-## Random groups pick one item each, weighted by MeowDB chance_pct, with the engine RNG. Selection groups need
-## options.selection_index (the player's pick).
+## {"ok", "reason", "items": [{item_id, count}], "random_picks": [{group, item_id, count}], "selection_pick": {}}.
+## Random groups pick one item each, weighted by MeowDB chance_pct, with the engine RNG ("group" is the group's index
+## in the canonical rewards.random list). Selection groups need options.selection_index (the player's pick).
 func resolve_rewards(quest_id: String, options: Dictionary = {}) -> Dictionary:
 	var d := definition(quest_id)
 	if d == null:
@@ -350,14 +350,15 @@ func resolve_rewards(quest_id: String, options: Dictionary = {}) -> Dictionary:
 		items.append(it.duplicate())
 	var picks: Array = []
 	var display := _job_display_name()
-	for g: Dictionary in d.reward_random:
+	for gi in d.reward_random.size():
+		var g: Dictionary = d.reward_random[gi]
 		if not QuestDef.group_applies(String(g["job_name"]), character.job, display):
 			continue
 		var pick := _weighted_pick(g["items"])
 		if not pick.is_empty():
-			var p := {"item_id": pick["item_id"], "count": pick["count"]}
+			var p := {"group": gi, "item_id": pick["item_id"], "count": pick["count"]}
 			picks.append(p)
-			items.append(p.duplicate())
+			items.append({"item_id": pick["item_id"], "count": pick["count"]})
 	var selection_pick := {}
 	for g: Dictionary in d.reward_selection:
 		if not QuestDef.group_applies(String(g["job_name"]), character.job, display):
@@ -444,7 +445,7 @@ func complete(quest_id: String, options: Dictionary = {}) -> Dictionary:
 		character.fame += d.reward_fame
 		effects.append({"type": "fame_changed", "delta": d.reward_fame, "fame": character.fame})
 	var given := _grant(grant, effects)
-	quest_log().complete(quest_id, now())
+	quest_log().complete(quest_id, now(), _rewards_record(exp_added, mesos_added, given, rolled["random_picks"]))
 	effects.append({"type": "quest_completed", "quest_id": quest_id})
 	var unlocked := PackedStringArray()
 	for f in d.followups:
@@ -597,6 +598,18 @@ func journal_text(quest_id: String) -> String:
 
 
 # --- internals ------------------------------------------------------------------------------------------------
+
+## The QuestLog rewards_received record of a completion (contract C3): the EXP and mesos actually added, every item
+## granted and the random draws.
+static func _rewards_record(exp_added: int, mesos_added: int, given: Array, picks: Array) -> Dictionary:
+	var items: Array = []
+	for it: Dictionary in given:
+		items.append({"item_id": String(it["item_id"]), "qty": int(it["count"])})
+	var draws: Array = []
+	for p: Dictionary in picks:
+		draws.append({"group": int(p.get("group", 0)), "item_id": String(p["item_id"]), "qty": int(p["count"])})
+	return {"exp": exp_added, "mesos": mesos_added, "items": items, "random_picks": draws}
+
 
 ## Restores the quiz objective to its value before a refused complete() call that graded an answer.
 func _undo_quiz(quest_id: String, answered_now: bool, before: Variant) -> void:
