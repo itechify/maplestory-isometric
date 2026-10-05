@@ -23,6 +23,11 @@ extends RefCounted
 const EPSILON_S := 1e-6
 ## The activity that sits on a chair (PlayerController.activity(), contract C4).
 const SEATED := &"seated"
+## Every value PlayerController.activity() returns (contract C4): eligible_activities may name only these.
+const ACTIVITIES: PackedStringArray = ["still", "walking", "jumping", "climbing", "attacking", "seated", "hitstun", "dead",
+	"other"]
+## The sit-key rules Chairs.sit_key implements (recovery.json sitting.sit_key_chair).
+const SIT_KEY_RULES: PackedStringArray = ["first_owned"]
 
 var hp_per_tick: int = 0
 var tick_s: float = 10.0

@@ -27,6 +27,7 @@ const FILE_SCHEMAS := {
 	"map_id_crosswalk": {"convention": false, "sweep": false, "check": "_check_crosswalk", "required": true},
 	"world_scale": {"check": "_check_world_scale"},
 	"drop_rates": {"check": "_check_drop_rates"},
+	"recovery": {"check": "_check_recovery", "required": true},
 	"new_character": {"check": "_check_new_character"},
 	"inventory": {"check": "_check_inventory"},
 	"combat": {"check": "_check_combat"},
@@ -444,6 +445,53 @@ func _check_drop_rates(label: String, id: String, data: Variant) -> void:
 		var value: Variant = (rule as Dictionary).get("value", null)
 		if not (value is String) or String(value).strip_edges() == "":
 			report.error("adaptation", label, id, "%s.value must be a non-empty string naming the rule, got %s" % [key, var_to_str(value)])
+
+
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read is there and of the kind they need
+## (natural_hp: hp_per_tick a whole number >= 0, tick_s > 0, eligible_activities a non-empty list of
+## PlayerController.activity() values; chair_bonus: two true/false switches; sitting.sit_key_chair a rule Chairs
+## implements), and natural_mp supplies no number while it is the unresolved source gap it says it is: MeowDB documents
+## no natural MP recovery, so an MP rate there would be an invented value.
+func _check_recovery(label: String, id: String, data: Variant) -> void:
+	if not (data is Dictionary):
+		report.error("adaptation", label, id, "must be an object")
+		return
+	var hp: Variant = (data as Dictionary).get("natural_hp", null)
+	if not (hp is Dictionary):
+		report.error("adaptation", label, id, "natural_hp must be an object (NaturalRecoveryRule reads it)")
+	else:
+		var per: Variant = hp.get("hp_per_tick", null)
+		if not ValidationUtil.is_number(per) or float(per) < 0.0 or float(per) != floorf(float(per)):
+			report.error("adaptation", label, id, "natural_hp.hp_per_tick must be a whole number >= 0, got %s" % var_to_str(per))
+		var tick: Variant = hp.get("tick_s", null)
+		if not ValidationUtil.is_number(tick) or float(tick) <= 0.0:
+			report.error("adaptation", label, id, "natural_hp.tick_s must be a positive number, got %s" % var_to_str(tick))
+		var acts: Variant = hp.get("eligible_activities", null)
+		if not (acts is Array) or (acts as Array).is_empty():
+			report.error("adaptation", label, id, "natural_hp.eligible_activities must be a non-empty list")
+		else:
+			for a in acts:
+				if not (str(a) in NaturalRecoveryRule.ACTIVITIES):
+					report.error("adaptation", label, id, "natural_hp.eligible_activities: '%s' is not a player activity (%s)" % [
+						str(a), ", ".join(NaturalRecoveryRule.ACTIVITIES)])
+	var mp: Variant = (data as Dictionary).get("natural_mp", null)
+	if mp is Dictionary and str(mp.get("status", "")) == "unresolved_source_gap":
+		for k in mp:
+			if ValidationUtil.is_number(mp[k]) and not (mp[k] is bool):
+				report.error("adaptation", label, id, "natural_mp.%s: an unresolved source gap supplies no number, got %s" % [
+					str(k), var_to_str(mp[k])])
+	var chair: Variant = (data as Dictionary).get("chair_bonus", null)
+	if not (chair is Dictionary):
+		report.error("adaptation", label, id, "chair_bonus must be an object (NaturalRecoveryRule reads it)")
+	else:
+		for k in ["stand_resets_clock", "full_hp_holds_clock"]:
+			if not (chair.get(k, null) is bool):
+				report.error("adaptation", label, id, "chair_bonus.%s must be true or false" % k)
+	var sitting: Variant = (data as Dictionary).get("sitting", null)
+	var rule := str(sitting.get("sit_key_chair", "")) if sitting is Dictionary else ""
+	if sitting is Dictionary and sitting.has("sit_key_chair") and not (rule in NaturalRecoveryRule.SIT_KEY_RULES):
+		report.error("adaptation", label, id, "sitting.sit_key_chair '%s' is not a rule Chairs implements (%s)" % [
+			str(sitting.get("sit_key_chair", "")), ", ".join(NaturalRecoveryRule.SIT_KEY_RULES)])
 
 
 ## portal_adaptations.json: every portal it names ("<map_id>.<portal>", link ids "T_<map>_<portal>__<map>[_<portal>]",

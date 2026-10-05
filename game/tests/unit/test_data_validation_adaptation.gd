@@ -106,6 +106,30 @@ func test_owner_natural_regen_rule_is_accepted() -> void:
 	expect_new(r, "error", "provenance", "misostory", "zz_test_recovery", "needs decision")
 
 
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read must be there and well-formed, and the
+## natural MP gap supplies no number (MeowDB documents no natural MP recovery: an MP rate would be invented).
+func test_recovery_file_is_what_the_runtime_reads() -> void:
+	assert_eq(baseline().matching("adaptation", "misostory", "recovery").size(), 0, "the shipped file passes")
+	var c := clone_db()
+	var rec: Dictionary = c.miso[""]["recovery"]
+	(rec["natural_hp"] as Dictionary)["tick_s"] = 0
+	(rec["natural_hp"] as Dictionary)["hp_per_tick"] = 2.5
+	(rec["natural_hp"] as Dictionary)["eligible_activities"] = ["still", "napping"]
+	(rec["natural_mp"] as Dictionary)["mp_per_tick"] = 3
+	(rec["chair_bonus"] as Dictionary)["full_hp_holds_clock"] = "yes"
+	(rec["sitting"] as Dictionary)["sit_key_chair"] = "best_owned"
+	var r := run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.tick_s must be a positive number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.hp_per_tick must be a whole number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "'napping' is not a player activity")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_mp.mp_per_tick: an unresolved source gap supplies no number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "chair_bonus.full_hp_holds_clock must be true or false")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "sitting.sit_key_chair 'best_owned' is not a rule Chairs implements")
+	var gone := clone_db()
+	(gone.miso[""] as Dictionary).erase("recovery")
+	expect_new(run_validator(gone), "error", "adaptation", "misostory", "recovery", "required adaptation file")
+
+
 func test_typed_reference_inside_adaptation_file() -> void:
 	var c := _with_file(clone_db(), "zz_test_refs", adapted({"start": {"map_id": BOGUS}, "reward": {"item_id": BOGUS + "-item"}}))
 	var r := run_validator(c)
