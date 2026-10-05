@@ -659,6 +659,41 @@ func save_game() -> Dictionary:
 	return out
 
 
+## The pause menu's Load inside a running game: Esc (closing windows first) until the menu is open, its Load button,
+## then the Load button of `slot`'s row in the slot list (MainShell.load_in_game: the character is replaced and
+## MapSession enters the world where the save says). Waits until the game plays again. Returns {"ok", "via", "slot",
+## "map"}. Await it.
+func load_from_pause_menu(slot: String) -> Dictionary:
+	var i := _begin(PlaytestReport.KIND_PLAY, "load_from_pause_menu", slot)
+	var out := {"ok": false, "via": "screen", "slot": slot, "map": ""}
+	if main == null or not (main.flow.is_in(ShellFlow.State.PLAYING) or main.flow.is_in(ShellFlow.State.PAUSED)):
+		_end(i, false, "no game running")
+		return out
+	_ledger_checkpoint("a pause-menu Load")
+	var clicked := false
+	var opened := await _open_pause_menu()
+	var listed := false
+	if opened:
+		listed = await _click_control(main.pause_menu.load_button)
+	if listed:
+		await frames(2)
+		clicked = await _click_control(main.pause_menu.slots.load_button(slot))
+	if not clicked:
+		out["via"] = "api"
+		_fallback(i, "the pause menu's Load or the slot's Load button could not be used")
+		var j := _begin(PlaytestReport.KIND_API, "MainShell.load_in_game")
+		var paused := main.flow.is_in(ShellFlow.State.PAUSED) or main.pause()
+		var err: Error = main.load_in_game(slot) if paused else ERR_UNAVAILABLE
+		_end(j, err == OK, error_string(err))
+	var ok := await _wait_playing(LOAD_TIMEOUT_S)
+	out["ok"] = ok
+	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
+	_end(i, ok, "%s in %s" % [slot, out["map"]])
+	return out
+
+
 ## Ends this process the way a player does (the pause menu's Quit Game: the shell saves, the application quits) and
 ## lets the runner start the next phase with the same save directory. The scenario's run() is called again in the
 ## new process with `phase` + 1, so branch on `phase` and keep values in `carry`. Never returns. Await it.
