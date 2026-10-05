@@ -2,9 +2,10 @@ extends TestCase
 ## PlayerSkills and EffectTicker on the combat lab (MonsterTestRig: a real PlayerController, MonsterSystem and Snails,
 ## a private bus and Game): Three Snails throws at the nearest Snail in its canonical band for exactly the level's
 ## fixed damage, pays the level's MP and shell, locks out for the canonical action time (PlayerCombat.is_attacking(),
-## contract C4) and plants the player, never casts from the air or a rope; Recovery heals its total over 30 s, from the
-## ground, the air or a rope, then cools down 2 min; Nimble Feet adds its Speed to the walk for its duration; effects
-## end at death while cooldowns keep running; every refusal changes nothing; a seated player stands up to cast.
+## contract C4) and plants the player, never casts from the air or a rope, and lands one hit on a Wooden Box that is the
+## nearest target in its band (a real BreakableSystem, breakables.json hit_rule); Recovery heals its total over 30 s,
+## from the ground, the air or a rope, then cools down 2 min; Nimble Feet adds its Speed to the walk for its duration;
+## effects end at death while cooldowns keep running; every refusal changes nothing; a seated player stands up to cast.
 
 const SNAILS := "0001000"
 const RECOVERY := "0001001"
@@ -19,6 +20,10 @@ func parity_keys() -> Dictionary:
 		"test_three_snails_pays_mp_and_the_shell_and_locks_out_for_its_action": ["skill:0001000"],
 		"test_three_snails_kills_a_snail_and_awards_its_exp": ["skill:0001000", "monster:2"],
 		"test_three_snails_is_ground_only": ["skill:0001000"],
+		"test_three_snails_hits_the_nearest_wooden_box_and_shields_the_snail_behind": ["skill:0001000",
+			"mechanic:breakable-hit-break-respawn"],
+		"test_three_snails_breaks_a_wooden_box_and_never_hits_one_outside_its_band": ["skill:0001000",
+			"mechanic:breakable-hit-break-respawn"],
 		"test_recovery_heals_its_total_over_30_s_and_cools_down": ["skill:0001001"],
 		"test_nimble_feet_speeds_up_the_walk_for_its_duration": ["skill:0001002"],
 		"test_effects_end_at_death_and_cooldowns_keep_running": ["mechanic:timed-effects"],
@@ -172,6 +177,97 @@ func test_three_snails_targets_only_the_band() -> void:
 	var r2 := ps2.cast(SNAILS)
 	assert_true(r2.ok and r2.target == nearer, "the nearest in the band")
 	assert_eq(near.hp, near.def.max_hp, "one target only")
+
+
+## Three Snails and the Wooden Box (breakables.json hit_rule): the cast picks the nearest target in its band among the
+## monsters and the intact boxes of a real BreakableSystem; a box it picks takes one landed hit (no damage) and, one
+## shell being one target, shields the Snail behind it.
+func test_three_snails_hits_the_nearest_wooden_box_and_shields_the_snail_behind() -> void:
+	var ps := _spawn({SNAILS: 1})
+	var c := rig.character()
+	var def := SkillDef.of(SNAILS, db())
+	_give("348", 10)
+	var boxes := _box_system()
+	ps.breakables = boxes
+	var box: WoodenBox = boxes.live_boxes()[0]
+	var n := BreakableRules.hits_to_break(BreakableRules.WOODEN_BOX, db())
+	box.global_position = Vector3(_px(150.0), 0.0, 0.0)
+	var snail := rig.spawn("2", Vector3(_px(260.0), 0.0, 0.0))
+	var seen: Array = []
+	ps.cast_resolved.connect(func(sid: String, t: Node, r: DamageResult) -> void: seen.append([sid, t, r]))
+	var mp0 := c.mp
+	var res := ps.cast(SNAILS)
+	assert_true(res.ok and res.target == box, "the box 150 px ahead is nearer than the Snail at 260 px: %s" % str(res))
+	assert_true(res.result == null, "a box takes a landed hit, not damage")
+	assert_eq(box.hits_left(), n - 1, "one landed hit on the box")
+	assert_eq(snail.hp, snail.def.max_hp, "one shell, one target: the Snail behind the box is untouched")
+	assert_eq(seen, [[SNAILS, box, null]], "cast_resolved(skill, box, null)")
+	assert_eq(c.mp, mp0 - def.mp_cost(1), "the level's MP spent")
+	assert_eq(c.inventory.count("348"), 9, "one Snail Shell spent")
+	assert_eq(rig.events_named("monster_hit").size(), 0, "no monster hit")
+
+
+## A box outside the band (behind the player, past the 300 px reach) is never hit; in front, the landed throws break it
+## after the canonical hits_to_break and the break rolls its drops once (the swing's path); a broken box is no target.
+func test_three_snails_breaks_a_wooden_box_and_never_hits_one_outside_its_band() -> void:
+	var ps := _spawn({SNAILS: 1})
+	_give("348", 10)
+	var boxes := _box_system()
+	ps.breakables = boxes
+	var box: WoodenBox = boxes.live_boxes()[0]
+	var n := BreakableRules.hits_to_break(BreakableRules.WOODEN_BOX, db())
+	for at in [Vector3(-_px(150.0), 0.0, 0.0), Vector3(_px(340.0), 0.0, 0.0), Vector3(_px(25.0), 0.0, 0.0)]:
+		box.global_position = at
+		var r := ps.cast(SNAILS)
+		assert_true(r.ok and r.target == null, "box at %.0f px: outside the band, a whiff" % (at.x / _px(1.0)))
+		assert_eq(box.hits_left(), n, "box at %.0f px: untouched" % (at.x / _px(1.0)))
+		_tick_all(60)
+	box.global_position = Vector3(_px(150.0), 0.0, 0.0)
+	for k in n:
+		var rk := ps.cast(SNAILS)
+		assert_true(rk.ok and rk.target == box, "throw %d reaches the box" % (k + 1))
+		_tick_all(60)
+	assert_true(box.is_broken(), "the landed throw number %d breaks it" % n)
+	assert_eq(_box_rolls, [BreakableRules.WOODEN_BOX], "one drop roll, the Wooden Box's table")
+	var after := ps.cast(SNAILS)
+	assert_true(after.ok and after.target == null, "a broken box is no target")
+
+
+var _box_rolls: Array = []
+
+
+## A BreakableSystem on a flat synthetic map with one Wooden Box placement (test_breakables_system's injection seams);
+## freed with the rig's nodes by after_each through the scene tree.
+func _box_system() -> BreakableSystem:
+	var d := MapDefinition.new()
+	d.map_id = "999999002"
+	d.canonical = {"reactors": [{"id": BreakableRules.WOODEN_BOX, "name": "Wooden Box", "x_px": 0, "y_px": 0, "respawn_s": 120}]}
+	d.footprint_layout = PackedVector2Array([Vector2(0, 0), Vector2(30, 0), Vector2(30, 30), Vector2(0, 30)])
+	d.footprint = PackedVector2Array([Vector2(-1, -1), Vector2(31, -1), Vector2(31, 31), Vector2(-1, 31)])
+	d.y_min = -1.0
+	d.y_max = 5.0
+	d.player_spawns = [Transform3D(Basis.IDENTITY, Vector3(2, 0, 2))] as Array[Transform3D]
+	var r := RandomNumberGenerator.new()
+	r.seed = 3
+	var st := MapInstanceState.fresh(d, SpawnModel.from_db(db()), r, 10.0)
+	_box_rolls = []
+	var sys := BreakableSystem.new()
+	sys.db = db()
+	sys.bus = load("res://scripts/autoload/events.gd").new()
+	sys.ground = GroundQuery.new()
+	sys.rng = r
+	sys.state_provider = func() -> MapInstanceState: return st
+	sys.def_provider = func(map_id: String) -> MapDefinition: return d if map_id == d.map_id else null
+	sys.clock_provider = func() -> float: return 10.0
+	sys.character_provider = func() -> CharacterState: return rig.character()
+	sys.roller = func(owner_id: String, _db: ContentDB, _r: RandomNumberGenerator, _c: Dictionary) -> Array:
+		_box_rolls.append(owner_id)
+		return []
+	rig.w.host.add_child(sys)
+	rig.w.host.add_child(sys.bus)
+	sys.tick(0.0)
+	assert_eq(sys.live_boxes().size(), 1, "one box realized")
+	return sys
 
 
 func test_three_snails_is_ground_only() -> void:

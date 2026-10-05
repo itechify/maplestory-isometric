@@ -15,8 +15,9 @@ extends Node3D
 ## The state is re-read every frame by identity, so a map change, a reload_map() (no event) or a load re-realizes the
 ## boxes. Nothing here is saved: the state lives in the map instance (cached for parked maps, never in a save).
 ##
-## Other attack sources (a Three Snails projectile): ask attack_candidates() (MeleeQuery candidate shape plus
-## "kind": "breakable") or the group, and call land_hit(box) / box.receive_hit() for a box they reached.
+## Other attack sources ask attack_candidates() (MeleeQuery candidate shape plus "kind": "breakable") or the group, and
+## call land_hit(box, source) for a box they reached: a Three Snails cast does (PlayerSkills._search / _hit_box, which
+## find this system by its group &"breakable_system"; source "skill:0001000"), one landed hit per throw that picks a box.
 ##
 ## setup(ctx) wires it into the game; every collaborator is injectable (tests): db, bus, session, character_provider,
 ## clock_provider, state_provider, def_provider, ground, rng, roller, player.
