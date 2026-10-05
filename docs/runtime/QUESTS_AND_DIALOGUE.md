@@ -1,10 +1,24 @@
-# Quests, NPCs and dialogue (Iteration Two)
+# Quests, NPCs and dialogue (Iterations Two and Three)
 
 This covers the quest framework (brief Phase 16, "Quest Data Authority", "One Authentic Maple Island Quest"), the
 NPC framework (Phase 14, the pure part), the dialogue engine (NPC Interaction, Dialogue UI data) and the data side of
 the quest UI (Phase 17). Everything here is pure `RefCounted` code in `game/scripts/core/{quests,npcs,dialogue}/`:
 no scene tree. Content is data only. No code path names a quest or an NPC, so a new quest needs only its canonical
 record and, if MeowDB has a gap, an adaptation file.
+
+Iteration Three added (contract C3 and the quests package of the Iteration Three brief):
+
+- **QuestLog format 2**: every completion records `rewards_received` (the EXP, mesos and items actually given and
+  the random draws); format 1 loads, and unknown keys survive a load and a save.
+- **The Quest Log for the whole island**: chain progression ("Mai's Training 2/3"), the start and turn-in NPCs with
+  their maps, MeowDB's `missable` tag, the random reward received, and "Return to X" only for an NPC already met.
+- **Shanks' departure boundary**: the canonical route (Lith Harbor, 300 mesos, level 7) is offered and checked, the
+  unfinished Maple Island quests are listed under the guide's own advice, and boarding records
+  `flags.maple_island_departure_ready_at` and shows the end-of-island screen (no travel, no fare).
+- **Quest-critical items**: a shop refuses to buy a quest item an in-progress quest still needs; Roger re-issues a
+  lost Roger's Apple.
+- **Dialogue rules as data**: `data/misostory/dialogue/_rules.json` records the rules MeowDB does not give (which
+  On accept line is the Yes/No, the default-talk line, the quiz retry, the shop window title).
 
 ```
 data/canonical/quests/<id>.json ─┐                         data/canonical/npcs/<id>.json ─┐
@@ -29,17 +43,26 @@ data/misostory/dialogue/<npc>.json ── NpcDialogueBuilder → DialogueGraph �
 | `scripts/core/quests/quest_engine.gd` | `QuestEngine` | availability, accept, progress hooks, completion, rewards, forfeit, NPC markers, journal |
 | `scripts/core/quests/quest_service.gd` | `QuestService` | Events ⇄ engine seam, debug console commands |
 | `scripts/core/quests/quest_json.gd` | `QuestJson` | null-safe JSON readers (JSON numbers are floats, nulls are common) |
+| `scripts/core/quests/quest_item_guard.gd` | `QuestItemGuard` | which quest-critical items an in-progress quest still needs (the shop's sell guard) |
 | `scripts/core/npcs/npc_def.gd`, `npc_catalog.gd` | `NpcDef`, `NpcCatalog` | NPC identity, relationships, behaviours, validation |
 | `scripts/core/npcs/npc_interaction.gd` | `NpcInteraction` | talk to an NPC: builds and runs its conversation, routes actions through `QuestService` |
+| `scripts/core/npcs/npc_transport.gd` | `NpcTransport` | canonical transport routes, the departure boundary, boarding (`depart`), the unfinished-quest text |
 | `scripts/core/dialogue/dialogue_graph.gd` | `DialogueGraph` | branching dialogue format, override merge, validation |
 | `scripts/core/dialogue/dialogue_context.gd` | `DialogueContext` | conditions and actions |
 | `scripts/core/dialogue/dialogue_runner.gd` | `DialogueRunner` | runs a graph, history for Back, produces UI views |
 | `scripts/core/dialogue/dialogue_text.gd` | `DialogueText` | line references → UI text segments |
 | `scripts/core/dialogue/npc_dialogue_builder.gd` | `NpcDialogueBuilder` | generates every NPC's conversation from canonical data |
-| `data/misostory/quests/1002.json` | | Roger's Apple hand-out (adaptation) |
-| `data/misostory/dialogue/_system.json`, `16.json`, `20.json`, `21.json` | | system lines (incl. the quest card's offer prompt); shop greetings |
+| `data/misostory/quests/1002.json` | | Roger's Apple hand-out and its re-issue when lost (adaptations) |
+| `data/misostory/quests/_quest_items.json` | | the sell guard for quest-critical items (adaptation) |
+| `data/misostory/dialogue/_system.json`, `16.json`, `20.json`, `21.json` | | system lines (incl. the quest card's offer prompt and the transport lines); shop greetings |
+| `data/misostory/dialogue/_rules.json` | | the dialogue rules MeowDB does not give: offer prompt, default talk, quizzes, shop title |
+| `data/misostory/dialogue/15.json` | | Shanks' greeting: his canonical speech-bubble line 1 |
 | `data/misostory/dialogue/18.json` | | Pio: live item counters in 1012's accept line |
-| `data/misostory/npcs/15.json` | | Shanks' transport disabled (out of scope) |
+| `data/misostory/npcs/15.json` | | Shanks' departure boundary (no travel, no fare, the flag, the warning's quest region) |
+| `data/misostory/npcs/_speech_bubbles.json` | | speech-bubble timing (the presentation side is in INTERACTION_AND_NPC_UI.md) |
+
+A file whose name starts with `_` in `misostory/quests`, `misostory/npcs` or `misostory/dialogue` is a shared table,
+not an adaptation of one quest or NPC; the catalog validations skip it (as `AdaptationChecks.SHARED_TABLE_PREFIX`).
 
 ## Wiring it into the game (wave 2)
 
@@ -61,8 +84,9 @@ func _ready() -> void:
 The NPC actor calls `Game.npc_talk.talk(npc_id)` when the player presses interact. The dialogue UI renders the
 returned VIEW (or listens to `npc_talk.view_changed`) and calls `npc_talk.press("next" | "ok" | "back" | "yes" |
 "no" | "end")` or `npc_talk.choose(choice.index)`. The shop UI connects
-`npc_talk.shop_requested(shop_id, npc_id)`. Quest markers come from `npc_talk.marker(npc_id)`, and the quest window
-from `Game.quests.engine.quest_summaries()`.
+`npc_talk.shop_requested(shop_id, npc_id)`, and the shell's `DepartureScreen` connects
+`npc_talk.departure_requested(npc_id, departure)`. Quest markers come from `npc_talk.marker(npc_id)`, and the quest
+window from `Game.quests.engine.quest_summaries()`.
 
 **Events.** In: `monster_killed`, `item_used`, `item_gained`, `item_lost`, `npc_talked`, `map_entered`. Out:
 `quest_started`, `quest_progressed`, `quest_completed`, `quest_forfeited`. A quest also causes changes, and
@@ -121,12 +145,25 @@ must emit `monster_killed(monster_id, map_id)`.
     in the same inventory tab, so this never refuses a completion that would have fit.
 
   Then it removes `items_removed_on_completion` and grants EXP (`Progression.gain_exp`), mesos (`Mesos.add`, which
-  respects the meso cap), fame and items, and marks the quest completed at `clock()`. Follow-ups unlock through
-  their own prerequisites and are listed in `followups_available`. They are not auto-started (see Adaptations).
+  respects the meso cap), fame and items, and marks the quest completed at `clock()`, recording what it actually
+  gave in the log (`rewards_received`, see below). Follow-ups unlock through their own prerequisites and are listed
+  in `followups_available`. They are not auto-started (see Adaptations). The result's `random_picks` rows are
+  `{group, item_id, count}`; `group` is the index of the draw's group in the canonical `rewards.random` list.
 - **Forfeit** (`forfeit(id)`): progress is dropped, and accept items still held are taken back, up to the amount
-  given.
+  given. No player-facing forfeit exists (the debug console has one); a lost Roger's Apple is re-issued instead.
 - **Lost items** (`lost_items`, `reissue_lost_items`): an accept item is lost when an unfinished objective still
-  needs it and it is no longer held. That is MeowDB's "If you lost the items" branch.
+  needs it and it is no longer held. That is MeowDB's "If you lost the items" branch. `QuestDef.reissues_lost_items()`
+  is true when the record has that branch or the adaptation sets `reissue_lost_accept_items` (1002: MeowDB has no
+  branch, see Adaptations).
+- **Quest-critical items** (`QuestItemGuard.needed(character, item_id, db)`): how many of an item the in-progress
+  quests still need it to keep, for the shop's sell guard. An item counts when an unfinished objective names it
+  (item_collection: the count; item_usage: the uses left) and it is quest-critical (canonical `quest_item`, or
+  `tradeable: false`, or handed over by that quest on accept). `ShopService.quote_sell` refuses a sale that would go
+  below it with `ShopService.QUEST_ITEM_NEEDED` ({quest_id, quest_name, needed}); the shop window says
+  "Roger's Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress."
+  The switch is `data/misostory/quests/_quest_items.json`.
+- **Unfinished quests** (`unfinished_quests(region)`): the quests of a canonical region ("Maple Island", the record's
+  `region`) not yet completed; Shanks' warning lists them (see Transport).
 - **Results.** Every mutating call returns `{ok, reason, quest_id, effects, ...}`. `effects` is the ordered list of
   changes (`quest_started`, `item_gained`, `exp_gained`, ...); `QuestService.dispatch` turns them into Events.
   The failure reasons are listed in the `QuestEngine` class comment.
@@ -134,21 +171,47 @@ must emit `monster_killed(monster_id, map_id)`.
   - `npc_marker(npc_id)` returns `"completable" | "available" | "in_progress" | ""`, and `npc_entries(npc_id)`
     returns the entries behind it.
   - `quest_summary(id)` and `quest_summaries([statuses])` give the name, status, journal text, objective rows
-    (current/required/done) and `can_complete`.
+    (current/required/done), `can_complete`, the start and end NPC with their canonical map names
+    (`start_npc_name`, `start_map_name`, `end_npc_name`, `end_map_name`), `min_level`, `missable`, `chain` and the
+    log's `rewards_received` / `rewards_recorded`.
+  - `chain_info(id)`: `{name, position, total, steps: [{quest_id, name, status}]}` from the canonical `quest_line`,
+    or `{}` for a standalone quest. The name is the quest's `quest_group`, or the first step's that has one (1006 has
+    none; its chain is "Mai's Training"). The five chains: Sera's Mirror (1000-1001), Nina and Sen's Dinner Menu
+    (1003-1004), Mai's Training (1006, 1009, 1010), Please bring this letter to Lucas (1007-1008), Rain's Maple Quiz
+    (1013-1019).
+  - `npc_met(npc_id)`: the player has dealt with that NPC through a quest (it started a quest that is in progress or
+    done, or ended a completed one). `objective_status` adds it to npc_talk rows as `met`, and the quest log writes
+    a turn-in row as "Return to X" only when `met`, else "Talk to X" (1006 sends a new Beginner to Mai: "Talk to
+    Mai"; 1001 sends them back to Heena: "Return to Heena").
   - `journal_text(id)`: line 1 is shown when the quest is available, the middle lines while in progress, and the
     last line once completed.
+- **Missable.** `QuestDef.missable` reads the record's `missable` (a flag, or a sourced `{"value": ...}` object; false
+  when absent). MeowDB's live quest tracker tags every Maple Island quest "Missable"; the provenance step records it,
+  and the quest log shows the tag without interpreting it.
 
 ### QuestLog (save format)
 
 ```json
-{"format": 1, "quests": {"1006": {"status": "in_progress",
-  "progress": {"kills": {"2": 4}, "used": {}, "talked": [], "visited": [], "other": {}},
-  "started_at": 12.5, "completed_at": -1.0, "completions": 0}}}
+{"format": 2, "quests": {
+  "1006": {"status": "in_progress",
+    "progress": {"kills": {"2": 4}, "used": {}, "talked": [], "visited": [], "other": {}},
+    "started_at": 12.5, "completed_at": -1.0, "completions": 0},
+  "1008": {"status": "completed", "progress": {...}, "started_at": 3.0, "completed_at": 90.0, "completions": 1,
+    "rewards_received": {"exp": 50, "mesos": 0, "items": [{"item_id": "713", "qty": 1}],
+      "random_picks": [{"group": 0, "item_id": "713", "qty": 1}]}}}}
 ```
 
 - A quest with no entry is `not_started`.
 - `started_at` / `completed_at` are game-clock seconds (`Game.clock`); -1 means never.
-- `from_dict` wraps JSON floats back into ints, ignores malformed entries, and turns `{}` into an empty log.
+- `rewards_received` (contract C3) is what the last completion actually gave: the EXP and mesos added (less than the
+  reward only at a cap), every item granted (fixed, random and selected) and the weighted draws (`group` = index into
+  the canonical `rewards.random`). A completion this build did not see (a format 1 save, or `QuestLog.complete`
+  called without rewards) is `{"recorded": false}`; `rewards_recorded(id)` tells them apart. The quest log shows
+  "Received: Green Headband" for a recorded random reward.
+- `from_dict` wraps JSON floats back into ints, ignores malformed entries, and turns `{}` into an empty log. It reads
+  format 1 (a completed entry without `rewards_received` gains `{"recorded": false}`; a record the save migration
+  already wrote is kept) and keeps every key it does not know: at the top of the log, in an entry, in `progress` and
+  in `rewards_received`. `to_dict` writes them back, so a save from a newer build survives this one.
 
 ## NPCs
 
@@ -161,7 +224,26 @@ must emit `monster_killed(monster_id, map_id)`.
   MeowDB has no interaction-type field.
 
 `data/misostory/npcs/<id>.json` may set `portrait` (default `npc_<id>`), `visual` (free-form hints for the actor
-layer) and `disabled_behaviors`. Every such file needs a top-level `reason` and `verified`.
+layer), `disabled_behaviors` and `departure` (below). Every such file needs a top-level `reason` and `verified`.
+
+### Transport and the departure boundary (Shanks)
+
+`NpcTransport` reads an NPC's canonical `transport.routes` (Shanks, npc 15: Southperry 000000060 → Lith Harbor
+010000000, `fare_mesos` 300, `min_level` 7, `one_way`, and the beginner guide's `source_quote`). Victoria Island is
+not built, so a route only works at a **departure boundary**, the adaptation block in `misostory/npcs/<id>.json`:
+
+```json
+"departure": {"boundary": true, "charge_fare": false, "flag": "maple_island_departure_ready_at",
+              "unfinished_quests_region": "Maple Island", "reasons": {...}, "verified": false}
+```
+
+`NpcTransport.depart(engine, npc_id, route)` re-checks the canonical level and fare (fails `level_too_low`,
+`not_enough_mesos`; `no_route`; `not_built` when the NPC has no boundary), spends the fare only when `charge_fare`
+(Maple Island: no), sets `character.flags[flag]` to the game clock, and returns the effect
+`{"type": "departure_requested", npc_id, route_index, route, flag, at, fare_charged, region, unfinished_quests}`.
+`NpcInteraction` re-emits it as `departure_requested(npc_id, departure)`; the shell's `DepartureScreen` shows "End of
+Maple Island" (INTERACTION_AND_NPC_UI.md). The character stays in Southperry. `NpcCatalog.validate()` reports an
+NPC whose transport is enabled without a boundary.
 
 ## Dialogue
 
@@ -182,7 +264,13 @@ accept or a hand-over.
 - `{"quest", "quiz": "question" | "choice" | "wrong" | "right", "line"?}`;
 - `{"quest", "journal"}`, `{"quest", "name": true}`;
 - `{"npc", "field": "dialogue" | "idle_chatter", "line"}`;
-- `{"system": key}`;
+- `{"npc", "route": i, "quote": true}`: the canonical `source_quote` of an NPC's transport route (Shanks' guide
+  sentence);
+- `{"system": key}`, optionally with `"args": {name: value}` (fills `{name}` placeholders in the system text: the
+  canonical destination, fare and level of a route), `"args_source"` (appended to the source) and
+  `"live": {name: {"type": "unfinished_quests", "region"}}` (args the runner fills from the character when the line is
+  shown, `DialogueContext.live_value`; without a running conversation the `{name}` placeholder stays, so validation
+  still resolves the line);
 - `{"parts": [line spec, ...]}`: several lines on one page, one paragraph each (a blank line between them);
   the source is the parts' sources joined with ` + `. Validation checks every part, so a dead part is reported even
   though the others still show. `counters` go on the `parts` line itself (they index the joined segments, with one
@@ -204,13 +292,16 @@ normalizes both canonical segment styles into UI segments:
   `quest_items_lost`;
 - `objective` (`kind`, optional `id`, `done`);
 - `level` (min/max), `job`, `item_count`, `flag` (`CharacterState.flags`), `mesos`;
+- `unfinished_quests` (`region`): a quest of that canonical region is not completed;
 - `all` / `any` / `not`.
 
 **Actions:**
 - `accept_quest`, `complete_quest` (with optional `quiz_choice` / `selection_index`), `answer_quiz` (`choice`:
   grades the answer without completing; fails with `wrong_answer`), `forfeit_quest`, `reissue_quest_items`;
 - `open_shop`: an `open_shop` effect, which `NpcInteraction` turns into `shop_requested`;
-- `give_item`, `take_item`, `set_flag`.
+- `give_item`, `take_item`, `set_flag`;
+- `depart` (`route`): `NpcTransport.depart`; its `departure_requested` effect becomes
+  `NpcInteraction.departure_requested`.
 
 **VIEW** (`DialogueRunner.view()`, returned by every `NpcInteraction` call):
 `{open, node_id, type, npc_id, speaker_id, speaker_name, portrait, speaker_kind: npc|system|journal, title (quest
@@ -222,7 +313,10 @@ ends comes from the quest records (the same lookups as `npc_marker`), so a quest
 before the NPC record lists it; `NpcCatalog.validate()` reports such a mismatch, and `disabled_behaviors: ["quest"]`
 switches quest entries off. When the player talks to an NPC, these entries are evaluated live:
 - the turn-in of an in-progress quest that ends here;
-- a lost accept item of a quest started here (canonical `lost` lines, then the item is re-issued);
+- a lost accept item of a quest started here and ended elsewhere (canonical `lost` lines, then the item is
+  re-issued). A quest the NPC both starts and ends gets no second entry: its turn-in routes to the re-issue when the
+  item is lost. With only the adaptation (1002: MeowDB has no `lost` lines) the item is handed over first, then the
+  canonical `missing_items` lines play (Roger: "Eat the Roger's Apple I gave you ..."), so no speech is invented;
 - the reminder for a quest started here that ends elsewhere (canonical `wrong_npc`);
 - the offer of an available quest started here.
 
@@ -247,10 +341,29 @@ One entry is entered directly, several are listed in a menu, and none falls back
   that also has a selection reward grades the choice with `answer_quiz` instead, and the correct-answer line leads to
   the reward pick, which completes the quest.
 - **Shops:** a greeting line, then `open_shop`.
+- **Transport** (an NPC with routes and a departure boundary: Shanks): the greeting (his canonical speech-bubble line
+  1, "I'll take you anywhere you want to go.", picked by `dialogue/15.json`), then the route's guide quote as a
+  Notice ("Shanks at the dock sails you to Lith Harbor for 300 mesos once you reach level 7. The boat is one-way. Hand
+  in every Maple Island quest before you board."), then:
+  - below `min_level`: "You need to be at least level 7 to sail to Lith Harbor." and the chat ends;
+  - below the fare: "The fare to Lith Harbor is 300 mesos. Come back when you have enough.";
+  - with unfinished quests of the boundary's region: "You still have unfinished Maple Island quests: Roger's Apple,
+    Mai's Training (2 of 3 left), Rain's Maple Quiz (7 of 7 left), ..." (chains grouped), a warning only;
+  - then the Yes/No "Sail to Lith Harbor? The fare is 300 mesos." Yes runs `depart` (it re-checks level and fare);
+    No ends the chat. MeowDB has no boarding dialogue for Shanks, so every line after the greeting is the guide's
+    canonical sentence or a system line (`_system.json`). Several routes would get a destination menu first.
 - **Default talk:**
   - quest NPCs say their first "What X Says" line, and the last one once all their quests are completed;
   - townsfolk say all their lines in order;
   - NPCs without quoted lines say their first idle-chatter line.
+
+**Rules as data.** `data/misostory/dialogue/_rules.json` records the rules above that MeowDB does not give, each with
+its reason and `verified: false`: `offer_prompt.line` ("last_on_accept_line"), `default_talk.quest_npc`
+("first_line_until_all_own_quests_completed_then_last_line", or "all_lines_in_order"), `default_talk.townsfolk`,
+`default_talk.no_quoted_lines`, `quiz.wrong_answer`, `quiz.after_right_answer` and `shop_window_title.format`
+("{npc}'s Shop", read by the shop window through `NpcDialogueBuilder.shop_title`). The builder reads them, falls back
+to the same behaviour when the file is absent, and `validate_all()` (`validate_rules()`) fails on a value the code
+does not implement.
 
 **Overrides.** `data/misostory/dialogue/<npc_id>.json` takes `{reason, verified, remove_nodes: [...], nodes: {id:
 node} (add or replace), patch_nodes: {id: {key: value}} (replace single keys of a generated node), start?}`, applied
@@ -280,12 +393,20 @@ in that order. A patch for a node that does not exist is a validation error. Sys
 | Roger hands over 1 Roger's Apple on accepting 1002 | `data/misostory/quests/1002.json` (`verified: false`) | MeowDB lists no accept items, but the quest needs 1 use and the dialogue says "the Roger's Apple I gave you"; 1 is the minimum that makes it completable |
 | Shop greetings reuse a canonical idle-chatter line (Pan 1, Sid 1, Lucy 2) | `data/misostory/dialogue/16.json`, `20.json`, `21.json` | MeowDB has no shop greeting; no NPC speech is invented |
 | System lines (inventory full, cannot accept/complete) | `data/misostory/dialogue/_system.json` | MeowDB publishes no client messages; shown as speaker "system" |
-| Shanks only talks | `data/misostory/npcs/15.json` | the Lith Harbor boat leaves Maple Island (out of scope); MeowDB has no boarding text |
+| Shanks' boat ends at an "End of Maple Island" screen: the canonical level and fare are checked, nothing is charged, nobody travels, `flags.maple_island_departure_ready_at` is set to the game clock | `data/misostory/npcs/15.json` `departure` (`verified: false`) | Victoria Island is out of scope ("The Southperry departure boundary is enough"); without a voyage the fare is not taken; the flag lets a later build and the playthrough see the boundary was reached |
+| Shanks warns with the guide's sentence and the character's unfinished Maple Island quests, but still offers the boat | builder; `departure_unfinished_quests` in `_system.json` | the canonical advice is "Hand in every Maple Island quest before you board"; MeowDB says nothing about refusing, so it is a warning, not a block |
+| Shanks' greeting is his speech-bubble line 1; the transport pages are system lines with the canonical route values | `data/misostory/dialogue/15.json`; `transport_*` and `cannot_travel` in `_system.json` | MeowDB has no boarding dialogue, refusal or Yes/No text for Shanks |
+| A lost Roger's Apple is re-issued at Roger while 1002 is in progress (then his canonical "Eat the Roger's Apple I gave you" line) | `data/misostory/quests/1002.json` `reissue_lost_accept_items` | MeowDB has no "lost" branch for 1002, and the old workaround (forfeit and re-accept) needed the debug console |
+| A shop refuses to buy a quest-critical item an in-progress quest still needs, and says why | `data/misostory/quests/_quest_items.json`; `QuestItemGuard`, `ShopService.quote_sell` | MeowDB documents no sell restriction, but selling Roger's Apple mid-1002 made the quest uncompletable; tradeable drops (Blue Snail Shell, Orange Mushroom Cap) and extra copies stay sellable |
+| The quest log says "Return to X" only for an NPC already met through a quest, else "Talk to X" | `QuestEngine.npc_met`, `MisoUiText.objective_text` | UI wording; "Return to Mai" was wrong for a Beginner sent to Mai by Sam |
+| The dialogue rules below live in data with reasons | `data/misostory/dialogue/_rules.json` | they were code-only inferences (Iteration Three audit); the provenance audit must see them |
 | `wrong_npc` and `lost` branches are spoken by the start NPC | builder | MeowDB files them under On completion, but they read as the start NPC (npcs.md speaker caveat) |
 | Quest with no On accept text (1002) is offered as a quest card: journal summary + "Accept this quest?", then the in-progress journal lines after Yes | builder; prompt in `data/misostory/dialogue/_system.json` (`offer_prompt`, `verified: false`) | MeowDB gap; the journal text is canonical and NPC speech would be invented. The summary ("Talk to Roger.") is a description, not a question, so a generic system prompt that names nothing asks it; the instructions read as what to do next, so they follow the accept |
 | Main completion lines come before the reward; `ready` lines after it | builder | MeowDB does not say which lines precede the reward |
-| Wrong quiz answers pair with wrong choices in order; a wrong answer ends the chat, retry by talking again | builder | MeowDB does not link them (the counts match for every quiz) and does not say whether retries are allowed (1015's text suggests they are) |
-| Quest NPC talk: first line before, last line after all their quests | builder | MeowDB does not label when each "What X Says" line shows |
+| Wrong quiz answers pair with wrong choices in order; a wrong answer ends the chat, retry by talking again; the next quiz needs a new talk | builder; `_rules.json` `quiz` | MeowDB does not link them (the counts match for every quiz) and does not say whether retries are allowed (1015's text suggests they are) |
+| The last On accept line is the Yes/No prompt, even when it is a statement (1000's Quest Helper tip; 1014-1019 "talk to me when you're ready...") | builder; `_rules.json` `offer_prompt` | MeowDB does not mark the prompt line; writing a question would invent NPC speech |
+| Quest NPC talk: first line before, last line after all their quests | builder; `_rules.json` `default_talk` | MeowDB does not label when each "What X Says" line shows |
+| The shop window is titled "<NPC>'s Shop" | `_rules.json` `shop_window_title` | MeowDB has no shop title |
 | Completing a quest does not auto-start its follow-up; `next_quest_grants` items are given when the follow-up is accepted | engine | the follow-ups have canonical decline branches (1001), and quests.md says not to grant the items twice |
 | Forfeit takes back accept items still held | engine | MeowDB is silent; prevents duplicating quest items by forfeit/re-accept |
 | Kill counts cap at the required count; only kills while in progress count | engine | classic quest log behaviour; MeowDB does not specify |
@@ -296,8 +417,11 @@ in that order. A patch for a node that does not exist is a validation error. Sys
 ## Testing
 
 ```bash
-ISOLATE=quests bash scripts/test.sh quest dialogue npc
+ISOLATE=quests bash scripts/test.sh quest dialogue npc shop
 ```
+
+Every test file of this system declares `parity_keys()` (contract C6) for the tests that prove a canonical or brief
+requirement (`quest:1005`, `npc:15`, `shop:maple-road-lucy`, `mechanic:quest-rewards-received`, ...).
 
 | File | Covers |
 |---|---|
@@ -307,7 +431,16 @@ ISOLATE=quests bash scripts/test.sh quest dialogue npc
 | `tests/unit/test_quest_service.gd` | Events in/out on a private `events.gd` bus; quest level-ups announced like `Game.gain_exp` (one `leveled_up` per level, `hp_changed`/`mp_changed`, `stats_changed`), including a multi-level reward (1010 at level 1); inventory_full announcement, character provider, detach, debug commands |
 | `tests/unit/test_dialogue_runner.gd` | hand-written graphs: Next/Back, Yes/No, menu conditions (level, mesos, flag, job, items, quest), branch, auto-single, actions clear history, on_fail routing, shop request, give/take, objective conditions, validation errors, overrides and patches, counter validation, `parts` lines (paragraphs, sources, styling, every part validated, counters on a part reported), `answer_quiz`, no crash without content |
 | `tests/unit/test_dialogue_npc_conversations.gd` | every NPC's generated conversation validates and opens; Sam → Mai full flow with Events; decline; full inventory at Mai; Roger's Apple conversation (offer card, instructions after Yes, decline); every quest's offer is canonical NPC speech or (1002 only) a quest card, Sam's offer carries no system text; synthetic card offers (4-line journal: two instruction pages; 2-line: none; no journal: the quest name; canonical accept/decline branches kept); Rain 1013 wrong/right and 1018; Heena/Sera chain with a lost mirror; 1005 item ref remap; Pio's live 1012 counters; a synthetic quiz + selection quest completed from data alone; shop greeting → shop request; townsfolk Back; Shanks |
-| `tests/unit/test_npc_catalog.gd` | 21 NPCs, validation, Roger, shops, quest relationships equal the quest records, Shanks override, NPCs per map, idle lines |
+| `tests/unit/test_npc_catalog.gd` | 21 NPCs, validation, Roger, shops, quest relationships equal the quest records, Shanks' canonical route and departure boundary (and a transport NPC without one is reported), NPCs per map, idle lines |
+| `tests/unit/test_quest_rewards_received.gd` | QuestLog format 2: 1006 (30 EXP, 3 Eggs), 1008 (the random hat, its group, survives a save; other seeds record other hats), 1011 (the random weapon), 1012 (150 mesos, The Green Relaxer) recorded; unrecorded completions; a format 1 log loads; a migration-written record is kept; unknown keys at every level survive load and save, and the engine still works on that log |
+| `tests/unit/test_quest_log_window.gd` | chain_info for every chain; chain steps follow quest state; npc_met and the turn-in wording (Talk to Mai / Return to Roger, Heena, Maria); quest_summary NPCs and maps; missable parsing (flag, sourced object, default false); the window: "Mai's Training 2/3" with steps and maps, "Rain's Maple Quiz 4/7", "Talk to Mai", the Missable tag, "Received: <hat>" after a reload |
+| `tests/unit/test_quest_every_quest.gd` | markers for all 20 quests through their states (hidden below level, available, in progress, one kill short, ready, gone once completed); every Rain quiz 1013-1019 answered with each wrong choice (its paired canonical line, still in progress) and the right one (canonical line, exact EXP, 245 in all, 10 Oranges) through the conversation; 1003 → 1004 (Nina's reminder, Sen completes 1003 and offers 1004, +3 EXP); 1005 (only mob 1, capped at 3, missing-kills / missing-items lines, +10 EXP, 3 Shellpieces taken) |
+| `tests/unit/test_npc_shanks_departure.gd` | Shanks: level 6 refused, level 7 with 299 mesos refused, a ready character reaches the boundary (flag = game clock, saved; no mesos taken; no travel; the canonical route in the effect), the unfinished-quest list (chains grouped, completed ones left out), No leaves nothing, boarding re-checks the fare, no boundary = `not_built`, a charging boundary takes the fare |
+| `tests/unit/test_shop_quest_items.gd` | the sell guard: Roger's Apple during 1002 (refused with the message; an extra copy sells; free once eaten), Shellpieces during 1005 (only the 3 needed are held), tradeable drops for 1011 stay sellable, Sera's Mirror during 1001, the adaptation switch, the shop window's check line and status; Roger re-issues a lost apple (canonical line after, no duplicate while held, 1002 then completes), no room = the system line, one menu entry |
+
+**Real-game coverage.** The real-game scenario `test_e_quest` plays 1002, 1006, 1007 and 1008 (and 1006 across a
+save and reload). The other 16 quests (1000, 1001, 1003, 1004, 1005, 1009, 1010, 1011, 1012, 1013-1019) and the
+Shanks boundary are unit-tested only; the playtest harness builds the every-quest real-game set.
 
 Data validation for this system is `QuestCatalog.new(db).validate()`, `NpcCatalog.new(db).validate()` and
 `NpcDialogueBuilder.new(db).validate_all()`. The tests assert that all three are clean. `scripts/validate_data.sh`
@@ -317,6 +450,11 @@ quest data is reported by the unit tests but not by the headless data validation
 ## Known gaps
 
 - An NPC with both quests and a shop shows the shop only when it has no quest entry (no such NPC on Maple Island).
-- A Roger's Apple lost before it is eaten is not re-issued in dialogue (MeowDB has no "lost" branch for 1002); the
-  player can forfeit 1002 and accept it again, which hands over a new apple.
-- The amount and timing of Roger's apple, and the quiz retry rule, are unverified adaptations (see above).
+- The amount and timing of Roger's apple, its re-issue, and the quiz retry rule are unverified adaptations (see
+  above). There is still no player-facing forfeit.
+- `quest_progressed` does not request an autosave (`Game.AUTOSAVE_TRIGGERS`, owned by the shell), so mid-quest kill
+  and use counts are saved at the next milestone or manual save.
+- The Green Relaxer (522, untradeable, 1012's reward) can be sold: no in-progress quest needs it, so the sell guard
+  does not hold it. Whether to protect it is an owner decision.
+- Sera's "Did you give my mirror to Heena?" and Sen's "What did my sister say?" read as mid-quest lines but show
+  after completion under the default-talk rule (an owner decision could change `_rules.json` or add an override).
