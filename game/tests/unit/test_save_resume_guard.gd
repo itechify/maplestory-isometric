@@ -83,22 +83,45 @@ func test_without_both_hashes_only_the_physical_check_applies() -> void:
 
 ## With the exported world: each real Iteration Two save resumes at its point exactly when its map's collision hash
 ## is unchanged since the save, and arrives at its entry otherwise. (The fixtures matched the world when they were
-## promoted; a rebuild that changes one of their maps moves that fixture to the entry branch.)
+## promoted; a rebuild that changes one of their maps moves that fixture to the entry branch.) Then, independently of
+## what the current export holds, each fixture's map is made to look rebuilt (its hash changed): the stale point is
+## never used and the player arrives exactly at the saved entry, resolved against the real exported map.
 func test_it2_fixtures_resume_only_on_unchanged_maps() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_it2_fixtures_resume_only_on_unchanged_maps: game/assets/world not present (run with INCLUDE_WORLD=1)")
 		return
 	var world_defs := MapDefinitions.build(db(), WorldSidecars.load_dir())
+	var fixtures := 0
 	for f in DirAccess.get_files_at(IT2_DIR):
 		if f.get_extension() != "json":
 			continue
+		fixtures += 1
 		var r := SaveDocument.decode(JSON.parse_string(FileAccess.get_file_as_string(IT2_DIR.path_join(f))),
 			SaveMigrations.new(), db())
 		var loc := r.character.location
 		var saved := String((loc["resume"] as Dictionary)["map_content_hash"])
-		var current := world_defs.get_def(String(loc["map_id"])).content_hash
+		var def := world_defs.get_def(String(loc["map_id"]))
+		var current := def.content_hash
 		assert_ne(current, "", "%s: the world export has a hash for %s" % [f, loc["map_id"]])
-		var res := ArrivalResolver.resolve_load(loc, world_defs, func(_m: String, _p: Vector3) -> bool: return true,
-			"000000001")
+		assert_eq(saved.length(), current.length(), "%s: the saved hash has the export's format" % f)
+		var offered: Array = []
+		var res := ArrivalResolver.resolve_load(loc, world_defs, func(_m: String, p: Vector3) -> bool:
+			offered.append(p)
+			return true, "000000001")
 		var want := ArrivalResolver.STEP_RESUME if saved == current else ArrivalResolver.STEP_ENTRY
 		assert_eq(String(res.step), want, "%s (saved %s, now %s)" % [f, saved, current])
+		# The same save after a rebuild of its map.
+		def.content_hash = "rebuilt-" + current
+		offered.clear()
+		var moved := ArrivalResolver.resolve_load(loc, world_defs, func(_m: String, p: Vector3) -> bool:
+			offered.append(p)
+			return true, "000000001")
+		def.content_hash = current
+		assert_eq(String(moved.step), ArrivalResolver.STEP_ENTRY, "%s: a changed map arrives at the entry" % f)
+		assert_true(bool(moved.ok), "%s: the saved entry resolves in the exported map" % f)
+		assert_eq(offered.size(), 0, "%s: the stale point is never offered to the validator" % f)
+		var entry := ArrivalRef.from_dict(loc["entry"])
+		assert_eq(str(moved.arrival), str(entry), "%s: the arrival is the saved entry" % f)
+		assert_true((moved.xform as Transform3D).is_equal_approx(world_defs.arrival_transform(entry).xform),
+			"%s: at the entry's spawn transform" % f)
+	assert_eq(fixtures, 6, "every Iteration Two fixture checked")

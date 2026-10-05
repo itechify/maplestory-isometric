@@ -284,22 +284,32 @@ func test_seated_state_is_not_persisted() -> void:
 	_free_pair(b)
 
 
-## Breakables, monsters and ground drops are not persisted (C3, §4.7.3): a world block that carries them loads
-## without them reaching the character, and a save never writes them from the character.
+## Breakables, monsters and ground drops are not persisted (C3, §4.7.3): a file that carries them, in the character
+## block or in the world block, loads without them reaching the character, and the next save writes none of them.
 func test_breakable_state_is_not_persisted() -> void:
 	var a := _pair()
 	var game: GameState = a[1]
 	game.new_game({"save": false})
 	assert_eq(game.save_game("box"), OK)
 	var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(root.path_join("box.json")))
-	doc["character"]["breakables"] = {"0000001": {"hits": 3}}
-	doc["character"]["ground_drops"] = [{"item_id": "348"}]
+	for block: String in ["character", "world"]:
+		doc[block]["breakables"] = {"0000001": {"hits": 3}}
+		doc[block]["monsters"] = [{"species": "2", "hp": 1}]
+		doc[block]["ground_drops"] = [{"item_id": "348"}]
 	_write_raw("box", JSON.stringify(doc))
 	var b := _pair()
 	var game2: GameState = b[1]
 	assert_eq(game2.load_game("box"), OK, "loads")
 	var cd := game2.character.to_dict()
-	assert_false(cd.has("breakables") or cd.has("ground_drops"), "nothing of the map instance reaches the character")
+	for k: String in ["breakables", "monsters", "ground_drops"]:
+		assert_false(cd.has(k), "%s does not reach the character" % k)
+	assert_eq(game2.save_game("box"), OK, "saves again")
+	var again: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(root.path_join("box.json")))
+	for k: String in ["breakables", "monsters", "ground_drops"]:
+		assert_false((again["character"] as Dictionary).has(k), "character.%s not written back" % k)
+	var wkeys := PackedStringArray((again["world"] as Dictionary).keys())
+	wkeys.sort()
+	assert_eq(wkeys, PackedStringArray(["location", "respawn_reference"]), "the world block is written without them")
 	_free_pair(a)
 	_free_pair(b)
 
@@ -412,6 +422,51 @@ func test_wrong_shapes_are_corrupt_not_crashes() -> void:
 		var r := svc.read_save(slot)
 		assert_eq(r.error, ERR_FILE_CORRUPT, slot)
 		assert_true(r.message.length() > 0, "%s explains: %s" % [slot, r.message])
+	_free_pair(a)
+
+
+## Values of the wrong type INSIDE a correctly typed block (a hand edit) never abort the decode: int()/float() of a
+## container is a script error that used to leave a null character behind, which then broke list_saves() for every
+## slot. Each one now loads with the value corrected (or the bad entry dropped), and the slot list keeps every slot.
+func test_malformed_nested_values_load_instead_of_crashing() -> void:
+	var a := _pair()
+	var svc: SaveService = a[0]
+	var c := CharacterFactory.create(CharacterFactory.default_params(db()), db()).character
+	var good := SaveDocument.build(c, {}, "2026-10-05T00:00:00Z", db())
+	_write_raw("a_good", JSON.stringify(good))
+	for bad: Variant in [{"x": 1}, [1], "soon", null]:
+		var doc := good.duplicate(true)
+		doc["character"]["natural_recovery"] = {"hp_rest_s": bad}
+		_write_raw("nr", JSON.stringify(doc))
+		var r := svc.read_save("nr")
+		assert_eq(r.error, OK, "hp_rest_s %s loads" % str(bad))
+		if r.ok():
+			assert_eq(r.character.natural_recovery, {"hp_rest_s": 0.0}, "hp_rest_s %s starts at 0" % str(bad))
+	var doc2 := good.duplicate(true)
+	doc2["character"]["effects"] = [5, "x", {"id": "a", "remaining_s": {"y": 1}}, {"id": "b"},
+		{"id": "ok", "source": "skill:0001002", "remaining_s": 3, "data": {}}]
+	doc2["character"]["quickslots"] = {"1": {"kind": "item", "id": {"a": 1}}, "2": {"kind": "item", "id": 237}}
+	doc2["character"]["inventory"]["capacity"]["etc"] = {"z": 1}
+	(doc2["character"]["inventory"]["slots"]["etc"] as Array).append({"index": {"x": 1}, "item_id": "348", "qty": 2})
+	(doc2["character"]["inventory"]["slots"]["etc"] as Array).append({"index": 5, "item_id": "349", "qty": {"y": 2}})
+	_write_raw("mixed", JSON.stringify(doc2))
+	var r2 := svc.read_save("mixed")
+	assert_eq(r2.error, OK, "loads: %s" % r2.message)
+	if r2.ok():
+		var ch := r2.character
+		assert_eq(ch.effects, [{"id": "ok", "source": "skill:0001002", "remaining_s": 3.0, "data": {}}],
+			"only the effect with numeric remaining seconds is kept")
+		assert_eq(CharacterState.quickslot_item_id(ch.quickslots["1"]), "", "a container id names no item")
+		assert_eq(CharacterState.quickslot_item_id(ch.quickslots["2"]), "237", "a numeric id reads as text")
+		assert_eq(r2.unknown_item_ids, PackedStringArray(), "nothing reported as an unknown item")
+		assert_eq(ch.inventory.capacity("etc"), c.inventory.capacity("etc"), "a non-numeric capacity keeps the default")
+		assert_eq(ch.inventory.count("348"), c.inventory.count("348") + 2, "a non-numeric index takes a free slot")
+		assert_eq(ch.inventory.count("349"), c.inventory.count("349"), "a non-numeric qty is not an item")
+	var listed := svc.list_saves()
+	var names: PackedStringArray = []
+	for e: Dictionary in listed:
+		names.append(String(e["slot"]))
+	assert_true("a_good" in names and "mixed" in names and "nr" in names, "every slot is listed: %s" % str(names))
 	_free_pair(a)
 
 

@@ -143,21 +143,21 @@ static func from_dict(d: Dictionary) -> Inventory:
 			push_warning("[Inventory] save has unknown tab '%s'; its slots are ignored" % str(tab))
 	for tab in TABS:
 		if caps.has(tab):
-			(inv._tabs[tab] as Array).resize(maxi(0, int(caps[tab])))
+			(inv._tabs[tab] as Array).resize(maxi(0, _whole(caps[tab], (inv._tabs[tab] as Array).size())))
 		var list: Variant = slots.get(tab, [])
 		if not (list is Array):
 			continue
 		for e in list:
 			if not (e is Dictionary):
 				continue
-			var qty := int(e.get("qty", 0))
+			var qty := _whole(e.get("qty", 0), 0)
 			var item_id := ItemDef.id_of(e.get("item_id", ""))
 			if qty <= 0 or item_id == "":
 				push_warning("[Inventory] skipping invalid saved slot in '%s': %s" % [tab, str(e)])
 				continue
 			var data: Dictionary = normalize_data(e.get("data", {}))
 			var row: Array = inv._tabs[tab]
-			var idx := int(e.get("index", -1))
+			var idx := _whole(e.get("index", -1), -1)
 			if idx < 0 or (idx < row.size() and row[idx] != null):
 				idx = inv.first_empty(tab)
 				if idx < 0:
@@ -167,6 +167,18 @@ static func from_dict(d: Dictionary) -> Inventory:
 			row[idx] = {"item_id": item_id, "qty": qty, "data": data}
 	return inv
 
+
+## A saved count or index as an int: a number (JSON's floats included) or numeric text, else `fallback`, so a
+## hand-edited container or null there never aborts the load (int() of a container is a script error).
+static func _whole(v: Variant, fallback: int) -> int:
+	match typeof(v):
+		TYPE_INT:
+			return int(v)
+		TYPE_FLOAT:
+			return int(v) if is_finite(float(v)) else fallback
+		TYPE_STRING, TYPE_STRING_NAME:
+			return int(String(v)) if String(v).is_valid_int() else fallback
+	return fallback
 
 # --- queries --------------------------------------------------------------------------------------------------
 

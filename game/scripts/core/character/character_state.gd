@@ -67,11 +67,16 @@ func get_base_stat(key: String) -> int:
 
 
 ## The item id a quickslot binding names: a {"kind": "item", "id"} binding, or a bare item id (the save_version 1
-## shape, which code that predates typed bindings may still write); "" for a skill binding or anything else.
+## shape, which code that predates typed bindings may still write); "" for a skill binding or anything else (an id
+## that is not text or a number, e.g. a container from a hand edit, names no item).
 static func quickslot_item_id(binding: Variant) -> String:
 	if binding is Dictionary:
 		var b: Dictionary = binding
-		return ItemDef.id_of(b.get("id", "")) if str(b.get("kind", "")) == QUICKSLOT_ITEM else ""
+		var id: Variant = b.get("id", "")
+		if str(b.get("kind", "")) != QUICKSLOT_ITEM or not (typeof(id) in [TYPE_STRING, TYPE_STRING_NAME, TYPE_INT,
+				TYPE_FLOAT]):
+			return ""
+		return ItemDef.id_of(id)
 	if typeof(binding) == TYPE_STRING or typeof(binding) == TYPE_STRING_NAME or typeof(binding) == TYPE_INT:
 		return ItemDef.id_of(binding)
 	return ""
@@ -127,17 +132,21 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.fame = int(d.get("fame", 0))
 	c.mesos = int(d.get("mesos", 0))
 	c.skills = (d.get("skills", {}) as Dictionary).duplicate(true)
-	# Remaining seconds come back as floats (JSON turned 12.0 into 12); a cooldown that is not a number is dropped.
-	c.effects = (d.get("effects", []) as Array).duplicate(true)
-	for e: Variant in c.effects:
+	# Remaining seconds come back as floats (JSON turned 12.0 into 12). An effect that is not an object with a numeric
+	# remaining_s, or a cooldown that is not a number, breaks the C3 shape and is dropped; a recovery clock that is not
+	# a number starts at 0. A malformed (hand-edited) value never stops the load.
+	for e: Variant in (d.get("effects", []) as Array):
 		if e is Dictionary and _is_number((e as Dictionary).get("remaining_s", null)):
-			(e as Dictionary)["remaining_s"] = float((e as Dictionary)["remaining_s"])
+			var effect := (e as Dictionary).duplicate(true)
+			effect["remaining_s"] = float(effect["remaining_s"])
+			c.effects.append(effect)
 	var cds: Dictionary = d.get("cooldowns", {})
 	for skill_id: Variant in cds:
 		if _is_number(cds[skill_id]):
 			c.cooldowns[str(skill_id)] = maxf(0.0, float(cds[skill_id]))
 	var nr: Variant = d.get("natural_recovery", {})
-	c.natural_recovery = {"hp_rest_s": maxf(0.0, float((nr as Dictionary).get("hp_rest_s", 0.0)))} if nr is Dictionary else {"hp_rest_s": 0.0}
+	var rest: Variant = (nr as Dictionary).get("hp_rest_s", 0.0) if nr is Dictionary else 0.0
+	c.natural_recovery = {"hp_rest_s": maxf(0.0, float(rest)) if _is_number(rest) else 0.0}
 	c.inventory = Inventory.from_dict(d.get("inventory", {}))
 	c.equipment = Equipment.from_dict(d.get("equipment", {}))
 	c.quests = QuestLog.from_dict(d.get("quests", {}))

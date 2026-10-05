@@ -98,6 +98,10 @@ static func decode(raw: Dictionary, migrations: SaveMigrations, db: ContentDB = 
 	if world.has("respawn_reference") and typeof(world["respawn_reference"]) != TYPE_STRING:
 		return _corrupt(r, "world.respawn_reference is not a string")
 	var c := CharacterState.from_dict(cd)
+	# A script error inside a module's from_dict() (a value of a type it cannot convert) aborts it and leaves null
+	# behind; report the file as corrupt rather than hand on a half-built character (and never return null).
+	if c == null or c.inventory == null or c.equipment == null or c.quests == null:
+		return _corrupt(r, "the character block could not be decoded")
 	_resolve_location(c, world, db, r)
 	if db != null:
 		_check_items(c, db, r)

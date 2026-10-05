@@ -75,8 +75,10 @@ func keep_copy(slot: String, from_backup: bool, version: int) -> Error:
 		return ERR_ALREADY_EXISTS
 	var err := DirAccess.copy_absolute(src, dst)
 	if err == OK and FileAccess.get_file_as_bytes(dst) != FileAccess.get_file_as_bytes(src):
-		DirAccess.remove_absolute(dst)
 		err = ERR_FILE_CANT_WRITE
+	# A failed copy must not leave a partial file behind: it would count as the copy and never be replaced.
+	if err != OK and FileAccess.file_exists(dst):
+		DirAccess.remove_absolute(dst)
 	return err
 
 
