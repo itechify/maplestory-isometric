@@ -53,7 +53,9 @@ var quests: QuestLog = QuestLog.new()
 var location: Dictionary = {}
 ## Canonical returnMap of the current map (recomputed on load; saved because the brief requires it).
 var respawn_reference: String = ""
-## Quickslot bindings: slot index (String) -> item id. Presentation preference, but saved.
+## Quickslot bindings: key ("1".."8") -> {"kind": "item" | "skill", "id": String} (save_version 2, contract C3; the
+## v1 -> v2 migration turns a saved bare item id into an item binding). Presentation preference, but saved. Read item
+## bindings through quickslot_item_id(), which also accepts a bare id.
 var quickslots: Dictionary = {}
 ## Free-form progression flags for scripted content (e.g. "tutorial_seen").
 var flags: Dictionary = {}
@@ -69,7 +71,7 @@ func get_base_stat(key: String) -> int:
 static func quickslot_item_id(binding: Variant) -> String:
 	if binding is Dictionary:
 		var b: Dictionary = binding
-		return ItemDef.id_of(b.get("id", "")) if String(b.get("kind", "")) == QUICKSLOT_ITEM else ""
+		return ItemDef.id_of(b.get("id", "")) if str(b.get("kind", "")) == QUICKSLOT_ITEM else ""
 	if typeof(binding) == TYPE_STRING or typeof(binding) == TYPE_STRING_NAME or typeof(binding) == TYPE_INT:
 		return ItemDef.id_of(binding)
 	return ""
@@ -125,8 +127,15 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.fame = int(d.get("fame", 0))
 	c.mesos = int(d.get("mesos", 0))
 	c.skills = (d.get("skills", {}) as Dictionary).duplicate(true)
+	# Remaining seconds come back as floats (JSON turned 12.0 into 12); a cooldown that is not a number is dropped.
 	c.effects = (d.get("effects", []) as Array).duplicate(true)
-	c.cooldowns = (d.get("cooldowns", {}) as Dictionary).duplicate(true)
+	for e: Variant in c.effects:
+		if e is Dictionary and _is_number((e as Dictionary).get("remaining_s", null)):
+			(e as Dictionary)["remaining_s"] = float((e as Dictionary)["remaining_s"])
+	var cds: Dictionary = d.get("cooldowns", {})
+	for skill_id: Variant in cds:
+		if _is_number(cds[skill_id]):
+			c.cooldowns[str(skill_id)] = maxf(0.0, float(cds[skill_id]))
 	var nr: Variant = d.get("natural_recovery", {})
 	c.natural_recovery = {"hp_rest_s": maxf(0.0, float((nr as Dictionary).get("hp_rest_s", 0.0)))} if nr is Dictionary else {"hp_rest_s": 0.0}
 	c.inventory = Inventory.from_dict(d.get("inventory", {}))
@@ -138,3 +147,7 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.flags = (d.get("flags", {}) as Dictionary).duplicate(true)
 	c.play_time_s = float(d.get("play_time_s", 0.0))
 	return c
+
+
+static func _is_number(v: Variant) -> bool:
+	return (typeof(v) == TYPE_INT or typeof(v) == TYPE_FLOAT) and is_finite(float(v))

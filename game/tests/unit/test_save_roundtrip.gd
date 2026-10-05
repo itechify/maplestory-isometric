@@ -8,6 +8,20 @@ var bus: Node
 var allow_save := true
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_save_load_round_trip_is_deep_equal": ["persistence:character-identity", "persistence:level-exp",
+			"persistence:hp-mp", "persistence:ap-stats", "persistence:mesos", "persistence:inventory",
+			"persistence:setup-tab", "persistence:equipment", "persistence:current-map", "persistence:play-time-flags"],
+		"test_v2_fields_round_trip_with_their_types": ["persistence:skills", "persistence:sp",
+			"persistence:skill-cooldowns-buffs", "persistence:natural-regen-timer", "persistence:quickslots",
+			"persistence:chairs"],
+		"test_seated_state_is_not_persisted": ["persistence:seated-state"],
+		"test_breakable_state_is_not_persisted": ["persistence:breakable-state"],
+		"test_respawn_reference_is_recomputed_from_canonical_data": ["persistence:respawn-information"],
+	}
+
+
 func before_each() -> void:
 	root = "user://_tests/save_rt_%d_%d" % [Time.get_ticks_usec(), randi()]
 	bus = load("res://scripts/autoload/events.gd").new()
@@ -125,7 +139,10 @@ func _rich_character() -> CharacterState:
 	c.fame = 2
 	c.mesos = 12345
 	c.skills = {"0001000": 2, "0001002": 3}
-	c.effects = [{"id": "nimble_feet", "until": 512.25, "speed": 10}]
+	# The C3 shapes: remaining seconds, never clock times.
+	c.effects = [{"id": "nimble_feet", "source": "skill:0001002", "remaining_s": 30.0, "data": {"speed": 10}}]
+	c.cooldowns = {"0001001": 81.25, "0001002": 12.0}
+	c.natural_recovery = {"hp_rest_s": 6.5}
 	var map_id := _field_map()
 	var portals: Array = db().map(map_id).get("portals", [])
 	var portal_name := String((portals[0] as Dictionary).get("name", "")) if not portals.is_empty() else ""
@@ -135,7 +152,8 @@ func _rich_character() -> CharacterState:
 		"resume": {"local_pos": [31.2, 4.05, -17.8], "facing_deg": 135.5, "map_content_hash": "9f1c"},
 	}
 	c.respawn_reference = String(db().map(map_id)["return_map_id"])
-	c.quickslots = {"1": _first_item("use"), "4": _first_item("etc")}
+	c.quickslots = {"1": {"kind": "item", "id": _first_item("use")}, "4": {"kind": "item", "id": _first_item("etc")},
+		"5": {"kind": "skill", "id": "0001000"}}
 	c.flags = {"tutorial_seen": true, "visits": 3, "nested": {"list": [1, 2.5, "three"]}}
 	c.play_time_s = 3725.125
 	c.inventory.add(_first_item("use"), 37, db())
@@ -186,6 +204,102 @@ func test_save_load_round_trip_is_deep_equal() -> void:
 	assert_eq(typeof(loc["resume"]["local_pos"][0]), TYPE_FLOAT, "positions stay floats")
 	assert_eq(typeof(game2.character.flags["visits"]), TYPE_INT, "integral numbers come back as int")
 	assert_eq(typeof(game2.character.play_time_s), TYPE_FLOAT)
+	_free_pair(a)
+	_free_pair(b)
+
+
+## Every save_version 2 field (contract C3) survives a save and a load with its type: timers in remaining seconds as
+## floats (even whole ones, which JSON writes as integers), typed quickslot bindings (an item and a skill), the
+## natural-recovery clock, skills and SP.
+func test_v2_fields_round_trip_with_their_types() -> void:
+	var a := _pair()
+	var game: GameState = a[1]
+	game.new_game({"save": false})
+	game.character = _rich_character()
+	assert_eq(game.save_game("v2"), OK, "save")
+	var b := _pair()
+	var game2: GameState = b[1]
+	assert_eq(game2.load_game("v2"), OK, "load")
+	var c := game2.character
+	assert_eq(c.cooldowns, {"0001001": 81.25, "0001002": 12.0}, "cooldowns")
+	assert_eq(typeof(c.cooldowns.get("0001002")), TYPE_FLOAT, "a whole-second cooldown is still a float")
+	assert_eq(c.effects.size(), 1, "one effect")
+	if c.effects.size() == 1:
+		var e: Dictionary = c.effects[0]
+		assert_eq(typeof(e["remaining_s"]), TYPE_FLOAT, "effect time is a float")
+		assert_eq(e["remaining_s"], 30.0, "remaining seconds")
+		assert_eq(e["source"], "skill:0001002", "source")
+		assert_eq(e["data"], {"speed": 10}, "data")
+	assert_eq(c.natural_recovery, {"hp_rest_s": 6.5}, "recovery clock")
+	assert_eq(c.quickslots.get("5"), {"kind": "skill", "id": "0001000"}, "a skill binding")
+	assert_eq(c.quickslots.get("1"), {"kind": "item", "id": _first_item("use")}, "an item binding")
+	assert_eq(CharacterState.quickslot_item_id(c.quickslots.get("1")), _first_item("use"), "reads as its item")
+	assert_eq(CharacterState.quickslot_item_id(c.quickslots.get("5")), "", "a skill binding is not an item")
+	assert_eq(c.skills, {"0001000": 2, "0001002": 3}, "skill levels")
+	assert_eq(c.sp, 6, "unspent SP")
+	assert_eq(c.inventory.count(_first_item("setup")), 1, "the Set-up (chair) item")
+	_free_pair(a)
+	_free_pair(b)
+
+
+## The persisted character is exactly this list of fields. A new one must be added here on purpose (and to
+## docs/runtime/SAVES.md), so state that is not persisted by design (seated / chair in use, breakables, monsters,
+## ground drops, the game clock, the RNG) cannot slip into the save.
+func test_persisted_character_fields_are_exactly_the_schema() -> void:
+	var keys := PackedStringArray(CharacterState.new().to_dict().keys())
+	keys.sort()
+	assert_eq(keys, PackedStringArray(["ap", "base_max_hp", "base_max_mp", "base_stats", "cooldowns", "effects",
+		"equipment", "exp", "fame", "flags", "gender", "hp", "inventory", "job", "level", "location", "mesos", "mp",
+		"name", "natural_recovery", "play_time_s", "quests", "quickslots", "respawn_reference", "skills", "sp"]),
+		"save_version 2 character fields")
+	var world := SaveDocument.build(CharacterState.new(), {}, "2026-10-05T00:00:00Z", db())["world"] as Dictionary
+	var wkeys := PackedStringArray(world.keys())
+	wkeys.sort()
+	assert_eq(wkeys, PackedStringArray(["location", "respawn_reference"]), "the world block holds no map instance state")
+
+
+## The seated state is not persisted (C3): a file that carries one (a hand edit, or a future build) loads standing,
+## with the chair still in the Set-up tab, and the next save does not write it back.
+func test_seated_state_is_not_persisted() -> void:
+	var a := _pair()
+	var game: GameState = a[1]
+	game.new_game({"save": false})
+	var chair := _first_item("setup")
+	game.character.inventory.add(chair, 1, db())
+	assert_eq(game.save_game("sit"), OK)
+	var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(root.path_join("sit.json")))
+	doc["character"]["seated"] = true
+	doc["character"]["chair_in_use"] = chair
+	_write_raw("sit", JSON.stringify(doc))
+	var b := _pair()
+	var game2: GameState = b[1]
+	assert_eq(game2.load_game("sit"), OK, "loads")
+	assert_false(game2.character.to_dict().has("seated"), "no seated state in the loaded character")
+	assert_eq(game2.character.inventory.count(chair), 1, "the chair is still owned")
+	assert_eq(game2.save_game("sit"), OK)
+	var again: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(root.path_join("sit.json")))
+	assert_false((again["character"] as Dictionary).has("seated"), "not written back")
+	assert_false((again["character"] as Dictionary).has("chair_in_use"), "not written back")
+	_free_pair(a)
+	_free_pair(b)
+
+
+## Breakables, monsters and ground drops are not persisted (C3, §4.7.3): a world block that carries them loads
+## without them reaching the character, and a save never writes them from the character.
+func test_breakable_state_is_not_persisted() -> void:
+	var a := _pair()
+	var game: GameState = a[1]
+	game.new_game({"save": false})
+	assert_eq(game.save_game("box"), OK)
+	var doc: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(root.path_join("box.json")))
+	doc["character"]["breakables"] = {"0000001": {"hits": 3}}
+	doc["character"]["ground_drops"] = [{"item_id": "348"}]
+	_write_raw("box", JSON.stringify(doc))
+	var b := _pair()
+	var game2: GameState = b[1]
+	assert_eq(game2.load_game("box"), OK, "loads")
+	var cd := game2.character.to_dict()
+	assert_false(cd.has("breakables") or cd.has("ground_drops"), "nothing of the map instance reaches the character")
 	_free_pair(a)
 	_free_pair(b)
 

@@ -51,7 +51,8 @@ static func can_bind(item_id: String, db: ContentDB) -> bool:
 static func item_for(c: CharacterState, key: String) -> String:
 	if c == null:
 		return ""
-	return ItemDef.id_of(c.quickslots.get(key, ""))
+	# Saves hook (save_version 2, contract C3): a typed {"kind": "item", "id"} binding or a bare v1 item id.
+	return CharacterState.quickslot_item_id(c.quickslots.get(key, ""))
 
 
 ## Binds a consumable to a key. Returns false (and changes nothing) for anything else.

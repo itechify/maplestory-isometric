@@ -14,9 +14,10 @@ const SHA256 := {
 	"g_shop": "cf3a1c889e6bc745d05f8972c2c6249154a7430847996f4d0fdbbaabdd312196",
 }
 ## The migration steps an Iteration Two (save_version 1) file goes through to reach the current schema.
-const IT2_STEPS: PackedStringArray = []
+const IT2_STEPS: PackedStringArray = ["v1_typed_quickslots_quest_rewards"]
 ## Character keys whose saved value the migration steps above reshape; every other saved key must come back equal.
-const RESHAPED_KEYS: PackedStringArray = ["quests"]
+## (They are checked one by one in test_each_fixture_keeps_every_saved_value and test_v2_migration_of_each_fixture.)
+const RESHAPED_KEYS: PackedStringArray = ["quests", "quickslots"]
 
 ## What each fixture holds, read from the file by hand (README): identity, progression, location, quests, items.
 ## "items" are inventory counts, "equipped" slot -> item id, "in_progress" quest id -> its saved kill counts.
@@ -80,7 +81,9 @@ func parity_keys() -> Dictionary:
 			"persistence:level-exp", "persistence:hp-mp", "persistence:ap-stats", "persistence:mesos",
 			"persistence:inventory", "persistence:equipment", "persistence:quest-progress-kills",
 			"persistence:quest-completion", "persistence:current-map", "persistence:respawn-information"],
-		"test_each_fixture_keeps_every_saved_value": ["mechanic:save-migration"],
+		"test_each_fixture_keeps_every_saved_value": ["mechanic:save-migration", "persistence:quickslots"],
+		"test_v2_migration_of_each_fixture": ["mechanic:save-migration", "persistence:random-rewards-received",
+			"persistence:quest-completion", "persistence:quest-availability"],
 		"test_each_fixture_loads_into_the_game_and_saves_back_at_the_current_version": ["mechanic:save-migration"],
 		"test_every_item_in_the_fixtures_is_still_defined": ["persistence:inventory", "persistence:equipment"],
 	}
@@ -231,6 +234,44 @@ func test_each_fixture_keeps_every_saved_value() -> void:
 			for field: String in saved_quests[q]:
 				assert_eq(_diff(saved_quests[q][field], (loaded_quests.get(q, {}) as Dictionary).get(field)), "",
 					"%s: quest %s %s unchanged" % [fixture, q, field])
+		# Quickslots: each saved item id is now the same item as a typed binding, under the same key.
+		var saved_slots: Dictionary = saved["quickslots"]
+		assert_eq(r.character.quickslots.size(), saved_slots.size(), "%s: same quickslot keys" % fixture)
+		for key: String in saved_slots:
+			assert_eq(r.character.quickslots.get(key), {"kind": "item", "id": String(saved_slots[key])},
+				"%s: quickslot %s typed" % [fixture, key])
+
+
+## What the v1 -> v2 step adds to each real save (the migrated document, as written back): quest format 2, every
+## completed quest marked "rewards not recorded", in-progress quests untouched, no effects, fresh timers. The quest
+## records are checked on the document because QuestLog owns how it keeps them in memory.
+func test_v2_migration_of_each_fixture() -> void:
+	for fixture: String in PINS:
+		var r := _decode(fixture)
+		if not r.ok():
+			fail("%s does not load: %s" % [fixture, r.message])
+			continue
+		var cd: Dictionary = r.document["character"]
+		var quests: Dictionary = cd["quests"]
+		assert_eq(int(quests["format"]), 2, "%s: quests.format" % fixture)
+		var p: Dictionary = PINS[fixture]
+		for q: String in p["completed"]:
+			assert_eq(quests["quests"][q].get("rewards_received"), {"recorded": false},
+				"%s: completed %s says its rewards were not recorded" % [fixture, q])
+		for q: String in p["in_progress"]:
+			assert_false((quests["quests"][q] as Dictionary).has("rewards_received"), "%s: %s in progress untouched" % [fixture, q])
+		assert_eq(cd["effects"], [], "%s: no effects" % fixture)
+		assert_eq(cd["cooldowns"], {}, "%s: no cooldowns" % fixture)
+		assert_eq(_diff(cd["natural_recovery"], {"hp_rest_s": 0.0}), "", "%s: a fresh recovery clock" % fixture)
+		assert_eq(r.character.cooldowns, {}, "%s: character cooldowns" % fixture)
+		assert_eq(r.character.natural_recovery, {"hp_rest_s": 0.0}, "%s: character recovery clock" % fixture)
+		# Completed quests stay completed for the quest rules: none is offered again.
+		var engine := QuestEngine.new(r.character, db())
+		for q: String in p["completed"]:
+			assert_false(engine.is_available(q), "%s: completed %s is not offered again" % [fixture, q])
+		for key: String in p["quickslot_items"]:
+			assert_eq(cd["quickslots"][key], {"kind": "item", "id": String(p["quickslot_items"][key])},
+				"%s: quickslot %s typed in the document" % [fixture, key])
 
 
 ## Through the file layer and the Game node, as a player's Continue would: the fixture loads into a live game and
