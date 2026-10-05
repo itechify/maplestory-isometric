@@ -149,7 +149,9 @@ func _feedback(d: PlaytestDriver) -> void:
 	d.check("level-up: the log congratulates", lines.has("Congratulations! You have reached level %d." % c.level), str(lines))
 	var ap_line := "You have %d AP to distribute (press %s)." % [c.ap, MisoUiEnv.key_label("toggle_stats")]
 	d.check("level-up: the AP line", c.ap > 0 and lines.has(ap_line), "%s in %s" % [ap_line, lines])
-	var sp_line := "You have %d SP to distribute (press %s)." % [c.sp, MisoUiEnv.key_label("toggle_skills")]
+	# The skills package's wording (MisoHud._on_leveled_up, test_ui_hud, test_ui_minimap_feedback, UI.md): SP are spent
+	# in the Skills window, AP are distributed in the stats window.
+	var sp_line := "You have %d SP to spend (press %s)." % [c.sp, MisoUiEnv.key_label("toggle_skills")]
 	d.check("level-up: the SP line", c.sp > 0 and lines.has(sp_line), "%s in %s" % [sp_line, lines])
 	d.check("hits were announced (monster_hit: damage numbers)", int(hits[0]) > 0, "%d hits" % int(hits[0]))
 	var before := hud.log_panel.history.size()
