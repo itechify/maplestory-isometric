@@ -431,8 +431,8 @@ def build(m):
     # P26c and the summit skirt. Each is filled 0.2 m below the shelf it joins, so a fall lands on a walkable step.
     m.terrace("P12_P26c_Slot_Fill", [(64.0, 30.4), (80.6, 30.4), (80.6, 48.6), (77.2, 48.6), (77.2, 33.4),
                                      (64.0, 33.4)], top=Z_P12 - 0.2, bottom=-0.5)
-    m.terrace("P08_P12_Gap_Fill", [(63.0, 21.0), (68.0, 21.0), (68.0, 30.6), (63.0, 30.6)], top=Z_P11B - 0.2,
-              bottom=-0.5)
+    m.terrace("P08_P12_Gap_Fill", [(63.0, 21.0), (68.0, 21.0), (68.0, 30.6), (61.0, 30.6), (61.0, 28.6),
+                                   (63.0, 28.6)], top=Z_P11B - 0.2, bottom=-0.5)
     m.terrace("P26b_Notch_Fill", [(60.8, 36.8), (65.8, 36.8), (65.8, 39.0), (60.8, 39.0)], top=Z_P24 - 0.2,
               bottom=-0.5)
 

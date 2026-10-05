@@ -330,8 +330,11 @@ def build(m):
     rope9_x, rope10_x = st["T14"][0] + 0.1, st["T17"][0] + 0.3
     rope("Rope_T14_T9", rope9_x, cap_edge(m, rope9_x, st["T14"][1], T9), st["T14"][2], T9)
     rope("Rope_T17_T10", rope10_x, cap_edge(m, rope10_x, st["T17"][1], T10), st["T17"][2], T10)
-    # the plinth-level nook behind the west posts (between the shelf's east edge, T9 and the posts T18 / T14) was a
-    # pit a player fell into from the shelf (Iteration Three stuck-region scan): filled 0.2 m below the shelf
+    # the plinth-level nook behind the west posts (between the shelf's east edge, T9 and the posts T18 / T14) and the
+    # sliver between the shelf, T9 and the summit were pits a player fell into from the shelf (Iteration Three
+    # stuck-region scan): filled 0.2 m below the shelf
+    m.terrace("Shelf_Summit_Fill", [(18.4, 24.8), (20.4, 24.8), (20.4, 27.0), (18.4, 27.0)], top=T21 - 0.2,
+              bottom=-0.5, style="grass_rock", stones=False, wobble_amt=0.05)
     m.terrace("Shelf_Nook_Fill", [(17.6, 16.4), (20.2, 16.4), (20.2, 18.4), (17.6, 18.4)], top=T21 - 0.2,
               bottom=-0.5, style="grass_rock", stones=False, wobble_amt=0.05)
 

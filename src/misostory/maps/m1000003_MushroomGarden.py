@@ -201,7 +201,7 @@ def build(m):
     # the mid mushroom stair: filled 0.2 m below the back bed and P07, so neither is a pit
     m.terrace("P07_Notch_Fill", [(25.0, 20.8), (27.8, 20.8), (27.8, 24.6), (25.0, 24.6)], top=BACKBED - 0.2,
               bottom=-0.5)
-    m.terrace("P03_Corner_Fill", [(26.2, 17.6), (27.6, 17.6), (27.6, 18.9), (26.2, 18.9)], top=P07 - 0.2,
+    m.terrace("P03_Corner_Fill", [(26.0, 17.6), (27.6, 17.6), (27.6, 20.9), (26.0, 20.9)], top=P07 - 0.2,
               bottom=-0.5)
     # classic: a 60 px hop between P14 and P13; three stone treads keep it walkable both ways
     m.stairs("Steps_P13_P14", (34.0, 28.2, P13), (31.9, 28.2, P14), 2.2, **stone)

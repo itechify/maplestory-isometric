@@ -72,6 +72,8 @@ const SAMPLES := 3
 const MAX_TRIES := 120
 ## The try budget for a component no replayed way in reached (it can only be CLEARED or UNENTERABLE).
 const UNENTERED_TRIES := 24
+## [member, escapable node] pairs the verification tries first (_ways_out).
+const WAYS_OUT := 6
 const ENTER_TICKS := 120
 ## In-edges replayed per component (the report lists the first 3).
 const IN_EDGES := 8
@@ -952,10 +954,12 @@ func _ring_offsets(r: int) -> Array[Vector2i]:
 	return out
 
 
-## A running jump from feet pa lands on pb: the controller lands only while descending, with its feet within step_up
-## below the surface (MARGIN_M less here), so the landing time is the descending root of the arc at pb's height (or
-## the apex when pb is above the apex) and the horizontal speed it needs must not exceed the walk speed. The capsule
-## must sweep clear along the arc, and the feet must not meet another surface on the way down first.
+## A running jump from feet pa lands on pb. The controller lands only while descending: on a surface at or below the
+## feet when they come down to it, or on one up to step_up above them (it snaps up; MARGIN_M less here). So the landing
+## window runs from the apex (or, for a surface lower than the apex, the moment the feet come down to it) to the
+## moment the feet sink step_up - MARGIN_M below it, and the jump needs a horizontal speed no faster than the walk
+## speed to be over pb inside that window (the earliest such time is used: the highest arc). The capsule must sweep
+## clear along the arc, and the feet must not meet another surface on the way down first.
 func _jump_lands(g: MapGraph, pa: Vector3, pb: Vector3) -> bool:
 	var v0 := model.jump_velocity
 	var grav := model.gravity
@@ -963,16 +967,18 @@ func _jump_lands(g: MapGraph, pa: Vector3, pb: Vector3) -> bool:
 	var dist := Vector2(pb.x - pa.x, pb.z - pa.z).length()
 	if dist < cell * 0.5:
 		return false
-	var t_apex := v0 / grav
-	var t_land := t_apex
-	if dy <= model.jump_apex:
-		var disc := v0 * v0 - 2.0 * grav * dy
-		if disc < 0.0:
-			return false
-		t_land = (v0 + sqrt(disc)) / grav
-	var vh := dist / t_land
-	if vh > model.walk_speed:
+	var low := dy - (model.step_up - MARGIN_M)
+	if low > model.jump_apex:
 		return false
+	var t_apex := v0 / grav
+	var t_max := (v0 + sqrt(v0 * v0 - 2.0 * grav * low)) / grav
+	var t_open := t_apex
+	if dy < model.jump_apex:
+		t_open = (v0 + sqrt(v0 * v0 - 2.0 * grav * dy)) / grav
+	var t_land := maxf(t_open, dist / model.walk_speed)
+	if t_land > t_max:
+		return false
+	var vh := dist / t_land
 	var dir := Vector3(pb.x - pa.x, 0.0, pb.z - pa.z) / dist
 	var prev := pa
 	for k in range(1, ARC_SAMPLES + 1):
@@ -1181,10 +1187,11 @@ func _verify_component(g: MapGraph, pw: PlayerTestWorld, comp: Dictionary) -> vo
 	var samples := _samples(g, members)
 	if not reached:
 		samples = samples.slice(0, 1)
+	var ways_out := _ways_out(g, members)
 	var results: Array[Dictionary] = []
 	var all_out := true
 	for s in samples:
-		var r := _escape(g, pw, s, MAX_TRIES if reached else UNENTERED_TRIES)
+		var r := _escape(g, pw, s, MAX_TRIES if reached else UNENTERED_TRIES, ways_out)
 		results.append(r)
 		if not bool(r.escaped):
 			all_out = false
@@ -1197,6 +1204,41 @@ func _verify_component(g: MapGraph, pw: PlayerTestWorld, comp: Dictionary) -> vo
 	comp["enter_how"] = enter_how
 	comp["samples"] = results
 	comp["verify_ms"] = Time.get_ticks_msec() - t0
+
+
+## Where the graph thinks a component may be left: [member, escapable node] pairs with the escapable node at most two
+## columns away and no higher than the controller's reach (jump apex + step_up), one per escapable node, the lowest
+## climbs first (up to WAYS_OUT). The verification walks to the member and hops toward the node.
+func _ways_out(g: MapGraph, members: PackedInt32Array) -> Array:
+	var best := {}
+	var reach := model.jump_apex + model.step_up
+	for u in members:
+		var pu := g.node_pos[u]
+		var cu := g.node_col[u]
+		var ix0 := g.col_ix(cu)
+		var iz0 := cu % g.nz
+		for dx in range(-2, 3):
+			for dz in range(-2, 3):
+				var ix := ix0 + dx
+				var iz := iz0 + dz
+				if ix < 0 or iz < 0 or ix >= g.nx or iz >= g.nz:
+					continue
+				var col := ix * g.nz + iz
+				var first := g.col_first[col]
+				if first < 0:
+					continue
+				for k in g.col_count[col]:
+					var v := g.surf_node[first + k]
+					if v < 0 or g.bwd[v] == 0:
+						continue
+					var dy := g.node_pos[v].y - pu.y
+					if dy > reach:
+						continue
+					if not best.has(v) or dy < float(best[v][2]):
+						best[v] = [u, v, dy]
+	var out: Array = best.values()
+	out.sort_custom(func(x: Array, y: Array) -> bool: return float(x[2]) < float(y[2]))
+	return out.slice(0, WAYS_OUT)
 
 
 ## The anchor, then the members farthest from it (up to SAMPLES).
@@ -1274,7 +1316,7 @@ func _place(pw: PlayerTestWorld, at: Vector3) -> PlayerController:
 ## run-up), then in SWEEP_DIRECTIONS directions (walking, hopping), with Up pressed for ladders. A try whose end is a
 ## new flagged place more than RESTART_M away becomes another start (up to MAX_STARTS). Returns {escaped, how, tries,
 ## best_rise_m, start_local, end_local}.
-func _escape(g: MapGraph, pw: PlayerTestWorld, start: int, budget: int = MAX_TRIES) -> Dictionary:
+func _escape(g: MapGraph, pw: PlayerTestWorld, start: int, budget: int = MAX_TRIES, ways_out: Array = []) -> Dictionary:
 	var starts: Array[Vector3] = [g.node_pos[start]]
 	var tries := 0
 	var best_rise := 0.0
@@ -1285,6 +1327,9 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int, budget: int = MAX_TRI
 		var s := starts[si]
 		si += 1
 		var plans: Array[Dictionary] = []
+		# The graph's best guesses first: walk (hopping) to a member beside escapable ground, then hop onto it.
+		for w: Array in ways_out:
+			plans.append({"via": g.node_pos[int(w[0])], "to": g.node_pos[int(w[1])], "jump": "hold", "ticks": TRY_TICKS * 2})
 		for target in nearest_escapable(g, s, TARGETS):
 			var tp := g.node_pos[target]
 			plans.append({"to": tp, "jump": "none", "ticks": TRY_TICKS})
@@ -1321,6 +1366,8 @@ func _escape(g: MapGraph, pw: PlayerTestWorld, start: int, budget: int = MAX_TRI
 
 func _plan_text(plan: Dictionary, g: MapGraph) -> String:
 	var what := "toward local %s" % [_r3(g.to_local(plan.to))] if plan.has("to") else "direction %s" % [_r3(plan.dir)]
+	if plan.has("via"):
+		what = "via local %s %s" % [_r3(g.to_local(plan.via)), what]
 	return "%s, jump %s" % [what, plan.jump]
 
 
@@ -1338,10 +1385,15 @@ func _try(g: MapGraph, pw: PlayerTestWorld, s: Vector3, plan: Dictionary) -> Dic
 	p.fell_out_of_world.connect(on_fell)
 	var ticks: int = plan.ticks
 	var runup := 18 if plan.jump == "runup" else 0
+	var via_done := false
 	for t in ticks + runup:
 		var d := Vector3.ZERO
+		if plan.has("via") and not via_done:
+			var vp: Vector3 = plan.via
+			if Vector2(vp.x - p.global_position.x, vp.z - p.global_position.z).length() < 0.35 or t * 2 > ticks:
+				via_done = true
 		if plan.has("to"):
-			var tp: Vector3 = plan.to
+			var tp: Vector3 = plan.via if plan.has("via") and not via_done else plan.to
 			d = Vector3(tp.x - p.global_position.x, 0.0, tp.z - p.global_position.z)
 			if d.length() < 0.15:
 				d = Vector3.ZERO

@@ -210,8 +210,10 @@ def build(m):
     # spring at the T23 cliff foot to a spill over the meadow's front rim; water 0.3 m below the grass
     left, right, _h, _r = creek_banks(0.0)
     notch = [p for p in creek_poly(0.0, ymin=-1.0) if p[1] > -1.0]
-    m.terrace("Meadow", [(-1, -1), (_cut_at(left, -1.0), -1.0)] + notch +
-              [(_cut_at(right, -1.0), -1.0), (26.5, -1), (29.6, 2.5), (29.2, 8.5), (28.8, 18.9), (-1, 18.9)],
+    # (its west edge, the west00 trail end, overhangs 1.5 m: past the plinth's thin rim, which is 0.6 m lower; a rim
+    # sticking out beyond the meadow sank the trail's junction to its height, a 0.6 m step at the gate)
+    m.terrace("Meadow", [(-1.5, -1), (_cut_at(left, -1.0), -1.0)] + notch +
+              [(_cut_at(right, -1.0), -1.0), (26.5, -1), (29.6, 2.5), (29.2, 8.5), (28.8, 18.9), (-1.5, 18.9)],
               top=MEADOW, bottom=-0.5, smooth_iters=1, resample_step=1.2, wobble_amt=0.15)
     m.terrace("Creek_Bed", creek_poly(0.7), top=MEADOW - 0.45, bottom=-0.5, style="dirt", fringe=False,
               stones=False, smooth_iters=1, resample_step=1.0, wobble_amt=0.1, walkable=False)

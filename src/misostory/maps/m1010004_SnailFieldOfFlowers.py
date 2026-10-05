@@ -206,7 +206,7 @@ def build(m):
     # Plinth-level slivers walled in between the knolls, the bowl rim and the meadows' front edges were pits a
     # player fell into off a meadow or a knoll (Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md).
     # Each is filled 0.2 m below the low neighbour it joins.
-    m.terrace("Knoll_T7_T6_Fill", [(11.6, 18.8), (14.4, 18.8), (14.4, 21.4), (11.6, 21.4)], top=T7 - 0.2,
+    m.terrace("Knoll_T7_T6_Fill", [(10.4, 18.8), (14.4, 18.8), (14.4, 21.9), (10.4, 21.9)], top=T7 - 0.2,
               bottom=-0.5)
     m.terrace("Rim_T9_Fill", [(-0.8, 18.2), (1.2, 18.2), (1.2, 21.4), (-0.8, 21.4)], top=RIMB - 0.2, bottom=-0.5)
     m.terrace("Knoll_T8_Fill", [(24.2, 19.8), (26.0, 19.8), (26.0, 22.2), (24.2, 22.2)], top=T8 - 0.2, bottom=-0.5)
