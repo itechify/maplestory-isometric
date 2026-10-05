@@ -359,7 +359,7 @@ the driver's real input and reads the live game; nothing writes game state, so e
 | items | `use_item(id, via)` (`double_click`, `button` or `quickslot`), `drink(id)` (the canonical restore it should give, as `want_hp`), `equip(id)`, `bind_quickslot(id, key)` (a mouse drag onto the HUD slot), `double_click(control)`, `drag(a, b)`, `hp_restore(id)` |
 | AP | `stats_window()`, `click_plus(stat)`, `allocate_ap(["str", "dex"])` (the stats window's "+" with the mouse) |
 | shops | `open_shop(npc)` (talk, page the greeting), `buy(id, qty)`, `sell(id, qty)`, `close_shop()` |
-| loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z |
+| loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z. A logged `kit.pickup` step whose result names the map-local spot it started and ended at (a walk onto a drop below a ledge can end in a pocket) |
 | hunting | `hunt(mob_ids, cond, opts)`: the survival policy first, whatever is hitting the player, then the nearest wanted monster with the attack key, the drops picked up after every kill, unspent AP spent through the stats window (`ap_plan`), deaths answered and the walk back to `map`, a tour of the spawn slots when nothing is in sight. `nearest_of(mob_ids)` |
 | deaths | `is_dead()`, `death_notice()`, `respawn(opts)` (the notice's OK; the row goes to `deaths`) |
 | contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8: walk up, face, attack until broken, pick up). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
@@ -381,12 +381,22 @@ scenario; "after character creation" for a clean playthrough). From that step on
   `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
   adding to the inventory, completing a quest) is a mismatch.
 - The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
-- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit) and fails on teleports,
-  `Debug.run`, direct writes to the character or its services, and console calls outside `_setup*` functions.
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit) and fails on teleports
+  (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console calls outside `_setup*`
+  functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats, skills, cooldowns,
+  effects, quickslots, inventory, equipment, the quest log), calls into the game's services that change it
+  (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the quest
+  engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
+  `report_monster_killed`) and writes to the save on disk. A synthetic scenario in the same test proves the scan flags
+  each kind.
 
 What it does not prove: that a scenario never reads state the UI does not show (reading is allowed), and that the
 setup before the strict step was minimal (the console steps before it are listed in the report and the every-quest
-table).
+table). The ledger reconciles only EXP, mesos, items (inventory plus equipment) and quest statuses; AP, SP, base
+stats, HP/MP, skills and the player's position rest on the static scan alone. And because the game's services
+announce what they change, the ledger cannot tell a service call from play: those calls are caught only by the scan,
+which reads source lines, so an indirection it cannot see (a method name built at run time, `call("gain", ...)`)
+would get through.
 
 ## Quest plans
 
@@ -397,8 +407,10 @@ prerequisites, the chain (`quest_line`), follow-ups, the accept items (canonical
 the hunt map (fewest portal hops from the start map to the hunt and on to the turn-in, then the most spawns), the item
 objectives with every source (monster and breakable drop tables: schema v2 entries by `chance_state`, `probability`
 and `quest_gate`; Iteration Two tables by membership and the placeholder rate DropRates resolves) and the best one to
-farm, the item-use objectives, the quiz answer key and the rewards. An objective that only an unresolved drop could
-supply is listed in `blocked` as a source-data gap, never faked. `setup_for(ids)` says what a chain needs first (the
+farm, the item-use objectives, the quiz answer key, the rewards and the hand-ins (`hand_ins`: canonical
+`items_removed_on_completion`, the list the quest engine removes). `source_why(row, quest)` is the obtainability rule:
+an unresolved chance, a chance of 0, a gate to another quest (C1/C2) or no map holding the owner rules a source out.
+An objective that only an unresolved drop could supply is listed in `blocked` as a source-data gap, never faked. `setup_for(ids)` says what a chain needs first (the
 first quest's level and start map, the prerequisites outside the chain, prerequisites first), `chains(db)` is the
 every-quest set (one chain per canonical quest line, each standalone quest alone), `parse_ids` and `chain_spec` name
 chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` are public.
@@ -410,7 +422,9 @@ chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` a
 - **Phase 0, setup** (the only console use, every command a logged console step): a new game through the title and
   creation screens; a warp to the first quest's start map; for a level-gated first quest, a check that it is refused
   below its level (no offer marker, the engine says unavailable); `level N`; `quest accept` + `quest complete <id>
-  force` for prerequisites outside the chain; a save through the pause menu; Quit Game.
+  force` for prerequisites outside the chain; a save through the pause menu; Quit Game. A chain that needs none of
+  that (its first quest starts in the creation map at level 1 with no prerequisite: 1000-1001) turns strict mode on
+  right after character creation, so its report proves a console-free run from the very start.
 - **Phase 1 on, play** (strict from the Continue): for each quest of the chain, by its live status so a restart
   resumes anywhere: for a quest whose items come from a breakable gated to it (1012 under contract C1), one Wooden Box
   broken before the accept, which must drop none of them; the NPC's offer marker and the Quest Log's Available tab;
@@ -420,13 +434,15 @@ chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` a
   double-click, levels reached by hunting when a later quest needs them); the turn-in NPC's completable marker; for a
   quiz, one wrong answer first (its canonical line, the quest still in progress), then the canonical answer; the exact
   reward (total EXP + `rewards.exp` with one `quest:<id>` EXP event, mesos, fixed items, one item of each random
-  group, the hand-ins taken, nothing else in the bag; the C3 `rewards_received` record when the quest log has it); the
-  HUD log and the Completed tab; and each follow-up's availability and marker.
+  group, the canonical `items_removed_on_completion` taken, nothing else in the bag; the C3 `rewards_received` record
+  when the quest log has it); the HUD log and the Completed tab; and each follow-up's availability and marker.
 - **Save and restart in the middle:** a save through the pause menu and Quit Game at the half of the first kill or
-  item objective of each quest, after the accept of the first quest with nothing to hunt, and after the middle quest
-  of a chain of three or more. The next phase checks the quest log, level, EXP, mesos, bag and map against the saved
-  ones and the Quest Log's In Progress row.
-- Every quest check carries `quest:<id>`; `d.carry["quest_results"]` holds the per-quest verdict.
+  item objective of each quest (a monster drop or a Wooden Box item alike), after the accept of the first quest with
+  nothing to hunt, and after the middle quest of a chain of three or more. The next phase checks the quest log,
+  level, EXP, mesos, bag and map against the saved ones and the Quest Log's In Progress row.
+- Every quest check carries `quest:<id>`; `d.carry["quest_results"]` holds the per-quest verdict. The table
+  (`PlaytestQuestSummary`) fails every quest of a chain whose strict block was violated, or whose report has a fatal
+  error or a failed check that names no quest; a failure tagged to one quest fails only that quest.
 
 `scripts/playtest_quests.sh` runs every chain (`--list` prints them; `test_playtest_quest_plan.gd` keeps the list equal
 to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mirrored and imported once, then
@@ -455,6 +471,15 @@ and the times differ.
 | 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 19 / 39 / 33 | 9 / 6 / 6 | |
 | 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 58 / 81 / 59 | 26 / 20 / 24 | |
 
+**1012 with the Wooden Box (review probe, 2026-10-05, seed 1).** This harness with the breakables package (C8) and
+the drops package's schema v2 records (C1) merged in a scratch copy: 1012 PASS, 33 quest checks, strict ok. The box
+broken before the accept dropped neither Rusty Screw nor Old Wooden Board (both gated to 1012); every box broke after
+the canonical 4 hits and dropped one of each; the save and restart came at 1/3 Rusty Screw; two more boxes, then EXP
++100, mesos +150, the hand-ins taken and The Green Relaxer given, exactly. 98 s of game time over 3 phases.
+
+**Strict from character creation.** Since the review, 1000-1001 (no setup at all) runs strict from the step after
+`new_game`: phase 0 strict ok, 0 console steps in the whole run.
+
 ## Cost
 
 Headless runs are faster than game time, plus about 20-30 s to mirror and import a fresh copy (`PLAYTEST_REUSE_COPY=1`
@@ -482,7 +507,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
 | `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
 | `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
-| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers WARN until their packages land | harness |
+| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery's key, the Wooden Box in the store. The chair and box checks WARN until the mechanics and breakables packages land; `cast_skill` stays a WARN here (no Skills window to learn and bind a skill with; `test_skills` casts through it) | harness |
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
@@ -505,7 +530,11 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   resumed it there, and in the whole phase it reached none of 393 targets ("phase 2: every kill gave its canonical
   monster EXP" fails with 0 kills; the scenario now also fails "the hunter is not stranded" and names the cell).
   `trap_probe` FAILs the spot (best escape 1.92 m, rise 0.00 m) and `walk_probe` finds no plan to the arrival. Same
-  conditions as F1-9 (walled pocket, autosave and Continue resume inside it). For the world package.
+  conditions as F1-9 (walled pocket, autosave and Continue resume inside it). For the world package. How the hunter
+  got there: in phase 1, right after an Orange Mushroom kill (step 453; every later target is 4-9 m up). No rest walk
+  came before it, so either that fight's knockback or the precise pickup that follows a kill (its walker plans drops
+  of up to 3 m) took it down; that pickup walk was not a logged step then, and `kit.pickup` steps now name where they
+  end. Seed 2 at the same commit passes (73 checks).
 - **A possible pocket in The Field West of Amherst (000001000).** Twice in Test A (leg 24, in01 to Dangerous Forest),
   a Snail's knockback dropped the walker off the in01 terrace to map-local (29.0, 0.0, -40.6), world (173.4, 5.0,
   520.2). `walk_probe` finds no plan from there to in01 or to the map's arrival (routes, the grid and the linked plans
@@ -538,9 +567,9 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 | File | Covers |
 |---|---|
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
-| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios and the kit make no cheat call |
+| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios and the kit make no cheat call, and the scan flags a synthetic scenario's service calls, teleport, AP write and console call outside `_setup*` |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
-| `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports |
+| `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |
 
 ## Lineage
