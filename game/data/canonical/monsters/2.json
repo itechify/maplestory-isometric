@@ -793,7 +793,7 @@
     }
   },
   "gaps": [
-    "mesos per kill: 1 player report(s) only; no canonical meso formula or drop chance (see drops/2.json)",
+    "mesos per kill: 1 player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/2.json takes the meso chance from KuroDB, decision D3-5)",
     "drop chances and quantities: MeowDB gives none; drops/2.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)",
     "kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)",
     "attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)",

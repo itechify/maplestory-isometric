@@ -641,7 +641,7 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
 
   const mesosSummary = mesos.json.summary;
   if (!P.touch_damage_estimate) gaps.push('touch damage estimate not shown on the page');
-  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only; no canonical meso formula or drop chance (see drops/${id}.json)`));
+  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/${id}.json takes the meso chance from KuroDB, decision D3-5)`));
   gaps.push('drop chances and quantities: MeowDB gives none; drops/' + id + '.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)');
   gaps.push('kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB\'s simulator data chunk (field_sources)');
   gaps.push('attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)');
