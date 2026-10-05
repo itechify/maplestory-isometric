@@ -524,6 +524,51 @@ Road ledge (see "Findings"). The `kit` scenario with the mechanics and breakable
 `use_chair` (a double-click on The Green Relaxer), `sit` (X) and both stands PASS, the store's Wooden Box is found;
 only `cast_skill` stays a WARN.
 
+## The clean-character playthrough
+
+`scenarios/playthrough.gd` is ONE run from a brand-new character to Shanks' departure boundary (brief Phase 15 and
+the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) (Iteration Three).
+
+- **Strict from character creation.** `new_game` drives the title and creation screens (the name typed, the
+  Recommended stats and weapon, Start); `begin_strict("after character creation")` follows at once. From there on no
+  console command, no api fallback, no developer command and no change the event bus did not announce, in every
+  phase; the only reloads are the pause menu's Save and Quit Game (or Quit to Title) and the title's Continue.
+- **A route of named steps** (`STEPS`), in the island's order: Heena and Sera, Roger, Nina and Sen, Todd and Peter,
+  Robin, Sam (the first SP: Three Snails learned with "+", put on key 1 and thrown at a Snail), the Snail Hunting
+  Grounds to A Split Road (Mai, Maria), Southperry (Yoona, Bari, Biggs, Shanks refusing a low level, Pan), Mai's
+  training, Recovery and Nimble Feet, The Field West of Amherst (1010's Orange Mushroom, 1011's drops, a death),
+  Amherst (Lucas, Rain's quizzes, Pio's boxes, The Green Relaxer), Sid, Lucy, the maps around Amherst and the six
+  forest maps, the last turn-ins, the quest hat and knife, Pan again, the boarding level and fare, and Shanks. Each
+  step is checked done in `d.carry["steps_done"]`, so a phase resumes at the first step not done; every step reads
+  the live game state (quest status, inventory), so a restart in the middle of a step resumes it.
+- **Quests** are played by `PlaytestQuestRunner` with the canonical checks of the every-quest set
+  (`mid_reload_policy` "listed": the process restarts in the middle of 1009 and of 1012).
+- **Restarts:** after Mushroom Town (plus an in-process Save, Quit to Title and Continue), after Southperry, in the
+  middle of 1009 and of 1012, after Amherst, before boarding and after the departure screen. After each Continue the
+  character is compared with what was saved (level, EXP, mesos, AP, SP, skills, bag, equipment, quests, map, play
+  time).
+- **What the scenario decides, and nothing else:** the route; the AP split (`AP_PLAN`, STR and DEX); the SP order
+  (one point in each Beginner skill, then round the three); what it buys (Pan: Leather Sandals, Sid: a Sword, Lucy:
+  two Red Potions; a buy it cannot afford is tried, refused and retried on a later visit) and sells (loot no open quest
+  needs, keeping 6 Snail Shells for Three Snails); the death. Prices, rewards, levels, the route's fare and level, the
+  death penalty and the return maps are read from canonical data.
+- **The death:** when no death has happened by the Orange Mushroom hunt, `let_monsters_win` walks into the Orange
+  Mushrooms, Red Snails and Shrooms of The Field West of Amherst without attacking or drinking until they win; the
+  notice's OK respawns the player at the map's canonical return map (Amherst), and the EXP lost is checked against
+  `formulas/death.json`.
+- **The audit** (`k.track()` plus checkpoints) is in `d.carry`: `checkpoints`, `exp_by_source`, `kills_by_mob`,
+  `visited_maps`, `talked_to`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_used`, `skills_cast`, `shops`,
+  `equipped`, `chair`, `departure`, `quest_evidence`, `findings` and `totals`. The end of the run checks every
+  Definition of Done "Gameplay" item from them (every quest, map, NPC and monster type, monster drops and meso bags,
+  natural levelling, every AP spent, the skills, the three shops bought from and sold to, consumables, gear, the
+  chair, the death, the departure, the restarts).
+- **Findings:** a step that cannot be completed stops the run with a failed check and a row in `d.carry["findings"]`
+  (the step, map, map-local position, level, what happened and what was expected).
+
+```bash
+PLAYTEST_TIMEOUT_S=7500 ISOLATE=pt bash scripts/playtest.sh playthrough --seed 2 --max-wall-s 7000 --out _scratch/pt/s2
+```
+
 ## Cost
 
 Headless runs are faster than game time, plus about 20-30 s to mirror and import a fresh copy (`PLAYTEST_REUSE_COPY=1`

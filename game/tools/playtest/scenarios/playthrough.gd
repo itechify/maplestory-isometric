@@ -52,8 +52,8 @@ const TOPUP_BUDGET_S := 2400.0
 const STEPS := [
 	"heena_sera", "roger", "nina_sen", "todd_peter", "save_title_continue", "reload:Mushroom Town done",
 	"robin", "sam", "first_skill", "to_split_road", "mai_maria", "southperry", "pan_first", "reload:Southperry",
-	"mai_training", "more_skills", "field_west", "death", "amherst_letters", "rain", "pio",
-	"chair", "sid", "lucy", "explore_amherst", "reload:Amherst done",
+	"mai_training", "more_skills", "field_west", "death", "amherst_letters", "pio", "chair", "rain",
+	"sid", "lucy", "explore_amherst", "reload:Amherst done",
 	"explore_forests", "split_road_turn_ins", "biggs", "equip_rewards", "pan_last", "ready_to_sail",
 	"reload:before boarding", "shanks", "save_after_departure", "reload:after the departure", "after_departure",
 ]
@@ -569,20 +569,29 @@ func _eat_hp_item() -> void:
 			return
 
 
-## An Orange (MP) drunk when MP is low enough for its whole restore (after the skill casts).
+## An Orange (MP, 1019's reward) drunk with a double-click. With MP full, Nimble Feet is cast first (its MP cost:
+## a faster walk through Amherst), so the restore shows; the game caps it at Max MP.
 func _drink_mp() -> void:
 	var c := d.character()
 	var cons: Variant = db.item("239").get("consumable")
 	var restore := int((cons as Dictionary).get("mp_restore", 0)) if cons is Dictionary else 0
 	if c.inventory.count("239") <= 0 or restore <= 0:
+		d.note("no Orange to drink (%d held)" % c.inventory.count("239"))
 		return
-	if c.mp + restore > StatCalculator.max_mp(c, db):
-		d.note("MP %d of %d: no Orange needed" % [c.mp, StatCalculator.max_mp(c, db)])
+	var mx := StatCalculator.max_mp(c, db)
+	if c.mp >= mx and SkillBook.level_of(c, NIMBLE_FEET) > 0:
+		var mp_c := c.mp
+		var r0: Dictionary = await k.cast_skill(NIMBLE_FEET)
+		d.check("key %s casts Nimble Feet again in Amherst (MP %d -> %d)" % [SKILL_KEYS[NIMBLE_FEET], mp_c, c.mp], bool(r0["ok"])
+			and c.mp < mp_c, str(r0), ["skill:" + NIMBLE_FEET])
+	if c.mp >= mx:
+		d.note("MP %d of %d: no Orange needed" % [c.mp, mx])
 		return
 	var mp0 := c.mp
 	var r: Dictionary = await k.use_item("239")
-	d.check("an Orange drunk with a double-click: MP +%d (canonical)" % restore, bool(r["ok"]) and c.mp - mp0 == restore,
-		"MP %d -> %d" % [mp0, c.mp], ["item:239"])
+	var want := mini(restore, mx - mp0)
+	d.check("an Orange drunk with a double-click: MP +%d (canonical %d, capped at Max MP %d)" % [want, restore, mx],
+		bool(r["ok"]) and c.mp - mp0 == want, "MP %d -> %d" % [mp0, c.mp], ["item:239"])
 
 
 ## Equips a held piece with a double-click; below its canonical level the game refuses and says so.
@@ -732,15 +741,30 @@ func _chair() -> bool:
 	d.check("a double-click on The Green Relaxer seats the player", bool(r["ok"]), str(r), ["chair:" + CHAIR, "mechanic:sitting"])
 	var setup: Dictionary = db.item(CHAIR).get("setup", {}) if db.item(CHAIR).get("setup") is Dictionary else {}
 	var interval := float(setup.get("interval_s", 10.0))
+	var bonus := int(setup.get("hp_recovery_bonus", 0))
 	var seated_s := interval * 2.0 + 1.0
+	var mx := StatCalculator.max_hp(c, db)
 	await d.wait(seated_s)
 	var healed := c.hp - hp0
 	var still := k.activity() == &"seated"
-	d.check("seated for %.0f s: still seated, HP %d -> %d of %d" % [seated_s, hp0, c.hp, StatCalculator.max_hp(c, db)], still,
+	d.check("seated for %.0f s: still seated, HP %d -> %d of %d" % [seated_s, hp0, c.hp, mx], still,
 		"activity %s" % k.activity(), ["chair:" + CHAIR, "mechanic:sitting"])
-	if hp0 < StatCalculator.max_hp(c, db) - 2 * int(setup.get("hp_recovery_bonus", 0)) - 20:
-		d.soft_check("HP rose while seated (natural recovery plus the chair's %s HP per %.0f s)" % [setup.get("hp_recovery_bonus"),
-			interval], healed > 0, "HP %d -> %d" % [hp0, c.hp], ["mechanic:chair-regen"])
+	# Two intervals seated: the chair's own clock starts at the sit (2 bonus ticks), natural recovery's clock is the
+	# saved one (at least 2 ticks of misostory/recovery.json natural_hp in 21 s). With room for all of it, HP rises by
+	# at least 2 x bonus + 2 x the natural tick; otherwise it reaches Max HP.
+	var rec: Variant = db.miso_table("recovery")
+	var natural: Dictionary = ((rec as Dictionary).get("natural_hp", {}) as Dictionary) if rec is Dictionary else {}
+	var nat_tick := int(natural.get("hp_per_tick", 10))
+	var want_min := 2 * bonus + 2 * nat_tick
+	if mx - hp0 >= want_min + nat_tick:
+		d.check("seated %.0f s at HP %d of %d: HP +%d, at least the chair's 2 x %d plus natural recovery's 2 x %d" % [seated_s,
+			hp0, mx, healed, bonus, nat_tick], healed >= want_min and healed <= want_min + nat_tick, "HP %d -> %d" % [hp0, c.hp],
+			["chair:" + CHAIR, "mechanic:chair-regen"])
+	elif hp0 < mx:
+		d.soft_check("HP rose while seated (the chair's %d HP per %.0f s plus natural recovery)" % [bonus, interval],
+			healed > 0, "HP %d -> %d of %d" % [hp0, c.hp, mx], ["mechanic:chair-regen"])
+	else:
+		d.note("HP was full (%d) when the player sat down: the chair's bonus had nothing to heal" % hp0)
 	var up: Dictionary = await k.stand()
 	d.check("a step stands the player up from the chair", bool(up["ok"]), str(up), ["mechanic:sitting"])
 	var x: Dictionary = await k.sit()
@@ -1002,9 +1026,9 @@ func _finish(complete: bool) -> void:
 			and not (row.get("sold", []) as Array).is_empty(), str(row), ["shop:" + sid])
 	# Consumables, equipment, the chair, the death.
 	var used: Dictionary = d.carry.get("items_used", {})
-	d.check("consumables used (%s)" % used, not used.is_empty(), "")
+	d.check("consumables used (%s)" % str(used), not used.is_empty(), "")
 	var eq: Dictionary = d.carry.get("equipped", {})
-	d.check("gear equipped (%s)" % eq.keys(), not eq.is_empty(), str(eq))
+	d.check("gear equipped (%s)" % str(eq.keys()), not eq.is_empty(), str(eq))
 	d.check("The Green Relaxer obtained and sat on", c.inventory.count(CHAIR) > 0 and (d.carry.get("sat", {}) as Dictionary).has(CHAIR),
 		str(d.carry.get("sat", {})), ["chair:" + CHAIR])
 	var deaths: Array = d.carry.get("deaths", [])

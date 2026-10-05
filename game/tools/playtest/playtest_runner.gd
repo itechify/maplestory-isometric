@@ -197,6 +197,9 @@ func _open_report() -> PlaytestReport:
 			_finish_early(r)
 			return null
 		prev.reload_requested = false
+		# The report is written where this process was told (--out), never where an earlier phase wrote it: a run
+		# continued from a copy of its --out directory (playtest.sh --resume) must not write into the original.
+		prev.out_dir = out_dir
 		phase = prev.phases.size()
 		return prev
 	for f in ["report.json", "report.md"]:
