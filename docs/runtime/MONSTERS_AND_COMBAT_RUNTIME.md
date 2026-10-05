@@ -508,8 +508,8 @@ cannot path around buildings, so it made no attack on that map.
   the solo capacity live after the first fill (426 in all) and again after `kill all` on the respawn ticks; every
   slot placed (strict, relaxed or pinned) clear of every arrival (4 m) and NPC (2.5 m; Sam is now 4.3 m from the
   nearest 000000040 slot); after 8 s of wandering every grounded monster stands on its floor inside its mob region; no
-  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited (204
-  frames) and appeared once the player left.
+  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited
+  (`MapInstanceView.deferred_respawns` counts each held-back respawn once) and appeared once the player left.
 - Known in the harness: in seed 2 the bot, standing still among Orange Mushrooms for the scenario's final 14 s, dies at
   the very end (pacing monsters keep walking over a player who stands on their line); its open knockback track now
   counts as interrupted instead of lost.
