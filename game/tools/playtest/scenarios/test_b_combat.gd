@@ -563,7 +563,10 @@ func _tick() -> void:
 		tr["ticks"] = int(tr["ticks"]) + 1
 		if m.brain.mode != MonsterBrain.Mode.STAGGER:
 			var row: Dictionary = db.monster(String(tr["mob"]))
-			var hit1 := float(((row.get("animations", {}) as Dictionary).get("hit1", {}) as Dictionary).get("duration_ms", 0)) / 1000.0
+			# The canonical stagger time: the record's STAGGER field when it has one, else its hit1 clip.
+			var hit1 := MonsterDef.canonical_stagger_s(row)
+			if hit1 <= 0.0:
+				hit1 = float(((row.get("animations", {}) as Dictionary).get("hit1", {}) as Dictionary).get("duration_ms", 0)) / 1000.0
 			# push_m: the displacement along `away` at the last tick still staggered (the push alone, before the chase)
 			kb_monster.append({"mob": tr["mob"], "t": tr["t"], "stagger_s": snappedf(int(tr["ticks"]) / 60.0, 0.001),
 				"expected_s": hit1, "push_m": snappedf(float(tr["push_m"]), 0.001), "blocked_at_hit": tr["blocked_at_hit"],
@@ -1486,11 +1489,16 @@ func _evaluate() -> void:
 	var push_m := WorldScale.h(kb_px)
 	var st_bad := 0
 	var air_hits := 0
+	var air_bad: Array = []
 	var free_push: Array = []
 	var cut := 0
 	for k: Dictionary in kb_monster:
 		if bool(k["airborne"]):
 			air_hits += 1
+			# combat.json monster_knockback.airborne_hit: the hop is cancelled and the push runs; it never carries on
+			# toward the attacker (Iteration Two: +0.54 / -1.38 / -1.01 m) nor past the push distance.
+			if not bool(k["staggered"]) or float(k["push_m"]) < -0.05 or float(k["push_m"]) > push_m + 0.05:
+				air_bad.append(k)
 			continue
 		if not bool(k["staggered"]) or absf(float(k["stagger_s"]) - float(k["expected_s"])) > 2.0 / 60.0 + 1e-4:
 			st_bad += 1
@@ -1507,9 +1515,9 @@ func _evaluate() -> void:
 		"%d of %d landed hits flagged knockback; %d stagger tracks on grounded monsters, %d off the hit1 time; durations %s" % [stagger_hits,
 			landed, kb_monster.size() - air_hits, st_bad, _uniq(kb_monster.filter(func(k: Dictionary) -> bool: return not bool(k["airborne"])).map(
 				func(k: Dictionary) -> String: return "%s:%.3f" % [k["mob"], float(k["stagger_s"])]))])
-	d.soft_check("monster knockback: a hit on a monster in mid-hop staggers it too (the KB rule has no airborne exception)",
-		air_hits == 0, "%d of %d knockback hits landed on an airborne monster and did not stagger or push it: %s" % [air_hits,
-			kb_monster.size(), JSON.stringify(kb_monster.filter(func(k: Dictionary) -> bool: return bool(k["airborne"])).slice(0, 4))])
+	d.check("monster knockback: a hit in mid-hop cancels the hop, staggers it and pushes it away from the attacker, never toward it",
+		air_bad.is_empty(), "%d of %d knockback hits landed on an airborne monster; %d moved toward the attacker or past %.2f m: %s" % [
+			air_hits, kb_monster.size(), air_bad.size(), push_m, JSON.stringify(air_bad.slice(0, 4))])
 	d.soft_check("monster knockback: an unblocked push carries it %.2f m (20 px x WorldScale.h) away from the attacker" % push_m,
 		not free_push.is_empty() and absf(_median(free_push) - push_m) <= 0.02,
 		"%d unblocked pushes: median %.3f m, range %.3f-%.3f m; %d pushes stopped by a ledge, wall or region edge" % [
@@ -1584,6 +1592,18 @@ func _evaluate() -> void:
 	d.check("no stat bookkeeping anomalies", stat_bad.is_empty(), JSON.stringify(stat_bad.slice(0, 5)))
 	d.note("player deaths: %d, console heals: %d" % [deaths_of_player, heals])
 	d.note("visual fit (model extents vs canonical touch zone, m): %s" % [JSON.stringify(visual_fit)])
+	# The body you see is the body you hit: every species shows its proxy (the Tutorial Jr. Sentinel's too), stands on
+	# its feet (a bouncing walker's bob is up to 6% of its height) and spans about its touch zone (1.35x allows the
+	# crawl's squash and stretch and the ink outline).
+	var fit_bad: Array = []
+	for mob: String in visual_fit:
+		var v: Dictionary = visual_fit[mob]
+		var w := float(v["touch_w_m"])
+		if bool(v["placeholder"]) or float(v["visual_fwd_m"]) > w * 1.35 or float(v["visual_lat_m"]) > w * 1.35 \
+				or float(v["visual_base_m"]) > float(v["visual_h_m"]) * 0.06 + 0.03 or float(v["visual_base_m"]) < -0.05:
+			fit_bad.append(mob)
+	d.check("monster visuals: every species shows its proxy on its feet, within about its canonical touch zone",
+		visual_fit.size() == species.size() and fit_bad.is_empty(), "%d species measured; off: %s" % [visual_fit.size(), fit_bad])
 	if not screen_px.is_empty():
 		d.note("on-screen heights at 1600x900 (px): %s" % [JSON.stringify(screen_px)])
 	d.note("latency/peace: %s" % [JSON.stringify(peace)])
