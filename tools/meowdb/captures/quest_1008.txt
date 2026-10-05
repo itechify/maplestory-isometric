@@ -1,0 +1,61 @@
+URL: https://meowdb.com/msclassic/quest-tracker/1008
+READ_AT: 2026-10-05T08:16:08.222Z
+METHOD: manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the record
+PURPOSE: spot-check that the cached quest pages (2026-10-04) still match the live site (random reward table, dialogue)
+---
+Lucas's Reply
+Maple Island · Start: Lucas · Turn in: Maria · Please bring this letter to Lucas
+Pre-requisites
+Job: Beginner only
+Quest: Complete Letter for Lucas
+Requirements
+Lucas's Letter x1
+Rewards
+50 EXP
+
+Random reward - one of:
+Any Class
+Brown Skullcap x1 14.3%
+Green Skullcap x1 14.3%
+Red Headband x1 14.3%
+Black Headband x1 14.3%
+Green Headband x1 14.3%
+Yellow Headband x1 14.3%
+Blue Headband x1 14.3%
+On Acceptance
+Lucas's Letter x1
+Description
+01
+I delivered Maria's Letter to Lucas in Amherst, and he wrote her a reply. I should bring it back to Maria now.
+
+NPC Dialogue
+On accept
+Ohhh, the letter from Maria! I was beginning to worry. Okay, here's the reply letter. Head back to Maria and deliver it. Thanks.
+
+IF YOU DECLINE
+Oh... Are you really busy? Sigh. This letter needs to be delivered right away...
+
+On completion
+Oh, the reply letter! Thank you! I want to give you something to show my appreciation.
+
+WHEN YOU HAVE EVERYTHING READY
+Ta da! A hat! It has a level limitation, but I think you're strong enough to wear it. Thanks again for all your help!
+
+If you don't know how to equip items yet, open the Equip tab in your Inventory.
+You can freely switch between menus using the Tab key. To equip an item, just double-click on it.
+To check if it's equipped properly, open the Equipment window.
+
+IF YOU DON''T HAVE THE ITEMS YET
+Have you not gone to the chief yet? Or did you lose the letter? Please deliver the letter soon and bring back Chief Lucas's reply.
+
+IF YOU HAVEN''T MET THE RIGHT NPC YET
+You didn't deliver my reply to Maria yet? If you lose my reply, just tell me. I suppose I can write up another one.
+
+IF YOU LOST THE ITEMS
+You lost my reply letter? Bah, such carelessness! I have a town to run, you know. But fine, I'll rewrite the letter. Here, take it, and don't lose it this time.
+
+Questline · Step 2 of 2
+Starts with Letter for Lucas · Maria, Lv 2
+NPCs
+START Lucas · Rainbow Street › Amherst
+TURN IN Maria · Maple Road › A Split Road
