@@ -35,6 +35,15 @@ const HITS_QUICK := 6
 const SPECIES_BUDGET_S := 420.0
 const FIGHT_CALL_S := 4.0
 const MC_SAMPLES := 6000
+## Walkers stay on their spawn floor (monsters/_shared.json floor_band_m), so a monster on a terrace above or below the
+## player never comes down to it: the bot prefers targets within these heights of its feet (m) and climbs to another
+## tier only when none is left on its own. Fights: about a step and a hop; touch probes: the touch reach the probe
+## needs; reach probes: level ground, so a whiff measures reach, never height.
+const FIGHT_TIER_DY_M := 1.5
+const TOUCH_TIER_DY_M := 0.8
+const PROBE_TIER_DY_M := 0.3
+## How long the bot may walk (routes included) to a monster on another tier before attacking it.
+const CLIMB_S := 15.0
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -529,7 +538,7 @@ func _check_capacity(p: Node3D) -> void:
 		# kills between the boundary and this check (3 frames) lower the count legitimately
 		var died_since := 0
 		for kr: Dictionary in kills:
-			if String(kr["map"]) == st.map_id and float(kr["clock"]) > boundary + 1e-9:
+			if String(kr["map"]) == st.map_id and float(kr["clock"]) >= boundary - 1e-6:
 				died_since += 1
 		var rec := {"map": st.map_id, "boundary": snappedf(boundary, 0.001), "alive": st.alive_count(), "capacity": st.capacity,
 			"canonical_capacity": canon_cap, "eligible_left": eligible_left, "died_since": died_since}
@@ -843,18 +852,25 @@ func _fight_species(mob: String, map: String) -> void:
 			break
 		await _recover_if_dead(map)
 		await _heal_if_low()
-		# a skipped monster is tried again after 30 s: it wanders
+		# a skipped monster is tried again after 30 s: it paces its floor, and the player moves
 		var exclude := {}
 		for k: int in excluded_at.keys():
 			if d.game_s() - float(excluded_at[k]) < 30.0:
 				exclude[k] = true
-		var target := d.nearest_monster({"mob_id": mob, "exclude": exclude, "max_dist_m": 80.0})
+		var pick := _nearest_on_tier(mob, 80.0, exclude, FIGHT_TIER_DY_M)
+		var target: Monster = pick["monster"]
 		if target == null:
 			await d.wait(1.0)
 			continue
+		if not bool(pick["same_tier"]):
+			# Nothing of this species on the player's tier: climb toward the nearest one first (the attack call's
+			# 4 s approach cannot cover a route up or down a terrace).
+			await d.walk_to(target.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1})
+			if not is_instance_valid(target) or not target.is_alive():
+				continue
 		var tid := target.get_instance_id()
 		var a0 := attacks.size()
-		var r: Dictionary = await d.face_and_attack_nearest(FIGHT_CALL_S, {"mob_id": mob, "exclude": exclude, "max_dist_m": 80.0})
+		var r: Dictionary = await d.face_and_attack_nearest(FIGHT_CALL_S, {"mob_id": mob, "exclude": pick["exclude"], "max_dist_m": 80.0})
 		if attacks.size() > a0 or not is_instance_valid(target) or not bool(target.call("is_alive")):
 			zero_on.erase(tid)
 			continue
@@ -939,13 +955,15 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 	var skipped := 0
 	while (from_mob.call() as int) - c0 < n and d.game_s() - t0 < max_s:
 		await _heal_if_low()
-		var m := d.nearest_monster({"mob_id": mob, "max_dist_m": 40.0, "exclude": skip}) as Monster
+		var pick := _nearest_on_tier(mob, 40.0, skip, TOUCH_TIER_DY_M)
+		var m: Monster = pick["monster"]
 		if m == null:
 			skip.clear()
 			await d.wait(1.0)
 			continue
 		if out_of_reach.call(m):
-			var w: Dictionary = await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": 6.0, "retries": 0})
+			var walk_s := 6.0 if bool(pick["same_tier"]) else CLIMB_S
+			var w: Dictionary = await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": walk_s, "retries": 0})
 			# Only a walk that ended (stopped next to it, stalled, fell) and still left it out of reach skips it; a walk
 			# that ran out of time on a long route made progress, and the next pass walks on toward the nearest one.
 			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m) and String(w.get("result", "")) != "TIMEOUT":
@@ -966,6 +984,23 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 		await d.wait_until(func() -> bool: return not p.in_hitstun, 1.0)
 	var got: int = from_mob.call() - c0
 	d._end(i, got >= n, "%d touches in %.1f s; %d monsters out of reach skipped" % [got, d.game_s() - t0, skipped])
+
+
+## The nearest live monster of `mob` within `max_dist_m` (flat), not in `exclude`, preferring one whose feet are
+## within `max_dy_m` of the player's (its own tier: walkers never leave their spawn floor, so one on another terrace
+## never comes to the player). {"monster": Monster or null, "same_tier": bool, "exclude": the exclusions the pick used
+## (`exclude` plus, when a same-tier monster exists, every other one of the species off the player's tier)}.
+func _nearest_on_tier(mob: String, max_dist_m: float, exclude: Dictionary, max_dy_m: float) -> Dictionary:
+	var p := d.player()
+	var off_tier := exclude.duplicate()
+	for o: Monster in d.monsters().live_monsters():
+		if o.def.id == mob and absf(o.global_position.y - p.global_position.y) > max_dy_m:
+			off_tier[o.get_instance_id()] = true
+	var near := d.nearest_monster({"mob_id": mob, "max_dist_m": max_dist_m, "exclude": off_tier}) as Monster
+	if near != null:
+		return {"monster": near, "same_tier": true, "exclude": off_tier}
+	return {"monster": d.nearest_monster({"mob_id": mob, "max_dist_m": max_dist_m, "exclude": exclude}) as Monster,
+		"same_tier": false, "exclude": exclude}
 
 
 ## Walks within `lo..hi` m (flat) of `m`, by real walking, then faces `toward` (true) or away from it with a slow step.
@@ -1048,13 +1083,21 @@ func _reach_probes() -> void:
 		while got < want and tries < want * 6:
 			tries += 1
 			await _heal_if_low()
-			var m := d.nearest_monster({"mob_id": "2", "max_dist_m": 40.0, "exclude": skip}) as Monster
+			var pick := _nearest_on_tier("2", 40.0, skip, PROBE_TIER_DY_M)
+			var m: Monster = pick["monster"]
 			if m == null:
 				skip.clear()
 				await d.wait(1.0)
 				continue
+			if not bool(pick["same_tier"]):
+				# No Snail on the player's level ground: go to the nearest one's tier first. A probe across a height
+				# difference whiffs on height and says nothing about reach.
+				await d.walk_to(m.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1})
+				continue
 			var placed: bool = await _stand_at(m, float(k[1]), float(k[2]), bool(k[3]))
 			if not placed or not is_instance_valid(m) or not m.is_alive():
+				continue
+			if absf(m.global_position.y - d.player().global_position.y) > PROBE_TIER_DY_M:
 				continue
 			var target_iid := m.get_instance_id()
 			if not _front_clear(_cands_now(), d.character().level, target_iid):
@@ -1073,7 +1116,8 @@ func _reach_probes() -> void:
 			probes.append({"kind": k[0], "outcome": outcome, "hit": outcome == "target_hit", "mob": rec.get("mob", ""),
 				"pres": rec.get("pres", ""), "nearest": rec.get("nearest", {}), "target_iid": target_iid,
 				"hit_iid": int(rec.get("iid", 0)), "fwd_m": rec.get("fwd_m", snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)),
-				"target_fwd_m": snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)})
+				"target_fwd_m": snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001),
+				"target_up_m": snappedf(float(g.get("up_px", 0.0)) * WorldScale.actor(1.0), 0.001)})
 			await d.wait(0.8)
 	var counts := {}
 	for p: Dictionary in probes:
@@ -1369,14 +1413,19 @@ func _evaluate() -> void:
 		fwd_min, fwd_max, lat_max, behind_hits, reasons])
 	# Classified by the identity of what was hit: only a hit on the probe Snail itself counts; a bystander hit is
 	# neither (check #22 above still verifies that every hit, bystanders included, is the oracle's target).
+	# A probe only counts on level ground: a Snail on a terrace above or below whiffs on height, which says nothing
+	# about reach (a seed-2 run once probed all 18 from 9 m below and passed).
 	var pk := {}
+	var off_level := 0
 	for pr: Dictionary in probes:
 		var key := "%s_%s" % [pr["kind"], String(pr.get("outcome", "whiff"))]
 		pk[key] = int(pk.get(key, 0)) + 1
-	d.check("reach probes: the probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in front are never hit",
+		if absf(float(pr.get("target_up_m", INF))) > PROBE_TIER_DY_M + 0.05:
+			off_level += 1
+	d.check("reach probes: the probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in front, on level ground, are never hit",
 		int(pk.get("behind_target_hit", 0)) == 0 and int(pk.get("far_target_hit", 0)) == 0 \
-			and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1,
-		"%s" % [pk])
+			and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1 and off_level == 0,
+		"%s; %d probes with the Snail more than %.2f m above or below the player" % [pk, off_level, PROBE_TIER_DY_M])
 	# --- misses ---------------------------------------------------------------------------------------------------
 	var miss_out := 0
 	for h: Dictionary in hits:
