@@ -247,6 +247,8 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 			continue
 		var left := int(box.call("hits_left"))
 		var swings := int(pc.get("attacks"))
+		if broken_rows.size() < 3 and int(out["swings"]) == 0 and stop_after == 0:
+			await d.screenshot("box_%d_before_hit" % (broken_rows.size() + 1))
 		await d.input.tap_action(&"attack")
 		if int(pc.get("attacks")) == swings:
 			continue
@@ -254,6 +256,9 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 		if bool(box.call("is_broken")) or int(box.call("hits_left")) < left:
 			out["landed"] = int(out["landed"]) + 1
 			whiff_run = 0
+			if broken_rows.is_empty() and (int(out["landed"]) == 1 or bool(box.call("is_broken"))):
+				await d.frames(3)
+				await d.screenshot("box_hit_%d" % int(out["landed"]))
 		else:
 			out["whiffs"] = int(out["whiffs"]) + 1
 			whiff_run += 1

@@ -24,13 +24,16 @@ const RESPAWN_S := 0.35
 const GRAVITY := 9.8
 const CHIPS_PER_HIT := 3
 const PLANKS_ON_BREAK := 8
-const PLANK_COLOR := Color(0.725, 0.51, 0.294)
+## Lighter than the island's decorative crates (M_Plank), so a breakable box reads apart from the scenery.
+const PLANK_COLOR := Color(0.85, 0.64, 0.4)
 const FRAME_COLOR := Color(0.424, 0.267, 0.141)
 const OUTLINE_COLOR := Color(0.16, 0.09, 0.04)
 const DUST_COLOR := Color(0.93, 0.85, 0.7, 0.6)
 ## Ink outline thickness (m) of the inverted hull, and how far the lid lifts when the box is nearly broken.
 const OUTLINE_M := 0.025
 const LID_LIFT_DEG := 7.0
+## Emission energy of the planks (their own colour).
+const PLANK_GLOW := 0.25
 
 var placement: BreakablePlacement = null
 ## BreakableSystem (duck-typed: land_hit(box, source) -> Dictionary); null = hits are not counted.
@@ -222,6 +225,10 @@ func _build() -> void:
 	var h := size_m.y
 	var d := size_m.z
 	var plank := _material(PLANK_COLOR)
+	# A faint glow of its own colour keeps the planks readable in a house's or a tree's shadow (as loot does).
+	plank.emission_enabled = true
+	plank.emission = PLANK_COLOR
+	plank.emission_energy_multiplier = PLANK_GLOW
 	var frame := _material(FRAME_COLOR)
 	# The body, inked by an inverted hull (front faces culled, unshaded), as the island's assets are.
 	_box(model, Vector3(w, h, d), Vector3(0, h * 0.5, 0), plank)

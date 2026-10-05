@@ -228,6 +228,8 @@ func test_every_box_stands_on_real_collision() -> void:
 				assert_true(p.distance_to(s.position()) >= float(c.spawn_slot_clearance_m), "%s near slot %d" % [b.key(), s.index])
 			assert_true(BreakablePlacementPlanner.approach_points(p, q, rules) >= int(c.approach_min_free),
 				"%s: a player can stand beside it" % b.key())
+			assert_true(BreakablePlacementPlanner.in_camera_sight(p, q, rules) and not b.placement.ends_with(BreakablePlacementPlanner.UNSEEN_SUFFIX),
+				"%s: in sight of the map's camera (%s)" % [b.key(), b.placement])
 			# Every rule of the planner holds against the boxes placed before it.
 			assert_eq(BreakablePlacementPlanner.violation(p, q, rules, others), "", "%s keeps every placement rule" % b.key())
 			others.append(p)

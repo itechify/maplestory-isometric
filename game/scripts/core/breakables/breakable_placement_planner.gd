@@ -20,15 +20,24 @@ extends RefCounted
 ##      arrival and player_spawns[0], min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster
 ##      spawn slot and npc_clearance_m outside every NPC's talk zone (WorldTuning.talk_zone), and at least
 ##      approach_min_free of approach_directions points approach_m around it are grounded on its tier with the
-##      player's grounding capsule clear (a walking player can stand beside it and swing);
+##      player's grounding capsule clear (a walking player can stand beside it and swing), and the line from the top
+##      of its clearance capsule toward the map's gameplay camera (MapDefinition.environment_configuration
+##      camera_forward) is free of walkable, blocking and scenery collision for camera_sight_m (the box is not tucked
+##      behind a house, a tree or a terrace; checked when the GroundQuery exposes a physics `space`, as
+##      PhysicsGroundQuery does);
 ##   4. of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept.
-## A placement where nothing passes within `attempts` samples per pass is "unplaced" (not grounded) and logged.
+## The passes run in that order (areas on their tier, areas anywhere, floor on its tier, floor anywhere), all of them
+## with the camera sight rule first; only when none finds a spot do they run again without it ("_unseen" placements,
+## logged). A placement where nothing passes is "unplaced" (not grounded) and logged.
 
 ## The keys breakables.json placement must hold (numbers >= 0).
 const CONFIG_KEYS := ["attempts", "candidates_per_box", "tier_tolerance_m", "clearance_radius_m", "clearance_height_m",
 	"min_spacing_m", "portal_clearance_m", "spawn_slot_clearance_m", "npc_clearance_m", "approach_m",
-	"approach_directions", "approach_min_free"]
+	"approach_directions", "approach_min_free", "camera_sight_m"]
 const REGION_FLOOR := "floor"
+const UNSEEN_SUFFIX := "_unseen"
+## What hides a box from the camera (world collision layers).
+const SIGHT_MASK := WorldLayers.WALKABLE | WorldLayers.BLOCKING | WorldLayers.SCENERY
 
 
 ## Plans every breakable placement of `def` (its canonical reactors[]). `def` should be grounded already
@@ -56,14 +65,18 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, db: Co
 		var rng := RandomNumberGenerator.new()
 		rng.seed = hash("%s:box:%d" % [def.map_id, b.index])
 		var found := {}
-		if not (ctx.areas as Dictionary).is_empty():
-			found = _search(ctx.areas, true, q, ctx, placed, rng)
-			if found.is_empty():
-				found = _search(ctx.areas, false, q, ctx, placed, rng)
-		if found.is_empty() and not (ctx.floor as Dictionary).is_empty():
-			found = _search(ctx.floor, true, q, ctx, placed, rng)
-			if found.is_empty():
-				found = _search(ctx.floor, false, q, ctx, placed, rng)
+		for sight in [true, false]:
+			ctx["need_sight"] = sight
+			for pool: Dictionary in [ctx.areas, ctx.floor]:
+				for strict in [true, false]:
+					if found.is_empty() and not pool.is_empty():
+						found = _search(pool, strict, q, ctx, placed, rng)
+			if not found.is_empty():
+				if not sight:
+					found["placement"] = String(found.placement) + UNSEEN_SUFFIX
+					warnings.append("%s box %d: no spot in sight of the camera; placed hidden at %s" % [def.map_id, b.index, found.p])
+				break
+		ctx["need_sight"] = true
 		var yaw := rng.randf_range(-PI, PI)
 		if found.is_empty():
 			var c := def.player_spawn(0).origin
@@ -130,8 +143,15 @@ static func _context(def: MapDefinition, tuning: WorldTuning, cfg: Dictionary, w
 		"lift": tuning.num("grounding", "capsule_lift_m"),
 		"body_radius": tuning.num("grounding", "capsule_radius_m"), "body_height": tuning.num("grounding", "capsule_height_m"),
 		"areas": _areas(def, tuning, cfg), "floor": _floor(def, tuning, cfg),
+		"camera_forward": _camera_forward(def), "need_sight": true,
 	}
 	return ctx
+
+
+## The map's gameplay camera direction (sidecar cameras.gameplay forward), normalized; Vector3.ZERO without one.
+static func _camera_forward(def: MapDefinition) -> Vector3:
+	var f: Variant = def.environment_configuration.get("camera_forward", Vector3.ZERO)
+	return (f as Vector3).normalized() if f is Vector3 and (f as Vector3).length_squared() > 1e-6 else Vector3.ZERO
 
 
 ## One sampling pool over the map's exported spawn areas clipped to its mob region (any species): {"pieces",
@@ -249,7 +269,32 @@ static func violation(p: Vector3, q: GroundQuery, ctx: Dictionary, placed: Array
 	var free := approach_points(p, q, ctx)
 	if free < int(cfg.approach_min_free):
 		return "only %d standing points beside it" % free
+	if bool(ctx.get("need_sight", true)) and not in_camera_sight(p, q, ctx):
+		return "hidden from the camera"
 	return ""
+
+
+## True when the lines from a box's clearance capsule at `p` toward the map's camera are all free for camera_sight_m
+## (SIGHT_MASK): from its top and its middle, each at the centre and clearance_radius_m out along x and z. True when
+## there is no camera direction or the query has no physics `space` (the flat L0 world).
+static func in_camera_sight(p: Vector3, q: GroundQuery, ctx: Dictionary) -> bool:
+	var fwd: Vector3 = ctx.get("camera_forward", Vector3.ZERO)
+	var space: Variant = q.get("space") if q != null else null
+	if fwd == Vector3.ZERO or not (space is PhysicsDirectSpaceState3D):
+		return true
+	var cfg: Dictionary = ctx.cfg
+	var r := float(cfg.clearance_radius_m)
+	var ex: Variant = q.get("exclude")
+	for h: float in [1.0, 0.5]:
+		var at: Vector3 = p + Vector3.UP * (float(ctx.lift) + float(cfg.clearance_height_m) * h)
+		for off in [Vector3.ZERO, Vector3(r, 0, 0), Vector3(-r, 0, 0), Vector3(0, 0, r), Vector3(0, 0, -r)]:
+			var from: Vector3 = at + off
+			var rq := PhysicsRayQueryParameters3D.create(from, from - fwd * float(cfg.camera_sight_m), SIGHT_MASK)
+			if ex is Array:
+				rq.exclude = ex
+			if not (space as PhysicsDirectSpaceState3D).intersect_ray(rq).is_empty():
+				return false
+	return true
 
 
 ## How many of the approach_directions points approach_m around `p` a player can stand on: grounded within
