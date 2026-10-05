@@ -22,7 +22,9 @@
 //   in_scope     false for content outside Iteration Three (rules.json out_of_scope, e.g. the Lith Harbor chair).
 import { entryKey } from '../sources/parse.mjs';
 
-export const FORMAT = 1;
+export const FORMAT = 2;
+/** How many passing checks an entry lists in the JSON (all are counted; failing ones are always all listed). */
+export const EVIDENCE_LISTED = 5;
 export const STATES = ['missing', 'partial', 'implemented', 'verified'];
 
 /**
@@ -506,7 +508,10 @@ function finish(e, ctx, all) {
     passed.push(...ev.passed.map((x) => ({ ...x, key: k })));
     failed.push(...ev.failed.map((x) => ({ ...x, key: k })));
   }
-  e.evidence = { passed, failed };
+  // Every failing check is listed; passing ones are counted and the first EVIDENCE_LISTED are listed (real-game
+  // checks first), which keeps the JSON readable when a quest key carries hundreds of checks.
+  const shown = [...passed.filter((p) => p.kind === 'playtest'), ...passed.filter((p) => p.kind !== 'playtest')].slice(0, EVIDENCE_LISTED);
+  e.evidence = { passed_count: passed.length, failed_count: failed.length, passed: shown, failed };
   if (e.category === 'quest-chains') {
     const members = e.members.map((m) => all.get(`quest:${m}`)).filter(Boolean);
     const states = members.map((m) => m.state);
@@ -645,7 +650,7 @@ export function toMarkdown(doc) {
     L.push('|---|---|---|---|---|---|');
     for (const e of c.entries) {
       const state = e.in_scope ? `${e.state}${e.source_data_gap ? ' (source-data gap)' : ''}` : `${e.state} (out of scope)`;
-      const ev = [`${e.evidence.passed.length} pass`, e.evidence.failed.length ? `**${e.evidence.failed.length} fail**` : null].filter(Boolean).join(', ');
+      const ev = [`${e.evidence.passed_count} pass`, e.evidence.failed_count ? `**${e.evidence.failed_count} fail**` : null].filter(Boolean).join(', ');
       const notes = [...e.issues, ...e.notes, ...e.adaptations.map((a) => `adaptation: ${a.replace('game/data/misostory/', '')}`)];
       L.push(`| \`${e.key}\` | ${esc(e.name)} | ${state} | ${ev} | ${e.source_gaps.length || ''} | ${esc(notes.join('; '))} |`);
     }
