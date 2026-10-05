@@ -7,6 +7,8 @@ extends RefCounted
 ##   drops[]  = {uid, item_id | mesos, amount, pos_local, expires_at, owner} (records of the loot system; expired
 ##              drops are discarded on tick/fast_forward)
 ##   capacity = SpawnModel.capacity(spawn points, players)
+##   breakables[i] = {id, hits: int, respawn_at: float (-1 while intact), respawn_s: float} (contract C8: one per
+##              canonical maps/<id>.json reactors[i]; see "Breakables" below)
 ##
 ## fresh() fills to capacity immediately (an adaptation, open question 6). tick() runs the global respawn ticks
 ## that passed since the last call: at each tick boundary every dead slot whose death + cooldown is at or before
@@ -18,6 +20,13 @@ extends RefCounted
 ##
 ## Drops: add_drop() stores a copy; find_drop(uid) / remove_drop(uid) / expire_drops(now) are the only other ways
 ## the loot system touches the list (records are matched by their "uid", DROP_UID_KEY).
+##
+## Breakables (the Wooden Box, contract C8): fresh() makes one intact entry per placement of the canonical map record
+## (MapDefinition.canonical reactors[]; the index is the placement index). hit_breakable(i, now, hits_to_break) counts
+## a landed hit and breaks the box at the canonical hit count; a broken box comes back respawn_s later on the game
+## clock (respawn_at; breakables.json respawn: not aligned to the spawn tick), when tick_breakables(now) sees it.
+## The entries ride snapshot()/from_snapshot() like the slots, so a parked map keeps its broken boxes; like monsters
+## and drops they never reach a save.
 
 ## The key a drop record is identified by (LootSystem writes it: LootPickupRules.UID_KEY).
 const DROP_UID_KEY := "uid"
@@ -34,6 +43,8 @@ var model: SpawnModel = null
 var rng: RandomNumberGenerator = null
 ## Respawns that happened inside kill() (boundaries that passed before the kill); returned by the next tick().
 var _pending_respawns: PackedInt32Array = []
+## One entry per breakable placement of the map (see "Breakables" in the class doc).
+var breakables: Array[Dictionary] = []
 
 
 ## A new instance for `def`, filled to capacity right away with slots chosen by `rng` (seeded by the caller).
@@ -42,7 +53,9 @@ static func fresh(def: MapDefinition, spawn_model: SpawnModel, random: RandomNum
 	var times: Array[float] = []
 	for s in def.monster_spawn_definitions:
 		times.append(s.mob_time_s)
-	return MapInstanceState.fresh_for(def.map_id, times, spawn_model, random, now, players)
+	var st := MapInstanceState.fresh_for(def.map_id, times, spawn_model, random, now, players)
+	st.breakables = breakables_from(def.canonical)
+	return st
 
 
 ## fresh() without a MapDefinition: one slot per entry of `slot_mob_times`.
@@ -228,6 +241,7 @@ func snapshot(now: float) -> Dictionary:
 		"rng_seed": rng.seed if rng != null else 0,
 		"rng_state": rng.state if rng != null else 0,
 		"t": now,
+		"breakables": breakables.duplicate(true),
 	}
 
 
@@ -250,7 +264,11 @@ static func from_snapshot(snap: Dictionary, spawn_model: SpawnModel, now: float)
 	st.rng = RandomNumberGenerator.new()
 	st.rng.seed = int(snap.get("rng_seed", 0))
 	st.rng.state = int(snap.get("rng_state", 0))
+	for b in snap.get("breakables", []):
+		if b is Dictionary:
+			st.breakables.append(_breakable_entry(b))
 	st.fast_forward(now)
+	st.tick_breakables(now)
 	return st
 
 
@@ -258,5 +276,74 @@ func _dead_indices() -> Array[int]:
 	var out: Array[int] = []
 	for i in slots.size():
 		if not bool(slots[i].alive):
+			out.append(i)
+	return out
+
+
+# --- breakables (contract C8) -----------------------------------------------------------------------------------
+
+## One intact entry per placement of a canonical map record (reactors[], in order).
+static func breakables_from(map_record: Dictionary) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for p in BreakableRules.placements_of(map_record):
+		out.append(_breakable_entry({"id": p.id, "respawn_s": p.respawn_s}))
+	return out
+
+
+static func _breakable_entry(d: Dictionary) -> Dictionary:
+	return {"id": str(d.get("id", "")), "hits": maxi(int(d.get("hits", 0)), 0),
+		"respawn_at": float(d.get("respawn_at", -1.0)), "respawn_s": maxf(float(d.get("respawn_s", 0.0)), 0.0)}
+
+
+func breakable_count() -> int:
+	return breakables.size()
+
+
+## True when `index` names one of this map's breakable placements.
+func has_breakable(index: int) -> bool:
+	return index >= 0 and index < breakables.size()
+
+
+## True while placement `index` stands (not broken). False for an index that is not a placement.
+func is_breakable_intact(index: int) -> bool:
+	return has_breakable(index) and float(breakables[index].respawn_at) < 0.0
+
+
+## Landed hits on placement `index` since it last (re)appeared (0 for an index that is not a placement).
+func breakable_hits(index: int) -> int:
+	return int(breakables[index].hits) if has_breakable(index) else 0
+
+
+## When broken placement `index` comes back (game time); INF while intact and for an index that is not a placement.
+func breakable_respawn_at(index: int) -> float:
+	if not has_breakable(index) or is_breakable_intact(index):
+		return INF
+	return float(breakables[index].respawn_at)
+
+
+## One landed hit on placement `index` at `now`; placements whose time has come are brought back first
+## (tick_breakables). Returns {"counted": bool, "hits": int, "broke": bool}: nothing is counted for a broken box, an
+## index that is not a placement, or hits_to_break < 1 (no canonical rule). The hit that reaches hits_to_break breaks
+## the box: it comes back respawn_s later (respawn_at = now + respawn_s).
+func hit_breakable(index: int, now: float, hits_to_break: int) -> Dictionary:
+	tick_breakables(now)
+	if not is_breakable_intact(index) or hits_to_break < 1:
+		return {"counted": false, "hits": breakable_hits(index), "broke": false}
+	var b: Dictionary = breakables[index]
+	b["hits"] = int(b.hits) + 1
+	var broke := int(b.hits) >= hits_to_break
+	if broke:
+		b["respawn_at"] = now + float(b.respawn_s)
+	return {"counted": true, "hits": int(b.hits), "broke": broke}
+
+
+## Brings back every broken placement whose respawn_at is at or before `now` (intact, no hits). Returns their indices.
+func tick_breakables(now: float) -> PackedInt32Array:
+	var out := PackedInt32Array()
+	for i in breakables.size():
+		var b: Dictionary = breakables[i]
+		if float(b.respawn_at) >= 0.0 and float(b.respawn_at) <= now:
+			b["respawn_at"] = -1.0
+			b["hits"] = 0
 			out.append(i)
 	return out
