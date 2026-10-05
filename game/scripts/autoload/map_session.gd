@@ -684,11 +684,17 @@ func _swap(req: TransitionRequest, res: Dictionary) -> TransitionRecord:
 	var now := _now()
 	if old != "" and ev != null:
 		ev.emit_signal("map_left", old)
-	# Release the old instance into the cache.
+	# Release the old instance into the cache. A load (a save file, Continue, a new game) starts the world the way the
+	# file describes it, and monsters, ground drops and Wooden Boxes are never saved (contract C3): nothing of the
+	# instances before it survives. The old map is not parked and every parked map is forgotten, else a pause-menu
+	# load into the same map took back the snapshot it had just parked (broken boxes still broken).
+	var load := req.via == VIA_LOAD
 	if world != null:
 		world.call("release_instance")
-	if instance_state != null and old != "":
+	if instance_state != null and old != "" and not load:
 		cache.put(old, instance_state.snapshot(now))
+	if load:
+		cache.clear()
 	instance_state = null
 	current_map = req.to_map
 	respawn_reference = def.respawn_location.map_id

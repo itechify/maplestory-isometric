@@ -293,6 +293,49 @@ func test_character_replaced_mid_transition_loads_after_it() -> void:
 	assert_eq(ms.last_transition.via, "load", "via load")
 
 
+## A load never inherits live map state (contract C3: Wooden Boxes, monsters and ground drops are not saved). The
+## pause menu's load into the map the player stands in used to park the live instance and take the same snapshot
+## back, broken boxes and all; now the loaded map starts fresh and every parked map is forgotten. A plain warp still
+## parks (test_instances_are_cached_and_restored).
+func test_a_load_starts_every_map_instance_fresh() -> void:
+	ms.start_new_game()
+	ms.debug_warp("000000040")
+	var forty: MapInstanceState = ms.instance_state
+	forty.kill(forty.alive_indices()[0], t)
+	ms.debug_warp("000001010")
+	assert_true(ms.cache.has("000000040"), "40 parked by the warp")
+	var st: MapInstanceState = ms.instance_state
+	assert_true(st.breakable_count() > 0, "Amherst has Wooden Boxes")
+	var n := BreakableRules.hits_to_break(BreakableRules.WOODEN_BOX, db())
+	for k in n:
+		st.hit_breakable(0, t, n)
+	assert_false(st.is_breakable_intact(0), "box 0 broken")
+	st.add_drop({"uid": "000001010:1:1", "kind": "item", "item_id": "348", "amount": 1, "expires_at": 1000.0})
+	# Load a save of the same map (the pause menu's Load: Game replaces the character).
+	var saved := CharacterState.new()
+	saved.location = {"map_id": "000001010", "entry": {"map_id": "000001010", "portal_id": "west00"}}
+	saved.respawn_reference = "000001010"
+	ms.character = saved
+	t = 3.0
+	ms._on_character_replaced("load")
+	assert_eq(ms.current_map, "000001010", "same map")
+	assert_eq(ms.last_transition.via, "load", "via load")
+	var loaded: MapInstanceState = ms.instance_state
+	assert_ne(loaded, st, "a new instance, not the parked one")
+	assert_true(loaded.is_breakable_intact(0), "the broken box is whole again after the load")
+	assert_eq(loaded.breakable_hits(0), 0, "with no hits")
+	assert_eq(loaded.drops.size(), 0, "no ground drop survives a load")
+	assert_eq(ms.cache.size(), 0, "nothing parked survives a load: %s" % str(ms.cache.keys()))
+	# The map left before the load is fresh too.
+	ms.debug_warp("000000040")
+	assert_eq(ms.instance_state.alive_count(), ms.instance_state.capacity, "40 starts full again")
+	# The same holds for a load through the fallback chain (Continue, the death screen).
+	var st2: MapInstanceState = ms.instance_state
+	st2.kill(st2.alive_indices()[0], t)
+	assert_eq(ms.enter_from_location({"map_id": "000000040"}), OK)
+	assert_eq(ms.instance_state.alive_count(), ms.instance_state.capacity, "a load into the same map refills it")
+
+
 func test_load_from_dead_revives() -> void:
 	ms.start_new_game()
 	ms.debug_warp("000000040")

@@ -64,8 +64,12 @@ var y_max: float = 0.0
 var kill_y: float = 0.0
 ## Ortho size (frame width, Camera3D.KEEP_WIDTH) from cameras.gameplay x maps/<id>.json camera.ortho_size_scale.
 var ortho_size: float = 0.0
-## Sidecar content hashes (index.json) for save diagnostics.
+## The collision this map's saved resume points were vetted against (MapDefinitions.resume_hash): the map chunk's
+## collision hash (index.json) folded with those of the shared world chunks that overlap its region. A save stores
+## it as resume.map_content_hash, and ArrivalResolver distrusts a resume point whose hash differs. "" without export.
 var content_hash: String = ""
+## The chunks folded into content_hash ("map" for the map's own chunk, then shared world chunk names).
+var content_hash_chunks: PackedStringArray = []
 ## Parsed spawn areas: {name, species: PackedStringArray, polygon: PackedVector2Array, surface_y, weight}.
 var spawn_areas: Array[Dictionary] = []
 ## MeowDB monster id -> name for the species on this map (canonical monsters[]), used to match spawn areas.

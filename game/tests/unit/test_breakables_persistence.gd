@@ -16,7 +16,8 @@ var t := 0.0
 
 func parity_keys() -> Dictionary:
 	return {"test_box_state_is_parked_with_its_map_but_never_saved": ["breakable:0000001",
-		"mechanic:breakable-hit-break-respawn"]}
+		"mechanic:breakable-hit-break-respawn"],
+		"test_a_pause_menu_load_does_not_keep_broken_boxes": ["breakable:0000001"]}
 
 
 func before_each() -> void:
@@ -100,5 +101,36 @@ func test_box_state_is_parked_with_its_map_but_never_saved() -> void:
 	var fresh: MapInstanceState = ms.instance_state
 	for i in fresh.breakable_count():
 		assert_true(fresh.is_breakable_intact(i) and fresh.breakable_hits(i) == 0, "box %d intact after the load" % i)
+	game.free()
+	game2.free()
+
+
+## The pause menu's Load while the session runs (no quit to title): Game.load_game replaces the character and
+## MapSession loads where the save says, into the very map the player stands in. The boxes broken since the save must
+## not survive it: the save holds none of them (C3), so the load starts the map fresh instead of taking back the live
+## instance it parks.
+func test_a_pause_menu_load_does_not_keep_broken_boxes() -> void:
+	var n := BreakableRules.hits_to_break("0000001", db())
+	assert_eq(ms.start_new_game(), OK, "new game")
+	assert_eq(ms.debug_warp(AMHERST), OK, "to Amherst")
+	var game := _game()
+	assert_eq(game.new_game({"save": false}), OK, "a game to save")
+	game.character = ms.character
+	assert_eq(game.save_game("pause"), OK, "saved with every box whole")
+	var st: MapInstanceState = ms.instance_state
+	for k in n:
+		st.hit_breakable(1, t, n)
+	st.hit_breakable(0, t, n)
+	assert_false(st.is_breakable_intact(1), "box 1 broken after the save")
+	t = 4.0
+	var game2 := _game()
+	assert_eq(game2.load_game("pause"), OK, "load from the pause menu")
+	ms.character = game2.character
+	ms._on_character_replaced("load")
+	assert_eq(ms.current_map, AMHERST, "still in Amherst")
+	var now: MapInstanceState = ms.instance_state
+	assert_ne(now, st, "not the live instance taken back")
+	for i in now.breakable_count():
+		assert_true(now.is_breakable_intact(i) and now.breakable_hits(i) == 0, "box %d as the save left it: whole" % i)
 	game.free()
 	game2.free()
