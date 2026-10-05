@@ -114,6 +114,19 @@ func active_quests() -> PackedStringArray:
 	return quest_log().active_ids()
 
 
+## Quests of a region (the canonical record's "region", e.g. "Maple Island"; "" = every quest) that are not
+## completed yet, in progress or not, sorted. Shanks' departure warning lists them.
+func unfinished_quests(region: String = "") -> PackedStringArray:
+	var out := PackedStringArray()
+	for qid in catalog.ids():
+		var d := definition(qid)
+		if not region.is_empty() and QuestJson.s(d.record.get("region")) != region:
+			continue
+		if quest_log().completions(qid) <= 0 or status(qid) == IN_PROGRESS:
+			out.append(qid)
+	return out
+
+
 func completed_quests() -> PackedStringArray:
 	return quest_log().completed_ids()
 

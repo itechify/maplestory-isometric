@@ -171,6 +171,7 @@ static func _check_line(errs: PackedStringArray, where: String, spec: Variant, d
 	if not (spec is Dictionary) or (spec as Dictionary).is_empty():
 		errs.append("%s: missing line" % where)
 		return
+	errs.append_array(DialogueContext.validate_live(spec, where))
 	if db == null:
 		return
 	var r := DialogueText.resolve(spec, db)

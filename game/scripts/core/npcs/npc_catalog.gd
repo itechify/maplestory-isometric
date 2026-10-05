@@ -6,6 +6,9 @@ extends RefCounted
 ##   npcs.get_def("3").name          # "Roger"
 ##   npcs.on_map("000000060")        # ["12", "13", "14", "15"]
 
+## A misostory/npcs file named "_<name>" is a shared table, not an NPC adaptation (AdaptationChecks.SHARED_TABLE_PREFIX).
+const SHARED_TABLE_PREFIX := "_"
+
 var db: ContentDB
 var _defs: Dictionary = {}
 var _built := false
@@ -68,6 +71,8 @@ func validate() -> PackedStringArray:
 				errs.append("%s: completes quest %s but the quest names another end NPC" % [at, q])
 		if not n.shop_id.is_empty() and not db.has("shops", n.shop_id):
 			errs.append("%s: shop %s not in canonical shops" % [at, n.shop_id])
+		if n.has_behavior("transport") and NpcTransport.boundary(nid, db).is_empty():
+			errs.append("%s: transport is enabled but misostory/npcs/%s.json has no departure boundary (travel itself is not built)" % [at, nid])
 		if n.dialogue_lines.is_empty() and n.idle_chatter.is_empty():
 			errs.append("%s: no dialogue and no idle chatter (nothing to say)" % at)
 		# The map page must list this NPC.
@@ -88,7 +93,8 @@ func validate() -> PackedStringArray:
 			errs.append("quest %s: end npc %s does not list it in quests.completed_here" % [qid, eid])
 	for aid: String in db.miso.get("npcs", {}):
 		var a: Dictionary = db.miso["npcs"][aid]
-		if not _defs.has(aid):
+		# "_" files are shared tables (e.g. _speech_bubbles.json), not NPC adaptations.
+		if not aid.begins_with(SHARED_TABLE_PREFIX) and not _defs.has(aid):
 			errs.append("misostory/npcs/%s.json: no canonical npc %s" % [aid, aid])
 		if QuestJson.s(a.get("reason")).is_empty():
 			errs.append("misostory/npcs/%s.json: missing top-level reason" % aid)

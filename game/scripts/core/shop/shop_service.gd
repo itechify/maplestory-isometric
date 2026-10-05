@@ -13,9 +13,14 @@ extends RefCounted
 ##
 ## Rules (shops.md): `price_mesos` buys `quantity_per_purchase` units (1 on every Maple Island row), so `quantity`
 ## here counts purchases (bundles) and the cost is quantity x price. MeowDB documents no per-purchase cap, no stock
-## limit and no sell restrictions; what a 0-value sale does is an adaptation (inventory.json shop section).
+## limit and no sell restrictions; what a 0-value sale does is an adaptation (inventory.json shop section), and so is
+## the quest-item guard: a sale that would leave fewer quest-critical items than an in-progress quest still needs is
+## refused with QUEST_ITEM_NEEDED (QuestItemGuard, misostory/quests/_quest_items.json).
 
 const INT64_MAX := 9223372036854775807
+## Result code of a refused sale of a quest item an in-progress quest still needs (details: quest_id, quest_name,
+## needed). Its message is MisoUiText.result_message's (ItemCodes has no entry for it).
+const QUEST_ITEM_NEEDED := "quest_item_needed"
 
 
 ## True if the shop exists in canonical data.
@@ -125,6 +130,12 @@ static func quote_sell(character: CharacterState, shop_id: String, item_id: Stri
 		"basis": def.sell_basis, "total": 0, "mesos": character.mesos}
 	if character.inventory.count(item_id) < quantity:
 		return ItemCodes.result(ItemCodes.NOT_ENOUGH_ITEMS, details)
+	var held := QuestItemGuard.needed(character, item_id, db)
+	if int(held["needed"]) > 0 and character.inventory.count(item_id) - quantity < int(held["needed"]):
+		details["quest_id"] = held["quest_id"]
+		details["quest_name"] = held["quest_name"]
+		details["needed"] = held["needed"]
+		return ItemCodes.result(QUEST_ITEM_NEEDED, details)
 	if def.sell_price < 0:
 		return ItemCodes.result(ItemCodes.NO_SELL_PRICE, details)
 	if def.sell_price == 0 and ItemsConfig.shop_rule("sell_zero_value_items", db) != true:
@@ -139,7 +150,7 @@ static func quote_sell(character: CharacterState, shop_id: String, item_id: Stri
 
 ## Sells `quantity` units of `item_id` (taken last slot first, clean copies before ones with instance data).
 ## Result: {"ok", "code", "shop_id", "item_id", "quantity", "price", "basis", "total", "mesos"}. Codes: unknown_shop,
-## unknown_item, invalid_quantity, not_enough_items, no_sell_price, zero_value_refused, meso_cap.
+## unknown_item, invalid_quantity, not_enough_items, quest_item_needed, no_sell_price, zero_value_refused, meso_cap.
 static func sell(character: CharacterState, shop_id: String, item_id: String, quantity: int, db: ContentDB,
 		bus: Object = null) -> Dictionary:
 	var res := quote_sell(character, shop_id, item_id, quantity, db)

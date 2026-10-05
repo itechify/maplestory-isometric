@@ -1,6 +1,6 @@
 {
   "id": "_system",
-  "reason": "System lines the generated NPC conversations show when an action fails (inventory full, quest cannot be accepted or completed). MeowDB publishes no client system messages, so this text is MisoStory's own wording, shown with speaker \"system\" (not as NPC speech).",
+  "reason": "System lines the generated NPC conversations show when an action fails (inventory full, quest cannot be accepted or completed) and around a transport route (level and fare checks, the unfinished-quest list, the Yes/No to board). MeowDB publishes no client system messages and no boarding dialogue, so this text is MisoStory's own wording, shown with speaker \"system\" (not as NPC speech). {name} placeholders are filled from the canonical route (destination, fare, min_level), the departure boundary (region) or, for {quests}, the character's quest log at the time the line is shown.",
   "verified": false,
   "lines": {
     "inventory_full": {
@@ -16,6 +16,31 @@
     "cannot_complete": {
       "text": "You cannot complete this quest right now.",
       "reason": "Shown when a completion is refused for a reason other than a full inventory or a wrong quiz answer.",
+      "verified": false
+    },
+    "transport_level_too_low": {
+      "text": "You need to be at least level {min_level} to sail to {destination}.",
+      "reason": "Shown when the character is below the route's canonical min_level (Shanks: level 7, from the MeowDB beginner guide). MeowDB has no refusal line for Shanks.",
+      "verified": false
+    },
+    "transport_not_enough_mesos": {
+      "text": "The fare to {destination} is {fare} mesos. Come back when you have enough.",
+      "reason": "Shown when the character holds fewer mesos than the route's canonical fare_mesos (Shanks: 300). MeowDB has no refusal line for Shanks.",
+      "verified": false
+    },
+    "departure_unfinished_quests": {
+      "text": "You still have unfinished {region} quests: {quests}.",
+      "reason": "Follows the beginner guide's canonical advice (\"Hand in every Maple Island quest before you board.\", shown on the page before) with the character's own unfinished quests, chains grouped. A warning only: boarding is still offered.",
+      "verified": false
+    },
+    "transport_offer": {
+      "text": "Sail to {destination}? The fare is {fare} mesos.",
+      "reason": "The Yes/No to board, with the canonical destination and fare. MeowDB has no boarding prompt for Shanks (gap in game/data/canonical/npcs/15.json).",
+      "verified": false
+    },
+    "cannot_travel": {
+      "text": "You cannot travel right now.",
+      "reason": "Shown when boarding is refused for a reason other than level or fare (e.g. a route without a departure boundary: travel past Maple Island is not built).",
       "verified": false
     },
     "offer_prompt": {
