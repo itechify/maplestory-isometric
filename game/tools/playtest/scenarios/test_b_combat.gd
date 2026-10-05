@@ -917,7 +917,9 @@ func _local(pos: Vector3) -> Vector3:
 
 
 ## Stands in monsters of `mob` without attacking (walking into the nearest one again after each knockback) until `n`
-## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry.
+## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry. A monster
+## the walk could not bring within reach (it paces a terrace above or below the player and stays on its floor) is
+## skipped for the next nearest one; the skips are forgotten when no other monster of the species is left.
 func _touch_probe(mob: String, n: int, max_s: float) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "touch_probe", "walk into %s without attacking until %d touches" % [_mob_name(mob), n])
 	var p := d.player()
@@ -927,17 +929,25 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 			if String(t["mob"]) == mob:
 				c += 1
 		return c
+	var out_of_reach := func(m: Monster) -> bool:
+		var v := m.global_position - p.global_position
+		return Vector2(v.x, v.z).length() > 4.0 or absf(v.y) > 0.8
 	var c0: int = from_mob.call()
 	var t0 := d.game_s()
+	var skip := {}
+	var skipped := 0
 	while (from_mob.call() as int) - c0 < n and d.game_s() - t0 < max_s:
 		await _heal_if_low()
-		var m := d.nearest_monster({"mob_id": mob, "max_dist_m": 40.0}) as Monster
+		var m := d.nearest_monster({"mob_id": mob, "max_dist_m": 40.0, "exclude": skip}) as Monster
 		if m == null:
+			skip.clear()
 			await d.wait(1.0)
 			continue
-		var to := m.global_position - p.global_position
-		if Vector2(to.x, to.z).length() > 4.0 or absf(to.y) > 0.8:
+		if out_of_reach.call(m):
 			await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": 6.0, "retries": 0})
+			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m):
+				skip[m.get_instance_id()] = true
+				skipped += 1
 			continue
 		var t1 := d.game_s()
 		var k0: int = from_mob.call()
@@ -952,7 +962,7 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 		d.input.release_movement()
 		await d.wait_until(func() -> bool: return not p.in_hitstun, 1.0)
 	var got: int = from_mob.call() - c0
-	d._end(i, got >= n, "%d touches in %.1f s" % [got, d.game_s() - t0])
+	d._end(i, got >= n, "%d touches in %.1f s; %d monsters out of reach skipped" % [got, d.game_s() - t0, skipped])
 
 
 ## Walks within `lo..hi` m (flat) of `m`, by real walking, then faces `toward` (true) or away from it with a slow step.
@@ -1523,9 +1533,9 @@ func _evaluate() -> void:
 	for h: Dictionary in hits:
 		if not bool(h.get("missed", false)):
 			stagger_hits += 1 if bool(h["kb"]) else 0
-	d.check("monster knockback: KB 1, so every landed hit on a grounded monster staggers it for its canonical hit1 clip",
+	d.check("monster knockback: KB 1, so every landed hit on a grounded monster staggers it for its canonical stagger time (the record's STAGGER, else its hit1 clip)",
 		not kb_monster.is_empty() and st_bad == 0 and stagger_hits == landed,
-		"%d of %d landed hits flagged knockback; %d stagger tracks on grounded monsters, %d off the hit1 time; durations %s" % [stagger_hits,
+		"%d of %d landed hits flagged knockback; %d stagger tracks on grounded monsters, %d off the canonical stagger time; durations %s" % [stagger_hits,
 			landed, kb_monster.size() - air_hits, st_bad, _uniq(kb_monster.filter(func(k: Dictionary) -> bool: return not bool(k["airborne"])).map(
 				func(k: Dictionary) -> String: return "%s:%.3f" % [k["mob"], float(k["stagger_s"])]))])
 	d.check("monster knockback: a hit in mid-hop cancels the hop, staggers it and pushes it away from the attacker, never toward it",
