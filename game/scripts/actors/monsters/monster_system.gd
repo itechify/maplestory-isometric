@@ -400,6 +400,9 @@ func _ensure_fx() -> void:
 			attack_fx = AttackFx.new()
 			attack_fx.name = "AttackFx"
 			add_child(attack_fx)
+	# The swing FX lay the real hit area on the ground: the attack box as deep as the hit test makes it.
+	if _db() != null:
+		attack_fx.depth_px = CombatReach.attack_box_depth_px(_db())
 
 
 ## The player's body for contact: (radius, height) of its Hurtbox capsule (player.tscn), else the movement model.

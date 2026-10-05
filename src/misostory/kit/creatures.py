@@ -355,19 +355,19 @@ def mob_tutorial_jr_sentinel(coll):
     Tall and slim like its 40 x 68 px sprite; the game fits it to the sprite height (1.7 m), where its body is about
     as wide as its 21 px touch zone and its head 1.2x."""
     mb = MeshBuilder()
-    mb.cyl(0.22, 0.1, loc=(0, 0, 0), mat="M_Flat_rock_dk", verts=10, r2=0.2)
-    mb.cyl(0.19, 0.62, loc=(0, 0, 0.08), mat="M_Grad_rock_dk__rock", verts=12, r2=0.15)
-    mb.torus(0.175, 0.03, loc=(0, 0, 0.36), mat="M_Flat_rock_moss", u=16, v=4)
+    mb.cyl(0.2, 0.1, loc=(0, 0, 0), mat="M_Flat_rock_dk", verts=10, r2=0.18)
+    mb.cyl(0.17, 0.62, loc=(0, 0, 0.08), mat="M_Grad_rock_dk__rock", verts=12, r2=0.14)
+    mb.torus(0.155, 0.03, loc=(0, 0, 0.36), mat="M_Flat_rock_moss", u=16, v=4)
     for sx in (-1, 1):
-        mb.sphere(0.07, loc=(sx * 0.16, 0, 0.66), mat="M_Flat_rock", subdiv=2)
+        mb.sphere(0.065, loc=(sx * 0.145, 0, 0.66), mat="M_Flat_rock", subdiv=2)
     mb.build("Mob_TutorialJrSentinel_Body", coll, smooth=True, sharp_angle=50)
     hd = MeshBuilder()
-    hd.sphere(0.24, loc=(0, 0, 0.95), scale=(1.0, 0.95, 0.92), mat="M_Flat_rock", subdiv=2)
-    hd.sphere(0.075, loc=(0, -0.215, 0.98), scale=(1.0, 0.5, 1.0), mat="M_Glow_portal_core", subdiv=2)
-    hd.torus(0.085, 0.015, loc=(0, -0.215, 0.98), rot=(90, 0, 0), mat="M_Flat_rock_dk", u=12, v=3)
+    hd.sphere(0.22, loc=(0, 0, 0.95), scale=(1.0, 0.95, 0.95), mat="M_Flat_rock", subdiv=2)
+    hd.sphere(0.07, loc=(0, -0.195, 0.98), scale=(1.0, 0.5, 1.0), mat="M_Glow_portal_core", subdiv=2)
+    hd.torus(0.08, 0.014, loc=(0, -0.195, 0.98), rot=(90, 0, 0), mat="M_Flat_rock_dk", u=12, v=3)
     for sx in (-1, 1):
-        hd.box((0.03, 0.09, 0.14), loc=(sx * 0.2, 0.0, 1.0), rot=(0, sx * 15, 0), mat="M_Flat_rock_dk")
-    hd.cyl(0.07, 0.16, loc=(0, 0, 1.13), mat="M_Flat_rock_dk", verts=6, r2=0.0)
+        hd.box((0.03, 0.09, 0.14), loc=(sx * 0.185, 0.0, 1.0), rot=(0, sx * 15, 0), mat="M_Flat_rock_dk")
+    hd.cyl(0.065, 0.16, loc=(0, 0, 1.13), mat="M_Flat_rock_dk", verts=6, r2=0.0)
     hd.build("Mob_TutorialJrSentinel_Head", coll, smooth=True, sharp_angle=50)
     _rescale(coll, "Mob_TutorialJrSentinel")
 
