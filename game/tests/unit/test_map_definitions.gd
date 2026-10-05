@@ -191,6 +191,8 @@ func test_npc_parity_report() -> void:
 		int(d.npc_report.matched), ", ".join(missing) if not missing.is_empty() else "none",
 		", ".join(extra) if not extra.is_empty() else "none"])
 	assert_eq(int(d.npc_report.matched) + missing.size(), 21, "every MeowDB NPC is placed")
+	# Blender NPCs MeowDB does not place on Maple Island (ignored by the runtime). Mai is a MeowDB NPC (A Split Road),
+	# so a Mai marker left over would be a mismatch, not an extra: she is not in this list.
 	for m in d.npc_report.extra_markers:
-		var known := ["Tia", "Maple Administrator", "Paul", "Mai"]
+		var known := ["Tia", "Maple Administrator", "Paul"]
 		assert_true(String(m.name) in known, "unexpected extra Blender NPC %s on %s" % [m.name, m.map_id])
