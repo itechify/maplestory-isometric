@@ -538,11 +538,12 @@ the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH
 - **A route of named steps** (`STEPS`), in the island's order: Heena and Sera, Roger, Nina and Sen, Todd and Peter,
   Robin, Sam (the first SP: Three Snails learned with "+", put on key 1 and thrown at a Snail), the Snail Hunting
   Grounds to A Split Road (Mai, Maria), Southperry (Yoona, Bari, Biggs, Shanks refusing a low level, Pan), Mai's
-  training, Recovery and Nimble Feet, The Field West of Amherst (1010's Orange Mushroom, 1011's drops, a death),
-  Amherst (Lucas, Rain's quizzes, Pio's boxes, The Green Relaxer), Sid, Lucy, the maps around Amherst and the six
-  forest maps, the last turn-ins, the quest hat and knife, Pan again, the boarding level and fare, and Shanks. Each
-  step is checked done in `d.carry["steps_done"]`, so a phase resumes at the first step not done; every step reads
-  the live game state (quest status, inventory), so a restart in the middle of a step resumes it.
+  training, Recovery and Nimble Feet, The Field West of Amherst (1010's Orange Mushroom, 1011's drops), Amherst
+  (Lucas, Pio's boxes), a death back in The Field West of Amherst, The Green Relaxer sat on at low HP where the
+  respawn left the player, Rain's quizzes, Sid, Lucy (an Orange after a Nimble Feet cast), the maps around Amherst and
+  the six forest maps, the last turn-ins, the quest hat and knife, Pan again, the boarding level and fare, and
+  Shanks. Each step is checked done in `d.carry["steps_done"]`, so a phase resumes at the first step not done; every
+  step reads the live game state (quest status, inventory), so a restart in the middle of a step resumes it.
 - **Quests** are played by `PlaytestQuestRunner` with the canonical checks of the every-quest set
   (`mid_reload_policy` "listed": the process restarts in the middle of 1009 and of 1012).
 - **Restarts:** after Mushroom Town (plus an in-process Save, Quit to Title and Continue), after Southperry, in the
@@ -554,10 +555,11 @@ the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH
   two Red Potions; a buy it cannot afford is tried, refused and retried on a later visit) and sells (loot no open quest
   needs, keeping 6 Snail Shells for Three Snails); the death. Prices, rewards, levels, the route's fare and level, the
   death penalty and the return maps are read from canonical data.
-- **The death:** when no death has happened by the Orange Mushroom hunt, `let_monsters_win` walks into the Orange
+- **The death:** when no death has happened by then (after Pio), `let_monsters_win` walks into the Orange
   Mushrooms, Red Snails and Shrooms of The Field West of Amherst without attacking or drinking until they win; the
   notice's OK respawns the player at the map's canonical return map (Amherst), and the EXP lost is checked against
-  `formulas/death.json`.
+  `formulas/death.json`. The respawn leaves the player at low HP, so the chair that follows shows its own bonus on
+  top of natural recovery (one interval seated: the bonus plus one or two natural ticks).
 - **The audit** (`k.track()` plus checkpoints) is in `d.carry`: `checkpoints`, `exp_by_source`, `kills_by_mob`,
   `visited_maps`, `talked_to`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_used`, `skills_cast`, `shops`,
   `equipped`, `chair`, `departure`, `quest_evidence`, `findings` and `totals`. The end of the run checks every
