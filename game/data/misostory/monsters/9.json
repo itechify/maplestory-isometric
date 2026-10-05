@@ -15,6 +15,7 @@
   "hop_interval_s": [1.2, 2.8],
   "hop_apex": "character_base_jump",
   "hop_max_drop_m": 2.0,
+  "hop_floor_rule": "spawn_floor_one_hop",
   "reasons": {
     "model": "Iteration One's Orange Mushroom proxy in assets/world/_library.glb (MeowDB publishes stats, not art; no MapleStory sprite is used).",
     "capsule_radius_m": "Physics body only (kill plane, debug overlays); movement uses probes and combat the canonical touch zone. Kept inside the cap (half the touch-zone width would be 0.79 m).",
@@ -27,6 +28,7 @@
     "touch_rule": "Not a Peace monster: its canonical touch zone always deals contact damage.",
     "hop_interval_s": "Unpublished (MeowDB gives no jump rule): while walking it hops forward every 1.2-2.8 s when the landing spot is valid, and it also hops instead of turning when a ledge or a low terrace blocks it, so it really changes floors.",
     "hop_apex": "MeowDB publishes no monster jump height. Classic monsters share the character physics, so the hop uses the character's canonical base jump (jump_height_px_by_jump at Jump 100, 77 px x WorldScale.v = 0.90 m) and the canonical gravity (knockback_airtime.gravity_px_per_s2), so it reads like a player hop. It can land on ground up to hop_max_rise_apex_fraction (monsters/_shared.json) of the apex above its feet.",
-    "hop_max_drop_m": "The deepest floor below it may hop down to (about two classic platform tiers). Deeper drops are treated as cliffs and it turns."
+    "hop_max_drop_m": "The deepest floor below it may hop down to (about two classic platform tiers). Deeper drops are treated as cliffs and it turns.",
+    "hop_floor_rule": "MeowDB: 'Jumps between floors. Can hop to a floor above or below its spawn point.' MisoStory counts floors from the spawn point, not from where the monster stands now. Its spawn floor is the walkers' floor (monsters/_shared.json floor_band_m around its spawn height, widened to its spawn region's tier). From the spawn floor a hop may land on a floor above (up to hop_max_rise_apex_fraction of the hop apex, 0.81 m, higher) or below (up to hop_max_drop_m lower); that floor becomes its current floor, where it walks within floor_band_m of the landing height. From a floor above or below, a hop may only land on that same floor or back on the spawn floor, never on a second floor further away. Iteration Two measured each hop from the current position only, so repeated hops could carry it up or down a whole hillside of terraces."
   }
 }

@@ -26,11 +26,13 @@
   },
   "monster_knockback": {
     "stagger_rule": "damage_at_least_kb",
+    "stagger_from_canonical_record": true,
     "stagger_duration": "hit_animation",
     "hit_animation_clip": "hit1",
     "fallback_stagger_s": 0.6,
     "knockback_distance_px": 20,
-    "reason": "Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. MeowDB does not publish the knockback distance or the stagger time (movement.json monster_knockback.gaps). MisoStory staggers a monster for the length of its own canonical hit animation (monsters/*.json animations.hit1.duration_ms; Snail 600 ms). During that time it pushes the monster 20 px away from the attacker. A monster without a hit clip staggers for 0.6 s, the length of the Maple Island hit clips.",
+    "airborne_hit": "cancel_hop_then_push",
+    "reason": "Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. The stagger time is published too: the live MeowDB monster pages read on 2026-10-05 show 'STAGGER 0.6 seconds - How long the mob is staggered for when knocked back' for all six Maple Island species (tools/meowdb/captures/monster_*.json|txt). With stagger_from_canonical_record, MonsterDef staggers a monster for the stagger time its canonical record carries (monsters/<id>.json stagger_s, or stagger_ms); a record without one falls back to the length of its own canonical hit animation (stagger_duration 'hit_animation': animations.hit1.duration_ms, 600 ms on every Maple Island monster, the same 0.6 s), then to fallback_stagger_s. Only the push is unpublished (movement.json monster_knockback.gaps): MisoStory pushes a staggered monster 20 px (knockback_distance_px) away from the attacker over the stagger time, stopping at a ledge, a wall, its mob region or its floor. A hit that lands while a jumper is in the air (MeowDB says nothing about it) cancels the rest of the hop (airborne_hit 'cancel_hop_then_push'): the monster keeps its vertical speed and falls straight down from where it was hit, and the push runs during the fall and after the landing, over ground that stays on its floor, so a monster hit mid-hop is pushed away from the attacker like one hit on the ground instead of carrying on toward the attacker.",
     "verified": false
   },
   "fixed_damage_skills": {

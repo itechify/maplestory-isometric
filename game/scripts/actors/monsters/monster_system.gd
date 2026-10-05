@@ -255,6 +255,19 @@ func monster_touch(m: Monster) -> bool:
 	return true
 
 
+## The authored height band (Vector2(y_lo, y_hi)) of the spawn region slot `slot_index` of `def` was placed in
+## (SpawnSlotPlanner sets SpawnSlot.region to the area's name), or (NAN, NAN) when it has none: a monster's floor
+## covers its region's tier (MonsterDef.floor_range).
+static func region_band(def: MapDefinition, slot_index: int) -> Vector2:
+	if def == null or slot_index < 0 or slot_index >= def.monster_spawn_definitions.size():
+		return Vector2(NAN, NAN)
+	var name_ := def.monster_spawn_definitions[slot_index].region
+	for a in def.spawn_areas:
+		if String(a.get("name", "")) == name_:
+			return Vector2(float(a.get("y_lo", NAN)), float(a.get("y_hi", NAN)))
+	return Vector2(NAN, NAN)
+
+
 ## The mob region of `def` (cached per map).
 func region_for(def: MapDefinition) -> MobRegion:
 	if def == null:
@@ -351,6 +364,9 @@ func _new_monster(mob_id: String, xform: Transform3D, def: MapDefinition, map_id
 		m.settle_down_m = t.num("grounding", "probe_down_m")
 	var seed_value := hash("%s:%d:%d" % [map_id, slot_index, _spawn_counter])
 	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp)
+	var band := region_band(def, slot_index)
+	if not is_nan(band.x):
+		m.set_region_band(band.x, band.y)
 	var fade := _tuning().num("spawns", "fade_in_s") if _tuning() != null else 0.0
 	m.visual.start_spawn(fade)
 	monster_spawned.emit(m)
