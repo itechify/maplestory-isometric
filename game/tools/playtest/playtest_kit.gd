@@ -66,6 +66,19 @@ const SHUN_S := 4.0
 ## Three Snails: where to stand from the target for a throw, well inside the canonical 50-300 px band (px, actor
 ## scale), as test_skills does.
 const THROW_FROM_PX := 150.0
+## break_box (test_box's approach): stand at this share of the weapon's reach, on approach spots in this many
+## directions within this height (m) of the box's feet; attack only within BOX_ATTACK_DY_M (m) of its height; try at
+## most BOX_SPOTS spots; stand closer after BOX_WHIFF_RUN whiffs in a row.
+const BOX_REACH_SHARE := 0.6
+const BOX_APPROACH_DIRS := 8
+const BOX_APPROACH_DY_M := 0.3
+const BOX_ATTACK_DY_M := 0.8
+const BOX_SPOTS := 6
+const BOX_WHIFF_RUN := 3
+## The planners break_box walks to its approach spots with, in turn (the routes first: they lead down a terrace the
+## grid would walk along the top of), and how many boxes break_box(null) tries before giving up.
+const BOX_PLANNERS := ["routes", "auto", "grid"]
+const BOX_CANDIDATES := 3
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -1780,6 +1793,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	var want := int(opts.get("casts", 1))
 	var ideal := WorldScale.actor(THROW_FROM_PX)
 	var t0 := d.game_s()
+	var stuck := 0
 	while not died[0] and int(skills.get("casts")) - casts0 < want and d.game_s() - t0 < float(opts.get("max_s", 40.0)):
 		await d.get_tree().process_frame
 		d.input.reassert()
@@ -1791,9 +1805,14 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 		var dist := to.length()
 		if dist > 6.0 or absf(dy) > 1.0:
 			d.input.release_movement()
+			if stuck >= 3:
+				out["why"] = "no way to it from here (%.1f m away, %.1f m up/down)" % [dist, dy]
+				break
 			var tgt := target
-			await d.walk_to(d.walker.grounded(target.global_position), {"max_s": 6.0, "within_m": ideal,
-				"stop_when": func() -> bool: return not is_instance_valid(tgt) or _flat_m(tgt.global_position, p.global_position) <= ideal})
+			var wr: Dictionary = await d.walk_to(d.walker.grounded(target.global_position), {"max_s": 6.0, "within_m": ideal,
+				"stop_when": func() -> bool: return not is_instance_valid(tgt) or (_flat_m(tgt.global_position, p.global_position) <= ideal
+					and absf(tgt.global_position.y - p.global_position.y) <= 1.0)})
+			stuck = stuck + 1 if float(wr.get("distance_m", 0.0)) < 0.2 else 0
 			continue
 		var dir := to.normalized() if dist > 0.01 else p.facing
 		if dist > ideal + 1.0:
@@ -1824,7 +1843,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	out["mp1"] = c.mp
 	out["shells1"] = c.inventory.count(shell)
 	out["ok"] = hits[0] > 0
-	if not bool(out["ok"]):
+	if not bool(out["ok"]) and String(out["why"]) == "":
 		out["why"] = "no throw hit it in %.0f s (%d casts)" % [d.game_s() - t0, int(out["casts"])]
 	return out
 
@@ -1841,7 +1860,7 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	var p := d.player()
 	var skip := {}
 	while not is_dead() and d.game_s() - t0 < float(opts.get("max_s", 300.0)):
-		var m := _same_tier_monster(mob_ids, skip)
+		var m := same_tier_monster(mob_ids, skip)
 		if m == null:
 			skip.clear()
 			await d.wait(1.0)
@@ -1876,8 +1895,9 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	return out
 
 
-## The nearest live monster of `mob_ids` on the player's tier (within 1 m of height), not in `skip`; null when none.
-func _same_tier_monster(mob_ids: Array, skip: Dictionary) -> Node3D:
+## The nearest live monster of `mob_ids` (any species when empty) on the player's tier (within 1 m of height), not in
+## `skip` (instance id -> true); null when none.
+func same_tier_monster(mob_ids: Array, skip: Dictionary) -> Node3D:
 	var p := d.player()
 	var ms := d.monsters()
 	if p == null or ms == null:
@@ -1936,54 +1956,145 @@ func breakables(include_broken: bool = false) -> Array:
 	return out
 
 
-## Breaks a Wooden Box (C8: it breaks after hits_to_break landed hits and drops through DropRoller): walks up to it
-## (the survival policy on the way), faces it and presses the attack key until is_broken(), then picks up what it
-## dropped. `box`: a node from breakables(), or null for the nearest unbroken one. Returns {"ok" (broken), "key",
-## "hits" (hits_left() steps seen), "attacks", "picked", "why"}. Await it.
+## Breaks a Wooden Box (C8: it breaks after hits_to_break landed hits and drops through DropRoller), the way test_box
+## proved on every Amherst box: walks to a spot beside it on the box's own ground (approach spots in BOX_APPROACH_DIRS
+## directions at BOX_REACH_SHARE of the weapon's reach, within BOX_APPROACH_DY_M of the box's feet, the body
+## fitting; the survival policy on the way), steps back out of a box it stands in, faces it, presses the attack key,
+## and stands closer after BOX_WHIFF_RUN whiffs in a row; then picks up what it dropped. A walk that ends beside the
+## box but on another tier (a ledge, a prop top) is not attacked from: the next approach spot is tried, at most
+## BOX_SPOTS, each with the next planner of BOX_PLANNERS. `box`: a node from breakables(), or null for the nearest
+## unbroken one; then a box the player cannot stand beside (on the far side of a terrace from where the walks start)
+## is passed over for the next nearest, at most BOX_CANDIDATES (the result lists them in "passed_over"). Returns
+## {"ok" (broken), "key", "hits" (hits_left() steps seen), "attacks", "whiffs", "picked", "spots", "why", "pos" (box,
+## map-local), "passed_over"}. Await it.
 func break_box(box: Node3D = null, opts: Dictionary = {}) -> Dictionary:
-	var out := {"ok": false, "key": "", "hits": 0, "attacks": 0, "picked": 0, "why": ""}
-	if box == null:
-		var all := breakables()
-		if all.is_empty():
-			out["why"] = "no unbroken Wooden Box in %s (group miso_breakables, contract C8)" % d.current_map()
-			return out
-		box = all[0]
+	if box != null:
+		return await _break_one(box, opts)
+	var all := breakables()
+	if all.is_empty():
+		return {"ok": false, "key": "", "hits": 0, "attacks": 0, "whiffs": 0, "picked": 0, "spots": 0, "pos": "", "passed_over": [],
+			"why": "no unbroken Wooden Box in %s (group miso_breakables, contract C8)" % d.current_map()}
+	var passed: Array = []
+	var r: Dictionary = {}
+	for cand: Node3D in all.slice(0, BOX_CANDIDATES):
+		if not is_instance_valid(cand) or bool(cand.call("is_broken")):
+			continue
+		r = await _break_one(cand, opts)
+		if bool(r["ok"]) or not String(r["why"]).begins_with("could not stand"):
+			break
+		passed.append("%s: %s" % [r["key"], r["why"]])
+	r["passed_over"] = passed
+	return r
+
+
+func _break_one(box: Node3D, opts: Dictionary) -> Dictionary:
+	var out := {"ok": false, "key": "", "hits": 0, "attacks": 0, "whiffs": 0, "picked": 0, "spots": 0, "why": "", "pos": ""}
 	out["key"] = String(box.call("placement_key")) if box.has_method("placement_key") else ""
+	out["pos"] = _local(box.global_position)
 	var p := d.player()
 	var pc := d.combat()
-	var reach := float(opts.get("reach_m", 0.7))
-	await walk_safely(d.walker.grounded(box.global_position), {"within_m": reach, "max_s": 40.0})
+	var stand := float(opts.get("reach_m", box_reach_m() * BOX_REACH_SHARE))
+	var spots: Array = []
+	var tried := 0
+	var whiff_run := 0
 	var t0 := d.game_s()
 	var last_left := int(box.call("hits_left"))
-	while is_instance_valid(box) and not bool(box.call("is_broken")) and d.game_s() - t0 < float(opts.get("max_s", 30.0)):
+	while is_instance_valid(box) and not bool(box.call("is_broken")) and d.game_s() - t0 < float(opts.get("max_s", 60.0)):
 		if is_dead():
 			out["why"] = "the player died"
 			break
+		await d.get_tree().process_frame
+		d.input.reassert()
 		var to := box.global_position - p.global_position
+		var dy := absf(to.y)
 		to.y = 0.0
-		if to.length() > reach + 0.3:
-			await walk_safely(d.walker.grounded(box.global_position), {"within_m": reach, "max_s": 10.0, "retries": 0})
+		var dist := to.length()
+		if dist > 2.5 or dy > BOX_ATTACK_DY_M:
+			if tried == 0:
+				spots = box_spots(box, stand)
+			if tried >= mini(BOX_SPOTS, spots.size()):
+				out["why"] = "could not stand beside the box (%.1f m away, %.1f m up/down after %d approach spots)" % [dist, dy, tried]
+				break
+			var spot: Vector3 = spots[tried]
+			tried += 1
+			d.input.release_movement()
+			await walk_safely(spot, {"within_m": 0.35, "max_s": 40.0, "retries": 1,
+				"planner": BOX_PLANNERS[(tried - 1) % BOX_PLANNERS.size()]})
 			continue
-		var dir := to.normalized() if to.length() > 0.01 else p.facing
-		if p.facing.dot(dir) < cos(deg_to_rad(20.0)):
+		if dist > stand + 0.2:
+			d.input.set_move_world(to.normalized(), p.view_right, p.view_forward)
+			continue
+		if dist < 0.25:
+			# Standing in the (walk-through) box: step back out of it.
+			d.input.set_move_world(-p.facing, p.view_right, p.view_forward)
+			continue
+		d.input.release_movement()
+		var dir := to.normalized()
+		if p.facing.dot(dir) < cos(deg_to_rad(15.0)):
 			d.input.set_move_world(dir * 0.2, p.view_right, p.view_forward)
 			await d.get_tree().physics_frame
 			await d.get_tree().process_frame
 			d.input.release_movement()
 			continue
-		if pc != null and bool(pc.call("can_attack")):
-			await d.input.tap_action(&"attack")
-			out["attacks"] = int(out["attacks"]) + 1
+		if pc == null or not bool(pc.call("can_attack")):
+			continue
+		var swings := int(pc.get("attacks"))
+		await d.input.tap_action(&"attack")
+		if int(pc.get("attacks")) == swings:
+			continue
+		out["attacks"] = int(out["attacks"]) + 1
 		await d.frames(1)
 		var left := int(box.call("hits_left")) if is_instance_valid(box) else 0
-		if left < last_left:
-			out["hits"] = int(out["hits"]) + (last_left - left)
+		if left < last_left or (is_instance_valid(box) and bool(box.call("is_broken"))):
+			out["hits"] = int(out["hits"]) + maxi(1, last_left - left)
 			last_left = left
+			whiff_run = 0
+		else:
+			out["whiffs"] = int(out["whiffs"]) + 1
+			whiff_run += 1
+			if whiff_run >= BOX_WHIFF_RUN:
+				stand = maxf(0.4, stand * 0.8)
+				whiff_run = 0
+	d.input.release_movement()
+	out["spots"] = tried
 	out["ok"] = is_instance_valid(box) and bool(box.call("is_broken"))
 	if bool(out["ok"]):
 		await d.wait(0.8)
 		var pk := await pickup(4.0, 10.0)
 		out["picked"] = int(pk["picked"])
 	elif String(out["why"]) == "":
-		out["why"] = "not broken after %d attacks" % int(out["attacks"])
+		out["why"] = "not broken after %d attacks (%d whiffs), %.0f s" % [int(out["attacks"]), int(out["whiffs"]), d.game_s() - t0]
+	return out
+
+
+## How far (m) the equipped weapon's ordinary attack reaches a box: the nearest far edge of its canonical attack boxes
+## (CombatReach) plus half the box's touch width (misostory/breakables.json), at actor scale (test_box's rule).
+func box_reach_m() -> float:
+	var c := d.character()
+	var stats := PlayerCombatStats.from_character(c, db)
+	var weapon := stats.weapon if stats.weapon != null else WeaponProfile.bare_hands(db)
+	var far := INF
+	for action: Variant in weapon.ordinary_actions().keys():
+		for pres in weapon.presentations_for(String(action)):
+			far = minf(far, CombatReach.attack_box_px(weapon, pres, true, c.level).end.x)
+	return WorldScale.actor((0.0 if far == INF else far) + BreakableRules.touch_px(db).x * 0.5)
+
+
+## Spots `stand` m around `box` in BOX_APPROACH_DIRS directions whose ground is the box's own (within
+## BOX_APPROACH_DY_M) and where the body fits, nearest to the player first.
+func box_spots(box: Node3D, stand: float) -> Array:
+	var p := d.player()
+	var feet := box.global_position
+	var away := p.global_position - feet
+	away.y = 0.0
+	var base := away.normalized() if away.length() > 0.01 else Vector3.BACK
+	var out: Array = []
+	for k in BOX_APPROACH_DIRS:
+		var spot: Vector3 = d.walker.grounded(feet + base.rotated(Vector3.UP, TAU * k / BOX_APPROACH_DIRS) * stand)
+		if absf(spot.y - feet.y) <= BOX_APPROACH_DY_M and d.walker.standable(spot):
+			out.append(spot)
+	var from := p.global_position
+	out.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.distance_to(from) < b.distance_to(from))
+	if out.is_empty():
+		out.append(d.walker.grounded(feet + base * stand))
 	return out

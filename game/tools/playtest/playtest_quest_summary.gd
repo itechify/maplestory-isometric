@@ -64,10 +64,12 @@ static func collect(out_dir: String, chains: PackedStringArray) -> Dictionary:
 		var strict_ok := bool(strict.get("ok", false))
 		var totals: Dictionary = r.get("totals", {})
 		var console_setup := 0
+		var setup_cmds := PackedStringArray()
 		var since := int((strict.get("since", {}) as Dictionary).get("step", 1 << 30))
 		for st: Variant in r.get("steps", []):
 			if st is Dictionary and String((st as Dictionary).get("kind", "")) == "console" and int((st as Dictionary).get("i", 0)) < since:
 				console_setup += 1
+				setup_cmds.append(String((st as Dictionary).get("detail", "")))
 		chain_rows.append({"chain": chain, "dir": dir, "result": String(r.get("result", "NO REPORT")),
 			"strict": "ok" if strict_ok else ("VIOLATED" if bool(strict.get("enabled", false)) else "off"),
 			"game_s": float(totals.get("game_s", 0.0)), "wall_s": float(totals.get("wall_s", 0.0)),
@@ -92,7 +94,8 @@ static func collect(out_dir: String, chains: PackedStringArray) -> Dictionary:
 				"failed": Array(q.get("failed", [])), "warnings": int(q.get("warnings", 0)),
 				"random": Array((r.get("carry", {}) as Dictionary).get("random_%s" % id, [])),
 				"evidence": (((r.get("carry", {}) as Dictionary).get("quest_evidence", {}) as Dictionary).get(id, {})),
-				"console_setup": console_setup, "setup": ((r.get("carry", {}) as Dictionary).get("setup", {}))}
+				"console_setup": console_setup, "setup_commands": setup_cmds,
+				"strict_since": String(strict.get("reason", ""))}
 			if q.is_empty():
 				# The run ended before the scenario's own verdict: rebuilt from the parity keys.
 				var pk: Dictionary = parity.get("quest:" + id, {})
@@ -271,12 +274,13 @@ static func _aspect(q: Dictionary, aspect: String) -> String:
 			if m.is_empty():
 				return "-"
 			return "%s in %s (phase %d -> %s): %s%s" % [m.get("when", ""), m.get("map", ""), int(m.get("phase", 0)),
-				str(m.get("resumed_phase", "?")), "progress restored" if bool(m.get("verified", false)) else "NOT verified",
+				str(int(m["resumed_phase"])) if m.has("resumed_phase") else "?", "progress restored" if bool(m.get("verified", false)) else "NOT verified",
 				("; Quest Log after: " + String(m["log_row_after"])) if String(m.get("log_row_after", "")) != "" else ""]
 		"Setup":
-			var st: Dictionary = q.get("setup", {})
-			return "%d console step(s): %s" % [int(q.get("console_setup", 0)), ("warp %s, level %d, prerequisites %s" % [st.get("map", "?"),
-				int(st.get("level", 1)), st.get("complete", [])]) if not st.is_empty() else "-"]
+			var cmds := PackedStringArray(q.get("setup_commands", []))
+			if cmds.is_empty():
+				return "none: strict %s" % String(q.get("strict_since", "")) if String(q.get("strict_since", "")) != "" else "none"
+			return "%d console step(s) before strict mode (%s): %s" % [cmds.size(), q.get("strict_since", ""), "; ".join(cmds)]
 	return "-"
 
 

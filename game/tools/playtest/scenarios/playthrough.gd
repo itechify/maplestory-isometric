@@ -52,7 +52,7 @@ const TOPUP_BUDGET_S := 2400.0
 const STEPS := [
 	"heena_sera", "roger", "nina_sen", "todd_peter", "save_title_continue", "reload:Mushroom Town done",
 	"robin", "sam", "first_skill", "to_split_road", "mai_maria", "southperry", "pan_first", "reload:Southperry",
-	"mai_training", "more_skills", "field_west", "death", "amherst_letters", "pio", "chair", "rain",
+	"mai_training", "more_skills", "field_west", "amherst_letters", "pio", "death", "chair", "rain",
 	"sid", "lucy", "explore_amherst", "reload:Amherst done",
 	"explore_forests", "split_road_turn_ins", "biggs", "equip_rewards", "pan_last", "ready_to_sail",
 	"reload:before boarding", "shanks", "save_after_departure", "reload:after the departure", "after_departure",
@@ -474,16 +474,29 @@ func _throw_three_snails(mobs: Array) -> bool:
 		d.soft_check("a Snail Shell and %d MP to throw Three Snails" % def.mp_cost(lv), false, "shells %d, MP %d" % [
 			c.inventory.count(shell), c.mp], ["skill:" + THREE_SNAILS])
 		return true
-	var target := k.nearest_of(mobs, {"max_dist_m": 30.0})
-	for i in 10:
-		if target != null:
+	# A target on the player's own tier; one the walk cannot get level with (a ledge above) is passed over.
+	var skip := {}
+	var r: Dictionary = {}
+	var target: Node3D = null
+	for attempt in 4:
+		target = k.same_tier_monster(mobs, skip)
+		for i in 10:
+			if target != null:
+				break
+			await d.wait(1.0)
+			target = k.same_tier_monster(mobs, skip)
+		if target == null:
 			break
-		await d.wait(1.0)
-		target = k.nearest_of(mobs, {"max_dist_m": 30.0})
-	if target == null:
+		r = await k.throw_at(target, {"casts": 3, "max_s": 40.0})
+		if bool(r["ok"]) or int(r["casts"]) > 0:
+			break
+		d.note("Three Snails: %s passed over (%s)" % [k.mob_name(String(target.get("def").get("id"))) if is_instance_valid(target)
+			else "a target", r["why"]])
+		if is_instance_valid(target):
+			skip[target.get_instance_id()] = true
+	if target == null and r.is_empty():
 		d.soft_check("a %s in sight to throw Three Snails at" % k.mob_name(String(mobs[0])), false, d.current_map(), ["skill:" + THREE_SNAILS])
 		return true
-	var r: Dictionary = await k.throw_at(target, {"casts": 3, "max_s": 40.0})
 	var fixed := int(def.fixed_damage(lv))
 	var exact := true
 	for v: Variant in r["damage"]:
