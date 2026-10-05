@@ -22,22 +22,28 @@
 #                       runs of one seed
 #   --quest <ids>       for the `quest` scenario: a quest id, a chain "1013-1019" or "1006,1009,1010" (the QUEST
 #                       environment variable does the same); scripts/playtest_quests.sh runs every quest
+#   --resume            continue a run that stopped between phases (PLAYTEST_STOP_PHASE, below) in --out: its report
+#                       and saves are kept and the next phase starts with --continue-run (development only: the report
+#                       then mixes the code of two runs)
 # A scenario that calls reload_process() runs as several processes (phases) sharing <out>/saves; this script starts
-# the next one while the report asks for it. Exit code: 0 when the report passes, 1 on a failed check or an error,
-# 2 on a bad command line or when no report was written.
+# the next one while the report asks for it (at most 12 phases). PLAYTEST_STOP_PHASE=<n> stops before phase n starts
+# and leaves the report RELOADING (exit 1), to be continued with --resume: a long scenario can be developed one
+# phase at a time from a copy of its --out directory. Exit code: 0 when the report passes, 1 on a failed check or an
+# error, 2 on a bad command line or when no report was written.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 SCEN_DIR="$REPO/game/tools/playtest/scenarios"
 RUNNER="res://tools/playtest/playtest_runner.tscn"
-MAX_PHASES=8
+MAX_PHASES=12
 
 usage() { awk 'NR > 1 && /^#/ { sub(/^# ?/, ""); print; next } NR > 1 { exit }' "$0"; }
 list() { for f in "$SCEN_DIR"/*.gd; do [[ -e "$f" ]] && basename "$f" .gd; done; }
 
-SCEN=""; WINDOWED=0; REALTIME=0; OUT=""; PASS=()
+SCEN=""; WINDOWED=0; REALTIME=0; OUT=""; PASS=(); RESUME=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --windowed) WINDOWED=1; shift ;;
+    --resume) RESUME=1; shift ;;
     --realtime) REALTIME=1; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --seed|--max-s|--max-wall-s|--quest) PASS+=("$1" "${2:-}"); shift 2 ;;
@@ -96,12 +102,27 @@ else
 fi
 
 echo "playtest.sh: $SCEN in $PROJECT -> $OUT"
-# A report left in a reused --out directory must never stand in for this run's (a runner that dies before it writes
-# would otherwise leave the old result to be read below).
-rm -f "$OUT/report.json" "$OUT/report.md"
 phase=0
 code=0
+if [[ "$RESUME" == "1" ]]; then
+  # Continue a run that stopped between phases: its report must ask for the next phase.
+  if [[ ! -f "$OUT/report.json" ]] || ! grep -q '"reload_requested": true' "$OUT/report.json" \
+      || ! grep -q '"finished": false' "$OUT/report.json"; then
+    echo "playtest.sh: --resume needs a report in $OUT that asks for the next phase" >&2
+    exit 2
+  fi
+  phase="$(grep -o '"end": "reload"' "$OUT/report.json" | wc -l | tr -d ' ')"
+  echo "playtest.sh: resuming at phase $phase"
+else
+  # A report left in a reused --out directory must never stand in for this run's (a runner that dies before it writes
+  # would otherwise leave the old result to be read below).
+  rm -f "$OUT/report.json" "$OUT/report.md"
+fi
 while :; do
+  if [[ -n "${PLAYTEST_STOP_PHASE:-}" && $phase -ge ${PLAYTEST_STOP_PHASE} && $phase -gt 0 ]]; then
+    echo "playtest.sh: PLAYTEST_STOP_PHASE=$PLAYTEST_STOP_PHASE: stopping before phase $phase (continue with --resume)"
+    break
+  fi
   EXTRA=()
   [[ $phase -gt 0 ]] && EXTRA+=(--continue-run)
   before="$(cksum 2>/dev/null < "$OUT/report.json" || echo none)"

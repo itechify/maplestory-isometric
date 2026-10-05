@@ -21,7 +21,7 @@ extends Node
 
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const DEFAULT_SEED := 1
-const MAX_PHASES := 8
+const MAX_PHASES := 12
 ## Exit code when the process has to end itself after a reload request the game did not complete.
 const RELOAD_EXIT_CODE := 75
 ## The largest default wall-time budget (s): below scripts/playtest.sh's outer timeout (3600 s by default).
