@@ -1,0 +1,105 @@
+{
+  "id": "1161",
+  "name": "Indigo Miniskirt",
+  "game_item_id": "1061002",
+  "type": "Equip",
+  "subtype": "Bottom",
+  "inventory_tab": "equip",
+  "equip_slot": "bottom",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "wdef": 4,
+    "upgrade_slots": 7
+  },
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 50,
+  "sell_price_mesos": 0,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_api",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "female",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "16",
+        "npc_name": "Pan",
+        "npc_role": "Armor Seller",
+        "map_id": "000000061",
+        "map_name": "Maple Road: Southperry Armor Store",
+        "town": "Maple Road (Beginner Zone)",
+        "price_mesos": 50,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": null,
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/1161",
+    "retrieved_at": "2026-10-04T10:08:18.044Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/1161?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:52.243Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/1161?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:52.243Z"
+    },
+    "sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/api/items/1161?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:52.243Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=1161",
+      "retrieved_at": "2026-10-04T10:46:50.658Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Sell-back 0: the item page shows no \"NPC Sell-back\" row and the item API records stats.price = 0."
+  ],
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

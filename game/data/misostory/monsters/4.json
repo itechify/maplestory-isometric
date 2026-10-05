@@ -1,0 +1,26 @@
+{
+  "id": "4",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "Shroom (MeowDB monster 4) in the isometric 3D world: its model, body, movement model and AI timings. Gameplay stats (level, HP, EXP, P.DMG, ACC, AVOID, KB, the speed modifier, the touch zone, the sprite size and the animation times) are NOT repeated here: MonsterDef reads them from data/canonical/monsters/4.json. The values every species shares (the terrain probes, the wander rhythm, the model fit, the hop and fall tolerances) come from monsters/_shared.json; a key named here overrides the shared value. Owner: the monster system (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md).",
+  "model": "Mob_Shroom",
+  "capsule_radius_m": 0.3,
+  "capsule_height_m": 0.9,
+  "walk_style": "bounce",
+  "speed_model": "walk_line_no_character_bonus",
+  "movement_kind": "walk",
+  "idle_s": [0.8, 2.0],
+  "walk_s": [1.5, 3.5],
+  "touch_rule": "always",
+  "reasons": {
+    "model": "Iteration One's Shroom proxy in assets/world/_library.glb (MeowDB publishes stats, not art; no MapleStory sprite is used).",
+    "capsule_radius_m": "Physics body only (kill plane, debug overlays); movement uses probes and combat the canonical touch zone. Kept inside the cap (half the touch-zone width would be 0.45 m).",
+    "capsule_height_m": "The canonical touch-zone height, 36 px x WorldScale.actor (0.025 m/px).",
+    "walk_style": "Presentation: a mushroom bounces a little per step, one cycle per canonical move clip (720 ms).",
+    "speed_model": "MeowDB publishes a speed modifier per monster (Shroom: speed -30) but no monster speed formula. px/s = slope of MeowDB's walk line (1.25 px/s per Speed point, from its published 150 px/s at Speed 100 and 200 px/s at Speed 140) x (base Speed 100 + modifier), without the character-only '+20 Speed behind the scenes': 1.25 x 70 = 87.5 px/s x WorldScale.h = 1.75 m/s.",
+    "movement_kind": "Canonical movement label 'Stays on its floor': a platform walker that turns at ledges and walls (MAP_ARCHITECTURE section 4.7.4).",
+    "idle_s": "MeowDB does not publish how long a monster stands or walks. Shroom has a real stand clip (460 ms) and reads busier than the snails, so its stands are a little shorter (0.8-2.0 s).",
+    "walk_s": "Random walk of 1.5-3.5 s between stands (unpublished, see idle_s).",
+    "touch_rule": "Not a Peace monster: its canonical touch zone always deals contact damage."
+  }
+}

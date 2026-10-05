@@ -6,6 +6,7 @@ import bmesh
 import bpy
 from mathutils import Euler, Matrix, Vector, noise
 
+from . import collision_tags as CT
 from . import core
 from . import materials as M
 
@@ -462,6 +463,8 @@ def terrace(name, outline, top, bottom, collection, style="grass_dirt", smooth_i
                            bev, -bev, collection, bevel_res=1, holes=holes)
         body = core.curve_to_mesh_object(body, name + "_Body", collection, [M.get(side_mat)], smooth=True,
                                          sharp_angle=50)
+        body["terrace_part"] = "body"
+        CT.tag(body, CT.WALL)  # the earthen / rock body is solid
         objs.append(body)
         if style == "grass_rock" and not holes:
             profile = rock_profile(poly, bottom, body_top)
@@ -474,12 +477,15 @@ def terrace(name, outline, top, bottom, collection, style="grass_dirt", smooth_i
     cap = _curve_slab(name + "_Cap", poly, top - cap_t / 2, cap_t / 2 - bevel, bevel, lip - bevel, collection,
                       holes=holes)
     cap = core.curve_to_mesh_object(cap, name + "_Cap", collection, [M.get(cap_mat)], smooth=True, sharp_angle=60)
+    cap["terrace_part"] = "cap"
+    CT.tag(cap, CT.WALL)  # solid; a walkable cap (in a GroundIndex, obj["walkable"]) is ground, which takes precedence
     objs.append(cap)
     if ground_index is not None:
         ground_index.add(cap)
     if fringe:
-        objs.append(grass_fringe(name + "_Fringe", offset_poly(poly, lip * 0.75), top - cap_t * 0.35,
-                                 collection, seed=seed))
+        fr = grass_fringe(name + "_Fringe", offset_poly(poly, lip * 0.75), top - cap_t * 0.35, collection, seed=seed)
+        fr["terrace_part"] = "fringe"
+        objs.append(fr)
     return objs
 
 
@@ -659,7 +665,7 @@ def grass_fringe(name, poly, z, collection, seed=0, spacing=0.32, length=(0.25, 
             b2 = b + nrm * -0.05 + Vector((0, 0, 0.02))
             tip2 = base + nrm * (out * 0.6) + Vector((0, 0, -L * 0.6))
             mb.tri(a2, b2, tip2, "M_Grass")
-    return mb.build(name, collection, smooth=False, recalc_normals=False)
+    return CT.tag(mb.build(name, collection, smooth=False, recalc_normals=False), CT.NONE)  # hanging blades
 
 
 def ramp(name, p0, p1, width, collection, style="grass_dirt", bottom=None, extend=0.6, ground_index=None,
@@ -816,7 +822,7 @@ def ramp_lip(name, edges, collection, ground_index=None, seed=0, spacing=0.32, l
     if not bm.faces:
         bm.free()
         return None
-    return mb.build(name, collection, smooth=True, sharp_angle=70, recalc_normals=False)
+    return CT.tag(mb.build(name, collection, smooth=True, sharp_angle=70, recalc_normals=False), CT.NONE)
 
 
 STAIR_LIFT = 0.03  # treads sit just proud of the cap they land on (no z-fighting)
@@ -1026,7 +1032,10 @@ def path_ribbon(name, pts, width, collection, ground, mat="M_Path_Dirt", lift=0.
             quads(a[1], verts)
         else:
             quads(verts, b[1])
-    return mb.build(name, collection, smooth=True)
+    return CT.tag(mb.build(name, collection, smooth=True), CT.NONE)  # painted 2-3 cm over real ground
+
+
+LIQUID_CLASS = {"M_Water": CT.WATER, "M_Sea": CT.NONE, "M_Waterfall": CT.NONE, "M_Foam": CT.NONE}
 
 
 def flat_poly(name, poly, z, collection, mat, smooth_iters=1):
@@ -1037,7 +1046,10 @@ def flat_poly(name, poly, z, collection, mat, smooth_iters=1):
     f = bm.faces.new(vs)
     f.material_index = mb.mat(mat)
     bmesh.ops.triangulate(bm, faces=[f])
-    return mb.build(name, collection, smooth=True, recalc_normals=False)
+    ob = mb.build(name, collection, smooth=True, recalc_normals=False)
+    if mat in LIQUID_CLASS:  # a water surface is sidecar data; sea / falls / foam sheets never collide
+        CT.tag(ob, LIQUID_CLASS[mat])
+    return ob
 
 
 def foam_ring(name, poly, z, width, collection, seed=0):
@@ -1054,4 +1066,4 @@ def foam_ring(name, poly, z, width, collection, seed=0):
     for i in range(n):
         f = bm.faces.new((a[i], a[(i + 1) % n], b[(i + 1) % n], b[i]))
         f.material_index = mi
-    return mb.build(name, collection, smooth=False, recalc_normals=False)
+    return CT.tag(mb.build(name, collection, smooth=False, recalc_normals=False), CT.NONE)

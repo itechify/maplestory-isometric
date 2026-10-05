@@ -1,0 +1,348 @@
+{
+  "id": "1019",
+  "name": "Rain's Maple Quiz 7",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": "Rain's Maple Quiz",
+  "start_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "min_level": 5,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [
+      {
+        "quest_id": "1018",
+        "name": "Rain's Maple Quiz 6"
+      }
+    ],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [],
+    "item_collection": [],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "19",
+        "name": "Rain",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": [
+      {
+        "type": "quiz",
+        "description": "Answer the NPC quiz question correctly on completion (see dialogue.on_completion.quiz)."
+      }
+    ]
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 50,
+    "mesos": 0,
+    "fame": 0,
+    "items": [
+      {
+        "item_id": "239",
+        "item_icon_key": "2010004",
+        "name": "Orange",
+        "count": 10,
+        "given": "on_completion"
+      }
+    ],
+    "selection": [],
+    "random": []
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "No item requirements.",
+    "items": []
+  },
+  "followup_quests": [],
+  "next_quest_grants": [],
+  "quest_line": {
+    "steps": [
+      {
+        "quest_id": "1013",
+        "name": "Rain's Maple Quiz 1",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1014",
+        "name": "Rain's Maple Quiz 2",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1015",
+        "name": "Rain's Maple Quiz 3",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1016",
+        "name": "Rain's Maple Quiz 4",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1017",
+        "name": "Rain's Maple Quiz 5",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1018",
+        "name": "Rain's Maple Quiz 6",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1019",
+        "name": "Rain's Maple Quiz 7",
+        "npc": "Rain",
+        "min_level": 5
+      }
+    ],
+    "position": 7,
+    "total": 7,
+    "end_fork": [],
+    "split": null
+  },
+  "journal": {
+    "raw": "This is Rain's last question. Excited?\nFinally, the last question. After this, I'll be a true Mapler.\nRain advised that it's time to leave Maple Island. In Victoria Island, I can choose a job and start a lot of new adventures. Head to Southperryto get to Victoria Island!",
+    "lines": [
+      "This is Rain's last question. Excited?",
+      "Finally, the last question. After this, I'll be a true Mapler.",
+      "Rain advised that it's time to leave Maple Island. In Victoria Island, I can choose a job and start a lot of new adventures. Head to Southperryto get to Victoria Island!"
+    ],
+    "summary": "This is Rain's last question. Excited?",
+    "entries": [
+      "Finally, the last question. After this, I'll be a true Mapler.",
+      "Rain advised that it's time to leave Maple Island. In Victoria Island, I can choose a job and start a lot of new adventures. Head to Southperryto get to Victoria Island!"
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "All right, last question! Talk to me when you're ready.",
+          "segments": [
+            {
+              "text": "All right, last question! Talk to me when you're ready."
+            }
+          ]
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [
+        {
+          "label": "Quiz",
+          "title": "This NPC asks you a quiz question"
+        }
+      ],
+      "lines": [],
+      "branches": [],
+      "quiz": {
+        "question": {
+          "text": "This is important! You can only make the job advancement at Victoria Island, but you're currently on Maple Island. Where do you go to get a ride to Victoria Island?",
+          "segments": [
+            {
+              "text": "This is important! You can only make the job advancement at Victoria Island, but you're currently on Maple Island. Where do you go to get a ride to Victoria Island?"
+            }
+          ]
+        },
+        "choices": [
+          {
+            "text": "Southperry",
+            "segments": [
+              {
+                "text": "Southperry",
+                "ref": {
+                  "type": "map",
+                  "id": "000000060"
+                }
+              }
+            ],
+            "correct": true,
+            "raw_markup": null
+          },
+          {
+            "text": "Amherst",
+            "segments": [
+              {
+                "text": "Amherst",
+                "ref": {
+                  "type": "map",
+                  "id": "000001010"
+                }
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          },
+          {
+            "text": "No way I can get there!",
+            "segments": [
+              {
+                "text": "No way I can get there!"
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          }
+        ],
+        "correct_choice_index": 0,
+        "correct_choice_basis": "meowdb_marker",
+        "wrong_answer_heading": "If you pick the wrong answer",
+        "wrong_answer_responses": [
+          {
+            "text": "You won't find any ports at Amherst. Head over to the only place in Maple Island with a port to catch a ride to Victoria Island.",
+            "segments": [
+              {
+                "text": "You won't find any ports at "
+              },
+              {
+                "text": "Amherst",
+                "ref": {
+                  "type": "map",
+                  "id": "000001010"
+                }
+              },
+              {
+                "text": ". Head over to the only place in Maple Island with a port to catch a ride to Victoria Island."
+              }
+            ]
+          },
+          {
+            "text": "You won't be able to come back once you leave this place, but trust me, you CAN leave...",
+            "segments": [
+              {
+                "text": "You won't be able to come back once you leave this place, but trust me, you CAN leave..."
+              }
+            ]
+          }
+        ],
+        "correct_answer_heading": "When you answer correctly",
+        "correct_answer_response": {
+          "text": "That's absolutely correct. Head over to Southperry, talk to Shanks, and get on the ship that heads to Victoria Island.",
+          "segments": [
+            {
+              "text": "That's absolutely correct. Head over to "
+            },
+            {
+              "text": "Southperry",
+              "bold": true,
+              "ref": {
+                "type": "map",
+                "id": "000000060"
+              }
+            },
+            {
+              "text": ", talk to "
+            },
+            {
+              "text": "Shanks",
+              "bold": true,
+              "ref": {
+                "type": "npc",
+                "id": "15"
+              }
+            },
+            {
+              "text": ", and get on the "
+            },
+            {
+              "text": "ship",
+              "red": true
+            },
+            {
+              "text": " that heads to Victoria Island."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1019",
+    "retrieved_at": "2026-10-04T10:07:39.177Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/239",
+      "retrieved_at": "2026-10-04T10:08:03.642Z",
+      "checked": "item name and icon key"
+    }
+  ],
+  "notes": [
+    "Quiz choices are listed in MeowDB document order, which is the in-game selection order (#L0, #L1, ...; quiz 6 leaks a raw \"#L2\" tag exactly at position 2). MeowDB renders the choice rows nested inside each other (a markup artifact); the extractor flattens them in document order. choices[].correct is MeowDB's marker: true = marked \"Correct answer\", false = rendered as an option and not marked, null = option reconstructed from unparsed game markup (raw_markup). Wrong-answer responses are listed in MeowDB order and are not linked to a specific choice by MeowDB."
+  ],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

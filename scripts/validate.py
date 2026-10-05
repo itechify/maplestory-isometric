@@ -7,12 +7,16 @@ blender -b MapleIsland.blend --python scripts/validate.py [-- --out DIR] [--buil
 
 Checks: collection hierarchy, naming, hidden objects (colliders exempt), missing materials, broken
 instances, polygon budget (per map, plus the WORLD layer as its own line, plus the assets with the
-largest instanced triangle totals), portal topology + reciprocity + grounding, floating props (geometric:
+largest instanced triangle totals), portal topology + reciprocity + grounding (and the MeowDB portal set; the
+one-way 30000 out00 -> 40000 link is a portal plus an arrival marker), floating props (geometric:
 resting on walkable ground or touching a surface; map dressing, mobs, NPCs and World_Trails instances),
-m.place props crowding route centrelines (graded by body clearance), map completeness vs. the classic data
-(NPCs, mob species), placeholders, and the results recorded at build time in docs/build_report.json:
+m.place props crowding route centrelines (graded by body clearance), map completeness vs. MeowDB MS Classic
+(fidelity: NPCs by MeowDB id and name, monster species; game/data/canonical/maps via the crosswalk), placeholders,
+authored player_spawns[0] and spawn regions, and the results recorded at build time in docs/build_report.json:
 traversal, route-graph connectivity (portal_split, orphan_routes), the Gameplay-camera scale proxies
-(player_in_gameplay_frame) and the walk between maps along every trail (trail_walk).
+(player_in_gameplay_frame), the walk between maps along every trail, both ways, against its expectation
+(trail_walk), every trail's clearance from the runtime's containment rings (trail_ring_band) and the one-way ledge
+invariant of MAP_ARCHITECTURE 4.4 (one_way_ledge).
 
 Every section runs guarded: an exception inside one check is recorded in report["exceptions"] (and as a
 high issue, check no_swallowed_exceptions) instead of aborting the whole validation. Exceptions that the
@@ -36,6 +40,7 @@ import bpy  # noqa: E402
 from mathutils import Vector  # noqa: E402
 from mathutils.bvhtree import BVHTree  # noqa: E402
 
+from misostory import collision_tags as CT  # noqa: E402
 from misostory import layout as LY  # noqa: E402
 
 REQUIRED_TOP = ["MAPS", "ENVIRONMENT_ASSETS", "CHARACTER_PROXIES", "MONSTER_PROXIES", "PORTALS", "CAMERAS",
@@ -126,6 +131,11 @@ try:  # the traversal validator's constants (keep fallback copies so a framework
 except Exception:  # noqa: BLE001
     TV = None
     record_exception("import traversal", traceback.format_exc(), severity="medium")
+try:  # the trail builder's walk constants (trail_walk: the one-way ledge zone)
+    from misostory import trails as TR
+except Exception:  # noqa: BLE001
+    TR = None
+    record_exception("import trails", traceback.format_exc(), severity="medium")
 PASSABLE_WORDS = getattr(TV, "_PASSABLE_WORDS", ("rope", "vine", "ladder", "sign", "portal", "banner", "flag",
                                                  "lantern", "butterfly"))
 _PLAYER_H = getattr(TV, "PLAYER_HEIGHT", None)
@@ -144,6 +154,29 @@ if os.path.exists(BR_PATH):
         BR = json.load(open(BR_PATH, encoding="utf-8"))
     except Exception:  # noqa: BLE001
         record_exception("build_report", traceback.format_exc())
+
+
+def _load_meowdb():
+    """{GMS v8 map id: MeowDB MS Classic map record} via game/data/misostory/map_id_crosswalk.json (read-only).
+
+    MeowDB is the gameplay authority (docs/ITERATION_TWO_BRIEF.md): NPC sets, monster species and spawn counts, and
+    player spawns come from game/data/canonical/maps/<meowdb id>.json; Iteration One's v8 research is reference."""
+    out = {}
+    cw_path = os.path.join(ROOT, "game", "data", "misostory", "map_id_crosswalk.json")
+    if not os.path.exists(cw_path):
+        return out
+    for row in json.load(open(cw_path, encoding="utf-8")):
+        p = os.path.join(ROOT, "game", "data", "canonical", "maps", f"{row['meowdb_id']}.json")
+        if os.path.exists(p):
+            out[int(row["gms_v8_id"])] = json.load(open(p, encoding="utf-8"))
+    return out
+
+
+MEOWDB = {}
+try:
+    MEOWDB = _load_meowdb()
+except Exception:  # noqa: BLE001
+    record_exception("meowdb", traceback.format_exc())
 
 
 def asset_tags(name):
@@ -320,14 +353,36 @@ run("polygon_budget", sec_polygon_budget)
 
 # ---------------------------------------------------------------- portals
 def sec_portals():
+    """Every link has its two portal objects, reciprocal; a one-way link (layout.ONE_WAY) has a portal at the
+    source (one_way, to_portal and to_arrival naming the arrival marker) and an arrival marker (no portal object)
+    at the destination. The portal set is checked against MeowDB's portal list per map."""
     portals = {}
+    arrivals = {}
     for o in bpy.data.objects:
         if "portal_name" in o.keys():
             portals[(int(o["map_id"]), o["portal_name"])] = o
+        if "arrival_name" in o.keys():
+            arrivals[(int(o["map_id"]), o["arrival_name"])] = o
     expected_links = [(c, ca, p, pa, "edge") for c, ca, p, pa, _g, _b in LY.LINKS] + \
                      [(it, ipn, mm, pn, "door") for mm, pn, it, ipn in LY.DOOR_LINKS]
     plinks = []
     for a_map, a_pn, b_map, b_pn, kind in expected_links:
+        if LY.is_arrival_only(a_map, a_pn):  # one-way: b (source portal) -> a (arrival marker)
+            src, arr = portals.get((b_map, b_pn)), arrivals.get((a_map, a_pn))
+            if src is None or arr is None or (a_map, a_pn) in portals:
+                issue("portals", "high", f"one-way link {b_map}:{b_pn} -> {a_map}:{a_pn}: needs a portal at the "
+                      f"source and an arrival marker (no portal object) at the destination",
+                      source=src is not None, arrival=arr is not None, portal_at_arrival=(a_map, a_pn) in portals)
+                continue
+            ok = (int(src["to_map"]) == a_map and src["to_portal"] == a_pn and src.get("to_arrival") == a_pn
+                  and bool(src.get("one_way")) and int(arr["from_map"]) == b_map and arr["from_portal"] == b_pn)
+            if not ok:
+                issue("portals", "high", f"one-way link {b_map}:{b_pn} -> {a_map}:{a_pn}: portal/arrival marker "
+                      f"fields disagree (to_portal and to_arrival must be '{a_pn}', one_way True)")
+            d = (src.location - arr.location).length
+            plinks.append({"a": f"{b_map}:{b_pn}", "b": f"{a_map}:{a_pn} (arrival)", "kind": kind,
+                           "distance_m": round(d, 1), "reciprocal": False, "one_way": True, "fields_ok": ok})
+            continue
         a = portals.get((a_map, a_pn))
         b = portals.get((b_map, b_pn))
         if a is None or b is None:
@@ -346,8 +401,24 @@ def sec_portals():
     report["stats"]["portal_links"] = plinks
     extra = [f"{m}:{p}" for (m, p) in portals
              if not any((m, p) in ((l[0], l[1]), (l[2], l[3])) for l in expected_links)]
+    # MeowDB portal parity: the built portal names per map equal MeowDB's (47 portals on the 25 maps)
+    meow_missing, meow_extra = [], []
+    for mid, rec in MEOWDB.items():
+        want = {p["name"] for p in rec.get("portals", [])}
+        have = {pn for (m, pn) in portals if m == mid}
+        meow_missing += [f"{mid}:{p}" for p in sorted(want - have)]
+        meow_extra += [f"{mid}:{p}" for p in sorted(have - want)]
+    for e in meow_missing:
+        issue("portals", "high", f"MeowDB portal {e} has no portal object")
+    for e in meow_extra:
+        issue("portals", "high", f"portal object {e} is not a MeowDB portal")
+    report["stats"]["portal_count"] = len(portals)
+    report["stats"]["arrival_markers"] = sorted(f"{m}:{n}" for (m, n) in arrivals)
     check("portal_topology", not [i for i in report["issues"] if i["check"] == "portals"],
-          f"{len(plinks)} links ok-checked; extra portals: {extra}")
+          f"{len(plinks)} links ok-checked ({sum(1 for p in plinks if p.get('one_way'))} one-way); {len(portals)} "
+          f"portal objects vs MeowDB {sum(len(r.get('portals', [])) for r in MEOWDB.values())} (missing "
+          f"{meow_missing}, extra {meow_extra}); arrival markers {sorted(f'{m}:{n}' for (m, n) in arrivals)}; "
+          f"extra portals: {extra}")
     for e in extra:
         issue("portals", "low", f"portal {e} not part of the classic topology")
 
@@ -768,37 +839,71 @@ run("props_near_routes", sec_props_near_routes)
 
 # ---------------------------------------------------------------- classic data fidelity
 def sec_fidelity():
-    ent_path = os.path.join(ROOT, "docs", "research", "entities.json")
-    if not os.path.exists(ent_path):
+    """NPC and monster parity against MeowDB MS Classic (game/data/canonical/maps, via the crosswalk).
+
+    NPCs: every MeowDB NPC of a map has exactly one proxy there, carrying its MeowDB id (meowdb_npc_id, a string)
+    and name; no proxy without a MeowDB entry. Monsters: the representative proxies show only MeowDB species of the
+    map, every MeowDB species with a kit proxy is represented, and every spawn region's species hints are MeowDB
+    species of the map. (Iteration One checked docs/research/entities.json, the GMS v8 data, instead.)"""
+    if not MEOWDB:
+        check("fidelity", False, "no MeowDB canonical map data (game/data/canonical/maps + crosswalk)")
+        issue("fidelity", "high", "MeowDB canonical map data missing: NPC/monster parity not checked")
         return
-    ent = json.load(open(ent_path, encoding="utf-8"))
-    per_map = ent.get("per_map", {})
     npc_objs = {}
     mob_objs = {}
     for o in bpy.data.objects:
         if "npc_name" in o.keys():
             for c in o.users_collection:
                 if c.name.startswith("NPCs_"):
-                    npc_objs.setdefault(c.name[5:], set()).add(o["npc_name"])
+                    npc_objs.setdefault(c.name[5:], []).append(o)
         if o.instance_type == "COLLECTION" and o.instance_collection and o.instance_collection.name.startswith("Mob_"):
             for c in o.users_collection:
                 if c.name.startswith("Mobs_"):
                     mob_objs.setdefault(c.name[5:], set()).add(o.instance_collection.name)
     from misostory.kit.creatures import MOB_ASSETS
+    n_npcs = 0
     for mid, m in LY.MAPS.items():
         slug = m["slug"]
-        pm = per_map.get(str(mid), {})
-        want_npcs = {n.get("name") for n in pm.get("npcs", [])}
-        have = npc_objs.get(slug, set())
-        for n in sorted(want_npcs - have):
-            issue("fidelity", "medium", f"map {mid}: classic NPC '{n}' missing")
-        want_mobs = {MOB_ASSETS.get(k) for k in pm.get("mobs", {}) if MOB_ASSETS.get(k)}
+        rec = MEOWDB.get(mid)
+        if rec is None:
+            issue("fidelity", "high", f"map {mid}: no MeowDB record via the crosswalk")
+            continue
+        want = {str(n["id"]): n["name"] for n in rec.get("npcs", [])}
+        have = {}
+        for o in npc_objs.get(slug, []):
+            nid = str(o.get("meowdb_npc_id", ""))
+            n_npcs += 1
+            if not nid:
+                issue("fidelity", "high", f"map {mid}: NPC proxy {o.name} ('{o['npc_name']}') has no meowdb_npc_id")
+                continue
+            if nid in have:
+                issue("fidelity", "high", f"map {mid}: MeowDB NPC {nid} has two proxies")
+            have[nid] = o
+            if nid not in want:
+                issue("fidelity", "high", f"map {mid}: NPC '{o['npc_name']}' (MeowDB id {nid}) is not a MeowDB NPC of "
+                      f"this map")
+            elif want[nid] != o["npc_name"]:
+                issue("fidelity", "high", f"map {mid}: NPC proxy '{o['npc_name']}' carries MeowDB id {nid}, which "
+                      f"MeowDB names '{want[nid]}'")
+        for nid in sorted(set(want) - set(have), key=int):
+            issue("fidelity", "high", f"map {mid}: MeowDB NPC {nid} '{want[nid]}' has no proxy")
+        species = {mo["name"] for mo in rec.get("monsters", [])}
+        want_mobs = {MOB_ASSETS[k] for k in species if k in MOB_ASSETS}
         have_m = mob_objs.get(slug, set())
         for k in sorted(want_mobs - have_m):
-            issue("fidelity", "medium", f"map {mid}: classic mob {k} not represented")
+            issue("fidelity", "medium", f"map {mid}: MeowDB monster {k} has no representative proxy")
         for k in sorted(have_m - want_mobs):
-            issue("fidelity", "high", f"map {mid}: mob {k} is NOT in the classic data for this map")
-    check("fidelity", not [i for i in report["issues"] if i["check"] == "fidelity"], "NPCs and mob species vs v8 data")
+            issue("fidelity", "high", f"map {mid}: monster proxy {k} is NOT a MeowDB species of this map")
+        mc = map_colls.get(mid)
+        for reg in json.loads(mc.get("spawn_regions_json", "[]")) if mc is not None else []:
+            bad = [s for s in reg.get("species", []) if s not in species]
+            if bad:
+                issue("fidelity", "high", f"map {mid}: spawn region {reg['name']} names species {bad}, not MeowDB "
+                      f"species of this map")
+    report["stats"]["npc_proxies"] = n_npcs
+    check("fidelity", not [i for i in report["issues"] if i["check"] == "fidelity"],
+          f"{n_npcs} NPC proxies vs MeowDB {sum(len(r.get('npcs', [])) for r in MEOWDB.values())} NPCs (by MeowDB id "
+          f"and name); monster proxies and spawn-region species vs MeowDB species")
 
 
 run("fidelity", sec_fidelity)
@@ -1022,34 +1127,396 @@ def sec_gameplay_frame():
 run("player_in_gameplay_frame", sec_gameplay_frame)
 
 
+def _misostory_value(fname, section, key, default):
+    """A value of game/data/misostory/<fname>.json (section.key), read-only; `default` when the file or key is absent.
+    The runtime reads the same adaptation tables, so the validator checks what the game will do."""
+    try:
+        with open(os.path.join(ROOT, "game", "data", "misostory", f"{fname}.json"), encoding="utf-8") as f:
+            v = json.load(f).get(section, {}).get(key)
+        return default if v is None else float(v)
+    except (OSError, ValueError, AttributeError):
+        return default
+
+
 # ---------------------------------------------------------------- the walk between maps (build_report trails)
 def sec_trail_walk():
+    """Every trail walked portal-to-portal both ways, against its expectation, which comes from the layout (not from
+    the build report): a two-way trail must walk ok forward and reverse; a one-way trail (layout.ONE_WAY_LEDGE, the
+    link whose destination anchor is arrival-only) must walk ok forward with its only drop at the ledge, and be
+    blocked in reverse by an unclimbable step at the ledge face and by nothing else (a defect elsewhere on the trail
+    must not hide behind the expected block). Every layout trail link must have been walked."""
     trails = BR.get("trails") if BR else None
-    walks = [(t.get("trail", f"trail {i}"), t["walk"]) for i, t in enumerate(trails or [])
-             if isinstance(t, dict) and isinstance(t.get("walk"), dict)]
+    walks = [t for t in (trails or []) if isinstance(t, dict) and isinstance(t.get("walk"), dict)]
     if not walks:
         check("trail_walk", True, "no trail walk data in build_report (trails[i].walk); skipped")
         return
+
     def fmt(x):
         if not isinstance(x, dict):
             return str(x)
         rest = ", ".join(f"{k} {v}" for k, v in x.items() if k != "type")
         return f"{x.get('type', 'issue')} ({rest})"
 
+    zone = getattr(TR, "LEDGE_ZONE_M", 1.5) if TR is not None else 1.5
+    lo = TV.ledge_bounds(ROOT)[0] if TV is not None else 2.0
     bad = []
-    for name, w in walks:
-        if w.get("ok"):
+    n_two = n_one = 0
+    walked_links = set()
+    for i, t in enumerate(walks):
+        name = t.get("trail", f"trail {i}")
+        link = t.get("link") or {}
+        key = (link.get("from_map"), link.get("from_portal"), link.get("to_map"), link.get("to_portal"))
+        walked_links.add(key)
+        # the expectation from the layout; the build report's own `expect` must agree with it
+        one_way = key in LY.ONE_WAY_LEDGE or (key[2] is not None and LY.is_arrival_only(key[2], key[3]))
+        want = {"forward": "ok", "reverse": "blocked" if one_way else "ok"}
+        if t.get("expect") != want:
+            bad.append(name)
+            issue("trail_walk", "high", f"{name}: build_report expectation {t.get('expect')} disagrees with the layout "
+                  f"({want}; link {key})")
             continue
-        bad.append(name)
-        its = list(w.get("issues") or [])
-        issue("trail_walk", "high", f"{name}: the walk between the two maps fails: "
-              f"{'; '.join(fmt(x) for x in its[:3]) or 'no detail'}{' ...' if len(its) > 3 else ''}",
-              issues=its[:10])
-    check("trail_walk", not bad, f"{len(walks) - len(bad)}/{len(walks)} trails walk ok; failing: {bad[:8]}"
-          f"{' ...' if len(bad) > 8 else ''}")
+        fwd, rev = t["walk"], t.get("walk_reverse")
+        n_one += one_way
+        n_two += not one_way
+        if not fwd.get("ok"):
+            bad.append(name)
+            its = list(fwd.get("issues") or [])
+            issue("trail_walk", "high", f"{name}: the walk between the two maps fails: "
+                  f"{'; '.join(fmt(x) for x in its[:3]) or 'no detail'}{' ...' if len(its) > 3 else ''}",
+                  issues=its[:10])
+            continue
+        if rev is None:
+            bad.append(name)
+            issue("trail_walk", "high", f"{name}: no reverse walk recorded (build_report trails[i].walk_reverse)")
+            continue
+        if one_way:
+            led = t.get("ledge") or {}
+            gp = (led.get("gate_plane") or {}).get("point")
+            if not gp:
+                bad.append(name)
+                issue("trail_walk", "high", f"{name}: one-way trail without a ledge record (build_report ledge)")
+                continue
+
+            def near(it):
+                return math.hypot(it["at"][0] - gp[0], it["at"][1] - gp[1]) <= zone
+
+            drops = list(fwd.get("drops") or [])
+            stray = [d for d in drops if not near(d)]
+            if not drops or stray:
+                bad.append(name)
+                issue("trail_walk", "high", f"{name}: the forward walk must drop exactly at the ledge (within {zone} m "
+                      f"of its gate-plane point): drops {drops or 'none'}")
+            its = list(rev.get("issues") or [])
+            face = [it for it in its if it.get("type") == "step" and it.get("dz", 0) >= lo and near(it)]
+            other = [it for it in its if it not in face]
+            if rev.get("ok") or not face or not led.get("reverse_blocked_at_face"):
+                bad.append(name)
+                issue("trail_walk", "high", f"{name}: one-way trail is NOT blocked at its ledge when walked back "
+                      f"(reverse ok {rev.get('ok')}, an unclimbable step >= {lo:.2f} m within {zone} m of the face: "
+                      f"{bool(face)})")
+            elif other:
+                bad.append(name)
+                issue("trail_walk", "high", f"{name}: the walk back has issues away from the ledge face: "
+                      f"{'; '.join(fmt(x) for x in other[:3])}{' ...' if len(other) > 3 else ''}", issues=other[:10])
+        elif not rev.get("ok"):
+            bad.append(name)
+            its = list(rev.get("issues") or [])
+            issue("trail_walk", "high", f"{name}: the walk back fails: "
+                  f"{'; '.join(fmt(x) for x in its[:3]) or 'no detail'}{' ...' if len(its) > 3 else ''}",
+                  issues=its[:10])
+    # world.trails walks every layout link parent -> child (LINKS rows are (child, anchor, parent, anchor, ...))
+    layout_links = {(p, pa, c, ca) for c, ca, p, pa, _g, _b in LY.LINKS}
+    unwalked = sorted(layout_links - walked_links)
+    for k in unwalked:
+        bad.append(f"{k[0]}:{k[1]}-{k[2]}:{k[3]}")
+        issue("trail_walk", "high", f"layout link {k[0]}:{k[1]} <-> {k[2]}:{k[3]} has no trail walk in build_report")
+    check("trail_walk", not bad, f"{len(walks) - len(bad)}/{len(walks)} trails meet their expectation ({n_two} "
+          f"two-way: ok both ways; {n_one} one-way: forward ok with its only drop at the ledge, reverse blocked at "
+          f"the face and nowhere else); failing: {bad[:8]}{' ...' if len(bad) > 8 else ''}")
 
 
 run("trail_walk", sec_trail_walk)
+
+
+# ---------------------------------------------------------------- trails vs the runtime's containment rings
+def sec_trail_ring_band():
+    """Every trail stays clear of the maps' containment rings (MAP_ARCHITECTURE 4.6; the runtime's ContainmentBuilder
+    walls each map at footprint + ring_offset_m, wall_thickness_m thick, open only at its gate gaps). The build
+    measures it (trails.ring_clearance, build_report trails[i].ring_clearance) with the numbers of
+    game/data/misostory (layout.containment_params); this check recomputes those numbers, so a stale build report
+    fails, and grades the result:
+
+    * high: a ring wall within the controller's capsule radius of a trail's centreline away from its own gaps (it
+      stands across the walkable top: a walk along the trail stalls, as on 000001012 -> 000001014 before it was
+      re-routed), or the centreline inside another map's ring line (that map's region);
+    * low (listed): a wall on the ribbon's edge (closer than the half-width), or a gate jamb closer than the gap's
+      half-width (the trail turns before it has left its gap): the trail is narrower there but walkable."""
+    trails = [t for t in (BR.get("trails") or []) if isinstance(t, dict)]
+    if not trails:
+        check("trail_ring_band", True, "no trails in build_report; skipped")
+        return
+    cp = LY.containment_params(ROOT)
+    radius = _misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    rows, bad, n_low = [], [], 0
+    for t in trails:
+        name = t.get("trail", "?")
+        rc = t.get("ring_clearance")
+        if not isinstance(rc, dict):
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: no ring clearance in build_report (trails[i].ring_clearance)")
+            continue
+        if abs(rc.get("ring_offset_m", -1) - cp["ring_offset_m"]) > 1e-6 or \
+                abs(rc.get("wall_thickness_m", -1) - cp["wall_thickness_m"]) > 1e-6:
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: measured against ring offset {rc.get('ring_offset_m')} m / wall "
+                  f"{rc.get('wall_thickness_m')} m, the game data says {cp['ring_offset_m']} / "
+                  f"{cp['wall_thickness_m']}: rebuild")
+            continue
+        half, gap = rc.get("half_width_m", 0.0), rc.get("gap_half_width_m", 0.0)
+        for ins in rc.get("centre_inside") or []:
+            bad.append(name)
+            issue("trail_ring_band", "high", f"{name}: its centreline runs inside map {ins['map']}'s ring line at "
+                  f"{ins['at']} (outside its own gate corridors)")
+            break
+        for r in rc.get("near_rings") or []:
+            d, j = r.get("wall_to_centre_m"), r.get("jamb_to_centre_m")
+            if d is not None and d < radius:
+                bad.append(name)
+                issue("trail_ring_band", "high", f"{name}: map {r['map']}'s ring wall stands across the trail, {d} m "
+                      f"from its centreline at {r['at']} (a body on the centreline is {radius} m wide)")
+            elif d is not None and d < half:
+                n_low += 1
+                issue("trail_ring_band", "low", f"{name}: map {r['map']}'s ring wall stands on the trail's edge, {d} m "
+                      f"from its centreline at {r['at']} (half-width {half} m)")
+            if j is not None and j < min(gap, half) - 0.05:
+                n_low += 1
+                issue("trail_ring_band", "low", f"{name}: map {r['map']}'s gate jamb is {j} m from the centreline at "
+                      f"{r['jamb_at']} (the gap is {gap} m either side: the trail turns before leaving it)")
+        rows.append({"trail": name, "half_width_m": half, "min_wall_to_centre_m": rc.get("min_wall_to_centre_m"),
+                     "min_jamb_to_centre_m": rc.get("min_jamb_to_centre_m")})
+    report["stats"]["trail_ring_band"] = rows
+    check("trail_ring_band", not bad, f"{len(trails) - len(set(bad))}/{len(trails)} trails clear of every containment "
+          f"ring wall (ring at footprint + {cp['ring_offset_m']} m, {cp['wall_thickness_m']} m thick); {n_low} "
+          f"narrowings listed as low; failing: {sorted(set(bad))[:6]}")
+
+
+run("trail_ring_band", sec_trail_ring_band)
+
+
+# ---------------------------------------------------------------- the one-way ledge invariant (MAP_ARCHITECTURE 4.4)
+def sec_one_way_ledge():
+    """Every one-way link has a trail ending in a measured ledge: face on the arrival gate plane (footprint +
+    GATE_OFFSET_M) within traversal.LEDGE_FACE_TOL_M across the gate width, and jump_apex_m_at_cap + step_up_m +
+    LEDGE_MARGIN_M <= height <= MAX_DROP."""
+    if TV is None:
+        check("one_way_ledge", False, "traversal module missing")
+        issue("one_way_ledge", "high", "traversal module missing: ledge invariant not checked")
+        return
+    lo, hi, detail = TV.ledge_bounds(ROOT)
+    rows = []
+    want = sorted(LY.ONE_WAY)
+    for mid, name in want:
+        t = next((t for t in (BR.get("trails") or []) if (t.get("ledge") or {}).get("arrival_map") == mid and
+                  (t.get("ledge") or {}).get("arrival_point") == name), None)
+        if t is None:
+            issue("one_way_ledge", "high", f"arrival {mid}:{name}: no one-way trail with a measured ledge")
+            continue
+        led = t["ledge"]
+        meas = led.get("measured") or {}
+        h, h_max = meas.get("height_m"), meas.get("height_max_m")
+        off = meas.get("face_offset_max_abs_m")
+        row = {"trail": t["trail"], "height_m": h, "height_max_m": h_max, "face_offset_max_abs_m": off,
+               "bounds_m": [round(lo, 3), hi], "found_all": meas.get("found")}
+        rows.append(row)
+        if not meas.get("found") or h is None:
+            issue("one_way_ledge", "high", f"{t['trail']}: ledge face not found at every lateral sample")
+            continue
+        if not (lo <= h and h_max <= hi):
+            issue("one_way_ledge", "high", f"{t['trail']}: ledge height {h}..{h_max} m outside [{lo:.3f}, {hi}] m")
+        if off is None or off > TV.LEDGE_FACE_TOL_M:
+            issue("one_way_ledge", "high", f"{t['trail']}: ledge face {off} m off the arrival gate plane "
+                  f"(tolerance {TV.LEDGE_FACE_TOL_M} m)")
+    report["stats"]["one_way_ledges"] = rows
+    check("one_way_ledge", not [i for i in report["issues"] if i["check"] == "one_way_ledge"],
+          f"{len(rows)}/{len(want)} ledges: {rows}; bounds from {detail}")
+
+
+run("one_way_ledge", sec_one_way_ledge)
+
+
+# ---------------------------------------------------------------- authored player spawns and spawn regions
+def _local_to_world(mc, x, y):
+    ox, oy, _oz = mc.get("origin", (0, 0, 0))
+    yaw = math.radians(mc.get("yaw", 0.0))
+    return ox + x * math.cos(yaw) - y * math.sin(yaw), oy + x * math.sin(yaw) + y * math.cos(yaw)
+
+
+_GROUND_BVH = []
+
+
+def _ground_bvh():
+    """BVH of every walkable mesh (obj['walkable'], set by core.GroundIndex.add) in world space."""
+    if not _GROUND_BVH:
+        vs, ps = [], []
+        for o in bpy.data.objects:
+            if o.type == "MESH" and o.get("walkable"):
+                _mesh_into(vs, ps, o.data, o.matrix_world)
+        _GROUND_BVH.append(BVHTree.FromPolygons(vs, ps) if ps else None)
+    return _GROUND_BVH[0]
+
+
+def _portal_frames(mid):
+    """[(name, centre Vector, inward unit 2D (x, y))] of every portal object of a map: edges use the layout anchor's
+    outward normal (inward = its negative), doors their facing (the kit front, local -Y), as the runtime does."""
+    out = []
+    for q in bpy.data.objects:
+        if "portal_name" not in q.keys() or int(q["map_id"]) != mid:
+            continue
+        c = q.matrix_world.translation.copy()
+        if q.get("portal_kind") == "edge":
+            try:
+                nx, ny = LY.anchor_normal_world(mid, q["portal_name"])
+                out.append((q["portal_name"], c, (-nx, -ny)))
+                continue
+            except (KeyError, ValueError):
+                pass
+        f = q.matrix_world.to_3x3() @ Vector((0.0, -1.0, 0.0))
+        fl = math.hypot(f.x, f.y) or 1.0
+        out.append((q["portal_name"], c, (f.x / fl, f.y / fl)))
+    return out
+
+
+def sec_player_spawns():
+    """Every map has player_spawns[0] (m.player_spawn): one marker, grounded on walkable ground (within 0.1 m), inside
+    its footprint, and with its body (the grounding capsule radius) outside every portal's press-Up trigger box (the
+    runtime's box: portal_adaptations.json trigger width x depth, centred on the portal, along its inward normal). On
+    an arrival-only map it stands at least GATE_OFFSET_M + the arrival inset inside the gate plane, where the arrival
+    gate's spawn_transform is (MAP_ARCHITECTURE 4.4)."""
+    bvh = _ground_bvh()
+    half_w = _misostory_value("portal_adaptations", "trigger", "width_m", 4.5) / 2
+    half_d = _misostory_value("portal_adaptations", "trigger", "depth_m", 1.6) / 2
+    radius = _misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    inset = _misostory_value("portal_adaptations", "arrival", "inset_m", 1.5)
+    gate_depth = LY.GATE_OFFSET_M + inset
+    markers = {}
+    for o in bpy.data.objects:
+        if "player_spawn_index" in o.keys():
+            markers.setdefault(int(o["map_id"]), []).append(o)
+    rows = {}
+    for mid, m in LY.MAPS.items():
+        mc = map_colls.get(mid)
+        obs = markers.get(mid, [])
+        idx0 = [o for o in obs if int(o["player_spawn_index"]) == 0]
+        if len(idx0) != 1 or mc is None:
+            issue("player_spawns", "high", f"map {mid}: {len(idx0)} player_spawns[0] markers (need exactly 1)"
+                  + ("" if mc is not None else "; no map collection"))
+            continue
+        o = idx0[0]
+        p = o.matrix_world.translation
+        hit = bvh.ray_cast(p + Vector((0, 0, 0.5)), Vector((0, 0, -1)), 2.0) if bvh else (None,)
+        gap = None if hit[0] is None else round(p.z - hit[0].z, 3)
+        lx, ly = to_local_exact(mc, p)
+        L, D = m["L"], m["D"]
+        # body vs trigger box: the spawn's distance outside the box (negative = the body overlaps it)
+        clear = []
+        for name, c, (ix, iy) in _portal_frames(mid):
+            dx, dy = p.x - c.x, p.y - c.y
+            along, lat = abs(dx * ix + dy * iy), abs(-dx * iy + dy * ix)
+            out_d = max(along - half_d, lat - half_w)
+            clear.append((round(out_d - radius, 2), name))
+        clear.sort()
+        row = {"local": [round(lx, 2), round(ly, 2)], "ground_gap_m": gap,
+               "trigger_clearance_m": clear[0][0] if clear else None, "nearest_trigger": clear[0][1] if clear else None}
+        if gap is None or abs(gap) > 0.1:
+            issue("player_spawns", "high", f"map {mid}: player_spawns[0] not on walkable ground (gap {gap})")
+        if not (0.0 <= lx <= L and 0.0 <= ly <= D):
+            issue("player_spawns", "high", f"map {mid}: player_spawns[0] at local ({lx:.1f}, {ly:.1f}) is outside "
+                  f"the {L} x {D} m footprint")
+        if clear and clear[0][0] < 0.0:
+            issue("player_spawns", "high", f"map {mid}: player_spawns[0] overlaps the press-Up trigger of portal "
+                  f"{clear[0][1]} by {-clear[0][0]:.2f} m (body radius {radius} m)")
+        for (amid, aname) in LY.ONE_WAY:
+            if amid != mid:
+                continue
+            ax, ay, _az = LY.MAPS[mid]["anchors"][aname]
+            # the anchor's footprint edge: local outward normal n and dot(edge point, n)
+            edges = {(-1, 0): (ax, 0.0), (1, 0): (L - ax, L), (0, -1): (ay, 0.0), (0, 1): (D - ay, D)}
+            n = min(edges, key=lambda k: edges[k][0])
+            depth = edges[n][1] - (lx * n[0] + ly * n[1]) + LY.GATE_OFFSET_M  # inward distance from the gate plane
+            row["inside_gate_plane_m"] = round(depth, 2)
+            if depth < gate_depth - 0.05:
+                issue("player_spawns", "high", f"map {mid}: player_spawns[0] is only {depth:.2f} m inside the "
+                      f"arrival gate plane of {aname} (needs >= {gate_depth} m: gate offset + arrival inset)")
+        rows[mid] = row
+    report["stats"]["player_spawns"] = rows
+    check("player_spawns", not [i for i in report["issues"] if i["check"] == "player_spawns"],
+          f"{len(rows)}/{len(LY.MAPS)} maps have a grounded player_spawns[0] inside the footprint whose body ({radius} m) "
+          f"clears every press-Up trigger box ({2 * half_w} x {2 * half_d} m); arrival map spawn >= {gate_depth} m "
+          f"inside its gate plane")
+
+
+run("player_spawns", sec_player_spawns)
+
+
+def sec_spawn_regions():
+    """Every map with MeowDB monster spawns has authored spawn regions (spawn_regions_json) whose polygons hold
+    walkable ground inside their z band; maps without MeowDB spawns have none."""
+    bvh = _ground_bvh()
+    rows = {}
+    for mid, m in LY.MAPS.items():
+        mc = map_colls.get(mid)
+        regs = json.loads(mc.get("spawn_regions_json", "[]")) if mc is not None else []
+        n_spawn = len((MEOWDB.get(mid) or {}).get("spawns", []))
+        if n_spawn and not regs:
+            issue("spawn_regions", "high", f"map {mid}: {n_spawn} MeowDB spawn points but no authored spawn region")
+        if regs and not n_spawn:
+            issue("spawn_regions", "medium", f"map {mid}: {len(regs)} spawn regions but MeowDB lists no spawns")
+        oz = mc.get("origin", (0, 0, 0))[2] if mc is not None else 0.0
+        out = []
+        for reg in regs:
+            poly = reg["polygon"]
+            xs, ys = [p[0] for p in poly], [p[1] for p in poly]
+            hits = total = 0
+            step = 0.75
+            yv = min(ys) + step / 2
+            while yv < max(ys):
+                xv = min(xs) + step / 2
+                while xv < max(xs):
+                    if _point_in_poly(xv, yv, poly):
+                        total += 1
+                        wx, wy = _local_to_world(mc, xv, yv)
+                        zb = reg.get("z_band")
+                        top = oz + (zb[1] if zb else 60.0)
+                        h = bvh.ray_cast(Vector((wx, wy, top + 0.05)), Vector((0, 0, -1)), 200.0) if bvh else (None,)
+                        if h[0] is not None and h[1].z > 0.5 and (not zb or zb[0] - 0.05 <= h[0].z - oz):
+                            hits += 1
+                    xv += step
+                yv += step
+            frac = hits / total if total else 0.0
+            out.append({"name": reg["name"], "species": reg.get("species"), "walkable_fraction": round(frac, 2)})
+            if hits == 0:
+                issue("spawn_regions", "high", f"map {mid}: spawn region {reg['name']} has no walkable ground in its "
+                      f"polygon / z band")
+        rows[mid] = {"meowdb_spawn_points": n_spawn, "regions": out}
+    report["stats"]["spawn_regions"] = rows
+    n_maps = sum(1 for r in rows.values() if r["regions"])
+    check("spawn_regions", not [i for i in report["issues"] if i["check"] == "spawn_regions"],
+          f"{n_maps} maps with spawn regions ({sum(len(r['regions']) for r in rows.values())} regions) vs "
+          f"{sum(1 for r in rows.values() if r['meowdb_spawn_points'])} maps with MeowDB spawns")
+
+
+def _point_in_poly(x, y, poly):
+    inside = False
+    n = len(poly)
+    for i in range(n):
+        x1, y1 = poly[i]
+        x2, y2 = poly[(i + 1) % n]
+        if (y1 > y) != (y2 > y) and x < (x2 - x1) * (y - y1) / (y2 - y1 + 1e-12) + x1:
+            inside = not inside
+    return inside
+
+
+run("spawn_regions", sec_spawn_regions)
 
 
 # ---------------------------------------------------------------- exceptions the build swallowed
@@ -1065,6 +1532,44 @@ def _find_exceptions(node, path, out):
         for i, v in enumerate(node):
             if isinstance(v, (dict, list)):
                 _find_exceptions(v, f"{path}[{i}]", out)
+
+
+def sec_collision_tags():
+    """Every mesh of a map's Terrain, the plinths and the WORLD layer must say how it collides, by data: a walkable,
+    collider, climbable or passable flag, or a collision tag (misostory.collision_tags, set by the builder that made
+    it). The runtime export never reads object names; an untagged mesh there would fall back to "none" and could
+    silently lose its collision (a terrace body, a rail)."""
+    colls = [c for mc in map_colls.values() for c in mc.children if c.name.endswith("_Terrain")]
+    for name in ("World_Plinths",):
+        if bpy.data.collections.get(name) is not None:
+            colls.append(bpy.data.collections[name])
+    world = bpy.data.collections.get("WORLD")
+    colls += list(world.children) if world else []
+    seen, untagged, tagged, bad = set(), [], 0, []
+    for c in colls:
+        for o in c.all_objects:
+            if o.type != "MESH" or o.name in seen or o.hide_render or in_debug(o):
+                continue
+            seen.add(o.name)
+            if o.get("walkable") or o.get("collider") or "climbable" in o.keys() or o.get("passable"):
+                continue
+            v = o.get(CT.KEY)
+            if v is None:
+                untagged.append(o.name)
+            elif v not in CT.CLASSES:
+                bad.append(f"{o.name}={v!r}")
+            else:
+                tagged += 1
+    for n in untagged[:40]:
+        issue("collision_tags", "medium", f"{n} has no collision tag (misostory.collision_tags.tag at its builder)")
+    for n in bad[:40]:
+        issue("collision_tags", "medium", f"{n}: unknown collision class (expected one of {CT.CLASSES})")
+    check("collision_tags", not untagged and not bad,
+          f"{len(seen)} Terrain / Plinth / WORLD meshes: {tagged} tagged, the rest walkable / collider / climbable / "
+          f"passable; untagged: {len(untagged)} {untagged[:6]}; unknown class: {bad[:6]}")
+
+
+run("collision_tags", sec_collision_tags)
 
 
 def sec_build_exceptions():
@@ -1092,7 +1597,7 @@ for i in report["issues"]:
     sev[i["severity"]] = sev.get(i["severity"], 0) + 1
 report["summary"] = sev
 os.makedirs(OUT_DIR, exist_ok=True)
-with open(os.path.join(OUT_DIR, "validation_report.json"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT_DIR, "validation_report.json"), "w", encoding="utf-8", newline="\n") as f:
     json.dump(report, f, indent=1, default=str)
 lines = ["# Validation report", "", f"Objects: {report['stats']['objects']}, triangles (evaluated, incl. instances): "
          f"{total_tris:,}", "", "| check | ok | detail |", "|---|---|---|"]
@@ -1124,6 +1629,6 @@ if report["exceptions"]:
     for e in report["exceptions"][:30]:
         last = [ln for ln in e["traceback"].strip().splitlines() if ln.strip()]
         lines.append(f"- {e['source']} `{e['section']}`: {last[-1] if last else ''}")
-with open(os.path.join(OUT_DIR, "VALIDATION.md"), "w", encoding="utf-8") as f:
+with open(os.path.join(OUT_DIR, "VALIDATION.md"), "w", encoding="utf-8", newline="\n") as f:
     f.write("\n".join(lines) + "\n")
 print("VALIDATION_SUMMARY", json.dumps(sev), json.dumps({k: v["ok"] for k, v in report["checks"].items()}))

@@ -48,6 +48,28 @@
       "issues": []
      },
      {
+      "route": "ToHeena",
+      "ok": true,
+      "stats": {
+       "walk": 18,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
+     },
+     {
+      "route": "ToHeena (reverse)",
+      "ok": true,
+      "stats": {
+       "walk": 18,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
+     },
+     {
       "route": "BluffLadder",
       "ok": true,
       "stats": {
@@ -92,6 +114,7 @@
      [
       "Main",
       "ToHouseDoor",
+      "ToHeena",
       "BluffLadder"
      ]
     ],
@@ -109,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 0.32,
+   "seconds": 0.49,
    "portals": [
     {
      "name": "out00",
@@ -123,7 +146,9 @@
       22.164243698120117,
       -23.86935806274414,
       14.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -212,6 +237,32 @@
      "one_way": false
     },
     {
+     "name": "ToHeena",
+     "pts": [
+      [
+       8.0,
+       13.6
+      ],
+      [
+       7.5,
+       15.4
+      ],
+      [
+       7.45,
+       16.2
+      ],
+      [
+       4.45,
+       16.2
+      ],
+      [
+       3.9,
+       16.2
+      ]
+     ],
+     "one_way": false
+    },
+    {
      "name": "BluffLadder",
      "pts": [
       [
@@ -259,16 +310,35 @@
      "name": "Heena",
      "x": 2.8,
      "y": 16.2,
-     "id": 2101
+     "id": 2101,
+     "meowdb_id": "1"
     },
     {
      "name": "Sera",
      "x": 23.6,
      "y": 17.6,
-     "id": 2100
+     "id": 2100,
+     "meowdb_id": "2"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.0,
+     "y": 12.6,
+     "z": 2.39996337890625,
+     "rot": 20,
+     "note": "sp x -189: the west end below Heena (MeowDB's west half differs from v8; the tier and side are kept)",
+     "world": [
+      13.10995101928711,
+      1.6997590065002441,
+      16.39996337890625
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -339,6 +409,28 @@
        "error": 0
       },
       "issues": []
+     },
+     {
+      "route": "ToRoger",
+      "ok": true,
+      "stats": {
+       "walk": 28,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
+     },
+     {
+      "route": "ToRoger (reverse)",
+      "ok": true,
+      "stats": {
+       "walk": 28,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
      }
     ],
     "portal_issues": [],
@@ -348,7 +440,8 @@
     "route_groups": [
      [
       "Main",
-      "ToYellowHouse"
+      "ToYellowHouse",
+      "ToRoger"
      ]
     ],
     "orphan_routes": [],
@@ -366,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 0.28,
+   "seconds": 0.42,
    "portals": [
     {
      "name": "in00",
@@ -380,7 +473,9 @@
       26.853017807006836,
       -34.9154167175293,
       14.000030517578125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "out00",
@@ -394,7 +489,9 @@
       41.069480895996094,
       -72.51717376708984,
       15.20001220703125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -449,7 +546,29 @@
       ],
       [
        30.16588224135022,
-       23.666860130273264
+       23.416860130273264
+      ]
+     ],
+     "one_way": false
+    },
+    {
+     "name": "ToRoger",
+     "pts": [
+      [
+       21.5,
+       14.5
+      ],
+      [
+       21.5,
+       18.6
+      ],
+      [
+       21.5,
+       24.5
+      ],
+      [
+       21.5,
+       25.0
       ]
      ],
      "one_way": false
@@ -460,10 +579,28 @@
      "name": "Roger",
      "x": 21.5,
      "y": 26.1,
-     "id": 2000
+     "id": 2000,
+     "meowdb_id": "3"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.5,
+     "y": 10.5,
+     "z": 0.0,
+     "rot": 90,
+     "note": "sp x -91: ~3 m east of in00 on the arrival meadow",
+     "world": [
+      28.24184799194336,
+      -38.166748046875,
+      14.0
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -517,7 +654,7 @@
       "route": "ToSensHouse",
       "ok": true,
       "stats": {
-       "walk": 16,
+       "walk": 15,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -528,7 +665,29 @@
       "route": "ToSensHouse (reverse)",
       "ok": true,
       "stats": {
-       "walk": 16,
+       "walk": 15,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
+     },
+     {
+      "route": "ToNina",
+      "ok": true,
+      "stats": {
+       "walk": 37,
+       "climb": 0,
+       "drop": 0,
+       "error": 0
+      },
+      "issues": []
+     },
+     {
+      "route": "ToNina (reverse)",
+      "ok": true,
+      "stats": {
+       "walk": 37,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -586,6 +745,7 @@
      [
       "Main",
       "ToSensHouse",
+      "ToNina",
       "SkyIslet"
      ]
     ],
@@ -605,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 0.26,
+   "seconds": 0.46,
    "portals": [
     {
      "name": "in01",
@@ -619,7 +779,9 @@
       53.03457260131836,
       -118.2687759399414,
       16.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in00",
@@ -633,7 +795,9 @@
       43.57243347167969,
       -88.3201904296875,
       13.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "out00",
@@ -647,7 +811,9 @@
       47.57243347167969,
       -128.3201904296875,
       16.000030517578125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -729,8 +895,30 @@
        22.164080727166063
       ],
       [
-       30.948583736297284,
-       23.462138123559566
+       31.09842637366365,
+       23.09126458173285
+      ]
+     ],
+     "one_way": false
+    },
+    {
+     "name": "ToNina",
+     "pts": [
+      [
+       5.6,
+       12.8
+      ],
+      [
+       9.6,
+       17.2
+      ],
+      [
+       11.882791144337492,
+       21.25069001125648
+      ],
+      [
+       9.291197376099998,
+       24.029834077409326
       ]
      ],
      "one_way": false
@@ -787,10 +975,28 @@
      "name": "Nina",
      "x": 8.5,
      "y": 24.8,
-     "id": 2102
+     "id": 2102,
+     "meowdb_id": "4"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.0,
+     "y": 13.5,
+     "z": 0.0,
+     "rot": 90,
+     "note": "sp x -256: beside in00 on the west lawn",
+     "world": [
+      43.07243347167969,
+      -91.3201904296875,
+      14.0
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -969,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.58,
+   "seconds": 0.87,
    "portals": [
     {
      "name": "in00",
@@ -983,7 +1189,9 @@
       46.52656173706055,
       -140.27452087402344,
       14.99993896484375
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "out00",
@@ -997,7 +1205,9 @@
       58.00177001953125,
       -178.853271484375,
       24.4100341796875
-     ]
+     ],
+     "one_way": true,
+     "to_arrival": "in00"
     }
    ],
    "routes": [
@@ -1233,10 +1443,96 @@
      "name": "Peter",
      "x": 33.0,
      "y": 30.6,
-     "id": 2002
+     "id": 2002,
+     "meowdb_id": "6"
+    },
+    {
+     "name": "Todd",
+     "x": 6.8,
+     "y": 9.6,
+     "id": 2004,
+     "meowdb_id": "7"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 5.0,
+     "y": 10.2,
+     "z": 0.0,
+     "rot": 50,
+     "note": "west valley floor between in00 and Todd",
+     "world": [
+      44.05931854248047,
+      -143.90118408203125,
+      15.0
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "ValleyEast_G5",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Tutorial Jr. Sentinel"
+     ],
+     "tiers": [
+      "G5"
+     ],
+     "proxies": 0,
+     "source": "m.spawn_region"
+    },
+    {
+     "name": "Hilltop_G3",
+     "z_band": [
+      0.68,
+      1.08
+     ],
+     "species": [
+      "Tutorial Jr. Sentinel"
+     ],
+     "tiers": [
+      "G3"
+     ],
+     "proxies": 0,
+     "source": "m.spawn_region"
+    },
+    {
+     "name": "HighTerrace_M3",
+     "z_band": [
+      6.0,
+      6.4
+     ],
+     "species": [
+      "Tutorial Jr. Sentinel"
+     ],
+     "tiers": [
+      "M3"
+     ],
+     "proxies": 0,
+     "source": "m.spawn_region"
+    },
+    {
+     "name": "Ledge_M1",
+     "z_band": [
+      5.56,
+      5.96
+     ],
+     "species": [
+      "Tutorial Jr. Sentinel"
+     ],
+     "tiers": [
+      "M1"
+     ],
+     "proxies": 0,
+     "source": "m.spawn_region"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -1524,7 +1820,6 @@
     "orphan_routes": [],
     "portal_groups": [
      [
-      "in00",
       "east00"
      ]
     ],
@@ -1536,22 +1831,8 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 0.83,
+   "seconds": 1.12,
    "portals": [
-    {
-     "name": "in00",
-     "x": 1.0,
-     "y": 10.0,
-     "z": 1.2000732421875,
-     "to_map": 30000,
-     "to_portal": "out00",
-     "kind": "edge",
-     "world": [
-      55.3870964050293,
-      -208.73910522460938,
-      12.2000732421875
-     ]
-    },
     {
      "name": "east00",
      "x": 63.0,
@@ -1564,7 +1845,9 @@
       57.3870964050293,
       -270.7391052246094,
       10.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -1882,7 +2165,15 @@
      "name": "Robin",
      "x": 5.0,
      "y": 12.8,
-     "id": 2003
+     "id": 2003,
+     "meowdb_id": "8"
+    },
+    {
+     "name": "Sam",
+     "x": 36.4,
+     "y": 12.6,
+     "id": 2005,
+     "meowdb_id": "9"
     }
    ],
    "spawns": [
@@ -1895,7 +2186,7 @@
      "count": 3
     },
     {
-     "mob": "Blue Snail",
+     "mob": "Snail",
      "count": 2
     },
     {
@@ -1903,16 +2194,121 @@
      "count": 2
     },
     {
-     "mob": "Blue Snail",
+     "mob": "Snail",
      "count": 2
     },
     {
-     "mob": "Blue Snail",
+     "mob": "Snail",
      "count": 2
     },
     {
      "mob": "Snail",
      "count": 1
+    }
+   ],
+   "arrivals": [
+    {
+     "name": "in00",
+     "x": 1.0,
+     "y": 10.0,
+     "z": 1.2000732421875,
+     "from_map": 30000,
+     "from_portal": "out00",
+     "world": [
+      55.3870964050293,
+      -208.73910522460938,
+      12.2000732421875
+     ]
+    }
+   ],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 2.5,
+     "y": 10.0,
+     "z": 1.20001220703125,
+     "rot": 90,
+     "note": "arrival landing below the one-way ledge from 000000030",
+     "world": [
+      55.3870964050293,
+      -210.23910522460938,
+      12.20001220703125
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_2",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_3",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_4",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_5",
+     "z_band": [
+      9.1,
+      10.7
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_6",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": null,
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -2284,7 +2680,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 1.18,
+   "seconds": 1.88,
    "portals": [
     {
      "name": "west00",
@@ -2298,7 +2694,9 @@
       55.68092727661133,
       -284.634765625,
       8.60003662109375
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east00",
@@ -2312,7 +2710,9 @@
       41.73395919799805,
       -345.0456848144531,
       7.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -2868,6 +3268,171 @@
      "count": 2
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 5.3,
+     "y": 12.0,
+     "z": 0.600006103515625,
+     "rot": 90,
+     "note": "sp x -4: ~4 m east of west00 on the entry ground",
+     "world": [
+      54.7136344909668,
+      -288.8245544433594,
+      8.600006103515625
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      0.5,
+      0.7
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_2",
+     "z_band": [
+      0.5,
+      0.7
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_3",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_4",
+     "z_band": [
+      5.7,
+      5.9
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_5",
+     "z_band": [
+      5.3,
+      5.5
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_6",
+     "z_band": [
+      8.1,
+      8.3
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": [
+      8.5,
+      8.7
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_8",
+     "z_band": [
+      6.1,
+      6.3
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_9",
+     "z_band": [
+      11.7,
+      11.9
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_13",
+     "z_band": [
+      5.3,
+      5.5
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_14",
+     "z_band": [
+      3.6,
+      3.8
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -3183,7 +3748,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 1.57,
+   "seconds": 2.57,
    "portals": [
     {
      "name": "west00",
@@ -3197,7 +3762,9 @@
       41.73396301269531,
       -365.04571533203125,
       5.800048828125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east00",
@@ -3211,7 +3778,9 @@
       75.09606170654297,
       -423.4149475097656,
       17.5
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -3687,6 +4256,210 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.0,
+     "y": 10.0,
+     "z": 0.79998779296875,
+     "rot": 90,
+     "note": "sp x 1: just east of west00 on the entry plateau",
+     "world": [
+      42.09956741333008,
+      -368.0233459472656,
+      5.79998779296875
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      -0.1,
+      0.1
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_2",
+     "z_band": [
+      0.5,
+      0.7
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_3",
+     "z_band": [
+      13.2,
+      13.4
+     ],
+     "species": [
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_4",
+     "z_band": [
+      7.5,
+      7.7
+     ],
+     "species": [
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_5",
+     "z_band": [
+      5.5,
+      6.1
+     ],
+     "species": [
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_6",
+     "z_band": [
+      12.8,
+      13.0
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": [
+      12.4,
+      12.6
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_8",
+     "z_band": [
+      5.1,
+      5.3
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_11",
+     "z_band": [
+      5.1,
+      5.3
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_12",
+     "z_band": [
+      0.5,
+      0.7
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_13",
+     "z_band": [
+      7.9,
+      8.1
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_15",
+     "z_band": [
+      0.7,
+      0.9
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_16",
+     "z_band": [
+      7.9,
+      8.1
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_22",
+     "z_band": [
+      12.4,
+      12.6
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -4023,7 +4796,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 1.68,
+   "seconds": 2.94,
    "portals": [
     {
      "name": "west00",
@@ -4037,7 +4810,9 @@
       83.3782730102539,
       -454.3245849609375,
       4.800018310546875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east00",
@@ -4051,7 +4826,9 @@
       122.41793060302734,
       -518.1439208984375,
       7.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east01",
@@ -4065,7 +4842,9 @@
       104.92833709716797,
       -525.5678100585938,
       4.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -4419,7 +5198,15 @@
      "name": "Maria",
      "x": 14.6,
      "y": 20.8,
-     "id": 2103
+     "id": 2103,
+     "meowdb_id": "10"
+    },
+    {
+     "name": "Mai",
+     "x": 48.6,
+     "y": 30.0,
+     "id": 12100,
+     "meowdb_id": "11"
     }
    ],
    "spawns": [
@@ -4470,6 +5257,144 @@
     {
      "mob": "Red Snail",
      "count": 1
+    }
+   ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 7.0,
+     "y": 13.0,
+     "z": 0.79998779296875,
+     "rot": 70,
+     "note": "west entry ground, on the road",
+     "world": [
+      84.80215454101562,
+      -460.2383728027344,
+      4.79998779296875
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "BlueSnail_1",
+     "z_band": [
+      -0.1,
+      0.1
+     ],
+     "species": [
+      "Blue Snail",
+      "Red Snail",
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 7,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_4",
+     "z_band": [
+      2.1,
+      2.3
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_5",
+     "z_band": [
+      3.9,
+      4.1
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_6",
+     "z_band": [
+      4.9,
+      5.1
+     ],
+     "species": [
+      "Blue Snail",
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_7",
+     "z_band": [
+      3.7,
+      3.9
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_9",
+     "z_band": [
+      0.7,
+      0.9
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_10",
+     "z_band": [
+      0.7,
+      0.9
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_11",
+     "z_band": [
+      2.9,
+      3.1
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_12",
+     "z_band": [
+      3.3,
+      3.5
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -4547,7 +5472,7 @@
       "route": "ArmorStore",
       "ok": true,
       "stats": {
-       "walk": 29,
+       "walk": 28,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -4558,7 +5483,7 @@
       "route": "ArmorStore (reverse)",
       "ok": true,
       "stats": {
-       "walk": 29,
+       "walk": 28,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -4809,7 +5734,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 1.55,
+   "seconds": 2.46,
    "portals": [
     {
      "name": "west00",
@@ -4823,7 +5748,9 @@
       75.38410186767578,
       -530.7772827148438,
       4.300048828125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in00",
@@ -4837,7 +5764,9 @@
       61.819515228271484,
       -559.3486328125,
       1.79998779296875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -4966,7 +5895,7 @@
       ],
       [
        25.5,
-       21.3
+       20.95
       ]
      ],
      "one_way": false
@@ -5235,46 +6164,49 @@
      "name": "Shanks",
      "x": 73.80000000000001,
      "y": 5.0,
-     "id": 22000
-    },
-    {
-     "name": "Tia",
-     "x": 67.8,
-     "y": 4.6,
-     "id": 9010001
-    },
-    {
-     "name": "Maple Administrator",
-     "x": 8.2,
-     "y": 13.4,
-     "id": 9010000
+     "id": 22000,
+     "meowdb_id": "15"
     },
     {
      "name": "Yoona",
      "x": 11.6,
      "y": 18.0,
-     "id": 20100
-    },
-    {
-     "name": "Paul",
-     "x": 10.4,
-     "y": 37.0,
-     "id": 9000000
+     "id": 20100,
+     "meowdb_id": "13"
     },
     {
      "name": "Bari",
      "x": 28.9,
      "y": 16.6,
-     "id": 20001
+     "id": 20001,
+     "meowdb_id": "14"
     },
     {
      "name": "Biggs",
      "x": 29.9,
      "y": 33.8,
-     "id": 20002
+     "id": 20002,
+     "meowdb_id": "12"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 10.4,
+     "y": 16.2,
+     "z": 3.29998779296875,
+     "rot": 10,
+     "note": "sp x -37: on the west town ground beside Yoona",
+     "world": [
+      51.17887496948242,
+      -547.4613037109375,
+      4.29998779296875
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -5437,7 +6369,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.39,
+   "seconds": 0.62,
    "portals": [
     {
      "name": "out00",
@@ -5451,7 +6383,9 @@
       2602.699951171875,
       -1.350000023841858,
       0.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -5536,7 +6470,7 @@
       ],
       [
        15.35,
-       11.3
+       11.05
       ]
      ],
      "one_way": false
@@ -5573,10 +6507,28 @@
      "name": "Pan",
      "x": 1.85,
      "y": 8.6,
-     "id": 21000
+     "id": 21000,
+     "meowdb_id": "16"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 3.0,
+     "y": 2.7,
+     "z": 0.35003662109375,
+     "rot": 90,
+     "note": "interior: just inside the door (out00), on the entry step",
+     "world": [
+      2602.699951171875,
+      -3.0,
+      0.35003662109375
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -5716,7 +6668,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.19,
+   "seconds": 0.29,
    "portals": [
     {
      "name": "out00",
@@ -5730,7 +6682,9 @@
       2403.300048828125,
       -1.2000000476837158,
       -3.0517578125e-05
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -5822,10 +6776,28 @@
      "name": "Sen",
      "x": 11.0,
      "y": 4.7,
-     "id": 2001
+     "id": 2001,
+     "meowdb_id": "5"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 3.0,
+     "y": 3.3,
+     "z": 3.0517578125e-05,
+     "rot": 90,
+     "note": "interior: just inside the door (out00)",
+     "world": [
+      2403.300048828125,
+      -3.0,
+      3.0517578125e-05
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -6159,7 +7131,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 2.52,
+   "seconds": 3.87,
    "portals": [
     {
      "name": "in00",
@@ -6173,7 +7145,9 @@
       157.34548950195312,
       -500.02716064453125,
       11.39996337890625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in04",
@@ -6187,7 +7161,9 @@
       165.33184814453125,
       -506.0452880859375,
       13.4000244140625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in05",
@@ -6201,7 +7177,9 @@
       198.87452697753906,
       -531.321533203125,
       13.800018310546875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in01",
@@ -6215,7 +7193,9 @@
       206.8608856201172,
       -537.3396606445312,
       12.20001220703125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in02",
@@ -6229,7 +7209,9 @@
       175.98284912109375,
       -571.669677734375,
       4.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in03",
@@ -6243,7 +7225,9 @@
       188.76101684570312,
       -581.2987060546875,
       5.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "west00",
@@ -6257,7 +7241,9 @@
       133.88604736328125,
       -526.1739501953125,
       6.200042724609375
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east00",
@@ -6271,7 +7257,9 @@
       196.17962646484375,
       -573.1155395507812,
       4.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -6907,6 +7895,232 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 7.0,
+     "y": 12.0,
+     "z": 1.20001220703125,
+     "rot": 90,
+     "note": "sp x -91: ~6 m east of west00 on the entry ground",
+     "world": [
+      138.67787170410156,
+      -529.7848510742188,
+      6.20001220703125
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      1.0,
+      1.4
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_2",
+     "z_band": [
+      0.6,
+      1.4
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_3",
+     "z_band": [
+      -0.1,
+      0.2
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_4",
+     "z_band": [
+      1.0,
+      1.4
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      4.2,
+      4.6
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_6",
+     "z_band": [
+      3.8,
+      4.2
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_7",
+     "z_band": [
+      6.2,
+      6.6
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_8",
+     "z_band": [
+      6.2,
+      6.6
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_9",
+     "z_band": [
+      6.2,
+      6.6
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_10",
+     "z_band": [
+      8.2,
+      8.6
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_11",
+     "z_band": [
+      8.6,
+      9.0
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_12",
+     "z_band": [
+      11.4,
+      11.8
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_13",
+     "z_band": [
+      11.4,
+      11.8
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_14",
+     "z_band": [
+      6.2,
+      6.6
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_15",
+     "z_band": [
+      7.0,
+      7.4
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_16",
+     "z_band": [
+      4.2,
+      4.6
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -7155,7 +8369,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.12,
+   "seconds": 1.73,
    "portals": [
     {
      "name": "out00",
@@ -7169,7 +8383,9 @@
       167.646240234375,
       -482.8838195800781,
       12.4000244140625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -7503,6 +8719,117 @@
     {
      "mob": "Shroom",
      "count": 1
+    }
+   ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 33.4,
+     "y": 4.6,
+     "z": 4.429962158203125,
+     "rot": 180,
+     "note": "sp x 947: west of and above out00, on the arrival rock",
+     "world": [
+      169.21961975097656,
+      -479.5907287597656,
+      12.429962158203125
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "OrangeMushroom_1",
+     "z_band": [
+      -0.1,
+      0.2
+     ],
+     "species": [
+      "Orange Mushroom",
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 4,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_3",
+     "z_band": [
+      3.0,
+      3.4
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_4",
+     "z_band": [
+      3.8,
+      4.2
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_5",
+     "z_band": [
+      5.8,
+      6.2
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_6",
+     "z_band": [
+      7.0,
+      7.4
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_8",
+     "z_band": [
+      1.4,
+      1.8
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_9",
+     "z_band": [
+      7.0,
+      7.4
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -7883,18 +9210,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@34.7,13.0",
      "X1000002_Toadstool_Dark@19.5,10.1",
-     "X1000002_Toadstool_Dark@17.8,17.2",
      "X1000002_Toadstool_Dark@16.9,12.4",
+     "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@32.8,25.2",
      "X1000002_Toadstool_Dark@20.8,8.6",
-     "X1000002_Toadstool_Dark@32.8,25.2"
+     "X1000002_Toadstool_Dark@17.8,17.2"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 1.47,
+   "seconds": 2.16,
    "portals": [
     {
      "name": "out01",
@@ -7908,7 +9235,9 @@
       216.40887451171875,
       -527.1007690429688,
       14.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -8332,6 +9661,158 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 6.4,
+     "y": 3.4,
+     "z": 1.999969482421875,
+     "rot": 180,
+     "note": "sp x -204: just east of out01 at the head of the trail",
+     "world": [
+      219.79006958007812,
+      -526.804931640625,
+      14.999969482421875
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "OrangeMushroom_1",
+     "z_band": [
+      0.6,
+      1.2
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_2",
+     "z_band": [
+      1.5,
+      2.1
+     ],
+     "species": [
+      "Blue Snail",
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_8",
+     "z_band": [
+      1.5,
+      2.1
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_3",
+     "z_band": [
+      -0.2,
+      0.4
+     ],
+     "species": [
+      "Orange Mushroom",
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_4",
+     "z_band": [
+      7.3,
+      7.9
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_10",
+     "z_band": [
+      7.3,
+      7.9
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_5",
+     "z_band": [
+      5.8,
+      7.0
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_6",
+     "z_band": [
+      6.6,
+      7.0
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": [
+      11.8,
+      12.2
+     ],
+     "species": [
+      "Blue Snail",
+      "Orange Mushroom",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_15",
+     "z_band": [
+      11.8,
+      12.2
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -8510,7 +9991,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 0.78,
+   "seconds": 1.16,
    "portals": [
     {
      "name": "out00",
@@ -8524,7 +10005,9 @@
       161.0698699951172,
       -592.9676513671875,
       4.39996337890625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -8790,6 +10273,129 @@
     {
      "mob": "Snail",
      "count": 1
+    }
+   ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 9.0,
+     "y": 26.0,
+     "z": 2.4000244140625,
+     "rot": 0,
+     "note": "sp x 2834: beside out00 on the door terrace",
+     "world": [
+      160.33314514160156,
+      -597.1458129882812,
+      4.4000244140625
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Shroom_1",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_2",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_3",
+     "z_band": [
+      4.2,
+      4.7
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_4",
+     "z_band": [
+      6.6,
+      7.1
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_5",
+     "z_band": [
+      5.0,
+      5.5
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_6",
+     "z_band": [
+      9.0,
+      9.5
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_7",
+     "z_band": [
+      11.4,
+      11.9
+     ],
+     "species": [
+      "Orange Mushroom",
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_9",
+     "z_band": [
+      10.6,
+      11.1
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -9151,7 +10757,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 1.43,
+   "seconds": 2.24,
    "portals": [
     {
      "name": "out00",
@@ -9165,7 +10771,9 @@
       207.82862854003906,
       -618.7210083007812,
       4.250030517578125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -9557,6 +11165,157 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 13.8,
+     "y": 25.5,
+     "z": 2.25006103515625,
+     "rot": 0,
+     "note": "sp x 827: in front of out00 on the arrival shelf",
+     "world": [
+      204.8468780517578,
+      -620.564697265625,
+      4.25006103515625
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Blue Snail",
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_4",
+     "z_band": [
+      0.55,
+      1.05
+     ],
+     "species": [
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      2.05,
+      2.55
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_6",
+     "z_band": [
+      3.9,
+      4.4
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": [
+      7.3,
+      7.8
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_8",
+     "z_band": [
+      7.3,
+      7.8
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_9",
+     "z_band": [
+      11.8,
+      12.3
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_10",
+     "z_band": [
+      11.05,
+      11.55
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_11",
+     "z_band": [
+      11.05,
+      11.55
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_12",
+     "z_band": [
+      10.3,
+      10.8
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -9668,7 +11427,7 @@
       "route": "DoorRoof",
       "ok": true,
       "stats": {
-       "walk": 30,
+       "walk": 24,
        "climb": 2,
        "drop": 0,
        "error": 0
@@ -9680,10 +11439,10 @@
       ],
       "climb_segments": [
        [
-        5.4,
-        0.8,
-        5.4,
-        2.9
+        11.8,
+        1.6,
+        11.8,
+        4.2
        ],
        [
         11.31,
@@ -9697,7 +11456,7 @@
       "route": "DoorRoof (reverse)",
       "ok": true,
       "stats": {
-       "walk": 30,
+       "walk": 24,
        "climb": 2,
        "drop": 0,
        "error": 0
@@ -10095,7 +11854,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 1.61,
+   "seconds": 2.71,
    "portals": [
     {
      "name": "out00",
@@ -10109,7 +11868,9 @@
       174.65760803222656,
       -498.49346923828125,
       12.899993896484375
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -10219,16 +11980,16 @@
      "name": "DoorRoof",
      "pts": [
       [
-       5.4,
-       0.8
+       11.8,
+       1.6
       ],
       [
-       5.4,
-       2.9
+       11.8,
+       4.2
       ],
       [
-       8.0,
-       5.6
+       10.0,
+       6.0
       ],
       [
        11.31,
@@ -10631,6 +12392,193 @@
     {
      "mob": "Blue Snail",
      "count": 1
+    }
+   ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.0,
+     "y": 3.6,
+     "z": 1.29998779296875,
+     "rot": 180,
+     "note": "sp x -214: west of out00, a little higher, on the forest floor",
+     "world": [
+      173.26467895507812,
+      -493.93060302734375,
+      13.29998779296875
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Shroom_1",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_2",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_3",
+     "z_band": [
+      1.6,
+      2.0
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_4",
+     "z_band": [
+      5.14,
+      5.54
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_13",
+     "z_band": [
+      3.1,
+      3.5
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      6.4,
+      6.8
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_6",
+     "z_band": [
+      6.82,
+      7.22
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_7",
+     "z_band": [
+      8.08,
+      8.48
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_8",
+     "z_band": [
+      8.92,
+      9.32
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_9",
+     "z_band": [
+      10.6,
+      11.0
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_10",
+     "z_band": [
+      11.44,
+      11.84
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_11",
+     "z_band": [
+      11.86,
+      12.26
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_12",
+     "z_band": [
+      13.12,
+      13.52
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -11147,7 +13095,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 2.79,
+   "seconds": 5.34,
    "portals": [
     {
      "name": "out00",
@@ -11161,7 +13109,9 @@
       241.2930450439453,
       -491.7656555175781,
       23.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -11673,6 +13623,195 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 10.0,
+     "y": 3.0,
+     "z": 7.0,
+     "rot": 180,
+     "note": "sp x -203: west of out00 on the arrival hub",
+     "world": [
+      239.8788299560547,
+      -487.52301025390625,
+      23.0
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      1.2,
+      1.6
+     ],
+     "species": [
+      "Orange Mushroom",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_3",
+     "z_band": [
+      -0.2,
+      0.9
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_4",
+     "z_band": [
+      -0.2,
+      0.9
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      3.2,
+      3.6
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_6",
+     "z_band": [
+      0.0,
+      3.4
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_7",
+     "z_band": [
+      3.2,
+      3.6
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_8",
+     "z_band": [
+      5.48,
+      5.88
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_9",
+     "z_band": [
+      7.68,
+      8.08
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_10",
+     "z_band": [
+      8.12,
+      8.52
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_11",
+     "z_band": [
+      10.32,
+      10.72
+     ],
+     "species": [
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_12",
+     "z_band": [
+      10.76,
+      11.16
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_13",
+     "z_band": [
+      11.2,
+      11.6
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Shroom_14",
+     "z_band": [
+      12.52,
+      12.92
+     ],
+     "species": [
+      "Orange Mushroom",
+      "Shroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -11870,7 +14009,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.05,
+   "seconds": 1.54,
    "portals": [
     {
      "name": "west00",
@@ -11884,7 +14023,9 @@
       206.07911682128906,
       -583.0150146484375,
       6.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "east00",
@@ -11898,7 +14039,9 @@
       258.405029296875,
       -635.3409423828125,
       6.000030517578125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in01",
@@ -11912,7 +14055,9 @@
       269.7187194824219,
       -608.4708862304688,
       6.79998779296875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in00",
@@ -11926,7 +14071,9 @@
       225.74375915527344,
       -577.577392578125,
       13.20001220703125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in02",
@@ -11940,7 +14087,9 @@
       242.10621643066406,
       -600.2330932617188,
       7.600006103515625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -12152,28 +14301,42 @@
      "name": "Rain",
      "x": 9.8,
      "y": 15.0,
-     "id": 12101
+     "id": 12101,
+     "meowdb_id": "19"
     },
     {
      "name": "Pio",
      "x": 19.9,
      "y": 15.6,
-     "id": 10000
+     "id": 10000,
+     "meowdb_id": "18"
     },
     {
      "name": "Lucas",
      "x": 47.3,
      "y": 25.2,
-     "id": 12000
-    },
-    {
-     "name": "Mai",
-     "x": 21.6,
-     "y": 30.8,
-     "id": 12100
+     "id": 12000,
+     "meowdb_id": "17"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 13.6,
+     "y": 11.8,
+     "z": 3.0517578125e-05,
+     "rot": 90,
+     "note": "sp x 282: on the west street between Rain and Pio",
+     "world": [
+      214.8472442626953,
+      -592.0659790039062,
+      6.000030517578125
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -12283,7 +14446,7 @@
       "climb_segments": [
        [
         11.8,
-        10.95,
+        10.8,
         11.45,
         10.95
        ]
@@ -12353,7 +14516,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.28,
+   "seconds": 0.36,
    "portals": [
     {
      "name": "out00",
@@ -12367,7 +14530,9 @@
       2802.699951171875,
       -1.350000023841858,
       0.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -12454,7 +14619,7 @@
      "pts": [
       [
        11.8,
-       10.95
+       10.8
       ],
       [
        11.45,
@@ -12487,10 +14652,28 @@
      "name": "Sid",
      "x": 1.75,
      "y": 8.6,
-     "id": 11000
+     "id": 11000,
+     "meowdb_id": "20"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 3.0,
+     "y": 2.7,
+     "z": 6.103515625e-05,
+     "rot": 90,
+     "note": "interior: just inside the door (out00)",
+     "world": [
+      2802.699951171875,
+      -3.0,
+      6.103515625e-05
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -12625,7 +14808,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.29,
+   "seconds": 0.41,
    "portals": [
     {
      "name": "out00",
@@ -12639,7 +14822,9 @@
       274.6684875488281,
       -603.5211181640625,
       8.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "west00",
@@ -12653,7 +14838,9 @@
       273.2542724609375,
       -586.550537109375,
       7.999969482421875
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -12742,6 +14929,23 @@
    ],
    "npcs": [],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 6.0,
+     "y": 10.0,
+     "z": -3.0517578125e-05,
+     "rot": 90,
+     "note": "sp x -329: on the street between west00 and out00",
+     "world": [
+      275.3756103515625,
+      -591.5003051757812,
+      7.999969482421875
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -12882,7 +15086,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 1.57,
+   "seconds": 1.9,
    "portals": [
     {
      "name": "out00",
@@ -12896,7 +15100,9 @@
       3010.75,
       -14.300000190734863,
       0.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -13033,7 +15239,7 @@
       ],
       [
        10.4,
-       11.1
+       11.0
       ]
      ],
      "one_way": false
@@ -13058,10 +15264,28 @@
      "name": "Lucy",
      "x": 2.0,
      "y": 9.1,
-     "id": 11100
+     "id": 11100,
+     "meowdb_id": "21"
     }
    ],
    "spawns": [],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 14.3,
+     "y": 9.0,
+     "z": -3.0517578125e-05,
+     "rot": 0,
+     "note": "interior: just inside the door (out00)",
+     "world": [
+      3009.0,
+      -14.300000190734863,
+      -3.0517578125e-05
+     ]
+    }
+   ],
+   "spawn_regions": [],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -13115,7 +15339,7 @@
       "route": "VineDown_0",
       "ok": true,
       "stats": {
-       "walk": 19,
+       "walk": 18,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -13129,7 +15353,7 @@
         4.6,
         31.4,
         4.6,
-        26.04
+        26.2
        ]
       ]
      },
@@ -13137,7 +15361,7 @@
       "route": "VineDown_0 (reverse)",
       "ok": true,
       "stats": {
-       "walk": 19,
+       "walk": 18,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -13151,7 +15375,7 @@
       "route": "VineDown_1",
       "ok": true,
       "stats": {
-       "walk": 18,
+       "walk": 19,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -13165,7 +15389,7 @@
         15.6,
         31.4,
         15.6,
-        25.96
+        26.04
        ]
       ]
      },
@@ -13173,7 +15397,7 @@
       "route": "VineDown_1 (reverse)",
       "ok": true,
       "stats": {
-       "walk": 18,
+       "walk": 19,
        "climb": 1,
        "drop": 0,
        "error": 0
@@ -13201,7 +15425,7 @@
         21.6,
         31.4,
         21.6,
-        26.08
+        26.16
        ]
       ]
      },
@@ -13237,7 +15461,7 @@
         33.4,
         31.4,
         33.4,
-        25.84
+        25.88
        ]
       ]
      },
@@ -13331,7 +15555,7 @@
         10.0,
         24.8,
         10.0,
-        20.0
+        20.16
        ]
       ]
      },
@@ -13367,7 +15591,7 @@
         26.4,
         24.8,
         26.4,
-        20.0
+        20.16
        ]
       ]
      },
@@ -13403,7 +15627,7 @@
         31.6,
         24.8,
         31.6,
-        19.2
+        19.16
        ]
       ]
      },
@@ -13459,9 +15683,9 @@
       "climb_segments": [
        [
         2.6,
-        18.4,
+        18.36,
         2.6,
-        15.6
+        15.56
        ]
       ]
      },
@@ -13560,7 +15784,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 1.38,
+   "seconds": 2.16,
    "portals": [
     {
      "name": "east00",
@@ -13571,10 +15795,12 @@
      "to_portal": "west00",
      "kind": "edge",
      "world": [
-      296.7250671386719,
-      -555.40380859375,
+      304.5486755371094,
+      -545.0215454101562,
       20.100006103515625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -13613,7 +15839,7 @@
       ],
       [
        4.6,
-       26.04
+       26.200000000000003
       ],
       [
        4.6,
@@ -13631,7 +15857,7 @@
       ],
       [
        15.6,
-       25.96
+       26.04
       ],
       [
        15.6,
@@ -13649,7 +15875,7 @@
       ],
       [
        21.6,
-       26.080000000000002
+       26.16
       ],
       [
        21.6,
@@ -13667,7 +15893,7 @@
       ],
       [
        33.4,
-       25.84
+       25.880000000000003
       ],
       [
        33.4,
@@ -13745,11 +15971,11 @@
       ],
       [
        10.0,
-       20.000000000000004
+       20.160000000000004
       ],
       [
        10.0,
-       19.200000000000003
+       19.360000000000003
       ]
      ],
      "one_way": false
@@ -13763,11 +15989,11 @@
       ],
       [
        26.4,
-       20.000000000000004
+       20.160000000000004
       ],
       [
        26.4,
-       19.200000000000003
+       19.360000000000003
       ]
      ],
      "one_way": false
@@ -13781,11 +16007,11 @@
       ],
       [
        31.6,
-       19.200000000000003
+       19.160000000000004
       ],
       [
        31.6,
-       18.400000000000002
+       18.360000000000003
       ]
      ],
      "one_way": false
@@ -13813,11 +16039,11 @@
      "pts": [
       [
        2.6,
-       18.400000000000002
+       18.360000000000003
       ],
       [
        2.6,
-       15.600000000000003
+       15.560000000000004
       ],
       [
        2.6,
@@ -13980,6 +16206,137 @@
     {
      "mob": "Red Snail",
      "count": 1
+    },
+    {
+     "mob": "Orange Mushroom",
+     "count": 1
+    }
+   ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.6,
+     "y": 31.5,
+     "z": 10.600006103515625,
+     "rot": 90,
+     "note": "sp x -794: the west end of the top tier (rim road)",
+     "world": [
+      281.6383972167969,
+      -522.1112670898438,
+      20.100006103515625
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "BlueSnail_1",
+     "z_band": [
+      6.7,
+      7.2
+     ],
+     "species": [
+      "Blue Snail",
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_2",
+     "z_band": [
+      6.7,
+      7.2
+     ],
+     "species": [
+      "Blue Snail",
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_4",
+     "z_band": [
+      6.7,
+      7.2
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      4.3,
+      4.8
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_7",
+     "z_band": [
+      3.9,
+      4.4
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_8",
+     "z_band": [
+      1.9,
+      2.4
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_9",
+     "z_band": [
+      1.9,
+      2.4
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_10",
+     "z_band": [
+      0.1,
+      0.6
+     ],
+     "species": [
+      "Blue Snail",
+      "Red Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 3,
+     "source": "m.mobs"
     }
    ],
    "gameplay_frame": {
@@ -13989,7 +16346,7 @@
      0.563,
      0.491
     ],
-    "mobs_in_frame": 12,
+    "mobs_in_frame": 13,
     "mobs_required": 2,
     "issues": [],
     "camera": "CAM_SnailFieldOfFlowers_1010004_Gameplay",
@@ -13998,7 +16355,7 @@
      22.4,
      16.9
     ],
-    "mobs_total": 12,
+    "mobs_total": 13,
     "focus": [
      20.0,
      16.0
@@ -14347,7 +16704,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 2.43,
+   "seconds": 4.47,
    "portals": [
     {
      "name": "west00",
@@ -14361,7 +16718,9 @@
       258.405029296875,
       -653.3409423828125,
       6.0
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     },
     {
      "name": "in00",
@@ -14375,7 +16734,9 @@
       266.50018310546875,
       -698.6892700195312,
       10.600006103515625
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -14819,6 +17180,183 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 3.6,
+     "y": 13.0,
+     "z": 2.000030517578125,
+     "rot": 90,
+     "note": "sp x -426: just inside west00 on the west plateau",
+     "world": [
+      256.68853759765625,
+      -655.5349731445312,
+      6.000030517578125
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_2",
+     "z_band": [
+      1.5,
+      2.5
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_3",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Blue Snail",
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_5",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_6",
+     "z_band": [
+      -0.2,
+      0.3
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_7",
+     "z_band": [
+      1.5,
+      2.5
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_9",
+     "z_band": [
+      4.8,
+      5.2
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_11",
+     "z_band": [
+      5.6,
+      6.0
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_13",
+     "z_band": [
+      6.4,
+      6.8
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_15",
+     "z_band": [
+      7.2,
+      7.6
+     ],
+     "species": [
+      "Blue Snail",
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 2,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_16",
+     "z_band": [
+      10.4,
+      10.8
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_18",
+     "z_band": [
+      10.4,
+      10.8
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_17",
+     "z_band": [
+      9.6,
+      10.0
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -14872,7 +17410,7 @@
       "route": "WestBed",
       "ok": true,
       "stats": {
-       "walk": 75,
+       "walk": 82,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -14883,7 +17421,7 @@
       "route": "WestBed (reverse)",
       "ok": true,
       "stats": {
-       "walk": 75,
+       "walk": 82,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -14894,7 +17432,7 @@
       "route": "EastYard",
       "ok": true,
       "stats": {
-       "walk": 31,
+       "walk": 36,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -14905,7 +17443,7 @@
       "route": "EastYard (reverse)",
       "ok": true,
       "stats": {
-       "walk": 31,
+       "walk": 36,
        "climb": 0,
        "drop": 0,
        "error": 0
@@ -15123,7 +17661,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 1.56,
+   "seconds": 2.86,
    "portals": [
     {
      "name": "out00",
@@ -15137,7 +17675,9 @@
       286.43896484375,
       -707.9868774414062,
       3.199981689453125
-     ]
+     ],
+     "one_way": false,
+     "to_arrival": ""
     }
    ],
    "routes": [
@@ -15187,16 +17727,24 @@
        15.2
       ],
       [
+       12.6,
+       14.0
+      ],
+      [
        14.2,
-       12.0
+       13.0
       ],
       [
        14.2,
        3.0
       ],
       [
-       16.6,
-       2.0
+       14.6,
+       1.3
+      ],
+      [
+       18.6,
+       1.3
       ],
       [
        19.0,
@@ -15221,12 +17769,16 @@
        11.0
       ],
       [
-       55.6,
+       56.3,
        6.4
       ],
       [
-       54.1,
-       4.0
+       56.1,
+       3.2
+      ],
+      [
+       55.0,
+       2.3
       ]
      ],
      "one_way": false
@@ -15469,6 +18021,128 @@
      "count": 1
     }
    ],
+   "arrivals": [],
+   "player_spawns": [
+    {
+     "index": 0,
+     "x": 4.8,
+     "y": 14.7,
+     "z": 1.20001220703125,
+     "rot": 90,
+     "note": "sp x -195: just east of out00, through the barrel gate, on the west bank",
+     "world": [
+      290.491943359375,
+      -710.289794921875,
+      3.20001220703125
+     ]
+    }
+   ],
+   "spawn_regions": [
+    {
+     "name": "Snail_1",
+     "z_band": [
+      1.0,
+      1.5
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_3",
+     "z_band": [
+      -0.2,
+      0.15
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_4",
+     "z_band": [
+      -0.2,
+      0.15
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_5",
+     "z_band": [
+      -0.2,
+      0.15
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "BlueSnail_7",
+     "z_band": [
+      1.0,
+      1.5
+     ],
+     "species": [
+      "Blue Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "OrangeMushroom_8",
+     "z_band": [
+      -0.2,
+      0.15
+     ],
+     "species": [
+      "Orange Mushroom"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "RedSnail_9",
+     "z_band": [
+      -0.2,
+      0.15
+     ],
+     "species": [
+      "Red Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    },
+    {
+     "name": "Snail_11",
+     "z_band": [
+      2.2,
+      2.6
+     ],
+     "species": [
+      "Snail"
+     ],
+     "tiers": [],
+     "proxies": 1,
+     "source": "m.mobs"
+    }
+   ],
    "gameplay_frame": {
     "ok": true,
     "player": true,
@@ -15494,7 +18168,7 @@
    }
   }
  },
- "started": "2026-10-04 02:25:30",
+ "started": "2026-10-05 07:50:50",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -15506,9 +18180,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 0,
+    "from_portal": "out00",
+    "to_map": 10000,
+    "to_portal": "in00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 0,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       23.22,
+       -26.14
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       23.22,
+       -26.14
+      ]
+     },
+     {
+      "map": 10000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       26.34,
+       -32.98
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       26.21,
+       -32.5
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15521,9 +18250,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 10000,
+    "from_portal": "out00",
+    "to_map": 20000,
+    "to_portal": "in00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 10000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.59,
+       -74.45
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.59,
+       -74.45
+      ]
+     },
+     {
+      "map": 20000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       43.57,
+       -86.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       43.57,
+       -86.32
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15536,24 +18320,225 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 20000,
+    "from_portal": "out00",
+    "to_map": 30000,
+    "to_portal": "in00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 20000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       47.57,
+       -130.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       47.57,
+       -130.32
+      ]
+     },
+     {
+      "map": 30000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       46.92,
+       -138.06
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       46.92,
+       -138.06
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
    "trail": "Trail_EastEntranceMushroomTown_30000_out00_to_SnailHuntingGround1_40000",
-   "length_m": 28.0,
-   "rise_m": -12.21,
-   "slope_deg": 26.0,
+   "length_m": 27.0,
+   "rise_m": -9.77,
+   "slope_deg": 22.1,
    "kind": "stairs+landings",
    "main_road": true,
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": true,
+   "route": "seeded",
+   "link": {
+    "from_map": 30000,
+    "from_portal": "out00",
+    "to_map": 40000,
+    "to_portal": "in00"
+   },
    "walk": {
     "ok": true,
-    "issues": []
+    "direction": "forward",
+    "issues": [],
+    "drops": [
+     {
+      "type": "drop",
+      "at": [
+       55.4,
+       -207.0
+      ],
+      "dz": -2.4
+     }
+    ]
+   },
+   "walk_reverse": {
+    "ok": false,
+    "direction": "reverse",
+    "issues": [
+     {
+      "type": "step",
+      "at": [
+       55.4,
+       -206.7
+      ],
+      "dz": 2.4
+     }
+    ]
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "blocked"
+   },
+   "ledge": {
+    "arrival_map": 40000,
+    "arrival_point": "in00",
+    "from_map": 30000,
+    "from_portal": "out00",
+    "authored_height_m": 2.4,
+    "landing_z": 12.2,
+    "top_z": 14.6,
+    "gate_plane": {
+     "point": [
+      55.3871,
+      -206.7391,
+      12.2
+     ],
+     "outward_normal": [
+      -0.0,
+      1.0
+     ],
+     "offset_from_footprint_m": 1.0,
+     "half_width_m": 2.25
+    },
+    "measured": {
+     "samples": [
+      {
+       "lateral": -2.25,
+       "found": true,
+       "face_offset_m": 0.005,
+       "top_z": 14.6,
+       "bottom_z": 12.2,
+       "height_m": 2.4
+      },
+      {
+       "lateral": -1.12,
+       "found": true,
+       "face_offset_m": 0.005,
+       "top_z": 14.6,
+       "bottom_z": 12.2,
+       "height_m": 2.4
+      },
+      {
+       "lateral": 0.0,
+       "found": true,
+       "face_offset_m": 0.005,
+       "top_z": 14.6,
+       "bottom_z": 12.2,
+       "height_m": 2.4
+      },
+      {
+       "lateral": 1.12,
+       "found": true,
+       "face_offset_m": 0.005,
+       "top_z": 14.6,
+       "bottom_z": 12.2,
+       "height_m": 2.4
+      },
+      {
+       "lateral": 2.25,
+       "found": true,
+       "face_offset_m": 0.005,
+       "top_z": 14.6,
+       "bottom_z": 12.2,
+       "height_m": 2.4
+      }
+     ],
+     "found": true,
+     "height_m": 2.4,
+     "height_max_m": 2.4,
+     "face_offset_max_abs_m": 0.005
+    },
+    "reverse_blocked_at_face": true,
+    "reverse_issues_off_face": []
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.381,
+    "min_jamb_to_centre_m": 2.292,
+    "near_rings": [
+     {
+      "map": 30000,
+      "wall_to_centre_m": 5.381,
+      "at": [
+       57.53,
+       -181.76
+      ],
+      "jamb_to_centre_m": 2.292,
+      "jamb_at": [
+       57.55,
+       -181.51
+      ]
+     },
+     {
+      "map": 40000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       55.39,
+       -206.74
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       55.39,
+       -206.74
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15566,9 +18551,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 40000,
+    "from_portal": "east00",
+    "to_map": 40001,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.357,
+    "min_jamb_to_centre_m": 2.281,
+    "near_rings": [
+     {
+      "map": 40000,
+      "wall_to_centre_m": 5.357,
+      "at": [
+       57.3,
+       -273.92
+      ],
+      "jamb_to_centre_m": 2.281,
+      "jamb_at": [
+       57.35,
+       -273.53
+      ]
+     },
+     {
+      "map": 40001,
+      "wall_to_centre_m": 5.373,
+      "at": [
+       56.31,
+       -281.66
+      ],
+      "jamb_to_centre_m": 2.289,
+      "jamb_at": [
+       56.27,
+       -281.97
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15581,9 +18621,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 40001,
+    "from_portal": "east00",
+    "to_map": 40002,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 40001,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.28,
+       -346.99
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.28,
+       -346.99
+      ]
+     },
+     {
+      "map": 40002,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       41.46,
+       -362.81
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       41.49,
+       -363.06
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15596,9 +18691,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 40002,
+    "from_portal": "east00",
+    "to_map": 50000,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.347,
+    "min_jamb_to_centre_m": 2.278,
+    "near_rings": [
+     {
+      "map": 40002,
+      "wall_to_centre_m": 5.347,
+      "at": [
+       75.6,
+       -426.62
+      ],
+      "jamb_to_centre_m": 2.278,
+      "jamb_at": [
+       75.48,
+       -426.21
+      ]
+     },
+     {
+      "map": 50000,
+      "wall_to_centre_m": 5.347,
+      "at": [
+       82.21,
+       -451.3
+      ],
+      "jamb_to_centre_m": 2.278,
+      "jamb_at": [
+       82.32,
+       -451.71
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15611,9 +18761,64 @@
    "hidden": false,
    "curved": true,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 50000,
+    "from_portal": "east01",
+    "to_map": 60000,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 2.233,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 50000,
+      "wall_to_centre_m": 2.233,
+      "at": [
+       98.57,
+       -533.08
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       105.71,
+       -527.41
+      ]
+     },
+     {
+      "map": 60000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       77.23,
+       -530.0
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       77.69,
+       -529.8
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15626,9 +18831,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 50000,
+    "from_portal": "east00",
+    "to_map": 1000000,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.103,
+    "min_jamb_to_centre_m": 1.747,
+    "near_rings": [
+     {
+      "map": 50000,
+      "wall_to_centre_m": 4.103,
+      "at": [
+       126.54,
+       -522.01
+      ],
+      "jamb_to_centre_m": 1.747,
+      "jamb_at": [
+       124.73,
+       -521.11
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 5.309,
+      "at": [
+       131.0,
+       -524.23
+      ],
+      "jamb_to_centre_m": 2.261,
+      "jamb_at": [
+       131.51,
+       -524.48
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15641,9 +18901,72 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in00",
+    "to_map": 1000001,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.041,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000005,
+      "wall_to_centre_m": 4.041,
+      "at": [
+       162.07,
+       -492.68
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       158.55,
+       -498.43
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       158.55,
+       -498.43
+      ]
+     },
+     {
+      "map": 1000001,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       166.21,
+       -484.93
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       166.21,
+       -484.93
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15656,9 +18979,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in04",
+    "to_map": 1000005,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       166.54,
+       -504.45
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       166.54,
+       -504.45
+      ]
+     },
+     {
+      "map": 1000005,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       173.37,
+       -500.03
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       173.05,
+       -500.41
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15671,9 +19049,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in01",
+    "to_map": 1000002,
+    "to_portal": "out01"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.55,
+    "min_jamb_to_centre_m": 2.176,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.55,
+      "at": [
+       208.85,
+       -534.87
+      ],
+      "jamb_to_centre_m": 2.176,
+      "jamb_at": [
+       208.6,
+       -535.12
+      ]
+     },
+     {
+      "map": 1000002,
+      "wall_to_centre_m": 4.579,
+      "at": [
+       214.49,
+       -529.32
+      ],
+      "jamb_to_centre_m": 2.19,
+      "jamb_at": [
+       214.65,
+       -529.16
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15686,9 +19119,72 @@
    "hidden": false,
    "curved": true,
    "bridge_m": 8.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in05",
+    "to_map": 1000006,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 0.49,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000002,
+      "wall_to_centre_m": 0.49,
+      "at": [
+       235.87,
+       -495.14
+      ]
+     },
+     {
+      "map": 1000006,
+      "wall_to_centre_m": 4.179,
+      "at": [
+       233.73,
+       -493.58
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       239.88,
+       -493.18
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       200.08,
+       -529.72
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       200.08,
+       -529.72
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15701,9 +19197,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in02",
+    "to_map": 1000003,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       174.48,
+       -573.67
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       174.48,
+       -573.67
+      ]
+     },
+     {
+      "map": 1000003,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       162.91,
+       -591.68
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       162.91,
+       -591.68
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15716,9 +19267,72 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "in03",
+    "to_map": 1000004,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 0.758,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1000004,
+      "wall_to_centre_m": 0.758,
+      "at": [
+       201.4,
+       -603.91
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       209.88,
+       -617.29
+      ]
+     },
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 3.0,
+      "at": [
+       187.62,
+       -582.82
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       187.56,
+       -582.9
+      ]
+     },
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 4.498,
+      "at": [
+       203.03,
+       -605.42
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15731,9 +19345,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1000000,
+    "from_portal": "east00",
+    "to_map": 1010000,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 1000000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       197.78,
+       -574.32
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       197.78,
+       -574.32
+      ]
+     },
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       204.67,
+       -581.6
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       204.66,
+       -581.6
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15746,24 +19415,134 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1010000,
+    "from_portal": "in01",
+    "to_map": 1010002,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 4.6,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       271.13,
+       -607.06
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       271.31,
+       -606.88
+      ]
+     },
+     {
+      "map": 1010002,
+      "wall_to_centre_m": 4.6,
+      "at": [
+       273.25,
+       -604.94
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       273.25,
+       -604.94
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
    "trail": "Trail_AmherstTownstreet_1010002_west00_to_SnailFieldOfFlowers_1010004",
-   "length_m": 42.2,
+   "length_m": 64.9,
    "rise_m": 12.1,
-   "slope_deg": 17.2,
+   "slope_deg": 11.2,
    "kind": "ramp",
    "main_road": false,
    "hidden": false,
    "curved": true,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "authored",
+   "link": {
+    "from_map": 1010002,
+    "from_portal": "west00",
+    "to_map": 1010004,
+    "to_portal": "east00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.9,
+    "gap_half_width_m": 2.2,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 3.455,
+    "min_jamb_to_centre_m": 2.2,
+    "near_rings": [
+     {
+      "map": 1010004,
+      "wall_to_centre_m": 3.455,
+      "at": [
+       281.89,
+       -573.4
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       305.96,
+       -546.44
+      ]
+     },
+     {
+      "map": 1010002,
+      "wall_to_centre_m": 3.738,
+      "at": [
+       280.19,
+       -572.9
+      ],
+      "jamb_to_centre_m": 2.2,
+      "jamb_at": [
+       271.49,
+       -584.78
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15776,9 +19555,64 @@
    "hidden": false,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1010000,
+    "from_portal": "east00",
+    "to_map": 1020000,
+    "to_portal": "west00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 2.6,
+    "gap_half_width_m": 2.25,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 5.4,
+    "min_jamb_to_centre_m": 2.3,
+    "near_rings": [
+     {
+      "map": 1010000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       260.17,
+       -637.11
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       259.82,
+       -636.76
+      ]
+     },
+     {
+      "map": 1020000,
+      "wall_to_centre_m": 5.4,
+      "at": [
+       258.99,
+       -651.43
+      ],
+      "jamb_to_centre_m": 2.3,
+      "jamb_at": [
+       259.06,
+       -651.19
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   },
   {
@@ -15791,13 +19625,68 @@
    "hidden": true,
    "curved": false,
    "bridge_m": 0.0,
+   "one_way": false,
+   "route": "seeded",
+   "link": {
+    "from_map": 1020000,
+    "from_portal": "in00",
+    "to_map": 1020001,
+    "to_portal": "out00"
+   },
    "walk": {
     "ok": true,
+    "direction": "forward",
     "issues": []
+   },
+   "walk_reverse": {
+    "ok": true,
+    "direction": "reverse",
+    "issues": []
+   },
+   "expect": {
+    "forward": "ok",
+    "reverse": "ok"
+   },
+   "ring_clearance": {
+    "half_width_m": 1.7,
+    "gap_half_width_m": 2.0,
+    "ring_offset_m": 1.0,
+    "wall_thickness_m": 0.5,
+    "min_wall_to_centre_m": 3.088,
+    "min_jamb_to_centre_m": 1.508,
+    "near_rings": [
+     {
+      "map": 1020001,
+      "wall_to_centre_m": 3.088,
+      "at": [
+       282.59,
+       -704.65
+      ],
+      "jamb_to_centre_m": 1.508,
+      "jamb_at": [
+       284.02,
+       -705.2
+      ]
+     },
+     {
+      "map": 1020000,
+      "wall_to_centre_m": 4.2,
+      "at": [
+       268.41,
+       -699.27
+      ],
+      "jamb_to_centre_m": 2.0,
+      "jamb_at": [
+       268.65,
+       -699.35
+      ]
+     }
+    ],
+    "centre_inside": []
    }
   }
  ],
- "forest_trees": 1105,
- "seconds": 50.1,
- "objects": 17618
+ "forest_trees": 1125,
+ "seconds": 76.3,
+ "objects": 17707
 }

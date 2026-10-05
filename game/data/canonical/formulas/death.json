@@ -1,0 +1,80 @@
+{
+  "id": "death",
+  "name": "Death: EXP penalty and respawn",
+  "death_trigger": {
+    "dies_when_hp_reaches": 0,
+    "statement": "You'll die when your HP reaches 0, so it's for your own good to consume a potion or food before it's too late."
+  },
+  "exp_penalty": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "Loss = floor(EXP to next level × (5 + 20 / LUK) / 100)",
+      "EXP after death = max(0, EXP - Loss)",
+      "LUK 4: 10% · LUK 10: 7% · LUK 20: 6% · LUK 50: 5.4% · LUK 100: 5.2%"
+    ],
+    "notes": [
+      "LUK is base LUK: the points you put in, before gear.",
+      "EXP stops at 0, so a death never takes away a level.",
+      "A Safety Charm stops the loss."
+    ],
+    "luk_basis": "The character's own base LUK: the starting 4 plus every AP placed in LUK, before equipment and buffs (\"the points you put in, before gear\"). Every character starts with 4 LUK, and MeowDB's calculator clamps the input to 4..999. Do not use only the allocated AP (that can be 0 and would divide by zero).",
+    "base_loss_pct": 5,
+    "luk_term_numerator": 20,
+    "calculator_luk_clamp": [
+      4,
+      999
+    ],
+    "calculator_code": "l=D(Math.floor(M(e,\"luk\")),4,999),r=Math.round(a*D(M(e,\"expPercent\"),0,100)/100),t=Math.max(0,r-Math.floor(a*(5+20/l)/100))",
+    "parity_example": {
+      "level": 30,
+      "base_luk": 4,
+      "exp_before": 47850,
+      "loss": 9570,
+      "exp_after": 38280,
+      "note": "EXP after death 38,280 (40%)"
+    },
+    "town_exception": null,
+    "beginner_exception": null,
+    "exceptions_note": "MeowDB documents NO exception for dying in town and NO Beginner exception. The only documented way to avoid the loss is a Safety Charm. Do not add exceptions from other sources without recording them as external."
+  },
+  "respawn_location": {
+    "rule": "Each map has a \"Respawn Map\" (\"Where you return after dying\") on its MeowDB map page; use the maps domain value.",
+    "statement": "Where you return after dying",
+    "example": {
+      "map_id": "000000040",
+      "respawn_map_name": "Southperry",
+      "text": "Respawn Map Southperry Where you return after dying"
+    }
+  },
+  "general_statement": "Combat is slower. Monsters can take several hits, potions matter, maps are crossed on foot, and death costs EXP.",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/leveling",
+    "retrieved_at": "2026-10-04T10:04:44.928Z"
+  },
+  "field_sources": {
+    "death_trigger": {
+      "url": "https://meowdb.com/msclassic/npcs/3",
+      "retrieved_at": "2026-10-04T10:04:50.974Z"
+    },
+    "exp_penalty.calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    },
+    "respawn_location": {
+      "url": "https://meowdb.com/msclassic/maps/000000040",
+      "retrieved_at": "2026-10-04T09:56:43.779Z"
+    },
+    "general_statement": {
+      "url": "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+      "retrieved_at": "2026-10-04T10:09:38.993Z"
+    }
+  },
+  "gaps": [
+    "HP/MP after respawning is not documented.",
+    "Respawn delay / death screen timing is not documented.",
+    "Whether items or mesos are lost on death is not documented (only EXP loss is).",
+    "Town or Beginner exceptions to the EXP loss are not documented (none listed)."
+  ]
+}

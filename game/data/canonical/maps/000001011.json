@@ -1,0 +1,120 @@
+{
+  "id": "000001011",
+  "name": "Amherst Weapon Store",
+  "street_name": "Rainbow Street",
+  "region": "MapleIsland",
+  "location_label": "Rainbow Street / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Amherst Weapon Store is a town in Rainbow Street, Maple Island in MapleStory Classic. Hosts 1 NPC including Sid. Connects to 1 other map.",
+  "return_map_id": "000001010",
+  "return_map_name": "Amherst",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 4,
+  "field_restrictions": [
+    {
+      "key": "summoning-bag",
+      "label": "No summoning bags",
+      "description": "Summoning bags cannot be used on this map."
+    }
+  ],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": -48,
+      "y_px": 181,
+      "to_map_id": "000001010",
+      "to_map_name": "Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -114,
+      "y_px": 115
+    }
+  ],
+  "npcs": [
+    {
+      "id": "20",
+      "name": "Sid",
+      "x_px": -270,
+      "y_px": 138,
+      "idle_speech_lines": [
+        "On sale! Really CHEAP!",
+        "Welcome! Hahahaha!"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 270,
+      "y_px": 81,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 75,
+      "y_px": -35,
+      "respawn_s": 120
+    }
+  ],
+  "minimap": {
+    "width_px": 0,
+    "height_px": 0,
+    "center_x_px": 0,
+    "center_y_px": 0,
+    "has_image": false
+  },
+  "bounds_px_derived": null,
+  "quests": {},
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000001011",
+    "retrieved_at": "2026-10-04T09:57:04.784Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001010",
+          "retrieved_at": "2026-10-04T09:57:03.267Z"
+        }
+      ]
+    }
+  },
+  "gaps": [
+    "MeowDB has no minimap rectangle for this map (all minimap fields are 0), so bounds_px_derived is null.",
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

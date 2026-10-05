@@ -1,0 +1,269 @@
+{
+  "id": "0000001",
+  "name": "Wooden Box",
+  "kind": "breakable",
+  "hits_to_break": 4,
+  "hits_to_break_note": "\"Hits\" is how many basic attacks it takes to break open (MeowDB /breakables)",
+  "maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 6,
+      "respawn_s_listed": 120
+    },
+    {
+      "map_id": "000001013",
+      "map_name": "Amherst Department Store",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 1,
+      "respawn_s_listed": 120
+    },
+    {
+      "map_id": "000001012",
+      "map_name": "Amherst Townstreet",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 2,
+      "respawn_s_listed": 120
+    },
+    {
+      "map_id": "000001011",
+      "map_name": "Amherst Weapon Store",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 2,
+      "respawn_s_listed": 120
+    },
+    {
+      "map_id": "000001014",
+      "map_name": "Snail Field of Flowers",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 3,
+      "respawn_s_listed": 120
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "street_name": "Rainbow Street",
+      "maple_island": true,
+      "count": 5,
+      "respawn_s_listed": 120
+    }
+  ],
+  "placements": [
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "x_px": 1563,
+      "y_px": 435,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "x_px": 2006,
+      "y_px": -1066,
+      "respawn_s": 90
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "x_px": 2144,
+      "y_px": -45,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "x_px": 2848,
+      "y_px": -525,
+      "respawn_s": 180
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "x_px": 3402,
+      "y_px": 437,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 29,
+      "y_px": -192,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 501,
+      "y_px": -193,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 610,
+      "y_px": 259,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 1881,
+      "y_px": 137,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 2137,
+      "y_px": -162,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "x_px": 2839,
+      "y_px": 257,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001011",
+      "map_name": "Amherst Weapon Store",
+      "x_px": 75,
+      "y_px": -35,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001011",
+      "map_name": "Amherst Weapon Store",
+      "x_px": 270,
+      "y_px": 81,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001012",
+      "map_name": "Amherst Townstreet",
+      "x_px": -302,
+      "y_px": 256,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001012",
+      "map_name": "Amherst Townstreet",
+      "x_px": 17,
+      "y_px": 31,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001013",
+      "map_name": "Amherst Department Store",
+      "x_px": -20,
+      "y_px": 44,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001014",
+      "map_name": "Snail Field of Flowers",
+      "x_px": -371,
+      "y_px": -643,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001014",
+      "map_name": "Snail Field of Flowers",
+      "x_px": 439,
+      "y_px": -643,
+      "respawn_s": 120
+    },
+    {
+      "map_id": "000001014",
+      "map_name": "Snail Field of Flowers",
+      "x_px": 773,
+      "y_px": 437,
+      "respawn_s": 120
+    }
+  ],
+  "drop_table": "drops/0000001.json",
+  "breakables_list_row": {
+    "hits": 4,
+    "maps": 6,
+    "placements": 19,
+    "drops": 4
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/breakables/0000001",
+    "retrieved_at": "2026-10-04T10:07:17.340Z"
+  },
+  "field_sources": {
+    "breakables_list_row": {
+      "url": "https://meowdb.com/msclassic/breakables",
+      "retrieved_at": "2026-10-04T09:57:58.632Z"
+    },
+    "placements[000001000]": {
+      "url": "https://meowdb.com/msclassic/maps/000001000",
+      "retrieved_at": "2026-10-04T09:56:52.757Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    },
+    "placements[000001010]": {
+      "url": "https://meowdb.com/msclassic/maps/000001010",
+      "retrieved_at": "2026-10-04T09:57:03.267Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    },
+    "placements[000001011]": {
+      "url": "https://meowdb.com/msclassic/maps/000001011",
+      "retrieved_at": "2026-10-04T09:57:04.784Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    },
+    "placements[000001012]": {
+      "url": "https://meowdb.com/msclassic/maps/000001012",
+      "retrieved_at": "2026-10-04T09:57:06.279Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    },
+    "placements[000001013]": {
+      "url": "https://meowdb.com/msclassic/maps/000001013",
+      "retrieved_at": "2026-10-04T09:57:07.799Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    },
+    "placements[000001014]": {
+      "url": "https://meowdb.com/msclassic/maps/000001014",
+      "retrieved_at": "2026-10-04T09:57:09.307Z",
+      "note": "map page \"reactors\" list: x/y in MapleStory px (y down), respawn in seconds"
+    }
+  },
+  "gaps": [
+    "HP / hit rules beyond \"N basic attacks\": not published (MeowDB counts basic attacks only)",
+    "drop chances / quantities: not published",
+    "whether skills or damage amount affect hits: not published"
+  ],
+  "discrepancies": [
+    {
+      "field": "maps[000001000].respawn_s",
+      "values": [
+        {
+          "value": 120,
+          "source": "https://meowdb.com/msclassic/breakables/0000001 (one value per map)"
+        },
+        {
+          "value": [
+            90,
+            120,
+            180
+          ],
+          "source": "https://meowdb.com/msclassic/maps/000001000 (per placement)"
+        }
+      ],
+      "chosen": "per-placement respawn_s from the map page",
+      "reason": "the map page gives a value per placement; the breakable page shows a single per-map value"
+    }
+  ],
+  "notes": [
+    "MeowDB calls breakables \"reactors\" in map data (map page key \"reactors\", label from \"breakableLabels\")."
+  ]
+}

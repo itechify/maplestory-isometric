@@ -1,0 +1,165 @@
+{
+  "id": "1195",
+  "name": "Ice Jeans",
+  "game_item_id": "1062001",
+  "type": "Equip",
+  "subtype": "Bottom",
+  "inventory_tab": "equip",
+  "equip_slot": "bottom",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 17,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 20
+  },
+  "stats": {
+    "wdef": 21,
+    "mp": 17,
+    "upgrade_slots": 7
+  },
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1360,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "4",
+        "monster_name": "Shroom",
+        "monster_level": 3,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "431",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1
+      },
+      {
+        "monster_id": "4",
+        "monster_name": "Shroom",
+        "monster_level": 3
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": [
+      {
+        "recipe_key": "Tailoring-21-0",
+        "discipline": "Tailoring",
+        "category": "Equipment",
+        "produces_quantity": 1,
+        "required_craft_level": 4,
+        "craft_exp": 80,
+        "meso_cost": 1360,
+        "ingredients": [
+          {
+            "item_id": "313",
+            "name": "Processed Cloth",
+            "quantity": 6,
+            "optional": false
+          },
+          {
+            "item_id": "316",
+            "name": "White Dye",
+            "quantity": 1,
+            "optional": false
+          },
+          {
+            "item_id": "319",
+            "name": "Blue Dye",
+            "quantity": 1,
+            "optional": false
+          },
+          {
+            "item_id": "312",
+            "name": "Spool of Thread",
+            "quantity": 12,
+            "optional": false
+          },
+          {
+            "item_id": "2722",
+            "name": "Armor Crafting Catalyst",
+            "quantity": 1,
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "wdef",
+        "stat": "WDEF",
+        "cot1": "14",
+        "cot2": "21",
+        "change": "+7"
+      }
+    ],
+    "notes": [],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/1195",
+    "retrieved_at": "2026-10-04T10:46:09.726Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/1195?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:46:10.795Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/1195?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:46:10.795Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=1195",
+      "retrieved_at": "2026-10-04T10:46:11.972Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

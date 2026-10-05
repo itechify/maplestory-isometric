@@ -1,0 +1,180 @@
+{
+  "id": "recovery",
+  "name": "HP/MP recovery: natural regeneration, chairs, Recovery skill, consumables, level-up",
+  "natural_regeneration": {
+    "documented_values": false,
+    "hp_per_tick": null,
+    "mp_per_tick": null,
+    "tick_interval_s": null,
+    "statements": [
+      "When you're not in combat, just standing still will slowly restore your HP.",
+      "Just press the sit key when you're near one, and you'll notice that your recovery speed is faster than when you're just standing."
+    ],
+    "statement_source_note": "Quest 1016 (Rain's Maple Quiz 4) NPC dialogue: qualitative only."
+  },
+  "chairs": [
+    {
+      "item_id": "522",
+      "name": "The Green Relaxer",
+      "additional_hp_per_tick": 30,
+      "tick_interval_s": 10,
+      "stacks_with_natural_regen": true,
+      "level_req": 0,
+      "tradeable": false,
+      "how_to_get": "Pio's quest, Maple Island",
+      "item_page_statement": "Catch your breath and relax by sitting on this chair to restore an additional 30 HP every 10 seconds."
+    },
+    {
+      "item_id": "525",
+      "name": "Sky-blue Wooden Chair",
+      "additional_hp_per_tick": 30,
+      "tick_interval_s": 10,
+      "stacks_with_natural_regen": true,
+      "level_req": 5,
+      "tradeable": true,
+      "how_to_get": "Mina, Lith Harbor, 1,000 mesos",
+      "item_page_statement": "A specially-made sky-blue wooden chair that's only available in Lith Harbor. Restores an additional 30 HP every 10 seconds."
+    }
+  ],
+  "chairs_note": "Item detail pages (priority 1) say the chair restores an ADDITIONAL 30 HP every 10 seconds (\"HP Recovery +30\"; MeowDB item API stat \"hpRecoverBonus\": 30): a bonus on top of the character's own resting regeneration, whose amount is undocumented. The Beginner's guide table shortens this to \"30 HP every 10 s\" (see discrepancies).",
+  "chairs_statements": [
+    "The Green Relaxer Pio's quest, Maple Island Free 30 HP every 10 s",
+    "Sky-blue Wooden Chair Mina, Lith Harbor 1,000 mesos 30 HP every 10 s"
+  ],
+  "recovery_skill": "See beginner.json skills (Recovery, skill 0001001: fixed HP total over 30 s).",
+  "consumables": {
+    "rule": "Potions and food restore the flat amount listed on each item page (items domain is authoritative).",
+    "beginners_guide_examples": [
+      {
+        "item_id": "238",
+        "name": "Meat",
+        "restores_hp": 160,
+        "price_mesos": 80
+      },
+      {
+        "item_id": "270",
+        "name": "Red Potion",
+        "restores_hp": 100,
+        "price_mesos": 50
+      },
+      {
+        "item_id": "271",
+        "name": "Orange Potion",
+        "restores_hp": 250,
+        "price_mesos": 150
+      },
+      {
+        "item_id": "240",
+        "name": "Lemon",
+        "restores_mp": 150,
+        "price_mesos": 150
+      },
+      {
+        "item_id": "273",
+        "name": "Blue Potion",
+        "restores_mp": 200,
+        "price_mesos": 220
+      }
+    ],
+    "table_rows": [
+      "Meat 160 HP 80 2.0 HP",
+      "Red Potion 100 HP 50 2.0 HP",
+      "Orange Potion 250 HP 150 1.67 HP",
+      "Lemon 150 MP 150 1.0 MP",
+      "Blue Potion 200 MP 220 0.91 MP"
+    ],
+    "statements": [
+      "Potions are most of what you spend mesos on early. Mobs drop them rarely, so buy the ones that restore the most per meso:",
+      "Rest when you run low.",
+      "Switch to basic attacks when MP is low; they cost no MP."
+    ],
+    "orange_potion_id_note": "The guide does not link Orange Potion; id 271 is taken from its item page (/item-db/271)."
+  },
+  "level_up_heal": {
+    "heals": true,
+    "amount": null,
+    "statement": "Unlike leveling up, job advancing does not heal you.",
+    "note": "Implied only: MeowDB contrasts job advancement (no heal) with leveling up. The amount (full or partial) is not stated."
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1016",
+    "retrieved_at": "2026-10-04T10:07:35.500Z"
+  },
+  "field_sources": {
+    "chairs": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/522",
+        "https://meowdb.com/msclassic/item-db/525"
+      ],
+      "retrieved_at": "2026-10-04T10:17:31.306Z"
+    },
+    "chairs.0": {
+      "url": "https://meowdb.com/msclassic/item-db/522",
+      "retrieved_at": "2026-10-04T10:17:31.306Z"
+    },
+    "chairs.1": {
+      "url": "https://meowdb.com/msclassic/item-db/525",
+      "retrieved_at": "2026-10-04T10:47:05.333Z"
+    },
+    "chairs.0.how_to_get": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "chairs.1.how_to_get": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "chairs_note": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/522",
+        "https://meowdb.com/msclassic/item-db/525"
+      ],
+      "retrieved_at": "2026-10-04T10:17:31.306Z"
+    },
+    "chairs_statements": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "consumables": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "consumables.beginners_guide_examples.2.item_id": {
+      "url": "https://meowdb.com/msclassic/item-db/271",
+      "retrieved_at": "2026-10-04T10:07:50.389Z"
+    },
+    "level_up_heal": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    }
+  },
+  "gaps": [
+    "Natural HP and MP regeneration amounts and intervals (standing, sitting on the ground, and the base resting regen that a chair's \"additional\" 30 HP / 10 s is added to) are not documented; only \"slowly restore\" (standing) and \"faster\" (chairs) are stated.",
+    "Whether natural regeneration also restores MP is not stated.",
+    "What counts as \"in combat\" (timer after hitting / being hit) is not documented.",
+    "Potion use cooldown / animation lock is not documented.",
+    "Level-up heal amount is not documented."
+  ],
+  "discrepancies": [
+    {
+      "topic": "Chair HP recovery: total or bonus",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+          "text": "Table \"Chair / Where / Cost / Restores\": The Green Relaxer Pio's quest, Maple Island Free 30 HP every 10 s / Sky-blue Wooden Chair Mina, Lith Harbor 1,000 mesos 30 HP every 10 s"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/522",
+          "text": "Catch your breath and relax by sitting on this chair to restore an additional 30 HP every 10 seconds. (HP Recovery +30)"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/525",
+          "text": "Restores an additional 30 HP every 10 seconds. (HP Recovery +30, Required Level 5)"
+        }
+      ],
+      "chosen": "additional_hp_per_tick 30 every 10 s, added on top of the (undocumented) natural resting regeneration",
+      "reason": "Item detail pages are priority 1 and both say \"additional\"; MeowDB's item API names the stat hpRecoverBonus. The guide table is a shortened summary."
+    }
+  ]
+}

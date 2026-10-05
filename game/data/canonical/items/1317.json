@@ -1,0 +1,130 @@
+{
+  "id": "1317",
+  "name": "White Gomushin",
+  "game_item_id": "1072011",
+  "type": "Equip",
+  "subtype": "Shoes",
+  "inventory_tab": "equip",
+  "equip_slot": "shoes",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 11,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "wdef": 11,
+    "speed": 1,
+    "upgrade_slots": 5
+  },
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 1980,
+  "sell_price_mesos": 660,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "409",
+        "npc_name": "Don Hwang",
+        "npc_role": "Armor Seller",
+        "map_id": "010003001",
+        "map_name": "Victoria Road: Kerning City Self-Defence Item Store",
+        "town": "Kerning City",
+        "price_mesos": 1980,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "9",
+        "monster_name": "Orange Mushroom",
+        "monster_level": 8,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "448",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "9",
+        "monster_name": "Orange Mushroom",
+        "monster_level": 8
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "wdef",
+        "stat": "WDEF",
+        "cot1": "7",
+        "cot2": "11",
+        "change": "+4"
+      }
+    ],
+    "notes": [],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/1317",
+    "retrieved_at": "2026-10-04T10:46:21.805Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/1317?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:46:22.878Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/1317?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:46:22.878Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=1317",
+      "retrieved_at": "2026-10-04T10:46:24.045Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

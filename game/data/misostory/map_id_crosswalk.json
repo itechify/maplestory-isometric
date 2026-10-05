@@ -1,0 +1,202 @@
+[
+  {
+    "meowdb_id": "000000001",
+    "gms_v8_id": 0,
+    "iteration_one_slug": "WestEntranceMushroomTown_0",
+    "name": "Mushroom Town - West Entrance",
+    "iteration_one_name": "West Entrance to Mushroom Town",
+    "match_basis": "same NPCs (Heena, Sera); NPC x identical (Sera); same street; same player-spawn count (4)"
+  },
+  {
+    "meowdb_id": "000000010",
+    "gms_v8_id": 10000,
+    "iteration_one_slug": "MushroomTown_10000",
+    "name": "Mushroom Town",
+    "iteration_one_name": "Mushroom Town",
+    "match_basis": "same name; portal coordinates identical (in00, out00); same NPCs (Roger); NPC x identical (Roger); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000000020",
+    "gms_v8_id": 20000,
+    "iteration_one_slug": "MushroomTown_20000",
+    "name": "Mushroom Town",
+    "iteration_one_name": "Mushroom Town",
+    "match_basis": "same name; portal coordinates identical (in00, in01); same NPCs (Nina); NPC x identical (Nina); same street; same player-spawn count (3)"
+  },
+  {
+    "meowdb_id": "000000021",
+    "gms_v8_id": 20001,
+    "iteration_one_slug": "MushroomTownTownstreet_20001",
+    "name": "Mushroom Town Townstreet",
+    "iteration_one_name": "Mushroom Town Townstreet",
+    "match_basis": "same name; portal coordinates identical (out00); same NPCs (Sen); NPC x identical (Sen); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000000030",
+    "gms_v8_id": 30000,
+    "iteration_one_slug": "EastEntranceMushroomTown_30000",
+    "name": "East Entrance to Mushroom Town",
+    "iteration_one_name": "East Entrance to Mushroom Town",
+    "match_basis": "same name; portal coordinates identical (in00, out00); same NPCs (Peter); NPC x identical (Peter); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000000040",
+    "gms_v8_id": 40000,
+    "iteration_one_slug": "SnailHuntingGround1_40000",
+    "name": "Snail Hunting Ground I",
+    "iteration_one_name": "Snail Hunting Ground I",
+    "match_basis": "same name; portal coordinates identical (east00); same NPCs (Robin); NPC x identical (Robin); same street; same player-spawn count (5)"
+  },
+  {
+    "meowdb_id": "000000041",
+    "gms_v8_id": 40001,
+    "iteration_one_slug": "SnailHuntingGround2_40001",
+    "name": "Snail Hunting Ground II",
+    "iteration_one_name": "Snail Hunting Ground II",
+    "match_basis": "same name; portal coordinates identical (west00, east00); same street; same player-spawn count (5); same monster species"
+  },
+  {
+    "meowdb_id": "000000042",
+    "gms_v8_id": 40002,
+    "iteration_one_slug": "SnailHuntingGround3_40002",
+    "name": "Snail Hunting Ground III",
+    "iteration_one_name": "Snail Hunting Ground III",
+    "match_basis": "same name; portal coordinates identical (west00); same street; same player-spawn count (5); same monster species"
+  },
+  {
+    "meowdb_id": "000000050",
+    "gms_v8_id": 50000,
+    "iteration_one_slug": "ASplitRoad_50000",
+    "name": "A Split Road",
+    "iteration_one_name": "A Split Road",
+    "match_basis": "same name; portal coordinates identical (west00, east00, east01); same NPCs (Maria); NPC x identical (Maria); same street; same player-spawn count (1); same monster species"
+  },
+  {
+    "meowdb_id": "000000060",
+    "gms_v8_id": 60000,
+    "iteration_one_slug": "Southperry_60000",
+    "name": "Southperry",
+    "iteration_one_name": "Southperry",
+    "match_basis": "same name; portal coordinates identical (west00, in00); same NPCs (Yoona, Bari, Shanks, Biggs); NPC x identical (Yoona, Bari, Shanks, Biggs); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000000061",
+    "gms_v8_id": 60001,
+    "iteration_one_slug": "SouthperryArmorStore_60001",
+    "name": "Southperry Armor Store",
+    "iteration_one_name": "Southperry Armor Store",
+    "match_basis": "same name; portal coordinates identical (out00); same NPCs (Pan); NPC x identical (Pan); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000001000",
+    "gms_v8_id": 1000000,
+    "iteration_one_slug": "FieldWestOfAmherst_1000000",
+    "name": "The Field West of Amherst",
+    "iteration_one_name": "The Field West of Amherst",
+    "match_basis": "same name; portal coordinates identical (west00, east00, in00, in01, in02, in03, in04, in05); same street; same player-spawn count (1); same monster species"
+  },
+  {
+    "meowdb_id": "000001001",
+    "gms_v8_id": 1000001,
+    "iteration_one_slug": "InASmallForest_1000001",
+    "name": "In a Small Forest",
+    "iteration_one_name": "In a Small Forest",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (5); same monster species"
+  },
+  {
+    "meowdb_id": "000001002",
+    "gms_v8_id": 1000002,
+    "iteration_one_slug": "DangerousForest_1000002",
+    "name": "Dangerous Forest",
+    "iteration_one_name": "Dangerous Forest",
+    "match_basis": "same name; portal coordinates identical (out01); same street; same player-spawn count (8); same monster species"
+  },
+  {
+    "meowdb_id": "000001003",
+    "gms_v8_id": 1000003,
+    "iteration_one_slug": "MushroomGarden_1000003",
+    "name": "Mushroom Garden",
+    "iteration_one_name": "Mushroom Garden",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (6); same monster species"
+  },
+  {
+    "meowdb_id": "000001004",
+    "gms_v8_id": 1000004,
+    "iteration_one_slug": "SnailGarden_1000004",
+    "name": "Snail Garden",
+    "iteration_one_name": "Snail Garden",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (6); same monster species"
+  },
+  {
+    "meowdb_id": "000001005",
+    "gms_v8_id": 1000005,
+    "iteration_one_slug": "HuntingGroundMidForest1_1000005",
+    "name": "Hunting Ground Middle of the Forest I",
+    "iteration_one_name": "Hunting Ground Middle of the Forest I",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (6); same monster species"
+  },
+  {
+    "meowdb_id": "000001006",
+    "gms_v8_id": 1000006,
+    "iteration_one_slug": "HuntingGroundMidForest2_1000006",
+    "name": "Hunting Ground Middle of the Forest II",
+    "iteration_one_name": "Hunting Ground Middle of the Forest II",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (7); same monster species"
+  },
+  {
+    "meowdb_id": "000001010",
+    "gms_v8_id": 1010000,
+    "iteration_one_slug": "Amherst_1010000",
+    "name": "Amherst",
+    "iteration_one_name": "Amherst",
+    "match_basis": "same name; portal coordinates identical (west00, in00, in01, in02, east00); same NPCs (Lucas, Pio, Rain); NPC x identical (Lucas, Pio, Rain); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000001011",
+    "gms_v8_id": 1010001,
+    "iteration_one_slug": "AmherstWeaponStore_1010001",
+    "name": "Amherst Weapon Store",
+    "iteration_one_name": "Amherst Weapon Store",
+    "match_basis": "same name; portal coordinates identical (out00); same NPCs (Sid); NPC x identical (Sid); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000001012",
+    "gms_v8_id": 1010002,
+    "iteration_one_slug": "AmherstTownstreet_1010002",
+    "name": "Amherst Townstreet",
+    "iteration_one_name": "Amherst Townstreet",
+    "match_basis": "same name; portal coordinates identical (out00, west00); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000001013",
+    "gms_v8_id": 1010003,
+    "iteration_one_slug": "AmherstDepartmentStore_1010003",
+    "name": "Amherst Department Store",
+    "iteration_one_name": "Amherst Department Store",
+    "match_basis": "same name; portal coordinates identical (out00); same NPCs (Lucy); NPC x identical (Lucy); same street; same player-spawn count (1)"
+  },
+  {
+    "meowdb_id": "000001014",
+    "gms_v8_id": 1010004,
+    "iteration_one_slug": "SnailFieldOfFlowers_1010004",
+    "name": "Snail Field of Flowers",
+    "iteration_one_name": "Snail Field of Flowers",
+    "match_basis": "same name; portal coordinates identical (east00); same street; same player-spawn count (11)"
+  },
+  {
+    "meowdb_id": "000001020",
+    "gms_v8_id": 1020000,
+    "iteration_one_slug": "FieldEastOfAmherst_1020000",
+    "name": "The Field East of Amherst",
+    "iteration_one_name": "The Field East of Amherst",
+    "match_basis": "same name; portal coordinates identical (in00, west00); same street; same player-spawn count (10); same monster species"
+  },
+  {
+    "meowdb_id": "000001021",
+    "gms_v8_id": 1020001,
+    "iteration_one_slug": "TomatoField_1020001",
+    "name": "Tomato Field",
+    "iteration_one_name": "Tomato Field",
+    "match_basis": "same name; portal coordinates identical (out00); same street; same player-spawn count (9); same monster species"
+  }
+]

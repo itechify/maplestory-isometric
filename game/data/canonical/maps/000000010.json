@@ -1,0 +1,140 @@
+{
+  "id": "000000010",
+  "name": "Mushroom Town",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Mushroom Town is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 1 NPC including Roger. Connects to 2 other maps.",
+  "return_map_id": "000000010",
+  "return_map_name": "Mushroom Town",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000001",
+      "map_name": "Mushroom Town - West Entrance",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000020",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "in00",
+      "type": 2,
+      "x_px": -195,
+      "y_px": 278,
+      "to_map_id": "000000001",
+      "to_map_name": "Mushroom Town - West Entrance",
+      "to_street_name": "Maple Road",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": 706,
+      "y_px": 216,
+      "to_map_id": "000000020",
+      "to_map_name": "Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -91,
+      "y_px": 181
+    }
+  ],
+  "npcs": [
+    {
+      "id": "3",
+      "name": "Roger",
+      "x_px": 233,
+      "y_px": 58,
+      "idle_speech_lines": [
+        "Open your Item Inventory to find your Equip, Use, Set Up, Etc, and Cash tabs.",
+        "Items you pick up will be automatically stored in the appropriate tab. Cool, huh?",
+        "Double-click on an item in your Item Inventory and you'll be able to use it",
+        "Want to discard an item? Then click on the item in your Item Inventory and drag it out of the window."
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 1408,
+    "height_px": 760,
+    "center_x_px": 479,
+    "center_y_px": 295,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -479,
+    "x_max": 929,
+    "y_min": -295,
+    "y_max": 465
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1002",
+        "name": "Roger's Apple",
+        "npc_name": "Roger",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000010",
+    "retrieved_at": "2026-10-04T09:56:37.734Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000001",
+          "retrieved_at": "2026-10-04T09:56:36.674Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000020",
+          "retrieved_at": "2026-10-04T09:56:39.214Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "id": "713",
+  "name": "Green Headband",
+  "game_item_id": "1002005",
+  "type": "Equip",
+  "subtype": "Hat",
+  "inventory_tab": "equip",
+  "equip_slot": "hat",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 5,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "wdef": 6,
+    "acc": 1,
+    "upgrade_slots": 7
+  },
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 600,
+  "sell_price_mesos": 300,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "108",
+        "npc_name": "Natasha",
+        "npc_role": "Armor Seller",
+        "map_id": "010000001",
+        "map_name": "Victoria Road: Lith Harbor Armor Shop",
+        "town": "Lith Harbor",
+        "price_mesos": 600,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "415",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [
+      {
+        "quest_id": "1008",
+        "quest_name": "Lucas's Reply",
+        "when": "on_completion",
+        "chance_pct": 14.3,
+        "label": "(14%)",
+        "row_key": "1008-c--0"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": null,
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/713",
+    "retrieved_at": "2026-10-04T10:17:21.708Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/713?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:11.572Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/713?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:11.572Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=713",
+      "retrieved_at": "2026-10-04T10:45:12.732Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=1008].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1008",
+      "retrieved_at": "2026-10-04T10:07:25.938Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 7)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ],
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=1008].chance_pct",
+      "item_page": 14,
+      "quest_page": 14.3,
+      "quest_page_total_weight": 7,
+      "chosen": 14.3,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 7)"
+    }
+  ]
+}

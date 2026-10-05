@@ -1,0 +1,442 @@
+{
+  "id": "attack_speed",
+  "name": "Attack speed tiers and animation timing",
+  "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+  "status_note": "The frame durations and their attack-speed conversion are confirmed for ordinary COT2 characters, including Savage Blow. We still round displayed times up to 30 ms steps; that final rounding remains a model.",
+  "timing_formula": [
+    "timingTier = clamp(resolvedTier, 0, 10)",
+    "ScaledFrame = truncTowardZero(FrameDelay × (10 + timingTier) / 16)",
+    "nativeMs = Σ ScaledFrame",
+    "Player-facing Animation Time = 30 × ceil(nativeMs / 30)"
+  ],
+  "timing_tier_clamp": [
+    0,
+    10
+  ],
+  "tier_scale": "(10 + timingTier) / 16",
+  "neutral_tier": 6,
+  "neutral_tier_note": "At speed tier 6 every frame keeps its base length.",
+  "display_rounding_ms": 30,
+  "display_rounding_note": "Skill pages display the 30 ms player-facing Animation Time; current simulator throughput uses its resolved branch-completion durations before that display-only rounding, so the two values should not be substituted for one another.",
+  "base_action_times_ms": {
+    "swing": {
+      "label": "Swing",
+      "base_ms": 800
+    },
+    "stab": {
+      "label": "Stab",
+      "base_ms": 800
+    },
+    "spear_polearm_stab": {
+      "label": "Spear and polearm stab",
+      "base_ms": 750
+    },
+    "bow_shot": {
+      "label": "Bow shot",
+      "base_ms": 800
+    },
+    "crossbow_shot": {
+      "label": "Crossbow shot",
+      "base_ms": 820
+    },
+    "crouched_attack": {
+      "label": "Crouched attack",
+      "base_ms": 700
+    },
+    "rush": {
+      "label": "Rush",
+      "base_ms": 400
+    }
+  },
+  "base_action_times_note": "Base times add up the frames before attack speed scales each one.",
+  "speed_tiers": [
+    {
+      "tier": 0,
+      "label": "Fastest",
+      "ordinary_attack_ms": 510,
+      "attacks_per_minute": 117,
+      "spear_stab_ms": 480,
+      "crossbow_ms": 540,
+      "who_gets_here": "No player weapon"
+    },
+    {
+      "tier": 1,
+      "label": "Fastest",
+      "ordinary_attack_ms": 570,
+      "attacks_per_minute": 105,
+      "spear_stab_ms": 540,
+      "crossbow_ms": 570,
+      "who_gets_here": "Fastest a player reaches. Faster (3) dagger or Meba, with Booster"
+    },
+    {
+      "tier": 2,
+      "label": "Faster",
+      "ordinary_attack_ms": 600,
+      "attacks_per_minute": 100,
+      "spear_stab_ms": 570,
+      "crossbow_ms": 630,
+      "who_gets_here": "Fast (4) dagger, claw, one-handed sword, axe or mace, with Booster"
+    },
+    {
+      "tier": 3,
+      "label": "Faster",
+      "ordinary_attack_ms": 660,
+      "attacks_per_minute": 90,
+      "spear_stab_ms": 630,
+      "crossbow_ms": 690,
+      "who_gets_here": "Faster (3) dagger or Meba; Fast (5) weapons with Booster"
+    },
+    {
+      "tier": 4,
+      "label": "Fast",
+      "ordinary_attack_ms": 720,
+      "attacks_per_minute": 83,
+      "spear_stab_ms": 660,
+      "crossbow_ms": 720,
+      "who_gets_here": "Fast (4) weapons; Normal (6) weapons with Booster"
+    },
+    {
+      "tier": 5,
+      "label": "Fast",
+      "ordinary_attack_ms": 750,
+      "attacks_per_minute": 80,
+      "spear_stab_ms": 720,
+      "crossbow_ms": 780,
+      "who_gets_here": "Fast (5) weapons; Slow (7) weapons with Booster"
+    },
+    {
+      "tier": 6,
+      "label": "Normal",
+      "ordinary_attack_ms": 810,
+      "attacks_per_minute": 74,
+      "spear_stab_ms": 750,
+      "crossbow_ms": 840,
+      "who_gets_here": "Normal (6) weapons; every Magician spell; Slow (8) polearm with Booster"
+    },
+    {
+      "tier": 7,
+      "label": "Slow",
+      "ordinary_attack_ms": 870,
+      "attacks_per_minute": 68,
+      "spear_stab_ms": 810,
+      "crossbow_ms": 870,
+      "who_gets_here": "Slow (7) weapons"
+    },
+    {
+      "tier": 8,
+      "label": "Slow",
+      "ordinary_attack_ms": 900,
+      "attacks_per_minute": 66,
+      "spear_stab_ms": 870,
+      "crossbow_ms": 930,
+      "who_gets_here": "Slow (8) polearms, the slowest weapons in the game"
+    },
+    {
+      "tier": 9,
+      "label": "Slower",
+      "ordinary_attack_ms": 960,
+      "attacks_per_minute": 62,
+      "spear_stab_ms": 900,
+      "crossbow_ms": 990,
+      "who_gets_here": "No player weapon"
+    },
+    {
+      "tier": 10,
+      "label": "Slowest",
+      "ordinary_attack_ms": 1020,
+      "attacks_per_minute": 58,
+      "spear_stab_ms": 960,
+      "crossbow_ms": 1050,
+      "who_gets_here": "No player weapon; 11 and 12 match this row"
+    },
+    {
+      "tier": 11,
+      "label": "Slowest",
+      "ordinary_attack_ms": 1020,
+      "attacks_per_minute": 58,
+      "spear_stab_ms": 960,
+      "crossbow_ms": 1050,
+      "who_gets_here": null
+    },
+    {
+      "tier": 12,
+      "label": "Slowest",
+      "ordinary_attack_ms": 1020,
+      "attacks_per_minute": 58,
+      "spear_stab_ms": 960,
+      "crossbow_ms": 1050,
+      "who_gets_here": null
+    }
+  ],
+  "speed_tiers_note": [
+    "Ordinary attack times use a sword, axe, mace, dagger, claw or bow swing. Attacks per minute counts completed attacks in 60 seconds.",
+    "Tiers 11 and 12 take as long as tier 10, and no weapon in the game is slower than Slow (8).",
+    "Two weapons with the same name can still attack at different speeds, which is why skill pages show the number beside the name: Fast (4) finishes an ordinary attack 30 ms before Fast (5)."
+  ],
+  "weapon_type_speed_ranges": [
+    {
+      "weapon": "Dagger",
+      "speed_tiers": [
+        3,
+        4
+      ],
+      "best_tier_with_booster": 1,
+      "booster_from": "Bandit"
+    },
+    {
+      "weapon": "Claw",
+      "speed_tiers": [
+        3,
+        5
+      ],
+      "best_tier_with_booster": 1,
+      "booster_from": "Assassin"
+    },
+    {
+      "weapon": "One-handed sword",
+      "speed_tiers": [
+        4,
+        5
+      ],
+      "best_tier_with_booster": 2,
+      "booster_from": "Fighter, Page"
+    },
+    {
+      "weapon": "One-handed axe",
+      "speed_tiers": [
+        4,
+        5
+      ],
+      "best_tier_with_booster": 2,
+      "booster_from": "Fighter"
+    },
+    {
+      "weapon": "One-handed mace",
+      "speed_tiers": [
+        4,
+        5
+      ],
+      "best_tier_with_booster": 2,
+      "booster_from": "Page"
+    },
+    {
+      "weapon": "Two-handed sword",
+      "speed_tiers": [
+        5,
+        6
+      ],
+      "best_tier_with_booster": 3,
+      "booster_from": "Fighter, Page"
+    },
+    {
+      "weapon": "Two-handed axe",
+      "speed_tiers": [
+        5,
+        6
+      ],
+      "best_tier_with_booster": 3,
+      "booster_from": "Fighter"
+    },
+    {
+      "weapon": "Bow",
+      "speed_tiers": [
+        5,
+        6
+      ],
+      "best_tier_with_booster": 3,
+      "booster_from": "Hunter"
+    },
+    {
+      "weapon": "Two-handed mace",
+      "speed_tiers": [
+        6,
+        7
+      ],
+      "best_tier_with_booster": 4,
+      "booster_from": "Page"
+    },
+    {
+      "weapon": "Spear",
+      "speed_tiers": [
+        6,
+        7
+      ],
+      "best_tier_with_booster": 4,
+      "booster_from": "Spearman"
+    },
+    {
+      "weapon": "Crossbow",
+      "speed_tiers": [
+        6,
+        7
+      ],
+      "best_tier_with_booster": 4,
+      "booster_from": "Crossbowman"
+    },
+    {
+      "weapon": "Polearm",
+      "speed_tiers": [
+        7,
+        8
+      ],
+      "best_tier_with_booster": 5,
+      "booster_from": "Spearman"
+    },
+    {
+      "weapon": "Wand, staff",
+      "speed_tiers": [
+        6,
+        7
+      ],
+      "best_tier_with_booster": 6,
+      "booster_from": null,
+      "note": "Every wand and staff casts spells at Normal (6)"
+    }
+  ],
+  "boosters": {
+    "lines": [
+      "Weapon Booster: Tier = WeaponTier - 2",
+      "Magician attacks: Tier = 6",
+      "Spell Booster: Tier = 6 - 1 at Lv 1-10 · 6 - 2 at Lv 11-20",
+      "Tier = clamp(Tier, 0, 12)"
+    ],
+    "notes": [
+      "Weapon Booster only speeds up the weapon type it matches.",
+      "Spell Booster speeds up Fire/Poison and Ice/Lightning spells. A wand or staff's speed does not change a spell."
+    ]
+  },
+  "dps_model": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "Effective cycle d = max(animation duration, skill-specific lockout)",
+      "Completed casts in 60 s = floor(60,000 / d)",
+      "One-minute damage = CompletedCasts × w",
+      "F(t) = Σ pᵢ × (wᵢ + F(t - dᵢ)) for dᵢ ≤ t",
+      "F(t) = 0 when no branch fits",
+      "Exact one-minute expectation = F(60,000)",
+      "Long-run DPS = Σ(pᵢ × wᵢ) / Σ(pᵢ × dᵢ / 1000)"
+    ]
+  },
+  "whole_total_scaling_check": {
+    "description": "MeowDB publishes per-action base totals but not per-frame FrameDelay lists. Applying the timing formula to the base total (trunc(total × (10 + tier) / 16), then 30 × ceil(ms / 30)) reproduces every published ladder value except those listed here; per-frame truncation lowers them. Use the published ladder values (speed_tiers) as authoritative.",
+    "mismatches": [
+      {
+        "tier": 7,
+        "column": "crossbow_ms",
+        "published_ms": 870,
+        "whole_total_scaling_ms": 900
+      }
+    ]
+  },
+  "beginner_weapons": [
+    {
+      "item_id": "541",
+      "name": "Sword",
+      "subtype": "One-Handed Sword",
+      "attack_speed_label": "Fast",
+      "attack_speed_tier": 4,
+      "attack_cycle_ms": 720,
+      "attack_cycle_with_booster_ms": 600
+    },
+    {
+      "item_id": "576",
+      "name": "Hand Axe",
+      "subtype": "One-Handed Axe",
+      "attack_speed_label": "Fast",
+      "attack_speed_tier": 4,
+      "attack_cycle_ms": 720,
+      "attack_cycle_with_booster_ms": 600
+    },
+    {
+      "item_id": "585",
+      "name": "Wooden Club",
+      "subtype": "One-Handed Blunt Weapon",
+      "attack_speed_label": "Fast",
+      "attack_speed_tier": 5,
+      "attack_cycle_ms": 750,
+      "attack_cycle_with_booster_ms": 660
+    },
+    {
+      "item_id": "558",
+      "name": "Razor",
+      "subtype": "Dagger",
+      "attack_speed_label": "Fast",
+      "attack_speed_tier": 4,
+      "attack_cycle_ms": 720,
+      "attack_cycle_with_booster_ms": 600
+    }
+  ],
+  "beginner_weapon_notes": [
+    "Club attacks one tier slower than Sword or Hand Axe",
+    "Its 23 W.ATK and faster speed give every class path higher minimum and average damage than Wooden Club."
+  ],
+  "three_snails": {
+    "skill_id": "0001000",
+    "base_action_ms": 800,
+    "animation_ms_at_normal_6": 810,
+    "weapon_speed_based": true,
+    "statements": [
+      "Weapon-speed based",
+      "Normal (6)",
+      "810 ms"
+    ],
+    "class_page_anim": "ANIM 800 MS"
+  },
+  "bare_hands": {
+    "attack_speed_tier": null,
+    "note": "Not documented: no MeowDB page gives an attack speed or animation time for unarmed punches."
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+    "retrieved_at": "2026-10-04T10:04:43.693Z"
+  },
+  "field_sources": {
+    "status_note": {
+      "url": "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
+      "retrieved_at": "2026-10-04T10:05:46.916Z"
+    },
+    "display_rounding_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "speed_tiers": {
+      "url": "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
+      "retrieved_at": "2026-10-04T10:05:46.916Z"
+    },
+    "speed_tiers_note": {
+      "url": "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
+      "retrieved_at": "2026-10-04T10:05:46.916Z"
+    },
+    "weapon_type_speed_ranges": {
+      "url": "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
+      "retrieved_at": "2026-10-04T10:05:46.916Z"
+    },
+    "beginner_weapons": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "beginner_weapon_notes": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "three_snails": {
+      "url": "https://meowdb.com/msclassic/skills/beginner/three-snails",
+      "retrieved_at": "2026-10-04T10:08:40.464Z"
+    },
+    "three_snails.class_page_anim": {
+      "url": "https://meowdb.com/msclassic/classes/beginner",
+      "retrieved_at": "2026-10-04T10:06:42.205Z"
+    }
+  },
+  "gaps": [
+    "Per-frame FrameDelay lists for each action are not published, so the per-frame truncation cannot be reproduced for arbitrary actions; use the published per-tier values.",
+    "Unarmed (bare hands) attack speed / animation time is not documented.",
+    "Animation time for Nimble Feet and Recovery casts: the skill pages say \"Timing unavailable\"."
+  ]
+}

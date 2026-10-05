@@ -1,0 +1,575 @@
+{
+  "id": "000000050",
+  "name": "A Split Road",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": false,
+  "page_map_type_label": null,
+  "overview_text": "A Split Road is a hunting ground in Maple Road, Maple Island in MapleStory Classic. Monsters here include Blue Snail, Shroom, and Red Snail. Monsters are around levels 2–4. There are 42 monster spawn points.",
+  "return_map_id": "000000060",
+  "return_map_name": "Southperry",
+  "safe_zone": false,
+  "safe_zone_text": null,
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/RestNPeace",
+    "name": "Rest N Peace",
+    "length": "2:55"
+  },
+  "mob_rate": 1.5,
+  "total_mob_count": 42,
+  "page_facts": {
+    "levels": "Lv 2-4",
+    "spawns": "42",
+    "exp_rank": "#257 / 279"
+  },
+  "connected_maps": [
+    {
+      "map_id": "000000042",
+      "map_name": "Snail Hunting Ground III",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "portals": [
+    {
+      "name": "west00",
+      "type": 2,
+      "x_px": -505,
+      "y_px": 246,
+      "to_map_id": "000000042",
+      "to_map_name": "Snail Hunting Ground III",
+      "to_street_name": "Maple Road",
+      "to_portal": "east00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "east00",
+      "type": 2,
+      "x_px": 3041,
+      "y_px": 7,
+      "to_map_id": "000001000",
+      "to_map_name": "The Field West of Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "west00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "east01",
+      "type": 2,
+      "x_px": 3046,
+      "y_px": 361,
+      "to_map_id": "000000060",
+      "to_map_name": "Southperry",
+      "to_street_name": "Maple Road",
+      "to_portal": "west00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -183,
+      "y_px": 120
+    }
+  ],
+  "npcs": [
+    {
+      "id": "10",
+      "name": "Maria",
+      "x_px": 159,
+      "y_px": 65,
+      "idle_speech_lines": [
+        "Ahh... I need to get this letter delivered...",
+        "Why is no one passing by?!",
+        "Just look at the time. I hope it's not too late...",
+        "Ah, what should I do...?"
+      ]
+    },
+    {
+      "id": "11",
+      "name": "Mai",
+      "x_px": 1891,
+      "y_px": -182,
+      "idle_speech_lines": [
+        "Hey, do you know me? No? What's wrong with you?",
+        "If you're thinking of challenging me, dream on.",
+        "Is there anyone out there who can give me a good fight?"
+      ]
+    }
+  ],
+  "monsters": [
+    {
+      "id": "3",
+      "name": "Blue Snail",
+      "count": 17,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 17,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "4",
+      "name": "Shroom",
+      "count": 14,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 14,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    },
+    {
+      "id": "5",
+      "name": "Red Snail",
+      "count": 11,
+      "respawn_min_s": 0,
+      "respawn_max_s": 0,
+      "wave_spawn_count": 11,
+      "movement": "walk",
+      "movement_label": "Stays on its floor",
+      "movement_description": "Walks back and forth on the floor it spawns on."
+    }
+  ],
+  "spawns": [
+    {
+      "mob_id": "3",
+      "x_px": 1678,
+      "y_px": -116,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 967,
+      "y_px": -37,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -235,
+      "y_px": 185,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": -3,
+      "y_px": 185,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 649,
+      "y_px": 77,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 604,
+      "y_px": 301,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 998,
+      "y_px": 290,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 1387,
+      "y_px": 313,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 1538,
+      "y_px": -113,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 1091,
+      "y_px": -37,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 781,
+      "y_px": 78,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": -115,
+      "y_px": 183,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": -359,
+      "y_px": 193,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 347,
+      "y_px": 311,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 734,
+      "y_px": 298,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 1134,
+      "y_px": 296,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1269,
+      "y_px": 300,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1398,
+      "y_px": -100,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 525,
+      "y_px": 85,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 114,
+      "y_px": 187,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": -483,
+      "y_px": 185,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 860,
+      "y_px": 289,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 475,
+      "y_px": 315,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1628,
+      "y_px": 295,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1204,
+      "y_px": -49,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1504,
+      "y_px": 303,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 1944,
+      "y_px": 142,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2070,
+      "y_px": 137,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2311,
+      "y_px": 139,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2855,
+      "y_px": -38,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 2720,
+      "y_px": -56,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 2194,
+      "y_px": 135,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 1921,
+      "y_px": 314,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 2184,
+      "y_px": 307,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 2441,
+      "y_px": 300,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "4",
+      "x_px": 2724,
+      "y_px": 295,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "5",
+      "x_px": 2563,
+      "y_px": 300,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2312,
+      "y_px": 302,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2054,
+      "y_px": 307,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 1774,
+      "y_px": 303,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 3136,
+      "y_px": -36,
+      "mob_time_s": 0
+    },
+    {
+      "mob_id": "3",
+      "x_px": 2866,
+      "y_px": 295,
+      "mob_time_s": 0
+    }
+  ],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 3838,
+    "height_px": 1090,
+    "center_x_px": 614,
+    "center_y_px": 535,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -614,
+    "x_max": 3224,
+    "y_min": -535,
+    "y_max": 555
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1010",
+        "name": "Mai's Final Training",
+        "npc_name": "Mai",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+100 EXP",
+        "meso_reward_label": "+150 mesos"
+      },
+      {
+        "id": "1007",
+        "name": "Letter for Lucas",
+        "npc_name": "Maria",
+        "level_label": "Lv 2+",
+        "area_label": "Maple Island"
+      },
+      {
+        "id": "1009",
+        "name": "Mai's Training",
+        "npc_name": "Mai",
+        "level_label": "Lv 3+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+70 EXP"
+      }
+    ],
+    "progress_here": [
+      {
+        "id": "1009",
+        "name": "Mai's Training",
+        "npc_name": "Mai",
+        "level_label": "Lv 3+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+70 EXP",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "3",
+            "text": "Defeat Blue Snail x10",
+            "count": 10
+          },
+          {
+            "mob_id": "4",
+            "text": "Defeat Shroom x10",
+            "count": 10
+          },
+          {
+            "mob_id": "5",
+            "text": "Defeat Red Snail x5",
+            "count": 5
+          }
+        ]
+      },
+      {
+        "id": "10123",
+        "name": "The Reason Behind the Mushroom Studies",
+        "npc_name": "Bruce",
+        "level_label": "Lv 10+",
+        "area_label": "Henesys",
+        "exp_reward_label": "+171 EXP",
+        "meso_reward_label": "+292 mesos",
+        "objectives_on_this_map": [
+          {
+            "mob_id": "4",
+            "text": "Defeat Shroom x20",
+            "count": 20
+          }
+        ]
+      }
+    ]
+  },
+  "meowdb_spawn_estimates": {
+    "note": "MeowDB's own spawn/EXP model (page 'Map Summary' and 'How this estimate works'); not raw game data. Monster level/EXP live in the monsters domain.",
+    "total_spawn_points": 42,
+    "capacity_solo": 31.5,
+    "capacity_full_party": 42,
+    "mobs_per_hour": 15000,
+    "mobs_per_hour_full_party": 20000,
+    "exp_per_hour": 85715,
+    "exp_per_hour_full_party": 114286,
+    "exp_rank": 257,
+    "exp_rank_total": 279,
+    "per_mob": [
+      {
+        "id": "3",
+        "name": "Blue Snail",
+        "spawn_points": 17,
+        "wave_spawn_points": 17,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 6071,
+        "mobs_per_hour_full_party": 8095,
+        "exp_per_hour": 24286,
+        "exp_per_hour_full_party": 32381
+      },
+      {
+        "id": "4",
+        "name": "Shroom",
+        "spawn_points": 14,
+        "wave_spawn_points": 14,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 5000,
+        "mobs_per_hour_full_party": 6667,
+        "exp_per_hour": 30000,
+        "exp_per_hour_full_party": 40000
+      },
+      {
+        "id": "5",
+        "name": "Red Snail",
+        "spawn_points": 11,
+        "wave_spawn_points": 11,
+        "timed_spawn_points": 0,
+        "timed_respawn_avg_s": 0,
+        "mobs_per_hour": 3929,
+        "mobs_per_hour_full_party": 5238,
+        "exp_per_hour": 31429,
+        "exp_per_hour_full_party": 41905
+      }
+    ]
+  },
+  "spawn_rules_text": "How spawns work. The server runs a global 7.56s respawn tick across every loaded map. After a mob dies its spawn point waits a cooldown (5s default, or usually the WZ mobTime value for timed spawns), then the mob reappears on the next tick. Field-boss schedules are server-owned, so unconfirmed live-timing windows are labelled when they differ from the raw map value. Map capacity scales with players on the map: 75% solo, +5% per extra player, capping at 100% from 6 players. This map has 42 spawn points, so capacity is ~32 concurrent mobs solo and 42 in a full party. Mob rate (1.5x) multiplies that capacity: expect about 63 monsters up at a time. Not applied to the figures above yet; best reading from closed-beta play.",
+  "mob_rate_text": "About mob rate. Mob rate multiplies how many monsters this map keeps alive at once. This map has 42 spawn points and a mob rate of 1.5x, so expect about 63 monsters up at a time instead of 42. The spawn figures above do not apply it yet. This is our best reading from closed-beta play, where a high-rate map held far more monsters than it has spawn points; an exact whole-map count has not been done.",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000050",
+    "retrieved_at": "2026-10-04T09:56:48.241Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000042",
+          "retrieved_at": "2026-10-04T09:56:46.784Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001000",
+          "retrieved_at": "2026-10-04T09:56:52.757Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000060",
+          "retrieved_at": "2026-10-04T09:56:49.733Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "notes": [
+    "mob_rate is 1.5. MeowDB pages disagree on its effect: this page says it multiplies how many monsters stay alive (\"best reading from closed-beta play\", not applied to its own estimates); the spawn-engine guide says MapleStory Classic ignores it and the spawn formula page's capacity formula omits it. See docs/canonical/maps.md, Discrepancies."
+  ],
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y."
+  ]
+}

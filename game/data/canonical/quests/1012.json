@@ -1,0 +1,378 @@
+{
+  "id": "1012",
+  "name": "Pio's Collecting Recycled Goods",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": null,
+  "start_npc": {
+    "npc_id": "18",
+    "name": "Pio"
+  },
+  "end_npc": {
+    "npc_id": "18",
+    "name": "Pio"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "min_level": 5,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [],
+    "item_collection": [
+      {
+        "item_id": "441",
+        "item_icon_key": "4031003",
+        "name": "Rusty Screw",
+        "count": 3,
+        "hand_in": true
+      },
+      {
+        "item_id": "442",
+        "item_icon_key": "4031004",
+        "name": "Old Wooden Board",
+        "count": 3,
+        "hand_in": true
+      }
+    ],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "18",
+        "name": "Pio",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": []
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 100,
+    "mesos": 150,
+    "fame": 0,
+    "items": [
+      {
+        "item_id": "522",
+        "item_icon_key": "3010000",
+        "name": "The Green Relaxer",
+        "count": 1,
+        "given": "on_completion"
+      }
+    ],
+    "selection": [],
+    "random": []
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "Derived, not explicit: MeowDB's quest database \"Requirement type\" filter treats item requirements as hand-ins (quests whose requirements are all items are listed as \"Item hand-in only\", items plus kills as \"Items + monster kills\"). MeowDB has no field saying which items are taken on completion.",
+    "items": [
+      {
+        "item_id": "441",
+        "item_icon_key": "4031003",
+        "name": "Rusty Screw",
+        "count": 3
+      },
+      {
+        "item_id": "442",
+        "item_icon_key": "4031004",
+        "name": "Old Wooden Board",
+        "count": 3
+      }
+    ]
+  },
+  "followup_quests": [],
+  "next_quest_grants": [],
+  "quest_line": null,
+  "journal": {
+    "raw": "Pio in Amherst wants you to help collect recycled goods.\nI ran into Pio, who's famous in Amherst for fixing broken things. He asked me to break down wooden boxes from around town and bring back Rusty Screws and Old Wooden Boards.\nI broke wooden boxes and collected supplies for Pio. It was fun because I found other useful items in the boxes as well.",
+    "lines": [
+      "Pio in Amherst wants you to help collect recycled goods.",
+      "I ran into Pio, who's famous in Amherst for fixing broken things. He asked me to break down wooden boxes from around town and bring back Rusty Screws and Old Wooden Boards.",
+      "I broke wooden boxes and collected supplies for Pio. It was fun because I found other useful items in the boxes as well."
+    ],
+    "summary": "Pio in Amherst wants you to help collect recycled goods.",
+    "entries": [
+      "I ran into Pio, who's famous in Amherst for fixing broken things. He asked me to break down wooden boxes from around town and bring back Rusty Screws and Old Wooden Boards.",
+      "I broke wooden boxes and collected supplies for Pio. It was fun because I found other useful items in the boxes as well."
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "My goodness. I've been wandering around town, and I see so many recyclable items just being thrown away! Say, can you help me collect some of them? Don't worry, I'll reward you well for your effort.",
+          "segments": [
+            {
+              "text": "My goodness. I've been wandering around town, and I see so many recyclable items just being thrown away! Say, can you help me collect some of them? Don't worry, I'll reward you well for your effort."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "accepted",
+          "heading": "If you accept",
+          "lines": [
+            {
+              "text": "That's right! Please collect 'trash' from around town.",
+              "segments": [
+                {
+                  "text": "That's right! Please collect 'trash' from around town."
+                }
+              ]
+            },
+            {
+              "text": "I don't know if you saw any abandoned wooden boxes on your way here, but your job is to break those boxes apart into Rusty Screws and Old Wooden Boards. Collect 3 of each for me, okay? \n\n Rusty Screw 0/3\n Old Wooden Board 0/3",
+              "segments": [
+                {
+                  "text": "I don't know if you saw any abandoned wooden boxes on your way here, but your job is to break those boxes apart into "
+                },
+                {
+                  "text": "Rusty Screws",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "441"
+                  }
+                },
+                {
+                  "text": " and "
+                },
+                {
+                  "text": "Old Wooden Boards",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "442"
+                  }
+                },
+                {
+                  "text": ". Collect "
+                },
+                {
+                  "text": "3",
+                  "bold": true
+                },
+                {
+                  "text": " of each for me, okay? \n\n"
+                },
+                {
+                  "text": "",
+                  "ref": {
+                    "type": "item",
+                    "id": "441"
+                  },
+                  "icon_key": "4031003"
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "Rusty Screw",
+                  "ref": {
+                    "type": "item",
+                    "id": "441"
+                  }
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "0",
+                  "bold": true
+                },
+                {
+                  "text": "/3\n"
+                },
+                {
+                  "text": "",
+                  "ref": {
+                    "type": "item",
+                    "id": "442"
+                  },
+                  "icon_key": "4031004"
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "Old Wooden Board",
+                  "ref": {
+                    "type": "item",
+                    "id": "442"
+                  }
+                },
+                {
+                  "text": " "
+                },
+                {
+                  "text": "0",
+                  "bold": true
+                },
+                {
+                  "text": "/3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "state": "declined",
+          "heading": "If you decline",
+          "lines": [
+            {
+              "text": "Come on! Think about the planet!",
+              "segments": [
+                {
+                  "text": "Come on! Think about the planet!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [],
+      "lines": [
+        {
+          "text": "What? You brought them all? Okay, let's see...",
+          "segments": [
+            {
+              "text": "What? You brought them all? Okay, let's see..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "ready",
+          "heading": "When you have everything ready",
+          "lines": [
+            {
+              "text": "See what I'm talking about? So many recyclable items, just carelessly tossed away. Hopefully there are more people like you in the world.",
+              "segments": [
+                {
+                  "text": "See what I'm talking about? So many recyclable items, just carelessly tossed away. Hopefully there are more people like you in the world."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "state": "missing_items",
+          "heading": "If you don't have the items yet",
+          "lines": [
+            {
+              "text": "No, no, no! Open Quest Info to check what you need to do!",
+              "segments": [
+                {
+                  "text": "No, no, no! Open Quest Info to check what you need to do!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1012",
+    "retrieved_at": "2026-10-04T10:07:30.710Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    },
+    "items_removed_on_completion.basis": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/441",
+      "retrieved_at": "2026-10-04T10:17:28.890Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/442",
+      "retrieved_at": "2026-10-04T10:17:30.107Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/522",
+      "retrieved_at": "2026-10-04T10:17:31.306Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/_data/safe-to-sell.json",
+      "retrieved_at": "2026-10-04T10:09:42.024Z",
+      "checked": "item quantities the quest asks for (quests[].qty) and that no listed quest item is missing from the record"
+    }
+  ],
+  "notes": [
+    "The second \"If you accept\" line ends with an item list (\"Rusty Screw 0/3\", \"Old Wooden Board 0/3\", each with an inline item icon); the bold \"0\" appears to be MeowDB rendering an in-game current-count placeholder as 0."
+  ],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB has no explicit \"items removed on completion\" field; items_removed_on_completion is derived from MeowDB's quest database \"Requirement type\" filter, which labels item requirements \"Item hand-in only\" / \"Items + monster kills\".",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

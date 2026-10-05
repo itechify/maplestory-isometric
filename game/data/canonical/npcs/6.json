@@ -1,0 +1,332 @@
+{
+  "id": "6",
+  "name": "Peter",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000030",
+      "map_name": "East Entrance to Mushroom Town",
+      "street_name": "Maple Road",
+      "x_px": 1314,
+      "y_px": -925
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Are you having a pleasant journey so far?"
+    },
+    {
+      "text": "Go and enjoy the adventures that await!"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "You should train well before continuing your journey."
+    },
+    {
+      "text": "Well done making it here!"
+    },
+    {
+      "text": "This is the exit to Mushroom Town."
+    },
+    {
+      "text": "If you want to move to the next stage, talk to me."
+    },
+    {
+      "text": "Be careful. Once you leave this place, you'll see monsters roaming around."
+    },
+    {
+      "text": "Are you ready for adventure?"
+    },
+    {
+      "text": "Now it's up to you to train yourself. Good luck!"
+    },
+    {
+      "text": "We instructors are all related. Roger is my older brother and Robin is my younger brother, and we're all working here together."
+    },
+    {
+      "text": "Yoohoo!"
+    },
+    {
+      "text": "So what's my relationship with Roger? Hahaha, he's my older brother!"
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [
+      {
+        "id": "1005",
+        "name": "Todd's How-to-Hunt"
+      }
+    ],
+    "started_here": [],
+    "completed_here": [
+      "1005"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1005",
+      "quest_name": "Todd's How-to-Hunt",
+      "npc_role": "complete",
+      "start_npc_id": "7",
+      "complete_npc_id": "6",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Are you the one Todd is training? He mentioned you... Let's see if you've trained correctly.",
+          "segments": [
+            {
+              "text": "Are you the one "
+            },
+            {
+              "text": "Todd",
+              "ref": {
+                "kind": "npc",
+                "id": "7"
+              }
+            },
+            {
+              "text": " is training? He mentioned you... Let's see if you've trained correctly."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Someday, long after you leave this place, you'll be powerful enough to take on real Jr. Sentinels. Oh, and when you level up, check your Ability Points in your Character Info. \nTo move on to the next map, either press the up arrow key in front of the portal to the right or just talk to me again.",
+              "segments": [
+                {
+                  "text": "Someday, long after you leave this place, you'll be powerful enough to take on real Jr. Sentinels. Oh, and when you level up, check your "
+                },
+                {
+                  "text": "Ability Points",
+                  "bold": true
+                },
+                {
+                  "text": " in your Character Info. \nTo move on to the next map, either press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " in front of the portal to the right or just talk to me again."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "Huh? You're not carrying 3 Jr. Sentinel Shellpiece. After you've defeated a Tutorial Jr. Sentinel, it'll drop a Jr. Sentinel Shellpiece. Then press Z to pick up the item.",
+              "segments": [
+                {
+                  "text": "Huh? You're not carrying "
+                },
+                {
+                  "text": "3 ",
+                  "bold": true
+                },
+                {
+                  "text": "Jr. Sentinel Shellpiece",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "347",
+                    "meowdb_link_id": "2584"
+                  }
+                },
+                {
+                  "text": ". After you've defeated a "
+                },
+                {
+                  "text": "Tutorial Jr. Sentinel",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": ", it'll drop a "
+                },
+                {
+                  "text": "Jr. Sentinel Shellpiece",
+                  "ref": {
+                    "kind": "item",
+                    "id": "347",
+                    "meowdb_link_id": "2584"
+                  }
+                },
+                {
+                  "text": ". Then press "
+                },
+                {
+                  "text": "Z",
+                  "color": "red"
+                },
+                {
+                  "text": " to pick up the item."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopMob",
+          "label": "If you haven''t defeated enough monsters",
+          "lines": [
+            {
+              "text": "Hmm, you should have seen a small Tutorial Jr. Sentinel at the bottom of the map. Press Ctrl to attack it. Pick up the item it drops once you defeat it, and then come talk to me.",
+              "segments": [
+                {
+                  "text": "Hmm, you should have seen a small "
+                },
+                {
+                  "text": "Tutorial Jr. Sentinel",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": " at the bottom of the map. Press "
+                },
+                {
+                  "text": "Ctrl",
+                  "color": "red"
+                },
+                {
+                  "text": " to attack it. Pick up the item it drops once you defeat it, and then come talk to me."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "What? Haven't you gone to Peter yet? You need to defeat 3 Tutorial Jr. Sentinels and take 3 Jr. Sentinel Shellpiece with you!",
+              "segments": [
+                {
+                  "text": "What? Haven't you gone to "
+                },
+                {
+                  "text": "Peter",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "6"
+                  }
+                },
+                {
+                  "text": " yet? You need to defeat "
+                },
+                {
+                  "text": "3 ",
+                  "color": "red"
+                },
+                {
+                  "text": "Tutorial Jr. Sentinels",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "1"
+                  }
+                },
+                {
+                  "text": " and take "
+                },
+                {
+                  "text": "3 ",
+                  "bold": true
+                },
+                {
+                  "text": "Jr. Sentinel Shellpiece",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "347",
+                    "meowdb_link_id": "2584"
+                  }
+                },
+                {
+                  "text": " with you!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Todd, id 7) and completion NPC (Peter, id 6) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/6",
+    "retrieved_at": "2026-10-04T10:05:03.061Z"
+  },
+  "field_sources": {
+    "locations/000000030": {
+      "url": "https://meowdb.com/msclassic/maps/000000030",
+      "retrieved_at": "2026-10-04T09:56:42.256Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1005/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+      "retrieved_at": "2026-10-04T10:07:22.301Z"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "quest_dialogue/1005/complete item reference \"Jr. Sentinel Shellpiece\"",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+          "where": "quest page itemRefs (quest item data)",
+          "value": "347"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1005",
+          "where": "NPC dialogue link \"Jr. Sentinel Shellpiece\"",
+          "value": "2584"
+        }
+      ],
+      "chosen": "347",
+      "reason": "item-db 347 (\"Jr. Sentinel Shellpiece\", icon key 4000000) is the item the quest page's itemRefs table uses (icon key 4000000); item-db 2584 is a different entry with the same name (icon key 4000067), so the dialogue link appears to be resolved by name. segments[].ref.meowdb_link_id keeps the linked id.",
+      "sources": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/347",
+          "retrieved_at": "2026-10-04T10:11:48.032Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/2584",
+          "retrieved_at": "2026-10-04T10:11:49.011Z"
+        }
+      ]
+    }
+  ]
+}

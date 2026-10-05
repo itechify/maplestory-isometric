@@ -1,0 +1,273 @@
+{
+  "id": "17",
+  "name": "Lucas",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street",
+      "x_px": 1790,
+      "y_px": 154
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "A letter from Maria should have arrived here already. Did something happen? Hmm...",
+      "segments": [
+        {
+          "text": "A letter from "
+        },
+        {
+          "text": "Maria",
+          "bold": true,
+          "ref": {
+            "kind": "npc",
+            "id": "10"
+          }
+        },
+        {
+          "text": " should have arrived here already. Did something happen? Hmm..."
+        }
+      ]
+    },
+    {
+      "text": "You safely delivered my reply to Maria? Thank you, much appreciated. So Maria gave you a hat? Her hat-making skills are the best.",
+      "segments": [
+        {
+          "text": "You safely delivered my reply to "
+        },
+        {
+          "text": "Maria",
+          "bold": true,
+          "ref": {
+            "kind": "npc",
+            "id": "10"
+          }
+        },
+        {
+          "text": "? Thank you, much appreciated. So "
+        },
+        {
+          "text": "Maria",
+          "ref": {
+            "kind": "npc",
+            "id": "10"
+          }
+        },
+        {
+          "text": " gave you a hat? Her hat-making skills are the best."
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Stranger. What brings you here?"
+    },
+    {
+      "text": "I'm not fond of strangers disturbing the peace of this town."
+    },
+    {
+      "text": "You... If you're strong and powerful, can you take care of the monsters around town?"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1008",
+        "name": "Lucas's Reply"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1007",
+        "name": "Letter for Lucas"
+      }
+    ],
+    "started_here": [
+      "1008"
+    ],
+    "completed_here": [
+      "1007"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1007",
+      "quest_name": "Letter for Lucas",
+      "npc_role": "complete",
+      "start_npc_id": "10",
+      "complete_npc_id": "17",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "It's about time I received a letter from Maria... I wonder if something happened? Ugh, I wish someone would bring me some news...",
+              "segments": [
+                {
+                  "text": "It's about time I received a letter from "
+                },
+                {
+                  "text": "Maria",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "10"
+                  }
+                },
+                {
+                  "text": "... I wonder if something happened? Ugh, I wish someone would bring me some news..."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "You haven't met with Lucas in Amherst yet? Please bring him my letter. It's urgent.",
+              "segments": [
+                {
+                  "text": "You haven't met with "
+                },
+                {
+                  "text": "Lucas",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "17"
+                  }
+                },
+                {
+                  "text": " in "
+                },
+                {
+                  "text": "Amherst",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": " yet? Please bring him my letter. It's urgent."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "lost",
+          "label": "If you lost the items",
+          "lines": [
+            {
+              "text": "You lost my letter! Be more careful! Good thing I made a copy. This time, be more careful!"
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Maria, id 10) and completion NPC (Lucas, id 17) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    },
+    {
+      "quest_id": "1008",
+      "quest_name": "Lucas's Reply",
+      "npc_role": "start",
+      "start_npc_id": "17",
+      "complete_npc_id": "10",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Ohhh, the letter from Maria! I was beginning to worry. Okay, here's the reply letter. Head back to Maria and deliver it. Thanks.",
+          "segments": [
+            {
+              "text": "Ohhh, the letter from "
+            },
+            {
+              "text": "Maria",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "10"
+              }
+            },
+            {
+              "text": "! I was beginning to worry. Okay, here's the "
+            },
+            {
+              "text": "reply letter",
+              "bold": true
+            },
+            {
+              "text": ". Head back to "
+            },
+            {
+              "text": "Maria",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "10"
+              }
+            },
+            {
+              "text": " and deliver it. Thanks."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Oh... Are you really busy? Sigh. This letter needs to be delivered right away..."
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/17",
+    "retrieved_at": "2026-10-04T10:06:25.255Z"
+  },
+  "field_sources": {
+    "locations/000001010": {
+      "url": "https://meowdb.com/msclassic/maps/000001010",
+      "retrieved_at": "2026-10-04T09:57:03.267Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1007/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1007",
+      "retrieved_at": "2026-10-04T10:07:24.726Z"
+    },
+    "quest_dialogue/1008/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1008",
+      "retrieved_at": "2026-10-04T10:07:25.938Z"
+    }
+  },
+  "gaps": [
+    "Quest 1007 (Letter for Lucas) \"On completion\": MeowDB shows no main lines, only conditional branches (If you don''t have the items yet; If you haven''t met the right NPC yet; If you lost the items)."
+  ]
+}

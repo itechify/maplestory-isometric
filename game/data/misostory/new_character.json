@@ -1,0 +1,57 @@
+{
+  "id": "new_character",
+  "kind": "misostory_adaptation",
+  "description": "What a freshly created character looks like where MeowDB MS Classic is silent. The canonical creation facts are NOT repeated here: CharacterFactory reads level 1, the 4/4/4/4 starting stats, the 9 creation AP, base HP/MP and free AP from data/canonical/formulas/beginner.json, the creation weapons from the items flagged beginner_creation_weapon, and the respawn reference from the start map's canonical return map. See docs/runtime/SAVES.md.",
+  "start_location": {
+    "map_id": "000000001",
+    "spawn_index": 0,
+    "reason": "MeowDB's Beginner's guide says only 'You start on Maple Island' and the map list marks no start map (docs/canonical/maps.md, Gaps; docs/canonical/README.md, known gaps). 000000001 Mushroom Town - West Entrance is the inferred start: 4 player spawns, no arrival portal, and Heena's first quest (1000). Player spawn 0 because MeowDB lists the points but not which one a new character uses (MAP_ARCHITECTURE.md open question 1).",
+    "verified": false
+  },
+  "starting_exp": {
+    "value": 0,
+    "reason": "MeowDB states no starting EXP. The EXP table counts EXP toward the next level, and a new level-1 character has earned none.",
+    "verified": false
+  },
+  "starting_sp": {
+    "value": 0,
+    "reason": "formulas/beginner.json sp.calculator_caveat: 'per the Beginner's guide a Beginner has 0 SP at level 1 and gains 1 SP at each level-up from 2 to 10'. MeowDB states it in prose only (no numeric field), so the number lives here with that quote.",
+    "verified": true
+  },
+  "starting_mesos": {
+    "value": 0,
+    "reason": "MeowDB documents no starting mesos: the Beginner class page, the Beginner's guide and the leveling formulas are silent, and formulas/beginner.json lists 'Starting clothes / starting inventory: not documented' under gaps. A new character starts with an empty purse.",
+    "verified": false
+  },
+  "starting_fame": {
+    "value": 0,
+    "reason": "MeowDB documents no starting fame. A new character has received no fame.",
+    "verified": false
+  },
+  "starting_inventory": {
+    "items": [],
+    "reason": "formulas/beginner.json gaps: 'Starting clothes / starting inventory: not documented' (starter_clothes is null). No clothes, potions or other items are granted; only the chosen creation weapon.",
+    "verified": false
+  },
+  "starter_weapon": {
+    "placement": "equipped",
+    "reason": "The Beginner's guide says 'Choose the Wooden Club at character creation' (items 541/576/585 carry beginner_creation_weapon). MeowDB does not say whether the chosen weapon starts equipped or in the bag; the classic creation screen shows it in the character's hand, so it is equipped. If the Equipment API cannot equip it, CharacterFactory falls back to the inventory and reports that.",
+    "verified": false
+  },
+  "name_rules": {
+    "min_length": 4,
+    "max_length": 12,
+    "pattern": "^[A-Za-z0-9]+$",
+    "reason": "MeowDB documents no character-name rules. 4 to 12 ASCII letters and digits follows the classic creation screen and keeps names safe for save-slot listings and the UI fonts.",
+    "verified": false
+  },
+  "quick_start": {
+    "name": "Beginner",
+    "ap": {
+      "str": 9
+    },
+    "weapon_id": "585",
+    "reason": "Parameters Game.new_game() uses when called with none (boot without a creation screen, debug 'reset_save', tests). They follow the Beginner's guide's advice: 'Safe split for new players: all of it in your primary until level 10', 'STR gives a Beginner stronger basic attacks than INT does', and 'Choose the Wooden Club at character creation' (item 585).",
+    "verified": false
+  }
+}

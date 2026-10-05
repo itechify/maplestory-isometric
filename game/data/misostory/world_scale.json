@@ -1,0 +1,13 @@
+{
+  "id": "world_scale",
+  "kind": "misostory_adaptation",
+  "description": "The only sanctioned conversions from MeowDB's 2D MapleStory pixels to MisoStory's 3D meters (Godot Y-up). Canonical px values are never edited; systems convert them through these factors.",
+  "horizontal_px_to_m": 0.02,
+  "horizontal_reason": "Ground-plane distances and speeds (walk 150 px/s -> 3.0 m/s, monster movement, projectile range). Iteration One laid the classic maps out at roughly 0.013-0.025 m per px horizontally (32-42 m footprints for 1,400-3,200 px maps); 0.02 is the representative value MAP_ARCHITECTURE.md uses.",
+  "vertical_px_to_m": 0.0117,
+  "vertical_reason": "Heights (jump apex 77 px -> 0.90 m, 111 px at the Jump cap -> 1.30 m, knockback rise). Iteration One built one classic 60 px platform tier as 0.55-0.7 m of terrain, so a full jump clears one tier, as in classic.",
+  "actor_px_to_m": 0.025,
+  "actor_reason": "Sizes measured against a character or monster sprite (hit rectangles, touch zones, pickup box, attack reach). MeowDB's pickup box spans 90 px vertically around a ~60 px character; Iteration One's player proxy is 1.5 m tall, so 1.5 m / 60 px = 0.025 m per px keeps every box proportional to the bodies it belongs to.",
+  "tuning_note": "These are feel-adjustable adaptation values. Change them here (with a reason) rather than scaling individual canonical numbers in code.",
+  "verified": false
+}

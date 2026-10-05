@@ -1,0 +1,253 @@
+{
+  "id": "1",
+  "name": "Tutorial Jr. Sentinel",
+  "bestiary_no": "001",
+  "category_label": "Standard",
+  "description": "A training dummy found in the Tutorial area of Maple Island. Tutorial Jr. Sentinel is completely harmless and serves as target practice for brand new adventurers learning the basics of combat.",
+  "level": 1,
+  "hp": 30,
+  "mp": 30,
+  "exp": 1,
+  "physical_damage": 1,
+  "touch_damage_estimate_at_0_wdef": {
+    "min": 1,
+    "max": 1
+  },
+  "magic_damage": 0,
+  "physical_defense": 0,
+  "magic_defense": 0,
+  "accuracy": 33,
+  "avoidability": 0,
+  "knockback_threshold_damage": 1,
+  "speed": -60,
+  "speed_label": "Slow",
+  "movement": {
+    "label": "Stays on its floor",
+    "description": "Walks back and forth on the floor it spawns on."
+  },
+  "element": {
+    "label": "No elemental affinity",
+    "raw": "",
+    "note": "raw = MeowDB simulator element string; \"\" matches the page label \"No elemental affinity\". The meaning of non-empty tokens (e.g. \"fire-strong\") is not documented on the pages read; none occur on Maple Island monsters"
+  },
+  "flags": {
+    "non_aggressive": true,
+    "boss": false,
+    "undead": false,
+    "auto_aggressive": false,
+    "tags": []
+  },
+  "hp_recovery": 0,
+  "mp_recovery": 0,
+  "revives_into": [],
+  "other_attributes": [
+    {
+      "label": "Peace",
+      "title": "Non-aggressive, won't attack unless provoked"
+    },
+    {
+      "label": "MP 30",
+      "title": null
+    }
+  ],
+  "touch_zone_px": [
+    21,
+    36
+  ],
+  "sprite_size_px": [
+    40,
+    68
+  ],
+  "animation_clips": [
+    "stand",
+    "move",
+    "hit1",
+    "die1"
+  ],
+  "animations": {
+    "stand": {
+      "duration_ms": 480,
+      "held_pose": false,
+      "display": "480ms"
+    },
+    "move": {
+      "duration_ms": 480,
+      "held_pose": false,
+      "display": "480ms"
+    },
+    "hit1": {
+      "duration_ms": 600,
+      "held_pose": false,
+      "display": "600ms"
+    },
+    "die1": {
+      "duration_ms": 780,
+      "held_pose": false,
+      "display": "780ms"
+    }
+  },
+  "die_fade_ms": 780,
+  "mesos_per_kill": {
+    "report_count": 0,
+    "trusted_report_count": 0,
+    "median_min": null,
+    "median_max": null,
+    "canonical": false,
+    "see": "drops/1.json"
+  },
+  "drop_table": "drops/1.json",
+  "spawns": [
+    {
+      "map_id": "000000030",
+      "map_name": "East Entrance to Mushroom Town",
+      "street_name": "Maple Road",
+      "maple_island": true,
+      "count": 6,
+      "map_total_spawns": 6,
+      "share_pct": 100,
+      "map_mob_type_count": 1,
+      "mob_rate": 0.6,
+      "wave_spawn_count": 6,
+      "timed_spawn_count": 0,
+      "respawn_kind": "wave",
+      "respawn_min_s": 0,
+      "respawn_max_s": 0
+    }
+  ],
+  "quests": [
+    {
+      "quest_id": "1005",
+      "name": "Todd's How-to-Hunt",
+      "objective_text": "Defeat Tutorial Jr. Sentinel x3",
+      "objective_kill_count": 3,
+      "region": "Maple Island",
+      "min_level": 1
+    }
+  ],
+  "change_history": {
+    "label": "updated in COT2",
+    "rows": [
+      {
+        "stat": "ACC",
+        "cot1": 30,
+        "cot2": 33,
+        "change": 3
+      }
+    ],
+    "note": "headline stats on this page are the latest test (COT2) values"
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/monsters/1",
+    "retrieved_at": "2026-10-04T10:06:54.598Z"
+  },
+  "field_sources": {
+    "mp": {
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "retrieved_at": "2026-10-04T10:06:54.598Z",
+      "note": "from \"Other Attributes\" (\"MP n\")"
+    },
+    "mesos_per_kill": {
+      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
+      "retrieved_at": "2026-10-04T10:06:56.822Z",
+      "note": "client-side API behind the page's \"Mesos per kill\" line"
+    },
+    "magic_damage": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "page shows \"—\"; raw table value 0"
+    },
+    "physical_defense": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "page shows \"—\"; raw table value 0"
+    },
+    "magic_defense": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "page shows \"—\"; raw table value 0"
+    },
+    "avoidability": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "page shows \"—\"; raw table value 0"
+    },
+    "speed": {
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "retrieved_at": "2026-10-04T10:06:54.598Z",
+      "note": "page \"(speed n)\"; raw table agrees"
+    },
+    "knockback_threshold_damage": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "raw \"kb\"; meaning per MeowDB glossary (https://meowdb.com/msclassic/guides/maplestory-classic-glossary, retrieved 2026-10-04T10:09:34.025Z): \"knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger\""
+    },
+    "flags": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "boss/undead/auto_aggressive/tags from raw \"tags\"; non_aggressive from the page \"Peace\" attribute (raw \"nonAgg\" agrees)"
+    },
+    "element": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "label from the page; raw from the simulator table"
+    },
+    "hp_recovery": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "raw \"hpRec\""
+    },
+    "mp_recovery": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "raw \"mpRec\""
+    },
+    "revives_into": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "note": "raw \"revives\""
+    },
+    "spawns[].mob_rate": {
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "retrieved_at": "2026-10-04T10:06:54.598Z",
+      "note": "value from the page's locations props (Maple Island rows equal the map pages). Its MEANING is disputed between MeowDB pages; see discrepancies. Texts read from: https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/monsters/%5Bid%5D/page-69d6e8d28a1ff596.js (retrieved 2026-10-04T10:06:05.866Z); https://meowdb.com/msclassic/maps/000000030 (retrieved 2026-10-04T09:56:42.256Z); https://meowdb.com/msclassic/guides/maplestory-classic-glossary (retrieved 2026-10-04T10:09:34.025Z)"
+    }
+  },
+  "gaps": [
+    "mesos per kill: no player reports on MeowDB (see drops/1.json)",
+    "drop chances and quantities: MeowDB gives none (see drops/1.json)",
+    "kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)",
+    "attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)",
+    "monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters",
+    "Peace vs touch damage: this page marks the monster \"Peace\" (\"Non-aggressive, won't attack unless provoked\") and its analysis says \"Non-aggressive (PEACE), won't attack unless you hit it first. Safe to walk past.\", yet the same page shows a 21 x 36 px touch zone, Touch DMG 1-1 (Base 1) and the generic Combat Details text \"The touch zone deals contact damage when you walk into it. Attack power is a percent of the monster's own damage stat: physical attacks use P.DMG, magic attacks use M.DMG.\". MeowDB does not say whether walking into a Peace monster's touch zone damages the player"
+  ],
+  "discrepancies": [
+    {
+      "field": "spawns[].mob_rate (meaning)",
+      "values": [
+        {
+          "value": "Multiplier on how many monsters that map keeps alive at once, on top of its spawn-point count. Above 1.0 means a fuller map. Not applied to the respawn figures yet.",
+          "source": "https://meowdb.com/msclassic/monsters/1 (Map Locations \"Mob Rate\" column tooltip; i18n string in https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/monsters/%5Bid%5D/page-69d6e8d28a1ff596.js)"
+        },
+        {
+          "value": "About mob rate. Mob rate multiplies how many monsters this map keeps alive at once. This map has 6 spawn points and a mob rate of 0.6x, so expect about 4 monsters up at a time instead of 6. The spawn figures above do not apply it yet. This is our best reading from closed-beta play, where a high-rate map held far more monsters than it has spawn points; an exact whole-map count has not been done.",
+          "source": "https://meowdb.com/msclassic/maps/000000030 (\"About mob rate.\" paragraph)"
+        },
+        {
+          "value": "How many mobs a map keeps alive at once. Set by the map's spawn-point count scaled by party size (about 75% of the points filled solo, rising to 100% in a full six-player party). There is no separate map-wide multiplier or fixed 40-mob cap.",
+          "source": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary (glossary entry \"mob rate\")"
+        }
+      ],
+      "chosen": "mob_rate is kept verbatim as MeowDB publishes it; the extractor applies no multiplier and derives no capacity",
+      "reason": "MeowDB disagrees with itself: the monster-page tooltip and the map pages call mob rate a multiplier on how many monsters a map keeps alive (the map page calls it \"our best reading from closed-beta play\" and does not apply it to its own figures), while the glossary says live capacity is the spawn-point count scaled by party size with no separate map-wide multiplier; the https://meowdb.com/msclassic/formulas/spawns capacity model (\"Capacity = floor(SpawnPoints × PlayerScalar)\") has no mob-rate term. Whether the game applies mob_rate is a MisoStory design decision, not canonical data"
+    }
+  ],
+  "notes": [
+    "MeowDB (Touch DMG tooltip): Estimated touch damage at 0 WDEF. Base P.DMG: 1. Use the calculator for your level and total WDEF.",
+    "MeowDB (touch zone tooltip): The dashed rectangle is the touch damage zone: players touching it take the P.DMG contact damage. Width x height from the game frame data; drawn anchored to the bottom center of the sprite.",
+    "MeowDB (Combat Details): The touch zone deals contact damage when you walk into it. Attack power is a percent of the monster's own damage stat: physical attacks use P.DMG, magic attacks use M.DMG.",
+    "MeowDB (animation): Die: body fades over 780ms; loot drops as soon as the mob dies.",
+    "MeowDB analysis: Non-aggressive (PEACE), won't attack unless you hit it first. Safe to walk past.",
+    "Respawn: \"wave\" spawn points respawn on MeowDB's modelled global 7.56 s server tick plus a 5 s per-point cooldown (the page shows \"~7.5s\"); \"timed\" points use respawn_min_s..respawn_max_s. See https://meowdb.com/msclassic/formulas/spawns (retrieved 2026-10-04T10:04:46.189Z)."
+  ]
+}

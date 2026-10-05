@@ -1,0 +1,163 @@
+{
+  "id": "351",
+  "name": "Red Snail Shell",
+  "game_item_id": "4000004",
+  "type": "Etc",
+  "subtype": "Monster Drop",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A shell removed from a red snail.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 4,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 200,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 12,
+        "downvotes": 0,
+        "score": 12,
+        "disputed": false,
+        "community_drop_entry_id": "4",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "700004",
+        "monster_name": "Mano",
+        "monster_level": 20,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1057",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "506021",
+        "quest_name": "Donating to Henesys",
+        "quest_npc_name": "Community Board (Henesys)",
+        "quest_level": 12,
+        "quantity": 100
+      },
+      {
+        "quest_id": "506119",
+        "quest_name": "Donating to Kerning City",
+        "quest_npc_name": "Community Board (Kerning City)",
+        "quest_level": 12,
+        "quantity": 100
+      }
+    ],
+    "recipes": [
+      {
+        "makes_item_id": "708",
+        "makes_item_name": "Brown Skullcap",
+        "skill": "Leatherworking Lv 1",
+        "quantity": 5
+      },
+      {
+        "makes_item_id": "720",
+        "makes_item_name": "Red Bandana",
+        "skill": "Tailoring Lv 1",
+        "quantity": 10
+      },
+      {
+        "makes_item_id": "710",
+        "makes_item_name": "Red Skullcap",
+        "skill": "Leatherworking Lv 1",
+        "quantity": 10
+      },
+      {
+        "makes_item_id": "729",
+        "makes_item_name": "Red Apprentice Hat",
+        "skill": "Tailoring Lv 2",
+        "quantity": 10
+      },
+      {
+        "makes_item_id": "666",
+        "makes_item_name": "Hunter's Bow",
+        "skill": "Woodcrafting Lv 4",
+        "quantity": 30
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "A shell removed from a snail.",
+      "cot2": "A shell removed from a red snail."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/351",
+    "retrieved_at": "2026-10-04T10:43:55.503Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/351?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:56.526Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/351?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:56.526Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=351",
+      "retrieved_at": "2026-10-04T10:43:57.710Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

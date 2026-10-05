@@ -1,0 +1,412 @@
+{
+  "id": "1011",
+  "name": "Biggs's Collection of Items",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": null,
+  "start_npc": {
+    "npc_id": "12",
+    "name": "Biggs"
+  },
+  "end_npc": {
+    "npc_id": "12",
+    "name": "Biggs"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road"
+    }
+  ],
+  "min_level": 3,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [],
+    "item_collection": [
+      {
+        "item_id": "349",
+        "item_icon_key": "4000002",
+        "name": "Blue Snail Shell",
+        "count": 10,
+        "hand_in": true
+      },
+      {
+        "item_id": "356",
+        "item_icon_key": "4000009",
+        "name": "Orange Mushroom Cap",
+        "count": 1,
+        "hand_in": true
+      }
+    ],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "12",
+        "name": "Biggs",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": []
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 70,
+    "mesos": 0,
+    "fame": 0,
+    "items": [],
+    "selection": [],
+    "random": [
+      {
+        "job_name": "Any Class",
+        "total_weight": 2,
+        "items": [
+          {
+            "item_id": "559",
+            "item_icon_key": "1332001",
+            "name": "Fruit Knife",
+            "count": 1,
+            "chance_pct": 50
+          },
+          {
+            "item_id": "558",
+            "item_icon_key": "1332000",
+            "name": "Razor",
+            "count": 1,
+            "chance_pct": 50
+          }
+        ]
+      }
+    ]
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "Derived, not explicit: MeowDB's quest database \"Requirement type\" filter treats item requirements as hand-ins (quests whose requirements are all items are listed as \"Item hand-in only\", items plus kills as \"Items + monster kills\"). MeowDB has no field saying which items are taken on completion.",
+    "items": [
+      {
+        "item_id": "349",
+        "item_icon_key": "4000002",
+        "name": "Blue Snail Shell",
+        "count": 10
+      },
+      {
+        "item_id": "356",
+        "item_icon_key": "4000009",
+        "name": "Orange Mushroom Cap",
+        "count": 1
+      }
+    ]
+  },
+  "followup_quests": [],
+  "next_quest_grants": [],
+  "quest_line": null,
+  "journal": {
+    "raw": "Biggs in Southperry has a task for you.\nI met Biggs in Southperry. He wants me to get him 1 Orange Mushroom Cap and 10 Blue Snail Shells. He seemed pretty skeptical that I'd be able to do it, but it sounds like a piece of cake to me!\nI gathered 1 Orange Mushroom Cap and 10 Blue Snail Shells for Biggs in Southperry. The weapon he gave me as a reward was pretty decent.",
+    "lines": [
+      "Biggs in Southperry has a task for you.",
+      "I met Biggs in Southperry. He wants me to get him 1 Orange Mushroom Cap and 10 Blue Snail Shells. He seemed pretty skeptical that I'd be able to do it, but it sounds like a piece of cake to me!",
+      "I gathered 1 Orange Mushroom Cap and 10 Blue Snail Shells for Biggs in Southperry. The weapon he gave me as a reward was pretty decent."
+    ],
+    "summary": "Biggs in Southperry has a task for you.",
+    "entries": [
+      "I met Biggs in Southperry. He wants me to get him 1 Orange Mushroom Cap and 10 Blue Snail Shells. He seemed pretty skeptical that I'd be able to do it, but it sounds like a piece of cake to me!",
+      "I gathered 1 Orange Mushroom Cap and 10 Blue Snail Shells for Biggs in Southperry. The weapon he gave me as a reward was pretty decent."
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "I'll give you something nice if you get me 1 Orange Mushroom Cap and 10 Blue Snail Shells! Eliminate Orange Mushroom and Blue Snail to get them. But looking at you, I don't know if you're up to the challenge...",
+          "segments": [
+            {
+              "text": "I'll give you something nice if you get me "
+            },
+            {
+              "text": "1 ",
+              "bold": true
+            },
+            {
+              "text": "Orange Mushroom Cap",
+              "bold": true,
+              "ref": {
+                "type": "item",
+                "id": "356"
+              }
+            },
+            {
+              "text": " and "
+            },
+            {
+              "text": "10 ",
+              "bold": true
+            },
+            {
+              "text": "Blue Snail Shells",
+              "bold": true,
+              "ref": {
+                "type": "item",
+                "id": "349"
+              }
+            },
+            {
+              "text": "! Eliminate "
+            },
+            {
+              "text": "Orange Mushroom",
+              "red": true,
+              "ref": {
+                "type": "monster",
+                "id": "9"
+              }
+            },
+            {
+              "text": " and "
+            },
+            {
+              "text": "Blue Snail",
+              "red": true,
+              "ref": {
+                "type": "monster",
+                "id": "3"
+              }
+            },
+            {
+              "text": " to get them. But looking at you, I don't know if you're up to the challenge..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "accepted",
+          "heading": "If you accept",
+          "lines": [
+            {
+              "text": "Oh, you sound so confident! Let's put your money where your mouth is. Make sure to bring back 1 Orange Mushroom Cap and 10 Blue Snail Shells. I'll be waiting!",
+              "segments": [
+                {
+                  "text": "Oh, you sound so confident! Let's put your money where your mouth is. Make sure to bring back "
+                },
+                {
+                  "text": "1 ",
+                  "bold": true
+                },
+                {
+                  "text": "Orange Mushroom Cap",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "356"
+                  }
+                },
+                {
+                  "text": " and "
+                },
+                {
+                  "text": "10 ",
+                  "bold": true
+                },
+                {
+                  "text": "Blue Snail Shells",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "349"
+                  }
+                },
+                {
+                  "text": ". I'll be waiting!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "state": "declined",
+          "heading": "If you decline",
+          "lines": [
+            {
+              "text": "You'll regret not taking the opportunity to get a good item like this one!",
+              "segments": [
+                {
+                  "text": "You'll regret not taking the opportunity to get a good item like this one!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [],
+      "lines": [
+        {
+          "text": "Wow! You really managed to gather all the stuff I asked for! Here's an item, like I promised.",
+          "segments": [
+            {
+              "text": "Wow! You really managed to gather all the stuff I asked for! Here's an item, like I promised."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "ready",
+          "heading": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Wow, I didn't really think you would be able to gather everything. Okay, I'll give you the item, as promised. I don't need it anyhow... Here you go!",
+              "segments": [
+                {
+                  "text": "Wow, I didn't really think you would be able to gather everything. Okay, I'll give you the item, as promised. I don't need it anyhow... Here you go!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "state": "missing_items",
+          "heading": "If you don't have the items yet",
+          "lines": [
+            {
+              "text": "You don't have 1 Orange Mushroom Cap and 10 Blue Snail Shells yet, right? Don't worry about it. I'll be here for a while.",
+              "segments": [
+                {
+                  "text": "You don't have "
+                },
+                {
+                  "text": "1 ",
+                  "bold": true
+                },
+                {
+                  "text": "Orange Mushroom Cap",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "356"
+                  }
+                },
+                {
+                  "text": " and 10 "
+                },
+                {
+                  "text": "Blue Snail Shells",
+                  "bold": true,
+                  "ref": {
+                    "type": "item",
+                    "id": "349"
+                  }
+                },
+                {
+                  "text": " yet, right? Don't worry about it. I'll be here for a while."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1011",
+    "retrieved_at": "2026-10-04T10:07:29.507Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    },
+    "items_removed_on_completion.basis": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/349",
+      "retrieved_at": "2026-10-04T10:17:25.268Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/356",
+      "retrieved_at": "2026-10-04T10:17:26.458Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/558",
+      "retrieved_at": "2026-10-04T10:08:25.316Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/item-db/559",
+      "retrieved_at": "2026-10-04T10:17:27.693Z",
+      "checked": "item name and icon key"
+    },
+    {
+      "url": "https://meowdb.com/_data/safe-to-sell.json",
+      "retrieved_at": "2026-10-04T10:09:42.024Z",
+      "checked": "item quantities the quest asks for (quests[].qty) and that no listed quest item is missing from the record"
+    }
+  ],
+  "notes": [
+    "Dialogue mentions monster 9 (\"Orange Mushroom\"), which is not a kill objective of this quest.",
+    "Dialogue mentions monster 3 (\"Blue Snail\"), which is not a kill objective of this quest."
+  ],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB has no explicit \"items removed on completion\" field; items_removed_on_completion is derived from MeowDB's quest database \"Requirement type\" filter, which labels item requirements \"Item hand-in only\" / \"Items + monster kills\".",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

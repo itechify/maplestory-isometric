@@ -1,0 +1,248 @@
+{
+  "id": "derived_stats",
+  "name": "Derived combat stats (Magic, WDEF, MDEF) and STR/DEX/INT/LUK roles",
+  "status": "Published formula (no status label on the MeowDB card)",
+  "inputs_note": "Accuracy, avoid, magic and defense all come from total stats: base AP plus equipment and buffs.",
+  "floor_rule": "Each floor is applied exactly where shown. Equipment and skill bonuses are added to the matching derived stat afterward.",
+  "formulas": {
+    "magic": {
+      "formula": "Magic = floor(INT / 2)",
+      "guide_name": "Derived Magic = floor(INT / 2)",
+      "stat": "INT",
+      "divisor": 2,
+      "rounding": "floor"
+    },
+    "wdef": {
+      "formula": "WDEF = floor(STR / 4)",
+      "guide_name": "Derived WDEF = floor(STR / 4)",
+      "stat": "STR",
+      "divisor": 4,
+      "rounding": "floor"
+    },
+    "mdef": {
+      "formula": "MDEF = floor(INT / 4)",
+      "guide_name": "Derived MDEF = floor(INT / 4)",
+      "stat": "INT",
+      "divisor": 4,
+      "rounding": "floor"
+    }
+  },
+  "accuracy_and_avoid": "ACC and EVA are in accuracy.json (same /formulas card).",
+  "total_weapon_attack_rule": "Every equipped W.ATK line, including weapon, projectile, shield, glove, and future equipment sources, joins one Total Weapon Attack pool.",
+  "attack_power_rule": "Attack Power is a separate stat supplied only by effects explicitly identified as Attack Power, such as skills, passives, and consumables.",
+  "magic_total_rule": "MagicTotal = floor(TotalINT / 2) + EquipmentMATK + ScrollMATK + BuffMATK",
+  "stat_roles": {
+    "str": [
+      {
+        "role": "Primary",
+        "used_by": "Sword, Axe, Blunt Weapon, Spear, Polearm",
+        "formula": "(STR × W + DEX) / 100"
+      },
+      {
+        "role": "Primary",
+        "used_by": "Physical Wand or Staff hit",
+        "formula": "(STR × 1.8 + DEX) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Bow or Crossbow projectile",
+        "formula": "(DEX × 2.5 + STR) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Dagger or fired Claw",
+        "formula": "(LUK × W + STR + DEX) / 100"
+      },
+      {
+        "role": "Weapon Defense",
+        "used_by": "Every character",
+        "formula": "floor(STR / 4) WDEF"
+      }
+    ],
+    "dex": [
+      {
+        "role": "Primary",
+        "used_by": "Bow or Crossbow projectile",
+        "formula": "(DEX × 2.5 + STR) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Sword, Axe, Blunt Weapon, Spear, Polearm",
+        "formula": "(STR × W + DEX) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Physical Wand or Staff hit",
+        "formula": "(STR × 1.8 + DEX) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Dagger or fired Claw",
+        "formula": "(LUK × W + STR + DEX) / 100"
+      },
+      {
+        "role": "Accuracy",
+        "used_by": "Beginner, Warrior, Bowman, Thief",
+        "formula": "Common = 1.2 × DEX + 2 × Level + 0.6 × LUK"
+      },
+      {
+        "role": "Avoidability",
+        "used_by": "Every character",
+        "formula": "floor(DEX / 6) EVA"
+      }
+    ],
+    "int": [
+      {
+        "role": "Primary",
+        "used_by": "Ordinary magic, maximum roll",
+        "formula": "MAX = S × MagicTotal × (1 + INT / 100)"
+      },
+      {
+        "role": "Primary",
+        "used_by": "Heal",
+        "formula": "Pool = ((INT × r + LUK) / 200 + 3) × MagicTotal × S"
+      },
+      {
+        "role": "Primary",
+        "used_by": "Damage over time",
+        "formula": "Core total = (ConfiguredDoT / 100) × MagicTotal × (INT / 125 + 1)"
+      },
+      {
+        "role": "Magic",
+        "used_by": "Every character",
+        "formula": "MagicTotal includes floor(INT / 2)"
+      },
+      {
+        "role": "Magic Defense",
+        "used_by": "Every character",
+        "formula": "floor(INT / 4) MDEF"
+      },
+      {
+        "role": "Accuracy",
+        "used_by": "Magician",
+        "formula": "floor((1.2 × INT + 2 × Level + 0.6 × LUK) / 5.1 + 20)"
+      }
+    ],
+    "luk": [
+      {
+        "role": "Primary",
+        "used_by": "Dagger or fired Claw",
+        "formula": "(LUK × W + STR + DEX) / 100"
+      },
+      {
+        "role": "Secondary",
+        "used_by": "Heal",
+        "formula": "Pool = ((INT × r + LUK) / 200 + 3) × MagicTotal × S"
+      },
+      {
+        "role": "Accuracy",
+        "used_by": "Every job",
+        "formula": "Every ACC numerator includes 0.6 × LUK"
+      },
+      {
+        "role": "Avoidability",
+        "used_by": "Every character",
+        "formula": "floor(LUK / 3) EVA"
+      },
+      {
+        "role": "No direct role",
+        "used_by": "Ordinary magic",
+        "formula": "No LUK term"
+      },
+      {
+        "role": "Death EXP loss",
+        "used_by": "Every character",
+        "formula": "LUK lowers the loss."
+      }
+    ]
+  },
+  "stat_roles_note": [
+    "These four base stats determine your damage, accuracy, defense, and avoidability; `W` is the weapon action multiplier used below.",
+    "A primary stat gets multiplied by `W`. A secondary stat is added directly. A larger `W` makes each point of the primary stat worth more damage.",
+    "Total stats include assigned Ability Points, equipment, and active effects. Equipment requirements only decide whether you can equip an item."
+  ],
+  "parity_examples": [
+    {
+      "input": {
+        "level": 50,
+        "str": 50,
+        "dex": 100,
+        "int": 50,
+        "luk": 50
+      },
+      "output": {
+        "beginner_acc": 105,
+        "warrior_acc": 110,
+        "bowman_acc": 72,
+        "thief_acc": 77,
+        "magician_acc": 57,
+        "eva": 37,
+        "magic": 25,
+        "wdef": 12,
+        "mdef": 12
+      },
+      "note": "/formulas Try-values defaults"
+    },
+    {
+      "input": {
+        "level": 30,
+        "str": 132,
+        "dex": 30,
+        "int": 4,
+        "luk": 4
+      },
+      "output": {
+        "warrior_acc": 49,
+        "eva": 11,
+        "magic": 2,
+        "wdef": 33,
+        "mdef": 1
+      },
+      "note": "Damage formula guide, worked example: level 30 Warrior"
+    }
+  ],
+  "calculator_code": "s=1.2*r+2*a+.6*o;return[S(\"Beginner ACC\",Math.floor(s/2.5+5),0)",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas",
+    "retrieved_at": "2026-10-04T09:57:48.010Z"
+  },
+  "field_sources": {
+    "floor_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "total_weapon_attack_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "attack_power_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "magic_total_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "stat_roles": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "stat_roles_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "parity_examples.1": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    }
+  },
+  "gaps": [
+    "Stat caps (maximum STR/DEX/INT/LUK, WDEF, MDEF, ACC, EVA) are not documented on MeowDB."
+  ]
+}

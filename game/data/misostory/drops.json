@@ -1,0 +1,12 @@
+{
+  "id": "drops",
+  "kind": "misostory_adaptation",
+  "verified": false,
+  "description": "How long drops stay on the ground and who may pick them up. Read by DropRates (scripts/core/drops/drop_rates.gd) for the map-instance and drop actors (MAP_ARCHITECTURE.md 4.7.7). Canonical facts stay canonical: drops appear as soon as the monster dies (monster pages: 'loot drops as soon as the mob dies'), and the pickup box is formulas/loot_rules.json player_pickup_box_px.",
+  "ground_lifetime_s": 180,
+  "ground_lifetime_reason": "MeowDB does not document how long an item or meso bag stays on the ground (formulas/loot_rules.json gaps). 3 minutes is the commonly remembered classic value; not from MeowDB, unverified. Counted on the pausable Game.clock; drops survive in a map snapshot with their remaining lifetime.",
+  "owner_exclusive_s": 15,
+  "owner_exclusive_reason": "MeowDB says drops have owners ('Pets ... take free drops and drops that belong to you or your party', formulas/pets) but not for how long (loot_rules.json gaps). 15 s, then free for all; unverified. In single-player the killer is always the player, so this only matters once other players or pets exist.",
+  "scatter_spacing_px": 25,
+  "scatter_spacing_reason": "MeowDB does not document the spacing between several drops from one kill (loot_rules.json gaps). Drops spread along the ground this many MapleStory px apart (convert with WorldScale.h), alternating around the kill point; unverified."
+}

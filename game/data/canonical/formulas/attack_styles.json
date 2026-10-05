@@ -1,0 +1,2129 @@
+{
+  "id": "attack_styles",
+  "name": "Attack hit rectangles, reach and target selection",
+  "status": "Confirmed (MeowDB states it was measured/confirmed in COT2)",
+  "status_note": "Close-range hit zones are the same in the first and second tests.",
+  "coordinate_convention": "box_px = [left, top, right, bottom] in MapleStory px relative to the attacker's origin (feet), character FACING LEFT, y down (negative y = above the feet). Mirror x (x -> -x, swap left/right) when facing right. Some boxes extend behind the character (right > 0) or below the feet (bottom > 0); keep them as is.",
+  "hitzone_data_source": {
+    "schema_version": 1,
+    "source_note": "COT2 client (BMS, WZ 779) Character/Afterimage/Afterimage_000.wz + Character/Weapon/Weapon_000.wz; subtypes from data/build-labels/ingest/COT2-incoming.json",
+    "bands": {
+      "ordinary": "level 0-99 (folders 0-9, identical)",
+      "level100": "folder 10 where it differs",
+      "charge": "charge/* White Knight presentations, never published"
+    },
+    "note": "Bands: \"ordinary\" applies to character levels 1-99; \"level100\" replaces only the listed presentations from level 100. The White Knight \"charge\" band is omitted (MeowDB: never published)."
+  },
+  "reach_definitions": [
+    "Horizontal reach is the distance from your character to the far edge of the hitbox.",
+    "Vertical reach is how far above your feet the hitbox goes.",
+    "Each value is the longest of that weapon's basic attacks, and the attack that reaches it is in brackets. Wands and staffs attack with Swing 2 only.",
+    "Values are for levels 1 to 99. From level 100, 2H Axes and 2H Blunt Weapons reach 110 px and Crossbows 88 px. 1H Swords, 1H Axes and Daggers then reach 72 px high, or 58 px for the 85 px group."
+  ],
+  "weapon_groups": [
+    {
+      "group": "Spear / Polearm",
+      "hitzone_set": "poleArm",
+      "identical_set": "spear",
+      "basic_actions": [
+        "swingP1",
+        "swingT2",
+        "swingP2",
+        "stabT1",
+        "stabT2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingPF",
+        "stabTF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 133,
+      "horizontal_from": "Overhead swing",
+      "confirmed_basic_max_vertical_px": 125,
+      "vertical_from": "Side swing"
+    },
+    {
+      "group": "2H Sword: Scimitar, Lion's Fang, Sparta, Doombringer",
+      "hitzone_set": "swordTL",
+      "basic_actions": [
+        "swingT1",
+        "swingT2",
+        "swingT3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingTF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 127,
+      "horizontal_from": "Thrust",
+      "confirmed_basic_max_vertical_px": 95,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "Other 2H Swords",
+      "hitzone_set": "swordTS",
+      "basic_actions": [
+        "swingT1",
+        "swingT2",
+        "swingT3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingTF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 98,
+      "horizontal_from": "Thrust",
+      "confirmed_basic_max_vertical_px": 81,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "2H Axe / 2H Blunt",
+      "hitzone_set": "axe",
+      "basic_actions": [
+        "swingT1",
+        "swingT2",
+        "swingT3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingTF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 99,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 90,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "1H Axe",
+      "hitzone_set": "swordOL",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 102,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 62,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "1H Sword: Long Sword, Beginner's Long Sword, Gladius, Old Gladius, Hero's Gladius, Traus, Jeweled Katar, Sky Blue Umbrella, Yellow Umbrella",
+      "hitzone_set": "swordOS",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 85,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 51,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "Other 1H Swords",
+      "hitzone_set": "swordOL",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 102,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 62,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "Dagger: Triangular Zamadar, Beginner's Triangular Zamadar, Triple-Tipped Zamadar, Halfmoon Zamadar, Forked Dagger, Cass, Shinkita",
+      "hitzone_set": "swordOL",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 102,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 62,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "Other Daggers",
+      "hitzone_set": "swordOS",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 85,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 51,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "1H Blunt",
+      "hitzone_set": "mace",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [
+        "swingOF",
+        "stabOF"
+      ],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 94,
+      "horizontal_from": "Swing",
+      "confirmed_basic_max_vertical_px": 61,
+      "vertical_from": "Swing"
+    },
+    {
+      "group": "Wand / Staff",
+      "hitzone_set": "mace",
+      "basic_actions": [
+        "swingO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [
+        "swingO1",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "swingOF",
+        "stabOF"
+      ],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 69,
+      "horizontal_from": "Swing 2",
+      "confirmed_basic_max_vertical_px": 55,
+      "vertical_from": "Swing 2"
+    },
+    {
+      "group": "Bow",
+      "hitzone_set": "swordTS",
+      "basic_actions": [
+        "swingT1",
+        "swingT3",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [],
+      "unlabelled_actions": [
+        "stabO1",
+        "stabO2",
+        "stabOF",
+        "swingT2",
+        "swingTF"
+      ],
+      "action_labels": {
+        "swingT1": "Overhead whack",
+        "swingT3": "Uppercut whack"
+      },
+      "confirmed_basic_max_horizontal_px": 92,
+      "horizontal_from": "Crouched attack",
+      "confirmed_basic_max_vertical_px": 81,
+      "vertical_from": "Overhead whack"
+    },
+    {
+      "group": "Crossbow",
+      "hitzone_set": "crossBow",
+      "basic_actions": [
+        "swingT1",
+        "stabT1",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 86,
+      "horizontal_from": "Overhead whack",
+      "confirmed_basic_max_vertical_px": 81,
+      "vertical_from": "Overhead whack"
+    },
+    {
+      "group": "Barehanded",
+      "hitzone_set": "barehands",
+      "basic_actions": [
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "final_attack_actions": [],
+      "not_used_actions": [],
+      "unlabelled_actions": [],
+      "confirmed_basic_max_horizontal_px": 64,
+      "horizontal_from": "Punch",
+      "confirmed_basic_max_vertical_px": 33,
+      "vertical_from": "Punch"
+    }
+  ],
+  "weapon_groups_note": "basic_actions / final_attack_actions / not_used_actions follow the guide's card labels (Basic, Final Attack, Not used). unlabelled_actions are presentations present in the shared hit-zone set that MeowDB does not label for this weapon group (e.g. bows share the 2H-sword set but only the whacks and the crouched attack are listed as basic); do not treat them as usable basic attacks.",
+  "weapon_subtype_to_hitzone_family": {
+    "Bow": "bow",
+    "Claw": "claw",
+    "Crossbow": "crossbow",
+    "Dagger": "dagger",
+    "One-Handed Axe": "sword1h",
+    "One-Handed Blunt Weapon": "wand",
+    "One-Handed Sword": "sword1h",
+    "Polearm": "polearm",
+    "Spear": "polearm",
+    "Staff": "wand",
+    "Two-Handed Axe": "axe2h",
+    "Two-Handed Blunt Weapon": "axe2h",
+    "Two-Handed Sword": "sword2h",
+    "Wand": "wand"
+  },
+  "hitzone_families": {
+    "axe2h": {
+      "primary_set": "axe",
+      "weapon_count_by_set": {
+        "axe": 20
+      }
+    },
+    "barehands": {
+      "primary_set": "barehands",
+      "weapon_count_by_set": {}
+    },
+    "bow": {
+      "primary_set": "swordTS",
+      "weapon_count_by_set": {
+        "swordTS": 13
+      }
+    },
+    "claw": {
+      "primary_set": "swordOL",
+      "weapon_count_by_set": {
+        "swordOL": 31
+      }
+    },
+    "crossbow": {
+      "primary_set": "crossBow",
+      "weapon_count_by_set": {
+        "crossBow": 10
+      }
+    },
+    "dagger": {
+      "primary_set": "swordOS",
+      "weapon_count_by_set": {
+        "swordOS": 15,
+        "swordOL": 7
+      }
+    },
+    "polearm": {
+      "primary_set": "poleArm",
+      "weapon_count_by_set": {
+        "poleArm": 10,
+        "spear": 9
+      }
+    },
+    "sword1h": {
+      "primary_set": "swordOL",
+      "weapon_count_by_set": {
+        "swordOL": 21,
+        "swordOS": 9
+      }
+    },
+    "sword2h": {
+      "primary_set": "swordTS",
+      "weapon_count_by_set": {
+        "swordTS": 7,
+        "swordTL": 4
+      }
+    },
+    "wand": {
+      "primary_set": "mace",
+      "weapon_count_by_set": {
+        "mace": 46
+      }
+    }
+  },
+  "hitzone_family_naming_note": "MeowDB's hit-zone family \"wand\" also covers One-Handed Blunt Weapon (they share the \"mace\" hit boxes). This is only a hit-box grouping: for damage, a One-Handed Blunt Weapon uses the 1H Axe / Blunt multipliers (swing 2.4, stab 1.2), not the wand physical 1.8 (Wooden Club item page confirms 2.4x / 1.2x).",
+  "hitzone_sets": {
+    "axe": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -86,
+            -18,
+            0,
+            10
+          ],
+          "far_px": 86,
+          "near_px": 0,
+          "up_px": 18,
+          "down_px": 10,
+          "height_px": 28
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -90,
+            -36,
+            -9,
+            -6
+          ],
+          "far_px": 90,
+          "near_px": 9,
+          "up_px": 36,
+          "down_px": 0,
+          "height_px": 30
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -90,
+            -36,
+            -9,
+            -6
+          ],
+          "far_px": 90,
+          "near_px": 9,
+          "up_px": 36,
+          "down_px": 0,
+          "height_px": 30
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -116,
+            -35,
+            -26,
+            -4
+          ],
+          "far_px": 116,
+          "near_px": 26,
+          "up_px": 35,
+          "down_px": 0,
+          "height_px": 31
+        },
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -99,
+            -90,
+            -51,
+            18
+          ],
+          "far_px": 99,
+          "near_px": 51,
+          "up_px": 90,
+          "down_px": 18,
+          "height_px": 108
+        },
+        "swingT2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -84,
+            -79,
+            -35,
+            14
+          ],
+          "far_px": 84,
+          "near_px": 35,
+          "up_px": 79,
+          "down_px": 14,
+          "height_px": 93
+        },
+        "swingT3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -85,
+            -81,
+            0,
+            26
+          ],
+          "far_px": 85,
+          "near_px": 0,
+          "up_px": 81,
+          "down_px": 26,
+          "height_px": 107
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -114,
+            -102,
+            -56,
+            17
+          ],
+          "far_px": 114,
+          "near_px": 56,
+          "up_px": 102,
+          "down_px": 17,
+          "height_px": 119
+        }
+      },
+      "level100": {
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -110,
+            -90,
+            -51,
+            18
+          ],
+          "far_px": 110,
+          "near_px": 51,
+          "up_px": 90,
+          "down_px": 18,
+          "height_px": 108
+        },
+        "swingT2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -89,
+            -79,
+            -35,
+            14
+          ],
+          "far_px": 89,
+          "near_px": 35,
+          "up_px": 79,
+          "down_px": 14,
+          "height_px": 93
+        },
+        "swingT3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -91,
+            -81,
+            0,
+            26
+          ],
+          "far_px": 91,
+          "near_px": 0,
+          "up_px": 81,
+          "down_px": 26,
+          "height_px": 107
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -121,
+            -102,
+            -56,
+            17
+          ],
+          "far_px": 121,
+          "near_px": 56,
+          "up_px": 102,
+          "down_px": 17,
+          "height_px": 119
+        }
+      }
+    },
+    "barehands": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -56,
+            -12,
+            -12,
+            0
+          ],
+          "far_px": 56,
+          "near_px": 12,
+          "up_px": 12,
+          "down_px": 0,
+          "height_px": 12
+        },
+        "stabO1": {
+          "label": "Punch 1",
+          "kind": "thrust",
+          "box_px": [
+            -64,
+            -33,
+            -27,
+            -18
+          ],
+          "far_px": 64,
+          "near_px": 27,
+          "up_px": 33,
+          "down_px": 0,
+          "height_px": 15
+        },
+        "stabO2": {
+          "label": "Punch 2",
+          "kind": "thrust",
+          "box_px": [
+            -60,
+            -31,
+            -27,
+            -15
+          ],
+          "far_px": 60,
+          "near_px": 27,
+          "up_px": 31,
+          "down_px": 0,
+          "height_px": 16
+        }
+      }
+    },
+    "crossBow": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -85,
+            -12,
+            -20,
+            3
+          ],
+          "far_px": 85,
+          "near_px": 20,
+          "up_px": 12,
+          "down_px": 3,
+          "height_px": 15
+        },
+        "stabT1": {
+          "label": "Thrust",
+          "kind": "thrust",
+          "box_px": [
+            -84,
+            -26,
+            -21,
+            -10
+          ],
+          "far_px": 84,
+          "near_px": 21,
+          "up_px": 26,
+          "down_px": 0,
+          "height_px": 16
+        },
+        "swingT1": {
+          "label": "Overhead whack",
+          "kind": "swing",
+          "box_px": [
+            -86,
+            -81,
+            -47,
+            5
+          ],
+          "far_px": 86,
+          "near_px": 47,
+          "up_px": 81,
+          "down_px": 5,
+          "height_px": 86
+        }
+      },
+      "level100": {
+        "swingT1": {
+          "label": "Overhead whack",
+          "kind": "swing",
+          "box_px": [
+            -88,
+            -81,
+            -47,
+            5
+          ],
+          "far_px": 88,
+          "near_px": 47,
+          "up_px": 81,
+          "down_px": 5,
+          "height_px": 86
+        }
+      }
+    },
+    "mace": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -72,
+            -14,
+            -9,
+            5
+          ],
+          "far_px": 72,
+          "near_px": 9,
+          "up_px": 14,
+          "down_px": 5,
+          "height_px": 19
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -82,
+            -30,
+            -17,
+            -14
+          ],
+          "far_px": 82,
+          "near_px": 17,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 16
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -82,
+            -30,
+            -14,
+            -12
+          ],
+          "far_px": 82,
+          "near_px": 14,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 18
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -108,
+            -32,
+            -36,
+            -10
+          ],
+          "far_px": 108,
+          "near_px": 36,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 22
+        },
+        "swingO1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -77,
+            -61,
+            0,
+            -9
+          ],
+          "far_px": 77,
+          "near_px": 0,
+          "up_px": 61,
+          "down_px": 0,
+          "height_px": 52
+        },
+        "swingO2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -69,
+            -55,
+            12,
+            11
+          ],
+          "far_px": 69,
+          "near_px": 0,
+          "up_px": 55,
+          "down_px": 11,
+          "height_px": 66
+        },
+        "swingO3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -94,
+            -50,
+            -20,
+            -14
+          ],
+          "far_px": 94,
+          "near_px": 20,
+          "up_px": 50,
+          "down_px": 0,
+          "height_px": 36
+        },
+        "swingOF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -118,
+            -40,
+            -3,
+            1
+          ],
+          "far_px": 118,
+          "near_px": 3,
+          "up_px": 40,
+          "down_px": 1,
+          "height_px": 41
+        }
+      }
+    },
+    "poleArm": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -113,
+            -17,
+            -23,
+            11
+          ],
+          "far_px": 113,
+          "near_px": 23,
+          "up_px": 17,
+          "down_px": 11,
+          "height_px": 28
+        },
+        "stabT1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -130,
+            -33,
+            -36,
+            -4
+          ],
+          "far_px": 130,
+          "near_px": 36,
+          "up_px": 33,
+          "down_px": 0,
+          "height_px": 29
+        },
+        "stabT2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -111,
+            -46,
+            -24,
+            0
+          ],
+          "far_px": 111,
+          "near_px": 24,
+          "up_px": 46,
+          "down_px": 0,
+          "height_px": 46
+        },
+        "stabTF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -124,
+            -34,
+            -10,
+            -1
+          ],
+          "far_px": 124,
+          "near_px": 10,
+          "up_px": 34,
+          "down_px": 0,
+          "height_px": 33
+        },
+        "swingP1": {
+          "label": "Overhead swing",
+          "kind": "swing",
+          "box_px": [
+            -133,
+            -120,
+            -51,
+            24
+          ],
+          "far_px": 133,
+          "near_px": 51,
+          "up_px": 120,
+          "down_px": 24,
+          "height_px": 144
+        },
+        "swingP2": {
+          "label": "Short swing",
+          "kind": "swing",
+          "box_px": [
+            -116,
+            -122,
+            -47,
+            20
+          ],
+          "far_px": 116,
+          "near_px": 47,
+          "up_px": 122,
+          "down_px": 20,
+          "height_px": 142
+        },
+        "swingPF": {
+          "label": "Full sweep",
+          "kind": "swing",
+          "box_px": [
+            -144,
+            -123,
+            -67,
+            23
+          ],
+          "far_px": 144,
+          "near_px": 67,
+          "up_px": 123,
+          "down_px": 23,
+          "height_px": 146
+        },
+        "swingT2": {
+          "label": "Side swing",
+          "kind": "swing",
+          "box_px": [
+            -120,
+            -125,
+            -52,
+            20
+          ],
+          "far_px": 120,
+          "near_px": 52,
+          "up_px": 125,
+          "down_px": 20,
+          "height_px": 145
+        }
+      }
+    },
+    "spear": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -113,
+            -17,
+            -23,
+            11
+          ],
+          "far_px": 113,
+          "near_px": 23,
+          "up_px": 17,
+          "down_px": 11,
+          "height_px": 28
+        },
+        "stabT1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -130,
+            -33,
+            -36,
+            -4
+          ],
+          "far_px": 130,
+          "near_px": 36,
+          "up_px": 33,
+          "down_px": 0,
+          "height_px": 29
+        },
+        "stabT2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -111,
+            -46,
+            -24,
+            0
+          ],
+          "far_px": 111,
+          "near_px": 24,
+          "up_px": 46,
+          "down_px": 0,
+          "height_px": 46
+        },
+        "stabTF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -124,
+            -34,
+            -10,
+            -1
+          ],
+          "far_px": 124,
+          "near_px": 10,
+          "up_px": 34,
+          "down_px": 0,
+          "height_px": 33
+        },
+        "swingP1": {
+          "label": "Overhead swing",
+          "kind": "swing",
+          "box_px": [
+            -133,
+            -120,
+            -51,
+            24
+          ],
+          "far_px": 133,
+          "near_px": 51,
+          "up_px": 120,
+          "down_px": 24,
+          "height_px": 144
+        },
+        "swingP2": {
+          "label": "Short swing",
+          "kind": "swing",
+          "box_px": [
+            -116,
+            -122,
+            -47,
+            20
+          ],
+          "far_px": 116,
+          "near_px": 47,
+          "up_px": 122,
+          "down_px": 20,
+          "height_px": 142
+        },
+        "swingPF": {
+          "label": "Full sweep",
+          "kind": "swing",
+          "box_px": [
+            -144,
+            -123,
+            -67,
+            23
+          ],
+          "far_px": 144,
+          "near_px": 67,
+          "up_px": 123,
+          "down_px": 23,
+          "height_px": 146
+        },
+        "swingT2": {
+          "label": "Side swing",
+          "kind": "swing",
+          "box_px": [
+            -120,
+            -125,
+            -52,
+            20
+          ],
+          "far_px": 120,
+          "near_px": 52,
+          "up_px": 125,
+          "down_px": 20,
+          "height_px": 145
+        }
+      }
+    },
+    "swordOL": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -74,
+            -11,
+            -15,
+            1
+          ],
+          "far_px": 74,
+          "near_px": 15,
+          "up_px": 11,
+          "down_px": 1,
+          "height_px": 12
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -84,
+            -30,
+            -20,
+            -15
+          ],
+          "far_px": 84,
+          "near_px": 20,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 15
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -83,
+            -30,
+            -12,
+            -16
+          ],
+          "far_px": 83,
+          "near_px": 12,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 14
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -110,
+            -32,
+            -40,
+            -11
+          ],
+          "far_px": 110,
+          "near_px": 40,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 21
+        },
+        "swingO1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -88,
+            -62,
+            -18,
+            -6
+          ],
+          "far_px": 88,
+          "near_px": 18,
+          "up_px": 62,
+          "down_px": 0,
+          "height_px": 56
+        },
+        "swingO2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -73,
+            -50,
+            5,
+            17
+          ],
+          "far_px": 73,
+          "near_px": 0,
+          "up_px": 50,
+          "down_px": 17,
+          "height_px": 67
+        },
+        "swingO3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -102,
+            -50,
+            -22,
+            -10
+          ],
+          "far_px": 102,
+          "near_px": 22,
+          "up_px": 50,
+          "down_px": 0,
+          "height_px": 40
+        },
+        "swingOF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -123,
+            -48,
+            13,
+            -1
+          ],
+          "far_px": 123,
+          "near_px": 0,
+          "up_px": 48,
+          "down_px": 0,
+          "height_px": 47
+        }
+      },
+      "level100": {
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -113,
+            -32,
+            -40,
+            -11
+          ],
+          "far_px": 113,
+          "near_px": 40,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 21
+        },
+        "swingO1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -90,
+            -72,
+            -18,
+            -6
+          ],
+          "far_px": 90,
+          "near_px": 18,
+          "up_px": 72,
+          "down_px": 0,
+          "height_px": 66
+        },
+        "swingO2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -73,
+            -50,
+            5,
+            23
+          ],
+          "far_px": 73,
+          "near_px": 0,
+          "up_px": 50,
+          "down_px": 23,
+          "height_px": 73
+        }
+      }
+    },
+    "swordOS": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -66,
+            -12,
+            -12,
+            0
+          ],
+          "far_px": 66,
+          "near_px": 12,
+          "up_px": 12,
+          "down_px": 0,
+          "height_px": 12
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -74,
+            -28,
+            -27,
+            -18
+          ],
+          "far_px": 74,
+          "near_px": 27,
+          "up_px": 28,
+          "down_px": 0,
+          "height_px": 10
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -70,
+            -26,
+            -27,
+            -15
+          ],
+          "far_px": 70,
+          "near_px": 27,
+          "up_px": 26,
+          "down_px": 0,
+          "height_px": 11
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -95,
+            -30,
+            -42,
+            -12
+          ],
+          "far_px": 95,
+          "near_px": 42,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 18
+        },
+        "swingO1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -85,
+            -51,
+            -11,
+            -11
+          ],
+          "far_px": 85,
+          "near_px": 11,
+          "up_px": 51,
+          "down_px": 0,
+          "height_px": 40
+        },
+        "swingO2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -64,
+            -50,
+            5,
+            2
+          ],
+          "far_px": 64,
+          "near_px": 0,
+          "up_px": 50,
+          "down_px": 2,
+          "height_px": 52
+        },
+        "swingO3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -78,
+            -41,
+            -18,
+            -14
+          ],
+          "far_px": 78,
+          "near_px": 18,
+          "up_px": 41,
+          "down_px": 0,
+          "height_px": 27
+        },
+        "swingOF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -100,
+            -35,
+            -20,
+            -6
+          ],
+          "far_px": 100,
+          "near_px": 20,
+          "up_px": 35,
+          "down_px": 0,
+          "height_px": 29
+        }
+      },
+      "level100": {
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -77,
+            -26,
+            -27,
+            -15
+          ],
+          "far_px": 77,
+          "near_px": 27,
+          "up_px": 26,
+          "down_px": 0,
+          "height_px": 11
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -106,
+            -30,
+            -42,
+            -12
+          ],
+          "far_px": 106,
+          "near_px": 42,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 18
+        },
+        "swingO1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -85,
+            -58,
+            -9,
+            -11
+          ],
+          "far_px": 85,
+          "near_px": 9,
+          "up_px": 58,
+          "down_px": 0,
+          "height_px": 47
+        }
+      }
+    },
+    "swordTL": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -109,
+            -17,
+            -25,
+            5
+          ],
+          "far_px": 109,
+          "near_px": 25,
+          "up_px": 17,
+          "down_px": 5,
+          "height_px": 22
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -110,
+            -32,
+            -16,
+            -10
+          ],
+          "far_px": 110,
+          "near_px": 16,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 22
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -127,
+            -32,
+            -44,
+            -10
+          ],
+          "far_px": 127,
+          "near_px": 44,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 22
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -135,
+            -34,
+            -50,
+            -6
+          ],
+          "far_px": 135,
+          "near_px": 50,
+          "up_px": 34,
+          "down_px": 0,
+          "height_px": 28
+        },
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -100,
+            -95,
+            -47,
+            2
+          ],
+          "far_px": 100,
+          "near_px": 47,
+          "up_px": 95,
+          "down_px": 2,
+          "height_px": 97
+        },
+        "swingT2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -86,
+            -87,
+            -31,
+            -8
+          ],
+          "far_px": 86,
+          "near_px": 31,
+          "up_px": 87,
+          "down_px": 0,
+          "height_px": 79
+        },
+        "swingT3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -87,
+            -83,
+            -28,
+            24
+          ],
+          "far_px": 87,
+          "near_px": 28,
+          "up_px": 83,
+          "down_px": 24,
+          "height_px": 107
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -116,
+            -106,
+            -55,
+            10
+          ],
+          "far_px": 116,
+          "near_px": 55,
+          "up_px": 106,
+          "down_px": 10,
+          "height_px": 116
+        }
+      },
+      "level100": {
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -110,
+            -95,
+            -47,
+            2
+          ],
+          "far_px": 110,
+          "near_px": 47,
+          "up_px": 95,
+          "down_px": 2,
+          "height_px": 97
+        },
+        "swingT2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -96,
+            -87,
+            -31,
+            -8
+          ],
+          "far_px": 96,
+          "near_px": 31,
+          "up_px": 87,
+          "down_px": 0,
+          "height_px": 79
+        },
+        "swingT3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -92,
+            -83,
+            -28,
+            24
+          ],
+          "far_px": 92,
+          "near_px": 28,
+          "up_px": 83,
+          "down_px": 24,
+          "height_px": 107
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -123,
+            -106,
+            -55,
+            10
+          ],
+          "far_px": 123,
+          "near_px": 55,
+          "up_px": 106,
+          "down_px": 10,
+          "height_px": 116
+        }
+      }
+    },
+    "swordTS": {
+      "ordinary": {
+        "proneStab": {
+          "label": "Crouched attack",
+          "kind": "crouch",
+          "box_px": [
+            -92,
+            -11,
+            -24,
+            2
+          ],
+          "far_px": 92,
+          "near_px": 24,
+          "up_px": 11,
+          "down_px": 2,
+          "height_px": 13
+        },
+        "stabO1": {
+          "label": "Thrust 1",
+          "kind": "thrust",
+          "box_px": [
+            -98,
+            -30,
+            -30,
+            -16
+          ],
+          "far_px": 98,
+          "near_px": 30,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 14
+        },
+        "stabO2": {
+          "label": "Thrust 2",
+          "kind": "thrust",
+          "box_px": [
+            -98,
+            -30,
+            -36,
+            -16
+          ],
+          "far_px": 98,
+          "near_px": 36,
+          "up_px": 30,
+          "down_px": 0,
+          "height_px": 14
+        },
+        "stabOF": {
+          "label": "Deep thrust",
+          "kind": "thrust",
+          "box_px": [
+            -123,
+            -32,
+            -50,
+            -11
+          ],
+          "far_px": 123,
+          "near_px": 50,
+          "up_px": 32,
+          "down_px": 0,
+          "height_px": 21
+        },
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -86,
+            -81,
+            -47,
+            5
+          ],
+          "far_px": 86,
+          "near_px": 47,
+          "up_px": 81,
+          "down_px": 5,
+          "height_px": 86
+        },
+        "swingT2": {
+          "label": "Swing 2",
+          "kind": "swing",
+          "box_px": [
+            -75,
+            -75,
+            -35,
+            5
+          ],
+          "far_px": 75,
+          "near_px": 35,
+          "up_px": 75,
+          "down_px": 5,
+          "height_px": 80
+        },
+        "swingT3": {
+          "label": "Swing 3",
+          "kind": "swing",
+          "box_px": [
+            -78,
+            -73,
+            -30,
+            14
+          ],
+          "far_px": 78,
+          "near_px": 30,
+          "up_px": 73,
+          "down_px": 14,
+          "height_px": 87
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -92,
+            -83,
+            -55,
+            15
+          ],
+          "far_px": 92,
+          "near_px": 55,
+          "up_px": 83,
+          "down_px": 15,
+          "height_px": 98
+        }
+      },
+      "level100": {
+        "swingT1": {
+          "label": "Swing 1",
+          "kind": "swing",
+          "box_px": [
+            -88,
+            -81,
+            -47,
+            5
+          ],
+          "far_px": 88,
+          "near_px": 47,
+          "up_px": 81,
+          "down_px": 5,
+          "height_px": 86
+        },
+        "swingTF": {
+          "label": "Wide swing",
+          "kind": "swing",
+          "box_px": [
+            -96,
+            -83,
+            -55,
+            15
+          ],
+          "far_px": 96,
+          "near_px": 55,
+          "up_px": 83,
+          "down_px": 15,
+          "height_px": 98
+        }
+      }
+    }
+  },
+  "ordinary_action_selection": {
+    "rule": "A normal attack with a sword, axe, blunt weapon, spear, polearm, or dagger swings 60% of the time and stabs 40%. At close range, a bow always swings and a crossbow splits 50/50.",
+    "presentation_odds_statement": "A normal attack picks one of the attacks, each with equal odds (60% swing, 40% thrust), and the averages use those attacks. Crouched attack is left out of average calculations.",
+    "per_standing_presentation_pct": 20,
+    "per_standing_presentation_applies_to": "Each of the five standing basic presentations (three swings + two thrusts) is picked with equal odds, 5 x 20% = 60% swing / 40% thrust; the crouched attack is not part of this pool. Stated verbatim on the MeowDB weapon item pages checked here (Sword 541, Hand Axe 576, Wooden Club 585, Razor 558). Other melee families with a three-swing/two-thrust standing set (2H swords, 2H axes/blunts, spears/polearms) follow the same 60/40 rule on the weapon-reach guide; their item pages were not opened by this extractor.",
+    "crouched_in_standing_pool": false,
+    "pool_note": "Consistent with the damage guide: \"follows the current standing pool of three swing entries and two stab entries: 60% swing and 40% stab.\" (damage.json).",
+    "bare_hands": "Barehanded ordinary attacks are 100% stab (damage.json ordinary_action_odds). Bare hands have no item page, and the split between Punch 1 and Punch 2 is not documented.",
+    "crouched": "Crouched attack (proneStab) is a separate basic attack used while lying down; its damage uses the crouched branch in damage.json.",
+    "skills_note": "Power Strike, Slash Blast, and the extra hit from Final Attack use the same 60/40 split as a normal attack."
+  },
+  "overlap_rule": {
+    "lines": [
+      "Hit when max(AttackLeft, MonsterLeft) < min(AttackRight, MonsterRight)",
+      "and max(AttackTop, MonsterTop) < min(AttackBottom, MonsterBottom)",
+      "Both boxes must share width and height. Touching at an edge does not count.",
+      "Weapon and monster artwork is ignored. Only the hitboxes count."
+    ],
+    "strict_inequality": true
+  },
+  "target_selection_order": [
+    {
+      "attack": "Basic attacks and melee skills without their own hitbox (Power Strike, Double Stab)",
+      "order": "Nearest monsters first. A tie goes to the monster that appeared first."
+    },
+    {
+      "attack": "Melee skills with their own hitbox (Rush, Steal, Savage Blow)",
+      "order": "The first monsters to appear on the map"
+    },
+    {
+      "attack": "Projectile skills",
+      "order": "Nearest monsters first"
+    },
+    {
+      "attack": "Spells that hit several monsters",
+      "order": "Nearest monsters picked, then their order shuffled"
+    },
+    {
+      "attack": "Meso Explosion",
+      "order": "Each meso bag takes its nearest monster, one monster per bag"
+    }
+  ],
+  "target_selection_note": "Several meso bags can pick the same monster.",
+  "ranged_search_bands": {
+    "lines": [
+      "Widening bands: the first starts 65 px ahead, each band is 20 px long, its half-height is floor(d / 4), centered 28 px above your feet",
+      "The same widening bands, starting 50 px ahead for spells and 65 px ahead for ranged skills",
+      "d is the distance from you to the start of the band."
+    ],
+    "aim_height_px": 28,
+    "band_length_px": 20,
+    "half_height_divisor": 4,
+    "start_px": {
+      "basic_bow_crossbow_claw": 65,
+      "ranged_skill": 65,
+      "spell": 50
+    },
+    "melee_attacks": "The hitbox of the swing or stab being played",
+    "area_skills": "A fixed box in front of you or centered on you, mirrored when you face left",
+    "calculator_code": "let n={aimHeight:28,divisor:4,step:20,starts:{magic:50,ranged:65}}"
+  },
+  "attack_ranges_px": {
+    "lines": [
+      "Spell: 300 px",
+      "Energy Bolt: 350 px",
+      "Bow / Crossbow: 300 + EyeOfAmazon px",
+      "Claw: 200 + KeenEyes px",
+      "Arrow Blow: 350 + EyeOfAmazon px",
+      "Three Snails: 300 px",
+      "EyeOfAmazon = 45 + 5 × Lv at Lv 1-15",
+      "KeenEyes = 40 + 10 × Lv at Lv 1-14 · 200 at Lv 15"
+    ],
+    "spell": 300,
+    "energy_bolt": 350,
+    "bow_crossbow_base": 300,
+    "claw_base": 200,
+    "arrow_blow_base": 350,
+    "three_snails": 300,
+    "three_snails_note": "Three Snails reaches 300 px with any weapon. The Eye of Amazon and Keen Eyes do not extend it."
+  },
+  "terrain_check": {
+    "lines": [
+      "Only basic ranged attacks and projectile skills check terrain. A blocked monster is dropped and its slot is not refilled.",
+      "Basic bow, crossbow and claw shots: Checked",
+      "Energy Bolt, Fire Arrow, Holy Arrow, Element Composition: Checked",
+      "Magic Claw, Slow, Cold Beam, Thunder Bolt, Ice Strike, Thunder Spear, Shining Ray, Doom: Ignored",
+      "Band of Thieves, Meso Explosion: Ignored"
+    ],
+    "platform_rule": "Shooting down through the platform you stand on is blocked. Shooting up through a platform is not."
+  },
+  "cast_positions": [
+    {
+      "skill": "Self buffs, toggles and party support skills",
+      "where": "Ground, air or rope"
+    },
+    {
+      "skill": "Heal",
+      "where": "Ground or air"
+    },
+    {
+      "skill": "28 attack skills, including Power Strike, Slash Blast, Explosion and Assaulter",
+      "where": "Ground or air"
+    },
+    {
+      "skill": "31 attack skills, including Energy Bolt, Magic Claw, Ice Strike and Arrow Rain",
+      "where": "Ground only"
+    },
+    {
+      "skill": "Summons, Mystic Door and Teleport",
+      "where": "Ground only"
+    },
+    {
+      "skill": "Wind Step and Evasion Step",
+      "where": "Ground only"
+    },
+    {
+      "skill": "Flash Jump",
+      "where": "Air only"
+    }
+  ],
+  "beginner_weapons": [
+    {
+      "item_id": "541",
+      "name": "Sword",
+      "subtype": "One-Handed Sword",
+      "icon_key": "1302000",
+      "hitzone_family": "sword1h",
+      "hitzone_set": "swordOL",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "swing_mult": 1.8,
+      "stab_mult": 1.8
+    },
+    {
+      "item_id": "576",
+      "name": "Hand Axe",
+      "subtype": "One-Handed Axe",
+      "icon_key": "1312000",
+      "hitzone_family": "sword1h",
+      "hitzone_set": "swordOL",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "swing_mult": 2.4,
+      "stab_mult": 1.2
+    },
+    {
+      "item_id": "585",
+      "name": "Wooden Club",
+      "subtype": "One-Handed Blunt Weapon",
+      "icon_key": "1322000",
+      "hitzone_family": "wand",
+      "hitzone_set": "mace",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "swing_mult": 2.4,
+      "stab_mult": 1.2
+    },
+    {
+      "item_id": "558",
+      "name": "Razor",
+      "subtype": "Dagger",
+      "icon_key": "1332000",
+      "hitzone_family": "dagger",
+      "hitzone_set": "swordOS",
+      "basic_actions": [
+        "swingO1",
+        "swingO2",
+        "swingO3",
+        "stabO1",
+        "stabO2",
+        "proneStab"
+      ],
+      "swing_mult": 1,
+      "stab_mult": 2
+    }
+  ],
+  "beginner_weapons_note": "Join: item page iconKey (MeowDB RSC field) -> hit-zone JSON \"weapons\" map (keyed by the same icon key). The guide card images confirm the sets: item-anim/541-swingO3.gif (Sword) in the 1H Sword/Axe set and item-anim/558-*.gif (Razor) in the short dagger set; Wooden Club (585) is pictured for the 1H Blunt set.",
+  "bare_hands": {
+    "hitzone_set": "barehands",
+    "basic_actions": [
+      "stabO1",
+      "stabO2",
+      "proneStab"
+    ],
+    "labels": {
+      "stabO1": "Punch 1",
+      "stabO2": "Punch 2",
+      "proneStab": "Crouched attack"
+    },
+    "statement": "Bare hands: punches and crouched presentation",
+    "reach_table_row": "Barehanded 64 px (Punch) 33 px (Punch)"
+  },
+  "three_snails_targeting": {
+    "skill_id": "0001000",
+    "statements": [
+      "The target search begins 50 pixels ahead, checks 20 pixel bands, and widens by one pixel vertically for every four pixels horizontally.",
+      "The search begins 28 px above your feet.",
+      "100 px up / 44 px down"
+    ],
+    "band_start_px": 50,
+    "horizontal_reach_px": 300,
+    "vertical_reach_px": {
+      "up": 100,
+      "down": 44
+    },
+    "targets": 1,
+    "skill_area_code": "\"0001000\":{rc:300,rd:1,am:\"magic\"}"
+  },
+  "svg_cross_check": {
+    "description": "Every hit box drawn on /guides/weapon-reach (SVG overlay, scale 2, attacker at x=470, feet at y=280) was converted back to px and looked up in the hit-zone JSON.",
+    "boxes_checked": 64,
+    "unmatched": []
+  },
+  "item_page_reach_cross_check": {
+    "description": "Each Beginner weapon item page lists every basic attack as \"near- far px / up px\" (Attack distance table). All values equal -left / -right (when right < 0) / -top of the matching hit-zone box.",
+    "attacks_checked": 24,
+    "mismatches": []
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/guides/weapon-reach",
+    "retrieved_at": "2026-10-04T10:06:08.439Z"
+  },
+  "field_sources": {
+    "hitzone_data_source": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "hitzone_sets": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "weapon_subtype_to_hitzone_family": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "hitzone_families": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    },
+    "reach_definitions": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "weapon_groups": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "overlap_rule": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "target_selection_order": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "target_selection_note": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "ranged_search_bands": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "attack_ranges_px": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "terrain_check": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "cast_positions": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "bare_hands.reach_table_row": {
+      "url": "https://meowdb.com/msclassic/formulas/targeting",
+      "retrieved_at": "2026-10-04T10:04:38.766Z"
+    },
+    "ordinary_action_selection.presentation_odds_statement": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "item_page_reach_cross_check": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "beginner_weapons": {
+      "urls": [
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
+        "https://meowdb.com/msclassic/item-db/558"
+      ],
+      "retrieved_at": "2026-10-04T10:08:21.654Z"
+    },
+    "three_snails_targeting": {
+      "url": "https://meowdb.com/msclassic/skills/beginner/three-snails",
+      "retrieved_at": "2026-10-04T10:08:40.464Z"
+    },
+    "three_snails_targeting.skill_area_code": {
+      "url": "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
+      "retrieved_at": "2026-10-04T10:04:59.330Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    }
+  },
+  "gaps": [
+    "Which of Punch 1 / Punch 2 a bare-handed attack plays (probabilities) is not documented (bare hands have no item page carrying the \"equal odds\" sentence).",
+    "Three Snails terrain interaction: its page says \"Wall and platform interactions are not confirmed for this skill.\""
+  ],
+  "discrepancies": [
+    {
+      "topic": "Three Snails search band start",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/skills/beginner/three-snails",
+          "value_px": 50,
+          "text": "The target search begins 50 pixels ahead (skill page); MeowDB skill-area data \"0001000\":{rc:300,rd:1,am:\"magic\"} uses the magic band (50 px)."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/formulas/targeting",
+          "value_px": 65,
+          "text": "The same widening bands, starting 50 px ahead for spells and 65 px ahead for ranged skills (Three Snails is a projectile skill)."
+        }
+      ],
+      "chosen": 50,
+      "reason": "The skill detail page (priority 1 in the brief) and MeowDB's per-skill data agree on 50 px; the targeting tab states a general rule."
+    }
+  ]
+}

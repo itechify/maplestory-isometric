@@ -1,0 +1,439 @@
+{
+  "id": "1013",
+  "name": "Rain's Maple Quiz 1",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": "Rain's Maple Quiz",
+  "start_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "min_level": 5,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [],
+    "item_collection": [],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "19",
+        "name": "Rain",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": [
+      {
+        "type": "quiz",
+        "description": "Answer the NPC quiz question correctly on completion (see dialogue.on_completion.quiz)."
+      }
+    ]
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 20,
+    "mesos": 0,
+    "fame": 0,
+    "items": [],
+    "selection": [],
+    "random": []
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "No item requirements.",
+    "items": []
+  },
+  "followup_quests": [
+    {
+      "quest_id": "1014",
+      "name": "Rain's Maple Quiz 2"
+    }
+  ],
+  "next_quest_grants": [],
+  "quest_line": {
+    "steps": [
+      {
+        "quest_id": "1013",
+        "name": "Rain's Maple Quiz 1",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1014",
+        "name": "Rain's Maple Quiz 2",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1015",
+        "name": "Rain's Maple Quiz 3",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1016",
+        "name": "Rain's Maple Quiz 4",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1017",
+        "name": "Rain's Maple Quiz 5",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1018",
+        "name": "Rain's Maple Quiz 6",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1019",
+        "name": "Rain's Maple Quiz 7",
+        "npc": "Rain",
+        "min_level": 5
+      }
+    ],
+    "position": 1,
+    "total": 7,
+    "end_fork": [],
+    "split": null
+  },
+  "journal": {
+    "raw": "I'm not a beginner anymore. Talk to Rain in Amherst and take the Maple Quiz!\nI'm not a total newbie anymore. Talk to Rain and take the Maple Quiz!\nRain's first question was about how to hang from a ladder or rope. All right! Up arrow key, make sure to remember it well.",
+    "lines": [
+      "I'm not a beginner anymore. Talk to Rain in Amherst and take the Maple Quiz!",
+      "I'm not a total newbie anymore. Talk to Rain and take the Maple Quiz!",
+      "Rain's first question was about how to hang from a ladder or rope. All right! Up arrow key, make sure to remember it well."
+    ],
+    "summary": "I'm not a beginner anymore. Talk to Rain in Amherst and take the Maple Quiz!",
+    "entries": [
+      "I'm not a total newbie anymore. Talk to Rain and take the Maple Quiz!",
+      "Rain's first question was about how to hang from a ladder or rope. All right! Up arrow key, make sure to remember it well."
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "Hello! How're you liking Maple World so far? Let me give you a brief rundown of the place, and then I'll give you a quiz. If you answer my questions correctly, I'll give you something handy. Interested?",
+          "segments": [
+            {
+              "text": "Hello! How're you liking Maple World so far? Let me give you a brief rundown of the place, and then I'll give you a quiz. If you answer my questions correctly, I'll give you something handy. Interested?"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "state": "accepted",
+          "heading": "If you accept",
+          "lines": [
+            {
+              "text": "Hehe! Let me warn you, don't underestimate my quiz. There's a lot to learn, so pay attention!",
+              "segments": [
+                {
+                  "text": "Hehe! Let me warn you, don't underestimate my quiz. There's a lot to learn, so pay attention!"
+                }
+              ]
+            },
+            {
+              "text": "How is your adventure on Maple Island so far? You can go left with the left arrow key and right with the right arrow key, right? Do you also know that if you press the down arrow key, you can crouch, and then jump while crouching, to leap down to a lower platform? If you press the up arrow key in front of a portal, you can enter it, and if you press the up arrow key in front of a ladder or rope, you can climb or hang from it.",
+              "segments": [
+                {
+                  "text": "How is your adventure on Maple Island so far? You can go left with the "
+                },
+                {
+                  "text": "left arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " and right with the "
+                },
+                {
+                  "text": "right arrow key",
+                  "bold": true
+                },
+                {
+                  "text": ", right? Do you also know that if you press the "
+                },
+                {
+                  "text": "down arrow key",
+                  "bold": true
+                },
+                {
+                  "text": ", you can crouch, and then jump while crouching, to leap down to a lower platform? If you press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " in front of a portal, you can enter it, and if you press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " in front of a ladder or rope, you can climb or hang from it."
+                }
+              ]
+            },
+            {
+              "text": "You can also use the Key Config on the bottom right of your screen to recalibrate the buttons to your liking. Hmm. I think this explanation might have gotten a little too complicated. Don't worry, you'll get the hang of it as you spend more time here and get used to things.",
+              "segments": [
+                {
+                  "text": "You can also use the "
+                },
+                {
+                  "text": "Key Config",
+                  "red": true
+                },
+                {
+                  "text": " on the bottom right of your screen to recalibrate the buttons to your liking. Hmm. I think this explanation might have gotten a little too complicated. Don't worry, you'll get the hang of it as you spend more time here and get used to things."
+                }
+              ]
+            },
+            {
+              "text": "But what you haven't experienced yet is Job Advancement. To become a more powerful traveler, you need a job! To get one, you'll first have to leave this place, Maple Island, and head to Victoria Island. \nYou need to be at least at level 10 to become a Warrior, Bowman, Magician or Thief. Each job has its pros and cons, so choose carefully.",
+              "segments": [
+                {
+                  "text": "But what you haven't experienced yet is Job Advancement. To become a more powerful traveler, you need a job! To get one, you'll first have to leave this place, Maple Island, and head to Victoria Island. \nYou need to be at least at level "
+                },
+                {
+                  "text": "10",
+                  "bold": true
+                },
+                {
+                  "text": " to become a "
+                },
+                {
+                  "text": "Warrior, Bowman, Magician",
+                  "bold": true
+                },
+                {
+                  "text": " or "
+                },
+                {
+                  "text": "Thief",
+                  "bold": true
+                },
+                {
+                  "text": ". Each job has its pros and cons, so choose carefully."
+                }
+              ]
+            },
+            {
+              "text": "I didn't tell you EVERYTHING you need to know for the quiz, so make sure to focus. Ready for the questions?",
+              "segments": [
+                {
+                  "text": "I didn't tell you EVERYTHING you need to know for the quiz, so make sure to focus. Ready for the questions?"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "state": "declined",
+          "heading": "If you decline",
+          "lines": [
+            {
+              "text": "Hmm, you could learn a lot through my quiz. I think you should try it!",
+              "segments": [
+                {
+                  "text": "Hmm, you could learn a lot through my quiz. I think you should try it!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [
+        {
+          "label": "Quiz",
+          "title": "This NPC asks you a quiz question"
+        }
+      ],
+      "lines": [],
+      "branches": [],
+      "quiz": {
+        "question": {
+          "text": "What key should you press in front of a ladder or rope to hang from it?",
+          "segments": [
+            {
+              "text": "What key should you press in front of a ladder or rope to hang from it?"
+            }
+          ]
+        },
+        "choices": [
+          {
+            "text": "left arrow key",
+            "segments": [
+              {
+                "text": "left arrow key"
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          },
+          {
+            "text": "right arrow key",
+            "segments": [
+              {
+                "text": "right arrow key"
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          },
+          {
+            "text": "up arrow key",
+            "segments": [
+              {
+                "text": "up arrow key"
+              }
+            ],
+            "correct": true,
+            "raw_markup": null
+          },
+          {
+            "text": "down arrow key",
+            "segments": [
+              {
+                "text": "down arrow key"
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          }
+        ],
+        "correct_choice_index": 2,
+        "correct_choice_basis": "meowdb_marker",
+        "wrong_answer_heading": "If you pick the wrong answer",
+        "wrong_answer_responses": [
+          {
+            "text": "The left arrow key is for moving left. Do you remember which key you need to press in front of a ladder or rope?",
+            "segments": [
+              {
+                "text": "The left arrow key is for moving left. Do you remember which key you need to press in front of a ladder or rope?"
+              }
+            ]
+          },
+          {
+            "text": "No, no. The right arrow is the key for moving right. Think carefully!",
+            "segments": [
+              {
+                "text": "No, no. The right arrow is the key for moving right. Think carefully!"
+              }
+            ]
+          },
+          {
+            "text": "Huh? The down arrow key is used to crouch or move to a lower platform. So, it can't be the down arrow key, right?",
+            "segments": [
+              {
+                "text": "Huh? The down arrow key is used to crouch or move to a lower platform. So, it can't be the down arrow key, right?"
+              }
+            ]
+          }
+        ],
+        "correct_answer_heading": "When you answer correctly",
+        "correct_answer_response": {
+          "text": "That's right! If you press the up arrow key in front of a ladder or rope, you can hang from it!",
+          "segments": [
+            {
+              "text": "That's right! If you press the "
+            },
+            {
+              "text": "up arrow key",
+              "red": true
+            },
+            {
+              "text": " in front of a ladder or rope, you can hang from it!"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1013",
+    "retrieved_at": "2026-10-04T10:07:31.864Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    }
+  ],
+  "notes": [
+    "Quiz choices are listed in MeowDB document order, which is the in-game selection order (#L0, #L1, ...; quiz 6 leaks a raw \"#L2\" tag exactly at position 2). MeowDB renders the choice rows nested inside each other (a markup artifact); the extractor flattens them in document order. choices[].correct is MeowDB's marker: true = marked \"Correct answer\", false = rendered as an option and not marked, null = option reconstructed from unparsed game markup (raw_markup). Wrong-answer responses are listed in MeowDB order and are not linked to a specific choice by MeowDB."
+  ],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

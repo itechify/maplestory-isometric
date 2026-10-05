@@ -1,0 +1,111 @@
+{
+  "id": "inventory",
+  "kind": "misostory_adaptation",
+  "description": "Inventory, equipment-slot, meso and shop-behaviour rules that MeowDB MS Classic does not publish. Read by scripts/core/items/items_config.gd. Canonical item facts (tab, stack size, stats, requirements, prices) stay in data/canonical/items; this file only fills the gaps. See docs/runtime/ITEMS.md.",
+  "verified": false,
+  "tab_slots": {
+    "equip": 24,
+    "use": 24,
+    "setup": 24,
+    "etc": 24,
+    "cash": 24
+  },
+  "tab_slots_reason": "MeowDB publishes no inventory size. The only canonical statement is Roger's line (npcs/3.json, formulas/loot_rules.json inventory_full): 'When your Item Inventory is full, you won't be able to pick up new items.' 24 slots per tab is the commonly remembered pre-Big-Bang starting size; it is NOT from MeowDB and is unverified. The value is a per-character default: the Inventory stores its own capacity in the save, so future slot expansions are save state.",
+  "equipment_max_stack": 1,
+  "equipment_max_stack_reason": "MeowDB has no 'Max per Stack' row for any Equip item (items.md Gaps; max_stack is null on all 55 equips). Equipment is unstackable: one piece per slot, so each piece can carry per-instance data (future scroll results, stat rolls).",
+  "unpublished_max_stack": 1,
+  "unpublished_max_stack_reason": "Fallback for a non-equipment item whose canonical max_stack is null. No item in the current set hits this (every Use/Etc/Setup item has a value); 1 is the conservative choice so an unknown item can never overfill a slot.",
+  "meso_cap": 2147483647,
+  "meso_cap_reason": "MeowDB documents no meso cap. 2,147,483,647 is the signed 32-bit limit of a classic meso counter (not from MeowDB, unverified); it exists so mesos can never overflow. Picking up or earning past it adds only up to the cap; a sale that would pass it is refused.",
+  "equipment_slots": [
+    "weapon",
+    "hat",
+    "top",
+    "bottom",
+    "overall",
+    "shoes",
+    "gloves",
+    "cape",
+    "shield",
+    "earrings",
+    "face_accessory",
+    "eye_accessory",
+    "pendant",
+    "ring_1",
+    "ring_2",
+    "ring_3",
+    "ring_4"
+  ],
+  "equipment_slots_reason": "The first ten are the slots the brief names; canonical items use them through their derived equip_slot (items.md 'Derived fields'). The rest are the remaining classic equipment slots, present so future content is data only. No Maple Island item uses them yet.",
+  "slot_aliases": {
+    "ring": [
+      "ring_1",
+      "ring_2",
+      "ring_3",
+      "ring_4"
+    ]
+  },
+  "slot_aliases_reason": "A canonical equip_slot that maps to several equipment slots. Equipping picks the first empty one, else replaces the first. Unused on Maple Island (no rings in the item set).",
+  "slot_conflicts": [
+    {
+      "slot": "overall",
+      "removes": ["top", "bottom"],
+      "reason": "An overall covers both the top and the bottom."
+    },
+    {
+      "slot": "top",
+      "removes": ["overall"],
+      "reason": "A top cannot be worn over an overall."
+    },
+    {
+      "slot": "bottom",
+      "removes": ["overall"],
+      "reason": "A bottom cannot be worn with an overall."
+    },
+    {
+      "slot": "weapon",
+      "if_two_handed": true,
+      "removes": ["shield"],
+      "reason": "A two-handed weapon leaves no hand for a shield."
+    },
+    {
+      "slot": "shield",
+      "removes": ["weapon"],
+      "only_two_handed_occupant": true,
+      "reason": "A shield needs the off hand, so it unequips a two-handed weapon (a one-handed weapon stays)."
+    }
+  ],
+  "slot_conflicts_reason": "MeowDB item pages do not state slot conflicts. These are the classic rules, unverified. Equipping into 'slot' unequips the items in 'removes' into the inventory. 'if_two_handed' limits the rule to a two-handed incoming item; 'only_two_handed_occupant' removes the occupant only when it is two-handed.",
+  "weapon_subtypes": {
+    "One-Handed Sword": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "one_handed_sword", "action_odds_key": "one_handed_sword", "two_handed": false},
+    "One-Handed Axe": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "one_handed_axe_or_blunt", "action_odds_key": "one_handed_axe_or_blunt", "two_handed": false},
+    "One-Handed Blunt Weapon": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "one_handed_axe_or_blunt", "action_odds_key": "one_handed_axe_or_blunt", "two_handed": false},
+    "Two-Handed Sword": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "two_handed_sword", "action_odds_key": "two_handed_sword", "two_handed": true},
+    "Two-Handed Axe": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "two_handed_axe_or_blunt", "action_odds_key": "two_handed_axe_or_blunt", "two_handed": true},
+    "Two-Handed Blunt Weapon": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "two_handed_axe_or_blunt", "action_odds_key": "two_handed_axe_or_blunt", "two_handed": true},
+    "Spear": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "spear", "action_odds_key": "spear", "two_handed": true},
+    "Polearm": {"damage_family": "sword_axe_blunt_spear_polearm", "multiplier_key": "polearm", "action_odds_key": "polearm", "two_handed": true},
+    "Dagger": {"damage_family": "dagger_claw", "multiplier_key": "dagger", "action_odds_key": "dagger", "two_handed": false},
+    "Claw": {"damage_family": "dagger_claw", "multiplier_key": "bow_crossbow_claw", "action_odds_key": "claw_close_range", "two_handed": true},
+    "Bow": {"damage_family": "bow_crossbow", "multiplier_key": "bow_crossbow_claw", "action_odds_key": "bow_close_range", "two_handed": true},
+    "Crossbow": {"damage_family": "bow_crossbow", "multiplier_key": "bow_crossbow_claw", "action_odds_key": "crossbow_close_range", "two_handed": true},
+    "Wand": {"damage_family": "wand_staff_physical", "multiplier_key": "wand_staff_physical", "action_odds_key": "wand_staff", "two_handed": false},
+    "Staff": {"damage_family": "wand_staff_physical", "multiplier_key": "wand_staff_physical", "action_odds_key": "wand_staff", "two_handed": false}
+  },
+  "weapon_subtypes_reason": "Keys are MeowDB weapon subtypes (item 'subtype' / weapon.weapon_type). damage_family, multiplier_key and action_odds_key are the key names of formulas/damage.json physical.weapon_families, physical.weapon_action_multipliers and physical.ordinary_action_odds, read off MeowDB's own labels ('Sword / Axe / Blunt / Spear / Polearm', '1H Axe / Blunt', ...). two_handed is an adaptation: items.md Gaps says two-handedness is only implied by subtype names and MeowDB does not say whether Bow / Spear / Wand block a shield. Subtypes named Two-Handed are two-handed by name; Spear, Polearm, Bow, Crossbow and Claw follow the classic client convention (unverified); Wand and Staff are one-handed (unverified).",
+  "job_item_tags": {
+    "beginner": [],
+    "warrior": ["Warrior"],
+    "magician": ["Mage"],
+    "bowman": ["Bowman"],
+    "thief": ["Thief"],
+    "pirate": ["Pirate"]
+  },
+  "job_item_tags_reason": "Which item 'requirements.job' strings a class slug satisfies. Transcribed from MeowDB's character builder (formulas/beginner.json equipment_restrictions.character_builder_code: h={beginner:[],warrior:[\"Warrior\"],magician:[\"Mage\"],bowman:[\"Bowman\"],thief:[\"Thief\"]}); a Beginner matches only items with no job requirement. 'pirate' is not in that code and is a guess for later iterations (unverified).",
+  "shop": {
+    "sell_zero_value_items": true,
+    "sell_zero_value_items_reason": "MeowDB records sell-back 0 for 25 items (all of Pan's stock, Sid's Sword/Hand Axe/Wooden Club, arrows, Roger's Apple, several quest items) but does not say whether an NPC refuses them or pays 0 (shops.md Gaps). MisoStory lets the NPC take them for 0 mesos so the shop doubles as a way to get rid of items (Roger: 'get rid of unimportant items by either discarding them or selling them at a store').",
+    "max_bundles_per_purchase": null,
+    "max_bundles_per_purchase_reason": "MeowDB documents no per-purchase limit (shops.md: quantity_per_purchase is not a limit). null = no limit beyond mesos and inventory space; the UI may clamp its quantity box."
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "id": "presentation",
+  "kind": "misostory_adaptation",
+  "description": "World runtime feel and presentation constants (docs/runtime/WORLD_RUNTIME.md). None of these is published by MeowDB: they are isometric-3D adaptation decisions, each with a reason. Read through WorldTuning; never duplicated in code.",
+  "ambient_neighbours": {
+    "value": false,
+    "reason": "MAP_ARCHITECTURE section 4.7.6: the presentation-only ambient layer for neighbouring hunting maps is milestone M3 and ships behind this flag; the World Review decides whether it stays on (open question 8). Not implemented (M3).",
+    "verified": false
+  },
+  "transition": {
+    "fade_out_s": 0.2,
+    "fade_in_s": 0.2,
+    "arrive_grounded_frames": 10,
+    "arrive_replace_frames": 30,
+    "gate_blend_s": 0.35,
+    "environment_blend_s": 0.5,
+    "reason": "MAP_ARCHITECTURE section 4.5: a warp fades to black over 0.2 s and back over 0.2 s (whole warp <= 0.6 s); after the fade the player must be on the floor within 10 physics frames, and after 30 frames without floor the session re-places the player at player_spawns[0]. Gate commits blend camera bounds over 0.35 s; lighting/BGM crossfade over 0.5 s.",
+    "verified": false
+  },
+  "spawns": {
+    "realize_per_frame": 8,
+    "fade_in_s": 0.3,
+    "slot_min_spacing_m": 1.2,
+    "slot_portal_clearance_m": 4,
+    "slot_attempts": 48,
+    "tier_tolerance_m": 0.6,
+    "mob_region_inset_m": 2,
+    "clearance_radius_m": 0.35,
+    "clearance_height_m": 0.8,
+    "reason": "MAP_ARCHITECTURE sections 4.5 and 4.7.1: a realize queues monster spawns nearest-first, at most 8 per frame, each fading in over 0.3 s; spawn slots stand at least 1.2 m apart and at least 4 m from every portal arrival. A slot first tries to land on its spawn area's own tier (within 0.6 m of the area's surface height), then on any walkable top surface in the area. Every slot stays inside the map's mob region, the layout footprint inset by 2 m (section 4.7.4); a map with MeowDB spawns but no exported spawn area samples that whole region (every map exports areas today). The clearance probe is 0.35 m in radius and as tall as the species' body (its canonical sprite height x WorldScale.actor when monsters/<id>.json fits the model to the sprite height), never shorter than 0.8 m, the old proxy approximation.",
+    "verified": false
+  },
+  "grounding": {
+    "probe_up_m": 1,
+    "probe_down_m": 3,
+    "grounded_tolerance_m": 0.3,
+    "coplanar_tolerance_m": 0.05,
+    "capsule_radius_m": 0.3,
+    "capsule_height_m": 1.5,
+    "capsule_lift_m": 0.05,
+    "search_radius_m": 5,
+    "search_step_m": 0.5,
+    "reason": "MAP_ARCHITECTURE sections 4.9 and 4.13 (L1): a point counts as grounded when a ray from 1 m above to 3 m below hits walkable collision first, and the grounded point is within 0.3 m of that surface; a 0.3 x 1.5 m capsule lifted 0.05 m must be clear of blocking and containment collision. The capsule approximates the player body for static checks; the controller owns the real one (data/misostory/movement.json). A blocking surface lying within 0.05 m above walkable ground counts as that ground (interior floors carry a coplanar Walls slab 3 mm above Ground; Heena stands in her bush hull). When an arrival point or player spawn is not grounded or its capsule is blocked (a door mound, a hedge, a gate hull), the nearest grounded, clear point inside the map and outside every trigger is searched on rings up to 5 m around it in 0.5 m steps, inward first, and the move is logged as a warning (a Blender fix is the real cure).",
+    "verified": false
+  },
+  "containment": {
+    "ring_offset_m": 1,
+    "wall_thickness_m": 0.5,
+    "margin_below_m": 2,
+    "margin_above_m": 4,
+    "reason": "MAP_ARCHITECTURE section 4.6: every map is walled by an invisible ring on the containment layer at footprint + 1.0 m (just outside the 1 m terrain overhang AUTHORING.md allows). The spec's '4 m tall' assumes flat maps; terraces rise up to ~10 m above a footprint's base_y, so each ring spans the map chunk's whole height (sidecar bounds) from 2 m below to 4 m above. Each trail end leaves a gap on the ring where its gate plane crosses it, as wide as the corridor between the trail's side walls (at most the gate width, portal_adaptations.json gates.half_width_m), so no slot opens beside a side wall; a plug body closes the gap while the link is in warp mode.",
+    "verified": false
+  },
+  "trails": {
+    "side_wall_offset_m": 0.3,
+    "side_wall_height_m": 3,
+    "side_wall_below_m": 2.5,
+    "zone_margin_m": 1,
+    "zone_band_m": 5,
+    "top_max_slope_deg": 45,
+    "reason": "MAP_ARCHITECTURE sections 4.3 and 4.6. Trail side walls (containment layer, player only) follow the ribbon edges side_wall_offset_m outward, side_wall_height_m above the edge, from gate plane to gate plane; they reach side_wall_below_m under the edge because the trail flanks are walkable collision steeper than the 38 deg floor angle, so a player who got under a wall would slide off the island. A trail zone (RegionIndex) is the ribbon plus zone_margin_m, within zone_band_m of the centreline height. Until the export carries the centreline, the ribbon is derived from the trail mesh: its top is every face within top_max_slope_deg of level (Iteration One builds the top at 36 deg at most and the flanks at 49.6 deg or steeper).",
+    "verified": false
+  },
+  "region_invariant": {
+    "sample_hz": 10,
+    "violation_samples": 5,
+    "reason": "MAP_ARCHITECTURE section 4.3: ten times a second the player's last ground point must lie in current_map, a trail touching it, or the map of an armed gate. Five failing samples in a row push_error the position (dev and test builds fail on it; the traversal bot counts it); release builds also recover to SafeGround.",
+    "verified": false
+  },
+  "fall_recovery": {
+    "kill_y_margin_m": 6,
+    "sea_kill_depth_m": 2,
+    "reason": "MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage, matching classic's lack of fall damage. A sea-level kill plane catches anything that leaves every map.",
+    "verified": false
+  },
+  "npc": {
+    "interaction_radius_m": 1.6,
+    "talk_centre_height_m": 0.8,
+    "fallback_spacing_m": 2.5,
+    "talk_zones": {
+      "across_counter": {
+        "npcs": ["16", "20", "21"],
+        "radius_m": 2.4,
+        "centre_height_m": 0.8,
+        "reason": "Shopkeepers serve across their counter, as in classic (Test G: buy and sell). Pan (16), Sid (20) and Lucy (21), the three MeowDB shop NPCs of Maple Island (canonical shops/*.json npc_id), stand behind counters: a player pressed against the counter front stands 1.90, 2.10 and 1.90 m from them horizontally, and they stand 0.45, 0.45 and 0.8 m above the shop floor. With the default 1.6 m sphere that body was 0.00, 0.20 and 0.04 m outside the zone (playtest probe 2026-10-04), so Sid and Lucy could not be talked to on foot and Pan only with no margin. A 2.4 m sphere, still centred 0.8 m above the NPC's feet, takes in a player standing anywhere along the middle of the counter front, and one pressed against it in front of the keeper is 0.83 (Pan), 0.61 (Sid) and 0.79 m (Lucy) inside (the npcs playtest scenario checks at least 0.4 m, 2026-10-04). Each keeper is the only NPC of his or her shop, so the larger zone cannot take the prompt from another NPC.",
+        "verified": false
+      }
+    },
+    "reason": "MeowDB documents no talk range (classic NPCs are clicked). The interact key talks to a current-map NPC whose talk zone overlaps the player's body: a sphere of 1.6 m (a little more than the 1.5 m body height) centred 0.8 m above the NPC's feet, so the player has to walk up to the NPC. talk_zones lists NPCs whose zone differs, each profile with its own reason (WorldTuning.talk_zone). NPCs placed where a player cannot stand are fixed in the source world, not with a larger zone (docs/runtime/blender_export.md, round 4). Until the Blender export had markers for every MeowDB NPC (MAP_ARCHITECTURE section 3.3: Todd, Sam, Mai), a missing one stood next to player_spawns[0], 2.5 m apart along the map frame, with a warning; the runtime keeps that fallback for future content.",
+    "verified": false
+  },
+  "session": {
+    "fallback_map_id": "000000001",
+    "location_refresh_s": 0.25,
+    "reason": "MAP_ARCHITECTURE section 4.9 step 4: a save naming an unknown map loads at 000000001 player_spawns[0] (the inferred start map, data/misostory/new_character.json). The saved location's resume point is refreshed from SafeGround four times a second so a save always carries a recent safe position.",
+    "verified": false
+  },
+  "environment": {
+    "sun_energy_per_w_m2": 0.3183,
+    "default_preset": "island_day",
+    "reason": "Blender's sun strength (index.json environment, W/m^2) has no exact Godot equivalent; the Phase 1 probe matched the Blender look with energy = strength / pi (docs/runtime/blender_export.md, known issue 9). Per-map presets come from data/misostory/maps/<id>.json environment_preset; none differ yet.",
+    "verified": false
+  }
+}

@@ -16,6 +16,9 @@ porch, and ONE double flight climbs verge -> porch -> street up those camera-fac
 clover beds now).
 Nina's islet becomes a mossy giant stump; the sky islet becomes the flat grass-crowned cap
 of a giant red mushroom growing from the step, with the ladder hung from its rim.
+
+Iteration Two: classic Nina is clicked from the lawn; the game talks to NPCs in person, so a wooden stair climbs the
+stump's camera-facing side to her islet.
 """
 
 import math
@@ -34,6 +37,7 @@ U = 1.0
 STEP = 1 * U  # T2
 STREET = 2 * U  # T3 (layout hint for out00: z = 2.0)
 NINA = 2 * U  # T4 (120 px above the lawn)
+NINA_STAIR_DEG = 313.0  # the stair up Nina's stump, map-local bearing from the stump centre (toward the camera)
 SKY = 5 * U  # T5 (240 px above the step)
 
 
@@ -97,14 +101,27 @@ def _stone_arch(coll):
 
 @asset("X20000_NinaStump", "Foliage", footprint=4.6, tags=("stump", "landmark"))
 def _nina_stump(coll):
-    """Giant mossy tree stump that carries Nina's flower islet (top at ~1.85 m)."""
+    """Giant mossy tree stump that carries Nina's flower islet (top at ~1.85 m). The trunk only: it collides as a
+    prism of its own 2.25 m radius. The roots are a separate passable asset (X20000_NinaStumpRoots): in one asset
+    their tips widened the stump's collision prism to a 3.8 m circle, an invisible ledge 1.5 m outside the bark that
+    no stair to Nina could meet."""
     mb = MeshBuilder()
     mb.cyl(2.25, 1.9, mat="M_Bark", verts=20, r2=2.05)
-    for k in range(6):
-        a = 2 * math.pi * k / 6 + 0.4
+    mb.build("X20000_NinaStump", coll, smooth=True, sharp_angle=45)
+
+
+NINA_ROOT_ANGLES = tuple(2 * math.pi * k / 6 + 0.4 for k in range(6))  # stump-local, radians
+
+
+@asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump",))
+def _nina_stump_roots(coll):
+    """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump). Low and sloping into the
+    lawn, they are passable dressing like every stump and log."""
+    mb = MeshBuilder()
+    for a in NINA_ROOT_ANGLES:
         mb.cyl(0.75, 2.2, loc=(math.cos(a) * 1.6, math.sin(a) * 1.6, 0.35), rot=(0, 100, math.degrees(a)),
                mat="M_Bark", verts=8, r2=0.2)
-    mb.build("X20000_NinaStump", coll, smooth=True, sharp_angle=45)
+    mb.build("X20000_NinaStumpRoots", coll, smooth=True, sharp_angle=45)
 
 
 @asset("X20000_Tulips", "Foliage", footprint=1.2, tags=("flower",))
@@ -176,7 +193,15 @@ def build(m):
     # T4: Nina's flower islet - a giant mossy stump above the north-west lawn
     nx, ny = 8.2, 25.2
     m.place("X20000_NinaStump", nx, ny, rot=20, z=-0.05)
+    m.place("X20000_NinaStumpRoots", nx, ny, rot=20, z=-0.05)
     m.terrace("NinaIslet_T4", geo.ellipse(nx, ny, 2.15, 2.05, 18), top=NINA, bottom=1.45, wobble_amt=0.12)
+    # Iteration Two talks to NPCs in person (the interact key, no click from the lawn), so a wooden stair climbs the
+    # stump to Nina: 10 risers of 0.2 m (walked, never jumped), on the camera-facing side between two roots
+    # (NINA_STAIR_DEG lies halfway between the roots at 283 and 343 degrees: root angles + the stump's 20 degree yaw)
+    sa = math.radians(NINA_STAIR_DEG)
+    sux, suy = math.cos(sa), math.sin(sa)
+    m.stairs("Steps_NinaStump", (nx + sux * 4.8, ny + suy * 4.8, 0.0), (nx + sux * 2.0, ny + suy * 2.0, NINA), 1.2,
+             step_h=0.2, fit_edge=True)
     # T5: the sky islet - cap of a giant red mushroom on the step, ladder hung from its rim
     sx, sy, sr = 17.0, 27.4, 3.0
     _sky_mushroom(m, sx, sy, STEP, SKY, sr)
@@ -217,7 +242,7 @@ def build(m):
     m.place("X20000_Tulips", nx - 0.9, ny - 0.8, rot=-40, scale=0.85)
     m.place("Butterfly", nx + 1.4, ny - 1.0)
     m.place("Vine_Hanging_A", nx + 0.2, ny - 2.15, z=NINA - 0.2, rot=0)
-    m.place("Vine_Hanging_A", nx + 1.7, ny - 1.4, z=NINA - 0.2, rot=40)
+    m.place("Vine_Hanging_A", nx - 1.6, ny - 1.4, z=NINA - 0.2, rot=-40)  # (was over the stair head)
 
     # neighbours at the back of the pocket (classic world map shows several mushroom roofs)
     m.place("House_Mushroom_BlueCone", 38.0, 31.6, rot=30, scale=1.35)
@@ -298,7 +323,8 @@ def build(m):
     verge_path = [(5.6, 12.8, 1.7), (8.0, 11.0, 1.7), (9.4, 9.6, 1.7), (10.6, 7.6, 1.7), (11.6, 5.8, 1.7),
                   (12.8, 4.2, 1.7), (14.2, 3.0, 1.7), (16.2, 2.2, 1.7), (18.0, 1.7, 1.7), (20.4, 1.4, 1.7)]
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A", "Flower_Patch_B"], geo.rect(0, 0, 13, 34), 16, seed=1,
-              min_dist=1.6, avoid=[geo.rect(0, 12.0, 4, 16.0), (nx, ny, 3.0)] + verge_path)
+              min_dist=1.6, avoid=[geo.rect(0, 12.0, 4, 16.0), (nx, ny, 3.0),
+                                   (nx + sux * 3.6, ny + suy * 3.6, 1.8)] + verge_path)
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A", "Flower_Patch_B"], geo.rect(13, 0, 42, 8), 12, seed=2,
               min_dist=1.6, avoid=[geo.rect(21, 0, 25, 11), geo.rect(19, -1, 26, 1.8)] + verge_path)
     m.scatter(["Grass_Tuft_A", "Flower_Patch_A"], geo.rect(19, 10, 42, 36), 14, seed=3, min_dist=1.8,
@@ -315,11 +341,15 @@ def build(m):
     m.edge_portal("in00")
     m.edge_portal("out00")
     m.player(25.9, 16.4, rot=45)  # on the street at the top of the porch flight, facing the camera
+    m.player_spawn(4.0, 13.5, rot=90, note="sp x -256: beside in00 on the west lawn")
     # main climb: lawn -> verge -> the double flight up the south faces -> street -> out00
     m.route("Main", [(1.0, 14.0), (5.6, 12.8), (9.4, 9.6), (11.6, 5.8), (14.2, 3.0), (18.0, 1.7), (21.4, 1.3),
                      (23.0, 1.2), (23.0, 5.4), (23.0, 10.8), (24.0, 16.6), (30.0, 17.4), (36.0, 18.0), (41.0, 18.0)])
     # street (on Main) -> up the door axis -> through the porch arch -> in01
-    m.route("ToSensHouse", [(sx0, sy0), (mx, my), (ax, ay), (dx, dy)])
+    # (ends 0.4 m in front of the in01 threshold: on it, the 0.3 m body touched the house's collision prism)
+    m.route("ToSensHouse", [(sx0, sy0), (mx, my), (ax, ay), _door_xy(hx, hy, hrot, 4.0)])
+    # Main -> across the lawn -> up the stump stair onto Nina's islet (ends 1.1 m from her: inside her talk zone)
+    m.route("ToNina", [(5.6, 12.8), (9.6, 17.2), (nx + sux * 5.4, ny + suy * 5.4), (nx + sux * 1.6, ny + suy * 1.6)])
     # verge flight -> along the step's porch to its west bench -> up the sky-islet ladder -> the grass crown
     m.route("SkyIslet", [(23.0, 1.0), (23.0, 5.6), (18.0, 7.2), (16.0, 12.6), (15.6, 16.4), (16.6, 20.0), (sx, sy - sr - 0.9), (sx, sy - sr + 0.15), (sx, sy - 1.2),
                          (sx, sy + 0.8)])

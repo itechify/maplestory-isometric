@@ -1,0 +1,280 @@
+{
+  "id": "551",
+  "name": "Gladius",
+  "game_item_id": "1302008",
+  "type": "Equip",
+  "subtype": "One-Handed Sword",
+  "inventory_tab": "equip",
+  "equip_slot": "weapon",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 30,
+    "job": [
+      "Warrior"
+    ],
+    "job_raw": "Warrior",
+    "str": 65,
+    "dex": 30,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "watk": 47,
+    "upgrade_slots": 7
+  },
+  "weapon": {
+    "weapon_type": "One-Handed Sword",
+    "attack_speed": 4,
+    "attack_speed_name": "Fast",
+    "multipliers": {
+      "swing": 1.8,
+      "stab": 1.8
+    },
+    "multipliers_note": "Basic attacks. Skills may use a specific action.",
+    "attack_cycle_ms": 720,
+    "attack_cycle_with_booster_ms": 600,
+    "attack_cycle_by_kind_ms": null,
+    "attack_cycle_note": null,
+    "basic_attack_mix_pct": {
+      "swing": 60,
+      "stab": 40
+    },
+    "reach": {
+      "avg_horizontal_px": 74,
+      "horizontal_range_px": [
+        64,
+        85
+      ],
+      "avg_vertical_px": 39,
+      "vertical_range_px": [
+        26,
+        51
+      ]
+    },
+    "arrow_range_px": null,
+    "arrow_range_note": null,
+    "required_ammunition": null,
+    "required_ammunition_item_id": null,
+    "basic_attacks": [
+      {
+        "action": "swingO3",
+        "label": "Swing 3",
+        "kind": "swing",
+        "near_px": 18,
+        "far_px": 78,
+        "top_px": 41,
+        "box_px": [
+          -78,
+          -41,
+          -18,
+          -14
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO1",
+        "label": "Swing 1",
+        "kind": "swing",
+        "near_px": 11,
+        "far_px": 85,
+        "top_px": 51,
+        "box_px": [
+          -85,
+          -51,
+          -11,
+          -11
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO2",
+        "label": "Swing 2",
+        "kind": "swing",
+        "near_px": 0,
+        "far_px": 64,
+        "top_px": 50,
+        "box_px": [
+          -64,
+          -50,
+          5,
+          2
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO1",
+        "label": "Thrust 1",
+        "kind": "stab",
+        "near_px": 27,
+        "far_px": 74,
+        "top_px": 28,
+        "box_px": [
+          -74,
+          -28,
+          -27,
+          -18
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO2",
+        "label": "Thrust 2",
+        "kind": "stab",
+        "near_px": 27,
+        "far_px": 70,
+        "top_px": 26,
+        "box_px": [
+          -70,
+          -26,
+          -27,
+          -15
+        ],
+        "in_average": true
+      },
+      {
+        "action": "proneStab",
+        "label": "Crouched attack",
+        "kind": "crouch",
+        "near_px": 12,
+        "far_px": 66,
+        "top_px": 12,
+        "box_px": [
+          -66,
+          -12,
+          -12,
+          0
+        ],
+        "in_average": false
+      }
+    ]
+  },
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 22000,
+  "sell_price_mesos": 5500,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "1012",
+        "npc_name": "Neri the Fairy",
+        "npc_role": "Weapon Seller",
+        "map_id": "020000001",
+        "map_name": "Orbis: Orbis Weapon Store",
+        "town": "Orbis",
+        "price_mesos": 22000,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "507",
+        "npc_name": "River",
+        "npc_role": "Weapon Seller",
+        "map_id": "010004001",
+        "map_name": "Victoria Road: Perion Weapon Store",
+        "town": "Perion",
+        "price_mesos": 22000,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "1112",
+        "npc_name": "Scott",
+        "npc_role": "Weapon Seller",
+        "map_id": "020001011",
+        "map_name": "El Nath: El Nath Weapon Store",
+        "town": "El Nath",
+        "price_mesos": 22000,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "24",
+        "monster_name": "Iron Hog",
+        "monster_level": 28,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "1069",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "1079",
+        "monster_name": "Buffoon",
+        "monster_level": 74
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "shopPrice",
+        "stat": "Shop price (mesos)",
+        "cot1": "16,500",
+        "cot2": "22,000",
+        "change": "+5,500"
+      }
+    ],
+    "notes": [
+      "Sold by River (Perion)."
+    ],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/551",
+    "retrieved_at": "2026-10-04T10:14:32.316Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/551?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:19.761Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/551?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:19.761Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=551",
+      "retrieved_at": "2026-10-04T10:47:20.928Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

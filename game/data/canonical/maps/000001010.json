@@ -1,0 +1,336 @@
+{
+  "id": "000001010",
+  "name": "Amherst",
+  "street_name": "Rainbow Street",
+  "region": "MapleIsland",
+  "location_label": "Rainbow Street / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Amherst is a town in Rainbow Street, Maple Island in MapleStory Classic. Hosts 3 NPCs including Lucas, Pio, and Rain. Connects to 5 other maps.",
+  "return_map_id": "000001010",
+  "return_map_name": "Amherst",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 4,
+  "field_restrictions": [
+    {
+      "key": "summoning-bag",
+      "label": "No summoning bags",
+      "description": "Summoning bags cannot be used on this map."
+    }
+  ],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000001000",
+      "map_name": "The Field West of Amherst",
+      "street_name": "Rainbow Street"
+    },
+    {
+      "map_id": "000001011",
+      "map_name": "Amherst Weapon Store",
+      "street_name": "Rainbow Street"
+    },
+    {
+      "map_id": "000001012",
+      "map_name": "Amherst Townstreet",
+      "street_name": "Rainbow Street"
+    },
+    {
+      "map_id": "000001013",
+      "map_name": "Amherst Department Store",
+      "street_name": "Rainbow Street"
+    },
+    {
+      "map_id": "000001020",
+      "map_name": "The Field East of Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "portals": [
+    {
+      "name": "west00",
+      "type": 2,
+      "x_px": -291,
+      "y_px": 276,
+      "to_map_id": "000001000",
+      "to_map_name": "The Field West of Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "east00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "in00",
+      "type": 2,
+      "x_px": 227,
+      "y_px": -175,
+      "to_map_id": "000001011",
+      "to_map_name": "Amherst Weapon Store",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "in01",
+      "type": 2,
+      "x_px": 2276,
+      "y_px": 275,
+      "to_map_id": "000001012",
+      "to_map_name": "Amherst Townstreet",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "in02",
+      "type": 2,
+      "x_px": 1516,
+      "y_px": 156,
+      "to_map_id": "000001013",
+      "to_map_name": "Amherst Department Store",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "east00",
+      "type": 2,
+      "x_px": 3055,
+      "y_px": 274,
+      "to_map_id": "000001020",
+      "to_map_name": "The Field East of Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "west00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": 282,
+      "y_px": 123
+    }
+  ],
+  "npcs": [
+    {
+      "id": "17",
+      "name": "Lucas",
+      "x_px": 1790,
+      "y_px": 154,
+      "idle_speech_lines": [
+        "Stranger. What brings you here?",
+        "I'm not fond of strangers disturbing the peace of this town.",
+        "You... If you're strong and powerful, can you take care of the monsters around town?"
+      ]
+    },
+    {
+      "id": "18",
+      "name": "Pio",
+      "x_px": 547,
+      "y_px": 274,
+      "idle_speech_lines": [
+        "Do you need my help? I'm really great with machines.",
+        "I just ate a little while ago, but I'm already hungry again!",
+        "Phew, work is hard. I need to take a break."
+      ]
+    },
+    {
+      "id": "19",
+      "name": "Rain",
+      "x_px": 103,
+      "y_px": 274,
+      "idle_speech_lines": [
+        "Isn't it nice out today?",
+        "To jump, press the left Alt key.",
+        "Press the arrow keys to move left and right.",
+        "Ha!"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 610,
+      "y_px": 259,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 501,
+      "y_px": -193,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 1881,
+      "y_px": 137,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 2839,
+      "y_px": 257,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 29,
+      "y_px": -192,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 2137,
+      "y_px": -162,
+      "respawn_s": 120
+    }
+  ],
+  "minimap": {
+    "width_px": 3656,
+    "height_px": 1052,
+    "center_x_px": 388,
+    "center_y_px": 588,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -388,
+    "x_max": 3268,
+    "y_min": -588,
+    "y_max": 464
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1008",
+        "name": "Lucas's Reply",
+        "npc_name": "Lucas",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+50 EXP"
+      },
+      {
+        "id": "1012",
+        "name": "Pio's Collecting Recycled Goods",
+        "npc_name": "Pio",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+100 EXP",
+        "meso_reward_label": "+150 mesos"
+      },
+      {
+        "id": "1013",
+        "name": "Rain's Maple Quiz 1",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+20 EXP"
+      },
+      {
+        "id": "1014",
+        "name": "Rain's Maple Quiz 2",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+25 EXP"
+      },
+      {
+        "id": "1015",
+        "name": "Rain's Maple Quiz 3",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+30 EXP"
+      },
+      {
+        "id": "1016",
+        "name": "Rain's Maple Quiz 4",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+35 EXP"
+      },
+      {
+        "id": "1017",
+        "name": "Rain's Maple Quiz 5",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+40 EXP"
+      },
+      {
+        "id": "1018",
+        "name": "Rain's Maple Quiz 6",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+45 EXP"
+      },
+      {
+        "id": "1019",
+        "name": "Rain's Maple Quiz 7",
+        "npc_name": "Rain",
+        "level_label": "Lv 5+",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+50 EXP"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000001010",
+    "retrieved_at": "2026-10-04T09:57:03.267Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001000",
+          "retrieved_at": "2026-10-04T09:56:52.757Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001011",
+          "retrieved_at": "2026-10-04T09:57:04.784Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001012",
+          "retrieved_at": "2026-10-04T09:57:06.279Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001013",
+          "retrieved_at": "2026-10-04T09:57:07.799Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001020",
+          "retrieved_at": "2026-10-04T09:57:10.812Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

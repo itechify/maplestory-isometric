@@ -1,0 +1,84 @@
+{
+  "id": "21",
+  "name": "Lucy",
+  "roles": [
+    "Shopkeeper"
+  ],
+  "function_title": "Grocer",
+  "locations": [
+    {
+      "map_id": "000001013",
+      "map_name": "Amherst Department Store",
+      "street_name": "Rainbow Street",
+      "x_px": -258,
+      "y_px": 84
+    }
+  ],
+  "dialogue": [],
+  "idle_chatter": [
+    {
+      "text": "Cheap goods! Really cheap!"
+    },
+    {
+      "text": "Hey, you! Don't even think about stealing..."
+    },
+    {
+      "text": "You definitely need potions to travel."
+    }
+  ],
+  "quests": {
+    "given": [],
+    "turned_in": [],
+    "started_here": [],
+    "completed_here": []
+  },
+  "quest_dialogue": [],
+  "shop": {
+    "shop_id": "maple-road-lucy",
+    "sold_at_map_id": "000001013",
+    "item_ids": [
+      "270",
+      "271",
+      "236",
+      "237",
+      "239",
+      "269"
+    ],
+    "item_names": [
+      "Red Potion",
+      "Orange Potion",
+      "Apple",
+      "Egg",
+      "Orange",
+      "Pet Food"
+    ]
+  },
+  "transport": null,
+  "what_they_do": [
+    "Runs a shop. See the 6-item inventory with MSCW buy prices above."
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/21",
+    "retrieved_at": "2026-10-04T10:05:29.685Z"
+  },
+  "field_sources": {
+    "locations/000001013": {
+      "url": "https://meowdb.com/msclassic/maps/000001013",
+      "retrieved_at": "2026-10-04T09:57:07.799Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "shop": {
+      "url": "https://meowdb.com/msclassic/npc-shops",
+      "retrieved_at": "2026-10-04T09:57:45.024Z",
+      "note": "cross-check only: shop_id, item_ids and sold_at_map_id are read from the NPC page and matched against this page (slug, npcId, mapId, items[].itemId)"
+    }
+  },
+  "gaps": [
+    "No distinct shop-open greeting is shown by MeowDB; the only lines are the ones in idle_chatter.",
+    "MeowDB shows no quoted dialogue for Lucy; \"What Lucy Says\" lists only the idle/speech-bubble lines."
+  ]
+}

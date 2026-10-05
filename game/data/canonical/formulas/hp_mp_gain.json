@@ -1,0 +1,187 @@
+{
+  "id": "hp_mp_gain",
+  "name": "Max HP / Max MP growth per class and level",
+  "status": "Confirmed (MeowDB states it was measured/confirmed in COT2)",
+  "status_note": "Per-level HP/MP gain is a flat number based on your class. First, second, and third job advancements grant the same class bonus. Every figure below is measured from COT2, including a level 11 Warrior catch-up and Grummash's level 100 third-job characters.",
+  "random_range": null,
+  "random_range_note": "All five classes are confirmed. Sampled level-ups showed zero variance.",
+  "starting": {
+    "base_hp": 50,
+    "base_mp": 5,
+    "note": "A character starts with 50 base HP and 5 base MP. A Beginner at level 10 has 194 HP and 113 MP."
+  },
+  "per_class": {
+    "beginner": {
+      "name": "Beginner",
+      "max_hp_per_level": 16,
+      "max_mp_per_level": 12,
+      "max_hp_per_advancement": null,
+      "max_mp_per_advancement": null
+    },
+    "warrior": {
+      "name": "Warrior",
+      "max_hp_per_level": 28,
+      "max_mp_per_level": 12,
+      "max_hp_per_advancement": 350,
+      "max_mp_per_advancement": 150
+    },
+    "bowman": {
+      "name": "Bowman",
+      "max_hp_per_level": 22,
+      "max_mp_per_level": 17,
+      "max_hp_per_advancement": 250,
+      "max_mp_per_advancement": 250
+    },
+    "thief": {
+      "name": "Thief",
+      "max_hp_per_level": 22,
+      "max_mp_per_level": 17,
+      "max_hp_per_advancement": 250,
+      "max_mp_per_advancement": 250
+    },
+    "magician": {
+      "name": "Magician",
+      "max_hp_per_level": 16,
+      "max_mp_per_level": 22,
+      "max_hp_per_advancement": 150,
+      "max_mp_per_advancement": 350
+    }
+  },
+  "branches_use_base_class_rates": "Branches use their base class rates. Hunter and Crossbowman take the Bowman numbers, Bandit and Assassin take the Thief numbers.",
+  "advancement_levels": {
+    "first_job": 10,
+    "second_job": 30,
+    "third_job": 70
+  },
+  "formulas": [
+    "B = min(Level, 10) - 1",
+    "C = max(0, Level - 10)",
+    "A = 1 + [2nd job at Lv 30+] + [3rd job at Lv 70+]",
+    "BeginnerHP = 50 + 16 × (Level - 1)",
+    "BeginnerMP = 5 + 12 × (Level - 1)",
+    "JobHP = 50 + 16 × B + HPAdv × A + HPPerLevel × C",
+    "JobMP = 5 + 12 × B + MPAdv × A + MPPerLevel × C",
+    "TotalHP = trunc(JobHP × (1 + MaxHP% / 100)) + EquipmentHP",
+    "TotalMP = trunc(JobMP × (1 + MaxMP% / 100)) + EquipmentMP"
+  ],
+  "percent_bonus_rule": "The percentage skill applies after the flat bonus, then the result rounds down.",
+  "int_gives_mp": false,
+  "int_gives_mp_note": "INT does not give additional MP here.",
+  "hp_washing_note": "HP washing is dead in MSCW.",
+  "ap_into_hp_mp": null,
+  "ap_into_hp_mp_note": "MeowDB documents no rule (allowed or not, gain per AP) for spending AP on Max HP or Max MP. The HP/MP formulas above have no AP term, the Beginner's guide and the formulas tab describe AP only as STR/DEX/INT/LUK points, and the HP/MP guide says HP washing is dead. The glossary, however, says AP is \"used to raise STR / DEX / INT / LUK / HP / MP\" and that Max HP/MP gets \"a small AP contribution\". See discrepancies.",
+  "job_advancement_heals": false,
+  "job_advancement_heal_note": "Unlike leveling up, job advancing does not heal you. It only raises your max HP and MP.",
+  "late_advancement_note": "A level 11 Beginner advanced to Warrior with 572 Max HP, 275 Max MP, all Warrior skills at rank 0, and 4 unspent SP. Those are the same base pools and first-job SP as an on-time level 11 Warrior.",
+  "late_advancement_caveat": "This directly confirms level 11 Warrior catch-up; later levels and other classes still need direct tests.",
+  "equipment_and_skills_note": "Equipment can provide additional HP and MP. Warriors and magicians carry a skill: Max HP Increase and Max MP Increase each reach +25% (of your base) at max level.",
+  "parity_examples": [
+    {
+      "class": "beginner",
+      "level": 10,
+      "max_hp": 194,
+      "max_mp": 113
+    },
+    {
+      "class": "warrior",
+      "level": 11,
+      "max_hp": 572,
+      "max_mp": 275,
+      "note": "late advancement from a level 11 Beginner"
+    },
+    {
+      "class": "warrior",
+      "level": 50,
+      "second_job": true,
+      "max_hp": 2014,
+      "max_mp": 893,
+      "note": "/formulas/leveling calculator default"
+    }
+  ],
+  "calculator_code": "let P={hp:50,mp:5},A={hp:16,mp:12},F=10,O={warrior:{perLevel:{hp:28,mp:12},advancement:{hp:350,mp:150}},bowman:{perLevel:{hp:22,mp:17},advancement:{hp:250,mp:250}},thief:{perLevel:{hp:22,mp:17},advancement:{hp:250,mp:250}},magician:{perLevel:{hp:16,mp:22},advancement:{hp:150,mp:350}}}",
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/leveling",
+    "retrieved_at": "2026-10-04T10:04:44.928Z"
+  },
+  "field_sources": {
+    "status_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "random_range_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "starting": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "branches_use_base_class_rates": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "percent_bonus_rule": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "int_gives_mp_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "hp_washing_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "job_advancement_heal_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "late_advancement_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "late_advancement_caveat": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "equipment_and_skills_note": {
+      "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+      "retrieved_at": "2026-10-04T10:06:12.068Z"
+    },
+    "calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/4068-26c6ed6efe1adbc7.js",
+      "retrieved_at": "2026-10-04T10:05:15.057Z",
+      "loaded_by": "https://meowdb.com/msclassic/character-builder"
+    }
+  },
+  "gaps": [
+    "Rule for putting AP into Max HP / Max MP (allowed or not, and the gain per AP) is not documented on MeowDB.",
+    "How much a level-up heals (full HP/MP or not) is not stated; only implied by \"Unlike leveling up, job advancing does not heal you\"."
+  ],
+  "discrepancies": [
+    {
+      "topic": "AP contribution to HP/MP",
+      "values": [
+        {
+          "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+          "text": "Max HP/MP goes up with level, plus a small AP contribution."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+          "text": "AP: Earned at every level up. You get 5 per level. Used to raise STR / DEX / INT / LUK / HP / MP."
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
+          "text": "HP washing is dead in MSCW. INT does not give additional MP here. (No AP term in any HP/MP formula.)"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+          "text": "then get 5 AP per level for STR, DEX, INT, and LUK."
+        }
+      ],
+      "chosen": "No AP term (ap_into_hp_mp = null); AP is allocated to STR/DEX/INT/LUK only",
+      "reason": "The HP/MP guide is the dedicated, COT2-measured mechanics page (measured level-ups with zero variance) and the Beginner's guide (updated 2026-10-02) lists only the four stats; the glossary entries are one-line definitions. Unresolved: whether AP can be put into Max HP / Max MP, and how much it gives, remains a gap."
+    }
+  ]
+}

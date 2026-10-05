@@ -1,0 +1,110 @@
+{
+  "id": "441",
+  "name": "Rusty Screw",
+  "game_item_id": "4031003",
+  "type": "Etc",
+  "subtype": "Quest Item",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": true,
+  "description": "A rusty screw from an old, unusable box that was broken down. Can this be recycled?",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 0,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_api",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": false,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [],
+    "breakables": [
+      {
+        "breakable_id": "0000001",
+        "name": "Wooden Box",
+        "score": 2
+      }
+    ],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "1012",
+        "quest_name": "Pio's Collecting Recycled Goods",
+        "quest_npc_name": "Pio",
+        "quest_level": 5,
+        "quantity": 3
+      }
+    ],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "A rusty screw from an old, unusable box that has been broken down. Can this be recycled",
+      "cot2": "A rusty screw from an old, unusable box that was broken down. Can this be recycled?"
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/441",
+    "retrieved_at": "2026-10-04T10:17:28.890Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/441?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:15.891Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/441?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:15.891Z"
+    },
+    "sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/api/items/441?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:15.891Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=441",
+      "retrieved_at": "2026-10-04T10:44:17.056Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Sell-back 0: the item page shows no \"NPC Sell-back\" row and the item API records stats.price = 0.",
+    "Untradeable comes from the item page tag; the item API omits the untradeable flag for this item."
+  ]
+}

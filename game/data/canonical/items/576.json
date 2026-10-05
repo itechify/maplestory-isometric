@@ -1,0 +1,265 @@
+{
+  "id": "576",
+  "name": "Hand Axe",
+  "game_item_id": "1312000",
+  "type": "Equip",
+  "subtype": "One-Handed Axe",
+  "inventory_tab": "equip",
+  "equip_slot": "weapon",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "watk": 17,
+    "upgrade_slots": 7
+  },
+  "weapon": {
+    "weapon_type": "One-Handed Axe",
+    "attack_speed": 4,
+    "attack_speed_name": "Fast",
+    "multipliers": {
+      "swing": 2.4,
+      "stab": 1.2
+    },
+    "multipliers_note": "Basic attacks. Skills may use a specific action.",
+    "attack_cycle_ms": 720,
+    "attack_cycle_with_booster_ms": 600,
+    "attack_cycle_by_kind_ms": null,
+    "attack_cycle_note": null,
+    "basic_attack_mix_pct": {
+      "swing": 60,
+      "stab": 40
+    },
+    "reach": {
+      "avg_horizontal_px": 86,
+      "horizontal_range_px": [
+        73,
+        102
+      ],
+      "avg_vertical_px": 44,
+      "vertical_range_px": [
+        30,
+        62
+      ]
+    },
+    "arrow_range_px": null,
+    "arrow_range_note": null,
+    "required_ammunition": null,
+    "required_ammunition_item_id": null,
+    "basic_attacks": [
+      {
+        "action": "swingO3",
+        "label": "Swing 3",
+        "kind": "swing",
+        "near_px": 22,
+        "far_px": 102,
+        "top_px": 50,
+        "box_px": [
+          -102,
+          -50,
+          -22,
+          -10
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO1",
+        "label": "Swing 1",
+        "kind": "swing",
+        "near_px": 18,
+        "far_px": 88,
+        "top_px": 62,
+        "box_px": [
+          -88,
+          -62,
+          -18,
+          -6
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO2",
+        "label": "Swing 2",
+        "kind": "swing",
+        "near_px": 0,
+        "far_px": 73,
+        "top_px": 50,
+        "box_px": [
+          -73,
+          -50,
+          5,
+          17
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO1",
+        "label": "Thrust 1",
+        "kind": "stab",
+        "near_px": 20,
+        "far_px": 84,
+        "top_px": 30,
+        "box_px": [
+          -84,
+          -30,
+          -20,
+          -15
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO2",
+        "label": "Thrust 2",
+        "kind": "stab",
+        "near_px": 12,
+        "far_px": 83,
+        "top_px": 30,
+        "box_px": [
+          -83,
+          -30,
+          -12,
+          -16
+        ],
+        "in_average": true
+      },
+      {
+        "action": "proneStab",
+        "label": "Crouched attack",
+        "kind": "crouch",
+        "near_px": 15,
+        "far_px": 74,
+        "top_px": 11,
+        "box_px": [
+          -74,
+          -11,
+          -15,
+          1
+        ],
+        "in_average": false
+      }
+    ]
+  },
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 50,
+  "sell_price_mesos": 0,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_api",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "20",
+        "npc_name": "Sid",
+        "npc_role": "Weapon Seller",
+        "map_id": "000001011",
+        "map_name": "Rainbow Street: Amherst Weapon Store",
+        "town": "Maple Road (Beginner Zone)",
+        "price_mesos": 50,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      },
+      {
+        "npc_id": "110",
+        "npc_name": "Silver",
+        "npc_role": "Weapon Seller",
+        "map_id": "010000003",
+        "map_name": "Victoria Road: Lith Harbor Weapon Shop",
+        "town": "Lith Harbor",
+        "price_mesos": 50,
+        "cheapest": true,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "4",
+        "monster_name": "Shroom",
+        "monster_level": 3,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "432",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "4",
+        "monster_name": "Shroom",
+        "monster_level": 3
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": null,
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/576",
+    "retrieved_at": "2026-10-04T10:08:22.905Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:55.876Z"
+    },
+    "notes": {
+      "url": "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
+      "retrieved_at": "2026-10-04T10:06:38.610Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:55.876Z"
+    },
+    "sell_price_mesos": {
+      "url": "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:22:55.876Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=576",
+      "retrieved_at": "2026-10-04T10:44:36.440Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "beginner_creation_weapon": true,
+  "notes": [
+    "Sell-back 0: the item page shows no \"NPC Sell-back\" row and the item API records stats.price = 0.",
+    "Beginner starting equipment: the Beginner's guide names this as one of the three character-creation weapons: \"Choose the Wooden Club at character creation. It has 19 W.ATK; the Sword and Hand Axe have 17.\""
+  ],
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

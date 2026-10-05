@@ -1,0 +1,166 @@
+{
+  "id": "000000020",
+  "name": "Mushroom Town",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Mushroom Town is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 1 NPC including Nina. Connects to 3 other maps.",
+  "return_map_id": "000000020",
+  "return_map_name": "Mushroom Town",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000010",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000021",
+      "map_name": "Mushroom Town Townstreet",
+      "street_name": "Maple Road"
+    },
+    {
+      "map_id": "000000030",
+      "map_name": "East Entrance to Mushroom Town",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "in00",
+      "type": 2,
+      "x_px": -207,
+      "y_px": 218,
+      "to_map_id": "000000010",
+      "to_map_name": "Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "in01",
+      "type": 2,
+      "x_px": 557,
+      "y_px": 94,
+      "to_map_id": "000000021",
+      "to_map_name": "Mushroom Town Townstreet",
+      "to_street_name": "Maple Road",
+      "to_portal": "out00",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": 1109,
+      "y_px": 97,
+      "to_map_id": "000000030",
+      "to_map_name": "East Entrance to Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -256,
+      "y_px": 122
+    },
+    {
+      "x_px": -207,
+      "y_px": 123
+    },
+    {
+      "x_px": -173,
+      "y_px": 125
+    }
+  ],
+  "npcs": [
+    {
+      "id": "4",
+      "name": "Nina",
+      "x_px": -59,
+      "y_px": 86,
+      "idle_speech_lines": [
+        "What would be good for dinner?",
+        "I'm cute, right?"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 1498,
+    "height_px": 850,
+    "center_x_px": 299,
+    "center_y_px": 445,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -299,
+    "x_max": 1199,
+    "y_min": -445,
+    "y_max": 405
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1003",
+        "name": "What Sen wants to eat",
+        "npc_name": "Nina",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000020",
+    "retrieved_at": "2026-10-04T09:56:39.214Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000010",
+          "retrieved_at": "2026-10-04T09:56:37.734Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000021",
+          "retrieved_at": "2026-10-04T09:56:40.709Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000030",
+          "retrieved_at": "2026-10-04T09:56:42.256Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

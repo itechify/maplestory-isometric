@@ -375,11 +375,15 @@ def build(m):
                          (26.0, 9.4), (29.0, 9.4), (37.5, 8.6)], width=2.6)
 
     # door block T29: an earth block on the mound, the barrel door set into its front face
-    m.terrace("DoorBlock_T29", [(4.6, 2.2), (8.0, 2.0), (12.4, 2.3), (12.6, 9.4), (4.6, 9.4)], top=ROOF,
+    # (its face stands 2.4 m behind the out00 anchor, so the 1.5 m arrival and the press-Up trigger in front of the
+    # door are clear: Iteration Two playtest finding arrival-1005-inside-mound)
+    m.terrace("DoorBlock_T29", [(4.6, 3.5), (8.0, 3.4), (12.4, 3.6), (12.6, 9.4), (4.6, 9.4)], top=ROOF,
               bottom=0.4)
     # the barrel door sits east of the out00 swirl so the camera sees it beside the portal
-    m.place("Barrel_Door_Mound", 10.4, 2.5, rot=0, scale=0.75, z=MOUND - 0.04)  # bulges from the block face
-    _climb(m, "Ladder_T34_T29", 5.4, 1.8, MOUND, ROOF)
+    m.place("Barrel_Door_Mound", 10.4, 3.85, rot=0, scale=0.75, z=MOUND - 0.04)  # bulges from the block face
+    # the ladder stands east of the door, 1.55 m outside out00's press-Up trigger (x 5.75-10.25) plus the 0.8 m grab
+    # radius, so Up at the portal never grabs it (playtest finding ladder-portal-up-conflict-1005)
+    _climb(m, "Ladder_T34_T29", 11.8, 3.3, MOUND, ROOF)
     _climb(m, "Rope_T29_T27", T27_XY[0], 9.5, ROOF, T27, kind="rope")
 
     # west stack (T32 -> T30 -> T28) and the rope up to T22
@@ -577,12 +581,13 @@ def build(m):
     # ================= gameplay =================
     m.edge_portal("out00")
     m.player(15.4, 3.9, rot=-50)  # on the mound beside the floor trail, the door, tower and branches behind
+    m.player_spawn(4.0, 3.6, rot=180, note="sp x -214: west of out00, a little higher, on the forest floor")
     m.mobs("Shroom", geo.rect(0, 2, 3, 10), 1, seed=1, z_band=(-0.2, 0.3))
     m.mobs("Shroom", geo.rect(18, 1, 25, 12), 1, seed=2, z_band=(-0.2, 0.3), avoid=[(21.4, 8.8, 3.0)])
     m.mobs("Shroom", geo.rect(29, 1, 38, 11), 1, seed=3, z_band=(1.6, 2.0))
     m.mobs("Shroom", geo.rect(0, 12, 3.2, 16.4), 1, seed=4, z_band=(T22 - 0.2, T22 + 0.2))
     m.mobs("Snail", geo.rect(5, 3.5, 12, 8.6), 1, seed=13, z_band=(ROOF - 0.2, ROOF + 0.2),
-           avoid=[(10.4, 2.5, 2.2), (5.6, 7.6, 1.2), (7.6, 8.4, 1.0), (T27_XY[0], 9.5, 1.0)])
+           avoid=[(10.4, 3.85, 2.2), (11.8, 3.6, 1.2), (5.6, 7.6, 1.2), (7.6, 8.4, 1.0), (T27_XY[0], 9.5, 1.0)])
     m.mobs("Blue Snail", geo.rect(20.6, 14, 26, 18.2), 1, seed=5, z_band=(T19 - 0.2, T19 + 0.2))
     m.mobs("Red Snail", geo.rect(27, 13.4, 32, 18.4), 1, seed=6, z_band=(T16 - 0.2, T16 + 0.2))
     m.mobs("Snail", geo.rect(0, 19, 10, 26), 1, seed=7, z_band=(T10 - 0.2, T10 + 0.2))
@@ -599,7 +604,7 @@ def build(m):
     # up the west stack and Rope_T28_T22 onto the west shelf T22
     m.route("WestStack", [(3.8, 1.2), (3.4, 4.6), (2.2, 6.6), (3.0, 8.6), (3.0, 9.3), (3.0, 10.8)])
     # up Ladder_T34_T29 onto the door-block roof, across it and up Rope_T29_T27 to the tower base
-    m.route("DoorRoof", [(5.4, 0.8), (5.4, 2.9), (8.0, 5.6), (T27_XY[0], 8.9), (T27_XY[0], 10.4)])
+    m.route("DoorRoof", [(11.8, 1.6), (11.8, 4.2), (10.0, 6.0), (T27_XY[0], 8.9), (T27_XY[0], 10.4)])
     # --- the spiral (T27 -> T25 ... T9 -> T8), its hand-overs to T22 and T24, and the drop from T10
     m.route("JumpTower", [(T27_XY[0], 10.4), T27_XY] + [_ring_xy(a) for _n, a, _t in RING] + [(15.2, 16.2)])
     m.route("TowerToT22", [_ring_xy(-120), (6.4, 11.0), (4.6, 10.85), (2.4, 11.4), (1.8, 13.4)])

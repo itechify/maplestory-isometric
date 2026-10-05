@@ -1,0 +1,138 @@
+{
+  "id": "000001012",
+  "name": "Amherst Townstreet",
+  "street_name": "Rainbow Street",
+  "region": "MapleIsland",
+  "location_label": "Rainbow Street / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Amherst Townstreet is a town in Rainbow Street, Maple Island in MapleStory Classic. Connects to 2 other maps.",
+  "return_map_id": "000001010",
+  "return_map_name": "Amherst",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 4,
+  "field_restrictions": [
+    {
+      "key": "summoning-bag",
+      "label": "No summoning bags",
+      "description": "Summoning bags cannot be used on this map."
+    }
+  ],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    },
+    {
+      "map_id": "000001014",
+      "map_name": "Snail Field of Flowers",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": -167,
+      "y_px": 244,
+      "to_map_id": "000001010",
+      "to_map_name": "Amherst",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "in01",
+      "to_portal_derivation": "reverse_lookup"
+    },
+    {
+      "name": "west00",
+      "type": 2,
+      "x_px": -492,
+      "y_px": 275,
+      "to_map_id": "000001014",
+      "to_map_name": "Snail Field of Flowers",
+      "to_street_name": "Rainbow Street",
+      "to_portal": "east00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -329,
+      "y_px": 241
+    }
+  ],
+  "npcs": [],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": -302,
+      "y_px": 256,
+      "respawn_s": 120
+    },
+    {
+      "id": "0000001",
+      "name": "Wooden Box",
+      "x_px": 17,
+      "y_px": 31,
+      "respawn_s": 120
+    }
+  ],
+  "minimap": {
+    "width_px": 1498,
+    "height_px": 942,
+    "center_x_px": 839,
+    "center_y_px": 477,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -839,
+    "x_max": 659,
+    "y_min": -477,
+    "y_max": 465
+  },
+  "quests": {},
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000001012",
+    "retrieved_at": "2026-10-04T09:57:06.279Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001010",
+          "retrieved_at": "2026-10-04T09:57:03.267Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/maps/000001014",
+          "retrieved_at": "2026-10-04T09:57:09.307Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

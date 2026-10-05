@@ -72,6 +72,8 @@ def build_map(mid, origins, ground_objs, report):
     report["maps"][str(mid)] = {"traversal": trav, "slug": ctx.slug, "status": status, "error": err, "seconds": round(time.time() - t0, 2),
                                 "portals": ctx.portals, "routes": ctx.routes, "npcs": ctx.npcs,
                                 "spawns": [{k: v for k, v in s.items() if k != "points"} for s in ctx.spawns],
+                                "arrivals": ctx.arrivals, "player_spawns": ctx.player_spawns,
+                                "spawn_regions": [{k: v for k, v in r.items() if k != "polygon"} for r in ctx.spawn_regions],
                                 "gameplay_frame": frame}
     return ctx
 
@@ -93,7 +95,7 @@ def build(map_ids=None, scenery=True, res=(1920, 1080), samples=48):
     plinths = {}
     for mid in ids:
         if LY.MAPS[mid]["kind"] != "interior":
-            plinths[mid] = [o for o in world.plinth(mid) if o.name.endswith("_Cap")]
+            plinths[mid] = [o for o in world.plinth(mid) if o.get("terrace_part") == "cap"]
     ctxs = {}
     for mid in ids:
         ctxs[mid] = build_map(mid, origins, plinths.get(mid, []), report)
@@ -103,6 +105,8 @@ def build(map_ids=None, scenery=True, res=(1920, 1080), samples=48):
             for p in ctx.portals:
                 if p["kind"] == "edge":
                     built[(mid, p["name"])] = tuple(p["world"])
+            for a in getattr(ctx, "arrivals", ()):  # arrival-only anchors (40000 in00): the trail aims at them
+                built[(mid, a["name"])] = tuple(a["world"])
         world.trails(built, ctxs)
         report["trails"] = world.trail_report
         world.lake()
@@ -220,5 +224,5 @@ def save(path):
 
 
 def write_report(report, path):
-    with open(path, "w", encoding="utf-8") as f:
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         json.dump(report, f, indent=1, default=str)

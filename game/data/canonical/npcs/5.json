@@ -1,0 +1,164 @@
+{
+  "id": "5",
+  "name": "Sen",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000021",
+      "map_name": "Mushroom Town Townstreet",
+      "street_name": "Maple Road",
+      "x_px": 24,
+      "y_px": 246
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "There's nothing to eat in here. Oh..."
+    },
+    {
+      "text": "What did my sister say? Oh, I'm so hungry..."
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "I'm... so... hungry!"
+    },
+    {
+      "text": "Can... I... eat this...?"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1004",
+        "name": "Returning to Nina"
+      }
+    ],
+    "turned_in": [
+      {
+        "id": "1003",
+        "name": "What Sen wants to eat"
+      }
+    ],
+    "started_here": [
+      "1004"
+    ],
+    "completed_here": [
+      "1003"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1003",
+      "quest_name": "What Sen wants to eat",
+      "npc_role": "complete",
+      "start_npc_id": "4",
+      "complete_npc_id": "5",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": "stopNpc",
+          "label": "If you haven''t met the right NPC yet",
+          "lines": [
+            {
+              "text": "You didn't talk to Sen yet? Please, open your eyes!",
+              "segments": [
+                {
+                  "text": "You didn't talk to "
+                },
+                {
+                  "text": "Sen",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "5"
+                  }
+                },
+                {
+                  "text": " yet? Please, open your eyes!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null,
+      "notes": [
+        "MeowDB files every branch of this quest's completion dialogue under \"On completion\" without naming a speaker. Start NPC (Nina, id 4) and completion NPC (Sen, id 5) differ; the stopNpc / lost branch texts read as if spoken by the start NPC. Unverified: MeowDB does not say."
+      ]
+    },
+    {
+      "quest_id": "1004",
+      "quest_name": "Returning to Nina",
+      "npc_role": "start",
+      "start_npc_id": "5",
+      "complete_npc_id": "4",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Ahhh, sooo hungry. Where's my sister?! I was gonna ask her to make me mushroom soup. Sooo hungry!"
+        },
+        {
+          "text": "Please tell my sister I really, really want mushroom soup for dinner!",
+          "segments": [
+            {
+              "text": "Please tell my sister I really, really want "
+            },
+            {
+              "text": "mushroom soup",
+              "bold": true
+            },
+            {
+              "text": " for dinner!"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "What...? Aren't you gonna deliver it?"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/5",
+    "retrieved_at": "2026-10-04T10:05:00.718Z"
+  },
+  "field_sources": {
+    "locations/000000021": {
+      "url": "https://meowdb.com/msclassic/maps/000000021",
+      "retrieved_at": "2026-10-04T09:56:40.709Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1003/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1003",
+      "retrieved_at": "2026-10-04T10:07:19.852Z"
+    },
+    "quest_dialogue/1004/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1004",
+      "retrieved_at": "2026-10-04T10:07:21.009Z"
+    }
+  },
+  "gaps": [
+    "Quest 1003 (What Sen wants to eat) \"On completion\": MeowDB shows no main lines, only conditional branches (If you haven''t met the right NPC yet)."
+  ]
+}

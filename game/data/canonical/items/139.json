@@ -1,0 +1,124 @@
+{
+  "id": "139",
+  "name": "Overall Armor DEX Scroll: Greater",
+  "game_item_id": "2040510",
+  "type": "Use",
+  "subtype": "Scroll",
+  "inventory_tab": "use",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "Improves Dexterity on overalls.\nSuccess rate: 10%, DEX +3",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": {
+    "target_equipment": "Overall",
+    "stat_type": "DEX",
+    "grade": "Greater",
+    "success_rate_pct": 10,
+    "stat_bonus_on_success": {
+      "dex": 3
+    }
+  },
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 1,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [],
+    "msea_reference_drops": [
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4
+      },
+      {
+        "monster_id": "1041",
+        "monster_name": "Master Robo",
+        "monster_level": 44
+      },
+      {
+        "monster_id": "1086",
+        "monster_name": "Ghost Pirate",
+        "monster_level": 83
+      },
+      {
+        "monster_id": "700005",
+        "monster_name": "Crimson Balrog",
+        "monster_level": 100
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "Improves Dexterity on overalls.\nSuccess rate: 10%, DEX+3",
+      "cot2": "Improves Dexterity on overalls.\nSuccess rate: 10%, DEX +3"
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/139",
+    "retrieved_at": "2026-10-04T10:43:02.286Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/139?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:03.349Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/139?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:03.349Z"
+    },
+    "scroll": {
+      "url": "https://meowdb.com/msclassic/api/items/139?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:43:03.349Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=139",
+      "retrieved_at": "2026-10-04T10:43:04.523Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "notes": [
+    "Scroll: stat_bonus_on_success is added to the target equipment when the scroll succeeds; it is not a stat of the scroll itself."
+  ]
+}

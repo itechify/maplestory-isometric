@@ -1,0 +1,72 @@
+{
+  "id": "loot_rules",
+  "name": "Drops, pickup, mesos and inventory rules",
+  "drop_timing": {
+    "statement": "loot drops as soon as the mob dies.",
+    "note": "Monster page (Snail). The death animation length is per-monster data (Snail: body fades over 1.26 s)."
+  },
+  "player_pickup_box_px": {
+    "left": 25,
+    "right": 25,
+    "above": 60,
+    "below": 30
+  },
+  "pickup_lines": [
+    "x: 25 px left to 25 px right",
+    "y: 60 px above to 30 px below"
+  ],
+  "pickup_key_note": "Items you pick up will be automatically stored in the appropriate tab.",
+  "inventory_full": "When your Item Inventory is full, you won't be able to pick up new items.",
+  "ownership": {
+    "documented": "partially",
+    "statement": "Pets follow your ownership rules. They take free drops and drops that belong to you or your party.",
+    "party_loot_definition": "Whether item drops go free-for-all or rotate by party member."
+  },
+  "drop_tables": {
+    "documented_rates": false,
+    "statement": "Classic World appears to draw from the pre-Big-Bang MapleSEA drop tables. This list is historical reference only and shows what this monster dropped in old MapleSEA.",
+    "community": "Items players have personally seen drop in-game. Upvote what you've seen, downvote what you haven't.",
+    "note": "Per-monster drop lists (community-confirmed and MSEA reference) are monsters/drops domain data. MeowDB gives no drop chances."
+  },
+  "mesos": {
+    "documented_formula": false,
+    "note": "Monster pages show \"Mesos per kill\" from player reports (/msclassic/api/mesos-reports?monsterId=...), monsters domain. No meso-drop formula is published."
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+    "retrieved_at": "2026-10-04T10:04:43.693Z"
+  },
+  "field_sources": {
+    "drop_timing": {
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-04T09:57:41.529Z"
+    },
+    "pickup_key_note": {
+      "url": "https://meowdb.com/msclassic/npcs/3",
+      "retrieved_at": "2026-10-04T10:04:50.974Z"
+    },
+    "inventory_full": {
+      "url": "https://meowdb.com/msclassic/npcs/3",
+      "retrieved_at": "2026-10-04T10:04:50.974Z"
+    },
+    "ownership.party_loot_definition": {
+      "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+      "retrieved_at": "2026-10-04T10:09:34.025Z"
+    },
+    "drop_tables": {
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-04T09:57:41.529Z"
+    },
+    "ownership.statement": {
+      "url": "https://meowdb.com/msclassic/formulas/pets",
+      "retrieved_at": "2026-10-04T10:04:47.357Z"
+    }
+  },
+  "gaps": [
+    "Drop expiry time (how long an item/meso stays on the ground) is not documented.",
+    "Drop ownership duration (how long a drop belongs to the killer before becoming free-for-all) is not documented.",
+    "Meso drop amount formula and item drop chances are not documented.",
+    "Drop scatter pattern (spacing between multiple drops) is not documented."
+  ]
+}

@@ -6,7 +6,7 @@
 | Architecture | `Dock_Bollard` | 0.6 | dock |  |
 | Architecture | `Dock_Pier_4m` | 4.0 | dock | 4 m x 3 m pier section along +X; deck top at z=0, posts down to -3. |
 | Architecture | `Door_Plank` | 1.6 | interior, door | Closed round-topped plank double door in a stone frame, modelled flat against a wall (faces -Y). |
-| Architecture | `Eave_Lashed_4m` | 4.0 | interior | 4 m run of the roof edge seen from inside: lashed planks rising toward -Y, dark-blue cords. |
+| Architecture | `Eave_Lashed_4m` | 4.0 | interior, collide_exact | 4 m run of the roof edge seen from inside: lashed planks rising toward -Y, dark-blue cords. |
 | Architecture | `Fence_Picket_Seg` | 2.0 | fence |  |
 | Architecture | `Fence_Wood_Seg` | 2.0 | fence | 2 m fence segment along +X starting at origin. |
 | Architecture | `Hill_Door` | 2.4 | landmark, portal_door | Round banded plank door set into a grassy hill face (grassySoil door/0). Faces -Y. |

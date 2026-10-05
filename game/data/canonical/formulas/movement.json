@@ -1,0 +1,162 @@
+{
+  "id": "movement",
+  "name": "Movement speed, jump, pickup range, knockback airtime and fall damage",
+  "status": "Confirmed (MeowDB states it was measured/confirmed in COT2)",
+  "status_note": "We measured COT2 video footage closely, frame by frame, and got these results.",
+  "base_speed": 100,
+  "base_jump": 100,
+  "speed_cap": 140,
+  "jump_cap": 120,
+  "walk_speed": {
+    "formula": "Walk speed = 125 × (Speed + 20) / 100 px/s",
+    "base_px_per_s": 150,
+    "cap_px_per_s": 200
+  },
+  "climb_speed": {
+    "formula": "Climb speed = Speed + 20 px/s",
+    "base_px_per_s": 120,
+    "note": "Ropes and ladders use the climb speed. Haste raises both."
+  },
+  "caps_line": "Speed cap: 140 (200 px/s) · Jump cap: 120",
+  "speed_notes": [
+    "Speed above 140 does nothing. Speed also has no effect on how fast you attack.",
+    "MapleStory Classic World adds 20 Speed behind the scenes, so your 100 moves like the old 120."
+  ],
+  "jump_height_px_by_jump": [
+    {
+      "jump": 100,
+      "height_px": 77
+    },
+    {
+      "jump": 105,
+      "height_px": 85
+    },
+    {
+      "jump": 110,
+      "height_px": 93
+    },
+    {
+      "jump": 115,
+      "height_px": 102
+    },
+    {
+      "jump": 120,
+      "height_px": 111
+    }
+  ],
+  "jump_note": "At Jump 100 you rise 77 px. Each point of Jump adds launch speed, so height grows a little faster than Jump itself.",
+  "nimble_feet_speed_bonus": 10,
+  "nimble_feet_note": "Nimble Feet (every class) +10 - Beginner skill; lasts 10 to 30 sec; 3 min cooldown",
+  "pickup_box_px": {
+    "left": 25,
+    "right": 25,
+    "above": 60,
+    "below": 30
+  },
+  "pickup_lines": [
+    "Pickup box around your character:",
+    "x: 25 px left to 25 px right",
+    "y: 60 px above to 30 px below"
+  ],
+  "controls_statements": [
+    "Do you also know that if you press the down arrow key, you can crouch, and then jump while crouching, to leap down to a lower platform?",
+    "If you press the up arrow key in front of a portal, you can enter it, and if you press the up arrow key in front of a ladder or rope, you can climb or hang from it."
+  ],
+  "controls_note": "Rain's Maple Quiz 1 (quest 1013) NPC dialogue: crouch (down) + jump drops through to a lower platform; up enters a portal or grabs a ladder/rope. Qualitative only; key bindings are configurable in game.",
+  "knockback_airtime": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "upward_speed_px_per_s": 270,
+    "gravity_px_per_s2": 2000,
+    "same_height_airtime_s": 0.27,
+    "time_to_peak_s": 0.135,
+    "rise_px": 18.225,
+    "lines": [
+      "UpwardSpeed = 270 px/s · Gravity = 2000 px/s²",
+      "SameHeightAirtime = 2 × UpwardSpeed / Gravity = 0.270 s",
+      "TimeToPeak = UpwardSpeed / Gravity = 0.135 s",
+      "Rise = UpwardSpeed² / (2 × Gravity) = 18.225 px"
+    ],
+    "notes": [
+      "An ordinary knockback gives about 0.27 seconds of airtime when you start on the ground and land at the same height, with normal gravity and no further impacts or obstacles.",
+      "This is a physics estimate. Existing movement, ledges and special attacks can change the flight. It does not measure how long you lose the ability to attack."
+    ],
+    "gaps": [
+      "Horizontal knockback speed/distance for the player is not documented.",
+      "Whether every hit knocks the player back (or only hits above some threshold) is not documented."
+    ]
+  },
+  "monster_knockback": {
+    "definition": "Being pushed backward when hit. Also the knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger.",
+    "gaps": [
+      "Monster knockback distance/speed and stagger duration are not documented."
+    ]
+  },
+  "fall_damage": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "lines": [
+      "N = consecutive movement updates with downward speed ≥ 500 px/s",
+      "N ≤ 44: BaseFallDamage = 0",
+      "N ≥ 45: BaseFallDamage = max(1, 36 - floor(336 / (N - 18)))",
+      "N = 45: 24 · N = 60: 28 · N = 120: 33 · N ≥ 355: 36"
+    ],
+    "notes": [
+      "For a qualifying landing in COT2, base fall damage starts at 24 and caps at 36. The counter resets when downward speed falls below 500 px/s; N measures consecutive fast-falling updates. Taller drops generally increase it.",
+      "Maps can disable fall damage.",
+      "A flight-map setting multiplies it by 100, but none of the 426 checked COT2 maps enable that setting.",
+      "DEF, avoidability, level and max HP do not enter this base formula. Final HP loss and mitigation from defensive skills remain unconfirmed."
+    ],
+    "gaps": [
+      "The length of one \"movement update\" (tick rate) is not documented."
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/guides/speed-jump-and-movement",
+    "retrieved_at": "2026-10-04T10:09:32.829Z"
+  },
+  "field_sources": {
+    "walk_speed": {
+      "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+      "retrieved_at": "2026-10-04T10:04:43.693Z"
+    },
+    "climb_speed": {
+      "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+      "retrieved_at": "2026-10-04T10:04:43.693Z"
+    },
+    "caps_line": {
+      "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+      "retrieved_at": "2026-10-04T10:04:43.693Z"
+    },
+    "pickup_box_px": {
+      "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+      "retrieved_at": "2026-10-04T10:04:43.693Z"
+    },
+    "pickup_lines": {
+      "url": "https://meowdb.com/msclassic/formulas/attack-speed",
+      "retrieved_at": "2026-10-04T10:04:43.693Z"
+    },
+    "knockback_airtime": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "monster_knockback": {
+      "url": "https://meowdb.com/msclassic/guides/maplestory-classic-glossary",
+      "retrieved_at": "2026-10-04T10:09:34.025Z"
+    },
+    "fall_damage": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "controls_statements": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1013",
+      "retrieved_at": "2026-10-04T10:07:31.864Z"
+    },
+    "controls_note": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1013",
+      "retrieved_at": "2026-10-04T10:07:31.864Z"
+    }
+  },
+  "gaps": [
+    "Walking acceleration/deceleration and air control are not documented."
+  ]
+}

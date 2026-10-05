@@ -1,0 +1,275 @@
+{
+  "id": "1014",
+  "name": "Rain's Maple Quiz 2",
+  "region": "Maple Island",
+  "area_id": 1,
+  "quest_group": "Rain's Maple Quiz",
+  "start_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc": {
+    "npc_id": "19",
+    "name": "Rain"
+  },
+  "end_npc_listed_separately": false,
+  "start_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "end_maps": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street"
+    }
+  ],
+  "min_level": 5,
+  "max_level": null,
+  "completion_min_level": null,
+  "job_restriction": [
+    "Beginner"
+  ],
+  "class_key": null,
+  "prerequisites": {
+    "quests": [
+      {
+        "quest_id": "1013",
+        "name": "Rain's Maple Quiz 1"
+      }
+    ],
+    "items": [],
+    "fame_min": null,
+    "skills": [],
+    "citizenship": null,
+    "acceptance_meso_cost": null,
+    "must_not_have_items": [],
+    "unresolved": []
+  },
+  "repeatable": false,
+  "repeat_type": null,
+  "self_start": false,
+  "objectives": {
+    "monster_kills": [],
+    "item_collection": [],
+    "item_usage": [],
+    "npc_talk": [
+      {
+        "npc_id": "19",
+        "name": "Rain",
+        "purpose": "turn_in"
+      }
+    ],
+    "map_visit": [],
+    "other": [
+      {
+        "type": "quiz",
+        "description": "Answer the NPC quiz question correctly on completion (see dialogue.on_completion.quiz)."
+      }
+    ]
+  },
+  "completion_action": null,
+  "completion_action_text": null,
+  "rewards": {
+    "exp": 25,
+    "mesos": 0,
+    "fame": 0,
+    "items": [],
+    "selection": [],
+    "random": []
+  },
+  "items_given_on_accept": [],
+  "items_removed_on_completion": {
+    "explicit_in_meowdb": false,
+    "basis": "No item requirements.",
+    "items": []
+  },
+  "followup_quests": [
+    {
+      "quest_id": "1015",
+      "name": "Rain's Maple Quiz 3"
+    }
+  ],
+  "next_quest_grants": [],
+  "quest_line": {
+    "steps": [
+      {
+        "quest_id": "1013",
+        "name": "Rain's Maple Quiz 1",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1014",
+        "name": "Rain's Maple Quiz 2",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1015",
+        "name": "Rain's Maple Quiz 3",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1016",
+        "name": "Rain's Maple Quiz 4",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1017",
+        "name": "Rain's Maple Quiz 5",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1018",
+        "name": "Rain's Maple Quiz 6",
+        "npc": "Rain",
+        "min_level": 5
+      },
+      {
+        "quest_id": "1019",
+        "name": "Rain's Maple Quiz 7",
+        "npc": "Rain",
+        "min_level": 5
+      }
+    ],
+    "position": 2,
+    "total": 7,
+    "end_fork": [],
+    "split": null
+  },
+  "journal": {
+    "raw": "Solve Rain's second question.\nWhat's Rain's second question?\nRain's question was about equippable items, which can be worn by double-clicking on them.",
+    "lines": [
+      "Solve Rain's second question.",
+      "What's Rain's second question?",
+      "Rain's question was about equippable items, which can be worn by double-clicking on them."
+    ],
+    "summary": "Solve Rain's second question.",
+    "entries": [
+      "What's Rain's second question?",
+      "Rain's question was about equippable items, which can be worn by double-clicking on them."
+    ]
+  },
+  "dialogue": {
+    "on_accept": {
+      "heading": "On accept",
+      "chips": [],
+      "lines": [
+        {
+          "text": "All right, talk to me when you're ready for the next question.",
+          "segments": [
+            {
+              "text": "All right, talk to me when you're ready for the next question."
+            }
+          ]
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    "on_completion": {
+      "heading": "On completion",
+      "chips": [
+        {
+          "label": "Quiz",
+          "title": "This NPC asks you a quiz question"
+        }
+      ],
+      "lines": [],
+      "branches": [],
+      "quiz": {
+        "question": {
+          "text": "Can you wear an item just by double-clicking it with your mouse?",
+          "segments": [
+            {
+              "text": "Can you wear an item just by double-clicking it with your mouse?"
+            }
+          ]
+        },
+        "choices": [
+          {
+            "text": "Oh yes",
+            "segments": [
+              {
+                "text": "Oh yes"
+              }
+            ],
+            "correct": true,
+            "raw_markup": null
+          },
+          {
+            "text": "No way.",
+            "segments": [
+              {
+                "text": "No way."
+              }
+            ],
+            "correct": false,
+            "raw_markup": null
+          }
+        ],
+        "correct_choice_index": 0,
+        "correct_choice_basis": "meowdb_marker",
+        "wrong_answer_heading": "If you pick the wrong answer",
+        "wrong_answer_responses": [
+          {
+            "text": "Try it! Open your Equipment Inventory, then take off an item by double-clicking it. After that, double-click the item in your Inventory to put it back on.",
+            "segments": [
+              {
+                "text": "Try it! Open your Equipment Inventory, then take off an item by double-clicking it. After that, double-click the item in your Inventory to put it back on."
+              }
+            ]
+          }
+        ],
+        "correct_answer_heading": "When you answer correctly",
+        "correct_answer_response": {
+          "text": "Yup, you can wear an item just by double-clicking it from your inventory. If you can't wear something, check that your character meets the level and statistic requirements.",
+          "segments": [
+            {
+              "text": "Yup, you can wear an item just by double-clicking it from your inventory. If you can't wear something, check that your character meets the level and statistic requirements."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/quest-tracker/1014",
+    "retrieved_at": "2026-10-04T10:07:33.075Z"
+  },
+  "field_sources": {
+    "region": {
+      "url": "https://meowdb.com/_next/static/chunks/7829-2a485fd328590c45.js",
+      "retrieved_at": "2026-10-04T10:06:23.984Z"
+    }
+  },
+  "cross_checks": [
+    {
+      "url": "https://meowdb.com/msclassic/quest-tracker/all",
+      "retrieved_at": "2026-10-04T10:04:38.951Z",
+      "checked": "quest object identical to detail page unless listed in discrepancies"
+    },
+    {
+      "url": "https://meowdb.com/msclassic/npcs",
+      "retrieved_at": "2026-10-04T09:57:42.013Z",
+      "checked": "start/end NPC ids, names, maps, region MapleIsland, quest and turn-in lists"
+    }
+  ],
+  "notes": [
+    "Quiz choices are listed in MeowDB document order, which is the in-game selection order (#L0, #L1, ...; quiz 6 leaks a raw \"#L2\" tag exactly at position 2). MeowDB renders the choice rows nested inside each other (a markup artifact); the extractor flattens them in document order. choices[].correct is MeowDB's marker: true = marked \"Correct answer\", false = rendered as an option and not marked, null = option reconstructed from unparsed game markup (raw_markup). Wrong-answer responses are listed in MeowDB order and are not linked to a specific choice by MeowDB."
+  ],
+  "gaps": [
+    "MeowDB has no maximum level for quests (max_level is null).",
+    "MeowDB has no map-visit objectives or per-objective map restrictions for quests.",
+    "MeowDB does not say which \"On completion\" lines are shown before vs after the reward is given, or how dialogue pages are split into NPC chat windows."
+  ],
+  "discrepancies": []
+}

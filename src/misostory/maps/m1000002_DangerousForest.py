@@ -480,6 +480,7 @@ def build(m):
     m.place("Rock_A", 0.6, 0.2, rot=40)
     m.place("Rock_Boulder", 8.0, 6.4, rot=35, scale=0.55)   # lookout rock on the brink of the ravine
     m.player(7.6, 3.2, rot=-40)  # at the head of the trail, beside the exit
+    m.player_spawn(6.4, 3.4, rot=180, note="sp x -204: just east of out01 at the head of the trail")
 
     # --- G1 west hollow: a tight rust twin on the west edge, mossy rocks, a stump (P01a face kept open)
     m.place("X1000002_Birch_Rust", 0.6, 9.4, rot=30, scale=0.8)

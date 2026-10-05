@@ -1,0 +1,270 @@
+{
+  "id": "12",
+  "name": "Biggs",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road",
+      "x_px": 950,
+      "y_px": -193
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "I can't stay in this town forever. Is there anyone who can help me?"
+    },
+    {
+      "text": "Thanks for earlier. Now if I could just get a little more money, I could start my business. Are you still using the weapon I gave you?"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Heh, looks like I'm still the best looking man in this town."
+    },
+    {
+      "text": "Hey you! What are you looking at? If you're admiring my good looks, just go ahead and say it!"
+    },
+    {
+      "text": "One of these days, I'll be the one operating that huge ship and setting off for bigger, better lands..."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1011",
+        "name": "Biggs's Collection of Items"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1011"
+    ],
+    "completed_here": [
+      "1011"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1011",
+      "quest_name": "Biggs's Collection of Items",
+      "npc_role": "start",
+      "start_npc_id": "12",
+      "complete_npc_id": "12",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "I'll give you something nice if you get me 1 Orange Mushroom Cap and 10 Blue Snail Shells! Eliminate Orange Mushroom and Blue Snail to get them. But looking at you, I don't know if you're up to the challenge...",
+          "segments": [
+            {
+              "text": "I'll give you something nice if you get me "
+            },
+            {
+              "text": "1 ",
+              "bold": true
+            },
+            {
+              "text": "Orange Mushroom Cap",
+              "bold": true,
+              "ref": {
+                "kind": "item",
+                "id": "356"
+              }
+            },
+            {
+              "text": " and "
+            },
+            {
+              "text": "10 ",
+              "bold": true
+            },
+            {
+              "text": "Blue Snail Shells",
+              "bold": true,
+              "ref": {
+                "kind": "item",
+                "id": "349"
+              }
+            },
+            {
+              "text": "! Eliminate "
+            },
+            {
+              "text": "Orange Mushroom",
+              "color": "red",
+              "ref": {
+                "kind": "monster",
+                "id": "9"
+              }
+            },
+            {
+              "text": " and "
+            },
+            {
+              "text": "Blue Snail",
+              "color": "red",
+              "ref": {
+                "kind": "monster",
+                "id": "3"
+              }
+            },
+            {
+              "text": " to get them. But looking at you, I don't know if you're up to the challenge..."
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Oh, you sound so confident! Let's put your money where your mouth is. Make sure to bring back 1 Orange Mushroom Cap and 10 Blue Snail Shells. I'll be waiting!",
+              "segments": [
+                {
+                  "text": "Oh, you sound so confident! Let's put your money where your mouth is. Make sure to bring back "
+                },
+                {
+                  "text": "1 ",
+                  "bold": true
+                },
+                {
+                  "text": "Orange Mushroom Cap",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "356"
+                  }
+                },
+                {
+                  "text": " and "
+                },
+                {
+                  "text": "10 ",
+                  "bold": true
+                },
+                {
+                  "text": "Blue Snail Shells",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "349"
+                  }
+                },
+                {
+                  "text": ". I'll be waiting!"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "You'll regret not taking the opportunity to get a good item like this one!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1011",
+      "quest_name": "Biggs's Collection of Items",
+      "npc_role": "complete",
+      "start_npc_id": "12",
+      "complete_npc_id": "12",
+      "section": "On completion",
+      "lines": [
+        {
+          "text": "Wow! You really managed to gather all the stuff I asked for! Here's an item, like I promised."
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "When you have everything ready",
+          "lines": [
+            {
+              "text": "Wow, I didn't really think you would be able to gather everything. Okay, I'll give you the item, as promised. I don't need it anyhow... Here you go!"
+            }
+          ]
+        },
+        {
+          "key": "stopItem",
+          "label": "If you don''t have the items yet",
+          "lines": [
+            {
+              "text": "You don't have 1 Orange Mushroom Cap and 10 Blue Snail Shells yet, right? Don't worry about it. I'll be here for a while.",
+              "segments": [
+                {
+                  "text": "You don't have "
+                },
+                {
+                  "text": "1 ",
+                  "bold": true
+                },
+                {
+                  "text": "Orange Mushroom Cap",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "356"
+                  }
+                },
+                {
+                  "text": " and 10 "
+                },
+                {
+                  "text": "Blue Snail Shells",
+                  "bold": true,
+                  "ref": {
+                    "kind": "item",
+                    "id": "349"
+                  }
+                },
+                {
+                  "text": " yet, right? Don't worry about it. I'll be here for a while."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/12",
+    "retrieved_at": "2026-10-04T10:05:34.735Z"
+  },
+  "field_sources": {
+    "locations/000000060": {
+      "url": "https://meowdb.com/msclassic/maps/000000060",
+      "retrieved_at": "2026-10-04T09:56:49.733Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1011/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1011",
+      "retrieved_at": "2026-10-04T10:07:29.507Z"
+    },
+    "quest_dialogue/1011/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1011",
+      "retrieved_at": "2026-10-04T10:07:29.507Z"
+    }
+  }
+}

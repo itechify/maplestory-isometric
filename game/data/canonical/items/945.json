@@ -1,0 +1,129 @@
+{
+  "id": "945",
+  "name": "Brown Training Shirt",
+  "game_item_id": "1040007",
+  "type": "Equip",
+  "subtype": "Top",
+  "inventory_tab": "equip",
+  "equip_slot": "top",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 10,
+    "job": [
+      "Mage"
+    ],
+    "job_raw": "Mage",
+    "str": 0,
+    "dex": 0,
+    "int": 10,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "wdef": 13,
+    "mdef": 18,
+    "luk": 1,
+    "upgrade_slots": 7
+  },
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 2000,
+  "sell_price_mesos": 1000,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "male",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "311",
+        "npc_name": "Serabi the Fairy",
+        "npc_role": "Armor Seller",
+        "map_id": "010002001",
+        "map_name": "Victoria Road: Ellinia Weapon Store",
+        "town": "Ellinia",
+        "price_mesos": 2000,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "3",
+        "monster_name": "Blue Snail",
+        "monster_level": 2,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "682",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "wdef",
+        "stat": "WDEF",
+        "cot1": "9",
+        "cot2": "13",
+        "change": "+4"
+      }
+    ],
+    "notes": [
+      "Renamed in COT2. It was called Grey / Brown Training Shirt."
+    ],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/945",
+    "retrieved_at": "2026-10-04T10:45:38.286Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/945?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:39.370Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/945?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:45:39.370Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=945",
+      "retrieved_at": "2026-10-04T10:45:40.527Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

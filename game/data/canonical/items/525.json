@@ -1,0 +1,112 @@
+{
+  "id": "525",
+  "name": "Sky-blue Wooden Chair",
+  "game_item_id": "3010003",
+  "type": "Setup",
+  "subtype": null,
+  "inventory_tab": "setup",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A specially-made sky-blue wooden chair that's only available in Lith Harbor. Restores an additional 30 HP every 10 seconds.",
+  "requirements": {
+    "level": 5,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": {
+    "hp_recovery_bonus": 30,
+    "interval_s": 10
+  },
+  "npc_buy_price_mesos": 1000,
+  "sell_price_mesos": 500,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 1,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "109",
+        "npc_name": "Mina",
+        "npc_role": "Grocer",
+        "map_id": "010000002",
+        "map_name": "Victoria Road: Lith Harbor Department Store",
+        "town": "Lith Harbor",
+        "price_mesos": 1000,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "A specially-made sky-blue wooden chair that's only available in Lith Harbor. Recover an additional 30 HP every 10 seconds.",
+      "cot2": "A specially-made sky-blue wooden chair that's only available in Lith Harbor. Restores an additional 30 HP every 10 seconds."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/525",
+    "retrieved_at": "2026-10-04T10:47:05.333Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/525?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:06.444Z"
+    },
+    "max_stack": {
+      "url": "https://meowdb.com/msclassic/api/items/525?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:06.444Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/525?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:06.444Z"
+    },
+    "setup.interval_s": {
+      "url": "https://meowdb.com/msclassic/api/items/525?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:47:06.444Z",
+      "from": "description text \"every 10 seconds\""
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=525",
+      "retrieved_at": "2026-10-04T10:47:07.618Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  }
+}

@@ -1,0 +1,355 @@
+{
+  "id": "accuracy",
+  "name": "Accuracy, avoidability, hit chance, guards and incoming damage",
+  "status": "Published formula (no status label on the MeowDB card)",
+  "inputs_note": "Accuracy, avoid, magic and defense all come from total stats: base AP plus equipment and buffs.",
+  "floor_rule": "Each floor is applied exactly where shown. Equipment and skill bonuses are added to the matching derived stat afterward.",
+  "derived_accuracy": {
+    "common_term": "Common = 1.2 × DEX + 2 × Level + 0.6 × LUK",
+    "by_job": {
+      "beginner": {
+        "formula": "Beginner ACC = floor(Common / 2.5 + 5)",
+        "divisor": 2.5,
+        "constant": 5,
+        "uses_common_term": true
+      },
+      "warrior": {
+        "formula": "Warrior ACC = floor(Common / 2.5 + 10)",
+        "divisor": 2.5,
+        "constant": 10,
+        "uses_common_term": true
+      },
+      "bowman": {
+        "formula": "Bowman ACC = floor(Common / 4.8 + 20)",
+        "divisor": 4.8,
+        "constant": 20,
+        "uses_common_term": true
+      },
+      "thief": {
+        "formula": "Thief ACC = floor(Common / 4 + 15)",
+        "divisor": 4,
+        "constant": 15,
+        "uses_common_term": true
+      },
+      "magician": {
+        "formula": "Magician ACC = floor((1.2 × INT + 2 × Level + 0.6 × LUK) / 5.1 + 20)",
+        "divisor": 5.1,
+        "constant": 20,
+        "uses_common_term": false,
+        "numerator": "1.2 × INT + 2 × Level + 0.6 × LUK"
+      }
+    },
+    "stat_coefficients": {
+      "dex": 1.2,
+      "level": 2,
+      "luk": 0.6,
+      "magician_int": 1.2
+    },
+    "rounding": "floor of the whole expression (floor(Common / divisor + constant))"
+  },
+  "avoidability": {
+    "formula": "EVA = floor(LUK / 3) + floor(DEX / 6) + 5",
+    "luk_divisor": 3,
+    "dex_divisor": 6,
+    "constant": 5,
+    "rounding": "each term floored separately, then summed"
+  },
+  "outgoing_hit": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "applies_to": "Whether your attack connects. Physical attacks and spells use the same hit test.",
+    "formulas": [
+      "L = max(0, MobLevel - PlayerLevel)",
+      "A = TotalACC × 100 / (10 × L + 255)",
+      "D = A - MobEVA",
+      "f = 0.15 + 0.20 / (1 + exp(D / 12))",
+      "R = uniform(1 - f, 1 + f)",
+      "Hit when A × R ≥ MobEVA",
+      "q = MobEVA / A",
+      "P(hit) = 1 when q ≤ 1 - f",
+      "P(hit) = 0 when q ≥ 1 + f",
+      "P(hit) = (1 + f - q) / (2 × f) otherwise"
+    ],
+    "constants": {
+      "acc_scale": 100,
+      "level_gap_coefficient": 10,
+      "base_divisor": 255,
+      "spread_base": 0.15,
+      "spread_extra": 0.2,
+      "spread_scale": 12
+    },
+    "automatic_hit": {
+      "formula": "Automatic hit: D ≥ 25 + L × (0.5 × PlayerLevel + 15)",
+      "description": "The game compares your accuracy to the monster's avoid with a random spread. A big enough accuracy lead skips the roll.",
+      "constants": {
+        "base": 25,
+        "player_level_coefficient": 0.5,
+        "per_gap_constant": 15
+      }
+    },
+    "notes": [
+      "Every offensive Magician spell can miss. Physical attacks and offensive spells use this shared target hit check. Some status actions disable the automatic-hit shortcut and still perform the same roll.",
+      "Summons use your hit roll and the Darkness check. Against bosses they never get the automatic hit."
+    ],
+    "calculator_edge_cases": {
+      "rules": [
+        "MobEVA <= 0 -> hit chance 1 (always hits).",
+        "TotalACC <= 0 (and MobEVA > 0) -> hit chance 0.",
+        "The automatic-hit test is evaluated before the q-based probability.",
+        "L uses max(1, MobLevel) - PlayerLevel, floored at 0."
+      ],
+      "code_excerpt": "t=Math.max(0,Math.max(1,M(e,\"mobLevel\"))-r),o=100*a/(10*t+255),s=o-l,n=.15+.2/(1+Math.exp(s/12)),i=l<=0?1:a<=0?0:s>=25+t*(.5*r+15)?1:T(o,l,n)",
+      "probability_code": "function T(e,a,l){if(e<=0)return+(a<=0);let r=a/e;return r<=1-l?1:r>=1+l?0:(1+l-r)/(2*l)}"
+    }
+  },
+  "darkness": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "formulas": [
+      "d = clamp(Darkness / 100, 0, 1)",
+      "v = uniform(0, 1)",
+      "Lands = Hit and v > d",
+      "P(lands) = P(hit) × (1 - d)"
+    ],
+    "note": "Darkness is a separate miss check rolled after the attack hits. It does not lower your accuracy."
+  },
+  "incoming_hit": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "formulas": [
+      "G = max(0, PlayerLevel - MobLevel)",
+      "A = MobACC × 100 / (5 × (G + 51))",
+      "E = PlayerEVA / (1 + PlayerEVA / 80) / (1 + G / 40)",
+      "D = A - E",
+      "f = 0.15 + 0.20 / (1 + exp(D / 12))",
+      "R = uniform(1 - f, 1 + f)",
+      "CandidateChance = P(A × R ≥ E)",
+      "If E > A × (1 + f):",
+      "CandidateChance = clamp(exp((A - E) / 18) × 0.03, 0.02, 0.03)",
+      "FinalHitChance = CandidateChance + (1 - CandidateChance) × 0.08"
+    ],
+    "constants": {
+      "acc_scale": 100,
+      "level_base": 51,
+      "level_multiplier": 5,
+      "eva_soft_cap": 80,
+      "eva_level_divisor": 40,
+      "spread_base": 0.15,
+      "spread_extra": 0.2,
+      "spread_scale": 12,
+      "far_miss_scale": 18,
+      "far_miss_min": 0.02,
+      "far_miss_max": 0.03,
+      "minimum_hit_rescue": 0.08
+    },
+    "rescue_note": "After a candidate miss, apply the independent 8% minimum-hit rescue:",
+    "magic_note": "Physical uses WDEF after physical evasion and guard. Magic uses MDEF and bypasses the physical evasion and guard path.",
+    "monster_magic_note": "Monster magic attacks use their magic attack value and the MDEF curve without the physical miss roll.",
+    "calculator_edge_cases": {
+      "rules": [
+        "MobACC <= 0 -> monster hit chance 0%.",
+        "Player level and monster level are floored at 1.",
+        "The 8% rescue is applied after the candidate chance, including the far-miss clamp branch."
+      ],
+      "code_excerpt": "u=T(s,n,m);n>s*(1+m)&&(u=D(.03*Math.exp(i/18),.02,.03));let c=D((u+(1-u)*.08)*100,0,100)"
+    }
+  },
+  "guards": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "note": "Guards only work against regular attacks. Monster skills always get through.",
+    "formulas": [
+      "ShieldGuardChance = 0 when ShieldWDEF ≤ 0",
+      "ShieldGuardChance = max(0.05, ShieldWDEF / (ShieldWDEF + 500))",
+      "ClawGuardChance = 3% at Lv 1-6 · 4% at Lv 7-13 · 5% at Lv 14-20"
+    ],
+    "combine_rule": "When both are available, use the larger chance. A successful guard fully negates an eligible regular physical hit.",
+    "beginner_relevance": "Only Shield Guard can apply to a Beginner (needs an equipped shield with WDEF); Claw Guard is a Hermit skill."
+  },
+  "incoming_damage": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "formulas": [
+      "EffectiveMobAttack = trunc(MobAttack × AttackRatio / 100)",
+      "U = uniform(0, 1)",
+      "Roll = 1.1 + 0.4 × U",
+      "Raw = EffectiveMobAttack × Roll",
+      "Taken = Raw × (1 - DEF / (DEF + 5 × (PlayerLevel + 40) + 1.2 × Raw))",
+      "FinalTaken = trunc(clamp(Taken, 1, 50,000,000))"
+    ],
+    "touch_attack_ratio": 100,
+    "touch_attack_ratio_note": "touch hits: AttackRatio = 100",
+    "roll": {
+      "distribution": "uniform",
+      "min": 1.1,
+      "max": 1.5
+    },
+    "defense_curve": {
+      "def_level_offset": 40,
+      "def_level_multiplier": 5,
+      "raw_coefficient": 1.2
+    },
+    "clamp": {
+      "min": 1,
+      "max": 50000000,
+      "then": "trunc"
+    },
+    "def_stat": {
+      "physical": "WDEF",
+      "magic": "MDEF"
+    },
+    "touch_zone_note": "The touch zone deals contact damage when you walk into it. Attack power is a percent of the monster's own damage stat: physical attacks use P.DMG, magic attacks use M.DMG.",
+    "midpoint_note": "The calculator's middle damage value uses `U = 0.5`, or a `1.3` attack roll.",
+    "calculator_code": "t=e=>{let t=a*e;return Math.trunc(D(t*(1-l/(l+5*(r+40)+1.2*t)),1,5e7))};return[E(\"Damage taken\",t(1.1),t(1.5),0)]"
+  },
+  "elemental_resistance": {
+    "status": "Published formula (no status label on the MeowDB card)",
+    "formula": "Taken = AfterDefense × (1 - Resist / 100)",
+    "notes": [
+      "Applies to monster attacks with an element, magic and physical.",
+      "Applied after defense, before the damage cap.",
+      "Touching a monster deals damage with no element, so resistance never reduces it."
+    ]
+  },
+  "after_hit": {
+    "post_hit_invincibility_s": 1.5,
+    "statements": [
+      "Invincible after a hit: 1.5 s",
+      "A monster attack that misses you or that you block gives the same 1.5 s."
+    ],
+    "knockback": "See movement.json (knockback_airtime)."
+  },
+  "defensive_skills_not_beginner": {
+    "status": "MeowDB's Model (MeowDB's own model of the mechanic; not a confirmed game constant)",
+    "formulas": [
+      "Power Crash attack = trunc(EffectiveMobAttack × (1 - Reduction / 100))",
+      "Invincible (Cleric line): TouchDamage × (1 - Reduction / 100)",
+      "Meso Guard damage = DamageBeforeGuard × (1 - Reduction / 100)",
+      "Meso cost = DamageBeforeGuard × Reduction / 100 × CostRate / 100",
+      "Hyper Body HP = MaxHP × (1 + Bonus / 100)",
+      "Magic Guard survival = min(HyperBodyHP + MaxMP, HyperBodyHP / (1 - Transfer))",
+      "At 100% transfer: Magic Guard survival = HyperBodyHP + MaxMP"
+    ]
+  },
+  "parity_examples": [
+    {
+      "kind": "outgoing_hit",
+      "input": {
+        "total_acc": 100,
+        "player_level": 50,
+        "mob_level": 50,
+        "mob_eva": 20
+      },
+      "hit_chance": 1,
+      "accuracy_roll": [
+        32.02,
+        46.41
+      ],
+      "note": "/formulas Try-values defaults"
+    },
+    {
+      "kind": "incoming_hit",
+      "input": {
+        "mob_acc": 100,
+        "player_eva": 50,
+        "player_level": 50,
+        "mob_level": 50
+      },
+      "hit_chance_pct": 99.8,
+      "accuracy_roll": [
+        30.74,
+        47.69
+      ],
+      "note": "/formulas/damage-taken Try-values defaults"
+    },
+    {
+      "kind": "incoming_damage",
+      "input": {
+        "mob_attack": 300,
+        "def": 100,
+        "player_level": 50
+      },
+      "taken": [
+        295,
+        408
+      ],
+      "note": "/formulas/damage-taken Try-values defaults"
+    },
+    {
+      "kind": "incoming_damage",
+      "input": {
+        "mob_attack": 3,
+        "def": 0,
+        "player_level": 1
+      },
+      "taken": [
+        3,
+        4
+      ],
+      "note": "Snail (monster 2): \"Touch DMG 3-4, Base 3\""
+    }
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/formulas",
+    "retrieved_at": "2026-10-04T09:57:48.010Z"
+  },
+  "field_sources": {
+    "incoming_hit": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "guards": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "incoming_damage": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "elemental_resistance": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "after_hit": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "defensive_skills_not_beginner": {
+      "url": "https://meowdb.com/msclassic/formulas/damage-taken",
+      "retrieved_at": "2026-10-04T10:04:42.496Z"
+    },
+    "floor_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "outgoing_hit.notes": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "incoming_hit.rescue_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "incoming_hit.magic_note": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "guards.combine_rule": {
+      "url": "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+      "retrieved_at": "2026-10-04T10:04:40.014Z"
+    },
+    "incoming_damage.touch_zone_note": {
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-04T09:57:41.529Z"
+    },
+    "parity_examples.3": {
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-04T09:57:41.529Z"
+    },
+    "calculator_code": {
+      "url": "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+      "retrieved_at": "2026-10-04T10:05:18.698Z",
+      "loaded_by": "https://meowdb.com/msclassic/formulas"
+    }
+  },
+  "gaps": [
+    "Monster knockback on being hit (when a monster is pushed back / staggers) has only the glossary definition; no formula. See movement.json.",
+    "Which monster \"attack ratio\" applies to non-touch monster attacks is per-skill monster data (monsters domain); only touch hits (100) are documented here."
+  ]
+}

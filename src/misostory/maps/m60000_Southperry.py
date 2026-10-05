@@ -18,8 +18,10 @@ tied to bollards, and the tall lighthouse stands on the quay's front-east corner
 (classic world map). Behind the quay a harbour quarter of stepped whitewashed houses climbs in two
 terraces. The grand staircase turns toward the back (+y) from the street's front promenade so its
 risers face the camera. The trail from A Split Road arrives at west00 on the square's back edge and
-a paved road leads from it down to the west stair (ArrivalRoad). Tia (classically on the west town ground) greets
-passengers at the ticket booth on the quay, so the boarding point shows two NPCs in the Gameplay view.
+a paved road leads from it down to the west stair (ArrivalRoad).
+
+NPCs follow MeowDB MS Classic (Iteration Two): Yoona, Bari, Shanks and Biggs. The v8 extras Tia, the Maple
+Administrator and Paul are not placed.
 """
 
 import math
@@ -1442,17 +1444,15 @@ def build(m):
     # ------------------------------------------------------------------ NPCs and portals
     m.edge_portal("west00")
     m.door_portal("in00", sx - 1.0, sy - 3.25, rot=0)
-    # Tia (event greeter) welcomes passengers on the quay front strip, on the camera side of the ticket booth and
-    # west of the main mast's screen column, so a second NPC stands at the boarding point in Gameplay (pink and
-    # balloons read against the blue booth); 4 m off Main
-    m.npc("Tia", 67.8, 4.6, rot=22)
-    m.npc("Maple Administrator", 8.2, 13.4, rot=-15)
+    # NPCs: MeowDB's Southperry set (Yoona, Bari, Shanks, Biggs). Iteration One's v8 extras Tia, the Maple
+    # Administrator and Paul are not Maple Island NPCs in MeowDB MS Classic, so they are not placed (Paul's roof
+    # terrace stays as scenery).
     m.npc("Yoona", 11.6, 18.0, rot=10)
-    m.npc("Paul", hx - 0.6 * HS, hy - 2.5 * HS, rot=-10)
     m.npc("Bari", 28.9, 16.6, rot=-15)
     m.npc("Biggs", 29.9, 33.8, rot=-10)
     # the player on the quay just off the Main route, near the Gameplay focus, facing the camera
     m.player(65.0, 11.0, rot=22)
+    m.player_spawn(10.4, 16.2, rot=10, note="sp x -37: on the west town ground beside Yoona")
 
     # ------------------------------------------------------------------ routes
     m.route("Main", [(4.5, 45.0), (4.6, 41.0), (5.2, 33.0), (6.8, 24.0), (10.0, 16.6), (13.4, 12.4), (16.0, 10.8),
@@ -1460,7 +1460,7 @@ def build(m):
                      (36.4, 8.8), (41.0, 8.8), (46.0, 7.0), (50.6, 4.8), (56.6, 4.8), (56.6, 14.8), (62.0, 12.0),
                      (70.0, 8.0), (gx, 6.0), (gx, 4.1), (gx, deck_edge - 1.0), (gx + 1.2, shy + 1.5)])
     m.route("SquareFront", [(10.0, 16.6), (5.0, 13.6), (3.0, 12.6)])
-    m.route("ArmorStore", [(25.4, 10.2), (25.5, 11.0), (25.5, 21.3)])
+    m.route("ArmorStore", [(25.4, 10.2), (25.5, 11.0), (25.5, 20.95)])  # ends 0.4 m short of in00, off the shop
     # the classic west climb: from the street (off Main past the west stair's foot) up a ledge rope to T30, then the
     # long ladder x405 up to Biggs's belvedere and along it to the market canopy
     m.route("LedgeRopes_Belvedere", [(23.0, 10.6), (22.4, 13.2), (19.4, 14.4), (19.0, 22.8), (19.0, 25.2),

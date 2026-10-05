@@ -1,0 +1,25 @@
+{
+  "quest_id": "1002",
+  "name": "Roger's Apple",
+  "reason": "MeowDB lists no items given on acceptance for Roger's Apple (acceptItems is empty), yet the quest cannot be completed without using Roger's Apple (objectives.item_usage: item 235, count 1) and the canonical completion dialogue says \"Eat the Roger's Apple I gave you\". Roger must therefore hand the apple over when the quest is accepted. MeowDB does not state the quantity or the timing.",
+  "verified": false,
+  "accept_items": [
+    {
+      "item_id": "235",
+      "name": "Roger's Apple",
+      "count": 1,
+      "reason": "Hand-out quantity and timing are not published by MeowDB (gap recorded in game/data/canonical/quests/1002.json). One apple, given on accept, is the minimum that makes the quest completable: the usage objective needs exactly 1 use. The count of 1 is NOT taken from safe-to-sell.json (whose qty is how many the quest asks for, not a hand-out count).",
+      "verified": false,
+      "evidence": [
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1002",
+          "where": "On completion / If you don't have the items yet: \"Eat the Roger's Apple I gave you ...\""
+        },
+        {
+          "url": "https://meowdb.com/msclassic/quest-tracker/1002",
+          "where": "completion rule \"To complete: use Roger's Apple, then talk to Roger.\""
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "id": "000000061",
+  "name": "Southperry Armor Store",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Southperry Armor Store is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 1 NPC including Pan. Connects to 1 other map.",
+  "return_map_id": "000000060",
+  "return_map_name": "Southperry",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 4,
+  "field_restrictions": [
+    {
+      "key": "summoning-bag",
+      "label": "No summoning bags",
+      "description": "Summoning bags cannot be used on this map."
+    }
+  ],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000060",
+      "map_name": "Southperry",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": -48,
+      "y_px": 181,
+      "to_map_id": "000000060",
+      "to_map_name": "Southperry",
+      "to_street_name": "Maple Road",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -114,
+      "y_px": 115
+    }
+  ],
+  "npcs": [
+    {
+      "id": "16",
+      "name": "Pan",
+      "x_px": -270,
+      "y_px": 138,
+      "idle_speech_lines": [
+        "Let's see... I'm ready to make some money.",
+        "Listen up, everyone! I've got goods here for sale!",
+        "Those who steal will not go unpunished!"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 0,
+    "height_px": 0,
+    "center_x_px": 0,
+    "center_y_px": 0,
+    "has_image": false
+  },
+  "bounds_px_derived": null,
+  "quests": {},
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000061",
+    "retrieved_at": "2026-10-04T09:56:51.245Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000060",
+          "retrieved_at": "2026-10-04T09:56:49.733Z"
+        }
+      ]
+    }
+  },
+  "gaps": [
+    "MeowDB has no minimap rectangle for this map (all minimap fields are 0), so bounds_px_derived is null.",
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}

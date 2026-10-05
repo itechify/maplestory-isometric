@@ -100,12 +100,14 @@ Gameplay:
 
 | call | notes |
 |---|---|
-| `m.edge_portal(name)` | Places a layout-anchored exit. The target map and portal are looked up automatically. Call it once for **every anchor** of your map. |
+| `m.edge_portal(name)` | Places a layout-anchored exit. The target map and portal are looked up automatically. Call it once for **every anchor** of your map. An arrival-only anchor (`layout.ONE_WAY`, today only 40000 `in00`) becomes an **arrival marker** instead (`m.arrival_point`, an Empty with `arrival_name`, no portal object), and the portal that leads to it gets `one_way = True` and `to_arrival = <anchor>` (its `to_portal` keeps the anchor name, Iteration One's v8 target). |
 | `m.door_portal(name, x, y, rot=0)` | A door portal into an interior, or back out of an interior. Use the classic portal names. |
-| `m.npc(name, x, y, rot=0)` | An NPC proxy whose appearance comes from `src/misostory/npcs.py`. Use the classic names (Heena, Sera, Roger, Nina, Sen, Peter, Robin, Maria, Shanks, Biggs, Bari, Yoona, Paul, "Maple Administrator", Tia, Pan, Lucas, Mai, Rain, Pio, Sid, Lucy). |
-| `m.mobs(mob, area, count, seed)` | Representative monsters: `Snail`, `Blue Snail`, `Red Snail`, `Shroom`, `Orange Mushroom`. Use **only** the species the classic data lists for your map. Use roughly one proxy per 4–6 spawn points, at least 6 in a hunting map, spread over the tiers that have spawns. |
+| `m.npc(name, x, y, rot=0)` | An NPC proxy whose appearance comes from `src/misostory/npcs.py`. The name must be in `npcs.NPCS`, which follows **MeowDB MS Classic** and carries each NPC's MeowDB id (`meowdb`, a string); the proxy gets `npc_name`, `meowdb_npc_id` and the GMS reference id `npc_id`. The 21 Maple Island NPCs: Heena, Sera, Roger, Nina, Sen, Peter, Todd, Robin, Sam, Maria, Mai, Biggs, Yoona, Bari, Shanks, Pan, Lucas, Pio, Rain, Sid, Lucy. Place each on its MeowDB map (`game/data/canonical/maps/<id>.json` `npcs`), in MeowDB's left-to-right order. |
+| `m.mobs(mob, area, count, seed)` | Representative monsters: `Snail`, `Blue Snail`, `Red Snail`, `Shroom`, `Orange Mushroom`. Use **only** the species MeowDB lists for your map (`game/data/canonical/maps/<id>.json` `monsters`). Use roughly one proxy per 4–6 spawn points, at least 6 in a hunting map, spread over the tiers that have spawns. The area (with its `z_band`) is also recorded as an authored **spawn region** tagged with the species (`m.spawn_region`); the proxies are placeholders, the runtime spawns MeowDB's species and counts inside the regions. |
+| `m.spawn_region(name, area, species=(), z_band=None, tiers=())` | An authored monster spawn area (local polygon or `(cx, cy, r)` circle) on walkable ground, without proxies: use it where MeowDB spawns monsters the kit has no proxy for (30000's Tutorial Jr. Sentinels). `z_band` (local) picks one tier where the area overlaps several; `tiers` may name struct.json tier ids. Regions with the same polygon and band merge. Exported as `spawn_regions` (polygons). |
+| `m.player_spawn(x, y, rot=0, index=0, note="")` | **Required, index 0 on every map.** An authored player spawn (respawns, new games and spawn-index arrivals use it): place it on a route near MeowDB's `player_spawns[0]` px position relative to the portals and NPCs (which tier, which side), at least 2.5 m from edge portals; on the 40000 arrival map, the landing below the one-way ledge; in interiors, 1.6–1.8 m inside the door. An Empty in `CHARACTER_PROXIES/PlayerSpawns_<slug>`, exported as `player_spawns`. |
 | `m.route(name, pts)` | **Required.** A walk polyline the validator follows over the real geometry. Declare the main route (anchor to anchor through the map) and routes to every important sub-area or tier. Put route points on the actual walkable path: through ramps and stairs, past ladders. |
-| `m.player(x, y, rot)` | The player scale reference, one per map. **Required on exterior maps, and it must be inside the Gameplay render** (`PLAYER_IN_FRAME`, below): put it on a route point near `GAMEPLAY_FOCUS`. |
+| `m.player(x, y, rot)` | The player scale reference, one per map. **Required on exterior maps, and it must be inside the Gameplay render** (`PLAYER_IN_FRAME`, below): put it on a route point near `GAMEPLAY_FOCUS`. It is not a spawn point (that is `m.player_spawn`). |
 
 Useful extras: `m.anchor(name)` gives the anchor's `(x, y, z)`; `m.ground_z(x, y)` gives the current ground
 height; `m.size` is `(L, D)`.
@@ -163,6 +165,13 @@ height; `m.size` is `(L, D)`.
 - **Trails between maps** leave each edge portal **perpendicular to its footprint edge** for about 3.5 m (plus
   1.2 m inside the map), then turn toward the neighbour. Keep a 4.5 m-wide corridor clear directly in front
   of every edge portal, out to the footprint edge.
+- **Trails stay clear of the runtime's containment rings.** Every map is walled at its footprint + 1 m by a 0.5 m
+  wall (square corners), open only at its gates (`presentation.json` `containment`), so a trail's centreline must
+  keep its half-width (1.9 m on a 3.8 m trail) from that wall, i.e. half-width + 1.5 m from every footprint, except
+  where it leaves straight through its own gate. `validate.py` `trail_ring_band` measures it (high when a wall stands
+  across the trail). Two maps closer than about 7 m leave no room for a trail between them: move the map, not the
+  trail. Where the seeded curve finds no room, author the route in `layout.TRAIL_ROUTES` (corners and fillet radii in
+  the from-map's frame; today only Townstreet `west00` → Snail Field of Flowers `east00`).
 - **Route clearing:** only instances created by `m.scatter` (and `m.mobs`) that end up on a route are
   removed automatically (natural clutter only). Props placed with `m.place` are **never deleted**; if one
   blocks a route it is reported as `blocked`, so move it.
@@ -177,8 +186,16 @@ height; `m.size` is `(L, D)`.
   the ramp's full width, covers the flat end plate and the cap lip band the ramp tucks under, then narrows and
   rounds off on the terrace, so ramp, blend and cap read as one outline. **Stairs** are solid
   blocks.
-- **Portals:** classic one-way arrival points (`in00` of 10000/20000/30000/40000) render as a ground ring with a
-  welcome post. Door portals are a flat threshold glow with a small chevron above, so nothing blocks the door.
+- **Portals:** every MeowDB portal is a `Portal_Swirl` (edges) or a `Portal_Door`. MeowDB makes the `in00` portals
+  of 10000/20000/30000 ordinary two-way exits; only 40000 `in00` stays arrival-only (`layout.ONE_WAY`): it is an
+  arrival marker with no portal object and no visual. Door portals are a flat threshold glow with a small chevron
+  above, so nothing blocks the door.
+- **One-way trails** (`layout.ONE_WAY_LEDGE`, today 30000 `out00` → 40000): the trail ends on the arrival map's
+  **gate plane** (footprint + `layout.GATE_OFFSET_M` = 1 m along the anchor's outward normal) in a drop-down ledge
+  (2.4 m above the landing) with a rock face (`<trail>_LedgeFace_Body` plus `Rock_Cliff_Stone` boulders). The
+  arrival map must have walkable ground right up to and under the plane (40000's `ArrivalApron`), and **nothing
+  that could be a step back up** within reach of the face (no boulders, crates or ledges at its foot). The trail
+  walk proves forward ok, reverse blocked at the face, and measures the face's offset from the plane.
 - **Ground and ink outlines:** the ground index ignores kit ink outlines (flipped-normal `SOLIDIFY` shells from
   `kit.add_outline`), so an outlined walkable mesh stays walkable. Any other modifier is evaluated as usual.
 - **Cleared clutter:** `scripts/build_map.py` prints `MAP_CLEARED` (also `cleared_from_routes` in
@@ -231,6 +248,74 @@ height; `m.size` is `(L, D)`.
   `"exceptions"` in `MAP_TRAVERSAL` and in `build_report`.
 - `scripts/build_map.py` prints `MAP_TRAVERSAL_OK True/False` and the issues. **Your map is not done until it
   prints True** (and `PLAYER_IN_FRAME_OK True`).
+- **Island validator, Iteration Two checks** (`scripts/validate.py` on the full build): `fidelity` (NPC proxies,
+  by MeowDB id and name, and monster species against MeowDB), `portal_topology` (the 47 MeowDB portals; the one-way
+  link's portal and arrival marker), `player_spawns` (`player_spawns[0]` grounded, inside the footprint, its body
+  (the 0.3 m grounding capsule of `presentation.json`) outside every portal's 4.5 x 1.6 m press-Up trigger box
+  (`portal_adaptations.json`), and on an arrival map at least the gate offset + arrival inset (2.5 m) inside the
+  gate plane), `spawn_regions` (every map with MeowDB spawns has regions with walkable ground in their band),
+  `trail_walk` (expectations come from `layout`, not the build report; every layout link must be walked; two-way
+  trails ok both ways; the one-way trail ok forward with its **only** drop at the ledge, and in reverse blocked by an
+  unclimbable step at the face and by **nothing else**), `trail_ring_band` (no trail's centreline within the
+  capsule radius of a containment ring wall away from its own gates, none inside another map's ring line; a wall on
+  a ribbon's edge is listed as low) and `one_way_ledge` (face on the gate plane within 0.1 m;
+  `jump_apex_m_at_cap + step_up_m + 0.30 <= height <= 2.6`, read from `game/data/misostory/movement.json` through
+  `src/misostory/ledge_rules.py`).
+- **Player spawns must stand clear of prop collision.** The validator cannot see the exported collision hulls; the
+  export can. `scripts/export_runtime.py` writes `spawn_clearance` (a 0.3 x 1.5 m capsule against every chunk's prop
+  hulls and walls) and `src/misostory/sidecar_diff.py` refuses a staged export with a blocked player spawn. A
+  convex hull covers a prop's whole body-height slice, so keep spawns about 1 m from posts, gates and trunks, not
+  just off the mesh (000001021's first spawn stood inside the barrel gate's post hull).
+
+### Collision and clearance rules (Iteration Two, enforced by the export)
+
+The runtime export (`scripts/export_runtime.py`) checks the shipped collision, and `src/misostory/sidecar_diff.py`
+refuses a staged export that breaks any of these. Run `--check` (below) while authoring; it takes about a minute.
+
+- **Portal arrivals must be clear.** A player arriving through a portal stands 1.5 m inward of its anchor (edge
+  portals: along the footprint edge's inward normal; doors: along the door's facing; `portal_adaptations.json`
+  `arrival.inset_m`), in a 0.3 m × 1.5 m body. Nothing that collides may stand there: no door mound, hedge, gate post
+  or crate within about 1.8 m inward of an edge anchor. 1000000's front-edge barrel-door mounds stand 3.6–3.8 m behind
+  their portals for this (`_door(..., back=...)`; the docstring has the arithmetic), and hidden-lane trail hedges
+  stop at the footprint edge.
+- **Route ends must be clear.** The runtime's route bot starts a run at either end of every route, in the
+  controller's body (a floating capsule 0.3 m wide from `step_up_m` 0.45 m to 1.5 m above the feet). End routes at
+  least 0.35 m from walls, house stems and gate posts (the walls of a door alcove count), and never under low
+  overhead geometry. A route that leads to a portal may stop short of its anchor, but must still end inside the
+  press-Up trigger (`portal_adaptations.json` `trigger`: 1.6 m deep, centred on the anchor, so within 0.8 m of
+  it along the anchor normal and 2.25 m across): otherwise the route no longer proves the portal is reachable.
+  Today's door routes stop 0.4 m short (20000 `ToSensHouse`, 60000 `ArmorStore`).
+- **No route under a real overhang.** Route samples under wall geometry inside a walking player's body (above
+  `step_up_m`) fail. Lips the feet step onto, and samples on a climb or a drop, are reported but allowed.
+- **Keep walks 0.7 m from colliding props.** Props collide as convex prisms of their 0.15–1.6 m slice (a tomato plant
+  is a ~0.42 m-radius prism), and a route sample inside one makes the export fall back to the prop's exact mesh,
+  which the player then clips. Route centrelines need about 0.7 m from such props' centres plus their radius; walk
+  round planted rows, do not cut across them (Tomato Field's `WestBed` and `EastYard`).
+- **Collision is data, never a name.** The export decides what collides from flags and tags on the object
+  (`misostory.collision_tags`): `walkable` (GroundIndex), `collider`, `climbable`, `passable`, then
+  `obj["collision"]` (`ground`, `wall`, `none`, `hull`, `veg_hull`, `water`, `exact`, `overhead_hull`). The kit
+  builders tag their meshes (`geo.terrace`: body and cap `wall`, fringe `none`; path ribbons, foam, fringes and sign
+  lettering `none`; interior floorboard and flagstone overlays (`interior.plank_floor`, 60001 `flag_floor`) `none`;
+  `m.rail`, the ledge face and bridge rails `wall`; water surfaces `water`). A mesh you build yourself into a
+  map's Terrain collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)` with
+  `from misostory import collision_tags as CT`; `validate.py` (`collision_tags`) fails untagged ones. In an
+  Architecture collection an untagged mesh is a wall, so tag a visual-only layer laid over a walkable surface
+  (boards, tiles, decals) `none`: as a wall it is a solid slab a few mm above the floor. Kit assets use
+  registry tags: any of `collision_tags.PASSABLE_TAGS` (`passable`, `cloud`, `vine`, `flower`, `grass`, ...) makes an
+  asset passable, and `collide_exact` makes it collide with its exact mesh instead of a prism (thin overhead
+  dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams).
+- **Overhangs above a walking body get their own prism.** A prop's prism covers only its 0.15–1.6 m slice, so a
+  cap or roof that overhangs its walls has no collision, and a monster or prop can stand inside it. Tag such parts
+  of an asset `CT.tag(part, CT.OVERHEAD_HULL)` in the asset's builder: the export then gives the asset one more
+  prism, the convex hull of all its overhead parts from their lowest point to their top, and leaves them out of the
+  body slice, so the space under the brim stays open. Only for parts that start well above a body (1.5 m player,
+  plus a jump's head room where it matters). Today: 000000030's `X30000_HouseYellowBrim` (`_Cap` and `_Brim`: the
+  brim starts 2.8–3 m above the ground; `mushroom_house_v2` returns `(stem, cap)` for this).
+- **Checking it:** `"$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out <dir> --check` writes
+  `<dir>/check.json` and prints `CHECK_TOTALS` (blocked spawns, arrivals and route ends, real overhangs, collision
+  triangle counts) without baking or writing glbs. Add `--legacy-names` to classify meshes with the pre-registry
+  name rules; two check files from one `.blend` then match object by object except where a tag deliberately
+  corrects a name rule (today only the 7 interior floor overlays, `none` by tag, `wall` by the old group rule).
 
 ## 6. Visual rules
 
@@ -251,10 +336,15 @@ height; `m.size` is `(L, D)`.
 1. Read your map's brief (`docs/research/maps/<id>_<slug>.md` and `<id>.struct.json`), the wiki notes
    (`docs/research/wiki_maple_road.md` or `wiki_rainbow_street.md`), `docs/research/entities.md` (NPCs and mobs),
    and look at `docs/research/ref_renders/v8_<id>_render.png` (2D reference; never copy it into the project).
+   **What** belongs on the map (NPCs, monster species and spawn counts, portals, player spawns) comes from MeowDB
+   MS Classic: `game/data/canonical/maps/<meowdb id>.json` (the crosswalk is `game/data/misostory/map_id_crosswalk.json`;
+   the v8 differences are in `docs/canonical/topology_diff.md`). The research files are the v8 reference for the
+   shape of the map.
 2. Sketch the 3D plan (tiers to terraces, ladders, landmarks, routes), then write the module.
 3. Build and render:
    ```
    "/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python scripts/build_map.py -- <MAPID> --out "C:/Users/itech/Coding/maplestory-isometric/renders/_maps/<MAPID>" --debug
+   blender -b --factory-startup --python scripts/build_map.py -- <MAPID> --out "$PWD/renders/_maps/<MAPID>" --debug   # Linux
    ```
    It prints `MAP_STATUS`, `MAP_TRAVERSAL` and the rendered file paths. Overview and gameplay views are
    rendered, plus `_debug` versions showing routes (magenta), spawn rings and NPC beacons. Add

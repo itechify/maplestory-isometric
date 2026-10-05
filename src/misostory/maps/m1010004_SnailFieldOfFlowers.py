@@ -386,6 +386,7 @@ def build(m):
     # the player stands on the centre knoll among the orange flowers, beside the EastStair walk, facing the camera
     PLAYER = (22.4, 16.9)
     m.player(*PLAYER, rot=-15)
+    m.player_spawn(4.6, 31.5, rot=90, note="sp x -794: the west end of the top tier (rim road)")
     m.mobs("Blue Snail", geo.rect(0.5, 22, 8, 27.5), 1, seed=1, z_band=(MID - 0.2, MID + 0.3))
     m.mobs("Red Snail", geo.rect(12.5, 22, 24, 27.5), 1, seed=2, z_band=(MID - 0.2, MID + 0.3))
     m.mobs("Blue Snail", geo.rect(12.5, 22, 24, 27.5), 1, seed=3, z_band=(MID - 0.2, MID + 0.3), min_dist=3.0)
@@ -400,6 +401,8 @@ def build(m):
     m.mobs("Snail", geo.rect(9, 6, 24, 13), 1, seed=10, z_band=(FLOOR - 0.2, FLOOR + 0.3))
     m.mobs("Blue Snail", geo.rect(9, 6, 24, 13), 1, seed=11, z_band=(FLOOR - 0.2, FLOOR + 0.3), min_dist=3.0)
     m.mobs("Red Snail", geo.rect(9, 6, 24, 13), 1, seed=12, z_band=(FLOOR - 0.2, FLOOR + 0.3), min_dist=3.0)
+    # MeowDB MS Classic adds 6 Orange Mushrooms here (v8 had none): a representative proxy on the west meadow
+    m.mobs("Orange Mushroom", geo.rect(0.5, 22, 8, 27.5), 1, seed=13, z_band=(MID - 0.2, MID + 0.3), min_dist=3.0)
 
     # routes (each is validated in both directions; vines count as climbs)
     m.route("RimRoad", [(37.0, 31.5), (33.0, 31.5), (20, 31.6), (8, 31.4), (1.0, 31.6)])

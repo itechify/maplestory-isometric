@@ -344,6 +344,10 @@ def build(m):
     # on the farm track at the head of the west bed, near GAMEPLAY_FOCUS, ~0.5 m camera-side of the
     # Main route and turned toward the camera (local look ~(-0.34, +0.94))
     m.player(26.0, 14.9, rot=20)
+    # player_spawns[0] (MeowDB sp x -195, y 111: just east of and above out00 at x -275, y 214): on the Main route
+    # just through the barrel gate, on the west bank. Not at (4.0, 12.0): that stood inside the gate's south post
+    # (its collision hull), and the runtime had to move the spawn 1 m to stand clear.
+    m.player_spawn(4.8, 14.7, rot=90, note="sp x -195: just east of out00, through the barrel gate, on the west bank")
 
     # monsters (25 classic spawns, all on the ground: Snail 9, Blue Snail 8, Red Snail 4, Orange Mushroom 4)
     m.mobs("Snail", geo.rect(2, 1, 7.5, 9), 1, seed=1, z_band=(1.0, 1.5))
@@ -358,8 +362,16 @@ def build(m):
     # routes
     m.route("Main", [(1.0, 12.0), (4.0, 14.6), (9.0, 15.4), (20.0, 15.4), (30.0, 15.4), (40.0, 15.4),
                      (48.0, 15.4), (57.9, 15.2)])  # stops 1.7 m short of the east fence
-    m.route("WestBed", [(10.0, 15.2), (14.2, 12.0), (14.2, 3.0), (16.6, 2.0), (19.0, 3.0), (19.0, 12.5)])
-    m.route("EastYard", [(55.0, 15.2), (56.0, 11.0), (55.6, 6.4), (54.1, 4.0)])
+    # The bed walks keep 0.7 m between their centreline and every planted ridge's tomato plants (each plant collides
+    # as a ~0.42 m prism, the player is 0.3 m wide): WestBed enters the 13.0 | 15.4 furrow past the north tip of the
+    # 13.0 ridge, crosses to the 17.8 | 20.2 furrow on the open strip in front of the ridge ends (y 1.3; the ridges
+    # start at y 2.0, their first plants at 2.5) and walks up it. It used to cut over the 13.0 ridge's last plant and
+    # through the first plants of the 15.4 and 17.8 ridges (6 route samples under leaves, Godot route bot stalls).
+    m.route("WestBed", [(10.0, 15.2), (12.6, 14.0), (14.2, 13.0), (14.2, 3.0), (14.6, 1.3), (18.6, 1.3),
+                        (19.0, 3.0), (19.0, 12.5)])
+    # EastYard runs down the east side of the 55.0 bank ridge and round its south tip; the 53.2 | 55.0 furrow is
+    # only 0.8 m between plant prisms, too narrow for a walk (the old route ended in it through the ridge's plants)
+    m.route("EastYard", [(55.0, 15.2), (56.0, 11.0), (56.3, 6.4), (56.1, 3.2), (55.0, 2.3)])
     # the canopy walk: leaves the farm track on Main, up the bank vine, then deck to deck through every
     # overlap to the far east deck (routes walk straight through their climbs; (5.9, 16.9) is the probed
     # point just before the bank vine's climb)

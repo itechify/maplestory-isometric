@@ -1,0 +1,292 @@
+{
+  "id": "589",
+  "name": "Leather Purse",
+  "game_item_id": "1322002",
+  "type": "Equip",
+  "subtype": "One-Handed Blunt Weapon",
+  "inventory_tab": "equip",
+  "equip_slot": "weapon",
+  "quest_item": false,
+  "description": "",
+  "requirements": {
+    "level": 12,
+    "job": null,
+    "job_raw": null,
+    "str": 15,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {
+    "watk": 31,
+    "upgrade_slots": 7
+  },
+  "weapon": {
+    "weapon_type": "One-Handed Blunt Weapon",
+    "attack_speed": 5,
+    "attack_speed_name": "Fast",
+    "multipliers": {
+      "swing": 2.4,
+      "stab": 1.2
+    },
+    "multipliers_note": "Basic attacks. Skills may use a specific action.",
+    "attack_cycle_ms": 750,
+    "attack_cycle_with_booster_ms": 660,
+    "attack_cycle_by_kind_ms": null,
+    "attack_cycle_note": null,
+    "basic_attack_mix_pct": {
+      "swing": 60,
+      "stab": 40
+    },
+    "reach": {
+      "avg_horizontal_px": 81,
+      "horizontal_range_px": [
+        69,
+        94
+      ],
+      "avg_vertical_px": 45,
+      "vertical_range_px": [
+        30,
+        61
+      ]
+    },
+    "arrow_range_px": null,
+    "arrow_range_note": null,
+    "required_ammunition": null,
+    "required_ammunition_item_id": null,
+    "basic_attacks": [
+      {
+        "action": "swingO3",
+        "label": "Swing 3",
+        "kind": "swing",
+        "near_px": 20,
+        "far_px": 94,
+        "top_px": 50,
+        "box_px": [
+          -94,
+          -50,
+          -20,
+          -14
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO1",
+        "label": "Swing 1",
+        "kind": "swing",
+        "near_px": 0,
+        "far_px": 77,
+        "top_px": 61,
+        "box_px": [
+          -77,
+          -61,
+          0,
+          -9
+        ],
+        "in_average": true
+      },
+      {
+        "action": "swingO2",
+        "label": "Swing 2",
+        "kind": "swing",
+        "near_px": 0,
+        "far_px": 69,
+        "top_px": 55,
+        "box_px": [
+          -69,
+          -55,
+          12,
+          11
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO1",
+        "label": "Thrust 1",
+        "kind": "stab",
+        "near_px": 17,
+        "far_px": 82,
+        "top_px": 30,
+        "box_px": [
+          -82,
+          -30,
+          -17,
+          -14
+        ],
+        "in_average": true
+      },
+      {
+        "action": "stabO2",
+        "label": "Thrust 2",
+        "kind": "stab",
+        "near_px": 14,
+        "far_px": 82,
+        "top_px": 30,
+        "box_px": [
+          -82,
+          -30,
+          -14,
+          -12
+        ],
+        "in_average": true
+      },
+      {
+        "action": "proneStab",
+        "label": "Crouched attack",
+        "kind": "crouch",
+        "near_px": 9,
+        "far_px": 72,
+        "top_px": 14,
+        "box_px": [
+          -72,
+          -14,
+          -9,
+          5
+        ],
+        "in_average": false
+      }
+    ]
+  },
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": 3800,
+  "sell_price_mesos": 1900,
+  "sell_price_basis": "per_item",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": null,
+  "tradeable": true,
+  "gender": "any",
+  "sources": {
+    "shops": [
+      {
+        "npc_id": "210",
+        "npc_name": "Karl",
+        "npc_role": "Weapon Seller",
+        "map_id": "010001041",
+        "map_name": "Victoria Road: Henesys Weapon Store",
+        "town": "Henesys",
+        "price_mesos": 3800,
+        "cheapest": false,
+        "price_label": "COT2 prices"
+      }
+    ],
+    "monster_drops": [
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4,
+        "upvotes": 7,
+        "downvotes": 0,
+        "score": 7,
+        "disputed": false,
+        "community_drop_entry_id": "251",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [
+      {
+        "monster_id": "5",
+        "monster_name": "Red Snail",
+        "monster_level": 4
+      }
+    ],
+    "msea_reference_note": "Monsters that dropped this item in pre-Big-Bang MapleSEA. Classic World appears to draw from the same drop tables, so these are the likely sources in Classic too. This list is historical reference and cannot be edited. If you see this drop in Classic, add it to the Dropped list above.",
+    "quest_rewards": [],
+    "breakables": [],
+    "crafting_recipes": [
+      {
+        "recipe_key": "Leatherworking-21-0",
+        "discipline": "Leatherworking",
+        "category": "Equipment",
+        "produces_quantity": 1,
+        "required_craft_level": 2,
+        "craft_exp": 40,
+        "meso_cost": 1900,
+        "ingredients": [
+          {
+            "item_id": "311",
+            "name": "Processed Leather",
+            "quantity": 4,
+            "optional": false
+          },
+          {
+            "item_id": "305",
+            "name": "Screw",
+            "quantity": 6,
+            "optional": false
+          },
+          {
+            "item_id": "312",
+            "name": "Spool of Thread",
+            "quantity": 6,
+            "optional": false
+          },
+          {
+            "item_id": "520",
+            "name": "One-Handed Weapon Crafting Catalyst",
+            "quantity": 1,
+            "optional": true
+          }
+        ]
+      }
+    ]
+  },
+  "used_in": {
+    "quests": [],
+    "recipes": []
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "shopPrice",
+        "stat": "Shop price (mesos)",
+        "cot1": "3,000",
+        "cot2": "3,800",
+        "change": "+800"
+      }
+    ],
+    "notes": [
+      "Sold by Karl (Henesys)."
+    ],
+    "in_game_text": null
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/589",
+    "retrieved_at": "2026-10-04T10:44:41.518Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/589?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:42.541Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/589?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:42.541Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=589",
+      "retrieved_at": "2026-10-04T10:44:43.697Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    }
+  },
+  "gaps": [
+    "max_stack: MeowDB gives no stack size for equipment"
+  ]
+}

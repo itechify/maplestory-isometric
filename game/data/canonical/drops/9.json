@@ -1,0 +1,426 @@
+{
+  "id": "9",
+  "name": "Orange Mushroom drop table",
+  "owner": {
+    "kind": "monster",
+    "id": "9",
+    "name": "Orange Mushroom"
+  },
+  "rates_canonical": false,
+  "entries": [
+    {
+      "item_id": "209",
+      "item_name": "Arrows for Bows",
+      "category": "Use",
+      "subcategory": "Arrow",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "445",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2060000"
+    },
+    {
+      "item_id": "213",
+      "item_name": "Arrows for Crossbows",
+      "category": "Use",
+      "subcategory": "Arrow",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6
+      },
+      "disputed": false,
+      "community_drop_entry_id": "70",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2061000"
+    },
+    {
+      "item_id": "270",
+      "item_name": "Red Potion",
+      "category": "Use",
+      "subcategory": "Potion",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 10,
+        "downvotes": 0,
+        "score": 10
+      },
+      "disputed": false,
+      "community_drop_entry_id": "100",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "2000000",
+      "msea_detail_text": "Potion"
+    },
+    {
+      "item_id": "327",
+      "item_name": "Diamond Ore",
+      "category": "Etc",
+      "subcategory": "Gem",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 9,
+        "downvotes": 0,
+        "score": 9
+      },
+      "disputed": false,
+      "community_drop_entry_id": "203",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4020007"
+    },
+    {
+      "item_id": "356",
+      "item_name": "Orange Mushroom Cap",
+      "category": "Etc",
+      "subcategory": "Monster Drop",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 14,
+        "downvotes": 1,
+        "score": 13
+      },
+      "disputed": false,
+      "community_drop_entry_id": "9",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4000009",
+      "msea_detail_text": "Monster Drop"
+    },
+    {
+      "item_id": "413",
+      "item_name": "Bronze Ore",
+      "category": "Etc",
+      "subcategory": "Ore & Mineral",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 10,
+        "downvotes": 1,
+        "score": 9
+      },
+      "disputed": false,
+      "community_drop_entry_id": "97",
+      "item_level_req": 0,
+      "req_job": null,
+      "meowdb_icon_key": "4010000"
+    },
+    {
+      "item_id": "543",
+      "item_name": "Long Sword",
+      "category": "Equip",
+      "subcategory": "One-Handed Sword",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4
+      },
+      "disputed": false,
+      "community_drop_entry_id": "202",
+      "item_level_req": 10,
+      "req_job": null,
+      "meowdb_icon_key": "1302001"
+    },
+    {
+      "item_id": "577",
+      "item_name": "Double Axe",
+      "category": "Equip",
+      "subcategory": "One-Handed Axe",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 5,
+        "downvotes": 0,
+        "score": 5
+      },
+      "disputed": false,
+      "community_drop_entry_id": "187",
+      "item_level_req": 10,
+      "req_job": null,
+      "meowdb_icon_key": "1312001",
+      "msea_detail_text": "Lv 10 · Any"
+    },
+    {
+      "item_id": "633",
+      "item_name": "Spear",
+      "category": "Equip",
+      "subcategory": "Spear",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4
+      },
+      "disputed": false,
+      "community_drop_entry_id": "358",
+      "item_level_req": 10,
+      "req_job": "Warrior/Bowman/Thief",
+      "meowdb_icon_key": "1432000",
+      "msea_detail_text": "Lv 10 · Warrior/Bowman/Thief"
+    },
+    {
+      "item_id": "724",
+      "item_name": "Bronze Koif",
+      "category": "Equip",
+      "subcategory": "Hat",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3
+      },
+      "disputed": false,
+      "community_drop_entry_id": "359",
+      "item_level_req": 10,
+      "req_job": "Warrior",
+      "meowdb_icon_key": "1002016",
+      "msea_detail_text": "Lv 10 · Warrior"
+    },
+    {
+      "item_id": "731",
+      "item_name": "Green Winter Hat",
+      "category": "Equip",
+      "subcategory": "Hat",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": false,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "447",
+      "item_level_req": 10,
+      "req_job": "Bowman",
+      "meowdb_icon_key": "1002023"
+    },
+    {
+      "item_id": "1314",
+      "item_name": "Brown Hard Leather Boots",
+      "category": "Equip",
+      "subcategory": "Shoes",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1
+      },
+      "disputed": false,
+      "community_drop_entry_id": "446",
+      "item_level_req": 10,
+      "req_job": "Bowman",
+      "meowdb_icon_key": "1072008",
+      "msea_detail_text": "Lv 10 · Bowman"
+    },
+    {
+      "item_id": "1317",
+      "item_name": "White Gomushin",
+      "category": "Equip",
+      "subcategory": "Shoes",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2
+      },
+      "disputed": false,
+      "community_drop_entry_id": "448",
+      "item_level_req": 11,
+      "req_job": null,
+      "meowdb_icon_key": "1072011",
+      "msea_detail_text": "Lv 11 · Any"
+    },
+    {
+      "item_id": "1327",
+      "item_name": "Red Ninja Sandals",
+      "category": "Equip",
+      "subcategory": "Shoes",
+      "status": "classic_confirmed",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": {
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3
+      },
+      "disputed": false,
+      "community_drop_entry_id": "357",
+      "item_level_req": 15,
+      "req_job": "Thief",
+      "meowdb_icon_key": "1072021",
+      "msea_detail_text": "Lv 15 · Thief"
+    },
+    {
+      "item_id": "177",
+      "item_name": "Shoes Jump Scroll: Greater",
+      "category": "Use",
+      "subcategory": "Scroll",
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": null,
+      "req_job_text": null,
+      "msea_detail_text": "Scroll",
+      "meowdb_icon_key": "2040702"
+    },
+    {
+      "item_id": "651",
+      "item_name": "Metal Wand",
+      "category": "Equip",
+      "subcategory": null,
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": 20,
+      "req_job_text": "Any",
+      "msea_detail_text": "Lv 20 · Any",
+      "meowdb_icon_key": "1372002"
+    },
+    {
+      "item_id": "666",
+      "item_name": "Hunter's Bow",
+      "category": "Equip",
+      "subcategory": null,
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": 20,
+      "req_job_text": "Bowman",
+      "msea_detail_text": "Lv 20 · Bowman",
+      "meowdb_icon_key": "1452002"
+    },
+    {
+      "item_id": "1439",
+      "item_name": "Basic Archer Gloves",
+      "category": "Equip",
+      "subcategory": null,
+      "status": "msea_reference",
+      "also_in_msea_reference": true,
+      "chance": null,
+      "min_quantity": null,
+      "max_quantity": null,
+      "votes": null,
+      "disputed": null,
+      "community_drop_entry_id": null,
+      "item_level_req": 15,
+      "req_job_text": "Bowman",
+      "msea_detail_text": "Lv 15 · Bowman",
+      "meowdb_icon_key": "1082004"
+    }
+  ],
+  "meso": {
+    "status": "no_data",
+    "canonical": false,
+    "chance": null,
+    "report_count": 0,
+    "trusted_report_count": 0,
+    "median_min": null,
+    "median_max": null,
+    "reports": [],
+    "note": "Player-submitted totals seen from ONE kill. MeowDB's report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published."
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/api/drops?monsterId=9",
+    "retrieved_at": "2026-10-04T10:07:14.912Z"
+  },
+  "field_sources": {
+    "msea_reference_entries": {
+      "url": "https://meowdb.com/msclassic/monsters/9",
+      "retrieved_at": "2026-10-04T10:07:12.495Z",
+      "note": "\"MSEA reference drops\" (Read-only) section of the monster page"
+    },
+    "meso": {
+      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=9",
+      "retrieved_at": "2026-10-04T10:07:16.120Z"
+    }
+  },
+  "notes": [
+    "classic_confirmed = listed in \"Drops (MS Classic) - Community sourced\": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.",
+    "disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted (\"haven't seen it\") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.",
+    "msea_reference = listed only in \"MSEA reference drops\": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.",
+    "An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).",
+    "chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.",
+    "meowdb_icon_key is MeowDB's icon asset key (looks like a WZ id); it is NOT the item id. Use item_id."
+  ],
+  "gaps": [
+    "drop chance per item: not published by MeowDB",
+    "quantity per drop: not published by MeowDB",
+    "meso amount formula / meso drop chance: not published; only player reports (see meso)"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "npc_id": "21",
+  "name": "Lucy",
+  "reason": "MeowDB shows no shop-open greeting for Lucy (gap in game/data/canonical/npcs/21.json); only speech-bubble lines exist. The shop greeting reuses Lucy's canonical idle-chatter line 2 (about potions, which she sells) instead of inventing text.",
+  "verified": false,
+  "nodes": {
+    "shop.greeting": {
+      "type": "say",
+      "line": {"npc": "21", "field": "idle_chatter", "line": 2},
+      "next": "shop.open"
+    }
+  }
+}

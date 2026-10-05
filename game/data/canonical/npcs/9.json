@@ -1,0 +1,263 @@
+{
+  "id": "9",
+  "name": "Sam",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000000040",
+      "map_name": "Snail Hunting Ground I",
+      "street_name": "Maple Road",
+      "x_px": 1602,
+      "y_px": 211
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Huh? My name is Sam...",
+      "segments": [
+        {
+          "text": "Huh? My name is "
+        },
+        {
+          "text": "Sam",
+          "ref": {
+            "kind": "npc",
+            "id": "9"
+          }
+        },
+        {
+          "text": "..."
+        }
+      ]
+    },
+    {
+      "text": "So you met Mai, huh?",
+      "segments": [
+        {
+          "text": "So you met "
+        },
+        {
+          "text": "Mai",
+          "ref": {
+            "kind": "npc",
+            "id": "11"
+          }
+        },
+        {
+          "text": ", huh?"
+        }
+      ]
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Take some lessons from Mai to get even stronger."
+    },
+    {
+      "text": "Head right to meet a bunch of other people."
+    },
+    {
+      "text": "Press \"W\" to see your current location in the world."
+    },
+    {
+      "text": "Why don't you try partying with other players?"
+    },
+    {
+      "text": "Use the right timing to attack monsters."
+    },
+    {
+      "text": "There are lots of new things to see in Amherst."
+    },
+    {
+      "text": "Head to the northeast."
+    },
+    {
+      "text": "Even if you don't know the way, just go!"
+    },
+    {
+      "text": "Good luck!"
+    },
+    {
+      "text": "Heh!"
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1006",
+        "name": "Sam's Suggestion"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1006"
+    ],
+    "completed_here": []
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1006",
+      "quest_name": "Sam's Suggestion",
+      "npc_role": "start",
+      "start_npc_id": "9",
+      "complete_npc_id": "11",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Hello, I'm Sam. I'm helping guide the beginner adventurers. You look like someone who should go talk to Mai. What do you think?",
+          "segments": [
+            {
+              "text": "Hello, I'm "
+            },
+            {
+              "text": "Sam",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "9"
+              }
+            },
+            {
+              "text": ". I'm helping guide the beginner adventurers. You look like someone who should go talk to "
+            },
+            {
+              "text": "Mai",
+              "bold": true,
+              "ref": {
+                "kind": "npc",
+                "id": "11"
+              }
+            },
+            {
+              "text": ". What do you think?"
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Mai is one of the very best fighters in Maple World. To prepare yourself, I suggest you take down 10 Snails before seeing her.",
+              "segments": [
+                {
+                  "text": "Mai",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "11"
+                  }
+                },
+                {
+                  "text": " is one of the very best fighters in Maple World. To prepare yourself, I suggest you take down "
+                },
+                {
+                  "text": "10 ",
+                  "color": "red"
+                },
+                {
+                  "text": "Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": " before seeing her."
+                }
+              ]
+            },
+            {
+              "text": "After defeating 10 Snails, go see Mai, who should be standing on a fork in the road out to the east.",
+              "segments": [
+                {
+                  "text": "After defeating "
+                },
+                {
+                  "text": "10 ",
+                  "color": "red"
+                },
+                {
+                  "text": "Snails",
+                  "color": "red",
+                  "ref": {
+                    "kind": "monster",
+                    "id": "2"
+                  }
+                },
+                {
+                  "text": ", go see "
+                },
+                {
+                  "text": "Mai",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "11"
+                  }
+                },
+                {
+                  "text": ", who should be standing on a fork in the road out to the east."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Trust me. You'll want to prepare yourself before meeting Mai...",
+              "segments": [
+                {
+                  "text": "Trust me. You'll want to prepare yourself before meeting "
+                },
+                {
+                  "text": "Mai",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "11"
+                  }
+                },
+                {
+                  "text": "..."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/9",
+    "retrieved_at": "2026-10-04T10:05:12.732Z"
+  },
+  "field_sources": {
+    "locations/000000040": {
+      "url": "https://meowdb.com/msclassic/maps/000000040",
+      "retrieved_at": "2026-10-04T09:56:43.779Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1006/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1006",
+      "retrieved_at": "2026-10-04T10:07:23.558Z"
+    }
+  }
+}

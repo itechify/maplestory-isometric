@@ -1,0 +1,13 @@
+{
+  "npc_id": "20",
+  "name": "Sid",
+  "reason": "MeowDB shows no shop-open greeting for Sid (gap in game/data/canonical/npcs/20.json); only speech-bubble lines exist. The shop greeting reuses Sid's canonical idle-chatter line 1 (\"Welcome! ...\") instead of inventing text.",
+  "verified": false,
+  "nodes": {
+    "shop.greeting": {
+      "type": "say",
+      "line": {"npc": "20", "field": "idle_chatter", "line": 1},
+      "next": "shop.open"
+    }
+  }
+}

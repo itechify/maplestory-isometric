@@ -1,0 +1,287 @@
+{
+  "id": "413",
+  "name": "Bronze Ore",
+  "game_item_id": "4010000",
+  "type": "Etc",
+  "subtype": "Ore & Mineral",
+  "inventory_tab": "etc",
+  "equip_slot": null,
+  "quest_item": false,
+  "description": "A light and weak bronze ore.",
+  "requirements": {
+    "level": 0,
+    "job": null,
+    "job_raw": null,
+    "str": 0,
+    "dex": 0,
+    "int": 0,
+    "luk": 0,
+    "fame": 0
+  },
+  "stats": {},
+  "weapon": null,
+  "consumable": null,
+  "scroll": null,
+  "setup": null,
+  "npc_buy_price_mesos": null,
+  "sell_price_mesos": 20,
+  "sell_price_basis": "per_unit",
+  "sell_price_source": "item_page",
+  "recharge_cost_mesos_per_unit": null,
+  "max_stack": 100,
+  "tradeable": true,
+  "gender": null,
+  "sources": {
+    "shops": [],
+    "monster_drops": [
+      {
+        "monster_id": "2",
+        "monster_name": "Snail",
+        "monster_level": 1,
+        "upvotes": 16,
+        "downvotes": 1,
+        "score": 15,
+        "disputed": false,
+        "community_drop_entry_id": "75",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "9",
+        "monster_name": "Orange Mushroom",
+        "monster_level": 8,
+        "upvotes": 10,
+        "downvotes": 1,
+        "score": 9,
+        "disputed": false,
+        "community_drop_entry_id": "97",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "19",
+        "monster_name": "Horny Mushroom",
+        "monster_level": 22,
+        "upvotes": 7,
+        "downvotes": 0,
+        "score": 7,
+        "disputed": false,
+        "community_drop_entry_id": "106",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "62",
+        "monster_name": "Rotten Mushroom",
+        "monster_level": 56,
+        "upvotes": 6,
+        "downvotes": 0,
+        "score": 6,
+        "disputed": false,
+        "community_drop_entry_id": "297",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "6",
+        "monster_name": "Stump",
+        "monster_level": 5,
+        "upvotes": 6,
+        "downvotes": 1,
+        "score": 5,
+        "disputed": false,
+        "community_drop_entry_id": "80",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "59",
+        "monster_name": "Rafflesia",
+        "monster_level": 47,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "323",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1058",
+        "monster_name": "Coolie Zombie",
+        "monster_level": 57,
+        "upvotes": 4,
+        "downvotes": 0,
+        "score": 4,
+        "disputed": false,
+        "community_drop_entry_id": "781",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1013",
+        "monster_name": "Jr. Lioner",
+        "monster_level": 33,
+        "upvotes": 3,
+        "downvotes": 0,
+        "score": 3,
+        "disputed": false,
+        "community_drop_entry_id": "727",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1001",
+        "monster_name": "Jr. Sentinel",
+        "monster_level": 26,
+        "upvotes": 2,
+        "downvotes": 0,
+        "score": 2,
+        "disputed": false,
+        "community_drop_entry_id": "609",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "46",
+        "monster_name": "Croco",
+        "monster_level": 52,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "538",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1080",
+        "monster_name": "Werewolf",
+        "monster_level": 75,
+        "upvotes": 1,
+        "downvotes": 0,
+        "score": 1,
+        "disputed": false,
+        "community_drop_entry_id": "990",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "15",
+        "monster_name": "Axe Stump",
+        "monster_level": 17,
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "585",
+        "shown_on_item_page": true
+      },
+      {
+        "monster_id": "1068",
+        "monster_name": "Yeti",
+        "monster_level": 65,
+        "upvotes": 1,
+        "downvotes": 1,
+        "score": 0,
+        "disputed": true,
+        "community_drop_entry_id": "866",
+        "shown_on_item_page": true
+      }
+    ],
+    "msea_reference_drops": [],
+    "msea_reference_note": null,
+    "quest_rewards": [
+      {
+        "quest_id": "10201",
+        "quest_name": "Collecting 50 Cursed Dolls",
+        "when": "on_completion",
+        "chance_pct": 16.7,
+        "label": "(17%)",
+        "row_key": "10201-c--0"
+      },
+      {
+        "quest_id": "10211",
+        "quest_name": "How to Enjoy Mushrooms",
+        "when": "on_completion",
+        "chance_pct": null,
+        "label": null,
+        "row_key": "10211-c--1"
+      }
+    ],
+    "breakables": [],
+    "crafting_recipes": []
+  },
+  "used_in": {
+    "quests": [
+      {
+        "quest_id": "80008",
+        "quest_name": "Silas Irons in Need of an Apprentice",
+        "quest_npc_name": "Silas Irons",
+        "quest_level": 10,
+        "quantity": 5
+      }
+    ],
+    "recipes": [
+      {
+        "makes_item_id": "420",
+        "makes_item_name": "Bronze Ingot",
+        "skill": "Smithing Lv 1",
+        "quantity": 5
+      }
+    ]
+  },
+  "change_history": {
+    "updated_label": "updated in COT2",
+    "rows": [
+      {
+        "key": "price",
+        "stat": "Sell-back price",
+        "cot1": "100",
+        "cot2": "20",
+        "change": "-80"
+      }
+    ],
+    "notes": [],
+    "in_game_text": {
+      "cot1": "The ore of a light and weak bronze.",
+      "cot2": "A light and weak bronze ore."
+    }
+  },
+  "derived_fields": [
+    "inventory_tab",
+    "equip_slot",
+    "quest_item",
+    "npc_buy_price_mesos",
+    "requirements.job",
+    "sources.monster_drops[].disputed"
+  ],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/item-db/413",
+    "retrieved_at": "2026-10-04T10:44:01.484Z"
+  },
+  "field_sources": {
+    "description": {
+      "url": "https://meowdb.com/msclassic/api/items/413?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:02.602Z"
+    },
+    "requirements.level": {
+      "url": "https://meowdb.com/msclassic/api/items/413?locale=en&preview=1",
+      "retrieved_at": "2026-10-04T10:44:02.602Z"
+    },
+    "sources.monster_drops": {
+      "url": "https://meowdb.com/msclassic/api/drops?itemId=413",
+      "retrieved_at": "2026-10-04T10:44:03.773Z"
+    },
+    "sources.monster_drops[].monster_name": {
+      "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+      "retrieved_at": "2026-10-04T10:05:48.947Z",
+      "from": "monster list bundled with the item page (export IW)"
+    },
+    "sources.quest_rewards[quest_id=10201].chance_pct": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/10201",
+      "retrieved_at": "2026-10-04T11:19:44.270Z",
+      "from": "rewardRandom chance (pool \"Any Class\", totalWeight 6)"
+    }
+  },
+  "discrepancies": [
+    {
+      "field": "sources.quest_rewards[quest_id=10201].chance_pct",
+      "item_page": 17,
+      "quest_page": 16.7,
+      "quest_page_total_weight": 6,
+      "chosen": 16.7,
+      "reason": "same share: the item page rounds it to a whole percent; the quest page's structured rewardRandom pool gives it to one decimal (pool totalWeight 6)"
+    }
+  ]
+}

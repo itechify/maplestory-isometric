@@ -1,0 +1,892 @@
+{
+  "id": "19",
+  "name": "Rain",
+  "roles": [
+    "Quest Giver"
+  ],
+  "function_title": null,
+  "locations": [
+    {
+      "map_id": "000001010",
+      "map_name": "Amherst",
+      "street_name": "Rainbow Street",
+      "x_px": 103,
+      "y_px": 274
+    }
+  ],
+  "dialogue": [
+    {
+      "text": "Ready to try the Maple Quiz?"
+    },
+    {
+      "text": "Right! You're the one who solved the quiz. How was the journey here?"
+    }
+  ],
+  "idle_chatter": [
+    {
+      "text": "Isn't it nice out today?"
+    },
+    {
+      "text": "To jump, press the left Alt key."
+    },
+    {
+      "text": "Press the arrow keys to move left and right."
+    },
+    {
+      "text": "Ha!"
+    },
+    {
+      "text": "Hehe..."
+    },
+    {
+      "text": "How's the traveling going?"
+    },
+    {
+      "text": "Whoa, you're looking a little awkward."
+    },
+    {
+      "text": "Arrghh, my flawless skin..."
+    }
+  ],
+  "quests": {
+    "given": [
+      {
+        "id": "1013",
+        "name": "Rain's Maple Quiz 1"
+      },
+      {
+        "id": "1014",
+        "name": "Rain's Maple Quiz 2"
+      },
+      {
+        "id": "1015",
+        "name": "Rain's Maple Quiz 3"
+      },
+      {
+        "id": "1016",
+        "name": "Rain's Maple Quiz 4"
+      },
+      {
+        "id": "1017",
+        "name": "Rain's Maple Quiz 5"
+      },
+      {
+        "id": "1018",
+        "name": "Rain's Maple Quiz 6"
+      },
+      {
+        "id": "1019",
+        "name": "Rain's Maple Quiz 7"
+      }
+    ],
+    "turned_in": [],
+    "started_here": [
+      "1013",
+      "1014",
+      "1015",
+      "1016",
+      "1017",
+      "1018",
+      "1019"
+    ],
+    "completed_here": [
+      "1013",
+      "1014",
+      "1015",
+      "1016",
+      "1017",
+      "1018",
+      "1019"
+    ]
+  },
+  "quest_dialogue": [
+    {
+      "quest_id": "1013",
+      "quest_name": "Rain's Maple Quiz 1",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Hello! How're you liking Maple World so far? Let me give you a brief rundown of the place, and then I'll give you a quiz. If you answer my questions correctly, I'll give you something handy. Interested?"
+        }
+      ],
+      "branches": [
+        {
+          "key": "yes",
+          "label": "If you accept",
+          "lines": [
+            {
+              "text": "Hehe! Let me warn you, don't underestimate my quiz. There's a lot to learn, so pay attention!"
+            },
+            {
+              "text": "How is your adventure on Maple Island so far? You can go left with the left arrow key and right with the right arrow key, right? Do you also know that if you press the down arrow key, you can crouch, and then jump while crouching, to leap down to a lower platform? If you press the up arrow key in front of a portal, you can enter it, and if you press the up arrow key in front of a ladder or rope, you can climb or hang from it.",
+              "segments": [
+                {
+                  "text": "How is your adventure on Maple Island so far? You can go left with the "
+                },
+                {
+                  "text": "left arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " and right with the "
+                },
+                {
+                  "text": "right arrow key",
+                  "bold": true
+                },
+                {
+                  "text": ", right? Do you also know that if you press the "
+                },
+                {
+                  "text": "down arrow key",
+                  "bold": true
+                },
+                {
+                  "text": ", you can crouch, and then jump while crouching, to leap down to a lower platform? If you press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " in front of a portal, you can enter it, and if you press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "bold": true
+                },
+                {
+                  "text": " in front of a ladder or rope, you can climb or hang from it."
+                }
+              ]
+            },
+            {
+              "text": "You can also use the Key Config on the bottom right of your screen to recalibrate the buttons to your liking. Hmm. I think this explanation might have gotten a little too complicated. Don't worry, you'll get the hang of it as you spend more time here and get used to things.",
+              "segments": [
+                {
+                  "text": "You can also use the "
+                },
+                {
+                  "text": "Key Config",
+                  "color": "red"
+                },
+                {
+                  "text": " on the bottom right of your screen to recalibrate the buttons to your liking. Hmm. I think this explanation might have gotten a little too complicated. Don't worry, you'll get the hang of it as you spend more time here and get used to things."
+                }
+              ]
+            },
+            {
+              "text": "But what you haven't experienced yet is Job Advancement. To become a more powerful traveler, you need a job! To get one, you'll first have to leave this place, Maple Island, and head to Victoria Island. \nYou need to be at least at level 10 to become a Warrior, Bowman, Magician or Thief. Each job has its pros and cons, so choose carefully.",
+              "segments": [
+                {
+                  "text": "But what you haven't experienced yet is Job Advancement. To become a more powerful traveler, you need a job! To get one, you'll first have to leave this place, Maple Island, and head to Victoria Island. \nYou need to be at least at level "
+                },
+                {
+                  "text": "10",
+                  "bold": true
+                },
+                {
+                  "text": " to become a "
+                },
+                {
+                  "text": "Warrior, Bowman, Magician",
+                  "bold": true
+                },
+                {
+                  "text": " or "
+                },
+                {
+                  "text": "Thief",
+                  "bold": true
+                },
+                {
+                  "text": ". Each job has its pros and cons, so choose carefully."
+                }
+              ]
+            },
+            {
+              "text": "I didn't tell you EVERYTHING you need to know for the quiz, so make sure to focus. Ready for the questions?"
+            }
+          ]
+        },
+        {
+          "key": "no",
+          "label": "If you decline",
+          "lines": [
+            {
+              "text": "Hmm, you could learn a lot through my quiz. I think you should try it!"
+            }
+          ]
+        }
+      ],
+      "quiz": null
+    },
+    {
+      "quest_id": "1013",
+      "quest_name": "Rain's Maple Quiz 1",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "The left arrow key is for moving left. Do you remember which key you need to press in front of a ladder or rope?"
+            },
+            {
+              "text": "No, no. The right arrow is the key for moving right. Think carefully!"
+            },
+            {
+              "text": "Huh? The down arrow key is used to crouch or move to a lower platform. So, it can't be the down arrow key, right?"
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "That's right! If you press the up arrow key in front of a ladder or rope, you can hang from it!",
+              "segments": [
+                {
+                  "text": "That's right! If you press the "
+                },
+                {
+                  "text": "up arrow key",
+                  "color": "red"
+                },
+                {
+                  "text": " in front of a ladder or rope, you can hang from it!"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "What key should you press in front of a ladder or rope to hang from it?"
+        },
+        "options": [
+          {
+            "text": "left arrow key",
+            "segments": [
+              {
+                "text": "left arrow key",
+                "bold": true
+              }
+            ],
+            "correct": false
+          },
+          {
+            "text": "right arrow key",
+            "correct": false
+          },
+          {
+            "text": "up arrow key",
+            "correct": true
+          },
+          {
+            "text": "down arrow key",
+            "correct": false
+          }
+        ],
+        "correct_option_index": 2
+      }
+    },
+    {
+      "quest_id": "1014",
+      "quest_name": "Rain's Maple Quiz 2",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "All right, talk to me when you're ready for the next question."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1014",
+      "quest_name": "Rain's Maple Quiz 2",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "Try it! Open your Equipment Inventory, then take off an item by double-clicking it. After that, double-click the item in your Inventory to put it back on."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "Yup, you can wear an item just by double-clicking it from your inventory. If you can't wear something, check that your character meets the level and statistic requirements."
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "Can you wear an item just by double-clicking it with your mouse?"
+        },
+        "options": [
+          {
+            "text": "Oh yes",
+            "segments": [
+              {
+                "text": "Oh yes",
+                "bold": true
+              }
+            ],
+            "correct": true
+          },
+          {
+            "text": "No way.",
+            "correct": false
+          }
+        ],
+        "correct_option_index": 0
+      }
+    },
+    {
+      "quest_id": "1015",
+      "quest_name": "Rain's Maple Quiz 3",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "My questions aren't that hard because I let you keep trying until you get them right. Nice of me, huh? Tell me when you're ready for the 3rd question."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1015",
+      "quest_name": "Rain's Maple Quiz 3",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "You can check your stats in Character Stat. Make sure to remember that!"
+            },
+            {
+              "text": "In Item Inventory, you can see what items you have."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "That's right! You can see what equipment your character is wearing in Equipment Inventory."
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "What window can you use to check the items you're wearing?"
+        },
+        "options": [
+          {
+            "text": "Equipment Inventory",
+            "segments": [
+              {
+                "text": "Equipment Inventory",
+                "bold": true
+              }
+            ],
+            "correct": true
+          },
+          {
+            "text": "Character Stat",
+            "correct": false
+          },
+          {
+            "text": "Item Inventory",
+            "correct": false
+          }
+        ],
+        "correct_option_index": 0
+      }
+    },
+    {
+      "quest_id": "1016",
+      "quest_name": "Rain's Maple Quiz 4",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "All right! You're on question number 4, out of 7 questions total. Talk to me when you're ready."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1016",
+      "quest_name": "Rain's Maple Quiz 4",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "If you see a chair or bench, you can sit on it! Just press the sit key when you're near one, and you'll notice that your recovery speed is faster than when you're just standing."
+            },
+            {
+              "text": "Using a potion lets you recover a large amount of HP all at once. It's truly an amazing item, isn't it?"
+            },
+            {
+              "text": "When you're not in combat, just standing still will slowly restore your HP."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "Yes, that's correct! There are so many ways to recover HP, right? Oh, and here's another tip! If you press the sit key on chairs around the map, you can sit and rest. Whenever you find a chair, try sitting on it. You'll recover faster than with just standing!"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "Which of the following is not a correct way to recover health?"
+        },
+        "options": [
+          {
+            "text": "Sit on a chair",
+            "segments": [
+              {
+                "text": "Sit on a chair",
+                "bold": true
+              }
+            ],
+            "correct": false
+          },
+          {
+            "text": "Use a potion, like a Red Potion",
+            "segments": [
+              {
+                "text": "Use a potion, like a "
+              },
+              {
+                "text": "Red Potion",
+                "ref": {
+                  "kind": "item",
+                  "id": "270"
+                }
+              }
+            ],
+            "correct": false
+          },
+          {
+            "text": "Stand still without moving",
+            "correct": false
+          },
+          {
+            "text": "Sleep",
+            "correct": true
+          }
+        ],
+        "correct_option_index": 3
+      }
+    },
+    {
+      "quest_id": "1017",
+      "quest_name": "Rain's Maple Quiz 5",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "You're inching closer and closer toward making your job advancement. I wonder which job you're going to pick. Now, talk to me when you're ready for the 5th question."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1017",
+      "quest_name": "Rain's Maple Quiz 5",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "Not only Warriors, Bowmen, and Thieves, but Magicians also advance at level 10."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "Ding! To advance for not only Warriors, Bowmen, and Thieves, but also Magicians, you need to be at least level 10. Warriors can advance in Perion, Bowmen in Henesys, Magicians in Ellinia, and Thieves in Kerning City. Think about which job you'd like to choose!"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "In order to make the job advancement as a Warrior, Bowman, or Thief, you have to be at least level 10. What level do you have to be to make the job advancement as a Magician?"
+        },
+        "options": [
+          {
+            "text": "Level 8",
+            "segments": [
+              {
+                "text": "Level 8",
+                "bold": true
+              }
+            ],
+            "correct": false
+          },
+          {
+            "text": "Level 10",
+            "correct": true
+          }
+        ],
+        "correct_option_index": 1
+      }
+    },
+    {
+      "quest_id": "1018",
+      "quest_name": "Rain's Maple Quiz 6",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "Wow, you're pretty good. Are you assigning your Ability Points (AP) well? You know you get those after leveling up, right? Talk to me when you're ready for the 6th question."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1018",
+      "quest_name": "Rain's Maple Quiz 6",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "Come on, you get more than 1 measly point!"
+            },
+            {
+              "text": "Nope, not 2 points. Think again."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "That's right. You get 5 AP with each level, and you can use them on the stats you want in Character Info to make your character stronger. Be sure to remember that!"
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "If you keep up with your adventures, you can level up and earn AP to boost your stats. Do you know how much AP you get with each level?"
+        },
+        "options": [
+          {
+            "text": "1 point",
+            "segments": [
+              {
+                "text": "1 point",
+                "bold": true
+              }
+            ],
+            "correct": null
+          },
+          {
+            "text": "2 points",
+            "correct": null
+          },
+          {
+            "text": "5 points",
+            "correct": null,
+            "malformed_markup": "#L2 #"
+          }
+        ],
+        "correct_option_index": null,
+        "notes": [
+          "MeowDB renders the option \"5 points\" with an unparsed selection marker \"#L2 #\" inside the previous option; split here.",
+          "MeowDB marks no option as the correct answer for this question."
+        ]
+      }
+    },
+    {
+      "quest_id": "1019",
+      "quest_name": "Rain's Maple Quiz 7",
+      "npc_role": "start",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On accept",
+      "lines": [
+        {
+          "text": "All right, last question! Talk to me when you're ready."
+        }
+      ],
+      "branches": [],
+      "quiz": null
+    },
+    {
+      "quest_id": "1019",
+      "quest_name": "Rain's Maple Quiz 7",
+      "npc_role": "complete",
+      "start_npc_id": "19",
+      "complete_npc_id": "19",
+      "section": "On completion",
+      "lines": [],
+      "branches": [
+        {
+          "key": null,
+          "label": "If you pick the wrong answer",
+          "lines": [
+            {
+              "text": "You won't find any ports at Amherst. Head over to the only place in Maple Island with a port to catch a ride to Victoria Island.",
+              "segments": [
+                {
+                  "text": "You won't find any ports at "
+                },
+                {
+                  "text": "Amherst",
+                  "ref": {
+                    "kind": "map",
+                    "id": "000001010"
+                  }
+                },
+                {
+                  "text": ". Head over to the only place in Maple Island with a port to catch a ride to Victoria Island."
+                }
+              ]
+            },
+            {
+              "text": "You won't be able to come back once you leave this place, but trust me, you CAN leave..."
+            }
+          ]
+        },
+        {
+          "key": null,
+          "label": "When you answer correctly",
+          "lines": [
+            {
+              "text": "That's absolutely correct. Head over to Southperry, talk to Shanks, and get on the ship that heads to Victoria Island.",
+              "segments": [
+                {
+                  "text": "That's absolutely correct. Head over to "
+                },
+                {
+                  "text": "Southperry",
+                  "bold": true,
+                  "ref": {
+                    "kind": "map",
+                    "id": "000000060"
+                  }
+                },
+                {
+                  "text": ", talk to "
+                },
+                {
+                  "text": "Shanks",
+                  "bold": true,
+                  "ref": {
+                    "kind": "npc",
+                    "id": "15"
+                  }
+                },
+                {
+                  "text": ", and get on the "
+                },
+                {
+                  "text": "ship",
+                  "color": "red"
+                },
+                {
+                  "text": " that heads to Victoria Island."
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "quiz": {
+        "question": {
+          "text": "This is important! You can only make the job advancement at Victoria Island, but you're currently on Maple Island. Where do you go to get a ride to Victoria Island?"
+        },
+        "options": [
+          {
+            "text": "Southperry",
+            "segments": [
+              {
+                "text": "Southperry",
+                "bold": true,
+                "ref": {
+                  "kind": "map",
+                  "id": "000000060"
+                }
+              }
+            ],
+            "correct": true
+          },
+          {
+            "text": "Amherst",
+            "segments": [
+              {
+                "text": "Amherst",
+                "ref": {
+                  "kind": "map",
+                  "id": "000001010"
+                }
+              }
+            ],
+            "correct": false
+          },
+          {
+            "text": "No way I can get there!",
+            "correct": false
+          }
+        ],
+        "correct_option_index": 0
+      }
+    }
+  ],
+  "shop": null,
+  "transport": null,
+  "what_they_do": [],
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/npcs/19",
+    "retrieved_at": "2026-10-04T10:06:41.378Z"
+  },
+  "field_sources": {
+    "locations/000001010": {
+      "url": "https://meowdb.com/msclassic/maps/000001010",
+      "retrieved_at": "2026-10-04T09:57:03.267Z",
+      "fields": [
+        "x_px",
+        "y_px"
+      ]
+    },
+    "quest_dialogue/1013/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1013",
+      "retrieved_at": "2026-10-04T10:07:31.864Z"
+    },
+    "quest_dialogue/1013/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1013",
+      "retrieved_at": "2026-10-04T10:07:31.864Z"
+    },
+    "quest_dialogue/1014/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1014",
+      "retrieved_at": "2026-10-04T10:07:33.075Z"
+    },
+    "quest_dialogue/1014/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1014",
+      "retrieved_at": "2026-10-04T10:07:33.075Z"
+    },
+    "quest_dialogue/1015/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1015",
+      "retrieved_at": "2026-10-04T10:07:34.311Z"
+    },
+    "quest_dialogue/1015/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1015",
+      "retrieved_at": "2026-10-04T10:07:34.311Z"
+    },
+    "quest_dialogue/1016/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1016",
+      "retrieved_at": "2026-10-04T10:07:35.500Z"
+    },
+    "quest_dialogue/1016/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1016",
+      "retrieved_at": "2026-10-04T10:07:35.500Z"
+    },
+    "quest_dialogue/1017/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1017",
+      "retrieved_at": "2026-10-04T10:07:36.703Z"
+    },
+    "quest_dialogue/1017/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1017",
+      "retrieved_at": "2026-10-04T10:07:36.703Z"
+    },
+    "quest_dialogue/1018/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1018",
+      "retrieved_at": "2026-10-04T10:07:37.927Z"
+    },
+    "quest_dialogue/1018/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1018",
+      "retrieved_at": "2026-10-04T10:07:37.927Z"
+    },
+    "quest_dialogue/1019/start": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1019",
+      "retrieved_at": "2026-10-04T10:07:39.177Z"
+    },
+    "quest_dialogue/1019/complete": {
+      "url": "https://meowdb.com/msclassic/quest-tracker/1019",
+      "retrieved_at": "2026-10-04T10:07:39.177Z"
+    }
+  },
+  "gaps": [
+    "Quest 1018 (Rain's Maple Quiz 6) quiz: MeowDB does not mark the correct option (see quest_dialogue quiz.notes)."
+  ]
+}

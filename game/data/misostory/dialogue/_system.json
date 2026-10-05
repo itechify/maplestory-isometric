@@ -1,0 +1,27 @@
+{
+  "id": "_system",
+  "reason": "System lines the generated NPC conversations show when an action fails (inventory full, quest cannot be accepted or completed). MeowDB publishes no client system messages, so this text is MisoStory's own wording, shown with speaker \"system\" (not as NPC speech).",
+  "verified": false,
+  "lines": {
+    "inventory_full": {
+      "text": "Your inventory is full. Make room in the right inventory tab, then talk again.",
+      "reason": "Shown when Inventory.can_add_all refuses quest accept items, quest rewards or a re-issued quest item.",
+      "verified": false
+    },
+    "cannot_accept": {
+      "text": "You cannot accept this quest right now.",
+      "reason": "Shown when an accept action is refused for a reason other than a full inventory.",
+      "verified": false
+    },
+    "cannot_complete": {
+      "text": "You cannot complete this quest right now.",
+      "reason": "Shown when a completion is refused for a reason other than a full inventory or a wrong quiz answer.",
+      "verified": false
+    },
+    "offer_prompt": {
+      "text": "Accept this quest?",
+      "reason": "Generic MisoStory system framing, not NPC speech. A quest whose MeowDB record has no \"On accept\" dialogue (Maple Island: only 1002 Roger's Apple) is offered as a quest card (speaker \"journal\": the quest title, the canonical journal summary, the NPC's portrait). The summary is a description (\"Talk to Roger.\"), not a question, so the card adds this line under it as the Yes/No prompt. It names no NPC, item or quest, so it never invents dialogue.",
+      "verified": false
+    }
+  }
+}

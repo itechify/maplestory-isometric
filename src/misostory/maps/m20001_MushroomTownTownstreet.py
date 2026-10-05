@@ -667,6 +667,7 @@ def build(m):
 
     # ---------------- gameplay ----------------
     m.player(5.6, 2.6, rot=-50)
+    m.player_spawn(3.0, 3.3, rot=90, note="interior: just inside the door (out00)")
     m.route("Main", [(1.2, 3.3), (4.6, 3.4), (8.0, 4.4), (10.4, 4.7)])
     # one route from the main room up the ladder (climbed mid-route) and across the loft to the bed
     m.route("Loft", [(10.4, 4.7), (9.0, 5.4), (9.0, 6.0), (9.0, 6.75), (9.0, 7.2), (7.0, 7.8), (4.6, 8.6),

@@ -1,0 +1,40 @@
+{
+  "id": "000000060",
+  "kind": "misostory_adaptation",
+  "description": "World runtime adaptation for Southperry (MeowDB map 000000060), read through WorldTuning.map_override, MapDefinitions.apply_region_extensions and IslandWorld.double_sided_trimesh (docs/runtime/WORLD_RUNTIME.md). Only the map's region, containment and collision sidedness live here: its portals, NPCs and spawns are canonical.",
+  "region_extensions": [
+    {
+      "name": "ship_victoria",
+      "ring_line_local": [
+        [63.2, -0.5],
+        [63.2, -7.47],
+        [66.0, -7.69],
+        [69.0, -7.96],
+        [71.0, -8.12],
+        [72.75, -8.2],
+        [75.0, -8.13],
+        [77.0, -7.99],
+        [79.0, -7.75],
+        [81.0, -7.39],
+        [82.0, -7.11],
+        [83.0, -6.77],
+        [84.0, -6.35],
+        [84.6, -6.05],
+        [84.85, -5.75],
+        [84.85, -2.85],
+        [84.6, -2.55],
+        [84.0, -2.25],
+        [83.0, -1.83],
+        [83.0, -0.5]
+      ],
+      "keep_footprint_ring_below_y": 5.6,
+      "reason": "The ship <Victoria> is moored off the quay's front lip, outside Southperry's 82 x 46 m layout rectangle: src/misostory/maps/m60000_Southperry.py places its centre at local (74.5, -4.3), beyond the front edge y = 0, with walkable decks clipped at y = -5.85. The Main route's end and the ShipDecks, ShipForecastle and ClimbMast routes (and the MastRope) lie up to 5.5 m outside the layout, 4.5 m beyond its ring line (layout + containment.ring_offset_m), so the layout ring's wall stood across the gangplank at y = -1 and a player on the deck read as 'void' to the region invariant (RegionMonitor). This polygon is the ship's part of the map's ring line, in the map-local frame (sidecar footprint.local_frame; x, y as in the Blender source), merged into the footprint. The region edge and the ring wall's inner face hug the ship's deck-level outline (bulwarks and deck edges, probed in the export's collision with rays from 10.5 m down to 5 m), so no body-sized pocket is left between ship and wall: on the port side 0.31 to 0.41 m outside the bulwarks (port y -7.12 at x 63.5, -7.85 at x 72.5, -7.04 at x 81, -5.69 at x 84.5); at the stern on the quarterdeck's stern edge (x 63.2: the deck ends at x 63.3, and a 0.05 m transom sliver at 8.9 m runs at x 63.2 to 63.25), so a player cannot step off the quarterdeck onto that sliver and hang behind the stern; at the bow across the forecastle's bow notch at x 84.85 (the bulwark tips reach x 84.95 at y -3.1 and -5.5, the deck ends at x 84.5 between them), so neither the 1 m void in front of the notch (a fall into the sea) nor the stem and figurehead pieces beyond it (a perch in mid-air) are in the region; the bowsprit runs through the wall. The tight margin is deliberate: the stern barrel engine (top 7.4 m, x 64-66.5, out to y -8.75) sits 2.5 m below the quarterdeck bulwark, so a player who dropped onto it could not climb back; with 0.35 m between bulwark and wall no 0.6 m body fits down there. keep_footprint_ring_below_y: the layout's own ring line under the ship (y = -1, x 63.2 to 83) keeps its wall up to 5.6 m, so the base strip in front of the quay (walkable at 1.0 m, reachable from the sunken street) stays closed instead of opening onto the sea under the hull; the gangway crosses that line at 7.4 m, above it. Goes once the Blender export carries the ship in the map's footprint (a footprint polygon or footprint.region_extensions).",
+      "verified": false
+    }
+  ],
+  "collision": {
+    "double_sided_trimesh": true,
+    "reason": "The export's trimesh collision (the chunk's Ground and Walls) is one-sided, every face pointing outward. That holds everywhere a player walks outside the geometry, but on the ship <Victoria> (made walkable by region_extensions.ship_victoria) the player stands inside it: the bulwarks and the hull collide only from outside, and the forecastle's deck is a top face 1.0 m above the main deck. Probed in the real game (world_checks containment, the extension-ring pushes): from the main deck at local (68.45, -5.70), walking toward port slips through the bulwark under the sloping quarterdeck handrail and falls between hull and ring to kill_y; from (81.07, -5.71), walking toward port runs in under the forecastle deck past the end of its aft bulkhead (nothing at y -6.6 from x 80 to 84) and falls through the hollow hull. Both ended in a fall recovery. With both sides colliding, both pushes stay on deck and every authored route still walks. It applies to the whole Southperry chunk, as the ship shares the chunk's trimesh. Goes once the Blender export gives the ship closed or double-sided hull, bulwark and forecastle collision (WORLD_RUNTIME.md Source world status).",
+    "verified": false
+  }
+}

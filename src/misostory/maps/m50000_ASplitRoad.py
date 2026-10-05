@@ -257,8 +257,12 @@ def build(m):
     m.ladder("Rope_2010", 50.6, 24.4, T4W, TRIO, facing=90, kind="rope")
 
     # ================= the upper road (embankment, back right) =================
-    m.terrace("T4_UpperRoad_Low", [(49.6, 13.0), (55, 12.6), (59.6, 13.4), (60.0, 24.0), (64.8, 25.0), (64.8, 32.6),
-                                   (47.6, 32.6), (47.6, 22.0)], top=T4W, bottom=-0.5)
+    # Its east edge follows T4_Ramp's north edge to the crest: the ground-level pocket that used to lie between the
+    # ramp, this cap and the crest (walls 2.2-4.0 m against a 1.35 m jump reach) trapped players who stepped off the
+    # ramp (Iteration Two playtest finding split-road-pit-trap). The cap now fills it, so a fall off the ramp's north
+    # side lands on this cap and walks back to the road.
+    m.terrace("T4_UpperRoad_Low", [(49.6, 13.0), (55, 12.6), (59.6, 13.4), (60.0, 21.85), (64.3, 23.05), (64.8, 25.0),
+                                   (64.8, 32.6), (47.6, 32.6), (47.6, 22.0)], top=T4W, bottom=-0.5)
     m.ladder("Ladder_2095", 53.6, 12.4, 0.0, T4W, facing=90)
     m.terrace("T4_UpperRoad_Crest", [(64.4, 18.0), (70, 17.6), (77.0, 18.0), (77.0, 32.6), (64.4, 32.6),
                                      (64.0, 25.0)], top=T4C, bottom=-0.5)
@@ -302,6 +306,11 @@ def build(m):
     m.edge_portal("east00")
     m.edge_portal("east01")
     m.npc("Maria", 14.6, 20.8, rot=-15)
+    # Mai (MeowDB 000000050 at x 1891, y -182: the floating trio's top block T0) on the top stone, beside the trio
+    # walk; Maria (x 159) stays west of her, as in MeowDB
+    m.npc("Mai", 48.6, 30.0, rot=-15)
+    # player_spawns[0] (MeowDB sp x -183, y 120: the west entry ground T11, ~6 m east of west00), on the trunk road
+    m.player_spawn(7.0, 13.0, rot=70, note="west entry ground, on the road")
     m.route("Main_Lower_Southperry", [(1, 14), (6, 13.2), (11, 11.4), (15.0, 9.6), (17.4, 8.2), (24, 7.0), (36, 6.3),
                                       (46, 6.6), (52, 6.9), (58, 5.6), (64, 4.6), (70, 4.8), (75, 6.0)])
     # the upper branch: up the fork stair, along the embankment and over the ramp to Amherst

@@ -1,26 +1,54 @@
-# MisoStory: Maple Island, Iteration One
+# MisoStory: Maple Island
 
 > What would classic Maple Island have felt like if MapleStory had originally been an isometric 3D game?
 
-This repository builds **all 25 classic Maple Island maps** (GMS v0.08–v0.22 era) as one geographically
+**Iteration One** builds **all 25 classic Maple Island maps** (GMS v0.08–v0.22 era) as one geographically
 coherent, floating 3D island in **Blender 5.2**. It uses an orthographic isometric camera and a stylized,
 hand-crafted, MapleStory-inspired look. Python generates everything deterministically: the `.blend` is a build
 artifact, and the scripts and data are the source. The `.blend` and renders are not committed. Build them with one
 command, or download them from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest).
+**Iteration Two** turns that island into a playable game (below).
 
 ![Island overview](docs/images/island_overview.jpg)
 
+## Play it (Iteration Two)
+
+Iteration Two turns the island into a playable **Godot 4.7** game (`game/`), using gameplay data from
+[MeowDB MS Classic](https://meowdb.com/msclassic) (see [`docs/canonical/README.md`](docs/canonical/README.md)).
+Brief: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md). Architecture: [`docs/runtime/ARCHITECTURE.md`](docs/runtime/ARCHITECTURE.md).
+How-to (build, test, validate, debug): [`docs/runtime/HOWTO.md`](docs/runtime/HOWTO.md). Playthrough results:
+[`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md).
+
+```bash
+bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
+bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)
+bash scripts/test.sh            # 1100+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+```
+
+| Keys | Action |
+|---|---|
+| W A S D | move (8 directions, relative to the camera) |
+| Space / Alt | jump |
+| J / Ctrl / left click | attack |
+| F | talk to the NPC in front of you |
+| Up arrow | enter a portal, grab a ladder or rope (W/S or Up/Down to climb) |
+| Z | pick up drops |
+| I / E / C / Q | inventory, equipment, character stats (spend AP), quest log |
+| 1 – 8 | quickslots (bind consumables from the inventory) |
+| Esc | close the newest window, else the pause menu (save, load, controls, quit) |
+| ` (backtick) / F3 | developer console (`help`, `warp <map>`, `give <item> [qty]`, `exp <n>`, `level <n>`, `mesos <n>`) / debug overlay |
+
 ## Quick start
 
-| What | Command (Git Bash, Windows) |
+| What | Command (Git Bash on Windows; on Linux use `blender` and `python3`) |
 |---|---|
 | Get the built island without building | Download `MapleIsland.blend` and `renders-final.zip` from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest), or `gh release download --repo itechify/maplestory-isometric` |
-| Build the whole island → `MapleIsland.blend` | `"/c/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup --python scripts/build_island.py` |
+| Build the whole island → `MapleIsland.blend` | `blender -b --factory-startup --python scripts/build_island.py` |
 | Build + render every camera | `... --python scripts/build_island.py -- --render final` |
 | Render cameras from an existing .blend | `blender -b MapleIsland.blend --python scripts/render_review.py -- <tag> [camera filters] [--debug]` |
 | Build/render one map while authoring | `blender -b --factory-startup --python scripts/build_map.py -- <mapId> --debug` |
 | Validate the island | `blender -b MapleIsland.blend --python scripts/validate.py` → `docs/VALIDATION.md` |
-| Export the topology manifest | `"<blender>/5.2/python/bin/python.exe" scripts/export_manifest.py` |
+| Export the topology manifest | `"<blender>/5.2/python/bin/python.exe" scripts/export_manifest.py` (Linux: `python3 scripts/export_manifest.py`) |
 | Asset gallery | `blender -b --factory-startup --python scripts/asset_gallery.py -- out.png Asset_A Asset_B ...` |
 
 **Blender version:** 5.2.2 LTS, with EEVEE, Standard view transform and soft principled shading. A full build
@@ -146,20 +174,25 @@ geometry and materials are original. Do not redistribute those folders.
 
 ## Known limitations
 
-Full list and Iteration Two plans: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
+Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
 
-- **Static dioramas.** There is no character controller, combat or game systems. NPCs and monsters are static proxies
-  placed to establish scale and show spawn areas, not classic spawn counts.
-- **Traversal is validated, not simulated.** `traversal.py` walks every declared route over the real geometry
-  (steps, slopes, ladders, gaps, portal reachability), but no navmesh or physics character has walked the island.
+- **Placeholder art.** Characters and monsters are Iteration One's static chibi proxies (no rigs or animation
+  beyond procedural bob and lunge); the Tutorial Jr. Sentinel is a grey placeholder. There is no audio.
+- **Iteration Two scope.** One Beginner on Maple Island: no job advancement, skills window, sitting, minimap, the ship
+  to Victoria Island, or multiplayer. All 20 Maple Island quests run through the generic engine, but only 1002, 1006
+  and 1007 → 1008 are verified by real-game playthroughs. Drop chances and meso amounts are labelled placeholders
+  (MeowDB publishes none). Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
+- **Playthroughs are automated.** Tests A–G pass as scripted real-input runs of the real game
+  ([`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md)); a human playthrough is still to come.
 - **Approximate platform translation.** Maps keep the classic tier structure, ladders, ropes, landmarks and route
   rhythm, not pixel-exact footholds. Vertical scale is about 0.55-0.7 m per classic 60 px tier, capped near 14 m.
 - **Interiors are staged remotely.** The four interiors (20001, 60001, 1010001, 1010003) are cutaway rooms on an
   "interior stage" far from the island. They are linked to their exterior doors by portals only, with no visual link.
 - **Trail lengths are a layout choice.** Maps sit where the classic world map puts them, and trails stretch until
   footprints stop overlapping, so some side-map trails are longer than any classic distance.
-- **One-way portals are physically two-way.** The classic arrival-only chain (`in00` of 10000/20000/30000/40000)
-  can be walked back in 3D. Those portals are marked as arrival points (ground ring and welcome post), not exits.
+- **One one-way link.** MeowDB MS Classic makes the `in00` portals of 10000, 20000 and 30000 ordinary two-way
+  portals (Iteration One had followed the v8 arrival-only chain). Only 30000 `out00` → 40000 is one-way: 40000's
+  `in00` is an arrival marker, not a portal, and the trail into it ends in a drop-down ledge you cannot climb back.
 - **Mushroom Town stays on-data.** Each Mushroom Town map keeps its classic single landmark house, so from the
   island cameras the area reads as a hamlet in grassySoil meadows rather than a dense town.
 - **Procedural look.** Materials are procedural painted noise with inverted-hull ink outlines. There are no

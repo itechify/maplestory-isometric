@@ -1,0 +1,29 @@
+{
+  "id": "death",
+  "kind": "misostory_adaptation",
+  "description": "Death and respawn decisions that MeowDB MS Classic does not publish (docs/runtime/GAME_SHELL.md). The canonical rules are NOT repeated here: the trigger (HP 0), the EXP penalty formula and its LUK clamp come from data/canonical/formulas/death.json through Progression, and the respawn map is each map's canonical return_map_id. Read by DeathRules (scripts/game/death_rules.gd).",
+  "rules": {
+    "order": [
+      "exp_penalty",
+      "respawn_vitals"
+    ],
+    "reason": "The penalties applied, in this order, at the moment of death, as classic MapleStory takes them: MapSession runs them once per death through its death_commit hook (DeathController.commit_rules) when it enters DEAD, sets the character's location to the respawn point and the game is saved at once, so quitting while dead cannot dodge them and the death notice's OK only travels (docs/runtime/GAME_SHELL.md; MAP_ARCHITECTURE.md section 4.8). exp_penalty is MeowDB's own model (formulas/death.json exp_penalty, applied by Progression.apply_death_penalty). MeowDB documents no item, meso or buff loss (formulas/death.json gaps), so no such rule is listed. A later penalty is a new rule registered in DeathRules and named here.",
+    "verified": false
+  },
+  "respawn_vitals": {
+    "hp": {
+      "mode": "fixed",
+      "value": 50
+    },
+    "mp": {
+      "mode": "keep"
+    },
+    "reason": "formulas/death.json gaps: 'HP/MP after respawning is not documented.' Set on the character when the death is committed, so the save made while dead already holds them and a reload is never dead on arrival. Classic-feel choice: the player comes back in town with 50 HP (never above Max HP, so a level-1 Beginner is full) and MP as it was at death, so a death costs a potion or a rest instead of leaving the player helpless. A MisoStory feel decision, not a MeowDB value; replace it when MeowDB documents the rule. Modes: fixed (value, capped at Max HP), fraction_of_max (value 0..1), full, keep. HP is always at least 1 after a respawn.",
+    "verified": false
+  },
+  "respawn_player_spawn_index": {
+    "value": 0,
+    "reason": "MeowDB names each map's respawn map (canonical maps/<id>.json return_map_id; formulas/death.json respawn_location) but not which of that map's playerSpawns a respawn uses (MAP_ARCHITECTURE.md section 4.8 and open question 1; docs/canonical/README.md known gaps). Index 0 until a MeowDB page settles it. Read by the world runtime (WorldTuning.respawn_spawn_index(), MapDefinition.respawn_location): MapSession.respawn() arrives at returnMap player_spawns[value], and a save made while dead stores the same point. Moved here from presentation.json respawn.player_spawn_index (docs/canonical/README.md names this file as its home).",
+    "verified": false
+  }
+}

@@ -1,6 +1,8 @@
 {
- "island": "Maple Island (classic GMS v0.08-v0.22)",
+ "island": "Maple Island (MeowDB MS Classic; the 3D layout follows Iteration One's GMS v8 research)",
+ "classic_source": "MeowDB MS Classic (game/data/canonical/maps, via game/data/misostory/map_id_crosswalk.json)",
  "start_map": 0,
+ "start_map_meowdb": "000000001",
  "primary_route": [
   0,
   10000,
@@ -22,7 +24,9 @@
  "maps": [
   {
    "id": 0,
+   "meowdb_map_id": "000000001",
    "name": "West Entrance to Mushroom Town",
+   "meowdb_name": "Mushroom Town - West Entrance",
    "slug": "WestEntranceMushroomTown_0",
    "street": "Maple Road",
    "kind": "town",
@@ -46,15 +50,17 @@
      "to_map": 10000,
      "to_portal": "in00",
      "kind": "edge",
-     "one_way_in_classic": true,
+     "one_way": false,
      "trail_m": 10.1
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Heena",
     "Sera"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000001.json",
    "built_status": "authored",
    "built_npcs": [
     "Heena",
@@ -64,13 +70,16 @@
    "routes": [
     "Main",
     "ToHouseDoor",
+    "ToHeena",
     "BluffLadder"
    ],
    "traversal_ok": true
   },
   {
    "id": 10000,
+   "meowdb_map_id": "000000010",
    "name": "Mushroom Town",
+   "meowdb_name": "Mushroom Town",
    "slug": "MushroomTown_10000",
    "street": "Maple Road",
    "kind": "town",
@@ -94,7 +103,7 @@
      "to_map": 0,
      "to_portal": "out00",
      "kind": "edge",
-     "classic_arrival_only": true,
+     "one_way": false,
      "trail_m": 10.1
     },
     {
@@ -102,14 +111,16 @@
      "to_map": 20000,
      "to_portal": "in00",
      "kind": "edge",
-     "one_way_in_classic": true,
+     "one_way": false,
      "trail_m": 14.1
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Roger"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000010.json",
    "built_status": "authored",
    "built_npcs": [
     "Roger"
@@ -117,13 +128,16 @@
    "built_mobs": {},
    "routes": [
     "Main",
-    "ToYellowHouse"
+    "ToYellowHouse",
+    "ToRoger"
    ],
    "traversal_ok": true
   },
   {
    "id": 20000,
+   "meowdb_map_id": "000000020",
    "name": "Mushroom Town",
+   "meowdb_name": "Mushroom Town",
    "slug": "MushroomTown_20000",
    "street": "Maple Road",
    "kind": "town",
@@ -147,7 +161,7 @@
      "to_map": 10000,
      "to_portal": "out00",
      "kind": "edge",
-     "classic_arrival_only": true,
+     "one_way": false,
      "trail_m": 14.1
     },
     {
@@ -155,20 +169,23 @@
      "to_map": 30000,
      "to_portal": "in00",
      "kind": "edge",
-     "one_way_in_classic": true,
+     "one_way": false,
      "trail_m": 10.0
     },
     {
      "portal": "in01",
      "to_map": 20001,
      "to_portal": "out00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Nina"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000020.json",
    "built_status": "authored",
    "built_npcs": [
     "Nina"
@@ -177,13 +194,16 @@
    "routes": [
     "Main",
     "ToSensHouse",
+    "ToNina",
     "SkyIslet"
    ],
    "traversal_ok": true
   },
   {
    "id": 30000,
+   "meowdb_map_id": "000000030",
    "name": "East Entrance to Mushroom Town",
+   "meowdb_name": "East Entrance to Mushroom Town",
    "slug": "EastEntranceMushroomTown_30000",
    "street": "Maple Road",
    "kind": "town",
@@ -207,25 +227,32 @@
      "to_map": 20000,
      "to_portal": "out00",
      "kind": "edge",
-     "classic_arrival_only": true,
+     "one_way": false,
      "trail_m": 10.0
     },
     {
      "portal": "out00",
      "to_map": 40000,
      "to_portal": "in00",
+     "to_arrival": "in00",
      "kind": "edge",
-     "one_way_in_classic": true,
-     "trail_m": 28.0
+     "one_way": true,
+     "trail_m": 27.0
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
+    "Todd",
     "Peter"
    ],
-   "classic_mobs": {},
+   "classic_mobs": {
+    "Tutorial Jr. Sentinel": 6
+   },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000030.json",
    "built_status": "authored",
    "built_npcs": [
-    "Peter"
+    "Peter",
+    "Todd"
    ],
    "built_mobs": {},
    "routes": [
@@ -237,7 +264,9 @@
   },
   {
    "id": 40000,
+   "meowdb_map_id": "000000040",
    "name": "Snail Hunting Ground I",
+   "meowdb_name": "Snail Hunting Ground I",
    "slug": "SnailHuntingGround1_40000",
    "street": "Maple Road",
    "kind": "hunting",
@@ -257,36 +286,38 @@
    ],
    "exits": [
     {
-     "portal": "in00",
-     "to_map": 30000,
-     "to_portal": "out00",
-     "kind": "edge",
-     "classic_arrival_only": true,
-     "trail_m": 28.0
-    },
-    {
      "portal": "east00",
      "to_map": 40001,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 12.0
     }
    ],
+   "arrival_points": [
+    {
+     "name": "in00",
+     "from_map": 30000,
+     "from_portal": "out00",
+     "trail_m": 27.0,
+     "ledge_m": 2.4
+    }
+   ],
    "classic_npcs": [
-    "Robin"
+    "Robin",
+    "Sam"
    ],
    "classic_mobs": {
-    "Snail": 33,
-    "Blue Snail": 16
+    "Snail": 40
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000040.json",
    "built_status": "authored",
    "built_npcs": [
-    "Robin"
+    "Robin",
+    "Sam"
    ],
    "built_mobs": {
-    "Snail": 1,
-    "Blue Snail": 2
+    "Snail": 15
    },
    "routes": [
     "Main",
@@ -302,7 +333,9 @@
   },
   {
    "id": 40001,
+   "meowdb_map_id": "000000041",
    "name": "Snail Hunting Ground II",
+   "meowdb_name": "Snail Hunting Ground II",
    "slug": "SnailHuntingGround2_40001",
    "street": "Maple Road",
    "kind": "hunting",
@@ -326,7 +359,7 @@
      "to_map": 40000,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 12.0
     },
     {
@@ -334,20 +367,22 @@
      "to_map": 40002,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 18.2
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 43,
-    "Blue Snail": 24
+    "Snail": 32,
+    "Blue Snail": 13
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000041.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Blue Snail": 2
+    "Snail": 11,
+    "Blue Snail": 7
    },
    "routes": [
     "Main",
@@ -365,7 +400,9 @@
   },
   {
    "id": 40002,
+   "meowdb_map_id": "000000042",
    "name": "Snail Hunting Ground III",
+   "meowdb_name": "Snail Hunting Ground III",
    "slug": "SnailHuntingGround3_40002",
    "street": "Maple Road",
    "kind": "hunting",
@@ -389,7 +426,7 @@
      "to_map": 40001,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 18.2
     },
     {
@@ -397,22 +434,24 @@
      "to_map": 50000,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 30.0
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 36,
-    "Blue Snail": 26,
-    "Red Snail": 13
+    "Snail": 20,
+    "Blue Snail": 21,
+    "Red Snail": 1
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000042.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Blue Snail": 1,
-    "Red Snail": 1
+    "Snail": 8,
+    "Blue Snail": 6,
+    "Red Snail": 4
    },
    "routes": [
     "Main",
@@ -426,7 +465,9 @@
   },
   {
    "id": 50000,
+   "meowdb_map_id": "000000050",
    "name": "A Split Road",
+   "meowdb_name": "A Split Road",
    "slug": "ASplitRoad_50000",
    "street": "Maple Road",
    "kind": "field",
@@ -450,7 +491,7 @@
      "to_map": 40002,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 30.0
     },
     {
@@ -458,7 +499,7 @@
      "to_map": 60000,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 37.5
     },
     {
@@ -466,26 +507,30 @@
      "to_map": 1000000,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 12.5
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
-    "Maria"
+    "Maria",
+    "Mai"
    ],
    "classic_mobs": {
-    "Blue Snail": 25,
-    "Red Snail": 13,
-    "Shroom": 18
+    "Blue Snail": 17,
+    "Shroom": 14,
+    "Red Snail": 11
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000050.json",
    "built_status": "authored",
    "built_npcs": [
-    "Maria"
+    "Maria",
+    "Mai"
    ],
    "built_mobs": {
-    "Blue Snail": 1,
-    "Shroom": 1,
-    "Red Snail": 1
+    "Blue Snail": 5,
+    "Shroom": 6,
+    "Red Snail": 5
    },
    "routes": [
     "Main_Lower_Southperry",
@@ -501,7 +546,9 @@
   },
   {
    "id": 60000,
+   "meowdb_map_id": "000000060",
    "name": "Southperry",
+   "meowdb_name": "Southperry",
    "slug": "Southperry_60000",
    "street": "Maple Road",
    "kind": "town",
@@ -525,33 +572,30 @@
      "to_map": 50000,
      "to_portal": "east01",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 37.5
     },
     {
      "portal": "in00",
      "to_map": 60001,
      "to_portal": "out00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Yoona",
-    "Biggs",
     "Bari",
     "Shanks",
-    "Paul",
-    "Tia",
-    "Maple Administrator"
+    "Biggs"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000060.json",
    "built_status": "authored",
    "built_npcs": [
     "Shanks",
-    "Tia",
-    "Maple Administrator",
     "Yoona",
-    "Paul",
     "Bari",
     "Biggs"
    ],
@@ -572,7 +616,9 @@
   },
   {
    "id": 60001,
+   "meowdb_map_id": "000000061",
    "name": "Southperry Armor Store",
+   "meowdb_name": "Southperry Armor Store",
    "slug": "SouthperryArmorStore_60001",
    "street": "Maple Road",
    "kind": "interior",
@@ -595,13 +641,16 @@
      "portal": "out00",
      "to_map": 60000,
      "to_portal": "in00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Pan"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000061.json",
    "built_status": "authored",
    "built_npcs": [
     "Pan"
@@ -617,7 +666,9 @@
   },
   {
    "id": 20001,
+   "meowdb_map_id": "000000021",
    "name": "Mushroom Town Townstreet",
+   "meowdb_name": "Mushroom Town Townstreet",
    "slug": "MushroomTownTownstreet_20001",
    "street": "Maple Road",
    "kind": "interior",
@@ -640,13 +691,16 @@
      "portal": "out00",
      "to_map": 20000,
      "to_portal": "in01",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Sen"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000000021.json",
    "built_status": "authored",
    "built_npcs": [
     "Sen"
@@ -661,7 +715,9 @@
   },
   {
    "id": 1000000,
+   "meowdb_map_id": "000001000",
    "name": "The Field West of Amherst",
+   "meowdb_name": "The Field West of Amherst",
    "slug": "FieldWestOfAmherst_1000000",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -685,7 +741,7 @@
      "to_map": 50000,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 12.5
     },
     {
@@ -693,7 +749,7 @@
      "to_map": 1000001,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 18.1
     },
     {
@@ -701,7 +757,7 @@
      "to_map": 1000005,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 10.6
     },
     {
@@ -709,7 +765,7 @@
      "to_map": 1000002,
      "to_portal": "out01",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 12.0
     },
     {
@@ -717,7 +773,7 @@
      "to_map": 1000006,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 61.0
     },
     {
@@ -725,7 +781,7 @@
      "to_map": 1000003,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 24.5
     },
     {
@@ -733,7 +789,7 @@
      "to_map": 1000004,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 50.3
     },
     {
@@ -741,26 +797,28 @@
      "to_map": 1010000,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 12.1
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 16,
-    "Blue Snail": 20,
-    "Red Snail": 26,
-    "Shroom": 21,
-    "Orange Mushroom": 7
+    "Snail": 7,
+    "Blue Snail": 13,
+    "Shroom": 17,
+    "Red Snail": 24,
+    "Orange Mushroom": 5
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001000.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Shroom": 2,
-    "Red Snail": 1,
-    "Blue Snail": 1,
-    "Orange Mushroom": 1
+    "Snail": 4,
+    "Shroom": 5,
+    "Red Snail": 5,
+    "Blue Snail": 4,
+    "Orange Mushroom": 4
    },
    "routes": [
     "Main",
@@ -780,7 +838,9 @@
   },
   {
    "id": 1000001,
+   "meowdb_map_id": "000001001",
    "name": "In a Small Forest",
+   "meowdb_name": "In a Small Forest",
    "slug": "InASmallForest_1000001",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -804,25 +864,27 @@
      "to_map": 1000000,
      "to_portal": "in00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 18.1
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 16,
-    "Blue Snail": 10,
+    "Snail": 12,
+    "Blue Snail": 7,
+    "Shroom": 12,
     "Red Snail": 5,
-    "Shroom": 11,
     "Orange Mushroom": 4
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001001.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
     "Orange Mushroom": 2,
-    "Shroom": 1,
-    "Snail": 1,
-    "Red Snail": 1,
+    "Shroom": 4,
+    "Snail": 2,
+    "Red Snail": 2,
     "Blue Snail": 1
    },
    "routes": [
@@ -839,7 +901,9 @@
   },
   {
    "id": 1000002,
+   "meowdb_map_id": "000001002",
    "name": "Dangerous Forest",
+   "meowdb_name": "Dangerous Forest",
    "slug": "DangerousForest_1000002",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -863,24 +927,26 @@
      "to_map": 1000000,
      "to_portal": "in01",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 12.0
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 15,
+    "Snail": 14,
     "Blue Snail": 3,
     "Red Snail": 5,
     "Orange Mushroom": 12
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001002.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Orange Mushroom": 1,
-    "Red Snail": 1,
-    "Blue Snail": 1,
-    "Snail": 1
+    "Orange Mushroom": 8,
+    "Red Snail": 2,
+    "Blue Snail": 2,
+    "Snail": 5
    },
    "routes": [
     "Descent",
@@ -900,7 +966,9 @@
   },
   {
    "id": 1000003,
+   "meowdb_map_id": "000001003",
    "name": "Mushroom Garden",
+   "meowdb_name": "Mushroom Garden",
    "slug": "MushroomGarden_1000003",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -924,22 +992,24 @@
      "to_map": 1000000,
      "to_portal": "in02",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 24.5
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 9,
-    "Shroom": 28,
+    "Snail": 7,
+    "Shroom": 23,
     "Orange Mushroom": 5
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001003.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Shroom": 1,
-    "Orange Mushroom": 1,
-    "Snail": 1
+    "Shroom": 7,
+    "Orange Mushroom": 2,
+    "Snail": 2
    },
    "routes": [
     "Main",
@@ -951,7 +1021,9 @@
   },
   {
    "id": 1000004,
+   "meowdb_map_id": "000001004",
    "name": "Snail Garden",
+   "meowdb_name": "Snail Garden",
    "slug": "SnailGarden_1000004",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -975,22 +1047,24 @@
      "to_map": 1000000,
      "to_portal": "in03",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 50.3
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 17,
+    "Snail": 11,
     "Blue Snail": 19,
     "Red Snail": 11
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001004.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Blue Snail": 1,
-    "Red Snail": 1
+    "Snail": 5,
+    "Blue Snail": 4,
+    "Red Snail": 4
    },
    "routes": [
     "Main",
@@ -1006,7 +1080,9 @@
   },
   {
    "id": 1000005,
+   "meowdb_map_id": "000001005",
    "name": "Hunting Ground Middle of the Forest I",
+   "meowdb_name": "Hunting Ground Middle of the Forest I",
    "slug": "HuntingGroundMidForest1_1000005",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -1030,24 +1106,26 @@
      "to_map": 1000000,
      "to_portal": "in04",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 10.6
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 21,
-    "Blue Snail": 16,
-    "Red Snail": 10,
-    "Shroom": 12
+    "Snail": 14,
+    "Blue Snail": 12,
+    "Shroom": 10,
+    "Red Snail": 8
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001005.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Shroom": 1,
-    "Snail": 1,
-    "Blue Snail": 1,
-    "Red Snail": 1
+    "Shroom": 4,
+    "Snail": 5,
+    "Blue Snail": 2,
+    "Red Snail": 2
    },
    "routes": [
     "Floor",
@@ -1071,7 +1149,9 @@
   },
   {
    "id": 1000006,
+   "meowdb_map_id": "000001006",
    "name": "Hunting Ground Middle of the Forest II",
+   "meowdb_name": "Hunting Ground Middle of the Forest II",
    "slug": "HuntingGroundMidForest2_1000006",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -1095,26 +1175,28 @@
      "to_map": 1000000,
      "to_portal": "in05",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 61.0
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 13,
-    "Blue Snail": 17,
+    "Snail": 10,
+    "Blue Snail": 16,
+    "Shroom": 7,
     "Red Snail": 6,
-    "Shroom": 9,
     "Orange Mushroom": 6
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001006.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Orange Mushroom": 1,
-    "Blue Snail": 1,
+    "Snail": 3,
+    "Orange Mushroom": 5,
+    "Blue Snail": 4,
     "Red Snail": 1,
-    "Shroom": 1
+    "Shroom": 2
    },
    "routes": [
     "HubEast",
@@ -1136,7 +1218,9 @@
   },
   {
    "id": 1010000,
+   "meowdb_map_id": "000001010",
    "name": "Amherst",
+   "meowdb_name": "Amherst",
    "slug": "Amherst_1010000",
    "street": "Rainbow Street",
    "kind": "town",
@@ -1160,7 +1244,7 @@
      "to_map": 1000000,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 12.1
     },
     {
@@ -1168,7 +1252,7 @@
      "to_map": 1010002,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 5.0
     },
     {
@@ -1176,35 +1260,37 @@
      "to_map": 1020000,
      "to_portal": "west00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 18.4
     },
     {
      "portal": "in00",
      "to_map": 1010001,
      "to_portal": "out00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     },
     {
      "portal": "in02",
      "to_map": 1010003,
      "to_portal": "out00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Lucas",
-    "Mai",
-    "Rain",
-    "Pio"
+    "Pio",
+    "Rain"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001010.json",
    "built_status": "authored",
    "built_npcs": [
     "Rain",
     "Pio",
-    "Lucas",
-    "Mai"
+    "Lucas"
    ],
    "built_mobs": {},
    "routes": [
@@ -1218,7 +1304,9 @@
   },
   {
    "id": 1010001,
+   "meowdb_map_id": "000001011",
    "name": "Amherst Weapon Store",
+   "meowdb_name": "Amherst Weapon Store",
    "slug": "AmherstWeaponStore_1010001",
    "street": "Rainbow Street",
    "kind": "interior",
@@ -1241,13 +1329,16 @@
      "portal": "out00",
      "to_map": 1010000,
      "to_portal": "in00",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Sid"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001011.json",
    "built_status": "authored",
    "built_npcs": [
     "Sid"
@@ -1264,7 +1355,9 @@
   },
   {
    "id": 1010002,
+   "meowdb_map_id": "000001012",
    "name": "Amherst Townstreet",
+   "meowdb_name": "Amherst Townstreet",
    "slug": "AmherstTownstreet_1010002",
    "street": "Rainbow Street",
    "kind": "townstreet",
@@ -1288,7 +1381,7 @@
      "to_map": 1010000,
      "to_portal": "in01",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 5.0
     },
     {
@@ -1296,12 +1389,14 @@
      "to_map": 1010004,
      "to_portal": "east00",
      "kind": "edge",
-     "one_way_in_classic": false,
-     "trail_m": 42.2
+     "one_way": false,
+     "trail_m": 64.9
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001012.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {},
@@ -1314,7 +1409,9 @@
   },
   {
    "id": 1010003,
+   "meowdb_map_id": "000001013",
    "name": "Amherst Department Store",
+   "meowdb_name": "Amherst Department Store",
    "slug": "AmherstDepartmentStore_1010003",
    "street": "Rainbow Street",
    "kind": "interior",
@@ -1337,13 +1434,16 @@
      "portal": "out00",
      "to_map": 1010000,
      "to_portal": "in02",
-     "kind": "door"
+     "kind": "door",
+     "one_way": false
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [
     "Lucy"
    ],
    "classic_mobs": {},
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001013.json",
    "built_status": "authored",
    "built_npcs": [
     "Lucy"
@@ -1359,7 +1459,9 @@
   },
   {
    "id": 1010004,
+   "meowdb_map_id": "000001014",
    "name": "Snail Field of Flowers",
+   "meowdb_name": "Snail Field of Flowers",
    "slug": "SnailFieldOfFlowers_1010004",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -1369,13 +1471,13 @@
    ],
    "base_height_m": 9.5,
    "world_origin": [
-    248.29,
-    -551.51
+    256.11,
+    -541.13
    ],
    "world_yaw_deg": -45.0,
    "worldmap_frame_origin": [
-    565.5,
-    -214.4
+    563.7,
+    -201.5
    ],
    "exits": [
     {
@@ -1383,22 +1485,26 @@
      "to_map": 1010002,
      "to_portal": "west00",
      "kind": "edge",
-     "classic_arrival_only": false,
-     "trail_m": 42.2
+     "one_way": false,
+     "trail_m": 64.9
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 10,
-    "Blue Snail": 16,
-    "Red Snail": 17
+    "Snail": 6,
+    "Blue Snail": 10,
+    "Red Snail": 12,
+    "Orange Mushroom": 6
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001014.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Blue Snail": 1,
-    "Red Snail": 1,
-    "Snail": 1
+    "Blue Snail": 5,
+    "Red Snail": 5,
+    "Snail": 2,
+    "Orange Mushroom": 1
    },
    "routes": [
     "RimRoad",
@@ -1420,7 +1526,9 @@
   },
   {
    "id": 1020000,
+   "meowdb_map_id": "000001020",
    "name": "The Field East of Amherst",
+   "meowdb_name": "The Field East of Amherst",
    "slug": "FieldEastOfAmherst_1020000",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -1444,7 +1552,7 @@
      "to_map": 1010000,
      "to_portal": "east00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 18.4
     },
     {
@@ -1452,24 +1560,26 @@
      "to_map": 1020001,
      "to_portal": "out00",
      "kind": "edge",
-     "one_way_in_classic": false,
+     "one_way": false,
      "trail_m": 20.7
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
-    "Snail": 8,
-    "Blue Snail": 19,
-    "Red Snail": 13,
+    "Snail": 3,
+    "Blue Snail": 11,
+    "Red Snail": 12,
     "Orange Mushroom": 12
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001020.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Blue Snail": 1,
-    "Orange Mushroom": 1,
-    "Red Snail": 1
+    "Snail": 2,
+    "Blue Snail": 5,
+    "Orange Mushroom": 5,
+    "Red Snail": 3
    },
    "routes": [
     "Main",
@@ -1485,7 +1595,9 @@
   },
   {
    "id": 1020001,
+   "meowdb_map_id": "000001021",
    "name": "Tomato Field",
+   "meowdb_name": "Tomato Field",
    "slug": "TomatoField_1020001",
    "street": "Rainbow Street",
    "kind": "hunting",
@@ -1509,10 +1621,11 @@
      "to_map": 1020000,
      "to_portal": "in00",
      "kind": "edge",
-     "classic_arrival_only": false,
+     "one_way": false,
      "trail_m": 20.7
     }
    ],
+   "arrival_points": [],
    "classic_npcs": [],
    "classic_mobs": {
     "Snail": 9,
@@ -1520,12 +1633,13 @@
     "Red Snail": 4,
     "Orange Mushroom": 4
    },
+   "classic_source": "MeowDB MS Classic, game/data/canonical/maps/000001021.json",
    "built_status": "authored",
    "built_npcs": [],
    "built_mobs": {
-    "Snail": 1,
-    "Orange Mushroom": 1,
-    "Blue Snail": 1,
+    "Snail": 3,
+    "Orange Mushroom": 2,
+    "Blue Snail": 2,
     "Red Snail": 1
    },
    "routes": [

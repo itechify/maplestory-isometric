@@ -1,0 +1,151 @@
+{
+  "id": "000000001",
+  "name": "Mushroom Town - West Entrance",
+  "street_name": "Maple Road",
+  "region": "MapleIsland",
+  "location_label": "Maple Road / Maple Island",
+  "is_town": true,
+  "page_map_type_label": "Town",
+  "overview_text": "Mushroom Town - West Entrance is a town in Maple Road, Maple Island in MapleStory Classic. Hosts 2 NPCs including Heena and Sera. Connects to 1 other map.",
+  "return_map_id": "000000001",
+  "return_map_name": "Mushroom Town - West Entrance",
+  "safe_zone": true,
+  "safe_zone_text": "Safe zone. NPCs and portals, no mobs.",
+  "field_limit": 0,
+  "field_restrictions": [],
+  "bgm": {
+    "path": "Bgm00/FloralLife",
+    "name": "Floral Life",
+    "length": "2:18"
+  },
+  "mob_rate": 1,
+  "total_mob_count": 0,
+  "page_facts": {},
+  "connected_maps": [
+    {
+      "map_id": "000000010",
+      "map_name": "Mushroom Town",
+      "street_name": "Maple Road"
+    }
+  ],
+  "portals": [
+    {
+      "name": "out00",
+      "type": 2,
+      "x_px": 1116,
+      "y_px": 365,
+      "to_map_id": "000000010",
+      "to_map_name": "Mushroom Town",
+      "to_street_name": "Maple Road",
+      "to_portal": "in00",
+      "to_portal_derivation": "reverse_lookup"
+    }
+  ],
+  "player_spawns": [
+    {
+      "x_px": -189,
+      "y_px": 437
+    },
+    {
+      "x_px": -140,
+      "y_px": 445
+    },
+    {
+      "x_px": -94,
+      "y_px": 452
+    },
+    {
+      "x_px": -118,
+      "y_px": 452
+    }
+  ],
+  "npcs": [
+    {
+      "id": "1",
+      "name": "Heena",
+      "x_px": -46,
+      "y_px": 280,
+      "idle_speech_lines": [
+        "Beautiful day today!",
+        "Press the left Alt key to jump.",
+        "Press the arrow keys to move left and right.",
+        "Ha!"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Sera",
+      "x_px": 833,
+      "y_px": 125,
+      "idle_speech_lines": [
+        "It's a never-ending pile of laundry. I'll be here awhile.",
+        "Have you met my sister Heena yet?",
+        "Just press the Up arrow to climb a ladder or rope.",
+        "Click on me to start a chat!"
+      ]
+    }
+  ],
+  "monsters": [],
+  "spawns": [],
+  "intra_portals": [],
+  "reactors": [],
+  "minimap": {
+    "width_px": 1498,
+    "height_px": 985,
+    "center_x_px": 254,
+    "center_y_px": 310,
+    "has_image": true
+  },
+  "bounds_px_derived": {
+    "x_min": -254,
+    "x_max": 1244,
+    "y_min": -310,
+    "y_max": 675
+  },
+  "quests": {
+    "starts_here": [
+      {
+        "id": "1001",
+        "name": "Bringing a Mirror to Heena",
+        "npc_name": "Sera",
+        "area_label": "Maple Island",
+        "exp_reward_label": "+2 EXP"
+      },
+      {
+        "id": "1000",
+        "name": "Borrowing Sera's Mirror",
+        "npc_name": "Heena",
+        "level_label": "Lv 1+",
+        "area_label": "Maple Island"
+      }
+    ]
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/maps/000000001",
+    "retrieved_at": "2026-10-04T09:56:36.674Z"
+  },
+  "field_sources": {
+    "to_portal": {
+      "derivation": "reverse lookup: the unique portal in the destination map whose to_map_id is this map; \"none\" when no such portal exists",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/maps/000000010",
+          "retrieved_at": "2026-10-04T09:56:37.734Z"
+        }
+      ]
+    },
+    "bounds_px_derived": {
+      "url": "https://meowdb.com/_next/static/chunks/app/msclassic/%5Blocale%5D/maps/%5Bid%5D/page-a7e2d98c08322572.js",
+      "retrieved_at": "2026-10-04T10:07:45.500Z",
+      "derivation": "x in [-center_x_px, width_px - center_x_px], y in [-center_y_px, height_px - center_y_px] (viewer formula left% = (x + miniMapCenterX) / minimapWidth)"
+    }
+  },
+  "gaps": [
+    "to_portal (destination portal name) is not given by MeowDB; derived by reverse lookup (see to_portal_derivation).",
+    "Portal \"type\" is a raw integer; MeowDB does not label its meaning on the page or in the viewer code.",
+    "No foothold/platform/ladder/rope geometry is published on the page (only point positions and the minimap rectangle).",
+    "MeowDB does not say whether npc/spawn y is the raw WZ life y or the foothold-snapped y.",
+    "No monsters on this map (MeowDB lists none)."
+  ]
+}
