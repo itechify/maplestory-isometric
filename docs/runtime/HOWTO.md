@@ -260,7 +260,9 @@ needs the same inputs the committed build used (its "Evidence used" section list
 which live in git-ignored `_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one.
 The scenarios the rules consume are Tests A-G, `regen`, `test_skills`, `test_box`, `trap_probe`,
 `npcs`, `npc_shanks`, `npc_bubbles`, `ui_minimap`, `save_it2_continue`, `pause_load`, `resume_gate` and `kit`, plus the
-every-quest set and the clean-character playthrough (`--playtest` with its report or directory).
+every-quest set and the clean-character playthrough (`--playtest` with its report or directory). In the final
+evidence run every one of them passed (seed 1; the every-quest set and the playthrough on seeds 1, 2 and 3), and the
+manifest has 638 entries: 580 verified, 56 partial (55 source-data gaps, 1 pending source read), 0 missing.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the

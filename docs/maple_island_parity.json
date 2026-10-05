@@ -5,7 +5,7 @@
     "missing": "The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).",
     "partial": "The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).",
     "implemented": "Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.",
-    "verified": "As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.",
+    "verified": "As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.",
     "source_data_gap": "The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.",
     "pending_source_read": "A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.",
     "in_scope": "false for content outside Iteration Three (rules.json out_of_scope).",
@@ -14,20 +14,40 @@
   "inputs": {
     "tests": [
       {
-        "file": "_scratch/ev/rev_full2.json",
-        "run_at": "2026-10-05T21:52:15Z",
-        "commit": "67ea09e7728c5bd49eced4a6af966a907c1db727",
+        "file": "_scratch/final/unit_evidence.json",
+        "run_at": "2026-10-05T22:44:28Z",
+        "commit": "c4e9ac5fca94ac9033c2c932042791fea4c3a980",
         "totals": {
           "failed": 0,
           "files": 169,
-          "ms": 667353,
-          "tests": 1549
+          "ms": 672764,
+          "tests": 1555
         }
       }
     ],
     "playtests": [
       {
-        "file": "_scratch/pt/npc_shanks/report.json",
+        "file": "_scratch/final/pt/kit/report.json",
+        "scenario": "kit",
+        "result": "PASS",
+        "seed": 1,
+        "checks": 19,
+        "tagged_checks": 9,
+        "rule_tagged_checks": 0,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/npc_bubbles/report.json",
+        "scenario": "npc_bubbles",
+        "result": "PASS",
+        "seed": 1,
+        "checks": 7,
+        "tagged_checks": 5,
+        "rule_tagged_checks": 0,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/npc_shanks/report.json",
         "scenario": "npc_shanks",
         "result": "PASS",
         "seed": 1,
@@ -37,7 +57,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/npcs/report.json",
+        "file": "_scratch/final/pt/npcs/report.json",
         "scenario": "npcs",
         "result": "PASS",
         "seed": 1,
@@ -47,17 +67,53 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/playthrough/report.json",
+        "file": "_scratch/final/pt/pause_load/report.json",
+        "scenario": "pause_load",
+        "result": "PASS",
+        "seed": 1,
+        "checks": 12,
+        "tagged_checks": 9,
+        "rule_tagged_checks": 0,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/playthrough_s1/report.json",
         "scenario": "playthrough",
         "result": "PASS",
         "seed": 1,
         "checks": 620,
         "tagged_checks": 603,
         "rule_tagged_checks": 88,
-        "failed_checks": []
+        "failed_checks": [],
+        "clean_run": true,
+        "not_clean_because": []
       },
       {
-        "file": "_scratch/pt/quests/1000-1001/report.json",
+        "file": "_scratch/final/pt/playthrough_s2/report.json",
+        "scenario": "playthrough",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 617,
+        "tagged_checks": 600,
+        "rule_tagged_checks": 87,
+        "failed_checks": [],
+        "clean_run": true,
+        "not_clean_because": []
+      },
+      {
+        "file": "_scratch/final/pt/playthrough_s3/report.json",
+        "scenario": "playthrough",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 617,
+        "tagged_checks": 600,
+        "rule_tagged_checks": 87,
+        "failed_checks": [],
+        "clean_run": true,
+        "not_clean_because": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s1/1000-1001/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -67,7 +123,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1002/report.json",
+        "file": "_scratch/final/pt/quests_s1/1002/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -77,7 +133,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1003-1004/report.json",
+        "file": "_scratch/final/pt/quests_s1/1003-1004/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -87,7 +143,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1005/report.json",
+        "file": "_scratch/final/pt/quests_s1/1005/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -97,7 +153,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1006_1009_1010/report.json",
+        "file": "_scratch/final/pt/quests_s1/1006_1009_1010/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -107,7 +163,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1007-1008/report.json",
+        "file": "_scratch/final/pt/quests_s1/1007-1008/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -117,7 +173,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1011/report.json",
+        "file": "_scratch/final/pt/quests_s1/1011/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -127,7 +183,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1012/report.json",
+        "file": "_scratch/final/pt/quests_s1/1012/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -137,7 +193,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/quests/1013-1019/report.json",
+        "file": "_scratch/final/pt/quests_s1/1013-1019/report.json",
         "scenario": "quest",
         "result": "PASS",
         "seed": 1,
@@ -147,7 +203,187 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/regen/report.json",
+        "file": "_scratch/final/pt/quests_s2/1000-1001/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 56,
+        "tagged_checks": 44,
+        "rule_tagged_checks": 7,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1002/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 36,
+        "tagged_checks": 25,
+        "rule_tagged_checks": 6,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1003-1004/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 54,
+        "tagged_checks": 43,
+        "rule_tagged_checks": 5,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1005/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 38,
+        "tagged_checks": 27,
+        "rule_tagged_checks": 5,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1006_1009_1010/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 115,
+        "tagged_checks": 95,
+        "rule_tagged_checks": 16,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1007-1008/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 58,
+        "tagged_checks": 47,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1011/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 41,
+        "tagged_checks": 30,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1012/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 44,
+        "tagged_checks": 33,
+        "rule_tagged_checks": 10,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s2/1013-1019/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 190,
+        "tagged_checks": 176,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1000-1001/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 56,
+        "tagged_checks": 44,
+        "rule_tagged_checks": 7,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1002/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 36,
+        "tagged_checks": 25,
+        "rule_tagged_checks": 6,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1003-1004/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 54,
+        "tagged_checks": 43,
+        "rule_tagged_checks": 5,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1005/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 38,
+        "tagged_checks": 27,
+        "rule_tagged_checks": 5,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1006_1009_1010/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 115,
+        "tagged_checks": 95,
+        "rule_tagged_checks": 16,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1007-1008/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 58,
+        "tagged_checks": 47,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1011/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 41,
+        "tagged_checks": 30,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1012/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 44,
+        "tagged_checks": 33,
+        "rule_tagged_checks": 10,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/quests_s3/1013-1019/report.json",
+        "scenario": "quest",
+        "result": "PASS",
+        "seed": 3,
+        "checks": 190,
+        "tagged_checks": 176,
+        "rule_tagged_checks": 8,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/regen/report.json",
         "scenario": "regen",
         "result": "PASS",
         "seed": 1,
@@ -157,7 +393,17 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/save_it2_continue/report.json",
+        "file": "_scratch/final/pt/resume_gate/report.json",
+        "scenario": "resume_gate",
+        "result": "PASS",
+        "seed": 1,
+        "checks": 23,
+        "tagged_checks": 4,
+        "rule_tagged_checks": 0,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/final/pt/save_it2_continue/report.json",
         "scenario": "save_it2_continue",
         "result": "PASS",
         "seed": 1,
@@ -167,7 +413,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_a_traversal/report.json",
+        "file": "_scratch/final/pt/test_a_traversal/report.json",
         "scenario": "test_a_traversal",
         "result": "PASS",
         "seed": 1,
@@ -177,7 +423,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_b_combat/report.json",
+        "file": "_scratch/final/pt/test_b_combat/report.json",
         "scenario": "test_b_combat",
         "result": "PASS",
         "seed": 1,
@@ -187,7 +433,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_b_population/report.json",
+        "file": "_scratch/final/pt/test_b_population/report.json",
         "scenario": "test_b_population",
         "result": "PASS",
         "seed": 1,
@@ -197,17 +443,17 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_box/report.json",
+        "file": "_scratch/final/pt/test_box/report.json",
         "scenario": "test_box",
         "result": "PASS",
         "seed": 1,
-        "checks": 31,
-        "tagged_checks": 0,
+        "checks": 37,
+        "tagged_checks": 2,
         "rule_tagged_checks": 24,
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_c_progression/report.json",
+        "file": "_scratch/final/pt/test_c_progression/report.json",
         "scenario": "test_c_progression",
         "result": "PASS",
         "seed": 1,
@@ -217,7 +463,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_d_inventory/report.json",
+        "file": "_scratch/final/pt/test_d_inventory/report.json",
         "scenario": "test_d_inventory",
         "result": "PASS",
         "seed": 1,
@@ -227,7 +473,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_e_quest/report.json",
+        "file": "_scratch/final/pt/test_e_quest/report.json",
         "scenario": "test_e_quest",
         "result": "PASS",
         "seed": 1,
@@ -237,17 +483,17 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_f_death/report.json",
+        "file": "_scratch/final/pt/test_f_death/report.json",
         "scenario": "test_f_death",
         "result": "PASS",
         "seed": 1,
-        "checks": 226,
-        "tagged_checks": 0,
+        "checks": 237,
+        "tagged_checks": 11,
         "rule_tagged_checks": 116,
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_g_shop/report.json",
+        "file": "_scratch/final/pt/test_g_shop/report.json",
         "scenario": "test_g_shop",
         "result": "PASS",
         "seed": 1,
@@ -257,7 +503,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/test_skills/report.json",
+        "file": "_scratch/final/pt/test_skills/report.json",
         "scenario": "test_skills",
         "result": "PASS",
         "seed": 1,
@@ -267,7 +513,7 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/trap_probe/report.json",
+        "file": "_scratch/final/pt/trap_probe/report.json",
         "scenario": "trap_probe",
         "result": "PASS",
         "seed": 1,
@@ -277,35 +523,13 @@
         "failed_checks": []
       },
       {
-        "file": "_scratch/pt/ui_minimap/report.json",
+        "file": "_scratch/final/pt/ui_minimap/report.json",
         "scenario": "ui_minimap",
-        "result": "FAIL",
+        "result": "PASS",
         "seed": 1,
         "checks": 230,
         "tagged_checks": 0,
         "rule_tagged_checks": 216,
-        "failed_checks": [
-          "#226 level-up: the SP line"
-        ]
-      },
-      {
-        "file": "_scratch/rev_pt/playthrough_s1/report.json",
-        "scenario": "playthrough",
-        "result": "PASS",
-        "seed": 1,
-        "checks": 615,
-        "tagged_checks": 598,
-        "rule_tagged_checks": 87,
-        "failed_checks": []
-      },
-      {
-        "file": "_scratch/rev_pt/playthrough_s2/report.json",
-        "scenario": "playthrough",
-        "result": "PASS",
-        "seed": 2,
-        "checks": 620,
-        "tagged_checks": 603,
-        "rule_tagged_checks": 88,
         "failed_checks": []
       }
     ],
@@ -337,11 +561,11 @@
   "totals": {
     "all": {
       "missing": 0,
-      "partial": 58,
+      "partial": 56,
       "implemented": 0,
-      "verified": 578,
+      "verified": 580,
       "source_data_gap": 55,
-      "pending_source_read": 2,
+      "pending_source_read": 1,
       "out_of_scope": 2,
       "entries": 638
     },
@@ -448,11 +672,11 @@
       },
       "consumables": {
         "missing": 0,
-        "partial": 1,
+        "partial": 0,
         "implemented": 0,
-        "verified": 17,
+        "verified": 18,
         "source_data_gap": 0,
-        "pending_source_read": 1,
+        "pending_source_read": 0,
         "out_of_scope": 0,
         "entries": 18
       },
@@ -588,9 +812,9 @@
       },
       "ui": {
         "missing": 0,
-        "partial": 1,
+        "partial": 0,
         "implemented": 0,
-        "verified": 41,
+        "verified": 42,
         "source_data_gap": 0,
         "pending_source_read": 0,
         "out_of_scope": 0,
@@ -627,7 +851,7 @@
         "entries": 7
       }
     },
-    "open_for_exit": 3
+    "open_for_exit": 1
   },
   "source_data_gaps": [
     {
@@ -1115,26 +1339,6 @@
           "detail": "possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Excluded until a hand read confirms it."
         }
       ]
-    },
-    {
-      "key": "item:242",
-      "category": "consumables",
-      "name": "Green Apple (Use / Food)",
-      "in_scope": true,
-      "reads": [
-        {
-          "read": "MeowDB item page https://meowdb.com/msclassic/item-db/242 (Green Apple), by hand in a browser",
-          "resolves": "its 'Max per Stack' (the runtime holds one per Use slot by the inventory.json unpublished_max_stack adaptation until then), its Tradeable/Untradeable tag (the runtime treats the unknown tag as tradeable) and its NPC Sell-back basis",
-          "decision": "D3-1",
-          "declared": true,
-          "fields": [
-            "max_stack",
-            "tradeable",
-            "sell_price_basis"
-          ],
-          "detail": "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem; max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read; tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured"
-        }
-      ]
     }
   ],
   "categories": [
@@ -1189,18 +1393,19 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_a_traversal#12 leg 1 000000010 -> 000000001: in 000000001 (Mushroom Town - West Entrance)",
-                "key": "map:000000001"
-              },
-              {
-                "kind": "playtest",
                 "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
                 "clean": true,
                 "key": "map:000000001"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#539 map 000000001 Mushroom Town - West Entrance visited on foot",
+                "id": "playthrough#541 map 000000001 Mushroom Town - West Entrance visited on foot",
+                "clean": true,
+                "key": "map:000000001"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
                 "clean": true,
                 "key": "map:000000001"
               }
@@ -1241,23 +1446,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#542 map 000000010 Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000010"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#542 map 000000010 Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000010"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#3 leg 0 000000001 -> 000000010: in 000000010 (Mushroom Town)",
                 "key": "map:000000010"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#21 leg 2 000000001 -> 000000010: in 000000010 (Mushroom Town)",
-                "key": "map:000000010"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#39 leg 4 000000020 -> 000000010: in 000000010 (Mushroom Town)",
-                "key": "map:000000010"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#540 map 000000010 Mushroom Town visited on foot",
-                "clean": true,
                 "key": "map:000000010"
               }
             ],
@@ -1297,22 +1503,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#543 map 000000020 Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000020"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#543 map 000000020 Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000020"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#30 leg 3 000000010 -> 000000020: in 000000020 (Mushroom Town)",
                 "key": "map:000000020"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#48 leg 5 000000010 -> 000000020: in 000000020 (Mushroom Town)",
-                "key": "map:000000020"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#64 leg 7 000000021 -> 000000020: in 000000020 (Mushroom Town)",
-                "key": "map:000000020"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#80 leg 9 000000030 -> 000000020: in 000000020 (Mushroom Town)",
                 "key": "map:000000020"
               }
             ],
@@ -1352,19 +1560,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#544 map 000000021 Mushroom Town Townstreet visited on foot",
+                "clean": true,
+                "key": "map:000000021"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#544 map 000000021 Mushroom Town Townstreet visited on foot",
+                "clean": true,
+                "key": "map:000000021"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#57 leg 6 000000020 -> 000000021: in 000000021 (Mushroom Town Townstreet)",
-                "key": "map:000000021"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#542 map 000000021 Mushroom Town Townstreet visited on foot",
-                "clean": true,
-                "key": "map:000000021"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#547 map 000000021 Mushroom Town Townstreet visited on foot",
-                "clean": true,
                 "key": "map:000000021"
               },
               {
@@ -1410,24 +1618,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#545 map 000000030 East Entrance to Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000030"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#545 map 000000030 East Entrance to Mushroom Town visited on foot",
+                "clean": true,
+                "key": "map:000000030"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#71 leg 8 000000020 -> 000000030: in 000000030 (East Entrance to Mushroom Town)",
                 "key": "map:000000030"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#89 leg 10 000000020 -> 000000030: in 000000030 (East Entrance to Mushroom Town)",
-                "key": "map:000000030"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#543 map 000000030 East Entrance to Mushroom Town visited on foot",
-                "clean": true,
-                "key": "map:000000030"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#548 map 000000030 East Entrance to Mushroom Town visited on foot",
-                "clean": true,
                 "key": "map:000000030"
               }
             ],
@@ -1466,24 +1674,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#546 map 000000040 Snail Hunting Ground I visited on foot",
+                "clean": true,
+                "key": "map:000000040"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#546 map 000000040 Snail Hunting Ground I visited on foot",
+                "clean": true,
+                "key": "map:000000040"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#98 leg 11 000000030 -> 000000040: in 000000040 (Snail Hunting Ground I)",
                 "key": "map:000000040"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#116 leg 13 000000041 -> 000000040: in 000000040 (Snail Hunting Ground I)",
-                "key": "map:000000040"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#544 map 000000040 Snail Hunting Ground I visited on foot",
-                "clean": true,
-                "key": "map:000000040"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#549 map 000000040 Snail Hunting Ground I visited on foot",
-                "clean": true,
                 "key": "map:000000040"
               }
             ],
@@ -1522,22 +1730,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#547 map 000000041 Snail Hunting Ground II visited on foot",
+                "clean": true,
+                "key": "map:000000041"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#547 map 000000041 Snail Hunting Ground II visited on foot",
+                "clean": true,
+                "key": "map:000000041"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#107 leg 12 000000040 -> 000000041: in 000000041 (Snail Hunting Ground II)",
                 "key": "map:000000041"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#125 leg 14 000000040 -> 000000041: in 000000041 (Snail Hunting Ground II)",
-                "key": "map:000000041"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#143 leg 16 000000042 -> 000000041: in 000000041 (Snail Hunting Ground II)",
-                "key": "map:000000041"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#3 the spot at local (64.7, -2.32, 0.17) in 000000041 is not a trap",
                 "key": "map:000000041"
               }
             ],
@@ -1576,22 +1786,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#548 map 000000042 Snail Hunting Ground III visited on foot",
+                "clean": true,
+                "key": "map:000000042"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#548 map 000000042 Snail Hunting Ground III visited on foot",
+                "clean": true,
+                "key": "map:000000042"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#134 leg 15 000000041 -> 000000042: in 000000042 (Snail Hunting Ground III)",
                 "key": "map:000000042"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#152 leg 17 000000041 -> 000000042: in 000000042 (Snail Hunting Ground III)",
-                "key": "map:000000042"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#170 leg 19 000000050 -> 000000042: in 000000042 (Snail Hunting Ground III)",
-                "key": "map:000000042"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#19 the spot at local (38.45, 5.2, -33.53) in 000000042 is not a trap",
                 "key": "map:000000042"
               }
             ],
@@ -1630,22 +1842,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#549 map 000000050 A Split Road visited on foot",
+                "clean": true,
+                "key": "map:000000050"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#549 map 000000050 A Split Road visited on foot",
+                "clean": true,
+                "key": "map:000000050"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#161 leg 18 000000042 -> 000000050: in 000000050 (A Split Road)",
                 "key": "map:000000050"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#179 leg 20 000000042 -> 000000050: in 000000050 (A Split Road)",
-                "key": "map:000000050"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#424 leg 48 000001000 -> 000000050: in 000000050 (A Split Road)",
-                "key": "map:000000050"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#456 leg 52 000000060 -> 000000050: in 000000050 (A Split Road)",
                 "key": "map:000000050"
               }
             ],
@@ -1692,17 +1906,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#550 map 000000060 Southperry visited on foot",
+                "clean": true,
+                "key": "map:000000060"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#550 map 000000060 Southperry visited on foot",
+                "clean": true,
+                "key": "map:000000060"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#433 leg 49 000000050 -> 000000060: in 000000060 (Southperry)",
-                "key": "map:000000060"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#449 leg 51 000000061 -> 000000060: in 000000060 (Southperry)",
-                "key": "map:000000060"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#465 leg 53 000000050 -> 000000060: in 000000060 (Southperry)",
                 "key": "map:000000060"
               }
             ],
@@ -1743,19 +1959,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#551 map 000000061 Southperry Armor Store visited on foot",
+                "clean": true,
+                "key": "map:000000061"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#551 map 000000061 Southperry Armor Store visited on foot",
+                "clean": true,
+                "key": "map:000000061"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#442 leg 50 000000060 -> 000000061: in 000000061 (Southperry Armor Store)",
-                "key": "map:000000061"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#549 map 000000061 Southperry Armor Store visited on foot",
-                "clean": true,
-                "key": "map:000000061"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#554 map 000000061 Southperry Armor Store visited on foot",
-                "clean": true,
                 "key": "map:000000061"
               },
               {
@@ -1799,22 +2015,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#552 map 000001000 The Field West of Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001000"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#552 map 000001000 The Field West of Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001000"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#188 leg 21 000000050 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#206 leg 23 000001001 -> 000001000: in 000001000 (The Field West of Amherst)",
-                "key": "map:000001000"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#224 leg 25 000001002 -> 000001000: in 000001000 (The Field West of Amherst)",
-                "key": "map:000001000"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#242 leg 27 000001003 -> 000001000: in 000001000 (The Field West of Amherst)",
                 "key": "map:000001000"
               }
             ],
@@ -1853,23 +2071,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#553 map 000001001 In a Small Forest visited on foot",
+                "clean": true,
+                "key": "map:000001001"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#553 map 000001001 In a Small Forest visited on foot",
+                "clean": true,
+                "key": "map:000001001"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#197 leg 22 000001000 -> 000001001: in 000001001 (In a Small Forest)",
                 "key": "map:000001001"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#8 the spot at local (-0.37, -2.41, 0.56) in 000001001 is not a trap",
-                "key": "map:000001001"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#28 the spot at local (36.53, 0.0, -29.12) in 000001001 is not a trap",
-                "key": "map:000001001"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#551 map 000001001 In a Small Forest visited on foot",
-                "clean": true,
                 "key": "map:000001001"
               }
             ],
@@ -1908,24 +2127,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#554 map 000001002 Dangerous Forest visited on foot",
+                "clean": true,
+                "key": "map:000001002"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#554 map 000001002 Dangerous Forest visited on foot",
+                "clean": true,
+                "key": "map:000001002"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#215 leg 24 000001000 -> 000001002: in 000001002 (Dangerous Forest)",
                 "key": "map:000001002"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#29 the spot at local (13.61, 7.6, -35.11) in 000001002 is not a trap",
-                "key": "map:000001002"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#552 map 000001002 Dangerous Forest visited on foot",
-                "clean": true,
-                "key": "map:000001002"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#557 map 000001002 Dangerous Forest visited on foot",
-                "clean": true,
                 "key": "map:000001002"
               }
             ],
@@ -1964,22 +2183,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#555 map 000001003 Mushroom Garden visited on foot",
+                "clean": true,
+                "key": "map:000001003"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#555 map 000001003 Mushroom Garden visited on foot",
+                "clean": true,
+                "key": "map:000001003"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#233 leg 26 000001000 -> 000001003: in 000001003 (Mushroom Garden)",
                 "key": "map:000001003"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#30 the spot at local (28.15, 0.0, -25.37) in 000001003 is not a trap",
-                "key": "map:000001003"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#31 the spot at local (27.12, 5.18, -18.4) in 000001003 is not a trap",
-                "key": "map:000001003"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#32 the spot at local (26.86, 0.0, -19.86) in 000001003 is not a trap",
                 "key": "map:000001003"
               }
             ],
@@ -2018,22 +2239,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#556 map 000001004 Snail Garden visited on foot",
+                "clean": true,
+                "key": "map:000001004"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#556 map 000001004 Snail Garden visited on foot",
+                "clean": true,
+                "key": "map:000001004"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#251 leg 28 000001000 -> 000001004: in 000001004 (Snail Garden)",
                 "key": "map:000001004"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#33 the spot at local (23.31, 0.0, -28.12) in 000001004 is not a trap",
-                "key": "map:000001004"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#34 the spot at local (0.66, 2.25, -18.35) in 000001004 is not a trap",
-                "key": "map:000001004"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#35 the spot at local (4.07, 2.25, -23.22) in 000001004 is not a trap",
                 "key": "map:000001004"
               }
             ],
@@ -2072,23 +2295,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#557 map 000001005 Hunting Ground Middle of the Forest I visited on foot",
+                "clean": true,
+                "key": "map:000001005"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#557 map 000001005 Hunting Ground Middle of the Forest I visited on foot",
+                "clean": true,
+                "key": "map:000001005"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#270 leg 30 000001000 -> 000001005: in 000001005 (Hunting Ground Middle of the Forest I)",
                 "key": "map:000001005"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#38 the spot at local (18.77, 0.0, -42.6) in 000001005 is not a trap",
-                "key": "map:000001005"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#51 the spot at local (27.66, 0.0, -24.93) in 000001005 is not a trap",
-                "key": "map:000001005"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#555 map 000001005 Hunting Ground Middle of the Forest I visited on foot",
-                "clean": true,
                 "key": "map:000001005"
               }
             ],
@@ -2127,19 +2351,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#558 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
+                "clean": true,
+                "key": "map:000001006"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#558 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
+                "clean": true,
+                "key": "map:000001006"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#288 leg 32 000001000 -> 000001006: in 000001006 (Hunting Ground Middle of the Forest II)",
-                "key": "map:000001006"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#556 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
-                "clean": true,
-                "key": "map:000001006"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#561 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
-                "clean": true,
                 "key": "map:000001006"
               },
               {
@@ -2173,9 +2397,14 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#1 in Amherst",
+                "key": "map:000001010"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#562 map 000001010 Amherst visited on foot",
@@ -2184,22 +2413,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#559 map 000001010 Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001010"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#559 map 000001010 Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001010"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#306 leg 34 000001000 -> 000001010: in 000001010 (Amherst)",
-                "key": "map:000001010"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#322 leg 36 000001011 -> 000001010: in 000001010 (Amherst)",
-                "key": "map:000001010"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#336 leg 38 000001013 -> 000001010: in 000001010 (Amherst)",
-                "key": "map:000001010"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_a_traversal#370 leg 42 000001012 -> 000001010: in 000001010 (Amherst)",
                 "key": "map:000001010"
               }
             ],
@@ -2240,19 +2466,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#560 map 000001011 Amherst Weapon Store visited on foot",
+                "clean": true,
+                "key": "map:000001011"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#560 map 000001011 Amherst Weapon Store visited on foot",
+                "clean": true,
+                "key": "map:000001011"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#315 leg 35 000001010 -> 000001011: in 000001011 (Amherst Weapon Store)",
-                "key": "map:000001011"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#558 map 000001011 Amherst Weapon Store visited on foot",
-                "clean": true,
-                "key": "map:000001011"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#563 map 000001011 Amherst Weapon Store visited on foot",
-                "clean": true,
                 "key": "map:000001011"
               },
               {
@@ -2297,22 +2523,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#561 map 000001012 Amherst Townstreet visited on foot",
+                "clean": true,
+                "key": "map:000001012"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#561 map 000001012 Amherst Townstreet visited on foot",
+                "clean": true,
+                "key": "map:000001012"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#343 leg 39 000001010 -> 000001012: in 000001012 (Amherst Townstreet)",
                 "key": "map:000001012"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#361 leg 41 000001014 -> 000001012: in 000001012 (Amherst Townstreet)",
-                "key": "map:000001012"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#13 the spot at local (24.7, -2.48, 0.63) in 000001012 is not a trap",
-                "key": "map:000001012"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#14 the spot at local (1.85, -2.55, 0.09) in 000001012 is not a trap",
                 "key": "map:000001012"
               }
             ],
@@ -2353,19 +2581,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#562 map 000001013 Amherst Department Store visited on foot",
+                "clean": true,
+                "key": "map:000001013"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#562 map 000001013 Amherst Department Store visited on foot",
+                "clean": true,
+                "key": "map:000001013"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#329 leg 37 000001010 -> 000001013: in 000001013 (Amherst Department Store)",
-                "key": "map:000001013"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#560 map 000001013 Amherst Department Store visited on foot",
-                "clean": true,
-                "key": "map:000001013"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#565 map 000001013 Amherst Department Store visited on foot",
-                "clean": true,
                 "key": "map:000001013"
               },
               {
@@ -2409,22 +2637,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#563 map 000001014 Snail Field of Flowers visited on foot",
+                "clean": true,
+                "key": "map:000001014"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#563 map 000001014 Snail Field of Flowers visited on foot",
+                "clean": true,
+                "key": "map:000001014"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#352 leg 40 000001012 -> 000001014: in 000001014 (Snail Field of Flowers)",
                 "key": "map:000001014"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#39 the spot at local (12.91, 0.0, -20.38) in 000001014 is not a trap",
-                "key": "map:000001014"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#40 the spot at local (0.04, 0.0, -20.38) in 000001014 is not a trap",
-                "key": "map:000001014"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#41 the spot at local (25.04, 0.0, -21.12) in 000001014 is not a trap",
                 "key": "map:000001014"
               }
             ],
@@ -2463,22 +2693,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#564 map 000001020 The Field East of Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001020"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#564 map 000001020 The Field East of Amherst visited on foot",
+                "clean": true,
+                "key": "map:000001020"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#379 leg 43 000001010 -> 000001020: in 000001020 (The Field East of Amherst)",
                 "key": "map:000001020"
               },
               {
                 "kind": "playtest",
                 "id": "test_a_traversal#397 leg 45 000001021 -> 000001020: in 000001020 (The Field East of Amherst)",
-                "key": "map:000001020"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#42 the spot at local (4.81, 0.0, -23.47) in 000001020 is not a trap",
-                "key": "map:000001020"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#43 the spot at local (45.98, 0.0, -22.88) in 000001020 is not a trap",
                 "key": "map:000001020"
               }
             ],
@@ -2517,22 +2749,24 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#565 map 000001021 Tomato Field visited on foot",
+                "clean": true,
+                "key": "map:000001021"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#565 map 000001021 Tomato Field visited on foot",
+                "clean": true,
+                "key": "map:000001021"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_a_traversal#388 leg 44 000001020 -> 000001021: in 000001021 (Tomato Field)",
                 "key": "map:000001021"
               },
               {
                 "kind": "playtest",
                 "id": "trap_probe#52 the spot at local (-0.67, 1.2, -15.72) in 000001021 is not a trap",
-                "key": "map:000001021"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#53 the spot at local (-0.69, 1.2, -16.5) in 000001021 is not a trap",
-                "key": "map:000001021"
-              },
-              {
-                "kind": "playtest",
-                "id": "trap_probe#54 the spot at local (-0.57, 1.2, -17.6) in 000001021 is not a trap",
                 "key": "map:000001021"
               }
             ],
@@ -4850,7 +5084,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 17,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -4873,12 +5107,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#26 1005: 3 Tutorial Jr. Sentinel killed with the attack key in 000000030 (1 -> 3 of 3)",
+                "id": "playthrough#103 1005: 3 Tutorial Jr. Sentinel killed with the attack key in 000000030 (0 -> 3 of 3)",
+                "clean": true,
                 "key": "monster:1"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#3 Tutorial Jr. Sentinel (1) canonically spawns in 000000030, 4 live here",
+                "id": "playthrough#587 Tutorial Jr. Sentinel fought and killed (3 kills)",
+                "clean": true,
                 "key": "monster:1"
               }
             ],
@@ -4909,7 +5145,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 21,
             "failed_count": 0,
             "passed": [
               {
@@ -4932,12 +5168,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#28 1006: 10 Snail killed with the attack key in 000000040 (5 -> 10 of 10)",
+                "id": "playthrough#135 1006: 10 Snail killed with the attack key in 000000040 (0 -> 10 of 10)",
+                "clean": true,
                 "key": "monster:2"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#8 Snail (2) canonically spawns in 000000040, 30 live here",
+                "id": "playthrough#588 Snail fought and killed (18 kills)",
+                "clean": true,
                 "key": "monster:2"
               }
             ],
@@ -4968,7 +5206,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -4991,12 +5229,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#66 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
+                "id": "playthrough#202 1009: 10 Blue Snail killed with the attack key in 000000050 (5 -> 10 of 10)",
+                "clean": true,
                 "key": "monster:3"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#13 Blue Snail (3) canonically spawns in 000000050, 13 live here",
+                "id": "playthrough#589 Blue Snail fought and killed (26 kills)",
+                "clean": true,
                 "key": "monster:3"
               }
             ],
@@ -5027,7 +5267,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -5050,12 +5290,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#69 1009: 10 Shroom killed with the attack key in 000000050 (0 -> 10 of 10)",
+                "id": "playthrough#205 1009: 10 Shroom killed with the attack key in 000000050 (0 -> 10 of 10)",
+                "clean": true,
                 "key": "monster:4"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#15 Shroom (4) canonically spawns in 000000050, 12 live here",
+                "id": "playthrough#590 Shroom fought and killed (22 kills)",
+                "clean": true,
                 "key": "monster:4"
               }
             ],
@@ -5086,7 +5328,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -5109,12 +5351,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#17 Red Snail (5) canonically spawns in 000000050, 10 live here",
+                "id": "playthrough#208 1009: 5 Red Snail killed with the attack key in 000000050 (2 -> 5 of 5)",
+                "clean": true,
                 "key": "monster:5"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#30 damage: Red Snail, 31 hits all inside the canonical per-hit window",
+                "id": "playthrough#591 Red Snail fought and killed (23 kills)",
+                "clean": true,
                 "key": "monster:5"
               }
             ],
@@ -5146,7 +5390,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 17,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -5169,12 +5413,14 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#100 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
+                "id": "playthrough#237 1010: 1 Orange Mushroom killed with the attack key in 000001000 (0 -> 1 of 1)",
+                "clean": true,
                 "key": "monster:9"
               },
               {
                 "kind": "playtest",
-                "id": "test_b_combat#20 Orange Mushroom (9) canonically spawns in 000001020, 11 live here",
+                "id": "playthrough#592 Orange Mushroom fought and killed (1 kills)",
+                "clean": true,
                 "key": "monster:9"
               }
             ],
@@ -8512,7 +8758,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 21,
             "failed_count": 0,
             "passed": [
               {
@@ -8565,7 +8811,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 21,
+            "passed_count": 23,
             "failed_count": 0,
             "passed": [
               {
@@ -8618,7 +8864,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 17,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -8671,7 +8917,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 18,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -8724,7 +8970,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -8777,7 +9023,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 21,
             "failed_count": 0,
             "passed": [
               {
@@ -9502,12 +9748,22 @@
           "item_id": "349",
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (6 -> 10)",
+                "key": "drop:3/blue-snail-shell"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (5 -> 10)",
+                "key": "drop:3/blue-snail-shell"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (5 -> 10)",
                 "key": "drop:3/blue-snail-shell"
               },
               {
@@ -9518,16 +9774,6 @@
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_chances_quote_the_kurodb_capture",
-                "key": "drop:3/blue-snail-shell"
-              },
-              {
-                "kind": "unit",
-                "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
-                "key": "drop:3/blue-snail-shell"
-              },
-              {
-                "kind": "unit",
-                "id": "test_drops_data::test_rolling_entries_by_owner",
                 "key": "drop:3/blue-snail-shell"
               }
             ],
@@ -11208,9 +11454,19 @@
           "item_id": "356",
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
+                "key": "drop:9/orange-mushroom-cap"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
+                "key": "drop:9/orange-mushroom-cap"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
@@ -11224,16 +11480,6 @@
               {
                 "kind": "unit",
                 "id": "test_drop_sources::test_chances_quote_the_kurodb_capture",
-                "key": "drop:9/orange-mushroom-cap"
-              },
-              {
-                "kind": "unit",
-                "id": "test_drop_sources::test_membership_is_exactly_the_hidden_street_lists",
-                "key": "drop:9/orange-mushroom-cap"
-              },
-              {
-                "kind": "unit",
-                "id": "test_drops_data::test_rolling_entries_by_owner",
                 "key": "drop:9/orange-mushroom-cap"
               }
             ],
@@ -12150,12 +12396,22 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (6 -> 10)",
+                "key": "item:349"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (5 -> 10)",
+                "key": "item:349"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#27 1011: 10 Blue Snail Shell collected from Blue Snail drops picked up with Z (5 -> 10)",
                 "key": "item:349"
               },
               {
@@ -12166,16 +12422,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:349"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:349"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:349"
               }
             ],
@@ -12221,13 +12467,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#188 Pan: sold 2 Mushroom Spore at the canonical sell price 3",
+                "id": "playthrough#186 Pan: sold 3 Mushroom Spore at the canonical sell price 3",
                 "clean": true,
                 "key": "item:350"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#465 Sid: sold 5 Mushroom Spore at the canonical sell price 3",
+                "id": "playthrough#467 Sid: sold 5 Mushroom Spore at the canonical sell price 3",
                 "clean": true,
                 "key": "item:350"
               }
@@ -12274,13 +12520,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#187 Pan: sold 1 Red Snail Shell at the canonical sell price 4",
+                "id": "playthrough#185 Pan: sold 2 Red Snail Shell at the canonical sell price 4",
                 "clean": true,
                 "key": "item:351"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#464 Sid: sold 5 Red Snail Shell at the canonical sell price 4",
+                "id": "playthrough#466 Sid: sold 5 Red Snail Shell at the canonical sell price 4",
                 "clean": true,
                 "key": "item:351"
               }
@@ -12304,9 +12550,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
+                "key": "item:356"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
+                "key": "item:356"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
@@ -12320,16 +12576,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:356"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:356"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:356"
               }
             ],
@@ -12544,13 +12790,22 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "quest#42 1001: the accept items are in the bag: 438 Sera's Mirror x1 (held 1, was 0)",
-                "clean": true,
+                "key": "item:438"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#42 1001: the accept items are in the bag: 438 Sera's Mirror x1 (held 1, was 0)",
+                "key": "item:438"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#42 1001: the accept items are in the bag: 438 Sera's Mirror x1 (held 1, was 0)",
                 "key": "item:438"
               },
               {
@@ -12561,16 +12816,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:438"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:438"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:438"
               }
             ],
@@ -12593,9 +12838,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#15 1007: the accept items are in the bag: 439 Maria's Letter x1 (held 1, was 0)",
+                "key": "item:439"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#15 1007: the accept items are in the bag: 439 Maria's Letter x1 (held 1, was 0)",
+                "key": "item:439"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#15 1007: the accept items are in the bag: 439 Maria's Letter x1 (held 1, was 0)",
@@ -12609,16 +12864,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:439"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:439"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:439"
               }
             ],
@@ -12641,9 +12886,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#43 1008: the accept items are in the bag: 440 Lucas's Letter x1 (held 1, was 0)",
+                "key": "item:440"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#43 1008: the accept items are in the bag: 440 Lucas's Letter x1 (held 1, was 0)",
+                "key": "item:440"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#43 1008: the accept items are in the bag: 440 Lucas's Letter x1 (held 1, was 0)",
@@ -12657,16 +12912,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:440"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:440"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:440"
               }
             ],
@@ -12689,9 +12934,21 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "clean": true,
+                "key": "item:441"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "clean": true,
+                "key": "item:441"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
@@ -12705,19 +12962,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
-                "clean": true,
-                "key": "item:441"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
-                "clean": true,
-                "key": "item:441"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "id": "quest#33 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
                 "key": "item:441"
               }
             ],
@@ -13450,9 +13695,14 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "kit#9 equip: a double-click in the Equip tab equips the sandals",
+                "key": "item:1305"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#515 Pan: bought 1 Leather Sandals at the canonical price 50",
@@ -13467,19 +13717,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#513 Pan: bought 1 Leather Sandals at the canonical price 50",
-                "clean": true,
-                "key": "item:1305"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#514 Leather Sandals (bought from Pan) equipped with a double-click in the Equip tab",
-                "clean": true,
-                "key": "item:1305"
-              },
-              {
-                "kind": "playtest",
                 "id": "playthrough#515 Pan: bought 1 Leather Sandals at the canonical price 50",
+                "clean": true,
+                "key": "item:1305"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#516 Leather Sandals (bought from Pan) equipped with a double-click in the Equip tab",
                 "clean": true,
                 "key": "item:1305"
               }
@@ -13922,13 +14166,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#463 Sid: bought 1 Sword at the canonical price 50",
+                "id": "playthrough#465 Sid: bought 1 Sword at the canonical price 50",
                 "clean": true,
                 "key": "item:541"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#466 Sword (bought from Sid) equipped with a double-click in the Equip tab",
+                "id": "playthrough#468 Sword (bought from Sid) equipped with a double-click in the Equip tab",
                 "clean": true,
                 "key": "item:541"
               },
@@ -14060,12 +14304,18 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
-                "id": "playthrough#511 Razor (1011's random reward) equipped with a double-click in the Equip tab",
+                "id": "playthrough#512 Razor (1011's random reward) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:558"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#512 Razor (1011's random reward) equipped with a double-click in the Equip tab",
                 "clean": true,
                 "key": "item:558"
               },
@@ -14082,11 +14332,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
-                "key": "item:558"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
                 "key": "item:558"
               }
             ],
@@ -14111,7 +14356,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
@@ -14127,20 +14372,18 @@
                 "key": "item:559"
               },
               {
-                "kind": "playtest",
-                "id": "playthrough#512 Fruit Knife (1011's random reward) is refused below its canonical level 8 (level 7)",
-                "clean": true,
-                "key": "item:559"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#519 Fruit Knife (1011's random reward, now that the level allows it) equipped with a double-click in the Equip tab",
-                "clean": true,
+                "kind": "unit",
+                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
                 "key": "item:559"
               },
               {
                 "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
+                "key": "item:559"
+              },
+              {
+                "kind": "unit",
+                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
                 "key": "item:559"
               }
             ],
@@ -14967,15 +15210,9 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
-              {
-                "kind": "playtest",
-                "id": "playthrough#510 Yellow Headband (1008's random reward) equipped with a double-click in the Equip tab",
-                "clean": true,
-                "key": "item:714"
-              },
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
@@ -14994,6 +15231,11 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
+                "key": "item:714"
+              },
+              {
+                "kind": "unit",
+                "id": "test_items_canonical::test_prices_match_for_every_item",
                 "key": "item:714"
               }
             ],
@@ -15018,9 +15260,15 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#511 Blue Headband (1008's random reward) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:715"
+              },
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
@@ -15039,11 +15287,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
-                "key": "item:715"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_prices_match_for_every_item",
                 "key": "item:715"
               }
             ],
@@ -15970,9 +16213,21 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 18,
+            "passed_count": 22,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#48 1002: Roger's Apple used by a double-click in the Item window (1/1)",
+                "clean": true,
+                "key": "item:235"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#48 1002: Roger's Apple used by a double-click in the Item window (1/1)",
+                "clean": true,
+                "key": "item:235"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#48 1002: Roger's Apple used by a double-click in the Item window (1/1)",
@@ -15987,17 +16242,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#25 1002: Roger's Apple used by a double-click in the Item window (1/1)",
-                "key": "item:235"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_e_quest#11 double-clicking Roger's Apple in the Use tab eats it: count 1 -> 0, HP 50 -> min(Max HP 50, +30)",
-                "key": "item:235"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#48 1002: Roger's Apple used by a double-click in the Item window (1/1)",
-                "clean": true,
                 "key": "item:235"
               }
             ],
@@ -16068,9 +16312,21 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#513 Egg eaten with a double-click: HP +60 (canonical)",
+                "clean": true,
+                "key": "item:237"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#513 Egg eaten with a double-click: HP +60 (canonical)",
+                "clean": true,
+                "key": "item:237"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#513 Egg eaten with a double-click: HP +60 (canonical)",
@@ -16085,17 +16341,6 @@
               {
                 "kind": "playtest",
                 "id": "test_d_inventory#19 double-clicking Egg in the inventory (while hurt) uses one: HP 21 + canonical 60 (Max HP 98)",
-                "key": "item:237"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#513 Egg eaten with a double-click: HP +60 (canonical)",
-                "clean": true,
-                "key": "item:237"
-              },
-              {
-                "kind": "unit",
-                "id": "test_consumable_use::test_every_potion_and_food_lucy_sells_works",
                 "key": "item:237"
               }
             ],
@@ -16177,7 +16422,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#472 an Orange drunk with a double-click: MP +14 (canonical 50, capped at Max MP 65)",
+                "id": "playthrough#475 an Orange drunk with a double-click: MP +7 (canonical 50, capped at Max MP 77)",
                 "clean": true,
                 "key": "item:239"
               },
@@ -16258,32 +16503,15 @@
           "record": "items/242",
           "issues": [],
           "source_gaps": [
-            "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem",
-            "max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read",
-            "tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured",
-            "sources.msea_reference_drops: shown only on the item page, which was not captured",
-            "sources.quest_rewards: shown only on the item page, which was not captured",
-            "sources.breakables: shown only on the item page, which was not captured",
-            "sources.crafting_recipes: shown only on the item page, which was not captured",
-            "used_in: the \"Needed By\" lists are shown only on the item page, which was not captured",
-            "change_history: shown only on the item page, which was not captured"
+            "sources.quest_rewards: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+            "sources.breakables: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+            "sources.crafting_recipes: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+            "used_in: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it",
+            "change_history: the capture of the item page (tools/meowdb/captures/item_242.txt) shows only the section's label (\"updated in COT2\"), not its rows"
           ],
           "source_data_gap": false,
-          "pending_source_read": true,
-          "pending_reads": [
-            {
-              "read": "MeowDB item page https://meowdb.com/msclassic/item-db/242 (Green Apple), by hand in a browser",
-              "resolves": "its 'Max per Stack' (the runtime holds one per Use slot by the inventory.json unpublished_max_stack adaptation until then), its Tradeable/Untradeable tag (the runtime treats the unknown tag as tradeable) and its NPC Sell-back basis",
-              "decision": "D3-1",
-              "declared": true,
-              "fields": [
-                "max_stack",
-                "tradeable",
-                "sell_price_basis"
-              ],
-              "detail": "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem; max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read; tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured"
-            }
-          ],
+          "pending_source_read": false,
+          "pending_reads": [],
           "adaptations": [],
           "notes": [],
           "in_scope": true,
@@ -16319,7 +16547,7 @@
             ],
             "failed": []
           },
-          "state": "partial"
+          "state": "verified"
         },
         {
           "category": "consumables",
@@ -16384,9 +16612,14 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "kit#3 buy: 3 Red Potions at the canonical price 50",
+                "key": "item:270"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#470 Lucy: bought 2 Red Potion at the canonical price 50",
@@ -16395,7 +16628,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#468 Lucy: bought 2 Red Potion at the canonical price 50",
+                "id": "playthrough#470 Lucy: bought 2 Red Potion at the canonical price 50",
                 "clean": true,
                 "key": "item:270"
               },
@@ -16408,11 +16641,6 @@
               {
                 "kind": "unit",
                 "id": "test_consumable_use::test_every_potion_and_food_lucy_sells_works",
-                "key": "item:270"
-              },
-              {
-                "kind": "unit",
-                "id": "test_consumable_use::test_potion_restores_documented_hp_and_decrements",
                 "key": "item:270"
               }
             ],
@@ -16642,7 +16870,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -16693,7 +16921,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -16744,7 +16972,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 30,
+            "passed_count": 40,
             "failed_count": 0,
             "passed": [
               {
@@ -16795,7 +17023,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -16873,7 +17101,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#174 talked to Yoona on foot in 000000060",
+                "id": "playthrough#172 talked to Yoona on foot in 000000060",
                 "clean": true,
                 "key": "npc:13"
               }
@@ -16924,7 +17152,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#175 talked to Bari on foot in 000000060",
+                "id": "playthrough#173 talked to Bari on foot in 000000060",
                 "clean": true,
                 "key": "npc:14"
               }
@@ -17060,7 +17288,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -17113,9 +17341,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 22,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#2 at least one bubble showed in 30 s",
+                "key": "npc:18"
+              },
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#3 every bubble is one of its NPC's canonical idle lines",
+                "key": "npc:18"
+              },
               {
                 "kind": "playtest",
                 "id": "npcs#52 Pio (18) can be talked to on foot in 000001010",
@@ -17129,18 +17367,6 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#263 1012: Pio can be talked to on foot",
-                "clean": true,
-                "key": "npc:18"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#285 1012: Pio can be talked to for the turn-in",
-                "clean": true,
-                "key": "npc:18"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#578 Pio (NPC 18) talked to on foot",
                 "clean": true,
                 "key": "npc:18"
               }
@@ -17166,35 +17392,32 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 64,
+            "passed_count": 96,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
+                "id": "npc_bubbles#2 at least one bubble showed in 30 s",
+                "key": "npc:19"
+              },
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#3 every bubble is one of its NPC's canonical idle lines",
+                "key": "npc:19"
+              },
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#4 Rain can be talked to on foot",
+                "key": "npc:19"
+              },
+              {
+                "kind": "playtest",
+                "id": "npc_bubbles#5 Rain shows no bubble while her chat is open",
+                "key": "npc:19"
+              },
+              {
+                "kind": "playtest",
                 "id": "npcs#55 Rain (19) can be talked to on foot in 000001010",
-                "key": "npc:19"
-              },
-              {
-                "kind": "playtest",
-                "id": "npcs#57 Rain (19): a player pressing on is at least 0.4 m inside the talk zone",
-                "key": "npc:19"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#306 1013: Rain can be talked to on foot",
-                "clean": true,
-                "key": "npc:19"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#316 1013: Rain can be talked to for the turn-in",
-                "clean": true,
-                "key": "npc:19"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#329 1014: Rain can be talked to on foot",
-                "clean": true,
                 "key": "npc:19"
               }
             ],
@@ -17219,7 +17442,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 20,
             "failed_count": 0,
             "passed": [
               {
@@ -17302,7 +17525,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#462 talking to Sid opens the shop",
+                "id": "playthrough#464 talking to Sid opens the shop",
                 "clean": true,
                 "key": "npc:20"
               }
@@ -17358,7 +17581,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#467 talking to Lucy opens the shop",
+                "id": "playthrough#469 talking to Lucy opens the shop",
                 "clean": true,
                 "key": "npc:21"
               }
@@ -17385,7 +17608,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 18,
+            "passed_count": 22,
             "failed_count": 0,
             "passed": [
               {
@@ -17436,7 +17659,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -17489,7 +17712,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -17540,7 +17763,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
@@ -17567,7 +17790,8 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#30 1005: Peter can be talked to for the turn-in",
+                "id": "playthrough#107 1005: Peter can be talked to for the turn-in",
+                "clean": true,
                 "key": "npc:6"
               }
             ],
@@ -17590,7 +17814,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
@@ -17617,7 +17841,8 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#11 1005: Todd can be talked to on foot",
+                "id": "playthrough#97 1005: Todd can be talked to on foot",
+                "clean": true,
                 "key": "npc:7"
               }
             ],
@@ -17691,7 +17916,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -17718,7 +17943,8 @@
               },
               {
                 "kind": "playtest",
-                "id": "quest#13 1006: Sam can be talked to on foot",
+                "id": "playthrough#129 1006: Sam can be talked to on foot",
+                "clean": true,
                 "key": "npc:9"
               }
             ],
@@ -17762,9 +17988,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 88,
+            "passed_count": 90,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "kit#3 buy: 3 Red Potions at the canonical price 50",
+                "key": "shop:maple-road-lucy"
+              },
+              {
+                "kind": "playtest",
+                "id": "kit#4 sell: 1 back at the canonical sell price 5",
+                "key": "shop:maple-road-lucy"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#470 Lucy: bought 2 Red Potion at the canonical price 50",
@@ -17781,17 +18017,6 @@
                 "kind": "playtest",
                 "id": "playthrough#472 Lucy: sold 5 Mushroom Spore at the canonical sell price 3",
                 "clean": true,
-                "key": "shop:maple-road-lucy"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#612 Lucy's shop used: bought and sold",
-                "clean": true,
-                "key": "shop:maple-road-lucy"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_g_shop#107 Lucy: the shopkeeper stands in 000001013",
                 "key": "shop:maple-road-lucy"
               }
             ],
@@ -17910,7 +18135,8 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_g_shop#53 Sid: the shopkeeper stands in 000001011",
+                "id": "playthrough#465 Sid: bought 1 Sword at the canonical price 50",
+                "clean": true,
                 "key": "shop:maple-road-sid"
               }
             ],
@@ -17954,7 +18180,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 86,
+            "passed_count": 136,
             "failed_count": 0,
             "passed": [
               {
@@ -18015,7 +18241,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 81,
+            "passed_count": 121,
             "failed_count": 0,
             "passed": [
               {
@@ -18078,7 +18304,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -18137,7 +18363,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 86,
+            "passed_count": 136,
             "failed_count": 0,
             "passed": [
               {
@@ -18196,7 +18422,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 77,
+            "passed_count": 115,
             "failed_count": 0,
             "passed": [
               {
@@ -18256,7 +18482,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 147,
             "failed_count": 0,
             "passed": [
               {
@@ -18315,7 +18541,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 148,
+            "passed_count": 206,
             "failed_count": 0,
             "passed": [
               {
@@ -18375,7 +18601,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 96,
+            "passed_count": 150,
             "failed_count": 0,
             "passed": [
               {
@@ -18435,7 +18661,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 135,
             "failed_count": 0,
             "passed": [
               {
@@ -18494,7 +18720,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -18553,7 +18779,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -18613,7 +18839,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -18673,7 +18899,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -18732,7 +18958,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 108,
+            "passed_count": 168,
             "failed_count": 0,
             "passed": [
               {
@@ -18791,7 +19017,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -18850,7 +19076,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -18909,7 +19135,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 102,
+            "passed_count": 152,
             "failed_count": 0,
             "passed": [
               {
@@ -18968,7 +19194,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -19028,7 +19254,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -19087,7 +19313,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -19316,7 +19542,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 86,
+            "passed_count": 136,
             "failed_count": 0,
             "passed": [
               {
@@ -19371,7 +19597,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 81,
+            "passed_count": 121,
             "failed_count": 0,
             "passed": [
               {
@@ -19426,7 +19652,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 81,
+            "passed_count": 121,
             "failed_count": 0,
             "passed": [
               {
@@ -19481,7 +19707,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -19536,7 +19762,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -19591,7 +19817,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 86,
+            "passed_count": 136,
             "failed_count": 0,
             "passed": [
               {
@@ -19646,7 +19872,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 77,
+            "passed_count": 115,
             "failed_count": 0,
             "passed": [
               {
@@ -19701,7 +19927,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 147,
             "failed_count": 0,
             "passed": [
               {
@@ -19756,7 +19982,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 147,
             "failed_count": 0,
             "passed": [
               {
@@ -19811,7 +20037,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 147,
             "failed_count": 0,
             "passed": [
               {
@@ -19866,7 +20092,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 148,
+            "passed_count": 206,
             "failed_count": 0,
             "passed": [
               {
@@ -19921,7 +20147,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 148,
+            "passed_count": 206,
             "failed_count": 0,
             "passed": [
               {
@@ -19976,7 +20202,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 96,
+            "passed_count": 150,
             "failed_count": 0,
             "passed": [
               {
@@ -20031,7 +20257,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 96,
+            "passed_count": 150,
             "failed_count": 0,
             "passed": [
               {
@@ -20086,7 +20312,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 135,
             "failed_count": 0,
             "passed": [
               {
@@ -20141,7 +20367,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 135,
             "failed_count": 0,
             "passed": [
               {
@@ -20196,7 +20422,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -20251,7 +20477,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -20306,7 +20532,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -20361,7 +20587,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -20416,7 +20642,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -20471,7 +20697,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -20526,7 +20752,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -20581,7 +20807,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -20636,7 +20862,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -20691,7 +20917,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -20746,7 +20972,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -20801,7 +21027,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -20856,7 +21082,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 108,
+            "passed_count": 168,
             "failed_count": 0,
             "passed": [
               {
@@ -20911,7 +21137,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 108,
+            "passed_count": 168,
             "failed_count": 0,
             "passed": [
               {
@@ -20966,7 +21192,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21021,7 +21247,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21076,7 +21302,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21131,7 +21357,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21186,7 +21412,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 102,
+            "passed_count": 152,
             "failed_count": 0,
             "passed": [
               {
@@ -21241,7 +21467,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 102,
+            "passed_count": 152,
             "failed_count": 0,
             "passed": [
               {
@@ -21296,7 +21522,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21351,7 +21577,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -21406,7 +21632,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -21461,7 +21687,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -21516,7 +21742,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -21571,7 +21797,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -21640,7 +21866,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 81,
+            "passed_count": 121,
             "failed_count": 0,
             "passed": [
               {
@@ -21695,7 +21921,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 77,
+            "passed_count": 115,
             "failed_count": 0,
             "passed": [
               {
@@ -21750,7 +21976,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 147,
             "failed_count": 0,
             "passed": [
               {
@@ -21805,7 +22031,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 148,
+            "passed_count": 206,
             "failed_count": 0,
             "passed": [
               {
@@ -21860,7 +22086,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 148,
+            "passed_count": 206,
             "failed_count": 0,
             "passed": [
               {
@@ -21915,7 +22141,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 135,
             "failed_count": 0,
             "passed": [
               {
@@ -21970,7 +22196,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 93,
+            "passed_count": 135,
             "failed_count": 0,
             "passed": [
               {
@@ -22025,7 +22251,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -22080,7 +22306,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 143,
+            "passed_count": 215,
             "failed_count": 0,
             "passed": [
               {
@@ -22135,7 +22361,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22190,7 +22416,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22245,7 +22471,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22300,7 +22526,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22355,7 +22581,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 91,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22410,7 +22636,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -22465,7 +22691,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -22520,7 +22746,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 141,
+            "passed_count": 207,
             "failed_count": 0,
             "passed": [
               {
@@ -22575,7 +22801,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 108,
+            "passed_count": 168,
             "failed_count": 0,
             "passed": [
               {
@@ -22630,7 +22856,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22685,7 +22911,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22740,7 +22966,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 102,
+            "passed_count": 152,
             "failed_count": 0,
             "passed": [
               {
@@ -22795,7 +23021,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 101,
+            "passed_count": 151,
             "failed_count": 0,
             "passed": [
               {
@@ -22850,7 +23076,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 103,
+            "passed_count": 153,
             "failed_count": 0,
             "passed": [
               {
@@ -22905,7 +23131,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -22960,7 +23186,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 95,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -23038,7 +23264,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 30,
+            "passed_count": 29,
             "failed_count": 0,
             "passed": [
               {
@@ -23381,7 +23607,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 37,
+            "passed_count": 40,
             "failed_count": 0,
             "passed": [
               {
@@ -23434,9 +23660,19 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 29,
+            "passed_count": 31,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "kit#15 learn_skill: K and Recovery's '+' spend one SP",
+                "key": "skill:0001001"
+              },
+              {
+                "kind": "playtest",
+                "id": "kit#17 cast_skill: Recovery from its quickslot key (contract C3)",
+                "key": "skill:0001001"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#152 '+' in the Skills window (K) raises Recovery to level 1 with 1 SP",
@@ -23452,18 +23688,6 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#224 '+' in the Skills window (K) raises Recovery to level 2 with 1 SP",
-                "clean": true,
-                "key": "skill:0001001"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#234 key 2 casts Recovery (level 2): its effect starts and it costs 10 MP",
-                "clean": true,
-                "key": "skill:0001001"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#608 Recovery learned and cast",
                 "clean": true,
                 "key": "skill:0001001"
               }
@@ -23487,7 +23711,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 32,
             "failed_count": 0,
             "passed": [
               {
@@ -23560,7 +23784,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 40,
+            "passed_count": 54,
             "failed_count": 0,
             "passed": [
               {
@@ -23796,7 +24020,7 @@
           "brief": "Phase 10: Breakables",
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 25,
             "failed_count": 0,
             "passed": [
               {
@@ -23816,12 +24040,12 @@
               },
               {
                 "kind": "playtest",
-                "id": "test_box#7 every box broke after exactly 4 landed swings (canonical hits_to_break)",
+                "id": "quest#20 1012: a Wooden Box broke after 4 landed hits (canonical hits_to_break 4)",
                 "key": "mechanic:breakable-hit-break-respawn"
               },
               {
                 "kind": "playtest",
-                "id": "test_box#22 000001000: every box walked up to and broken after exactly 4 landed swings",
+                "id": "quest#31 1012: a Wooden Box broke after 4 landed hits (canonical hits_to_break 4)",
                 "key": "mechanic:breakable-hit-break-respawn"
               }
             ],
@@ -23847,7 +24071,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -23903,7 +24127,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -23959,7 +24183,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24015,7 +24239,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24071,7 +24295,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24127,7 +24351,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24183,7 +24407,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24239,7 +24463,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24295,7 +24519,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24351,7 +24575,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24407,7 +24631,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24463,7 +24687,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 60,
             "failed_count": 0,
             "passed": [
               {
@@ -24519,7 +24743,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 60,
             "failed_count": 0,
             "passed": [
               {
@@ -24575,7 +24799,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24631,7 +24855,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24687,7 +24911,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24743,7 +24967,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24799,7 +25023,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24855,7 +25079,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 59,
             "failed_count": 0,
             "passed": [
               {
@@ -24922,9 +25146,24 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 39,
+            "passed_count": 42,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "kit#11 use_chair: a double-click on the chair in the Set-up tab seats the player (contracts C4/C5)",
+                "key": "chair:522"
+              },
+              {
+                "kind": "playtest",
+                "id": "kit#12 stand: a step stands the player up from the chair",
+                "key": "chair:522"
+              },
+              {
+                "kind": "playtest",
+                "id": "kit#13 sit (X): seated on the first chair the character owns (contracts C4/C5)",
+                "key": "chair:522"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#296 The Green Relaxer is in the Set-up tab (1012's reward)",
@@ -24934,24 +25173,6 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#297 a double-click on The Green Relaxer seats the player",
-                "clean": true,
-                "key": "chair:522"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#298 seated for 11 s: still seated, HP 50 -> 100 of 130",
-                "clean": true,
-                "key": "chair:522"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#299 seated 11 s at HP 50 of 130: HP +50 = the chair's 30 plus natural recovery's 10 per tick (one or two ticks)",
-                "clean": true,
-                "key": "chair:522"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#301 X sits on the first chair the character owns",
                 "clean": true,
                 "key": "chair:522"
               }
@@ -25244,7 +25465,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 23,
             "failed_count": 0,
             "passed": [
               {
@@ -25268,8 +25489,8 @@
                 "key": "mechanic:natural-hp-regen"
               },
               {
-                "kind": "unit",
-                "id": "test_natural_recovery::test_full_hp_holds_the_clock_and_never_exceeds_max_hp",
+                "kind": "playtest",
+                "id": "test_f_death#21 [D1] the natural HP clock holds while dead (C4: paused, never reset)",
                 "key": "mechanic:natural-hp-regen"
               }
             ],
@@ -25672,7 +25893,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 18,
+            "passed_count": 26,
             "failed_count": 0,
             "passed": [
               {
@@ -25733,7 +25954,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
               {
@@ -25747,18 +25968,18 @@
                 "key": "mechanic:quest-rewards-received"
               },
               {
-                "kind": "unit",
-                "id": "test_quest_log_window::test_window_received_random_hat_survives_a_reload",
+                "kind": "playtest",
+                "id": "quest#54 1008: the quest log records the random pick it granted (C3 rewards_received)",
                 "key": "mechanic:quest-rewards-received"
               },
               {
-                "kind": "unit",
-                "id": "test_quest_rewards_received::test_1006_records_exp_and_eggs",
+                "kind": "playtest",
+                "id": "quest#37 1011: the quest log records the random pick it granted (C3 rewards_received)",
                 "key": "mechanic:quest-rewards-received"
               },
               {
-                "kind": "unit",
-                "id": "test_quest_rewards_received::test_1008_random_hat_is_recorded_and_survives_a_save",
+                "kind": "playtest",
+                "id": "quest#54 1008: the quest log records the random pick it granted (C3 rewards_received)",
                 "key": "mechanic:quest-rewards-received"
               }
             ],
@@ -25793,7 +26014,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 87,
+            "passed_count": 129,
             "failed_count": 0,
             "passed": [
               {
@@ -26936,9 +27157,19 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#33 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "key": "mechanic:breakable-drop-roll"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#33 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "key": "mechanic:breakable-drop-roll"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#33 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
@@ -26952,16 +27183,6 @@
               {
                 "kind": "playtest",
                 "id": "test_box#8 every broken box's drops were announced at the box",
-                "key": "mechanic:breakable-drop-roll"
-              },
-              {
-                "kind": "unit",
-                "id": "test_breakables_system::test_four_landed_hits_break_the_box_and_roll_its_drops_with_the_quest_context",
-                "key": "mechanic:breakable-drop-roll"
-              },
-              {
-                "kind": "unit",
-                "id": "test_breakables_system::test_gated_drops_through_the_real_roller",
                 "key": "mechanic:breakable-drop-roll"
               }
             ],
@@ -27253,12 +27474,24 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "playthrough#596 monster drops picked up with Z (138 items)",
+                "clean": true,
+                "key": "mechanic:loot-pickup"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#593 monster drops picked up with Z (102 items)",
+                "clean": true,
+                "key": "mechanic:loot-pickup"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#593 monster drops picked up with Z (90 items)",
                 "clean": true,
                 "key": "mechanic:loot-pickup"
               },
@@ -27270,16 +27503,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#29 1011: 1 Orange Mushroom Cap collected from Orange Mushroom drops picked up with Z (0 -> 1)",
-                "key": "mechanic:loot-pickup"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_d_inventory#25 every item held came from a Z pickup or the quest reward (less the ones used)",
-                "key": "mechanic:loot-pickup"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_d_inventory#26 every picked item is a rolling member of a killed monster's canonical drop record",
                 "key": "mechanic:loot-pickup"
               }
             ],
@@ -27421,19 +27644,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#594 mesos from monster meso bags picked up (238 mesos in 45 bags)",
+                "clean": true,
+                "key": "mechanic:meso-pickup"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#594 mesos from monster meso bags picked up (202 mesos in 34 bags)",
+                "clean": true,
+                "key": "mechanic:meso-pickup"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_d_inventory#24 every meso came from a meso bag picked up with Z (+ the canonical quest reward)",
-                "key": "mechanic:meso-pickup"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#592 mesos from monster meso bags picked up (180 mesos in 39 bags)",
-                "clean": true,
-                "key": "mechanic:meso-pickup"
-              },
-              {
-                "kind": "playtest",
-                "id": "playthrough#597 mesos from monster meso bags picked up (310 mesos in 58 bags)",
-                "clean": true,
                 "key": "mechanic:meso-pickup"
               },
               {
@@ -27506,9 +27729,19 @@
           "brief": "Phase 10 / contract C1",
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "quest#10 1012: a Wooden Box broken before the accept drops none of [\"441\", \"442\"] (gated to the quest)",
+                "key": "mechanic:quest-gated-drops"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#10 1012: a Wooden Box broken before the accept drops none of [\"441\", \"442\"] (gated to the quest)",
+                "key": "mechanic:quest-gated-drops"
+              },
               {
                 "kind": "playtest",
                 "id": "quest#10 1012: a Wooden Box broken before the accept drops none of [\"441\", \"442\"] (gated to the quest)",
@@ -27522,11 +27755,6 @@
               {
                 "kind": "unit",
                 "id": "test_drop_simulation::test_wooden_box_with_and_without_pios_quest",
-                "key": "mechanic:quest-gated-drops"
-              },
-              {
-                "kind": "unit",
-                "id": "test_drops_roller::test_quest_gate_board_and_screw_need_pios_quest",
                 "key": "mechanic:quest-gated-drops"
               }
             ],
@@ -27772,7 +28000,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 212,
+            "passed_count": 349,
             "failed_count": 0,
             "passed": [
               {
@@ -27787,20 +28015,17 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#115 saved through the pause menu",
-                "clean": true,
+                "id": "pause_load#1 saved through the pause menu in 000001011",
                 "key": "mechanic:save-load"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#117 Continue from the title",
-                "clean": true,
+                "id": "pause_load#5 Esc, Load, the slot's Load: the save is loaded through the pause menu",
                 "key": "mechanic:save-load"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#118 after Quit to Title and Continue: the same map, level, EXP, mesos, bag and quests",
-                "clean": true,
+                "id": "pause_load#7 a new map instance (the live one is not taken back)",
                 "key": "mechanic:save-load"
               }
             ],
@@ -27930,9 +28155,14 @@
           "brief": "contract C3",
           "in_scope": true,
           "evidence": {
-            "passed_count": 3,
+            "passed_count": 4,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "pause_load#8 both boxes whole after the load (box state is not saved)",
+                "key": "persistence:breakable-state"
+              },
               {
                 "kind": "playtest",
                 "id": "test_box#18 the box hit before the quit (2 hits left then) stands with all 4 hits left (box state is not saved)",
@@ -28057,13 +28287,17 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 24,
+            "passed_count": 56,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
+                "id": "pause_load#6 still in 000001011 after the load",
+                "key": "persistence:current-map"
+              },
+              {
+                "kind": "playtest",
                 "id": "quest#24 1000: Continue resumes in the map it was saved in (000000001)",
-                "clean": true,
                 "key": "persistence:current-map"
               },
               {
@@ -28079,11 +28313,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#23 1005: Continue resumes in the map it was saved in (000000030)",
-                "key": "persistence:current-map"
-              },
-              {
-                "kind": "playtest",
-                "id": "quest#25 1006: Continue resumes in the map it was saved in (000000040)",
                 "key": "persistence:current-map"
               }
             ],
@@ -28205,13 +28434,17 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 21,
+            "passed_count": 48,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
+                "id": "pause_load#11 the character is the saved one (EXP, mesos, inventory, quests)",
+                "key": "persistence:inventory"
+              },
+              {
+                "kind": "playtest",
                 "id": "quest#23 1000: level, EXP, mesos and the bag survive the restart",
-                "clean": true,
                 "key": "persistence:inventory"
               },
               {
@@ -28227,11 +28460,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#22 1005: level, EXP, mesos and the bag survive the restart",
-                "key": "persistence:inventory"
-              },
-              {
-                "kind": "playtest",
-                "id": "quest#24 1006: level, EXP, mesos and the bag survive the restart",
                 "key": "persistence:inventory"
               }
             ],
@@ -28255,13 +28483,17 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 21,
+            "passed_count": 48,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
+                "id": "pause_load#11 the character is the saved one (EXP, mesos, inventory, quests)",
+                "key": "persistence:level-exp"
+              },
+              {
+                "kind": "playtest",
                 "id": "quest#23 1000: level, EXP, mesos and the bag survive the restart",
-                "clean": true,
                 "key": "persistence:level-exp"
               },
               {
@@ -28277,11 +28509,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#22 1005: level, EXP, mesos and the bag survive the restart",
-                "key": "persistence:level-exp"
-              },
-              {
-                "kind": "playtest",
-                "id": "quest#24 1006: level, EXP, mesos and the bag survive the restart",
                 "key": "persistence:level-exp"
               }
             ],
@@ -28305,13 +28532,17 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 46,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
+                "id": "pause_load#11 the character is the saved one (EXP, mesos, inventory, quests)",
+                "key": "persistence:mesos"
+              },
+              {
+                "kind": "playtest",
                 "id": "quest#23 1000: level, EXP, mesos and the bag survive the restart",
-                "clean": true,
                 "key": "persistence:mesos"
               },
               {
@@ -28327,11 +28558,6 @@
               {
                 "kind": "playtest",
                 "id": "quest#22 1005: level, EXP, mesos and the bag survive the restart",
-                "key": "persistence:mesos"
-              },
-              {
-                "kind": "playtest",
-                "id": "quest#24 1006: level, EXP, mesos and the bag survive the restart",
                 "key": "persistence:mesos"
               }
             ],
@@ -28355,7 +28581,7 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
@@ -28374,13 +28600,13 @@
                 "key": "persistence:natural-regen-timer"
               },
               {
-                "kind": "unit",
-                "id": "test_save_migrations::test_v1_to_v2_clears_effects_and_adds_the_timers",
+                "kind": "playtest",
+                "id": "test_f_death#25 [D1] the natural HP clock survives the quit while dead (C3 natural_recovery.hp_rest_s)",
                 "key": "persistence:natural-regen-timer"
               },
               {
-                "kind": "unit",
-                "id": "test_save_roundtrip::test_v2_fields_round_trip_with_their_types",
+                "kind": "playtest",
+                "id": "test_f_death#54 [D2] the natural HP clock survives the quit while dead (C3 natural_recovery.hp_rest_s)",
                 "key": "persistence:natural-regen-timer"
               }
             ],
@@ -28565,13 +28791,12 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 37,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "quest#22 1000: after Quit Game and a new process the quest log is the saved one (after the accept)",
-                "clean": true,
                 "key": "persistence:quest-progress-kills"
               },
               {
@@ -28664,7 +28889,7 @@
           "brief": "Phase 14",
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
@@ -28678,13 +28903,18 @@
                 "key": "persistence:random-rewards-received"
               },
               {
-                "kind": "unit",
-                "id": "test_save_it2_fixtures::test_v2_migration_of_each_fixture",
+                "kind": "playtest",
+                "id": "quest#54 1008: the quest log records the random pick it granted (C3 rewards_received)",
                 "key": "persistence:random-rewards-received"
               },
               {
-                "kind": "unit",
-                "id": "test_save_migrations::test_v1_to_v2_marks_completed_rewards_unrecorded",
+                "kind": "playtest",
+                "id": "quest#37 1011: the quest log records the random pick it granted (C3 rewards_received)",
+                "key": "persistence:random-rewards-received"
+              },
+              {
+                "kind": "playtest",
+                "id": "quest#54 1008: the quest log records the random pick it granted (C3 rewards_received)",
                 "key": "persistence:random-rewards-received"
               }
             ],
@@ -28713,27 +28943,27 @@
             "passed": [
               {
                 "kind": "playtest",
-                "id": "test_f_death#24 [D1] after the reload: in the canonical returnMap 000000060 (Southperry)",
+                "id": "test_f_death#26 [D1] after the reload: in the canonical returnMap 000000060 (Southperry)",
                 "key": "persistence:respawn-information"
               },
               {
                 "kind": "playtest",
-                "id": "test_f_death#25 [D1] after the reload: at the respawn spawn 0",
+                "id": "test_f_death#27 [D1] after the reload: at the respawn spawn 0",
                 "key": "persistence:respawn-information"
               },
               {
                 "kind": "playtest",
-                "id": "test_f_death#51 [D2] after the reload: in the canonical returnMap 000000060 (Southperry)",
+                "id": "test_f_death#55 [D2] after the reload: in the canonical returnMap 000000060 (Southperry)",
                 "key": "persistence:respawn-information"
               },
               {
                 "kind": "playtest",
-                "id": "test_f_death#52 [D2] after the reload: at the respawn spawn 0",
+                "id": "test_f_death#56 [D2] after the reload: at the respawn spawn 0",
                 "key": "persistence:respawn-information"
               },
               {
                 "kind": "playtest",
-                "id": "test_f_death#78 [D3] after the reload: in the canonical returnMap 000001010 (Amherst)",
+                "id": "test_f_death#84 [D3] after the reload: in the canonical returnMap 000001010 (Amherst)",
                 "key": "persistence:respawn-information"
               }
             ],
@@ -29018,17 +29248,19 @@
               },
               {
                 "kind": "playtest",
+                "id": "playthrough#184 Pan: buying 1 Leather Sandals for 50 with 37 mesos is refused and changes nothing",
+                "clean": true,
+                "key": "mechanic:insufficient-mesos-warning"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#186 Pan: buying 1 Leather Sandals for 50 with 48 mesos is refused and changes nothing",
+                "clean": true,
+                "key": "mechanic:insufficient-mesos-warning"
+              },
+              {
+                "kind": "playtest",
                 "id": "test_g_shop#15 Pan: the detail panel warns before Enter",
-                "key": "mechanic:insufficient-mesos-warning"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_g_shop#17 Pan: buying a 50-meso White Undershirt with 0 mesos: refused with the message on screen",
-                "key": "mechanic:insufficient-mesos-warning"
-              },
-              {
-                "kind": "playtest",
-                "id": "test_g_shop#81 Sid: the detail panel warns at 499 mesos",
                 "key": "mechanic:insufficient-mesos-warning"
               }
             ],
@@ -30827,7 +31059,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 305,
+            "passed_count": 447,
             "failed_count": 0,
             "passed": [
               {
@@ -30891,7 +31123,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 295,
+            "passed_count": 449,
             "failed_count": 0,
             "passed": [
               {
@@ -31014,7 +31246,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 44,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -31053,9 +31285,7 @@
           "name": "SP-available notification",
           "accepts": [],
           "record": null,
-          "issues": [
-            "1 tagged check(s) failed"
-          ],
+          "issues": [],
           "source_gaps": [],
           "source_data_gap": false,
           "pending_source_read": false,
@@ -31073,12 +31303,17 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 5,
-            "failed_count": 1,
+            "passed_count": 6,
+            "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "test_skills#5 the HUD's Skill button shows the SP",
+                "key": "ui:sp-notification"
+              },
+              {
+                "kind": "playtest",
+                "id": "ui_minimap#226 level-up: the SP line",
                 "key": "ui:sp-notification"
               },
               {
@@ -31095,22 +31330,11 @@
                 "kind": "unit",
                 "id": "test_ui_hud::test_level_up_flourish_and_ap_badge",
                 "key": "ui:sp-notification"
-              },
-              {
-                "kind": "unit",
-                "id": "test_ui_minimap_feedback::test_a_level_up_announces_the_sp",
-                "key": "ui:sp-notification"
               }
             ],
-            "failed": [
-              {
-                "kind": "playtest",
-                "id": "ui_minimap#226 level-up: the SP line",
-                "key": "ui:sp-notification"
-              }
-            ]
+            "failed": []
           },
-          "state": "partial"
+          "state": "verified"
         }
       ]
     },
@@ -31149,25 +31373,22 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 28,
+            "passed_count": 74,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "quest#7 strict: no console command, api fallback, developer command or unannounced state change (phase 0)",
-                "clean": true,
                 "key": "mechanic:no-console-playthrough"
               },
               {
                 "kind": "playtest",
                 "id": "quest#19 strict: no console command, api fallback, developer command or unannounced state change (phase 1)",
-                "clean": true,
                 "key": "mechanic:no-console-playthrough"
               },
               {
                 "kind": "playtest",
                 "id": "quest#55 strict: no console command, api fallback, developer command or unannounced state change (phase 2)",
-                "clean": true,
                 "key": "mechanic:no-console-playthrough"
               },
               {
@@ -31201,7 +31422,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 17,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -31308,13 +31529,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#538 every Maple Island quest completed through play (20 of 20)",
+                "id": "playthrough#540 every Maple Island quest completed through play (20 of 20)",
                 "clean": true,
                 "key": "playthrough:complete-every-quest"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#543 every Maple Island quest completed through play (20 of 20)",
+                "id": "playthrough#540 every Maple Island quest completed through play (20 of 20)",
                 "clean": true,
                 "key": "playthrough:complete-every-quest"
               }
@@ -31458,7 +31679,7 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#611 died and respawned (1 deaths, 1 respawns)",
+                "id": "playthrough#613 died and respawned (1 deaths, 1 respawns)",
                 "clean": true,
                 "key": "playthrough:die-and-respawn"
               },
@@ -31500,13 +31721,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#609 gear equipped ([\"1305\", \"541\", \"558\", \"714\"])",
+                "id": "playthrough#611 gear equipped ([\"1305\", \"541\", \"558\", \"712\"])",
                 "clean": true,
                 "key": "playthrough:equip-gear"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#614 gear equipped ([\"1305\", \"541\", \"559\", \"712\"])",
+                "id": "playthrough#611 gear equipped ([\"1305\", \"541\", \"558\", \"715\"])",
                 "clean": true,
                 "key": "playthrough:equip-gear"
               }
@@ -31650,13 +31871,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#591 monster drops picked up with Z (90 items)",
+                "id": "playthrough#593 monster drops picked up with Z (102 items)",
                 "clean": true,
                 "key": "playthrough:monster-drops"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#596 monster drops picked up with Z (133 items)",
+                "id": "playthrough#593 monster drops picked up with Z (90 items)",
                 "clean": true,
                 "key": "playthrough:monster-drops"
               }
@@ -31692,13 +31913,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#592 mesos from monster meso bags picked up (180 mesos in 39 bags)",
+                "id": "playthrough#594 mesos from monster meso bags picked up (238 mesos in 45 bags)",
                 "clean": true,
                 "key": "playthrough:monster-mesos"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#597 mesos from monster meso bags picked up (310 mesos in 58 bags)",
+                "id": "playthrough#594 mesos from monster meso bags picked up (202 mesos in 34 bags)",
                 "clean": true,
                 "key": "playthrough:monster-mesos"
               }
@@ -31788,13 +32009,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#610 The Green Relaxer obtained and sat on",
+                "id": "playthrough#612 The Green Relaxer obtained and sat on",
                 "clean": true,
                 "key": "playthrough:obtain-and-use-chair"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#615 The Green Relaxer obtained and sat on",
+                "id": "playthrough#612 The Green Relaxer obtained and sat on",
                 "clean": true,
                 "key": "playthrough:obtain-and-use-chair"
               }
@@ -31830,13 +32051,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#548 map 000000060 Southperry visited on foot",
+                "id": "playthrough#550 map 000000060 Southperry visited on foot",
                 "clean": true,
                 "key": "playthrough:reach-southperry"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#553 map 000000060 Southperry visited on foot",
+                "id": "playthrough#550 map 000000060 Southperry visited on foot",
                 "clean": true,
                 "key": "playthrough:reach-southperry"
               }
@@ -31878,19 +32099,19 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#528 the departure flag is set, no mesos taken, still in Southperry",
+                "id": "playthrough#530 the departure flag is set, no mesos taken, still in Southperry",
                 "clean": true,
                 "key": "playthrough:ready-to-depart"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#612 ready to depart: the End of Maple Island screen reached in Southperry",
+                "id": "playthrough#614 ready to depart: the End of Maple Island screen reached in Southperry",
                 "clean": true,
                 "key": "playthrough:ready-to-depart"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#533 the departure flag is set, no mesos taken, still in Southperry",
+                "id": "playthrough#530 the departure flag is set, no mesos taken, still in Southperry",
                 "clean": true,
                 "key": "playthrough:ready-to-depart"
               }
@@ -32034,13 +32255,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#608 consumables used ({ \"235\": 1, \"237\": 2, \"239\": 1, \"270\": 3 })",
+                "id": "playthrough#610 consumables used ({ \"235\": 1, \"237\": 4, \"239\": 1, \"270\": 3 })",
                 "clean": true,
                 "key": "playthrough:use-consumables"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#613 consumables used ({ \"235\": 1, \"237\": 4, \"239\": 1, \"270\": 3 })",
+                "id": "playthrough#610 consumables used ({ \"235\": 1, \"237\": 4, \"239\": 1, \"270\": 3 })",
                 "clean": true,
                 "key": "playthrough:use-consumables"
               }
@@ -32088,13 +32309,13 @@
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#605 Pan's shop used: bought and sold",
+                "id": "playthrough#607 Pan's shop used: bought and sold",
                 "clean": true,
                 "key": "playthrough:use-every-shop"
               },
               {
                 "kind": "playtest",
-                "id": "playthrough#606 Sid's shop used: bought and sold",
+                "id": "playthrough#608 Sid's shop used: bought and sold",
                 "clean": true,
                 "key": "playthrough:use-every-shop"
               }

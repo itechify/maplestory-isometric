@@ -119,10 +119,13 @@ items were left on purpose or found along the way.
 
 ## Open review findings (verified still open on the integrated build)
 
-- **The committed parity manifest predates the merges** (`MAPLE_ISLAND_PARITY.md`: 537 entries, 34 missing): it
-  must be regenerated from the integrated build's test and playtest evidence. A build on the integrated suite's
-  evidence plus the every-quest set's reports gives 511 entries: 222 verified, 233 implemented, 54 partial and 0
-  missing, and every partial entry is a source-data gap.
+- **The parity manifest's one open entry** (`MAPLE_ISLAND_PARITY.md`, built from the final evidence run: 638 entries,
+  580 verified, 0 implemented, 56 partial, 0 missing, 2 out of scope): 55 of the partial entries are source-data gaps
+  (excused) and one is a pending source read, `drop:9/scroll-for-shoes-for-jump-10` (KuroDB item page 2040705, above),
+  which stays open for the exit criterion until that page is read. Two `playtest_tags` rules matched no check in this
+  run, both conditional checks whose condition did not occur (`test_c_progression` had no death, so no death-penalty
+  check; `ui_minimap` found nothing dropped nearby, so no pickup-announcement check); both keys are verified by other
+  evidence.
 - **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue findings. The progression-blocker check is
   conservative (it ignores other sources of an item). The test evidence records `git rev-parse HEAD` even for a dirty
   tree, and `build_parity.mjs --check` neither detects stale evidence nor runs without the git-ignored evidence files.
@@ -144,19 +147,13 @@ items were left on purpose or found along the way.
   fraction of a second of a Continue or a respawn. Pressing Up at a real portal while seated is tested only through
   the console warp.
 - **Quests and NPCs:** `flags.maple_island_departure_ready_at` records the latest boarding, not the first.
-- **Harness:** a clean-character end-to-end playthrough that is strict from creation to Southperry is not written
-  yet (PlaytestKit, strict mode, checkpoints and PlaytestQuestPlan are its parts). The Shanks departure boundary and
-  the NPC speech bubbles have no committed real-game scenario (the quests package checked them with real keys in
-  scratch scenarios, 22 and 4 checks, that were not adopted). `test_b_combat`, `test_d_inventory`,
+- **Harness:** `test_b_combat`, `test_d_inventory`,
   `test_f_death` and `test_g_shop` still carry their own copies of kit helpers. `unstick()` is verified only on the
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
-  a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. On the
-  integrated build `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 25 of 25 maps and 47 of 47 portals on
-  foot, no death; a review run of the same seed passed 477 checks but the walker died twice, on legs 22 in
-  000001000 and 46 in 000001020, and retried each leg after a console warp, so "no death" is not yet reliable) and so
-  does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77 checks, 0 failed, level
-  10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the canonical +100 (a soft
-  check) and one death in 000001000 (a review run: 77 checks, 0 failed, one warning: also one death in 000001000, at level 8).
+  a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. In the final
+  evidence run `test_a_traversal` passes (seed 1: 476 checks, 0 failed, 3 warnings: the walker died once, on leg 30 in
+  000001000, and retried the leg; earlier runs died on legs 22 and 46, so "no death" is still not reliable) and so
+  does `test_c_progression` (seed 1: 76 checks, 0 failed, 0 warnings, level 10 by killing only with no death).
 - **`test_box` breaks 17 of the 19 boxes** (its header says so): Pio's quest takes three of Amherst's six (1/1 Board
   and Screw while it is in progress) and Three Snails one more; two of Amherst's are never broken in the real game.
   Breaking the rest of Amherst after the quest would close it.
