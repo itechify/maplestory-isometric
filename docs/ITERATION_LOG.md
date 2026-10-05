@@ -210,3 +210,18 @@ as working-as-canonical or harness artefacts.
 | V1-3 | MAJOR: Hunting Ground Middle of the Forest I's out00 arrival sat inside a mound, 2.7 m from a ladder foot, so Up both grabbed the ladder and warped. | Anchor fix in Blender, plus export-gate checks that no climbable's grab zone meets a portal trigger (phase F1). |
 | V1-4 | MAJOR fidelity: no HP regeneration existed at all, although MeowDB documents that standing still slowly restores HP (without numbers). Low-level characters death-spiralled. | Natural regeneration as a labelled adaptation (phase F1). |
 | V1-5 | Pressed jumps against a face missed ledges well under the documented 1.35 m reach. Space confirmed the death notice while also being the jump key. The stats window grid reflowed at 0 AP. | Fix round F1. |
+
+## Phase F1: the playtest fix round
+
+The fix round was launched as eight owner-scoped groups. Partway through, every agent stopped on an account usage limit, which left partial work: the shell, UI and shop fixes and the world talk-range fallback were complete, and the rest had not started. The orchestrator reviewed and kept the finished work (the full suite stayed green) and finished the critical items directly:
+
+| # | Problem found | Correction |
+|---|---|---|
+| F1-1 | BLOCKER: the A Split Road pocket (V1-2). | `T4_UpperRoad_Low` now runs up to T4_Ramp's north edge, so the pocket is filled at the upper-road height (2.2 m). `test_d_stuck` asserts that the top surface over the old pocket is the cap (y 6.20). |
+| F1-2 | 000001005 out00 (V1-3). | The door block's face moved back to y 3.4–3.6 (the arrival at y 2.5 is clear), and the ladder moved to x 11.8, 1.55 m outside the trigger. Route DoorRoof follows it. `test_a_probe_1005`: Up at the ladder climbs, and the arrival walks to the Floor route. |
+| F1-3 | No natural HP regeneration (V1-4). | `NaturalRecoveryRule` + `NaturalRecovery`, from `combat.json natural_recovery` (10 HP per 10 s, standing still, 5 s out of combat; verified false). The `regen` scenario checks it in the real game. |
+| F1-4 | Space confirmed the death notice; the controls panel listed keys with no feature behind them. | The notice ignores jump keys and key repeat. Sit, Skills and Minimap are hidden until built. |
+| F1-5 | The stats grid reflowed at 0 AP; the Quest Log's "nearby" read a field canonical NPCs do not have; identical gain lines were deduplicated; the shop omitted gender requirements; the NPC talk fallback used the global radius. | Fixed, each with tests. |
+| F1-6 | A commit swept in a 186 MB backup of the exported world (`game/assets/world.prev/`), because the ignore rule covered only `world/`. | The just-pushed commit was rewritten without it (force-push with lease on the feature branch), and `game/assets/.gitignore` now ignores `world.*/` as well. |
+
+The suite has 1140 tests, all passing; `validate.py` reports 0 high and 0 medium; and the export gates pass. Deliverables written: `docs/runtime/PLAYTHROUGH_REPORT.md`, `HOWTO.md`, `CONTENT_AUTHORING.md`, and the Iteration Two section of `docs/DEFERRED.md`.

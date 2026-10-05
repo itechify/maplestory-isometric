@@ -115,4 +115,7 @@ signal, add it to `events.gd` with a comment naming the emitter.
 | Interaction prompts, NPC presentation, dialogue and shop windows, ground loot | [INTERACTION_AND_NPC_UI.md](INTERACTION_AND_NPC_UI.md) |
 | HUD, inventory, equipment, stats and quest windows, MisoTheme | [UI.md](UI.md) |
 | Developer console, overlay, debug draw layers | [DEBUG_TOOLS.md](DEBUG_TOOLS.md) |
+| How to build, export, launch, test, validate and use the debug tools | [HOWTO.md](HOWTO.md) |
+| Adding content in Iteration Three (quests, monsters, NPCs, shops, maps) | [CONTENT_AUTHORING.md](CONTENT_AUTHORING.md) |
+| Playthrough validation report (Tests A-G and the reviews) | [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) |
 | Automated playthroughs of the real game (`bash scripts/playtest.sh <scenario>`) | [PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) |

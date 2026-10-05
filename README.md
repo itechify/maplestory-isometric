@@ -15,6 +15,8 @@ command, or download them from the [latest release](https://github.com/itechify/
 Iteration Two turns the island into a playable **Godot 4.7** game (`game/`), using gameplay data from
 [MeowDB MS Classic](https://meowdb.com/msclassic) (see [`docs/canonical/README.md`](docs/canonical/README.md)).
 Brief: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md). Architecture: [`docs/runtime/ARCHITECTURE.md`](docs/runtime/ARCHITECTURE.md).
+How-to (build, test, validate, debug): [`docs/runtime/HOWTO.md`](docs/runtime/HOWTO.md). Playthrough results:
+[`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md).
 
 ```bash
 bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
