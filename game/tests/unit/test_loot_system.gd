@@ -461,6 +461,27 @@ func test_the_loot_command_follows_the_characters_quests() -> void:
 	assert_eq(loot._cmd_loot(PackedStringArray()), "usage: loot <owner_id> [kills]")
 
 
+## Drop uids are unique within a session and the same in every run of one seed (no wall-clock time in them), so two
+## runs that drop the same things identify them the same way.
+func test_drop_uids_are_unique_and_repeatable() -> void:
+	var drops := [{"kind": "item", "item_id": "348", "qty": 1}, {"kind": "mesos", "amount": 4}]
+	_drop(drops)
+	_drop(drops)
+	var first: Array = state.drops.map(func(r: Dictionary) -> String: return String(r["uid"]))
+	assert_eq(first.size(), 4)
+	var unique := {}
+	for u: String in first:
+		unique[u] = true
+	assert_eq(unique.size(), 4, "unique: %s" % str(first))
+	loot.free()
+	state = _fresh_state("000000040")
+	loot = _make_loot()
+	_drop(drops)
+	_drop(drops)
+	var again: Array = state.drops.map(func(r: Dictionary) -> String: return String(r["uid"]))
+	assert_eq(again, first, "a second run with the same drops gives the same uids")
+
+
 func _item_counts(records: Array) -> Dictionary:
 	var out := {}
 	for rec: Dictionary in records:
