@@ -619,3 +619,15 @@ func test_portrait_badge_and_model() -> void:
 	assert_eq(p.mode, "badge")
 	model.free()
 	p.free()
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	var all_npcs: Array = []
+	for k in 21:
+		all_npcs.append("npc:%d" % (k + 1))
+	return {
+		"test_roger_apple_from_offer_to_completion_through_the_window": ["quest:1002"],
+		"test_sam_suggestion_from_offer_to_reward_through_the_window": ["quest:1006"],
+		"test_every_npc_conversation_walks_through_the_window": all_npcs,
+	}

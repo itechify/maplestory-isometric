@@ -16,6 +16,7 @@ extends RefCounted
 ##   item_count          {"item", "min"?, "max"?}
 ##   flag                {"flag", "equals"?: value = true}   CharacterState.flags
 ##   mesos               {"min"?, "max"?}
+##   unfinished_quests   {"region"?}                   a quest of the region (canonical record "region") is not completed
 ##   all / any           {"of": [Condition]}
 ##   not                 {"of": Condition}
 ## Actions ({"type": ...}); a failing action stops the list and the node's on_fail decides where to go:
@@ -28,11 +29,18 @@ extends RefCounted
 ##   give_item           {"item", "qty"?: 1}
 ##   take_item           {"item", "qty"?: 1}
 ##   set_flag            {"flag", "value"?: true}
+##   depart              {"route"}                     boards the NPC's transport route at the departure boundary
+##                                                     (NpcTransport.depart; fails level_too_low, not_enough_mesos,
+##                                                     not_built, no_route) and emits a "departure_requested" effect
+## Live values ({"type": ...}) fill a line's "live" args at view time (DialogueRunner):
+##   unfinished_quests   {"region"?}                   NpcTransport.unfinished_text: the quests still to do, chains grouped
 
 const CONDITION_TYPES: PackedStringArray = ["quest_status", "quest_available", "quest_ready", "quest_can_complete",
-	"quest_items_lost", "objective", "level", "job", "item_count", "flag", "mesos", "all", "any", "not"]
+	"quest_items_lost", "objective", "level", "job", "item_count", "flag", "mesos", "unfinished_quests", "all", "any",
+	"not"]
 const ACTION_TYPES: PackedStringArray = ["accept_quest", "complete_quest", "answer_quiz", "forfeit_quest",
-	"reissue_quest_items", "open_shop", "give_item", "take_item", "set_flag"]
+	"reissue_quest_items", "open_shop", "give_item", "take_item", "set_flag", "depart"]
+const LIVE_TYPES: PackedStringArray = ["unfinished_quests"]
 
 var engine: QuestEngine
 ## The NPC being talked to.
@@ -102,7 +110,17 @@ func check(cond: Variant) -> bool:
 			return _same(character().flags.get(QuestJson.s(c.get("flag")), null), c.get("equals", true))
 		"mesos":
 			return _in_range(character().mesos, c)
+		"unfinished_quests":
+			return not engine.unfinished_quests(QuestJson.s(c.get("region"))).is_empty()
 	return false
+
+
+## A live value for a line's "live" args (see the class comment); "" for an unknown type.
+func live_value(query: Dictionary) -> String:
+	match QuestJson.s(query.get("type")):
+		"unfinished_quests":
+			return NpcTransport.unfinished_text(engine, QuestJson.s(query.get("region")))
+	return ""
 
 
 # --- actions --------------------------------------------------------------------------------------------------
@@ -150,6 +168,8 @@ func run_action(a: Dictionary) -> Dictionary:
 			r = engine.take_items([{"item_id": QuestJson.s(a.get("item")), "count": maxi(1, QuestJson.i(a.get("qty"), 1))}])
 		"set_flag":
 			r = engine.set_flag(QuestJson.s(a.get("flag")), a.get("value", true))
+		"depart":
+			r = NpcTransport.depart(engine, npc_id, QuestJson.i(a.get("route"), -1))
 		_:
 			r = {"ok": false, "reason": "unknown_action", "effects": []}
 	var fx := QuestJson.arr(r.get("effects"))
@@ -211,12 +231,30 @@ static func validate_action(a: Variant, where: String = "") -> PackedStringArray
 		errs.append("%s: unknown action type '%s'" % [where, t])
 		return errs
 	var need := {"accept_quest": "quest", "complete_quest": "quest", "answer_quiz": "quest", "forfeit_quest": "quest",
-		"reissue_quest_items": "quest", "open_shop": "shop", "give_item": "item", "take_item": "item", "set_flag": "flag"}
+		"reissue_quest_items": "quest", "open_shop": "shop", "give_item": "item", "take_item": "item", "set_flag": "flag",
+		"depart": "route"}
 	var key := String(need[t])
 	if QuestJson.s(ad.get(key)).is_empty():
 		errs.append("%s: action %s needs '%s'" % [where, t, key])
 	if t == "answer_quiz" and typeof(ad.get("choice")) not in [TYPE_INT, TYPE_FLOAT]:
 		errs.append("%s: action answer_quiz needs 'choice'" % where)
+	if t == "depart" and typeof(ad.get("route")) not in [TYPE_INT, TYPE_FLOAT]:
+		errs.append("%s: action depart needs a route index" % where)
+	return errs
+
+
+## Problems with a line spec's "live" args (unknown live types), including those of its parts. Empty = valid.
+static func validate_live(spec: Variant, where: String = "") -> PackedStringArray:
+	var errs := PackedStringArray()
+	if not (spec is Dictionary):
+		return errs
+	var sd: Dictionary = spec
+	for k: Variant in QuestJson.dict(sd.get("live")):
+		var t := QuestJson.s(QuestJson.dict(sd["live"][k]).get("type"))
+		if not (t in LIVE_TYPES):
+			errs.append("%s: live arg '%s' has unknown type '%s'" % [where, k, t])
+	for p: Variant in QuestJson.arr(sd.get("parts")):
+		errs.append_array(validate_live(p, where))
 	return errs
 
 

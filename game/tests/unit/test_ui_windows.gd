@@ -367,8 +367,8 @@ func test_quest_log_shows_sams_suggestion_progress_after_kills() -> void:
 	assert_true(found, "objective row '%s' in %s" % [kill_text, str(rows)])
 	var texts := ql.detail_texts()
 	assert_true(String(db().quest("1006").get("name")) in texts, "quest name")
-	assert_true("Return to %s" % String(db().npc(qs.engine.definition("1006").end_npc_id).get("name")) in texts,
-		"turn-in row")
+	assert_true("Talk to %s" % String(db().npc(qs.engine.definition("1006").end_npc_id).get("name")) in texts,
+		"turn-in row (Mai not met yet, so not 'Return to')")
 	var d := qs.engine.definition("1006")
 	assert_true("EXP  +%d" % d.reward_exp in texts, "canonical EXP reward")
 	for it: Dictionary in d.reward_items:

@@ -552,7 +552,22 @@ func test_townsfolk_pages_and_back() -> void:
 	assert_eq(talk.press("back")["text"], "Hello! I'm Robin.")
 
 
-func test_shanks_only_talks() -> void:
+## Shanks offers the voyage (Iteration Three departure boundary); the whole flow is in test_npc_shanks_departure.gd.
+func test_shanks_greets_with_his_voyage_line() -> void:
 	var v := talk.talk("15")
-	assert_eq(v["text"], "I'm the captain, dang it! Don't look down on me!")
-	assert_eq(v["buttons"], ["ok"])
+	assert_eq(v["text"], "I'll take you anywhere you want to go.", "canonical idle line 1, chosen by dialogue/15.json")
+	assert_eq(v["source"], "canonical/npcs/15.json#idle_chatter[1]")
+	assert_eq(v["buttons"], ["next"])
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_sam_offer_accept_reminder_and_mai_turn_in": ["quest:1006", "npc:9", "npc:11"],
+		"test_roger_apple_full_conversation": ["quest:1002", "npc:3"],
+		"test_rain_quiz_1013_wrong_and_right": ["quest:1013", "npc:19"],
+		"test_rain_quiz_1018_inferred_answer": ["quest:1018"],
+		"test_heena_sera_chain_with_lost_mirror": ["quest:1000", "quest:1001", "npc:1", "npc:2"],
+		"test_pio_accept_line_shows_live_item_counts": ["quest:1012", "npc:18"],
+		"test_shop_greeting_then_open_shop": ["shop:maple-road-lucy", "shop:maple-road-pan"],
+	}

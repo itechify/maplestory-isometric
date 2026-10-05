@@ -1,0 +1,11 @@
+{
+  "npc_id": "15",
+  "name": "Shanks",
+  "reason": "MeowDB has no boarding dialogue for Shanks (gap in game/data/canonical/npcs/15.json); only speech-bubble lines exist. The transport greeting reuses his canonical idle-chatter line 1, \"I'll take you anywhere you want to go.\", the line that announces the voyage, instead of inventing text (the generated default is line 0, \"I'm the captain, dang it! Don't look down on me!\").",
+  "verified": false,
+  "patch_nodes": {
+    "transport.greeting": {
+      "line": {"npc": "15", "field": "idle_chatter", "line": 1}
+    }
+  }
+}

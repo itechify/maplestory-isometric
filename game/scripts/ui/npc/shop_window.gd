@@ -114,7 +114,8 @@ func open_shop(p_shop_id: String, p_npc_id: String = "") -> bool:
 	status_text = ""
 	last_result = {}
 	var npc_name := String(rec.get("npc_name", rec.get("name", shop_id)))
-	title_label.text = "%s's Shop" % npc_name
+	# MeowDB has no shop title: the format is adaptation data (misostory/dialogue/_rules.json shop_window_title).
+	title_label.text = NpcDialogueBuilder.shop_title(npc_name, db)
 	var func_title := String(rec.get("npc_function", "")) if rec.get("npc_function") is String else ""
 	var where := String(rec.get("map_display_name", rec.get("map_name", ""))) if rec.get("map_display_name") is String else ""
 	var sub := PackedStringArray()
@@ -290,9 +291,17 @@ func sell_selected() -> Dictionary:
 	if bool(res.get("ok", false)):
 		msg = "Sold %s for %s mesos." % [_qty_name(String(row.item_id), qty), _thousands(int(res.get("total", 0)))]
 	else:
-		msg = ItemCodes.message(res)
+		msg = _sell_message(res)
 	_show_result(res, msg)
 	return res
+
+
+## The message for a sale result: ItemCodes' words, or MisoUiText's for a quest item a quest still needs ("Roger's
+## Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress.").
+func _sell_message(res: Dictionary) -> String:
+	if String(res.get("code", "")) == ShopService.QUEST_ITEM_NEEDED:
+		return MisoUiText.result_message(res, db)
+	return ItemCodes.message(res)
 
 
 func meso_text() -> String:
@@ -501,7 +510,7 @@ func _refresh_detail() -> void:
 		total_label.text = "Total: %s mesos" % _thousands(maxi(sp, 0) * quantity)
 		var q := ShopService.quote_sell(c, shop_id, item_id, quantity, db)
 		total_label.add_theme_color_override("font_color", NpcUiStyle.INK if bool(q.get("ok", false)) else NpcUiStyle.RED)
-		check_label.text = "" if bool(q.get("ok", false)) else ItemCodes.message(q)
+		check_label.text = "" if bool(q.get("ok", false)) else _sell_message(q)
 	check_label.visible = not check_label.text.is_empty()
 
 

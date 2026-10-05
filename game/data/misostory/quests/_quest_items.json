@@ -1,0 +1,10 @@
+{
+  "id": "_quest_items",
+  "reason": "Selling a quest item the player still needs could leave a Maple Island quest uncompletable without the debug console (Iteration Three audit, npcs_shops: selling Roger's Apple during 1002). MeowDB documents no sell restriction for NPC shops, so this guard is a MisoStory rule, applied by ShopService.quote_sell through QuestItemGuard.",
+  "verified": false,
+  "block_selling_needed_quest_items": {
+    "value": true,
+    "reason": "A shop refuses to buy an item when, after the sale, the player would hold fewer than an in-progress quest still needs: an item_collection objective's count, or an item_usage objective's remaining uses. Only quest-critical items are held back: canonical quest_item true, tradeable false, or handed over by that quest on accept (235 Roger's Apple, 347 Jr. Sentinel Shellpiece, 438 Sera's Mirror, 439 / 440 the letters, 441 Rusty Screw, 442 Old Wooden Board). Ordinary drops a quest also collects (349 Blue Snail Shell, 356 Orange Mushroom Cap for 1011) can be sold, as they can be hunted again. Extra copies above what the quest needs can always be sold.",
+    "verified": false
+  }
+}

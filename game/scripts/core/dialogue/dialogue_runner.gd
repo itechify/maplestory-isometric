@@ -172,12 +172,33 @@ func close() -> void:
 
 # --- internals ------------------------------------------------------------------------------------------------
 
-## Resolves a line spec for display, with its live counters (DialogueText.apply_counters) filled in.
+## Resolves a line spec for display, with its live counters (DialogueText.apply_counters) and live args filled in.
 func _resolve(spec: Dictionary) -> Dictionary:
-	var line := DialogueText.resolve(spec, db)
+	var line := DialogueText.resolve(_bind_live(spec), db)
 	if spec.has("counters") and ctx != null and ctx.engine != null:
 		line = DialogueText.apply_counters(line, spec.get("counters"), _count_item)
 	return line
+
+
+## A copy of `spec` whose "live" args (and those of its parts) are filled from the character through
+## DialogueContext.live_value (e.g. the unfinished quests Shanks warns about). Without a context the placeholders stay.
+func _bind_live(spec: Dictionary) -> Dictionary:
+	if ctx == null or ctx.engine == null or not (spec.has("live") or spec.has("parts")):
+		return spec
+	var out := spec.duplicate()
+	if spec.has("live"):
+		var args := QuestJson.dict(spec.get("args")).duplicate()
+		var live := QuestJson.dict(spec.get("live"))
+		for k: Variant in live:
+			args[str(k)] = ctx.live_value(QuestJson.dict(live[k]))
+		out["args"] = args
+		out.erase("live")
+	if spec.has("parts"):
+		var parts: Array = []
+		for p: Variant in QuestJson.arr(spec.get("parts")):
+			parts.append(_bind_live(p) if p is Dictionary else p)
+		out["parts"] = parts
+	return out
 
 
 func _count_item(item_id: String) -> int:

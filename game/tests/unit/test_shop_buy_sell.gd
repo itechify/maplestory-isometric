@@ -205,3 +205,13 @@ func test_huge_quantity_never_wraps_the_cost() -> void:
 	assert_eq(res.cost, ShopService.INT64_MAX)
 	assert_eq(c.mesos, 100)
 	assert_true(c.inventory.is_empty())
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	var shops: Array = ["shop:maple-road-pan", "shop:maple-road-sid", "shop:maple-road-lucy"]
+	return {
+		"test_stock_is_canonical_data_in_display_order": shops,
+		"test_selling_pays_the_canonical_sell_back": shops,
+		"test_buy_charges_price_times_quantity": shops,
+	}

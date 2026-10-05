@@ -1,4 +1,4 @@
-# Interaction, NPC presentation, dialogue and shop windows, ground loot (Iteration Two, wave 2)
+# Interaction, NPC presentation, dialogue and shop windows, ground loot (Iteration Two, wave 2; Iteration Three)
 
 Everything the player touches in the world besides monsters. It covers these parts of the brief:
 
@@ -7,6 +7,8 @@ Everything the player touches in the world besides monsters. It covers these par
 - Phase 14: "NPC Interaction" steps 1 to 8.
 - The "Dialogue UI" section.
 - Phase 15: the shop UI.
+- Iteration Three: NPC speech bubbles, the shop's quest-item refusal, and the "End of Maple Island" screen at
+  Shanks' boat (the Southperry departure boundary).
 
 The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunner` (QUESTS_AND_DIALOGUE.md), `ShopService`, `ItemService`, `DropRoller` and `DropRates` (ITEMS.md), and `MapInstanceState`, `IslandWorld`, `WorldNpc` and `PortalInteractor` (WORLD_RUNTIME.md). This system presents those rules and connects them to the keys.
 
@@ -22,6 +24,9 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/systems/interaction/sandbox/world_ui_main_checks.tscn` (+ `.gd`) | | the world UI driven inside the real `main.tscn` (checks and screenshots) |
 | `scripts/actors/npcs/npc_presenter.gd` | `NpcPresenter` | per-NPC child node: name tag, quest marker, idle bob, facing the player |
 | `scripts/actors/npcs/npc_name_tag.gd`, `quest_marker.gd` | `NpcNameTag`, `QuestMarker` | the tag under the feet, the marker above the head (screen space) |
+| `scripts/actors/npcs/npc_speech_bubble.gd`, `npc_bubble_schedule.gd` | `NpcSpeechBubble`, `NpcBubbleSchedule` | the speech bubble with a canonical idle-chatter line; when it shows and which line (seeded per NPC) |
+| `data/misostory/npcs/_speech_bubbles.json` | | adaptation: speech-bubble timing and order (MeowDB has the lines, not the timing) |
+| `scripts/ui/screens/departure_screen.gd`, `scenes/ui/screens/departure_screen.tscn` | `DepartureScreen` | "End of Maple Island": the boundary screen after boarding Shanks' boat |
 | `scenes/ui/npc_ui.tscn` | `NpcUi` | root: the dialogue window and the shop window |
 | `scripts/ui/npc/dialogue_window.gd` | `DialogueWindow` | renders every dialogue VIEW and forwards answers |
 | `scripts/ui/npc/dialogue_rich_text.gd` | `DialogueRichText` | text segments to BBCode (bold, red, highlighted references), escaped |
@@ -127,13 +132,14 @@ It is built in code. On the left are the portrait and the name plate. On the rig
 
 ## Shop window
 
-The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `open_shop`) or from `Events.shop_open_requested`, and it emits `shop_opened` and `shop_closed`. Opening the shop that is already open does nothing. Everything shown comes from data:
+The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `open_shop`) or from `Events.shop_open_requested`, and it emits `shop_opened` and `shop_closed`. Opening the shop that is already open does nothing. The title is "<NPC>'s Shop" from `data/misostory/dialogue/_rules.json` `shop_window_title` (`NpcDialogueBuilder.shop_title`; MeowDB has no shop title). Everything else shown comes from data:
 
 - **Buy tab.** `ShopService.stock` in canonical `position` order. Each row shows the icon (`MisoItemIcon`, the same icon as the inventory), the name, the price (with a bundle size if it is above 1) and the owned count. The detail panel shows the canonical description, the stat lines, requirements and restores, the price, how many you have, and a quantity picker (−, +, Max). The requirements are the level and stat requirements ("Req. Level 5") and, for a gendered item, its canonical gender in the inventory tooltip's words ("For female characters"). The panel lists requirements in one colour; unlike the tooltip, it does not turn an unmet one red. A gendered item is shown to every character, and anyone may buy it, as in classic; `Equipment` refuses the equip on a mismatch (`gender_mismatch`). Before the Test G review, Pan's White Tube Top showed no gender line to a male buyer. The picker is capped at what the mesos pay for and what fits, but is always at least 1, so a click still explains why it fails. The live total turns red, with the `ShopService.quote_buy` reason, when the purchase would fail.
 - **Sell tab.** One sub-tab per inventory tab (1-5). The rows are the tab's non-empty slots, with the canonical sell-back price per unit and the slot quantity. A sale goes through `ShopService.sell_slot`, so the exact equipment instance is sold.
 - **Results.** Every buy or sell goes through `ShopService`, so prices, the meso check, the space check and the Events are the items system's.
   - Success: "Bought Red Potion x5 for 250 mesos." / "Sold Snail Shell x4 for 4 mesos.".
   - Failure: `ItemCodes.message(result)`, for example "Your inventory is full.". Insufficient mesos adds the numbers: "(costs 50, you have 40)".
+  - A quest item an in-progress quest still needs (`ShopService.QUEST_ITEM_NEEDED`, QUESTS_AND_DIALOGUE.md "Quest-critical items"): the check line and the status say `MisoUiText.result_message`'s "Roger's Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress." Extra copies sell normally.
   - The meso display and the owned counts refresh on `mesos_changed` and `inventory_changed`.
 - **Keys:**
   - Up/Down (W/S): choose a row;
@@ -162,6 +168,33 @@ The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `ope
   Colour, glyph and motion all differ.
 - **Idle bob** of the model: 2.5 cm, a 2.6 s period, with a phase per NPC.
 - **Facing.** While the player talks to this NPC, the model turns toward the player (`lerp_angle`, rate 8), then turns back.
+- **Speech bubbles** (Iteration Three). Now and then a light balloon with a tail shows one of the NPC's canonical
+  idle-chatter lines (MeowDB's speech-bubble pool, `NpcDef.idle_line`; `bubble.source` keeps the provenance) above
+  its head, or above its quest marker when one shows. `NpcBubbleSchedule` times it from
+  `data/misostory/npcs/_speech_bubbles.json` (`verified: false`: MeowDB gives no timing): the first bubble 2-10 s
+  after the NPC is shown, then every 14-26 s, each for 5 s, the lines in canonical order from a starting line seeded
+  by the NPC id. A bubble shows only for a current-map NPC on screen; one that falls due off screen is skipped, and a
+  conversation with the NPC hides it at once. The balloon wraps at 230 px (a cosmetic constant).
+
+## End of Maple Island (DepartureScreen)
+
+Iteration Three ends at Shanks' boat in Southperry ("The Southperry departure boundary is enough"). When the player
+says Yes to "Sail to Lith Harbor?" (QUESTS_AND_DIALOGUE.md "Transport"), `NpcTransport.depart` records
+`flags.maple_island_departure_ready_at` and `npc_talk.departure_requested` opens `DepartureScreen`:
+
+- **"End of Maple Island"**, then: "You are ready to leave Maple Island. The boat to Lith Harbor is the edge of this
+  world for now: Victoria Island is not part of MisoStory yet." and "You stay in Southperry, and the 300-meso fare was
+  not taken." (destination and fare from the canonical route);
+- the character's level and mesos, and "Maple Island quests completed: N of 20";
+- "Every Maple Island quest is done." or "Still unfinished: <quest names>.";
+- one button, **Stay on Maple Island**, which closes it. Esc closes it too (it is on the window stack).
+
+It is a modal on the `GameContext` (the player stands still under it) and requests an autosave when it opens (the
+flag is new progress). Space and key repeat never press its button (`DeathNotice.ignores_key`), so the key that
+answered Shanks cannot dismiss it. It closes on quit to title (`MainShell.session_ended`). The shell installs it with
+one line in `MainShell._ready` (`screens.add_child(DepartureScreen.for_shell(self))`, the screens layer above the
+HUD); it follows `Game.npc_talk` and runs without the autoloads when tests inject `talk_provider`,
+`character_provider` and `db`.
 
 ## Ground loot
 
@@ -257,6 +290,10 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 | Name tag under the feet, quest marker above the head, idle bob 2.5 cm / 2.6 s, turn rate 8, marker refresh 0.3 s | `NpcPresenter`, `QuestMarker` (code constants) | Cosmetic presentation constants, not gameplay values. This system owns no NPC presentation data file. |
 | NPC portrait = the world proxy in a SubViewport | `NpcPortrait` | No NPC art may be used, and the proxy is MisoStory's own |
 | Paper body for the dialogue text and the shop lists; everything else MisoTheme | `NpcUiStyle` | Canonical text carries red, blue and green emphasis that reads best dark on light, like MapleStory's NPC chat. The frame, buttons and font match the HUD's MisoTheme. |
+| Speech bubbles: canonical idle-chatter lines every 14-26 s (first after 2-10 s), 5 s each, in canonical order from a seeded line; never off screen or in a conversation | `data/misostory/npcs/_speech_bubbles.json` (`verified: false`); `NpcSpeechBubble` (look) | MeowDB feeds each NPC's idle chatter to its speech bubble but documents no interval, duration or order |
+| Shop window title "<NPC>'s Shop" | `data/misostory/dialogue/_rules.json` `shop_window_title` | MeowDB has no shop title |
+| The sell guard's refusal line names the item, the quest and how many to keep | `MisoUiText.result_message` | MisoStory UI text for the `quest_item_needed` adaptation |
+| "End of Maple Island" screen at Shanks' boat (no travel, no fare, one button back to Southperry) | `DepartureScreen`; `data/misostory/npcs/15.json` `departure` | Victoria Island is not in this build; the brief's departure boundary is the end of Iteration Three |
 
 ## Testing
 
@@ -276,6 +313,9 @@ ISOLATE=worldui bash scripts/validate_data.sh                             # loot
 | `test_loot_system.gd` | `loot_dropped` → records (uid, pos_local, expires_at, owner) + nodes, scatter in m, toss; another map's loot ignored; pos_local in the map frame; pickup into the inventory with notices (single, stack, mesos); inventory full leaves the drop; the canonical box through `WorldScale.actor` and the nearest drop first; the owner window; Z through the player's input source (not under a modal, not on a ladder) and hold-to-repeat; holding Z with a full inventory announces the refusal once and still takes the meso bag next to it; the pickup notices are word for word the HUD's lines (thousands separators); blink then expiry; records expired by the map instance lose their node; leaving and returning keeps drops with their remaining lifetime; expired after a long absence; 20 seeded Snail kills picked up exactly |
 | `test_loot_visuals.gd` | `loot_visuals.json` labelled; shapes by canonical type/subtype; keyword tints; meso tiers; a model for every drop-table item and meso tier; toss arc, hover and bob; the blink window |
 | `test_interaction_main_flow.gd` | the real game in a child process (`world_ui_main_checks.tscn --scenario main`, see below) |
+| `test_npc_speech_bubbles.gd` | the timing comes from the adaptation file; seeded per NPC; intervals in range; sequential order shows every line; an off-screen turn is skipped, a conversation hides it; every bubble of all 21 NPCs is their canonical line with its source; a presenter shows bubbles on screen, never while talking, never for another map's NPC |
+| `test_npc_departure_screen.gd` | the scene builds the screen hidden; Yes at Shanks opens it (texts, level, mesos, 20 of 20, modal and window stack, the button closes it, no mesos taken); unfinished quests are named and Esc closes it; quit to title closes it |
+| `test_shop_quest_items.gd` | the shop window's check line and status for a quest item a quest still needs (with the sell guard and Roger's re-issue, QUESTS_AND_DIALOGUE.md) |
 
 **Sandbox and headless integration check.** This runs on the real island with the real player, camera, MapSession, the `Game.npc_talk` wiring and real key presses (`Input.parse_input_event`). It prints `CHECK` lines, and with `--quit` it exits non-zero on any failure:
 
@@ -370,7 +410,7 @@ tab and the insufficient-mesos line.
   climbed. The world runtime (or `GameSession`) should hand every chunk's climbables to the player. The main-scene
   check loads them itself to test the climb prompt and F. (Still true on 2026-10-04, second review.)
 - **Ladder and portal overlap.** Up and F both grab a ladder and enter a portal when a ladder is in reach inside a portal trigger (controller plus `PortalInteractor`). No map has that overlap, and the prompt shows the ladder.
-- **No NPC presentation data file.** NPC presentation constants live in code (cosmetic); a data file could hold them if wanted.
+- **NPC presentation constants in code.** The bob, turn rate, marker refresh and bubble look are cosmetic code constants; only the speech-bubble timing is a data file (`misostory/npcs/_speech_bubbles.json`).
 - **An NPC next to a ladder.** An NPC standing within 0.8 m of a ladder's line cannot be talked to from that spot, because F grabs the ladder first.
 - **Enter on a Yes/No accepts.** Yes is highlighted on an offer, so Enter (the Next key) accepts a quest; mashing Enter
   through an NPC's pages accepts its offer. Kept: an accepted quest can be forfeited, and Y/N stay explicit. The shop,

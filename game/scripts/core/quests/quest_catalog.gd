@@ -5,6 +5,9 @@ extends RefCounted
 ## Sources: canonical `quests` (MeowDB) and adaptation `misostory/quests/<id>.json`. Adding a quest means adding
 ## those files; nothing in code names a quest.
 
+## A misostory/quests file named "_<name>" is a shared table, not a quest adaptation (AdaptationChecks.SHARED_TABLE_PREFIX).
+const SHARED_TABLE_PREFIX := "_"
+
 var db: ContentDB
 var _defs: Dictionary = {}
 var _built := false
@@ -49,6 +52,21 @@ func completed_by(npc_id: String) -> PackedStringArray:
 		if get_def(qid).end_npc_id == npc_id:
 			out.append(qid)
 	return out
+
+
+## One quest's definition built straight from `content` (its next_quest_grants included), without building the whole
+## catalog: for callers that hold no catalog and need a few quests (QuestItemGuard). Null for an unknown quest.
+static func single(content: ContentDB, quest_id: String) -> QuestDef:
+	if content == null or not content.has("quests", quest_id):
+		return null
+	var grants: Array = []
+	var records: Dictionary = content.domain("quests")
+	for pid: String in records:
+		for g: Variant in QuestJson.arr(QuestJson.dict(records[pid]).get("next_quest_grants")):
+			var gd := QuestJson.dict(g)
+			if QuestJson.s(gd.get("quest_id")) == quest_id:
+				grants.append_array(QuestJson.arr(gd.get("items")))
+	return QuestDef.from_records(QuestJson.dict(records[quest_id]), content.miso_entity("quests", quest_id), grants)
 
 
 ## Drops the cache (after the ContentDB was changed, e.g. in tests that add a synthetic quest).
@@ -114,7 +132,8 @@ func validate() -> PackedStringArray:
 	# Adaptation files must belong to a canonical quest and say why they exist.
 	for aid: String in db.miso.get("quests", {}):
 		var a: Dictionary = db.miso["quests"][aid]
-		if not _defs.has(aid):
+		# "_" files are shared tables (e.g. _quest_items.json), not quest adaptations.
+		if not aid.begins_with(SHARED_TABLE_PREFIX) and not _defs.has(aid):
 			errs.append("misostory/quests/%s.json: no canonical quest %s" % [aid, aid])
 		if QuestJson.s(a.get("reason")).is_empty():
 			errs.append("misostory/quests/%s.json: missing top-level reason" % aid)

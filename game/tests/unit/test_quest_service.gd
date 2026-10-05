@@ -181,3 +181,12 @@ func test_debug_commands() -> void:
 	debug.call("run", "quest_reset 1006")
 	assert_eq(character.quests.status("1006"), QuestLog.NOT_STARTED)
 	debug.free()
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_monster_kills_progress_and_completion_events": ["quest:1006"],
+		"test_multi_level_quest_reward_announces_every_level": ["quest:1010"],
+		"test_item_use_and_talk_complete_rogers_apple": ["quest:1002"],
+	}

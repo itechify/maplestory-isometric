@@ -11,8 +11,17 @@ extends RefCounted
 ##   {"quest": "1002", "journal": 1}                                             a quest journal line
 ##   {"quest": "1006", "name": true}                                             the quest's name
 ##   {"npc": "3", "field": "dialogue" | "idle_chatter", "line": 1}              an NPC's own lines
+##   {"npc": "15", "route": 0, "quote": true}                                   the canonical source quote of an
+##                                                                                NPC's transport route (Shanks' guide
+##                                                                                sentence)
 ##   {"system": "inventory_full"}                                                MisoStory system line
 ##                                                                                (data/misostory/dialogue/_system.json)
+##   {"system": "transport_offer", "args": {"destination": "Lith Harbor"},      a system line with placeholders
+##    "args_source": "canonical/npcs/15.json#transport.routes[0]",               ("{destination}") filled from args;
+##    "live": {"quests": {"type": "unfinished_quests", "region": "..."}}}        "live" args are filled by the runner
+##                                                                                from the character
+##                                                                                (DialogueContext.live_value) and stay
+##                                                                                as "{quests}" without one
 ##   {"parts": [LineSpec, ...]}                                                  several lines shown as one page,
 ##                                                                                one paragraph each (a quest card:
 ##                                                                                journal summary + system prompt)
@@ -52,8 +61,23 @@ static func resolve(spec: Dictionary, db: ContentDB) -> Dictionary:
 		var key := QuestJson.s(spec.get("system"))
 		var lines := QuestJson.dict(db.miso_entity("dialogue", SYSTEM_FILE_ID).get("lines"))
 		var line := QuestJson.dict(lines.get(key))
+		var args := QuestJson.dict(spec.get("args"))
+		if not args.is_empty() and line.has("text") and not line.has("segments"):
+			line = line.duplicate()
+			line["text"] = fill(QuestJson.s(line.get("text")), args)
 		var out := _literal(line)
 		out["source"] = "misostory/dialogue/_system.json#%s" % key
+		if not QuestJson.s(spec.get("args_source")).is_empty() and not String(out["text"]).is_empty():
+			out["source"] += " + " + QuestJson.s(spec.get("args_source"))
+		return out
+	if spec.has("npc") and spec.has("route"):
+		var rid := QuestJson.s(spec.get("npc"))
+		var ri := QuestJson.i(spec.get("route"), -1)
+		var routes := QuestJson.arr(QuestJson.dict(db.npc(rid).get("transport")).get("routes"))
+		if ri < 0 or ri >= routes.size() or not QuestJson.b(spec.get("quote")):
+			return _empty()
+		var out := normalize_line({"text": QuestJson.s(QuestJson.dict(routes[ri]).get("source_quote"))})
+		out["source"] = "canonical/npcs/%s.json#transport.routes[%d].source_quote" % [rid, ri]
 		return out
 	if spec.has("npc"):
 		var nid := QuestJson.s(spec.get("npc"))
@@ -185,6 +209,17 @@ static func part_problems(spec: Dictionary, db: ContentDB) -> PackedStringArray:
 			for p in part_problems(part, db):
 				errs.append("part %d: %s" % [i, p])
 	return errs
+
+
+## `text` with every "{key}" of `args` replaced by its value (ints print without a decimal point). Unknown
+## placeholders stay as they are.
+static func fill(text: String, args: Dictionary) -> String:
+	var out := text
+	for k: Variant in args:
+		var v: Variant = args[k]
+		var shown := str(int(v)) if typeof(v) == TYPE_FLOAT and is_equal_approx(float(v), roundf(float(v))) else str(v)
+		out = out.replace("{%s}" % str(k), shown)
+	return out
 
 
 ## Plain text of a segment list.

@@ -1,7 +1,19 @@
 {
   "npc_id": "15",
   "name": "Shanks",
-  "reason": "Shanks' boat to Lith Harbor (010000000) leaves Maple Island and is out of scope for Iteration Two; MeowDB also has no boarding dialogue, arrival map or Yes/No text for it (gaps in game/data/canonical/npcs/15.json). Until Victoria Island exists, Shanks only talks (his canonical idle-chatter lines).",
+  "reason": "Shanks' boat (canonical route in game/data/canonical/npcs/15.json, from the cached MeowDB beginner guide: Southperry 000000060 -> Lith Harbor 010000000, 300 mesos, level 7, one-way, 'Hand in every Maple Island quest before you board.') is the boundary of Iteration Three: Victoria Island is not in this build. Shanks offers the voyage and checks the canonical level and fare; when Maple Island quests are unfinished he warns with the guide's sentence and the character's list; on Yes the game shows an 'End of Maple Island' screen instead of sailing.",
   "verified": false,
-  "disabled_behaviors": ["transport"]
+  "departure": {
+    "boundary": true,
+    "charge_fare": false,
+    "flag": "maple_island_departure_ready_at",
+    "unfinished_quests_region": "Maple Island",
+    "reasons": {
+      "boundary": "Lith Harbor and Victoria Island are out of scope (ITERATION_THREE_BRIEF.md: 'The Southperry departure boundary is enough'), so boarding ends at an end-of-island screen and the character stays in Southperry.",
+      "charge_fare": "No voyage happens, so the canonical 300-meso fare is checked but not taken; the player keeps the mesos for when Victoria Island exists.",
+      "flag": "Records that this character reached the departure boundary, with the game clock (Game.clock seconds, like quest timestamps), so a later build can offer the real voyage and a playthrough can check the boundary was reached.",
+      "unfinished_quests_region": "The canonical quest records' region (game/data/canonical/quests/*.json \"region\"); the guide's advice names Maple Island quests."
+    },
+    "verified": false
+  }
 }

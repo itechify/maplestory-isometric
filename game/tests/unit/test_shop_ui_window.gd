@@ -354,3 +354,13 @@ func test_npc_ui_opens_the_shop_from_the_dialogue_and_from_events() -> void:
 	ui.shop.close()
 	service.detach()
 	ui.free()
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	var shops: Array = ["shop:maple-road-pan", "shop:maple-road-sid", "shop:maple-road-lucy"]
+	return {
+		"test_buy_tab_lists_the_canonical_stock_in_order": ["shop:maple-road-lucy"],
+		"test_sell_tab_lists_slots_with_canonical_sell_back_prices": ["shop:maple-road-lucy"],
+		"test_every_shop_renders_from_data": shops,
+	}

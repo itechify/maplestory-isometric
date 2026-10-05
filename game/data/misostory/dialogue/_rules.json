@@ -1,0 +1,28 @@
+{
+  "id": "_rules",
+  "reason": "Rules the generated NPC conversations and the shop window follow where MeowDB is silent. Until Iteration Three they lived only in code (audit: quests and npcs_shops domains); they are recorded here so the provenance audit sees them. NpcDialogueBuilder reads offer_prompt and default_talk, ShopWindow reads shop_window_title, and NpcDialogueBuilder.validate_rules() fails on a value the code does not implement, so this file cannot drift from the behaviour.",
+  "verified": false,
+  "offer_prompt": {
+    "line": "last_on_accept_line",
+    "reason": "MeowDB lists a quest's \"On accept\" lines in order without marking which one asks the question. MisoStory shows them as pages and puts Yes/No under the last one. For most quests the last line is a question (1006: \"...want me to train you?\"); for 1000 it is the Quest Helper tip and for 1014-1019 it is \"talk to me when you're ready for the next question\", statements kept as the prompt because writing a question would invent NPC speech. A quest with no On accept text (1002) is offered as a quest card with the system offer_prompt instead (_system.json).",
+    "verified": false
+  },
+  "default_talk": {
+    "quest_npc": "first_line_until_all_own_quests_completed_then_last_line",
+    "townsfolk": "all_lines_in_order",
+    "no_quoted_lines": "first_idle_chatter_line",
+    "reason": "MeowDB does not label when each \"What X Says\" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai (Sera's \"Did you give my mirror to Heena?\" and Sen's \"What did my sister say?\" read as mid-quest lines but follow the same rule; an owner decision could move them). quest_npc may also be \"all_lines_in_order\". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line.",
+    "verified": false
+  },
+  "quiz": {
+    "wrong_answer": "ends_chat_quest_stays_in_progress",
+    "after_right_answer": "ends_chat_next_quiz_needs_a_new_talk",
+    "reason": "MeowDB pairs no rule with Rain's quizzes: it does not say whether a wrong answer may be retried (1015's text suggests it can) or whether the next quiz follows at once. A wrong answer shows its paired canonical wrong-answer line and ends the chat with the quest still in progress (talk again to retry); after a right answer the next quiz is offered in a new conversation. Recorded only: the code has this one behaviour.",
+    "verified": false
+  },
+  "shop_window_title": {
+    "format": "{npc}'s Shop",
+    "reason": "MeowDB has no shop title. The shop window names the shopkeeper (\"Lucy's Shop\") with the canonical function title and map under it; {npc} is the canonical NPC name.",
+    "verified": false
+  }
+}

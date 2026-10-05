@@ -114,6 +114,19 @@ func active_quests() -> PackedStringArray:
 	return quest_log().active_ids()
 
 
+## Quests of a region (the canonical record's "region", e.g. "Maple Island"; "" = every quest) that are not
+## completed yet, in progress or not, sorted. Shanks' departure warning lists them.
+func unfinished_quests(region: String = "") -> PackedStringArray:
+	var out := PackedStringArray()
+	for qid in catalog.ids():
+		var d := definition(qid)
+		if not region.is_empty() and QuestJson.s(d.record.get("region")) != region:
+			continue
+		if quest_log().completions(qid) <= 0 or status(qid) == IN_PROGRESS:
+			out.append(qid)
+	return out
+
+
 func completed_quests() -> PackedStringArray:
 	return quest_log().completed_ids()
 
@@ -134,7 +147,8 @@ func job_matches(restriction: PackedStringArray) -> bool:
 
 ## Per-objective progress for the quest log UI:
 ## [{key, kind, id, name, current, required, done, purpose, type, supported}]. Item collection reads the live
-## inventory count.
+## inventory count. npc_talk rows add "met" (npc_met: the player has dealt with that NPC before), so the log can say
+## "Return to Mai" only to a player who has met Mai.
 func objective_status(quest_id: String) -> Array:
 	var out: Array = []
 	var d := definition(quest_id)
@@ -162,6 +176,8 @@ func objective_status(quest_id: String) -> Array:
 				req = 1
 				cur = 1 if bool(o["supported"]) and ql.other_value(quest_id, String(o["type"])) == true else 0
 		var row := o.duplicate()
+		if o["kind"] == "npc_talk":
+			row["met"] = npc_met(oid)
 		row["current"] = cur
 		row["required"] = req
 		row["done"] = cur >= req
@@ -338,9 +354,9 @@ func answer_quiz(quest_id: String, choice_index: int) -> Dictionary:
 
 
 ## Rolls the rewards a completion would grant, without granting anything:
-## {"ok", "reason", "items": [{item_id, count}], "random_picks": [...], "selection_pick": {}}.
-## Random groups pick one item each, weighted by MeowDB chance_pct, with the engine RNG. Selection groups need
-## options.selection_index (the player's pick).
+## {"ok", "reason", "items": [{item_id, count}], "random_picks": [{group, item_id, count}], "selection_pick": {}}.
+## Random groups pick one item each, weighted by MeowDB chance_pct, with the engine RNG ("group" is the group's index
+## in the canonical rewards.random list). Selection groups need options.selection_index (the player's pick).
 func resolve_rewards(quest_id: String, options: Dictionary = {}) -> Dictionary:
 	var d := definition(quest_id)
 	if d == null:
@@ -350,14 +366,15 @@ func resolve_rewards(quest_id: String, options: Dictionary = {}) -> Dictionary:
 		items.append(it.duplicate())
 	var picks: Array = []
 	var display := _job_display_name()
-	for g: Dictionary in d.reward_random:
+	for gi in d.reward_random.size():
+		var g: Dictionary = d.reward_random[gi]
 		if not QuestDef.group_applies(String(g["job_name"]), character.job, display):
 			continue
 		var pick := _weighted_pick(g["items"])
 		if not pick.is_empty():
-			var p := {"item_id": pick["item_id"], "count": pick["count"]}
+			var p := {"group": gi, "item_id": pick["item_id"], "count": pick["count"]}
 			picks.append(p)
-			items.append(p.duplicate())
+			items.append({"item_id": pick["item_id"], "count": pick["count"]})
 	var selection_pick := {}
 	for g: Dictionary in d.reward_selection:
 		if not QuestDef.group_applies(String(g["job_name"]), character.job, display):
@@ -444,7 +461,7 @@ func complete(quest_id: String, options: Dictionary = {}) -> Dictionary:
 		character.fame += d.reward_fame
 		effects.append({"type": "fame_changed", "delta": d.reward_fame, "fame": character.fame})
 	var given := _grant(grant, effects)
-	quest_log().complete(quest_id, now())
+	quest_log().complete(quest_id, now(), _rewards_record(exp_added, mesos_added, given, rolled["random_picks"]))
 	effects.append({"type": "quest_completed", "quest_id": quest_id})
 	var unlocked := PackedStringArray()
 	for f in d.followups:
@@ -548,9 +565,49 @@ func npc_marker(npc_id: String) -> String:
 	return best
 
 
+## True when the player has dealt with this NPC through a quest: it started a quest that is in progress or done, or
+## it ended a completed one. (Plain talk is not recorded.) The quest log says "Return to <NPC>" only then.
+func npc_met(npc_id: String) -> bool:
+	if npc_id.is_empty():
+		return false
+	var ql := quest_log()
+	for qid: String in ql.entries:
+		var d := definition(qid)
+		if d == null:
+			continue
+		var st := ql.status(qid)
+		if d.start_npc_id == npc_id and st != NOT_STARTED:
+			return true
+		if d.end_npc_id == npc_id and ql.completions(qid) > 0:
+			return true
+	return false
+
+
+## The chain a quest belongs to (canonical quest_line), or {} for a standalone quest:
+## {name, position, total, steps: [{quest_id, name, status}]}. The name is the canonical quest_group of the quest, or
+## of the first step that has one (1006 "Sam's Suggestion" has none; its chain is "Mai's Training").
+func chain_info(quest_id: String) -> Dictionary:
+	var d := definition(quest_id)
+	if d == null or d.chain_steps.is_empty():
+		return {}
+	var chain_name := d.quest_group
+	var steps: Array = []
+	for sid in d.chain_steps:
+		var sd := definition(sid)
+		if chain_name.is_empty() and sd != null:
+			chain_name = sd.quest_group
+		steps.append({"quest_id": sid, "name": sd.name if sd != null else sid, "status": status(sid)})
+	if chain_name.is_empty():
+		chain_name = String(steps[0]["name"])
+	return {"name": chain_name, "position": d.chain_position, "total": d.chain_total, "steps": steps}
+
+
 ## Everything the quest window shows for one quest:
-## {quest_id, name, status, journal, start_npc_id, end_npc_id, end_npc_name, can_complete, objectives}
-## (objectives = objective_status rows; the turn-in talk row is the "Return to <NPC>" line).
+## {quest_id, name, status, journal, start_npc_id, start_npc_name, start_map_name, end_npc_id, end_npc_name,
+##  end_map_name, min_level, missable, chain (chain_info), can_complete, objectives, rewards_received,
+##  rewards_recorded}
+## (objectives = objective_status rows; the turn-in talk row reads "Return to <NPC>" once that NPC was met, see
+## MisoUiText.objective_text).
 func quest_summary(quest_id: String) -> Dictionary:
 	var d := definition(quest_id)
 	if d == null:
@@ -561,10 +618,18 @@ func quest_summary(quest_id: String) -> Dictionary:
 		"status": status(quest_id),
 		"journal": journal_text(quest_id),
 		"start_npc_id": d.start_npc_id,
+		"start_npc_name": QuestJson.s(db.npc(d.start_npc_id).get("name")) if db != null else "",
+		"start_map_name": d.start_map_name if not d.start_map_name.is_empty() else _npc_map_name(d.start_npc_id),
 		"end_npc_id": d.end_npc_id,
 		"end_npc_name": QuestJson.s(db.npc(d.end_npc_id).get("name")) if db != null else "",
+		"end_map_name": d.end_map_name if not d.end_map_name.is_empty() else _npc_map_name(d.end_npc_id),
+		"min_level": d.min_level,
+		"missable": d.missable,
+		"chain": chain_info(quest_id),
 		"can_complete": ready_to_turn_in(quest_id, d.end_npc_id),
 		"objectives": objective_status(quest_id),
+		"rewards_received": quest_log().rewards_received(quest_id),
+		"rewards_recorded": quest_log().rewards_recorded(quest_id),
 	}
 
 
@@ -597,6 +662,18 @@ func journal_text(quest_id: String) -> String:
 
 
 # --- internals ------------------------------------------------------------------------------------------------
+
+## The QuestLog rewards_received record of a completion (contract C3): the EXP and mesos actually added, every item
+## granted and the random draws.
+static func _rewards_record(exp_added: int, mesos_added: int, given: Array, picks: Array) -> Dictionary:
+	var items: Array = []
+	for it: Dictionary in given:
+		items.append({"item_id": String(it["item_id"]), "qty": int(it["count"])})
+	var draws: Array = []
+	for p: Dictionary in picks:
+		draws.append({"group": int(p.get("group", 0)), "item_id": String(p["item_id"]), "qty": int(p["count"])})
+	return {"exp": exp_added, "mesos": mesos_added, "items": items, "random_picks": draws}
+
 
 ## Restores the quiz objective to its value before a refused complete() call that graded an answer.
 func _undo_quiz(quest_id: String, answered_now: bool, before: Variant) -> void:
@@ -669,6 +746,14 @@ func _weighted_pick(items: Array) -> Dictionary:
 
 func _count(item_id: Variant) -> int:
 	return character.inventory.count(String(item_id))
+
+
+## The canonical map name of an NPC's location ("" when unknown).
+func _npc_map_name(npc_id: String) -> String:
+	if db == null:
+		return ""
+	var locs := QuestJson.arr(db.npc(npc_id).get("locations"))
+	return QuestJson.s(QuestJson.dict(locs[0]).get("map_name")) if not locs.is_empty() else ""
 
 
 func _job_display_name() -> String:
