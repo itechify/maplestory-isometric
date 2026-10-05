@@ -34,13 +34,14 @@ Wooden Box (`0000001`).
       "normalized_probability": 1.0,
       "conversion": "100 / 100",            // or "1 / 4 (interpretation, decision D3-7)"
       "interpretation": null,               // text when the conversion is an interpretation (reactor values)
-      "kuro_quest_condition": "1035"        // KuroDB's "| Quest N" flag, or null; corroboration only
+      "kuro_quest_condition": null          // KuroDB's "| Quest N" flag (e.g. "1035" on Jr. Sentinel Shellpiece),
+                                            // or null; recorded as corroboration only, never the gate itself
     },
     "chance_state": "resolved",              // resolved | unresolved
     "probability": 1.0,                      // runtime chance in [0, 1]; null when unresolved
     "quantity": {"min": 1, "max": 1, "source": "KuroDB 'Qty 1'"},   // null when unresolved
-    "quest_gate": null,                      // {"quest_id": "1005", "basis": "..."}: rolls only while that MeowDB quest
-                                             // is in progress
+    "quest_gate": null,                      // {"quest_id": "1012", "basis": "..."}: rolls only while that MeowDB quest
+                                             // is in progress (see the gate rule below)
     "notes": []
   }],
   "excluded_kuro_only": [{"kuro_item_id": "2380000", "name": "Snail Card", "raw_value": "26% base | Qty 1",
@@ -74,6 +75,12 @@ Runtime rule (the drop roller):
 - The meso bag rolls only when both `amount_state` and `chance_state` are `resolved`. The amount is a uniform integer
   in `[min, max]`.
 - An unresolved entry never rolls, and validation lists it.
+- **Quest-gate rule** (a MisoStory derivation, recorded with `verified: false`): an entry gets a `quest_gate` only when
+  two things hold. First, the membership source, or MeowDB's own item subtype, marks the item as a quest item (MeowDB
+  subtype "Quest Item"). Second, a Maple Island quest objective requires that item; the gate is that quest. KuroDB's
+  "| Quest N" flag is recorded only as corroboration. Under this rule Old Wooden Board and Rusty Screw (MeowDB "Quest
+  Item", required by 1012) are gated to 1012. Jr. Sentinel Shellpiece (MeowDB subtype "Monster Drop", a plain Etc.
+  drop on Hidden Street) is **not** gated, even though KuroDB flags it.
 - Nothing outside these records may supply a chance, quantity or meso amount. `game/data/misostory/drop_rates.json`
   stops holding placeholder rates; only non-canonical ground rules (lifetime, ownership, scatter) remain, in
   `game/data/misostory/drops.json`.
@@ -149,6 +156,11 @@ capture cites the capture's file path under `tools/*/captures/` together with th
 ## C8. Breakables
 
 The breakable package places the Wooden Box placements from `maps/<id>.json reactors` (19, with per-placement respawn
-seconds) on walkable ground at runtime, the same way monster spawn slots are placed. The box breaks after
+seconds) on walkable ground at runtime, the same way monster spawn slots are placed. Interior maps (Amherst Department
+Store ×1, Amherst Weapon Store ×2, Amherst Townstreet ×2) have no species-tagged spawn regions. For them, and for any
+map whose regions cannot hold a box, the planner samples walkable floor inside the map's footprint and region
+extensions, seeded and deterministic per map. It keeps the same clearances as spawn slots (portals and arrivals, NPC
+interaction spaces, walls, other placements). This is a recorded MisoStory adaptation (`verified: false`), and every
+box position is checked by a physics test. The box breaks after
 `hits_to_break` landed hits (4) and drops through `DropRoller.roll("0000001", db, rng, ctx)`. It respawns after its
 placement's respawn time, and it is not persisted.
