@@ -5,7 +5,7 @@
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
     "records": 192,
-    "distinct_source_urls": 415,
+    "distinct_source_urls": 416,
     "external_values": 0,
     "capture_files": 2
   },
@@ -171,6 +171,10 @@
         "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
         "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/skills/beginner/three-snails"
       ],
       "external": [],
@@ -188,6 +192,10 @@
       "field_source_urls": [
         "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
         "https://meowdb.com/msclassic/formulas/targeting",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/skills/beginner/three-snails"
       ],
       "external": [],
@@ -206,10 +214,21 @@
         "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
         "https://meowdb.com/_next/static/chunks/4068-26c6ed6efe1adbc7.js",
         "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+        "https://meowdb.com/msclassic/api/drops?monsterId=2",
+        "https://meowdb.com/msclassic/api/drops?monsterId=3",
+        "https://meowdb.com/msclassic/api/drops?monsterId=5",
+        "https://meowdb.com/msclassic/api/items/541?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/558?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/585?locale=en&preview=1",
         "https://meowdb.com/msclassic/formulas/leveling",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
         "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
         "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
         "https://meowdb.com/msclassic/quest-tracker/1014",
         "https://meowdb.com/msclassic/quest-tracker/1017",
@@ -233,7 +252,11 @@
       "field_source_urls": [
         "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
-        "https://meowdb.com/msclassic/guides/explaining-the-damage-formula"
+        "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585"
       ],
       "external": [],
       "gap_count": 3,
@@ -3633,6 +3656,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-lucy",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],
@@ -3649,6 +3673,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-pan",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],
@@ -3665,6 +3690,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-sid",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],
