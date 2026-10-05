@@ -17,10 +17,11 @@ extends Node3D
 ## calls monster_factory itself and parents the node here) is never in `nodes`, is never connected to `died`, never
 ## has a kill recorded and is never respawned; notify_killed(-1) and notify_node_killed() of such a node return false.
 ##
-## A respawn (a slot the tick brought back) is never realized within spawns.respawn_player_clearance_m of the player's
-## feet (`player_position`, set by the monster system): it waits at the back of the queue until the player has moved
-## away. The slot stays alive in MapInstanceState meanwhile, so capacity and counts are unchanged (an adaptation:
-## the brief's 'avoid spawning directly inside the player').
+## No monster is realized within spawns.respawn_player_clearance_m of the player's feet (`player_position`, set by the
+## monster system): a respawn (a slot the tick brought back), and a slot of the arrival's own fill too (a portal arrival
+## is 4 m from every slot, but a game loaded at its saved resume point can stand on one). It waits at the back of the
+## queue until the player has moved away. The slot stays alive in MapInstanceState meanwhile, so capacity and counts are
+## unchanged (an adaptation: the brief's 'avoid spawning directly inside the player').
 
 signal monster_spawned(node: Node3D, slot: SpawnSlot)
 signal monster_released(node: Node3D, slot_index: int)
@@ -38,13 +39,12 @@ var state: MapInstanceState = null
 var def: MapDefinition = null
 ## slot index -> Node3D
 var nodes: Dictionary = {}
-## Respawns that had to wait because the player stood on their slot (tests, the debug overlay).
+## Realizations (respawns, or slots of an arrival's fill) that had to wait because the player stood on their slot, each
+## counted once however long it waited (tests, the debug overlay).
 var deferred_respawns: int = 0
 
 var _queue: Array[int] = []
-## Queued slots that came back on a respawn tick (only these wait for the player to move away).
-var _respawning: Dictionary = {}
-## Slots whose respawn has waited at least one frame for the player (respawn_waited).
+## Slots whose realization has waited at least one frame for the player (respawn_waited).
 var _waited: Dictionary = {}
 var _arrival := Vector3.ZERO
 var _pool: Dictionary = {}
@@ -82,7 +82,6 @@ func release() -> void:
 			_release_node(n, int(i))
 	nodes.clear()
 	_queue.clear()
-	_respawning.clear()
 	_waited.clear()
 	_fading.clear()
 	state = null
@@ -97,7 +96,6 @@ func notify_killed(slot_index: int) -> bool:
 	var n: Node3D = nodes.get(slot_index, null)
 	nodes.erase(slot_index)
 	_queue.erase(slot_index)
-	_respawning.erase(slot_index)
 	_waited.erase(slot_index)
 	if n != null and is_instance_valid(n):
 		_release_node(n, slot_index)
@@ -185,32 +183,32 @@ func _process(delta: float) -> void:
 	for i in state.tick(_now()):
 		if not _queue.has(i) and not nodes.has(i):
 			_queue.append(i)
-			_respawning[i] = true
 	var budget := tuning.count("spawns", "realize_per_frame") if tuning != null else _queue.size()
 	var looked := 0
 	var waiting := _queue.size()
 	while budget > 0 and looked < waiting and not _queue.is_empty():
 		var i: int = _queue.pop_front()
 		looked += 1
-		if _respawning.has(i) and respawn_blocked(i):
+		if respawn_blocked(i):
 			_queue.append(i)
-			deferred_respawns += 1
+			if not _waited.has(i):
+				deferred_respawns += 1
 			_waited[i] = true
 			continue
-		_respawning.erase(i)
 		_spawn(i)
 		_waited.erase(i)
 		budget -= 1
 	_advance_fades(delta)
 
 
-## True while slot `i`'s respawn has waited for the player to move away; still true inside the monster_spawned
-## signal of its realization (listeners can tell a held-back respawn from one on its tick), false afterwards.
+## True while slot `i`'s realization (a respawn, or a slot of the arrival's fill) has waited for the player to move
+## away; still true inside the monster_spawned signal of its realization (listeners can tell a held-back respawn from
+## one on its tick), false afterwards.
 func respawn_waited(i: int) -> bool:
 	return _waited.has(i)
 
 
-## True when slot `i`'s respawn must wait: the player's feet are within spawns.respawn_player_clearance_m of it.
+## True when slot `i`'s realization must wait: the player's feet are within spawns.respawn_player_clearance_m of it.
 func respawn_blocked(i: int) -> bool:
 	if not player_position.is_valid() or def == null or tuning == null or i < 0 or i >= def.monster_spawn_definitions.size():
 		return false

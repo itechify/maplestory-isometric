@@ -344,7 +344,7 @@ func use_view(v: MapInstanceView) -> void:
 	view = v
 	view.monster_factory = make_monster
 	view.monster_releaser = release_monster
-	# Respawns wait while the player stands on their slot (presentation.json spawns.respawn_player_clearance_m).
+	# No monster is realized while the player stands on its slot (presentation.json spawns.respawn_player_clearance_m).
 	view.player_position = player_feet
 	if view.state != null and view.def != null:
 		var st := view.state

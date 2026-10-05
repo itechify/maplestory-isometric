@@ -142,6 +142,29 @@ func test_authored_exclusions_keep_slots_out() -> void:
 			assert_false(Geometry2D.is_point_in_polygon(xz, plaza), "slot %d inside the excluded plaza %s" % [s.index, xz])
 
 
+## Overlapping exclusions (Snail Garden's and Mushroom Garden's flower beds are drawn across each other) take their
+## shared ground out of a region's room once, not once per exclusion: room is the region minus the union of its
+## exclusions. Summing the cuts made rooms up to 3 m^2 too small, so a region that can hold a slot at
+## min_area_per_slot_m2 (Mushroom Garden Shroom_7: 9.7 m^2) spilled all of its slots.
+func test_overlapping_exclusions_are_counted_once() -> void:
+	assert_near(SpawnSlotPlanner.union_area([_square(0, 0, 6)]), 36.0, 1e-4, "one square")
+	assert_near(SpawnSlotPlanner.union_area([_square(0, 0, 6), _square(3, 0, 6)]), 54.0, 1e-4, "two half-overlapping squares")
+	assert_near(SpawnSlotPlanner.union_area([_square(0, 0, 10), _square(4, 4, 2)]), 100.0, 1e-4, "one inside the other")
+	assert_near(SpawnSlotPlanner.union_area([_square(4, 4, 2), _square(0, 0, 10)]), 100.0, 1e-4, "either order")
+	var strip := func(x0: float) -> PackedVector2Array:
+		return PackedVector2Array([Vector2(x0, 0), Vector2(x0 + 4, 0), Vector2(x0 + 4, 4), Vector2(x0, 4)])
+	assert_near(SpawnSlotPlanner.union_area([strip.call(0.0), strip.call(2.0), strip.call(1.0)]), 24.0, 1e-4,
+		"three strips overlapping each other: [0, 6] x [0, 4]")
+	assert_near(SpawnSlotPlanner.union_area([_square(0, 0, 2), _square(5, 5, 2)]), 8.0, 1e-4, "apart")
+	assert_near(SpawnSlotPlanner.union_area([]), 0.0, 1e-9, "none")
+	var area := _area("Shroom_7", "Shroom", _square(2, 2, 20))
+	(area["exclude"] as Array[PackedVector2Array]).append(_square(6, 6, 6))
+	(area["exclude"] as Array[PackedVector2Array]).append(_square(9, 6, 6))
+	var areas: Array[Dictionary] = [area]
+	var clipped := SpawnSlotPlanner._areas_for(_map(4, "2", areas), _tuning())
+	assert_near(float(clipped[0].room), 400.0 - 54.0, 1e-3, "the beds' shared 18 m^2 is taken out once")
+
+
 ## The exported island: every slot of every map stands clear of every NPC, inside no exclusion of its region, and no
 ## species-tagged region holds more slots than its room allows unless the whole map is that crowded.
 func test_island_slots_keep_clear_of_npcs_and_exclusions() -> void:
@@ -202,12 +225,14 @@ func test_a_respawn_is_never_realized_on_the_player() -> void:
 		return n
 	var released: Array[Node3D] = []
 	view.monster_releaser = func(n: Node3D) -> void: released.append(n)
-	var player_at: Array = [def.monster_spawn_definitions[0].position()]  # every slot sits at the origin without the export
+	var player_at: Array = [Vector3(50, 0, 50)]
 	view.player_position = func() -> Variant: return player_at[0]
 	view.realize(state, def, Vector3(100, 0, 0))
 	for k in 10:
 		view._process(0.0)
-	assert_eq(view.live_count(), state.alive_count(), "the arrival's realize is never held back")
+	assert_eq(view.live_count(), state.alive_count(), "the arrival's fill, far from the player, is realized at once")
+	assert_eq(view.deferred_respawns, 0, "nothing waited")
+	player_at[0] = def.monster_spawn_definitions[0].position()  # every slot sits at the origin without the export
 	var killed: int = state.alive_indices()[0]
 	assert_true(view.notify_killed(killed), "killed")
 	var before := Array(state.alive_indices())
@@ -226,6 +251,8 @@ func test_a_respawn_is_never_realized_on_the_player() -> void:
 	for k in 5:
 		view._process(0.0)
 	assert_false(view.nodes.has(i), "still waiting while the player stays")
+	assert_eq(view.deferred_respawns, 1, "one held-back respawn, counted once however many frames it waits")
+	assert_eq(view.live_count(), state.alive_count() - 1, "every other alive slot stays realized")
 	var seen_waited: Array = []
 	view.monster_spawned.connect(func(_n: Node3D, slot: SpawnSlot) -> void: seen_waited.append(view.respawn_waited(slot.index)))
 	player_at[0] = Vector3(50, 0, 50)
@@ -242,6 +269,49 @@ func test_a_respawn_is_never_realized_on_the_player() -> void:
 	view.free()
 
 
+## A game loaded at its saved resume point can stand on a slot of the map's fresh fill (a portal arrival never does:
+## slots stand 4 m from arrivals): that slot's monster waits until the player moves away; every other slot of the fill
+## is realized at once.
+func test_an_arrival_fill_never_realizes_a_monster_on_the_player() -> void:
+	var defs := MapDefinitions.build(db())
+	var def := defs.get_def("000000040")
+	for s in def.monster_spawn_definitions:
+		s.transform = Transform3D(Basis.IDENTITY, Vector3(s.index * 3.0, 0.0, 0.0))  # 3 m apart in a row
+	var r := RandomNumberGenerator.new()
+	r.seed = 9
+	var state := MapInstanceState.fresh(def, defs.spawn_model, r, 0.0)
+	var view := MapInstanceView.new()
+	view.tuning = defs.tuning
+	view.clock = func() -> float: return 0.0
+	view.monster_factory = func(_mob: String, slot: SpawnSlot) -> Node3D:
+		var n := Node3D.new()
+		n.transform = slot.transform
+		return n
+	var released: Array[Node3D] = []
+	view.monster_releaser = func(n: Node3D) -> void: released.append(n)
+	var on: int = state.alive_indices()[3]
+	var resume := def.monster_spawn_definitions[on].position() + Vector3(0.5, 0.0, 0.0)
+	var player_at: Array = [resume]
+	view.player_position = func() -> Variant: return player_at[0]
+	view.realize(state, def, resume)
+	for k in 20:
+		view._process(0.0)
+	assert_false(view.nodes.has(on), "the slot the player stands on is not realized")
+	assert_true(view.respawn_waited(on), "it waits")
+	assert_eq(view.live_count(), state.alive_count() - 1, "every other slot of the fill is realized")
+	assert_eq(view.deferred_respawns, 1, "one held back")
+	player_at[0] = resume + Vector3(0.0, 0.0, 10.0)
+	view._process(0.0)
+	assert_true(view.nodes.has(on), "realized once the player moved away")
+	assert_eq(view.live_count(), state.alive_count(), "the whole fill is live")
+	for n in view.get_children():
+		n.free()
+	for n in released:
+		if is_instance_valid(n):
+			n.free()
+	view.free()
+
+
 func parity_keys() -> Dictionary:
 	return {
 		"test_slots_keep_clear_of_npcs": ["mechanic:spawn-placement-npc-clearance"],
@@ -249,6 +319,8 @@ func parity_keys() -> Dictionary:
 		"test_one_species_overflow_never_displaces_another_species": ["mechanic:spawn-density"],
 		"test_a_species_shares_its_regions_by_weight": ["mechanic:spawn-density"],
 		"test_authored_exclusions_keep_slots_out": ["mechanic:spawn-placement-exclusions"],
+		"test_overlapping_exclusions_are_counted_once": ["mechanic:spawn-placement-exclusions", "mechanic:spawn-density"],
 		"test_island_slots_keep_clear_of_npcs_and_exclusions": ["mechanic:spawn-placement-npc-clearance", "mechanic:spawn-density"],
 		"test_a_respawn_is_never_realized_on_the_player": ["mechanic:spawn-placement-player-overlap"],
+		"test_an_arrival_fill_never_realizes_a_monster_on_the_player": ["mechanic:spawn-placement-player-overlap"],
 	}

@@ -248,9 +248,14 @@ static func _areas_for(def: MapDefinition, tuning: WorldTuning) -> Array[Diction
 		var room := 0.0
 		for piece in pieces:
 			room += absf(_polygon_area(piece))
+			# The excluded part of the piece, counted once where exclusions overlap (flower beds drawn across each
+			# other): the area of the union of the cuts, not their sum.
+			var cuts: Array = []
 			for ex in a.get("exclude", []):
 				for cut in Geometry2D.intersect_polygons(piece, ex):
-					room -= absf(_polygon_area(cut))
+					if absf(_polygon_area(cut)) > 0.0:
+						cuts.append(cut)
+			room -= union_area(cuts)
 		if room < spacing * spacing:
 			continue
 		var clipped := a.duplicate()
@@ -328,6 +333,28 @@ static func _assign_areas(def: MapDefinition, areas: Array[Dictionary], min_area
 		out[slot_index] = pick
 		load[pick] += 1
 	return out
+
+
+## Area (m^2) of the union of the simple polygons `polys`, exact: each polygon adds its own area minus the part the
+## earlier ones already cover, which is the union of its overlaps with them (recursively; the intersection of two
+## simple polygons has no holes). Polygons whose bounding boxes miss each other are never intersected.
+static func union_area(polys: Array) -> float:
+	var total := 0.0
+	for i in polys.size():
+		var a: PackedVector2Array = polys[i]
+		total += absf(_polygon_area(a))
+		var box := _bbox(a)
+		var covered: Array = []
+		for j in i:
+			var b: PackedVector2Array = polys[j]
+			if not box.intersects(_bbox(b)):
+				continue
+			for cut in Geometry2D.intersect_polygons(a, b):
+				if absf(_polygon_area(cut)) > 0.0:
+					covered.append(cut)
+		if not covered.is_empty():
+			total -= union_area(covered)
+	return total
 
 
 ## Room (m^2) of an area from _areas_for: its clipped area minus exclusions (its weight when not measured).

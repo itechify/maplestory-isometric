@@ -536,11 +536,20 @@ cannot path around buildings, so it made no attack on that map.
   the solo capacity live after the first fill (426 in all) and again after `kill all` on the respawn ticks; every
   slot placed (strict, relaxed or pinned) clear of every arrival (4 m) and NPC (2.5 m; Sam is now 4.3 m from the
   nearest 000000040 slot); after 8 s of wandering every grounded monster stands on its floor inside its mob region; no
-  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited (204
-  frames) and appeared once the player left.
+  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited
+  (`MapInstanceView.deferred_respawns` counts each held-back respawn once) and appeared once the player left.
 - Known in the harness: in seed 2 the bot, standing still among Orange Mushrooms for the scenario's final 14 s, dies at
   the very end (pacing monsters keep walking over a player who stands on their line); its open knockback track now
   counts as interrupted instead of lost.
+- **The bot after floor-bound walkers** (review). A monster on a terrace above or below the player no longer walks
+  down to it, so `test_b_combat` picks fight, touch-probe and reach-probe targets on the player's own tier (within
+  1.5 / 0.8 / 0.3 m of its feet) and walks to another tier over the routes only when none is left on its own; a reach
+  probe taps only on level ground and the check fails on one that does not (a seed-2 run had probed all 18 from 9 m
+  below a terrace and passed on height whiffs); an attack call or a walk that leaves the player where it was hops out
+  with move + jump (`wedges` in the samples) and replans over the grid. Before that, two runs failed on a wedge: the
+  bot stood still for 200-250 s at 000000040 local (8.0, 9.2, -37.4) (seed 2) and at the foot of a 0.83 m lip on
+  000000050 (54.2, 2.2, -17.3) (seed 3: walking into it moves 0.01 m, a jump clears it), and one seed-2 run left the
+  bot on the low ground under every live Snail. Seeds 1, 2 and 3 then passed (53 checks, 0 failed each; no wedge).
 
 ## Verified in the real game (wave-2 review)
 
