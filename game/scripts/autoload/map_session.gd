@@ -473,7 +473,11 @@ func capture_location() -> Dictionary:
 		var region: RegionIndex = world.get("region_index")
 		var r: Dictionary = region.region_of(pos, current_map) if region != null else {}
 		var in_map := String(r.get("kind", "")) == RegionIndex.KIND_MAP and String(r.get("id", "")) == current_map
-		# On a trail (section 4.9): no resume point, and the entry becomes current_map's portal at that trail.
+		# On a trail (section 4.9): no resume point, and the entry becomes current_map's portal at that trail. A trail
+		# zone is no map's region (RegionIndex KIND_TRAIL; the region test of validate_resume could never pass), and
+		# the map the player is in owns the trail only until its far gate commits, so the load arrives at the trail's
+		# mouth in current_map (that portal's own arrival): the nearest point of the map the save names. Just past a
+		# gate the player is back in a map region, and that resume point is kept (G1, validate_resume's entry rule).
 		if bool(sp.get("ok", false)) and String(r.get("kind", "")) == RegionIndex.KIND_TRAIL:
 			var t := get_defs().trail(String(r.get("id", "")))
 			var key := t.portal_key_of(current_map) if t != null else ""

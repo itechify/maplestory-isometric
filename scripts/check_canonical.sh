@@ -10,9 +10,12 @@
 #                                                 # neither /, $HOME, the repository (or above it) nor inside it outside
 #                                                 # _scratch/ (exit 2)
 #
-# The extractors run in their documented order (docs/canonical/README.md "Regenerating"): maps, monsters (+ drops and
-# breakables), npcs, quests, shops, formulas, items, then build_sources_index. Each starts from an empty output folder
-# in the copy, so a committed file that no extractor writes any more shows up as "only in the repository".
+# The extractors run in their documented order (docs/canonical/README.md "Regenerating"): maps, npcs, quests, shops,
+# formulas, items, monsters (+ drops and breakables), then build_sources_index. The order matters from an empty tree:
+# extract_items reads shops/ and formulas/beginner.json, and extract_monsters resolves drop members against the local
+# items/ and quests/ (tools/sources/drops_merge.mjs loadLocalItems / loadLocalQuests), so both run before it. Each
+# starts from an empty output folder in the copy, so a committed file that no extractor writes any more shows up as
+# "only in the repository".
 # docs/canonical/topology_diff.md (also written by extract_maps.mjs) is compared too, but a difference there is only
 # reported: it also reads Blender-side files (docs/manifest.json, src/misostory/layout.py) that change with every world
 # build, so it is a report to refresh (node tools/meowdb/extract_maps.mjs), not canonical data.
@@ -84,7 +87,7 @@ for d in "$WORK"/game/data/canonical/*/; do rm -rf "$d"; done
 rm -f "$WORK/game/data/canonical/canonical_sources.json" "$WORK/game/data/misostory/map_id_crosswalk.json" \
   "$WORK/docs/canonical/topology_diff.md"
 
-STEPS=(extract_maps extract_monsters extract_npcs extract_quests extract_shops extract_formulas extract_items
+STEPS=(extract_maps extract_npcs extract_quests extract_shops extract_formulas extract_items extract_monsters
   build_sources_index)
 failed_steps=()
 for step in "${STEPS[@]}"; do

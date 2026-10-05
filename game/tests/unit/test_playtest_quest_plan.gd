@@ -245,3 +245,77 @@ func test_summary_reads_the_chain_reports() -> void:
 		DirAccess.remove_absolute(out.path_join(d).path_join("report.json"))
 		DirAccess.remove_absolute(out.path_join(d))
 	DirAccess.remove_absolute(out)
+
+
+## PlaytestQuestRunner's mid-quest restart policy (PLAYTEST_HARNESS.md "The quest runner"): "auto" restarts each quest
+## once (and only the run's first talk-only quest), "listed" only the quests in mid_reload_quests, "off" never; a
+## quest restarted once (d.carry "reloaded", which survives the restart) is never restarted again.
+func test_the_mid_reload_policy_auto_listed_and_off() -> void:
+	var drv := PlaytestDriver.new()
+	(Engine.get_main_loop() as SceneTree).current_scene.add_child(drv)
+	var runner := PlaytestQuestRunner.new(drv, null)
+	assert_eq(runner.mid_reload_policy, "auto", "the default")
+	assert_true(runner._may_reload("1006") and runner._may_reload("1011"), "auto: every quest once")
+	assert_true(runner._may_reload_talk_only("1003"), "auto: the run's first talk-only quest")
+	drv.carry["reloaded"] = {"1006": "at 5 of 10"}
+	assert_false(runner._may_reload("1006"), "auto: not twice")
+	assert_true(runner._may_reload("1011"), "auto: the next quest still restarts")
+	assert_false(runner._may_reload_talk_only("1003"), "auto: talk-only quests only before the run's first restart")
+	runner.mid_reload_policy = "listed"
+	runner.mid_reload_quests = {"1009": true, "1012": true}
+	drv.carry["reloaded"] = {}
+	assert_true(runner._may_reload("1009") and runner._may_reload("1012"), "listed: the listed quests")
+	assert_false(runner._may_reload("1011"), "listed: no other")
+	assert_false(runner._may_reload_talk_only("1003"), "listed: a talk-only quest that is not listed")
+	assert_true(runner._may_reload_talk_only("1012"), "listed: the list decides for talk-only quests too")
+	drv.carry["reloaded"] = {"1009": "half"}
+	assert_false(runner._may_reload("1009"), "listed: not twice")
+	runner.mid_reload_policy = "off"
+	drv.carry["reloaded"] = {}
+	for qid in ["1006", "1009", "1012"]:
+		assert_false(runner._may_reload(qid) or runner._may_reload_talk_only(qid), "off: never (%s)" % qid)
+	drv.free()
+
+
+## PlaytestQuestSummary.combined_markdown over two synthetic runs (seeds 1 and 2): the verdicts side by side (a FAIL in
+## bold with its failed check), the chains row per seed, and per quest the evidence table, one column per run.
+func test_combined_markdown_puts_the_runs_side_by_side() -> void:
+	var ev := {"offer": {"npc": "Biggs", "marker": "available", "engine": "available", "level": 7, "log_available": true},
+		"accept": {"ok": true, "level": 7, "phase": 1, "marker_after": "in_progress", "log_rows": "In Progress: Biggs's Collection"},
+		"objectives": [{"kind": "item", "what": "Blue Snail Shell x30", "where": "000000050", "progress": "30/30",
+			"source": "Blue Snail drops", "ok": true}],
+		"turn_in": {"npc": "Biggs", "marker": "completable", "completed": true, "level": 8, "phase": 2, "log_completed": true},
+		"rewards": {"exp": 300, "exp_canonical": 300, "exp_ok": true, "mesos": 0, "mesos_canonical": 0, "bag": "+559 x1",
+			"bag_ok": true, "level": "8", "random_pick": "559 Fruit Knife", "rewards_received": "559 x1",
+			"rewards_received_ok": true},
+		"mid_reload": {"when": "at 15 of 30", "map": "000000050", "phase": 1, "resumed_phase": 2, "verified": true}}
+	var q1 := {"id": "1011", "name": "Biggs's Collection", "chain": "1011", "result": "PASS", "checks": 30, "failed": [],
+		"random": ["559 Fruit Knife"], "evidence": ev, "setup_commands": ["level 7", "warp 000000060"],
+		"strict_since": "the setup save"}
+	var q2 := q1.duplicate(true)
+	q2["result"] = "FAIL"
+	q2["checks"] = 28
+	q2["failed"] = ["1011: the Blue Snail Shells were collected"]
+	q2["evidence"]["rewards"] = {}
+	var chain := {"chain": "1011", "result": "PASS", "strict": "ok", "console_setup": 2, "phases": 3, "game_s": 380.0,
+		"wall_s": 54.0}
+	var chain2 := chain.duplicate()
+	chain2["result"] = "FAIL"
+	var md := PlaytestQuestSummary.combined_markdown([{"seed": 1, "quests": [q1], "chains": [chain]},
+		{"seed": 2, "quests": [q2], "chains": [chain2]}])
+	assert_true(md.contains("| Quest | Name | Chain | seed 1 | seed 2 |"), "one column per run: %s" % md.left(200))
+	assert_true(md.contains("| 1011 | Biggs's Collection | 1011 | PASS (30) | **FAIL** (28): 1011: the Blue Snail Shells were collected |"),
+		"the verdicts side by side, the failure named: %s" % md)
+	assert_true(md.contains("| 1011 | PASS, strict ok, 2 setup console, 3 phases, 380 game s / 54 wall s | FAIL, strict ok"),
+		"the chain row per run")
+	assert_true(md.contains("### 1011 Biggs's Collection"), "a section per quest")
+	assert_true(md.contains("| Random reward | 559 Fruit Knife | 559 Fruit Knife |"), "the random pick per run")
+	assert_true(md.contains("| Rewards | EXP +300 (canonical 300), mesos +0 (canonical 0), bag +559 x1; level 8 | - |"),
+		"the rewards against canonical, '-' where a run has none")
+	assert_true(md.contains("| rewards_received | 559 x1 (matches the pick) | - |"), "the C3 record")
+	assert_true(md.contains("| Mid-quest save and restart | at 15 of 30 in 000000050 (phase 1 -> 2): progress restored"),
+		"the restart in the middle")
+	assert_true(md.contains("2 console step(s) before strict mode (the setup save): level 7; warp 000000060"), "the setup")
+	assert_eq(PlaytestQuestSummary._aspect({}, "Objectives"), "talk only", "no objective evidence: a talk-only quest")
+	assert_eq(PlaytestQuestSummary._aspect({}, "Follow-ups"), "none (canonical)")
+	assert_eq(PlaytestQuestSummary._aspect({}, "Completion"), "-")

@@ -2,8 +2,8 @@ extends TestCase
 ## The skill UI: the Skills window on K (the canonical Beginner skills, level / max, SP, "+" through SkillBook with
 ## Events.skill_leveled, "Set key" and drag to a quickslot), the SP row of the stat window, the typed quickslots of
 ## contract C3 ({"kind": "item" | "skill", "id"}; bare legacy ids still read as items; chairs bind and ask the sitting
-## system through Events.chair_use_requested), the HUD bar's skill slots (icon, MP greying, cooldown sweep) casting
-## through the player's PlayerSkills, and the five default window positions.
+## system through ItemService.use_item and Chairs.use, contract C5), the HUD bar's skill slots (icon, MP greying,
+## cooldown sweep) casting through the player's PlayerSkills, and the five default window positions.
 
 const SNAILS := "0001000"
 const RECOVERY := "0001001"

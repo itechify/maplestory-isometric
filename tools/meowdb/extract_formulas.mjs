@@ -1631,7 +1631,7 @@ const movement = {
   },
   monster_knockback: {
     definition: V('ggloss', 'Being pushed backward when hit. Also the knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger.'),
-    gaps: ['Monster knockback distance/speed and stagger duration are not documented.'],
+    gaps: ['Monster knockback distance/speed is not documented. The stagger duration is published per monster, not as a formula: each live monster page shows STAGGER ("How long the mob is staggered for when knocked back."), carried by monsters/<id>.json stagger_ms with its capture (tools/meowdb/captures/monster_<id>.*).'],
   },
   fall_damage: {
     status: STATUS.plain,

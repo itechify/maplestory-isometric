@@ -41,7 +41,8 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 | (default) | `--headless --fixed-fps 60`: deterministic game time. Screenshots are skipped (logged, never a failure) |
 | `--windowed` | `--resolution 1600x900 --disable-vsync`, still `--fixed-fps 60`, so it gives the same results as headless, with pictures |
 | `--realtime` | with `--windowed`, drops `--fixed-fps`: game time follows the wall clock (for feel checks only; results may vary) |
-| `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1. The rolls repeat, but two runs of one seed can still part ways on a physics outcome (see "Findings"), so a long run is one sample |
+| `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1. Since `Game.clock` stands still on the title and during the load (wave 2), three seed-1 runs of `test_skills` matched step for step; longer runs have not been shown to repeat exactly (see "Findings"), so treat a long run as one sample |
+| `--trace` | records `PlaytestDriver.trace_digest()` on every step (`trace0` when it begins, `trace` when it ends): `Game.clock`, both RNG states, map and session state, position, vitals and a hash of the live monsters. Two runs of one seed diverge at the first step whose digest differs |
 | `--max-s <s>` | the game-time budget of one phase (default: the scenario's `max_seconds()`) |
 | `--max-wall-s <s>` | the wall-time budget of one phase (default: three times the game budget, at least 900 and at most 3300, so it fires before the outer 3600 s timeout) |
 | `--quest <spec>` | for the `quest` scenario: `1002`, `1013-1019` or `1006,1009,1010` (the `QUEST` environment variable does the same) |
@@ -169,6 +170,7 @@ Step kinds:
 | `continue_game()` | the title's Continue button | `{ok, via, slot, map}` |
 | `quit_to_title()` | Esc until the pause menu is open (open windows close first), then Quit to Title. The shell saves first | `{ok, via}` |
 | `save_game()` | Esc, Save, Esc. It is OK when `Events.game_saved` fired | `{ok, via, slot, status}` |
+| `load_from_pause_menu(slot)` | Esc (windows close first), the pause menu's Load, then the Load button of `slot`'s row (`MainShell.load_in_game`); waits until the game plays again. The strict ledger is checked before and re-baselined after, as for Quit to Title and Continue | `{ok, via, slot, map}` |
 | `reload_process()` | Quit Game (the shell saves), and the next process continues (see "Phases"). Never returns | |
 
 ### Input (real events)
@@ -355,8 +357,10 @@ Engine errors, Notes and Phases. Console lines while a run plays: `PLAYTEST STEP
 ## PlaytestKit
 
 `var k := PlaytestKit.new(d)` (`game/tools/playtest/playtest_kit.gd`) holds the composite play that every scenario used
-to copy (Test C and Test E use it; Test D and the others still carry their own copies). Everything it does goes through
-the driver's real input and reads the live game; nothing writes game state, so every kit call is legal in strict mode.
+to copy (`test_a_traversal`, Tests C and E, `quest`, `playthrough`, `kit`, `npc_bubbles`, `npc_shanks`, `pause_load`,
+`test_box` (its Three Snails throw) and `walk_probe` use it; `test_b_combat`, `test_d_inventory`, `test_f_death` and
+`test_g_shop` still carry their own copies of some helpers). Everything it does goes through the driver's real input
+and reads the live game; nothing writes game state, so every kit call is legal in strict mode.
 
 | Area | Calls |
 |---|---|
@@ -372,8 +376,8 @@ the driver's real input and reads the live game; nothing writes game state, so e
 | loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z. A logged `kit.pickup` step whose result names the map-local spot it started and ended at (a walk onto a drop below a ledge can end in a pocket) |
 | hunting | `hunt(mob_ids, cond, opts)`: the survival policy first, whatever is hitting the player, then the nearest wanted monster with the attack key, the drops picked up after every kill, unspent AP spent through the stats window (`ap_plan`), deaths answered and the walk back to `map`, a tour of the spawn slots when nothing is in sight. `nearest_of(mob_ids)` |
 | deaths | `is_dead()`, `death_notice()`, `respawn(opts)` (the notice's OK; the row goes to `deaths`) |
-| contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8; test_box's approach: spots beside the box on its own ground at 0.6 of the weapon's canonical reach (`box_reach_m()`, `box_spots()`), walked to with the routes, then the grid, up to 6 spots; no attack from another tier; closer after 3 whiffs; `break_box(null)` passes over a box it cannot stand beside for the next nearest, at most 3. Amherst's box 000001010:0 stands at the foot of a 1.6 m terrace: from Lucas (on the plaza above) the old walk-up ended on the terrace edge 1.3 m above it and 40 attacks whiffed, which failed both playthrough seeds' 1012 gate probe). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
-| skills | `learn_skill(id)` (K, then the skill's "+" with the mouse; one SP), `bind_skill(id, key)` (the skill's row, Set key, the key), `throw_at(target, opts)` (Three Snails from inside its canonical band: walks to about 150 px, faces, taps the skill's key; every hit heard on `PlayerSkills.cast_resolved`), `skills_window()` |
+| contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8; test_box's approach: spots beside the box on its own ground at 0.6 of the weapon's canonical reach (`box_reach_m()`, `box_spots()`), walked to with the routes, then the grid, up to 6 spots; no attack from another tier; closer after 3 whiffs; `break_box(null)` passes over a box it cannot stand beside for the next nearest, at most 3. Amherst's box 000001010:0 stands at the foot of a 1.6 m terrace: from Lucas (on the plaza above) the old walk-up ended on the terrace edge 1.3 m above it and 40 attacks whiffed, which failed both playthrough seeds' 1012 gate probe). Every feature behind them is built (wave 1); on a build without one, its helper answers `{"ok": false, "why": "... is not built"}` |
+| skills | `learn_skill(id)` (K, then the skill's "+" with the mouse; one SP), `bind_skill(id, key)` (the skill's row, Set key, the key), `throw_at(target, opts)` (Three Snails from inside its canonical band: walks to about 150 px, faces, taps the skill's key; every hit heard on `PlayerSkills.cast_resolved`; the target may be a monster or a Wooden Box, whose hit is `cast_resolved(skill, box, null)` and whose "killed" means broken), `skills_window()` |
 | death | `let_monsters_win(mob_ids, opts)`: the player stops defending and walks into the nearest monster again and again (real input, no attack, no potion) until it dies; every hit is the monster's own contact damage |
 | record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, AP, SP, HP, MP, stats, equipment, ETC and Use items, skills, deaths, quest states, `play_s` (the run's game time over every phase) and `play_time_s` (the character's own saved clock) into `d.carry["checkpoints"]` and a note: the brief's progression audit), `track()` (from the event bus into `d.carry`, across phases: `visited_maps`, `kills_by_mob`, `exp_by_source`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_gained`/`lost`/`used`, `skills_used`, `sat`), `carry_totals()` (this process's pickup and survival counters, per phase and summed: `picked_mesos` and `picked_bags` count the meso bags picked up with Z), `play_s()`, `local_pos()`, `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
 
@@ -590,7 +594,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
 | `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
 | `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
-| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store | harness |
+| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store (all hard checks since wave 1 merged them) | harness |
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
@@ -599,7 +603,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `test_c_progression` | Test C: a clean Beginner levels only by killing, AP through the stats window, every number against canonical data and MeowDB vectors (uses the kit) | harness |
 | `test_d_inventory` | Test D: pickups, use by double-click and quickslot, equipment, persistence across a process restart | drops |
 | `test_e_quest` | Test E: 1002, 1006 twice (one with a save, Quit to Title, Continue and a process restart at 5/10), 1007 -> 1008 (uses the kit) | harness |
-| `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload | harness |
+| `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload; death.json's respawn HP plus exactly the natural ticks the banked clock allows (C4: the clock holds while dead, is never reset and survives the quit) | harness |
 | `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling | harness |
 | `test_feel_*` | the movement, camera, ledge, gate and route feel reviews (`test_feel_common` is their library) | harness |
 | `playthrough` | the clean-character playthrough: creation to Shanks' departure boundary, strict from the step after character creation (see "The clean-character playthrough") | harness |
@@ -607,7 +611,9 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `npc_bubbles` | NPC speech bubbles in Amherst: every text one of the NPC's canonical idle lines, none while talking (strict after the setup warp) | harness (from quests) |
 | `regen` | natural HP recovery in the real game | mechanics |
 | `trap_probe` | escape attempts from known former trap spots | world |
-| `test_skills`, `test_box` | the Beginner skills and the Wooden Boxes (Iteration Three packages) | skills, breakables |
+| `test_skills`, `test_box` | the Beginner skills; the Wooden Boxes: 1012 with real boxes, box state not saved, every box of the other five box maps, and Three Snails breaking an Amherst box in exactly hits_to_break throws (Iteration Three packages) | skills, breakables |
+| `pause_load` | the pause menu's Load inside a running session (contract C3): after a save, a box broken and drops on the ground; Esc, Load, the slot's Load: the same map, a new instance, both boxes whole, no ground drop, nothing parked, the saved character (adopted from the wave-2 integration review) | harness |
+| `resume_gate` | G1: a save just past a trail gate (inside the trigger of the portal the player arrived through: Amherst east00, Southperry west00) resumes there after Quit Game and Continue (load step `resume`, the portal disarmed as after an arrival, re-armed on leaving it) | harness |
 | `test_b_population` | the monster population of all 15 hunting maps | monsters |
 | `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
 | `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2 | UI |
@@ -620,8 +626,19 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   approach and the next-box fallback); Three Snails walked toward a Snail on a ledge and never threw (`throw_at` stops
   only when level with the target, `same_tier_monster()`); `let_monsters_win` stopped 0.75 m short of every monster
   (now the last step is straight at it); a run continued with `--resume` from a copy wrote its report into the
-  original `--out` (the runner now writes where it is told). Details and the one open game observation (a Continue
-  just past a trail gate logs a resume-point warning): [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) "Findings".
+  original `--out` (the runner now writes where it is told). Details and the one open game observation (G1: a
+  Continue just past a trail gate logged a resume-point warning, fixed in wave 3, below):
+  [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) "Findings".
+- **Wave 3 (the polish package).** `test_f_death`'s "[D6.1] after OK: HP 50" read HP 60 on the reviews' runs: natural
+  recovery's clock (contract C4) holds through a death and is never reset, so a clock banked near 10 s ticks within the
+  0.5 s the scenario stood in town after the respawn (the integrated build's run banked 9.450 s at that death and read
+  9.950 s at the check). The game follows the owner's rule; the scenario now expects death.json's HP plus exactly the
+  ticks the clock allows, and checks the clock holds while dead and survives the quit. `ui_minimap` expected the old
+  "SP to distribute" line; the HUD says "SP to spend". G1: the resume point just past a gate lies inside the trigger
+  of the portal the player arrived through, which `IslandWorld.validate_resume` refused; the save's entry portal is now
+  accepted (the load disarms it as an arrival does), and `resume_gate` checks both gates the playthrough saw (on the
+  old code it fails 6 checks with the playthrough's own warnings). `test_skills` on seed 1: three `--trace` runs gave
+  identical checks and identical step digests.
 - **A trap in The Field West of Amherst (000001000), confirmed.** Test C's hunter (seed 1, final harness) ended phase
   1 at map-local (62.5, 0.0, -37.5), world (196.9, 5.0, 541.9), below terraces 4-9 m up; the Continue of phase 2
   resumed it there, and in the whole phase it reached none of 393 targets ("phase 2: every kill gave its canonical
@@ -644,10 +661,17 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   the arrival stalled, and 1009 failed at "Mai can be talked to for the turn-in". `trap_probe` calls the spot no trap
   (a 3.8 m drop or a jump gets out): the planners do not take the way off. `PlaytestKit.unstick()` now steps off such
   a spot; `WALK_TO=talk:11` from it opens Mai's chat after one unstick.
-- **Runs of one seed are not exactly repeatable.** Two headless seed-1 runs of the same chain (the engineer's and the
-  review's) diverged in phase 2: the same trail walk took 10.6 s / 31.7 m and 8.7 s / 25.9 m, and the runs went
-  different ways from there. `--seed` fixes the game's random rolls, not every physics outcome, so a result is one
-  sample; the every-quest table was taken on three seeds for that reason.
+- **Runs of one seed: repeatable since the clock fix, as far as measured.** Before wave 2's integration fix, two
+  headless seed-1 runs of the same chain (the engineer's and the review's) diverged in phase 2: the same trail walk
+  took 10.6 s / 31.7 m and 8.7 s / 25.9 m. The cause was `Game.clock` running through the threaded island load, a
+  wall-clock-dependent number of frames, which put the global spawn ticks at a different phase of play in every run;
+  the clock now stands still on the title and during the load. Three seed-1 runs of `test_skills` on the integrated
+  build (wave 3) gave the same 50 checks with the same details and the same `--trace` digest at every step (the
+  `frame` field the digest then carried differed only by the load frames, which is why it now records `Game.clock`).
+  `test_skills` had failed one seed-1 rerun before the fix (its walks stalled). Longer runs have not been compared
+  this way, and the wave-2 reviews still saw quest 1011's random pick and check counts differ between seed-1 runs
+  made before the fix, so a long result remains one sample; the every-quest table and the playthrough were taken on
+  three seeds.
 - **Heena's perch** (000000001): its stairs start on the arrival side, so from Sera's hill no approach to Heena can be
   planned; `PlaytestKit.talk` walks back to the arrival and tries again (1000-1001 pass).
 - **Knockback and the survival guard:** a touch that stops a walk is often followed by a knockback that carries the
@@ -676,7 +700,7 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
 | `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios (quest, playthrough, npc_bubbles), the kit and the quest runner make no cheat call, and the scan flags a synthetic scenario's service calls, teleport, AP write and console call outside `_setup*` |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
-| `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest) |
+| `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest); `combined_markdown` over two synthetic runs (verdicts and chains side by side, the per-quest evidence table); `PlaytestQuestRunner`'s mid-quest restart policy (`auto`, `listed`, `off`, never twice) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |
 
 ## Lineage

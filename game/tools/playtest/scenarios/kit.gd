@@ -3,10 +3,10 @@ extends PlaytestScenario
 ## like `api` is for the driver). After a logged console setup (mesos, a level, a pair of sandals, a warp to Lucy's
 ## Amherst Department Store): AP spent through the stats window, Lucy's shop opened by talking, Red Potions bought
 ## and one sold back at canonical prices, a potion bound to a quickslot by a mouse drag and used with its key, one
-## drunk through the Item window, the sandals equipped by a double-click, a checkpoint, and the contract helpers
-## (The Green Relaxer from the Set-up tab and the X key, the Beginner skills, the Wooden Boxes) asked what they can
-## do: the chair and the box checks pass once the mechanics and breakables packages are merged and are a WARN until
-## then. Recovery is learned with the Skills window's "+" (learn_skill), put on key 2 (bind_skill) and cast with it.
+## drunk through the Item window, the sandals equipped by a double-click, a checkpoint, and the contract helpers:
+## The Green Relaxer from the Set-up tab and with the X key (C4/C5), Recovery learned with the Skills window's "+"
+## (learn_skill), put on key 2 (bind_skill) and cast with it (C3), and the store's Wooden Box (C8). The chair and box
+## checks were WARNs until the mechanics and breakables packages were merged (wave 1); they are hard checks now.
 
 const STORE := "000001013"
 const LUCY := "21"
@@ -81,16 +81,16 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("checkpoint: recorded in carry", (d.carry.get("checkpoints", []) as Array).size() == 1 and int(cp["level"]) == c.level,
 		str(cp).left(200))
 
-	# --- contract helpers: WARN until their packages land -------------------------------------------------------------
+	# --- contract helpers ---------------------------------------------------------------------------------------------
 	# The chair (C5: The Green Relaxer, a Setup item with setup data) is in the bag from the setup.
 	var ch: Dictionary = await k.use_chair(CHAIR)
-	d.soft_check("use_chair: a double-click on the chair in the Set-up tab seats the player (contracts C4/C5)",
+	d.check("use_chair: a double-click on the chair in the Set-up tab seats the player (contracts C4/C5)",
 		bool(ch["ok"]), str(ch), ["chair:" + CHAIR])
 	if bool(ch["ok"]):
 		var up0: Dictionary = await k.stand()
 		d.check("stand: a step stands the player up from the chair", bool(up0["ok"]), str(up0), ["chair:" + CHAIR])
 	var st: Dictionary = await k.sit()
-	d.soft_check("sit (X): seated on the first chair the character owns (contracts C4/C5)", bool(st["ok"]), str(st),
+	d.check("sit (X): seated on the first chair the character owns (contracts C4/C5)", bool(st["ok"]), str(st),
 		["chair:" + CHAIR])
 	if bool(st["ok"]):
 		var up: Dictionary = await k.stand()
@@ -102,7 +102,7 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("bind_skill: Recovery on key 2 with the Skills window's Set key", bool(bs["ok"]), str(bs), ["mechanic:skill-window"])
 	var sk: Dictionary = await k.cast_skill("0001001")
 	d.check("cast_skill: Recovery from its quickslot key (contract C3)", bool(sk["ok"]), str(sk), ["skill:0001001"])
-	d.soft_check("breakables: Wooden Boxes in %s (contract C8)" % STORE, not k.breakables(true).is_empty(),
+	d.check("breakables: Wooden Boxes in %s (contract C8)" % STORE, not k.breakables(true).is_empty(),
 		"%d nodes in group miso_breakables" % k.breakables(true).size())
 
 

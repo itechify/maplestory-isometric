@@ -8,10 +8,15 @@ extends PlaytestScenario
 ## broken it waits for the first to come back (its canonical respawn_s). The quest is turned in to Pio: completed, the
 ## two items handed in, and the canonical rewards (EXP, mesos, The Green Relaxer) received.
 ## Phase 1, after Quit Game and a new process: Continue in Amherst, and the box that took hits right before the quit
-## stands intact again with all its hits left (box state is never saved). Then the other 13 placements: setup by
-## console (counted: god mode, so the hunting maps' monsters cannot end the tour, and a warp to each map), every box of
-## The Field West of Amherst, the three Amherst interiors and Snail Field of Flowers is walked up to and broken with
-## the attack key after exactly hits_to_break landed swings, so all 19 canonical boxes are played in the real game.
+## stands intact again with all its hits left (box state is never saved). Three Snails, learned there with the setup
+## level's SP through the Skills window and put on key 1, is thrown with its key at the nearest Amherst box until it
+## breaks: one landed hit per throw (breakables.json hit_rule), so exactly hits_to_break throws (setup: the shells and
+## an MP refill, by console). Then the other 13 placements: setup by console (counted: god mode, so the hunting maps'
+## monsters cannot end the tour, and a warp to each map), every box of The Field West of Amherst, the three Amherst
+## interiors and Snail Field of Flowers is walked up to and broken with the attack key after exactly hits_to_break
+## landed swings. All 19 canonical placements stand in the real game; the 13 of the other five maps are all broken,
+## Amherst's six only as far as 1012 needs (three in the 2026-10-05 runs) plus the one Three Snails breaks: 17 boxes
+## broken in a run, not 19.
 
 const AMHERST := "000001010"
 ## The other maps with Wooden Box placements (canonical maps/<id>.json reactors[]), toured in phase 1.
@@ -202,7 +207,48 @@ func _phase1() -> void:
 		and boxes.size() == BreakableRules.placements_of(db.map(AMHERST)).size() and boxes.all(func(b: Node) -> bool: return not bool(b.call("is_broken"))),
 		"%d boxes" % boxes.size())
 	d.check("1012 stays completed", d.character().quests.is_completed(QUEST), d.character().quests.status(QUEST))
+	await _three_snails_box()
 	await _tour_other_maps()
+
+
+## Three Snails at a Wooden Box (misostory/breakables.json hit_rule, PlayerSkills._hit_box): the setup level's SP
+## learns the skill with the Skills window's "+", Set key puts it on key 1, and it is thrown with that key at the
+## nearest intact box of Amherst from inside its canonical band (PlaytestKit.throw_at) until the box breaks. Each throw
+## that picks the box lands one hit, so it breaks after exactly hits_to_break throws, each paying the level's MP and
+## one shell. Setup (logged): the shells and an MP refill.
+func _three_snails_box() -> void:
+	var k := PlaytestKit.new(d)
+	var c := d.character()
+	var snails := "0001000"
+	var def := SkillDef.of(snails, db)
+	if SkillBook.level_of(c, snails) == 0:
+		if not d.check("SP to learn Three Snails (the setup level's)", c.sp > 0, "SP %d" % c.sp):
+			return
+		var ls: Dictionary = await k.learn_skill(snails)
+		if not d.check("Three Snails learned with the Skills window's '+'", bool(ls["ok"]), str(ls)):
+			return
+	var bk: Dictionary = await k.bind_skill(snails, "1")
+	if not d.check("Three Snails on key 1 with the Skills window's Set key", bool(bk["ok"]), str(bk)):
+		return
+	var lv := SkillBook.level_of(c, snails)
+	await _setup_throws(String(def.item_cost(lv)["item_id"]), _hits() + 2)
+	var box := _nearest_intact()
+	if not d.check("an intact Wooden Box in Amherst to throw at", box != null):
+		return
+	var key := String(box.call("placement_key"))
+	var r: Dictionary = await k.throw_at(box as Node3D, {"casts": _hits() + 2, "max_s": 90.0})
+	d.check("Three Snails broke box %s after exactly %d landed throws (one hit per throw that picks it)" % [key, _hits()],
+		bool(r["killed"]) and int(r["hits"]) == _hits(), "%d throws, %d hits, broken %s %s" % [int(r["casts"]), int(r["hits"]),
+			r["killed"], r["why"]], ["skill:0001000", "mechanic:breakable-hit-break-respawn"])
+	d.check("each throw spent the level's MP and one shell", int(r["casts"]) > 0
+		and int(r["shells0"]) - int(r["shells1"]) == int(r["casts"]) and int(r["mp0"]) - int(r["mp1"]) == int(r["casts"]) * def.mp_cost(lv),
+		"%d casts: shells %d -> %d, MP %d -> %d" % [int(r["casts"]), int(r["shells0"]), int(r["shells1"]), int(r["mp0"]), int(r["mp1"])],
+		["skill:0001000"])
+
+
+func _setup_throws(shell: String, n: int) -> void:
+	await d.console("give %s %d" % [shell, n])
+	await d.console("heal")
 
 
 ## Every box of the other five maps, broken with the attack key (nearest first; each placement once).
