@@ -6,6 +6,22 @@ extends TestCase
 static var _placed: MapDefinitions = null
 
 
+## Contract C6. The per-map count test compares every map's runtime spawn slots, species by species, with its MeowDB
+## record, so it proves every population:<map>/<mob> key. The placement tests need the world (INCLUDE_WORLD=1).
+func parity_keys() -> Dictionary:
+	var populations: Array = []
+	for id in db().ids("maps"):
+		for m in db().map(id).get("monsters", []):
+			populations.append("population:%s/%s" % [id, str(m.id)])
+	return {
+		"test_per_map_per_species_counts_equal_meowdb": populations,
+		"test_species_are_meowdb_monsters": ["xref:map-monster"],
+		"test_every_slot_is_placed_with_spacing_and_portal_clearance": ["mechanic:spawn-placement-exclusions"],
+		"test_keepouts_keep_slots_out": ["mechanic:spawn-placement-exclusions"],
+		"test_clearance_is_as_tall_as_the_species": ["mechanic:spawn-placement-exclusions"],
+	}
+
+
 func placed(test_name: String) -> MapDefinitions:
 	if not WorldSidecars.exists():
 		print("SKIP %s: game/assets/world not present (run with INCLUDE_WORLD=1)" % test_name)

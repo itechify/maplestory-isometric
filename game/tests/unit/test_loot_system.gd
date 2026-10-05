@@ -23,6 +23,19 @@ class FakePlayer:
 		input_on = on
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {
+		"test_pickup_item_goes_into_the_inventory_with_a_notice": ["mechanic:loot-pickup", "ui:item-pickup-feedback"],
+		"test_pickup_stack_notice_shows_the_quantity": ["mechanic:loot-pickup", "ui:item-pickup-feedback"],
+		"test_pickup_mesos": ["mechanic:meso-pickup", "ui:item-pickup-feedback"],
+		"test_inventory_full_leaves_the_drop_and_says_so": ["mechanic:loot-pickup", "mechanic:inventory-full-warning"],
+		"test_pickup_notices_match_the_hud_lines": ["ui:item-pickup-feedback"],
+		"test_pickup_box_is_the_canonical_box_through_world_scale": ["mechanic:loot-pickup"],
+		"test_rolled_kills_are_picked_up_exactly": ["mechanic:loot-pickup", "mechanic:meso-pickup"],
+	}
+
+
 var bus: Node
 var character: CharacterState
 var state: MapInstanceState

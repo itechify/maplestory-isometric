@@ -4,6 +4,16 @@ extends TestCase
 ## the same data the factory uses, never typed in here.
 
 
+## Contract C6: the new character against canonical beginner.json (and MeowDB's own golden values).
+func parity_keys() -> Dictionary:
+	return {
+		"test_new_character_exact_values": ["mechanic:new-character"],
+		"test_new_character_matches_meowdb_golden_values": ["mechanic:new-character", "canon:meowdb-formula-parity"],
+		"test_creation_ap_must_be_exactly_the_canonical_amount": ["mechanic:new-character"],
+		"test_creation_weapons_are_the_canonical_trio": ["mechanic:new-character"],
+	}
+
+
 func _beginner() -> Dictionary:
 	return db().formula("beginner")
 

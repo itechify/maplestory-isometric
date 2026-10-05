@@ -3,6 +3,11 @@ extends ParityTestCase
 ## (game/tests/data/parity_vectors.json).
 
 
+## Contract C6 (Definition of Done: MeowDB parity tests still pass).
+func parity_keys() -> Dictionary:
+	return {"test_exp_requirement": ["canon:meowdb-formula-parity"], "test_exp_calculator_validation": ["canon:meowdb-formula-parity"]}
+
+
 ## exp_requirement: levels 1-30: EXP to next, total at level start, cumulative, calculator result, kills.
 func test_exp_requirement() -> void:
 	for v in vectors("exp_requirement"):

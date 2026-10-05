@@ -4,6 +4,15 @@ extends TestCase
 ## death must never touch the inventory, equipment or quest log, and new rules slot in by name.
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {
+		"test_exp_penalty_is_the_canonical_formula": ["mechanic:death-respawn"],
+		"test_respawn_vitals_follow_death_json": ["mechanic:death-respawn"],
+		"test_a_death_does_not_touch_items_equipment_or_quests": ["mechanic:death-respawn"],
+	}
+
+
 func _character(level: int = 5, exp_value: int = 40, luk: int = 4) -> CharacterState:
 	var c := CharacterFactory.create(CharacterFactory.default_params(db()), db()).character
 	c.level = level

@@ -3,6 +3,17 @@ extends TestCase
 ## so these tests check the mapping, not MeowDB's numbers.
 
 
+## Contract C6: only the items whose whole stat or consumable block a test compares with their canonical record (the
+## whole-set test checks that every item builds, not its values, so it proves no item:<id> key). Red Headband (711):
+## W.DEF, HP and upgrade slots are all compared. Not tagged: Brown Duo (1440), of whose stats (W.DEF, STR, CRIT%,
+## slots) only CRIT% is compared, and Sword (541), whose weapon block is compared but not its W.ATK.
+func parity_keys() -> Dictionary:
+	return {
+		"test_stat_lines_map_to_bonus_keys": ["item:711"],
+		"test_consumable_effects": ["item:270", "item:239", "item:269"],
+	}
+
+
 func test_every_canonical_item_builds() -> void:
 	for id in db().ids("items"):
 		var def := ItemDef.of(id, db())

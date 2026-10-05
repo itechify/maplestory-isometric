@@ -13,7 +13,7 @@ func parity_keys() -> Dictionary:
 		"test_every_rolling_chance_names_its_kurodb_source": ["mechanic:drop-chance-from-kurodb"],
 		"test_quest_items_are_obtainable": ["quest:1005", "quest:1011", "quest:1012"],
 		"test_three_snails_shells_are_obtainable": ["skill:0001000"],
-		"test_meso_rules_follow_the_records": ["drop:2/mesos", "drop:3/mesos", "drop:4/mesos", "drop:5/mesos", "drop:9/mesos",
+		"test_meso_rules_follow_the_records": ["meso:1", "meso:2", "meso:3", "meso:4", "meso:5", "meso:9",
 			"mechanic:meso-amount-source", "mechanic:meso-chance-source"],
 		"test_rolling_entries_by_owner": ["drop:1/jr-sentinel-shellpiece", "drop:2/snail-shell", "drop:3/blue-snail-shell",
 			"drop:4/mushroom-spore", "drop:5/red-snail-shell", "drop:9/orange-mushroom-cap", "drop:0000001/old-wooden-board",

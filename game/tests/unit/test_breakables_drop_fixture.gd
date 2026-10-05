@@ -6,10 +6,6 @@ extends DataValidationTestCase
 const FIXTURE := "res://tests/data/breakables/drops_0000001_v2.json"
 
 
-func parity_keys() -> Dictionary:
-	return {"test_the_box_fixture_is_valid_v2_data": ["mechanic:breakable-drop-roll", "drop:0000001/441", "drop:0000001/442"]}
-
-
 func test_the_box_fixture_is_valid_v2_data() -> void:
 	var f := load_fixture(FIXTURE)
 	var c := clone_db()

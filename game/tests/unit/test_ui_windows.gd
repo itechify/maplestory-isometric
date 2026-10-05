@@ -10,6 +10,15 @@ var game: GameState = null
 var seen: Dictionary = {}
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {
+		"test_stats_window_applies_ap_and_refreshes_derived_numbers": ["mechanic:ap-allocation"],
+		"test_quest_log_shows_sams_suggestion_progress_after_kills": ["ui:quest-log"],
+		"test_quest_log_marks_quests_whose_start_npc_is_here_nearby": ["ui:quest-log"],
+	}
+
+
 func before_each() -> void:
 	bus = load("res://scripts/autoload/events.gd").new()
 	seen = {}

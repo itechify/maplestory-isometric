@@ -7,6 +7,11 @@ extends TestCase
 ## "death_quit" / "death_reload" scenarios of scripts/game/checks/shell_checks.gd.
 
 
+## Contract C6 (the run needs INCLUDE_WORLD=1; without the world it prints SKIP).
+func parity_keys() -> Dictionary:
+	return {"test_death_quit_reload_in_40_and_1014": ["mechanic:death-respawn", "persistence:respawn-information"]}
+
+
 func test_death_quit_reload_in_40_and_1014() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_death_quit_reload_in_40_and_1014: game/assets/world not present (run with INCLUDE_WORLD=1)")

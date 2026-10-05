@@ -17,8 +17,8 @@ func parity_keys() -> Dictionary:
 			"mechanic:breakable-hit-break-respawn", "mechanic:breakable-drop-roll"],
 		"test_the_players_swing_hits_the_box_in_front_and_not_behind": ["mechanic:breakable-hit-break-respawn"],
 		"test_a_broken_box_comes_back_after_its_respawn_s": ["mechanic:breakable-hit-break-respawn"],
-		"test_gated_drops_through_the_real_roller": ["mechanic:breakable-drop-roll", "drop:0000001/441",
-			"drop:0000001/442", "quest:1012"],
+		# The roll uses the test fixture (tests/data/breakables), not the shipped record: the mechanic, not the entries.
+		"test_gated_drops_through_the_real_roller": ["mechanic:breakable-drop-roll", "mechanic:quest-gated-drops", "quest:1012"],
 	}
 
 
