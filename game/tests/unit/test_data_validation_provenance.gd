@@ -25,7 +25,31 @@ func parity_keys() -> Dictionary:
 		"test_urls_must_belong_to_the_authority": per_property,
 		"test_project_owner_needs_a_decision": per_property,
 		"test_sources_index_lists_capture_files_and_property_sources": per_property,
+		"test_quest_tracker_tags_cite_the_capture": per_property,
 	}
+
+
+## Decision D3-2: the live quest tracker (a dated capture) flags all 20 Maple Island quests "Missable" (tag "COT2" too).
+## extract_quests.mjs records both per quest with provenance citing the capture, and the validator accepts them.
+func test_quest_tracker_tags_cite_the_capture() -> void:
+	const CAPTURE := "tools/meowdb/captures/quest_tracker_maple_island.txt"
+	var ids := db().ids("quests")
+	assert_eq(ids.size(), 20, "the Maple Island quest set")
+	for qid in ids:
+		var q := db().quest(qid)
+		assert_eq(q.get("missable", null), true, "quest %s missable" % qid)
+		assert_eq(q.get("tracker_tags", null), ["COT2", "Missable"], "quest %s tracker tags" % qid)
+		for field in ["missable", "tracker_tags"]:
+			var src: Dictionary = q.get("provenance", {}).get(field, {})
+			assert_eq(src.get("authority", null), ProvenanceAuthorities.MEOWDB, "quest %s %s authority" % [qid, field])
+			assert_eq(src.get("capture", null), CAPTURE, "quest %s %s capture" % [qid, field])
+			assert_true(String(src.get("raw_value", "")).contains("Missable"), "quest %s %s raw row: %s" % [qid, field, src.get("raw_value", "")])
+			var row_name := String(src.get("raw_value", "")).split("  ")[0]
+			if src.has("note"):  # a collapsed chain row: "Rain's Maple Quiz 1 … 7"
+				assert_true(row_name.begins_with(String(q.name).rsplit(" ", true, 1)[0]), "quest %s collapsed row: %s" % [qid, row_name])
+			else:
+				assert_eq(row_name, q.name, "quest %s row name" % qid)
+	assert_eq(baseline().matching("provenance", "quests").size(), 0, "the validator accepts the tracker provenance")
 
 
 func test_unbroken_copy_has_no_provenance_errors() -> void:
@@ -222,7 +246,8 @@ func test_per_property_kurodb_and_hidden_street_sources_are_accepted() -> void:
 		"owner_level": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/3", "retrieved_at": "2026-10-04T09:57:41Z"}})
 	var r := run_validator(cid[0])
 	expect_no_new(r)
-	assert_eq(int(r.stats.get("provenance_sources_checked", 0)), 5, "every property source was checked")
+	var shipped := int(baseline().stats.get("provenance_sources_checked", 0))
+	assert_eq(int(r.stats.get("provenance_sources_checked", 0)) - shipped, 5, "every property source was checked")
 
 
 func test_kurodb_may_not_supply_membership() -> void:
@@ -322,7 +347,13 @@ func test_capture_lookup_is_live_on_the_shipped_data() -> void:
 	var id := first_id_where(c, "items", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "built from a capture")
 	var r := run_validator(c, {"capture_files": {}})
 	expect_new(r, "error", "provenance", "items", id, "source.capture names tools/meowdb/captures/items_api.json, which does not exist (looked under the injected capture_files)")
-	expect_no_new(run_validator(c, {"capture_files": {"tools/meowdb/captures/items_api.json": true}}))
+	var cited := {}  # every capture the shipped data cites (items_api.json, the quest tracker, ...)
+	for domain_name in ValidationUtil.canonical_domains(c):
+		for key in c.ids(domain_name):
+			for f in ProvenanceChecks._capture_files(c.get_entity(domain_name, key)):
+				cited[f] = true
+	assert_has(cited, "tools/meowdb/captures/items_api.json", "the shipped data cites the item API capture")
+	expect_no_new(run_validator(c, {"capture_files": cited}))
 
 
 func test_sources_index_lists_capture_files_and_property_sources() -> void:

@@ -1,6 +1,8 @@
 # Canonical data: Quests (Maple Island) and quest dialogue
 
 - Authority: MeowDB MS Classic (https://meowdb.com/msclassic). No other source was used. No external values were filled in.
+  Everything comes from the local cache (2026-10-04) except the quest tracker tags (`missable`, `tracker_tags`), which
+  come from one dated capture of the live tracker read by hand (2026-10-05, decision D3-2; see §1).
 - Output: `game/data/canonical/quests/<quest_id>.json`, one quest per file, 20 files (ids 1000–1019).
 - Extractor: `node tools/meowdb/extract_quests.mjs`. It is cache-first, deterministic and validating. `--verbose` prints the item back-link checks. Re-running it reproduces the files byte for byte.
 
@@ -16,8 +18,9 @@
 | `/item-db/<id>` for every referenced item (235, 237, 239, 347, 349, 356, 438–442, 522, 558, 559, 708, 709, 711–715, plus 2584 and 270 linked from dialogue) | Item name and icon key match the quest data. Roger's Apple icon key. Back-links to the quest. | 2026-10-04T10:05Z – 10:17Z |
 | `/monsters/1,2,3,4,5,9` | Monster name matches the kill objective | 2026-10-04T09:57Z – 10:07Z |
 | `/guides/beginners-guide-first-steps-in-maple-world` | Human cross-check only (not extracted). It lists the Maple Island quests "straight from the quest tracker". Its totals (Rain's quiz 245 EXP = 20+25+…+50, Mai's chain 170 EXP and 15 Eggs) agree with the records. | 2026-10-04T10:06:38.610Z |
+| `/quest-tracker?area=1`, the live tracker filtered to Maple Island, as the dated capture `tools/meowdb/captures/quest_tracker_maple_island.txt` (read by hand in a normal browser, never fetched; read through `tools/sources/captures.mjs`) | Each quest's tags ("COT2 · Missable"), which the cached pages do not carry: `missable` and `tracker_tags`. The row's name, start NPC, level ("Level N", absent = `min_level` 0) and chain step ("Step k of n" = `quest_line`) are cross-checked against the cached quest object. The page collapses Rain's quiz chain into one row ("Rain's Maple Quiz 1 … 7", "Step 1 … 7 of 7"), which is expanded to quests 1013–1019. | read_at 2026-10-05T07:30Z (normalized: the minute was not written down; see the capture's READ_AT_NOTE) |
 
-Each JSON file carries its own `source` (the quest detail page), `field_sources` (the fields that came from another page) and `cross_checks` (the pages it was verified against).
+Each JSON file carries its own `source` (the quest detail page), `field_sources` (the fields that came from another page) and `cross_checks` (the pages it was verified against). The two tracker fields are cited per property in `provenance.missable` and `provenance.tracker_tags` (contract C7: authority, URL, `read_at`, `capture`, the verbatim row as `raw_value`).
 
 ## 2. Which quests are included and why
 
@@ -65,6 +68,7 @@ All ids are strings exactly as MeowDB uses them (quest "1006", npc "9", mob "2",
 | `prerequisites.quests` | `[{quest_id, name}]` that must be completed first (MeowDB `prereqs` / `requiresAll`). |
 | `prerequisites.items`, `skills`, `fame_min`, `citizenship`, `acceptance_meso_cost`, `must_not_have_items`, `unresolved` | MeowDB's other prerequisite kinds. All are empty or null for Maple Island and exist so the schema covers later regions. |
 | `repeatable`, `repeat_type` | false/null for all. MeowDB has `isRepeatable`/`isDaily`/`isWeekly` flags and none is set. `self_start`: MeowDB `selfStart` (false). |
+| `missable`, `tracker_tags` | From the live quest tracker capture (§1): `tracker_tags` are the row's tags in page order (`["COT2", "Missable"]` for all 20) and `missable` is true when they include "Missable" (all 20). Null, with a gap, for a quest the capture has no row for. MeowDB does not explain either tag on the page; "Missable" is recorded as shown, not interpreted. `provenance.missable` / `provenance.tracker_tags` cite the capture. |
 | `objectives.monster_kills` | `[{mob_id, name, count}]` from MeowDB `need` entries with `mobId` ("Defeat X"). Each name was verified on `/monsters/<id>`. |
 | `objectives.item_collection` | `[{item_id, item_icon_key, name, count, hand_in: true}]` from `need` entries with `itemId`. MeowDB's quest database filter labels item-only requirements "Item hand-in only" (see `items_removed_on_completion`). |
 | `objectives.item_usage` | `[{item_id, item_icon_key, name, count}]`. Only 1002 has one: Roger's Apple, count 1. The quest page gives no count; the 1 comes from `safe-to-sell.json` (`field_sources["objectives.item_usage[0].count"]`, recorded as a discrepancy, see §6). |
@@ -83,6 +87,7 @@ All ids are strings exactly as MeowDB uses them (quest "1006", npc "9", mob "2",
 | `quest_line` | `{steps:[{quest_id, name, npc, min_level}], position (1-based), total, end_fork, split}` from MeowDB `questLine`. |
 | `journal` | `raw` = MeowDB `description`. `lines` = raw split on newlines (the same split MeowDB's page uses). `summary` = line 1 (shown as "Description 01"). `entries` = the rest (shown under "Quest journal" 02, 03…). See §5. |
 | `dialogue` | See §4. |
+| `provenance` | Per-property sources (contract C7) for the fields that do not come from the record's own `source` page: `missable` and `tracker_tags`. |
 | `source`, `field_sources`, `cross_checks`, `notes`, `gaps`, `discrepancies` | Provenance and honesty fields. |
 
 ### Item ids: `item_id` vs `item_icon_key`
@@ -277,6 +282,7 @@ To implement 1002 end-to-end, the game needs a MisoStory adaptation decision for
 - No dialogue text may contain game markup (`#` + letter). Raw `#L<n>#` quiz tags are split into their own choice, and the tag index must equal the choice position.
 - Every quiz must have exactly one MeowDB-marked correct choice, or a guarded `QUIZ_INFERENCES` rule whose quoted lines are all present. Otherwise the run fails.
 - Every hand-in item and its count must match `safe-to-sell.json` (`quests[].qty`). A differing item id is allowed only if that file lists the name as ambiguous. Every item that file lists for a quest must be in the record.
+- The quest tracker capture: every Maple Island row parses, names exactly one selected quest (and every selected quest has a row), and its start NPC, level and chain step agree with the cached quest object.
 
 Notes for maintainers:
 

@@ -5,9 +5,9 @@
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
     "records": 192,
-    "distinct_source_urls": 414,
+    "distinct_source_urls": 415,
     "external_values": 0,
-    "capture_files": 1
+    "capture_files": 2
   },
   "records": [
     {
@@ -2915,7 +2915,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2930,7 +2951,28 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2947,7 +2989,28 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 2
+      "discrepancy_count": 2,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2962,7 +3025,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2977,7 +3061,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2992,7 +3097,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3007,7 +3133,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3022,7 +3169,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3037,7 +3205,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3052,7 +3241,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3067,7 +3277,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3082,7 +3313,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3097,7 +3349,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3112,7 +3385,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3127,7 +3421,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3142,7 +3457,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3157,7 +3493,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3172,7 +3529,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3187,7 +3565,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3202,7 +3601,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "shops",
