@@ -38,6 +38,9 @@ const TOUCH_MEMORY_S := 1.5
 ## A monster more than this many levels above the player is not fought back on a walk or a rest (it is walked away
 ## from); a hunt's wanted species is fought whatever its level.
 const FIGHT_LEVEL_GAP := 3
+## Below this share of Max HP a walk never stops to fight back: the player walks on, and below HP_FLOOR it heals or
+## rests instead.
+const FIGHT_BACK_HP := 0.55
 ## Default survival policy: drink or rest below this share of Max HP, and rest until this share.
 const HP_FLOOR := 0.4
 const HP_RESUME := 0.8
@@ -46,6 +49,8 @@ const REST_MAX_S := 150.0
 ## How far (m) from every live monster a resting spot should be, and the longest walk (m) to one.
 const REST_CLEAR_M := 9.0
 const REST_WALK_MAX_M := 25.0
+## How many times one rest walks away from a monster that comes close before it fights back instead.
+const REST_MOVES := 4
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -352,7 +357,7 @@ func interrupt_when(opts: Dictionary = {}) -> Callable:
 			return false
 		if hp_frac() < floor_frac:
 			return true
-		return fight and touched_recently() and threat(o) != null
+		return fight and hp_frac() >= FIGHT_BACK_HP and touched_recently() and threat(o) != null
 
 
 ## True when the player can fight `m` (a live monster node): its canonical level is at most FIGHT_LEVEL_GAP above
@@ -431,7 +436,7 @@ func survive(opts: Dictionary = {}) -> Dictionary:
 		survival["drinks"] = int(survival["drinks"]) + 1
 	if hp_frac() < floor_frac and not is_dead():
 		out["rested_s"] = await rest(resume, opts)
-	elif String(opts.get("on_threat", "fight")) == "fight":
+	elif String(opts.get("on_threat", "fight")) == "fight" and hp_frac() >= FIGHT_BACK_HP:
 		var o := opts.duplicate()
 		o["beatable_only"] = true
 		var t := threat(o)
@@ -467,8 +472,8 @@ func hp_restore(item_id: String) -> int:
 
 ## Rests: walks to the player spawn or portal arrival farthest from the live monsters (when one is closer than
 ## REST_CLEAR_M), then stands still (sits when C5's sitting exists and opts "sit" is set) until HP reaches `until`
-## of Max HP, REST_MAX_S passes, or a monster comes close (it is fought, then the rest goes on). Returns the game
-## seconds rested. Await it.
+## of Max HP or REST_MAX_S passes. A monster that comes close is walked away from (to the quietest spot, a few times);
+## only a cornered player fights back, and only a monster it can beat. Returns the game seconds rested. Await it.
 func rest(until: float, opts: Dictionary = {}) -> float:
 	var t0 := d.game_s()
 	survival["rests"] = int(survival["rests"]) + 1
@@ -483,22 +488,24 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 	var ignored := {}
 	while hp_frac() < until and d.game_s() - t0 < float(opts.get("rest_max_s", REST_MAX_S)) and not is_dead():
 		var t := threat({"threat_m": 3.0})
-		if t != null and beatable(t) and not ignored.has(t.get_instance_id()):
+		if t != null and moves < REST_MOVES:
+			# Move to the quietest spot and rest there.
+			moves += 1
+			var away := _rest_spot()
+			if away != Vector3.INF and away.distance_to(d.player().global_position) <= REST_WALK_MAX_M \
+					and away.distance_to(d.player().global_position) > 2.0:
+				await d.walk_to(away, {"max_s": 25.0, "retries": 0, "within_m": 1.5, "stop_when": _new_touch_or_death()})
+				continue
+		if t != null and beatable(t) and not ignored.has(t.get_instance_id()) and touched_recently():
+			# Cornered and being hit: fight back what it can beat.
 			var f: Dictionary = await d.face_and_attack_nearest(15.0, {"target": t, "max_dist_m": 6.0, "chase": false})
 			survival["fights_back"] = int(survival["fights_back"]) + 1
 			if hp_frac() < 0.2 and best_heal_item() != "":
 				await drink(best_heal_item())
-			if bool(f.get("ok", false)):
-				continue
-			# Out of reach without a chase (a ledge just above): leave it be for this rest, and move or wait below.
-			ignored[t.get_instance_id()] = true
-		if t != null and moves < 4:
-			# Too strong to fight: move to the quietest spot and rest there.
-			moves += 1
-			var away := _rest_spot()
-			if away != Vector3.INF and away.distance_to(d.player().global_position) <= REST_WALK_MAX_M:
-				await d.walk_to(away, {"max_s": 25.0, "retries": 0, "within_m": 1.5, "stop_when": _new_touch_or_death()})
-				continue
+			if not bool(f.get("ok", false)):
+				# Out of reach without a chase (a ledge just above): leave it be for this rest.
+				ignored[t.get_instance_id()] = true
+			continue
 		await d.wait(0.5)
 	var s := d.game_s() - t0
 	survival["rest_s"] = float(survival["rest_s"]) + s

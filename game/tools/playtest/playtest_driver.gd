@@ -1105,11 +1105,15 @@ func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dict
 			best_d = dist
 			best_t = game_s()
 		var stuck := game_s() - best_t > FIGHT_STUCK_S and dist > ideal
-		if dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
-			if not bool(opts.get("chase", true)):
-				# A fight back, not a hunt: no walk over the routes after it.
-				out["why"] = "out of reach without a chase (%.1f m away, %.1f m up/down)" % [dist, dy]
-				break
+		if not bool(opts.get("chase", true)) and (dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M):
+			# A fight back, not a hunt: no walk over the routes after a monster that is far or on another tier.
+			out["why"] = "out of reach without a chase (%.1f m away, %.1f m up/down)" % [dist, dy]
+			break
+		if stuck and not bool(opts.get("chase", true)):
+			# Close by and on this tier but not getting closer (a knockback, a prop): keep stepping straight at it.
+			best_d = INF
+			best_t = game_s()
+		elif dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
 			if routed >= 3:
 				out["why"] = "could not reach the monster (%.1f m away, %.1f m up/down)" % [dist, dy]
 				break
