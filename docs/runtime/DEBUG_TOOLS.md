@@ -129,7 +129,7 @@ names to ids.
 | `collision`, `spawns`, `portaldata`, `npcs`, `bounds`, `mobregion`, `rings`, `safeground` `[on/off]`; `draw [layer or all] [on/off]` | Draw layers (below). Each reports the lines and labels it built | `DebugDraw` |
 | `spawn <monster> [n]` | n debug monsters (1 to 50) on a ring around the player | `MapInstanceView.monster_factory` with a synthetic `SpawnSlot` (`index -1`, `placement "debug"`) |
 | `kill [nearest or all]` | Kills the nearest live monster (to the player), or every one, debug spawns included | See "Kill" below |
-| `drops <monster> [kills] [seed]` | Simulates kills: mesos and every item with its kill rate (placeholder rates) | `DropRoller.simulate` with its own RNG (seed 1 by default), so `Game.rng` is untouched |
+| `drops <monster or owner id> [kills] [seed]` | Simulates kills (or Wooden Box breaks, owner `0000001`): mesos and every item with its kill rate, from the canonical schema-v2 record (Hidden Street / MeowDB membership, KuroDB chances and meso chance, MeowDB meso amounts; the character's quests in progress gate quest drops, contract C2), and lists the unresolved members that never roll. A check of the roller, never a source of a chance | `DropRoller.simulate` with its own RNG (seed 1 by default), so `Game.rng` is untouched |
 | `monsters [name]` (alias `mobs`), `items [name]` | Searches ids | `ContentDB` |
 | `exp <n>` | Gains n EXP. Level-ups, AP, SP, HP/MP growth and events happen as in play | `Game.gain_exp(n, "debug")` |
 | `level <n>` | Sets the level (see "Level" below) | `Game.gain_exp`, `Progression.level_up_gains` |
@@ -377,5 +377,11 @@ key events (`Input.parse_input_event`) and `Debug.run`.
 - **Collision layer cost.** The collision layer rebuilds on every map change while it is on: about 80,000 segments in
   Snail Hunting Ground I, roughly 0.1 to 0.3 s on the dev machine.
 - **Tuning.** Label and line sizes were tuned at 1600x900 only.
+- **A tool without a running game has a frozen clock.** `Game.clock` advances only while a game is active and
+  unpaused (the wave-2 integration fix that makes runs of one seed repeatable: it stands still on the title screen and
+  while the island loads). `world_preview.tscn` drives MapSession without `Game.new_game`, so its clock stays at 0:
+  no monster respawns on the spawn tick and no ground drop expires there. It kills and drops nothing, so nothing
+  visible changes. The debug sandbox and `world_ui_sandbox.tscn` start a game (`Game.new_game` with saving off), so
+  their clock runs; `timescale` scales it like everything else.
 - **Not built.** Console history is not saved between runs. There are no per-command permissions; the console is
-  available in every build. The `edge` link mode waits for M2 gates.
+  available in every build.

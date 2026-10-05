@@ -27,8 +27,8 @@ extends RefCounted
 ##   death     let_monsters_win(mob_ids, opts)  (stand among monsters without fighting until the player dies)
 ##
 ## The contract helpers (sit, chairs, skills, Wooden Boxes) are written against docs/runtime/
-## ITERATION_THREE_CONTRACTS.md C4/C5/C3/C8 and degrade to {"ok": false, "why": "... is not built"} until the
-## packages that build those features are merged.
+## ITERATION_THREE_CONTRACTS.md C4/C5/C3/C8. Those features are all built (wave 1); on a build without one, its
+## helper still answers {"ok": false, "why": "... is not built"} instead of failing.
 
 ## Horizontal distance (m) inside which a live monster counts as a threat to a walk (it is about to touch).
 const THREAT_M := 2.2
@@ -1759,8 +1759,10 @@ func bind_skill(skill_id: String, key: String) -> Dictionary:
 ## Throws Three Snails (the skill's quickslot key) at `target` from inside its canonical band (THROW_FROM_PX), as
 ## test_skills does: walks to about 150 px from it, faces it and taps the key once per throw until opts "casts" (1)
 ## throws resolved on it, the target died, or opts "max_s" (40) passed. Every hit is heard on PlayerSkills.cast_resolved.
-## Returns {"ok" (a throw hit it), "casts", "hits", "damage" [final], "killed", "mp0", "mp1", "shells0", "shells1",
-## "why"}. Await it.
+## `target` may also be a Wooden Box (a node of breakables(), contract C8): a throw that picks it is heard as
+## cast_resolved(skill, box, null) and lands one hit (breakables.json hit_rule), and "killed" means it broke.
+## Returns {"ok" (a throw hit it), "casts", "hits", "damage" [final; empty for a box], "killed", "mp0", "mp1",
+## "shells0", "shells1", "why"}. Await it.
 func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	var snails := "0001000"
 	var c := d.character()
@@ -1777,6 +1779,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	if skills == null:
 		out["why"] = "the player has no PlayerSkills node"
 		return out
+	var box := target.is_in_group(&"miso_breakables")
 	var died := [false]
 	var on_died := func(m: Node) -> void:
 		if m == target:
@@ -1785,7 +1788,11 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	var hits := [0]
 	var damage: Array = []
 	var on_cast := func(sid: String, t: Node, res: DamageResult) -> void:
-		if sid == snails and t == target and res != null and not res.missed:
+		if sid != snails or t != target:
+			return
+		if box and res == null:
+			hits[0] += 1
+		elif res != null and not res.missed:
 			hits[0] += 1
 			damage.append(res.final)
 	skills.connect(&"cast_resolved", on_cast)
@@ -1797,7 +1804,10 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	while not died[0] and int(skills.get("casts")) - casts0 < want and d.game_s() - t0 < float(opts.get("max_s", 40.0)):
 		await d.get_tree().process_frame
 		d.input.reassert()
-		if not is_instance_valid(target) or not bool(target.call("is_alive")) or is_dead():
+		if not is_instance_valid(target) or is_dead():
+			break
+		var gone := bool(target.call("is_broken")) if box else not bool(target.call("is_alive"))
+		if gone:
 			break
 		var to := target.global_position - p.global_position
 		var dy := to.y
@@ -1839,7 +1849,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	out["casts"] = int(skills.get("casts")) - casts0
 	out["hits"] = hits[0]
 	out["damage"] = damage
-	out["killed"] = died[0]
+	out["killed"] = died[0] or (box and is_instance_valid(target) and bool(target.call("is_broken")))
 	out["mp1"] = c.mp
 	out["shells1"] = c.inventory.count(shell)
 	out["ok"] = hits[0] > 0

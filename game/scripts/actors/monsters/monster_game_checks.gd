@@ -115,6 +115,9 @@ func _debug_commands() -> void:
 	var c := game.character
 	var total_before := Progression.total_exp_at(c.level, c.exp, db)
 	var kills_before := ms.kills
+	# The roll context the kills roll under (contract C2), taken before them: a quest that changed state during the
+	# kills must not decide which drops were legal.
+	var ctx := DropRoller.context_for(c)
 	out = String(dbg.call("run", "kill all"))
 	# Read the slots at once: the global spawn tick (7.56 s) may legitimately refill them during the frames awaited below
 	# (a flaky failure under full-suite load before this was taken here).
@@ -140,7 +143,6 @@ func _debug_commands() -> void:
 	_info("kill all: %d kills (%d slot monsters + 3 debug Snails), %d EXP, Lv %d" % [_killed.size(), live, gained, c.level])
 	var records := 0
 	var canonical := true
-	var ctx := DropRoller.context_for(c)
 	for e in _loot:
 		records += (e[0] as Array).size()
 		canonical = canonical and String(e[1]) == MAP

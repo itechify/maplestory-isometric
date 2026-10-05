@@ -415,13 +415,17 @@ func state() -> Dictionary:
 	return out
 
 
-## A compact fingerprint of everything that decides what happens next, for diffing two runs of one seed: the physics
-## frame (since boot), the RNG states (Game.rng and MapSession's instance RNG), the map and session state, the
-## player's position, vitals and EXP, and the live monsters (count, plus a hash of their positions and HP). Two runs
-## of one seed diverge at the first step whose digest differs. Never changes the game.
+## A compact fingerprint of everything that decides what happens next, for diffing two runs of one seed: the game
+## clock (Game.clock: it stands still on the title screen and while the island loads, so unlike the physics frame
+## since boot it does not carry the wall-clock-dependent load frames, which made every pair of runs differ at the
+## first step), the RNG states (Game.rng and MapSession's instance RNG), the map and session state, the player's
+## position, vitals and EXP, and the live monsters (count, plus a hash of their positions and HP). Two runs of one
+## seed diverge at the first step whose digest differs. Never changes the game.
 func trace_digest() -> Dictionary:
-	var out := {"frame": Engine.get_physics_frames() - _f0}
+	var out := {}
 	var g := game()
+	if g != null:
+		out["clock"] = "%.4f" % float(g.get("clock"))
 	if g != null and g.get("rng") is RandomNumberGenerator:
 		out["game_rng"] = str((g.get("rng") as RandomNumberGenerator).state)
 	var s := session()
