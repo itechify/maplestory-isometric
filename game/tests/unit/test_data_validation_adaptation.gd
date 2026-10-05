@@ -45,9 +45,53 @@ func test_reason_and_verified_must_be_well_typed() -> void:
 
 func test_verified_true_must_say_against_what() -> void:
 	var c := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1})
-	expect_new(run_validator(c), "warning", "adaptation", "misostory", "zz_test_verified", "nothing says what it was verified against")
-	c.miso[""]["zz_test_verified"]["verification"] = "test: checked against canonical data"
+	expect_new(run_validator(c), "error", "adaptation", "misostory", "zz_test_verified", "verified is true but has no verified_against")
+	# Only verified_against says what a value was checked against; the older free-form keys are not accepted.
+	for other in ["verification", "verified_by", "source_url"]:
+		var o := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1, other: "test: checked"})
+		expect_new(run_validator(o), "error", "adaptation", "misostory", "zz_test_verified", "verified is true but has no verified_against")
+	for bad in ["", "  ", [], [""], {"page": "x"}, 3]:
+		var b := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1, "verified_against": bad})
+		expect_new(run_validator(b), "error", "adaptation", "misostory", "zz_test_verified", "verified_against must be a non-empty string")
+	c.miso[""]["zz_test_verified"]["verified_against"] = "test: game/data/canonical/maps/000000040.json"
 	expect_no_new(run_validator(c), "adaptation")
+	c.miso[""]["zz_test_verified"]["verified_against"] = ["a canonical record", "https://meowdb.com/msclassic/maps/000000040"]
+	expect_no_new(run_validator(c), "adaptation")
+
+
+func test_sibling_verified_flag_needs_its_own_verified_against() -> void:
+	var c := _with_file(clone_db(), "zz_test_sib", {"reason": "why", "verified": false, "walk_mps": 3.0, "walk_mps_verified": true})
+	expect_new(run_validator(c), "error", "adaptation", "misostory", "zz_test_sib", "walk_mps_verified is true but has no walk_mps_verified_against")
+	c.miso[""]["zz_test_sib"]["walk_mps_verified_against"] = "test: a canonical movement record"
+	expect_no_new(run_validator(c), "adaptation")
+
+
+## The shape the mechanics package writes for the project owner's natural-regen rule (game/data/misostory/recovery.json,
+## brief "Resolve Iteration Two Placeholder: Natural HP Regeneration", contract C4): a Project owner provenance block and
+## verified: true against the brief section.
+func test_owner_natural_regen_rule_is_accepted() -> void:
+	var recovery := {
+		"id": "recovery", "kind": "misostory_adaptation",
+		"natural_recovery": {
+			"hp": {"amount": 10, "interval_s": 10.0, "eligible_activities": ["still", "seated"]},
+			"mp": null,
+			"reason": "The project owner's rule: 10 HP per 10 s of eligible time; walking, jumping and attacking pause the clock. MP has no natural recovery because MeowDB documents none.",
+			"verified": true,
+			"verified_against": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration",
+		},
+		"provenance": {"natural_recovery": {"authority": ProvenanceAuthorities.PROJECT_OWNER,
+			"decision": "ITERATION_THREE_BRIEF: Natural HP Regeneration"}},
+	}
+	var c := _with_file(clone_db(), "zz_test_recovery", recovery)
+	var r := run_validator(c)
+	expect_no_new(r, "adaptation")
+	expect_no_new(r, "provenance")
+	# Without the brief citation the flag is not accepted, and a Project owner source still needs its decision.
+	c.miso[""]["zz_test_recovery"]["natural_recovery"].erase("verified_against")
+	c.miso[""]["zz_test_recovery"]["provenance"]["natural_recovery"].erase("decision")
+	r = run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "zz_test_recovery", "natural_recovery.verified is true but has no natural_recovery.verified_against")
+	expect_new(r, "error", "provenance", "misostory", "zz_test_recovery", "needs decision")
 
 
 func test_typed_reference_inside_adaptation_file() -> void:

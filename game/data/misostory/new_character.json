@@ -16,7 +16,8 @@
   "starting_sp": {
     "value": 0,
     "reason": "formulas/beginner.json sp.calculator_caveat: 'per the Beginner's guide a Beginner has 0 SP at level 1 and gains 1 SP at each level-up from 2 to 10'. MeowDB states it in prose only (no numeric field), so the number lives here with that quote.",
-    "verified": true
+    "verified": true,
+    "verified_against": "game/data/canonical/formulas/beginner.json sp.calculator_caveat ('a Beginner has 0 SP at level 1', quoting MeowDB's Beginner's guide)"
   },
   "starting_mesos": {
     "value": 0,

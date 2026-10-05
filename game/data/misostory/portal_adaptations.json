@@ -46,7 +46,7 @@
       }
     ],
     "verified": true,
-    "verification": "game/data/canonical/maps/000000040.json lists only east00 (to 000000041); 000000030.out00 is the only portal into 000000040 with no reciprocal (to_portal_derivation none)."
+    "verified_against": "game/data/canonical/maps/000000040.json lists only east00 (to 000000041); 000000030.out00 is the only portal into 000000040 with no reciprocal (to_portal_derivation none)."
   },
   "one_way_ledge": {
     "clearance_margin_m": 0.3,
