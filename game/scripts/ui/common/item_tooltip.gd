@@ -86,7 +86,14 @@ static func describe(item_id: String, character: CharacterState, db: ContentDB, 
 	var out: Array = []
 	var def: ItemDef = ItemDef.of(item_id, db) if db != null else null
 	if def == null:
-		out.append({"text": "Unknown item (%s)" % item_id, "tone": "title"})
+		# An id the item data does not define: kept from an older save (docs/runtime/SAVES.md, unknown items).
+		var qty := int(opts.get("qty", 1))
+		out.append({"text": "Unknown item %s" % item_id + (" (x%d)" % qty if qty > 1 else ""), "tone": "title"})
+		out.append({"text": "Not in this version's item data", "tone": "sub"})
+		if bool(opts.get("equipped", false)):
+			out.append({"text": "Equipped", "tone": "gold"})
+		out.append({"text": "", "tone": "sep"})
+		out.append({"text": "Kept from your save. It cannot be used, equipped or sold.", "tone": "desc"})
 		return out
 	var qty := int(opts.get("qty", 1))
 	out.append({"text": def.name + (" (x%d)" % qty if qty > 1 else ""), "tone": "title"})

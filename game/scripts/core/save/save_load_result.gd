@@ -24,6 +24,9 @@ var meta: Dictionary = {}
 var saved_at: String = ""
 ## Non-fatal corrections made while loading (unknown map replaced, respawn reference recomputed, ...).
 var warnings: PackedStringArray = []
+## Saved item ids the current item data does not define, sorted (decode with a db). They stay in the character as
+## unknown items (shown as "Unknown item <id>", never usable or equippable); one warning counts them.
+var unknown_item_ids: PackedStringArray = []
 
 
 func ok() -> bool:

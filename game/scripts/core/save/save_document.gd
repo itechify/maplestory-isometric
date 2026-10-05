@@ -65,7 +65,8 @@ static func make_meta(character_dict: Dictionary, world: Dictionary, db: Content
 ##   ERR_INVALID_DATA  unknown, newer or unmigratable schema version
 ##   ERR_FILE_CORRUPT  not a MisoStory save, or a field of the wrong type
 ## With `db`, the location's map must exist (else the start location is used, with a warning) and the respawn
-## reference is recomputed from the canonical return map (a mismatch is a warning; canonical wins).
+## reference is recomputed from the canonical return map (a mismatch is a warning; canonical wins). Saved item ids
+## the item data does not define are kept and reported (r.unknown_item_ids and one warning; _check_items).
 static func decode(raw: Dictionary, migrations: SaveMigrations, db: ContentDB = null) -> SaveLoadResult:
 	var r := SaveLoadResult.new()
 	var doc_in: Dictionary = normalize_numbers(raw)
@@ -98,6 +99,8 @@ static func decode(raw: Dictionary, migrations: SaveMigrations, db: ContentDB = 
 		return _corrupt(r, "world.respawn_reference is not a string")
 	var c := CharacterState.from_dict(cd)
 	_resolve_location(c, world, db, r)
+	if db != null:
+		_check_items(c, db, r)
 	r.character = c
 	r.world = world
 	r.saved_at = String(doc.get("saved_at", "")) if typeof(doc.get("saved_at", "")) == TYPE_STRING else ""
@@ -267,6 +270,48 @@ static func _resolve_location(c: CharacterState, world: Dictionary, db: ContentD
 	c.respawn_reference = respawn
 	world["location"] = loc.duplicate(true)
 	world["respawn_reference"] = respawn
+
+
+## Lossless item checks. A saved item id the current item data does not define (an item a later build dropped, or a
+## hand edit) stays exactly where it is: in its inventory slot, its equipment slot or its quickslot, so a build that
+## defines it again gets it back and a re-save writes it unchanged. The game shows it as an unknown item that cannot
+## be used, equipped or sold (every item path looks the id up and refuses an unknown one). The ids go to
+## r.unknown_item_ids, and one warning counts the places that hold them (inventory stacks, equipped pieces,
+## quickslot bindings). A known item held in another tab than its canonical inventory_tab is also kept where it is,
+## with a warning.
+static func _check_items(c: CharacterState, db: ContentDB, r: SaveLoadResult) -> void:
+	var unknown := {}
+	var places := 0
+	for tab in Inventory.TABS:
+		for s: Dictionary in c.inventory.slots(tab):
+			if s.is_empty():
+				continue
+			var id := String(s["item_id"])
+			if not db.has("items", id):
+				unknown[id] = true
+				places += 1
+				continue
+			var canonical_tab := String(db.item(id).get("inventory_tab", tab))
+			if canonical_tab != tab:
+				r.warnings.append("item %s is in the %s tab, but its canonical tab is %s; kept where it is"
+					% [id, tab, canonical_tab])
+	var equipped: Dictionary = c.equipment.equipped()
+	for slot: String in equipped:
+		if not db.has("items", String(equipped[slot])):
+			unknown[String(equipped[slot])] = true
+			places += 1
+	for key: Variant in c.quickslots:
+		var id := CharacterState.quickslot_item_id(c.quickslots[key])
+		if id != "" and not db.has("items", id):
+			unknown[id] = true
+			places += 1
+	if unknown.is_empty():
+		return
+	var ids := PackedStringArray(unknown.keys())
+	ids.sort()
+	r.unknown_item_ids = ids
+	r.warnings.append(("%d saved item place(s) hold %d item id(s) this build's item data does not define (%s); "
+		+ "kept as unknown items, which cannot be used or equipped") % [places, ids.size(), ", ".join(ids)])
 
 
 static func _corrupt(r: SaveLoadResult, message: String) -> SaveLoadResult:

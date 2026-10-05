@@ -213,6 +213,9 @@ func apply_loaded_save(result: SaveLoadResult) -> Error:
 	_install(result.character, result.slot, REASON_LOAD)
 	if result.source == "backup":
 		_emit(&"notice", ["Save %s was loaded from its backup (the save file was missing)." % result.slot])
+	if not result.unknown_item_ids.is_empty():
+		_emit(&"notice", [("This save holds %d item(s) this version does not know (%s). They are kept, but cannot be "
+			+ "used or equipped.") % [result.unknown_item_ids.size(), ", ".join(result.unknown_item_ids)]])
 	_emit(&"game_loaded", [result.slot])
 	return OK
 
