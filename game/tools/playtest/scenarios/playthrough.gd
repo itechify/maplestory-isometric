@@ -103,6 +103,9 @@ func run(p_d: PlaytestDriver) -> void:
 			return
 		_mark(s)
 		if stop == s:
+			# The stop flag: a run ended here never reaches the departure boundary, so it is not a clean-character run
+			# (tools/parity/parity.mjs cleanRun reads this carry key and the note).
+			d.carry["stopped_after"] = s
 			d.note("PLAYTHROUGH_STOP=%s: stopping after this step" % s)
 			_finish(false)
 			return
@@ -1064,6 +1067,8 @@ func _finish(complete: bool) -> void:
 	var resp: Array = d.carry.get("respawns", [])
 	d.check("died and respawned (%d deaths, %d respawns)" % [deaths.size(), resp.size()], deaths.size() >= 1 and resp.size() >= deaths.size(),
 		str(deaths), ["mechanic:death-respawn"])
+	# The final boundary check: tools/parity/parity.mjs DEPARTURE_BOUNDARY_CHECK names it (keep the text in step), and
+	# only a report where it passed counts as a clean-character run for the playthrough:* parity rows.
 	d.check("ready to depart: the End of Maple Island screen reached in Southperry", c.flags.has(FLAG), "")
 	var phases := d.report.phases.size() + 1
 	d.check("saved and reloaded during progression (%d processes)" % phases, phases >= 3, "", ["mechanic:save-load"])

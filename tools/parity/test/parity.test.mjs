@@ -3,7 +3,7 @@
 // playtests (and which of them count), v1 and v2 drop records, source-data gaps, chains, out-of-scope keys.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence, KURO_ONLY_REASON } from '../parity.mjs';
+import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence, cleanRun, cleanRunProblems, DEPARTURE_BOUNDARY_CHECK, KURO_ONLY_REASON } from '../parity.mjs';
 
 const RUNTIME_FILES = ['game/scripts/core/quests/quest_engine.gd', 'game/scripts/core/drops/drop_roller.gd', 'game/scripts/core/maps/map_definition.gd',
   'game/scripts/old_regen.gd'];
@@ -196,7 +196,8 @@ test('rule rows: categories, aliases, real-game flags and source-data gaps', () 
   const clean = (doc, steps) => ({ ...doc, doc: { ...doc.doc, strict: { enabled: true, ok: true }, counts: { steps } } });
   const withConsole = build({ rules, playtests: [clean(play(check, 'playthrough'), { play: 9, console: 1, api: 0 })] });
   assert.equal(find(withConsole, 'playthrough:reach-southperry').state, 'implemented', 'one console step (even setup) is not clean');
-  const real = build({ rules, playtests: [clean(play(check, 'playthrough'), { play: 9, console: 0, api: 0 })] });
+  const boundary = { i: 9, name: DEPARTURE_BOUNDARY_CHECK, ok: true };
+  const real = build({ rules, playtests: [clean(play([...check, boundary], 'playthrough'), { play: 9, console: 0, api: 0 })] });
   assert.equal(find(real, 'playthrough:reach-southperry').state, 'verified');
   // A strict run stopped by a failed step: its earlier passing checks (one quest of six, one quiz of seven) do not
   // show the clean-character playthrough was done.
@@ -209,6 +210,59 @@ test('rule rows: categories, aliases, real-game flags and source-data gaps', () 
   assert.throws(() => build({ rules: { ...rules, mechanics: [...rules.mechanics, { key: 'mechanic:y', name: 'y', accepts: ['quest:1006'] }] } }),
     /accepts quest:1006, which is the key of another entry/);
   assert.throws(() => build({ rules: { ...rules, mechanics: [{ key: 'mechanic:z', name: 'z', category: 'nowhere' }] } }), /unknown category nowhere/);
+});
+
+test('a playthrough stopped before the departure boundary is not a clean run, so it verifies no playthrough row', () => {
+  const rules = { ...RULES, mechanics: [...RULES.mechanics,
+    { key: 'playthrough:create-character', category: 'playthrough', name: 'create the character' },
+    { key: 'playthrough:ready-to-depart', category: 'playthrough', name: 'arrive ready to depart' },
+  ] };
+  // A strict, passing report with no console or api step whose early checks carry playthrough keys.
+  const report = (checks, extra = {}) => ({ file: 'playthrough/report.json', doc: { scenario: 'playthrough', result: 'PASS', seed: 1,
+    strict: { enabled: true, ok: true }, counts: { steps: { play: 40, console: 0, api: 0 } }, notes: [], carry: {}, checks, ...extra } });
+  const early = [{ i: 0, name: 'a brand-new character through the title and creation screens', ok: true, parity: ['playthrough:create-character'] }];
+  const boundary = { i: 1, name: DEPARTURE_BOUNDARY_CHECK, ok: true, parity: ['playthrough:ready-to-depart'] };
+  const state = (doc, key) => find(doc, key).state;
+
+  // (a) Stopped with PLAYTHROUGH_STOP=pio: the scenario's carry flag and note, and no boundary check.
+  const stopped = report(early, { carry: { stopped_after: 'pio' }, notes: ['[phase 3, 812.0 s] PLAYTHROUGH_STOP=pio: stopping after this step'] });
+  assert.equal(cleanRun(stopped.doc), false);
+  assert.deepEqual(cleanRunProblems(stopped.doc), [
+    "stopped early (PLAYTHROUGH_STOP after step 'pio')",
+    `the departure boundary was not reached (no passing check "${DEPARTURE_BOUNDARY_CHECK}")`,
+  ]);
+  const a = build({ rules, playtests: [stopped] });
+  assert.equal(state(a, 'playthrough:create-character'), 'implemented', 'a check of a run stopped early does not verify a playthrough row');
+  assert.match(find(a, 'playthrough:create-character').notes.join(' '), /departure boundary reached, not stopped early/);
+  const listed = a.inputs.playtests[0];
+  assert.equal(listed.clean_run, false);
+  assert.match(toMarkdown(a), /not a clean run: stopped early \(PLAYTHROUGH_STOP after step 'pio'\)/);
+
+  // (b) No stop flag, but the boundary check is missing (the run ended before _finish(true)).
+  assert.equal(state(build({ rules, playtests: [report(early)] }), 'playthrough:create-character'), 'implemented');
+  // ... or present and failing, or only soft.
+  assert.equal(state(build({ rules, playtests: [report([...early, { ...boundary, ok: false }])] }), 'playthrough:create-character'), 'implemented');
+  assert.equal(state(build({ rules, playtests: [report([...early, { ...boundary, soft: true }])] }), 'playthrough:create-character'), 'implemented');
+
+  // (c) The stop flag alone (the note without the carry key, or the carry key without the note) disqualifies a run
+  //     even with a passing boundary check.
+  const noteOnly = report([...early, boundary], { notes: ['[phase 6, 2400.0 s] PLAYTHROUGH_STOP=after_departure: stopping after this step'] });
+  assert.equal(cleanRun(noteOnly.doc), false);
+  assert.equal(state(build({ rules, playtests: [noteOnly] }), 'playthrough:create-character'), 'implemented');
+  const carryOnly = report([...early, boundary], { carry: { stopped_after: 'shanks' } });
+  assert.equal(cleanRun(carryOnly.doc), false);
+
+  // (d) The full run: boundary passed, no stop flag: every tagged playthrough row is verified.
+  const full = report([...early, boundary]);
+  assert.equal(cleanRun(full.doc), true);
+  assert.deepEqual(cleanRunProblems(full.doc), []);
+  const d = build({ rules, playtests: [full] });
+  assert.equal(state(d, 'playthrough:create-character'), 'verified');
+  assert.equal(state(d, 'playthrough:ready-to-depart'), 'verified');
+  assert.equal(d.inputs.playtests[0].clean_run, true);
+  assert.match(toMarkdown(d), /a clean run \(counts for the playthrough rows\)/);
+  // Other scenarios' reports carry no clean-run verdict.
+  assert.equal(build({ rules, playtests: [play(early, 'quest')] }).inputs.playtests[0].clean_run, undefined);
 });
 
 test('playtest_tags give keys to matching hard checks of their scenario, and report rules that match nothing', () => {

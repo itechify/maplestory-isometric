@@ -127,7 +127,9 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
       playtests: playtests.map((p) => ({ file: p.file, scenario: p.doc.scenario ?? null, result: p.doc.result ?? null, seed: p.doc.seed ?? null,
         checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length,
         rule_tagged_checks: tagStats.filter((s) => s.file === p.file).reduce((n, s) => n + s.matched, 0),
-        failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`) })),
+        failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`),
+        // Only the clean-character playthrough's reports say whether they are a clean run (and why not).
+        ...(p.doc.scenario === 'playthrough' ? { clean_run: cleanRun(p.doc), not_clean_because: cleanRunProblems(p.doc) } : {}) })),
       playtest_tag_rules_unmatched: unmatchedTagRules(tagStats),
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
@@ -148,7 +150,7 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
   source_data_gap: 'The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
   pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
@@ -209,16 +211,44 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
 }
 
 /**
- * A clean-character run: a passing report (result PASS: a run stopped by a failed step is not one), strict mode on
- * and ok, and not one console or api step in the whole report (no setup either), so everything after character
- * creation was played with real input. Only such a report's checks can verify the clean-character playthrough rows
- * (brief Definition of Done, Gameplay: "From a completely clean character"); several of those rows are tagged on
- * per-quest or per-level checks that a run stopped early still passes.
+ * The clean-character playthrough's final boundary check (game/tools/playtest/scenarios/playthrough.gd `_finish`): it
+ * is made only after every step of the route ran, and passes only when Shanks' departure flag is set. A run without
+ * it passing never reached the departure boundary (the brief's end of Maple Island).
  */
-export function cleanRun(report) {
+export const DEPARTURE_BOUNDARY_CHECK = 'ready to depart: the End of Maple Island screen reached in Southperry';
+/** What scenarios/playthrough.gd leaves in a report that PLAYTHROUGH_STOP=<step> ended early: a carry key and a note. */
+export const STOP_CARRY_KEY = 'stopped_after';
+const STOP_NOTE = /(?:^|\] )PLAYTHROUGH_STOP=/;
+
+/**
+ * Why a report is not a clean-character run ([] when it is one): it must pass (result PASS: a run stopped by a failed
+ * step is not one), run in strict mode with strict ok, hold not one console or api step in the whole report (no setup
+ * either), so everything after character creation was played with real input, and have reached the departure
+ * boundary: the final boundary check (DEPARTURE_BOUNDARY_CHECK) passed as a hard check, and no stop flag (a
+ * PLAYTHROUGH_STOP development run ends early with a passing report). Only such a report's checks can verify the
+ * clean-character playthrough rows (brief Definition of Done, Gameplay: "From a completely clean character" ... "arrive
+ * ready to depart"); several of those rows are tagged on per-quest or per-level checks that a run stopped early still
+ * passes.
+ */
+export function cleanRunProblems(report) {
+  const out = [];
   const steps = report?.counts?.steps ?? {};
-  return report?.result === 'PASS' && report?.strict?.enabled === true && report?.strict?.ok === true &&
-    Number(steps.console ?? 1) === 0 && Number(steps.api ?? 1) === 0;
+  if (report?.result !== 'PASS') out.push(`result ${report?.result ?? '?'}, not PASS`);
+  if (report?.strict?.enabled !== true || report?.strict?.ok !== true) out.push('strict mode off or not ok');
+  if (Number(steps.console ?? 1) !== 0) out.push(`${steps.console ?? '?'} console step(s)`);
+  if (Number(steps.api ?? 1) !== 0) out.push(`${steps.api ?? '?'} api step(s)`);
+  const stopped = report?.carry?.[STOP_CARRY_KEY] ?? null;
+  const stopNote = arr(report?.notes).find((n) => STOP_NOTE.test(String(n)));
+  if (stopped != null || stopNote) out.push(`stopped early (PLAYTHROUGH_STOP${stopped != null ? ` after step '${stopped}'` : ''})`);
+  if (!arr(report?.checks).some((c) => !c.soft && c.ok && c.name === DEPARTURE_BOUNDARY_CHECK)) {
+    out.push(`the departure boundary was not reached (no passing check "${DEPARTURE_BOUNDARY_CHECK}")`);
+  }
+  return out;
+}
+
+/** A clean-character run: no cleanRunProblems. */
+export function cleanRun(report) {
+  return cleanRunProblems(report).length === 0;
 }
 
 /**
@@ -615,7 +645,8 @@ function finish(e, ctx, all) {
   if (rt.state === 'partial' && rt.note) e.issues.push(`runtime partial: ${rt.note}`);
   if (failed.length) e.issues.push(`${failed.length} tagged check(s) failed`);
   const needsRealGame = typeof e.real_game === 'boolean' ? e.real_game : REAL_GAME_CATEGORIES.has(e.category);
-  // The clean-character playthrough rows count only checks of a clean run (cleanRun: PASS, strict, no console or api step).
+  // The clean-character playthrough rows count only checks of a clean run (cleanRun: PASS, strict, no console or api
+  // step, the departure boundary reached and no stop flag).
   const needsClean = needsRealGame && e.category === 'playthrough';
   const real = needsRealGame ? passed.filter((p) => p.kind === 'playtest' && (!needsClean || p.clean)) : passed;
   if (e.issues.length) e.state = 'partial';
@@ -624,7 +655,7 @@ function finish(e, ctx, all) {
   else if (real.length) e.state = 'verified';
   else {
     e.state = 'implemented';
-    if (needsClean) e.notes.push('needs a passing check tagged with this key in a passing clean-character playthrough report (strict, no console or api step)');
+    if (needsClean) e.notes.push('needs a passing check tagged with this key in a clean-character playthrough report that is a clean run (passing, strict, no console or api step, the departure boundary reached, not stopped early)');
     else if (passed.length && needsRealGame) e.notes.push('unit-tested only: needs a real-game (playtest) check');
   }
 }
@@ -695,7 +726,8 @@ export function toMarkdown(doc) {
   for (const t of doc.inputs.tests) L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed`);
   for (const p of doc.inputs.playtests) {
     L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
-      `${arr(p.failed_checks).length ? `; failed: ${p.failed_checks.map((f) => esc(f)).join('; ')}` : ''}`);
+      `${arr(p.failed_checks).length ? `; failed: ${p.failed_checks.map((f) => esc(f)).join('; ')}` : ''}` +
+      `${p.clean_run === true ? '; a clean run (counts for the playthrough rows)' : p.clean_run === false ? `; not a clean run: ${esc(arr(p.not_clean_because).join('; '))}` : ''}`);
   }
   if (doc.inputs.provenance) L.push(`- Provenance report: ${doc.inputs.provenance.records} records, ${doc.inputs.provenance.errors} errors, ${doc.inputs.provenance.warnings} warnings`);
   if (doc.inputs.unknown_evidence_keys.length) L.push(`- Tagged keys that name no manifest entry: ${doc.inputs.unknown_evidence_keys.map((k) => `\`${k}\``).join(', ')}`);
@@ -718,7 +750,8 @@ export function toMarkdown(doc) {
   L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.');
   L.push('4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the');
   L.push('   `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run');
-  L.push('   (a passing report, strict mode ok, no console or api step).');
+  L.push('   (a passing report, strict mode ok, no console or api step, and the departure boundary reached: its final check');
+  L.push(`   "${DEPARTURE_BOUNDARY_CHECK}" passed and no PLAYTHROUGH_STOP flag).`);
   L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).', '');
   L.push('```bash', regenerateCommand(doc.inputs), '```', '');
   L.push('## Totals', '');
