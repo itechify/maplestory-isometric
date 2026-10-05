@@ -8,7 +8,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 ## States
 
 - **missing**: The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).
-- **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, or a failing tagged check.
+- **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).
 - **implemented**: Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.
 - **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.
 - **source_data_gap**: The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount): the entry is excused from the exit criterion.
@@ -19,13 +19,13 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/ev/final.json`: run 2026-10-05T10:46:28Z, commit 1bb9a8eb50bc6926df58f5a7d7d7ba367f03ca67, 1221 tests, 0 failed
-- Playtest `_scratch/pt/smoke/report.json`: smoke seed 1, PASS, 16 checks (0 tagged)
+- Unit tests `_scratch/rev/full.json`: run 2026-10-05T10:55:01Z, commit a6a0ec76f8ad3116030662a2448a0a411f04d838, 1221 tests, 0 failed
+- Playtest `_scratch/rev/pt/smoke/report.json`: smoke seed 1, PASS, 16 checks (0 tagged)
 - Provenance report: 192 records, 0 errors, 0 warnings
 
 ## Totals
 
-537 entries: 21 verified, 376 implemented, 104 partial, 34 missing; 0 source-data gaps, 2 out of scope. **514** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
+537 entries: 16 verified, 376 implemented, 109 partial, 34 missing; 0 source-data gaps, 2 out of scope. **519** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
 
 | Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Out of scope |
 |---|---|---|---|---|---|---|---|
@@ -51,7 +51,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 | [Chairs](#chairs) | 2 | 0 | 0 | 0 | 1 | 0 | 1 |
 | [Map mechanics](#map-mechanics) | 22 | 0 | 15 | 1 | 6 | 0 | 0 |
 | [Cross-reference validation (Phase 16)](#cross-reference-validation-phase-16) | 15 | 15 | 0 | 0 | 0 | 0 | 0 |
-| [Canonical verification (Phase 17, probability handling)](#canonical-verification-phase-17-probability-handling) | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
+| [Canonical verification (Phase 17, probability handling)](#canonical-verification-phase-17-probability-handling) | 6 | 1 | 0 | 5 | 0 | 0 | 0 |
 
 ## Source-data gaps
 
@@ -326,8 +326,8 @@ Runtime: present (`game/scripts/core/drops/drop_roller.gd`).
 | `drop:5/opal-ore` | Red Snail: Opal Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
 | `drop:5/overall-armor-def-scroll-intermediate` | Red Snail: Overall Armor DEF Scroll: Intermediate | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
 | `drop:5/overall-armor-dex-scroll-greater` | Red Snail: Overall Armor DEX Scroll: Greater | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-cloth-pants` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-cloth-pants` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
+| `drop:5/red-cloth-pants-1168` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
+| `drop:5/red-cloth-pants-1177` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
 | `drop:5/red-headband` | Red Snail: Red Headband | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
 | `drop:5/red-potion` | Red Snail: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
 | `drop:5/red-skullcap` | Red Snail: Red Skullcap | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
@@ -750,9 +750,9 @@ Runtime: present (`game/scripts/core/validation/provenance_authorities.gd`, `gam
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `canon:adaptations-explained` | Every MisoStory adaptation carries a reason and a verified flag (verified only against something named) | verified | 6 pass |  |  |
-| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | verified | 2 pass |  |  |
-| `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | verified | 5 pass |  |  |
-| `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | verified | 7 pass |  |  |
-| `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | verified | 12 pass |  |  |
-| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 4 pass |  |  |
+| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | partial | 2 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
+| `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | partial | 5 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
+| `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | partial | 7 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
+| `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | partial | 12 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
+| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | partial | 4 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
 

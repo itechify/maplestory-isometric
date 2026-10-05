@@ -3,7 +3,7 @@
   "generated_by": "node tools/parity/build_parity.mjs",
   "rule": {
     "missing": "The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).",
-    "partial": "The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, or a failing tagged check.",
+    "partial": "The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).",
     "implemented": "Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.",
     "verified": "As implemented, plus at least one passing check tagged with the key (or an accepted parent key) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.",
     "source_data_gap": "The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount): the entry is excused from the exit criterion.",
@@ -12,20 +12,20 @@
   "inputs": {
     "tests": [
       {
-        "file": "_scratch/ev/final.json",
-        "run_at": "2026-10-05T10:46:28Z",
-        "commit": "1bb9a8eb50bc6926df58f5a7d7d7ba367f03ca67",
+        "file": "_scratch/rev/full.json",
+        "run_at": "2026-10-05T10:55:01Z",
+        "commit": "a6a0ec76f8ad3116030662a2448a0a411f04d838",
         "totals": {
           "failed": 0,
           "files": 130,
-          "ms": 388428,
+          "ms": 358073,
           "tests": 1221
         }
       }
     ],
     "playtests": [
       {
-        "file": "_scratch/pt/smoke/report.json",
+        "file": "_scratch/rev/pt/smoke/report.json",
         "scenario": "smoke",
         "result": "PASS",
         "seed": 1,
@@ -43,9 +43,9 @@
   "totals": {
     "all": {
       "missing": 34,
-      "partial": 104,
+      "partial": 109,
       "implemented": 376,
-      "verified": 21,
+      "verified": 16,
       "source_data_gap": 0,
       "out_of_scope": 2,
       "entries": 537
@@ -251,15 +251,15 @@
       },
       "canonical-verification": {
         "missing": 0,
-        "partial": 0,
+        "partial": 5,
         "implemented": 0,
-        "verified": 6,
+        "verified": 1,
         "source_data_gap": 0,
         "out_of_scope": 0,
         "entries": 6
       }
     },
-    "open_for_exit": 514
+    "open_for_exit": 519
   },
   "source_data_gaps": [],
   "categories": [
@@ -4799,7 +4799,7 @@
         },
         {
           "category": "monster-drops",
-          "key": "drop:5/red-cloth-pants",
+          "key": "drop:5/red-cloth-pants-1168",
           "name": "Red Snail: Red Cloth Pants",
           "accepts": [],
           "record": "drops/5",
@@ -4820,7 +4820,7 @@
         },
         {
           "category": "monster-drops",
-          "key": "drop:5/red-cloth-pants",
+          "key": "drop:5/red-cloth-pants-1177",
           "name": "Red Snail: Red Cloth Pants",
           "accepts": [],
           "record": "drops/5",
@@ -11996,7 +11996,9 @@
           "name": "KuroDB-only items never enter a drop table",
           "accepts": [],
           "record": null,
-          "issues": [],
+          "issues": [
+            "the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data"
+          ],
           "source_gaps": [],
           "source_data_gap": false,
           "adaptations": [],
@@ -12018,7 +12020,7 @@
             ],
             "failed": []
           },
-          "state": "verified"
+          "state": "partial"
         },
         {
           "category": "canonical-verification",
@@ -12026,7 +12028,9 @@
           "name": "Drop membership and drop chance are recorded from separate sources",
           "accepts": [],
           "record": null,
-          "issues": [],
+          "issues": [
+            "the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data"
+          ],
           "source_gaps": [],
           "source_data_gap": false,
           "adaptations": [],
@@ -12063,7 +12067,7 @@
             ],
             "failed": []
           },
-          "state": "verified"
+          "state": "partial"
         },
         {
           "category": "canonical-verification",
@@ -12071,7 +12075,9 @@
           "name": "Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1])",
           "accepts": [],
           "record": null,
-          "issues": [],
+          "issues": [
+            "the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data"
+          ],
           "source_gaps": [],
           "source_data_gap": false,
           "adaptations": [],
@@ -12118,7 +12124,7 @@
             ],
             "failed": []
           },
-          "state": "verified"
+          "state": "partial"
         },
         {
           "category": "canonical-verification",
@@ -12126,7 +12132,9 @@
           "name": "Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture",
           "accepts": [],
           "record": null,
-          "issues": [],
+          "issues": [
+            "the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data"
+          ],
           "source_gaps": [],
           "source_data_gap": false,
           "adaptations": [],
@@ -12198,7 +12206,7 @@
             ],
             "failed": []
           },
-          "state": "verified"
+          "state": "partial"
         },
         {
           "category": "canonical-verification",
@@ -12206,7 +12214,9 @@
           "name": "Unresolved values stay null and are reported, never guessed",
           "accepts": [],
           "record": null,
-          "issues": [],
+          "issues": [
+            "the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data"
+          ],
           "source_gaps": [],
           "source_data_gap": false,
           "adaptations": [],
@@ -12238,7 +12248,7 @@
             ],
             "failed": []
           },
-          "state": "verified"
+          "state": "partial"
         }
       ]
     }

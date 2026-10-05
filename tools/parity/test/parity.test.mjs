@@ -149,3 +149,36 @@ test('evidence collection and markdown are deterministic', () => {
   for (const h of ['# Maple Island parity manifest', '## States', '## Totals', '## Source-data gaps', '## Quests', '## Monster drops']) assert.ok(a.includes(`\n${h}\n`) || a.startsWith(`${h}\n`), h);
   assert.equal(JSON.stringify(build()), JSON.stringify(build()));
 });
+
+test('v1 entries sharing a name get distinct keys; a duplicate key fails the build', () => {
+  const c = canonical();
+  // Red Snail's v1 table lists Red Cloth Pants twice (1168 male, 1177 female): one slug, two entries.
+  c.drops['9'].entries.push({ item_id: '1168', item_name: 'Red Cloth Pants' }, { item_id: '1177', item_name: 'Red Cloth Pants' });
+  const doc = build({ canonical: c });
+  assert.equal(find(doc, 'drop:9/red-cloth-pants'), undefined, 'neither entry owns the bare slug');
+  assert.equal(find(doc, 'drop:9/red-cloth-pants-1168').item_id, '1168');
+  assert.equal(find(doc, 'drop:9/red-cloth-pants-1177').item_id, '1177');
+  assert.ok(find(doc, 'drop:9/snail-shell'), 'an unshared slug keeps its plain key');
+  const keys = doc.categories.flatMap((cat) => cat.entries).map((e) => e.key);
+  assert.equal(new Set(keys).size, keys.length, 'every key names one entry');
+  // Two entries with one explicit key cannot both be in the manifest.
+  const d = canonical();
+  d.drops['2'].entries.push({ ...d.drops['2'].entries[0] });
+  assert.throws(() => build({ canonical: d }), /duplicate parity keys: drop:2\/snail-shell/);
+});
+
+test('a canonical-verification row about the drop data stays partial while any drop record is schema v1', () => {
+  const rules = { ...RULES, canonical_verification: [
+    { key: 'canon:membership-chance-separate', name: 'separate sources', requires: { drops_schema_version: 2 } },
+    { key: 'canon:adaptations-explained', name: 'adaptations explained' },
+  ] };
+  const evidence = [unit([{ file: 'test_v.gd', name: 'test_rule', ok: true, parity: ['canon:membership-chance-separate', 'canon:adaptations-explained'] }])];
+  const mixed = build({ rules, tests: evidence });
+  const row = find(mixed, 'canon:membership-chance-separate');
+  assert.equal(row.state, 'partial', 'drop record 9 is still v1');
+  assert.match(row.issues.join(), /drop record\(s\) 9 are not schema v2/);
+  assert.equal(find(mixed, 'canon:adaptations-explained').state, 'verified', 'a row without a data requirement');
+  const c = canonical();
+  delete c.drops['9'];
+  assert.equal(find(build({ canonical: c, rules, tests: evidence }), 'canon:membership-chance-separate').state, 'verified', 'every drop record v2');
+});

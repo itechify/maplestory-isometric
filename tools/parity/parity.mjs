@@ -7,7 +7,8 @@
 //                files or code markers make up that runtime; a declaration whose files are absent is "missing")
 //   partial      the runtime is there, but the entry has an open issue: a validation error on its record, a value the
 //                runtime still takes from a placeholder, a referenced item without a definition, an unresolved value
-//                that is not a source-data gap, or a failing tagged check
+//                that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped
+//                data not yet in the state the row describes (rules.json requires, e.g. drop records still schema v1)
 //   implemented  the runtime is there, the data validates and every unresolved value is a documented source-data gap,
 //                but no passing check is tagged with the entry's key
 //   verified     as implemented, plus at least one passing check tagged with the entry's key (or a key it accepts, e.g.
@@ -61,6 +62,11 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
   const ctx = { canonical, miso, rules, evidence, findings, categoryRuntime, runtimeOf };
   const entries = enumerate(ctx);
+  // A key names exactly one entry: evidence tagged with a shared key would silently count for every entry holding it.
+  const seenKeys = new Set();
+  const duplicateKeys = new Set();
+  for (const e of entries) (seenKeys.has(e.key) ? duplicateKeys : seenKeys).add(e.key);
+  if (duplicateKeys.size) throw new Error(`duplicate parity keys: ${[...duplicateKeys].sort().join(', ')}`);
   // Chains are derived from their member quests once those have states.
   const byKeyMap = new Map(entries.map((e) => [e.key, e]));
   const out = [];
@@ -90,7 +96,7 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
 
 export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
-  partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, or a failing tagged check.',
+  partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
   verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.',
   source_data_gap: 'The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount): the entry is excused from the exit criterion.',
@@ -228,10 +234,21 @@ function enumerate(ctx) {
     const owner = t.owner || {};
     const breakable = owner.kind === 'breakable';
     const v2 = t.schema_version === 2;
+    // An entry without its own key (schema v1) is keyed by the slug of its name (tools/sources/parse.mjs entryKey, as
+    // v2 keys are made). Two v1 entries may share a name (Red Snail: Red Cloth Pants 1168 and 1177), so every entry of
+    // a shared slug gets its item id appended ("red-cloth-pants-1168"): no entry silently owns the bare key.
+    const slugOf = (e) => {
+      try { return entryKey(e.name ?? e.item_name ?? e.item_id); } catch { return String(e.item_id); }
+    };
+    const slugCount = new Map();
+    for (const e of arr(t.entries)) if (e.key == null) slugCount.set(slugOf(e), (slugCount.get(slugOf(e)) ?? 0) + 1);
     for (const e of arr(t.entries)) {
       const label = e.name ?? e.item_name ?? e.item_id;
-      let key;
-      try { key = e.key ?? entryKey(label); } catch { key = String(e.item_id); }
+      let key = e.key;
+      if (key == null) {
+        key = slugOf(e);
+        if (slugCount.get(key) > 1) key = `${key}-${e.item_id}`;
+      }
       const ent = entry(breakable ? 'breakables' : 'monster-drops', `drop:${id}/${key}`, `${name(breakable ? 'breakables' : 'monsters', owner.id)}: ${label}`,
         { record: `drops/${id}`, item_id: e.item_id ?? null });
       if (!v2) {
@@ -328,7 +345,35 @@ function enumerate(ctx) {
       adaptations: arr(m.adaptations).filter((a) => miso[a.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')]) }));
   }
   for (const x of arr(rules.cross_reference)) out.push(entry('cross-reference-validation', x.key, x.name, { brief: x.brief ?? null }));
-  for (const x of arr(rules.canonical_verification)) out.push(entry('canonical-verification', x.key, x.name, { brief: x.brief ?? null }));
+  for (const x of arr(rules.canonical_verification)) {
+    const ent = entry('canonical-verification', x.key, x.name, { brief: x.brief ?? null });
+    ent.issues.push(...dataRequirementIssues(x.requires, C));
+    out.push(ent);
+  }
+  return out;
+}
+
+/**
+ * Why the shipped data does not yet meet a canonical-verification row's `requires` (rules.json), as issues. Such a row
+ * states a property of the data ("drop membership and chance are recorded from separate sources"); its tagged tests
+ * prove the validator rule on fixtures, so the row stays partial until the data itself is in the required state.
+ *   {drops_schema_version: N}   every drop record is schema N (contract C1: schema v2)
+ */
+export function dataRequirementIssues(requires, canonical) {
+  const out = [];
+  if (!requires || typeof requires !== 'object') return out;
+  for (const k of Object.keys(requires).sort()) {
+    if (k === 'drops_schema_version') {
+      const want = requires[k];
+      const behind = sortedKeys(canonical.drops).filter((id) => canonical.drops[id]?.schema_version !== want);
+      if (behind.length) {
+        out.push(`the shipped data is not there yet: drop record(s) ${behind.join(', ')} are not schema v${want} (contract C1); ` +
+          'the passing tests prove the validator rule, not the shipped data');
+      }
+    } else {
+      out.push(`unknown data requirement ${JSON.stringify(k)} in tools/parity/rules.json`);
+    }
+  }
   return out;
 }
 
