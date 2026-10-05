@@ -110,3 +110,16 @@ func test_idle_line_for_speech_bubbles() -> void:
 	assert_eq(line["segments"].size(), 1)
 	assert_eq(line["source"], "canonical/npcs/12.json#idle_chatter[0]")
 	assert_eq(n.idle_line(99)["text"], "")
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	var all_npcs: Array = []
+	for k in 21:
+		all_npcs.append("npc:%d" % (k + 1))
+	return {
+		"test_catalog_has_the_21_npcs_and_validates": all_npcs,
+		"test_shopkeepers_link_their_shops": ["npc:16", "npc:20", "npc:21", "shop:maple-road-pan", "shop:maple-road-sid",
+			"shop:maple-road-lucy"],
+		"test_shanks_transport_enabled_with_a_departure_boundary": ["npc:15"],
+	}

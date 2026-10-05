@@ -558,3 +558,16 @@ func test_shanks_greets_with_his_voyage_line() -> void:
 	assert_eq(v["text"], "I'll take you anywhere you want to go.", "canonical idle line 1, chosen by dialogue/15.json")
 	assert_eq(v["source"], "canonical/npcs/15.json#idle_chatter[1]")
 	assert_eq(v["buttons"], ["next"])
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_sam_offer_accept_reminder_and_mai_turn_in": ["quest:1006", "npc:9", "npc:11"],
+		"test_roger_apple_full_conversation": ["quest:1002", "npc:3"],
+		"test_rain_quiz_1013_wrong_and_right": ["quest:1013", "npc:19"],
+		"test_rain_quiz_1018_inferred_answer": ["quest:1018"],
+		"test_heena_sera_chain_with_lost_mirror": ["quest:1000", "quest:1001", "npc:1", "npc:2"],
+		"test_pio_accept_line_shows_live_item_counts": ["quest:1012", "npc:18"],
+		"test_shop_greeting_then_open_shop": ["shop:maple-road-lucy", "shop:maple-road-pan"],
+	}

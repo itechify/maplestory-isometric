@@ -576,3 +576,20 @@ func test_quest_summary_for_the_quest_window() -> void:
 	assert_eq([rows[1]["kind"], rows[1]["purpose"], rows[1]["done"]], ["npc_talk", "turn_in", false])
 	assert_eq(e.quest_summaries().size(), 1)
 	assert_eq(e.quest_summaries(PackedStringArray([QuestLog.COMPLETED])).size(), 0)
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_1006_counts_only_snails_and_only_while_in_progress": ["quest:1006"],
+		"test_1006_complete_grants_exactly_canonical_rewards": ["quest:1006"],
+		"test_1002_end_to_end": ["quest:1002"],
+		"test_1011_hand_in_removes_items_and_random_reward_is_deterministic": ["quest:1011"],
+		"test_random_reward_weights_follow_chance_pct": ["quest:1008", "quest:1011", "mechanic:quest-random-rewards"],
+		"test_1012_hand_in_and_rewards": ["quest:1012"],
+		"test_chain_1007_1008_end_to_end": ["quest:1007", "quest:1008"],
+		"test_quiz_1013_wrong_then_right": ["quest:1013"],
+		"test_quiz_1018_uses_inferred_answer": ["quest:1018"],
+		"test_refused_quiz_completion_changes_nothing": ["quest:1019"],
+		"test_prerequisite_chain_1007_to_1008": ["quest:1008"],
+	}
