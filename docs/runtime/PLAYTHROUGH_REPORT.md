@@ -249,9 +249,12 @@ No game defect blocked the player in any run, and none was fixed in game code by
   planner, whose arrival stops 0.75 m short: 1 touch in 400 s. It now takes the last step straight at the monster.
 - **H5: a run continued from a copy of its `--out` wrote its report into the original directory** (the report kept
   the first phase's `out_dir`). The runner now writes where it is told.
-- **H6: two playtest parity tags named no manifest entry** (`mechanic:quest-random-rewards`,
-  `mechanic:quest-persistence` in the every-quest scenario); they are now `mechanic:random-quest-rewards` and
-  `mechanic:save-load`.
+- **H6: three playtest parity tags named no manifest entry** (`mechanic:quest-random-rewards` and
+  `mechanic:quest-persistence` in the every-quest scenario, and drop tags built from the item id, `drop:9/356`); they
+  are now `mechanic:random-quest-rewards`, `mechanic:save-load` and the drop entry's schema-v2 slug
+  (`drop:9/orange-mushroom-cap`, `drop:3/blue-snail-shell`). The every-quest evidence of this report was taken just
+  before the drop-tag fix, so its two drop tags still use the item id; a re-run of 1011 after the fix carries the
+  slugs.
 
 ## The every-quest set and the other real-game scenarios of this package
 

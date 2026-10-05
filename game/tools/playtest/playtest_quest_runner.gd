@@ -323,7 +323,7 @@ func collect(qid: String, iobj: Dictionary) -> bool:
 		{"map": map, "ap_plan": ap_plan, "max_s": ITEM_BUDGET_S})
 	return d.check("%s: %d %s collected from %s drops picked up with Z (%d -> %d)" % [qid, need, iobj["name"],
 		src["owner_name"], n0, c.inventory.count(id)], c.inventory.count(id) >= need, str(h),
-		pq + ["item:" + id, "drop:%s/%s" % [src["owner"], id]])
+		pq + ["item:" + id, "drop:%s/%s" % [src["owner"], String(src.get("key", "")) if String(src.get("key", "")) != "" else id]])
 
 
 ## Breaks Wooden Boxes (contract C8) in the source's maps until the bag holds `need`: the attack key on each box,
