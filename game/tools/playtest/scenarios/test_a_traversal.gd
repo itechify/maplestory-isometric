@@ -162,10 +162,19 @@ func _leg(i: int, from: String, to: String, tag: String) -> Dictionary:
 		if edge:
 			trail_seen.clear()
 			var guard := kit.interrupt_when()
+			# Whether the survival guard stopped the walk (a knockback may push the monster out of reach before the
+			# walk returns, so the guard is not asked again).
+			var fired := [false]
 			var stop := func() -> bool:
 				_sample_trail_line()
-				return d.current_map() == to or bool(guard.call())
+				if d.current_map() == to:
+					return true
+				if bool(guard.call()):
+					fired[0] = true
+					return true
+				return false
 			for _s in PlaytestKit.MAX_INTERRUPTS:
+				fired[0] = false
 				res = await d.walk_trail(from, to, {"stop_when": stop, "planner": pl["planner"]})
 				var legs: Array = res.get("legs", [])
 				if legs.size() >= 1:
@@ -174,7 +183,7 @@ func _leg(i: int, from: String, to: String, tag: String) -> Dictionary:
 				if legs.size() >= 2:
 					leg["trail_s"] = float(leg["trail_s"]) + float((legs[1] as Dictionary).get("time_s", 0.0))
 					leg["trail_m"] = float(leg["trail_m"]) + float((legs[1] as Dictionary).get("distance_m", 0.0))
-				if d.current_map() != from or kit.is_dead() or not bool(guard.call()):
+				if d.current_map() != from or kit.is_dead() or not bool(fired[0]):
 					break
 				# A monster that keeps hitting, or low HP: the survival policy, then the leg goes on (not an attempt).
 				leg["survival"] = int(leg.get("survival", 0)) + 1

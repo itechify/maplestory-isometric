@@ -282,12 +282,19 @@ func _trail_safely(from_map: String, to_map: String, opts: Dictionary) -> Dictio
 	if not bool(opts.get("safe", true)):
 		return await d.walk_trail(from_map, to_map)
 	var r: Dictionary = {}
+	var guard := interrupt_when(opts)
+	# Whether the guard stopped the walk: by the time the walk returns, a knockback may have pushed the monster out of
+	# reach, so the guard is not asked again.
+	var fired := [false]
+	var stop := func() -> bool:
+		if bool(guard.call()):
+			fired[0] = true
+			return true
+		return false
 	for _k in MAX_INTERRUPTS:
-		var o := {"stop_when": interrupt_when(opts)}
-		r = await d.walk_trail(from_map, to_map, o)
-		if d.current_map() != from_map or is_dead():
-			return r
-		if not bool(interrupt_when(opts).call()):
+		fired[0] = false
+		r = await d.walk_trail(from_map, to_map, {"stop_when": stop})
+		if d.current_map() != from_map or is_dead() or not bool(fired[0]):
 			return r
 		survival["interrupts"] = int(survival["interrupts"]) + 1
 		await survive(opts)
@@ -305,14 +312,20 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 	var n := 0
 	var map0 := d.current_map()
 	var orig: Callable = opts.get("stop_when", Callable())
+	var interrupt := interrupt_when(opts)
+	var fired := [false]
+	var o := opts.duplicate()
+	o["stop_when"] = func() -> bool:
+		if orig.is_valid() and bool(orig.call()):
+			return true
+		if bool(interrupt.call()):
+			fired[0] = true
+			return true
+		return false
 	for _k in MAX_INTERRUPTS:
-		var o := opts.duplicate()
-		var interrupt := interrupt_when(opts)
-		o["stop_when"] = func() -> bool: return bool(interrupt.call()) or (orig.is_valid() and bool(orig.call()))
+		fired[0] = false
 		r = await d.walk_to(target, o)
-		if d.current_map() != map0 or is_dead() or (orig.is_valid() and bool(orig.call())):
-			break
-		if not bool(interrupt.call()):
+		if d.current_map() != map0 or is_dead() or not bool(fired[0]):
 			break
 		n += 1
 		survival["interrupts"] = int(survival["interrupts"]) + 1

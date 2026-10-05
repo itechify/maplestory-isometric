@@ -89,6 +89,28 @@ func test_quest_scenario_plays_1002_in_strict_mode() -> void:
 	_remove_tree(r.out_dir)
 
 
+func test_kit_helpers_work_in_the_real_game() -> void:
+	# PlaytestKit's reference run: AP, a shop by talking, buy and sell, quickslot, drink, equip, checkpoint. The
+	# contract helpers (sit, skills, Wooden Boxes) may WARN until their packages are merged.
+	if not WorldSidecars.exists():
+		print("SKIP test_kit_helpers_work_in_the_real_game: game/assets/world not present (run with INCLUDE_WORLD=1)")
+		return
+	var out := "user://_tests/playtest_kit_%d_%d" % [Time.get_ticks_usec(), randi()]
+	var r := PlaytestProcess.run("kit", {"out": out})
+	_assert_clean(r, "kit")
+	var names := PackedStringArray()
+	for c: Dictionary in r.report.get("checks", []):
+		names.append(String(c.get("name", "")))
+	for want in ["open_shop: talking to Lucy opens her shop", "close_shop"]:
+		assert_has(names, want, "kit check")
+	assert_eq(int(((r.report.get("counts", {}) as Dictionary).get("steps", {}) as Dictionary).get("api", -1)), 0,
+		"no api fallback")
+	for w in r.warnings():
+		print("  [playtest kit] WARN " + w.left(160))
+	print("  [playtest kit] %s, %d ms wall" % [r.report.get("result", "?"), r.elapsed_ms])
+	_remove_tree(r.out_dir)
+
+
 func test_counter_npc_is_talked_to_on_foot_by_leaning_in() -> void:
 	# Regression: talk_to() once filtered approach points by a 1.45 m feet-to-feet distance, so it reported Pan (behind
 	# his counter, 1.9 m from the floor) unreachable although the game's talk zone reaches a player at the counter.
