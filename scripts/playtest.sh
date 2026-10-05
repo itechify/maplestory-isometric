@@ -20,6 +20,8 @@
 #   --max-wall-s <s>    wall-time budget of one phase (default: 3 x the game budget, 900 to 3300)
 #   --trace             record a state digest (RNG states, position, vitals, monsters) on every step, to diff two
 #                       runs of one seed
+#   --quest <ids>       for the `quest` scenario: a quest id, a chain "1013-1019" or "1006,1009,1010" (the QUEST
+#                       environment variable does the same); scripts/playtest_quests.sh runs every quest
 # A scenario that calls reload_process() runs as several processes (phases) sharing <out>/saves; this script starts
 # the next one while the report asks for it. Exit code: 0 when the report passes, 1 on a failed check or an error,
 # 2 on a bad command line or when no report was written.
@@ -38,7 +40,7 @@ while [[ $# -gt 0 ]]; do
     --windowed) WINDOWED=1; shift ;;
     --realtime) REALTIME=1; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
-    --seed|--max-s|--max-wall-s) PASS+=("$1" "${2:-}"); shift 2 ;;
+    --seed|--max-s|--max-wall-s|--quest) PASS+=("$1" "${2:-}"); shift 2 ;;
     --trace) PASS+=("$1"); shift ;;
     --list) list; exit 0 ;;
     -h|--help) usage; exit 0 ;;

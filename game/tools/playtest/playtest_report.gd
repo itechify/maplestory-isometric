@@ -13,8 +13,14 @@ extends RefCounted
 ##   observe  reading state (state(), read_dialogue(), window_text()); never changes the game
 ## Times are game time (physics frames / ticks per second: under --fixed-fps 60 one frame is 1/60 s whatever the
 ## wall clock does) with the wall clock alongside.
+##
+## Format 2 adds two things (docs/runtime/ITERATION_THREE_CONTRACTS.md C6, and the strict no-cheat mode):
+##   parity   a check may carry "parity": ["quest:1005", ...]; parity_summary() counts them per key
+##   strict   PlaytestDriver.begin_strict() fills `strict`: from that step on no console command, no api fallback, no
+##            debug command and no change to the character that the game's own event bus did not announce
+##            (PlaytestLedger). strict_ok() is part of passed().
 
-const FORMAT := 1
+const FORMAT := 2
 const KIND_PLAY := "play"
 const KIND_CONSOLE := "console"
 const KIND_API := "api"
@@ -30,7 +36,8 @@ var args: PackedStringArray = PackedStringArray()
 var phases: Array = []
 ## {i, phase, kind, name, detail, ok, at_game_s, game_s, wall_s}
 var steps: Array = []
-## {i, phase, name, ok, details, at_game_s, step, soft}: a soft check that does not hold is a WARN, never a failure.
+## {i, phase, name, ok, details, at_game_s, step, soft, parity?}: a soft check that does not hold is a WARN, never a
+## failure; "parity" (when present) lists the parity keys the check proves (contract C6).
 var checks: Array = []
 ## {name, path, phase, skipped, reason}
 var screenshots: Array = []
@@ -46,6 +53,10 @@ var input_reasserts: int = 0
 var carry: Dictionary = {}
 var reload_requested: bool = false
 var finished: bool = false
+## The strict no-cheat block ({} until PlaytestDriver.begin_strict()): {"enabled", "reason", "since" {phase, step,
+## game_s}, "debug_commands" (Debug.commands_run deltas summed over the strict phases), "ledger" {"reconciled",
+## "mismatches"}, "violations" [{phase, kind, detail}]}. strict_summary() adds the counted steps and "ok".
+var strict: Dictionary = {}
 
 
 ## Starts a step; returns its index (finish it with end_step).
@@ -68,9 +79,73 @@ func end_step(i: int, ok: bool, result: String, game_s: float, wall_ms: int) -> 
 	s.erase("_wall0")
 
 
-func add_check(phase: int, check_name: String, ok: bool, details: String, at_game_s: float, step: int, soft: bool = false) -> void:
-	checks.append({"i": checks.size(), "phase": phase, "name": check_name, "ok": ok, "details": details,
-		"at_game_s": snappedf(at_game_s, 0.001), "step": step, "soft": soft})
+func add_check(phase: int, check_name: String, ok: bool, details: String, at_game_s: float, step: int, soft: bool = false,
+		parity: Array = []) -> void:
+	var c := {"i": checks.size(), "phase": phase, "name": check_name, "ok": ok, "details": details,
+		"at_game_s": snappedf(at_game_s, 0.001), "step": step, "soft": soft}
+	if not parity.is_empty():
+		var keys: Array = []
+		for k: Variant in parity:
+			if not keys.has(String(k)):
+				keys.append(String(k))
+		c["parity"] = keys
+	checks.append(c)
+
+
+## Per parity key: {"checks", "passed", "failed", "warned"} over the checks that carry it (contract C6).
+func parity_summary() -> Dictionary:
+	var out := {}
+	for c: Dictionary in checks:
+		for k: Variant in c.get("parity", []):
+			var row: Dictionary = out.get(String(k), {"checks": 0, "passed": 0, "failed": 0, "warned": 0})
+			row["checks"] = int(row["checks"]) + 1
+			if bool(c["ok"]):
+				row["passed"] = int(row["passed"]) + 1
+			elif bool(c.get("soft", false)):
+				row["warned"] = int(row["warned"]) + 1
+			else:
+				row["failed"] = int(row["failed"]) + 1
+			out[String(k)] = row
+	return out
+
+
+## Records a strict-mode violation (a refused console command, an api fallback, a debug command, a ledger mismatch).
+## Ignored without strict mode.
+func add_violation(phase: int, kind: String, detail: String) -> void:
+	if not bool(strict.get("enabled", false)):
+		return
+	var v: Array = strict.get("violations", [])
+	v.append({"phase": phase, "kind": kind, "detail": detail})
+	strict["violations"] = v
+
+
+## The strict block plus what the steps show: the console and api steps (any depth) from the strict step on, and
+## "ok" (none of them, no debug command, no violation, no ledger mismatch). {"enabled": false} without strict mode.
+func strict_summary() -> Dictionary:
+	if not bool(strict.get("enabled", false)):
+		return {"enabled": false}
+	var out := strict.duplicate(true)
+	var since := int((strict.get("since", {}) as Dictionary).get("step", 0))
+	var console_steps := 0
+	var api_steps := 0
+	for s: Dictionary in steps:
+		if int(s["i"]) < since:
+			continue
+		if String(s["kind"]) == KIND_CONSOLE:
+			console_steps += 1
+		elif String(s["kind"]) == KIND_API:
+			api_steps += 1
+	out["console_steps"] = console_steps
+	out["api_steps"] = api_steps
+	var ledger: Dictionary = strict.get("ledger", {})
+	out["ok"] = console_steps == 0 and api_steps == 0 and int(strict.get("debug_commands", 0)) == 0 \
+		and (strict.get("violations", []) as Array).is_empty() and (ledger.get("mismatches", []) as Array).is_empty()
+	return out
+
+
+## True without strict mode; with it, strict_summary()'s "ok".
+func strict_ok() -> bool:
+	return bool(strict_summary().get("ok", false)) if bool(strict.get("enabled", false)) else true
 
 
 func add_error(phase: int, kind: String, message: String) -> void:
@@ -103,9 +178,9 @@ func warnings() -> Array:
 	return checks.filter(func(c: Dictionary) -> bool: return not bool(c["ok"]) and bool(c.get("soft", false)))
 
 
-## PASS: finished, at least one check, every check passed and no fatal error.
+## PASS: finished, at least one check, every check passed, no fatal error and (in strict mode) no violation.
 func passed() -> bool:
-	return finished and not checks.is_empty() and failed_checks().is_empty() and errors.is_empty()
+	return finished and not checks.is_empty() and failed_checks().is_empty() and errors.is_empty() and strict_ok()
 
 
 func result_text() -> String:
@@ -126,6 +201,7 @@ func totals() -> Dictionary:
 
 func to_dict() -> Dictionary:
 	var fails := failed_checks()
+	var parity := parity_summary()
 	return {
 		"format": FORMAT, "scenario": scenario, "result": result_text(), "seed": seed_value, "out_dir": out_dir,
 		"windowed": windowed, "args": Array(args), "finished": finished, "reload_requested": reload_requested,
@@ -133,7 +209,8 @@ func to_dict() -> Dictionary:
 		"counts": {"steps": step_counts(), "checks": checks.size(), "checks_failed": fails.size(),
 			"warnings": warnings().size(),
 			"errors": errors.size(), "engine_errors": engine_errors.size(), "screenshots": screenshots.size(),
-			"input_reasserts": input_reasserts},
+			"input_reasserts": input_reasserts, "parity_keys": parity.size()},
+		"strict": strict_summary(), "strict_raw": strict, "parity": parity,
 		"checks": checks, "steps": steps, "screenshots": screenshots, "errors": errors, "engine_errors": engine_errors,
 		"notes": notes, "carry": carry, "carry_var": var_to_str(carry),
 	}
@@ -159,6 +236,7 @@ static func from_dict(d: Dictionary) -> PlaytestReport:
 	r.input_reasserts = int((d.get("counts", {}) as Dictionary).get("input_reasserts", 0))
 	r.reload_requested = bool(d.get("reload_requested", false))
 	r.finished = bool(d.get("finished", false))
+	r.strict = (d.get("strict_raw") as Dictionary).duplicate(true) if d.get("strict_raw") is Dictionary else {}
 	return r
 
 
@@ -194,7 +272,25 @@ func to_markdown() -> String:
 		int(counts["console"]), int(counts["api"]), int(counts["observe"])])
 	lines.append("- Errors: %d fatal, %d engine (not fatal); input re-asserted %d times" % [errors.size(),
 		engine_errors.size(), input_reasserts])
+	var st := strict_summary()
+	if bool(st.get("enabled", false)):
+		var since: Dictionary = st.get("since", {})
+		lines.append(("- Strict (no cheats) since phase %d, step %d (%s): %s; %d console, %d api, %d debug commands, "
+			+ "%d ledger mismatches, %d violations") % [int(since.get("phase", 0)), int(since.get("step", 0)),
+			String(st.get("reason", "")), "OK" if bool(st["ok"]) else "**VIOLATED**", int(st["console_steps"]),
+			int(st["api_steps"]), int(st.get("debug_commands", 0)),
+			((st.get("ledger", {}) as Dictionary).get("mismatches", []) as Array).size(), (st.get("violations", []) as Array).size()])
+	else:
+		lines.append("- Strict (no cheats): off")
 	lines.append("")
+	if bool(st.get("enabled", false)) and not bool(st["ok"]):
+		lines.append("## Strict violations")
+		lines.append("")
+		for v: Dictionary in st.get("violations", []):
+			lines.append("- [%s, phase %d] %s" % [v.get("kind", ""), int(v.get("phase", 0)), _md(String(v.get("detail", "")))])
+		for m: Variant in (st.get("ledger", {}) as Dictionary).get("mismatches", []):
+			lines.append("- [ledger] " + _md(str(m)))
+		lines.append("")
 	if not errors.is_empty():
 		lines.append("## Errors")
 		lines.append("")
@@ -203,13 +299,26 @@ func to_markdown() -> String:
 		lines.append("")
 	lines.append("## Checks")
 	lines.append("")
-	lines.append("| # | Phase | Result | Check | Details |")
-	lines.append("|---|---|---|---|---|")
+	lines.append("| # | Phase | Result | Check | Details | Parity |")
+	lines.append("|---|---|---|---|---|---|")
 	for c: Dictionary in checks:
 		var verdict := "PASS" if bool(c["ok"]) else ("WARN" if bool(c.get("soft", false)) else "**FAIL**")
-		lines.append("| %d | %d | %s | %s | %s |" % [int(c["i"]), int(c["phase"]), verdict,
-			_md(String(c["name"])), _md(String(c["details"]))])
+		lines.append("| %d | %d | %s | %s | %s | %s |" % [int(c["i"]), int(c["phase"]), verdict,
+			_md(String(c["name"])), _md(String(c["details"])), _md(", ".join(PackedStringArray(c.get("parity", []))))])
 	lines.append("")
+	var parity := parity_summary()
+	if not parity.is_empty():
+		lines.append("## Parity keys (contract C6)")
+		lines.append("")
+		lines.append("| Key | Checks | Passed | Failed | Warned |")
+		lines.append("|---|---|---|---|---|")
+		var keys := parity.keys()
+		keys.sort()
+		for k: Variant in keys:
+			var row: Dictionary = parity[k]
+			lines.append("| %s | %d | %d | %d | %d |" % [_md(str(k)), int(row["checks"]), int(row["passed"]),
+				int(row["failed"]), int(row["warned"])])
+		lines.append("")
 	lines.append("## Steps")
 	lines.append("")
 	lines.append("| # | Phase | Kind | Step | OK | Game s | Wall s | Detail / result |")

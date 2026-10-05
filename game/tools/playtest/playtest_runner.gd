@@ -140,6 +140,9 @@ func _finish(end: String) -> void:
 	if driver != null and driver.input != null:
 		driver.input.release_all()
 		report.input_reasserts += driver.input.reasserts
+	if driver != null:
+		# Strict mode: this phase's developer commands and the event ledger, before the report is written.
+		driver.strict_finish()
 	for e in guard.errors():
 		report.add_error(phase, "script", e)
 	for e: Dictionary in engine_log.take():
@@ -159,9 +162,11 @@ func _finish(end: String) -> void:
 	if err != OK:
 		push_error("[playtest] cannot write the report into %s: %s" % [out_dir, error_string(err)])
 	var counts := report.step_counts()
-	print("PLAYTEST_RESULT %s %s phase %d: %d checks (%d failed), %d errors, steps play %d / console %d / api %d" % [
+	var st := report.strict_summary()
+	print("PLAYTEST_RESULT %s %s phase %d: %d checks (%d failed), %d errors, steps play %d / console %d / api %d, strict %s" % [
 		report.result_text(), scenario_name, phase, report.checks.size(), report.failed_checks().size(),
-		report.errors.size(), int(counts["play"]), int(counts["console"]), int(counts["api"])])
+		report.errors.size(), int(counts["play"]), int(counts["console"]), int(counts["api"]),
+		("ok" if bool(st["ok"]) else "VIOLATED") if bool(st.get("enabled", false)) else "off"])
 	for c: Dictionary in report.failed_checks():
 		print("PLAYTEST_FAILED_CHECK %s: %s" % [c["name"], c["details"]])
 	for e: Dictionary in report.errors:

@@ -43,6 +43,10 @@ var _composites: Dictionary = {}
 var _shadowed: Dictionary = {}
 ## Console input history, oldest first (shared by every console instance).
 var history: PackedStringArray = []
+## Commands dispatched since this instance started, whoever ran them (the console, run(), call_command(), a test).
+## The playtest harness's strict mode reads it to prove that no developer command ran after the setup
+## (docs/runtime/PLAYTEST_HARNESS.md "Strict mode").
+var commands_run: int = 0
 
 # --- injectable collaborators (null = context / autoloads) ----------------------------------------------------
 var session: Node = null
@@ -265,6 +269,7 @@ func _run_one(line: String) -> String:
 
 
 func _dispatch(key: String, args: PackedStringArray) -> String:
+	commands_run += 1
 	if not _commands.has(key) and _aliases.has(key):
 		var a: Dictionary = _aliases[key]
 		var full := PackedStringArray(a.args)
