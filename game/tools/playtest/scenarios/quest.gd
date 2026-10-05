@@ -42,8 +42,9 @@ func description() -> String:
 	return "Every-quest set: one quest or chain (--quest / QUEST) played with real input from a setup save, strict after the setup"
 
 
+## Game seconds per phase: a phase can hold two item hunts (ITEM_BUDGET_S each) and the walks between them.
 func max_seconds() -> float:
-	return 3000.0
+	return 4800.0
 
 
 func run(p_d: PlaytestDriver) -> void:
