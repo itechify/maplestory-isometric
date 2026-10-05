@@ -7,36 +7,66 @@ coherent, floating 3D island in **Blender 5.2**. It uses an orthographic isometr
 hand-crafted, MapleStory-inspired look. Python generates everything deterministically: the `.blend` is a build
 artifact, and the scripts and data are the source. The `.blend` and renders are not committed. Build them with one
 command, or download them from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest).
-**Iteration Two** turns that island into a playable game (below).
+**Iteration Two** turns that island into a playable game, and **Iteration Three** makes it the complete canonical
+Maple Island, from character creation to Shanks' boat in Southperry (below).
 
 ![Island overview](docs/images/island_overview.jpg)
 
-## Play it (Iteration Two)
+## Play it (Iterations Two and Three)
 
 Iteration Two turns the island into a playable **Godot 4.7** game (`game/`), using gameplay data from
 [MeowDB MS Classic](https://meowdb.com/msclassic) (see [`docs/canonical/README.md`](docs/canonical/README.md)).
-Brief: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md). Architecture: [`docs/runtime/ARCHITECTURE.md`](docs/runtime/ARCHITECTURE.md).
-How-to (build, test, validate, debug): [`docs/runtime/HOWTO.md`](docs/runtime/HOWTO.md). Playthrough results:
-[`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md).
+Briefs: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md),
+[`docs/ITERATION_THREE_BRIEF.md`](docs/ITERATION_THREE_BRIEF.md). Architecture:
+[`docs/runtime/ARCHITECTURE.md`](docs/runtime/ARCHITECTURE.md). How-to (build, test, validate, playtest, debug):
+[`docs/runtime/HOWTO.md`](docs/runtime/HOWTO.md). Adding content:
+[`docs/runtime/CONTENT_AUTHORING.md`](docs/runtime/CONTENT_AUTHORING.md). What was found and fixed:
+[`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 
 ```bash
 bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
 bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)
-bash scripts/test.sh            # 1100+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+bash scripts/test.sh            # 1500+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+bash scripts/playtest_quests.sh # every Maple Island quest played in the real game with real input (one table)
 ```
 
 | Keys | Action |
 |---|---|
 | W A S D | move (8 directions, relative to the camera) |
 | Space / Alt | jump |
-| J / Ctrl / left click | attack |
+| J / Ctrl / left click | attack (and break Wooden Boxes) |
 | F | talk to the NPC in front of you |
 | Up arrow | enter a portal, grab a ladder or rope (W/S or Up/Down to climb) |
 | Z | pick up drops |
-| I / E / C / Q | inventory, equipment, character stats (spend AP), quest log |
-| 1 – 8 | quickslots (bind consumables from the inventory) |
+| X | sit on your chair, or stand up |
+| I / E / C / Q / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
+| 1 – 8 | quickslots (potions, food, a chair or a learned skill) |
+| M | fold or unfold the minimap |
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console (`help`, `warp <map>`, `give <item> [qty]`, `exp <n>`, `level <n>`, `mesos <n>`) / debug overlay |
+
+### What Iteration Three adds
+
+- **Canonical drops with their sources kept apart.** Monster drop membership comes from Hidden Street's per-monster
+  lists and the Wooden Box's from MeowDB; drop and meso-drop chances from KuroDB, only for items on both lists; meso
+  amounts from MeowDB (the Snail) or Hidden Street. Every value keeps its raw source text, URL and dated capture, and
+  a member no source gives a chance for never drops and stays visible in validation (owner decisions D3-3 to D3-9).
+- **Beginner mechanics:** natural HP recovery by the project owner's rule (10 HP per 10 s standing still or sitting,
+  paused by moving, jumping or attacking), sitting and The Green Relaxer, the three Beginner skills with SP, a Skills
+  window and skill quickslots.
+- **The Wooden Box** on its 19 canonical placements: 4 hits, per-placement respawn, Pio's quest items while his quest
+  is in progress.
+- **Every quest playable and played:** all 20 Maple Island quests run through the real game with real input in the
+  every-quest set, strict (no developer help) after a logged setup. The Quest Log shows chain progress, NPC maps and
+  the Missable tag; the island ends at Shanks' "End of Maple Island" screen.
+- **World:** a minimap on all 25 maps, NPC speech bubbles, monsters that stay on their floor and pace, visible attack
+  areas, spawns clear of NPCs and the player, and a stuck-region scan of every map (its first run confirmed 42 traps
+  in 13 maps; they and the ones its review found are fixed in the Blender source, and the final scan confirms none).
+- **Saves v2** with a migration from Iteration Two saves (real Iteration Two saves are test fixtures).
+- **Provenance and parity reports:** [`docs/PROVENANCE_REPORT.md`](docs/PROVENANCE_REPORT.md) (every record and
+  property with its authority, URL, read time and capture; every unresolved value; every adaptation) and
+  [`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md) (every canonical entry's state, from test and playtest
+  evidence), each with a machine-readable JSON copy.
 
 ## Quick start
 
@@ -134,9 +164,14 @@ images, and how to cut a release.
 | `docs/MAPLE_ISLAND_MANIFEST.md`, `docs/manifest.json` | Built-world manifest: every map, its placement, exits and destinations, built NPCs, monsters and routes |
 | `docs/research/maps/<id>_*.md` | Per-map structural analysis and 3D translation briefs |
 | `docs/research/*.md` | Wiki and landmark notes, geography (classic world map), entities (NPCs and mobs) |
-| `docs/ITERATION_LOG.md` | Major problems found and corrected |
-| `docs/DEFERRED.md` | What is deliberately left for Iteration Two |
-| `docs/VALIDATION.md` | Latest validation results |
+| `docs/ITERATION_LOG.md` | Major problems found and corrected, and the source decisions, per iteration and phase |
+| `docs/DEFERRED.md` | What is left open: unresolved source data, owner decisions, art, open review findings |
+| `docs/VALIDATION.md` | Latest Blender validation results |
+| `docs/canonical/`, `game/data/canonical/` | The canonical data (MeowDB MS Classic, with KuroDB chances and Hidden Street drop lists), how it was collected and its gaps |
+| `tools/meowdb/captures/`, `tools/kurodb/captures/`, `tools/hiddenstreet/captures/` | Dated source pages read by hand in a browser (Iteration Three) |
+| `docs/PROVENANCE_REPORT.md`, `docs/provenance_report.json` | Every canonical value's authority, URL, read time and capture; every unresolved value; every adaptation (`bash scripts/validate_data.sh --report`) |
+| `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence (`node tools/parity/build_parity.mjs`) |
+| `docs/runtime/` | The game's architecture, systems, how-to, content authoring, playtest harness, stuck scan and reports |
 | `docs/review/` | Island reviews 1 and 2 (raw critiques and triage) and the final acceptance check |
 | `docs/images/` | Small README images (refresh with `scripts/readme_images.py`) |
 | `renders/final/` | Final validation renders for every camera, plus debug variants. Generated and not in git: run `scripts/render_all.sh final 3 --debug`, or get `renders-final.zip` from a release |
@@ -176,14 +211,21 @@ geometry and materials are original. Do not redistribute those folders.
 
 Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
 
-- **Placeholder art.** Characters and monsters are Iteration One's static chibi proxies (no rigs or animation
-  beyond procedural bob and lunge); the Tutorial Jr. Sentinel is a grey placeholder. There is no audio.
-- **Iteration Two scope.** One Beginner on Maple Island: no job advancement, skills window, sitting, minimap, the ship
-  to Victoria Island, or multiplayer. All 20 Maple Island quests run through the generic engine, but only 1002, 1006
-  and 1007 → 1008 are verified by real-game playthroughs. Drop chances and meso amounts are labelled placeholders
-  (MeowDB publishes none). Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
-- **Playthroughs are automated.** Tests A–G pass as scripted real-input runs of the real game
-  ([`docs/runtime/PLAYTHROUGH_REPORT.md`](docs/runtime/PLAYTHROUGH_REPORT.md)); a human playthrough is still to come.
+- **Placeholder art.** Characters and monsters are static chibi proxies (no rigs or animation beyond procedural bob,
+  lunge and a simple sit pose); skill icons and effects are procedural. There is no audio.
+- **Maple Island only.** One Beginner, from character creation to Southperry: no job advancement, no Victoria Island
+  (Shanks' boat ends at an "End of Maple Island" screen; nobody travels and no fare is taken), no multiplayer.
+- **Some drops never happen, on purpose.** 54 of the 75 canonical drop members never roll, because no source gives
+  their chance (KuroDB has no row) or their item (an ambiguous or missing MeowDB item); none of them is guessed, and
+  validation lists each one. Monster drop membership comes from Hidden Street's archive, which describes post-Big-Bang
+  GMS v0.96, a different game version, by the project owner's decision; MeowDB's own community lists are kept as
+  reference. Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
+- **MisoStory choices are labelled.** Where no source gives a value the game needs (the chair clock, skill tick and
+  cast times, box placement, spawn spacing, knockback push, ground lifetime of drops), the value is an adaptation in
+  `game/data/misostory/` with its reason, marked unverified.
+- **Playthroughs are automated.** Every quest, Tests A-G and the Iteration Three scenarios run as scripted real-input
+  playthroughs of the real game ([`docs/runtime/PLAYTEST_HARNESS.md`](docs/runtime/PLAYTEST_HARNESS.md)); a human
+  playthrough is still to come.
 - **Approximate platform translation.** Maps keep the classic tier structure, ladders, ropes, landmarks and route
   rhythm, not pixel-exact footholds. Vertical scale is about 0.55-0.7 m per classic 60 px tier, capped near 14 m.
 - **Interiors are staged remotely.** The four interiors (20001, 60001, 1010001, 1010003) are cutaway rooms on an
