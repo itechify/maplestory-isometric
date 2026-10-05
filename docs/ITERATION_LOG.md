@@ -293,8 +293,9 @@ minimap and world feedback; the playtest harness and the every-quest set; and th
 fixes. Integrated result (4b61650): the island rebuilds and validates with 0 high, 0 medium and 21 low findings; the
 full suite with the world passes (1509 tests in 167 files); canonical data validation passes with 0 errors and 54
 warnings (the drop members no source gives a chance or an item for). On that build (runs of 2026-10-05, seed 1) the
-every-quest set passes 20 of 20 quests in the real game, every chain strict, and Test A walks all 25 maps and 47
-portals with no death (475 checks, 0 failed).
+every-quest set passes 20 of 20 quests in the real game, every chain strict; Test A walks all 25 maps and 47
+portals with no death (475 checks, 0 failed); and Test C levels a clean Beginner to 10 by killing only (77 checks, 0
+failed; its seed 1 had failed on the 000001000 trap before the stuck-scan fills).
 
 | # | Problem found | Correction |
 |---|---|---|
@@ -363,6 +364,6 @@ reviews and the final integration here; the documentation package's rows are bel
 |---|---|---|
 | W2-1 | Documentation: `HOWTO.md`, `CONTENT_AUTHORING.md`, `DEFERRED.md`, `README.md` and `ARCHITECTURE.md` still described Iteration Two, and several system documents were stale after the merges (chairs "not usable", `--strict` "passes", drop records "still v1", the flood fill "not built", the Tutorial Jr. Sentinel a placeholder). | Rewritten against the integrated code and data, with every command run (or a quick variant); `tools/meowdb/captures/README.md` added; this phase's W1 entries written from the packages' reports, reviews and commits. |
 | W2-2 | `scripts/check_canonical.sh` exits 2 on the integrated build: it empties `game/data/canonical/items` and runs `extract_items` after `extract_monsters`, which now resolves drop members against the local items and quests. | Reported (`DEFERRED.md`); a copy with `extract_items` and `extract_quests` before `extract_monsters` reproduces every canonical file. Not changed here (the documentation package touches no code). |
-| W2-3 | The committed parity manifest (`MAPLE_ISLAND_PARITY.md`, 537 entries, 34 missing) predates the merges. | To be regenerated from the final evidence. A build on the integrated suite's evidence and the 1012 playtest gives 511 entries, 137 verified, 0 missing, and every partial entry is a source-data gap. |
+| W2-3 | The committed parity manifest (`MAPLE_ISLAND_PARITY.md`, 537 entries, 34 missing) predates the merges. | To be regenerated from the final evidence. A build on the integrated suite's evidence and the every-quest set's reports gives 511 entries: 222 verified, 233 implemented, 54 partial (all source-data gaps), 0 missing. |
 | W2-4 | `validate_data.sh --strict` now fails: the 54 `drop_unresolved` warnings are by design. | Documented in HOWTO and DATA_VALIDATION. |
 | W2-n | (the other wave-2 packages, their reviews and the final integration) | (the orchestrator fills these rows) |

@@ -126,8 +126,8 @@ items were left on purpose or found along the way.
   byte (found while verifying the docs).
 - **The committed parity manifest predates the merges** (`MAPLE_ISLAND_PARITY.md`: 537 entries, 34 missing): it
   must be regenerated from the integrated build's test and playtest evidence. A build on the integrated suite's
-  evidence plus the 1012 playtest alone gives 511 entries, 137 verified and 0 missing; every partial entry is a
-  source-data gap.
+  evidence plus the every-quest set's reports gives 511 entries: 222 verified, 233 implemented, 54 partial and 0
+  missing, and every partial entry is a source-data gap.
 - **Validation code:** `AdaptationChecks._check_drop_rates` still checks Iteration Two's placeholder structure of
   `drop_rates.json` (dead for the shipped file; `DropChecks` holds the real rule). `GameplayDataChecks` is
   all-or-nothing: any structural error hides the quest, NPC and dialogue findings. The progression-blocker check is
@@ -167,7 +167,9 @@ items were left on purpose or found along the way.
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
   a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. On the
   integrated build `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 25 of 25 maps and 47 of 47 portals on
-  foot, no death).
+  foot, no death) and so does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77
+  checks, 0 failed, level 10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the
+  canonical +100 (a soft check) and one death in 000001000.
 - **Docs outside this list's owner:** `runtime/DEBUG_TOOLS.md` still calls the `drops` simulation "placeholder
   rates"; `runtime/PLAYTHROUGH_REPORT.md` is Iteration Two's report.
 
