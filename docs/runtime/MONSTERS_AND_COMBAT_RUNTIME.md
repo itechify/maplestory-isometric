@@ -330,6 +330,24 @@ exactly 66 EXP (the canonical 2 per Snail; Lv 1 → 3), only items from the kill
 on the ground through the LootSystem, every slot dead, only slot monsters released by the view, and on the respawn
 tick 30 monsters again with no debug spawn among them.
 
+## Natural HP recovery (`NaturalRecovery`)
+
+MeowDB documents natural regeneration only qualitatively ("When you're not in combat, just standing still will slowly
+restore your HP"; `formulas/recovery.json` natural_regeneration, documented_values false), so the numbers are a
+MisoStory adaptation in `data/misostory/combat.json` `natural_recovery` (verified false, reason in the file):
+10 HP every 10 s, after 5 s without combat, only while standing still. MP does not recover on its own (MeowDB names HP
+only).
+
+- `scripts/core/character/natural_recovery_rule.gd` (`NaturalRecoveryRule`): the pure rule. A missing config key is a
+  data error (no invented default).
+- `scripts/actors/combat/natural_recovery.gd` (`NaturalRecovery`): added to the player by `MonsterSystem.attach_player`
+  after `PlayerCombat`. It reports "resting" (alive, grounded, horizontal speed under 0.05 m/s, not climbing, not in
+  hit-stun, MapSession idle), counts `PlayerCombat.attack_started`, `Events.player_damaged` and
+  `Events.player_missed_by` as combat, and heals through `Game.change_hp`, so the HUD sees every tick.
+- Tests: `test_natural_recovery.gd` (the rule, the shipped config is an unverified adaptation over a canonical gap) and
+  `test_playtest_regen.gd`, which runs the `regen` scenario in the real game: no recovery during 12 s of walking, then
+  +10 HP after 10 s standing still, +10 more 10 s later, capped at max HP.
+
 ## Damage numbers (`DamageNumbers`)
 
 Billboarded `Label3D`s drawn over everything (`no_depth_test`) with a thick dark outline, sized in screen pixels from

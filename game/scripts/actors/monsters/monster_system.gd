@@ -117,6 +117,11 @@ func attach_player(p: Node3D) -> void:
 	else:
 		pc.load_feel()
 	player_combat = pc
+	# Natural HP recovery while resting (combat.json natural_recovery), after PlayerCombat so it hears its attacks.
+	if p.get_node_or_null(^"NaturalRecovery") == null:
+		var nr := NaturalRecovery.new()
+		nr.name = "NaturalRecovery"
+		p.add_child(nr)
 
 
 ## The monster factory (MapInstanceView.monster_factory): a Monster for `mob_id` at `slot`, restored with the slot's
