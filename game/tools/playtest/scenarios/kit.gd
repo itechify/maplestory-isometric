@@ -70,7 +70,7 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("use_item via the quickslot key uses one", bool(q["ok"]) and c.inventory.count(POTION) == n0 - 1, str(q))
 	var dr: Dictionary = await k.drink(POTION)
 	d.check("drink: one through the Item window's Use button, HP + the canonical restore (capped)", bool(dr["ok"])
-		and c.hp == int(dr["want_hp"]), String(dr["row"]))
+		and int(dr["hp1"]) == int(dr["want_hp"]), String(dr["row"]))
 	var eq: Dictionary = await k.equip(SANDALS)
 	d.check("equip: a double-click in the Equip tab equips the sandals", bool(eq["ok"]), str(eq), ["item:" + SANDALS])
 	var cp := k.checkpoint("kit")

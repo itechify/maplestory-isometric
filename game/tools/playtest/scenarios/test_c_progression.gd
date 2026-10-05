@@ -456,7 +456,7 @@ func _drink() -> void:
 	var r: Dictionary = await kit.drink(POTION)
 	potions_used += 1
 	potion_rows.append(String(r["row"]))
-	if not bool(r["ok"]) or c.hp != int(r["want_hp"]):
+	if not bool(r["ok"]) or int(r["hp1"]) != int(r["want_hp"]):
 		potion_issues.append("%s%s" % [r["row"], "" if bool(r["ok"]) else " (%s)" % r["status"]])
 
 

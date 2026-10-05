@@ -984,12 +984,20 @@ func _open_on_item(item_id: String) -> int:
 func use_item(item_id: String, via: String = "double_click") -> Dictionary:
 	var c := d.character()
 	var out := {"ok": false, "status": "", "hp0": c.hp, "hp1": c.hp, "n0": c.inventory.count(item_id), "n1": 0, "via": via}
+	# hp0 / n0 and hp1 / n1 are read right around the input that uses the item (dispatch is synchronous), so a touch
+	# while the window opens or closes does not blur the effect.
+	var probe := func() -> Dictionary: return {"hp": c.hp, "n": c.inventory.count(item_id)}
+	var around: Dictionary = {}
 	if via == "quickslot":
 		var key := quickslot_of(item_id)
 		if key == "":
 			out["status"] = "%s is on no quickslot" % item_id
 			return out
-		await d.tap(StringName("quickslot_%s" % key))
+		var code := PlaytestInput.key_for_action(StringName("quickslot_%s" % key))
+		var b0: Dictionary = probe.call()
+		d.input.key_event(code, true)
+		around = {"before": b0, "after": probe.call()}
+		d.input.key_event(code, false)
 		await d.frames(2)
 	else:
 		var idx := await _open_on_item(item_id)
@@ -1001,14 +1009,20 @@ func use_item(item_id: String, via: String = "double_click") -> Dictionary:
 		if via == "button":
 			await d.click(win.slots[idx])
 			await d.frames(1)
+			var b1: Dictionary = probe.call()
 			await d.click(win.action_button)
+			around = {"before": b1, "after": probe.call()}
 		else:
-			await double_click(win.slots[idx])
+			around = await double_click(win.slots[idx], probe)
 		await d.frames(2)
 		out["status"] = win.status_label.text
 		await d.close_window("inventory")
-	out["n1"] = c.inventory.count(item_id)
-	out["hp1"] = c.hp
+	var before: Dictionary = around.get("before", {}) if around.get("before") is Dictionary else {}
+	var after: Dictionary = around.get("after", {}) if around.get("after") is Dictionary else {}
+	out["hp0"] = int(before.get("hp", out["hp0"]))
+	out["n0"] = int(before.get("n", out["n0"]))
+	out["hp1"] = int(after.get("hp", c.hp))
+	out["n1"] = int(after.get("n", c.inventory.count(item_id)))
 	out["ok"] = int(out["n1"]) == int(out["n0"]) - 1
 	return out
 
@@ -1020,11 +1034,10 @@ func drink(item_id: String) -> Dictionary:
 	var c := d.character()
 	var restore := hp_restore(item_id)
 	var mx := StatCalculator.max_hp(c, db)
-	var hp0 := c.hp
 	var r := await use_item(item_id, "button")
-	r["want_hp"] = mini(mx, hp0 + restore)
-	r["row"] = "L%d HP %d -> %d/%d (canonical +%d -> %d), %s %d -> %d" % [c.level, hp0, c.hp, mx, restore,
-		int(r["want_hp"]), item_name(item_id), int(r["n0"]), int(r["n1"])]
+	r["want_hp"] = mini(mx, int(r["hp0"]) + restore)
+	r["row"] = "L%d HP %d -> %d/%d (canonical +%d -> %d), %s %d -> %d" % [c.level, int(r["hp0"]), int(r["hp1"]), mx,
+		restore, int(r["want_hp"]), item_name(item_id), int(r["n0"]), int(r["n1"])]
 	return r
 
 
