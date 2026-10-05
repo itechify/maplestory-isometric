@@ -5,6 +5,7 @@ extends TestCase
 ## portal markers are exactly the visible (type 2) canonical portals with their canonical destination names (no
 ## arrival gate, no hidden type-1 portal); the NPC dots are exactly the canonical NPCs; a door gets a shop badge
 ## exactly when a shopkeeper stands behind it. Needs the export (INCLUDE_WORLD=1); prints one SKIP line without it.
+## The checks that need collision share one island build (test_ground_and_models_on_every_map).
 
 ## The doors the brief's shop indication is about (Pan, Sid, Lucy): cross-checked against the canonical derivation.
 const SHOP_DOORS := ["000000060.in00", "000001010.in00", "000001010.in02"]
@@ -17,8 +18,7 @@ func parity_keys() -> Dictionary:
 	for id in db().ids("maps"):
 		maps.append("minimap:%s" % id)
 	return {
-		"test_models_on_every_map": maps + ["ui:shop-indication", "ui:portal-cue"],
-		"test_ground_faces_of_every_map": maps,
+		"test_ground_and_models_on_every_map": maps + ["ui:shop-indication", "ui:portal-cue"],
 		"test_the_sidecar_camera_is_the_game_camera": ["ui:minimap-projection"],
 	}
 
@@ -66,10 +66,18 @@ func _canonical_npcs(map_id: String) -> PackedStringArray:
 	return out
 
 
-func test_ground_faces_of_every_map() -> void:
-	if _skip("test_ground_faces_of_every_map"):
+## One island build for every check that needs the collision: a test process survives about ten island builds (the
+## eleventh aborts it with exit code 3, also with nothing else running), and the suite already makes most of them.
+func test_ground_and_models_on_every_map() -> void:
+	if _skip("test_ground_and_models_on_every_map"):
 		return
 	var w := _world()
+	_check_ground_faces(w)
+	_check_models(w)
+	_check_hidden_portal_and_lane(w)
+
+
+func _check_ground_faces(w: IslandWorld) -> void:
 	assert_eq(w.defs.ids().size(), db().ids("maps").size(), "every canonical map has a definition")
 	for id in w.defs.ids():
 		var def := w.defs.get_def(id)
@@ -91,10 +99,7 @@ func test_ground_faces_of_every_map() -> void:
 	assert_eq(w.ground_faces("999999999").size(), 0, "an unknown map has no ground")
 
 
-func test_models_on_every_map() -> void:
-	if _skip("test_models_on_every_map"):
-		return
-	var w := _world()
+func _check_models(w: IslandWorld) -> void:
 	var shown_portals := 0
 	var canonical_visible := 0
 	var npc_dots := 0
@@ -171,10 +176,7 @@ func test_models_on_every_map() -> void:
 	assert_true(shops > 0 and roles.values().has(MapIcons.ROLE_TRANSPORT), "shops %d, and a transport NPC: %s" % [shops, roles])
 
 
-func test_hidden_portal_and_its_lane_stay_off_the_minimap() -> void:
-	if _skip("test_hidden_portal_and_its_lane_stay_off_the_minimap"):
-		return
-	var w := _world()
+func _check_hidden_portal_and_lane(w: IslandWorld) -> void:
 	var hidden := 0
 	for id in w.defs.ids():
 		var def := w.defs.get_def(id)
