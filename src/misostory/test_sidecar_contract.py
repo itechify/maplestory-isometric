@@ -227,6 +227,17 @@ class ExportContract(unittest.TestCase):
         clr.update(rows)
         _write(self.tmp, f, s)
 
+    def test_climbable_grabbable_from_a_portal_trigger_fails(self):
+        # the 000001005 case before fix round F1: a ladder foot 2.7 m from out00 inside the trigger plus the grab radius
+        f, s = _sidecar_by_map(self.tmp, "000001005")
+        p = next(q for q in s["portals"] if q["name"] == "out00")
+        c = s["climbables"][0]
+        ox, oy, oz = p["position"]
+        c["bottom"] = c["foot_ground"] = [ox + 0.3, oy, oz + 0.3]
+        c["top"] = [ox + 0.3, oy + 2.4, oz + 0.3]
+        _write(self.tmp, f, s)
+        self.assertFails(self.contract(), "contract_failures", "000001005.out00", "grabbable from its press-Up trigger")
+
     def test_blocked_portal_arrival_fails(self):
         # any blocked arrival fails, even when the old export had the same one (it used to fail only on growth)
         self._set_clearance("000001000", portal_arrivals=[

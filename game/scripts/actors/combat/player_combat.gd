@@ -118,7 +118,10 @@ func step(delta: float) -> void:
 	if player == null or not is_instance_valid(player):
 		return
 	_ensure_lock()
-	lockout_left = maxf(0.0, lockout_left - delta)
+	# The lockout may run up to one tick below zero: the next attack's lockout absorbs that overshoot, so a held attack
+	# repeats at the canonical cadence on average (720 ms = 43.2 ticks alternates 43 and 44) instead of rounding every
+	# cycle up to whole ticks (733 ms). Bounded to one tick so an idle pause never banks a burst.
+	lockout_left = maxf(-delta, lockout_left - delta)
 	if lockout_left <= 0.0:
 		_lock.locked = false
 	var src: InputSource = player.get("input_source")
@@ -130,10 +133,12 @@ func step(delta: float) -> void:
 		held = reading[1]
 	else:
 		_mouse.clear()
-	if pressed:
+	# A press is only buffered while the player can act at all (alive, input on): a press under the death notice or a
+	# modal must not fire later, after the respawn or when the window closes.
+	if pressed and _input_live():
 		_buffered = input_buffer_s
 	else:
-		_buffered = maxf(0.0, _buffered - delta)
+		_buffered = 0.0 if not _input_live() else maxf(0.0, _buffered - delta)
 	if lockout_left > 0.0:
 		return
 	# `pressed` fires on its own: with input_buffer_s 0 (also what a missing value leaves) nothing is kept during the
@@ -141,6 +146,17 @@ func step(delta: float) -> void:
 	if (pressed or _buffered > 0.0 or held) and can_attack():
 		_buffered = 0.0
 		attack()
+
+
+## True while the player is alive with input enabled (no death notice, modal window or warp holds the keyboard).
+func _input_live() -> bool:
+	if player == null:
+		return false
+	if player.has_method("is_dead") and bool(player.call("is_dead")):
+		return false
+	if player.has_method("is_input_enabled") and not bool(player.call("is_input_enabled")):
+		return false
+	return true
 
 
 ## True when the player may start an attack now: alive, input enabled (no modal window or warp), not on a ladder,
@@ -170,7 +186,8 @@ func attack() -> Node:
 	last_action = String(pick["action"])
 	last_presentation = String(pick["presentation"])
 	last_lockout_s = weapon.attack_duration_ms(last_action, d) / 1000.0
-	lockout_left = last_lockout_s
+	# Absorb the previous lockout's sub-tick overshoot (at most one tick, see step()).
+	lockout_left = last_lockout_s + minf(0.0, lockout_left)
 	attacks += 1
 	if root_on_ground and player.has_method("is_grounded") and bool(player.call("is_grounded")):
 		_ensure_lock()

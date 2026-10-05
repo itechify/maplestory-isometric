@@ -94,11 +94,11 @@ Movement, Camera, Combat and World reviews, what was found, and what was fixed. 
 
 ## Still open
 
+- **Fixed after the replays:** the held-attack cadence (now 720 ms on average), mid-hop staggers, the full monster
+  push distance, and presses made while dead (each with a regression test). The export gate now also rejects a ladder
+  grabbable from inside a portal trigger.
 - **Polish and feel:**
-  - the held-attack cadence (733 ms against the canonical 720 ms)
-  - airborne Orange Mushrooms do not stagger
   - the proxy models are wider than their touch boxes
-  - a buffered attack press made while dead fires after respawn
   - the 0.25 s snag in Southperry
   - the camera jolt at ladder tops
   - the canopy dither at the moment of contact

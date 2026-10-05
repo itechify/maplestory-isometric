@@ -135,13 +135,15 @@ func step(delta: float) -> void:
 	if def == null or _dying or delta <= 0.0:
 		return
 	_walking = false
+	# The stagger push runs before the brain's tick: the tick that ends the stagger zeroes push_left, so pushing after
+	# it lost the last tick (35 of 36 ticks, playtest finding monster-push-one-tick-short).
+	if not airborne and brain.mode == MonsterBrain.Mode.STAGGER:
+		_step_push(delta)
 	brain.tick(delta)
 	if airborne:
 		_step_air(delta)
 	else:
 		match brain.mode:
-			MonsterBrain.Mode.STAGGER:
-				_step_push(delta)
 			MonsterBrain.Mode.WALK, MonsterBrain.Mode.CHASE:
 				_step_walk(delta)
 	if system != null and is_instance_valid(system) and system.has_method("monster_touch"):
@@ -191,7 +193,9 @@ func receive_hit(res: DamageResult, from: Node3D) -> void:
 	if from != null and is_instance_valid(from):
 		attacker = from
 	var from_pos := from.global_position if from != null and is_instance_valid(from) else global_position - facing
-	brain.on_hit(global_position, from_pos, res.knockback and not airborne)
+	# A hit mid-hop staggers too (the canonical KB rule has no airborne exception: playtest finding
+	# airborne-hit-no-stagger). The hop still lands where it was going; the push then runs for the stagger time left.
+	brain.on_hit(global_position, from_pos, res.knockback)
 	facing = brain.heading
 	if visual != null:
 		visual.on_hit(float(hp) / maxf(def.max_hp, 1))

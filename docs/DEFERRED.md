@@ -25,10 +25,6 @@ purpose.
 
 ## Gameplay polish found in the playtests
 
-- The held-attack cadence is 733 ms against the canonical 720 ms (the lockout is clamped to whole physics ticks).
-- Airborne Orange Mushrooms never stagger or get pushed when hit mid-hop (monster.gd passes "not airborne").
-- An attack pressed while dead is buffered and fires after the respawn.
-- The monster push stops one physics tick short (35 of 36 ticks).
 - The proxy monster models are 1.1–1.5× wider than their canonical touch boxes, so a visible edge can be whiffed (art).
 - The Tutorial Jr. Sentinel is a grey placeholder, and its HP bar crosses its name tag.
 - A pressed jump against a face misses some ledges below the documented 1.35 m reach (6 route ledges need jumps).
@@ -40,8 +36,8 @@ purpose.
 
 ## Prevention and tooling
 
-- An export-gate check that no climbable's grab zone meets a press-Up trigger, and that the anchor-to-arrival segment
-  is clear at body height. The two known cases (000001005) are fixed in the source.
+- An export-gate check that the anchor-to-arrival segment is clear at body height (the climbable-vs-trigger check is
+  done: sidecar_diff fails when a ladder is grabbable with Up from inside a press-Up trigger).
 - A flood-fill trap survey of every map (MAP_ARCHITECTURE L1's "flood fill" is not built). The A Split Road pocket is
   fixed in the source, and `test_d_stuck` guards it.
 - Harness:

@@ -74,6 +74,43 @@ func test_holding_attack_repeats_at_the_lockout_rate() -> void:
 		assert_near(gap, cycle, MonsterTestRig.TICK * 1.01, "held attack repeats every %.3f s" % cycle)
 
 
+func test_held_attack_averages_the_canonical_cadence() -> void:
+	# The Sword's ordinary cycle is 720 ms = 43.2 ticks: rounding every cycle up gave 733 ms (playtest finding
+	# held-attack-cadence). Carrying the sub-tick overshoot makes 20 held swings take 20 x 720 ms within one tick.
+	rig.set_weapon("541")
+	rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var pc := rig.system.player_combat
+	rig.w.bot.hold(&"attack")
+	var first := -1
+	var tick_of_21st := -1
+	for i in 60 * 20:
+		var before := pc.attacks
+		rig.tick()
+		if pc.attacks != before:
+			if first < 0:
+				first = i
+			if pc.attacks == 21:
+				tick_of_21st = i
+				break
+	assert_true(tick_of_21st > 0, "21 attacks while holding")
+	var cycle := _expected_lockout_s("541", pc.last_action)
+	var span := (tick_of_21st - first) * MonsterTestRig.TICK
+	assert_near(span / 20.0, cycle, MonsterTestRig.TICK / 20.0 + 1e-6, "average held cycle over 20 swings")
+
+
+func test_a_press_while_dead_is_not_buffered_into_the_respawn() -> void:
+	rig.set_weapon("541")
+	var p := rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var pc := rig.system.player_combat
+	p.die()
+	_press_attack()
+	rig.tick()
+	assert_eq(pc.attacks, 0, "no attack while dead")
+	p.revive()
+	rig.run(3)
+	assert_eq(pc.attacks, 0, "the press made while dead does not fire after the revive")
+
+
 func test_a_press_just_before_the_lockout_ends_is_buffered() -> void:
 	rig.set_weapon("541")
 	rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)

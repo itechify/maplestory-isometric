@@ -187,6 +187,42 @@ def _portal_inward_xz(p):
     return d[0] / ln, d[1] / ln
 
 
+def _misostory_top(data_dir, fname, key):
+    """game/data/misostory/<fname>.json top-level key as a float, or None when absent (read-only)."""
+    try:
+        with open(os.path.join(data_dir, "misostory", f"{fname}.json"), encoding="utf-8") as f:
+            v = json.load(f).get(key)
+        return None if v is None else float(v)
+    except (OSError, ValueError, AttributeError):
+        return None
+
+
+def climb_trigger_conflicts(s, half_depth, half_width, height, grab_r, body_h):
+    """[(portal, climbable, gap_m)] for every climbable a player could grab with Up while inside a portal's press-Up
+    trigger box: Up there both grabs the ladder and enters the portal (playtest finding ladder-portal-up-conflict-1005).
+    An Up grab starts from the climbable's foot ground (the controller grabs from the line only with the feet between
+    its bottom and its top exit), so the test is: the foot's horizontal distance to the box (gap_m, 0 inside) is under
+    the grab radius (movement.json climb_grab_radius_m), and a body standing on the foot ground (body_h tall) reaches
+    the box's height band (0.5 m below the anchor to `height` above it). A ladder whose foot is on another tier, with
+    only its upper part beside the trigger, is not a conflict: nobody stands beside a cliff face."""
+    out = []
+    for p in s.get("portals") or []:
+        o = p.get("position") or [0.0, 0.0, 0.0]
+        ix, iz = _portal_inward_xz(p)
+        for c in s.get("climbables") or []:
+            foot = c.get("foot_ground") or c.get("bottom")
+            if not foot:
+                continue
+            if not (o[1] - 0.5 - body_h <= foot[1] <= o[1] + height):
+                continue
+            dx, dz = foot[0] - o[0], foot[2] - o[2]
+            along, across = dx * ix + dz * iz, -dx * iz + dz * ix
+            gap = math.hypot(max(abs(along) - half_depth, 0.0), max(abs(across) - half_width, 0.0))
+            if gap < grab_r:
+                out.append((p.get("name"), c.get("name"), round(gap, 3)))
+    return out
+
+
 def route_reach(s, portal, half_depth, half_width, height, step=0.25):
     """Smallest |distance along the inward normal| of a route sample inside the portal's press-Up trigger box
     (centred on the anchor: half_depth along the normal, half_width across, 0.5 m below to `height` above), or None
@@ -270,6 +306,16 @@ def contract(sidecars, data_dir, root):
                 if route_reach(s, p, trig["depth_m"] / 2, trig["width_m"] / 2, trig["height_m"]) is None:
                     fails.append(f"{mid}.{p.get('name')}: no declared route enters its press-Up trigger "
                                  f"({trig['width_m']} x {trig['depth_m']} m around the anchor)")
+            # no ladder or rope may be grabbable from inside a press-Up trigger: Up would both climb and warp
+            grab_r = _misostory_top(data_dir, "movement", "climb_grab_radius_m")
+            body_h = _misostory_top(data_dir, "movement", "body_height_m")
+            if grab_r is None or body_h is None:
+                fails.append(f"contract: no climb_grab_radius_m / body_height_m in {data_dir}/misostory/movement.json")
+            else:
+                for pname, cname, gap in climb_trigger_conflicts(s, trig["depth_m"] / 2, trig["width_m"] / 2,
+                                                                 trig["height_m"], grab_r, body_h):
+                    fails.append(f"{mid}.{pname}: climbable {cname} is grabbable from its press-Up trigger "
+                                 f"(grab zone {gap} m from the box, radius {grab_r} m)")
         for a in s.get("arrival_points") or []:
             src = maps.get(a.get("from_meowdb_map_id"), (None, {}))[1]
             if not any(p.get("one_way") and p.get("to_arrival") == a.get("name") and p.get("name") == a.get("from_portal")

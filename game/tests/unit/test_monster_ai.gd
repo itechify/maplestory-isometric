@@ -251,6 +251,30 @@ func test_a_monster_spawned_in_the_air_falls_and_lands() -> void:
 	assert_near(m.global_position.y, 0.0, 0.02, "on the floor")
 
 
+func test_knockback_push_covers_the_full_distance() -> void:
+	# The push used to run after the brain's tick, which zeroes push_left on the stagger's last tick, so a monster
+	# travelled 35/36 of combat.json's knockback distance (playtest finding monster-push-one-tick-short).
+	rig.floor(20.0)
+	var m := rig.spawn("2", Vector3.ZERO)
+	var x0 := m.global_position.x
+	m.brain.on_hit(m.global_position, m.global_position - Vector3(1, 0, 0), true)
+	for i in 120:
+		rig.tick()
+	assert_near(m.global_position.x - x0, m.def.knockback_m, 0.002, "pushed the whole knockback distance")
+
+
+func test_a_hit_mid_hop_still_staggers() -> void:
+	# The canonical KB rule has no airborne exception (playtest finding airborne-hit-no-stagger).
+	rig.floor(20.0)
+	var m := rig.spawn("9", Vector3.ZERO)
+	m.airborne = true
+	var res := DamageResult.new()
+	res.final = 1
+	res.knockback = true
+	m.receive_hit(res, null)
+	assert_eq(m.brain.mode, MonsterBrain.Mode.STAGGER, "a mid-air hit staggers the monster")
+
+
 func test_knockback_push_stops_at_a_ledge() -> void:
 	rig.floor(4.0)
 	var m := rig.spawn("2", Vector3(1.75, 0, 0))
