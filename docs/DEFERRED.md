@@ -165,9 +165,9 @@ items were left on purpose or found along the way.
   scratch scenarios, 22 and 4 checks, that were not adopted). `test_b_combat`, `test_d_inventory`,
   `test_f_death` and `test_g_shop` still carry their own copies of kit helpers. `unstick()` is verified only on the
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
-  a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample.
-  `test_c_progression` and `test_a_traversal` were not re-run on the integrated build (their last passes are from
-  the packages' branches; the 000001000 pockets test_c found are filled in the source, and `trap_probe` covers them).
+  a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. On the
+  integrated build `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 25 of 25 maps and 47 of 47 portals on
+  foot, no death).
 - **Docs outside this list's owner:** `runtime/DEBUG_TOOLS.md` still calls the `drops` simulation "placeholder
   rates"; `runtime/PLAYTHROUGH_REPORT.md` is Iteration Two's report.
 

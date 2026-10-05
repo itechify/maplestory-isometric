@@ -172,7 +172,7 @@ images, and how to cut a release.
 | `docs/PROVENANCE_REPORT.md`, `docs/provenance_report.json` | Every canonical value's authority, URL, read time and capture; every unresolved value; every adaptation (`bash scripts/validate_data.sh --report`) |
 | `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence (`node tools/parity/build_parity.mjs`) |
 | `docs/runtime/` | The game's architecture, systems, how-to, content authoring, playtest harness, stuck scan and reports |
-| `docs/review/` | Island reviews 1 and 2 (raw critiques and triage) and the final acceptance check |
+| `docs/review/` | Island reviews 1 and 2 (raw critiques and triage), the final acceptance check, and the Iteration Three audit (`it3_audit.json`) |
 | `docs/images/` | Small README images (refresh with `scripts/readme_images.py`) |
 | `renders/final/` | Final validation renders for every camera, plus debug variants. Generated and not in git: run `scripts/render_all.sh final 3 --debug`, or get `renders-final.zip` from a release |
 | `CONTRIBUTING.md` | What goes in git, the everyday build/validate workflow, README images and releases |
