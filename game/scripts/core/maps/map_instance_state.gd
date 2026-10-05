@@ -68,7 +68,7 @@ static func fresh_for(p_map_id: String, slot_mob_times: Array[float], spawn_mode
 	for t in slot_mob_times:
 		st.mob_times.append(t)
 		st.slots.append({"alive": false, "hp": -1, "died_at": -1.0})
-	st.capacity = spawn_model.capacity(st.slots.size(), players)
+	st.capacity = spawn_model.capacity_for_map(p_map_id, st.slots.size(), players)  # mob-rate switch (monsters package)
 	st.last_tick_index = spawn_model.boundary_index_at_or_before(now)
 	var pool: Array[int] = []
 	for i in st.slots.size():

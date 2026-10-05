@@ -77,13 +77,24 @@ func test_monster_visual_fits_the_canonical_sprite_and_labels_placeholders() -> 
 	else:
 		print("SKIP proxy fit: assets/world/_library.glb not present (INCLUDE_WORLD=1)")
 	var sentinel := MonsterDef.from_id("1", db())
+	assert_eq(sentinel.model, "Mob_TutorialJrSentinel", "the Tutorial Jr. Sentinel has a proxy model")
 	var s := MonsterVisual.new()
 	host.add_child(s)
 	s.build(sentinel, lib)
-	assert_true(s.is_placeholder, "Tutorial Jr. Sentinel has no proxy")
-	var tag := s.model.find_child("PlaceholderTag", true, false) as Label3D
-	assert_true(tag != null and tag.text.contains("placeholder") and tag.text.contains("Tutorial Jr. Sentinel"), "clearly labelled")
-	assert_near(s.height_m, sentinel.sprite_size_m.y, 1e-6, "placeholder at the canonical sprite size")
+	if lib.has("Mob_TutorialJrSentinel"):
+		assert_false(s.is_placeholder, "Tutorial Jr. Sentinel uses its proxy")
+		assert_near(s.height_m, sentinel.sprite_size_m.y, 1e-3, "fitted to the canonical sprite height")
+	else:
+		print("SKIP Sentinel proxy fit: assets/world/_library.glb not present (INCLUDE_WORLD=1)")
+	# Without a library: the stone fallback body, named, at the canonical sprite size, never called a placeholder.
+	var f := MonsterVisual.new()
+	host.add_child(f)
+	f.build(sentinel, null)
+	assert_true(f.is_placeholder, "no library: the fallback body")
+	var tag := f.model.find_child("PlaceholderTag", true, false) as Label3D
+	assert_true(tag != null and tag.text == "Tutorial Jr. Sentinel", "named: %s" % (tag.text if tag != null else "no tag"))
+	assert_false(tag != null and tag.text.to_lower().contains("placeholder"), "no player-visible 'placeholder'")
+	assert_near(f.height_m, sentinel.sprite_size_m.y, 1e-6, "at the canonical sprite size")
 	lib.free_templates()
 
 

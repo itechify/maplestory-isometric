@@ -159,6 +159,13 @@ func spawn_monster(mob_id: String, xform: Transform3D, def: MapDefinition = null
 	return m
 
 
+## The player's feet, or null without a player (MapInstanceView.player_position: the respawn clearance).
+func player_feet() -> Variant:
+	if player == null or not is_instance_valid(player) or not player.is_inside_tree():
+		return null
+	return player.global_position
+
+
 ## Every live (not dying) monster: the view's slot monsters, debug spawns under the view, and free spawns.
 func live_monsters() -> Array[Monster]:
 	var out: Array[Monster] = []
@@ -256,6 +263,19 @@ func monster_touch(m: Monster) -> bool:
 	return true
 
 
+## The authored height band (Vector2(y_lo, y_hi)) of the spawn region slot `slot_index` of `def` was placed in
+## (SpawnSlotPlanner sets SpawnSlot.region to the area's name), or (NAN, NAN) when it has none: a monster's floor
+## covers its region's tier (MonsterDef.floor_range).
+static func region_band(def: MapDefinition, slot_index: int) -> Vector2:
+	if def == null or slot_index < 0 or slot_index >= def.monster_spawn_definitions.size():
+		return Vector2(NAN, NAN)
+	var name_ := def.monster_spawn_definitions[slot_index].region
+	for a in def.spawn_areas:
+		if String(a.get("name", "")) == name_:
+			return Vector2(float(a.get("y_lo", NAN)), float(a.get("y_hi", NAN)))
+	return Vector2(NAN, NAN)
+
+
 ## The mob region of `def` (cached per map).
 func region_for(def: MapDefinition) -> MobRegion:
 	if def == null:
@@ -324,6 +344,8 @@ func use_view(v: MapInstanceView) -> void:
 	view = v
 	view.monster_factory = make_monster
 	view.monster_releaser = release_monster
+	# Respawns wait while the player stands on their slot (presentation.json spawns.respawn_player_clearance_m).
+	view.player_position = player_feet
 	if view.state != null and view.def != null:
 		var st := view.state
 		var d := view.def
@@ -352,6 +374,9 @@ func _new_monster(mob_id: String, xform: Transform3D, def: MapDefinition, map_id
 		m.settle_down_m = t.num("grounding", "probe_down_m")
 	var seed_value := hash("%s:%d:%d" % [map_id, slot_index, _spawn_counter])
 	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp)
+	var band := region_band(def, slot_index)
+	if not is_nan(band.x):
+		m.set_region_band(band.x, band.y)
 	var fade := _tuning().num("spawns", "fade_in_s") if _tuning() != null else 0.0
 	m.visual.start_spawn(fade)
 	monster_spawned.emit(m)
@@ -376,6 +401,9 @@ func _ensure_fx() -> void:
 			attack_fx = AttackFx.new()
 			attack_fx.name = "AttackFx"
 			add_child(attack_fx)
+	# The swing FX lay the real hit area on the ground: the attack box as deep as the hit test makes it.
+	if _db() != null:
+		attack_fx.depth_px = CombatReach.attack_box_depth_px(_db())
 
 
 ## The player's body for contact: (radius, height) of its Hurtbox capsule (player.tscn), else the movement model.
@@ -477,3 +505,5 @@ func _exit_tree() -> void:
 			view.monster_factory = Callable(view, &"default_factory")
 		if view.monster_releaser == Callable(self, &"release_monster"):
 			view.monster_releaser = Callable()
+		if view.player_position == Callable(self, &"player_feet"):
+			view.player_position = Callable()

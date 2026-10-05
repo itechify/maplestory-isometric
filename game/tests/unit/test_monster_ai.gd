@@ -44,19 +44,59 @@ func test_brain_alternates_stand_and_walk_with_the_species_timings() -> void:
 	assert_eq(b.move_dir(Vector3.ZERO, Vector3.ZERO) == Vector3.ZERO, b.mode == MonsterBrain.Mode.IDLE, "no motion while standing")
 
 
+## 'Walks back and forth': after a real run along its line a blocked monster turns around exactly; two short runs in
+## a row (its line is blocked at both ends) turn the line itself by 90 degrees +/- turn_jitter_deg.
 func test_brain_turns_around_when_blocked() -> void:
 	var def := MonsterDef.from_id("2", db())
 	var b := MonsterBrain.new(def, RandomNumberGenerator.new())
 	b.start(Vector3.RIGHT)
 	b.mode = MonsterBrain.Mode.WALK
-	b.heading = Vector3.RIGHT
 	for i in 20:
 		var before := b.heading
+		b.walked(def.pace_min_run_m + 0.5)
 		b.on_blocked()
-		assert_true(b.heading.dot(before) < cos(PI * 0.5 - def.turn_jitter_rad) + 1e-6, "reversed (within the jitter)")
+		assert_near(b.heading.dot(before), -1.0, 1e-6, "turned around exactly on its line (turn %d)" % i)
+		assert_near(absf(b.heading.dot(Vector3.RIGHT)), 1.0, 1e-6, "still the spawn line")
 		assert_near(b.heading.length(), 1.0, 1e-5, "unit heading")
 		assert_near(b.heading.y, 0.0, 1e-9, "horizontal")
 	assert_eq(b.turns, 20)
+	# Boxed in: blocked again before pace_min_run_m, twice: the line turns.
+	var axis0 := b.axis
+	b.walked(def.pace_min_run_m * 0.25)
+	b.on_blocked()
+	assert_near(absf(b.axis.dot(axis0)), 1.0, 1e-6, "one short run: still the same line")
+	b.walked(def.pace_min_run_m * 0.25)
+	b.on_blocked()
+	var turned := rad_to_deg(acos(clampf(absf(b.axis.dot(axis0)), 0.0, 1.0)))
+	assert_true(turned >= 90.0 - rad_to_deg(def.turn_jitter_rad) - 1e-3, "the line turned (%.1f deg)" % turned)
+	assert_near(b.heading.dot(b.axis), 1.0, 1e-6, "walks the new line")
+
+
+## After a stand it turns around on its line with pace_reverse_chance, never onto a new random heading; a chase that
+## ends puts it back on its line.
+func test_brain_paces_one_line_and_returns_to_it_after_a_chase() -> void:
+	var def := MonsterDef.from_id("2", db())
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 11
+	var b := MonsterBrain.new(def, rng)
+	var line := Vector3(1, 0, 1).normalized()
+	b.start(line)
+	var reversals := 0
+	var last := b.heading
+	for i in 60 * 120:
+		b.tick(1.0 / 60.0)
+		if b.mode == MonsterBrain.Mode.WALK:
+			assert_near(absf(b.heading.dot(line)), 1.0, 1e-6, "on its line")
+			if b.heading.dot(last) < 0.0:
+				reversals += 1
+			last = b.heading
+	assert_true(reversals > 0, "turned back on its own after some stands (%d)" % reversals)
+	b.on_hit(Vector3.ZERO, Vector3(0, 0, -3), true)
+	assert_true(b.heading.dot(Vector3.BACK) < -0.99, "faces the attacker")
+	for i in int((def.stagger_s + def.provoked_chase_s) * 60.0) + 4:
+		b.tick(1.0 / 60.0)
+	assert_eq(b.mode, MonsterBrain.Mode.IDLE, "the chase ended")
+	assert_near(absf(b.heading.dot(line)), 1.0, 1e-6, "back on its pacing line")
 
 
 func test_brain_staggers_then_chases_the_attacker_then_wanders() -> void:

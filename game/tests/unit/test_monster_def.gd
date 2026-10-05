@@ -81,8 +81,53 @@ func test_hop_uses_the_character_base_jump_and_canonical_gravity() -> void:
 func test_stagger_and_push_come_from_the_combat_rules() -> void:
 	for id in SPECIES:
 		var d := MonsterDef.build(id, db())
-		assert_near(d.stagger_s, CombatFormula.monster_stagger_s(d.stats, db()), 1e-9, "%s stagger" % id)
+		var canon := MonsterDef.canonical_stagger_s(db().monster(id))
+		if canon > 0.0:
+			assert_near(d.stagger_s, canon, 1e-9, "%s stagger = the canonical record's STAGGER" % id)
+			assert_eq(d.stagger_source, "canonical", "%s stagger source" % id)
+		else:
+			assert_near(d.stagger_s, CombatFormula.monster_stagger_s(d.stats, db()), 1e-9, "%s stagger = the hit clip" % id)
+			assert_eq(d.stagger_source, "hit_animation", "%s stagger source" % id)
+		# MeowDB's live pages (2026-10-05) publish STAGGER 0.6 s for all six; the hit1 clips are 600 ms too.
+		assert_near(d.stagger_s, 0.6, 1e-9, "%s staggers 0.6 s" % id)
 		assert_near(d.knockback_m, WorldScale.h(CombatFormula.monster_knockback_distance_px(db())), 1e-9, "%s push" % id)
+
+
+## The canonical record's own stagger time wins over the hit clip (combat.json monster_knockback
+## stagger_from_canonical_record); without one, or with the switch off, the hit1 clip decides.
+func test_a_canonical_stagger_field_wins_over_the_hit_clip() -> void:
+	var c := ContentDB.new()
+	c.canonical = db().canonical.duplicate(true)
+	c.miso = db().miso.duplicate(true)
+	c.loaded = true
+	var rec: Dictionary = c.canonical["monsters"]["2"]
+	for k in ["stagger_s", "stagger_ms", "stagger_duration_s", "stagger_duration_ms", "stagger"]:
+		rec.erase(k)
+	var by_clip := MonsterDef.build("2", c)
+	assert_eq(by_clip.stagger_source, "hit_animation", "no stagger field: the hit clip")
+	assert_near(by_clip.stagger_s, float(rec["animations"]["hit1"]["duration_ms"]) / 1000.0, 1e-9, "hit1 length")
+	rec["stagger_ms"] = 450
+	var by_record := MonsterDef.build("2", c)
+	assert_eq(by_record.stagger_source, "canonical", "the record's stagger wins")
+	assert_near(by_record.stagger_s, 0.45, 1e-9, "stagger_ms 450")
+	assert_near(MonsterBrain.new(by_record).push_speed(), by_record.knockback_m / 0.45, 1e-9, "the push spreads over it")
+	c.miso[""]["combat"]["monster_knockback"]["stagger_from_canonical_record"] = false
+	var c2 := ContentDB.new()
+	c2.canonical = c.canonical
+	c2.miso = c.miso
+	c2.loaded = true
+	assert_eq(MonsterDef.build("2", c2).stagger_source, "hit_animation", "switch off: the clip again")
+
+
+func test_canonical_stagger_fields() -> void:
+	assert_near(MonsterDef.canonical_stagger_s({"stagger_s": 0.6}), 0.6, 1e-9)
+	assert_near(MonsterDef.canonical_stagger_s({"stagger_ms": 600}), 0.6, 1e-9)
+	assert_near(MonsterDef.canonical_stagger_s({"stagger_duration_ms": 750}), 0.75, 1e-9)
+	assert_near(MonsterDef.canonical_stagger_s({"stagger": 0.6}), 0.6, 1e-9)
+	assert_near(MonsterDef.canonical_stagger_s({"stagger": {"seconds": 0.6, "raw_value": "0.6 seconds"}}), 0.6, 1e-9)
+	assert_near(MonsterDef.canonical_stagger_s({"stagger": {"ms": 600}}), 0.6, 1e-9)
+	assert_eq(MonsterDef.canonical_stagger_s({}), 0.0, "none: 0, never a guess")
+	assert_eq(MonsterDef.canonical_stagger_s({"stagger": null, "stagger_s": "0.6"}), 0.0, "text is not a number")
 
 
 func test_peace_monster_touch_rule() -> void:
@@ -100,10 +145,8 @@ func test_peace_monster_touch_rule() -> void:
 func test_models_and_capsules() -> void:
 	for id in SPECIES:
 		var d := MonsterDef.build(id, db())
-		if id == "1":
-			assert_false(d.has_model(), "Tutorial Jr. Sentinel has no proxy: placeholder")
-		else:
-			assert_true(d.model.begins_with("Mob_"), "%s model" % id)
+		# Every species has a proxy since Iteration Three (the Tutorial Jr. Sentinel: Mob_TutorialJrSentinel).
+		assert_true(d.has_model() and d.model.begins_with("Mob_"), "%s model %s" % [id, d.model])
 		assert_true(d.capsule_radius_m > 0.0 and d.capsule_radius_m <= d.touch_size_m.x * 0.5 + 1e-6, "%s capsule inside the touch zone" % id)
 		assert_near(d.capsule_height_m, d.touch_size_m.y, 0.02, "%s capsule height = touch zone height" % id)
 
@@ -131,7 +174,8 @@ func test_every_adaptation_value_has_a_reason() -> void:
 
 func test_shared_values_reach_every_species_and_a_species_file_overrides_them() -> void:
 	var shared := db().miso_entity("monsters", MonsterDef.SHARED_TABLE)
-	for k in ["probe_ahead_m", "ledge_tolerance_m", "wall_probe_height_m", "new_heading_chance", "turn_jitter_deg",
+	for k in ["probe_ahead_m", "ledge_tolerance_m", "wall_probe_height_m", "floor_band_m", "pace_reverse_chance",
+			"pace_min_run_m", "turn_jitter_deg",
 			"provoked_chase_s", "model_fit", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m",
 			"see_through_radius_m", "see_through_hysteresis_m", "see_through_color", "see_through_fade_s",
 			"see_through_min_cover_m"]:
@@ -143,7 +187,9 @@ func test_shared_values_reach_every_species_and_a_species_file_overrides_them() 
 		assert_near(d.probe_ahead_m, float(shared["probe_ahead_m"]), 1e-9, "%s probe" % id)
 		assert_near(d.ledge_tolerance_m, float(shared["ledge_tolerance_m"]), 1e-9, "%s ledge tolerance" % id)
 		assert_near(d.wall_probe_height_m, float(shared["wall_probe_height_m"]), 1e-9, "%s wall probe" % id)
-		assert_near(d.new_heading_chance, float(shared["new_heading_chance"]), 1e-9, "%s heading chance" % id)
+		assert_near(d.pace_reverse_chance, float(shared["pace_reverse_chance"]), 1e-9, "%s pacing reverse chance" % id)
+		assert_near(d.pace_min_run_m, float(shared["pace_min_run_m"]), 1e-9, "%s pacing min run" % id)
+		assert_near(d.floor_band_m, float(shared["floor_band_m"]), 1e-9, "%s floor band" % id)
 		assert_near(d.turn_jitter_rad, deg_to_rad(float(shared["turn_jitter_deg"])), 1e-9, "%s jitter" % id)
 		assert_near(d.provoked_chase_s, float(shared["provoked_chase_s"]), 1e-9, "%s chase" % id)
 		assert_eq(d.model_fit, String(shared["model_fit"]), "%s model fit" % id)

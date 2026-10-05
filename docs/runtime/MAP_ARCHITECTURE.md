@@ -118,7 +118,16 @@ and [formulas/spawns](https://meowdb.com/msclassic/formulas/spawns):
 - **Cooldown:** 5 s for a wave point (the default). A timed point (`mobTime > 0`) uses its own timer instead.
 - **Capacity:** `floor(spawn_points × PlayerScalar)`, where `PlayerScalar = min(1, 0.75 + 0.05 × (players − 1))`.
   Solo play gives **75%**.
-- **MSC ignores the map `mobRate`.**
+- **The map `mobRate` is ignored: a MisoStory decision between MeowDB pages that disagree** (Iteration Three spawns
+  audit). The spawn-engine guide (2026-08-24), the glossary (2026-09-04) and `/formulas/spawns` say MSC ignores it
+  and capacity comes only from the spawn points and the player scalar. The map pages and the monster-page MOB RATE
+  tooltip say it multiplies capacity ("about 63 up at a time instead of 42" on 000000050), a reading they call their
+  best guess from closed-beta play, which contradicts the same pages' own player scalar and exceeds the spawn-point
+  count. No page says it changes respawn speed. The switch is `data/misostory/presentation.json`
+  `map_mob_rate.apply` (false); turned on, `SpawnModel.capacity_for_map` multiplies the capacity by the map's
+  canonical rate, capped at the spawn-point count (one monster per spawn point). Iteration Two stated "MSC ignores
+  the map mobRate" as a fact and read the switch from canonical data; `formulas/spawn_rate.json`
+  `applied_by_msc` now stays only as MeowDB's own statement.
 - **Unverified on MeowDB's own page:** the exact player-count curve, whether timed points sit outside the cap, and
   whether the tick slips under load. The values are stored as canonical, with MeowDB's verification notes copied
   into the record.
@@ -444,11 +453,36 @@ Every map is fully walled. Exits are only portals, and on `edge` links also the 
    map's region inset of 2 m. `spawn_slot_overrides` in `maps/<id>.json` may pin a slot's transform, with a
    reason. The species and count can never be overridden.
 
+**As built (Iteration Three, `SpawnSlotPlanner`).** Step 2's tier projection of MeowDB's `x, y` was never built; the
+planner places by Blender's species-tagged regions instead (the v8-era `m.mobs` layout and 000000030's
+`m.spawn_region` tiers):
+
+- **Regions.** Each sidecar `spawn_regions` entry is clipped to the mob region; its authored exclusions
+  (`exclude_xz`: the `avoid` zones of `m.mobs`, such as A Split Road's junction plaza, Snail Garden's flower beds and
+  Dangerous Forest's glade) are taken out of its room and no slot samples inside them.
+- **Shares and density.** Two passes. First, slot by slot, a species' slot goes to its tagged region with the most
+  weight per slot of that species already there (a proportional share), as long as the region keeps at least
+  `spawns.min_area_per_slot_m2` (8 m²) of room per slot counting every slot placed so far; a slot no tagged region
+  can take waits. Then the waiting slots spill to the least crowded region of the map. Spilling only after every
+  species has its own regions keeps one species' overflow from taking another species' room (the first Iteration
+  Three planner spilled at once, in species order, and moved 83 slots, 25 of 45 on 000001006). On the shipped export
+  58 of 577 slots spill (test_spawn_slots, flat-ground planning), all on maps with under 18 m² of region room per slot;
+  Tomato Field's 25 slots have 5.1 m² each in all, so there the spill only evens the crowding out; 000001001's
+  BlueSnail_6 no longer holds 16 slots in 88 m² (11 now).
+- **Clearances.** A slot stands at least `slot_min_spacing_m` (1.2 m) from other slots, `slot_portal_clearance_m`
+  (4 m) from every arrival and player_spawns[0], and `slot_npc_clearance_m` (2.5 m: the 1.6 m talk sphere plus the
+  widest touch-zone half-width) from every NPC of the map (Sam stood inside 000000040's Snail_3 region). Sampling
+  tries the region's own tier first, then any walkable top surface; it never accepts a "forced" placement on the
+  shipped export (test_world_static, test_spawn_placement, the `test_b_population` playtest).
+- `SpawnSlotPlanner.arrival_points(def)` and `npc_points(def)` give these clearances to other placed things
+  (breakables).
+
 #### 4.7.2 MapInstanceState (pure, `game/scripts/core/maps/map_instance_state.gd`)
 
 - It holds `slots[i] = {alive: bool, hp: int, died_at: float}`, `drops[] = {item_id|mesos, amount, pos_local,
   expires_at, owner}` and `capacity`.
-- `capacity = SpawnModel.capacity(points, players = 1)`, which is `floor(points × 0.75)`.
+- `capacity = SpawnModel.capacity_for_map(map_id, points, players = 1)`, which is `floor(points × 0.75)` while
+  `presentation.json map_mob_rate.apply` is false (section 3.2).
 - `fresh(def, rng)` fills to capacity **immediately**, choosing random slots with a seeded RNG. Immediate fill is
   an adaptation, because classic maps are populated when you enter them (open question 6).
 - `tick(now)` runs on the global `SpawnClock` boundaries (period `tick_s`, anchored at game start on the pausable
@@ -467,12 +501,20 @@ Monster and drop state is **never** written to save files (drops vanish on logou
 
 - **Pools.** Per-species `CharacterBody3D` pools are pre-warmed at world load. Each pool's size is the largest
   `min(points_of_species, capacity)` over all maps (Snail: 32, from 000000041).
-- **AI** is the classic simple loop, idle, wander and turn, done as a **platform walker** (B):
+- **AI** is the classic simple loop, idle, pace back and forth and turn, done as a **platform walker** (B):
   - before stepping, probe 0.6 m ahead for ground within ±0.45 m; a probe that finds none means a ledge, so turn;
   - probe for a wall at 0.3 m height;
   - clamp to the map's **mob region**, which is the footprint inset by 2 m, minus 4 m discs around portals and
-    gates.
+    gates;
+  - stay on its **floor** ('Stays on its floor'): the ground ahead must lie within `floor_band_m` (0.5 m) of the
+    spawn height, widened to the spawn region's authored tier, so a walker never climbs a ramp to another terrace.
+    The Orange Mushroom ('Jumps between floors') may hop from its spawn floor to one floor above or below it and
+    back, never two floors away (MONSTERS_AND_COMBAT_RUNTIME.md "Behaviour").
 - Monsters never enter trails, never cross gates and ignore the containment layer.
+- **No respawn on the player.** A slot the respawn tick brings back is not realized while the player's feet are
+  within `spawns.respawn_player_clearance_m` (2 m) of it; it waits at the back of the queue (alive in
+  `MapInstanceState`, so capacity and counts stay canonical) until the player has moved away. The arrival's first fill
+  is never held back (slots stand 4 m from arrivals).
 - **Contact damage, hits, knockback and death** belong to the monster and combat docs. On death,
   `Events.monster_killed(monster_id, map_id)` fires, and the slot records `died_at`.
 

@@ -78,6 +78,8 @@ var _cap: Dictionary = {"map": "", "k": -1, "due": -1, "due_k": -1}
 var capacity_checks: Array = []
 var capacity_bad: Array = []
 var kb_interrupted: int = 0
+## The knockback tracks a warp, a teleport or a death interrupted: {t, mob, step_m, session}.
+var kb_interrupts: Array = []
 var unreachable: Array = []
 var _fresh: Dictionary = {}
 var kb_player: Array = []
@@ -238,6 +240,13 @@ func _connect_all() -> void:
 
 
 func _disconnect_all() -> void:
+	# A knockback track still open when the recorders stop (the run ended inside it, or a death paused the game in
+	# it) cannot be measured: it counts as interrupted, with the player's state, rather than as a lost knockback.
+	if not _kbp.is_empty():
+		kb_interrupted += 1
+		kb_interrupts.append({"t": _kbp["t"], "mob": _kbp["mob"], "step_m": 0.0, "session": "open at the end of the run",
+			"dead": d.game().is_character_dead(), "hp": d.character().hp})
+		_kbp = {}
 	var pc := d.combat()
 	if pc != null:
 		pc.disconnect(&"attack_started", _on_attack_started)
@@ -314,6 +323,8 @@ func _on_attack_resolved(target: Node, res: DamageResult) -> void:
 	var rec := {"t": snappedf(float(s.get("t", 0.0)), 0.001), "map": s.get("map", ""), "action": s.get("action", ""),
 		"pres": s.get("pres", ""), "level": int(s.get("level", 0)), "probe": s.get("probe", "")}
 	var actual_iid := target.get_instance_id() if target != null else 0
+	# Which monster the attack hit (0 = a whiff): the reach probes classify by identity, never by "something was hit".
+	rec["iid"] = actual_iid
 	if actual_iid != expected_iid:
 		target_mismatch.append({"t": rec["t"], "map": rec["map"], "pres": rec["pres"], "actual": actual_iid,
 			"expected": expected_iid, "cands": _cand_summary(s.get("cands", []))})
@@ -369,7 +380,7 @@ func _on_touched(m: Monster, res: IncomingResult) -> void:
 	var now := _clock()
 	var rec := {"t": snappedf(d.game_s(), 0.001), "clock": snappedf(now, 0.001), "map": d.current_map(), "mob": m.def.id,
 		"level": c.level, "wdef": stats.wdef, "landed": res.landed(), "missed": res.missed, "guarded": res.guarded,
-		"final": res.final, "knockback": res.knockback, "invuln_left": snappedf(p.invulnerable_time_left(), 0.0001),
+		"final": res.final, "knockback": res.knockback, "hp_after": c.hp, "invuln_left": snappedf(p.invulnerable_time_left(), 0.0001),
 		"hit_chance": snappedf(CombatFormula.incoming_hit_chance(float(m.def.stats.acc), float(stats.avoid), c.level,
 			m.def.stats.level, db), 0.0001),
 		"dist_m": snappedf(Vector2(p.global_position.x - m.global_position.x, p.global_position.z - m.global_position.z).length(), 0.001),
@@ -470,8 +481,11 @@ func _on_view_spawned(node: Node3D, slot: SpawnSlot) -> void:
 	var boundary := k * tick
 	var died_at: float = _pending_deaths.get(key, -1.0)
 	_pending_deaths.erase(key)
+	# A respawn the view held back while the player stood on its slot (presentation.json
+	# spawns.respawn_player_clearance_m) came back in the state on its tick and appears late by design.
+	var waited := bool(_view.call("respawn_waited", slot.index)) if _view.has_method("respawn_waited") else false
 	spawn_refills.append({"map": map, "slot": slot.index, "mob": slot.mob_id, "clock": snappedf(now, 0.001),
-		"boundary": snappedf(boundary, 0.001), "delay": snappedf(now - boundary, 0.0001),
+		"boundary": snappedf(boundary, 0.001), "delay": snappedf(now - boundary, 0.0001), "waited_for_player": waited,
 		"died_at": snappedf(died_at, 0.001), "killed_this_visit": died_at >= 0.0,
 		"eligible": died_at < 0.0 or died_at + cool <= boundary + 1e-6,
 		"same_slot_since_death": snappedf(now - died_at, 0.001) if died_at >= 0.0 else -1.0})
@@ -541,6 +555,7 @@ func _tick() -> void:
 		_kbp["last"] = p.global_position
 		if step_m > 1.0 or String(d.session().call("state_name")) != "IDLE":
 			kb_interrupted += 1
+			kb_interrupts.append({"t": _kbp["t"], "mob": _kbp["mob"], "step_m": snappedf(step_m, 0.001), "session": String(d.session().call("state_name"))})
 			_kbp = {}
 		elif not p.in_hitstun or int(_kbp["ticks"]) > 120:
 			var disp := p.global_position - (_kbp["p0"] as Vector3)
@@ -561,7 +576,10 @@ func _tick() -> void:
 		tr["ticks"] = int(tr["ticks"]) + 1
 		if m.brain.mode != MonsterBrain.Mode.STAGGER:
 			var row: Dictionary = db.monster(String(tr["mob"]))
-			var hit1 := float(((row.get("animations", {}) as Dictionary).get("hit1", {}) as Dictionary).get("duration_ms", 0)) / 1000.0
+			# The canonical stagger time: the record's STAGGER field when it has one, else its hit1 clip.
+			var hit1 := MonsterDef.canonical_stagger_s(row)
+			if hit1 <= 0.0:
+				hit1 = float(((row.get("animations", {}) as Dictionary).get("hit1", {}) as Dictionary).get("duration_ms", 0)) / 1000.0
 			# push_m: the displacement along `away` at the last tick still staggered (the push alone, before the chase)
 			kb_monster.append({"mob": tr["mob"], "t": tr["t"], "stagger_s": snappedf(int(tr["ticks"]) / 60.0, 0.001),
 				"expected_s": hit1, "push_m": snappedf(float(tr["push_m"]), 0.001), "blocked_at_hit": tr["blocked_at_hit"],
@@ -899,7 +917,9 @@ func _local(pos: Vector3) -> Vector3:
 
 
 ## Stands in monsters of `mob` without attacking (walking into the nearest one again after each knockback) until `n`
-## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry.
+## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry. A monster
+## the walk could not bring within reach (it paces a terrace above or below the player and stays on its floor) is
+## skipped for the next nearest one; the skips are forgotten when no other monster of the species is left.
 func _touch_probe(mob: String, n: int, max_s: float) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "touch_probe", "walk into %s without attacking until %d touches" % [_mob_name(mob), n])
 	var p := d.player()
@@ -909,17 +929,25 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 			if String(t["mob"]) == mob:
 				c += 1
 		return c
+	var out_of_reach := func(m: Monster) -> bool:
+		var v := m.global_position - p.global_position
+		return Vector2(v.x, v.z).length() > 4.0 or absf(v.y) > 0.8
 	var c0: int = from_mob.call()
 	var t0 := d.game_s()
+	var skip := {}
+	var skipped := 0
 	while (from_mob.call() as int) - c0 < n and d.game_s() - t0 < max_s:
 		await _heal_if_low()
-		var m := d.nearest_monster({"mob_id": mob, "max_dist_m": 40.0}) as Monster
+		var m := d.nearest_monster({"mob_id": mob, "max_dist_m": 40.0, "exclude": skip}) as Monster
 		if m == null:
+			skip.clear()
 			await d.wait(1.0)
 			continue
-		var to := m.global_position - p.global_position
-		if Vector2(to.x, to.z).length() > 4.0 or absf(to.y) > 0.8:
+		if out_of_reach.call(m):
 			await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": 6.0, "retries": 0})
+			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m):
+				skip[m.get_instance_id()] = true
+				skipped += 1
 			continue
 		var t1 := d.game_s()
 		var k0: int = from_mob.call()
@@ -934,7 +962,7 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 		d.input.release_movement()
 		await d.wait_until(func() -> bool: return not p.in_hitstun, 1.0)
 	var got: int = from_mob.call() - c0
-	d._end(i, got >= n, "%d touches in %.1f s" % [got, d.game_s() - t0])
+	d._end(i, got >= n, "%d touches in %.1f s; %d monsters out of reach skipped" % [got, d.game_s() - t0, skipped])
 
 
 ## Walks within `lo..hi` m (flat) of `m`, by real walking, then faces `toward` (true) or away from it with a slow step.
@@ -999,36 +1027,100 @@ func _tap_attack(tag: String) -> Dictionary:
 	return {}
 
 
+## Reach probes: the player stands 0.75-1.4 m in front of a probe Snail facing away ("behind"), or 3.2-3.9 m
+## ("far") / 2.25-2.55 m ("edge") from it facing it, and taps attack once. Each probe is classified by the identity
+## of what the attack hit (_classify_probe): the probe Snail ("target_hit"), another monster ("bystander_hit") or
+## nothing ("whiff"). Before every tap the front must be clear (_front_clear): no other live monster may overlap any of
+## the Sword's standing presentations, because a provoked bystander walks back into reach between taps. The baseline
+## failure counted a bystander Snail 2.1 m in front of the player as a hit "behind" (ITERATION_LOG Phase B3).
 func _reach_probes() -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "reach_probes", "Snails behind the player (0.75-1.4 m) and in front beyond reach (3.2-3.9 m)")
 	var kinds := [["behind", 0.75, 1.4, false], ["far", 3.2, 3.9, true], ["edge", 2.25, 2.55, true]]
 	var want := 3 if quick else 6
+	var skipped_bystander := 0
 	for k: Array in kinds:
 		var got := 0
 		var tries := 0
-		while got < want and tries < want * 4:
+		var skip := {}
+		while got < want and tries < want * 6:
 			tries += 1
 			await _heal_if_low()
-			var m := d.nearest_monster({"mob_id": "2", "max_dist_m": 40.0}) as Monster
+			var m := d.nearest_monster({"mob_id": "2", "max_dist_m": 40.0, "exclude": skip}) as Monster
 			if m == null:
+				skip.clear()
 				await d.wait(1.0)
 				continue
 			var placed: bool = await _stand_at(m, float(k[1]), float(k[2]), bool(k[3]))
-			if not placed:
+			if not placed or not is_instance_valid(m) or not m.is_alive():
+				continue
+			var target_iid := m.get_instance_id()
+			if not _front_clear(_cands_now(), d.character().level, target_iid):
+				# Another monster is in reach in front: this spot cannot tell a probe hit from a bystander hit. Try the
+				# next Snail (or this one again once the others have moved on).
+				skipped_bystander += 1
+				skip[target_iid] = true
+				await d.wait(0.5)
 				continue
 			var rec := await _tap_attack("probe_" + String(k[0]))
 			if rec.is_empty():
 				continue
 			got += 1
 			var g := _geom(d.player().global_position, d.player().facing, m.global_position) if is_instance_valid(m) else {}
-			probes.append({"kind": k[0], "hit": rec.has("mob"), "mob": rec.get("mob", ""), "pres": rec.get("pres", ""),
-				"nearest": rec.get("nearest", {}), "fwd_m": rec.get("fwd_m", snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001))})
+			var outcome := _classify_probe(rec, target_iid)
+			probes.append({"kind": k[0], "outcome": outcome, "hit": outcome == "target_hit", "mob": rec.get("mob", ""),
+				"pres": rec.get("pres", ""), "nearest": rec.get("nearest", {}), "target_iid": target_iid,
+				"hit_iid": int(rec.get("iid", 0)), "fwd_m": rec.get("fwd_m", snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)),
+				"target_fwd_m": snappedf(float(g.get("fwd_px", 0.0)) * WorldScale.actor(1.0), 0.001)})
 			await d.wait(0.8)
 	var counts := {}
 	for p: Dictionary in probes:
-		var key := "%s_%s" % [p["kind"], "hit" if bool(p["hit"]) else "whiff"]
+		var key := "%s_%s" % [p["kind"], String(p.get("outcome", "whiff"))]
 		counts[key] = int(counts.get(key, 0)) + 1
-	d._end(i, true, str(counts))
+	d._end(i, true, "%s; %d spots skipped (another monster in reach in front)" % [counts, skipped_bystander])
+
+
+## The Sword's standing presentations (every swing and stab the weapon's ordinary attack can draw).
+func _standing_presentations() -> PackedStringArray:
+	var w := WeaponProfile.for_weapon_id(WEAPON, db)
+	var out := PackedStringArray()
+	if w == null:
+		return out
+	for action: String in ["swing", "stab"]:
+		out.append_array(w.presentations_for(action))
+	return out
+
+
+## Player-frame geometry of every live monster now: [{"iid", "mob", "fwd_px", "up_px", "lat_px"}].
+func _cands_now() -> Array:
+	var out: Array = []
+	var p := d.player()
+	for m: Monster in d.monsters().live_monsters():
+		var g := _geom(p.global_position, p.facing, m.global_position)
+		g["iid"] = m.get_instance_id()
+		g["mob"] = m.def.id
+		out.append(g)
+	return out
+
+
+## True when no candidate other than `exclude_iid` overlaps any of the Sword's standing presentations (the canonical
+## oracle, _oracle_overlap): a tap from here can only hit the probe target or nothing. `cands` as _cands_now().
+func _front_clear(cands: Array, level: int, exclude_iid: int) -> bool:
+	var pres_list := _standing_presentations()
+	for g: Dictionary in cands:
+		if int(g.get("iid", 0)) == exclude_iid:
+			continue
+		for pres: String in pres_list:
+			if _oracle_overlap(pres, level, g, String(g["mob"])):
+				return false
+	return true
+
+
+## How a reach probe's attack ended: "target_hit" (the probe Snail itself was hit), "bystander_hit" (another monster
+## was) or "whiff" (nothing). `rec` is the attack record (_on_attack_resolved: "mob" and "iid" on a hit).
+static func _classify_probe(rec: Dictionary, target_iid: int) -> String:
+	if not rec.has("mob"):
+		return "whiff"
+	return "target_hit" if int(rec.get("iid", 0)) == target_iid else "bystander_hit"
 
 
 func _latency_probe() -> void:
@@ -1192,8 +1284,9 @@ func _measure_visual(mob: String) -> void:
 			best = m
 	if best == null:
 		return
-	var f := Vector3(best.facing.x, 0.0, best.facing.z).normalized()
-	var lat := Vector3.UP.cross(f)
+	# In the model's own frame (the Visual node turns toward the facing over time, so the facing at this instant may
+	# not be where the model points): x = forward (its +Z), y = up, z = lateral (its X).
+	var inv := best.visual.global_transform.affine_inverse()
 	var lo := Vector3(INF, INF, INF)
 	var hi := -lo
 	for n: Node in best.visual.model.find_children("*", "MeshInstance3D", true, false):
@@ -1202,9 +1295,8 @@ func _measure_visual(mob: String) -> void:
 			continue
 		var ab := mi.get_aabb()
 		for k in 8:
-			var w := mi.global_transform * ab.get_endpoint(k)
-			var r := w - best.global_position
-			var c := Vector3(r.dot(f), r.y, r.dot(lat))
+			var r := inv * (mi.global_transform * ab.get_endpoint(k))
+			var c := Vector3(r.z, r.y, r.x)
 			lo = lo.min(c)
 			hi = hi.max(c)
 	if lo.x == INF:
@@ -1272,12 +1364,15 @@ func _evaluate() -> void:
 			behind_hits += 1
 	d.note("hit geometry: target feet %.2f..%.2f m along the facing, |lateral| <= %.2f m; %d hits with the feet behind the player (swingO2 reaches 5 px behind); whiff reasons %s" % [
 		fwd_min, fwd_max, lat_max, behind_hits, reasons])
+	# Classified by the identity of what was hit: only a hit on the probe Snail itself counts; a bystander hit is
+	# neither (check #22 above still verifies that every hit, bystanders included, is the oracle's target).
 	var pk := {}
 	for pr: Dictionary in probes:
-		var key := "%s_%s" % [pr["kind"], "hit" if bool(pr["hit"]) else "whiff"]
+		var key := "%s_%s" % [pr["kind"], String(pr.get("outcome", "whiff"))]
 		pk[key] = int(pk.get(key, 0)) + 1
-	d.check("reach probes: a Snail 0.75-1.4 m behind and one 3.2-3.9 m in front are never hit",
-		int(pk.get("behind_hit", 0)) == 0 and int(pk.get("far_hit", 0)) == 0 and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1,
+	d.check("reach probes: the probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in front are never hit",
+		int(pk.get("behind_target_hit", 0)) == 0 and int(pk.get("far_target_hit", 0)) == 0 \
+			and int(pk.get("behind_whiff", 0)) >= 1 and int(pk.get("far_whiff", 0)) >= 1,
 		"%s" % [pk])
 	# --- misses ---------------------------------------------------------------------------------------------------
 	var miss_out := 0
@@ -1417,11 +1512,16 @@ func _evaluate() -> void:
 	var push_m := WorldScale.h(kb_px)
 	var st_bad := 0
 	var air_hits := 0
+	var air_bad: Array = []
 	var free_push: Array = []
 	var cut := 0
 	for k: Dictionary in kb_monster:
 		if bool(k["airborne"]):
 			air_hits += 1
+			# combat.json monster_knockback.airborne_hit: the hop is cancelled and the push runs; it never carries on
+			# toward the attacker (Iteration Two: +0.54 / -1.38 / -1.01 m) nor past the push distance.
+			if not bool(k["staggered"]) or float(k["push_m"]) < -0.05 or float(k["push_m"]) > push_m + 0.05:
+				air_bad.append(k)
 			continue
 		if not bool(k["staggered"]) or absf(float(k["stagger_s"]) - float(k["expected_s"])) > 2.0 / 60.0 + 1e-4:
 			st_bad += 1
@@ -1433,14 +1533,14 @@ func _evaluate() -> void:
 	for h: Dictionary in hits:
 		if not bool(h.get("missed", false)):
 			stagger_hits += 1 if bool(h["kb"]) else 0
-	d.check("monster knockback: KB 1, so every landed hit on a grounded monster staggers it for its canonical hit1 clip",
+	d.check("monster knockback: KB 1, so every landed hit on a grounded monster staggers it for its canonical stagger time (the record's STAGGER, else its hit1 clip)",
 		not kb_monster.is_empty() and st_bad == 0 and stagger_hits == landed,
-		"%d of %d landed hits flagged knockback; %d stagger tracks on grounded monsters, %d off the hit1 time; durations %s" % [stagger_hits,
+		"%d of %d landed hits flagged knockback; %d stagger tracks on grounded monsters, %d off the canonical stagger time; durations %s" % [stagger_hits,
 			landed, kb_monster.size() - air_hits, st_bad, _uniq(kb_monster.filter(func(k: Dictionary) -> bool: return not bool(k["airborne"])).map(
 				func(k: Dictionary) -> String: return "%s:%.3f" % [k["mob"], float(k["stagger_s"])]))])
-	d.soft_check("monster knockback: a hit on a monster in mid-hop staggers it too (the KB rule has no airborne exception)",
-		air_hits == 0, "%d of %d knockback hits landed on an airborne monster and did not stagger or push it: %s" % [air_hits,
-			kb_monster.size(), JSON.stringify(kb_monster.filter(func(k: Dictionary) -> bool: return bool(k["airborne"])).slice(0, 4))])
+	d.check("monster knockback: a hit in mid-hop cancels the hop, staggers it and pushes it away from the attacker, never toward it",
+		air_bad.is_empty(), "%d of %d knockback hits landed on an airborne monster; %d moved toward the attacker or past %.2f m: %s" % [
+			air_hits, kb_monster.size(), air_bad.size(), push_m, JSON.stringify(air_bad.slice(0, 4))])
 	d.soft_check("monster knockback: an unblocked push carries it %.2f m (20 px x WorldScale.h) away from the attacker" % push_m,
 		not free_push.is_empty() and absf(_median(free_push) - push_m) <= 0.02,
 		"%d unblocked pushes: median %.3f m, range %.3f-%.3f m; %d pushes stopped by a ledge, wall or region edge" % [
@@ -1489,20 +1589,24 @@ func _evaluate() -> void:
 	var cool_s := float(spawn_f.get("wave_point_cooldown_s", 0.0))
 	var off_tick := 0
 	var not_eligible := 0
+	var held := 0
 	var delays: Array = []
 	var same_slot: Array = []
 	for r: Dictionary in spawn_refills:
-		delays.append(float(r["delay"]))
-		if float(r["delay"]) < -1e-3 or float(r["delay"]) > 0.1:
-			off_tick += 1
+		if bool(r.get("waited_for_player", false)):
+			held += 1
+		else:
+			delays.append(float(r["delay"]))
+			if float(r["delay"]) < -1e-3 or float(r["delay"]) > 0.1:
+				off_tick += 1
 		if not bool(r["eligible"]):
 			not_eligible += 1
 		if bool(r["killed_this_visit"]):
 			same_slot.append(float(r["same_slot_since_death"]))
 	d.check("respawn: every refill appears on a %.2f s global tick, only from a slot whose death + %.0f s cooldown has passed" % [
 		tick_s, cool_s], spawn_refills.size() >= 3 and off_tick == 0 and not_eligible == 0,
-		"%d refills while in the map, %d off a tick boundary (delay after the boundary %.4f..%.4f s), %d from a slot not yet eligible; %d refilled a slot killed on this visit, %.2f..%.2f s after its death" % [
-			spawn_refills.size(), off_tick, _amin(delays), _amax(delays), not_eligible, same_slot.size(), _amin(same_slot), _amax(same_slot)])
+		"%d refills while in the map, %d off a tick boundary (delay after the boundary %.4f..%.4f s), %d from a slot not yet eligible; %d refilled a slot killed on this visit, %.2f..%.2f s after its death; %d held back until the player left the slot (respawn clearance)" % [
+			spawn_refills.size(), off_tick, _amin(delays), _amax(delays), not_eligible, same_slot.size(), _amin(same_slot), _amax(same_slot), held])
 	var caps := {}
 	for c: Dictionary in capacity_checks:
 		caps[c["map"]] = "%d/%d (canonical %d)" % [int(c["capacity"]), (db.map(String(c["map"])).get("spawns", []) as Array).size(), int(c["canonical_capacity"])]
@@ -1513,8 +1617,21 @@ func _evaluate() -> void:
 	d.soft_check("every targeted monster could be reached on foot and attacked", unreachable.is_empty(),
 		"%d monsters skipped after two 4 s approaches without an attack: %s" % [unreachable.size(), JSON.stringify(unreachable.slice(0, 6))])
 	d.check("no stat bookkeeping anomalies", stat_bad.is_empty(), JSON.stringify(stat_bad.slice(0, 5)))
-	d.note("player deaths: %d, console heals: %d" % [deaths_of_player, heals])
+	d.note("player deaths: %d (recovered during the fights), dead at the end: %s, console heals: %d; interrupted knockback tracks: %s" % [deaths_of_player,
+		d.game().is_character_dead(), heals, JSON.stringify(kb_interrupts)])
 	d.note("visual fit (model extents vs canonical touch zone, m): %s" % [JSON.stringify(visual_fit)])
+	# The body you see is the body you hit: every species shows its proxy (the Tutorial Jr. Sentinel's too), stands on
+	# its feet (a bouncing walker's bob is up to 6% of its height) and spans about its touch zone (1.35x allows the
+	# crawl's squash and stretch and the ink outline).
+	var fit_bad: Array = []
+	for mob: String in visual_fit:
+		var v: Dictionary = visual_fit[mob]
+		var w := float(v["touch_w_m"])
+		if bool(v["placeholder"]) or float(v["visual_fwd_m"]) > w * 1.35 or float(v["visual_lat_m"]) > w * 1.35 \
+				or float(v["visual_base_m"]) > float(v["visual_h_m"]) * 0.06 + 0.03 or float(v["visual_base_m"]) < -0.05:
+			fit_bad.append(mob)
+	d.check("monster visuals: every species shows its proxy on its feet, within about its canonical touch zone",
+		visual_fit.size() == species.size() and fit_bad.is_empty(), "%d species measured; off: %s" % [visual_fit.size(), fit_bad])
 	if not screen_px.is_empty():
 		d.note("on-screen heights at 1600x900 (px): %s" % [JSON.stringify(screen_px)])
 	d.note("latency/peace: %s" % [JSON.stringify(peace)])
@@ -1614,7 +1731,7 @@ func _write_samples() -> void:
 		"formula_disagree": formula_disagree, "touches": touches, "touch_fail": touch_fail, "touch_gaps": _touch_gaps,
 		"kills": kills, "exp": exp_events, "loot": loot_events.map(func(l: Dictionary) -> Dictionary:
 			return {"mob": l["mob"], "map": l["map"], "drops": l["drops"]}),
-		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "unreachable": unreachable, "kb_player": kb_player, "kb_monster": kb_monster,
+		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "kb_interrupts": kb_interrupts, "unreachable": unreachable, "kb_player": kb_player, "kb_monster": kb_monster,
 		"fades": fades, "monitor": monitor, "probes": probes, "visual_fit": visual_fit, "screen_px": screen_px,
 		"peace": peace, "latency_ticks": _latency, "stat_bad": stat_bad}
 	var f := FileAccess.open(d.out_dir.path_join("combat_samples.json"), FileAccess.WRITE)

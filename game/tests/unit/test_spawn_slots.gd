@@ -63,26 +63,40 @@ func test_every_slot_is_placed_with_spacing_and_portal_clearance() -> void:
 					"%s slots %d and %d are %.2f m apart" % [id, i, j, s.position().distance_to(slots[j].position())])
 
 
+## A slot stands in an area tagged with its species unless every such area is full: it holds as many slots as its room
+## allows at presentation.json spawns.min_area_per_slot_m2 (the density rule spills the rest to roomier areas).
 func test_species_matched_areas_are_used_first() -> void:
 	var d := placed("test_species_matched_areas_are_used_first")
 	if d == null:
 		return
+	var min_area := d.tuning.num("spawns", "min_area_per_slot_m2")
+	var spilled := 0
 	for id in d.ids():
 		var def := d.get_def(id)
+		var areas := SpawnSlotPlanner._areas_for(def, d.tuning)
+		var load := {}
+		for s in def.monster_spawn_definitions:
+			load[s.region] = int(load.get(s.region, 0)) + 1
 		for s in def.monster_spawn_definitions:
 			var name := String(def.mob_names.get(s.mob_id, ""))
-			var has_match := false
-			for a in def.spawn_areas:
+			var matched: Array[Dictionary] = []
+			for a in areas:
 				if name in (a.species as PackedStringArray):
-					has_match = true
-			if not has_match:
+					matched.append(a)
+			if matched.is_empty():
 				continue
 			var used: Dictionary = {}
-			for a in def.spawn_areas:
+			for a in areas:
 				if String(a.name) == s.region:
 					used = a
-			assert_true(name in (used.get("species", PackedStringArray()) as PackedStringArray),
-				"%s slot %d (%s) placed in %s" % [id, s.index, name, s.region])
+			if name in (used.get("species", PackedStringArray()) as PackedStringArray):
+				continue
+			spilled += 1
+			for a in matched:
+				var n_in := int(load.get(String(a.name), 0))
+				assert_true(float(a.room) / float(n_in + 1) < min_area,
+					"%s slot %d (%s) spilled to %s while %s had room (%d slots in %.0f m^2)" % [id, s.index, name, s.region, a.name, n_in, float(a.room)])
+	print("  %d slots spilled out of their species' areas by the density rule" % spilled)
 
 
 func test_map_without_areas_uses_the_footprint_fallback() -> void:

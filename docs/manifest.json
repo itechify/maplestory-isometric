@@ -254,7 +254,9 @@
     "Peter",
     "Todd"
    ],
-   "built_mobs": {},
+   "built_mobs": {
+    "Tutorial Jr. Sentinel": 4
+   },
    "routes": [
     "Main",
     "WestIslets",

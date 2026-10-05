@@ -4,18 +4,23 @@ extends RefCounted
 ##
 ## Species and counts are canonical (MeowDB spawns[], index preserved); positions are the adaptation:
 ##   1. each species' slots are distributed over the map's exported spawn areas tagged with that species, else
-##      over every area of the map, else (no areas at all, 000000030 today) over the whole mob region. Every area
-##      is first clipped to the map's mob region (the layout footprint inset by spawns.mob_region_inset_m, section
-##      4.7.4); areas share a species' slots by largest remainder of their weight (the authored proxy count
-##      `points`, else the area in m^2);
+##      over every area of the map, else (no areas at all) over the whole mob region. Every area is first clipped to
+##      the map's mob region (the layout footprint inset by spawns.mob_region_inset_m, section 4.7.4), and its
+##      authored exclusions (Blender m.mobs avoid zones, sidecar exclude_xz) are taken out of its room. Slot by slot,
+##      a species' slot goes to its area with the most weight per slot already given (the authored proxy count
+##      `points`, else the area in m^2: a proportional share), as long as that area keeps at least
+##      spawns.min_area_per_slot_m2 of room per slot counting every species; when none of its areas can, the slot
+##      spills, after every species has had its own areas, to the least crowded area of the map (density control: no
+##      clumps in small regions, and no species pushed out of its own areas by another's overflow);
 ##   2. a slot samples points inside its area with a RandomNumberGenerator seeded by hash("<map_id>:<index>"), so
 ##      placement is deterministic per slot;
 ##   3. a sample is accepted when the topmost surface there is walkable (first on the area's own tier, within
 ##      spawns.tier_tolerance_m of its surface height, then on any top surface), the clearance capsule is free
 ##      (spawns.clearance_radius_m wide, as tall as the species' body: clearance_height()), it lies outside every
-##      keep-out disc of maps/<id>.json spawn_keepouts, and it stands at least spawns.slot_min_spacing_m from
-##      earlier slots and spawns.slot_portal_clearance_m from every arrival point (portal spawn_transforms and
-##      player_spawns[0]);
+##      keep-out disc of maps/<id>.json spawn_keepouts and every exclusion of its area, and it stands at least
+##      spawns.slot_min_spacing_m from earlier slots, spawns.slot_portal_clearance_m from every arrival point (portal
+##      spawn_transforms and player_spawns[0]) and spawns.slot_npc_clearance_m from every NPC of the map (their
+##      interaction spaces);
 ##   4. maps/<id>.json spawn_slot_overrides may pin a slot's position (with a reason); species/count never change.
 ## All tuning comes from presentation.json and maps/<id>.json (WorldTuning); species body heights from the monster
 ## data (species_body_heights). Ground truth comes from a GroundQuery.
@@ -29,6 +34,7 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 		return warnings
 	var spacing := tuning.num("spawns", "slot_min_spacing_m")
 	var clearance := tuning.num("spawns", "slot_portal_clearance_m")
+	var npc_clearance := tuning.num("spawns", "slot_npc_clearance_m")
 	var attempts := maxi(tuning.count("spawns", "slot_attempts"), 1)
 	var tier_tol := tuning.num("spawns", "tier_tolerance_m")
 	var radius := tuning.num("spawns", "clearance_radius_m")
@@ -36,17 +42,13 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 	var keepouts := keepouts_of(def, tuning, problems)
 	for p in problems:
 		warnings.append(String(p))
-	var avoid: Array[Vector3] = []
-	for p in def.portals:
-		if p.is_canonical() or p.portal_type == PortalDef.TYPE_ARRIVAL:
-			avoid.append(p.spawn_transform.origin)
-	if not def.player_spawns.is_empty():
-		avoid.append(def.player_spawns[0].origin)
+	var avoid := arrival_points(def)
+	var npcs := npc_points(def)
 	var areas := _areas_for(def, tuning)
 	if areas.is_empty():
 		warnings.append("%s: no spawn area and no footprint; %d slots left unplaced" % [def.map_id, def.monster_spawn_definitions.size()])
 		return warnings
-	var assignment := _assign_areas(def, areas)
+	var assignment := _assign_areas(def, areas, tuning.num("spawns", "min_area_per_slot_m2"))
 	var overrides: Dictionary = (tuning.map_override(def.map_id).get("spawn_slot_overrides", {}) as Dictionary) \
 		if tuning.map_override(def.map_id).get("spawn_slot_overrides", null) is Dictionary else {}
 	var y_top := def.y_max + tuning.num("grounding", "probe_up_m")
@@ -68,6 +70,7 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 		rng.seed = hash("%s:%d" % [def.map_id, slot.index])
 		var height := clearance_height(slot.mob_id, tuning, body_heights)
 		var pieces: Array = area.pieces
+		var exclude: Array = area.get("exclude", [])
 		var piece_weights: Array[float] = []
 		for piece in pieces:
 			piece_weights.append(absf(_polygon_area(piece)))
@@ -78,7 +81,7 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 		for attempt in attempts:
 			var strict := attempt < attempts / 2
 			var pt := _sample_pieces(pieces, piece_weights, rng)
-			if not pt.is_finite() or in_keepout(pt, keepouts):
+			if not pt.is_finite() or in_keepout(pt, keepouts) or _in_any(pt, exclude):
 				continue
 			var hit := q.top_surface(pt.x, pt.y, y_top, y_bottom, float(area.surface_y))
 			if not bool(hit.ok):
@@ -91,11 +94,13 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 				continue
 			var d_slots := _min_dist(p3, placed)
 			var d_avoid := _min_dist(p3, avoid)
-			var score := minf(d_slots / maxf(spacing, 0.001), d_avoid / maxf(clearance, 0.001))
+			var d_npc := _min_dist(p3, npcs)
+			var score := minf(minf(d_slots / maxf(spacing, 0.001), d_avoid / maxf(clearance, 0.001)),
+				d_npc / maxf(npc_clearance, 0.001))
 			if score > best_score:
 				best_score = score
 				best = {"p": p3, "strict": strict}
-			if d_slots >= spacing and d_avoid >= clearance:
+			if d_slots >= spacing and d_avoid >= clearance and d_npc >= npc_clearance:
 				accepted = true
 				best = {"p": p3, "strict": strict}
 				break
@@ -115,6 +120,27 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, body_h
 			warnings.append("%s slot %d (%s): spacing/clearance not met in %s (best effort)" % [def.map_id, slot.index, slot.mob_id, slot.region])
 		placed.append(slot.transform.origin)
 	return warnings
+
+
+## The points spawn slots keep spawns.slot_portal_clearance_m from: every canonical portal's and arrival gate's arrival
+## (spawn_transform) and player_spawns[0].
+static func arrival_points(def: MapDefinition) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	for p in def.portals:
+		if p.is_canonical() or p.portal_type == PortalDef.TYPE_ARRIVAL:
+			out.append(p.spawn_transform.origin)
+	if not def.player_spawns.is_empty():
+		out.append(def.player_spawns[0].origin)
+	return out
+
+
+## The NPC positions (feet) of the map, which spawn slots keep spawns.slot_npc_clearance_m from (their interaction
+## spaces). Other placed things that need the same clearance (breakables) can reuse it.
+static func npc_points(def: MapDefinition) -> Array[Vector3]:
+	var out: Array[Vector3] = []
+	for n in def.npc_definitions:
+		out.append(n.transform.origin)
+	return out
 
 
 ## Height (m) of the clearance capsule for one species: its body height from `body_heights`, never below
@@ -203,7 +229,8 @@ static func mob_region(def: MapDefinition, tuning: WorldTuning) -> PackedVector2
 
 
 ## Candidate areas of a map, each clipped to the mob region ("pieces"): the exported spawn areas, or the whole mob
-## region when the map exported none. Areas with less room than one slot inside the region are dropped.
+## region when the map exported none. "room" is the clipped area (m^2) minus the area's exclusions ("exclude":
+## polygons, the authored avoid zones). Areas with less room than one slot inside the region are dropped.
 static func _areas_for(def: MapDefinition, tuning: WorldTuning) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	var region := mob_region(def, tuning)
@@ -221,25 +248,40 @@ static func _areas_for(def: MapDefinition, tuning: WorldTuning) -> Array[Diction
 		var room := 0.0
 		for piece in pieces:
 			room += absf(_polygon_area(piece))
+			for ex in a.get("exclude", []):
+				for cut in Geometry2D.intersect_polygons(piece, ex):
+					room -= absf(_polygon_area(cut))
 		if room < spacing * spacing:
 			continue
 		var clipped := a.duplicate()
 		clipped["pieces"] = pieces
+		clipped["room"] = room
 		out.append(clipped)
 	if out.is_empty() and region.size() >= 3:
 		out.append({"name": "fallback:footprint", "species": PackedStringArray(), "polygon": region,
-			"pieces": [region], "surface_y": def.base_y, "weight": 1.0})
+			"pieces": [region], "surface_y": def.base_y, "weight": 1.0, "room": absf(_polygon_area(region))})
 	return out
 
 
-## Index into `areas` for every slot (by slot.index), species-matched areas first, largest-remainder quotas.
-static func _assign_areas(def: MapDefinition, areas: Array[Dictionary]) -> Dictionary:
+## Index into `areas` for every slot (by slot.index), in two passes so one species' overflow never takes the room of
+## another species' own areas.
+## Pass 1, species by species (sorted ids) and slot by slot (index order): the slot goes to the species' candidate area
+## (its species-tagged areas, else the untagged ones, else every area) with the most weight per slot of that species
+## already there (a proportional share, ties to the earlier area), among the candidates that still leave
+## `min_area_per_slot` m^2 of room per slot counting every slot placed so far. A slot no candidate can take waits.
+## Pass 2, the waiting slots in the same order: each spills to the area of the whole map with the most room per slot
+## (the least crowded). With min_area_per_slot 0 this is the plain proportional share (nothing waits).
+static func _assign_areas(def: MapDefinition, areas: Array[Dictionary], min_area_per_slot: float = 0.0) -> Dictionary:
 	var by_species := {}
 	for s in def.monster_spawn_definitions:
 		if not by_species.has(s.mob_id):
 			by_species[s.mob_id] = [] as Array[int]
 		(by_species[s.mob_id] as Array).append(s.index)
 	var out := {}
+	var load: Array[int] = []
+	load.resize(areas.size())
+	load.fill(0)
+	var waiting: Array[int] = []
 	var species_ids: Array = by_species.keys()
 	species_ids.sort()
 	for mob_id in species_ids:
@@ -256,39 +298,49 @@ static func _assign_areas(def: MapDefinition, areas: Array[Dictionary]) -> Dicti
 		if candidates.is_empty():
 			for i in areas.size():
 				candidates.append(i)
-		var quotas := _largest_remainder(slots.size(), candidates, areas)
-		var k := 0
-		for ci in candidates.size():
-			for _n in int(quotas[ci]):
-				out[int(slots[k])] = candidates[ci]
-				k += 1
+		var mine: Array[int] = []
+		mine.resize(areas.size())
+		mine.fill(0)
+		for slot_index in slots:
+			var pick := -1
+			var pick_share := -INF
+			for i in candidates:
+				if min_area_per_slot > 0.0 and _room(areas[i]) / float(load[i] + 1) < min_area_per_slot:
+					continue
+				var share := maxf(float(areas[i].get("weight", 1.0)), 0.0001) / float(mine[i] + 1)
+				if share > pick_share + 1e-9:
+					pick_share = share
+					pick = i
+			if pick < 0:
+				waiting.append(int(slot_index))
+				continue
+			out[int(slot_index)] = pick
+			load[pick] += 1
+			mine[pick] += 1
+	for slot_index in waiting:
+		var pick := -1
+		var roomiest := -INF
+		for i in areas.size():
+			var per_slot := _room(areas[i]) / float(load[i] + 1)
+			if per_slot > roomiest + 1e-9:
+				roomiest = per_slot
+				pick = i
+		out[slot_index] = pick
+		load[pick] += 1
 	return out
 
 
-static func _largest_remainder(total: int, candidates: Array[int], areas: Array[Dictionary]) -> Array[int]:
-	var weights: Array[float] = []
-	var sum := 0.0
-	for i in candidates:
-		var w := maxf(float(areas[i].get("weight", 1.0)), 0.0001)
-		weights.append(w)
-		sum += w
-	var quotas: Array[int] = []
-	var rema: Array[float] = []
-	var given := 0
-	for w in weights:
-		var exact := total * w / sum
-		quotas.append(int(floor(exact)))
-		rema.append(exact - floor(exact))
-		given += int(floor(exact))
-	while given < total:
-		var best := 0
-		for j in rema.size():
-			if rema[j] > rema[best]:
-				best = j
-		quotas[best] += 1
-		rema[best] = -1.0
-		given += 1
-	return quotas
+## Room (m^2) of an area from _areas_for: its clipped area minus exclusions (its weight when not measured).
+static func _room(area: Dictionary) -> float:
+	return float(area.get("room", area.get("weight", 1.0)))
+
+
+## True when `xz` lies inside one of `polys` (an area's exclusions).
+static func _in_any(xz: Vector2, polys: Array) -> bool:
+	for poly in polys:
+		if (poly as PackedVector2Array).size() >= 3 and Geometry2D.is_point_in_polygon(xz, poly):
+			return true
+	return false
 
 
 static func _bbox(poly: PackedVector2Array) -> Rect2:
