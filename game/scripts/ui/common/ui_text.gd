@@ -12,6 +12,8 @@ static func result_message(res: Dictionary, db: ContentDB = null) -> String:
 	var code := String(res.get("code", ""))
 	match code:
 		ItemCodes.LEVEL_TOO_LOW:
+			if bool(res.get("chair", false)):
+				return "You need to be level %d to sit on that chair." % int(res.get("required", 0))
 			return "You need to be level %d to equip that." % int(res.get("required", 0))
 		ItemCodes.STAT_TOO_LOW:
 			return "You need %d %s to equip that (you have %d)." % [int(res.get("required", 0)),

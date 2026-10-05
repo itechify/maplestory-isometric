@@ -52,9 +52,10 @@ var autosave_on_quit: bool = true
 ## Events signals that request an autosave (progress milestones). MapSession also requests one when a transition
 ## reaches IDLE (MAP_ARCHITECTURE.md §4.5 step 15); requests are debounced, so overlaps cost nothing. Quest progress
 ## (a kill, use, talk or visit that moves an objective) is one of them, so a crash never loses more than the
-## debounce window of it; a burst of kills still saves at most once per autosave_max_delay_s.
+## debounce window of it; a burst of kills still saves at most once per autosave_max_delay_s. Spending SP on a skill
+## (skill_leveled) is a milestone too, from wherever the SP is spent (the Skills window, the console).
 const AUTOSAVE_TRIGGERS: PackedStringArray = ["map_entered", "leveled_up", "quest_started", "quest_progressed",
-	"quest_completed", "quest_forfeited"]
+	"quest_completed", "quest_forfeited", "skill_leveled"]
 ## Errors from the last rejected new_game() (for the creation screen).
 var last_creation_errors: PackedStringArray = []
 ## Injection seams (tests): null = the Saves autoload / Data.db / the Events autoload.

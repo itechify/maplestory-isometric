@@ -442,3 +442,29 @@ func test_rolled_kills_are_picked_up_exactly() -> void:
 		assert_eq(character.inventory.count(id), expected_items[id], "item %s" % id)
 	assert_true(spawned > 5, "20 Snail kills drop something")
 	assert_eq(notices.size(), spawned, "one notice per pickup")
+
+
+## The console's "loot <owner> [kills]" rolls with the character's quests as the C2 context: the Wooden Box's Old
+## Wooden Board (441) and Rusty Screw (442), gated to Pio's quest 1012, never drop without it and drop on every roll
+## (Chance value 1) while 1012 is in progress.
+func test_the_loot_command_follows_the_characters_quests() -> void:
+	var out := loot._cmd_loot(PackedStringArray(["0000001", "40"]))
+	assert_true(out.ends_with("drops on the ground"), out)
+	var before := _item_counts(state.drops)
+	assert_false(before.has("441") or before.has("442"), "no gated drop without 1012: %s" % str(before))
+	character.quests.start("1012", 0.0)
+	state.drops.clear()
+	loot._cmd_loot(PackedStringArray(["0000001", "40"]))
+	var during := _item_counts(state.drops)
+	assert_eq(int(during.get("441", 0)), 40, "Old Wooden Board on every roll while 1012 is in progress")
+	assert_eq(int(during.get("442", 0)), 40, "Rusty Screw on every roll while 1012 is in progress")
+	assert_eq(loot._cmd_loot(PackedStringArray()), "usage: loot <owner_id> [kills]")
+
+
+func _item_counts(records: Array) -> Dictionary:
+	var out := {}
+	for rec: Dictionary in records:
+		if String(rec.get("kind", "")) == "item":
+			var id := String(rec.get("item_id", ""))
+			out[id] = int(out.get(id, 0)) + int(rec.get("amount", 1))
+	return out

@@ -6,7 +6,8 @@ extends RefCounted
 ##   slots[i] = {alive: bool, hp: int (-1 = full, set by the monster system), died_at: float (-1 while alive)}
 ##   drops[]  = {uid, item_id | mesos, amount, pos_local, expires_at, owner} (records of the loot system; expired
 ##              drops are discarded on tick/fast_forward)
-##   capacity = SpawnModel.capacity(spawn points, players)
+##   capacity = SpawnModel.capacity_for_map(map id, spawn points, players) (SpawnModel.capacity unless the map mob-rate
+##              switch, presentation.json map_mob_rate, is on)
 ##   breakables[i] = {id, hits: int, respawn_at: float (-1 while intact), respawn_s: float} (contract C8: one per
 ##              canonical maps/<id>.json reactors[i]; see "Breakables" below)
 ##

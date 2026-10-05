@@ -140,15 +140,16 @@ func _debug_commands() -> void:
 	_info("kill all: %d kills (%d slot monsters + 3 debug Snails), %d EXP, Lv %d" % [_killed.size(), live, gained, c.level])
 	var records := 0
 	var canonical := true
+	var ctx := DropRoller.context_for(c)
 	for e in _loot:
 		records += (e[0] as Array).size()
 		canonical = canonical and String(e[1]) == MAP
 		for d in e[0]:
 			var item := String((d as Dictionary).get("item_id", ""))
-			if item != "" and not _in_table(db, _killed, item):
+			if item != "" and not _in_table(db, _killed, item, ctx):
 				canonical = false
 	_check("drops announced (loot_dropped)", _loot.size() > 0, "%d kills" % _killed.size())
-	_check("every dropped item is in a killed monster's canonical drop table, on %s" % MAP, canonical)
+	_check("every dropped item is a rolling member of a killed monster's canonical drop record, on %s" % MAP, canonical)
 	await _frames(3)
 	_check("the loot system put every drop on the ground", loot_system != null and _spawned_drops == records,
 		"%d records, %d ground drops" % [records, _spawned_drops])
@@ -179,11 +180,13 @@ func _debug_commands() -> void:
 		"%d alive / %d capacity, %d live, %d debug" % [inst.alive_count(), inst.capacity, view.live_count(), debug_back])
 
 
-static func _in_table(db: ContentDB, killed: Array, item: String) -> bool:
+## True when `item` can drop from one of the `killed` monsters ([monster id, map id] pairs) under the roll context
+## `ctx`: a rolling member of its canonical drop record (DropRates.rolls_item), not merely a member, since a member the
+## sources leave unresolved never rolls and a quest-gated one rolls only while its quest is in progress.
+static func _in_table(db: ContentDB, killed: Array, item: String, ctx: Dictionary = {}) -> bool:
 	for k in killed:
-		for e in db.drop_table(String(k[0])).get("entries", []):
-			if str((e as Dictionary).get("item_id", "")) == item:  # [drops package] null for an unresolved member
-				return true
+		if DropRates.rolls_item(String(k[0]), item, db, ctx):
+			return true
 	return false
 
 

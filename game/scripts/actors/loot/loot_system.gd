@@ -437,7 +437,9 @@ func _register_debug_commands() -> void:
 
 
 func _feet_or_origin() -> Vector3:
-	return player.global_position if player != null and is_instance_valid(player) else global_position
+	if player != null and is_instance_valid(player) and player.is_inside_tree():
+		return player.global_position
+	return global_position if is_inside_tree() else position
 
 
 func _cmd_loot(args: PackedStringArray) -> String:

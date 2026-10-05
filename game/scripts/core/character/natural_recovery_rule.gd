@@ -96,6 +96,10 @@ func step(dt: float, activity: StringName, hp: int, max_hp: int, chair_hp: int =
 		while rest_s >= tick_s - EPSILON_S and heal < room:
 			rest_s = maxf(0.0, rest_s - tick_s)
 			heal += hp_per_tick
+		# A tick of this step filled HP: from that tick on the clock holds (full HP), so the time after it does not
+		# count. Without this a step longer than a tick would leave rest_s past tick_s (contract C3: [0, interval)).
+		if heal >= room:
+			rest_s = 0.0
 	# The chair's own clock, only while seated on a chair.
 	if activity != SEATED or chair_hp <= 0 or chair_interval_s <= EPSILON_S:
 		if chair_stand_resets_clock:

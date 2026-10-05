@@ -107,6 +107,22 @@ func test_use_refusals_change_nothing() -> void:
 	var res := Chairs.use(low, SKY_BLUE, db(), p)
 	assert_eq(res.code, ItemCodes.LEVEL_TOO_LOW, "the Sky-blue Wooden Chair needs level %d" % int(res.get("required", 0)))
 	assert_eq(int(res.required), ItemDef.of(SKY_BLUE, db()).req_level, "the canonical level requirement")
+	# A chair refused for its level is worded as sitting, never as equipping (the HUD log, the inventory window).
+	assert_true(bool(res.get("chair", false)), "the refusal is marked as a chair's")
+	assert_eq(MisoUiText.result_message(res, db()),
+		"You need to be level %d to sit on that chair." % ItemDef.of(SKY_BLUE, db()).req_level)
+	assert_eq(MisoUiText.result_message(res, null),
+		"You need to be level %d to sit on that chair." % ItemDef.of(SKY_BLUE, db()).req_level, "without a db too")
+	assert_eq(ItemCodes.message(res), "Your level is too low to sit on that chair.")
+	var through_items := ItemService.new(low, db(), bus)
+	through_items.seat = p
+	var via := through_items.use_item(SKY_BLUE)
+	assert_eq(via.code, ItemCodes.LEVEL_TOO_LOW, "the Set-up tab path refuses the same way")
+	assert_false(MisoUiText.result_message(via, db()).contains("equip"), MisoUiText.result_message(via, db()))
+	# Equipment keeps its own wording.
+	var equip := ItemCodes.result(ItemCodes.LEVEL_TOO_LOW, {"item_id": "1040002", "required": 10})
+	assert_eq(MisoUiText.result_message(equip, db()), "You need to be level 10 to equip that.")
+	assert_eq(ItemCodes.message(equip), "Your level is too low to equip that.")
 	assert_eq(Chairs.use(c, RELAXER, db(), p, func() -> bool: return true).code, ItemCodes.DEAD)
 	w.bot.world_dir = Vector3.RIGHT
 	w.run(5)

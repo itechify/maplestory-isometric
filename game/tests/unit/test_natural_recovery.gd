@@ -218,6 +218,20 @@ func test_full_hp_holds_the_clock_and_never_exceeds_max_hp() -> void:
 	assert_eq(_run(r, 30.0, &"dead", 50, 60), 0, "dead (respawn HP already set): nothing")
 
 
+## One step longer than a tick (a hitch, a long frame) that fills HP: the clock stops at the filling tick and stays in
+## [0, tick_s) as contract C3 says; it never banks the seconds spent at full HP.
+func test_a_long_step_that_fills_hp_keeps_the_clock_in_range() -> void:
+	var r := _rule()
+	assert_eq(r.step(25.0, &"still", 45, 50), 5, "one tick fills the 5 HP missing")
+	assert_near(r.rest_s, 0.0, 1e-4, "the 15 s after the filling tick do not count")
+	r.rest_s = 3.0
+	assert_eq(r.step(25.0, &"still", 35, 50), 15, "two ticks fill 15 HP")
+	assert_true(r.rest_s >= 0.0 and r.rest_s < 10.0, "in [0, tick_s): %f" % r.rest_s)
+	r.rest_s = 4.0
+	assert_eq(r.step(25.0, &"still", 10, 50), 20, "room for more: two ticks, nothing held")
+	assert_near(r.rest_s, 9.0, 1e-4, "4 + 25 - 2 x 10 s")
+
+
 func test_save_and_load_keep_the_paused_clock() -> void:
 	var g := _fake_game(20)
 	var nr := _detached_node(g)

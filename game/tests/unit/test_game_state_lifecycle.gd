@@ -212,11 +212,15 @@ func test_progress_milestones_on_the_bus_request_an_autosave() -> void:
 		assert_true(game.is_autosave_pending(), "%s requests an autosave" % sig)
 		_tick(1.0)
 	assert_eq(_count("game_saved"), 6, "one save per milestone burst")
+	bus.emit_signal("skill_leveled", "0001001", 1)
+	assert_true(game.is_autosave_pending(), "spending SP on a skill requests an autosave")
+	_tick(1.0)
+	assert_eq(_count("game_saved"), 7, "saved")
 	# MapSession requests its post-transition autosave through the Saves autoload (no arguments).
 	assert_true(svc.request_autosave(), "Saves.request_autosave() forwards to the Game node")
 	assert_true(game.is_autosave_pending())
 	_tick(1.0)
-	assert_eq(_count("game_saved"), 7, "and it saves like any other request")
+	assert_eq(_count("game_saved"), 8, "and it saves like any other request")
 
 
 ## Quest progress (C3 package, saves): a run of kills keeps pushing the debounce, but the burst still saves within
