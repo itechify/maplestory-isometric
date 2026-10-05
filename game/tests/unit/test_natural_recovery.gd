@@ -232,6 +232,29 @@ func test_a_long_step_that_fills_hp_keeps_the_clock_in_range() -> void:
 	assert_near(r.rest_s, 9.0, 1e-4, "4 + 25 - 2 x 10 s")
 
 
+## NaturalRecoveryRule.ACTIVITIES (what the recovery.json validator lets eligible_activities name) mirrors the values
+## PlayerController.activity() returns (contract C4): read from the controller's source, so a new activity cannot
+## make the validator refuse a valid recovery.json, nor a dropped one let it pass.
+func test_the_activity_list_mirrors_the_player_controller() -> void:
+	var src := FileAccess.get_file_as_string("res://scripts/actors/player/player_controller.gd")
+	var at := src.find("func activity() -> StringName:")
+	assert_true(at >= 0, "PlayerController.activity() found")
+	var end := src.find("\nfunc ", at + 1)
+	var body := src.substr(at, (end if end > at else src.length()) - at)
+	var re := RegEx.create_from_string("&\"([a-z_]+)\"")
+	var returned := {}
+	for m in re.search_all(body):
+		returned[m.get_string(1)] = true
+	var listed := {}
+	for a in NaturalRecoveryRule.ACTIVITIES:
+		listed[a] = true
+	var got: Array = returned.keys()
+	got.sort()
+	var want: Array = listed.keys()
+	want.sort()
+	assert_eq(got, want, "activity() returns exactly NaturalRecoveryRule.ACTIVITIES")
+
+
 func test_save_and_load_keep_the_paused_clock() -> void:
 	var g := _fake_game(20)
 	var nr := _detached_node(g)
