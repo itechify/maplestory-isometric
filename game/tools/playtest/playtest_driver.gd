@@ -18,10 +18,12 @@ extends Node
 ##   windows   open_window(name)  close_window(name)  window_text(name)
 ##   shop      shop_buy(item_id, qty)  shop_sell(item_id, qty)  close_shop()
 ##   setup     console(cmd)
-##   record    screenshot(name)  state()  check(name, cond, details)  soft_check(...)  note(text)  diff(a, b)
+##   strict    begin_strict(reason)  is_strict()   (no console, no api fallback, no unannounced state change after it)
+##   record    screenshot(name)  state()  check(name, cond, details, parity)  soft_check(...)  note(text)  diff(a, b)
 ##   time      frames(n)  wait(s)  wait_until(cond, max_s)  game_s()
 ##
 ## Times are game time: physics frames / Engine.physics_ticks_per_second (the runner uses --fixed-fps 60).
+## Composite play (multi-map travel, conversations, quizzes, item use, AP, shops, survival) is PlaytestKit's.
 ## Results and pitfalls are documented in docs/runtime/PLAYTEST_HARNESS.md.
 
 ## Emitted by reload_process() once the phase is over; the runner writes the report before the process quits.
@@ -76,6 +78,9 @@ var trace_steps: bool = false
 
 var _f0: int = 0
 var _open_steps: Array[int] = []
+## Strict mode: Debug.commands_run when this process started counting, and the event ledger of the live character.
+var _debug0: int = 0
+var _ledger: PlaytestLedger = PlaytestLedger.new()
 
 
 ## Indices (into report.steps) of the steps still running, outermost first.
@@ -108,6 +113,8 @@ func boot() -> bool:
 	main.use_command_line = false
 	add_child(main)
 	await frames(3)
+	# A strict run that continues in this process counts the developer commands from here.
+	_debug0 = _debug_commands()
 	return main.flow.is_in(ShellFlow.State.TITLE)
 
 
@@ -219,19 +226,96 @@ func game_s() -> float:
 	return (Engine.get_physics_frames() - _f0) / float(Engine.physics_ticks_per_second)
 
 
-## Records a PASS/FAIL check. Returns `cond`.
-func check(check_name: String, cond: bool, details: String = "") -> bool:
-	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1)
+## Records a PASS/FAIL check. `parity`: the parity keys it proves (contract C6: "quest:1005", "mechanic:..."), kept
+## in report.json. Returns `cond`.
+func check(check_name: String, cond: bool, details: String = "", parity: Array = []) -> bool:
+	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1,
+		false, parity)
 	print("PLAYTEST CHECK %s %s%s" % ["PASS" if cond else "FAIL", check_name, (": " + details) if details != "" else ""])
 	return cond
 
 
 ## A soft check: PASS, or a WARN line that never fails the run (a known issue to surface without blocking on it).
 ## Returns `cond`.
-func soft_check(check_name: String, cond: bool, details: String = "") -> bool:
-	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1, true)
+func soft_check(check_name: String, cond: bool, details: String = "", parity: Array = []) -> bool:
+	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1,
+		true, parity)
 	print("PLAYTEST CHECK %s %s%s" % ["PASS" if cond else "WARN", check_name, (": " + details) if details != "" else ""])
 	return cond
+
+
+# =================================================================================================================
+# Strict mode: no cheats from here on
+# =================================================================================================================
+
+## Turns strict mode on for the rest of the run (every later phase too): from this step on a console() command is
+## refused and fails the run, an api fallback fails it, every developer command that runs (DebugTools.commands_run,
+## whoever calls it) fails it, and the live character must only change in ways the event bus announced
+## (PlaytestLedger, reconciled at every phase end, Quit to Title and new game). `reason` says where the clean part
+## starts ("after character creation", "after the setup save"). report.json's "strict" block carries the proof.
+func begin_strict(reason: String) -> void:
+	if is_strict():
+		return
+	report.strict = {"enabled": true, "reason": reason,
+		"since": {"phase": phase, "step": report.steps.size(), "game_s": snappedf(game_s(), 0.001)},
+		"debug_commands": 0, "ledger": {"reconciled": 0, "heard": 0, "mismatches": []}, "violations": []}
+	_debug0 = _debug_commands()
+	_ledger_baseline()
+	note("strict mode on (%s): no console command, api fallback or unannounced state change from step %d" % [reason,
+		report.steps.size()])
+
+
+func is_strict() -> bool:
+	return bool(report.strict.get("enabled", false)) if report != null else false
+
+
+## Called by the runner when the phase ends (done, reload, timeout): counts the developer commands this phase ran
+## and reconciles the ledger. Adds one check per strict phase.
+func strict_finish() -> void:
+	if not is_strict():
+		return
+	var n := _debug_commands() - _debug0
+	_debug0 = _debug_commands()
+	if n > 0:
+		report.strict["debug_commands"] = int(report.strict.get("debug_commands", 0)) + n
+		report.add_violation(phase, "debug", "%d developer console command(s) ran in phase %d" % [n, phase])
+	_ledger_checkpoint("the end of phase %d" % phase)
+	var st := report.strict_summary()
+	check("strict: no console command, api fallback, developer command or unannounced state change (phase %d)" % phase,
+		bool(st.get("ok", false)), "%d console, %d api steps, %d debug commands, %d ledger mismatches, %d violations since %s"
+			% [int(st.get("console_steps", 0)), int(st.get("api_steps", 0)), int(st.get("debug_commands", 0)),
+			((st.get("ledger", {}) as Dictionary).get("mismatches", []) as Array).size(),
+			(st.get("violations", []) as Array).size(), String(st.get("reason", ""))])
+
+
+func _debug_commands() -> int:
+	var dbg := debug()
+	return int(dbg.get("commands_run")) if dbg != null and dbg.get("commands_run") != null else 0
+
+
+## The ledger starts on the live character (strict mode only).
+func _ledger_baseline() -> void:
+	var c := character()
+	var g := game()
+	if is_strict() and c != null and g != null and g.has_active_game():
+		_ledger.baseline(events(), c, db())
+
+
+## Reconciles the ledger against the live character, records the result and stops it (the character is about to be
+## replaced, or the phase ends).
+func _ledger_checkpoint(when: String) -> void:
+	if not is_strict() or not _ledger.armed:
+		return
+	var mm := _ledger.reconcile(character())
+	var led: Dictionary = report.strict.get("ledger", {})
+	led["reconciled"] = int(led.get("reconciled", 0)) + 1
+	led["heard"] = int(led.get("heard", 0)) + _ledger.heard
+	var list: Array = led.get("mismatches", [])
+	for m in mm:
+		list.append("phase %d, %s: %s" % [phase, when, m])
+	led["mismatches"] = list
+	report.strict["ledger"] = led
+	_ledger.disarm()
 
 
 ## "" when `a` and `b` hold the same values, else where they first differ ("$.inventory.slots.use[0].qty: 3 != 2").
@@ -457,6 +541,8 @@ func new_game(char_name: String = "Tester", gender: String = "female", weapon_id
 		out["why"] = "not on the title screen (%s)" % (ShellFlow.state_name(main.flow.state) if main != null else "no main")
 		_end(i, false, out["why"])
 		return out
+	# Strict mode: the previous character's ledger is settled before a new one is created.
+	_ledger_checkpoint("before a new game")
 	var why := ""
 	if not await _click_control(main.title.new_button):
 		why = "the title's New Game button did not respond"
@@ -487,6 +573,8 @@ func new_game(char_name: String = "Tester", gender: String = "female", weapon_id
 	out["why"] = why if ok else (main.last_error_message if main.last_error_message != "" else "the game did not start")
 	out["slot"] = main.target_slot
 	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
 	_end(i, ok, "%s in %s via %s" % [out["slot"], out["map"], out["via"]])
 	return out
 
@@ -511,6 +599,8 @@ func continue_game() -> Dictionary:
 	var ok := await _wait_playing(LOAD_TIMEOUT_S)
 	out["ok"] = ok
 	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
 	_end(i, ok, "%s in %s" % [out["slot"], out["map"]])
 	return out
 
@@ -523,6 +613,7 @@ func quit_to_title() -> Dictionary:
 	if main == null or not (main.flow.is_in(ShellFlow.State.PLAYING) or main.flow.is_in(ShellFlow.State.PAUSED)):
 		_end(i, false, "no game running")
 		return out
+	_ledger_checkpoint("Quit to Title")
 	var clicked := false
 	if await _open_pause_menu():
 		clicked = await _click_control(_find_text(main.pause_menu, "Quit to Title"))
@@ -932,12 +1023,16 @@ func find_portal(portal_name: String) -> PortalDef:
 # =================================================================================================================
 
 ## The nearest live monster in the current map (horizontal distance), or null. opts: "mob_id", "max_dist_m"
-## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true).
+## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true), "target" (a monster node: that one while it lives, e.g. the
+## one that just hit the player, never a namesake on another tier).
 func nearest_monster(opts: Dictionary = {}) -> Node3D:
 	var ms := monsters()
 	var p := player()
 	if ms == null or p == null:
 		return null
+	var forced: Variant = opts.get("target")
+	if forced is Node3D and is_instance_valid(forced) and bool((forced as Node3D).call("is_alive")):
+		return forced
 	var best: Node3D = null
 	var best_d := float(opts.get("max_dist_m", FIGHT_MAX_DIST_M))
 	var exclude: Dictionary = opts.get("exclude", {})
@@ -955,7 +1050,8 @@ func nearest_monster(opts: Dictionary = {}) -> Node3D:
 
 ## Picks the nearest live monster, walks up to it (over the routes when it is far or on another tier, straight at it
 ## when close), faces it and attacks with the attack key until it dies or `max_s` pass. Reach comes from the weapon's
-## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster.
+## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster, plus
+## "chase" (true; false: never walk over the routes after it, give up when it is far or on another tier).
 ## Returns {"ok" (killed), "target" (mob id), "attacks", "hits", "misses" (rolled MISS), "whiffs" (nothing in reach),
 ## "damage", "time_s", "why"}. Await it.
 func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dictionary:
@@ -1009,7 +1105,15 @@ func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dict
 			best_d = dist
 			best_t = game_s()
 		var stuck := game_s() - best_t > FIGHT_STUCK_S and dist > ideal
-		if dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
+		if not bool(opts.get("chase", true)) and (dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M):
+			# A fight back, not a hunt: no walk over the routes after a monster that is far or on another tier.
+			out["why"] = "out of reach without a chase (%.1f m away, %.1f m up/down)" % [dist, dy]
+			break
+		if stuck and not bool(opts.get("chase", true)):
+			# Close by and on this tier but not getting closer (a knockback, a prop): keep stepping straight at it.
+			best_d = INF
+			best_t = game_s()
+		elif dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
 			if routed >= 3:
 				out["why"] = "could not reach the monster (%.1f m away, %.1f m up/down)" % [dist, dy]
 				break
@@ -1490,6 +1594,13 @@ func close_shop() -> bool:
 ## "console" step: setup, never play. Returns the console's answer. Await it.
 func console(cmd: String) -> String:
 	var i := _begin(PlaytestReport.KIND_CONSOLE, "console", cmd)
+	if is_strict():
+		# Strict mode: the command is refused (it never runs) and the run fails.
+		report.add_violation(phase, "console", cmd)
+		check("strict: no console command after %s" % String(report.strict.get("reason", "the strict step")), false,
+			"'%s' was refused" % cmd)
+		_end(i, false, "refused: strict mode")
+		return ""
 	var dbg := debug()
 	if dbg == null:
 		_end(i, false, "no Debug autoload")
@@ -1562,6 +1673,10 @@ func _fallback(i: int, why: String) -> void:
 	s["kind"] = PlaytestReport.KIND_API
 	s["fallback"] = why
 	print("PLAYTEST FALLBACK %s: %s" % [s["name"], why])
+	if is_strict():
+		report.add_violation(phase, "api", "%s: %s" % [s["name"], why])
+		check("strict: no api fallback after %s" % String(report.strict.get("reason", "the strict step")), false,
+			"%s: %s" % [s["name"], why])
 
 
 ## Clicks a control with the mouse; true when it reacted (a button's `pressed`, else the pointer was over it).

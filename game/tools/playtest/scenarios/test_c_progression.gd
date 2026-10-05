@@ -16,11 +16,13 @@ extends PlaytestScenario
 ## hit is checked against the per-action damage window with the canonical level-gap scale and critical factor, every
 ## hit must take exactly its damage off the monster's HP (canonical max HP), and every monster touch against
 ## accuracy.json incoming_damage (bounds cross-checked with MeowDB's avoidability-sim vectors). Like a player, the
-## hunter picks up drops with Z and drinks a Red Potion through the Item window (I, Use tab, slot, Use) below 40% HP.
-## A death (no natural regeneration exists) is handled as a player does: OK on the notice, the canonical EXP penalty
-## is checked, and the character walks back from town. The scenario reloads the process after level 5 (persistence
-## check, then the stat window is re-verified) and keeps hunting in later phases until PLAYC_TARGET (env, default 10),
-## the per-phase budget or MAX_PHASE. Run it with
+## hunter picks up drops with Z (PlaytestKit.pickup: the precise last step into the canonical pickup box) and drinks a
+## Red Potion through the Item window (I, Use tab, slot, Use) below 40% HP; without one it rests (PlaytestKit.rest:
+## away from the monsters, standing still for natural HP recovery) to 80%. A death is handled as a player does: OK on
+## the notice, the canonical EXP penalty is checked, and the character walks back from town. The
+## scenario reloads the process after level 5 (persistence check, then the stat window is re-verified) and keeps
+## hunting in later phases until PLAYC_TARGET (env, default 10), the per-phase budget or MAX_PHASE. Travel, deaths,
+## potions, pickups and screenshots are PlaytestKit's. Run it with
 ##   ISOLATE=play-C bash scripts/playtest.sh test_c_progression --out _scratch/play-C/<dir> --seed 1
 
 const WEAPON := "585"
@@ -61,6 +63,7 @@ const POTION_AT := 0.4
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
+var kit: PlaytestKit = null
 var final_target := 10
 
 # --- the independent model -------------------------------------------------------------------------------------
@@ -119,19 +122,21 @@ var pickup_steps := 0
 var potions_used := 0
 var potion_issues: Array = []
 var potion_rows: Array = []
+## Rests below 40% HP without a potion, and their game seconds.
+var rests := 0
+var rest_s := 0.0
 ## Where the player stood (map-local, rounded to 1 m) when a target could not be reached: cell -> count, plus samples.
 var unreachable_cells := {}
 var unreachable_samples: Array = []
 var attack_ctx := {}
 var deaths: Array = []
-var travel: Array = []
-var travel_fallbacks: Array = []
+## How many of PlaytestKit.deaths this phase already took into `deaths`.
+var deaths_seen := 0
 var fights := 0
 var fight_fail := {}
 var timeline: Array = []
 var parity_rows: Array = []
 var exp_vector_issues: Array = []
-var shots := 0
 
 # --- clocks ----------------------------------------------------------------------------------------------------
 var play_offset_s := 0.0
@@ -157,6 +162,7 @@ func max_seconds() -> float:
 func run(p_d: PlaytestDriver) -> void:
 	d = p_d
 	db = d.db()
+	kit = PlaytestKit.new(d)
 	final_target = int(OS.get_environment("PLAYC_TARGET")) if OS.get_environment("PLAYC_TARGET") != "" else 10
 	wall0_ms = Time.get_ticks_msec()
 	if d.phase == 0:
@@ -167,7 +173,7 @@ func run(p_d: PlaytestDriver) -> void:
 			return
 	var target := mini(final_target, PHASE0_TARGET) if d.phase == 0 else final_target
 	await _hunt(target)
-	if d.character().ap > 0 and not _dead():
+	if d.character().ap > 0 and not kit.is_dead():
 		await _allocate()
 	_phase_checks()
 	var c := d.character()
@@ -216,7 +222,7 @@ func _start_new() -> bool:
 	# Level 1: the stat window before anything happens.
 	if await d.open_window("stats"):
 		await d.frames(2)
-		var win := _stats_window()
+		var win := kit.stats_window()
 		_verify_window(win, "L1 at creation")
 		var any_plus := false
 		for s: String in win.plus_buttons:
@@ -224,7 +230,7 @@ func _start_new() -> bool:
 		d.check("no '+' buttons with 0 AP at level 1", not any_plus)
 		_parity(win, 1)
 		_touch_parity(1)
-		await _shot("L1_stats_window")
+		await kit.shot("L1_stats_window")
 		await d.close_window("stats")
 	else:
 		window_issues.append("C did not open the stats window at level 1")
@@ -232,7 +238,7 @@ func _start_new() -> bool:
 	var t0 := d.game_s()
 	var ok := await _travel(String(HUNT_PLAN[0]["map"]))
 	d.check("walked from 000000001 to Snail Hunting Ground I over the trails", ok,
-		"%.1f s; %s" % [d.game_s() - t0, _travel_text()])
+		"%.1f s; %s" % [d.game_s() - t0, kit.travel_text()])
 	timeline.append({"event": "arrived 000000040", "play_s": snappedf(_play_s(), 0.1), "wall_s": snappedf(_wall_s(), 0.1)})
 	return true
 
@@ -260,7 +266,7 @@ func _resume() -> bool:
 	# The reloaded character's stat window: every derived number from the saved base stats and level.
 	if await d.open_window("stats"):
 		await d.frames(2)
-		_verify_window(_stats_window(), "L%d after Continue" % c.level)
+		_verify_window(kit.stats_window(), "L%d after Continue" % c.level)
 		await d.close_window("stats")
 	else:
 		window_issues.append("C did not open the stats window after Continue")
@@ -278,7 +284,7 @@ func _hunt(target: int) -> void:
 	var last_map := ""
 	while d.character().level < target and d.game_s() - phase_play0 < HUNT_BUDGET_S:
 		_ensure_connected()
-		if _dead():
+		if kit.is_dead():
 			await _handle_death()
 			continue
 		var want := _hunt_map(d.character().level)
@@ -294,6 +300,13 @@ func _hunt(target: int) -> void:
 		var c := d.character()
 		if c.hp < POTION_AT * StatCalculator.max_hp(c, db) and c.inventory.count(POTION) > 0 and potion_issues.size() < 5:
 			await _drink()
+			continue
+		if c.hp < POTION_AT * StatCalculator.max_hp(c, db) and c.inventory.count(POTION) == 0:
+			# No potion: rest as a player does (PlaytestKit.rest: away from the monsters, standing still for natural
+			# recovery, fighting back what it can beat) until 80% of Max HP.
+			var rs := await kit.rest(PlaytestKit.HP_RESUME)
+			rests += 1
+			rest_s += rs
 			continue
 		var opts := {"max_dist_m": SEARCH_M, "exclude": exclude}
 		var target_node := d.nearest_monster(opts)
@@ -323,19 +336,19 @@ func _hunt(target: int) -> void:
 					exclude[target_node.get_instance_id()] = true
 		if exclude.size() > 25:
 			exclude.clear()
-		if bool(r["ok"]) and loot_pending and not _dead():
+		if bool(r["ok"]) and loot_pending and not kit.is_dead():
 			loot_pending = false
-			var pk: Dictionary = await d.pickup_all_nearby(4.0, 8.0)
+			var pk: Dictionary = await kit.pickup(4.0, 8.0)
 			pickups += int(pk["picked"])
 			pickup_steps += 1
 		await d.frames(1)
 		_verify_progress("fight %d" % fights)
 		_check_ui_pending()
-		if d.character().level > lv0 and shots < 2:
-			await _shot("levelup_L%d_hud" % d.character().level)
+		if d.character().level > lv0 and kit.shots < 2:
+			await kit.shot("levelup_L%d_hud" % d.character().level)
 		if d.character().level == 3 and d.character().exp * 2 >= _need(3) and not d.carry.has("shot_mid"):
 			d.carry["shot_mid"] = true
-			await _shot("L3_exp_bar_half")
+			await kit.shot("L3_exp_bar_half")
 
 
 func _log_unreachable(target_node: Node3D, why: String) -> void:
@@ -358,94 +371,35 @@ func _hunt_map(level: int) -> String:
 	return String(HUNT_PLAN[HUNT_PLAN.size() - 1]["map"])
 
 
-## Walks map by map (BFS over the canonical portals) with walk_trail. A hop that fails twice is a soft failure and a
-## console warp (setup, flagged) so the run can go on.
+## Walks map by map (PlaytestKit.travel_to: the canonical portals, walk_trail, the survival policy on the way). A hop
+## that fails twice is a soft failure and a console warp (setup, flagged) so the run can go on.
 func _travel(to_map: String) -> bool:
-	var guard := 0
-	while d.current_map() != to_map and guard < 16:
-		guard += 1
-		if _dead():
-			await _handle_death()
-			continue
-		var path := _bfs(d.current_map(), to_map)
-		if path.size() < 2:
-			travel.append({"from": d.current_map(), "to": to_map, "ok": false, "why": "no path"})
-			return false
-		var cur := d.current_map()
-		var hop := String(path[1])
-		var t0 := d.game_s()
-		var r: Dictionary = await d.walk_trail(cur, hop)
-		if d.current_map() == cur and not _dead():
-			r = await d.walk_trail(cur, hop)
-		level_travel_s += d.game_s() - t0
-		var ok := d.current_map() == hop
-		travel.append({"from": cur, "to": hop, "ok": ok, "how": String(r.get("how", "")), "via": String(r.get("via", "")),
-			"time_s": snappedf(d.game_s() - t0, 0.1), "issues": ", ".join(r.get("issues", PackedStringArray()))})
-		if not ok and not _dead():
-			d.soft_check("walked the trail %s -> %s" % [cur, hop], false, "ended in %s: %s" % [d.current_map(),
-				", ".join(r.get("issues", PackedStringArray()))])
-			travel_fallbacks.append("%s -> %s" % [cur, hop])
-			await d.console("warp " + hop)
-	return d.current_map() == to_map
+	var t0 := d.game_s()
+	var ok := await kit.travel_to(to_map, {"fallback_warp": true})
+	level_travel_s += d.game_s() - t0
+	_absorb_deaths()
+	return ok
 
 
-func _bfs(from: String, to: String) -> Array:
-	var prev_of := {from: ""}
-	var queue: Array = [from]
-	while not queue.is_empty():
-		var m: String = queue.pop_front()
-		if m == to:
-			break
-		for p: Dictionary in db.map(m).get("portals", []):
-			var n := String(p.get("to_map_id", ""))
-			if n != "" and not prev_of.has(n) and db.has("maps", n):
-				prev_of[n] = m
-				queue.append(n)
-	if not prev_of.has(to):
-		return []
-	var path: Array = [to]
-	while String(path[0]) != from:
-		path.push_front(prev_of[path[0]])
-	return path
-
-
-func _dead() -> bool:
-	var p := d.player()
-	return d.game().is_character_dead() or (p != null and p.is_dead())
-
-
+## A death as a player handles it (PlaytestKit.respawn: the notice's OK, the respawn), then this phase's bookkeeping.
 func _handle_death() -> void:
-	var c := d.character()
-	var row := {"map": d.current_map(), "level": c.level, "play_s": snappedf(_play_s(), 0.1), "kills_so_far": kills}
-	var shown := await d.wait_until(func() -> bool: return _notice() != null, 15.0)
-	if shown and not d.carry.has("shot_death"):
-		d.carry["shot_death"] = true
-		await _shot("death_notice")
-	var n := _notice()
-	var clicked := false
-	if n != null:
-		var r: Dictionary = await d.click(n.ok_button)
-		clicked = bool(r["ok"])
-	var back := await d.wait_until(func() -> bool: return not _dead() and bool(d.session().call("is_idle")), 30.0)
-	await d.wait_idle()
-	row["notice"] = shown
-	row["ok_clicked"] = clicked
-	row["respawned"] = back
-	row["respawn_map"] = d.current_map()
-	row["hp_after"] = d.character().hp
-	deaths.append(row)
-	level_deaths += 1
-	last_hp = d.character().hp
-	if not back:
-		ui_issues.append("death %d: no respawn after OK (notice %s, clicked %s)" % [deaths.size(), shown, clicked])
+	await kit.respawn({"shot": "death_notice"})
+	_absorb_deaths()
 
 
-func _notice() -> DeathNotice:
-	var gs := d.main.game_session if d.main != null else null
-	if gs == null or gs.death == null:
-		return null
-	var n: DeathNotice = gs.death.notice
-	return n if n != null and is_instance_valid(n) and n.is_visible_in_tree() else null
+## Takes the deaths the kit handled (in a hunt or on a trail) into this phase's rows.
+func _absorb_deaths() -> void:
+	while deaths_seen < kit.deaths.size():
+		var row: Dictionary = (kit.deaths[deaths_seen] as Dictionary).duplicate()
+		deaths_seen += 1
+		row["play_s"] = snappedf(_play_s(), 0.1)
+		row["kills_so_far"] = kills
+		deaths.append(row)
+		level_deaths += 1
+		last_hp = d.character().hp
+		if not bool(row.get("respawned", false)):
+			ui_issues.append("death %d: no respawn after OK (notice %s, clicked %s)" % [deaths.size(), row.get("notice"),
+				row.get("ok_clicked")])
 
 
 # =================================================================================================================
@@ -454,13 +408,13 @@ func _notice() -> DeathNotice:
 
 func _allocate() -> void:
 	var c := d.character()
-	if c.ap <= 0 or _dead():
+	if c.ap <= 0 or kit.is_dead():
 		return
 	if not await d.open_window("stats"):
 		window_issues.append("L%d: C did not open the stats window" % c.level)
 		return
 	await d.frames(2)
-	var win := _stats_window()
+	var win := kit.stats_window()
 	# Right after the level-up, before any click: only the level term of ACC (2 x Level) and HP/MP have moved.
 	_verify_window(win, "L%d before AP" % c.level)
 	var attacks0 := int(d.combat().get("attacks"))
@@ -473,14 +427,12 @@ func _allocate() -> void:
 				break
 			var ap0 := c.ap
 			var before := _window_numbers(win)
-			var plus := win.plus_buttons[stat] as Button
-			var r: Dictionary = await d.click(plus)
-			await d.frames(1)
+			var r: Dictionary = await kit.click_plus(stat)
 			clicks += 1
-			if bool(r["ok"]):
+			if bool(r["click"]):
 				base_model[stat] = int(base_model[stat]) + 1
-			if not bool(r["ok"]) or c.ap != ap0 - 1 or c.get_base_stat(stat) != int(base_model[stat]):
-				click_issues.append("L%d '+' %s: click %s, AP %d -> %d, %s %d (model %d)" % [lv, stat, r["ok"], ap0, c.ap,
+			if not bool(r["click"]) or c.ap != ap0 - 1 or c.get_base_stat(stat) != int(base_model[stat]):
+				click_issues.append("L%d '+' %s: click %s, AP %d -> %d, %s %d (model %d)" % [lv, stat, r["click"], ap0, c.ap,
 					stat, c.get_base_stat(stat), int(base_model[stat])])
 			var after := _window_numbers(win)
 			_verify_window(win, "L%d after +%s" % [lv, stat])
@@ -488,7 +440,7 @@ func _allocate() -> void:
 				before[stat], after[stat], before["acc"], after["acc"], before["avoid"], after["avoid"], before["damage"],
 				after["damage"]])
 			if lv == 2 and clicks == 2:
-				await _shot("L2_stats_mid_allocation")
+				await kit.shot("L2_stats_mid_allocation")
 		click_rows.append("L%d: %s" % [lv, "; ".join(row)])
 		allocated_through = lv
 	var any_plus := false
@@ -502,53 +454,26 @@ func _allocate() -> void:
 		_parity(win, c.level)
 		_touch_parity(c.level)
 		if c.level == 5:
-			await _shot("L5_stats_after_AP")
+			await kit.shot("L5_stats_after_AP")
 	await d.close_window("stats")
 	_snap_prev()
 
 
-## A Red Potion through the real Item window: I, the Use tab, a click on the potion's slot, the Use button.
+## A Red Potion through the real Item window (PlaytestKit.drink: I, the Use tab, a click on the potion's slot, the
+## Use button): one used, HP + the canonical restore, capped at Max HP.
 func _drink() -> void:
 	var c := d.character()
-	if not await d.open_window("inventory"):
-		potion_issues.append("I did not open the Item window")
-		return
-	await d.frames(2)
-	var win := (d.windows() as MisoWindowsRoot).window_by_name("inventory") as MisoInventoryWindow
-	await d.click(win.tab_buttons["use"])
-	await d.frames(1)
-	var slot: MisoItemSlot = null
-	for s: MisoItemSlot in win.slots:
-		if s.item_id == POTION:
-			slot = s
-			break
-	if slot == null:
-		potion_issues.append("no Red Potion slot in the Use tab (%d in the bag)" % c.inventory.count(POTION))
-		await d.close_window("inventory")
-		return
-	await d.click(slot)
-	await d.frames(1)
-	var hp0 := c.hp
-	var n0 := c.inventory.count(POTION)
-	var mx := StatCalculator.max_hp(c, db)
-	var r: Dictionary = await d.click(win.action_button)
-	var want := mini(mx, hp0 + int(db.item(POTION)["consumable"]["hp_restore"]))
+	var r: Dictionary = await kit.drink(POTION)
 	potions_used += 1
-	potion_rows.append("L%d HP %d -> %d/%d (canonical +%d -> %d), potions %d -> %d" % [c.level, hp0, c.hp, mx,
-		int(db.item(POTION)["consumable"]["hp_restore"]), want, n0, c.inventory.count(POTION)])
-	if not bool(r["ok"]) or c.inventory.count(POTION) != n0 - 1 or c.hp != want:
-		potion_issues.append(potion_rows[potion_rows.size() - 1])
-	await d.close_window("inventory")
-
-
-func _stats_window() -> MisoStatsWindow:
-	return (d.windows() as MisoWindowsRoot).window_by_name("stats") as MisoStatsWindow
+	potion_rows.append(String(r["row"]))
+	if not bool(r["ok"]) or int(r["hp1"]) != int(r["want_hp"]):
+		potion_issues.append("%s%s" % [r["row"], "" if bool(r["ok"]) else " (%s)" % r["status"]])
 
 
 func _window_numbers(win: MisoStatsWindow) -> Dictionary:
 	var out := {}
-	for k in ["str", "dex", "int", "luk", "acc", "avoid", "damage", "wdef", "mdef", "magic", "hp", "mp", "level", "exp"]:
-		out[k] = win.value_text(k)
+	for key in ["str", "dex", "int", "luk", "acc", "avoid", "damage", "wdef", "mdef", "magic", "hp", "mp", "level", "exp"]:
+		out[key] = win.value_text(key)
 	return out
 
 
@@ -1057,6 +982,16 @@ func _phase_checks() -> void:
 		other_exp.is_empty(), ", ".join(other_exp))
 	d.check("phase %d: every kill gave its canonical monster EXP" % d.phase, exp_events > 0 and exp_mismatch.is_empty(),
 		"%d EXP events, %d EXP, %d kills %s; %s" % [exp_events, exp_total, kills, kills_by_id, "; ".join(exp_mismatch)])
+	# A hunter that reaches no monster all phase long stands somewhere it cannot leave (a world trap, as F1-9 found):
+	# name the spot so it can be probed (trap_probe, walk_probe).
+	var stranded := kills == 0 and int(fight_fail.get("could not reach the monster", 0)) >= 20
+	var top_cell := ""
+	for cell: Variant in unreachable_cells:
+		if top_cell == "" or int(unreachable_cells[cell]) > int(unreachable_cells[top_cell]):
+			top_cell = String(cell)
+	d.check("phase %d: the hunter is not stranded (it reached a monster)" % d.phase, not stranded,
+		"every one of %d targets unreachable, mostly from map-local cell %s: a possible trap (trap_probe / walk_probe)"
+			% [int(fight_fail.get("could not reach the monster", 0)), top_cell] if stranded else "")
 	d.check("phase %d: one EXP award per monster death" % d.phase, exp_events == kills, "%d awards, %d deaths" % [exp_events, kills])
 	d.check("phase %d: level, EXP and the HUD EXP gauge follow the canonical EXP table after every fight" % d.phase,
 		progress_issues.is_empty(), "%d fights checked; %s" % [progress_checks, "; ".join(progress_issues)])
@@ -1097,13 +1032,13 @@ func _phase_checks() -> void:
 	if potions_used > 0:
 		d.soft_check("phase %d: Red Potions drunk through the Item window restore the canonical 100 HP" % d.phase,
 			potion_issues.is_empty(), "%d potions; %s" % [potions_used, "; ".join(potion_issues)])
-	d.soft_check("phase %d: the hunter never died (there is no natural HP regeneration)" % d.phase, deaths.is_empty(),
-		"%d deaths: %s" % [deaths.size(), deaths])
-	d.soft_check("phase %d: every trail walked on foot (no console fallback)" % d.phase, travel_fallbacks.is_empty(),
-		", ".join(travel_fallbacks))
+	d.soft_check("phase %d: the hunter never died (below 40%% HP it drinks a Red Potion, or rests for natural recovery)"
+		% d.phase, deaths.is_empty(), "%d deaths, %d rests (%.0f s): %s" % [deaths.size(), rests, rest_s, deaths])
+	d.soft_check("phase %d: every trail walked on foot (no console fallback)" % d.phase, kit.fallbacks.is_empty(),
+		", ".join(kit.fallbacks))
 	d.note("phase %d: %d fights, %d kills %s, %d EXP from kills, %d landed hits checked (%d crits), %d whiffs, fight failures %s"
 		% [d.phase, fights, kills, kills_by_id, exp_total, hits_checked, crits, whiffs, fight_fail])
-	d.note("phase %d travel: %s" % [d.phase, _travel_text()])
+	d.note("phase %d travel: %s; survival on the trails %s" % [d.phase, kit.travel_text(), kit.survival])
 	d.note("phase %d loot and potions: %d pickups in %d stops, %d mesos, %d Red Potions drunk, %d in the bag; %s" % [d.phase, pickups,
 		pickup_steps, d.character().mesos, potions_used, d.character().inventory.count(POTION), " | ".join(potion_rows.slice(0, 6))])
 	d.note("phase %d incoming: %d touches, %d dodged, per monster %s" % [d.phase, touches, dodges, touch_by_id])
@@ -1200,19 +1135,6 @@ func _play_s() -> float:
 
 func _wall_s() -> float:
 	return wall_offset_s + (Time.get_ticks_msec() - wall0_ms) / 1000.0
-
-
-func _travel_text() -> String:
-	var parts := PackedStringArray()
-	for t: Dictionary in travel:
-		parts.append("%s->%s %s %s %.1fs%s" % [String(t["from"]).right(4), String(t["to"]).right(4), "ok" if bool(t["ok"]) else "FAIL",
-			t.get("how", ""), float(t.get("time_s", 0.0)), (" (" + String(t["issues"]) + ")") if String(t.get("issues", "")) != "" else ""])
-	return ", ".join(parts)
-
-
-func _shot(shot_name: String) -> void:
-	shots += 1
-	await d.screenshot(shot_name)
 
 
 static func _same_stats(a: Dictionary, b: Dictionary) -> bool:

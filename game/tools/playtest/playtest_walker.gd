@@ -24,6 +24,10 @@ const GROUND_PROBE_UP_M := 1.0
 const GROUND_PROBE_DOWN_M := 4.0
 ## Frames of a straight nudge into a portal trigger after a walk stopped short of it.
 const NUDGE_FRAMES := 60
+## When neither the routes nor the grid reach the goal, how many route points near each end the grid tries to link
+## to (the very nearest can stand on another tier), and how far apart those points are (m).
+const LINK_TRIES := 4
+const LINK_SPREAD_M := 3.0
 const TAP_ACTIONS: Array[StringName] = [&"jump", &"portal_enter", &"climb_down"]
 
 var driver: Node = null
@@ -86,9 +90,11 @@ func standable(feet: Vector3) -> bool:
 ## A path in the current map from the player to `to`: {"path", "how", "props" (grid cells on prop tops)}. In order:
 ##   routes        the map's exported routes (TraversalNav: ladders, ropes, the validated walkways)
 ##   grid          PlaytestGridNav on the real collision (off the route network: terraces, field edges)
-##   routes+grid   the routes to the route point nearest the goal, then the grid
-##   grid+routes   the grid to the route point nearest the player, then the routes
+##   routes+grid   the routes to one of the LINK_TRIES route points nearest the goal, then the grid
+##   grid+routes   the grid to one of the LINK_TRIES route points nearest the player, then the routes
 ##   straight      a straight line (the walk then reports where it stalled)
+## The routes' direct line (no route node between the ends) is taken at once only on one tier (within step_up); a
+## climb tries the grid and the linked plans first.
 ## `planner`: "auto" (the order above), "grid_first" (walk_to's re-plan after a stall on the routes), "grid" or
 ## "routes" (that planner only, else straight).
 func plan(to: Vector3, planner: String = "auto") -> Dictionary:
@@ -105,23 +111,27 @@ func plan(to: Vector3, planner: String = "auto") -> Dictionary:
 		if planner == "grid":
 			return straight
 	var path := n.path(from, to)
-	if not path.is_empty():
-		return {"path": path, "how": "routes" if path.size() > 2 else "straight"}
+	if path.size() > 2:
+		return {"path": path, "how": "routes"}
+	# A direct line from the network is only taken on one tier: a climb (a player knocked off a terrace, a goal on a
+	# ledge) goes on to the grid and the linked plans below, and falls back to the straight line only when they fail.
+	if path.size() == 2 and (absf(to.y - from.y) <= p.model.step_up or planner == "routes"):
+		return {"path": path, "how": "straight"}
 	if planner == "routes":
 		return straight
 	var g := PlaytestGridNav.search(w, p.model, from, to) if not grid_first else {"path": PackedVector3Array()}
 	if not (g["path"] as PackedVector3Array).is_empty():
 		return {"path": g["path"], "how": "grid", "props": int(g["props"])}
-	var near_goal := _nearest_route_point(n, to)
-	if near_goal != Vector3.INF:
+	# The route points nearest each end, a few of them: the very nearest can stand on another tier (a player knocked
+	# off a terrace is nearest to the terrace's route, which the grid cannot reach from below).
+	for near_goal in _nearest_route_points(n, to, LINK_TRIES):
 		var a := n.path(from, near_goal)
 		var gb := PlaytestGridNav.search(w, p.model, near_goal, to) if not a.is_empty() else {"path": PackedVector3Array()}
 		var b: PackedVector3Array = gb["path"]
 		if not b.is_empty():
 			a.append_array(b.slice(1))
 			return {"path": a, "how": "routes+grid", "props": int(gb["props"])}
-	var near_start := _nearest_route_point(n, from)
-	if near_start != Vector3.INF:
+	for near_start in _nearest_route_points(n, from, LINK_TRIES):
 		var gc := PlaytestGridNav.search(w, p.model, from, near_start)
 		var c: PackedVector3Array = gc["path"]
 		var e := n.path(near_start, to) if not c.is_empty() else PackedVector3Array()
@@ -141,6 +151,24 @@ func _nearest_route_point(n: TraversalNav, p: Vector3) -> Vector3:
 			best_d = d
 			best = q
 	return best
+
+
+## The `k` route points closest to `p` (as _nearest_route_point measures), nearest first, at least LINK_SPREAD_M
+## apart so that the tries reach different stretches of the network.
+func _nearest_route_points(n: TraversalNav, p: Vector3, k: int) -> Array[Vector3]:
+	var scored: Array = []
+	for q in n.points:
+		scored.append([Vector2(q.x - p.x, q.z - p.z).length() + absf(q.y - p.y) * 2.0, q])
+	scored.sort_custom(func(a: Array, b: Array) -> bool: return float(a[0]) < float(b[0]))
+	var out: Array[Vector3] = []
+	for s: Array in scored:
+		var q: Vector3 = s[1]
+		if out.any(func(o: Vector3) -> bool: return o.distance_to(q) < LINK_SPREAD_M):
+			continue
+		out.append(q)
+		if out.size() >= k:
+			break
+	return out
 
 
 ## Walks to `to` (world point) in the current map: plan, follow, and on a stall or timeout plan again once from where
