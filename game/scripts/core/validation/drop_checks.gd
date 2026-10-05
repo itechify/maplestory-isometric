@@ -20,8 +20,8 @@ extends RefCounted
 ##       Item", or the membership source lists it so) that a Maple Island quest objective asks for, and the gate is
 ##       that quest; the gate says verified: false (a MisoStory derivation, D3-9)
 ##     - no KuroDB-only row (excluded_kuro_only) is also an entry's chance source
-##     - an unresolved member whose item a Maple Island quest objective asks for is a progression blocker (brief
-##       "Missing KuroDB Probability")
+##     - an unresolved member whose item (or, while the item is unresolved, one of its MeowDB candidates) a Maple
+##       Island quest objective asks for is a progression blocker (brief "Missing KuroDB Probability")
 ##   drop_unresolved (warnings): each member or meso value that never rolls because a source leaves it unresolved, so
 ##     unknown probabilities stay visible (brief "Missing KuroDB Probability"); an unresolved member whose MeowDB
 ##     candidate is now a local item asks for a crosswalk review
@@ -113,21 +113,28 @@ func _check_entry(id: String, e: Dictionary) -> void:
 	_check_gate(id, where, e, item_id)
 	# Visible unresolved members (warnings; the candidates are in the record's item_resolution).
 	var never: PackedStringArray = []
+	# The items this member may be: its item, or (while the item is unresolved) its MeowDB candidates.
+	var maybe: PackedStringArray = []
 	if not resolved:
 		never.append("chance unresolved (no KuroDB value for this member)")
 	if item_id == null:
 		never.append("item unresolved (%s)" % state)
 		var cands: Array = ValidationUtil.as_array(res.get("candidates", [])) if res is Dictionary else []
 		for c in cands:
+			maybe.append(str(c))
 			if db.has("items", str(c)) and state == "not_in_snapshot":
 				report.warning("drop_unresolved", "drops", id, "%s: MeowDB candidate %s is now a local item; review its row in tools/sources/crosswalk/drop_items.json" % [where, str(c)])
+	else:
+		maybe.append(str(item_id))
 	if not never.is_empty():
 		report.count("drop_entries_unresolved")
 		report.warning("drop_unresolved", "drops", id, "'%s' never rolls: %s" % [str(e.get("name", "?")), "; ".join(never)])
-		# Brief: an unresolved drop that Maple Island progression needs is a blocker.
-		if item_id != null and _quest_items.has(str(item_id)):
-			_error(id, "%s: item %s is needed by quest %s but never rolls here (%s): a progression blocker unless another source gives it" % [
-				where, str(item_id), str(_quest_items[str(item_id)]), "; ".join(never)])
+		# Brief: an unresolved drop that Maple Island progression needs is a blocker. An unresolved item counts through
+		# its candidates: a member that may be a quest item but cannot roll is the same hole.
+		for want in maybe:
+			if _quest_items.has(want):
+				_error(id, "%s: item %s%s is needed by quest %s but never rolls here (%s): a progression blocker unless another source gives it" % [
+					where, want, "" if item_id != null else " (a candidate of the unresolved item)", str(_quest_items[want]), "; ".join(never)])
 
 
 ## Re-reads a chance source's raw_value exactly and compares every stored number with the reading.

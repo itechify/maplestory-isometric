@@ -595,7 +595,7 @@ func _kill_slots(mode: String, map: String) -> String:
 
 func _cmd_drops(args: PackedStringArray) -> String:
 	if args.is_empty():
-		return "usage: drops <monster id|name> [kills] [seed]"
+		return "usage: drops <monster id|name|owner id> [kills] [seed]"
 	var words := args
 	var nums: Array[int] = []
 	while words.size() > 1 and words[words.size() - 1].is_valid_int() and nums.size() < 2:

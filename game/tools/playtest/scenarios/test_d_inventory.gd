@@ -883,17 +883,19 @@ func _check_pickups(d: PlaytestDriver, acct: Dictionary, start_mesos: int) -> vo
 			expect.erase(id)
 	d.check("every item held came from a Z pickup or the quest reward (less the ones used)", PlaytestDriver.diff(expect, holds) == "",
 		"held %s, picked %s + reward %s - used %s" % [holds, picked_items, reward, used])
-	# Canonical drop tables of the monsters killed.
+	# The rolling members of the killed monsters' canonical drop records (contract C1: chance and item resolved). A
+	# member the sources leave unresolved is on the record but must never drop.
 	var allowed := {}
 	for mob: String in (acct["killed_mobs"] as Dictionary):
-		for e: Variant in db.drop_table(mob).get("entries", []):
-			allowed[str((e as Dictionary).get("item_id", ""))] = true  # item_id is null for an unresolved member
+		for row: Dictionary in DropRates.effective_entries(mob, db):
+			if String(row.get("excluded", "")) == "":
+				allowed[String(row.item_id)] = true
 	var off_table := PackedStringArray()
 	for id: String in picked_items:
 		if not allowed.has(id):
 			off_table.append(id)
-	d.check("every picked item is on a killed monster's canonical drop table", off_table.is_empty(),
-		"killed %s; picked %s; off-table %s" % [acct["killed_mobs"], picked_items.keys(), off_table])
+	d.check("every picked item is a rolling member of a killed monster's canonical drop record", off_table.is_empty(),
+		"killed %s; picked %s; not rolling there %s; rolling %s" % [acct["killed_mobs"], picked_items.keys(), off_table, allowed.keys()])
 	# Stacking: each stackable id sits in as few slots as its max stack allows.
 	var bad := PackedStringArray()
 	var merged := PackedStringArray()

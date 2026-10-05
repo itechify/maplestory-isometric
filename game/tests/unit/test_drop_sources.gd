@@ -18,6 +18,8 @@ func parity_keys() -> Dictionary:
 		"test_unknown_probabilities_stay_visible": ["mechanic:unresolved-drops-visible"],
 		"test_kurodb_only_row_added_back_fails": ["mechanic:kurodb-only-excluded"],
 		"test_meso_chance_from_meowdb_fails": ["mechanic:meso-chance-source"],
+		"test_unknown_item_id_is_an_error_not_a_crash": ["mechanic:drop-item-ids-resolve"],
+		"test_progression_item_that_never_rolls_is_a_blocker": ["quest:1011", "mechanic:unresolved-drops-visible"],
 	}
 
 
@@ -306,3 +308,19 @@ func test_progression_item_that_never_rolls_is_a_blocker() -> void:
 	e.probability = null
 	e.quantity = null
 	expect_new(_validate(c), "error", "drop_policy", "drops", "3", "item 349 is needed by quest")
+	# The same hole when the item itself is unresolved: a candidate that a quest asks for blocks too.
+	var amb := clone_db()
+	var a := _entry(_rec(amb, "3"), "blue-snail-shell")
+	a.item_id = null
+	a.item_resolution = {"state": "ambiguous", "method": "normalized", "candidates": ["349", "2584"], "note": "test"}
+	expect_new(_validate(amb), "error", "drop_policy", "drops", "3", "item 349 (a candidate of the unresolved item) is needed by quest")
+
+
+func test_unknown_item_id_is_an_error_not_a_crash() -> void:
+	# An item id with no local definition: a drop_policy error (run_validator fails the test on a validator crash).
+	var c := clone_db()
+	_entry(_rec(c, "2"), "red-potion").item_id = "99999"
+	var r := _validate(c)
+	expect_new(r, "error", "drop_policy", "drops", "2", "item 99999 is not a local MeowDB item")
+	assert_true(DropRates.effective_entries("2", c).any(func(row: Dictionary) -> bool:
+		return row.key == "red-potion" and row.excluded == DropRates.UNKNOWN_ITEM), "and it never rolls")

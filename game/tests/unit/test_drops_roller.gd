@@ -110,6 +110,23 @@ func test_quest_gate_board_and_screw_need_pios_quest() -> void:
 	assert_has(ids, "442")
 
 
+func test_debug_drops_command_takes_a_breakable_owner_and_the_characters_quests() -> void:
+	# The console's "drops <owner id> [kills] [seed]" on the Wooden Box: the owner id is used as is, the character's
+	# quests in progress are the context, and unresolved members are listed with their reason.
+	var h := DebugHarness.create(db())
+	var before := h.run("drops 0000001 300")
+	assert_true(before.begins_with("Wooden Box (0000001), 300 kills, seed 1, quests in progress []"), before)
+	assert_true(before.contains("mesos: none (no_mesos)"), before)
+	assert_true(before.contains("442 Old Wooden Board x0 (0 kills") and before.contains("gated to quest 1012 (not in progress)"), before)
+	assert_true(before.contains("237 Egg: never rolls (%s)" % DropRates.UNRESOLVED_CHANCE), before)
+	h.game.character.quests.start("1012", 0.0)
+	var during := h.run("drops 0000001 300")
+	assert_true(during.contains("quests in progress [1012]"), during)
+	assert_true(during.contains("442 Old Wooden Board x300 (300 kills, 100.0000%; configured 100.0000%"), during)
+	assert_false(during.contains("(not in progress)"), during)
+	h.free_all()
+
+
 func test_tutorial_sentinel_always_drops_its_shellpiece() -> void:
 	# KuroDB "100.00% base | Qty 1 | Quest 1035" with no gate (C1 rule: 347 is MeowDB subtype Monster Drop): every kill,
 	# with or without Todd's quest.
