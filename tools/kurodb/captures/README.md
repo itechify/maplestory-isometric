@@ -30,4 +30,5 @@ one at a time and saved here verbatim (rendered text plus the drop rows' item li
   icon key 4000001 on MeowDB), so drops are joined to MeowDB items through a reviewed name crosswalk.
 
 Do not re-collect these pages automatically. To update a value, read the page again in a browser and replace the
-capture (keep `read_at`).
+capture with the new reading and its own `read_at` (ISO 8601 with a zone), then regenerate the drop records
+(`node tools/meowdb/extract_monsters.mjs`; `docs/runtime/HOWTO.md` "Capture a source page by hand").

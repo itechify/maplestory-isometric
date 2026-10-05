@@ -18,4 +18,5 @@ taken from it, and every value that comes from it says so in its provenance.
 passed the site's Cloudflare check. Hidden Street has no breakables, so the Wooden Box keeps MeowDB's drop list.
 
 Do not re-collect these pages automatically. To update a value, read the page again in a browser and replace the
-capture (keep `read_at`).
+capture with the new reading and its own `read_at` (ISO 8601 with a zone), then regenerate the drop records
+(`node tools/meowdb/extract_monsters.mjs`; `docs/runtime/HOWTO.md` "Capture a source page by hand").
