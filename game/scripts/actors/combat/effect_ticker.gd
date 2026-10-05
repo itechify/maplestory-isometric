@@ -24,7 +24,7 @@ var bus: Object = null
 ## Run step() from _physics_process (also requires the PlayerCombat's autostep; tests turn that off).
 var autostep: bool = true
 
-## HP healed by effects so far (tests, the sandbox report).
+## HP effects actually restored so far (after the Max HP clamp; tests, the sandbox report).
 var healed: int = 0
 var _bus_connected: Object = null
 
@@ -56,12 +56,11 @@ func step(delta: float) -> void:
 	var r := EffectBook.tick(c, delta)
 	var heal := int(r.heal)
 	if heal > 0 and not _is_dead():
-		healed += heal
 		if g != null and g.has_method("change_hp"):
-			g.call("change_hp", heal)
+			healed += int(g.call("change_hp", heal))
 		else:
 			var d := _db()
-			StatCalculator.change_hp(c, heal, d)
+			healed += StatCalculator.change_hp(c, heal, d)
 			_emit(&"hp_changed", [c.hp, StatCalculator.max_hp(c, d)])
 	if bool(r.bonuses_changed):
 		_emit(&"stats_changed")

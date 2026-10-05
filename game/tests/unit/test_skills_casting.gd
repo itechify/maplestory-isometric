@@ -230,6 +230,7 @@ func test_recovery_never_heals_above_max_hp() -> void:
 	assert_true(ps.cast(RECOVERY).ok, "cast")
 	_tick_all(60 * 31)
 	assert_eq(c.hp, StatCalculator.max_hp(c, db()), "capped at Max HP")
+	assert_eq(_ticker().healed, 5, "the ticker counts only the HP actually restored")
 
 
 func test_nimble_feet_speeds_up_the_walk_for_its_duration() -> void:
