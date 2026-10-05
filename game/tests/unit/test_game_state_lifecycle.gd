@@ -268,8 +268,10 @@ func test_autosave_needs_a_game() -> void:
 
 
 func test_play_time_counts_unpaused_game_time() -> void:
+	var clock0 := game.clock
 	_tick(2.0)
 	assert_eq(game.character.play_time_s, 0.0, "no play time before a game starts")
+	assert_eq(game.clock, clock0, "no game time either: the title screen and the island load do not count")
 	game.new_game({"save": false})
 	_tick(3.0)
 	assert_near(game.character.play_time_s, 3.0, 1e-6, "3 s played")
@@ -286,6 +288,10 @@ func test_play_time_counts_unpaused_game_time() -> void:
 	var r := svc.read_save("pt")
 	assert_near(r.character.play_time_s, 4.0, 1e-6, "play time persists")
 	assert_near(float(r.meta["play_time_s"]), 4.0, 1e-6, "and is in the slot meta")
+	assert_near(game.clock, clock0 + 4.0, 1e-6, "the game clock ran exactly the unpaused active time")
+	game.close_game()
+	_tick(3.0)
+	assert_near(game.clock, clock0 + 4.0, 1e-6, "back at the title the clock stands still")
 	assert_eq(GameState.format_play_time(3725.9), "1:02:05")
 
 

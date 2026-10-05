@@ -144,6 +144,15 @@ func test_every_npc_slot_box_and_portal_is_reachable() -> void:
 	for bad: Dictionary in doc.unreachable:
 		fail("%s %s %s (%s) at map-local %s is not reachable from the map's entries (%s): %s" % [bad.map_id, bad.kind,
 			bad.id, bad.name, bad.local, bad.rule, bad.why])
+	# The check says no on real geometry too: the one-column pocket of A Split Road that the stuck scan's real
+	# controller could not get into (stuck_allowlist.json unenterable) is no place a player can be proven to reach.
+	var g50 := check.scan.scan_map("000000050")
+	var pocket := g50.node_near(g50.to_world(Vector3(48.37, 2.2, -28.03)), 0.3, 0.3, 1)
+	assert_true(pocket >= 0, "the pocket's floor is a node")
+	if pocket >= 0:
+		var no := check.prove(g50, check.entries(g50), PackedInt32Array([pocket]))
+		assert_false(bool(no.ok), "the unenterable pocket is not proven reachable: %s" % str(no))
+	check.free_all()
 	var out := OS.get_environment("REACH_REPORT_OUT")
 	if out != "":
 		var f := FileAccess.open(out, FileAccess.WRITE)
