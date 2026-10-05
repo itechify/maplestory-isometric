@@ -90,6 +90,8 @@ var kb_interrupted: int = 0
 ## The knockback tracks a warp, a teleport or a death interrupted: {t, mob, step_m, session}.
 var kb_interrupts: Array = []
 var unreachable: Array = []
+## Times the bot stood wedged through a whole approach and hopped out (_unwedge): {t, map, local, freed}.
+var wedges: Array = []
 var _fresh: Dictionary = {}
 var kb_player: Array = []
 var kb_monster: Array = []
@@ -893,6 +895,8 @@ func _fight_species(mob: String, map: String) -> void:
 		zero_on[tid] = int(zero_on.get(tid, 0)) + 1
 		var held := d.player().global_position.distance_to(at0) < 0.05
 		replan = held
+		if held:
+			await _unwedge(target.global_position)
 		if held or int(zero_on[tid]) >= 2 or String(r["why"]).begins_with("could not reach"):
 			excluded_at[tid] = d.game_s()
 			zero_on.erase(tid)
@@ -975,7 +979,10 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 			continue
 		if out_of_reach.call(m):
 			var walk_s := 6.0 if bool(pick["same_tier"]) else CLIMB_S
+			var w0 := p.global_position
 			var w: Dictionary = await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": walk_s, "retries": 0})
+			if String(w.get("result", "")) == "STALLED" and p.global_position.distance_to(w0) < 0.05 and is_instance_valid(m):
+				await _unwedge(m.global_position)
 			# Only a walk that ended (stopped next to it, stalled, fell) and still left it out of reach skips it; a walk
 			# that ran out of time on a long route made progress, and the next pass walks on toward the nearest one.
 			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m) and String(w.get("result", "")) != "TIMEOUT":
@@ -996,6 +1003,30 @@ func _touch_probe(mob: String, n: int, max_s: float) -> void:
 		await d.wait_until(func() -> bool: return not p.in_hitstun, 1.0)
 	var got: int = from_mob.call() - c0
 	d._end(i, got >= n, "%d touches in %.1f s; %d monsters out of reach skipped" % [got, d.game_s() - t0, skipped])
+
+
+## The player stood still through a whole approach or walk: pressed into a wedge after a knockback (the capsule against
+## a prop or a terrace lip; seen at 000000040 local (8.0, 9.2, -37.4) and 000000050 (54.2, 2.2, -17.3), where the
+## route and grid walkers then made no progress for minutes). Hops out with real input (move + jump), toward `toward`
+## first, then to either side and back, until it has moved 0.3 m. Returns whether it got out.
+func _unwedge(toward: Vector3) -> bool:
+	var p := d.player()
+	var f := Vector3(toward.x - p.global_position.x, 0.0, toward.z - p.global_position.z)
+	f = f.normalized() if f.length_squared() > 1e-6 else Vector3.FORWARD
+	var start := p.global_position
+	var freed := false
+	for a: float in [0.0, PI * 0.5, -PI * 0.5, PI, PI * 0.25, -PI * 0.25, PI * 0.75, -PI * 0.75]:
+		var dir := f.rotated(Vector3.UP, a)
+		d.input.set_move_world(dir, p.view_right, p.view_forward)
+		await d.input.tap_action(&"jump")
+		await d.wait(0.6)
+		d.input.release_movement()
+		await d.wait(0.1)
+		if p.global_position.distance_to(start) >= 0.3:
+			freed = true
+			break
+	wedges.append({"t": snappedf(d.game_s(), 0.01), "map": d.current_map(), "local": _local(start), "freed": freed})
+	return freed
 
 
 ## The nearest live monster of `mob` within `max_dist_m` (flat), not in `exclude`, preferring one whose feet are
@@ -1681,6 +1712,7 @@ func _evaluate() -> void:
 	d.soft_check("every targeted monster could be reached on foot and attacked", unreachable.is_empty(),
 		"%d monsters skipped after two 4 s approaches without an attack: %s" % [unreachable.size(), JSON.stringify(unreachable.slice(0, 6))])
 	d.check("no stat bookkeeping anomalies", stat_bad.is_empty(), JSON.stringify(stat_bad.slice(0, 5)))
+	d.note("wedged approaches the bot hopped out of: %s" % [JSON.stringify(wedges)])
 	d.note("player deaths: %d (recovered during the fights), dead at the end: %s, console heals: %d; interrupted knockback tracks: %s" % [deaths_of_player,
 		d.game().is_character_dead(), heals, JSON.stringify(kb_interrupts)])
 	d.note("visual fit (model extents vs canonical touch zone, m): %s" % [JSON.stringify(visual_fit)])
@@ -1795,7 +1827,7 @@ func _write_samples() -> void:
 		"formula_disagree": formula_disagree, "touches": touches, "touch_fail": touch_fail, "touch_gaps": _touch_gaps,
 		"kills": kills, "exp": exp_events, "loot": loot_events.map(func(l: Dictionary) -> Dictionary:
 			return {"mob": l["mob"], "map": l["map"], "drops": l["drops"]}),
-		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "kb_interrupts": kb_interrupts, "unreachable": unreachable, "kb_player": kb_player, "kb_monster": kb_monster,
+		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "kb_interrupts": kb_interrupts, "unreachable": unreachable, "wedges": wedges, "kb_player": kb_player, "kb_monster": kb_monster,
 		"fades": fades, "monitor": monitor, "probes": probes, "visual_fit": visual_fit, "screen_px": screen_px,
 		"peace": peace, "latency_ticks": _latency, "stat_bad": stat_bad}
 	var f := FileAccess.open(d.out_dir.path_join("combat_samples.json"), FileAccess.WRITE)
