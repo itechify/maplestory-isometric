@@ -10,55 +10,187 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - **missing**: The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).
 - **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).
 - **implemented**: Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.
-- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; a drop probability is verified only when its sources resolve.
-- **source_data_gap**: The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount): the entry is excused from the exit criterion.
+- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.
+- **source_data_gap**: The sources do not give a value the entry needs (no KuroDB chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.
 - **in_scope**: false for content outside Iteration Three (rules.json out_of_scope).
+- **evidence**: A unit test declares the keys it proves in its file's parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.
 - Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries
   `parity`. "Implemented" is a declaration (`tools/parity/rules.json`: the runtime files or code markers per category
   and mechanic); only evidence makes an entry verified.
 
 ## Evidence used
 
-- Unit tests `_scratch/rev/full.json`: run 2026-10-05T10:55:01Z, commit a6a0ec76f8ad3116030662a2448a0a411f04d838, 1221 tests, 0 failed
-- Playtest `_scratch/rev/pt/smoke/report.json`: smoke seed 1, PASS, 16 checks (0 tagged)
-- Provenance report: 192 records, 0 errors, 0 warnings
+- Unit tests `_scratch/ev/full.json`: run 2026-10-05T18:53:31Z, commit 8b81b52661ae46f75553b3d53e91c27fce39e1f3, 1509 tests, 0 failed
+- Playtest `_scratch/pt/npcs/report.json`: npcs seed 1, PASS, 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1000-1001/report.json`: quest seed 1, PASS, 56 checks (44 tagged by the scenario, 7 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1002/report.json`: quest seed 1, PASS, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1003-1004/report.json`: quest seed 1, PASS, 54 checks (43 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1005/report.json`: quest seed 1, PASS, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1006_1009_1010/report.json`: quest seed 1, PASS, 116 checks (95 tagged by the scenario, 16 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1007-1008/report.json`: quest seed 1, PASS, 58 checks (47 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1011/report.json`: quest seed 1, PASS, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1012/report.json`: quest seed 1, PASS, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/pt/quests/1013-1019/report.json`: quest seed 1, PASS, 190 checks (176 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/pt/regen/report.json`: regen seed 1, PASS, 29 checks (0 tagged by the scenario, 27 by rules.json playtest_tags)
+- Playtest `_scratch/pt/save_it2_continue/report.json`: save_it2_continue seed 1, PASS, 55 checks (0 tagged by the scenario, 45 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_a_traversal/report.json`: test_a_traversal seed 1, PASS, 477 checks (0 tagged by the scenario, 163 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_b_combat/report.json`: test_b_combat seed 1, PASS, 53 checks (0 tagged by the scenario, 44 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_b_population/report.json`: test_b_population seed 1, PASS, 79 checks (0 tagged by the scenario, 77 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_box/report.json`: test_box seed 1, PASS, 31 checks (0 tagged by the scenario, 24 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_c_progression/report.json`: test_c_progression seed 1, PASS, 75 checks (0 tagged by the scenario, 39 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_d_inventory/report.json`: test_d_inventory seed 1, PASS, 90 checks (0 tagged by the scenario, 35 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_e_quest/report.json`: test_e_quest seed 1, PASS, 103 checks (67 tagged by the scenario, 2 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_f_death/report.json`: test_f_death seed 1, FAIL, 226 checks (0 tagged by the scenario, 116 by rules.json playtest_tags); failed: #162 [D6.1] after OK: HP 50 and MP 56 per death.json
+- Playtest `_scratch/pt/test_g_shop/report.json`: test_g_shop seed 1, PASS, 184 checks (0 tagged by the scenario, 167 by rules.json playtest_tags)
+- Playtest `_scratch/pt/test_skills/report.json`: test_skills seed 1, PASS, 50 checks (0 tagged by the scenario, 41 by rules.json playtest_tags)
+- Playtest `_scratch/pt/trap_probe/report.json`: trap_probe seed 1, PASS, 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
+- Playtest `_scratch/pt/ui_minimap/report.json`: ui_minimap seed 1, FAIL, 231 checks (0 tagged by the scenario, 217 by rules.json playtest_tags); failed: #226 level-up: the SP line
+- Provenance report: 192 records, 0 errors, 54 warnings
+
+Regenerate with the same inputs (`--check` instead of writing compares the committed files):
+
+```bash
+node tools/parity/build_parity.mjs \
+  --tests _scratch/ev/full.json \
+  --playtest _scratch/pt/npcs/report.json \
+  --playtest _scratch/pt/quests/1000-1001/report.json \
+  --playtest _scratch/pt/quests/1002/report.json \
+  --playtest _scratch/pt/quests/1003-1004/report.json \
+  --playtest _scratch/pt/quests/1005/report.json \
+  --playtest _scratch/pt/quests/1006_1009_1010/report.json \
+  --playtest _scratch/pt/quests/1007-1008/report.json \
+  --playtest _scratch/pt/quests/1011/report.json \
+  --playtest _scratch/pt/quests/1012/report.json \
+  --playtest _scratch/pt/quests/1013-1019/report.json \
+  --playtest _scratch/pt/regen/report.json \
+  --playtest _scratch/pt/save_it2_continue/report.json \
+  --playtest _scratch/pt/test_a_traversal/report.json \
+  --playtest _scratch/pt/test_b_combat/report.json \
+  --playtest _scratch/pt/test_b_population/report.json \
+  --playtest _scratch/pt/test_box/report.json \
+  --playtest _scratch/pt/test_c_progression/report.json \
+  --playtest _scratch/pt/test_d_inventory/report.json \
+  --playtest _scratch/pt/test_e_quest/report.json \
+  --playtest _scratch/pt/test_f_death/report.json \
+  --playtest _scratch/pt/test_g_shop/report.json \
+  --playtest _scratch/pt/test_skills/report.json \
+  --playtest _scratch/pt/trap_probe/report.json \
+  --playtest _scratch/pt/ui_minimap/report.json
+```
 
 ## Totals
 
-537 entries: 16 verified, 376 implemented, 109 partial, 34 missing; 0 source-data gaps, 2 out of scope. **519** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
+638 entries: 485 verified, 93 implemented, 58 partial, 0 missing; 56 source-data gaps, 2 out of scope. **95** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
 
 | Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Out of scope |
 |---|---|---|---|---|---|---|---|
-| [Maps](#maps) | 25 | 0 | 25 | 0 | 0 | 0 | 0 |
-| [Portals](#portals) | 47 | 0 | 47 | 0 | 0 | 0 | 0 |
-| [Monster species](#monster-species) | 6 | 0 | 6 | 0 | 0 | 0 | 0 |
-| [Monster populations](#monster-populations) | 51 | 0 | 51 | 0 | 0 | 0 | 0 |
-| [Monster spawn rules](#monster-spawn-rules) | 15 | 0 | 15 | 0 | 0 | 0 | 0 |
-| [Monster stats](#monster-stats) | 6 | 0 | 6 | 0 | 0 | 0 | 0 |
-| [Monster drops](#monster-drops) | 97 | 0 | 0 | 97 | 0 | 0 | 0 |
-| [Meso drops](#meso-drops) | 6 | 0 | 0 | 6 | 0 | 0 | 0 |
-| [Items (Etc and Set-up)](#items-etc-and-set-up) | 23 | 0 | 22 | 0 | 0 | 0 | 1 |
-| [Equipment](#equipment) | 55 | 0 | 55 | 0 | 0 | 0 | 0 |
-| [Consumables](#consumables) | 18 | 0 | 18 | 0 | 0 | 0 | 0 |
-| [NPCs](#npcs) | 21 | 0 | 21 | 0 | 0 | 0 | 0 |
-| [Shops](#shops) | 3 | 0 | 3 | 0 | 0 | 0 | 0 |
-| [Quests](#quests) | 20 | 0 | 20 | 0 | 0 | 0 | 0 |
-| [Quest chains](#quest-chains) | 5 | 0 | 5 | 0 | 0 | 0 | 0 |
-| [Quest objectives](#quest-objectives) | 42 | 0 | 42 | 0 | 0 | 0 | 0 |
-| [Quest rewards](#quest-rewards) | 25 | 0 | 25 | 0 | 0 | 0 | 0 |
-| [Beginner skills](#beginner-skills) | 3 | 0 | 0 | 0 | 3 | 0 | 0 |
-| [Breakables](#breakables) | 24 | 0 | 0 | 0 | 24 | 0 | 0 |
-| [Chairs](#chairs) | 2 | 0 | 0 | 0 | 1 | 0 | 1 |
-| [Map mechanics](#map-mechanics) | 22 | 0 | 15 | 1 | 6 | 0 | 0 |
+| [Maps](#maps) | 25 | 25 | 0 | 0 | 0 | 0 | 0 |
+| [Portals](#portals) | 47 | 47 | 0 | 0 | 0 | 0 | 0 |
+| [Monster species](#monster-species) | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
+| [Monster populations](#monster-populations) | 51 | 51 | 0 | 0 | 0 | 0 | 0 |
+| [Monster spawn rules](#monster-spawn-rules) | 15 | 15 | 0 | 0 | 0 | 0 | 0 |
+| [Monster stats](#monster-stats) | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
+| [Monster drops](#monster-drops) | 71 | 18 | 0 | 53 | 0 | 53 | 0 |
+| [Meso drops](#meso-drops) | 6 | 6 | 0 | 0 | 0 | 0 | 0 |
+| [Items (Etc and Set-up)](#items-etc-and-set-up) | 23 | 9 | 13 | 0 | 0 | 0 | 1 |
+| [Equipment](#equipment) | 55 | 6 | 49 | 0 | 0 | 0 | 0 |
+| [Consumables](#consumables) | 18 | 7 | 11 | 0 | 0 | 0 | 0 |
+| [NPCs](#npcs) | 21 | 21 | 0 | 0 | 0 | 0 | 0 |
+| [Shops](#shops) | 3 | 3 | 0 | 0 | 0 | 0 | 0 |
+| [Quests](#quests) | 20 | 20 | 0 | 0 | 0 | 0 | 0 |
+| [Quest chains](#quest-chains) | 5 | 5 | 0 | 0 | 0 | 0 | 0 |
+| [Quest objectives](#quest-objectives) | 42 | 42 | 0 | 0 | 0 | 0 | 0 |
+| [Quest rewards](#quest-rewards) | 25 | 25 | 0 | 0 | 0 | 0 | 0 |
+| [Beginner skills and mechanics](#beginner-skills-and-mechanics) | 9 | 9 | 0 | 0 | 0 | 0 | 0 |
+| [Breakables](#breakables) | 25 | 24 | 0 | 1 | 0 | 1 | 0 |
+| [Chairs](#chairs) | 2 | 1 | 0 | 0 | 0 | 0 | 1 |
+| [Map mechanics](#map-mechanics) | 19 | 16 | 0 | 3 | 0 | 2 | 0 |
+| [Monster behaviour, hit areas and spawning (Phases 5-6)](#monster-behaviour-hit-areas-and-spawning-phases-5-6) | 15 | 15 | 0 | 0 | 0 | 0 | 0 |
+| [Drop rules (Drop Testing, placeholder removal)](#drop-rules-drop-testing-placeholder-removal) | 15 | 15 | 0 | 0 | 0 | 0 | 0 |
+| [Persistence (Phase 14)](#persistence-phase-14) | 29 | 29 | 0 | 0 | 0 | 0 | 0 |
+| [UI and world feedback (Phases 11-12, quest log, skill UI)](#ui-and-world-feedback-phases-11-12-quest-log-skill-ui) | 42 | 41 | 0 | 1 | 0 | 0 | 0 |
+| [Clean-character playthrough (Definition of Done: Gameplay)](#clean-character-playthrough-definition-of-done-gameplay) | 21 | 1 | 20 | 0 | 0 | 0 | 0 |
 | [Cross-reference validation (Phase 16)](#cross-reference-validation-phase-16) | 15 | 15 | 0 | 0 | 0 | 0 | 0 |
-| [Canonical verification (Phase 17, probability handling)](#canonical-verification-phase-17-probability-handling) | 6 | 1 | 0 | 5 | 0 | 0 | 0 |
+| [Canonical verification (Phase 17, probability handling)](#canonical-verification-phase-17-probability-handling) | 7 | 7 | 0 | 0 | 0 | 0 | 0 |
 
 ## Source-data gaps
 
-None recorded in the data yet (drop records are still schema v1, whose chances are placeholders, not gaps).
+- `drop:2/arrow-for-bow` Snail: Arrow for Bow: no KuroDB chance for this member: never drops
+- `drop:2/arrow-for-crossbow` Snail: Arrow for Crossbow: no KuroDB chance for this member: never drops
+- `drop:2/blue-potion` Snail: Blue Potion: no KuroDB chance for this member: never drops
+- `drop:2/blue-training-shirt-m` Snail: Blue Training Shirt (M): item not_in_snapshot (candidates 944): never drops; no KuroDB chance for this member: never drops
+- `drop:2/brown-apprentice-hat` Snail: Brown Apprentice Hat: item not_in_snapshot (candidates 727): never drops; no KuroDB chance for this member: never drops
+- `drop:2/red-cloth-pants-m` Snail: Red Cloth Pants (M): no KuroDB chance for this member: never drops
+- `drop:2/wooden-buckler` Snail: Wooden Buckler: item not_in_snapshot (candidates 916): never drops; no KuroDB chance for this member: never drops
+- `drop:2/wooden-mallet` Snail: Wooden Mallet: item not_in_snapshot (candidates 625): never drops; no KuroDB chance for this member: never drops
+- `drop:3/arrow-for-bow` Blue Snail: Arrow for Bow: no KuroDB chance for this member: never drops
+- `drop:3/blue-bandana` Blue Snail: Blue Bandana: item not_in_snapshot (candidates 721): never drops; no KuroDB chance for this member: never drops
+- `drop:3/blue-cloth-vest-m` Blue Snail: Blue Cloth Vest (M): item ambiguous (candidates 949, 958): never drops; no KuroDB chance for this member: never drops
+- `drop:3/blue-headband` Blue Snail: Blue Headband: no KuroDB chance for this member: never drops
+- `drop:3/blue-potion` Blue Snail: Blue Potion: no KuroDB chance for this member: never drops
+- `drop:3/hardwood-wand` Blue Snail: Hardwood Wand: item not_in_snapshot (candidates 650): never drops; no KuroDB chance for this member: never drops
+- `drop:3/orange-potion` Blue Snail: Orange Potion: no KuroDB chance for this member: never drops
+- `drop:3/pan-lid` Blue Snail: Pan Lid: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
+- `drop:3/red-bandana` Blue Snail: Red Bandana: item not_in_snapshot (candidates 720): never drops; no KuroDB chance for this member: never drops
+- `drop:4/arrow-for-bow` Shroom: Arrow for Bow: no KuroDB chance for this member: never drops
+- `drop:4/arrow-for-crossbow` Shroom: Arrow for Crossbow: no KuroDB chance for this member: never drops
+- `drop:4/black-ghetto-beanie` Shroom: Black Ghetto Beanie: item not_in_snapshot (candidates 735): never drops; no KuroDB chance for this member: never drops
+- `drop:4/blue-lolico-armor-m` Shroom: Blue Lolico Armor (M): item not_in_snapshot (candidates 943): never drops; no KuroDB chance for this member: never drops
+- `drop:4/blue-swimming-cap` Shroom: Blue Swimming Cap: item not_in_snapshot (candidates 717): never drops; no KuroDB chance for this member: never drops
+- `drop:4/double-axe` Shroom: Double Axe: no KuroDB chance for this member: never drops
+- `drop:4/orange-lolica-armor-f` Shroom: Orange Lolica Armor (F): item not_in_snapshot (candidates 951): never drops; no KuroDB chance for this member: never drops
+- `drop:4/smelly-gomushin` Shroom: Smelly Gomushin: item not_in_snapshot (candidates 1319): never drops; no KuroDB chance for this member: never drops
+- `drop:4/wooden-samurai-sword` Shroom: Wooden Samurai Sword: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
+- `drop:4/wooden-sword` Shroom: Wooden Sword: no KuroDB chance for this member: never drops
+- `drop:4/work-gloves` Shroom: Work Gloves: item not_in_snapshot (candidates 1435): never drops; no KuroDB chance for this member: never drops
+- `drop:4/yellow-bandana` Shroom: Yellow Bandana: item not_in_snapshot (candidates 722): never drops; no KuroDB chance for this member: never drops
+- `drop:5/arrow-for-bow` Red Snail: Arrow for Bow: no KuroDB chance for this member: never drops
+- `drop:5/black-cloth-pants-m` Red Snail: Black Cloth Pants (M): item ambiguous (candidates 1170, 1179): never drops; no KuroDB chance for this member: never drops
+- `drop:5/black-gomushin` Red Snail: Black Gomushin: item not_in_snapshot (candidates 1318): never drops; no KuroDB chance for this member: never drops
+- `drop:5/blue-headband` Red Snail: Blue Headband: no KuroDB chance for this member: never drops
+- `drop:5/blue-potion` Red Snail: Blue Potion: no KuroDB chance for this member: never drops
+- `drop:5/brown-skullcap` Red Snail: Brown Skullcap: no KuroDB chance for this member: never drops
+- `drop:5/grey-thick-sweat-pants-m` Red Snail: Grey Thick Sweat Pants (M): no KuroDB chance for this member: never drops
+- `drop:5/metal-axe` Red Snail: Metal Axe: item not_in_snapshot (candidates 617): never drops; no KuroDB chance for this member: never drops
+- `drop:5/orange-potion` Red Snail: Orange Potion: no KuroDB chance for this member: never drops
+- `drop:5/pistol` Red Snail: Pistol: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
+- `drop:5/red-bandana` Red Snail: Red Bandana: item not_in_snapshot (candidates 720): never drops; no KuroDB chance for this member: never drops
+- `drop:9/arrow-for-bow` Orange Mushroom: Arrow for Bow: no KuroDB chance for this member: never drops
+- `drop:9/black-cloth-pants-f` Orange Mushroom: Black Cloth Pants (F): item ambiguous (candidates 1170, 1179): never drops; no KuroDB chance for this member: never drops
+- `drop:9/blue-cloth-pants-m` Orange Mushroom: Blue Cloth Pants (M): item ambiguous (candidates 1169, 1178): never drops; no KuroDB chance for this member: never drops
+- `drop:9/blue-potion` Orange Mushroom: Blue Potion: no KuroDB chance for this member: never drops
+- `drop:9/crossbow` Orange Mushroom: Crossbow: item not_in_snapshot (candidates 672): never drops; no KuroDB chance for this member: never drops
+- `drop:9/garnier` Orange Mushroom: Garnier: item not_in_snapshot (candidates 680): never drops; no KuroDB chance for this member: never drops
+- `drop:9/omok-piece-mushroom` Orange Mushroom: Omok Piece : Mushroom: item ambiguous (candidates 486, 495, 498): never drops
+- `drop:9/orange-potion` Orange Mushroom: Orange Potion: no KuroDB chance for this member: never drops
+- `drop:9/red-headband` Orange Mushroom: Red Headband: no KuroDB chance for this member: never drops
+- `drop:9/red-swimming-cap` Orange Mushroom: Red Swimming Cap: item not_in_snapshot (candidates 718): never drops; no KuroDB chance for this member: never drops
+- `drop:9/scroll-for-shoes-for-jump-10` Orange Mushroom: Scroll for Shoes for Jump 10%: no KuroDB chance for this member: never drops
+- `drop:9/yellow-avelin-f` Orange Mushroom: Yellow Avelin (F): item not_in_snapshot (candidates 956): never drops; no KuroDB chance for this member: never drops
+- `drop:9/yellow-bandana` Orange Mushroom: Yellow Bandana: item not_in_snapshot (candidates 722): never drops; no KuroDB chance for this member: never drops
+- `drop:0000001/egg` Wooden Box: Egg: no KuroDB chance for this member: never drops
+- `mechanic:map-seats` Sitting without a chair (ground sit) and map benches: MeowDB documents sitting on chairs only: no ground sit and no Maple Island bench placements (misostory/recovery.json sitting); X sits on the first owned chair instead (adaptation)
+- `mechanic:natural-mp-regen` Natural MP recovery: none, because MeowDB documents none (not inferred from the HP rule): MeowDB documents no natural MP recovery (formulas/recovery.json natural_regeneration.mp_per_tick is null; misostory/recovery.json natural_mp status unresolved_source_gap): the game has none until a source or the owner gives a rule
 
 Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in
 [`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").
+
+## Open entries
+
+In-scope entries that are neither verified nor a source-data gap, by category, with why.
+
+- **Items (Etc and Set-up)** (13)
+  - implemented: no passing check is tagged with its key: `item:320`, `item:321`, `item:322`, `item:324`, `item:327`, `item:348`, `item:350`, `item:351`, `item:413`, `item:414`, `item:415`, `item:417`, `item:483`
+- **Equipment** (49)
+  - implemented: no passing check is tagged with its key: `item:1158`, `item:1160`, `item:1161`, `item:1163`, `item:1168`, `item:1175`, `item:1177`, `item:1181`, `item:1195`, `item:1305`, `item:1306`, `item:1308`, `item:1314`, `item:1317`, `item:1325`, `item:1327`, `item:1439`, `item:543`, `item:551`, `item:558`, `item:559`, `item:562`, `item:576`, `item:577`, `item:589`, `item:595`, `item:608`, `item:633`, `item:651`, `item:666`, `item:708`, `item:709`, `item:710`, `item:712`, `item:713`, `item:714`, `item:715`, `item:724`, `item:731`, `item:900`, `item:934`, `item:935`, `item:937`, `item:938`, `item:939`, `item:940`, `item:945`, `item:960`, `item:963`
+- **Consumables** (11)
+  - implemented: no passing check is tagged with its key: `item:139`, `item:143`, `item:177`, `item:209`, `item:213`, `item:238`, `item:240`, `item:242`, `item:273`, `item:59`, `item:61`
+- **Map mechanics** (1)
+  - partial: 1 tagged check(s) failed: `mechanic:death-respawn`
+- **UI and world feedback (Phases 11-12, quest log, skill UI)** (1)
+  - partial: 1 tagged check(s) failed: `ui:sp-notification`
+- **Clean-character playthrough (Definition of Done: Gameplay)** (20)
+  - implemented: needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step): `playthrough:allocate-ap`, `playthrough:begin-maple-island`, `playthrough:complete-every-quest`, `playthrough:complete-every-quiz`, `playthrough:create-character`, `playthrough:die-and-respawn`, `playthrough:equip-gear`, `playthrough:fight-every-monster-type`, `playthrough:level-naturally`, `playthrough:monster-drops`, `playthrough:monster-mesos`, `playthrough:no-developer-console`, `playthrough:obtain-and-use-chair`, `playthrough:reach-southperry`, `playthrough:ready-to-depart`, `playthrough:save-and-reload`, `playthrough:tutorial-content`, `playthrough:use-consumables`, `playthrough:use-every-shop`, `playthrough:visit-all-25-maps`
 
 ## Maps
 
@@ -66,31 +198,31 @@ Runtime: present (`game/scripts/core/maps/map_definition.gd`, `game/scripts/worl
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `map:000000001` | Mushroom Town - West Entrance (000000001) | implemented | 0 pass | 5 |  |
-| `map:000000010` | Mushroom Town (000000010) | implemented | 0 pass | 5 |  |
-| `map:000000020` | Mushroom Town (000000020) | implemented | 0 pass | 5 |  |
-| `map:000000021` | Mushroom Town Townstreet (000000021) | implemented | 0 pass | 5 |  |
-| `map:000000030` | East Entrance to Mushroom Town (000000030) | implemented | 0 pass | 4 | adaptation: maps/000000030.json |
-| `map:000000040` | Snail Hunting Ground I (000000040) | implemented | 0 pass | 4 |  |
-| `map:000000041` | Snail Hunting Ground II (000000041) | implemented | 0 pass | 4 |  |
-| `map:000000042` | Snail Hunting Ground III (000000042) | implemented | 0 pass | 4 |  |
-| `map:000000050` | A Split Road (000000050) | implemented | 0 pass | 4 |  |
-| `map:000000060` | Southperry (000000060) | implemented | 0 pass | 5 | adaptation: maps/000000060.json |
-| `map:000000061` | Southperry Armor Store (000000061) | implemented | 0 pass | 6 |  |
-| `map:000001000` | The Field West of Amherst (000001000) | implemented | 0 pass | 4 |  |
-| `map:000001001` | In a Small Forest (000001001) | implemented | 0 pass | 4 |  |
-| `map:000001002` | Dangerous Forest (000001002) | implemented | 0 pass | 4 |  |
-| `map:000001003` | Mushroom Garden (000001003) | implemented | 0 pass | 4 |  |
-| `map:000001004` | Snail Garden (000001004) | implemented | 0 pass | 4 |  |
-| `map:000001005` | Hunting Ground Middle of the Forest I (000001005) | implemented | 0 pass | 4 |  |
-| `map:000001006` | Hunting Ground Middle of the Forest II (000001006) | implemented | 0 pass | 4 |  |
-| `map:000001010` | Amherst (000001010) | implemented | 0 pass | 5 |  |
-| `map:000001011` | Amherst Weapon Store (000001011) | implemented | 0 pass | 6 |  |
-| `map:000001012` | Amherst Townstreet (000001012) | implemented | 0 pass | 5 |  |
-| `map:000001013` | Amherst Department Store (000001013) | implemented | 0 pass | 6 |  |
-| `map:000001014` | Snail Field of Flowers (000001014) | implemented | 0 pass | 4 |  |
-| `map:000001020` | The Field East of Amherst (000001020) | implemented | 0 pass | 4 |  |
-| `map:000001021` | Tomato Field (000001021) | implemented | 0 pass | 4 |  |
+| `map:000000001` | Mushroom Town - West Entrance (000000001) | verified | 2 pass | 5 |  |
+| `map:000000010` | Mushroom Town (000000010) | verified | 4 pass | 5 |  |
+| `map:000000020` | Mushroom Town (000000020) | verified | 5 pass | 5 |  |
+| `map:000000021` | Mushroom Town Townstreet (000000021) | verified | 2 pass | 5 |  |
+| `map:000000030` | East Entrance to Mushroom Town (000000030) | verified | 3 pass | 4 | adaptation: maps/000000030.json |
+| `map:000000040` | Snail Hunting Ground I (000000040) | verified | 3 pass | 4 |  |
+| `map:000000041` | Snail Hunting Ground II (000000041) | verified | 13 pass | 4 |  |
+| `map:000000042` | Snail Hunting Ground III (000000042) | verified | 8 pass | 4 |  |
+| `map:000000050` | A Split Road (000000050) | verified | 8 pass | 4 |  |
+| `map:000000060` | Southperry (000000060) | verified | 6 pass | 5 | adaptation: maps/000000060.json |
+| `map:000000061` | Southperry Armor Store (000000061) | verified | 2 pass | 6 |  |
+| `map:000001000` | The Field West of Amherst (000001000) | verified | 18 pass | 4 |  |
+| `map:000001001` | In a Small Forest (000001001) | verified | 5 pass | 4 |  |
+| `map:000001002` | Dangerous Forest (000001002) | verified | 4 pass | 4 |  |
+| `map:000001003` | Mushroom Garden (000001003) | verified | 6 pass | 4 |  |
+| `map:000001004` | Snail Garden (000001004) | verified | 10 pass | 4 |  |
+| `map:000001005` | Hunting Ground Middle of the Forest I (000001005) | verified | 5 pass | 4 |  |
+| `map:000001006` | Hunting Ground Middle of the Forest II (000001006) | verified | 2 pass | 4 |  |
+| `map:000001010` | Amherst (000001010) | verified | 11 pass | 5 |  |
+| `map:000001011` | Amherst Weapon Store (000001011) | verified | 2 pass | 6 |  |
+| `map:000001012` | Amherst Townstreet (000001012) | verified | 6 pass | 5 |  |
+| `map:000001013` | Amherst Department Store (000001013) | verified | 2 pass | 6 |  |
+| `map:000001014` | Snail Field of Flowers (000001014) | verified | 6 pass | 4 |  |
+| `map:000001020` | The Field East of Amherst (000001020) | verified | 9 pass | 4 |  |
+| `map:000001021` | Tomato Field (000001021) | verified | 6 pass | 4 |  |
 
 ## Portals
 
@@ -98,53 +230,53 @@ Runtime: present (`game/scripts/core/maps/portal_def.gd`, `game/scripts/world/wo
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `portal:000000001/out00` | Mushroom Town - West Entrance out00 -> Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000010/in00` | Mushroom Town in00 -> Mushroom Town - West Entrance | implemented | 0 pass |  |  |
-| `portal:000000010/out00` | Mushroom Town out00 -> Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000020/in00` | Mushroom Town in00 -> Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000020/in01` | Mushroom Town in01 -> Mushroom Town Townstreet | implemented | 0 pass |  |  |
-| `portal:000000020/out00` | Mushroom Town out00 -> East Entrance to Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000021/out00` | Mushroom Town Townstreet out00 -> Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000030/in00` | East Entrance to Mushroom Town in00 -> Mushroom Town | implemented | 0 pass |  |  |
-| `portal:000000030/out00` | East Entrance to Mushroom Town out00 -> Snail Hunting Ground I | implemented | 0 pass |  |  |
-| `portal:000000040/east00` | Snail Hunting Ground I east00 -> Snail Hunting Ground II | implemented | 0 pass |  |  |
-| `portal:000000041/east00` | Snail Hunting Ground II east00 -> Snail Hunting Ground III | implemented | 0 pass |  |  |
-| `portal:000000041/west00` | Snail Hunting Ground II west00 -> Snail Hunting Ground I | implemented | 0 pass |  |  |
-| `portal:000000042/east00` | Snail Hunting Ground III east00 -> A Split Road | implemented | 0 pass |  |  |
-| `portal:000000042/west00` | Snail Hunting Ground III west00 -> Snail Hunting Ground II | implemented | 0 pass |  |  |
-| `portal:000000050/east00` | A Split Road east00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000000050/east01` | A Split Road east01 -> Southperry | implemented | 0 pass |  |  |
-| `portal:000000050/west00` | A Split Road west00 -> Snail Hunting Ground III | implemented | 0 pass |  |  |
-| `portal:000000060/in00` | Southperry in00 -> Southperry Armor Store | implemented | 0 pass |  |  |
-| `portal:000000060/west00` | Southperry west00 -> A Split Road | implemented | 0 pass |  |  |
-| `portal:000000061/out00` | Southperry Armor Store out00 -> Southperry | implemented | 0 pass |  |  |
-| `portal:000001000/east00` | The Field West of Amherst east00 -> Amherst | implemented | 0 pass |  |  |
-| `portal:000001000/in00` | The Field West of Amherst in00 -> In a Small Forest | implemented | 0 pass |  |  |
-| `portal:000001000/in01` | The Field West of Amherst in01 -> Dangerous Forest | implemented | 0 pass |  |  |
-| `portal:000001000/in02` | The Field West of Amherst in02 -> Mushroom Garden | implemented | 0 pass |  |  |
-| `portal:000001000/in03` | The Field West of Amherst in03 -> Snail Garden | implemented | 0 pass |  |  |
-| `portal:000001000/in04` | The Field West of Amherst in04 -> Hunting Ground Middle of the Forest I | implemented | 0 pass |  |  |
-| `portal:000001000/in05` | The Field West of Amherst in05 -> Hunting Ground Middle of the Forest II | implemented | 0 pass |  |  |
-| `portal:000001000/west00` | The Field West of Amherst west00 -> A Split Road | implemented | 0 pass |  |  |
-| `portal:000001001/out00` | In a Small Forest out00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001002/out01` | Dangerous Forest out01 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001003/out00` | Mushroom Garden out00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001004/out00` | Snail Garden out00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001005/out00` | Hunting Ground Middle of the Forest I out00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001006/out00` | Hunting Ground Middle of the Forest II out00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001010/east00` | Amherst east00 -> The Field East of Amherst | implemented | 0 pass |  |  |
-| `portal:000001010/in00` | Amherst in00 -> Amherst Weapon Store | implemented | 0 pass |  |  |
-| `portal:000001010/in01` | Amherst in01 -> Amherst Townstreet | implemented | 0 pass |  |  |
-| `portal:000001010/in02` | Amherst in02 -> Amherst Department Store | implemented | 0 pass |  |  |
-| `portal:000001010/west00` | Amherst west00 -> The Field West of Amherst | implemented | 0 pass |  |  |
-| `portal:000001011/out00` | Amherst Weapon Store out00 -> Amherst | implemented | 0 pass |  |  |
-| `portal:000001012/out00` | Amherst Townstreet out00 -> Amherst | implemented | 0 pass |  |  |
-| `portal:000001012/west00` | Amherst Townstreet west00 -> Snail Field of Flowers | implemented | 0 pass |  |  |
-| `portal:000001013/out00` | Amherst Department Store out00 -> Amherst | implemented | 0 pass |  |  |
-| `portal:000001014/east00` | Snail Field of Flowers east00 -> Amherst Townstreet | implemented | 0 pass |  |  |
-| `portal:000001020/in00` | The Field East of Amherst in00 -> Tomato Field | implemented | 0 pass |  |  |
-| `portal:000001020/west00` | The Field East of Amherst west00 -> Amherst | implemented | 0 pass |  |  |
-| `portal:000001021/out00` | Tomato Field out00 -> The Field East of Amherst | implemented | 0 pass |  |  |
+| `portal:000000001/out00` | Mushroom Town - West Entrance out00 -> Mushroom Town | verified | 7 pass |  |  |
+| `portal:000000010/in00` | Mushroom Town in00 -> Mushroom Town - West Entrance | verified | 6 pass |  |  |
+| `portal:000000010/out00` | Mushroom Town out00 -> Mushroom Town | verified | 7 pass |  |  |
+| `portal:000000020/in00` | Mushroom Town in00 -> Mushroom Town | verified | 6 pass |  |  |
+| `portal:000000020/in01` | Mushroom Town in01 -> Mushroom Town Townstreet | verified | 6 pass |  |  |
+| `portal:000000020/out00` | Mushroom Town out00 -> East Entrance to Mushroom Town | verified | 7 pass |  |  |
+| `portal:000000021/out00` | Mushroom Town Townstreet out00 -> Mushroom Town | verified | 6 pass |  |  |
+| `portal:000000030/in00` | East Entrance to Mushroom Town in00 -> Mushroom Town | verified | 6 pass |  |  |
+| `portal:000000030/out00` | East Entrance to Mushroom Town out00 -> Snail Hunting Ground I | verified | 7 pass |  |  |
+| `portal:000000040/east00` | Snail Hunting Ground I east00 -> Snail Hunting Ground II | verified | 7 pass |  |  |
+| `portal:000000041/east00` | Snail Hunting Ground II east00 -> Snail Hunting Ground III | verified | 7 pass |  |  |
+| `portal:000000041/west00` | Snail Hunting Ground II west00 -> Snail Hunting Ground I | verified | 6 pass |  |  |
+| `portal:000000042/east00` | Snail Hunting Ground III east00 -> A Split Road | verified | 7 pass |  |  |
+| `portal:000000042/west00` | Snail Hunting Ground III west00 -> Snail Hunting Ground II | verified | 6 pass |  |  |
+| `portal:000000050/east00` | A Split Road east00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000000050/east01` | A Split Road east01 -> Southperry | verified | 7 pass |  |  |
+| `portal:000000050/west00` | A Split Road west00 -> Snail Hunting Ground III | verified | 6 pass |  |  |
+| `portal:000000060/in00` | Southperry in00 -> Southperry Armor Store | verified | 6 pass |  |  |
+| `portal:000000060/west00` | Southperry west00 -> A Split Road | verified | 6 pass |  |  |
+| `portal:000000061/out00` | Southperry Armor Store out00 -> Southperry | verified | 6 pass |  |  |
+| `portal:000001000/east00` | The Field West of Amherst east00 -> Amherst | verified | 6 pass |  |  |
+| `portal:000001000/in00` | The Field West of Amherst in00 -> In a Small Forest | verified | 6 pass |  |  |
+| `portal:000001000/in01` | The Field West of Amherst in01 -> Dangerous Forest | verified | 6 pass |  |  |
+| `portal:000001000/in02` | The Field West of Amherst in02 -> Mushroom Garden | verified | 6 pass |  |  |
+| `portal:000001000/in03` | The Field West of Amherst in03 -> Snail Garden | verified | 6 pass |  |  |
+| `portal:000001000/in04` | The Field West of Amherst in04 -> Hunting Ground Middle of the Forest I | verified | 6 pass |  |  |
+| `portal:000001000/in05` | The Field West of Amherst in05 -> Hunting Ground Middle of the Forest II | verified | 6 pass |  |  |
+| `portal:000001000/west00` | The Field West of Amherst west00 -> A Split Road | verified | 6 pass |  |  |
+| `portal:000001001/out00` | In a Small Forest out00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001002/out01` | Dangerous Forest out01 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001003/out00` | Mushroom Garden out00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001004/out00` | Snail Garden out00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001005/out00` | Hunting Ground Middle of the Forest I out00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001006/out00` | Hunting Ground Middle of the Forest II out00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001010/east00` | Amherst east00 -> The Field East of Amherst | verified | 6 pass |  |  |
+| `portal:000001010/in00` | Amherst in00 -> Amherst Weapon Store | verified | 6 pass |  |  |
+| `portal:000001010/in01` | Amherst in01 -> Amherst Townstreet | verified | 6 pass |  |  |
+| `portal:000001010/in02` | Amherst in02 -> Amherst Department Store | verified | 6 pass |  |  |
+| `portal:000001010/west00` | Amherst west00 -> The Field West of Amherst | verified | 6 pass |  |  |
+| `portal:000001011/out00` | Amherst Weapon Store out00 -> Amherst | verified | 6 pass |  |  |
+| `portal:000001012/out00` | Amherst Townstreet out00 -> Amherst | verified | 6 pass |  |  |
+| `portal:000001012/west00` | Amherst Townstreet west00 -> Snail Field of Flowers | verified | 6 pass |  |  |
+| `portal:000001013/out00` | Amherst Department Store out00 -> Amherst | verified | 6 pass |  |  |
+| `portal:000001014/east00` | Snail Field of Flowers east00 -> Amherst Townstreet | verified | 6 pass |  |  |
+| `portal:000001020/in00` | The Field East of Amherst in00 -> Tomato Field | verified | 6 pass |  |  |
+| `portal:000001020/west00` | The Field East of Amherst west00 -> Amherst | verified | 6 pass |  |  |
+| `portal:000001021/out00` | Tomato Field out00 -> The Field East of Amherst | verified | 6 pass |  |  |
 
 ## Monster species
 
@@ -152,12 +284,12 @@ Runtime: present (`game/scripts/actors/monsters/monster_def.gd`, `game/scripts/a
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `monster:1` | Tutorial Jr. Sentinel | implemented | 0 pass | 6 | adaptation: monsters/1.json |
-| `monster:2` | Snail | implemented | 0 pass | 5 | adaptation: monsters/2.json |
-| `monster:3` | Blue Snail | implemented | 0 pass | 5 | adaptation: monsters/3.json |
-| `monster:4` | Shroom | implemented | 0 pass | 5 | adaptation: monsters/4.json |
-| `monster:5` | Red Snail | implemented | 0 pass | 5 | adaptation: monsters/5.json |
-| `monster:9` | Orange Mushroom | implemented | 0 pass | 6 | adaptation: monsters/9.json |
+| `monster:1` | Tutorial Jr. Sentinel | verified | 9 pass | 6 | adaptation: monsters/1.json |
+| `monster:2` | Snail | verified | 11 pass | 5 | adaptation: monsters/2.json |
+| `monster:3` | Blue Snail | verified | 7 pass | 5 | adaptation: monsters/3.json |
+| `monster:4` | Shroom | verified | 8 pass | 5 | adaptation: monsters/4.json |
+| `monster:5` | Red Snail | verified | 7 pass | 5 | adaptation: monsters/5.json |
+| `monster:9` | Orange Mushroom | verified | 9 pass | 6 | adaptation: monsters/9.json |
 
 ## Monster populations
 
@@ -165,57 +297,57 @@ Runtime: present (`game/scripts/core/maps/spawn_model.gd`, `game/scripts/actors/
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `population:000000030/1` | East Entrance to Mushroom Town: Tutorial Jr. Sentinel x6 | implemented | 0 pass |  |  |
-| `population:000000040/2` | Snail Hunting Ground I: Snail x40 | implemented | 0 pass |  |  |
-| `population:000000041/2` | Snail Hunting Ground II: Snail x32 | implemented | 0 pass |  |  |
-| `population:000000041/3` | Snail Hunting Ground II: Blue Snail x13 | implemented | 0 pass |  |  |
-| `population:000000042/2` | Snail Hunting Ground III: Snail x20 | implemented | 0 pass |  |  |
-| `population:000000042/3` | Snail Hunting Ground III: Blue Snail x21 | implemented | 0 pass |  |  |
-| `population:000000042/5` | Snail Hunting Ground III: Red Snail x1 | implemented | 0 pass |  |  |
-| `population:000000050/3` | A Split Road: Blue Snail x17 | implemented | 0 pass |  |  |
-| `population:000000050/4` | A Split Road: Shroom x14 | implemented | 0 pass |  |  |
-| `population:000000050/5` | A Split Road: Red Snail x11 | implemented | 0 pass |  |  |
-| `population:000001000/2` | The Field West of Amherst: Snail x7 | implemented | 0 pass |  |  |
-| `population:000001000/3` | The Field West of Amherst: Blue Snail x13 | implemented | 0 pass |  |  |
-| `population:000001000/4` | The Field West of Amherst: Shroom x17 | implemented | 0 pass |  |  |
-| `population:000001000/5` | The Field West of Amherst: Red Snail x24 | implemented | 0 pass |  |  |
-| `population:000001000/9` | The Field West of Amherst: Orange Mushroom x5 | implemented | 0 pass |  |  |
-| `population:000001001/2` | In a Small Forest: Snail x12 | implemented | 0 pass |  |  |
-| `population:000001001/3` | In a Small Forest: Blue Snail x7 | implemented | 0 pass |  |  |
-| `population:000001001/4` | In a Small Forest: Shroom x12 | implemented | 0 pass |  |  |
-| `population:000001001/5` | In a Small Forest: Red Snail x5 | implemented | 0 pass |  |  |
-| `population:000001001/9` | In a Small Forest: Orange Mushroom x4 | implemented | 0 pass |  |  |
-| `population:000001002/2` | Dangerous Forest: Snail x14 | implemented | 0 pass |  |  |
-| `population:000001002/3` | Dangerous Forest: Blue Snail x3 | implemented | 0 pass |  |  |
-| `population:000001002/5` | Dangerous Forest: Red Snail x5 | implemented | 0 pass |  |  |
-| `population:000001002/9` | Dangerous Forest: Orange Mushroom x12 | implemented | 0 pass |  |  |
-| `population:000001003/2` | Mushroom Garden: Snail x7 | implemented | 0 pass |  |  |
-| `population:000001003/4` | Mushroom Garden: Shroom x23 | implemented | 0 pass |  |  |
-| `population:000001003/9` | Mushroom Garden: Orange Mushroom x5 | implemented | 0 pass |  |  |
-| `population:000001004/2` | Snail Garden: Snail x11 | implemented | 0 pass |  |  |
-| `population:000001004/3` | Snail Garden: Blue Snail x19 | implemented | 0 pass |  |  |
-| `population:000001004/5` | Snail Garden: Red Snail x11 | implemented | 0 pass |  |  |
-| `population:000001005/2` | Hunting Ground Middle of the Forest I: Snail x14 | implemented | 0 pass |  |  |
-| `population:000001005/3` | Hunting Ground Middle of the Forest I: Blue Snail x12 | implemented | 0 pass |  |  |
-| `population:000001005/4` | Hunting Ground Middle of the Forest I: Shroom x10 | implemented | 0 pass |  |  |
-| `population:000001005/5` | Hunting Ground Middle of the Forest I: Red Snail x8 | implemented | 0 pass |  |  |
-| `population:000001006/2` | Hunting Ground Middle of the Forest II: Snail x10 | implemented | 0 pass |  |  |
-| `population:000001006/3` | Hunting Ground Middle of the Forest II: Blue Snail x16 | implemented | 0 pass |  |  |
-| `population:000001006/4` | Hunting Ground Middle of the Forest II: Shroom x7 | implemented | 0 pass |  |  |
-| `population:000001006/5` | Hunting Ground Middle of the Forest II: Red Snail x6 | implemented | 0 pass |  |  |
-| `population:000001006/9` | Hunting Ground Middle of the Forest II: Orange Mushroom x6 | implemented | 0 pass |  |  |
-| `population:000001014/2` | Snail Field of Flowers: Snail x6 | implemented | 0 pass |  |  |
-| `population:000001014/3` | Snail Field of Flowers: Blue Snail x10 | implemented | 0 pass |  |  |
-| `population:000001014/5` | Snail Field of Flowers: Red Snail x12 | implemented | 0 pass |  |  |
-| `population:000001014/9` | Snail Field of Flowers: Orange Mushroom x6 | implemented | 0 pass |  |  |
-| `population:000001020/2` | The Field East of Amherst: Snail x3 | implemented | 0 pass |  |  |
-| `population:000001020/3` | The Field East of Amherst: Blue Snail x11 | implemented | 0 pass |  |  |
-| `population:000001020/5` | The Field East of Amherst: Red Snail x12 | implemented | 0 pass |  |  |
-| `population:000001020/9` | The Field East of Amherst: Orange Mushroom x12 | implemented | 0 pass |  |  |
-| `population:000001021/2` | Tomato Field: Snail x9 | implemented | 0 pass |  |  |
-| `population:000001021/3` | Tomato Field: Blue Snail x8 | implemented | 0 pass |  |  |
-| `population:000001021/5` | Tomato Field: Red Snail x4 | implemented | 0 pass |  |  |
-| `population:000001021/9` | Tomato Field: Orange Mushroom x4 | implemented | 0 pass |  |  |
+| `population:000000030/1` | East Entrance to Mushroom Town: Tutorial Jr. Sentinel x6 | verified | 8 pass |  |  |
+| `population:000000040/2` | Snail Hunting Ground I: Snail x40 | verified | 8 pass |  |  |
+| `population:000000041/2` | Snail Hunting Ground II: Snail x32 | verified | 7 pass |  |  |
+| `population:000000041/3` | Snail Hunting Ground II: Blue Snail x13 | verified | 7 pass |  |  |
+| `population:000000042/2` | Snail Hunting Ground III: Snail x20 | verified | 7 pass |  |  |
+| `population:000000042/3` | Snail Hunting Ground III: Blue Snail x21 | verified | 7 pass |  |  |
+| `population:000000042/5` | Snail Hunting Ground III: Red Snail x1 | verified | 7 pass |  |  |
+| `population:000000050/3` | A Split Road: Blue Snail x17 | verified | 8 pass |  |  |
+| `population:000000050/4` | A Split Road: Shroom x14 | verified | 8 pass |  |  |
+| `population:000000050/5` | A Split Road: Red Snail x11 | verified | 8 pass |  |  |
+| `population:000001000/2` | The Field West of Amherst: Snail x7 | verified | 7 pass |  |  |
+| `population:000001000/3` | The Field West of Amherst: Blue Snail x13 | verified | 7 pass |  |  |
+| `population:000001000/4` | The Field West of Amherst: Shroom x17 | verified | 7 pass |  |  |
+| `population:000001000/5` | The Field West of Amherst: Red Snail x24 | verified | 7 pass |  |  |
+| `population:000001000/9` | The Field West of Amherst: Orange Mushroom x5 | verified | 7 pass |  |  |
+| `population:000001001/2` | In a Small Forest: Snail x12 | verified | 7 pass |  |  |
+| `population:000001001/3` | In a Small Forest: Blue Snail x7 | verified | 7 pass |  |  |
+| `population:000001001/4` | In a Small Forest: Shroom x12 | verified | 7 pass |  |  |
+| `population:000001001/5` | In a Small Forest: Red Snail x5 | verified | 7 pass |  |  |
+| `population:000001001/9` | In a Small Forest: Orange Mushroom x4 | verified | 7 pass |  |  |
+| `population:000001002/2` | Dangerous Forest: Snail x14 | verified | 7 pass |  |  |
+| `population:000001002/3` | Dangerous Forest: Blue Snail x3 | verified | 7 pass |  |  |
+| `population:000001002/5` | Dangerous Forest: Red Snail x5 | verified | 7 pass |  |  |
+| `population:000001002/9` | Dangerous Forest: Orange Mushroom x12 | verified | 7 pass |  |  |
+| `population:000001003/2` | Mushroom Garden: Snail x7 | verified | 7 pass |  |  |
+| `population:000001003/4` | Mushroom Garden: Shroom x23 | verified | 7 pass |  |  |
+| `population:000001003/9` | Mushroom Garden: Orange Mushroom x5 | verified | 7 pass |  |  |
+| `population:000001004/2` | Snail Garden: Snail x11 | verified | 7 pass |  |  |
+| `population:000001004/3` | Snail Garden: Blue Snail x19 | verified | 7 pass |  |  |
+| `population:000001004/5` | Snail Garden: Red Snail x11 | verified | 7 pass |  |  |
+| `population:000001005/2` | Hunting Ground Middle of the Forest I: Snail x14 | verified | 7 pass |  |  |
+| `population:000001005/3` | Hunting Ground Middle of the Forest I: Blue Snail x12 | verified | 7 pass |  |  |
+| `population:000001005/4` | Hunting Ground Middle of the Forest I: Shroom x10 | verified | 7 pass |  |  |
+| `population:000001005/5` | Hunting Ground Middle of the Forest I: Red Snail x8 | verified | 7 pass |  |  |
+| `population:000001006/2` | Hunting Ground Middle of the Forest II: Snail x10 | verified | 7 pass |  |  |
+| `population:000001006/3` | Hunting Ground Middle of the Forest II: Blue Snail x16 | verified | 7 pass |  |  |
+| `population:000001006/4` | Hunting Ground Middle of the Forest II: Shroom x7 | verified | 7 pass |  |  |
+| `population:000001006/5` | Hunting Ground Middle of the Forest II: Red Snail x6 | verified | 7 pass |  |  |
+| `population:000001006/9` | Hunting Ground Middle of the Forest II: Orange Mushroom x6 | verified | 7 pass |  |  |
+| `population:000001014/2` | Snail Field of Flowers: Snail x6 | verified | 7 pass |  |  |
+| `population:000001014/3` | Snail Field of Flowers: Blue Snail x10 | verified | 7 pass |  |  |
+| `population:000001014/5` | Snail Field of Flowers: Red Snail x12 | verified | 7 pass |  |  |
+| `population:000001014/9` | Snail Field of Flowers: Orange Mushroom x6 | verified | 7 pass |  |  |
+| `population:000001020/2` | The Field East of Amherst: Snail x3 | verified | 7 pass |  |  |
+| `population:000001020/3` | The Field East of Amherst: Blue Snail x11 | verified | 7 pass |  |  |
+| `population:000001020/5` | The Field East of Amherst: Red Snail x12 | verified | 7 pass |  |  |
+| `population:000001020/9` | The Field East of Amherst: Orange Mushroom x12 | verified | 8 pass |  |  |
+| `population:000001021/2` | Tomato Field: Snail x9 | verified | 7 pass |  |  |
+| `population:000001021/3` | Tomato Field: Blue Snail x8 | verified | 7 pass |  |  |
+| `population:000001021/5` | Tomato Field: Red Snail x4 | verified | 7 pass |  |  |
+| `population:000001021/9` | Tomato Field: Orange Mushroom x4 | verified | 7 pass |  |  |
 
 ## Monster spawn rules
 
@@ -223,21 +355,21 @@ Runtime: present (`game/scripts/core/maps/spawn_model.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `spawn-rule:000000030` | East Entrance to Mushroom Town: mob rate 0.6, 6 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000000040` | Snail Hunting Ground I: mob rate 1, 40 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000000041` | Snail Hunting Ground II: mob rate 1, 45 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000000042` | Snail Hunting Ground III: mob rate 1, 42 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000000050` | A Split Road: mob rate 1.5, 42 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001000` | The Field West of Amherst: mob rate 1.3, 66 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001001` | In a Small Forest: mob rate 1.3, 40 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001002` | Dangerous Forest: mob rate 1, 34 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001003` | Mushroom Garden: mob rate 1, 35 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001004` | Snail Garden: mob rate 1, 41 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001005` | Hunting Ground Middle of the Forest I: mob rate 1, 44 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001006` | Hunting Ground Middle of the Forest II: mob rate 1, 45 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001014` | Snail Field of Flowers: mob rate 1.2, 34 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001020` | The Field East of Amherst: mob rate 1, 38 spawn points | implemented | 0 pass |  |  |
-| `spawn-rule:000001021` | Tomato Field: mob rate 1, 25 spawn points | implemented | 0 pass |  |  |
+| `spawn-rule:000000030` | East Entrance to Mushroom Town: mob rate 0.6, 6 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000000040` | Snail Hunting Ground I: mob rate 1, 40 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000000041` | Snail Hunting Ground II: mob rate 1, 45 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000000042` | Snail Hunting Ground III: mob rate 1, 42 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000000050` | A Split Road: mob rate 1.5, 42 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001000` | The Field West of Amherst: mob rate 1.3, 66 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001001` | In a Small Forest: mob rate 1.3, 40 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001002` | Dangerous Forest: mob rate 1, 34 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001003` | Mushroom Garden: mob rate 1, 35 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001004` | Snail Garden: mob rate 1, 41 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001005` | Hunting Ground Middle of the Forest I: mob rate 1, 44 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001006` | Hunting Ground Middle of the Forest II: mob rate 1, 45 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001014` | Snail Field of Flowers: mob rate 1.2, 34 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001020` | The Field East of Amherst: mob rate 1, 38 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000001021` | Tomato Field: mob rate 1, 25 spawn points | verified | 6 pass |  |  |
 
 ## Monster stats
 
@@ -245,12 +377,12 @@ Runtime: present (`game/scripts/core/combat/monster_combat_stats.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | implemented | 0 pass |  |  |
-| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | implemented | 0 pass |  |  |
-| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | implemented | 0 pass |  |  |
-| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | implemented | 0 pass |  |  |
-| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | implemented | 0 pass |  |  |
-| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | implemented | 0 pass |  |  |
+| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | verified | 12 pass |  |  |
+| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | verified | 14 pass |  |  |
+| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | verified | 10 pass |  |  |
+| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | verified | 11 pass |  |  |
+| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | verified | 10 pass |  |  |
+| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | verified | 12 pass |  |  |
 
 ## Monster drops
 
@@ -258,103 +390,77 @@ Runtime: present (`game/scripts/core/drops/drop_roller.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `drop:1/jr-sentinel-shellpiece` | Tutorial Jr. Sentinel: Jr. Sentinel Shellpiece | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/arrows-for-bows` | Snail: Arrows for Bows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/arrows-for-crossbows` | Snail: Arrows for Crossbows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/bronze-ore` | Snail: Bronze Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/cape-magic-def-scroll-intermediate` | Snail: Cape Magic Def. Scroll: Intermediate | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/cape-weapon-def-scroll-intermediate` | Snail: Cape Weapon Def. Scroll: Intermediate | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/garnet-ore` | Snail: Garnet Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/green-headband` | Snail: Green Headband | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/green-skullcap` | Snail: Green Skullcap | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/green-t-shirt` | Snail: Green T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/ice-jeans` | Snail: Ice Jeans | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/red-miniskirt` | Snail: Red Miniskirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/red-potion` | Snail: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/red-striped-top` | Snail: Red Striped Top | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/snail-shell` | Snail: Snail Shell | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/sword` | Snail: Sword | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/the-green-relaxer` | Snail: The Green Relaxer | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:2/white-undershirt` | Snail: White Undershirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/amethyst-ore` | Blue Snail: Amethyst Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/arrows-for-bows` | Blue Snail: Arrows for Bows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/arrows-for-crossbows` | Blue Snail: Arrows for Crossbows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/blue-headband` | Blue Snail: Blue Headband | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/blue-jean-shorts` | Blue Snail: Blue Jean Shorts | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/blue-one-lined-t-shirt` | Blue Snail: Blue One-lined T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/blue-snail-shell` | Blue Snail: Blue Snail Shell | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/brown-duo` | Blue Snail: Brown Duo | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/brown-training-shirt` | Blue Snail: Brown Training Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/cape-magic-def-scroll-intermediate` | Blue Snail: Cape Magic Def. Scroll: Intermediate | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/green-t-shirt` | Blue Snail: Green T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/grey-t-shirt` | Blue Snail: Grey T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/grey-thick-sweat-pants` | Blue Snail: Grey Thick Sweat Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/iron-mace` | Blue Snail: Iron Mace | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/iron-ore` | Blue Snail: Iron Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/monster-card` | Blue Snail: Monster Card | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/opal-ore` | Blue Snail: Opal Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/razor` | Blue Snail: Razor | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/red-potion` | Blue Snail: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/red-striped-t-shirt` | Blue Snail: Red Striped T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/silver-ore` | Blue Snail: Silver Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/undershirt` | Blue Snail: Undershirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:3/white-tube-top` | Blue Snail: White Tube Top | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/aquamarine-ore` | Shroom: Aquamarine Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/arrows-for-bows` | Shroom: Arrows for Bows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/arrows-for-crossbows` | Shroom: Arrows for Crossbows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/blue-jean-shorts` | Shroom: Blue Jean Shorts | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/blue-rubber-boots` | Shroom: Blue Rubber Boots | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/field-dagger` | Shroom: Field Dagger | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/green-avelin-skirt` | Shroom: Green Avelin Skirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/grey-t-shirt` | Shroom: Grey T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/hand-axe` | Shroom: Hand Axe | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/ice-jeans` | Shroom: Ice Jeans | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/jean-capris` | Shroom: Jean Capris | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/mithril-ore` | Shroom: Mithril Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/mushroom-spore` | Shroom: Mushroom Spore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/red-potion` | Shroom: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:4/yellow-headband` | Shroom: Yellow Headband | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/amethyst-earrings` | Red Snail: Amethyst Earrings | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/amethyst-ore` | Red Snail: Amethyst Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/arrows-for-bows` | Red Snail: Arrows for Bows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/arrows-for-crossbows` | Red Snail: Arrows for Crossbows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/brown-duo` | Red Snail: Brown Duo | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/brown-woodsman-boots` | Red Snail: Brown Woodsman Boots | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/leather-purse` | Red Snail: Leather Purse | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/leather-sandals` | Red Snail: Leather Sandals | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/metal-wand` | Red Snail: Metal Wand | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/opal-ore` | Red Snail: Opal Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/overall-armor-def-scroll-intermediate` | Red Snail: Overall Armor DEF Scroll: Intermediate | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/overall-armor-dex-scroll-greater` | Red Snail: Overall Armor DEX Scroll: Greater | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-cloth-pants-1168` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-cloth-pants-1177` | Red Snail: Red Cloth Pants | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-headband` | Red Snail: Red Headband | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-potion` | Red Snail: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-skullcap` | Red Snail: Red Skullcap | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-snail-shell` | Red Snail: Red Snail Shell | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/red-striped-top` | Red Snail: Red Striped Top | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/silver-ore` | Red Snail: Silver Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/sword` | Red Snail: Sword | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/wooden-sword` | Red Snail: Wooden Sword | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:5/yellow-t-shirt` | Red Snail: Yellow T-Shirt | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/arrows-for-bows` | Orange Mushroom: Arrows for Bows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/arrows-for-crossbows` | Orange Mushroom: Arrows for Crossbows | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/basic-archer-gloves` | Orange Mushroom: Basic Archer Gloves | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/bronze-koif` | Orange Mushroom: Bronze Koif | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/bronze-ore` | Orange Mushroom: Bronze Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/brown-hard-leather-boots` | Orange Mushroom: Brown Hard Leather Boots | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/diamond-ore` | Orange Mushroom: Diamond Ore | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/double-axe` | Orange Mushroom: Double Axe | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/green-winter-hat` | Orange Mushroom: Green Winter Hat | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/hunters-bow` | Orange Mushroom: Hunter's Bow | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/long-sword` | Orange Mushroom: Long Sword | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/metal-wand` | Orange Mushroom: Metal Wand | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/orange-mushroom-cap` | Orange Mushroom: Orange Mushroom Cap | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/red-ninja-sandals` | Orange Mushroom: Red Ninja Sandals | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/red-potion` | Orange Mushroom: Red Potion | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/shoes-jump-scroll-greater` | Orange Mushroom: Shoes Jump Scroll: Greater | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/spear` | Orange Mushroom: Spear | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
-| `drop:9/white-gomushin` | Orange Mushroom: White Gomushin | partial | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6) |
+| `drop:1/jr-sentinel-shellpiece` | Tutorial Jr. Sentinel: Jr. Sentinel Shellpiece | verified | 5 pass |  |  |
+| `drop:2/arrow-for-bow` | Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:2/arrow-for-crossbow` | Snail: Arrow for Crossbow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:2/blue-potion` | Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:2/blue-training-shirt-m` | Snail: Blue Training Shirt (M) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:2/brown-apprentice-hat` | Snail: Brown Apprentice Hat | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:2/green-apple` | Snail: Green Apple | verified | 2 pass |  |  |
+| `drop:2/red-cloth-pants-m` | Snail: Red Cloth Pants (M) | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:2/red-potion` | Snail: Red Potion | verified | 2 pass |  |  |
+| `drop:2/snail-shell` | Snail: Snail Shell | verified | 4 pass |  |  |
+| `drop:2/wooden-buckler` | Snail: Wooden Buckler | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:2/wooden-mallet` | Snail: Wooden Mallet | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/arrow-for-bow` | Blue Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:3/blue-bandana` | Blue Snail: Blue Bandana | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/blue-cloth-vest-m` | Blue Snail: Blue Cloth Vest (M) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/blue-headband` | Blue Snail: Blue Headband | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:3/blue-potion` | Blue Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:3/blue-snail-shell` | Blue Snail: Blue Snail Shell | verified | 5 pass |  |  |
+| `drop:3/green-apple` | Blue Snail: Green Apple | verified | 2 pass |  |  |
+| `drop:3/hardwood-wand` | Blue Snail: Hardwood Wand | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/orange-potion` | Blue Snail: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:3/pan-lid` | Blue Snail: Pan Lid | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/red-bandana` | Blue Snail: Red Bandana | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:3/red-potion` | Blue Snail: Red Potion | verified | 2 pass |  |  |
+| `drop:4/arrow-for-bow` | Shroom: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:4/arrow-for-crossbow` | Shroom: Arrow for Crossbow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:4/black-ghetto-beanie` | Shroom: Black Ghetto Beanie | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/blue-lolico-armor-m` | Shroom: Blue Lolico Armor (M) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/blue-swimming-cap` | Shroom: Blue Swimming Cap | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/double-axe` | Shroom: Double Axe | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:4/green-apple` | Shroom: Green Apple | verified | 2 pass |  |  |
+| `drop:4/mushroom-spore` | Shroom: Mushroom Spore | verified | 4 pass |  |  |
+| `drop:4/orange-lolica-armor-f` | Shroom: Orange Lolica Armor (F) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/red-potion` | Shroom: Red Potion | verified | 2 pass |  |  |
+| `drop:4/smelly-gomushin` | Shroom: Smelly Gomushin | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/wooden-samurai-sword` | Shroom: Wooden Samurai Sword | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/wooden-sword` | Shroom: Wooden Sword | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:4/work-gloves` | Shroom: Work Gloves | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:4/yellow-bandana` | Shroom: Yellow Bandana | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/arrow-for-bow` | Red Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/black-cloth-pants-m` | Red Snail: Black Cloth Pants (M) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/black-gomushin` | Red Snail: Black Gomushin | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/blue-headband` | Red Snail: Blue Headband | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/blue-potion` | Red Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/brown-skullcap` | Red Snail: Brown Skullcap | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/brown-woodsman-boots` | Red Snail: Brown Woodsman Boots | verified | 2 pass |  |  |
+| `drop:5/green-apple` | Red Snail: Green Apple | verified | 2 pass |  |  |
+| `drop:5/grey-thick-sweat-pants-m` | Red Snail: Grey Thick Sweat Pants (M) | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/metal-axe` | Red Snail: Metal Axe | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/orange-potion` | Red Snail: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:5/pistol` | Red Snail: Pistol | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/red-bandana` | Red Snail: Red Bandana | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:5/red-potion` | Red Snail: Red Potion | verified | 2 pass |  |  |
+| `drop:5/red-snail-shell` | Red Snail: Red Snail Shell | verified | 4 pass |  |  |
+| `drop:9/arrow-for-bow` | Orange Mushroom: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:9/black-cloth-pants-f` | Orange Mushroom: Black Cloth Pants (F) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/blue-cloth-pants-m` | Orange Mushroom: Blue Cloth Pants (M) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/blue-potion` | Orange Mushroom: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:9/brown-hard-leather-boots` | Orange Mushroom: Brown Hard Leather Boots | verified | 2 pass |  |  |
+| `drop:9/crossbow` | Orange Mushroom: Crossbow | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/garnier` | Orange Mushroom: Garnier | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/omok-piece-mushroom` | Orange Mushroom: Omok Piece : Mushroom | partial (source-data gap) | 3 pass | 1 |  |
+| `drop:9/orange-mushroom-cap` | Orange Mushroom: Orange Mushroom Cap | verified | 5 pass |  |  |
+| `drop:9/orange-potion` | Orange Mushroom: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:9/red-headband` | Orange Mushroom: Red Headband | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:9/red-ninja-sandals` | Orange Mushroom: Red Ninja Sandals | verified | 2 pass |  |  |
+| `drop:9/red-potion` | Orange Mushroom: Red Potion | verified | 2 pass |  |  |
+| `drop:9/red-swimming-cap` | Orange Mushroom: Red Swimming Cap | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/scroll-for-shoes-for-jump-10` | Orange Mushroom: Scroll for Shoes for Jump 10% | partial (source-data gap) | 2 pass | 1 |  |
+| `drop:9/yellow-avelin-f` | Orange Mushroom: Yellow Avelin (F) | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:9/yellow-bandana` | Orange Mushroom: Yellow Bandana | partial (source-data gap) | 2 pass | 2 |  |
 
 ## Meso drops
 
@@ -362,12 +468,12 @@ Runtime: present (`game/scripts/core/drops/drop_rates.gd`, `game/scripts/core/it
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `meso:1` | Tutorial Jr. Sentinel mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
-| `meso:2` | Snail mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
-| `meso:3` | Blue Snail mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
-| `meso:4` | Shroom mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
-| `meso:5` | Red Snail mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
-| `meso:9` | Orange Mushroom mesos | partial | 0 pass |  | schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json |
+| `meso:1` | Tutorial Jr. Sentinel mesos | verified | 2 pass |  | drops no mesos |
+| `meso:2` | Snail mesos | verified | 3 pass |  |  |
+| `meso:3` | Blue Snail mesos | verified | 3 pass |  |  |
+| `meso:4` | Shroom mesos | verified | 3 pass |  |  |
+| `meso:5` | Red Snail mesos | verified | 3 pass |  |  |
+| `meso:9` | Orange Mushroom mesos | verified | 3 pass |  |  |
 
 ## Items (Etc and Set-up)
 
@@ -380,23 +486,23 @@ Runtime: present (`game/scripts/core/items/item_def.gd`, `game/scripts/core/item
 | `item:322` | Aquamarine Ore (Etc / Gem) | implemented | 0 pass |  |  |
 | `item:324` | Opal Ore (Etc / Gem) | implemented | 0 pass |  |  |
 | `item:327` | Diamond Ore (Etc / Gem) | implemented | 0 pass |  |  |
-| `item:347` | Jr. Sentinel Shellpiece (Etc / Monster Drop) | implemented | 0 pass |  |  |
+| `item:347` | Jr. Sentinel Shellpiece (Etc / Monster Drop) | verified | 1 pass |  |  |
 | `item:348` | Snail Shell (Etc / Monster Drop) | implemented | 0 pass |  |  |
-| `item:349` | Blue Snail Shell (Etc / Monster Drop) | implemented | 0 pass |  |  |
+| `item:349` | Blue Snail Shell (Etc / Monster Drop) | verified | 2 pass |  |  |
 | `item:350` | Mushroom Spore (Etc / Monster Drop) | implemented | 0 pass |  |  |
 | `item:351` | Red Snail Shell (Etc / Monster Drop) | implemented | 0 pass |  |  |
-| `item:356` | Orange Mushroom Cap (Etc / Monster Drop) | implemented | 0 pass |  |  |
+| `item:356` | Orange Mushroom Cap (Etc / Monster Drop) | verified | 2 pass |  |  |
 | `item:413` | Bronze Ore (Etc / Ore & Mineral) | implemented | 0 pass |  |  |
 | `item:414` | Iron Ore (Etc / Ore & Mineral) | implemented | 0 pass |  |  |
 | `item:415` | Mithril Ore (Etc / Ore & Mineral) | implemented | 0 pass |  |  |
 | `item:417` | Silver Ore (Etc / Ore & Mineral) | implemented | 0 pass |  |  |
-| `item:438` | Sera's Mirror (Etc / Quest Item) | implemented | 0 pass |  |  |
-| `item:439` | Maria's Letter (Etc / Quest Item) | implemented | 0 pass |  |  |
-| `item:440` | Lucas's Letter (Etc / Quest Item) | implemented | 0 pass |  |  |
-| `item:441` | Rusty Screw (Etc / Quest Item) | implemented | 0 pass |  |  |
-| `item:442` | Old Wooden Board (Etc / Quest Item) | implemented | 0 pass |  |  |
+| `item:438` | Sera's Mirror (Etc / Quest Item) | verified | 1 pass |  |  |
+| `item:439` | Maria's Letter (Etc / Quest Item) | verified | 1 pass |  |  |
+| `item:440` | Lucas's Letter (Etc / Quest Item) | verified | 1 pass |  |  |
+| `item:441` | Rusty Screw (Etc / Quest Item) | verified | 2 pass |  |  |
+| `item:442` | Old Wooden Board (Etc / Quest Item) | verified | 1 pass |  |  |
 | `item:483` | Monster Card (Etc / Quest Item) | implemented | 0 pass |  |  |
-| `item:522` | The Green Relaxer (Setup) | implemented | 0 pass |  |  |
+| `item:522` | The Green Relaxer (Setup) | verified | 1 pass |  |  |
 | `item:525` | Sky-blue Wooden Chair (Setup) | implemented (out of scope) | 0 pass |  | out of scope: The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope) |
 
 ## Equipment
@@ -405,7 +511,7 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `item:1157` | Blue Jean Shorts (Equip / Bottom) | implemented | 0 pass | 1 |  |
+| `item:1157` | Blue Jean Shorts (Equip / Bottom) | verified | 2 pass | 1 |  |
 | `item:1158` | Brown Cotton Shorts (Equip / Bottom) | implemented | 0 pass | 1 |  |
 | `item:1160` | Red Miniskirt (Equip / Bottom) | implemented | 0 pass | 1 |  |
 | `item:1161` | Indigo Miniskirt (Equip / Bottom) | implemented | 0 pass | 1 |  |
@@ -423,8 +529,8 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:1325` | Brown Woodsman Boots (Equip / Shoes) | implemented | 0 pass | 1 |  |
 | `item:1327` | Red Ninja Sandals (Equip / Shoes) | implemented | 0 pass | 1 |  |
 | `item:1439` | Basic Archer Gloves (Equip / Gloves) | implemented | 0 pass | 1 |  |
-| `item:1440` | Brown Duo (Equip / Gloves) | implemented | 0 pass | 1 |  |
-| `item:541` | Sword (Equip / One-Handed Sword) | implemented | 0 pass | 1 |  |
+| `item:1440` | Brown Duo (Equip / Gloves) | verified | 1 pass | 1 |  |
+| `item:541` | Sword (Equip / One-Handed Sword) | verified | 1 pass | 1 |  |
 | `item:543` | Long Sword (Equip / One-Handed Sword) | implemented | 0 pass | 1 |  |
 | `item:551` | Gladius (Equip / One-Handed Sword) | implemented | 0 pass | 1 |  |
 | `item:558` | Razor (Equip / Dagger) | implemented | 0 pass | 1 |  |
@@ -432,7 +538,7 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:562` | Field Dagger (Equip / Dagger) | implemented | 0 pass | 1 |  |
 | `item:576` | Hand Axe (Equip / One-Handed Axe) | implemented | 0 pass | 1 |  |
 | `item:577` | Double Axe (Equip / One-Handed Axe) | implemented | 0 pass | 1 |  |
-| `item:585` | Wooden Club (Equip / One-Handed Blunt Weapon) | implemented | 0 pass | 1 |  |
+| `item:585` | Wooden Club (Equip / One-Handed Blunt Weapon) | verified | 2 pass | 1 |  |
 | `item:589` | Leather Purse (Equip / One-Handed Blunt Weapon) | implemented | 0 pass | 1 |  |
 | `item:595` | Iron Mace (Equip / One-Handed Blunt Weapon) | implemented | 0 pass | 1 |  |
 | `item:608` | Wooden Sword (Equip / Two-Handed Sword) | implemented | 0 pass | 1 |  |
@@ -442,7 +548,7 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:708` | Brown Skullcap (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:709` | Green Skullcap (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:710` | Red Skullcap (Equip / Hat) | implemented | 0 pass | 1 |  |
-| `item:711` | Red Headband (Equip / Hat) | implemented | 0 pass | 1 |  |
+| `item:711` | Red Headband (Equip / Hat) | verified | 1 pass | 1 |  |
 | `item:712` | Black Headband (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:713` | Green Headband (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:714` | Yellow Headband (Equip / Hat) | implemented | 0 pass | 1 |  |
@@ -450,7 +556,7 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:724` | Bronze Koif (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:731` | Green Winter Hat (Equip / Hat) | implemented | 0 pass | 1 |  |
 | `item:900` | Amethyst Earrings (Equip / Earring) | implemented | 0 pass | 1 |  |
-| `item:933` | White Undershirt (Equip / Top) | implemented | 0 pass | 1 |  |
+| `item:933` | White Undershirt (Equip / Top) | verified | 3 pass | 1 |  |
 | `item:934` | Grey T-Shirt (Equip / Top) | implemented | 0 pass | 1 |  |
 | `item:935` | Undershirt (Equip / Top) | implemented | 0 pass | 1 |  |
 | `item:937` | White Tube Top (Equip / Top) | implemented | 0 pass | 1 |  |
@@ -472,16 +578,16 @@ Runtime: present (`game/scripts/core/items/consumables.gd`).
 | `item:177` | Shoes Jump Scroll: Greater (Use / Scroll) | implemented | 0 pass |  |  |
 | `item:209` | Arrows for Bows (Use / Arrow) | implemented | 0 pass |  |  |
 | `item:213` | Arrows for Crossbows (Use / Arrow) | implemented | 0 pass |  |  |
-| `item:235` | Roger's Apple (Use / Food) | implemented | 0 pass |  |  |
-| `item:236` | Apple (Use / Food) | implemented | 0 pass |  |  |
-| `item:237` | Egg (Use / Food) | implemented | 0 pass |  |  |
+| `item:235` | Roger's Apple (Use / Food) | verified | 5 pass |  |  |
+| `item:236` | Apple (Use / Food) | verified | 1 pass |  |  |
+| `item:237` | Egg (Use / Food) | verified | 3 pass |  |  |
 | `item:238` | Meat (Use / Food) | implemented | 0 pass |  |  |
-| `item:239` | Orange (Use / Food) | implemented | 0 pass |  |  |
+| `item:239` | Orange (Use / Food) | verified | 3 pass |  |  |
 | `item:240` | Lemon (Use / Food) | implemented | 0 pass |  |  |
 | `item:242` | Green Apple (Use / Food) | implemented | 0 pass | 9 |  |
-| `item:269` | Pet Food (Use / Pet Food) | implemented | 0 pass |  |  |
-| `item:270` | Red Potion (Use / Potion) | implemented | 0 pass |  |  |
-| `item:271` | Orange Potion (Use / Potion) | implemented | 0 pass |  |  |
+| `item:269` | Pet Food (Use / Pet Food) | verified | 1 pass |  |  |
+| `item:270` | Red Potion (Use / Potion) | verified | 3 pass |  |  |
+| `item:271` | Orange Potion (Use / Potion) | verified | 1 pass |  |  |
 | `item:273` | Blue Potion (Use / Potion) | implemented | 0 pass |  |  |
 | `item:59` | Cape Magic Def. Scroll: Intermediate (Use / Scroll) | implemented | 0 pass |  |  |
 | `item:61` | Cape Weapon Def. Scroll: Intermediate (Use / Scroll) | implemented | 0 pass |  |  |
@@ -492,27 +598,27 @@ Runtime: present (`game/scripts/core/npcs/npc_def.gd`, `game/scripts/world/world
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `npc:1` | Heena | implemented | 0 pass |  |  |
-| `npc:10` | Maria | implemented | 0 pass |  |  |
-| `npc:11` | Mai | implemented | 0 pass |  |  |
-| `npc:12` | Biggs | implemented | 0 pass |  |  |
-| `npc:13` | Yoona | implemented | 0 pass |  |  |
-| `npc:14` | Bari | implemented | 0 pass |  |  |
-| `npc:15` | Shanks | implemented | 0 pass | 2 | adaptation: npcs/15.json |
-| `npc:16` | Pan | implemented | 0 pass | 2 | adaptation: dialogue/16.json |
-| `npc:17` | Lucas | implemented | 0 pass | 1 |  |
-| `npc:18` | Pio | implemented | 0 pass |  | adaptation: dialogue/18.json |
-| `npc:19` | Rain | implemented | 0 pass | 1 |  |
-| `npc:2` | Sera | implemented | 0 pass | 1 |  |
-| `npc:20` | Sid | implemented | 0 pass | 2 | adaptation: dialogue/20.json |
-| `npc:21` | Lucy | implemented | 0 pass | 2 | adaptation: dialogue/21.json |
-| `npc:3` | Roger | implemented | 0 pass | 2 |  |
-| `npc:4` | Nina | implemented | 0 pass |  |  |
-| `npc:5` | Sen | implemented | 0 pass | 1 |  |
-| `npc:6` | Peter | implemented | 0 pass |  |  |
-| `npc:7` | Todd | implemented | 0 pass |  |  |
-| `npc:8` | Robin | implemented | 0 pass |  |  |
-| `npc:9` | Sam | implemented | 0 pass |  |  |
+| `npc:1` | Heena | verified | 7 pass |  |  |
+| `npc:10` | Maria | verified | 7 pass |  |  |
+| `npc:11` | Mai | verified | 12 pass |  |  |
+| `npc:12` | Biggs | verified | 6 pass |  |  |
+| `npc:13` | Yoona | verified | 4 pass |  |  |
+| `npc:14` | Bari | verified | 4 pass |  |  |
+| `npc:15` | Shanks | verified | 12 pass | 2 | adaptation: npcs/15.json; adaptation: dialogue/15.json |
+| `npc:16` | Pan | verified | 7 pass | 2 | adaptation: dialogue/16.json |
+| `npc:17` | Lucas | verified | 7 pass | 1 |  |
+| `npc:18` | Pio | verified | 7 pass |  | adaptation: dialogue/18.json |
+| `npc:19` | Rain | verified | 19 pass | 1 |  |
+| `npc:2` | Sera | verified | 7 pass | 1 |  |
+| `npc:20` | Sid | verified | 6 pass | 2 | adaptation: dialogue/20.json |
+| `npc:21` | Lucy | verified | 6 pass | 2 | adaptation: dialogue/21.json |
+| `npc:3` | Roger | verified | 9 pass | 2 |  |
+| `npc:4` | Nina | verified | 6 pass |  |  |
+| `npc:5` | Sen | verified | 6 pass | 1 |  |
+| `npc:6` | Peter | verified | 5 pass |  |  |
+| `npc:7` | Todd | verified | 5 pass |  |  |
+| `npc:8` | Robin | verified | 4 pass |  |  |
+| `npc:9` | Sam | verified | 8 pass |  |  |
 
 ## Shops
 
@@ -520,9 +626,9 @@ Runtime: present (`game/scripts/core/shop/shop_service.gd`, `game/scripts/ui/npc
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `shop:maple-road-lucy` | Lucy (Lucy), 6 items | implemented | 0 pass | 5 |  |
-| `shop:maple-road-pan` | Pan (Pan), 13 items | implemented | 0 pass | 6 |  |
-| `shop:maple-road-sid` | Sid (Sid), 4 items | implemented | 0 pass | 6 |  |
+| `shop:maple-road-lucy` | Lucy (Lucy), 6 items | verified | 76 pass | 5 |  |
+| `shop:maple-road-pan` | Pan (Pan), 13 items | verified | 54 pass | 6 |  |
+| `shop:maple-road-sid` | Sid (Sid), 4 items | verified | 53 pass | 6 |  |
 
 ## Quests
 
@@ -530,26 +636,26 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`, `game/scripts/core
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `quest:1000` | Borrowing Sera's Mirror | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1001` | Bringing a Mirror to Heena | implemented | 0 pass | 5 | missable (live quest tracker) |
-| `quest:1002` | Roger's Apple | implemented | 0 pass | 5 | missable (live quest tracker); adaptation: quests/1002.json |
-| `quest:1003` | What Sen wants to eat | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1004` | Returning to Nina | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1005` | Todd's How-to-Hunt | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1006` | Sam's Suggestion | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1007` | Letter for Lucas | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1008` | Lucas's Reply | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1009` | Mai's Training | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1010` | Mai's Final Training | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1011` | Biggs's Collection of Items | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1012` | Pio's Collecting Recycled Goods | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1013` | Rain's Maple Quiz 1 | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1014` | Rain's Maple Quiz 2 | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1015` | Rain's Maple Quiz 3 | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1016` | Rain's Maple Quiz 4 | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1017` | Rain's Maple Quiz 5 | implemented | 0 pass | 3 | missable (live quest tracker) |
-| `quest:1018` | Rain's Maple Quiz 6 | implemented | 0 pass | 4 | missable (live quest tracker) |
-| `quest:1019` | Rain's Maple Quiz 7 | implemented | 0 pass | 3 | missable (live quest tracker) |
+| `quest:1000` | Borrowing Sera's Mirror | verified | 29 pass | 3 | missable (live quest tracker) |
+| `quest:1001` | Bringing a Mirror to Heena | verified | 24 pass | 5 | missable (live quest tracker) |
+| `quest:1002` | Roger's Apple | verified | 46 pass | 5 | missable (live quest tracker); adaptation: quests/1002.json |
+| `quest:1003` | What Sen wants to eat | verified | 29 pass | 3 | missable (live quest tracker) |
+| `quest:1004` | Returning to Nina | verified | 23 pass | 3 | missable (live quest tracker) |
+| `quest:1005` | Todd's How-to-Hunt | verified | 33 pass | 4 | missable (live quest tracker) |
+| `quest:1006` | Sam's Suggestion | verified | 82 pass | 3 | missable (live quest tracker) |
+| `quest:1007` | Letter for Lucas | verified | 36 pass | 4 | missable (live quest tracker) |
+| `quest:1008` | Lucas's Reply | verified | 33 pass | 4 | missable (live quest tracker) |
+| `quest:1009` | Mai's Training | verified | 41 pass | 3 | missable (live quest tracker) |
+| `quest:1010` | Mai's Final Training | verified | 32 pass | 3 | missable (live quest tracker) |
+| `quest:1011` | Biggs's Collection of Items | verified | 37 pass | 4 | missable (live quest tracker) |
+| `quest:1012` | Pio's Collecting Recycled Goods | verified | 48 pass | 4 | missable (live quest tracker) |
+| `quest:1013` | Rain's Maple Quiz 1 | verified | 39 pass | 3 | missable (live quest tracker) |
+| `quest:1014` | Rain's Maple Quiz 2 | verified | 29 pass | 3 | missable (live quest tracker) |
+| `quest:1015` | Rain's Maple Quiz 3 | verified | 29 pass | 3 | missable (live quest tracker) |
+| `quest:1016` | Rain's Maple Quiz 4 | verified | 30 pass | 3 | missable (live quest tracker) |
+| `quest:1017` | Rain's Maple Quiz 5 | verified | 29 pass | 3 | missable (live quest tracker) |
+| `quest:1018` | Rain's Maple Quiz 6 | verified | 31 pass | 4 | missable (live quest tracker) |
+| `quest:1019` | Rain's Maple Quiz 7 | verified | 29 pass | 3 | missable (live quest tracker) |
 
 ## Quest chains
 
@@ -557,11 +663,11 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `chain:1000` | Borrowing Sera's Mirror -> Bringing a Mirror to Heena | implemented | 0 pass |  | members: 1000 implemented, 1001 implemented |
-| `chain:1003` | What Sen wants to eat -> Returning to Nina | implemented | 0 pass |  | members: 1003 implemented, 1004 implemented |
-| `chain:1006` | Sam's Suggestion -> Mai's Training -> Mai's Final Training | implemented | 0 pass |  | members: 1006 implemented, 1009 implemented, 1010 implemented |
-| `chain:1007` | Letter for Lucas -> Lucas's Reply | implemented | 0 pass |  | members: 1007 implemented, 1008 implemented |
-| `chain:1013` | Rain's Maple Quiz 1 -> Rain's Maple Quiz 2 -> Rain's Maple Quiz 3 -> Rain's Maple Quiz 4 -> Rain's Maple Quiz 5 -> Rain's Maple Quiz 6 -> Rain's Maple Quiz 7 | implemented | 0 pass |  | members: 1013 implemented, 1014 implemented, 1015 implemented, 1016 implemented, 1017 implemented, 1018 implemented, 1019 implemented |
+| `chain:1000` | Borrowing Sera's Mirror -> Bringing a Mirror to Heena | verified | 0 pass |  | members: 1000 verified, 1001 verified |
+| `chain:1003` | What Sen wants to eat -> Returning to Nina | verified | 0 pass |  | members: 1003 verified, 1004 verified |
+| `chain:1006` | Sam's Suggestion -> Mai's Training -> Mai's Final Training | verified | 0 pass |  | members: 1006 verified, 1009 verified, 1010 verified |
+| `chain:1007` | Letter for Lucas -> Lucas's Reply | verified | 0 pass |  | members: 1007 verified, 1008 verified |
+| `chain:1013` | Rain's Maple Quiz 1 -> Rain's Maple Quiz 2 -> Rain's Maple Quiz 3 -> Rain's Maple Quiz 4 -> Rain's Maple Quiz 5 -> Rain's Maple Quiz 6 -> Rain's Maple Quiz 7 | verified | 0 pass |  | members: 1013 verified, 1014 verified, 1015 verified, 1016 verified, 1017 verified, 1018 verified, 1019 verified |
 
 ## Quest objectives
 
@@ -569,48 +675,48 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `objective:1000/npc_talk/2/turn_in` | Borrowing Sera's Mirror: npc talk Sera | implemented | 0 pass |  |  |
-| `objective:1001/item_collection/438` | Bringing a Mirror to Heena: item collection Sera's Mirror x1 | implemented | 0 pass |  |  |
-| `objective:1001/npc_talk/1/turn_in` | Bringing a Mirror to Heena: npc talk Heena | implemented | 0 pass |  |  |
-| `objective:1002/item_usage/235` | Roger's Apple: item usage Roger's Apple x1 | implemented | 0 pass |  |  |
-| `objective:1002/npc_talk/3/turn_in` | Roger's Apple: npc talk Roger | implemented | 0 pass |  |  |
-| `objective:1003/npc_talk/5/turn_in` | What Sen wants to eat: npc talk Sen | implemented | 0 pass |  |  |
-| `objective:1004/npc_talk/4/turn_in` | Returning to Nina: npc talk Nina | implemented | 0 pass |  |  |
-| `objective:1005/item_collection/347` | Todd's How-to-Hunt: item collection Jr. Sentinel Shellpiece x3 | implemented | 0 pass |  |  |
-| `objective:1005/monster_kills/1` | Todd's How-to-Hunt: monster kills Tutorial Jr. Sentinel x3 | implemented | 0 pass |  |  |
-| `objective:1005/npc_talk/6/turn_in` | Todd's How-to-Hunt: npc talk Peter | implemented | 0 pass |  |  |
-| `objective:1006/monster_kills/2` | Sam's Suggestion: monster kills Snail x10 | implemented | 0 pass |  |  |
-| `objective:1006/npc_talk/11/turn_in` | Sam's Suggestion: npc talk Mai | implemented | 0 pass |  |  |
-| `objective:1007/item_collection/439` | Letter for Lucas: item collection Maria's Letter x1 | implemented | 0 pass |  |  |
-| `objective:1007/npc_talk/17/turn_in` | Letter for Lucas: npc talk Lucas | implemented | 0 pass |  |  |
-| `objective:1008/item_collection/440` | Lucas's Reply: item collection Lucas's Letter x1 | implemented | 0 pass |  |  |
-| `objective:1008/npc_talk/10/turn_in` | Lucas's Reply: npc talk Maria | implemented | 0 pass |  |  |
-| `objective:1009/monster_kills/3` | Mai's Training: monster kills Blue Snail x10 | implemented | 0 pass |  |  |
-| `objective:1009/monster_kills/4` | Mai's Training: monster kills Shroom x10 | implemented | 0 pass |  |  |
-| `objective:1009/monster_kills/5` | Mai's Training: monster kills Red Snail x5 | implemented | 0 pass |  |  |
-| `objective:1009/npc_talk/11/turn_in` | Mai's Training: npc talk Mai | implemented | 0 pass |  |  |
-| `objective:1010/monster_kills/9` | Mai's Final Training: monster kills Orange Mushroom x1 | implemented | 0 pass |  |  |
-| `objective:1010/npc_talk/11/turn_in` | Mai's Final Training: npc talk Mai | implemented | 0 pass |  |  |
-| `objective:1011/item_collection/349` | Biggs's Collection of Items: item collection Blue Snail Shell x10 | implemented | 0 pass |  |  |
-| `objective:1011/item_collection/356` | Biggs's Collection of Items: item collection Orange Mushroom Cap x1 | implemented | 0 pass |  |  |
-| `objective:1011/npc_talk/12/turn_in` | Biggs's Collection of Items: npc talk Biggs | implemented | 0 pass |  |  |
-| `objective:1012/item_collection/441` | Pio's Collecting Recycled Goods: item collection Rusty Screw x3 | implemented | 0 pass |  |  |
-| `objective:1012/item_collection/442` | Pio's Collecting Recycled Goods: item collection Old Wooden Board x3 | implemented | 0 pass |  |  |
-| `objective:1012/npc_talk/18/turn_in` | Pio's Collecting Recycled Goods: npc talk Pio | implemented | 0 pass |  |  |
-| `objective:1013/npc_talk/19/turn_in` | Rain's Maple Quiz 1: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1013/other/quiz` | Rain's Maple Quiz 1: other quiz | implemented | 0 pass |  |  |
-| `objective:1014/npc_talk/19/turn_in` | Rain's Maple Quiz 2: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1014/other/quiz` | Rain's Maple Quiz 2: other quiz | implemented | 0 pass |  |  |
-| `objective:1015/npc_talk/19/turn_in` | Rain's Maple Quiz 3: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1015/other/quiz` | Rain's Maple Quiz 3: other quiz | implemented | 0 pass |  |  |
-| `objective:1016/npc_talk/19/turn_in` | Rain's Maple Quiz 4: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1016/other/quiz` | Rain's Maple Quiz 4: other quiz | implemented | 0 pass |  |  |
-| `objective:1017/npc_talk/19/turn_in` | Rain's Maple Quiz 5: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1017/other/quiz` | Rain's Maple Quiz 5: other quiz | implemented | 0 pass |  |  |
-| `objective:1018/npc_talk/19/turn_in` | Rain's Maple Quiz 6: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1018/other/quiz` | Rain's Maple Quiz 6: other quiz | implemented | 0 pass |  |  |
-| `objective:1019/npc_talk/19/turn_in` | Rain's Maple Quiz 7: npc talk Rain | implemented | 0 pass |  |  |
-| `objective:1019/other/quiz` | Rain's Maple Quiz 7: other quiz | implemented | 0 pass |  |  |
+| `objective:1000/npc_talk/2/turn_in` | Borrowing Sera's Mirror: npc talk Sera | verified | 29 pass |  |  |
+| `objective:1001/item_collection/438` | Bringing a Mirror to Heena: item collection Sera's Mirror x1 | verified | 24 pass |  |  |
+| `objective:1001/npc_talk/1/turn_in` | Bringing a Mirror to Heena: npc talk Heena | verified | 24 pass |  |  |
+| `objective:1002/item_usage/235` | Roger's Apple: item usage Roger's Apple x1 | verified | 46 pass |  |  |
+| `objective:1002/npc_talk/3/turn_in` | Roger's Apple: npc talk Roger | verified | 46 pass |  |  |
+| `objective:1003/npc_talk/5/turn_in` | What Sen wants to eat: npc talk Sen | verified | 29 pass |  |  |
+| `objective:1004/npc_talk/4/turn_in` | Returning to Nina: npc talk Nina | verified | 23 pass |  |  |
+| `objective:1005/item_collection/347` | Todd's How-to-Hunt: item collection Jr. Sentinel Shellpiece x3 | verified | 33 pass |  |  |
+| `objective:1005/monster_kills/1` | Todd's How-to-Hunt: monster kills Tutorial Jr. Sentinel x3 | verified | 33 pass |  |  |
+| `objective:1005/npc_talk/6/turn_in` | Todd's How-to-Hunt: npc talk Peter | verified | 33 pass |  |  |
+| `objective:1006/monster_kills/2` | Sam's Suggestion: monster kills Snail x10 | verified | 82 pass |  |  |
+| `objective:1006/npc_talk/11/turn_in` | Sam's Suggestion: npc talk Mai | verified | 82 pass |  |  |
+| `objective:1007/item_collection/439` | Letter for Lucas: item collection Maria's Letter x1 | verified | 36 pass |  |  |
+| `objective:1007/npc_talk/17/turn_in` | Letter for Lucas: npc talk Lucas | verified | 36 pass |  |  |
+| `objective:1008/item_collection/440` | Lucas's Reply: item collection Lucas's Letter x1 | verified | 33 pass |  |  |
+| `objective:1008/npc_talk/10/turn_in` | Lucas's Reply: npc talk Maria | verified | 33 pass |  |  |
+| `objective:1009/monster_kills/3` | Mai's Training: monster kills Blue Snail x10 | verified | 41 pass |  |  |
+| `objective:1009/monster_kills/4` | Mai's Training: monster kills Shroom x10 | verified | 41 pass |  |  |
+| `objective:1009/monster_kills/5` | Mai's Training: monster kills Red Snail x5 | verified | 41 pass |  |  |
+| `objective:1009/npc_talk/11/turn_in` | Mai's Training: npc talk Mai | verified | 41 pass |  |  |
+| `objective:1010/monster_kills/9` | Mai's Final Training: monster kills Orange Mushroom x1 | verified | 32 pass |  |  |
+| `objective:1010/npc_talk/11/turn_in` | Mai's Final Training: npc talk Mai | verified | 32 pass |  |  |
+| `objective:1011/item_collection/349` | Biggs's Collection of Items: item collection Blue Snail Shell x10 | verified | 37 pass |  |  |
+| `objective:1011/item_collection/356` | Biggs's Collection of Items: item collection Orange Mushroom Cap x1 | verified | 37 pass |  |  |
+| `objective:1011/npc_talk/12/turn_in` | Biggs's Collection of Items: npc talk Biggs | verified | 37 pass |  |  |
+| `objective:1012/item_collection/441` | Pio's Collecting Recycled Goods: item collection Rusty Screw x3 | verified | 48 pass |  |  |
+| `objective:1012/item_collection/442` | Pio's Collecting Recycled Goods: item collection Old Wooden Board x3 | verified | 48 pass |  |  |
+| `objective:1012/npc_talk/18/turn_in` | Pio's Collecting Recycled Goods: npc talk Pio | verified | 48 pass |  |  |
+| `objective:1013/npc_talk/19/turn_in` | Rain's Maple Quiz 1: npc talk Rain | verified | 39 pass |  |  |
+| `objective:1013/other/quiz` | Rain's Maple Quiz 1: other quiz | verified | 39 pass |  |  |
+| `objective:1014/npc_talk/19/turn_in` | Rain's Maple Quiz 2: npc talk Rain | verified | 29 pass |  |  |
+| `objective:1014/other/quiz` | Rain's Maple Quiz 2: other quiz | verified | 29 pass |  |  |
+| `objective:1015/npc_talk/19/turn_in` | Rain's Maple Quiz 3: npc talk Rain | verified | 29 pass |  |  |
+| `objective:1015/other/quiz` | Rain's Maple Quiz 3: other quiz | verified | 29 pass |  |  |
+| `objective:1016/npc_talk/19/turn_in` | Rain's Maple Quiz 4: npc talk Rain | verified | 30 pass |  |  |
+| `objective:1016/other/quiz` | Rain's Maple Quiz 4: other quiz | verified | 30 pass |  |  |
+| `objective:1017/npc_talk/19/turn_in` | Rain's Maple Quiz 5: npc talk Rain | verified | 29 pass |  |  |
+| `objective:1017/other/quiz` | Rain's Maple Quiz 5: other quiz | verified | 29 pass |  |  |
+| `objective:1018/npc_talk/19/turn_in` | Rain's Maple Quiz 6: npc talk Rain | verified | 31 pass |  |  |
+| `objective:1018/other/quiz` | Rain's Maple Quiz 6: other quiz | verified | 31 pass |  |  |
+| `objective:1019/npc_talk/19/turn_in` | Rain's Maple Quiz 7: npc talk Rain | verified | 29 pass |  |  |
+| `objective:1019/other/quiz` | Rain's Maple Quiz 7: other quiz | verified | 29 pass |  |  |
 
 ## Quest rewards
 
@@ -618,108 +724,269 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `reward:1001/exp` | Bringing a Mirror to Heena: 2 EXP | implemented | 0 pass |  |  |
-| `reward:1004/exp` | Returning to Nina: 3 EXP | implemented | 0 pass |  |  |
-| `reward:1005/exp` | Todd's How-to-Hunt: 10 EXP | implemented | 0 pass |  |  |
-| `reward:1006/exp` | Sam's Suggestion: 30 EXP | implemented | 0 pass |  |  |
-| `reward:1006/item/237` | Sam's Suggestion: Egg x3 | implemented | 0 pass |  |  |
-| `reward:1008/exp` | Lucas's Reply: 50 EXP | implemented | 0 pass |  |  |
-| `reward:1008/random/0` | Lucas's Reply: one of Brown Skullcap, Green Skullcap, Red Headband, Black Headband, Green Headband, Yellow Headband, Blue Headband | implemented | 0 pass |  |  |
-| `reward:1009/exp` | Mai's Training: 70 EXP | implemented | 0 pass |  |  |
-| `reward:1009/item/237` | Mai's Training: Egg x5 | implemented | 0 pass |  |  |
-| `reward:1010/exp` | Mai's Final Training: 100 EXP | implemented | 0 pass |  |  |
-| `reward:1010/item/237` | Mai's Final Training: Egg x10 | implemented | 0 pass |  |  |
-| `reward:1010/mesos` | Mai's Final Training: 150 mesos | implemented | 0 pass |  |  |
-| `reward:1011/exp` | Biggs's Collection of Items: 70 EXP | implemented | 0 pass |  |  |
-| `reward:1011/random/0` | Biggs's Collection of Items: one of Fruit Knife, Razor | implemented | 0 pass |  |  |
-| `reward:1012/exp` | Pio's Collecting Recycled Goods: 100 EXP | implemented | 0 pass |  |  |
-| `reward:1012/item/522` | Pio's Collecting Recycled Goods: The Green Relaxer x1 | implemented | 0 pass |  |  |
-| `reward:1012/mesos` | Pio's Collecting Recycled Goods: 150 mesos | implemented | 0 pass |  |  |
-| `reward:1013/exp` | Rain's Maple Quiz 1: 20 EXP | implemented | 0 pass |  |  |
-| `reward:1014/exp` | Rain's Maple Quiz 2: 25 EXP | implemented | 0 pass |  |  |
-| `reward:1015/exp` | Rain's Maple Quiz 3: 30 EXP | implemented | 0 pass |  |  |
-| `reward:1016/exp` | Rain's Maple Quiz 4: 35 EXP | implemented | 0 pass |  |  |
-| `reward:1017/exp` | Rain's Maple Quiz 5: 40 EXP | implemented | 0 pass |  |  |
-| `reward:1018/exp` | Rain's Maple Quiz 6: 45 EXP | implemented | 0 pass |  |  |
-| `reward:1019/exp` | Rain's Maple Quiz 7: 50 EXP | implemented | 0 pass |  |  |
-| `reward:1019/item/239` | Rain's Maple Quiz 7: Orange x10 | implemented | 0 pass |  |  |
+| `reward:1001/exp` | Bringing a Mirror to Heena: 2 EXP | verified | 24 pass |  |  |
+| `reward:1004/exp` | Returning to Nina: 3 EXP | verified | 23 pass |  |  |
+| `reward:1005/exp` | Todd's How-to-Hunt: 10 EXP | verified | 33 pass |  |  |
+| `reward:1006/exp` | Sam's Suggestion: 30 EXP | verified | 82 pass |  |  |
+| `reward:1006/item/237` | Sam's Suggestion: Egg x3 | verified | 82 pass |  |  |
+| `reward:1008/exp` | Lucas's Reply: 50 EXP | verified | 33 pass |  |  |
+| `reward:1008/random/0` | Lucas's Reply: one of Brown Skullcap, Green Skullcap, Red Headband, Black Headband, Green Headband, Yellow Headband, Blue Headband | verified | 33 pass |  |  |
+| `reward:1009/exp` | Mai's Training: 70 EXP | verified | 41 pass |  |  |
+| `reward:1009/item/237` | Mai's Training: Egg x5 | verified | 41 pass |  |  |
+| `reward:1010/exp` | Mai's Final Training: 100 EXP | verified | 32 pass |  |  |
+| `reward:1010/item/237` | Mai's Final Training: Egg x10 | verified | 32 pass |  |  |
+| `reward:1010/mesos` | Mai's Final Training: 150 mesos | verified | 32 pass |  |  |
+| `reward:1011/exp` | Biggs's Collection of Items: 70 EXP | verified | 37 pass |  |  |
+| `reward:1011/random/0` | Biggs's Collection of Items: one of Fruit Knife, Razor | verified | 37 pass |  |  |
+| `reward:1012/exp` | Pio's Collecting Recycled Goods: 100 EXP | verified | 48 pass |  |  |
+| `reward:1012/item/522` | Pio's Collecting Recycled Goods: The Green Relaxer x1 | verified | 48 pass |  |  |
+| `reward:1012/mesos` | Pio's Collecting Recycled Goods: 150 mesos | verified | 48 pass |  |  |
+| `reward:1013/exp` | Rain's Maple Quiz 1: 20 EXP | verified | 39 pass |  |  |
+| `reward:1014/exp` | Rain's Maple Quiz 2: 25 EXP | verified | 29 pass |  |  |
+| `reward:1015/exp` | Rain's Maple Quiz 3: 30 EXP | verified | 29 pass |  |  |
+| `reward:1016/exp` | Rain's Maple Quiz 4: 35 EXP | verified | 30 pass |  |  |
+| `reward:1017/exp` | Rain's Maple Quiz 5: 40 EXP | verified | 29 pass |  |  |
+| `reward:1018/exp` | Rain's Maple Quiz 6: 45 EXP | verified | 31 pass |  |  |
+| `reward:1019/exp` | Rain's Maple Quiz 7: 50 EXP | verified | 29 pass |  |  |
+| `reward:1019/item/239` | Rain's Maple Quiz 7: Orange x10 | verified | 29 pass |  |  |
 
-## Beginner skills
+## Beginner skills and mechanics
 
-Runtime: absent; missing: `game/scripts/**/*skill*.gd`; the Beginner skills (contract C3: skills, sp, cooldowns, effects).
+Runtime: present (`game/scripts/actors/combat/player_skills.gd`, `game/scripts/core/skills/skill_book.gd`, `game/scripts/core/skills/skill_def.gd`); the Beginner skills (contract C3: skills, sp, cooldowns, effects).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `skill:0001000` | Three Snails (max level 3) | missing | 0 pass |  | runtime missing: game/scripts/**/*skill*.gd |
-| `skill:0001001` | Recovery (max level 3) | missing | 0 pass |  | runtime missing: game/scripts/**/*skill*.gd |
-| `skill:0001002` | Nimble Feet (max level 3) | missing | 0 pass |  | runtime missing: game/scripts/**/*skill*.gd |
+| `mechanic:ap-allocation` | AP allocation (AP behaviour remains correct) | verified | 12 pass |  |  |
+| `mechanic:beginner-sp-gain` | SP gained per level as a Beginner (canonical) | verified | 5 pass |  |  |
+| `mechanic:level-up-gains` | EXP and level-ups follow the canonical EXP table and give the canonical AP, SP and HP/MP | verified | 14 pass |  |  |
+| `mechanic:new-character` | A new character is a canonical Beginner: level 1, starting stats, creation AP, starter weapon and clothes | verified | 8 pass |  | adaptation: new_character.json |
+| `mechanic:sp-allocation` | Spending SP on Beginner skills (canonical max levels and prerequisites) | verified | 14 pass |  |  |
+| `mechanic:timed-effects` | Timed skill effects and cooldowns count down (remaining seconds) | verified | 12 pass |  | adaptation: skills.json |
+| `skill:0001000` | Three Snails (max level 3) | verified | 17 pass |  |  |
+| `skill:0001001` | Recovery (max level 3) | verified | 14 pass |  |  |
+| `skill:0001002` | Nimble Feet (max level 3) | verified | 14 pass |  |  |
 
 ## Breakables
 
-Runtime: absent; missing: `game/scripts/**/*breakable*.gd`; the Wooden Box runtime (contract C8).
+Runtime: present (`game/scripts/actors/breakables/breakable_system.gd`, `game/scripts/core/breakables/breakable_placement.gd`, `game/scripts/core/breakables/breakable_placement_planner.gd`); the Wooden Box runtime (contract C8).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `breakable:0000001` | Wooden Box (breaks in 4 hits) | missing | 0 pass | 3 | runtime missing: game/scripts/**/*breakable*.gd |
-| `drop:0000001/apple` | Wooden Box: Apple | missing | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6); runtime missing: game/scripts/**/*breakable*.gd |
-| `drop:0000001/egg` | Wooden Box: Egg | missing | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6); runtime missing: game/scripts/**/*breakable*.gd |
-| `drop:0000001/old-wooden-board` | Wooden Box: Old Wooden Board | missing | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6); runtime missing: game/scripts/**/*breakable*.gd |
-| `drop:0000001/rusty-screw` | Wooden Box: Rusty Screw | missing | 0 pass |  | schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6); runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001000/0` | Wooden Box placement 0 on The Field West of Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001000/1` | Wooden Box placement 1 on The Field West of Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001000/2` | Wooden Box placement 2 on The Field West of Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001000/3` | Wooden Box placement 3 on The Field West of Amherst (respawn 180 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001000/4` | Wooden Box placement 4 on The Field West of Amherst (respawn 90 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/0` | Wooden Box placement 0 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/1` | Wooden Box placement 1 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/2` | Wooden Box placement 2 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/3` | Wooden Box placement 3 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/4` | Wooden Box placement 4 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001010/5` | Wooden Box placement 5 on Amherst (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001011/0` | Wooden Box placement 0 on Amherst Weapon Store (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001011/1` | Wooden Box placement 1 on Amherst Weapon Store (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001012/0` | Wooden Box placement 0 on Amherst Townstreet (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001012/1` | Wooden Box placement 1 on Amherst Townstreet (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001013/0` | Wooden Box placement 0 on Amherst Department Store (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001014/0` | Wooden Box placement 0 on Snail Field of Flowers (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001014/1` | Wooden Box placement 1 on Snail Field of Flowers (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
-| `placement:000001014/2` | Wooden Box placement 2 on Snail Field of Flowers (respawn 120 s) | missing | 0 pass |  | runtime missing: game/scripts/**/*breakable*.gd |
+| `breakable:0000001` | Wooden Box (breaks in 4 hits) | verified | 18 pass | 3 |  |
+| `drop:0000001/apple` | Wooden Box: Apple | verified | 3 pass |  |  |
+| `drop:0000001/egg` | Wooden Box: Egg | partial (source-data gap) | 3 pass | 1 |  |
+| `drop:0000001/old-wooden-board` | Wooden Box: Old Wooden Board | verified | 4 pass |  | quest-gated to 1012 |
+| `drop:0000001/rusty-screw` | Wooden Box: Rusty Screw | verified | 4 pass |  | quest-gated to 1012 |
+| `mechanic:breakable-hit-break-respawn` | A Wooden Box breaks after the canonical landed hits and respawns after its placement's canonical time | verified | 16 pass |  | adaptation: breakables.json |
+| `placement:000001000/0` | Wooden Box placement 0 on The Field West of Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001000/1` | Wooden Box placement 1 on The Field West of Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001000/2` | Wooden Box placement 2 on The Field West of Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001000/3` | Wooden Box placement 3 on The Field West of Amherst (respawn 180 s) | verified | 23 pass |  |  |
+| `placement:000001000/4` | Wooden Box placement 4 on The Field West of Amherst (respawn 90 s) | verified | 23 pass |  |  |
+| `placement:000001010/0` | Wooden Box placement 0 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001010/1` | Wooden Box placement 1 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001010/2` | Wooden Box placement 2 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001010/3` | Wooden Box placement 3 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001010/4` | Wooden Box placement 4 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001010/5` | Wooden Box placement 5 on Amherst (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001011/0` | Wooden Box placement 0 on Amherst Weapon Store (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001011/1` | Wooden Box placement 1 on Amherst Weapon Store (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001012/0` | Wooden Box placement 0 on Amherst Townstreet (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001012/1` | Wooden Box placement 1 on Amherst Townstreet (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001013/0` | Wooden Box placement 0 on Amherst Department Store (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001014/0` | Wooden Box placement 0 on Snail Field of Flowers (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001014/1` | Wooden Box placement 1 on Snail Field of Flowers (respawn 120 s) | verified | 23 pass |  |  |
+| `placement:000001014/2` | Wooden Box placement 2 on Snail Field of Flowers (respawn 120 s) | verified | 23 pass |  |  |
 
 ## Chairs
 
-Runtime: absent; missing: `game/scripts/**/*.gd containing "&\"seated\""`; sitting on a chair (contracts C4 and C5: the seated activity).
+Runtime: present (`game/scripts/actors/player/player_controller.gd ("&\"seated\"")`); sitting on a chair (contracts C4 and C5: the seated activity).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `chair:522` | The Green Relaxer (Pio's quest, Maple Island) | missing | 0 pass |  | runtime missing: game/scripts/**/*.gd containing "&\"seated\"" |
-| `chair:525` | Sky-blue Wooden Chair (Mina, Lith Harbor, 1,000 mesos) | missing (out of scope) | 0 pass |  | runtime missing: game/scripts/**/*.gd containing "&\"seated\""; out of scope: The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope) |
+| `chair:522` | The Green Relaxer (Pio's quest, Maple Island) | verified | 20 pass |  |  |
+| `chair:525` | Sky-blue Wooden Chair (Mina, Lith Harbor, 1,000 mesos) | implemented (out of scope) | 0 pass |  | out of scope: The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope) |
 
 ## Map mechanics
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:ap-allocation` | AP allocation | implemented | 0 pass |  |  |
-| `mechanic:chair-regen` | A chair's own HP bonus per interval while seated, on its own clock | missing | 0 pass |  | runtime missing: game/scripts/**/*.gd containing "&\"seated\"" |
-| `mechanic:death-respawn` | Death and respawn at the return map | implemented | 0 pass |  |  |
-| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | implemented | 0 pass |  |  |
-| `mechanic:inventory-full-warning` | Inventory-full warning | implemented | 0 pass |  |  |
-| `mechanic:level-up-feedback` | Level-up and AP-available feedback | implemented | 0 pass |  |  |
-| `mechanic:loot-pickup` | Item drops land in the world and can be picked up | implemented | 0 pass |  |  |
-| `mechanic:meso-pickup` | Meso bags drop, show their amount, are collected and saved | implemented | 0 pass |  |  |
-| `mechanic:minimap` | Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode) | missing | 0 pass |  | runtime missing: game/scripts/**/*minimap*.gd |
-| `mechanic:monster-respawn` | Monster respawn timing and mob rate | implemented | 0 pass |  |  |
-| `mechanic:natural-hp-regen` | Natural HP regeneration: 10 HP per 10 s of standing still or sitting; walking, jumping and attacking pause the clock | partial | 0 pass |  | runtime partial: the Iteration Two placeholder (its rest timer resets on movement; the owner rule pauses it on the player activity, contract C4) |
-| `mechanic:no-natural-mp-regen` | No natural MP recovery (MeowDB documents none; not inferred from the HP rule) | missing | 0 pass |  | runtime missing: game/scripts/**/*.gd containing "func activity(" |
-| `mechanic:portal-transition` | Portals and map transitions | implemented | 0 pass |  |  |
-| `mechanic:quest-indicators` | NPC quest markers (available, in progress, ready to turn in) | implemented | 0 pass |  |  |
-| `mechanic:quest-log` | Quest log with objectives, quantities, NPC, state and chain progress | implemented | 0 pass |  |  |
-| `mechanic:quiz-quests` | Quiz quests: question, answers, wrong-answer behaviour, progression | implemented | 0 pass |  |  |
-| `mechanic:random-quest-rewards` | Random quest rewards are weighted draws, recorded in the save | implemented | 0 pass |  |  |
-| `mechanic:save-load` | Saving and loading every Maple Island system (Phase 14 list) | implemented | 0 pass |  |  |
-| `mechanic:save-migration` | Iteration Two saves migrate to the current schema | implemented | 0 pass |  |  |
-| `mechanic:sitting` | Sitting down and standing up; movement, jumps, attacks, skills, knockback, death and warps stand the player up | missing | 0 pass |  | runtime missing: game/scripts/**/*.gd containing "&\"seated\"" |
-| `mechanic:skill-window` | Skill window: levels, SP allocation, binding, persistence | missing | 0 pass |  | runtime missing: game/scripts/ui/**/*skill*.gd |
-| `mechanic:stuck-region-scan` | Automated stuck-region scan over all 25 maps | missing | 0 pass |  | runtime missing: game/tools/stuck_scan*.gd |
+| `mechanic:chair-hp-bonus` | A chair's own HP bonus per interval while seated (The Green Relaxer: 30 HP per 10 s), on its own clock | verified | 6 pass |  |  |
+| `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | partial | 122 pass, **1 fail** |  | 1 tagged check(s) failed |
+| `mechanic:map-seats` | Sitting without a chair (ground sit) and map benches | partial (source-data gap) | 0 pass | 1 |  |
+| `mechanic:minimap` | Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode); M folds it | verified | 201 pass |  |  |
+| `mechanic:natural-hp-regen` | Natural HP regeneration: 10 HP per 10 s of eligible (standing still or sitting) time; the clock pauses, never resets; never above Max HP | verified | 14 pass |  | adaptation: recovery.json |
+| `mechanic:natural-hp-regen-pause-attacking` | Attacking pauses the natural HP clock | verified | 6 pass |  |  |
+| `mechanic:natural-hp-regen-pause-jumping` | Jumping pauses the natural HP clock | verified | 6 pass |  |  |
+| `mechanic:natural-hp-regen-pause-walking` | Walking pauses the natural HP clock (Definition of Done: Movement pauses natural HP regeneration) | verified | 7 pass |  |  |
+| `mechanic:natural-hp-regen-sitting` | Sitting permits natural HP regeneration | verified | 6 pass |  |  |
+| `mechanic:natural-mp-regen` | Natural MP recovery: none, because MeowDB documents none (not inferred from the HP rule) | partial (source-data gap) | 1 pass | 1 | adaptation: recovery.json |
+| `mechanic:npc-idle-chatter-bubbles` | NPC speech bubbles from their canonical idle lines | verified | 1 pass |  | adaptation: npcs/_speech_bubbles.json |
+| `mechanic:portal-transition` | Portals and map transitions (trails walked through their gates, doors with Up) | verified | 57 pass |  |  |
+| `mechanic:quest-random-rewards` | Random quest rewards are weighted draws from the canonical set (seeded tests), never the first option | verified | 4 pass |  |  |
+| `mechanic:quest-rewards-received` | A completion records the rewards it granted, random picks included (contract C3 rewards_received) | verified | 7 pass |  |  |
+| `mechanic:quiz-quests` | Quiz quests: question, canonical answers, wrong-answer line and behaviour, progression, reward | verified | 24 pass |  | adaptation: dialogue/_rules.json |
+| `mechanic:sitting` | Sitting down and standing up; movement, jumps, attacks, skills, knockback, death and warps stand the player up | verified | 19 pass |  | adaptation: recovery.json |
+| `mechanic:southperry-departure` | Shanks in Southperry: the departure boundary (canonical level and fare checked, unfinished quests listed, End of Maple Island) | verified | 3 pass |  | adaptation: npcs/15.json |
+| `mechanic:stuck-region-scan` | Automated stuck-region scan over all 25 maps (no confirmed trap) | verified | 7 pass |  |  |
+| `mechanic:trap-regression-guard` | Every former trap spot is escaped with real input in the real game (trap_probe) | verified | 55 pass |  |  |
+
+## Monster behaviour, hit areas and spawning (Phases 5-6)
+
+Runtime: present (`game/scripts/actors/monsters/monster_brain.gd`, `game/scripts/actors/monsters/monster.gd`, `game/scripts/core/maps/spawn_slot_planner.gd`).
+
+| Key | Name | State | Evidence | Gaps | Notes |
+|---|---|---|---|---|---|
+| `mechanic:basic-attack-hitboxes` | Basic attack hit detection: the nearest monster overlapping the canonical attack box | verified | 7 pass |  |  |
+| `mechanic:isometric-reach-depth` | Attack reach in depth (the isometric lateral band) adapts the canonical reach | verified | 5 pass |  | adaptation: combat.json |
+| `mechanic:monster-hitbox-visual-fit` | Monster visual bounds fit the canonical touch zone | verified | 2 pass |  |  |
+| `mechanic:monster-knockback-push` | Monster knockback: stagger for the canonical time, push away from the attacker (mid-hop cancels the hop) | verified | 3 pass |  | adaptation: combat.json |
+| `mechanic:monster-movement-floor-walker` | Walking monsters pace back and forth and stay on their floor | verified | 19 pass |  | adaptation: monsters/_shared.json |
+| `mechanic:monster-movement-jumper` | Jumping monsters (Orange Mushroom) hop to a floor above or below their spawn floor | verified | 2 pass |  | adaptation: monsters/9.json |
+| `mechanic:monster-respawn` | Monster respawn on the canonical spawn tick after the canonical cooldown | verified | 19 pass |  |  |
+| `mechanic:monster-touch-damage` | Contact damage: the canonical touch window through the canonical touch zone, no oversized bubbles | verified | 19 pass |  |  |
+| `mechanic:player-damage-window` | The player's damage per hit stays inside the canonical damage window | verified | 15 pass |  |  |
+| `mechanic:spawn-capacity` | Map capacity from the canonical spawn-point count (solo capacity) | verified | 20 pass |  |  |
+| `mechanic:spawn-density` | Spawn density cap per region (no clumps; counts unchanged) | verified | 5 pass |  | adaptation: presentation.json |
+| `mechanic:spawn-mob-rate` | Map mob rate handling (the MisoStory decision between MeowDB pages) | verified | 2 pass |  | adaptation: presentation.json |
+| `mechanic:spawn-placement-exclusions` | Spawn slots avoid portals, arrivals, walls and authored exclusions | verified | 20 pass |  |  |
+| `mechanic:spawn-placement-npc-clearance` | Spawn slots keep clear of NPC interaction spaces | verified | 17 pass |  | adaptation: presentation.json |
+| `mechanic:spawn-placement-player-overlap` | No monster spawns inside or right next to the player | verified | 18 pass |  | adaptation: presentation.json |
+
+## Drop rules (Drop Testing, placeholder removal)
+
+Runtime: present (`game/scripts/core/drops/drop_roller.gd`, `game/scripts/core/drops/drop_chance.gd`, `game/scripts/core/drops/drop_rates.gd`).
+
+| Key | Name | State | Evidence | Gaps | Notes |
+|---|---|---|---|---|---|
+| `mechanic:breakable-drop-roll` | A broken Wooden Box drops through the canonical drop roller with the quest context | verified | 5 pass |  |  |
+| `mechanic:drop-chance-bounds` | Impossible probabilities are rejected (negative, above 100%, wrong normalisation, truncation) | verified | 1 pass |  |  |
+| `mechanic:drop-chance-from-kurodb` | Drop probabilities quote KuroDB for members of the list | verified | 2 pass |  |  |
+| `mechanic:drop-chance-parsing` | KuroDB probabilities are parsed correctly (percent and reactor chance values) | verified | 4 pass |  |  |
+| `mechanic:drop-item-ids-resolve` | Every drop item id resolves to a local item definition | verified | 2 pass |  |  |
+| `mechanic:drop-membership-authoritative` | Drop membership is the membership source's list, nothing else (MeowDB for the Wooden Box, Hidden Street for monsters: D3-6) | verified | 4 pass |  |  |
+| `mechanic:drop-roll-seeded` | Drop rolls are deterministic under a seeded RNG | verified | 1 pass |  |  |
+| `mechanic:drop-simulation` | A large offline simulation matches the configured rates (a sanity check, not a source) | verified | 1 pass |  |  |
+| `mechanic:loot-pickup` | Item drops land in the world and can be picked up (stacks merge, full inventory leaves the drop) | verified | 10 pass |  |  |
+| `mechanic:meso-amount-source` | Meso amount comes from MeowDB (Hidden Street only where MeowDB has no report) | verified | 5 pass |  |  |
+| `mechanic:meso-chance-source` | Meso drop probability comes from KuroDB | verified | 5 pass |  |  |
+| `mechanic:meso-pickup` | Meso bags drop into the world, show their amount, are collected and saved | verified | 3 pass |  |  |
+| `mechanic:no-placeholder-drop-rates` | No placeholder drop chance, quantity or meso amount anywhere (Definition of Done: Placeholder Removal) | verified | 2 pass |  |  |
+| `mechanic:quest-gated-drops` | Quest-gated drops roll only while their quest is in progress (contract C1 gate rule) | verified | 4 pass |  | adaptation: drop_rates.json |
+| `mechanic:unresolved-drops-never-roll` | An unresolved member (no chance or no item) never rolls | verified | 2 pass |  |  |
+
+## Persistence (Phase 14)
+
+Runtime: present (`game/scripts/core/character/character_state.gd`, `game/scripts/core/save/save_document.gd`, `game/scripts/autoload/save_service.gd`).
+
+| Key | Name | State | Evidence | Gaps | Notes |
+|---|---|---|---|---|---|
+| `mechanic:atomic-save-backup` | Saves are written atomically with a backup generation | verified | 6 pass |  |  |
+| `mechanic:autosave` | Autosave on progression events | verified | 5 pass |  |  |
+| `mechanic:quest-persistence` | Quest state survives save, Quit and a new process at every intermediate state | verified | 80 pass |  |  |
+| `mechanic:save-load` | Saving and loading every Maple Island system (Phase 14 list) | verified | 10 pass |  |  |
+| `mechanic:save-migration` | Iteration Two saves migrate to the current schema (Definition of Done: save migration works) | verified | 42 pass |  |  |
+| `persistence:ap-stats` | AP and stats persist | verified | 8 pass |  |  |
+| `persistence:breakable-state` | Breakable state, monsters and ground drops are not saved (contract C3) | verified | 3 pass |  |  |
+| `persistence:chairs` | Chair ownership persists (and the chair still works after a reload) | verified | 3 pass |  |  |
+| `persistence:character-identity` | Character identity and gender persist | verified | 5 pass |  |  |
+| `persistence:current-map` | The current map (and the resume point) persists | verified | 22 pass |  |  |
+| `persistence:equipment` | Equipment persists | verified | 7 pass |  |  |
+| `persistence:hp-mp` | HP and MP persist | verified | 12 pass |  |  |
+| `persistence:inventory` | Inventory persists | verified | 21 pass |  |  |
+| `persistence:level-exp` | Level and EXP persist | verified | 21 pass |  |  |
+| `persistence:mesos` | Mesos persist | verified | 19 pass |  |  |
+| `persistence:natural-regen-timer` | The natural HP clock persists | verified | 5 pass |  |  |
+| `persistence:orphan-item-ids` | Unknown item ids in a save are kept losslessly and reported | verified | 5 pass |  |  |
+| `persistence:play-time-flags` | Play time and flags persist | verified | 3 pass |  |  |
+| `persistence:quest-availability` | Quest availability persists | verified | 1 pass |  |  |
+| `persistence:quest-completion` | Quest completion persists | verified | 4 pass |  |  |
+| `persistence:quest-progress-kills` | Quest progress (kill and use counts) persists | verified | 15 pass |  |  |
+| `persistence:quickslots` | Quickslot bindings persist (typed item and skill bindings) | verified | 13 pass |  |  |
+| `persistence:random-rewards-received` | Random quest rewards already received persist | verified | 4 pass |  |  |
+| `persistence:respawn-information` | Respawn information persists | verified | 12 pass |  |  |
+| `persistence:seated-state` | The seated state is not saved: the player stands on load (contract C3) | verified | 2 pass |  |  |
+| `persistence:setup-tab` | The Set-up tab persists | verified | 3 pass |  |  |
+| `persistence:skill-cooldowns-buffs` | Skill cooldowns and timed effects persist as remaining seconds | verified | 7 pass |  |  |
+| `persistence:skills` | Skills and skill levels persist | verified | 7 pass |  |  |
+| `persistence:sp` | SP persists | verified | 6 pass |  |  |
+
+## UI and world feedback (Phases 11-12, quest log, skill UI)
+
+Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap/minimap_model.gd`); the per-map minimap rows; the other rows declare their own runtime.
+
+| Key | Name | State | Evidence | Gaps | Notes |
+|---|---|---|---|---|---|
+| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | verified | 5 pass |  |  |
+| `mechanic:inventory-full-warning` | Inventory-full warning | verified | 7 pass |  |  |
+| `minimap:000000001` | Minimap of Mushroom Town - West Entrance (000000001): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000010` | Minimap of Mushroom Town (000000010): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000020` | Minimap of Mushroom Town (000000020): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000021` | Minimap of Mushroom Town Townstreet (000000021): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000030` | Minimap of East Entrance to Mushroom Town (000000030): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000040` | Minimap of Snail Hunting Ground I (000000040): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000041` | Minimap of Snail Hunting Ground II (000000041): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000042` | Minimap of Snail Hunting Ground III (000000042): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000050` | Minimap of A Split Road (000000050): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000060` | Minimap of Southperry (000000060): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000000061` | Minimap of Southperry Armor Store (000000061): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001000` | Minimap of The Field West of Amherst (000001000): player, map shape, exits, NPCs, name | verified | 8 pass |  |  |
+| `minimap:000001001` | Minimap of In a Small Forest (000001001): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001002` | Minimap of Dangerous Forest (000001002): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001003` | Minimap of Mushroom Garden (000001003): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001004` | Minimap of Snail Garden (000001004): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001005` | Minimap of Hunting Ground Middle of the Forest I (000001005): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001006` | Minimap of Hunting Ground Middle of the Forest II (000001006): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001010` | Minimap of Amherst (000001010): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001011` | Minimap of Amherst Weapon Store (000001011): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001012` | Minimap of Amherst Townstreet (000001012): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001013` | Minimap of Amherst Department Store (000001013): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001014` | Minimap of Snail Field of Flowers (000001014): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001020` | Minimap of The Field East of Amherst (000001020): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `minimap:000001021` | Minimap of Tomato Field (000001021): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
+| `ui:ap-notification` | AP-available notification | verified | 5 pass |  |  |
+| `ui:damage-feedback` | Damage feedback (damage numbers) | verified | 1 pass |  |  |
+| `ui:interact-indicator` | Interact indicator near NPCs and doors | verified | 4 pass |  |  |
+| `ui:item-pickup-feedback` | Item and meso pickup feedback in the HUD log | verified | 6 pass |  |  |
+| `ui:key-bindings` | The Controls panel lists every key and each listed key works | verified | 3 pass |  |  |
+| `ui:level-up-feedback` | Level-up feedback (flourish and log) | verified | 7 pass |  |  |
+| `ui:map-name-display` | The canonical map name (and street) on screen: banner and minimap title | verified | 61 pass |  |  |
+| `ui:minimap-map-id-debug` | The canonical map id on the minimap in debug mode (F3) | verified | 2 pass |  |  |
+| `ui:minimap-projection` | The minimap draws the isometric map through the gameplay camera's projection | verified | 3 pass |  |  |
+| `ui:portal-cue` | Portal cue: trails and doors are recognisable; the trail tag names the destination | verified | 4 pass |  |  |
+| `ui:quest-indicators` | NPC quest markers (available, in progress, ready to turn in) | verified | 92 pass |  |  |
+| `ui:quest-log` | Quest log with objectives, quantities, NPC, state and chain progress | verified | 92 pass |  |  |
+| `ui:shop-indication` | Shop indication: shopkeeper tags and shop badges on doors | verified | 10 pass |  |  |
+| `ui:skill-window` | Skill window: levels, SP allocation, binding, persistence | verified | 15 pass |  |  |
+| `ui:sp-notification` | SP-available notification | partial | 5 pass, **1 fail** |  | 1 tagged check(s) failed |
+
+## Clean-character playthrough (Definition of Done: Gameplay)
+
+Runtime: present; no runtime of its own.
+
+| Key | Name | State | Evidence | Gaps | Notes |
+|---|---|---|---|---|---|
+| `mechanic:no-console-playthrough` | Strict mode: after setup, any console or API cheat or unannounced state change fails the run (the guard the playthrough rows rely on) | verified | 28 pass |  |  |
+| `playthrough:allocate-ap` | Allocate AP | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:begin-maple-island` | Begin Maple Island at the canonical start map | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:complete-every-quest` | Complete every Maple Island quest | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:complete-every-quiz` | Complete every quiz | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:create-character` | From a clean character: create the character through the screens | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:die-and-respawn` | Die and respawn correctly | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:equip-gear` | Equip gear | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:fight-every-monster-type` | Fight every Maple Island monster type | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:level-naturally` | Level naturally | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:monster-drops` | Obtain normal monster drops | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:monster-mesos` | Obtain mesos through actual monster drops | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:no-developer-console` | No developer console is required during the canonical playthrough (strict after character creation) | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:obtain-and-use-chair` | Obtain and use a chair | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:reach-southperry` | Reach Southperry legitimately | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:ready-to-depart` | Arrive ready to depart Maple Island (Shanks' boundary) | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:save-and-reload` | Save and reload during progression | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:tutorial-content` | Complete the opening and tutorial content | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:use-consumables` | Use consumables | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:use-every-shop` | Use every Maple Island shop | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
+| `playthrough:visit-all-25-maps` | Visit all 25 maps | implemented | 0 pass |  | needs a passing check tagged with this key in a clean-character playthrough report (strict, no console or api step) |
 
 ## Cross-reference validation (Phase 16)
 
@@ -729,13 +996,13 @@ Runtime: present (`game/scripts/core/validation/reference_checks.gd`, `game/scri
 |---|---|---|---|---|---|
 | `xref:breakable-drop` | Breakable drops resolve | verified | 3 pass |  |  |
 | `xref:chair-item` | Chair items resolve and are Setup items with setup data | verified | 5 pass |  |  |
-| `xref:map-monster` | Map monsters resolve | verified | 3 pass |  |  |
+| `xref:map-monster` | Map monsters resolve | verified | 4 pass |  |  |
 | `xref:map-npc` | Map NPCs resolve | verified | 5 pass |  |  |
 | `xref:monster-drop` | Monster drop items resolve | verified | 5 pass |  |  |
 | `xref:no-duplicate-ids` | No duplicate canonical ids | verified | 5 pass |  |  |
 | `xref:no-placeholder-names` | No placeholder names | verified | 4 pass |  |  |
 | `xref:no-silent-missing-refs` | No silent missing references (every category counted, out-of-scope skips listed) | verified | 8 pass |  |  |
-| `xref:portal-destination` | Portal destinations resolve; the portal graph is connected | verified | 10 pass |  |  |
+| `xref:portal-destination` | Portal destinations resolve; the portal graph is connected | verified | 14 pass |  |  |
 | `xref:quest-monster` | Quest kill targets resolve | verified | 3 pass |  |  |
 | `xref:quest-npc` | Quest NPCs resolve | verified | 4 pass |  |  |
 | `xref:quest-objective-item` | Quest objective, accept and hand-in items resolve | verified | 3 pass |  |  |
@@ -750,9 +1017,10 @@ Runtime: present (`game/scripts/core/validation/provenance_authorities.gd`, `gam
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `canon:adaptations-explained` | Every MisoStory adaptation carries a reason and a verified flag (verified only against something named) | verified | 6 pass |  |  |
-| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | partial | 2 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
-| `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | partial | 5 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
-| `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | partial | 7 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
-| `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | partial | 12 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
-| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | partial | 4 pass |  | the shipped data is not there yet: drop record(s) 0000001, 1, 2, 3, 4, 5, 9 are not schema v2 (contract C1); the passing tests prove the validator rule, not the shipped data |
+| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | verified | 4 pass |  |  |
+| `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | verified | 6 pass |  |  |
+| `canon:meowdb-formula-parity` | The MeowDB formula parity vectors (MeowDB's own calculators: damage, accuracy, EXP, stats) still pass and every mechanic is replayed | verified | 36 pass |  |  |
+| `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | verified | 7 pass |  |  |
+| `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | verified | 12 pass |  |  |
+| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 6 pass |  |  |
 
