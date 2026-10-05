@@ -42,7 +42,7 @@
   },
   "floating_props": {
    "ok": true,
-   "detail": "0 of 4082 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
+   "detail": "0 of 4086 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props)"
   },
   "props_near_routes": {
    "ok": true,
@@ -209,7 +209,7 @@
   }
  ],
  "stats": {
-  "total_triangles": 9274328,
+  "total_triangles": 9279400,
   "world_triangles": 3349268,
   "triangles_by_map": {
    "0": 99184,
@@ -1661,7 +1661,7 @@
      0.676,
      0.787
     ],
-    "mobs_in_frame": 0,
+    "mobs_in_frame": 2,
     "mobs_required": 0,
     "issues": [],
     "camera": "CAM_EastEntranceMushroomTown_30000_Gameplay",
@@ -1670,7 +1670,7 @@
      27.5,
      20.2
     ],
-    "mobs_total": 0,
+    "mobs_total": 4,
     "focus": [
      26.8,
      13.4
@@ -3723,9 +3723,9 @@
    }
   },
   "ring_band": {},
-  "objects": 18021,
-  "meshes": 2727,
-  "materials": 200
+  "objects": 18027,
+  "meshes": 2729,
+  "materials": 201
  },
  "exceptions": [],
  "summary": {

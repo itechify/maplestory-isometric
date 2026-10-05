@@ -10,13 +10,70 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 
 | What | Count |
 |---|---|
-| Validation errors / warnings | 0 / 0 |
+| Validation errors / warnings | 0 / 54 |
 | Canonical records | 192 (breakables 1, drops 7, formulas 13, items 96, maps 25, monsters 6, npcs 21, quests 20, shops 3) |
-| Property rows (record source, field sources, per-property sources) | 1127 |
-| Property rows by authority | MeowDB MS Classic 1127 |
-| Dated capture files cited | 2 |
-| Unresolved values | 490 (breakables 3, drops 137, formulas 40, items 64, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
-| Adaptations (objects with a verified flag) | 110: 2 verified, 108 not verified |
+| Property rows (record source, field sources, per-property sources) | 1259 |
+| Property rows by authority | Hidden Street 85, KuroDB 39, MeowDB MS Classic 1135 |
+| Dated capture files cited | 17 |
+| Unresolved values | 523 (breakables 3, drops 170, formulas 40, items 64, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
+| Adaptations (objects with a verified flag) | 117: 3 verified, 114 not verified |
+
+Findings of the validation run:
+
+- warning [drop_unresolved] drops/0000001: 'Egg' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/2: 'Blue Training Shirt (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/2: 'Wooden Buckler' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/2: 'Wooden Mallet' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/2: 'Brown Apprentice Hat' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/2: 'Red Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/2: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/2: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/2: 'Arrow for Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/3: 'Blue Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/3: 'Red Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/3: 'Blue Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/3: 'Pan Lid' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/3: 'Hardwood Wand' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/3: 'Blue Cloth Vest (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
+- warning [drop_unresolved] drops/3: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/3: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/3: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/4: 'Yellow Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Double Axe' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/4: 'Smelly Gomushin' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Blue Swimming Cap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Work Gloves' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Blue Lolico Armor (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Orange Lolica Armor (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Wooden Samurai Sword' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Wooden Sword' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/4: 'Black Ghetto Beanie' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/4: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/4: 'Arrow for Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Brown Skullcap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Metal Axe' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/5: 'Blue Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Red Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/5: 'Black Gomushin' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/5: 'Grey Thick Sweat Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Black Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
+- warning [drop_unresolved] drops/5: 'Pistol' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/5: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/5: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/9: 'Omok Piece : Mushroom' never rolls: item unresolved (ambiguous)
+- warning [drop_unresolved] drops/9: 'Red Swimming Cap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/9: 'Yellow Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/9: 'Red Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/9: 'Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/9: 'Yellow Avelin (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/9: 'Blue Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
+- warning [drop_unresolved] drops/9: 'Black Cloth Pants (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
+- warning [drop_unresolved] drops/9: 'Garnier' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
+- warning [drop_unresolved] drops/9: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/9: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/9: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
+- warning [drop_unresolved] drops/9: 'Scroll for Shoes for Jump 10%' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
 
 References skipped as out of scope (not findings):
 
@@ -27,7 +84,7 @@ References skipped as out of scope (not findings):
 - 1 x npcs.transport.routes[].to_map_id -> maps (destination outside the dataset)
 - 1 x quests dialogue link -> npcs (MeowDB link to content outside the dataset)
 
-Captures cited: `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
+Captures cited: `tools/hiddenstreet/captures/monsters.json`, `tools/kurodb/captures/100100.json`, `tools/kurodb/captures/100101.json`, `tools/kurodb/captures/120100.json`, `tools/kurodb/captures/1210102.json`, `tools/kurodb/captures/130101.json`, `tools/kurodb/captures/9300018.json`, `tools/kurodb/captures/reactor_2001_items.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
 
 ## Records
 
@@ -37,13 +94,13 @@ authorities its properties cite, the number of property rows and of unresolved v
 | Record | Name | Source | Read at | Authorities | Properties | Unresolved |
 |---|---|---|---|---|---|---|
 | breakables/0000001 | Wooden Box | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-04T10:07:17.340Z | MeowDB MS Classic | 8 | 3 |
-| drops/0000001 | Wooden Box drop table | https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001 | 2026-10-04T10:07:46.821Z | MeowDB MS Classic | 1 | 9 |
-| drops/1 | Tutorial Jr. Sentinel drop table | https://meowdb.com/msclassic/api/drops?monsterId=1 | 2026-10-04T10:06:55.625Z | MeowDB MS Classic | 3 | 7 |
-| drops/2 | Snail drop table | https://meowdb.com/msclassic/api/drops?monsterId=2 | 2026-10-04T10:06:58.031Z | MeowDB MS Classic | 3 | 22 |
-| drops/3 | Blue Snail drop table | https://meowdb.com/msclassic/api/drops?monsterId=3 | 2026-10-04T10:07:01.651Z | MeowDB MS Classic | 3 | 28 |
-| drops/4 | Shroom drop table | https://meowdb.com/msclassic/api/drops?monsterId=4 | 2026-10-04T10:07:05.261Z | MeowDB MS Classic | 3 | 20 |
-| drops/5 | Red Snail drop table | https://meowdb.com/msclassic/api/drops?monsterId=5 | 2026-10-04T10:07:08.887Z | MeowDB MS Classic | 3 | 28 |
-| drops/9 | Orange Mushroom drop table | https://meowdb.com/msclassic/api/drops?monsterId=9 | 2026-10-04T10:07:14.912Z | MeowDB MS Classic | 3 | 23 |
+| drops/0000001 | Wooden Box drop table | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | KuroDB, MeowDB MS Classic | 11 | 5 |
+| drops/1 | Tutorial Jr. Sentinel drop table | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | Hidden Street, KuroDB, MeowDB MS Classic | 6 | 1 |
+| drops/2 | Snail drop table | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | Hidden Street, KuroDB, MeowDB MS Classic | 22 | 24 |
+| drops/3 | Blue Snail drop table | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | Hidden Street, KuroDB, MeowDB MS Classic | 23 | 28 |
+| drops/4 | Shroom drop table | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | Hidden Street, KuroDB, MeowDB MS Classic | 26 | 40 |
+| drops/5 | Red Snail drop table | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | Hidden Street, KuroDB, MeowDB MS Classic | 27 | 32 |
+| drops/9 | Orange Mushroom drop table | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | Hidden Street, KuroDB, MeowDB MS Classic | 30 | 40 |
 | formulas/accuracy | Accuracy, avoidability, hit chance, guards and incoming damage | https://meowdb.com/msclassic/formulas | 2026-10-04T09:57:48.010Z | MeowDB MS Classic | 15 | 2 |
 | formulas/attack_speed | Attack speed tiers and animation timing | https://meowdb.com/msclassic/formulas/attack-speed | 2026-10-04T10:04:43.693Z | MeowDB MS Classic | 10 | 3 |
 | formulas/attack_styles | Attack hit rectangles, reach and target selection | https://meowdb.com/msclassic/guides/weapon-reach | 2026-10-04T10:06:08.439Z | MeowDB MS Classic | 20 | 2 |
@@ -178,12 +235,12 @@ authorities its properties cite, the number of property rows and of unresolved v
 | maps/000001014 | Snail Field of Flowers | https://meowdb.com/msclassic/maps/000001014 | 2026-10-04T09:57:09.307Z | MeowDB MS Classic | 3 | 4 |
 | maps/000001020 | The Field East of Amherst | https://meowdb.com/msclassic/maps/000001020 | 2026-10-04T09:57:10.812Z | MeowDB MS Classic | 3 | 4 |
 | maps/000001021 | Tomato Field | https://meowdb.com/msclassic/maps/000001021 | 2026-10-04T09:57:12.305Z | MeowDB MS Classic | 3 | 4 |
-| monsters/1 | Tutorial Jr. Sentinel | https://meowdb.com/msclassic/monsters/1 | 2026-10-04T10:06:54.598Z | MeowDB MS Classic | 15 | 6 |
-| monsters/2 | Snail | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z | MeowDB MS Classic | 15 | 5 |
-| monsters/3 | Blue Snail | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z | MeowDB MS Classic | 15 | 5 |
-| monsters/4 | Shroom | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z | MeowDB MS Classic | 15 | 5 |
-| monsters/5 | Red Snail | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z | MeowDB MS Classic | 15 | 5 |
-| monsters/9 | Orange Mushroom | https://meowdb.com/msclassic/monsters/9 | 2026-10-04T10:07:12.495Z | MeowDB MS Classic | 15 | 6 |
+| monsters/1 | Tutorial Jr. Sentinel | https://meowdb.com/msclassic/monsters/1 | 2026-10-04T10:06:54.598Z | MeowDB MS Classic | 16 | 6 |
+| monsters/2 | Snail | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z | MeowDB MS Classic | 16 | 5 |
+| monsters/3 | Blue Snail | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z | MeowDB MS Classic | 16 | 5 |
+| monsters/4 | Shroom | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z | MeowDB MS Classic | 16 | 5 |
+| monsters/5 | Red Snail | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z | MeowDB MS Classic | 16 | 5 |
+| monsters/9 | Orange Mushroom | https://meowdb.com/msclassic/monsters/9 | 2026-10-04T10:07:12.495Z | MeowDB MS Classic | 16 | 6 |
 | npcs/1 | Heena | https://meowdb.com/msclassic/npcs/1 | 2026-10-04T10:04:26.730Z | MeowDB MS Classic | 4 | 0 |
 | npcs/10 | Maria | https://meowdb.com/msclassic/npcs/10 | 2026-10-04T10:05:21.229Z | MeowDB MS Classic | 4 | 0 |
 | npcs/11 | Mai | https://meowdb.com/msclassic/npcs/11 | 2026-10-04T10:05:23.675Z | MeowDB MS Classic | 7 | 0 |
@@ -251,25 +308,151 @@ from another page) or per-property `provenance` sources (contract C7).
 
 | Record | Property | Authority | URL | Read at | Capture | Decision |
 |---|---|---|---|---|---|---|
-| 0000001 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001 | 2026-10-04T10:07:46.821Z |  |  |
-| 1 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=1 | 2026-10-04T10:06:55.625Z |  |  |
-| 1 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=1 | 2026-10-04T10:06:56.822Z |  |  |
-| 1 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-04T10:06:54.598Z |  |  |
-| 2 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=2 | 2026-10-04T10:06:58.031Z |  |  |
-| 2 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=2 | 2026-10-04T10:06:59.246Z |  |  |
-| 2 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z |  |  |
-| 3 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=3 | 2026-10-04T10:07:01.651Z |  |  |
-| 3 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=3 | 2026-10-04T10:07:02.848Z |  |  |
-| 3 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z |  |  |
-| 4 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=4 | 2026-10-04T10:07:05.261Z |  |  |
-| 4 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=4 | 2026-10-04T10:07:06.465Z |  |  |
-| 4 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z |  |  |
-| 5 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=5 | 2026-10-04T10:07:08.887Z |  |  |
-| 5 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=5 | 2026-10-04T10:07:11.289Z |  |  |
-| 5 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z |  |  |
-| 9 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=9 | 2026-10-04T10:07:14.912Z |  |  |
-| 9 | meso | MeowDB MS Classic | https://meowdb.com/msclassic/api/mesos-reports?monsterId=9 | 2026-10-04T10:07:16.120Z |  |  |
-| 9 | msea_reference_entries | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-04T10:07:12.495Z |  |  |
+| 0000001 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 0000001 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001 | 2026-10-04T10:07:46.821Z |  |  |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` | D3-7 |
+| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/2010000<br>https://playkuro.com/database/#items/2010002<br>https://playkuro.com/database/#items/4031161<br>https://playkuro.com/database/#items/4031162 | 2026-10-05T07:50:30.002Z | `tools/kurodb/captures/reactor_2001_items.json` | D3-7 |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/4031162 | 2026-10-05T07:50:30.002Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/4031161 | 2026-10-05T07:50:48.209Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/2010000 | 2026-10-05T07:50:58.092Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 1 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | `tools/meowdb/captures/monster_1.json` |  |
+| 1 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=1 | 2026-10-04T10:06:55.625Z |  |  |
+| 1 | membership | Hidden Street | https://bc.hidden-street.net/monster/tutorial-jr-sentinel | 2026-10-05T08:09:54.751Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 1 | probability | KuroDB | https://playkuro.com/database/#monsters/9300018 | 2026-10-05T07:46:08.420Z | `tools/kurodb/captures/9300018.json` | D3-3 |
+| 1 | membership | Hidden Street | https://bc.hidden-street.net/monster/tutorial-jr-sentinel | 2026-10-05T08:09:54.751Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 1 | probability | KuroDB | https://playkuro.com/database/#monsters/9300018 | 2026-10-05T07:46:08.420Z | `tools/kurodb/captures/9300018.json` |  |
+| 2 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=2 | 2026-10-04T10:06:58.031Z |  |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` | D3-3 |
+| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-5 |
+| 2 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` | D3-5 |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-5 |
+| 2 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
+| 3 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=3 | 2026-10-04T10:07:01.651Z |  |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` | D3-3 |
+| 3 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 3 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` | D3-5 |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
+| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 3 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 3 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
+| 4 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=4 | 2026-10-04T10:07:05.261Z |  |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` | D3-3 |
+| 4 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 4 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` | D3-5 |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
+| 4 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 4 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
+| 5 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=5 | 2026-10-04T10:07:08.887Z |  |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` | D3-3 |
+| 5 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 5 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` | D3-5 |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 5 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 5 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 9 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=9 | 2026-10-04T10:07:14.912Z |  |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` | D3-3 |
+| 9 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 9 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` | D3-5 |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
+| 9 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
+| 9 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
 
 ### formulas
 
@@ -1098,6 +1281,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 1 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 1 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-04T10:06:54.598Z |  |  |
 | 1 | speed | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-04T10:06:54.598Z |  |  |
+| 1 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | `tools/meowdb/captures/monster_1.json` |  |
 | 2 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z |  |  |
 | 2 | avoidability | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 2 | element | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
@@ -1113,6 +1297,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 2 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 2 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z |  |  |
 | 2 | speed | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-04T09:57:41.529Z |  |  |
+| 2 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
 | 3 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z |  |  |
 | 3 | avoidability | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 3 | element | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
@@ -1128,6 +1313,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 3 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 3 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z |  |  |
 | 3 | speed | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-04T10:07:00.438Z |  |  |
+| 3 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
 | 4 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z |  |  |
 | 4 | avoidability | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 4 | element | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
@@ -1143,6 +1329,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 4 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 4 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z |  |  |
 | 4 | speed | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-04T10:07:04.065Z |  |  |
+| 4 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
 | 5 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z |  |  |
 | 5 | avoidability | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 5 | element | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
@@ -1158,6 +1345,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 5 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 5 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z |  |  |
 | 5 | speed | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-04T10:07:07.735Z |  |  |
+| 5 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
 | 9 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-04T10:07:12.495Z |  |  |
 | 9 | avoidability | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 9 | element | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
@@ -1173,6 +1361,7 @@ from another page) or per-property `provenance` sources (contract C7).
 | 9 | revives_into | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 9 | spawns[].mob_rate | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-04T10:07:12.495Z |  |  |
 | 9 | speed | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
+| 9 | stagger_ms | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
 
 ### npcs
 
@@ -1417,145 +1606,178 @@ and, in drop records, every member without a chance, every unresolved item and m
 - breakables/0000001, gap: drop chances / quantities: not published
 - breakables/0000001, gap: whether skills or damage amount affect hits: not published
 
-### drops (137)
+### drops (170)
 
-- drops/0000001, gap: drop chance per item: not published
-- drops/0000001, gap: quantity per drop: not published
-- drops/0000001, gap: whether breakables drop mesos: not published
-- drops/0000001, probability `236` (Apple): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/0000001, probability `237` (Egg): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/0000001, probability `441` (Rusty Screw): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/0000001, probability `442` (Old Wooden Board): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/0000001, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/0000001, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/1, gap: drop chance per item: not published by MeowDB
-- drops/1, gap: quantity per drop: not published by MeowDB
-- drops/1, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/1, gap: MSEA reference drops: section absent on the page for this monster
-- drops/1, probability `347` (Jr. Sentinel Shellpiece): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/1, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/1, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/2, gap: drop chance per item: not published by MeowDB
-- drops/2, gap: quantity per drop: not published by MeowDB
-- drops/2, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/2, probability `209` (Arrows for Bows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `213` (Arrows for Crossbows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `270` (Red Potion): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `320` (Garnet Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `348` (Snail Shell): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `413` (Bronze Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `522` (The Green Relaxer): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `541` (Sword): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `709` (Green Skullcap): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `713` (Green Headband): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `933` (White Undershirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `939` (Green T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `940` (Red Striped Top): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `59` (Cape Magic Def. Scroll: Intermediate): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `61` (Cape Weapon Def. Scroll: Intermediate): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `1160` (Red Miniskirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, probability `1195` (Ice Jeans): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/2, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/2, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/3, gap: drop chance per item: not published by MeowDB
-- drops/3, gap: quantity per drop: not published by MeowDB
-- drops/3, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/3, probability `209` (Arrows for Bows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `213` (Arrows for Crossbows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `270` (Red Potion): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `321` (Amethyst Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `324` (Opal Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `349` (Blue Snail Shell): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `414` (Iron Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `417` (Silver Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `483` (Monster Card): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `558` (Razor): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `715` (Blue Headband): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `934` (Grey T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `935` (Undershirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `937` (White Tube Top): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `939` (Green T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `945` (Brown Training Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `960` (Blue One-lined T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `963` (Red Striped T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `1157` (Blue Jean Shorts): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `1181` (Grey Thick Sweat Pants): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `1440` (Brown Duo): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `59` (Cape Magic Def. Scroll: Intermediate): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, probability `595` (Iron Mace): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/3, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/3, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/4, gap: drop chance per item: not published by MeowDB
-- drops/4, gap: quantity per drop: not published by MeowDB
-- drops/4, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/4, probability `209` (Arrows for Bows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `213` (Arrows for Crossbows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `270` (Red Potion): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `322` (Aquamarine Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `350` (Mushroom Spore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `415` (Mithril Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `576` (Hand Axe): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `714` (Yellow Headband): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `934` (Grey T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `1157` (Blue Jean Shorts): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `1163` (Jean Capris): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `1175` (Green Avelin Skirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `1195` (Ice Jeans): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `1308` (Blue Rubber Boots): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, probability `562` (Field Dagger): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/4, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/4, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/5, gap: drop chance per item: not published by MeowDB
-- drops/5, gap: quantity per drop: not published by MeowDB
-- drops/5, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/5, probability `143` (Overall Armor DEF Scroll: Intermediate): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `209` (Arrows for Bows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `213` (Arrows for Crossbows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `270` (Red Potion): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `321` (Amethyst Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `324` (Opal Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `351` (Red Snail Shell): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `417` (Silver Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `541` (Sword): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `589` (Leather Purse): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `608` (Wooden Sword): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `651` (Metal Wand): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `710` (Red Skullcap): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `711` (Red Headband): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `938` (Yellow T-Shirt): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `940` (Red Striped Top): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `1168` (Red Cloth Pants): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `1305` (Leather Sandals): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `1325` (Brown Woodsman Boots): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `1440` (Brown Duo): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `139` (Overall Armor DEX Scroll: Greater): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `900` (Amethyst Earrings): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, probability `1177` (Red Cloth Pants): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/5, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/5, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/9, gap: drop chance per item: not published by MeowDB
-- drops/9, gap: quantity per drop: not published by MeowDB
-- drops/9, gap: meso amount formula / meso drop chance: not published; only player reports (see meso)
-- drops/9, probability `209` (Arrows for Bows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `213` (Arrows for Crossbows): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `270` (Red Potion): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `327` (Diamond Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `356` (Orange Mushroom Cap): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `413` (Bronze Ore): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `543` (Long Sword): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `577` (Double Axe): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `633` (Spear): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `724` (Bronze Koif): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `731` (Green Winter Hat): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `1314` (Brown Hard Leather Boots): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `1317` (White Gomushin): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `1327` (Red Ninja Sandals): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `177` (Shoes Jump Scroll: Greater): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `651` (Metal Wand): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `666` (Hunter's Bow): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, probability `1439` (Basic Archer Gloves): schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json
-- drops/9, meso probability: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
-- drops/9, meso amount: schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json
+- drops/0000001, gap: chance unresolved: "Egg" is on MeowDB's Wooden Box list but no read KuroDB page gives reactor 2001 a value for it, so it never drops (D3-7)
+- drops/0000001, gap: quantity per roll: KuroDB reactor rows give none; 1 per roll is a MisoStory adaptation (each entry's quantity.adaptation, verified: false)
+- drops/0000001, gap: KuroDB-only drops: KuroDB has no page listing every drop of reactor 2001; only the item pages of MeowDB's members were read, so no KuroDB-only row is known (excluded_kuro_only is empty for that reason)
+- drops/0000001, gap: mesos: none. MeowDB has no meso reports for breakables and KuroDB lists no meso drop for reactors; meso is null (the box never drops mesos)
+- drops/0000001, probability `egg` (Egg): no KuroDB chance for this member: it never drops
+- drops/1, gap: mesos: KuroDB's Tutorial Jr. Sentinel page (tools/kurodb/captures/9300018.json) has no "Meso drop" row, so the monster drops no mesos (D3-5); MeowDB has no meso report and Hidden Street says "Mesos: ?"
+- drops/2, gap: chance unresolved: "Blue Training Shirt (M)" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: item unresolved: "Blue Training Shirt (M)" (not_in_snapshot, MeowDB candidates 944), so it never rolls; see its item_resolution.note
+- drops/2, gap: chance unresolved: "Wooden Buckler" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: item unresolved: "Wooden Buckler" (not_in_snapshot, MeowDB candidates 916), so it never rolls; see its item_resolution.note
+- drops/2, gap: chance unresolved: "Wooden Mallet" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: item unresolved: "Wooden Mallet" (not_in_snapshot, MeowDB candidates 625), so it never rolls; see its item_resolution.note
+- drops/2, gap: chance unresolved: "Brown Apprentice Hat" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: item unresolved: "Brown Apprentice Hat" (not_in_snapshot, MeowDB candidates 727), so it never rolls; see its item_resolution.note
+- drops/2, gap: chance unresolved: "Red Cloth Pants (M)" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, gap: chance unresolved: "Arrow for Crossbow" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
+- drops/2, item `blue-training-shirt-m` (Blue Training Shirt (M)): item not_in_snapshot: candidates 944
+- drops/2, probability `blue-training-shirt-m` (Blue Training Shirt (M)): no KuroDB chance for this member: it never drops
+- drops/2, item `wooden-buckler` (Wooden Buckler): item not_in_snapshot: candidates 916
+- drops/2, probability `wooden-buckler` (Wooden Buckler): no KuroDB chance for this member: it never drops
+- drops/2, item `wooden-mallet` (Wooden Mallet): item not_in_snapshot: candidates 625
+- drops/2, probability `wooden-mallet` (Wooden Mallet): no KuroDB chance for this member: it never drops
+- drops/2, item `brown-apprentice-hat` (Brown Apprentice Hat): item not_in_snapshot: candidates 727
+- drops/2, probability `brown-apprentice-hat` (Brown Apprentice Hat): no KuroDB chance for this member: it never drops
+- drops/2, probability `red-cloth-pants-m` (Red Cloth Pants (M)): no KuroDB chance for this member: it never drops
+- drops/2, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
+- drops/2, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/2, probability `arrow-for-crossbow` (Arrow for Crossbow): no KuroDB chance for this member: it never drops
+- drops/3, gap: chance unresolved: "Blue Bandana" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: item unresolved: "Blue Bandana" (not_in_snapshot, MeowDB candidates 721), so it never rolls; see its item_resolution.note
+- drops/3, gap: chance unresolved: "Red Bandana" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: item unresolved: "Red Bandana" (not_in_snapshot, MeowDB candidates 720), so it never rolls; see its item_resolution.note
+- drops/3, gap: chance unresolved: "Blue Headband" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: chance unresolved: "Pan Lid" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: item unresolved: "Pan Lid" (not_in_snapshot), so it never rolls; see its item_resolution.note
+- drops/3, gap: chance unresolved: "Hardwood Wand" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: item unresolved: "Hardwood Wand" (not_in_snapshot, MeowDB candidates 650), so it never rolls; see its item_resolution.note
+- drops/3, gap: chance unresolved: "Blue Cloth Vest (M)" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: item unresolved: "Blue Cloth Vest (M)" (ambiguous, MeowDB candidates 949, 958), so it never rolls; see its item_resolution.note
+- drops/3, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
+- drops/3, item `blue-bandana` (Blue Bandana): item not_in_snapshot: candidates 721
+- drops/3, probability `blue-bandana` (Blue Bandana): no KuroDB chance for this member: it never drops
+- drops/3, item `red-bandana` (Red Bandana): item not_in_snapshot: candidates 720
+- drops/3, probability `red-bandana` (Red Bandana): no KuroDB chance for this member: it never drops
+- drops/3, probability `blue-headband` (Blue Headband): no KuroDB chance for this member: it never drops
+- drops/3, item `pan-lid` (Pan Lid): item not_in_snapshot
+- drops/3, probability `pan-lid` (Pan Lid): no KuroDB chance for this member: it never drops
+- drops/3, item `hardwood-wand` (Hardwood Wand): item not_in_snapshot: candidates 650
+- drops/3, probability `hardwood-wand` (Hardwood Wand): no KuroDB chance for this member: it never drops
+- drops/3, item `blue-cloth-vest-m` (Blue Cloth Vest (M)): item ambiguous: candidates 949, 958
+- drops/3, probability `blue-cloth-vest-m` (Blue Cloth Vest (M)): no KuroDB chance for this member: it never drops
+- drops/3, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
+- drops/3, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
+- drops/3, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/4, gap: chance unresolved: "Yellow Bandana" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Yellow Bandana" (not_in_snapshot, MeowDB candidates 722), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Double Axe" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: chance unresolved: "Smelly Gomushin" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Smelly Gomushin" (not_in_snapshot, MeowDB candidates 1319), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Blue Swimming Cap" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Blue Swimming Cap" (not_in_snapshot, MeowDB candidates 717), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Work Gloves" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Work Gloves" (not_in_snapshot, MeowDB candidates 1435), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Blue Lolico Armor (M)" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Blue Lolico Armor (M)" (not_in_snapshot, MeowDB candidates 943), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Orange Lolica Armor (F)" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Orange Lolica Armor (F)" (not_in_snapshot, MeowDB candidates 951), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Wooden Samurai Sword" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Wooden Samurai Sword" (not_in_snapshot), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Wooden Sword" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: chance unresolved: "Black Ghetto Beanie" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: item unresolved: "Black Ghetto Beanie" (not_in_snapshot, MeowDB candidates 735), so it never rolls; see its item_resolution.note
+- drops/4, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, gap: chance unresolved: "Arrow for Crossbow" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
+- drops/4, item `yellow-bandana` (Yellow Bandana): item not_in_snapshot: candidates 722
+- drops/4, probability `yellow-bandana` (Yellow Bandana): no KuroDB chance for this member: it never drops
+- drops/4, probability `double-axe` (Double Axe): no KuroDB chance for this member: it never drops
+- drops/4, item `smelly-gomushin` (Smelly Gomushin): item not_in_snapshot: candidates 1319
+- drops/4, probability `smelly-gomushin` (Smelly Gomushin): no KuroDB chance for this member: it never drops
+- drops/4, item `blue-swimming-cap` (Blue Swimming Cap): item not_in_snapshot: candidates 717
+- drops/4, probability `blue-swimming-cap` (Blue Swimming Cap): no KuroDB chance for this member: it never drops
+- drops/4, item `work-gloves` (Work Gloves): item not_in_snapshot: candidates 1435
+- drops/4, probability `work-gloves` (Work Gloves): no KuroDB chance for this member: it never drops
+- drops/4, item `blue-lolico-armor-m` (Blue Lolico Armor (M)): item not_in_snapshot: candidates 943
+- drops/4, probability `blue-lolico-armor-m` (Blue Lolico Armor (M)): no KuroDB chance for this member: it never drops
+- drops/4, item `orange-lolica-armor-f` (Orange Lolica Armor (F)): item not_in_snapshot: candidates 951
+- drops/4, probability `orange-lolica-armor-f` (Orange Lolica Armor (F)): no KuroDB chance for this member: it never drops
+- drops/4, item `wooden-samurai-sword` (Wooden Samurai Sword): item not_in_snapshot
+- drops/4, probability `wooden-samurai-sword` (Wooden Samurai Sword): no KuroDB chance for this member: it never drops
+- drops/4, probability `wooden-sword` (Wooden Sword): no KuroDB chance for this member: it never drops
+- drops/4, item `black-ghetto-beanie` (Black Ghetto Beanie): item not_in_snapshot: candidates 735
+- drops/4, probability `black-ghetto-beanie` (Black Ghetto Beanie): no KuroDB chance for this member: it never drops
+- drops/4, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/4, probability `arrow-for-crossbow` (Arrow for Crossbow): no KuroDB chance for this member: it never drops
+- drops/5, gap: chance unresolved: "Brown Skullcap" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: chance unresolved: "Metal Axe" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: item unresolved: "Metal Axe" (not_in_snapshot, MeowDB candidates 617), so it never rolls; see its item_resolution.note
+- drops/5, gap: chance unresolved: "Blue Headband" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: chance unresolved: "Red Bandana" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: item unresolved: "Red Bandana" (not_in_snapshot, MeowDB candidates 720), so it never rolls; see its item_resolution.note
+- drops/5, gap: chance unresolved: "Black Gomushin" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: item unresolved: "Black Gomushin" (not_in_snapshot, MeowDB candidates 1318), so it never rolls; see its item_resolution.note
+- drops/5, gap: chance unresolved: "Grey Thick Sweat Pants (M)" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: chance unresolved: "Black Cloth Pants (M)" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: item unresolved: "Black Cloth Pants (M)" (ambiguous, MeowDB candidates 1170, 1179), so it never rolls; see its item_resolution.note
+- drops/5, gap: chance unresolved: "Pistol" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: item unresolved: "Pistol" (not_in_snapshot), so it never rolls; see its item_resolution.note
+- drops/5, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
+- drops/5, probability `brown-skullcap` (Brown Skullcap): no KuroDB chance for this member: it never drops
+- drops/5, item `metal-axe` (Metal Axe): item not_in_snapshot: candidates 617
+- drops/5, probability `metal-axe` (Metal Axe): no KuroDB chance for this member: it never drops
+- drops/5, probability `blue-headband` (Blue Headband): no KuroDB chance for this member: it never drops
+- drops/5, item `red-bandana` (Red Bandana): item not_in_snapshot: candidates 720
+- drops/5, probability `red-bandana` (Red Bandana): no KuroDB chance for this member: it never drops
+- drops/5, item `black-gomushin` (Black Gomushin): item not_in_snapshot: candidates 1318
+- drops/5, probability `black-gomushin` (Black Gomushin): no KuroDB chance for this member: it never drops
+- drops/5, probability `grey-thick-sweat-pants-m` (Grey Thick Sweat Pants (M)): no KuroDB chance for this member: it never drops
+- drops/5, item `black-cloth-pants-m` (Black Cloth Pants (M)): item ambiguous: candidates 1170, 1179
+- drops/5, probability `black-cloth-pants-m` (Black Cloth Pants (M)): no KuroDB chance for this member: it never drops
+- drops/5, item `pistol` (Pistol): item not_in_snapshot
+- drops/5, probability `pistol` (Pistol): no KuroDB chance for this member: it never drops
+- drops/5, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
+- drops/5, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
+- drops/5, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/9, gap: item unresolved: "Omok Piece : Mushroom" (ambiguous, MeowDB candidates 486, 495, 498), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Red Swimming Cap" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Red Swimming Cap" (not_in_snapshot, MeowDB candidates 718), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Yellow Bandana" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Yellow Bandana" (not_in_snapshot, MeowDB candidates 722), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Red Headband" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: chance unresolved: "Crossbow" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Crossbow" (not_in_snapshot, MeowDB candidates 672), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Yellow Avelin (F)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Yellow Avelin (F)" (not_in_snapshot, MeowDB candidates 956), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Blue Cloth Pants (M)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Blue Cloth Pants (M)" (ambiguous, MeowDB candidates 1169, 1178), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Black Cloth Pants (F)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Black Cloth Pants (F)" (ambiguous, MeowDB candidates 1170, 1179), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Garnier" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: item unresolved: "Garnier" (not_in_snapshot, MeowDB candidates 680), so it never rolls; see its item_resolution.note
+- drops/9, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
+- drops/9, gap: chance unresolved: "Scroll for Shoes for Jump 10%" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, "0.0300% base \| Qty 1") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls
+- drops/9, item `omok-piece-mushroom` (Omok Piece : Mushroom): item ambiguous: candidates 486, 495, 498
+- drops/9, item `red-swimming-cap` (Red Swimming Cap): item not_in_snapshot: candidates 718
+- drops/9, probability `red-swimming-cap` (Red Swimming Cap): no KuroDB chance for this member: it never drops
+- drops/9, item `yellow-bandana` (Yellow Bandana): item not_in_snapshot: candidates 722
+- drops/9, probability `yellow-bandana` (Yellow Bandana): no KuroDB chance for this member: it never drops
+- drops/9, probability `red-headband` (Red Headband): no KuroDB chance for this member: it never drops
+- drops/9, item `crossbow` (Crossbow): item not_in_snapshot: candidates 672
+- drops/9, probability `crossbow` (Crossbow): no KuroDB chance for this member: it never drops
+- drops/9, item `yellow-avelin-f` (Yellow Avelin (F)): item not_in_snapshot: candidates 956
+- drops/9, probability `yellow-avelin-f` (Yellow Avelin (F)): no KuroDB chance for this member: it never drops
+- drops/9, item `blue-cloth-pants-m` (Blue Cloth Pants (M)): item ambiguous: candidates 1169, 1178
+- drops/9, probability `blue-cloth-pants-m` (Blue Cloth Pants (M)): no KuroDB chance for this member: it never drops
+- drops/9, item `black-cloth-pants-f` (Black Cloth Pants (F)): item ambiguous: candidates 1170, 1179
+- drops/9, probability `black-cloth-pants-f` (Black Cloth Pants (F)): no KuroDB chance for this member: it never drops
+- drops/9, item `garnier` (Garnier): item not_in_snapshot: candidates 680
+- drops/9, probability `garnier` (Garnier): no KuroDB chance for this member: it never drops
+- drops/9, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
+- drops/9, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
+- drops/9, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/9, probability `scroll-for-shoes-for-jump-10` (Scroll for Shoes for Jump 10%): no KuroDB chance for this member: it never drops
 
 ### formulas (40)
 
@@ -1786,36 +2008,36 @@ and, in drop records, every member without a chance, every unresolved item and m
 ### monsters (32)
 
 - monsters/1, gap: mesos per kill: no player reports on MeowDB (see drops/1.json)
-- monsters/1, gap: drop chances and quantities: MeowDB gives none (see drops/1.json)
+- monsters/1, gap: drop chances and quantities: MeowDB gives none; drops/1.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/1, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/1, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/1, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/1, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/1, gap: Peace vs touch damage: this page marks the monster "Peace" ("Non-aggressive, won't attack unless provoked") and its analysis says "Non-aggressive (PEACE), won't attack unless you hit it first. Safe to walk past.", yet the same page shows a 21 x 36 px touch zone, Touch DMG 1-1 (Base 1) and the generic Combat Details text "The touch zone deals contact damage when you walk into it. Attack power is a percent of the monster's own damage stat: physical attacks use P.DMG, magic attacks use M.DMG.". MeowDB does not say whether walking into a Peace monster's touch zone damages the player
-- monsters/2, gap: mesos per kill: 1 player report(s) only; no canonical meso formula or drop chance (see drops/2.json)
-- monsters/2, gap: drop chances and quantities: MeowDB gives none (see drops/2.json)
+- monsters/2, gap: mesos per kill: 1 player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/2.json takes the meso chance from KuroDB, decision D3-5)
+- monsters/2, gap: drop chances and quantities: MeowDB gives none; drops/2.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/2, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/2, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/2, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/2, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/3, gap: mesos per kill: no player reports on MeowDB (see drops/3.json)
-- monsters/3, gap: drop chances and quantities: MeowDB gives none (see drops/3.json)
+- monsters/3, gap: drop chances and quantities: MeowDB gives none; drops/3.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/3, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/3, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/3, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/3, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/4, gap: mesos per kill: no player reports on MeowDB (see drops/4.json)
-- monsters/4, gap: drop chances and quantities: MeowDB gives none (see drops/4.json)
+- monsters/4, gap: drop chances and quantities: MeowDB gives none; drops/4.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/4, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/4, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/4, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/4, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/5, gap: mesos per kill: no player reports on MeowDB (see drops/5.json)
-- monsters/5, gap: drop chances and quantities: MeowDB gives none (see drops/5.json)
+- monsters/5, gap: drop chances and quantities: MeowDB gives none; drops/5.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/5, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/5, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/5, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/5, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/9, gap: mesos per kill: no player reports on MeowDB (see drops/9.json)
-- monsters/9, gap: drop chances and quantities: MeowDB gives none (see drops/9.json)
+- monsters/9, gap: drop chances and quantities: MeowDB gives none; drops/9.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
 - monsters/9, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/9, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
-- monsters/9, gap: monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
+- monsters/9, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/9, gap: quests[1010].min_level: the monster page shows no "Lv N+" for Mai's Final Training; read quest requirements from the quests domain (quests/1010.json, built from https://meowdb.com/msclassic/quest-tracker/1010), not from this file
 
 ### npcs (14)
@@ -1935,6 +2157,11 @@ and its reason (the nearest one when the object inherits it).
 
 | File | Path | Verified | Verified against | Reason |
 |---|---|---|---|---|
+| breakables.json | (file) | no |  | MeowDB's breakable page gives only the hit count, the maps, the per-map counts, the respawn time and the community drop list; reactor size, hit rules beyond 'basic attacks', and 3D positions are not published (breakables/0000001.json gaps). |
+| breakables.json | box | no |  | The box's body for the attack overlap test, in MapleStory px like a monster's canonical touch_zone_px: [width, height] anchored at the bottom centre, as deep as it is wide (combat.json isometric_reach touch_zone_depth 'width'), converted with WorldScale.actor (0.75 m). MeowDB publishes no reactor size; 30 x 30 px is a knee-high crate next to the 1.5 m player, small enough for the canonical basic-attack boxes (thrust 14-30 px above the feet, swings up to 61 px, the crouched attack 14 px) to reach it from 0.1 to about 2 m away. The box is not solid: classic reactors never block movement, so a box cannot close a route, trap the player or push monsters. |
+| breakables.json | hit_rule | no |  | MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. An attack source other than the basic attack (a Three Snails projectile) counts one hit when it asks BreakableSystem.land_hit for a box it reached. Audit open question: the owner may still rule on skills. |
+| breakables.json | placement | no |  | Contract C8 (a recorded adaptation, like the monster spawn slots of MAP_ARCHITECTURE section 4.7.1): MeowDB's x_px/y_px are 2D side-view coordinates and are not used; each placement samples walkable ground inside the map's exported spawn areas clipped to its mob region (any species), or, for maps without areas (the town 000001010 and the interiors 000001011, 000001012 and 000001013) and for any placement the areas cannot hold, the walkable floor of the mob region and the region extensions, first on the map's base floor tier (within tier_tolerance_m of base_y, so a box does not land on a terrace, a counter or a ledge), then on any walkable top surface. The sampling is seeded by hash('<map_id>:box:<index>'), so it is deterministic per map. A candidate must stand on walkable collision with a clearance capsule of clearance_radius_m x clearance_height_m clear of walls, outside the spawn keep-outs, outside every portal trigger and at least portal_clearance_m from every portal anchor, arrival and player_spawns[0], at least min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster spawn slot, and npc_clearance_m outside every NPC's talk zone (presentation.json npc.talk_zones; the counter keepers' 2.4 m); at least approach_min_free of approach_directions points approach_m around it must be grounded on the box's tier with the player's grounding capsule clear, so a walking player can stand beside it and swing; and the line from the top of its clearance capsule toward the map's gameplay camera must be free of walkable, blocking and scenery collision for camera_sight_m, so a box is seen from afar instead of tucked behind a house or a tree (the first box playtest found one in the corner behind Pio's neighbour's house). Of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept (an even spread). attempts bounds each pass; only when no pass finds a spot in the camera's sight is one out of sight taken ('_unseen', logged); a placement that finds nothing is 'unplaced' and logged. |
+| breakables.json | respawn | no |  | A broken box comes back exactly respawn_s after the break (canonical maps/<id>.json reactors[i].respawn_s, per placement: 120/120/120/180/90 s on 000001000, 120 s elsewhere), on the pausable game clock. MeowDB does not say whether reactors wait for the 7.56 s monster spawn tick (spawn_rate.json covers monsters only), so they do not. The live breakable page shows one value per map (120 s); the map page's per-placement values are kept, as canonical breakables/0000001.json discrepancies records. Like monsters and ground drops, box state lives in the map instance only and never reaches a save (contract C3). |
 | camera.json | (file) | no |  | (per value: its reasons map) |
 | combat.json | ap_allocation | no |  | MeowDB pages disagree on whether AP can raise Max HP or Max MP: the glossary says yes, while the HP/MP guide and the Beginner's guide list no AP term. The canonical decision (beginner.json ap.allocatable_stats = STR/DEX/INT/LUK; hp_mp_gain.json ap_into_hp_mp = null with a discrepancy entry) is STR/DEX/INT/LUK only. MisoStory follows it: AP cannot be put into Max HP or Max MP. |
 | combat.json | bare_hands | no |  | MeowDB documents bare hands only as an attack presentation: hit boxes for Punch 1, Punch 2 and the crouched attack, and an ordinary action of 100% stab (attack_styles.json bare_hands, damage.json ordinary_action_odds.barehanded). It gives no Weapon Attack, multiplier or attack speed (damage.json bare_hands, attack_speed.json bare_hands), and its simulators return no unarmed damage. MisoStory treats the empty weapon slot as a W.ATK line of 0 (weapon_watk) and runs the documented physical formula unchanged. Total Weapon Attack is still the pool of every equipped W.ATK line (derived_stats.json total_weapon_attack_rule), which is 0 for a Beginner, so a landed punch deals the final-clamp minimum, trunc(clamp(0, 1, 99999)) = 1. weapon_mult only fills the formula slot, because it is multiplied by a TotalWATK of 0. Primary STR and secondary DEX follow MeowDB's character builder fallback for a weaponless Beginner (function eA). Tier 6 (Normal) is the neutral timing tier, where every frame keeps its base length, and the tier MeowDB's character builder passes for every Beginner. Punch 1 and Punch 2 get equal odds, matching the 'each with equal odds' rule that MeowDB's weapon item pages state for weapon presentations. |
@@ -1942,40 +2169,16 @@ and its reason (the nearest one when the object inherits it).
 | combat.json | fixed_damage_skills.0001000 | no |  | Three Snails deals the fixed damage of its skill level, which 'character stats, weapon stats, and target defense do not scale' (canonical, formulas/beginner.json skills[0001000]). MeowDB does not say whether the hit roll, the level-gap scale or critical hits apply (beginner.json gaps). MisoStory applies the shared hit check, because the skill page lists 'Target hit eligibility' as a conditional factor. It applies no level-gap scale and no critical, so the published value stays fixed. The final clamp applies as for every hit. |
 | combat.json | isometric_reach | no |  | MeowDB hit boxes are 2D side-view rectangles: reach along the facing direction and height above the feet (attack_styles.json, monsters/*.json touch_zone_px). In the isometric 3D world a box also needs a depth across the facing direction. MisoStory gives attack boxes a total depth of 60 px, centred on the attacker's facing line, and gives monster touch zones a depth equal to their canonical width. A monster roughly in line with the player is therefore hit, as in 2D. Consumers convert px with WorldScale.actor(). |
 | combat.json | level_up | no |  | MeowDB implies that a level-up heals ('Unlike leveling up, job advancing does not heal you'; hp_mp_gain.json, recovery.json level_up_heal) but not by how much. MisoStory restores HP and MP to their full totals, gear included, as classic MapleStory did. The glossary says a level-up 'resets your EXP bar to 0' but does not say what happens to EXP beyond the requirement. MisoStory reads the EXP bar as per level and carries the excess into the new level, so one large award can raise several levels and no earned EXP is lost. At the level cap (exp_table.json level_cap) EXP no longer accumulates. |
-| combat.json | monster_knockback | no |  | Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. MeowDB does not publish the knockback distance or the stagger time (movement.json monster_knockback.gaps). MisoStory staggers a monster for the length of its own canonical hit animation (monsters/*.json animations.hit1.duration_ms; Snail 600 ms). During that time it pushes the monster 20 px away from the attacker. A monster without a hit clip staggers for 0.6 s, the length of the Maple Island hit clips. |
-| combat.json | natural_recovery | no |  | Canonical, qualitative only: 'When you're not in combat, just standing still will slowly restore your HP' (formulas/recovery.json natural_regeneration.statements[0]; documented_values false, hp_per_tick, mp_per_tick and tick_interval_s all null). MeowDB publishes no amount, interval or combat timer, so all three are MisoStory choices. tick_s 10: the only resting interval MeowDB documents is the chairs' 'additional 30 HP every 10 seconds', which stacks with natural regeneration (recovery.json chairs tick_interval_s 10, stacks_with_natural_regen true), so natural recovery ticks on the same 10 s. hp_per_tick 10: slow, as the statement says, and well below a chair's extra 30, so sitting stays 'faster than when you're just standing' (the statement's second line; sitting and chairs are not built yet). A level-1 Beginner (50 HP) refills in under a minute, a level-8 one (162 HP) in a few minutes, so a death or a hard fight costs a rest instead of a death spiral (misostory/death.json respawn_vitals assumes 'a death costs a potion or a rest'). delay_s 5: 'not in combat' read as no attack made and no monster touch (hit, miss or guard) or damage taken for 5 s, longer than the canonical 1.5 s post-hit invincibility (accuracy.json after_hit). The rest time only counts while the character is alive, on the ground, not moving, not climbing, not knocked back and not warping, and with HP below Max HP; any of those failing starts the 10 s again. requires_standing_still true: the statement's 'just standing still'. HP only: the statement names HP, and MeowDB documents no natural MP recovery (mp_per_tick null), so MP does not recover on its own. Read by scripts/actors/combat/natural_recovery.gd (NaturalRecovery); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md. |
+| combat.json | monster_knockback | no |  | Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. The stagger time is published too: the live MeowDB monster pages read on 2026-10-05 show 'STAGGER 0.6 seconds - How long the mob is staggered for when knocked back' for all six Maple Island species (tools/meowdb/captures/monster_*.json\|txt). With stagger_from_canonical_record, MonsterDef staggers a monster for the stagger time its canonical record carries (monsters/<id>.json stagger_s, or stagger_ms); a record without one falls back to the length of its own canonical hit animation (stagger_duration 'hit_animation': animations.hit1.duration_ms, 600 ms on every Maple Island monster, the same 0.6 s), then to fallback_stagger_s. Only the push is unpublished (movement.json monster_knockback.gaps): MisoStory pushes a staggered monster 20 px (knockback_distance_px) away from the attacker over the stagger time, stopping at a ledge, a wall, its mob region or its floor. A hit that lands while a jumper is in the air (MeowDB says nothing about it) cancels the rest of the hop (airborne_hit 'cancel_hop_then_push'): the monster keeps its vertical speed and falls straight down from where it was hit, and the push runs during the fall and after the landing, over ground that stays on its floor, so a monster hit mid-hop is pushed away from the attacker like one hit on the ground instead of carrying on toward the attacker. |
 | combat.json | player_attack | no |  | Values that decide how the player's basic attack feels in the isometric world and that MeowDB MS Classic does not publish: the ground root during an attack, the input buffer before the lockout ends, the number of monsters one basic attack hits, and the model's lunge. The attack's timing, hit boxes, damage and target order stay canonical (attack_speed.json, attack_styles.json, damage.json). Read by scripts/actors/combat/player_combat.gd (PlayerCombat); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md. |
 | combat.json | player_knockback | no |  | MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage; a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value. |
 | combat.json | post_hit_invincibility | no |  | Canonical: 'Invincible after a hit: 1.5 s' and 'A monster attack that misses you or that you block gives the same 1.5 s' (formulas/accuracy.json after_hit). MisoStory keeps the canonical duration. override_s is where a documented isometric adjustment would go (the brief's 'isometric_contact_invulnerability_duration'); null means the canonical value is used. |
 | death.json | respawn_player_spawn_index | no |  | MeowDB names each map's respawn map (canonical maps/<id>.json return_map_id; formulas/death.json respawn_location) but not which of that map's playerSpawns a respawn uses (MAP_ARCHITECTURE.md section 4.8 and open question 1; docs/canonical/README.md known gaps). Index 0 until a MeowDB page settles it. Read by the world runtime (WorldTuning.respawn_spawn_index(), MapDefinition.respawn_location): MapSession.respawn() arrives at returnMap player_spawns[value], and a save made while dead stores the same point. Moved here from presentation.json respawn.player_spawn_index (docs/canonical/README.md names this file as its home). |
 | death.json | respawn_vitals | no |  | formulas/death.json gaps: 'HP/MP after respawning is not documented.' Set on the character when the death is committed, so the save made while dead already holds them and a reload is never dead on arrival. Classic-feel choice: the player comes back in town with 50 HP (never above Max HP, so a level-1 Beginner is full) and MP as it was at death, so a death costs a potion or a rest instead of leaving the player helpless. A MisoStory feel decision, not a MeowDB value; replace it when MeowDB documents the rule. Modes: fixed (value, capped at Max HP), fraction_of_max (value 0..1), full, keep. HP is always at least 1 after a respawn. |
 | death.json | rules | no |  | The penalties applied, in this order, at the moment of death, as classic MapleStory takes them: MapSession runs them once per death through its death_commit hook (DeathController.commit_rules) when it enters DEAD, sets the character's location to the respawn point and the game is saved at once, so quitting while dead cannot dodge them and the death notice's OK only travels (docs/runtime/GAME_SHELL.md; MAP_ARCHITECTURE.md section 4.8). exp_penalty is MeowDB's own model (formulas/death.json exp_penalty, applied by Progression.apply_death_penalty). MeowDB documents no item, meso or buff loss (formulas/death.json gaps), so no such rule is listed. A later penalty is a new rule registered in DeathRules and named here. |
-| drop_rates.json | (file) | no |  | MeowDB MS Classic publishes WHICH items drop (community-confirmed Classic drops with votes, plus the pre-Big-Bang MSEA reference list) but no drop chance, no quantity and no meso amount (docs/canonical/monsters.md 'Drops: what MeowDB does and does not tell us'; formulas/loot_rules.json gaps). Every number in this file is a MisoStory placeholder chosen for a classic feel. None of them is a MapleStory fact. Replace any of them as soon as MeowDB publishes a value. |
-| drop_rates.json | default_rate | no |  | Fallback for an item type not listed in type_rates. Quantity 1 unless a level below says otherwise (MeowDB publishes no quantities). |
-| drop_rates.json | disputed_entries | no |  | A community entry with score <= 0 (at least as many downvotes as upvotes; monsters.md 'disputed'): Snail - The Green Relaxer 522; Blue Snail - Opal Ore 324, Silver Ore 417, Monster Card 483; Red Snail - Amethyst Ore 321. Off by default because players report NOT seeing them as often as seeing them. |
-| drop_rates.json | mesos | no |  | MeowDB publishes no meso formula and no meso drop chance. Its only data are player reports of mesos seen from one kill (canonical drops/<id>.json meso): Snail has 1 report (2 mesos); the other monsters have none. Breakables have no meso data (status not_applicable) and drop no mesos. |
-| drop_rates.json | mesos.by_owner.1 | no |  | Tutorial Jr. Sentinel: a non-aggressive tutorial monster with no meso reports; MisoStory keeps its loot to the quest item. |
-| drop_rates.json | mesos.per_level | no |  | Placeholder amount for monsters without reports: uniform integer in [max(1, floor(level x min)), max(that, ceil(level x max))]. Anchored to the one report (Snail, level 1: 2 mesos): Blue Snail (2) 3-5, Shroom (3) 4-8, Red Snail (4) 6-10, Orange Mushroom (8) 12-20. |
-| drop_rates.json | owner_item_overrides.0000001.236 | no |  | Wooden Box (breakable, 4 hits): breaking a box should usually pay out. Apple. |
-| drop_rates.json | owner_item_overrides.0000001.237 | no |  | Wooden Box: Egg, same as Apple. |
-| drop_rates.json | owner_item_overrides.0000001.441 | no |  | Rusty Screw: Pio's Collecting Recycled Goods (quest 1012) needs 3, and the Wooden Box is its only source. MeowDB does not say whether box quest items are quest-gated, so they drop at any time. |
-| drop_rates.json | owner_item_overrides.0000001.442 | no |  | Old Wooden Board: Pio's quest 1012 needs 3; only source is the Wooden Box. Same rule as 441. |
-| drop_rates.json | owner_item_overrides.1.347 | no |  | Todd's How-to-Hunt (quest 1005) asks for 3 Jr. Sentinel Shellpieces after 3 Tutorial Jr. Sentinel kills; the tutorial monster's only drop always drops so the tutorial can never stall. |
-| drop_rates.json | owner_item_overrides.3.349 | no |  | Blue Snail Shell is needed 10x by Biggs's Collection of Items (quest 1011) and by Three Snails level 2. Same as the Etc/Monster Drop rate, pinned here so the quest stays obtainable if that default changes. |
-| drop_rates.json | owner_item_overrides.9.356 | no |  | Orange Mushroom Cap is needed by Biggs's Collection of Items (quest 1011). Pinned for the same reason as 349. |
-| drop_rates.json | status_rules.classic_confirmed | no |  | Items players have personally seen drop in Classic World (MeowDB community drops). These are the canonical drop list. |
-| drop_rates.json | status_rules.msea_reference | no |  | MeowDB: 'historical reference only and shows what this monster dropped in old MapleSEA. If you spot any of these drop in Classic, add them to the confirmed list.' Not confirmed for Classic World, so off by default. Enabling them (with a multiplier) is a labelled design decision. |
-| drop_rates.json | subtype_rates.Etc/Gem | no |  | Gem ores are valuable crafting materials (MeowDB: Garnet Ore 'the most in-demand ore in COT2'); rarer than common ores. |
-| drop_rates.json | subtype_rates.Etc/Monster Drop | no |  | A monster's own leftover (Snail Shell, Mushroom Spore, Orange Mushroom Cap...) is the signature drop of classic hunting and the highest-voted entry on every Maple Island table. 0.4 makes Biggs's 10 Blue Snail Shells (quest 1011) about 25 kills and keeps Three Snails (one shell per cast) supplied. |
-| drop_rates.json | subtype_rates.Etc/Ore & Mineral | no |  | Common ores (Bronze, Iron, Mithril, Silver) are frequently voted but still uncommon per kill. |
-| drop_rates.json | subtype_rates.Use/Arrow | no |  | Arrows are useless to a Beginner but listed on every monster table; uncommon so they do not crowd the Use tab. |
-| drop_rates.json | subtype_rates.Use/Food | no |  | Treated like potions (same use, same 'rarely' from monsters). |
-| drop_rates.json | subtype_rates.Use/Potion | no |  | MeowDB's Beginner's guide: 'Potions are most of what you spend mesos on early. Mobs drop them rarely, so buy...' (formulas/recovery.json consumables.statements). 1 in 50 kills keeps potions a shop purchase. |
-| drop_rates.json | subtype_rates.Use/Scroll | no |  | Scrolls are the rarest classic drops (1 in 1000 kills). |
-| drop_rates.json | type_rates.Equip | no |  | Equipment from Maple Island monsters is a rare, exciting find: about 1 in 200 kills per listed piece, so a table with 10 equips yields a piece every ~20 kills. |
-| drop_rates.json | type_rates.Etc | no |  | Etc items not covered by a subtype rate. |
-| drop_rates.json | type_rates.Setup | no |  | Chairs are rare trophies (and the only listed one, The Green Relaxer, is disputed and a quest reward). |
-| drop_rates.json | type_rates.Use | no |  | Use items not covered by a subtype rate. |
+| drop_rates.json | (file) | no |  | Iteration Two kept placeholder drop chances, quantities and meso amounts here because MeowDB publishes none. Iteration Three replaced all of them with sourced values in the canonical records (decisions D3-3 to D3-9, docs/ITERATION_LOG.md). What remains are the interpretations the runtime needs to turn those sourced values into rolls; each is a MisoStory reading, not a MapleStory fact. |
+| drop_rates.json | meso_amount_distribution | no |  | Hidden Street gives a meso amount as a range ('Mesos: 4-6') and MeowDB's player report as one value per kill; neither says how an amount is chosen within a range. MisoStory draws a uniform integer in [min, max] (both ends included), the reading recorded in each record's meso.amount_source.interpretation. DropRoller implements exactly this; DropRates.validate fails if this value names anything else. |
+| drop_rates.json | quest_gate_rule | no |  | MeowDB does not say who can loot a quest item; KuroDB flags some rows '\| Quest N' with its own quest ids, but the brief limits KuroDB to probabilities. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not. |
 | drops.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | (file) | no |  | (per value: its <key>_reason entries) |
 | loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. |
@@ -2015,23 +2218,44 @@ and its reason (the nearest one when the object inherits it).
 | presentation.json | environment | no |  | Blender's sun strength (index.json environment, W/m^2) has no exact Godot equivalent; the Phase 1 probe matched the Blender look with energy = strength / pi (docs/runtime/blender_export.md, known issue 9). Per-map presets come from data/misostory/maps/<id>.json environment_preset; none differ yet. |
 | presentation.json | fall_recovery | no |  | MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage, matching classic's lack of fall damage. A sea-level kill plane catches anything that leaves every map. |
 | presentation.json | grounding | no |  | MAP_ARCHITECTURE sections 4.9 and 4.13 (L1): a point counts as grounded when a ray from 1 m above to 3 m below hits walkable collision first, and the grounded point is within 0.3 m of that surface; a 0.3 x 1.5 m capsule lifted 0.05 m must be clear of blocking and containment collision. The capsule approximates the player body for static checks; the controller owns the real one (data/misostory/movement.json). A blocking surface lying within 0.05 m above walkable ground counts as that ground (interior floors carry a coplanar Walls slab 3 mm above Ground; Heena stands in her bush hull). When an arrival point or player spawn is not grounded or its capsule is blocked (a door mound, a hedge, a gate hull), the nearest grounded, clear point inside the map and outside every trigger is searched on rings up to 5 m around it in 0.5 m steps, inward first, and the move is logged as a warning (a Blender fix is the real cure). |
+| presentation.json | map_mob_rate | no |  | MisoStory decision on a MeowDB conflict (Iteration Three spawns audit, docs/review/it3_audit.json 'spawns'). Every Maple Island map carries a MeowDB mob rate (0.6x on 000000030, 1.5x on 000000050, 1.3x on 000001000 and 000001001, 1.2x on 000001014, 1.0x elsewhere). MeowDB's mechanics pages say it is ignored: the spawn-engine guide (updated 2026-08-24) 'Other MapleStory servers multiplied map capacity by it. MSC does not. The live game ignores it; capacity comes only from spawn-point count and the player scalar', the glossary (2026-09-04) 'There is no separate map-wide multiplier', and /formulas/spawns 'Capacity = floor(SpawnPoints x PlayerScalar)'. MeowDB's map pages and the monster-page MOB RATE tooltip say it multiplies capacity ('expect about 63 monsters up at a time instead of 42', self-labelled 'our best reading from closed-beta play'), which also contradicts the same page's own player scalar and exceeds the spawn-point count. Neither reading touches respawn speed (every row shows ~7.5s at every rate). apply false keeps the mechanics pages' reading: capacity = floor(points x PlayerScalar). apply true multiplies that capacity by the map's canonical mob_rate, capped at the spawn-point count because the runtime keeps one monster per MeowDB spawn point (SpawnModel.capacity_for_map). The canonical formulas/spawn_rate.json keeps MeowDB's own statement (map_spawn_rate_multiplier.applied_by_msc) as data, not as this switch. |
 | presentation.json | npc | no |  | MeowDB documents no talk range (classic NPCs are clicked). The interact key talks to a current-map NPC whose talk zone overlaps the player's body: a sphere of 1.6 m (a little more than the 1.5 m body height) centred 0.8 m above the NPC's feet, so the player has to walk up to the NPC. talk_zones lists NPCs whose zone differs, each profile with its own reason (WorldTuning.talk_zone). NPCs placed where a player cannot stand are fixed in the source world, not with a larger zone (docs/runtime/blender_export.md, round 4). Until the Blender export had markers for every MeowDB NPC (MAP_ARCHITECTURE section 3.3: Todd, Sam, Mai), a missing one stood next to player_spawns[0], 2.5 m apart along the map frame, with a warning; the runtime keeps that fallback for future content. |
 | presentation.json | npc.talk_zones.across_counter | no |  | Shopkeepers serve across their counter, as in classic (Test G: buy and sell). Pan (16), Sid (20) and Lucy (21), the three MeowDB shop NPCs of Maple Island (canonical shops/*.json npc_id), stand behind counters: a player pressed against the counter front stands 1.90, 2.10 and 1.90 m from them horizontally, and they stand 0.45, 0.45 and 0.8 m above the shop floor. With the default 1.6 m sphere that body was 0.00, 0.20 and 0.04 m outside the zone (playtest probe 2026-10-04), so Sid and Lucy could not be talked to on foot and Pan only with no margin. A 2.4 m sphere, still centred 0.8 m above the NPC's feet, takes in a player standing anywhere along the middle of the counter front, and one pressed against it in front of the keeper is 0.83 (Pan), 0.61 (Sid) and 0.79 m (Lucy) inside (the npcs playtest scenario checks at least 0.4 m, 2026-10-04). Each keeper is the only NPC of his or her shop, so the larger zone cannot take the prompt from another NPC. |
 | presentation.json | region_invariant | no |  | MAP_ARCHITECTURE section 4.3: ten times a second the player's last ground point must lie in current_map, a trail touching it, or the map of an armed gate. Five failing samples in a row push_error the position (dev and test builds fail on it; the traversal bot counts it); release builds also recover to SafeGround. |
 | presentation.json | session | no |  | MAP_ARCHITECTURE section 4.9 step 4: a save naming an unknown map loads at 000000001 player_spawns[0] (the inferred start map, data/misostory/new_character.json). The saved location's resume point is refreshed from SafeGround four times a second so a save always carries a recent safe position. |
-| presentation.json | spawns | no |  | MAP_ARCHITECTURE sections 4.5 and 4.7.1: a realize queues monster spawns nearest-first, at most 8 per frame, each fading in over 0.3 s; spawn slots stand at least 1.2 m apart and at least 4 m from every portal arrival. A slot first tries to land on its spawn area's own tier (within 0.6 m of the area's surface height), then on any walkable top surface in the area. Every slot stays inside the map's mob region, the layout footprint inset by 2 m (section 4.7.4); a map with MeowDB spawns but no exported spawn area samples that whole region (every map exports areas today). The clearance probe is 0.35 m in radius and as tall as the species' body (its canonical sprite height x WorldScale.actor when monsters/<id>.json fits the model to the sprite height), never shorter than 0.8 m, the old proxy approximation. |
+| presentation.json | spawns | no |  | MAP_ARCHITECTURE sections 4.5 and 4.7.1: a realize queues monster spawns nearest-first, at most 8 per frame, each fading in over 0.3 s; spawn slots stand at least 1.2 m apart and at least 4 m from every portal arrival. A slot first tries to land on its spawn area's own tier (within 0.6 m of the area's surface height), then on any walkable top surface in the area. Every slot stays inside the map's mob region, the layout footprint inset by 2 m (section 4.7.4); a map with MeowDB spawns but no exported spawn area samples that whole region (every map exports areas today). The clearance probe is 0.35 m in radius and as tall as the species' body (its canonical sprite height x WorldScale.actor when monsters/<id>.json fits the model to the sprite height), never shorter than 0.8 m, the old proxy approximation. NPC interaction spaces (the brief's isometric spawn rules): a slot stands at least slot_npc_clearance_m (2.5 m) from every NPC of its map, the 1.6 m talk sphere (npc.interaction_radius_m) plus the widest touch-zone half-width (Orange Mushroom 63 px x 0.025 / 2 = 0.79 m), so no monster appears where a player stands to talk (Sam stood inside Snail Hunting Ground I's Snail_3 region, Mai 1.6 m from A Split Road's BlueSnail_6). Density: a spawn region takes a share of its species' slots by weight as before, but never more slots than leave min_area_per_slot_m2 (8 m^2, a patch about 2.8 m across, room for an Orange Mushroom's touch zone and a walk) each; the rest go to the species' other regions, and what none of them can hold spills, once every species has its own regions, to the least crowded region of the map, so one species' overflow never takes another species' room (Tomato Field had 5 Blue Snails in 16 m^2; 000001001 had 16 slots in 88 m^2). Counts and species never change, only where the slots stand. No monster is realized within respawn_player_clearance_m (2.0 m) of the player's feet, neither a respawn nor a slot of the map's fill when a game loads at its saved resume point: the Orange Mushroom's touch zone reaches 0.79 m (1.11 m at its corners) from its feet plus the 0.3 m player body, so 2 m leaves a margin; the slot's monster waits (still alive in MapInstanceState, so capacity and counts stay canonical) until the player has moved away. Classic MapleStory makes no such promise; the brief asks that spawns avoid appearing directly inside the player. |
 | presentation.json | trails | no |  | MAP_ARCHITECTURE sections 4.3 and 4.6. Trail side walls (containment layer, player only) follow the ribbon edges side_wall_offset_m outward, side_wall_height_m above the edge, from gate plane to gate plane; they reach side_wall_below_m under the edge because the trail flanks are walkable collision steeper than the 38 deg floor angle, so a player who got under a wall would slide off the island. A trail zone (RegionIndex) is the ribbon plus zone_margin_m, within zone_band_m of the centreline height. Until the export carries the centreline, the ribbon is derived from the trail mesh: its top is every face within top_max_slope_deg of level (Iteration One builds the top at 36 deg at most and the flanks at 49.6 deg or steeper). |
 | presentation.json | transition | no |  | MAP_ARCHITECTURE section 4.5: a warp fades to black over 0.2 s and back over 0.2 s (whole warp <= 0.6 s); after the fade the player must be on the floor within 10 physics frames, and after 30 frames without floor the session re-places the player at player_spawns[0]. Gate commits blend camera bounds over 0.35 s; lighting/BGM crossfade over 0.5 s. |
+| recovery.json | chair_bonus | no |  | Canonical: a chair restores 'an additional 30 HP every 10 seconds' while sitting on it (items/522.json setup.hp_recovery_bonus 30, interval_s 10; formulas/recovery.json chairs stacks_with_natural_regen true). Contract C5 puts that bonus on its own clock, added on top of natural recovery (which is eligible while seated): 10 s seated on The Green Relaxer gives 10 + 30 HP. MeowDB does not say when the chair's 10 s start or what happens to them when the player stands. stand_resets_clock: the chair clock runs only while seated on a chair and starts again at 0 at each sit (the seated state is not saved either). full_hp_holds_clock: like the natural clock, it holds while HP is full. Never above Max HP. |
+| recovery.json | natural_hp | yes | docs/ITERATION_THREE_BRIEF.md (Natural HP Regeneration) | The owner's rule: 10 HP per 10 seconds of eligible regeneration time. Eligible: standing still and sitting, which are PlayerController.activity() 'still' (grounded, no movement input, horizontal speed about zero) and 'seated' (contract C4). Every other activity (walking, jumping or any airborne state, attacking or casting, climbing, hit-stun, dead, other such as a warp) pauses the clock and never resets it, so 6 s still, 5 s walking and 4 s still reach the tick. There is no out-of-combat delay. HP never goes above Max HP, and while HP is full the clock holds (contract C4). The clock is CharacterState.natural_recovery.hp_rest_s, so a save keeps it. This replaces Iteration Two's adaptation (combat.json natural_recovery: a 5 s combat delay and a timer that restarted on every movement). |
+| recovery.json | natural_mp | no |  | No natural MP recovery. MeowDB documents none: formulas/recovery.json natural_regeneration.mp_per_tick is null and its gaps say 'Whether natural regeneration also restores MP is not stated'; the only MP sources in the cache are consumables (Orange, Lemon, Blue Potion) and the level-up heal. The brief forbids inferring an MP rule from the HP rule ('Do not invent matching MP behavior merely for symmetry'), so the values stay null and this stays an open gap until MeowDB or the owner supplies a rule. |
+| recovery.json | sitting | no |  | MeowDB documents sitting on chairs (items/522.json, quest 1016's 'press the sit key') but no sitting without a chair and no map benches on Maple Island, so there is no ground sit. The sit key (X, Controls 'sit') toggles: seated, it stands the player up; standing, it sits on the first chair in the Set-up tab (sit_key_chair 'first_owned', the only value Chairs supports), and with no chair it shows 'You do not have a chair to sit on.' A chair is also used from the Set-up tab (double-click or the Sit button) or a quickslot. Sitting needs the player grounded, still, alive and free of modal windows; any movement, jump, attack, skill, knockback, death, climb, warp or teleport stands the player up, and the press that stands the player up does not also move or jump that tick (contract C5). The seated state is never saved (contract C3). |
+| skills.json | buff_cast | no |  | Recovery and Nimble Feet: MeowDB gives no cast animation time ('Timing unavailable' on both skill pages; beginner.json gaps, attack_speed.json gaps). MisoStory does not invent one: the cast is instant, so it neither plants the player nor blocks the next action. Both skills cast on the ground, in the air or on a rope, as canonical cast_position says. Zero is a choice too, recorded here so it can be replaced when a timing is published. |
+| skills.json | effects_on_death | no |  | MeowDB does not document what happens to an active buff or a skill cooldown when the character dies. MisoStory ends the active skill effects at death (Nimble Feet's speed and the rest of Recovery's heal are lost), as classic MapleStory cleared buffs at death, so a heal-over-time never runs while the death notice is up. Cooldowns keep counting down: dying does not reset them. |
+| skills.json | recovery_heal | no |  | Canonical: Recovery restores a fixed HP total (24 / 48 / 72) across its 30 s duration (beginner.json skills[0001001] output_note); MeowDB does not say how that total is spread (beginner.json gaps: 'How Recovery distributes its HP total over 30 s (tick interval): not documented'). MisoStory heals in equal ticks every 5 s, the first 5 s after the cast and the last as the effect ends: 6 ticks, so every level heals a whole number per tick (4 / 8 / 12) and exactly the canonical total. If a total does not divide evenly, tick k heals floor(total x k / n) - floor(total x (k - 1) / n), which still sums to the total. The heal runs whatever the player does (the skill 'recovers HP constantly'), but never above Max HP and never while dead. |
+| skills.json | three_snails | no |  | (per value: its <key>_reason entries) |
+| stuck_allowlist.json | (file) | no |  | The reviewed results of the stuck-region scan (game/tools/stuck_scan.gd, docs/runtime/STUCK_SCAN.md). entries: intended dead ends. A CONFIRMED component (the real PlayerController could get in and not out) that entries does not list fails tests/unit/test_stuck_scan.gd. Only places a designer reviewed and chose to keep belong there, each with its reason; a trap found by the scan is fixed in the Blender source instead (brief Phase 13: no teleport failsafes over bad terrain). unenterable: UNENTERABLE components (open space the real controller could not get into from any replayed way in) inspected by hand (stuck_scan_tool --inspect) and kept, each with why no body gets there. An UNENTERABLE component that unenterable does not list also fails the test: the replays are not proof, and four such rooms and shafts were real traps (closed in Iteration Three). |
 | world_scale.json | (file) | no |  | (per value: its <key>_reason entries) |
+| dialogue/15.json | (file) | no |  | MeowDB has no boarding dialogue for Shanks (gap in game/data/canonical/npcs/15.json); only speech-bubble lines exist. The transport greeting reuses his canonical idle-chatter line 1, "I'll take you anywhere you want to go.", the line that announces the voyage, instead of inventing text (the generated default is line 0, "I'm the captain, dang it! Don't look down on me!"). |
 | dialogue/16.json | (file) | no |  | MeowDB shows no shop-open greeting for Pan (gap in game/data/canonical/npcs/16.json); only speech-bubble lines exist. The shop greeting reuses Pan's canonical idle-chatter line 1, the one that announces the shop, instead of inventing text. |
 | dialogue/18.json | (file) | no |  | Pio's 1012 "If you accept" line ends with "Rusty Screw 0/3" and "Old Wooden Board 0/3". The 0 is MeowDB rendering the game's live item counter as a literal (docs/canonical/quests.md section 10: substitute the live count; docs/canonical/npcs.md "Rendered counters"). This patch keeps the canonical line and only marks those two bold "0" segments (indexes 11 and 17 of the line's segments) as counters of the item the player holds. Validation fails if a data refresh moves the segments. |
 | dialogue/20.json | (file) | no |  | MeowDB shows no shop-open greeting for Sid (gap in game/data/canonical/npcs/20.json); only speech-bubble lines exist. The shop greeting reuses Sid's canonical idle-chatter line 1 ("Welcome! ...") instead of inventing text. |
 | dialogue/21.json | (file) | no |  | MeowDB shows no shop-open greeting for Lucy (gap in game/data/canonical/npcs/21.json); only speech-bubble lines exist. The shop greeting reuses Lucy's canonical idle-chatter line 2 (about potions, which she sells) instead of inventing text. |
-| dialogue/_system.json | (file) | no |  | System lines the generated NPC conversations show when an action fails (inventory full, quest cannot be accepted or completed). MeowDB publishes no client system messages, so this text is MisoStory's own wording, shown with speaker "system" (not as NPC speech). |
+| dialogue/_rules.json | (file) | no |  | Rules the generated NPC conversations and the shop window follow where MeowDB is silent. Until Iteration Three they lived only in code (audit: quests and npcs_shops domains); they are recorded here so the provenance audit sees them. NpcDialogueBuilder reads offer_prompt and default_talk, ShopWindow reads shop_window_title, and NpcDialogueBuilder.validate_rules() fails on a value the code does not implement, so this file cannot drift from the behaviour. |
+| dialogue/_rules.json | default_talk | no |  | MeowDB does not label when each "What X Says" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai (Sera's "Did you give my mirror to Heena?" and Sen's "What did my sister say?" read as mid-quest lines but follow the same rule; an owner decision could move them). quest_npc may also be "all_lines_in_order". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line. |
+| dialogue/_rules.json | offer_prompt | no |  | MeowDB lists a quest's "On accept" lines in order without marking which one asks the question. MisoStory shows them as pages and puts Yes/No under the last one. For most quests the last line is a question (1006: "...want me to train you?"); for 1000 it is the Quest Helper tip and for 1014-1019 it is "talk to me when you're ready for the next question", statements kept as the prompt because writing a question would invent NPC speech. A quest with no On accept text (1002) is offered as a quest card with the system offer_prompt instead (_system.json). |
+| dialogue/_rules.json | quiz | no |  | MeowDB pairs no rule with Rain's quizzes: it does not say whether a wrong answer may be retried (1015's text suggests it can) or whether the next quiz follows at once. A wrong answer shows its paired canonical wrong-answer line and ends the chat with the quest still in progress (talk again to retry); after a right answer the next quiz is offered in a new conversation. Recorded only: the code has this one behaviour. |
+| dialogue/_rules.json | shop_window_title | no |  | MeowDB has no shop title. The shop window names the shopkeeper ("Lucy's Shop") with the canonical function title and map under it; {npc} is the canonical NPC name. |
+| dialogue/_system.json | (file) | no |  | System lines the generated NPC conversations show when an action fails (inventory full, quest cannot be accepted or completed) and around a transport route (level and fare checks, the unfinished-quest list, the Yes/No to board). MeowDB publishes no client system messages and no boarding dialogue, so this text is MisoStory's own wording, shown with speaker "system" (not as NPC speech). {name} placeholders are filled from the canonical route (destination, fare, min_level), the departure boundary (region) or, for {quests}, the character's quest log at the time the line is shown. |
 | dialogue/_system.json | lines.cannot_accept | no |  | Shown when an accept action is refused for a reason other than a full inventory. |
 | dialogue/_system.json | lines.cannot_complete | no |  | Shown when a completion is refused for a reason other than a full inventory or a wrong quiz answer. |
+| dialogue/_system.json | lines.cannot_travel | no |  | Shown when boarding is refused for a reason other than level or fare (e.g. a route without a departure boundary: travel past Maple Island is not built). |
+| dialogue/_system.json | lines.departure_unfinished_quests | no |  | Follows the beginner guide's canonical advice ("Hand in every Maple Island quest before you board.", shown on the page before) with the character's own unfinished quests, chains grouped. A warning only: boarding is still offered. |
 | dialogue/_system.json | lines.inventory_full | no |  | Shown when Inventory.can_add_all refuses quest accept items, quest rewards or a re-issued quest item. |
 | dialogue/_system.json | lines.offer_prompt | no |  | Generic MisoStory system framing, not NPC speech. A quest whose MeowDB record has no "On accept" dialogue (Maple Island: only 1002 Roger's Apple) is offered as a quest card (speaker "journal": the quest title, the canonical journal summary, the NPC's portrait). The summary is a description ("Talk to Roger."), not a question, so the card adds this line under it as the Yes/No prompt. It names no NPC, item or quest, so it never invents dialogue. |
+| dialogue/_system.json | lines.transport_level_too_low | no |  | Shown when the character is below the route's canonical min_level (Shanks: level 7, from the MeowDB beginner guide). MeowDB has no refusal line for Shanks. |
+| dialogue/_system.json | lines.transport_not_enough_mesos | no |  | Shown when the character holds fewer mesos than the route's canonical fare_mesos (Shanks: 300). MeowDB has no refusal line for Shanks. |
+| dialogue/_system.json | lines.transport_offer | no |  | The Yes/No to board, with the canonical destination and fare. MeowDB has no boarding prompt for Shanks (gap in game/data/canonical/npcs/15.json). |
 | maps/000000030.json | spawn_keepouts[] | no |  | The yellow mushroom house's cap overhangs its walls: the visual brim spans 12.0 x 11.8 m (about 6.0 m around the house's centre) and starts 2.8-3.0 m above the ground, but only the walls (the X30000_HouseYellowBrim prop hull, about 3 m around the centre) collide. A Tutorial Jr. Sentinel slot planned next to the house stood under the brim, and its 1.7 m placeholder read as standing inside the roof (MONSTERS_AND_COMBAT_RUNTIME.md, seen in the real game); no clearance capsule can see a cap without collision. Spawn slots therefore keep their feet 6.5 m from the house's centre: the brim's 6.0 m plus half the widest body spawning here (the Sentinel's canonical 40 px sprite x WorldScale.actor = 1.0 m). A blocking hull for the cap belongs in the Blender source; this disc can go once the export has one. |
 | maps/000000060.json | collision | no |  | The export's trimesh collision (the chunk's Ground and Walls) is one-sided, every face pointing outward. That holds everywhere a player walks outside the geometry, but on the ship <Victoria> (made walkable by region_extensions.ship_victoria) the player stands inside it: the bulwarks and the hull collide only from outside, and the forecastle's deck is a top face 1.0 m above the main deck. Probed in the real game (world_checks containment, the extension-ring pushes): from the main deck at local (68.45, -5.70), walking toward port slips through the bulwark under the sloping quarterdeck handrail and falls between hull and ring to kill_y; from (81.07, -5.71), walking toward port runs in under the forecastle deck past the end of its aft bulkhead (nothing at y -6.6 from x 80 to 84) and falls through the hollow hull. Both ended in a fall recovery. With both sides colliding, both pushes stay on deck and every authored route still walks. It applies to the whole Southperry chunk, as the ship shares the chunk's trimesh. Goes once the Blender export gives the ship closed or double-sided hull, bulwark and forecastle collision (WORLD_RUNTIME.md Source world status). |
 | maps/000000060.json | region_extensions[] | no |  | The ship <Victoria> is moored off the quay's front lip, outside Southperry's 82 x 46 m layout rectangle: src/misostory/maps/m60000_Southperry.py places its centre at local (74.5, -4.3), beyond the front edge y = 0, with walkable decks clipped at y = -5.85. The Main route's end and the ShipDecks, ShipForecastle and ClimbMast routes (and the MastRope) lie up to 5.5 m outside the layout, 4.5 m beyond its ring line (layout + containment.ring_offset_m), so the layout ring's wall stood across the gangplank at y = -1 and a player on the deck read as 'void' to the region invariant (RegionMonitor). This polygon is the ship's part of the map's ring line, in the map-local frame (sidecar footprint.local_frame; x, y as in the Blender source), merged into the footprint. The region edge and the ring wall's inner face hug the ship's deck-level outline (bulwarks and deck edges, probed in the export's collision with rays from 10.5 m down to 5 m), so no body-sized pocket is left between ship and wall: on the port side 0.31 to 0.41 m outside the bulwarks (port y -7.12 at x 63.5, -7.85 at x 72.5, -7.04 at x 81, -5.69 at x 84.5); at the stern on the quarterdeck's stern edge (x 63.2: the deck ends at x 63.3, and a 0.05 m transom sliver at 8.9 m runs at x 63.2 to 63.25), so a player cannot step off the quarterdeck onto that sliver and hang behind the stern; at the bow across the forecastle's bow notch at x 84.85 (the bulwark tips reach x 84.95 at y -3.1 and -5.5, the deck ends at x 84.5 between them), so neither the 1 m void in front of the notch (a fall into the sea) nor the stem and figurehead pieces beyond it (a perch in mid-air) are in the region; the bowsprit runs through the wall. The tight margin is deliberate: the stern barrel engine (top 7.4 m, x 64-66.5, out to y -8.75) sits 2.5 m below the quarterdeck bulwark, so a player who dropped onto it could not climb back; with 0.35 m between bulwark and wall no 0.6 m body fits down there. keep_footprint_ring_below_y: the layout's own ring line under the ship (y = -1, x 63.2 to 83) keeps its wall up to 5.6 m, so the base strip in front of the quay (walkable at 1.0 m, reachable from the sunken street) stays closed instead of opening onto the sea under the hull; the gangway crosses that line at 7.4 m, above it. Goes once the Blender export carries the ship in the map's footprint (a footprint polygon or footprint.region_extensions). |
@@ -2042,6 +2266,11 @@ and its reason (the nearest one when the object inherits it).
 | monsters/5.json | (file) | no |  | (per value: its reasons map) |
 | monsters/9.json | (file) | no |  | (per value: its reasons map) |
 | monsters/_shared.json | (file) | no |  | (per value: its reasons map) |
-| npcs/15.json | (file) | no |  | Shanks' boat to Lith Harbor (010000000) leaves Maple Island and is out of scope for Iteration Two; MeowDB also has no boarding dialogue, arrival map or Yes/No text for it (gaps in game/data/canonical/npcs/15.json). Until Victoria Island exists, Shanks only talks (his canonical idle-chatter lines). |
+| npcs/15.json | (file) | no |  | Shanks' boat (canonical route in game/data/canonical/npcs/15.json, from the cached MeowDB beginner guide: Southperry 000000060 -> Lith Harbor 010000000, 300 mesos, level 7, one-way, 'Hand in every Maple Island quest before you board.') is the boundary of Iteration Three: Victoria Island is not in this build. Shanks offers the voyage and checks the canonical level and fare; when Maple Island quests are unfinished he warns with the guide's sentence and the character's list; on Yes the game shows an 'End of Maple Island' screen instead of sailing. |
+| npcs/15.json | departure | no |  | (per value: its reasons map) |
+| npcs/_speech_bubbles.json | (file) | no |  | MeowDB gives every Maple Island NPC a speech-bubble pool (canonical idle_chatter in game/data/canonical/npcs/<id>.json, 2 to 10 lines; docs/canonical/npcs.md 'Speech bubbles') but no interval, display time or order. MisoStory shows the canonical lines now and then above NPCs of the current map that are on screen and not in a conversation; the timing below is MisoStory's presentation choice, read by NpcBubbleSchedule. The text is always a canonical line. |
 | quests/1002.json | (file) | no |  | MeowDB lists no items given on acceptance for Roger's Apple (acceptItems is empty), yet the quest cannot be completed without using Roger's Apple (objectives.item_usage: item 235, count 1) and the canonical completion dialogue says "Eat the Roger's Apple I gave you". Roger must therefore hand the apple over when the quest is accepted. MeowDB does not state the quantity or the timing. |
 | quests/1002.json | accept_items[] | no |  | Hand-out quantity and timing are not published by MeowDB (gap recorded in game/data/canonical/quests/1002.json). One apple, given on accept, is the minimum that makes the quest completable: the usage objective needs exactly 1 use. The count of 1 is NOT taken from safe-to-sell.json (whose qty is how many the quest asks for, not a hand-out count). |
+| quests/1002.json | reissue_lost_accept_items | no |  | MeowDB has no "If you lost the items" branch for 1002, so an apple lost before it is eaten (Iteration Two: sold to a shop) left the quest uncompletable without the debug console. While 1002 is in progress and the player holds no Roger's Apple and has not eaten one, talking to Roger hands one over again, then shows his canonical missing-items line ("Eat the Roger's Apple I gave you ..."). No NPC speech is invented. The shop also refuses to buy it while 1002 needs it (misostory/quests/_quest_items.json). |
+| quests/_quest_items.json | (file) | no |  | Selling a quest item the player still needs could leave a Maple Island quest uncompletable without the debug console (Iteration Three audit, npcs_shops: selling Roger's Apple during 1002). MeowDB documents no sell restriction for NPC shops, so this guard is a MisoStory rule, applied by ShopService.quote_sell through QuestItemGuard. |
+| quests/_quest_items.json | block_selling_needed_quest_items | no |  | A shop refuses to buy an item when, after the sale, the player would hold fewer than an in-progress quest still needs: an item_collection objective's count, or an item_usage objective's remaining uses. Only quest-critical items are held back: canonical quest_item true, tradeable false, or handed over by that quest on accept (235 Roger's Apple, 347 Jr. Sentinel Shellpiece, 438 Sera's Mirror, 439 / 440 the letters, 441 Rusty Screw, 442 Old Wooden Board). Ordinary drops a quest also collects (349 Blue Snail Shell, 356 Orange Mushroom Cap for 1011) can be sold, as they can be hunted again. Extra copies above what the quest needs can always be sold. |

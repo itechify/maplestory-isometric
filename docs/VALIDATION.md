@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 18021, triangles (evaluated, incl. instances): 9,274,328
+Objects: 18027, triangles (evaluated, incl. instances): 9,279,400
 
 | check | ok | detail |
 |---|---|---|
@@ -14,7 +14,7 @@ Objects: 18021, triangles (evaluated, incl. instances): 9,274,328
 | polygon_budget | yes | maps over 400,000: {}; largest 1000000 (391,938) |
 | world_polygon_budget | yes | WORLD layer 3,349,268 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
-| floating_props | yes | 0 of 4082 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
+| floating_props | yes | 0 of 4086 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
 | props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 16 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
 | fidelity | yes | 21 NPC proxies vs MeowDB 21 NPCs (by MeowDB id and name); monster proxies and spawn-region species vs MeowDB species |
 | traversal | yes | maps failing traversal: [] |
@@ -62,7 +62,7 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
 | WORLD (plinth, hull, trails, scenery, clouds) | 3,349,268 | 3,500,000 | yes |
-| total | 9,274,328 | | |
+| total | 9,279,400 | | |
 
 ## Top 10 assets by instanced triangles
 
