@@ -78,6 +78,8 @@ var _cap: Dictionary = {"map": "", "k": -1, "due": -1, "due_k": -1}
 var capacity_checks: Array = []
 var capacity_bad: Array = []
 var kb_interrupted: int = 0
+## The knockback tracks a warp, a teleport or a death interrupted: {t, mob, step_m, session}.
+var kb_interrupts: Array = []
 var unreachable: Array = []
 var _fresh: Dictionary = {}
 var kb_player: Array = []
@@ -238,6 +240,13 @@ func _connect_all() -> void:
 
 
 func _disconnect_all() -> void:
+	# A knockback track still open when the recorders stop (the run ended inside it, or a death paused the game in
+	# it) cannot be measured: it counts as interrupted, with the player's state, rather than as a lost knockback.
+	if not _kbp.is_empty():
+		kb_interrupted += 1
+		kb_interrupts.append({"t": _kbp["t"], "mob": _kbp["mob"], "step_m": 0.0, "session": "open at the end of the run",
+			"dead": d.game().is_character_dead(), "hp": d.character().hp})
+		_kbp = {}
 	var pc := d.combat()
 	if pc != null:
 		pc.disconnect(&"attack_started", _on_attack_started)
@@ -371,7 +380,7 @@ func _on_touched(m: Monster, res: IncomingResult) -> void:
 	var now := _clock()
 	var rec := {"t": snappedf(d.game_s(), 0.001), "clock": snappedf(now, 0.001), "map": d.current_map(), "mob": m.def.id,
 		"level": c.level, "wdef": stats.wdef, "landed": res.landed(), "missed": res.missed, "guarded": res.guarded,
-		"final": res.final, "knockback": res.knockback, "invuln_left": snappedf(p.invulnerable_time_left(), 0.0001),
+		"final": res.final, "knockback": res.knockback, "hp_after": c.hp, "invuln_left": snappedf(p.invulnerable_time_left(), 0.0001),
 		"hit_chance": snappedf(CombatFormula.incoming_hit_chance(float(m.def.stats.acc), float(stats.avoid), c.level,
 			m.def.stats.level, db), 0.0001),
 		"dist_m": snappedf(Vector2(p.global_position.x - m.global_position.x, p.global_position.z - m.global_position.z).length(), 0.001),
@@ -546,6 +555,7 @@ func _tick() -> void:
 		_kbp["last"] = p.global_position
 		if step_m > 1.0 or String(d.session().call("state_name")) != "IDLE":
 			kb_interrupted += 1
+			kb_interrupts.append({"t": _kbp["t"], "mob": _kbp["mob"], "step_m": snappedf(step_m, 0.001), "session": String(d.session().call("state_name"))})
 			_kbp = {}
 		elif not p.in_hitstun or int(_kbp["ticks"]) > 120:
 			var disp := p.global_position - (_kbp["p0"] as Vector3)
@@ -1597,7 +1607,8 @@ func _evaluate() -> void:
 	d.soft_check("every targeted monster could be reached on foot and attacked", unreachable.is_empty(),
 		"%d monsters skipped after two 4 s approaches without an attack: %s" % [unreachable.size(), JSON.stringify(unreachable.slice(0, 6))])
 	d.check("no stat bookkeeping anomalies", stat_bad.is_empty(), JSON.stringify(stat_bad.slice(0, 5)))
-	d.note("player deaths: %d, console heals: %d" % [deaths_of_player, heals])
+	d.note("player deaths: %d (recovered during the fights), dead at the end: %s, console heals: %d; interrupted knockback tracks: %s" % [deaths_of_player,
+		d.game().is_character_dead(), heals, JSON.stringify(kb_interrupts)])
 	d.note("visual fit (model extents vs canonical touch zone, m): %s" % [JSON.stringify(visual_fit)])
 	# The body you see is the body you hit: every species shows its proxy (the Tutorial Jr. Sentinel's too), stands on
 	# its feet (a bouncing walker's bob is up to 6% of its height) and spans about its touch zone (1.35x allows the
@@ -1710,7 +1721,7 @@ func _write_samples() -> void:
 		"formula_disagree": formula_disagree, "touches": touches, "touch_fail": touch_fail, "touch_gaps": _touch_gaps,
 		"kills": kills, "exp": exp_events, "loot": loot_events.map(func(l: Dictionary) -> Dictionary:
 			return {"mob": l["mob"], "map": l["map"], "drops": l["drops"]}),
-		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "unreachable": unreachable, "kb_player": kb_player, "kb_monster": kb_monster,
+		"ground_nodes": ground_nodes.size(), "refills": spawn_refills, "capacity_checks": capacity_checks, "capacity_bad": capacity_bad, "kb_interrupted": kb_interrupted, "kb_interrupts": kb_interrupts, "unreachable": unreachable, "kb_player": kb_player, "kb_monster": kb_monster,
 		"fades": fades, "monitor": monitor, "probes": probes, "visual_fit": visual_fit, "screen_px": screen_px,
 		"peace": peace, "latency_ticks": _latency, "stat_bad": stat_bad}
 	var f := FileAccess.open(d.out_dir.path_join("combat_samples.json"), FileAccess.WRITE)

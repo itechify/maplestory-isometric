@@ -157,7 +157,7 @@ sea plane it returns to its spawn point.
   floor above or below it (floor +1 / -1, walking within `floor_band_m` of the landing height there); from floor +1 or
   -1 it may only hop along that floor or back to the spawn floor. So it never ends up two floors from its spawn point
   (Iteration Two measured each hop from where it stood, so repeated hops could cross a hillside of terraces).
-  Otherwise it turns. It really changes floors: the world test counts 60 hops in 60 s of simulated time on five maps.
+  Otherwise it turns. It really changes floors: the world test counts 56 hops in 60 s of simulated time on five maps.
 - **Hit.** When `DamageResult.knockback` (damage >= KB; every Maple Island monster has KB 1) it staggers for its
   stagger time (the canonical STAGGER, 0.6 s) and slides 20 px away from the attacker, stopping at a ledge, wall,
   region edge or the edge of its floor (never knocked off a cliff). A knockback hit **in mid-hop** cancels the rest
