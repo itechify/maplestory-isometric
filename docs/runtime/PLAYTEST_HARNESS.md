@@ -427,6 +427,26 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
+### Results (2026-10-05, the Iteration Three base build, seed 1)
+
+19 of 20 quests pass in the real game with real input, every chain strict after its setup (0 console steps, 0 api
+fallbacks, 0 developer commands, 0 ledger mismatches). 1012 (Pio) is blocked by design: Rusty Screw and Old Wooden
+Board come only from the Wooden Box, and the base build has no breakables runtime (contract C8), so its run fails at
+"Wooden Boxes stand in 000001010" right after the accept. The WARNs are the C3 `rewards_received` record of 1008 and
+1011, which the quest log does not keep yet.
+
+| Chain | Quests | Result | Setup console steps | Phases | Game s | Wall s |
+|---|---|---|---|---|---|---|
+| 1000-1001 | Sera's Mirror | PASS (45 checks) | 0 | 3 | 84 | 16 |
+| 1002 | Roger's Apple | PASS (25) | 1 | 3 | 45 | 13 |
+| 1003-1004 | Nina and Sen's dinner | PASS (44) | 1 | 3 | 94 | 18 |
+| 1005 | Todd's How-to-Hunt | PASS (27) | 1 | 3 | 94 | 22 |
+| 1006, 1009, 1010 | Mai's Training | PASS (93) | 1 | 6 | 612 | 147 |
+| 1007-1008 | the letters (random hat: 711 Red Headband) | PASS (48, 1 WARN) | 2 | 3 | 339 | 89 |
+| 1011 | Biggs's collection (random weapon: 559 Fruit Knife) | PASS (30, 1 WARN) | 2 | 3 | 1023 | 230 |
+| 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 22 | 9 |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 77 | 23 |
+
 ## Cost
 
 Headless runs are faster than game time, plus about 20-30 s to mirror and import a fresh copy (`PLAYTEST_REUSE_COPY=1`
@@ -437,10 +457,12 @@ skips it; `playtest_quests.sh` does that for every chain after a worker's first)
 | `smoke` | 54 s | 8 s | 7x |
 | `test_e_quest` | 1040 s (2 phases) | 137 s | 7.6x |
 | `test_c_progression` (to level 7, Iteration Two baseline) | 8032 s | 1074 s | 7.5x |
-| `quest --quest 1002` | 60 s (3 phases) | 9 s | 6.5x |
-| `quest --quest 1006,1009,1010` | 608 s (6 phases) | 94 s | 6.5x |
-| `quest --quest 1011` | 1033 s (3 phases) | 175 s | 5.9x |
-| `playtest_quests.sh --jobs 4` (all 9 chains) | about 2500 s summed | about 8 min | |
+| `quest --quest 1002` | 45-60 s (3 phases) | 9-13 s | 5x |
+| `quest --quest 1006,1009,1010` | 610 s (6 phases) | 94-147 s | 4-6.5x |
+| `quest --quest 1011` | 1020-1035 s (3 phases) | 175-230 s | 4.5-6x |
+| `playtest_quests.sh --jobs 3` (all 9 chains) | about 2400 s summed | 8-10 min | |
+
+Wall times grow with the machine's load (the ranges are two runs, the slower one beside other agents' Godot runs).
 
 ## Scenarios
 
