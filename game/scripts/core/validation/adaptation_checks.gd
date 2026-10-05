@@ -708,11 +708,7 @@ func _check_combat(label: String, id: String, data: Variant) -> void:
 	var skills: Variant = data.get("fixed_damage_skills", null) if data is Dictionary else null
 	if not (skills is Dictionary):
 		return
-	var known := {}
-	for formula_id in db.ids("formulas"):
-		for s in ValidationUtil.as_array(db.formula(formula_id).get("skills", [])):
-			if s is Dictionary and s.get("skill_id", null) is String:
-				known[s.skill_id] = true
+	var known := ReferenceChecks.skill_definitions(db)
 	for skill_id in skills:
 		if not known.has(str(skill_id)):
 			report.error("adaptation", label, id, "fixed_damage_skills.%s is not a canonical skill id (formulas skills[].skill_id)" % str(skill_id))

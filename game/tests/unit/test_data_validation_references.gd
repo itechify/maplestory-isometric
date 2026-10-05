@@ -4,6 +4,29 @@ extends DataValidationTestCase
 ## one warns), and deliberately out-of-scope references are skipped.
 
 
+func parity_keys() -> Dictionary:
+	var portal := ["xref:portal-destination"]
+	return {
+		"test_drop_entry_with_missing_item": ["xref:monster-drop"],
+		"test_drop_table_owner_and_monster_drop_table_ref": ["xref:monster-drop"],
+		"test_quest_kill_objective_with_missing_monster": ["xref:quest-monster"],
+		"test_quest_item_objective_reward_and_accept_items": ["xref:quest-objective-item", "xref:quest-reward-item"],
+		"test_quest_npcs_maps_and_prerequisites": ["xref:quest-npc"],
+		"test_shop_stock_npc_and_map": ["xref:shop-item"],
+		"test_map_spawns_npcs_reactors_and_return_map": ["xref:map-monster", "xref:map-npc"],
+		"test_portal_destination_map_missing": portal,
+		"test_portal_destination_portal_missing": portal,
+		"test_reverse_lookup_portal_must_lead_back": portal,
+		"test_portal_without_to_portal_needs_player_spawns": portal,
+		"test_map_unreachable_from_the_start_map": portal,
+		"test_one_way_link_must_be_allowlisted": portal,
+		"test_shipped_portal_graph_is_connected_and_one_way_links_are_allowlisted": portal,
+		"test_quest_starting_on_a_map_must_exist_whatever_its_region": ["xref:no-silent-missing-refs"],
+		"test_out_of_region_progress_quest_is_skipped_but_in_region_is_an_error": ["xref:no-silent-missing-refs"],
+		"test_off_island_monster_spawn_is_skipped_unless_flagged_on_island": ["xref:no-silent-missing-refs"],
+	}
+
+
 func test_unbroken_copy_matches_shipped_report() -> void:
 	# The fixture's baseline is the shipped data plus injected sidecars; it must not invent reference errors.
 	assert_eq(baseline().matching("reference", "", "", "error").size(), 0, "reference errors in the unbroken copy")

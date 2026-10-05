@@ -12,6 +12,22 @@ const HS_SRC := {"authority": "Hidden Street", "url": "https://bc.hidden-street.
 	"read_at": "2026-10-05T08:03:36.825Z", "capture": "tools/hiddenstreet/captures/monsters.json", "decision": "D3-6"}
 
 
+## Brief Phase 17 (one record, several authorities per property) and Phase 16 (no duplicate canonical ids).
+func parity_keys() -> Dictionary:
+	var per_property := ["canon:provenance-per-property"]
+	return {
+		"test_duplicate_id_across_files": ["xref:no-duplicate-ids"],
+		"test_per_property_kurodb_and_hidden_street_sources_are_accepted": per_property,
+		"test_kurodb_may_not_supply_membership": per_property + ["canon:membership-chance-separate"],
+		"test_hidden_street_may_not_supply_a_probability": per_property + ["canon:membership-chance-separate"],
+		"test_non_meowdb_source_needs_read_at_and_capture": per_property,
+		"test_unknown_authority": per_property,
+		"test_urls_must_belong_to_the_authority": per_property,
+		"test_project_owner_needs_a_decision": per_property,
+		"test_sources_index_lists_capture_files_and_property_sources": per_property,
+	}
+
+
 func test_unbroken_copy_has_no_provenance_errors() -> void:
 	for check in ["ids", "provenance", "external", "sources_index", "schema", "load"]:
 		assert_eq(baseline().matching(check, "", "", "error").size(), 0, "%s errors in the unbroken copy" % check)

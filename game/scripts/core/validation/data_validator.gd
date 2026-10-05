@@ -14,7 +14,9 @@ extends RefCounted
 ##   load            ContentDB load errors (unparsable JSON, a domain file whose top level is not an object)
 ##   ids, schema, provenance, external, sources_index      ProvenanceChecks (+ the ProvenanceAuthorities registry)
 ##   drop_record (+ provenance)                            DropRecordChecks (schema v2 drop records, contract C1)
-##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks
+##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks (+ skill references and
+##                                                                            the Phase 16 per-category counters)
+##   chair, name, duplicate                                                   IntegrityChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
 ##   quest_data, npc_data, dialogue_data   GameplayDataChecks (QuestCatalog / NpcCatalog / NpcDialogueBuilder
 ##                   validation, run only when everything above found no error)
@@ -71,6 +73,7 @@ func run() -> ValidationReport:
 	DropRecordChecks.new(db, report, provenance).run()
 	var refs := ReferenceChecks.new(db, report)
 	refs.run()
+	IntegrityChecks.new(db, report).run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()
 	refs.flush()
 	# Last: the game's own quest / NPC / dialogue validation assumes the structurally valid data checked above.

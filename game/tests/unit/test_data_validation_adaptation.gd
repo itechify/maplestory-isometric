@@ -4,6 +4,18 @@ extends DataValidationTestCase
 ## Test files are injected under names no real adaptation file uses ("zz_test_*"), so they cannot clash.
 
 
+## Every MisoStory adaptation is explained and flagged (brief: "no canonical value is silently guessed").
+func parity_keys() -> Dictionary:
+	var explained := ["canon:adaptations-explained"]
+	return {
+		"test_value_without_reason_or_verified": explained,
+		"test_every_accepted_reason_spelling": explained,
+		"test_verified_true_must_say_against_what": explained,
+		"test_sibling_verified_flag_needs_its_own_verified_against": explained,
+		"test_owner_natural_regen_rule_is_accepted": explained + ["canon:provenance-per-property"],
+	}
+
+
 func _with_file(c: ContentDB, name: String, data: Variant, folder: String = "") -> ContentDB:
 	if not c.miso.has(folder):
 		c.miso[folder] = {}
