@@ -27,6 +27,7 @@ const DEFAULT_SUBSYSTEMS := [
 	{"name": "LootSystem", "scene": "res://scenes/systems/loot_system.tscn", "parent": PARENT_SYSTEMS},
 	{"name": "InteractionSystem", "scene": "res://scenes/systems/interaction_system.tscn", "parent": PARENT_SYSTEMS},
 	{"name": "HUD", "scene": "res://scenes/ui/hud.tscn", "parent": PARENT_UI},
+	{"name": "Minimap", "scene": "res://scenes/ui/minimap.tscn", "parent": PARENT_UI},
 	{"name": "Windows", "scene": "res://scenes/ui/windows.tscn", "parent": PARENT_UI},
 	{"name": "NpcUI", "scene": "res://scenes/ui/npc_ui.tscn", "parent": PARENT_UI},
 	{"name": "DebugUI", "scene": "res://scenes/debug/debug_ui.tscn", "parent": PARENT_UI},

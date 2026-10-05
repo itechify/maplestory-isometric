@@ -1,9 +1,10 @@
 class_name ControlsPanel
 extends PanelContainer
 ## The key-binding list of the pause menu: every action of the Controls autoload (BINDINGS / LABELS) that the game
-## handles, with all its keyboard and mouse bindings. Read-only for now (rebinding is a later feature). The actions
-## in NOT_AVAILABLE are reserved in Controls.BINDINGS (an ARCHITECTURE.md contract) but nothing reads them yet, so
-## the panel does not advertise their keys.
+## handles, with all its keyboard and mouse bindings. Read-only for now (rebinding is a later feature). An action in
+## NOT_AVAILABLE would be reserved in Controls.BINDINGS (an ARCHITECTURE.md contract) with nothing reading it yet, so
+## the panel would not advertise its key. None is: Iteration Three handles sit (X), toggle_skills (K) and
+## toggle_minimap (M).
 
 signal closed
 
@@ -11,9 +12,10 @@ signal closed
 const CONTROLS_SCRIPT := preload("res://scripts/autoload/controls.gd")
 const BINDINGS: Dictionary = CONTROLS_SCRIPT.BINDINGS
 const LABELS: Dictionary = CONTROLS_SCRIPT.LABELS
-## Reserved actions with no handler yet (no sitting, no skills window, no minimap): hidden from the list. Take one off
-## when its feature lands; test_shell_screens fails while a hidden action is named by another script.
-const NOT_AVAILABLE: PackedStringArray = ["sit", "toggle_skills", "toggle_minimap"]
+## Reserved actions with no handler yet: hidden from the list. Empty since Iteration Three (sitting, the skills window
+## and the minimap landed). Add an action here only while nothing handles it, and take it off when its feature
+## lands; test_shell_screens fails while a hidden action is named by another script.
+const NOT_AVAILABLE: PackedStringArray = []
 ## Mouse button names for "mouse:<n>" bindings.
 const MOUSE_NAMES := {1: "Left click", 2: "Right click", 3: "Middle click"}
 
