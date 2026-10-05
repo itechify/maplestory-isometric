@@ -1,0 +1,220 @@
+{
+	"character": {
+		"ap": 0,
+		"base_max_hp": 50,
+		"base_max_mp": 5,
+		"base_stats": {
+			"dex": 4,
+			"int": 4,
+			"luk": 4,
+			"str": 13
+		},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "585"
+				}
+			},
+			"version": 1
+		},
+		"exp": 0,
+		"fame": 0,
+		"flags": {},
+		"gender": "male",
+		"hp": 50,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [
+					{
+						"index": 0,
+						"item_id": "541",
+						"qty": 1
+					},
+					{
+						"index": 1,
+						"item_id": "541",
+						"qty": 1
+					},
+					{
+						"index": 2,
+						"item_id": "541",
+						"qty": 1
+					},
+					{
+						"index": 3,
+						"item_id": "1306",
+						"qty": 1
+					},
+					{
+						"index": 4,
+						"item_id": "576",
+						"qty": 1
+					},
+					{
+						"index": 5,
+						"item_id": "585",
+						"qty": 1
+					},
+					{
+						"index": 7,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 8,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 9,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 10,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 11,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 12,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 13,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 14,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 15,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 16,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 17,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 18,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 19,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 20,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 21,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 22,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 23,
+						"item_id": "1305",
+						"qty": 1
+					}
+				],
+				"etc": [],
+				"setup": [],
+				"use": []
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 1,
+		"location": {
+			"entry": {
+				"map_id": "000001013",
+				"portal_id": "out00"
+			},
+			"map_id": "000001013",
+			"resume": {
+				"facing_deg": -76.66943838140388,
+				"local_pos": [
+					10.985990524291992,
+					-8.344650268554688e-07,
+					-5.2314453125
+				],
+				"map_content_hash": "aee51cd5d897cb4f"
+			}
+		},
+		"mesos": 0,
+		"mp": 5,
+		"name": "Shopper",
+		"play_time_s": 62.48333333333107,
+		"quests": {
+			"format": 1,
+			"quests": {}
+		},
+		"quickslots": {},
+		"respawn_reference": "000001010",
+		"skills": {},
+		"sp": 0
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 1,
+		"map_id": "000001013",
+		"map_name": "Amherst Department Store",
+		"name": "Shopper",
+		"play_time_s": 62.48333333333107
+	},
+	"save_version": 1,
+	"saved_at": "2026-10-05T08:00:47Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000001013",
+				"portal_id": "out00"
+			},
+			"map_id": "000001013",
+			"resume": {
+				"facing_deg": -76.66943838140388,
+				"local_pos": [
+					10.985990524291992,
+					-8.344650268554688e-07,
+					-5.2314453125
+				],
+				"map_content_hash": "aee51cd5d897cb4f"
+			}
+		},
+		"respawn_reference": "000001010"
+	}
+}

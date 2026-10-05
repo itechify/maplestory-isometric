@@ -1,0 +1,212 @@
+{
+	"character": {
+		"ap": 0,
+		"base_max_hp": 162,
+		"base_max_mp": 89,
+		"base_stats": {
+			"dex": 26,
+			"int": 4,
+			"luk": 4,
+			"str": 26
+		},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "585"
+				}
+			},
+			"version": 1
+		},
+		"exp": 616,
+		"fame": 0,
+		"flags": {},
+		"gender": "male",
+		"hp": 50,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [
+					{
+						"index": 0,
+						"item_id": "715",
+						"qty": 1
+					},
+					{
+						"index": 1,
+						"item_id": "710",
+						"qty": 1
+					},
+					{
+						"index": 2,
+						"item_id": "934",
+						"qty": 1
+					},
+					{
+						"index": 3,
+						"item_id": "1305",
+						"qty": 1
+					},
+					{
+						"index": 4,
+						"item_id": "711",
+						"qty": 1
+					},
+					{
+						"index": 5,
+						"item_id": "939",
+						"qty": 1
+					},
+					{
+						"index": 6,
+						"item_id": "938",
+						"qty": 1
+					},
+					{
+						"index": 7,
+						"item_id": "714",
+						"qty": 1
+					},
+					{
+						"index": 8,
+						"item_id": "651",
+						"qty": 1
+					},
+					{
+						"index": 9,
+						"item_id": "608",
+						"qty": 1
+					}
+				],
+				"etc": [
+					{
+						"index": 0,
+						"item_id": "348",
+						"qty": 15
+					},
+					{
+						"index": 1,
+						"item_id": "349",
+						"qty": 40
+					},
+					{
+						"index": 2,
+						"item_id": "350",
+						"qty": 31
+					},
+					{
+						"index": 3,
+						"item_id": "351",
+						"qty": 25
+					},
+					{
+						"index": 4,
+						"item_id": "356",
+						"qty": 7
+					},
+					{
+						"index": 5,
+						"item_id": "417",
+						"qty": 1
+					},
+					{
+						"index": 6,
+						"item_id": "413",
+						"qty": 1
+					},
+					{
+						"index": 7,
+						"item_id": "415",
+						"qty": 1
+					},
+					{
+						"index": 8,
+						"item_id": "321",
+						"qty": 1
+					}
+				],
+				"setup": [],
+				"use": [
+					{
+						"index": 1,
+						"item_id": "213",
+						"qty": 9
+					},
+					{
+						"index": 2,
+						"item_id": "209",
+						"qty": 6
+					}
+				]
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 8,
+		"location": {
+			"entry": {
+				"map_id": "000001000",
+				"portal_id": "east00"
+			},
+			"map_id": "000001000",
+			"resume": {
+				"facing_deg": -90.01261023655152,
+				"local_pos": [
+					75.19845581054688,
+					-6.008148193359375e-05,
+					-11.999847412109375
+				],
+				"map_content_hash": "a93ce95a213114e3"
+			}
+		},
+		"mesos": 1042,
+		"mp": 89,
+		"name": "ProgC",
+		"play_time_s": 7955.516666635046,
+		"quests": {
+			"format": 1,
+			"quests": {}
+		},
+		"quickslots": {},
+		"respawn_reference": "000001010",
+		"skills": {},
+		"sp": 7
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 8,
+		"map_id": "000001000",
+		"map_name": "The Field West of Amherst",
+		"name": "ProgC",
+		"play_time_s": 7955.516666635046
+	},
+	"save_version": 1,
+	"saved_at": "2026-10-05T08:13:07Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000001000",
+				"portal_id": "east00"
+			},
+			"map_id": "000001000",
+			"resume": {
+				"facing_deg": -90.01261023655152,
+				"local_pos": [
+					75.19845581054688,
+					-6.008148193359375e-05,
+					-11.999847412109375
+				],
+				"map_content_hash": "a93ce95a213114e3"
+			}
+		},
+		"respawn_reference": "000001010"
+	}
+}

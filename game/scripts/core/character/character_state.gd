@@ -10,6 +10,9 @@ extends RefCounted
 ## SaveService's schema version with a migration when a field changes meaning.
 
 const STAT_KEYS: PackedStringArray = ["str", "dex", "int", "luk"]
+## Quickslot binding kinds (C3): {"kind": QUICKSLOT_ITEM | QUICKSLOT_SKILL, "id": String}.
+const QUICKSLOT_ITEM := "item"
+const QUICKSLOT_SKILL := "skill"
 
 var name: String = ""
 ## "male" / "female" (chosen at creation; gendered equipment checks it), or "" when unknown.
@@ -61,6 +64,17 @@ func get_base_stat(key: String) -> int:
 	return int(base_stats.get(key, 0))
 
 
+## The item id a quickslot binding names: a {"kind": "item", "id"} binding, or a bare item id (the save_version 1
+## shape, which code that predates typed bindings may still write); "" for a skill binding or anything else.
+static func quickslot_item_id(binding: Variant) -> String:
+	if binding is Dictionary:
+		var b: Dictionary = binding
+		return ItemDef.id_of(b.get("id", "")) if String(b.get("kind", "")) == QUICKSLOT_ITEM else ""
+	if typeof(binding) == TYPE_STRING or typeof(binding) == TYPE_STRING_NAME or typeof(binding) == TYPE_INT:
+		return ItemDef.id_of(binding)
+	return ""
+
+
 func to_dict() -> Dictionary:
 	return {
 		"name": name,
@@ -86,7 +100,7 @@ func to_dict() -> Dictionary:
 		"quests": quests.to_dict(),
 		"location": location.duplicate(true),
 		"respawn_reference": respawn_reference,
-		"quickslots": quickslots.duplicate(),
+		"quickslots": quickslots.duplicate(true),
 		"flags": flags.duplicate(true),
 		"play_time_s": play_time_s,
 	}
@@ -120,7 +134,7 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	c.quests = QuestLog.from_dict(d.get("quests", {}))
 	c.location = (d.get("location", {}) as Dictionary).duplicate(true)
 	c.respawn_reference = String(d.get("respawn_reference", ""))
-	c.quickslots = (d.get("quickslots", {}) as Dictionary).duplicate()
+	c.quickslots = (d.get("quickslots", {}) as Dictionary).duplicate(true)
 	c.flags = (d.get("flags", {}) as Dictionary).duplicate(true)
 	c.play_time_s = float(d.get("play_time_s", 0.0))
 	return c

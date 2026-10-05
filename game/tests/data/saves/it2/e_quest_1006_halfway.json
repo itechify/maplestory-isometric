@@ -1,0 +1,120 @@
+{
+	"character": {
+		"ap": 5,
+		"base_max_hp": 66,
+		"base_max_mp": 17,
+		"base_stats": {
+			"dex": 4,
+			"int": 4,
+			"luk": 4,
+			"str": 13
+		},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "585"
+				}
+			},
+			"version": 1
+		},
+		"exp": 5,
+		"fame": 0,
+		"flags": {},
+		"gender": "male",
+		"hp": 44,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [],
+				"etc": [],
+				"setup": [],
+				"use": []
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 2,
+		"location": {
+			"entry": {
+				"map_id": "000000050",
+				"portal_id": "west00"
+			},
+			"map_id": "000000050",
+			"resume": {
+				"facing_deg": 74.91423788777757,
+				"local_pos": [
+					4.68829345703125,
+					0.8000011444091797,
+					-13.04974365234375
+				],
+				"map_content_hash": "9df259dc7e14e093"
+			}
+		},
+		"mesos": 0,
+		"mp": 17,
+		"name": "QuestEtwo",
+		"play_time_s": 301.85000000005414,
+		"quests": {
+			"format": 1,
+			"quests": {
+				"1006": {
+					"completed_at": -1.0,
+					"completions": 0,
+					"progress": {
+						"kills": {
+							"2": 10
+						},
+						"other": {},
+						"talked": [],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 647.4333333330732,
+					"status": "in_progress"
+				}
+			}
+		},
+		"quickslots": {},
+		"respawn_reference": "000000060",
+		"skills": {},
+		"sp": 1
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 2,
+		"map_id": "000000050",
+		"map_name": "A Split Road",
+		"name": "QuestEtwo",
+		"play_time_s": 301.85000000005414
+	},
+	"save_version": 1,
+	"saved_at": "2026-10-05T08:00:12Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000000050",
+				"portal_id": "west00"
+			},
+			"map_id": "000000050",
+			"resume": {
+				"facing_deg": 74.91423788777757,
+				"local_pos": [
+					4.68829345703125,
+					0.8000011444091797,
+					-13.04974365234375
+				],
+				"map_content_hash": "9df259dc7e14e093"
+			}
+		},
+		"respawn_reference": "000000060"
+	}
+}

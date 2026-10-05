@@ -1,0 +1,141 @@
+{
+	"character": {
+		"ap": 31,
+		"base_max_hp": 210,
+		"base_max_mp": 125,
+		"base_stats": {
+			"dex": 4,
+			"int": 4,
+			"luk": 23,
+			"str": 13
+		},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "585"
+				}
+			},
+			"version": 1
+		},
+		"exp": 724,
+		"fame": 0,
+		"flags": {},
+		"gender": "female",
+		"hp": 50,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [],
+				"etc": [],
+				"setup": [],
+				"use": [
+					{
+						"index": 0,
+						"item_id": "270",
+						"qty": 5
+					}
+				]
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 11,
+		"location": {
+			"entry": {
+				"map_id": "000001010",
+				"spawn_index": 0
+			},
+			"map_id": "000001010",
+			"resume": {
+				"facing_deg": 90.0,
+				"local_pos": [
+					13.60003662109375,
+					1.430511474609375e-06,
+					-11.800018310546875
+				],
+				"map_content_hash": "fa4bf281f4d84345"
+			}
+		},
+		"mesos": 779,
+		"mp": 56,
+		"name": "Mortal",
+		"play_time_s": 119.91666666666114,
+		"quests": {
+			"format": 1,
+			"quests": {
+				"1000": {
+					"completed_at": 19.116666666666863,
+					"completions": 1,
+					"progress": {
+						"kills": {},
+						"other": {},
+						"talked": [
+							"2"
+						],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 19.100000000000197,
+					"status": "completed"
+				},
+				"1006": {
+					"completed_at": -1.0,
+					"completions": 0,
+					"progress": {
+						"kills": {
+							"2": 2
+						},
+						"other": {},
+						"talked": [],
+						"used": {},
+						"visited": []
+					},
+					"started_at": 19.08333333333353,
+					"status": "in_progress"
+				}
+			}
+		},
+		"quickslots": {},
+		"respawn_reference": "000001010",
+		"skills": {},
+		"sp": 9
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 11,
+		"map_id": "000001010",
+		"map_name": "Amherst",
+		"name": "Mortal",
+		"play_time_s": 119.91666666666114
+	},
+	"save_version": 1,
+	"saved_at": "2026-10-05T08:00:06Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000001010",
+				"spawn_index": 0
+			},
+			"map_id": "000001010",
+			"resume": {
+				"facing_deg": 90.0,
+				"local_pos": [
+					13.60003662109375,
+					1.430511474609375e-06,
+					-11.800018310546875
+				],
+				"map_content_hash": "fa4bf281f4d84345"
+			}
+		},
+		"respawn_reference": "000001010"
+	}
+}
