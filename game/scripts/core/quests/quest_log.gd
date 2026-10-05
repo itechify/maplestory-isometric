@@ -26,7 +26,8 @@ extends RefCounted
 ## A quest with no entry is "not_started". The contract (class name, to_dict, from_dict) is fixed.
 ##
 ## Format 2 (Iteration Three) adds rewards_received. from_dict reads format 1 (a completed entry gains
-## {"recorded": false}) and keeps keys it does not know at every level (the log, an entry, its progress), so a save
+## {"recorded": false}) and keeps keys it does not know at every level (the log, an entry, its progress), and keeps
+## the entries it cannot read (an unknown status, a "not_started" entry, a non-dictionary) as they are, so a save
 ## written by a newer build loses nothing when this one writes it back.
 
 const NOT_STARTED := "not_started"
@@ -42,6 +43,10 @@ const UNRECORDED_REWARDS := {"recorded": false}
 var entries: Dictionary = {}
 ## Top-level keys of a loaded log this build does not know, written back unchanged by to_dict.
 var extra: Dictionary = {}
+## quest_id -> a loaded entry this build cannot read (an unknown status such as a newer build's, a "not_started"
+## entry, a non-dictionary). Invisible to the queries; written back unchanged by to_dict unless the quest gets an
+## entry of its own (an entry in `entries` wins).
+var unread_entries: Dictionary = {}
 
 
 # --- queries --------------------------------------------------------------------------------------------------
@@ -214,13 +219,17 @@ func set_other(quest_id: String, key: String, value: Variant) -> void:
 func to_dict() -> Dictionary:
 	var out := extra.duplicate(true)
 	out["format"] = FORMAT_VERSION
-	out["quests"] = entries.duplicate(true)
+	var quests := unread_entries.duplicate(true)
+	for id: String in entries:
+		quests[id] = (entries[id] as Dictionary).duplicate(true)
+	out["quests"] = quests
 	return out
 
 
 ## Rebuilds a log from to_dict() output, including after a JSON round trip (floats become ints where meant).
 ## An empty or missing dictionary gives an empty log. Reads format 1 (completed entries gain
-## rewards_received {"recorded": false} unless the save migration already wrote one) and keeps unknown keys.
+## rewards_received {"recorded": false} unless the save migration already wrote one) and keeps unknown keys and the
+## entries it cannot read (unread_entries).
 static func from_dict(d: Dictionary) -> QuestLog:
 	var ql := QuestLog.new()
 	for k: Variant in d:
@@ -232,10 +241,13 @@ static func from_dict(d: Dictionary) -> QuestLog:
 	for raw_id: Variant in quests:
 		var raw: Variant = quests[raw_id]
 		if not (raw is Dictionary):
+			ql.unread_entries[str(raw_id)] = _copy(raw)
 			continue
 		var src: Dictionary = raw
 		var st := QuestJson.s(src.get("status"), NOT_STARTED)
 		if not (st in STATUSES) or st == NOT_STARTED:
+			# Not a state this build plays (a newer build's status, or nothing started): kept as it is for to_dict.
+			ql.unread_entries[str(raw_id)] = src.duplicate(true)
 			continue
 		# Unknown keys first, so the known ones below always win with their cleaned values.
 		var e: Dictionary = src.duplicate(true)
@@ -268,6 +280,15 @@ func _entry(quest_id: String) -> Dictionary:
 
 static func _empty_progress() -> Dictionary:
 	return {"kills": {}, "used": {}, "talked": [], "visited": [], "other": {}}
+
+
+## A deep copy of a JSON value (containers duplicated, scalars as they are).
+static func _copy(v: Variant) -> Variant:
+	if v is Dictionary:
+		return (v as Dictionary).duplicate(true)
+	if v is Array:
+		return (v as Array).duplicate(true)
+	return v
 
 
 ## A rewards_received record with JSON floats turned back into ints; unknown keys (and "recorded") are kept.

@@ -9,7 +9,7 @@ record and, if MeowDB has a gap, an adaptation file.
 Iteration Three added (contract C3 and the quests package of the Iteration Three brief):
 
 - **QuestLog format 2**: every completion records `rewards_received` (the EXP, mesos and items actually given and
-  the random draws); format 1 loads, and unknown keys survive a load and a save.
+  the random draws); format 1 loads, and unknown keys and unreadable entries survive a load and a save.
 - **The Quest Log for the whole island**: chain progression ("Mai's Training 2/3"), the start and turn-in NPCs with
   their maps, MeowDB's `missable` tag, the random reward received, and "Return to X" only for an NPC already met.
 - **Shanks' departure boundary**: the canonical route (Lith Harbor, 300 mesos, level 7) is offered and checked, the
@@ -208,10 +208,12 @@ must emit `monster_killed(monster_id, map_id)`.
   the canonical `rewards.random`). A completion this build did not see (a format 1 save, or `QuestLog.complete`
   called without rewards) is `{"recorded": false}`; `rewards_recorded(id)` tells them apart. The quest log shows
   "Received: Green Headband" for a recorded random reward.
-- `from_dict` wraps JSON floats back into ints, ignores malformed entries, and turns `{}` into an empty log. It reads
-  format 1 (a completed entry without `rewards_received` gains `{"recorded": false}`; a record the save migration
-  already wrote is kept) and keeps every key it does not know: at the top of the log, in an entry, in `progress` and
-  in `rewards_received`. `to_dict` writes them back, so a save from a newer build survives this one.
+- `from_dict` wraps JSON floats back into ints and turns `{}` into an empty log. It reads format 1 (a completed
+  entry without `rewards_received` gains `{"recorded": false}`; a record the save migration already wrote is kept)
+  and keeps every key it does not know: at the top of the log, in an entry, in `progress` and in `rewards_received`.
+  An entry it cannot read (an unknown status, a `not_started` entry, a non-dictionary) is not played but kept in
+  `unread_entries`; an entry this build writes for that quest replaces it. `to_dict` writes all of them back, so a
+  save from a newer build survives this one.
 
 ## NPCs
 
@@ -432,7 +434,7 @@ requirement (`quest:1005`, `npc:15`, `shop:maple-road-lucy`, `mechanic:quest-rew
 | `tests/unit/test_dialogue_runner.gd` | hand-written graphs: Next/Back, Yes/No, menu conditions (level, mesos, flag, job, items, quest), branch, auto-single, actions clear history, on_fail routing, shop request, give/take, objective conditions, validation errors, overrides and patches, counter validation, `parts` lines (paragraphs, sources, styling, every part validated, counters on a part reported), `answer_quiz`, no crash without content |
 | `tests/unit/test_dialogue_npc_conversations.gd` | every NPC's generated conversation validates and opens; Sam → Mai full flow with Events; decline; full inventory at Mai; Roger's Apple conversation (offer card, instructions after Yes, decline); every quest's offer is canonical NPC speech or (1002 only) a quest card, Sam's offer carries no system text; synthetic card offers (4-line journal: two instruction pages; 2-line: none; no journal: the quest name; canonical accept/decline branches kept); Rain 1013 wrong/right and 1018; Heena/Sera chain with a lost mirror; 1005 item ref remap; Pio's live 1012 counters; a synthetic quiz + selection quest completed from data alone; shop greeting → shop request; townsfolk Back; Shanks |
 | `tests/unit/test_npc_catalog.gd` | 21 NPCs, validation, Roger, shops, quest relationships equal the quest records, Shanks' canonical route and departure boundary (and a transport NPC without one is reported), NPCs per map, idle lines |
-| `tests/unit/test_quest_rewards_received.gd` | QuestLog format 2: 1006 (30 EXP, 3 Eggs), 1008 (the random hat, its group, survives a save; other seeds record other hats), 1011 (the random weapon), 1012 (150 mesos, The Green Relaxer) recorded; unrecorded completions; a format 1 log loads; a migration-written record is kept; unknown keys at every level survive load and save, and the engine still works on that log |
+| `tests/unit/test_quest_rewards_received.gd` | QuestLog format 2: 1006 (30 EXP, 3 Eggs), 1008 (the random hat, its group, survives a save; other seeds record other hats), 1011 (the random weapon), 1012 (150 mesos, The Green Relaxer) recorded; unrecorded completions; a format 1 log loads; a migration-written record is kept; unknown keys at every level survive load and save, and the engine still works on that log; entries it cannot read (unknown status, not_started, non-dictionary) survive load and save |
 | `tests/unit/test_quest_log_window.gd` | chain_info for every chain; chain steps follow quest state; npc_met and the turn-in wording (Talk to Mai / Return to Roger, Heena, Maria); quest_summary NPCs and maps; missable parsing (flag, sourced object, default false); the window: "Mai's Training 2/3" with steps and maps, "Rain's Maple Quiz 4/7", "Talk to Mai", the Missable tag, "Received: <hat>" after a reload |
 | `tests/unit/test_quest_every_quest.gd` | markers for all 20 quests through their states (hidden below level, available, in progress, one kill short, ready, gone once completed); every Rain quiz 1013-1019 answered with each wrong choice (its paired canonical line, still in progress) and the right one (canonical line, exact EXP, 245 in all, 10 Oranges) through the conversation; 1003 → 1004 (Nina's reminder, Sen completes 1003 and offers 1004, +3 EXP); 1005 (only mob 1, capped at 3, missing-kills / missing-items lines, +10 EXP, 3 Shellpieces taken) |
 | `tests/unit/test_npc_shanks_departure.gd` | Shanks: level 6 refused, level 7 with 299 mesos refused, a ready character reaches the boundary (flag = game clock, saved; no mesos taken; no travel; the canonical route in the effect), the unfinished-quest list (chains grouped, completed ones left out), No leaves nothing, boarding re-checks the fare, no boundary = `not_built`, a charging boundary takes the fare |

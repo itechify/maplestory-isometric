@@ -19,6 +19,7 @@ func parity_keys() -> Dictionary:
 		"test_1012_records_mesos_and_the_chair": ["quest:1012", "mechanic:quest-rewards-received"],
 		"test_format_1_log_loads_with_unrecorded_rewards": ["mechanic:save-migration"],
 		"test_unknown_keys_survive_load_and_save": ["mechanic:save-migration"],
+		"test_unreadable_entries_survive_load_and_save": ["mechanic:save-migration"],
 	}
 
 
@@ -170,3 +171,30 @@ func test_unknown_keys_survive_load_and_save() -> void:
 	assert_true(e.can_complete("1006", MAI))
 	assert_true(bool(e.complete("1006", {"at_npc_id": MAI})["ok"]))
 	assert_eq(c.quests.to_dict()["quests"]["1006"].get("hint_seen"), true, "unknown keys outlive a completion")
+
+
+## Entries this build cannot read (a newer build's status, a "not_started" entry with its own keys, a non-dictionary)
+## are invisible to the queries but survive a load and a save; once this build gives the quest an entry, that wins.
+func test_unreadable_entries_survive_load_and_save() -> void:
+	var future := {"format": 3, "quests": {
+		"1009": {"status": "failed", "completions": 0, "failed_at": 12.5},
+		"1002": {"status": "not_started", "hint_seen": true},
+		"1013": ["packed", 3],
+		"1006": {"status": "in_progress", "progress": {"kills": {"2": 1}}, "started_at": 1.0}}}
+	var ql := QuestLog.from_dict(JSON.parse_string(JSON.stringify(future)))
+	assert_eq(ql.status("1009"), QuestLog.NOT_STARTED, "an unknown status is not played")
+	assert_eq(ql.status("1002"), QuestLog.NOT_STARTED)
+	assert_eq(ql.active_ids(), PackedStringArray(["1006"]))
+	var out: Dictionary = JSON.parse_string(JSON.stringify(ql.to_dict()))
+	assert_eq(out["quests"].get("1009"), {"status": "failed", "completions": 0.0, "failed_at": 12.5},
+		"an unknown status survives")
+	assert_eq(out["quests"].get("1002"), {"status": "not_started", "hint_seen": true}, "a not_started entry survives")
+	assert_eq(out["quests"].get("1013"), ["packed", 3.0], "a non-dictionary entry survives")
+	assert_eq(int(out["quests"]["1006"]["progress"]["kills"]["2"]), 1)
+	var again := QuestLog.from_dict(out)
+	assert_eq(JSON.stringify(again.to_dict()), JSON.stringify(ql.to_dict()), "a second round trip is identical")
+	# This build starts 1002: its own entry replaces the unread one.
+	again.start("1002", 4.0)
+	var after: Dictionary = again.to_dict()["quests"]["1002"]
+	assert_eq(after["status"], QuestLog.IN_PROGRESS)
+	assert_false(after.has("hint_seen"), "the entry this build wrote wins")
