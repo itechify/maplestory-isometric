@@ -10,7 +10,7 @@ reference; most of its gameplay items are now done.
 Iteration Three built Maple Island's remaining content and mechanics on the Iteration Two foundation and played every
 quest in the real game (the every-quest set; [`runtime/PLAYTEST_HARNESS.md`](runtime/PLAYTEST_HARNESS.md)). Per-entry
 status is in [`MAPLE_ISLAND_PARITY.md`](MAPLE_ISLAND_PARITY.md) and every unresolved source value in
-[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (523 values: record gaps plus unresolved drop and meso values). These
+[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (519 values: record gaps plus unresolved drop and meso values). These
 items were left on purpose or found along the way.
 
 ## Out of scope
@@ -56,8 +56,6 @@ items were left on purpose or found along the way.
 - **Quest timestamps:** `started_at` / `completed_at` are per-process `Game.clock` values (informational only).
 - The shop records' `field_sources` cite `{item_id}` template URLs; the real per-item URLs are in `items[]`. A fix
   needs the canonical shop format and the validator's URL handling changed together (`extract_shops.mjs`).
-- The canonical `formulas/movement.json` `monster_knockback.gaps` still says the stagger duration is undocumented;
-  the live monster pages publish it since (`stagger_ms` in the monster records). It needs the formulas extractor.
 
 ## Decisions for the project owner
 
@@ -115,51 +113,37 @@ items were left on purpose or found along the way.
   1000 ↔ 1004 (16.8 s). Shortening them means re-spacing maps in the island layout.
 - Nina's stump roots are passable, so a body clips through them (blender_export.md round 4).
 - Holding a skill key casts once per press (no repeat, no input buffer during the lockout).
-- Loading a save from the pause menu keeps the session's broken boxes, monsters and ground drops of that map (the
-  save file holds none of them; MapSession parks and restores the map's snapshot across the load).
 - While the player stands on a spawn slot (a respawn, a resumed load), the map is at capacity but shows one monster
   fewer until the player moves. `m.mobs` regions without a `z_band` give a walker on sloped ground a ±0.5 m strip
   around its own spawn height.
 
 ## Open review findings (verified still open on the integrated build)
 
-- **`scripts/check_canonical.sh` fails** (exit 2): it empties `game/data/canonical/items` and runs `extract_items`
-  after `extract_monsters`, but `extract_monsters.mjs` now resolves drop members against the local items and quests.
-  A copy with `extract_items` and `extract_quests` before `extract_monsters` reproduces every canonical file byte for
-  byte (found while verifying the docs).
 - **The committed parity manifest predates the merges** (`MAPLE_ISLAND_PARITY.md`: 537 entries, 34 missing): it
   must be regenerated from the integrated build's test and playtest evidence. A build on the integrated suite's
   evidence plus the every-quest set's reports gives 511 entries: 222 verified, 233 implemented, 54 partial and 0
   missing, and every partial entry is a source-data gap.
-- **Validation code:** `AdaptationChecks._check_drop_rates` still checks Iteration Two's placeholder structure of
-  `drop_rates.json` (dead for the shipped file; `DropChecks` holds the real rule). `GameplayDataChecks` is
-  all-or-nothing: any structural error hides the quest, NPC and dialogue findings. The progression-blocker check is
+- **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue findings. The progression-blocker check is
   conservative (it ignores other sources of an item). The test evidence records `git rev-parse HEAD` even for a dirty
   tree, and `build_parity.mjs --check` neither detects stale evidence nor runs without the git-ignored evidence files.
-- **Drop checks in other tests:** `monster_game_checks._in_table` (the in-game debug check) still accepts members
-  that never roll; `test_monster_combat.gd`'s "an empty roll announces no loot" branch never runs, because the Snail's
-  shell drops on every kill (1.0). The 65 crosswalk reviewer notes were written by script from checked facts; an owner
-  pass may be wanted.
+- **Crosswalk notes:** the 65 crosswalk reviewer notes were written by script from checked facts; an owner pass may
+  be wanted.
 - **The stuck-region scan's limits** ([`runtime/STUCK_SCAN.md`](runtime/STUCK_SCAN.md)): verification replays only the
   last edge into a component; hops are swept as an L at apex height; a body wedged on two rims over a narrow gap is
-  not modelled; nothing pins the order of `_pick_ins`; Southperry's double-sided trimesh defeats the buried-surface
+  not modelled; Southperry's double-sided trimesh defeats the buried-surface
   test (4 ring-top components are listed UNENTERABLE). `validate.py ring_band` measures only from the map's base
   height, and the containment ring leaves every gate gap open from top to bottom (the one raised trail mouth,
-  000001006 out00, is closed in the source). Not built: the check that every NPC talk zone, spawn slot, portal
-  trigger and Wooden Box placement can be reached from the map's entries, and caching scan results by collision
-  content hash (the scan costs 80-110 s in the suite). 000001000 is at 391,938 of its 400,000-triangle budget.
+  000001006 out00, is closed in the source). Not built: caching scan results by collision content hash (the scan
+  costs 80-110 s in the suite); the reachability of every NPC talk zone, spawn slot, portal trigger and Wooden Box
+  placement from the map's entries is checked by `ReachCheck` (`test_reachability.gd`). 000001000 is at 391,938 of its 400,000-triangle budget.
 - **Saves:** `skill_used` and `skill_leveled` are not autosave triggers (the Skills window requests one itself). A
   save made on a trail arrives at the trail's mouth on Continue, by design (MAP_ARCHITECTURE §4.9).
 - **Mechanics:** `PlayerController.activity()` reads `attacking`, not `seated`, on the one tick an attack or cast
   starts from the chair (use `is_seated()` to detect sitting). The "fall" stand-up would fire on a surface where a
   still player's ground state flickers. The natural clock is saved and never reset, so a tick can land within a
   fraction of a second of a Continue or a respawn. Pressing Up at a real portal while seated is tested only through
-  the console warp. A chair refused for level says "to equip that" (only 525, off-island).
+  the console warp.
 - **Quests and NPCs:** `flags.maple_island_departure_ready_at` records the latest boarding, not the first.
-  `test_map_definitions.gd` still lists "Mai" among the expected extra Blender markers (stale since the audit).
-- **Monsters:** the planner's share weight uses a region's whole area, not its room after exclusions (the density cap
-  still bounds crowding). Stale comments: `monster_system.gd` (natural recovery "combat.json") and
-  `map_instance_state.gd`'s header (capacity).
 - **Harness:** a clean-character end-to-end playthrough that is strict from creation to Southperry is not written
   yet (PlaytestKit, strict mode, checkpoints and PlaytestQuestPlan are its parts). The Shanks departure boundary and
   the NPC speech bubbles have no committed real-game scenario (the quests package checked them with real keys in
@@ -173,15 +157,9 @@ items were left on purpose or found along the way.
   does `test_c_progression` (seed 1, which failed on the 000001000 trap before the fills: 77 checks, 0 failed, level
   10 by killing only); its 2 warnings are one of seven Red Potion reads at +79 HP against the canonical +100 (a soft
   check) and one death in 000001000 (a review run: 77 checks, 0 failed, one warning: also one death in 000001000, at level 8).
-- **`ui_minimap` fails on the integrated build** (1 of 231 checks, seed 1, review run): its "level-up: the SP line"
-  check expects the minimap package's "You have 1 SP to distribute (press K)." while the skills package's HUD writes
-  "You have 1 SP to spend (press K)."; the unit test `test_ui_minimap_feedback.gd` was updated at the merge, the
-  scenario (`game/tools/playtest/scenarios/ui_minimap.gd:152`) was not. A one-line fix for the harness owner.
-- **`test_box` breaks 16 of the 19 boxes**, though its header says all 19 are played: Pio's quest takes three of
-  Amherst's six (1/1 Board and Screw while it is in progress), and Amherst's boxes 0, 2 and 3 are never broken in the
-  real game (0 takes two hits for the reload check). Breaking the rest of Amherst after the quest would close it.
-- **Docs outside this list's owner:** `runtime/DEBUG_TOOLS.md` still calls the `drops` simulation "placeholder
-  rates"; `runtime/PLAYTHROUGH_REPORT.md` is Iteration Two's report.
+- **`test_box` breaks 17 of the 19 boxes** (its header says so): Pio's quest takes three of Amherst's six (1/1 Board
+  and Screw while it is in progress) and Three Snails one more; two of Amherst's are never broken in the real game.
+  Breaking the rest of Amherst after the quest would close it.
 
 ## Prevention and tooling
 
@@ -195,7 +173,7 @@ items were left on purpose or found along the way.
 | Iteration Two item | Iteration Three |
 |---|---|
 | Verify the remaining quests by playthrough | Done: the every-quest set plays all 20 in the real game, strict after setup (20 of 20 on seed 1) |
-| Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; all 19 stand on real collision (`test_breakables_placement`), and `test_box` breaks 16 of them in the real game (Pio's quest needs three of Amherst's six; of the other three, one takes two hits for the reload check and two are only shown) |
+| Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; all 19 stand on real collision (`test_breakables_placement`), and `test_box` breaks 17 of them in the real game (Pio's quest needs three of Amherst's six, Three Snails breaks one more, two are only shown) |
 | Beginner skills and the skills window | Done: SP, the Skills window (K), typed quickslots, the three skills |
 | Sitting and chairs | Done: X, The Green Relaxer, the chair's own bonus clock |
 | Drop chances and meso amounts as placeholders | Done: KuroDB chances on Hidden Street (monsters) and MeowDB (Wooden Box) membership, meso amounts from MeowDB and Hidden Street; what no source gives is unresolved and never rolls |

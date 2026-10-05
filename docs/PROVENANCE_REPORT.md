@@ -12,10 +12,10 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 |---|---|
 | Validation errors / warnings | 0 / 54 |
 | Canonical records | 192 (breakables 1, drops 7, formulas 13, items 96, maps 25, monsters 6, npcs 21, quests 20, shops 3) |
-| Property rows (record source, field sources, per-property sources) | 1259 |
-| Property rows by authority | Hidden Street 85, KuroDB 39, MeowDB MS Classic 1135 |
-| Dated capture files cited | 17 |
-| Unresolved values | 523 (breakables 3, drops 170, formulas 40, items 64, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
+| Property rows (record source, field sources, per-property sources) | 1264 |
+| Property rows by authority | Hidden Street 85, KuroDB 39, MeowDB MS Classic 1140 |
+| Dated capture files cited | 18 |
+| Unresolved values | 519 (breakables 3, drops 170, formulas 40, items 60, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
 | Adaptations (objects with a verified flag) | 117: 3 verified, 114 not verified |
 
 Findings of the validation run:
@@ -84,7 +84,7 @@ References skipped as out of scope (not findings):
 - 1 x npcs.transport.routes[].to_map_id -> maps (destination outside the dataset)
 - 1 x quests dialogue link -> npcs (MeowDB link to content outside the dataset)
 
-Captures cited: `tools/hiddenstreet/captures/monsters.json`, `tools/kurodb/captures/100100.json`, `tools/kurodb/captures/100101.json`, `tools/kurodb/captures/120100.json`, `tools/kurodb/captures/1210102.json`, `tools/kurodb/captures/130101.json`, `tools/kurodb/captures/9300018.json`, `tools/kurodb/captures/reactor_2001_items.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
+Captures cited: `tools/hiddenstreet/captures/monsters.json`, `tools/kurodb/captures/100100.json`, `tools/kurodb/captures/100101.json`, `tools/kurodb/captures/120100.json`, `tools/kurodb/captures/1210102.json`, `tools/kurodb/captures/130101.json`, `tools/kurodb/captures/9300018.json`, `tools/kurodb/captures/reactor_2001_items.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/item_242.txt`, `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
 
 ## Records
 
@@ -144,7 +144,7 @@ authorities its properties cite, the number of property rows and of unresolved v
 | items/238 | Meat | https://meowdb.com/msclassic/item-db/238 | 2026-10-04T10:47:08.969Z | MeowDB MS Classic | 5 | 0 |
 | items/239 | Orange | https://meowdb.com/msclassic/item-db/239 | 2026-10-04T10:08:03.642Z | MeowDB MS Classic | 5 | 0 |
 | items/240 | Lemon | https://meowdb.com/msclassic/item-db/240 | 2026-10-04T10:47:12.646Z | MeowDB MS Classic | 5 | 0 |
-| items/242 | Green Apple | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | MeowDB MS Classic | 11 | 9 |
+| items/242 | Green Apple | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | MeowDB MS Classic | 16 | 5 |
 | items/269 | Pet Food | https://meowdb.com/msclassic/item-db/269 | 2026-10-04T10:08:04.773Z | MeowDB MS Classic | 5 | 0 |
 | items/270 | Red Potion | https://meowdb.com/msclassic/item-db/270 | 2026-10-04T10:05:55.258Z | MeowDB MS Classic | 5 | 0 |
 | items/271 | Orange Potion | https://meowdb.com/msclassic/item-db/271 | 2026-10-04T10:07:50.389Z | MeowDB MS Classic | 6 | 0 |
@@ -811,12 +811,17 @@ from another page) or per-property `provenance` sources (contract C7).
 | 242 | consumable.mp_restore | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
 | 242 | description | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
 | 242 | game_item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
+| 242 | max_stack | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/242 | 2026-10-05T22:11:30.520Z | `tools/meowdb/captures/item_242.txt` |  |
 | 242 | name | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
 | 242 | requirements | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
-| 242 | sell_price_mesos | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
+| 242 | sell_price_basis | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/242 | 2026-10-05T22:11:30.520Z | `tools/meowdb/captures/item_242.txt` |  |
+| 242 | sell_price_mesos | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/242 | 2026-10-05T22:11:30.520Z | `tools/meowdb/captures/item_242.txt` |  |
 | 242 | sources.monster_drops | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
+| 242 | sources.msea_reference_drops | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/242 | 2026-10-05T22:11:30.520Z | `tools/meowdb/captures/item_242.txt` |  |
+| 242 | sources.msea_reference_drops[].monster_id | MeowDB MS Classic | https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js | 2026-10-04T10:05:48.947Z |  |  |
 | 242 | sources.shops | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
 | 242 | subtype | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
+| 242 | tradeable | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/242 | 2026-10-05T22:11:30.520Z | `tools/meowdb/captures/item_242.txt` |  |
 | 242 | type | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/242?locale=en&preview=1 | 2026-10-05T08:17Z | `tools/meowdb/captures/items_api.json` |  |
 | 269 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/item-db/269 | 2026-10-04T10:08:04.773Z |  |  |
 | 269 | description | MeowDB MS Classic | https://meowdb.com/msclassic/api/items/269?locale=en&preview=1 | 2026-10-04T10:22:39.001Z |  |  |
@@ -1822,7 +1827,7 @@ and, in drop records, every member without a chance, every unresolved item and m
 - formulas/spawn_rate, gap: Initial population when a map is first loaded is not documented.
 - formulas/spawn_rate, gap: Whether the 7.56 s tick phase is shared across maps for a single player (global clock) is stated ("globally"), but the tick phase origin is not.
 
-### items (64)
+### items (60)
 
 - items/1157, gap: max_stack: MeowDB gives no stack size for equipment
 - items/1158, gap: max_stack: MeowDB gives no stack size for equipment
@@ -1843,15 +1848,11 @@ and, in drop records, every member without a chance, every unresolved item and m
 - items/1327, gap: max_stack: MeowDB gives no stack size for equipment
 - items/1439, gap: max_stack: MeowDB gives no stack size for equipment
 - items/1440, gap: max_stack: MeowDB gives no stack size for equipment
-- items/242, gap: sell_price_basis: the item page's "NPC Sell-back" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem
-- items/242, gap: max_stack: the item API omits slotMax and "Max per Stack" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read
-- items/242, gap: tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured
-- items/242, gap: sources.msea_reference_drops: shown only on the item page, which was not captured
-- items/242, gap: sources.quest_rewards: shown only on the item page, which was not captured
-- items/242, gap: sources.breakables: shown only on the item page, which was not captured
-- items/242, gap: sources.crafting_recipes: shown only on the item page, which was not captured
-- items/242, gap: used_in: the "Needed By" lists are shown only on the item page, which was not captured
-- items/242, gap: change_history: shown only on the item page, which was not captured
+- items/242, gap: sources.quest_rewards: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it
+- items/242, gap: sources.breakables: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it
+- items/242, gap: sources.crafting_recipes: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it
+- items/242, gap: used_in: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it
+- items/242, gap: change_history: the capture of the item page (tools/meowdb/captures/item_242.txt) shows only the section's label ("updated in COT2"), not its rows
 - items/541, gap: max_stack: MeowDB gives no stack size for equipment
 - items/543, gap: max_stack: MeowDB gives no stack size for equipment
 - items/551, gap: max_stack: MeowDB gives no stack size for equipment
@@ -2159,7 +2160,7 @@ and its reason (the nearest one when the object inherits it).
 |---|---|---|---|---|
 | breakables.json | (file) | no |  | MeowDB's breakable page gives only the hit count, the maps, the per-map counts, the respawn time and the community drop list; reactor size, hit rules beyond 'basic attacks', and 3D positions are not published (breakables/0000001.json gaps). |
 | breakables.json | box | no |  | The box's body for the attack overlap test, in MapleStory px like a monster's canonical touch_zone_px: [width, height] anchored at the bottom centre, as deep as it is wide (combat.json isometric_reach touch_zone_depth 'width'), converted with WorldScale.actor (0.75 m). MeowDB publishes no reactor size; 30 x 30 px is a knee-high crate next to the 1.5 m player, small enough for the canonical basic-attack boxes (thrust 14-30 px above the feet, swings up to 61 px, the crouched attack 14 px) to reach it from 0.1 to about 2 m away. The box is not solid: classic reactors never block movement, so a box cannot close a route, trap the player or push monsters. |
-| breakables.json | hit_rule | no |  | MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. An attack source other than the basic attack (a Three Snails projectile) counts one hit when it asks BreakableSystem.land_hit for a box it reached. Audit open question: the owner may still rule on skills. |
+| breakables.json | hit_rule | no |  | MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. Three Snails (the one attack skill on Maple Island) counts too: its cast searches the canonical band (attack_styles.json three_snails_targeting) for the nearest target among the live monsters and the intact boxes, one target per cast (the skill's canonical target count; one shell is one target, so a box in front shields a monster behind it), and a box it picks takes one landed hit through BreakableSystem.land_hit, exactly like a swing (PlayerSkills._hit_box). MeowDB says only 'basic attacks' and nothing about skills on reactors, so whether skills count is a MisoStory choice: Three Snails is a thrown attack, and a Beginner throwing a shell at a crate expects it to land. The owner may still rule otherwise; the skill would then search monsters only. |
 | breakables.json | placement | no |  | Contract C8 (a recorded adaptation, like the monster spawn slots of MAP_ARCHITECTURE section 4.7.1): MeowDB's x_px/y_px are 2D side-view coordinates and are not used; each placement samples walkable ground inside the map's exported spawn areas clipped to its mob region (any species), or, for maps without areas (the town 000001010 and the interiors 000001011, 000001012 and 000001013) and for any placement the areas cannot hold, the walkable floor of the mob region and the region extensions, first on the map's base floor tier (within tier_tolerance_m of base_y, so a box does not land on a terrace, a counter or a ledge), then on any walkable top surface. The sampling is seeded by hash('<map_id>:box:<index>'), so it is deterministic per map. A candidate must stand on walkable collision with a clearance capsule of clearance_radius_m x clearance_height_m clear of walls, outside the spawn keep-outs, outside every portal trigger and at least portal_clearance_m from every portal anchor, arrival and player_spawns[0], at least min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster spawn slot, and npc_clearance_m outside every NPC's talk zone (presentation.json npc.talk_zones; the counter keepers' 2.4 m); at least approach_min_free of approach_directions points approach_m around it must be grounded on the box's tier with the player's grounding capsule clear, so a walking player can stand beside it and swing; and the line from the top of its clearance capsule toward the map's gameplay camera must be free of walkable, blocking and scenery collision for camera_sight_m, so a box is seen from afar instead of tucked behind a house or a tree (the first box playtest found one in the corner behind Pio's neighbour's house). Of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept (an even spread). attempts bounds each pass; only when no pass finds a spot in the camera's sight is one out of sight taken ('_unseen', logged); a placement that finds nothing is 'unplaced' and logged. |
 | breakables.json | respawn | no |  | A broken box comes back exactly respawn_s after the break (canonical maps/<id>.json reactors[i].respawn_s, per placement: 120/120/120/180/90 s on 000001000, 120 s elsewhere), on the pausable game clock. MeowDB does not say whether reactors wait for the 7.56 s monster spawn tick (spawn_rate.json covers monsters only), so they do not. The live breakable page shows one value per map (120 s); the map page's per-placement values are kept, as canonical breakables/0000001.json discrepancies records. Like monsters and ground drops, box state lives in the map instance only and never reaches a save (contract C3). |
 | camera.json | (file) | no |  | (per value: its reasons map) |

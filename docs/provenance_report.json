@@ -20,7 +20,7 @@
       "file": "game/data/misostory/breakables.json",
       "kind": "misostory_adaptation",
       "path": "hit_rule",
-      "reason": "MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. An attack source other than the basic attack (a Three Snails projectile) counts one hit when it asks BreakableSystem.land_hit for a box it reached. Audit open question: the owner may still rule on skills.",
+      "reason": "MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. Three Snails (the one attack skill on Maple Island) counts too: its cast searches the canonical band (attack_styles.json three_snails_targeting) for the nearest target among the live monsters and the intact boxes, one target per cast (the skill's canonical target count; one shell is one target, so a box in front shields a monster behind it), and a box it picks takes one landed hit through BreakableSystem.land_hit, exactly like a swing (PlayerSkills._hit_box). MeowDB says only 'basic attacks' and nothing about skills on reactors, so whether skills count is a MisoStory choice: Three Snails is a thrown attack, and a Beginner throwing a shell at a crate expects it to land. The owner may still rule otherwise; the skill would then search monsters only.",
       "verified": false,
       "verified_against": null
     },
@@ -947,6 +947,7 @@
     "tools/kurodb/captures/9300018.json",
     "tools/kurodb/captures/reactor_2001_items.json",
     "tools/meowdb/captures/breakable_0000001.txt",
+    "tools/meowdb/captures/item_242.txt",
     "tools/meowdb/captures/items_api.json",
     "tools/meowdb/captures/monster_1.json",
     "tools/meowdb/captures/monster_2.txt",
@@ -960,12 +961,12 @@
     "adaptations": 117,
     "adaptations_unverified": 114,
     "adaptations_verified": 3,
-    "capture_files": 17,
-    "property_rows": 1259,
+    "capture_files": 18,
+    "property_rows": 1264,
     "property_rows_by_authority": {
       "Hidden Street": 85,
       "KuroDB": 39,
-      "MeowDB MS Classic": 1135
+      "MeowDB MS Classic": 1140
     },
     "records": 192,
     "records_by_domain": {
@@ -979,12 +980,12 @@
       "quests": 20,
       "shops": 3
     },
-    "unresolved": 523,
+    "unresolved": 519,
     "unresolved_by_domain": {
       "breakables": 3,
       "drops": 170,
       "formulas": 40,
-      "items": 64,
+      "items": 60,
       "maps": 113,
       "monsters": 32,
       "npcs": 14,
@@ -7605,6 +7606,17 @@
         },
         {
           "authority": "MeowDB MS Classic",
+          "capture": "tools/meowdb/captures/item_242.txt",
+          "decision": null,
+          "property": "max_stack",
+          "read_at": "2026-10-05T22:11:30.520Z",
+          "urls": [
+            "https://meowdb.com/msclassic/item-db/242"
+          ],
+          "via": "field_sources"
+        },
+        {
+          "authority": "MeowDB MS Classic",
           "capture": "tools/meowdb/captures/items_api.json",
           "decision": null,
           "property": "name",
@@ -7627,12 +7639,23 @@
         },
         {
           "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
+          "capture": "tools/meowdb/captures/item_242.txt",
+          "decision": null,
+          "property": "sell_price_basis",
+          "read_at": "2026-10-05T22:11:30.520Z",
+          "urls": [
+            "https://meowdb.com/msclassic/item-db/242"
+          ],
+          "via": "field_sources"
+        },
+        {
+          "authority": "MeowDB MS Classic",
+          "capture": "tools/meowdb/captures/item_242.txt",
           "decision": null,
           "property": "sell_price_mesos",
-          "read_at": "2026-10-05T08:17Z",
+          "read_at": "2026-10-05T22:11:30.520Z",
           "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
+            "https://meowdb.com/msclassic/item-db/242"
           ],
           "via": "field_sources"
         },
@@ -7644,6 +7667,28 @@
           "read_at": "2026-10-05T08:17Z",
           "urls": [
             "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
+          ],
+          "via": "field_sources"
+        },
+        {
+          "authority": "MeowDB MS Classic",
+          "capture": "tools/meowdb/captures/item_242.txt",
+          "decision": null,
+          "property": "sources.msea_reference_drops",
+          "read_at": "2026-10-05T22:11:30.520Z",
+          "urls": [
+            "https://meowdb.com/msclassic/item-db/242"
+          ],
+          "via": "field_sources"
+        },
+        {
+          "authority": "MeowDB MS Classic",
+          "capture": null,
+          "decision": null,
+          "property": "sources.msea_reference_drops[].monster_id",
+          "read_at": "2026-10-04T10:05:48.947Z",
+          "urls": [
+            "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js"
           ],
           "via": "field_sources"
         },
@@ -7671,6 +7716,17 @@
         },
         {
           "authority": "MeowDB MS Classic",
+          "capture": "tools/meowdb/captures/item_242.txt",
+          "decision": null,
+          "property": "tradeable",
+          "read_at": "2026-10-05T22:11:30.520Z",
+          "urls": [
+            "https://meowdb.com/msclassic/item-db/242"
+          ],
+          "via": "field_sources"
+        },
+        {
+          "authority": "MeowDB MS Classic",
           "capture": "tools/meowdb/captures/items_api.json",
           "decision": null,
           "property": "type",
@@ -7681,7 +7737,7 @@
           "via": "field_sources"
         }
       ],
-      "unresolved_count": 9
+      "unresolved_count": 5
     },
     {
       "authorities": [
@@ -19287,47 +19343,27 @@
       {
         "kind": "gap",
         "record": "items/242",
-        "text": "sell_price_basis: the item page's \"NPC Sell-back\" row (per unit or per item) was not captured; per_item follows from the unknown stack size, as in buildItem"
+        "text": "sources.quest_rewards: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
       },
       {
         "kind": "gap",
         "record": "items/242",
-        "text": "max_stack: the item API omits slotMax and \"Max per Stack\" is shown only on the item page, which was not captured; ItemDef then uses data/misostory/inventory.json unpublished_max_stack (1), so each Use slot holds one of this item until the page is read"
+        "text": "sources.breakables: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
       },
       {
         "kind": "gap",
         "record": "items/242",
-        "text": "tradeable: the Tradeable/Untradeable tag is shown only on the item page, which was not captured"
+        "text": "sources.crafting_recipes: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
       },
       {
         "kind": "gap",
         "record": "items/242",
-        "text": "sources.msea_reference_drops: shown only on the item page, which was not captured"
+        "text": "used_in: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
       },
       {
         "kind": "gap",
         "record": "items/242",
-        "text": "sources.quest_rewards: shown only on the item page, which was not captured"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "sources.breakables: shown only on the item page, which was not captured"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "sources.crafting_recipes: shown only on the item page, which was not captured"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "used_in: the \"Needed By\" lists are shown only on the item page, which was not captured"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "change_history: shown only on the item page, which was not captured"
+        "text": "change_history: the capture of the item page (tools/meowdb/captures/item_242.txt) shows only the section's label (\"updated in COT2\"), not its rows"
       },
       {
         "kind": "gap",

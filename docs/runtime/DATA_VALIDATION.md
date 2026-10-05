@@ -397,7 +397,7 @@ Phase 17 report through `ProvenanceReport` (`scripts/core/validation/provenance_
 - **unresolved**, by domain: every record's `gaps` (a value the source does not give: null or absent, never guessed),
   and in drop records every member without a chance (unresolved, never drops; a v1 record would also list its
   placeholder rates, and none ships), every unresolved item and every unresolved meso value. On the integrated
-  Iteration Three data: 523 unresolved values, and 117 adaptation objects, 3 of them verified.
+  Iteration Three data: 519 unresolved values, and 117 adaptation objects, 3 of them verified.
 - **adaptations**: every object in `game/data/misostory` that carries a verified flag, with `verified_against` and its
   reason (its own, its `<key>_reason`s or reasons map, or the nearest enclosing one).
 - **counts**: records per domain, property rows per authority, capture files, unresolved values per domain,
