@@ -139,6 +139,7 @@ func refresh_all() -> void:
 		status.set_exp(0, 0)
 		status.set_mesos(0)
 		status.set_ap(0)
+		status.set_sp(0)  # skills package hook (Iteration Three): the SP badge
 		status.quickslots.refresh()
 		return
 	status.set_identity(c.level, c.name, env.job_name(c))
@@ -147,6 +148,7 @@ func refresh_all() -> void:
 	_refresh_exp()
 	status.set_mesos(c.mesos)
 	status.set_ap(c.ap)
+	status.set_sp(c.sp)  # skills package hook (Iteration Three): the SP badge
 	status.quickslots.refresh()
 
 
@@ -235,6 +237,10 @@ func _on_leveled_up(new_level: int) -> void:
 	if c != null and c.ap > 0:
 		var key := MisoUiEnv.key_label("toggle_stats")
 		log_panel.add_line("You have %d AP to distribute%s." % [c.ap, " (press %s)" % key if key != "" else ""], "info")
+	# skills package hook (Iteration Three): unspent SP after a level-up.
+	if c != null and c.sp > 0:
+		var skey := MisoUiEnv.key_label("toggle_skills")
+		log_panel.add_line("You have %d SP to spend%s." % [c.sp, " (press %s)" % skey if skey != "" else ""], "info")
 
 
 func _on_mesos_changed(mesos: int, delta: int) -> void:

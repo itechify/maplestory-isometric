@@ -145,6 +145,17 @@ func test_level_up_flourish_and_ap_badge() -> void:
 	var stat_button: Button = h.status.menu_buttons["stats"]
 	assert_eq(String(stat_button.theme_type_variation), "MisoAccentButton", "Stat button highlighted")
 	assert_true(("+%d" % c.ap) in stat_button.text, "AP on the Stat button: " + stat_button.text)
+	# The SP of the level-up (canonical: 1 per level-up at levels 2-10) on the Skill button and in the log.
+	assert_eq(c.sp, int(db().formula("beginner")["sp"]["sp_per_level"]), "one SP at level 2")
+	assert_eq(h.status.sp_available, c.sp, "SP shown while unspent")
+	var skill_button: Button = h.status.menu_buttons["skills"]
+	assert_eq(String(skill_button.theme_type_variation), "MisoAccentButton", "Skill button highlighted")
+	assert_true(("+%d" % c.sp) in skill_button.text, "SP on the Skill button: " + skill_button.text)
+	assert_true(_has_line(h, "You have %d SP to spend (press K)." % c.sp), "SP line")
+	c.sp = 0
+	bus.emit_signal("stats_changed")
+	assert_eq(h.status.sp_available, 0, "spent: no badge")
+	assert_eq(String(skill_button.theme_type_variation), "", "Skill button plain again")
 	h.flourish.advance(MisoLevelUpFlourish.DURATION_S + 0.1)
 	assert_false(h.flourish.is_playing(), "flourish ends")
 
@@ -415,7 +426,7 @@ func test_quickslot_bind_use_decrement_and_persist() -> void:
 	c.hp = 10
 	var h := _hud(c)
 	assert_true(MisoQuickslots.bind(h.env, "1", "270"), "bind a consumable")
-	assert_eq(String(c.quickslots.get("1")), "270", "binding stored in CharacterState.quickslots")
+	assert_eq(c.quickslots.get("1"), {"kind": "item", "id": "270"}, "a typed binding in CharacterState.quickslots (C3)")
 	assert_eq(h.status.quickslots.count_text("1"), "5", "count shown")
 
 	var res := h.use_quickslot("1")

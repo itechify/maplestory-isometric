@@ -1,8 +1,9 @@
 class_name MisoStatusBar
 extends PanelContainer
 ## The HUD's bottom bar: level (gold), name and job; HP and MP gauges with current / max; the EXP gauge with its
-## percent; mesos; buttons that open the character windows (with their keys, and an AP badge on Stat while points
-## are unspent); and the quickslot bar on the right. It only displays values handed to it; MisoHud decides when.
+## percent; mesos; buttons that open the character windows (with their keys, an AP badge on Stat and an SP badge on
+## Skill while points are unspent); and the quickslot bar on the right. It only displays values handed to it; MisoHud
+## decides when.
 
 signal window_requested(window_name: String)
 
@@ -18,6 +19,8 @@ var exp_gauge: MisoGauge
 var mesos_label: Label
 ## Unspent AP shown on the Stat button (0 = none).
 var ap_available: int = 0
+## Unspent SP shown on the Skill button (0 = none).
+var sp_available: int = 0
 var menu_buttons: Dictionary = {}
 var quickslots: MisoQuickslotBar
 
@@ -94,14 +97,14 @@ func _init() -> void:
 	spacer.mouse_filter = MOUSE_FILTER_IGNORE
 	row.add_child(spacer)
 
-	# Window buttons (2 x 2).
+	# Window buttons (3 + 2).
 	var menu := GridContainer.new()
-	menu.columns = 2
+	menu.columns = 3
 	menu.add_theme_constant_override("h_separation", 5)
 	menu.add_theme_constant_override("v_separation", 5)
 	menu.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	for entry: Array in [["inventory", "Item", "toggle_inventory"], ["equipment", "Equip", "toggle_equipment"],
-			["stats", "Stat", "toggle_stats"], ["quests", "Quest", "toggle_quests"]]:
+			["quests", "Quest", "toggle_quests"], ["stats", "Stat", "toggle_stats"], ["skills", "Skill", "toggle_skills"]]:
 		var key := MisoUiEnv.key_label(String(entry[2]))
 		var b := MisoWindow.make_button("%s%s" % [entry[1], " [%s]" % key if key != "" else ""])
 		b.custom_minimum_size = Vector2(MENU_BUTTON_WIDTH, 30)
@@ -153,6 +156,16 @@ func set_ap(ap: int) -> void:
 	b.text = "Stat%s%s" % [" [%s]" % key if key != "" else "", "  +%d" % ap if ap > 0 else ""]
 	b.theme_type_variation = &"MisoAccentButton" if ap > 0 else &""
 	b.tooltip_text = "%d AP to distribute" % ap if ap > 0 else "Character stats"
+
+
+## While SP is unspent the Skill button turns orange and shows the points ("Skill [K] +1").
+func set_sp(sp: int) -> void:
+	sp_available = sp
+	var b: Button = menu_buttons["skills"]
+	var key := MisoUiEnv.key_label("toggle_skills")
+	b.text = "Skill%s%s" % [" [%s]" % key if key != "" else "", "  +%d" % sp if sp > 0 else ""]
+	b.theme_type_variation = &"MisoAccentButton" if sp > 0 else &""
+	b.tooltip_text = "%d SP to spend" % sp if sp > 0 else "Skills"
 
 
 func _vsep() -> VSeparator:
