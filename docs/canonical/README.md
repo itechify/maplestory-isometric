@@ -13,7 +13,7 @@ property of Nexon Co., Ltd.
 | Domain | Files | Doc |
 |---|---|---|
 | maps | 25 Maple Island maps (MeowDB 9-digit ids), portals, spawns, NPC placements, return maps | [maps.md](maps.md), [topology_diff.md](topology_diff.md) |
-| monsters, drops, breakables | Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom; drop lists; the Wooden Box | [monsters.md](monsters.md) |
+| monsters, drops, breakables | Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom; schema v2 drop records (Hidden Street or MeowDB membership, KuroDB chances, meso amounts and chances); the Wooden Box | [monsters.md](monsters.md) |
 | npcs | the 21 Maple Island NPCs with dialogue | [npcs.md](npcs.md) |
 | quests | the 20 Maple Island quests (1000–1019), with the live tracker's tags (all "Missable", "COT2") | [quests.md](quests.md) |
 | shops | Pan, Sid, Lucy | [shops.md](shops.md) |
@@ -73,21 +73,24 @@ captured by hand for exactly that URL (`tools/meowdb/captures/items_api.json`, t
 
 ```bash
 node tools/meowdb/extract_maps.mjs        # also writes game/data/misostory/map_id_crosswalk.json + topology_diff.md
-node tools/meowdb/extract_monsters.mjs    # monsters/, drops/, breakables/
 node tools/meowdb/extract_npcs.mjs
 node tools/meowdb/extract_quests.mjs      # + missable / tracker_tags from the quest tracker capture
 node tools/meowdb/extract_shops.mjs
 node tools/meowdb/extract_formulas.mjs
 node tools/meowdb/extract_items.mjs       # Green Apple (242) from its item API capture (API-only record)
+node tools/meowdb/extract_monsters.mjs    # monsters/, drops/ (through tools/sources/drops_merge.mjs), breakables/
 node tools/meowdb/oracle_vectors.mjs      # tests/data/parity_vectors.json (+ local-only oracle extracts)
 node tools/meowdb/build_sources_index.mjs # canonical_sources.json (capture files and per-property authorities too)
 ```
 
-Validate the result against the game's own loader with `bash scripts/validate_data.sh`.
+Validate the result against the game's own loader with `bash scripts/validate_data.sh`. The order matters from an
+empty tree: `extract_monsters.mjs` resolves drop members against the local items and quests (the crosswalk,
+`tools/sources/crosswalk/drop_items.json`), so it runs after `extract_quests.mjs` and `extract_items.mjs`. Run each
+extractor twice when you change one: the output must be byte-identical.
 
 **Reproducibility.** `bash scripts/check_canonical.sh` proves the snapshot is regenerable: it copies what the
 extractors read (the tools with the cache and the captures, the data, the Iteration One docs, `src/misostory/layout.py`)
-into a temporary folder, empties every output folder there, runs the extractors above in order with network access off
+into a temporary folder, empties every output folder there, runs the extractors in order with network access off
 (`MEOWDB_ALLOW_NETWORK` cleared), then diffs `game/data/canonical` and `game/data/misostory/map_id_crosswalk.json` byte
 for byte against the repository (`CANONICAL_CHECK_PASSED`; exit 1 on a difference, 2 when an extractor fails or the
 cache is missing; `--keep` keeps the copy). A file no extractor writes any more shows up as "only in the repository".
@@ -96,7 +99,10 @@ change with each world build; refresh it with `node tools/meowdb/extract_maps.mj
 parse of `layout.py` against `docs/topology.json` (`LINKS` and `DOOR_LINKS` join exactly its 24 map pairs; every
 `ONE_WAY` anchor is an arrival point there), so a layout change does not break the extractor, and the diff says whether
 `ONE_WAY` still equals the landing anchors of MeowDB's one-way links. The cache is git-ignored, so the check runs
-locally; run it before each milestone.
+locally; run it before each milestone. **On the integrated Iteration Three build it exits 2**: its step list still runs
+`extract_monsters` before `extract_items`, so the drop merge finds no items folder. With the order above (a copy of the
+script with `extract_items` and `extract_quests` moved first) every canonical file reproduces byte for byte
+(`docs/DEFERRED.md`).
 
 **Reports.** `bash scripts/validate_data.sh --report` writes the provenance validation report
 ([`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md): every record and property with its authority, URL, read time
@@ -114,11 +120,16 @@ and capture; every unresolved value; every adaptation), and `node tools/parity/b
 
 | Gap | Where the value or adaptation lives |
 |---|---|
-| Item drop chances, meso drop chances, most meso amounts (MeowDB lists drops and votes only) | Not adaptations any more: KuroDB chances and Hidden Street membership and amounts, by the owner's decisions D3-3 to D3-7, in the schema v2 drop records (contract C1). A value neither source gives stays unresolved and never drops. Until the drop records are v2, the runtime rolls the Iteration Two placeholders of `game/data/misostory/drop_rates.json` (the provenance report and the parity manifest list each one) |
+| Item drop chances, meso drop chances, most meso amounts (MeowDB lists drops and votes only) | Not adaptations: KuroDB chances and Hidden Street membership and amounts, by the owner's decisions D3-3 to D3-7, in the schema v2 drop records (contract C1); every shipped record is v2. A value neither source gives stays unresolved and never drops (54 of 75 members; the provenance report lists each). The roller's own readings (a meso amount is a uniform integer in [min, max]; the D3-9 quest-gate rule) are in `game/data/misostory/drop_rates.json`, which holds no number; the Wooden Box's quantity of 1 per roll is a labelled adaptation inside `drops/0000001.json` |
 | Drop ground lifetime and ownership time | `game/data/misostory/drops.json` |
-| Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` (the mechanics package; Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery: MeowDB documents none |
+| Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` `natural_hp` (Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery: MeowDB documents none (`natural_mp`, an unresolved source gap) |
+| When a chair's bonus clock starts and whether it holds at full HP; the sit key; ground sitting and map benches (none documented) | `game/data/misostory/recovery.json` `chair_bonus`, `sitting` |
+| Beginner skills: Recovery's tick, the buff cast time ("Timing unavailable"), a Three Snails cast with no target, its terrain check, effects at death | `game/data/misostory/skills.json` |
+| Wooden Box size, which attacks count as hits, the respawn clock, 3D placement (MeowDB's coordinates are 2D) | `game/data/misostory/breakables.json` |
+| Monster floors and pacing in 3D, spawn placement (NPC clearance, density, exclusions), the map mob rate (MeowDB pages disagree) | `game/data/misostory/monsters/_shared.json`, `monsters/<id>.json`, `presentation.json` `spawns` and `map_mob_rate` |
 | Bare-handed attack (MeowDB leaves Beginner bare-hand damage unmodeled) | `game/data/misostory/combat.json` |
-| Player knockback distance, monster knockback distance and stagger time, post-hit invincibility | `game/data/misostory/combat.json` |
+| Player knockback distance, monster knockback distance, post-hit invincibility (the monsters' stagger time is canonical since the live pages publish it: `stagger_ms`) | `game/data/misostory/combat.json` |
+| Speech-bubble timing, the dialogue rules MeowDB is silent on, the quest-item sell guard, Roger's apple re-issue, Shanks' departure boundary | `game/data/misostory/npcs/_speech_bubbles.json`, `dialogue/_rules.json`, `quests/_quest_items.json`, `quests/1002.json`, `npcs/15.json` |
 | HP/MP after respawning; which player spawn point a respawn uses | `game/data/misostory/death.json` |
 | How many Roger's Apples Roger hands out (quest 1002) | `game/data/misostory/quests/1002.json` |
 | The start map of a new character (inferred: 000000001) | `game/data/misostory/new_character.json` |
