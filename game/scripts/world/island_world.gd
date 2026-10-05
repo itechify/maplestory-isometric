@@ -647,8 +647,13 @@ func _on_link_mode_changed(link_id: String, _mode: String) -> void:
 			session.call("refresh_camera")
 
 
-## Load-chain validation of a saved resume point (MAP_ARCHITECTURE section 4.9 step 1).
-func validate_resume(map_id: String, pos: Vector3) -> bool:
+## Load-chain validation of a saved resume point (MAP_ARCHITECTURE section 4.9 step 1): in the map's region, on
+## walkable ground, capsule-clear and outside every portal trigger, except the trigger of `entry`, the portal the save
+## says the player arrived through (ArrivalResolver passes it). An accepted resume arrives through that same entry, so
+## activate_map disarms that portal exactly as on a real arrival: standing in its trigger after a Continue is the state
+## the arrival itself left (G1: every edge arrival spawns inside its own portal's trigger, 0.7 m from the gate, and the
+## save made right after a trail arrival used to be refused for it, falling back to that arrival with a warning).
+func validate_resume(map_id: String, pos: Vector3, entry: ArrivalRef = null) -> bool:
 	var def := defs.get_def(map_id)
 	if def == null or ground_query == null:
 		return false
@@ -661,8 +666,10 @@ func validate_resume(map_id: String, pos: Vector3) -> bool:
 	if not ground_query.is_clear(feet + Vector3.UP * tuning.num("grounding", "capsule_lift_m"),
 			tuning.num("grounding", "capsule_radius_m"), tuning.num("grounding", "capsule_height_m")):
 		return false
+	var entered := entry.portal_id if entry != null and entry.is_portal() and entry.map_id == map_id else ""
 	for p in def.portals:
-		if p.has_anchor and p.portal_type != PortalDef.TYPE_ARRIVAL and p.trigger_contains(feet + Vector3.UP * 0.1):
+		if p.has_anchor and p.portal_type != PortalDef.TYPE_ARRIVAL and p.portal_id != entered \
+				and p.trigger_contains(feet + Vector3.UP * 0.1):
 			return false
 	return true
 

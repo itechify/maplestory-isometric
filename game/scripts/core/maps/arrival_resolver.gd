@@ -35,9 +35,12 @@ static func resolve(req: TransitionRequest, defs: MapDefinitions) -> Dictionary:
 	return {"ok": true, "xform": r.xform, "arrival": req.arrival, "error": ""}
 
 
-## The load chain (section 4.9): 1. `resume` (validated by `validate_resume`: Callable(map_id, world_pos) -> bool),
-## 2. `entry` (a portal's spawn_transform or a player spawn), 3. player_spawns[0] of map_id, 4. an unknown map id
-## loads at `fallback_map` player_spawns[0] (logged as an error).
+## The load chain (section 4.9): 1. `resume` (validated by `validate_resume`: Callable(map_id, world_pos, entry) -> bool,
+## where entry is the saved entry ArrivalRef or null; a validator taking only (map_id, world_pos) is called with those
+## two), 2. `entry` (a portal's spawn_transform or a player spawn), 3. player_spawns[0] of map_id, 4. an unknown map id
+## loads at `fallback_map` player_spawns[0] (logged as an error). An accepted resume arrives through the entry (the
+## world disarms that portal as on a real arrival), so the validator may accept a point inside the entry portal's own
+## trigger (IslandWorld.validate_resume).
 ## A resume point whose saved `map_content_hash` differs from the map's current content_hash (the collision of the map
 ## chunk or of a shared world chunk overlapping its region changed since the save, e.g. a trap fix in World_Plinths:
 ## MapDefinitions.resume_hash) is skipped before validation: the position was vetted against geometry that no longer
@@ -67,7 +70,11 @@ static func resolve_load(location: Dictionary, defs: MapDefinitions, validate_re
 		resume = null
 	if resume is Dictionary and (resume as Dictionary).get("local_pos", null) is Array:
 		var world := def.to_world(WorldSidecars.vec3((resume as Dictionary).local_pos))
-		if validate_resume.is_valid() and bool(validate_resume.call(map_id, world)):
+		var valid := false
+		if validate_resume.is_valid():
+			valid = bool(validate_resume.call(map_id, world, entry)) if validate_resume.get_argument_count() >= 3 \
+				else bool(validate_resume.call(map_id, world))
+		if valid:
 			# facing_deg is a yaw in the map frame (like local_pos), so it follows the map if the layout turns it.
 			var yaw := deg_to_rad(float((resume as Dictionary).get("facing_deg", 0.0)))
 			var basis := (def.frame.basis * Basis(Vector3.UP, yaw)).orthonormalized()
