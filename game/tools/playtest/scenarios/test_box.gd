@@ -8,14 +8,22 @@ extends PlaytestScenario
 ## broken it waits for the first to come back (its canonical respawn_s). The quest is turned in to Pio: completed, the
 ## two items handed in, and the canonical rewards (EXP, mesos, The Green Relaxer) received.
 ## Phase 1, after Quit Game and a new process: Continue in Amherst, and the box that took hits right before the quit
-## stands intact again with all its hits left (box state is never saved).
+## stands intact again with all its hits left (box state is never saved). Then the other 13 placements: setup by
+## console (counted: god mode, so the hunting maps' monsters cannot end the tour, and a warp to each map), every box of
+## The Field West of Amherst, the three Amherst interiors and Snail Field of Flowers is walked up to and broken with
+## the attack key after exactly hits_to_break landed swings, so all 19 canonical boxes are played in the real game.
 
 const AMHERST := "000001010"
+## The other maps with Wooden Box placements (canonical maps/<id>.json reactors[]), toured in phase 1.
+const OTHER_BOX_MAPS := ["000001000", "000001011", "000001012", "000001013", "000001014"]
 const PIO := "18"
 const QUEST := "1012"
 const WEAPON := "585"
 const BOX_REACH_SHARE := 0.6
 const BREAK_BUDGET_S := 1500.0
+## Approach spots around a box (directions) and the height difference (m) a spot may have from the box's feet.
+const APPROACH_DIRECTIONS := 8
+const APPROACH_DY_M := 0.3
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
@@ -28,7 +36,8 @@ var exp_log: Array = []
 
 func description() -> String:
 	return "Pio's quest (1012) with the Wooden Boxes: accept, break boxes with the attack key, pick up 3 Rusty Screws " \
-		+ "and 3 Old Wooden Boards, turn in, The Green Relaxer; box state not saved across a real reload"
+		+ "and 3 Old Wooden Boards, turn in, The Green Relaxer; box state not saved across a real reload; every box of " \
+		+ "the other five box maps broken with the attack key"
 
 
 func max_seconds() -> float:
@@ -183,13 +192,47 @@ func _phase1() -> void:
 	for b: Node in boxes:
 		if String(b.call("placement_key")) == key:
 			hit_box = b
-	d.check("the box hit before the quit stands with all %d hits left (box state is not saved)" % _hits(), hit_box != null
-		and not bool(hit_box.call("is_broken")) and int(hit_box.call("hits_left")) == _hits(),
+	# Only meaningful when the box really had hits taken before the quit (phase 0 records how many it had left).
+	var hit_left_before := int(d.carry.get("hit_left", _hits()))
+	d.check("the box hit before the quit (%d hits left then) stands with all %d hits left (box state is not saved)" % [hit_left_before, _hits()],
+		hit_box != null and hit_left_before < _hits() and not bool(hit_box.call("is_broken")) and int(hit_box.call("hits_left")) == _hits(),
 		"%s: %s" % [key, "missing" if hit_box == null else "%d hits left, broken %s" % [int(hit_box.call("hits_left")), hit_box.call("is_broken")]])
-	d.check("every box of Amherst is intact after the reload (broken before: %s)" % str(d.carry.get("broken_keys", [])),
-		boxes.size() == BreakableRules.placements_of(db.map(AMHERST)).size() and boxes.all(func(b: Node) -> bool: return not bool(b.call("is_broken"))),
+	var broken_before: Array = d.carry.get("broken_keys", [])
+	d.check("every box of Amherst is intact after the reload (broken before: %s)" % str(broken_before), not broken_before.is_empty()
+		and boxes.size() == BreakableRules.placements_of(db.map(AMHERST)).size() and boxes.all(func(b: Node) -> bool: return not bool(b.call("is_broken"))),
 		"%d boxes" % boxes.size())
 	d.check("1012 stays completed", d.character().quests.is_completed(QUEST), d.character().quests.status(QUEST))
+	await _tour_other_maps()
+
+
+## Every box of the other five maps, broken with the attack key (nearest first; each placement once).
+func _tour_other_maps() -> void:
+	await d.console("god on")
+	for m: String in OTHER_BOX_MAPS:
+		await d.console("warp " + m)
+		await d.wait_idle(20.0)
+		await d.wait(0.5)
+		var canon := BreakableRules.placements_of(db.map(m)).size()
+		var boxes := _boxes()
+		d.check("%s shows its %d canonical Wooden Boxes, intact" % [m, canon], d.current_map() == m and boxes.size() == canon
+			and boxes.all(func(b: Node) -> bool: return not bool(b.call("is_broken")) and int(b.call("hits_left")) == _hits()),
+			"%d boxes in %s" % [boxes.size(), d.current_map()])
+		var done := {}
+		var rows: PackedStringArray = []
+		var all_ok := true
+		while true:
+			var box := _nearest_intact(done)
+			if box == null:
+				break
+			var at := (box as Node3D).global_position
+			var r := await _break_box(box, 0, 45.0)
+			done[String(r["key"])] = true
+			var good := bool(r["ok"]) and int(r["landed"]) == _hits()
+			all_ok = all_ok and good
+			rows.append("%s at (%.1f, %.1f, %.1f): %s" % [r["key"], at.x, at.y, at.z, "%d landed / %d swings, %d whiffs" % [r["landed"],
+				r["swings"], r["whiffs"]] if bool(r["ok"]) else String(r["why"])])
+		d.check("%s: every box walked up to and broken after exactly %d landed swings" % [m, _hits()], all_ok and done.size() == canon,
+			"; ".join(rows))
 
 
 # =================================================================================================================
@@ -197,8 +240,9 @@ func _phase1() -> void:
 # =================================================================================================================
 
 ## Walks up to `box`, faces it and taps the attack key until it breaks (or `stop_after` landed hits). Landed swings
-## are counted from its hits_left. Returns {"ok", "key", "landed", "swings", "whiffs", "why"}.
-func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
+## are counted from its hits_left. `walk_s` bounds each walk (the hunting maps' boxes can be 100 m away). Returns
+## {"ok", "key", "landed", "swings", "whiffs", "why"}.
+func _break_box(box: Node, stop_after: int = 0, walk_s: float = 25.0) -> Dictionary:
 	var p := d.player()
 	var pc := d.combat()
 	var key := String(box.call("placement_key"))
@@ -207,7 +251,8 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 	var t0 := d.game_s()
 	var routed := 0
 	var whiff_run := 0
-	while not bool(box.call("is_broken")) and d.game_s() - t0 < 60.0:
+	var spots: Array = []
+	while not bool(box.call("is_broken")) and d.game_s() - t0 < maxf(60.0, walk_s * 4.0):
 		if stop_after > 0 and int(out["landed"]) >= stop_after:
 			break
 		await d.get_tree().process_frame
@@ -217,16 +262,18 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 		to.y = 0.0
 		var dist := to.length()
 		if dist > 2.5 or dy > 0.8:
-			if routed >= 3:
-				out["why"] = "could not reach the box (%.1f m away, %.1f m up/down)" % [dist, dy]
+			if routed == 0:
+				spots = _approach_spots(box, stand)
+			if routed >= mini(4, spots.size()):
+				out["why"] = "could not reach the box (%.1f m away, %.1f m up/down; %d approach spots)" % [dist, dy, spots.size()]
 				break
+			# Each try walks to another spot beside the box on its own ground (a walk can end on a prop's top above a
+			# spot: the arrival test is horizontal), with the next planner (the routes, then the collision grid).
+			var spot: Vector3 = spots[routed]
 			routed += 1
 			d.input.release_movement()
-			var dir := -to.normalized() if dist > 0.01 else Vector3.BACK
-			var spot: Vector3 = d.walker.grounded(box.global_position + dir * stand)
-			# A stalled walk is tried again with the other planners (the routes, then the collision grid).
-			var planner: String = ["auto", "routes", "grid"][mini(routed - 1, 2)]
-			await d.walk_to(spot, {"max_s": 25.0, "retries": 1, "within_m": 0.35, "planner": planner})
+			var planner: String = ["auto", "routes", "grid", "auto"][mini(routed - 1, 3)]
+			await d.walk_to(spot, {"max_s": walk_s, "retries": 1, "within_m": 0.35, "planner": planner})
 			continue
 		if dist > stand + 0.2:
 			d.input.set_move_world(to.normalized(), p.view_right, p.view_forward)
@@ -247,7 +294,7 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 			continue
 		var left := int(box.call("hits_left"))
 		var swings := int(pc.get("attacks"))
-		if broken_rows.size() < 3 and int(out["swings"]) == 0 and stop_after == 0:
+		if d.phase == 0 and broken_rows.size() < 3 and int(out["swings"]) == 0 and stop_after == 0:
 			await d.screenshot("box_%d_before_hit" % (broken_rows.size() + 1))
 		await d.input.tap_action(&"attack")
 		if int(pc.get("attacks")) == swings:
@@ -256,7 +303,7 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 		if bool(box.call("is_broken")) or int(box.call("hits_left")) < left:
 			out["landed"] = int(out["landed"]) + 1
 			whiff_run = 0
-			if broken_rows.is_empty() and (int(out["landed"]) == 1 or bool(box.call("is_broken"))):
+			if d.phase == 0 and broken_rows.is_empty() and (int(out["landed"]) == 1 or bool(box.call("is_broken"))):
 				await d.frames(3)
 				await d.screenshot("box_hit_%d" % int(out["landed"]))
 		else:
@@ -273,6 +320,26 @@ func _break_box(box: Node, stop_after: int = 0) -> Dictionary:
 		out["ok"] = true
 	elif String(out["why"]) == "":
 		out["why"] = "still standing after %.0f s (%d landed of %d swings)" % [d.game_s() - t0, int(out["landed"]), int(out["swings"])]
+	return out
+
+
+## Spots `stand` m around `box` in APPROACH_DIRECTIONS directions whose ground is the box's own (within APPROACH_DY_M)
+## and where the body fits, nearest to the player first (the first one faces the player, as a walk-up would).
+func _approach_spots(box: Node, stand: float) -> Array:
+	var p := d.player()
+	var feet: Vector3 = (box as Node3D).global_position
+	var away := p.global_position - feet
+	away.y = 0.0
+	var base := away.normalized() if away.length() > 0.01 else Vector3.BACK
+	var out: Array = []
+	for k in APPROACH_DIRECTIONS:
+		var spot: Vector3 = d.walker.grounded(feet + base.rotated(Vector3.UP, TAU * k / APPROACH_DIRECTIONS) * stand)
+		if absf(spot.y - feet.y) <= APPROACH_DY_M and d.walker.standable(spot):
+			out.append(spot)
+	var from := p.global_position
+	out.sort_custom(func(a: Vector3, b: Vector3) -> bool: return a.distance_to(from) < b.distance_to(from))
+	if out.is_empty():
+		out.append(d.walker.grounded(feet + base * stand))
 	return out
 
 
