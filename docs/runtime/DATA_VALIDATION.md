@@ -427,7 +427,10 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 Each file declares in `parity_keys()` (contract C6) which Phase 16 rows (`xref:<category>`, `xref:no-duplicate-ids`,
 `xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests
 prove; the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test
-evidence.
+evidence. Most `canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
+(`provenance-per-property`, `membership-chance-separate`, `probability-conversion`, `kuro-only-excluded`,
+`unresolved-visible`) also need the shipped data in that state (`tools/parity/rules.json` `requires`: every drop record
+schema v2); until then the manifest keeps them `partial`.
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an
