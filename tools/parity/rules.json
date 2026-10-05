@@ -345,6 +345,7 @@
     {"scenario": "quest", "match": "^\\d+: a Wooden Box broken before the accept drops none of ", "keys": ["mechanic:quest-gated-drops"], "why": "the gated drops do not roll before the quest"},
     {"scenario": "quest", "match": "^\\d+: .+ x\\d+, \\d+ Wooden Boxes broken in this phase", "keys": ["mechanic:breakable-drop-roll"], "why": "the box drops the quest items while the quest is in progress"},
     {"scenario": "quest", "match": "^\\d+: \\d+ .+ collected from .+ drops picked up with Z", "keys": ["mechanic:loot-pickup"], "why": "monster drops picked up in the real game"},
+    {"scenario": "quest", "match": "^\\d+: the accept items are in the bag: (\\d+) ", "keys": ["item:$1"], "why": "the quest item handed over on accept (canonical items_given_on_accept) exists, is held and is handed in"},
     {"scenario": "quest", "match": "^\\d+: after Quit Game and a new process the quest log is the saved one", "keys": ["persistence:quest-progress-kills"], "why": "the quest log survives a new process"},
     {"scenario": "quest", "match": "^(?:\\d+|between): level, EXP, mesos and the bag survive the restart$", "keys": ["persistence:level-exp", "persistence:mesos", "persistence:inventory"], "why": "a real restart"},
     {"scenario": "quest", "match": "^(?:\\d+|between): Continue resumes in the map it was saved in ", "keys": ["persistence:current-map"], "why": "a real restart"}

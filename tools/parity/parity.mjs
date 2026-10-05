@@ -616,6 +616,25 @@ export function toMarkdown(doc) {
   for (const g of doc.source_data_gaps) L.push(`- \`${g.key}\` ${esc(g.name)}: ${esc(g.gaps.join('; '))}`);
   L.push('', 'Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in');
   L.push('[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").', '');
+  L.push('## Open entries', '');
+  L.push('In-scope entries that are neither verified nor a source-data gap, by category, with why.', '');
+  let anyOpen = false;
+  for (const c of doc.categories) {
+    const open = c.entries.filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap);
+    if (!open.length) continue;
+    anyOpen = true;
+    const why = (e) => e.issues[0] ?? (e.state === 'implemented' ? (e.notes.find((n) => /needs a/.test(n)) ?? 'no passing check is tagged with its key') : e.state);
+    const groups = new Map();
+    for (const e of open) {
+      const w = `${e.state}: ${why(e)}`;
+      if (!groups.has(w)) groups.set(w, []);
+      groups.get(w).push(e.key);
+    }
+    L.push(`- **${c.title}** (${open.length})`);
+    for (const [w, keys] of groups) L.push(`  - ${esc(w)}: ${keys.map((k) => `\`${k}\``).join(', ')}`);
+  }
+  if (!anyOpen) L.push('None.');
+  L.push('');
   for (const c of doc.categories) {
     L.push(`## ${c.title}`, '');
     const rt = c.runtime;
