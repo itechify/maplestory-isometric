@@ -1008,8 +1008,24 @@ func _finish(complete: bool) -> void:
 		["mechanic:loot-pickup"])
 	d.check("mesos from monster meso bags picked up (%d mesos in %d bags)" % [int(tot.get("picked_mesos", 0)),
 		int(tot.get("picked_bags", 0))], int(tot.get("picked_mesos", 0)) > 0, str(tot), ["mechanic:meso-pickup"])
-	# Natural levelling: every EXP award came from a monster kill, a quest reward or a death.
+	# The progression audit against canonical data: every kill gave its monster's canonical EXP, and every quest its
+	# canonical rewards.exp (both heard on the event bus over the whole run).
 	var srcs: Dictionary = d.carry.get("exp_by_source", {})
+	for mob in db.ids("monsters"):
+		var mdef := MonsterDef.from_id(mob, db)
+		var per := mdef.exp_reward if mdef != null else -1
+		d.check("%s: %d kills gave %d EXP, the canonical %d each" % [k.mob_name(mob), int(kills.get(mob, 0)),
+			int(srcs.get("monster:" + mob, 0)), per], int(srcs.get("monster:" + mob, 0)) == per * int(kills.get(mob, 0)), "",
+			["monster:" + mob])
+	var quest_exp := 0
+	var quest_bad := PackedStringArray()
+	for qid in ids:
+		var want := int((db.quest(qid).get("rewards", {}) as Dictionary).get("exp", 0))
+		quest_exp += want
+		if int(srcs.get("quest:" + qid, 0)) != want:
+			quest_bad.append("%s: %d (canonical %d)" % [qid, int(srcs.get("quest:" + qid, 0)), want])
+	d.check("the 20 quests gave their canonical %d EXP in all" % quest_exp, quest_bad.is_empty(), ", ".join(quest_bad))
+	# Natural levelling: every EXP award came from a monster kill, a quest reward or a death.
 	var odd := (srcs.keys() as Array).filter(func(s: String) -> bool: return not (s.begins_with("monster:") or s.begins_with("quest:") or s == "death"))
 	d.check("level %d reached naturally: EXP only from kills, quest rewards and the death penalty" % c.level, odd.is_empty()
 		and c.level >= int(_route().get("min_level", 7)), "sources %s" % srcs)

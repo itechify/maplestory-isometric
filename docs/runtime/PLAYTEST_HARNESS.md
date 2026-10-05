@@ -393,10 +393,11 @@ scenario; "after character creation" for a clean playthrough). From that step on
   `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
   adding to the inventory, completing a quest) is a mismatch.
 - The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
-- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit and the quest runner) and fails on teleports
-  (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console calls outside `_setup*`
-  functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats, skills, cooldowns,
-  effects, quickslots, inventory, equipment, the quest log), calls into the game's services that change it
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit and the quest runner) and
+  fails on teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console
+  calls outside `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats,
+  skills, cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that
+  change it
   (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the quest
   engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
   `report_monster_killed`) and writes to the save on disk. A synthetic scenario in the same test proves the scan flags
@@ -422,10 +423,11 @@ and `quest_gate`; Iteration Two tables by membership and the placeholder rate Dr
 farm, the item-use objectives, the quiz answer key, the rewards and the hand-ins (`hand_ins`: canonical
 `items_removed_on_completion`, the list the quest engine removes). `source_why(row, quest)` is the obtainability rule:
 an unresolved chance, a chance of 0, a gate to another quest (C1/C2) or no map holding the owner rules a source out.
-An objective that only an unresolved drop could supply is listed in `blocked` as a source-data gap, never faked. `setup_for(ids)` says what a chain needs first (the
-first quest's level and start map, the prerequisites outside the chain, prerequisites first), `chains(db)` is the
-every-quest set (one chain per canonical quest line, each standalone quest alone), `parse_ids` and `chain_spec` name
-chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` are public.
+An objective that only an unresolved drop could supply is listed in `blocked` as a source-data gap, never faked.
+`setup_for(ids)` says what a chain needs first (the first quest's level and start map, the prerequisites outside
+the chain, prerequisites first), `chains(db)` is the every-quest set (one chain per canonical quest line, each
+standalone quest alone), `parse_ids` and `chain_spec` name chains, and `item_sources`, `best_source`,
+`spawn_maps`, `hunt_map` and `hops` are public.
 
 ## The quest runner
 
