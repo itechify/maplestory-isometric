@@ -56,6 +56,8 @@ const _MESSAGES := {
 	CANNOT_SIT: "You cannot sit down right now.",
 	NO_CHAIR: "You do not have a chair to sit on.",
 }
+## A chair refused for its level (Chairs.use marks the result "chair": true): sitting, not equipping.
+const CHAIR_LEVEL_TOO_LOW_MESSAGE := "Your level is too low to sit on that chair."
 
 
 ## A result Dictionary: {"ok": code == OK, "code": code} merged with `details`.
@@ -69,4 +71,6 @@ static func result(code: String, details: Dictionary = {}) -> Dictionary:
 ## Plain-English default message for a result (or a bare code string).
 static func message(res: Variant) -> String:
 	var code: String = String(res.get("code", "")) if res is Dictionary else String(res)
+	if code == LEVEL_TOO_LOW and res is Dictionary and bool((res as Dictionary).get("chair", false)):
+		return CHAIR_LEVEL_TOO_LOW_MESSAGE
 	return String(_MESSAGES.get(code, code))

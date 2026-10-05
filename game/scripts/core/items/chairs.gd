@@ -16,7 +16,7 @@ extends RefCounted
 ## (Events.player_sat_down / player_stood_up), and a chair never leaves the inventory.
 ##
 ## Result: {"ok", "code", "item_id", "action": "sit" | "stand"} (ItemCodes). Codes: unknown_item, not_usable (not a
-## chair), not_enough_items (not owned), level_too_low (+ "required"), dead, cannot_sit (+ "reason": the seat's
+## chair), not_enough_items (not owned), level_too_low (+ "required", "chair": true), dead, cannot_sit (+ "reason": the seat's
 ## can_sit() answer, or "no_player"), no_chair (the sit key with no chair in the Set-up tab).
 
 ## The group the live player joins (PlayerController, in the game) so item code can find the seated-state owner.
@@ -66,7 +66,8 @@ static func use(c: CharacterState, item_id: String, db: ContentDB, seat: Object 
 	if c == null or c.inventory.count(item_id) <= 0:
 		return ItemCodes.result(ItemCodes.NOT_ENOUGH_ITEMS, {"item_id": item_id})
 	if def.req_level > 0 and c.level < def.req_level:
-		return ItemCodes.result(ItemCodes.LEVEL_TOO_LOW, {"item_id": item_id, "required": def.req_level})
+		# "chair": true: the refusal is about sitting, so the UI does not word it as equipment (MisoUiText).
+		return ItemCodes.result(ItemCodes.LEVEL_TOO_LOW, {"item_id": item_id, "required": def.req_level, "chair": true})
 	if Consumables.is_dead(c, db, dead_check):
 		return ItemCodes.result(ItemCodes.DEAD, {"item_id": item_id})
 	var s := seat_for(c, seat)

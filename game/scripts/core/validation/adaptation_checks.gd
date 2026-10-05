@@ -27,6 +27,7 @@ const FILE_SCHEMAS := {
 	"map_id_crosswalk": {"convention": false, "sweep": false, "check": "_check_crosswalk", "required": true},
 	"world_scale": {"check": "_check_world_scale"},
 	"drop_rates": {"check": "_check_drop_rates"},
+	"recovery": {"check": "_check_recovery", "required": true},
 	"new_character": {"check": "_check_new_character"},
 	"inventory": {"check": "_check_inventory"},
 	"combat": {"check": "_check_combat"},
@@ -61,6 +62,9 @@ const DEFAULT_WORLD_DIR := "res://assets/world"
 ## The export's chunk list (<world_dir>/index.json: chunks.<slug>.{kind, map_id}).
 const WORLD_INDEX := "index"
 const MAX_LISTED_PATHS := 8
+## The interpretations data/misostory/drop_rates.json must hold (schema v2, contract C1): the drop runtime applies each
+## one, so each is an object whose "value" names the rule (reason and verified come from the convention check).
+const DROP_RATE_INTERPRETATIONS := ["meso_amount_distribution", "quest_gate_rule"]
 
 var db: ContentDB
 var report: ValidationReport
@@ -424,76 +428,70 @@ static func _sidecar(injected: Variant, world_dir: String, slug: String) -> Vari
 	return parsed if parsed != null else "unparsable"
 
 
-## drop_rates.json (placeholder drop chances): ids used as map keys resolve, every chance is a probability and
-## every quantity range is ordered. A dangling override key would silently never apply.
+## drop_rates.json (schema v2): the file documents the MisoStory interpretations the drop runtime applies to the
+## canonical drop records, so it must be an object holding each of DROP_RATE_INTERPRETATIONS with a non-empty string
+## "value". That it supplies no chance, quantity or meso number, and that the meso distribution is the one DropRoller
+## implements, is DropRates.validate's rule (reported by DropChecks as drop_policy); Iteration Two's placeholder tables
+## (item_overrides, type_rates, mesos.per_level, ...) are refused there, never checked here as if they still applied.
 func _check_drop_rates(label: String, id: String, data: Variant) -> void:
 	if not (data is Dictionary):
 		report.error("adaptation", label, id, "must be an object")
 		return
-	var item_overrides: Variant = data.get("item_overrides", {})
-	if item_overrides is Dictionary:
-		for item_id in item_overrides:
-			_require_key_ref(label, id, "item_overrides", "items", str(item_id))
-	var owner_overrides: Variant = data.get("owner_item_overrides", {})
-	if owner_overrides is Dictionary:
-		for owner_id in owner_overrides:
-			var owner := str(owner_id)
-			if not _require_key_ref(label, id, "owner_item_overrides", "drops", owner):
-				continue
-			var per_item: Variant = owner_overrides[owner_id]
-			if not (per_item is Dictionary):
-				report.error("adaptation", label, id, "owner_item_overrides.%s must map item ids to rates" % owner)
-				continue
-			var listed := _drop_table_items(owner)
-			for item_id in per_item:
-				var item := str(item_id)
-				if _require_key_ref(label, id, "owner_item_overrides.%s" % owner, "items", item) and not listed.has(item):
-					report.warning("adaptation", label, id, "owner_item_overrides.%s.%s: drop table %s does not list item %s, so the override never applies" % [
-						owner, item, owner, item])
-	var mesos: Variant = data.get("mesos", {})
-	if mesos is Dictionary and mesos.get("by_owner", null) is Dictionary:
-		for owner_id in mesos.by_owner:
-			_require_key_ref(label, id, "mesos.by_owner", "drops", str(owner_id))
-	var types := {}
-	var subtypes := {}
-	for item_id in db.ids("items"):
-		var it: Dictionary = db.item(item_id)
-		types[str(it.get("type", ""))] = true
-		subtypes["%s/%s" % [str(it.get("type", "")), str(it.get("subtype", ""))]] = true
-	for section in [["type_rates", types], ["subtype_rates", subtypes]]:
-		var table: Variant = data.get(section[0], {})
-		if table is Dictionary:
-			for k in table:
-				if not section[1].has(str(k)):
-					report.warning("adaptation", label, id, "%s.%s matches no canonical item" % [section[0], str(k)])
-	_check_rates(label, id, data, "")
+	for key: String in DROP_RATE_INTERPRETATIONS:
+		var rule: Variant = (data as Dictionary).get(key, null)
+		if not (rule is Dictionary):
+			report.error("adaptation", label, id, "%s must be an object: an interpretation the drop runtime applies (contract C1)" % key)
+			continue
+		var value: Variant = (rule as Dictionary).get("value", null)
+		if not (value is String) or String(value).strip_edges() == "":
+			report.error("adaptation", label, id, "%s.value must be a non-empty string naming the rule, got %s" % [key, var_to_str(value)])
 
 
-func _check_rates(label: String, id: String, node: Variant, path: String) -> void:
-	if node is Dictionary:
-		var chance: Variant = node.get("chance", null)
-		if node.has("chance") and chance != null and (not ValidationUtil.is_number(chance) or float(chance) < 0.0 or float(chance) > 1.0):
-			report.error("adaptation", label, id, "%s must be a probability in [0, 1], got %s" % [_join(path, "chance"), var_to_str(chance)])
-		var lo: Variant = node.get("min_quantity", null)
-		var hi: Variant = node.get("max_quantity", null)
-		for q in [["min_quantity", lo], ["max_quantity", hi]]:
-			if q[1] != null and (not ValidationUtil.is_number(q[1]) or float(q[1]) < 0.0):
-				report.error("adaptation", label, id, "%s must be a non-negative number, got %s" % [_join(path, q[0]), var_to_str(q[1])])
-		if ValidationUtil.is_number(lo) and ValidationUtil.is_number(hi) and float(lo) > float(hi):
-			report.error("adaptation", label, id, "%s: min_quantity %s exceeds max_quantity %s" % [path, str(lo), str(hi)])
-		# Ranges spelled {min, max} (mesos.per_level).
-		var range_lo: Variant = node.get("min", null)
-		var range_hi: Variant = node.get("max", null)
-		for q in [["min", range_lo], ["max", range_hi]]:
-			if q[1] != null and (not ValidationUtil.is_number(q[1]) or float(q[1]) < 0.0):
-				report.error("adaptation", label, id, "%s must be a non-negative number, got %s" % [_join(path, q[0]), var_to_str(q[1])])
-		if ValidationUtil.is_number(range_lo) and ValidationUtil.is_number(range_hi) and float(range_lo) > float(range_hi):
-			report.error("adaptation", label, id, "%s: min %s exceeds max %s" % [path, str(range_lo), str(range_hi)])
-		for k in node:
-			_check_rates(label, id, node[k], _join(path, str(k)))
-	elif node is Array:
-		for e in node:
-			_check_rates(label, id, e, path + "[]")
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read is there and of the kind they need
+## (natural_hp: hp_per_tick a whole number >= 0, tick_s > 0, eligible_activities a non-empty list of
+## PlayerController.activity() values; chair_bonus: two true/false switches; sitting.sit_key_chair a rule Chairs
+## implements), and natural_mp supplies no number while it is the unresolved source gap it says it is: MeowDB documents
+## no natural MP recovery, so an MP rate there would be an invented value.
+func _check_recovery(label: String, id: String, data: Variant) -> void:
+	if not (data is Dictionary):
+		report.error("adaptation", label, id, "must be an object")
+		return
+	var hp: Variant = (data as Dictionary).get("natural_hp", null)
+	if not (hp is Dictionary):
+		report.error("adaptation", label, id, "natural_hp must be an object (NaturalRecoveryRule reads it)")
+	else:
+		var per: Variant = hp.get("hp_per_tick", null)
+		if not ValidationUtil.is_number(per) or float(per) < 0.0 or float(per) != floorf(float(per)):
+			report.error("adaptation", label, id, "natural_hp.hp_per_tick must be a whole number >= 0, got %s" % var_to_str(per))
+		var tick: Variant = hp.get("tick_s", null)
+		if not ValidationUtil.is_number(tick) or float(tick) <= 0.0:
+			report.error("adaptation", label, id, "natural_hp.tick_s must be a positive number, got %s" % var_to_str(tick))
+		var acts: Variant = hp.get("eligible_activities", null)
+		if not (acts is Array) or (acts as Array).is_empty():
+			report.error("adaptation", label, id, "natural_hp.eligible_activities must be a non-empty list")
+		else:
+			for a in acts:
+				if not (str(a) in NaturalRecoveryRule.ACTIVITIES):
+					report.error("adaptation", label, id, "natural_hp.eligible_activities: '%s' is not a player activity (%s)" % [
+						str(a), ", ".join(NaturalRecoveryRule.ACTIVITIES)])
+	var mp: Variant = (data as Dictionary).get("natural_mp", null)
+	if mp is Dictionary and str(mp.get("status", "")) == "unresolved_source_gap":
+		for k in mp:
+			if ValidationUtil.is_number(mp[k]) and not (mp[k] is bool):
+				report.error("adaptation", label, id, "natural_mp.%s: an unresolved source gap supplies no number, got %s" % [
+					str(k), var_to_str(mp[k])])
+	var chair: Variant = (data as Dictionary).get("chair_bonus", null)
+	if not (chair is Dictionary):
+		report.error("adaptation", label, id, "chair_bonus must be an object (NaturalRecoveryRule reads it)")
+	else:
+		for k in ["stand_resets_clock", "full_hp_holds_clock"]:
+			if not (chair.get(k, null) is bool):
+				report.error("adaptation", label, id, "chair_bonus.%s must be true or false" % k)
+	var sitting: Variant = (data as Dictionary).get("sitting", null)
+	var rule := str(sitting.get("sit_key_chair", "")) if sitting is Dictionary else ""
+	if sitting is Dictionary and sitting.has("sit_key_chair") and not (rule in NaturalRecoveryRule.SIT_KEY_RULES):
+		report.error("adaptation", label, id, "sitting.sit_key_chair '%s' is not a rule Chairs implements (%s)" % [
+			str(sitting.get("sit_key_chair", "")), ", ".join(NaturalRecoveryRule.SIT_KEY_RULES)])
 
 
 ## portal_adaptations.json: every portal it names ("<map_id>.<portal>", link ids "T_<map>_<portal>__<map>[_<portal>]",
@@ -723,14 +721,6 @@ func _require_key_ref(label: String, id: String, where: String, target: String, 
 		return true
 	report.error("reference", label, id, "%s key '%s' is not a canonical %s id" % [where, ref, target])
 	return false
-
-
-func _drop_table_items(owner_id: String) -> Dictionary:
-	var out := {}
-	for e in ValidationUtil.as_array(db.drop_table(owner_id).get("entries", [])):
-		if e is Dictionary and e.get("item_id", null) is String:
-			out[e.item_id] = true
-	return out
 
 
 func _folders() -> PackedStringArray:

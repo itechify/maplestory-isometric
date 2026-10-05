@@ -8,8 +8,8 @@ extends RefCounted
 ##      the map's mob region (the layout footprint inset by spawns.mob_region_inset_m, section 4.7.4), and its
 ##      authored exclusions (Blender m.mobs avoid zones, sidecar exclude_xz) are taken out of its room. Slot by slot,
 ##      a species' slot goes to its area with the most weight per slot already given (the authored proxy count
-##      `points`, else the area in m^2: a proportional share), as long as that area keeps at least
-##      spawns.min_area_per_slot_m2 of room per slot counting every species; when none of its areas can, the slot
+##      `points`, else its room in m^2: a proportional share of the ground a slot can use), as long as that area
+##      keeps at least spawns.min_area_per_slot_m2 of room per slot counting every species; when none can, the slot
 ##      spills, after every species has had its own areas, to the least crowded area of the map (density control: no
 ##      clumps in small regions, and no species pushed out of its own areas by another's overflow);
 ##   2. a slot samples points inside its area with a RandomNumberGenerator seeded by hash("<map_id>:<index>"), so
@@ -261,6 +261,10 @@ static func _areas_for(def: MapDefinition, tuning: WorldTuning) -> Array[Diction
 		var clipped := a.duplicate()
 		clipped["pieces"] = pieces
 		clipped["room"] = room
+		# A share by area is a share of the room a slot can use: the area clipped to the mob region, without its
+		# exclusions (flower beds, avoid zones). An authored proxy count stays as authored.
+		if not bool(a.get("weight_from_points", false)):
+			clipped["weight"] = room
 		out.append(clipped)
 	if out.is_empty() and region.size() >= 3:
 		out.append({"name": "fallback:footprint", "species": PackedStringArray(), "polygon": region,

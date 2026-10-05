@@ -117,7 +117,8 @@ func attach_player(p: Node3D) -> void:
 	else:
 		pc.load_feel()
 	player_combat = pc
-	# Natural HP recovery while resting (combat.json natural_recovery), after PlayerCombat so it hears its attacks.
+	# Natural HP recovery (data/misostory/recovery.json, the owner's rule). It reads the player's activity after
+	# PlayerCombat each tick through its own process_physics_priority (NaturalRecovery.PHYSICS_PRIORITY 20 > 10).
 	if p.get_node_or_null(^"NaturalRecovery") == null:
 		var nr := NaturalRecovery.new()
 		nr.name = "NaturalRecovery"

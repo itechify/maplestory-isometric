@@ -176,6 +176,20 @@ static func may_roll(row: Dictionary, quests: PackedStringArray) -> bool:
 	return gate == "" or quests.has(gate)
 
 
+## True when `item_id` can come out of a roll of `owner_id` under the roll context `ctx` (contract C2): some member
+## of the owner's record resolves to that item, is not excluded (its chance and item resolved) and may roll under the
+## context's quests (DropRates.may_roll). A member the sources leave unresolved is on the record but never drops, and a
+## gated one drops only while its quest is in progress, so neither counts. For checks of what really dropped.
+static func rolls_item(owner_id: String, item_id: String, db: ContentDB, ctx: Dictionary = {}) -> bool:
+	if item_id == "" or not has_table(owner_id, db):
+		return false
+	var quests := quests_in_progress(ctx)
+	for row: Dictionary in effective_entries(owner_id, db):
+		if String(row.get("item_id", "")) == item_id and may_roll(row, quests):
+			return true
+	return false
+
+
 ## Seconds a drop stays on the ground (data/misostory/drops.json, unverified).
 static func ground_lifetime_s(db: ContentDB) -> float:
 	return float(_ground(db).get("ground_lifetime_s", 0.0))

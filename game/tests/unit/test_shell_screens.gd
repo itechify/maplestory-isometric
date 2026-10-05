@@ -143,7 +143,9 @@ func test_controls_list_covers_every_working_binding() -> void:
 
 ## Keeps NOT_AVAILABLE honest: a hidden action is one no script reads. When a feature starts handling one, this fails
 ## until it is taken off the list, so the panel never hides a working key. (The list is empty since Iteration Three;
-## the check guards any action put back on it.) The minimap's handler is checked by name: it reads "toggle_minimap".
+## the check guards any action put back on it.) The other way round, every action the panel lists is read by some
+## script, so the panel never advertises a key nothing handles (with NOT_AVAILABLE empty, the first check alone could
+## not fail). The minimap's handler is checked by name: it reads "toggle_minimap".
 func test_hidden_controls_have_no_handler_yet() -> void:
 	assert_true(FileAccess.get_file_as_string("res://scripts/ui/minimap/minimap.gd").contains("\"toggle_minimap\""),
 		"the minimap handles toggle_minimap")
@@ -151,6 +153,7 @@ func test_hidden_controls_have_no_handler_yet() -> void:
 	var skip := ["res://scripts/autoload/controls.gd", "res://scripts/ui/screens/controls_panel.gd"]
 	var files := _scripts_under("res://scripts")
 	assert_true(files.size() > 50, "the game's scripts were found (%d)" % files.size())
+	var handled := {}
 	for path: String in files:
 		if skip.has(path):
 			continue
@@ -158,6 +161,17 @@ func test_hidden_controls_have_no_handler_yet() -> void:
 		for action: String in ControlsPanel.NOT_AVAILABLE:
 			assert_false(text.contains("\"%s\"" % action) or text.contains("'%s'" % action),
 				"%s names the hidden action '%s': if it handles it now, take it off ControlsPanel.NOT_AVAILABLE" % [path, action])
+		for action: String in ControlsPanel.BINDINGS:
+			# A numbered family (quickslot_1 .. quickslot_8) is read through its prefix ("quickslot_" + n).
+			var family := action.rstrip("0123456789")
+			if text.contains("\"%s\"" % action) or text.contains("'%s'" % action) \
+					or (family != action and family.ends_with("_") and text.contains("\"%s\"" % family)):
+				handled[action] = true
+	var rows := ControlsPanel.rows()
+	assert_true(rows.size() > 10, "the panel lists the working keys (%d)" % rows.size())
+	for r: Dictionary in rows:
+		assert_true(handled.has(String(r["action"])), "the panel lists '%s' (%s), but no script reads that action" % [
+			r["action"], r["label"]])
 
 
 func _scripts_under(dir_path: String) -> PackedStringArray:

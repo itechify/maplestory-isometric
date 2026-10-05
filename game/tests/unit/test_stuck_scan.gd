@@ -32,6 +32,7 @@ func parity_keys() -> Dictionary:
 		"test_a_descend_only_rope_out_of_a_pit_is_a_trap": ["mechanic:stuck-region-scan"],
 		"test_a_surface_inside_a_solid_is_not_a_node": ["mechanic:stuck-region-scan"],
 		"test_a_yard_reached_only_by_a_running_jump_is_a_confirmed_trap": ["mechanic:stuck-region-scan"],
+		"test_ways_in_are_taken_in_turns_from_every_kind": ["mechanic:stuck-region-scan"],
 	}
 
 
@@ -128,6 +129,35 @@ func test_a_surface_inside_a_solid_is_not_a_node() -> void:
 		assert_false(absf(y - 1.1) < 0.05, "the slab inside the block is not a node: %s" % heights)
 		assert_false(absf(y) < 0.05, "the ground under the block is not a node: %s" % heights)
 	w.free_all()
+
+
+## The ways in the verification replays are taken in turns from every kind present (walks and drops first, then
+## slides, longer drops and hops), within a kind by the smallest height change and from a take-off node not used yet:
+## a component with many slides still gets its long drop and its hops tried (the review found traps only a long hop
+## got into).
+func test_ways_in_are_taken_in_turns_from_every_kind() -> void:
+	var scan := StuckScan.new()
+	var slides: Array = []
+	for i in 10:
+		slides.append({"from": i % 3, "to": 100 + i, "dy": -0.1 * (10 - i), "kind": "slide"})
+	var ins := {StuckScan.Edge.SLIDE: slides,
+		StuckScan.Edge.HOP: [{"from": 20, "to": 120, "dy": -2.0, "kind": "hop"}, {"from": 21, "to": 121, "dy": -1.0, "kind": "hop"}],
+		StuckScan.Edge.WALK: [{"from": 30, "to": 130, "dy": 0.0, "kind": "walk"}],
+		StuckScan.Edge.LONG_DROP: [{"from": 40, "to": 140, "dy": -3.0, "kind": "long drop"}]}
+	var out := scan._pick_ins(ins)
+	assert_eq(out.size(), StuckScan.IN_EDGES, "as many ways in as the budget allows")
+	var first: Array = out.slice(0, 4).map(func(e: Dictionary) -> String: return String(e.kind))
+	assert_eq(first, ["walk", "slide", "long drop", "hop"], "one of each kind first, likeliest kind first")
+	assert_eq(int(out[1].to), 109, "the slide with the smallest height change first")
+	assert_eq(float(out[3].dy), -1.0, "the smaller hop first")
+	var kinds := {}
+	for e: Dictionary in out:
+		kinds[String(e.kind)] = int(kinds.get(String(e.kind), 0)) + 1
+	assert_eq(int(kinds.get("hop", 0)), 2, "both hops tried")
+	# Second round: the next slide comes from a take-off node not used yet (109 came from node 0).
+	var second_slide: Dictionary = out[4]
+	assert_eq(String(second_slide.kind), "slide")
+	assert_ne(int(second_slide.from), int(out[1].from), "a new take-off node")
 
 
 # --- the island -----------------------------------------------------------------------------------------------------

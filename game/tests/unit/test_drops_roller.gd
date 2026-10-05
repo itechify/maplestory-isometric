@@ -242,3 +242,37 @@ func test_pickup_box_is_canonical_and_converted_through_world_scale() -> void:
 		assert_eq(float(px[k]), float(canon[k]), "px %s" % k)
 		assert_near(float(m[k]), WorldScale.actor(float(canon[k])), 1e-9, "m %s" % k)
 		assert_true(float(m[k]) > 0.0, k)
+
+
+## DropRates.rolls_item: what a check of real drops may accept. A rolling member counts; a member the sources leave
+## unresolved (it is on the record but never rolls) does not; a gated member counts only under a context with its quest.
+## The in-game monster check (monster_game_checks.gd _in_table) uses it, so it no longer passes a member that never
+## rolls.
+func test_rolls_item_counts_rolling_members_only() -> void:
+	var checks: GDScript = load("res://scripts/actors/monsters/monster_game_checks.gd")
+	assert_true(DropRates.rolls_item("2", "348", db()), "the Snail Shell rolls on every Snail")
+	var never := ""
+	for row: Dictionary in DropRates.effective_entries("2", db()):
+		if String(row.excluded) != "" and String(row.item_id) != "" and not DropRates.rolls_item("2", String(row.item_id), db()):
+			never = String(row.item_id)
+			break
+	assert_ne(never, "", "the Snail's record has a member with a local item that never rolls")
+	assert_false(DropRates.rolls_item("2", never, db()), "an unresolved member is not a drop")
+	assert_false(DropRates.rolls_item("0000001", "441", db()), "the Board is gated: no context, no drop")
+	assert_false(DropRates.rolls_item("0000001", "441", db(), {"quests_in_progress": PackedStringArray(["1000"])}),
+		"another quest does not open the gate")
+	assert_true(DropRates.rolls_item("0000001", "441", db(), _pio()), "rolls while Pio's quest is in progress")
+	assert_false(DropRates.rolls_item("no-such-owner", "348", db()))
+	assert_false(DropRates.rolls_item("2", "", db()))
+	# Every drop the roller produces passes.
+	var rng := _rng(5)
+	for k in 200:
+		for d: Dictionary in DropRoller.roll("2", db(), rng):
+			if String(d.kind) == "item":
+				assert_true(DropRates.rolls_item("2", String(d.item_id), db()), "rolled %s" % d.item_id)
+	# The game check agrees.
+	var killed := [["2", "000000040"], ["3", "000000040"]]
+	assert_true(bool(checks.call("_in_table", db(), killed, "348")))
+	assert_false(bool(checks.call("_in_table", db(), killed, never)), "the game check refuses a member that never rolls")
+	assert_false(bool(checks.call("_in_table", db(), [["0000001", "000001010"]], "441")), "nor a gated one outside its quest")
+	assert_true(bool(checks.call("_in_table", db(), [["0000001", "000001010"]], "441", _pio())))

@@ -106,6 +106,30 @@ func test_owner_natural_regen_rule_is_accepted() -> void:
 	expect_new(r, "error", "provenance", "misostory", "zz_test_recovery", "needs decision")
 
 
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read must be there and well-formed, and the
+## natural MP gap supplies no number (MeowDB documents no natural MP recovery: an MP rate would be invented).
+func test_recovery_file_is_what_the_runtime_reads() -> void:
+	assert_eq(baseline().matching("adaptation", "misostory", "recovery").size(), 0, "the shipped file passes")
+	var c := clone_db()
+	var rec: Dictionary = c.miso[""]["recovery"]
+	(rec["natural_hp"] as Dictionary)["tick_s"] = 0
+	(rec["natural_hp"] as Dictionary)["hp_per_tick"] = 2.5
+	(rec["natural_hp"] as Dictionary)["eligible_activities"] = ["still", "napping"]
+	(rec["natural_mp"] as Dictionary)["mp_per_tick"] = 3
+	(rec["chair_bonus"] as Dictionary)["full_hp_holds_clock"] = "yes"
+	(rec["sitting"] as Dictionary)["sit_key_chair"] = "best_owned"
+	var r := run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.tick_s must be a positive number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.hp_per_tick must be a whole number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "'napping' is not a player activity")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_mp.mp_per_tick: an unresolved source gap supplies no number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "chair_bonus.full_hp_holds_clock must be true or false")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "sitting.sit_key_chair 'best_owned' is not a rule Chairs implements")
+	var gone := clone_db()
+	(gone.miso[""] as Dictionary).erase("recovery")
+	expect_new(run_validator(gone), "error", "adaptation", "misostory", "recovery", "required adaptation file")
+
+
 func test_typed_reference_inside_adaptation_file() -> void:
 	var c := _with_file(clone_db(), "zz_test_refs", adapted({"start": {"map_id": BOGUS}, "reward": {"item_id": BOGUS + "-item"}}))
 	var r := run_validator(c)
@@ -283,32 +307,30 @@ func test_world_scale_factors() -> void:
 	expect_new(r, "error", "adaptation", "misostory", "world_scale", "actor_px_to_m must be a positive number")
 
 
-func test_drop_rates_keys_and_ranges() -> void:
+## drop_rates.json is the v2 interpretations file (contract C1): the shipped file passes; each interpretation the drop
+## runtime applies must be there with a string value; Iteration Two's placeholder tables are refused by the drop policy
+## (DropRates.validate through DropChecks), not checked as if they still supplied rates.
+func test_drop_rates_is_the_v2_interpretations_file() -> void:
+	assert_eq(baseline().matching("adaptation", "misostory", "drop_rates").size(), 0, "the shipped file passes")
 	var c := clone_db()
-	var owner := first_id_where(c, "drops", func(r: Dictionary) -> bool: return not arr(r, "entries").is_empty(), "with entries")
-	var unlisted := ""
-	var listed := {}
-	for e in arr(c.drop_table(owner), "entries"):
-		listed[e.item_id] = true
-	for item_id in c.ids("items"):
-		if not listed.has(item_id):
-			unlisted = item_id
-			break
-	_with_file(c, "drop_rates", adapted({
-		"item_overrides": {BOGUS: {"chance": 0.5}},
-		"owner_item_overrides": {BOGUS + "-owner": {}, owner: {unlisted: {"chance": 1.5, "min_quantity": 3, "max_quantity": 1}}},
-		"mesos": {"by_owner": {BOGUS + "-meso": {"chance": 0}}, "per_level": {"min": 3, "max": 1}},
-		"type_rates": {"Imaginary": {"chance": 0.1}},
-	}))
+	var rates: Dictionary = (c.miso[""]["drop_rates"] as Dictionary)
+	rates.erase("meso_amount_distribution")
+	(rates["quest_gate_rule"] as Dictionary)["value"] = 5
 	var r := run_validator(c)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "item_overrides key '%s' is not a canonical items id" % BOGUS)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "owner_item_overrides key '%s-owner' is not a canonical drops id" % BOGUS)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "mesos.by_owner key '%s-meso'" % BOGUS)
-	expect_new(r, "warning", "adaptation", "misostory", "drop_rates", "does not list item %s" % unlisted)
-	expect_new(r, "warning", "adaptation", "misostory", "drop_rates", "type_rates.Imaginary matches no canonical item")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "chance must be a probability in [0, 1]")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "min_quantity 3 exceeds max_quantity 1")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "mesos.per_level: min 3 exceeds max 1")
+	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "meso_amount_distribution must be an object")
+	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "quest_gate_rule.value must be a non-empty string")
+	var old := _with_file(clone_db(), "drop_rates", adapted({
+		"meso_amount_distribution": {"value": DropRates.MESO_DISTRIBUTION, "reason": "test", "verified": false},
+		"quest_gate_rule": {"value": "test rule", "reason": "test", "verified": false},
+		"item_overrides": {BOGUS: {"chance": 0.5}},
+		"mesos": {"per_level": {"min": 3, "max": 1}},
+	}))
+	var r2 := run_validator(old)
+	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "item_overrides: a chance, quantity or meso value outside the canonical drop records")
+	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "mesos.per_level")
+	for f in new_findings(r2):
+		assert_ne(String(f.check), "reference", "a placeholder table is not resolved as if it still applied: %s" % f.message)
+	assert_eq(r2.matching("adaptation", "misostory", "drop_rates").size(), 0, "both interpretations present")
 
 
 func test_new_character_start_spawn_index() -> void:

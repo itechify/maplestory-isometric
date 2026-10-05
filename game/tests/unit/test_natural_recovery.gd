@@ -218,6 +218,43 @@ func test_full_hp_holds_the_clock_and_never_exceeds_max_hp() -> void:
 	assert_eq(_run(r, 30.0, &"dead", 50, 60), 0, "dead (respawn HP already set): nothing")
 
 
+## One step longer than a tick (a hitch, a long frame) that fills HP: the clock stops at the filling tick and stays in
+## [0, tick_s) as contract C3 says; it never banks the seconds spent at full HP.
+func test_a_long_step_that_fills_hp_keeps_the_clock_in_range() -> void:
+	var r := _rule()
+	assert_eq(r.step(25.0, &"still", 45, 50), 5, "one tick fills the 5 HP missing")
+	assert_near(r.rest_s, 0.0, 1e-4, "the 15 s after the filling tick do not count")
+	r.rest_s = 3.0
+	assert_eq(r.step(25.0, &"still", 35, 50), 15, "two ticks fill 15 HP")
+	assert_true(r.rest_s >= 0.0 and r.rest_s < 10.0, "in [0, tick_s): %f" % r.rest_s)
+	r.rest_s = 4.0
+	assert_eq(r.step(25.0, &"still", 10, 50), 20, "room for more: two ticks, nothing held")
+	assert_near(r.rest_s, 9.0, 1e-4, "4 + 25 - 2 x 10 s")
+
+
+## NaturalRecoveryRule.ACTIVITIES (what the recovery.json validator lets eligible_activities name) mirrors the values
+## PlayerController.activity() returns (contract C4): read from the controller's source, so a new activity cannot
+## make the validator refuse a valid recovery.json, nor a dropped one let it pass.
+func test_the_activity_list_mirrors_the_player_controller() -> void:
+	var src := FileAccess.get_file_as_string("res://scripts/actors/player/player_controller.gd")
+	var at := src.find("func activity() -> StringName:")
+	assert_true(at >= 0, "PlayerController.activity() found")
+	var end := src.find("\nfunc ", at + 1)
+	var body := src.substr(at, (end if end > at else src.length()) - at)
+	var re := RegEx.create_from_string("&\"([a-z_]+)\"")
+	var returned := {}
+	for m in re.search_all(body):
+		returned[m.get_string(1)] = true
+	var listed := {}
+	for a in NaturalRecoveryRule.ACTIVITIES:
+		listed[a] = true
+	var got: Array = returned.keys()
+	got.sort()
+	var want: Array = listed.keys()
+	want.sort()
+	assert_eq(got, want, "activity() returns exactly NaturalRecoveryRule.ACTIVITIES")
+
+
 func test_save_and_load_keep_the_paused_clock() -> void:
 	var g := _fake_game(20)
 	var nr := _detached_node(g)

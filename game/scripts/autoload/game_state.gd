@@ -30,7 +30,10 @@ const GENDERS: PackedStringArray = ["male", "female"]
 
 ## The one player character in play. Replaced wholesale on new game / load.
 var character: CharacterState = CharacterState.new()
-## Seconds of unpaused game time since the session started (spawn ticks, buffs and drop lifetimes use this).
+## Seconds of unpaused game time while a game is active (spawn ticks, buffs and drop lifetimes use this). It stands
+## still on the title screen and while the island loads: the threaded chunk load takes a wall-clock-dependent number of
+## frames, and the global respawn tick is anchored at clock 0, so a clock running through the load put the spawn ticks
+## at a different phase of play in every run of one seed (two smoke runs differed by 96 frames at the first step).
 var clock: float = 0.0
 var paused: bool = false
 ## Gameplay randomness (damage rolls, drops, spawns). Seeded once per session; tests use their own RNGs.
@@ -52,9 +55,10 @@ var autosave_on_quit: bool = true
 ## Events signals that request an autosave (progress milestones). MapSession also requests one when a transition
 ## reaches IDLE (MAP_ARCHITECTURE.md §4.5 step 15); requests are debounced, so overlaps cost nothing. Quest progress
 ## (a kill, use, talk or visit that moves an objective) is one of them, so a crash never loses more than the
-## debounce window of it; a burst of kills still saves at most once per autosave_max_delay_s.
+## debounce window of it; a burst of kills still saves at most once per autosave_max_delay_s. Spending SP on a skill
+## (skill_leveled) is a milestone too, from wherever the SP is spent (the Skills window, the console).
 const AUTOSAVE_TRIGGERS: PackedStringArray = ["map_entered", "leveled_up", "quest_started", "quest_progressed",
-	"quest_completed", "quest_forfeited"]
+	"quest_completed", "quest_forfeited", "skill_leveled"]
 ## Errors from the last rejected new_game() (for the creation screen).
 var last_creation_errors: PackedStringArray = []
 ## Injection seams (tests): null = the Saves autoload / Data.db / the Events autoload.
@@ -115,11 +119,10 @@ func connect_autosave_triggers(bus: Node) -> void:
 
 
 func _process(delta: float) -> void:
-	if not paused:
+	if not paused and _active:
 		clock += delta
-		if _active:
-			character.play_time_s += delta
-			session_play_time_s += delta
+		character.play_time_s += delta
+		session_play_time_s += delta
 	_realtime += delta
 	_tick_autosave()
 

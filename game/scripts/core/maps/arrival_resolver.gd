@@ -38,9 +38,10 @@ static func resolve(req: TransitionRequest, defs: MapDefinitions) -> Dictionary:
 ## The load chain (section 4.9): 1. `resume` (validated by `validate_resume`: Callable(map_id, world_pos) -> bool),
 ## 2. `entry` (a portal's spawn_transform or a player spawn), 3. player_spawns[0] of map_id, 4. an unknown map id
 ## loads at `fallback_map` player_spawns[0] (logged as an error).
-## A resume point whose saved `map_content_hash` differs from the map's current content_hash (the map's collision
-## changed since the save, e.g. a trap fix) is skipped before validation: the position was vetted against geometry
-## that no longer exists, so the player arrives at the entry instead (docs/runtime/SAVES.md). The guard needs both
+## A resume point whose saved `map_content_hash` differs from the map's current content_hash (the collision of the map
+## chunk or of a shared world chunk overlapping its region changed since the save, e.g. a trap fix in World_Plinths:
+## MapDefinitions.resume_hash) is skipped before validation: the position was vetted against geometry that no longer
+## exists, so the player arrives at the entry instead (docs/runtime/SAVES.md). The guard needs both
 ## hashes; an old save without one, or a build without the world export (content_hash ""), only gets the physical
 ## validation.
 ## Returns {"ok", "map_id", "xform", "arrival": ArrivalRef, "step", "errors": PackedStringArray}.

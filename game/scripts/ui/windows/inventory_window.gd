@@ -91,7 +91,7 @@ func _build() -> void:
 	actions.add_child(action_button)
 	key_button = MisoWindow.make_button("Set key")
 	key_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	key_button.tooltip_text = "Bind the selected consumable to a quickslot key"
+	key_button.tooltip_text = "Bind the selected consumable or chair to a quickslot key"
 	key_button.pressed.connect(func() -> void: key_picker.visible = not key_picker.visible)
 	actions.add_child(key_button)
 	body.add_child(actions)

@@ -124,6 +124,40 @@ func test_a_species_shares_its_regions_by_weight() -> void:
 	assert_eq(n, [6, 2], "proportional to the areas (100 : 36 of 8 slots)")
 
 
+## A species' share of a region weighted by area counts only the room a slot can use: the region minus its authored
+## exclusions (flower beds). A 100 m^2 region that is 64 m^2 beds holds as much as an open 36 m^2 one; weighting by
+## the full 100 m^2 gave it 6 of 8 slots on the 36 m^2 left. An authored proxy count (`points`) stays as authored.
+func test_a_share_by_area_counts_only_the_room_left_after_exclusions() -> void:
+	var tuning := _tuning()
+	var a := _area("Snail_1", "Snail", _square(2, 2, 10))  # 100 m^2
+	(a["exclude"] as Array[PackedVector2Array]).append(_square(3, 3, 8))  # 64 m^2 of beds: 36 m^2 left
+	var b := _area("Snail_2", "Snail", _square(14, 2, 6))  # 36 m^2, open
+	var areas: Array[Dictionary] = [a, b]
+	var def := _map(8, "2", areas)
+	var clipped := SpawnSlotPlanner._areas_for(def, tuning)
+	assert_near(float(clipped[0].room), 36.0, 1e-3, "the beds are not room")
+	assert_near(float(clipped[0].weight), 36.0, 1e-3, "and not weight")
+	var got := SpawnSlotPlanner._assign_areas(def, clipped, 0.0)
+	var n := [0, 0]
+	for i in 8:
+		n[int(got[i])] += 1
+	assert_eq(n, [4, 4], "equal room, equal share (the density rule off)")
+	# Authored proxy counts are a share in themselves: kept, whatever the room.
+	var pa := a.duplicate(true)
+	pa["weight"] = 6.0
+	pa["weight_from_points"] = true
+	var pb := b.duplicate(true)
+	pb["weight"] = 2.0
+	pb["weight_from_points"] = true
+	var pointed: Array[Dictionary] = [pa, pb]
+	var def2 := _map(8, "2", pointed)
+	var got2 := SpawnSlotPlanner._assign_areas(def2, SpawnSlotPlanner._areas_for(def2, tuning), 0.0)
+	var m := [0, 0]
+	for i in 8:
+		m[int(got2[i])] += 1
+	assert_eq(m, [6, 2], "6 : 2 proxies")
+
+
 func test_authored_exclusions_keep_slots_out() -> void:
 	var tuning := _tuning()
 	var area := _area("BlueSnail_1", "Snail", _square(2, 2, 20))
