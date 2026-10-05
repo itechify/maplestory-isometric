@@ -62,6 +62,7 @@ func parity_keys() -> Dictionary:
 		"test_m_folds_the_map_to_the_title_and_is_quiet_under_a_modal": ["ui:key-bindings", "ui:map-name-display"],
 		"test_npc_dots_follow_the_quests": ["ui:quest-indicators", "quest:1006"],
 		"test_portals_npcs_shops_and_hover_text": ["ui:shop-indication", "ui:portal-cue", "npc:16", "npc:15"],
+		"test_name_tags_mark_shopkeepers_and_transport": ["ui:shop-indication", "npc:15", "npc:16", "npc:20", "npc:21"],
 	}
 
 
@@ -333,3 +334,36 @@ func test_portals_npcs_shops_and_hover_text() -> void:
 	for l: Dictionary in mm.view.label_layout():
 		assert_true(Rect2(Vector2.ZERO, mm.view.size).encloses(l["rect"]), "label %s inside the picture" % l["id"])
 	assert_eq(mm.snapshot()["labels"].size(), want.size(), "two exits: both names fit")
+
+
+## Shop indication on the NPCs themselves: every canonical NPC's name tag, through the real NpcPresenter, carries the
+## coin when the record has a shop (Pan, Sid, Lucy, with their function title), the boat for the Transport role
+## (Shanks, with "Transport" under his name) and nothing for anyone else.
+func test_name_tags_mark_shopkeepers_and_transport() -> void:
+	var overlay := Control.new()
+	_parent().add_child(overlay)
+	nodes.append(overlay)
+	var shops := 0
+	var transports := 0
+	for nid in db().ids("npcs"):
+		var rec := db().npc(nid)
+		var n := Node3D.new()
+		n.set_meta("npc_id", nid)
+		overlay.add_child(n)
+		var p := NpcPresenter.attach(n, overlay, db())
+		var want := MapIcons.npc_role(rec)
+		assert_eq(p.tag.role, want, "NPC %s (%s) role icon" % [nid, rec.get("name")])
+		assert_eq(p.tag.role_icon.visible, want != "", "NPC %s icon shown iff it has a role icon" % nid)
+		assert_eq(p.tag.name_label.text, String(rec["name"]), "NPC %s name" % nid)
+		if want == MapIcons.ROLE_SHOP:
+			shops += 1
+			assert_true(rec.get("shop") is Dictionary, "NPC %s: a shop behind the coin" % nid)
+			assert_eq(p.tag.title_label.text, String(rec["function_title"]), "NPC %s: the canonical function title" % nid)
+		elif want == MapIcons.ROLE_TRANSPORT:
+			transports += 1
+			assert_true((rec.get("roles", []) as Array).has(MapIcons.TRANSPORT_ROLE), "NPC %s: the canonical role" % nid)
+			assert_true(p.tag.title_label.visible and p.tag.title_label.text == MapIcons.TRANSPORT_ROLE,
+				"NPC %s: 'Transport' under the name" % nid)
+		else:
+			assert_false(rec.get("shop") is Dictionary, "NPC %s: no shop, no coin" % nid)
+	assert_true(shops >= 3 and transports >= 1, "Maple Island's shopkeepers (%d) and Shanks (%d)" % [shops, transports])

@@ -21,6 +21,8 @@ var npc: Node3D = null
 var npc_id: String = ""
 var npc_name: String = ""
 var title: String = ""
+## The name tag's role icon (MapIcons.npc_role of the canonical record: shop coin, transport boat, or "").
+var role: String = ""
 var tag: NpcNameTag = null
 var marker: QuestMarker = null
 ## () -> NpcInteraction (null allowed: no markers, no facing).
@@ -65,6 +67,7 @@ func setup(p_npc: Node3D, overlay: Control, db: ContentDB) -> void:
 	if npc_name.is_empty():
 		npc_name = String(rec.get("name", npc_id))
 	title = String(rec.get("function_title", "")) if rec.get("function_title") is String else ""
+	role = MapIcons.npc_role(rec)
 	_phase = float(absi(hash(npc_id)) % 997) / 997.0 * TAU
 	_visual = npc.get_node_or_null("Visual") as Node3D
 	if _visual != null:
@@ -84,6 +87,7 @@ func _make_overlay_controls(overlay: Control) -> void:
 	tag = NpcNameTag.new()
 	tag.name = "Tag_%s" % npc_id
 	tag.set_texts(npc_name, title)
+	tag.set_role(role)
 	tag.visible = false
 	marker = QuestMarker.new()
 	marker.name = "Marker_%s" % npc_id
