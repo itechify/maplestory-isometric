@@ -87,3 +87,11 @@ func test_character_state_composes_quest_log() -> void:
 	c.quests.add_kills("1006", "2", 7, 10)
 	var c2 := CharacterState.from_dict(JSON.parse_string(JSON.stringify(c.to_dict())))
 	assert_eq(c2.quests.kills("1006", "2"), 7)
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_json_round_trip_restores_types": ["mechanic:quest-persistence"],
+		"test_character_state_composes_quest_log": ["mechanic:quest-persistence"],
+	}

@@ -185,7 +185,7 @@ func test_quest_summary_carries_npcs_maps_chain_and_missable() -> void:
 	assert_eq(s["end_npc_name"], "Mai")
 	assert_eq(s["end_map_name"], "A Split Road")
 	assert_eq(s["chain"]["name"], "Mai's Training")
-	assert_eq(s["missable"], QuestJson.b(db().quest("1006").get("missable")), "the record's flag (default false)")
+	assert_eq(s["missable"], QuestDef.from_records(db().quest("1006")).missable, "the record's flag (default false)")
 	assert_eq(s["min_level"], 1)
 	assert_eq(MisoQuestWindow.npc_line(s), "From Sam (Snail Hunting Ground I)  ·  turn in to Mai (A Split Road)")
 	assert_eq(MisoQuestWindow.npc_line(e.quest_summary("1002")), "From Roger (Mushroom Town)", "same NPC both ends")
