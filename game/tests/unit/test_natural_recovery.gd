@@ -311,8 +311,7 @@ func test_node_pauses_for_real_walking_jumping_and_attacking() -> void:
 	w.bot.hold(&"jump")
 	_tick(p, nr, 4.0)
 	w.bot.release(&"jump")
-	# Each landing of a held jump is one grounded tick (classic re-hop), which is honest standing-still time.
-	assert_between(_clock(g) - 6.0, 0.0, 0.3, "4 s of hopping: (almost) paused")
+	assert_near(_clock(g), 6.0, 1e-4, "4 s of hopping: paused (the landing ticks between hops are jumping too)")
 	_tick(p, nr, 1.0)
 	var before_attack := _clock(g)
 	combat.attacking = true

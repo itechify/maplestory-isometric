@@ -138,6 +138,8 @@ var _support_offset: Vector3 = Vector3.ZERO
 var _jump_released_since_jump: bool = true
 ## The movement intent of the last tick (after input gating): activity() tells "walking" from "still" by it.
 var _last_wish: Vector3 = Vector3.ZERO
+## The jump key was held on the last tick (after input gating): a held jump re-hops on landing (hold_to_rejump).
+var _last_jump_held: bool = false
 var _foot_offsets: PackedVector3Array = PackedVector3Array()
 var _ray: PhysicsRayQueryParameters3D = null
 var _body_shape: CollisionShape3D = null
@@ -187,9 +189,10 @@ func step(delta: float) -> void:
 		_settle(model.teleport_settle)
 	var intent := _read_intent()
 	_last_wish = intent.wish
+	_last_jump_held = intent.jump_held
 	if is_seated():
-		# Seated: no walking, jumping or climbing. A move, jump, attack or sit press stands the player up, and that press
-		# does nothing else this tick (a held key walks from the next tick on).
+		# Seated: no walking, jumping or climbing. A move, jump or sit press (or PlayerCombat attacking) stands the player
+		# up, and that press does nothing else this tick (a held key walks from the next tick on).
 		_step_seated(intent)
 		intent = Intent.new()
 	elif intent.sit:
@@ -222,10 +225,11 @@ func is_input_enabled() -> bool:
 
 ## What the player is doing now (contract C4), one of:
 ##   &"dead"; &"seated"; &"hitstun" (a knockback in flight); &"climbing"; &"attacking" (PlayerCombat.is_attacking():
-##   a basic attack's or a skill cast's lockout); &"jumping" (any airborne state: a jump, a fall); &"walking" (movement
-##   input, or still moving faster than STILL_SPEED, also input pushing into a wall); &"still" (grounded, no movement
-##   input, horizontal speed about zero; input disabled by a dialogue counts as no input); &"other" (no movement model,
-##   not in the tree, or not processing: frozen for a warp, the game paused).
+##   a basic attack's or a skill cast's lockout); &"jumping" (any airborne state: a jump, a fall; also the landing
+##   ticks between the hops of a held jump); &"walking" (movement input, or still moving faster than STILL_SPEED, also
+##   input pushing into a wall); &"still" (grounded, no movement input, horizontal speed about zero; input disabled by
+##   a dialogue counts as no input); &"other" (no movement model, not in the tree, or not processing: frozen for a
+##   warp, the game paused).
 ## Natural HP recovery runs only while &"still" or &"seated" (data/misostory/recovery.json natural_hp).
 func activity() -> StringName:
 	if model == null or not is_inside_tree() or not can_process():
@@ -240,7 +244,8 @@ func activity() -> StringName:
 		return &"climbing"
 	if _combat_attacking():
 		return &"attacking"
-	if state == State.AIR:
+	# A held jump re-hops on the tick after landing (hold_to_rejump): that landing is part of the jumping.
+	if state == State.AIR or (model.hold_to_rejump and _last_jump_held and not _jump_released_since_jump):
 		return &"jumping"
 	if _last_wish.length_squared() > 0.0001 or move_velocity.length() > STILL_SPEED \
 			or actual_velocity.length() > STILL_SPEED:
@@ -507,8 +512,6 @@ class Intent:
 	var interact: bool = false
 	## The sit key (X) went down.
 	var sit: bool = false
-	## The attack key went down (PlayerCombat reads it itself; a seated player only stands up on it).
-	var attack: bool = false
 
 
 func _read_intent() -> Intent:
@@ -524,13 +527,12 @@ func _read_intent() -> Intent:
 	i.grab_down = input_source.just_pressed(&"climb_down")
 	i.interact = input_source.just_pressed(&"interact")
 	i.sit = input_source.just_pressed(&"sit")
-	i.attack = input_source.just_pressed(&"attack")
 	return i
 
 
-## One seated tick: what stands the player up. A press that stands it up does nothing else this tick; an attack press
-## still reaches PlayerCombat, which runs after this body and swings from standing. A skill cast or a held attack shows
-## as PlayerCombat attacking and stands the player up the same way.
+## One seated tick: what stands the player up. A move, jump or sit press does nothing else this tick. An attack is
+## PlayerCombat's (it runs after this body and filters the mouse: a click on a window, such as the double-click on the
+## chair, is never an attack): once it attacks, or a skill casts, PlayerCombat is attacking and the player stands up.
 func _step_seated(intent: Intent) -> void:
 	if intent.sit:
 		stand_up(&"sit_key")
@@ -538,7 +540,7 @@ func _step_seated(intent: Intent) -> void:
 		stand_up(&"jump")
 	elif intent.wish.length_squared() > 0.0001:
 		stand_up(&"move")
-	elif intent.attack or _combat_attacking():
+	elif _combat_attacking():
 		stand_up(&"attack")
 
 

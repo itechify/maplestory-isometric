@@ -128,13 +128,21 @@ func test_a_jump_press_stands_up_without_jumping() -> void:
 
 
 func test_an_attack_or_a_cast_stands_up() -> void:
+	# A real PlayerCombat (MonsterTestRig): the attack key swings, and the swing stands the player up.
+	var rig := MonsterTestRig.create(db(), 3)
+	rig.floor(40.0)
+	var rp := rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var rig_seen := _record(rp)
+	rig.run(2)
+	assert_true(rp.sit(RELAXER), "seated")
+	rig.w.bot.press(&"attack")
+	rig.run(2)
+	assert_eq(rig.system.player_combat.attacks, 1, "the attack press swings (PlayerCombat runs after the body)")
+	assert_false(rp.is_seated(), "the swing stands the player up")
+	assert_eq(rig_seen.back(), ["stood", &"attack"])
+	rig.free_all()
+	# Any other system's attack lockout (a skill cast) does the same.
 	var p := _player()
-	var seen := _record(p)
-	p.sit(RELAXER)
-	w.bot.press(&"attack")
-	w.run(1)
-	assert_false(p.is_seated(), "an attack press stands up (PlayerCombat, after the body, swings from standing)")
-	assert_eq(seen.back(), ["stood", &"attack"])
 	var combat := FakeCombat.new()
 	combat.name = "PlayerCombat"
 	p.add_child(combat)

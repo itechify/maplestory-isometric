@@ -78,6 +78,22 @@ func test_airborne_is_jumping() -> void:
 	assert_eq(q.activity(), &"jumping", "falling is airborne too")
 
 
+func test_holding_jump_is_jumping_on_every_tick_including_the_landings() -> void:
+	var p := w.spawn_player(Vector3.ZERO)
+	w.run(2)
+	w.bot.hold(&"jump")
+	var landings := 0
+	for i in 180:
+		w.run(1)
+		if p.is_grounded():
+			landings += 1
+		assert_eq(p.activity(), &"jumping", "tick %d of a held jump (grounded %s)" % [i, p.is_grounded()])
+	assert_true(landings > 0, "the held jump landed and re-hopped (%d grounded ticks)" % landings)
+	w.bot.release(&"jump")
+	w.run(60)
+	assert_eq(p.activity(), &"still", "released: standing still again")
+
+
 func test_climbing_hitstun_and_dead() -> void:
 	var p := w.spawn_player(Vector3.ZERO)
 	var c := ClimbableDef.from_sidecar({"name": "L", "kind": "ladder", "bottom": [0.5, 0.0, 0.0], "top": [0.5, 4.0, 0.0],
