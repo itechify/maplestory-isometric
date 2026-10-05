@@ -5,7 +5,7 @@
     "missing": "The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).",
     "partial": "The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).",
     "implemented": "Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.",
-    "verified": "As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.",
+    "verified": "As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.",
     "source_data_gap": "The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.",
     "pending_source_read": "A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.",
     "in_scope": "false for content outside Iteration Three (rules.json out_of_scope).",
@@ -14,13 +14,13 @@
   "inputs": {
     "tests": [
       {
-        "file": "_scratch/ev/full.json",
-        "run_at": "2026-10-05T21:16:46Z",
-        "commit": "6207980fc65dc7c8fef8b62b590d77a94f7c1b91",
+        "file": "_scratch/ev/rev_full2.json",
+        "run_at": "2026-10-05T21:52:15Z",
+        "commit": "67ea09e7728c5bd49eced4a6af966a907c1db727",
         "totals": {
           "failed": 0,
           "files": 169,
-          "ms": 663602,
+          "ms": 667353,
           "tests": 1549
         }
       }
@@ -287,6 +287,26 @@
         "failed_checks": [
           "#226 level-up: the SP line"
         ]
+      },
+      {
+        "file": "_scratch/rev_pt/playthrough_s1/report.json",
+        "scenario": "playthrough",
+        "result": "PASS",
+        "seed": 1,
+        "checks": 615,
+        "tagged_checks": 598,
+        "rule_tagged_checks": 87,
+        "failed_checks": []
+      },
+      {
+        "file": "_scratch/rev_pt/playthrough_s2/report.json",
+        "scenario": "playthrough",
+        "result": "PASS",
+        "seed": 2,
+        "checks": 620,
+        "tagged_checks": 603,
+        "rule_tagged_checks": 88,
+        "failed_checks": []
       }
     ],
     "playtest_tag_rules_unmatched": [
@@ -1152,7 +1172,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -1173,13 +1193,15 @@
                 "key": "map:000000001"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
+                "clean": true,
                 "key": "map:000000001"
               },
               {
-                "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "kind": "playtest",
+                "id": "playthrough#539 map 000000001 Mushroom Town - West Entrance visited on foot",
+                "clean": true,
                 "key": "map:000000001"
               }
             ],
@@ -1208,7 +1230,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
@@ -1233,8 +1255,9 @@
                 "key": "map:000000010"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#540 map 000000010 Mushroom Town visited on foot",
+                "clean": true,
                 "key": "map:000000010"
               }
             ],
@@ -1263,7 +1286,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -1318,7 +1341,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -1333,13 +1356,20 @@
                 "key": "map:000000021"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#542 map 000000021 Mushroom Town Townstreet visited on foot",
+                "clean": true,
+                "key": "map:000000021"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#547 map 000000021 Mushroom Town Townstreet visited on foot",
+                "clean": true,
                 "key": "map:000000021"
               },
               {
                 "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
                 "key": "map:000000021"
               }
             ],
@@ -1369,7 +1399,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
               {
@@ -1389,13 +1419,15 @@
                 "key": "map:000000030"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#543 map 000000030 East Entrance to Mushroom Town visited on foot",
+                "clean": true,
                 "key": "map:000000030"
               },
               {
-                "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "kind": "playtest",
+                "id": "playthrough#548 map 000000030 East Entrance to Mushroom Town visited on foot",
+                "clean": true,
                 "key": "map:000000030"
               }
             ],
@@ -1423,7 +1455,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 5,
+            "passed_count": 7,
             "failed_count": 0,
             "passed": [
               {
@@ -1443,13 +1475,15 @@
                 "key": "map:000000040"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#544 map 000000040 Snail Hunting Ground I visited on foot",
+                "clean": true,
                 "key": "map:000000040"
               },
               {
-                "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "kind": "playtest",
+                "id": "playthrough#549 map 000000040 Snail Hunting Ground I visited on foot",
+                "clean": true,
                 "key": "map:000000040"
               }
             ],
@@ -1477,7 +1511,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -1531,7 +1565,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
@@ -1585,7 +1619,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
@@ -1642,7 +1676,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
               {
@@ -1698,7 +1732,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -1713,13 +1747,20 @@
                 "key": "map:000000061"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#549 map 000000061 Southperry Armor Store visited on foot",
+                "clean": true,
+                "key": "map:000000061"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#554 map 000000061 Southperry Armor Store visited on foot",
+                "clean": true,
                 "key": "map:000000061"
               },
               {
                 "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
                 "key": "map:000000061"
               }
             ],
@@ -1747,7 +1788,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 20,
+            "passed_count": 22,
             "failed_count": 0,
             "passed": [
               {
@@ -1801,7 +1842,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -1826,8 +1867,9 @@
                 "key": "map:000001001"
               },
               {
-                "kind": "unit",
-                "id": "test_playtest_traps::test_former_traps_are_escapable",
+                "kind": "playtest",
+                "id": "playthrough#551 map 000001001 In a Small Forest visited on foot",
+                "clean": true,
                 "key": "map:000001001"
               }
             ],
@@ -1855,7 +1897,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 8,
             "failed_count": 0,
             "passed": [
               {
@@ -1875,13 +1917,15 @@
                 "key": "map:000001002"
               },
               {
-                "kind": "unit",
-                "id": "test_playtest_traps::test_former_traps_are_escapable",
+                "kind": "playtest",
+                "id": "playthrough#552 map 000001002 Dangerous Forest visited on foot",
+                "clean": true,
                 "key": "map:000001002"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#557 map 000001002 Dangerous Forest visited on foot",
+                "clean": true,
                 "key": "map:000001002"
               }
             ],
@@ -1909,7 +1953,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -1963,7 +2007,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
               {
@@ -2017,7 +2061,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -2042,8 +2086,9 @@
                 "key": "map:000001005"
               },
               {
-                "kind": "unit",
-                "id": "test_playtest_traps::test_former_traps_are_escapable",
+                "kind": "playtest",
+                "id": "playthrough#555 map 000001005 Hunting Ground Middle of the Forest I visited on foot",
+                "clean": true,
                 "key": "map:000001005"
               }
             ],
@@ -2071,7 +2116,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -2086,13 +2131,20 @@
                 "key": "map:000001006"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#556 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
+                "clean": true,
+                "key": "map:000001006"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#561 map 000001006 Hunting Ground Middle of the Forest II visited on foot",
+                "clean": true,
                 "key": "map:000001006"
               },
               {
                 "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
                 "key": "map:000001006"
               }
             ],
@@ -2121,7 +2173,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -2177,7 +2229,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -2192,13 +2244,20 @@
                 "key": "map:000001011"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#558 map 000001011 Amherst Weapon Store visited on foot",
+                "clean": true,
+                "key": "map:000001011"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#563 map 000001011 Amherst Weapon Store visited on foot",
+                "clean": true,
                 "key": "map:000001011"
               },
               {
                 "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
                 "key": "map:000001011"
               }
             ],
@@ -2227,7 +2286,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -2283,7 +2342,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -2298,13 +2357,20 @@
                 "key": "map:000001013"
               },
               {
-                "kind": "unit",
-                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
+                "kind": "playtest",
+                "id": "playthrough#560 map 000001013 Amherst Department Store visited on foot",
+                "clean": true,
+                "key": "map:000001013"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#565 map 000001013 Amherst Department Store visited on foot",
+                "clean": true,
                 "key": "map:000001013"
               },
               {
                 "kind": "unit",
-                "id": "test_stuck_scan::test_every_map_has_no_unlisted_trap",
+                "id": "test_reachability::test_every_npc_slot_box_and_portal_is_reachable",
                 "key": "map:000001013"
               }
             ],
@@ -2332,7 +2398,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -2386,7 +2452,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
@@ -2440,7 +2506,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -4784,7 +4850,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -4843,7 +4909,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -4902,7 +4968,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -4961,7 +5027,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -5020,7 +5086,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
               {
@@ -5080,7 +5146,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -8446,7 +8512,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -8499,7 +8565,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 15,
+            "passed_count": 21,
             "failed_count": 0,
             "passed": [
               {
@@ -8552,7 +8618,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -8605,7 +8671,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -8658,7 +8724,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -8711,7 +8777,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -12132,7 +12198,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -12154,13 +12220,15 @@
                 "key": "item:350"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#188 Pan: sold 2 Mushroom Spore at the canonical sell price 3",
+                "clean": true,
                 "key": "item:350"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#465 Sid: sold 5 Mushroom Spore at the canonical sell price 3",
+                "clean": true,
                 "key": "item:350"
               }
             ],
@@ -12183,7 +12251,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 19,
             "failed_count": 0,
             "passed": [
               {
@@ -12205,13 +12273,15 @@
                 "key": "item:351"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#187 Pan: sold 1 Red Snail Shell at the canonical sell price 4",
+                "clean": true,
                 "key": "item:351"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#464 Sid: sold 5 Red Snail Shell at the canonical sell price 4",
+                "clean": true,
                 "key": "item:351"
               }
             ],
@@ -12619,7 +12689,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 13,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -12634,18 +12704,20 @@
                 "key": "item:441"
               },
               {
+                "kind": "playtest",
+                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "clean": true,
+                "key": "item:441"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#282 1012: Rusty Screw x3, 2 Wooden Boxes broken in this phase (held 3)",
+                "clean": true,
+                "key": "item:441"
+              },
+              {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
-                "key": "item:441"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:441"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
                 "key": "item:441"
               }
             ],
@@ -13378,7 +13450,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -13394,18 +13466,21 @@
                 "key": "item:1305"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#513 Pan: bought 1 Leather Sandals at the canonical price 50",
+                "clean": true,
                 "key": "item:1305"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#514 Leather Sandals (bought from Pan) equipped with a double-click in the Equip tab",
+                "clean": true,
                 "key": "item:1305"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
+                "kind": "playtest",
+                "id": "playthrough#515 Pan: bought 1 Leather Sandals at the canonical price 50",
+                "clean": true,
                 "key": "item:1305"
               }
             ],
@@ -13830,7 +13905,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -13846,18 +13921,21 @@
                 "key": "item:541"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#463 Sid: bought 1 Sword at the canonical price 50",
+                "clean": true,
                 "key": "item:541"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
+                "kind": "playtest",
+                "id": "playthrough#466 Sword (bought from Sid) equipped with a double-click in the Equip tab",
+                "clean": true,
                 "key": "item:541"
               },
               {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
+                "kind": "playtest",
+                "id": "playthrough#465 Sid: bought 1 Sword at the canonical price 50",
+                "clean": true,
                 "key": "item:541"
               }
             ],
@@ -13982,9 +14060,15 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#511 Razor (1011's random reward) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:558"
+              },
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
@@ -14003,11 +14087,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
-                "key": "item:558"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_prices_match_for_every_item",
                 "key": "item:558"
               }
             ],
@@ -14032,7 +14111,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
               {
@@ -14048,18 +14127,20 @@
                 "key": "item:559"
               },
               {
+                "kind": "playtest",
+                "id": "playthrough#512 Fruit Knife (1011's random reward) is refused below its canonical level 8 (level 7)",
+                "clean": true,
+                "key": "item:559"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#519 Fruit Knife (1011's random reward, now that the level allows it) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:559"
+              },
+              {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
-                "key": "item:559"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_equip_slot_matches_for_every_item",
-                "key": "item:559"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_every_item_file_is_loaded_by_the_game",
                 "key": "item:559"
               }
             ],
@@ -14785,9 +14866,15 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#511 Black Headband (1008's random reward) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:712"
+              },
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
@@ -14806,11 +14893,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
-                "key": "item:712"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_prices_match_for_every_item",
                 "key": "item:712"
               }
             ],
@@ -14885,9 +14967,15 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#510 Yellow Headband (1008's random reward) equipped with a double-click in the Equip tab",
+                "clean": true,
+                "key": "item:714"
+              },
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
@@ -14906,11 +14994,6 @@
               {
                 "kind": "unit",
                 "id": "test_items_canonical::test_identity_and_flags_match_for_every_item",
-                "key": "item:714"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_prices_match_for_every_item",
                 "key": "item:714"
               }
             ],
@@ -15887,7 +15970,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 16,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -15912,8 +15995,9 @@
                 "key": "item:235"
               },
               {
-                "kind": "unit",
-                "id": "test_consumable_use::test_rogers_apple_works",
+                "kind": "playtest",
+                "id": "playthrough#48 1002: Roger's Apple used by a double-click in the Item window (1/1)",
+                "clean": true,
                 "key": "item:235"
               }
             ],
@@ -15984,7 +16068,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -16004,13 +16088,14 @@
                 "key": "item:237"
               },
               {
-                "kind": "unit",
-                "id": "test_consumable_use::test_every_potion_and_food_lucy_sells_works",
+                "kind": "playtest",
+                "id": "playthrough#513 Egg eaten with a double-click: HP +60 (canonical)",
+                "clean": true,
                 "key": "item:237"
               },
               {
                 "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
+                "id": "test_consumable_use::test_every_potion_and_food_lucy_sells_works",
                 "key": "item:237"
               }
             ],
@@ -16081,9 +16166,21 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#475 an Orange drunk with a double-click: MP +7 (canonical 50, capped at Max MP 77)",
+                "clean": true,
+                "key": "item:239"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#472 an Orange drunk with a double-click: MP +14 (canonical 50, capped at Max MP 65)",
+                "clean": true,
+                "key": "item:239"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#475 an Orange drunk with a double-click: MP +7 (canonical 50, capped at Max MP 77)",
@@ -16098,16 +16195,6 @@
               {
                 "kind": "unit",
                 "id": "test_consumable_use::test_mp_item_restores_mp_and_respects_max_mp",
-                "key": "item:239"
-              },
-              {
-                "kind": "unit",
-                "id": "test_inventory_item_def::test_consumable_effects",
-                "key": "item:239"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
                 "key": "item:239"
               }
             ],
@@ -16297,9 +16384,21 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 14,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#470 Lucy: bought 2 Red Potion at the canonical price 50",
+                "clean": true,
+                "key": "item:270"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#468 Lucy: bought 2 Red Potion at the canonical price 50",
+                "clean": true,
+                "key": "item:270"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#470 Lucy: bought 2 Red Potion at the canonical price 50",
@@ -16314,16 +16413,6 @@
               {
                 "kind": "unit",
                 "id": "test_consumable_use::test_potion_restores_documented_hp_and_decrements",
-                "key": "item:270"
-              },
-              {
-                "kind": "unit",
-                "id": "test_inventory_item_def::test_consumable_effects",
-                "key": "item:270"
-              },
-              {
-                "kind": "unit",
-                "id": "test_items_canonical::test_consumable_effects_match_for_every_item",
                 "key": "item:270"
               }
             ],
@@ -16553,7 +16642,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -16604,7 +16693,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -16655,7 +16744,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 18,
+            "passed_count": 30,
             "failed_count": 0,
             "passed": [
               {
@@ -16706,7 +16795,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -16757,7 +16846,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -16783,8 +16872,9 @@
                 "key": "npc:13"
               },
               {
-                "kind": "unit",
-                "id": "test_npc_catalog::test_catalog_has_the_21_npcs_and_validates",
+                "kind": "playtest",
+                "id": "playthrough#174 talked to Yoona on foot in 000000060",
+                "clean": true,
                 "key": "npc:13"
               }
             ],
@@ -16807,7 +16897,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -16833,8 +16923,9 @@
                 "key": "npc:14"
               },
               {
-                "kind": "unit",
-                "id": "test_npc_catalog::test_catalog_has_the_21_npcs_and_validates",
+                "kind": "playtest",
+                "id": "playthrough#175 talked to Bari on foot in 000000060",
+                "clean": true,
                 "key": "npc:14"
               }
             ],
@@ -16863,7 +16954,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 39,
+            "passed_count": 61,
             "failed_count": 0,
             "passed": [
               {
@@ -16916,7 +17007,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -16969,7 +17060,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -17022,7 +17113,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -17075,7 +17166,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 34,
+            "passed_count": 64,
             "failed_count": 0,
             "passed": [
               {
@@ -17128,7 +17219,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 16,
             "failed_count": 0,
             "passed": [
               {
@@ -17184,7 +17275,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
@@ -17210,8 +17301,9 @@
                 "key": "npc:20"
               },
               {
-                "kind": "unit",
-                "id": "test_npc_catalog::test_catalog_has_the_21_npcs_and_validates",
+                "kind": "playtest",
+                "id": "playthrough#462 talking to Sid opens the shop",
+                "clean": true,
                 "key": "npc:20"
               }
             ],
@@ -17239,7 +17331,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 12,
             "failed_count": 0,
             "passed": [
               {
@@ -17265,8 +17357,9 @@
                 "key": "npc:21"
               },
               {
-                "kind": "unit",
-                "id": "test_npc_catalog::test_catalog_has_the_21_npcs_and_validates",
+                "kind": "playtest",
+                "id": "playthrough#467 talking to Lucy opens the shop",
+                "clean": true,
                 "key": "npc:21"
               }
             ],
@@ -17292,7 +17385,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 12,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -17343,7 +17436,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -17396,7 +17489,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 9,
+            "passed_count": 15,
             "failed_count": 0,
             "passed": [
               {
@@ -17447,7 +17540,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
               {
@@ -17497,7 +17590,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 11,
             "failed_count": 0,
             "passed": [
               {
@@ -17547,7 +17640,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 10,
             "failed_count": 0,
             "passed": [
               {
@@ -17573,8 +17666,9 @@
                 "key": "npc:8"
               },
               {
-                "kind": "unit",
-                "id": "test_npc_catalog::test_catalog_has_the_21_npcs_and_validates",
+                "kind": "playtest",
+                "id": "playthrough#125 talked to Robin on foot in 000000040",
+                "clean": true,
                 "key": "npc:8"
               }
             ],
@@ -17597,7 +17691,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 14,
             "failed_count": 0,
             "passed": [
               {
@@ -17668,7 +17762,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 80,
+            "passed_count": 88,
             "failed_count": 0,
             "passed": [
               {
@@ -17727,7 +17821,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 59,
+            "passed_count": 69,
             "failed_count": 0,
             "passed": [
               {
@@ -17787,7 +17881,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 57,
+            "passed_count": 65,
             "failed_count": 0,
             "passed": [
               {
@@ -17860,7 +17954,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 48,
+            "passed_count": 86,
             "failed_count": 0,
             "passed": [
               {
@@ -17921,7 +18015,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 43,
+            "passed_count": 81,
             "failed_count": 0,
             "passed": [
               {
@@ -17984,7 +18078,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 65,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -18043,7 +18137,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 48,
+            "passed_count": 86,
             "failed_count": 0,
             "passed": [
               {
@@ -18102,7 +18196,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 77,
             "failed_count": 0,
             "passed": [
               {
@@ -18162,7 +18256,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -18221,7 +18315,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 104,
+            "passed_count": 148,
             "failed_count": 0,
             "passed": [
               {
@@ -18281,7 +18375,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 56,
+            "passed_count": 96,
             "failed_count": 0,
             "passed": [
               {
@@ -18341,7 +18435,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -18400,7 +18494,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -18459,7 +18553,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -18519,7 +18613,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -18579,7 +18673,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -18638,7 +18732,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 62,
+            "passed_count": 108,
             "failed_count": 0,
             "passed": [
               {
@@ -18697,7 +18791,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -18756,7 +18850,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -18815,7 +18909,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 54,
+            "passed_count": 102,
             "failed_count": 0,
             "passed": [
               {
@@ -18874,7 +18968,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -18934,7 +19028,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -18993,7 +19087,7 @@
           ],
           "in_scope": true,
           "evidence": {
-            "passed_count": 51,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -19222,7 +19316,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 48,
+            "passed_count": 86,
             "failed_count": 0,
             "passed": [
               {
@@ -19277,7 +19371,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 43,
+            "passed_count": 81,
             "failed_count": 0,
             "passed": [
               {
@@ -19332,7 +19426,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 43,
+            "passed_count": 81,
             "failed_count": 0,
             "passed": [
               {
@@ -19387,7 +19481,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 65,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -19442,7 +19536,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 65,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -19497,7 +19591,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 48,
+            "passed_count": 86,
             "failed_count": 0,
             "passed": [
               {
@@ -19552,7 +19646,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 77,
             "failed_count": 0,
             "passed": [
               {
@@ -19607,7 +19701,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -19662,7 +19756,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -19717,7 +19811,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -19772,7 +19866,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 104,
+            "passed_count": 148,
             "failed_count": 0,
             "passed": [
               {
@@ -19827,7 +19921,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 104,
+            "passed_count": 148,
             "failed_count": 0,
             "passed": [
               {
@@ -19882,7 +19976,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 56,
+            "passed_count": 96,
             "failed_count": 0,
             "passed": [
               {
@@ -19937,7 +20031,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 56,
+            "passed_count": 96,
             "failed_count": 0,
             "passed": [
               {
@@ -19992,7 +20086,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -20047,7 +20141,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -20102,7 +20196,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -20157,7 +20251,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -20212,7 +20306,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -20267,7 +20361,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -20322,7 +20416,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -20377,7 +20471,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -20432,7 +20526,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -20487,7 +20581,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -20542,7 +20636,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -20597,7 +20691,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -20652,7 +20746,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -20707,7 +20801,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -20762,7 +20856,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 62,
+            "passed_count": 108,
             "failed_count": 0,
             "passed": [
               {
@@ -20817,7 +20911,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 62,
+            "passed_count": 108,
             "failed_count": 0,
             "passed": [
               {
@@ -20872,7 +20966,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -20927,7 +21021,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -20982,7 +21076,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -21037,7 +21131,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -21092,7 +21186,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 54,
+            "passed_count": 102,
             "failed_count": 0,
             "passed": [
               {
@@ -21147,7 +21241,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 54,
+            "passed_count": 102,
             "failed_count": 0,
             "passed": [
               {
@@ -21202,7 +21296,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -21257,7 +21351,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -21312,7 +21406,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -21367,7 +21461,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -21422,7 +21516,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 51,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -21477,7 +21571,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 51,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -21546,7 +21640,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 43,
+            "passed_count": 81,
             "failed_count": 0,
             "passed": [
               {
@@ -21601,7 +21695,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 41,
+            "passed_count": 77,
             "failed_count": 0,
             "passed": [
               {
@@ -21656,7 +21750,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -21711,7 +21805,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 104,
+            "passed_count": 148,
             "failed_count": 0,
             "passed": [
               {
@@ -21766,7 +21860,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 104,
+            "passed_count": 148,
             "failed_count": 0,
             "passed": [
               {
@@ -21821,7 +21915,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -21876,7 +21970,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 93,
             "failed_count": 0,
             "passed": [
               {
@@ -21931,7 +22025,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -21986,7 +22080,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 73,
+            "passed_count": 143,
             "failed_count": 0,
             "passed": [
               {
@@ -22041,7 +22135,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -22096,7 +22190,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -22151,7 +22245,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -22206,7 +22300,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -22261,7 +22355,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 91,
             "failed_count": 0,
             "passed": [
               {
@@ -22316,7 +22410,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -22371,7 +22465,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -22426,7 +22520,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 79,
+            "passed_count": 141,
             "failed_count": 0,
             "passed": [
               {
@@ -22481,7 +22575,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 62,
+            "passed_count": 108,
             "failed_count": 0,
             "passed": [
               {
@@ -22536,7 +22630,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -22591,7 +22685,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -22646,7 +22740,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 54,
+            "passed_count": 102,
             "failed_count": 0,
             "passed": [
               {
@@ -22701,7 +22795,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 53,
+            "passed_count": 101,
             "failed_count": 0,
             "passed": [
               {
@@ -22756,7 +22850,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 55,
+            "passed_count": 103,
             "failed_count": 0,
             "passed": [
               {
@@ -22811,7 +22905,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 51,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -22866,7 +22960,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 51,
+            "passed_count": 95,
             "failed_count": 0,
             "passed": [
               {
@@ -22944,7 +23038,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 30,
             "failed_count": 0,
             "passed": [
               {
@@ -23287,7 +23381,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 24,
+            "passed_count": 37,
             "failed_count": 0,
             "passed": [
               {
@@ -23340,7 +23434,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 19,
+            "passed_count": 29,
             "failed_count": 0,
             "passed": [
               {
@@ -23393,7 +23487,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 20,
+            "passed_count": 31,
             "failed_count": 0,
             "passed": [
               {
@@ -23466,7 +23560,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 26,
+            "passed_count": 40,
             "failed_count": 0,
             "passed": [
               {
@@ -23753,7 +23847,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -23809,7 +23903,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -23865,7 +23959,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -23921,7 +24015,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -23977,7 +24071,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24033,7 +24127,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24089,7 +24183,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24145,7 +24239,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24201,7 +24295,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24257,7 +24351,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24313,7 +24407,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24369,7 +24463,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24425,7 +24519,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24481,7 +24575,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24537,7 +24631,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24593,7 +24687,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24649,7 +24743,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24705,7 +24799,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24761,7 +24855,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 31,
+            "passed_count": 45,
             "failed_count": 0,
             "passed": [
               {
@@ -24828,7 +24922,7 @@
           "notes": [],
           "in_scope": true,
           "evidence": {
-            "passed_count": 27,
+            "passed_count": 39,
             "failed_count": 0,
             "passed": [
               {
@@ -24935,7 +25029,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -24955,14 +25049,16 @@
                 "key": "mechanic:chair-regen"
               },
               {
-                "kind": "unit",
-                "id": "test_chairs_use::test_bonus_comes_from_the_canonical_setup_data",
-                "key": "mechanic:chair-hp-bonus"
+                "kind": "playtest",
+                "id": "playthrough#299 seated 11 s at HP 50 of 130: HP +40 = the chair's 30 plus natural recovery's 10 per tick (one or two ticks)",
+                "clean": true,
+                "key": "mechanic:chair-regen"
               },
               {
-                "kind": "unit",
-                "id": "test_natural_recovery::test_chair_bonus_runs_on_its_own_clock_while_seated",
-                "key": "mechanic:chair-hp-bonus"
+                "kind": "playtest",
+                "id": "playthrough#299 seated 11 s at HP 50 of 130: HP +40 = the chair's 30 plus natural recovery's 10 per tick (one or two ticks)",
+                "clean": true,
+                "key": "mechanic:chair-regen"
               }
             ],
             "failed": []
@@ -24994,7 +25090,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 127,
+            "passed_count": 137,
             "failed_count": 0,
             "passed": [
               {
@@ -25576,7 +25672,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 10,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -25697,7 +25793,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 45,
+            "passed_count": 87,
             "failed_count": 0,
             "passed": [
               {
@@ -25761,7 +25857,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 24,
+            "passed_count": 34,
             "failed_count": 0,
             "passed": [
               {
@@ -27157,7 +27253,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 11,
+            "passed_count": 13,
             "failed_count": 0,
             "passed": [
               {
@@ -27314,7 +27410,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 4,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -27329,13 +27425,20 @@
                 "key": "mechanic:meso-pickup"
               },
               {
-                "kind": "unit",
-                "id": "test_loot_system::test_pickup_mesos",
+                "kind": "playtest",
+                "id": "playthrough#592 mesos from monster meso bags picked up (180 mesos in 39 bags)",
+                "clean": true,
+                "key": "mechanic:meso-pickup"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#597 mesos from monster meso bags picked up (310 mesos in 58 bags)",
+                "clean": true,
                 "key": "mechanic:meso-pickup"
               },
               {
                 "kind": "unit",
-                "id": "test_loot_system::test_rolled_kills_are_picked_up_exactly",
+                "id": "test_loot_system::test_pickup_mesos",
                 "key": "mechanic:meso-pickup"
               }
             ],
@@ -27669,7 +27772,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 122,
+            "passed_count": 212,
             "failed_count": 0,
             "passed": [
               {
@@ -28899,7 +29002,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -30724,7 +30827,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 163,
+            "passed_count": 305,
             "failed_count": 0,
             "passed": [
               {
@@ -30788,7 +30891,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 159,
+            "passed_count": 295,
             "failed_count": 0,
             "passed": [
               {
@@ -30911,7 +31014,7 @@
             "note": null
           },
           "evidence": {
-            "passed_count": 25,
+            "passed_count": 44,
             "failed_count": 0,
             "passed": [
               {
@@ -31098,7 +31201,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 17,
             "failed_count": 0,
             "passed": [
               {
@@ -31152,9 +31255,21 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
+                "clean": true,
+                "key": "playthrough:begin-maple-island"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
+                "clean": true,
+                "key": "playthrough:begin-maple-island"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#1 a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001",
@@ -31182,9 +31297,21 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#543 every Maple Island quest completed through play (20 of 20)",
+                "clean": true,
+                "key": "playthrough:complete-every-quest"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#538 every Maple Island quest completed through play (20 of 20)",
+                "clean": true,
+                "key": "playthrough:complete-every-quest"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#543 every Maple Island quest completed through play (20 of 20)",
@@ -31212,7 +31339,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 7,
+            "passed_count": 21,
             "failed_count": 0,
             "passed": [
               {
@@ -31266,9 +31393,21 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#0 a brand-new character through the title and creation screens (New Game, the name typed, Recommended, Start)",
+                "clean": true,
+                "key": "playthrough:create-character"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#0 a brand-new character through the title and creation screens (New Game, the name typed, Recommended, Start)",
+                "clean": true,
+                "key": "playthrough:create-character"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#0 a brand-new character through the title and creation screens (New Game, the name typed, Recommended, Start)",
@@ -31296,7 +31435,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 2,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -31308,6 +31447,24 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#616 died and respawned (1 deaths, 1 respawns)",
+                "clean": true,
+                "key": "playthrough:die-and-respawn"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#295 the notice's OK respawns the player at 000001000's canonical return map 000001010",
+                "clean": true,
+                "key": "playthrough:die-and-respawn"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#611 died and respawned (1 deaths, 1 respawns)",
+                "clean": true,
+                "key": "playthrough:die-and-respawn"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#295 the notice's OK respawns the player at 000001000's canonical return map 000001010",
                 "clean": true,
                 "key": "playthrough:die-and-respawn"
               }
@@ -31332,12 +31489,24 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "playthrough#614 gear equipped ([\"1305\", \"541\", \"559\", \"711\"])",
+                "clean": true,
+                "key": "playthrough:equip-gear"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#609 gear equipped ([\"1305\", \"541\", \"558\", \"714\"])",
+                "clean": true,
+                "key": "playthrough:equip-gear"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#614 gear equipped ([\"1305\", \"541\", \"559\", \"712\"])",
                 "clean": true,
                 "key": "playthrough:equip-gear"
               }
@@ -31362,7 +31531,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -31416,7 +31585,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 24,
             "failed_count": 0,
             "passed": [
               {
@@ -31470,12 +31639,24 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "playthrough#596 monster drops picked up with Z (138 items)",
+                "clean": true,
+                "key": "playthrough:monster-drops"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#591 monster drops picked up with Z (90 items)",
+                "clean": true,
+                "key": "playthrough:monster-drops"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#596 monster drops picked up with Z (133 items)",
                 "clean": true,
                 "key": "playthrough:monster-drops"
               }
@@ -31500,12 +31681,24 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "playthrough#597 mesos from monster meso bags picked up (234 mesos in 48 bags)",
+                "clean": true,
+                "key": "playthrough:monster-mesos"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#592 mesos from monster meso bags picked up (180 mesos in 39 bags)",
+                "clean": true,
+                "key": "playthrough:monster-mesos"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#597 mesos from monster meso bags picked up (310 mesos in 58 bags)",
                 "clean": true,
                 "key": "playthrough:monster-mesos"
               }
@@ -31530,7 +31723,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 8,
+            "passed_count": 24,
             "failed_count": 0,
             "passed": [
               {
@@ -31584,9 +31777,21 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#615 The Green Relaxer obtained and sat on",
+                "clean": true,
+                "key": "playthrough:obtain-and-use-chair"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#610 The Green Relaxer obtained and sat on",
+                "clean": true,
+                "key": "playthrough:obtain-and-use-chair"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#615 The Green Relaxer obtained and sat on",
@@ -31614,9 +31819,21 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
+              {
+                "kind": "playtest",
+                "id": "playthrough#553 map 000000060 Southperry visited on foot",
+                "clean": true,
+                "key": "playthrough:reach-southperry"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#548 map 000000060 Southperry visited on foot",
+                "clean": true,
+                "key": "playthrough:reach-southperry"
+              },
               {
                 "kind": "playtest",
                 "id": "playthrough#553 map 000000060 Southperry visited on foot",
@@ -31644,7 +31861,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 2,
+            "passed_count": 6,
             "failed_count": 0,
             "passed": [
               {
@@ -31656,6 +31873,24 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#617 ready to depart: the End of Maple Island screen reached in Southperry",
+                "clean": true,
+                "key": "playthrough:ready-to-depart"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#528 the departure flag is set, no mesos taken, still in Southperry",
+                "clean": true,
+                "key": "playthrough:ready-to-depart"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#612 ready to depart: the End of Maple Island screen reached in Southperry",
+                "clean": true,
+                "key": "playthrough:ready-to-depart"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#533 the departure flag is set, no mesos taken, still in Southperry",
                 "clean": true,
                 "key": "playthrough:ready-to-depart"
               }
@@ -31680,7 +31915,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -31734,7 +31969,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 6,
+            "passed_count": 18,
             "failed_count": 0,
             "passed": [
               {
@@ -31788,12 +32023,24 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 1,
+            "passed_count": 3,
             "failed_count": 0,
             "passed": [
               {
                 "kind": "playtest",
                 "id": "playthrough#613 consumables used ({ \"235\": 1, \"237\": 3, \"239\": 1, \"270\": 4 })",
+                "clean": true,
+                "key": "playthrough:use-consumables"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#608 consumables used ({ \"235\": 1, \"237\": 2, \"239\": 1, \"270\": 3 })",
+                "clean": true,
+                "key": "playthrough:use-consumables"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#613 consumables used ({ \"235\": 1, \"237\": 4, \"239\": 1, \"270\": 3 })",
                 "clean": true,
                 "key": "playthrough:use-consumables"
               }
@@ -31818,7 +32065,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 3,
+            "passed_count": 9,
             "failed_count": 0,
             "passed": [
               {
@@ -31836,6 +32083,18 @@
               {
                 "kind": "playtest",
                 "id": "playthrough#612 Lucy's shop used: bought and sold",
+                "clean": true,
+                "key": "playthrough:use-every-shop"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#605 Pan's shop used: bought and sold",
+                "clean": true,
+                "key": "playthrough:use-every-shop"
+              },
+              {
+                "kind": "playtest",
+                "id": "playthrough#606 Sid's shop used: bought and sold",
                 "clean": true,
                 "key": "playthrough:use-every-shop"
               }
@@ -31860,7 +32119,7 @@
           "brief": "Definition of Done: Gameplay",
           "in_scope": true,
           "evidence": {
-            "passed_count": 25,
+            "passed_count": 75,
             "failed_count": 0,
             "passed": [
               {

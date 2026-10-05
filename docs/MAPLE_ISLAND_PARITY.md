@@ -10,7 +10,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - **missing**: The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).
 - **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).
 - **implemented**: Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.
-- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.
+- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report); a drop probability is verified only when its sources resolve.
 - **source_data_gap**: The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.
 - **pending_source_read**: A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.
 - **in_scope**: false for content outside Iteration Three (rules.json out_of_scope).
@@ -21,7 +21,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/ev/full.json`: run 2026-10-05T21:16:46Z, commit 6207980fc65dc7c8fef8b62b590d77a94f7c1b91, 1549 tests, 0 failed
+- Unit tests `_scratch/ev/rev_full2.json`: run 2026-10-05T21:52:15Z, commit 67ea09e7728c5bd49eced4a6af966a907c1db727, 1549 tests, 0 failed
 - Playtest `_scratch/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
 - Playtest `_scratch/pt/npcs/report.json`: npcs seed 1, PASS, 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
 - Playtest `_scratch/pt/playthrough/report.json`: playthrough seed 1, PASS, 620 checks (603 tagged by the scenario, 88 by rules.json playtest_tags)
@@ -48,6 +48,8 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - Playtest `_scratch/pt/test_skills/report.json`: test_skills seed 1, PASS, 50 checks (0 tagged by the scenario, 41 by rules.json playtest_tags)
 - Playtest `_scratch/pt/trap_probe/report.json`: trap_probe seed 1, PASS, 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
 - Playtest `_scratch/pt/ui_minimap/report.json`: ui_minimap seed 1, FAIL, 230 checks (0 tagged by the scenario, 216 by rules.json playtest_tags); failed: #226 level-up: the SP line
+- Playtest `_scratch/rev_pt/playthrough_s1/report.json`: playthrough seed 1, PASS, 615 checks (598 tagged by the scenario, 87 by rules.json playtest_tags)
+- Playtest `_scratch/rev_pt/playthrough_s2/report.json`: playthrough seed 2, PASS, 620 checks (603 tagged by the scenario, 88 by rules.json playtest_tags)
 - Provenance report: 192 records, 0 errors, 54 warnings
 - A playtest_tags rule matched no check in 1 report(s) of test_c_progression (renamed checks?): `97: ^phase \d+: each death took the canonical EXP penalty$`
 - A playtest_tags rule matched no check in 1 report(s) of ui_minimap (renamed checks?): `129: ^every pickup is announced in the HUD log$`
@@ -62,12 +64,12 @@ How the evidence is made (each step writes git-ignored files under `_scratch/`):
    `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.
 4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the
    `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run
-   (strict mode ok, no console or api step).
+   (a passing report, strict mode ok, no console or api step).
 5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).
 
 ```bash
 node tools/parity/build_parity.mjs \
-  --tests _scratch/ev/full.json \
+  --tests _scratch/ev/rev_full2.json \
   --playtest _scratch/pt/npc_shanks/report.json \
   --playtest _scratch/pt/npcs/report.json \
   --playtest _scratch/pt/playthrough/report.json \
@@ -93,7 +95,9 @@ node tools/parity/build_parity.mjs \
   --playtest _scratch/pt/test_g_shop/report.json \
   --playtest _scratch/pt/test_skills/report.json \
   --playtest _scratch/pt/trap_probe/report.json \
-  --playtest _scratch/pt/ui_minimap/report.json
+  --playtest _scratch/pt/ui_minimap/report.json \
+  --playtest _scratch/rev_pt/playthrough_s1/report.json \
+  --playtest _scratch/rev_pt/playthrough_s2/report.json
 ```
 
 ## Totals
@@ -220,31 +224,31 @@ Runtime: present (`game/scripts/core/maps/map_definition.gd`, `game/scripts/worl
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `map:000000001` | Mushroom Town - West Entrance (000000001) | verified | 5 pass | 5 |  |
-| `map:000000010` | Mushroom Town (000000010) | verified | 6 pass | 5 |  |
-| `map:000000020` | Mushroom Town (000000020) | verified | 7 pass | 5 |  |
-| `map:000000021` | Mushroom Town Townstreet (000000021) | verified | 4 pass | 5 |  |
-| `map:000000030` | East Entrance to Mushroom Town (000000030) | verified | 5 pass | 4 | adaptation: maps/000000030.json |
-| `map:000000040` | Snail Hunting Ground I (000000040) | verified | 5 pass | 4 |  |
-| `map:000000041` | Snail Hunting Ground II (000000041) | verified | 15 pass | 4 |  |
-| `map:000000042` | Snail Hunting Ground III (000000042) | verified | 10 pass | 4 |  |
-| `map:000000050` | A Split Road (000000050) | verified | 10 pass | 4 |  |
-| `map:000000060` | Southperry (000000060) | verified | 9 pass | 5 | adaptation: maps/000000060.json |
-| `map:000000061` | Southperry Armor Store (000000061) | verified | 4 pass | 6 |  |
-| `map:000001000` | The Field West of Amherst (000001000) | verified | 20 pass | 4 |  |
-| `map:000001001` | In a Small Forest (000001001) | verified | 7 pass | 4 |  |
-| `map:000001002` | Dangerous Forest (000001002) | verified | 6 pass | 4 |  |
-| `map:000001003` | Mushroom Garden (000001003) | verified | 8 pass | 4 |  |
-| `map:000001004` | Snail Garden (000001004) | verified | 12 pass | 4 |  |
-| `map:000001005` | Hunting Ground Middle of the Forest I (000001005) | verified | 7 pass | 4 |  |
-| `map:000001006` | Hunting Ground Middle of the Forest II (000001006) | verified | 4 pass | 4 |  |
-| `map:000001010` | Amherst (000001010) | verified | 13 pass | 5 |  |
-| `map:000001011` | Amherst Weapon Store (000001011) | verified | 4 pass | 6 |  |
-| `map:000001012` | Amherst Townstreet (000001012) | verified | 8 pass | 5 |  |
-| `map:000001013` | Amherst Department Store (000001013) | verified | 4 pass | 6 |  |
-| `map:000001014` | Snail Field of Flowers (000001014) | verified | 8 pass | 4 |  |
-| `map:000001020` | The Field East of Amherst (000001020) | verified | 11 pass | 4 |  |
-| `map:000001021` | Tomato Field (000001021) | verified | 8 pass | 4 |  |
+| `map:000000001` | Mushroom Town - West Entrance (000000001) | verified | 9 pass | 5 |  |
+| `map:000000010` | Mushroom Town (000000010) | verified | 8 pass | 5 |  |
+| `map:000000020` | Mushroom Town (000000020) | verified | 9 pass | 5 |  |
+| `map:000000021` | Mushroom Town Townstreet (000000021) | verified | 6 pass | 5 |  |
+| `map:000000030` | East Entrance to Mushroom Town (000000030) | verified | 7 pass | 4 | adaptation: maps/000000030.json |
+| `map:000000040` | Snail Hunting Ground I (000000040) | verified | 7 pass | 4 |  |
+| `map:000000041` | Snail Hunting Ground II (000000041) | verified | 17 pass | 4 |  |
+| `map:000000042` | Snail Hunting Ground III (000000042) | verified | 12 pass | 4 |  |
+| `map:000000050` | A Split Road (000000050) | verified | 12 pass | 4 |  |
+| `map:000000060` | Southperry (000000060) | verified | 11 pass | 5 | adaptation: maps/000000060.json |
+| `map:000000061` | Southperry Armor Store (000000061) | verified | 6 pass | 6 |  |
+| `map:000001000` | The Field West of Amherst (000001000) | verified | 22 pass | 4 |  |
+| `map:000001001` | In a Small Forest (000001001) | verified | 9 pass | 4 |  |
+| `map:000001002` | Dangerous Forest (000001002) | verified | 8 pass | 4 |  |
+| `map:000001003` | Mushroom Garden (000001003) | verified | 10 pass | 4 |  |
+| `map:000001004` | Snail Garden (000001004) | verified | 14 pass | 4 |  |
+| `map:000001005` | Hunting Ground Middle of the Forest I (000001005) | verified | 9 pass | 4 |  |
+| `map:000001006` | Hunting Ground Middle of the Forest II (000001006) | verified | 6 pass | 4 |  |
+| `map:000001010` | Amherst (000001010) | verified | 15 pass | 5 |  |
+| `map:000001011` | Amherst Weapon Store (000001011) | verified | 6 pass | 6 |  |
+| `map:000001012` | Amherst Townstreet (000001012) | verified | 10 pass | 5 |  |
+| `map:000001013` | Amherst Department Store (000001013) | verified | 6 pass | 6 |  |
+| `map:000001014` | Snail Field of Flowers (000001014) | verified | 10 pass | 4 |  |
+| `map:000001020` | The Field East of Amherst (000001020) | verified | 13 pass | 4 |  |
+| `map:000001021` | Tomato Field (000001021) | verified | 10 pass | 4 |  |
 
 ## Portals
 
@@ -306,12 +310,12 @@ Runtime: present (`game/scripts/actors/monsters/monster_def.gd`, `game/scripts/a
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `monster:1` | Tutorial Jr. Sentinel | verified | 11 pass | 6 | adaptation: monsters/1.json |
-| `monster:2` | Snail | verified | 13 pass | 5 | adaptation: monsters/2.json |
-| `monster:3` | Blue Snail | verified | 9 pass | 5 | adaptation: monsters/3.json |
-| `monster:4` | Shroom | verified | 10 pass | 5 | adaptation: monsters/4.json |
-| `monster:5` | Red Snail | verified | 8 pass | 5 | adaptation: monsters/5.json |
-| `monster:9` | Orange Mushroom | verified | 11 pass | 6 | adaptation: monsters/9.json |
+| `monster:1` | Tutorial Jr. Sentinel | verified | 17 pass | 6 | adaptation: monsters/1.json |
+| `monster:2` | Snail | verified | 19 pass | 5 | adaptation: monsters/2.json |
+| `monster:3` | Blue Snail | verified | 15 pass | 5 | adaptation: monsters/3.json |
+| `monster:4` | Shroom | verified | 16 pass | 5 | adaptation: monsters/4.json |
+| `monster:5` | Red Snail | verified | 14 pass | 5 | adaptation: monsters/5.json |
+| `monster:9` | Orange Mushroom | verified | 17 pass | 6 | adaptation: monsters/9.json |
 
 ## Monster populations
 
@@ -399,12 +403,12 @@ Runtime: present (`game/scripts/core/combat/monster_combat_stats.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | verified | 13 pass |  |  |
-| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | verified | 15 pass |  |  |
-| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | verified | 11 pass |  |  |
-| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | verified | 12 pass |  |  |
-| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | verified | 10 pass |  |  |
-| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | verified | 13 pass |  |  |
+| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | verified | 19 pass |  |  |
+| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | verified | 21 pass |  |  |
+| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | verified | 17 pass |  |  |
+| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | verified | 18 pass |  |  |
+| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | verified | 16 pass |  |  |
+| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | verified | 19 pass |  |  |
 
 ## Monster drops
 
@@ -511,8 +515,8 @@ Runtime: present (`game/scripts/core/items/item_def.gd`, `game/scripts/core/item
 | `item:347` | Jr. Sentinel Shellpiece (Etc / Monster Drop) | verified | 11 pass |  |  |
 | `item:348` | Snail Shell (Etc / Monster Drop) | verified | 10 pass |  |  |
 | `item:349` | Blue Snail Shell (Etc / Monster Drop) | verified | 12 pass |  |  |
-| `item:350` | Mushroom Spore (Etc / Monster Drop) | verified | 13 pass |  |  |
-| `item:351` | Red Snail Shell (Etc / Monster Drop) | verified | 13 pass |  |  |
+| `item:350` | Mushroom Spore (Etc / Monster Drop) | verified | 19 pass |  |  |
+| `item:351` | Red Snail Shell (Etc / Monster Drop) | verified | 19 pass |  |  |
 | `item:356` | Orange Mushroom Cap (Etc / Monster Drop) | verified | 12 pass |  |  |
 | `item:413` | Bronze Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
 | `item:414` | Iron Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
@@ -521,7 +525,7 @@ Runtime: present (`game/scripts/core/items/item_def.gd`, `game/scripts/core/item
 | `item:438` | Sera's Mirror (Etc / Quest Item) | verified | 11 pass |  |  |
 | `item:439` | Maria's Letter (Etc / Quest Item) | verified | 11 pass |  |  |
 | `item:440` | Lucas's Letter (Etc / Quest Item) | verified | 11 pass |  |  |
-| `item:441` | Rusty Screw (Etc / Quest Item) | verified | 13 pass |  |  |
+| `item:441` | Rusty Screw (Etc / Quest Item) | verified | 15 pass |  |  |
 | `item:442` | Old Wooden Board (Etc / Quest Item) | verified | 11 pass |  |  |
 | `item:483` | Monster Card (Etc / Quest Item) | verified | 10 pass |  |  |
 | `item:522` | The Green Relaxer (Setup) | verified | 11 pass |  |  |
@@ -543,7 +547,7 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:1177` | Red Cloth Pants (Equip / Bottom) | verified | 10 pass | 1 |  |
 | `item:1181` | Grey Thick Sweat Pants (Equip / Bottom) | verified | 10 pass | 1 |  |
 | `item:1195` | Ice Jeans (Equip / Bottom) | verified | 10 pass | 1 |  |
-| `item:1305` | Leather Sandals (Equip / Shoes) | verified | 12 pass | 1 |  |
+| `item:1305` | Leather Sandals (Equip / Shoes) | verified | 16 pass | 1 |  |
 | `item:1306` | Red Rubber Boots (Equip / Shoes) | verified | 10 pass | 1 |  |
 | `item:1308` | Blue Rubber Boots (Equip / Shoes) | verified | 10 pass | 1 |  |
 | `item:1314` | Brown Hard Leather Boots (Equip / Shoes) | verified | 10 pass | 1 |  |
@@ -552,11 +556,11 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:1327` | Red Ninja Sandals (Equip / Shoes) | verified | 10 pass | 1 |  |
 | `item:1439` | Basic Archer Gloves (Equip / Gloves) | verified | 10 pass | 1 |  |
 | `item:1440` | Brown Duo (Equip / Gloves) | verified | 10 pass | 1 |  |
-| `item:541` | Sword (Equip / One-Handed Sword) | verified | 12 pass | 1 |  |
+| `item:541` | Sword (Equip / One-Handed Sword) | verified | 16 pass | 1 |  |
 | `item:543` | Long Sword (Equip / One-Handed Sword) | verified | 10 pass | 1 |  |
 | `item:551` | Gladius (Equip / One-Handed Sword) | verified | 10 pass | 1 |  |
-| `item:558` | Razor (Equip / Dagger) | verified | 10 pass | 1 |  |
-| `item:559` | Fruit Knife (Equip / Dagger) | verified | 12 pass | 1 |  |
+| `item:558` | Razor (Equip / Dagger) | verified | 11 pass | 1 |  |
+| `item:559` | Fruit Knife (Equip / Dagger) | verified | 14 pass | 1 |  |
 | `item:562` | Field Dagger (Equip / Dagger) | verified | 10 pass | 1 |  |
 | `item:576` | Hand Axe (Equip / One-Handed Axe) | verified | 10 pass | 1 |  |
 | `item:577` | Double Axe (Equip / One-Handed Axe) | verified | 10 pass | 1 |  |
@@ -571,9 +575,9 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:709` | Green Skullcap (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:710` | Red Skullcap (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:711` | Red Headband (Equip / Hat) | verified | 12 pass | 1 |  |
-| `item:712` | Black Headband (Equip / Hat) | verified | 10 pass | 1 |  |
+| `item:712` | Black Headband (Equip / Hat) | verified | 11 pass | 1 |  |
 | `item:713` | Green Headband (Equip / Hat) | verified | 10 pass | 1 |  |
-| `item:714` | Yellow Headband (Equip / Hat) | verified | 10 pass | 1 |  |
+| `item:714` | Yellow Headband (Equip / Hat) | verified | 11 pass | 1 |  |
 | `item:715` | Blue Headband (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:724` | Bronze Koif (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:731` | Green Winter Hat (Equip / Hat) | verified | 10 pass | 1 |  |
@@ -600,15 +604,15 @@ Runtime: present (`game/scripts/core/items/consumables.gd`).
 | `item:177` | Shoes Jump Scroll: Greater (Use / Scroll) | verified | 10 pass |  |  |
 | `item:209` | Arrows for Bows (Use / Arrow) | verified | 10 pass |  |  |
 | `item:213` | Arrows for Crossbows (Use / Arrow) | verified | 10 pass |  |  |
-| `item:235` | Roger's Apple (Use / Food) | verified | 16 pass |  |  |
+| `item:235` | Roger's Apple (Use / Food) | verified | 18 pass |  |  |
 | `item:236` | Apple (Use / Food) | verified | 11 pass |  |  |
-| `item:237` | Egg (Use / Food) | verified | 14 pass |  |  |
+| `item:237` | Egg (Use / Food) | verified | 15 pass |  |  |
 | `item:238` | Meat (Use / Food) | verified | 10 pass |  |  |
-| `item:239` | Orange (Use / Food) | verified | 14 pass |  |  |
+| `item:239` | Orange (Use / Food) | verified | 16 pass |  |  |
 | `item:240` | Lemon (Use / Food) | verified | 10 pass |  |  |
 | `item:242` | Green Apple (Use / Food) | partial (pending source read) | 10 pass | 9 | pending: read MeowDB item page https://meowdb.com/msclassic/item-db/242 (Green Apple), by hand in a browser (decision D3-1) to settle its 'Max per Stack' (the runtime holds one per Use slot by the inventory.json unpublished_max_stack adaptation until then), its Tradeable/Untradeable tag (the runtime treats the unknown tag as tradeable) and its NPC Sell-back basis |
 | `item:269` | Pet Food (Use / Pet Food) | verified | 11 pass |  |  |
-| `item:270` | Red Potion (Use / Potion) | verified | 14 pass |  |  |
+| `item:270` | Red Potion (Use / Potion) | verified | 16 pass |  |  |
 | `item:271` | Orange Potion (Use / Potion) | verified | 11 pass |  |  |
 | `item:273` | Blue Potion (Use / Potion) | verified | 10 pass |  |  |
 | `item:59` | Cape Magic Def. Scroll: Intermediate (Use / Scroll) | verified | 10 pass |  |  |
@@ -620,27 +624,27 @@ Runtime: present (`game/scripts/core/npcs/npc_def.gd`, `game/scripts/world/world
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `npc:1` | Heena | verified | 10 pass |  |  |
-| `npc:10` | Maria | verified | 10 pass |  |  |
-| `npc:11` | Mai | verified | 18 pass |  |  |
-| `npc:12` | Biggs | verified | 9 pass |  |  |
-| `npc:13` | Yoona | verified | 6 pass |  |  |
-| `npc:14` | Bari | verified | 6 pass |  |  |
-| `npc:15` | Shanks | verified | 39 pass | 2 | adaptation: npcs/15.json; adaptation: dialogue/15.json |
-| `npc:16` | Pan | verified | 10 pass | 2 | adaptation: dialogue/16.json |
-| `npc:17` | Lucas | verified | 10 pass | 1 |  |
-| `npc:18` | Pio | verified | 10 pass |  | adaptation: dialogue/18.json |
-| `npc:19` | Rain | verified | 34 pass | 1 |  |
-| `npc:2` | Sera | verified | 10 pass | 1 |  |
-| `npc:20` | Sid | verified | 8 pass | 2 | adaptation: dialogue/20.json |
-| `npc:21` | Lucy | verified | 8 pass | 2 | adaptation: dialogue/21.json |
-| `npc:3` | Roger | verified | 12 pass | 2 |  |
-| `npc:4` | Nina | verified | 9 pass |  |  |
-| `npc:5` | Sen | verified | 9 pass | 1 |  |
-| `npc:6` | Peter | verified | 7 pass |  |  |
-| `npc:7` | Todd | verified | 7 pass |  |  |
-| `npc:8` | Robin | verified | 6 pass |  |  |
-| `npc:9` | Sam | verified | 10 pass |  |  |
+| `npc:1` | Heena | verified | 16 pass |  |  |
+| `npc:10` | Maria | verified | 16 pass |  |  |
+| `npc:11` | Mai | verified | 30 pass |  |  |
+| `npc:12` | Biggs | verified | 15 pass |  |  |
+| `npc:13` | Yoona | verified | 10 pass |  |  |
+| `npc:14` | Bari | verified | 10 pass |  |  |
+| `npc:15` | Shanks | verified | 61 pass | 2 | adaptation: npcs/15.json; adaptation: dialogue/15.json |
+| `npc:16` | Pan | verified | 16 pass | 2 | adaptation: dialogue/16.json |
+| `npc:17` | Lucas | verified | 16 pass | 1 |  |
+| `npc:18` | Pio | verified | 16 pass |  | adaptation: dialogue/18.json |
+| `npc:19` | Rain | verified | 64 pass | 1 |  |
+| `npc:2` | Sera | verified | 16 pass | 1 |  |
+| `npc:20` | Sid | verified | 12 pass | 2 | adaptation: dialogue/20.json |
+| `npc:21` | Lucy | verified | 12 pass | 2 | adaptation: dialogue/21.json |
+| `npc:3` | Roger | verified | 18 pass | 2 |  |
+| `npc:4` | Nina | verified | 15 pass |  |  |
+| `npc:5` | Sen | verified | 15 pass | 1 |  |
+| `npc:6` | Peter | verified | 11 pass |  |  |
+| `npc:7` | Todd | verified | 11 pass |  |  |
+| `npc:8` | Robin | verified | 10 pass |  |  |
+| `npc:9` | Sam | verified | 14 pass |  |  |
 
 ## Shops
 
@@ -648,9 +652,9 @@ Runtime: present (`game/scripts/core/shop/shop_service.gd`, `game/scripts/ui/npc
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `shop:maple-road-lucy` | Lucy (Lucy), 6 items | verified | 80 pass | 5 |  |
-| `shop:maple-road-pan` | Pan (Pan), 13 items | verified | 59 pass | 6 |  |
-| `shop:maple-road-sid` | Sid (Sid), 4 items | verified | 57 pass | 6 |  |
+| `shop:maple-road-lucy` | Lucy (Lucy), 6 items | verified | 88 pass | 5 |  |
+| `shop:maple-road-pan` | Pan (Pan), 13 items | verified | 69 pass | 6 |  |
+| `shop:maple-road-sid` | Sid (Sid), 4 items | verified | 65 pass | 6 |  |
 
 ## Quests
 
@@ -658,26 +662,26 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`, `game/scripts/core
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `quest:1000` | Borrowing Sera's Mirror | verified | 48 pass | 3 | missable (live quest tracker) |
-| `quest:1001` | Bringing a Mirror to Heena | verified | 43 pass | 5 | missable (live quest tracker) |
-| `quest:1002` | Roger's Apple | verified | 65 pass | 5 | missable (live quest tracker); adaptation: quests/1002.json |
-| `quest:1003` | What Sen wants to eat | verified | 48 pass | 3 | missable (live quest tracker) |
-| `quest:1004` | Returning to Nina | verified | 41 pass | 3 | missable (live quest tracker) |
-| `quest:1005` | Todd's How-to-Hunt | verified | 53 pass | 4 | missable (live quest tracker) |
-| `quest:1006` | Sam's Suggestion | verified | 104 pass | 3 | missable (live quest tracker) |
-| `quest:1007` | Letter for Lucas | verified | 56 pass | 4 | missable (live quest tracker) |
-| `quest:1008` | Lucas's Reply | verified | 53 pass | 4 | missable (live quest tracker) |
-| `quest:1009` | Mai's Training | verified | 73 pass | 3 | missable (live quest tracker) |
-| `quest:1010` | Mai's Final Training | verified | 53 pass | 3 | missable (live quest tracker) |
-| `quest:1011` | Biggs's Collection of Items | verified | 55 pass | 4 | missable (live quest tracker) |
-| `quest:1012` | Pio's Collecting Recycled Goods | verified | 79 pass | 4 | missable (live quest tracker) |
-| `quest:1013` | Rain's Maple Quiz 1 | verified | 62 pass | 3 | missable (live quest tracker) |
-| `quest:1014` | Rain's Maple Quiz 2 | verified | 53 pass | 3 | missable (live quest tracker) |
-| `quest:1015` | Rain's Maple Quiz 3 | verified | 53 pass | 3 | missable (live quest tracker) |
-| `quest:1016` | Rain's Maple Quiz 4 | verified | 54 pass | 3 | missable (live quest tracker) |
-| `quest:1017` | Rain's Maple Quiz 5 | verified | 53 pass | 3 | missable (live quest tracker) |
-| `quest:1018` | Rain's Maple Quiz 6 | verified | 55 pass | 4 | missable (live quest tracker) |
-| `quest:1019` | Rain's Maple Quiz 7 | verified | 51 pass | 3 | missable (live quest tracker) |
+| `quest:1000` | Borrowing Sera's Mirror | verified | 86 pass | 3 | missable (live quest tracker) |
+| `quest:1001` | Bringing a Mirror to Heena | verified | 81 pass | 5 | missable (live quest tracker) |
+| `quest:1002` | Roger's Apple | verified | 103 pass | 5 | missable (live quest tracker); adaptation: quests/1002.json |
+| `quest:1003` | What Sen wants to eat | verified | 86 pass | 3 | missable (live quest tracker) |
+| `quest:1004` | Returning to Nina | verified | 77 pass | 3 | missable (live quest tracker) |
+| `quest:1005` | Todd's How-to-Hunt | verified | 93 pass | 4 | missable (live quest tracker) |
+| `quest:1006` | Sam's Suggestion | verified | 148 pass | 3 | missable (live quest tracker) |
+| `quest:1007` | Letter for Lucas | verified | 96 pass | 4 | missable (live quest tracker) |
+| `quest:1008` | Lucas's Reply | verified | 93 pass | 4 | missable (live quest tracker) |
+| `quest:1009` | Mai's Training | verified | 143 pass | 3 | missable (live quest tracker) |
+| `quest:1010` | Mai's Final Training | verified | 95 pass | 3 | missable (live quest tracker) |
+| `quest:1011` | Biggs's Collection of Items | verified | 91 pass | 4 | missable (live quest tracker) |
+| `quest:1012` | Pio's Collecting Recycled Goods | verified | 141 pass | 4 | missable (live quest tracker) |
+| `quest:1013` | Rain's Maple Quiz 1 | verified | 108 pass | 3 | missable (live quest tracker) |
+| `quest:1014` | Rain's Maple Quiz 2 | verified | 101 pass | 3 | missable (live quest tracker) |
+| `quest:1015` | Rain's Maple Quiz 3 | verified | 101 pass | 3 | missable (live quest tracker) |
+| `quest:1016` | Rain's Maple Quiz 4 | verified | 102 pass | 3 | missable (live quest tracker) |
+| `quest:1017` | Rain's Maple Quiz 5 | verified | 101 pass | 3 | missable (live quest tracker) |
+| `quest:1018` | Rain's Maple Quiz 6 | verified | 103 pass | 4 | missable (live quest tracker) |
+| `quest:1019` | Rain's Maple Quiz 7 | verified | 95 pass | 3 | missable (live quest tracker) |
 
 ## Quest chains
 
@@ -697,48 +701,48 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `objective:1000/npc_talk/2/turn_in` | Borrowing Sera's Mirror: npc talk Sera | verified | 48 pass |  |  |
-| `objective:1001/item_collection/438` | Bringing a Mirror to Heena: item collection Sera's Mirror x1 | verified | 43 pass |  |  |
-| `objective:1001/npc_talk/1/turn_in` | Bringing a Mirror to Heena: npc talk Heena | verified | 43 pass |  |  |
-| `objective:1002/item_usage/235` | Roger's Apple: item usage Roger's Apple x1 | verified | 65 pass |  |  |
-| `objective:1002/npc_talk/3/turn_in` | Roger's Apple: npc talk Roger | verified | 65 pass |  |  |
-| `objective:1003/npc_talk/5/turn_in` | What Sen wants to eat: npc talk Sen | verified | 48 pass |  |  |
-| `objective:1004/npc_talk/4/turn_in` | Returning to Nina: npc talk Nina | verified | 41 pass |  |  |
-| `objective:1005/item_collection/347` | Todd's How-to-Hunt: item collection Jr. Sentinel Shellpiece x3 | verified | 53 pass |  |  |
-| `objective:1005/monster_kills/1` | Todd's How-to-Hunt: monster kills Tutorial Jr. Sentinel x3 | verified | 53 pass |  |  |
-| `objective:1005/npc_talk/6/turn_in` | Todd's How-to-Hunt: npc talk Peter | verified | 53 pass |  |  |
-| `objective:1006/monster_kills/2` | Sam's Suggestion: monster kills Snail x10 | verified | 104 pass |  |  |
-| `objective:1006/npc_talk/11/turn_in` | Sam's Suggestion: npc talk Mai | verified | 104 pass |  |  |
-| `objective:1007/item_collection/439` | Letter for Lucas: item collection Maria's Letter x1 | verified | 56 pass |  |  |
-| `objective:1007/npc_talk/17/turn_in` | Letter for Lucas: npc talk Lucas | verified | 56 pass |  |  |
-| `objective:1008/item_collection/440` | Lucas's Reply: item collection Lucas's Letter x1 | verified | 53 pass |  |  |
-| `objective:1008/npc_talk/10/turn_in` | Lucas's Reply: npc talk Maria | verified | 53 pass |  |  |
-| `objective:1009/monster_kills/3` | Mai's Training: monster kills Blue Snail x10 | verified | 73 pass |  |  |
-| `objective:1009/monster_kills/4` | Mai's Training: monster kills Shroom x10 | verified | 73 pass |  |  |
-| `objective:1009/monster_kills/5` | Mai's Training: monster kills Red Snail x5 | verified | 73 pass |  |  |
-| `objective:1009/npc_talk/11/turn_in` | Mai's Training: npc talk Mai | verified | 73 pass |  |  |
-| `objective:1010/monster_kills/9` | Mai's Final Training: monster kills Orange Mushroom x1 | verified | 53 pass |  |  |
-| `objective:1010/npc_talk/11/turn_in` | Mai's Final Training: npc talk Mai | verified | 53 pass |  |  |
-| `objective:1011/item_collection/349` | Biggs's Collection of Items: item collection Blue Snail Shell x10 | verified | 55 pass |  |  |
-| `objective:1011/item_collection/356` | Biggs's Collection of Items: item collection Orange Mushroom Cap x1 | verified | 55 pass |  |  |
-| `objective:1011/npc_talk/12/turn_in` | Biggs's Collection of Items: npc talk Biggs | verified | 55 pass |  |  |
-| `objective:1012/item_collection/441` | Pio's Collecting Recycled Goods: item collection Rusty Screw x3 | verified | 79 pass |  |  |
-| `objective:1012/item_collection/442` | Pio's Collecting Recycled Goods: item collection Old Wooden Board x3 | verified | 79 pass |  |  |
-| `objective:1012/npc_talk/18/turn_in` | Pio's Collecting Recycled Goods: npc talk Pio | verified | 79 pass |  |  |
-| `objective:1013/npc_talk/19/turn_in` | Rain's Maple Quiz 1: npc talk Rain | verified | 62 pass |  |  |
-| `objective:1013/other/quiz` | Rain's Maple Quiz 1: other quiz | verified | 62 pass |  |  |
-| `objective:1014/npc_talk/19/turn_in` | Rain's Maple Quiz 2: npc talk Rain | verified | 53 pass |  |  |
-| `objective:1014/other/quiz` | Rain's Maple Quiz 2: other quiz | verified | 53 pass |  |  |
-| `objective:1015/npc_talk/19/turn_in` | Rain's Maple Quiz 3: npc talk Rain | verified | 53 pass |  |  |
-| `objective:1015/other/quiz` | Rain's Maple Quiz 3: other quiz | verified | 53 pass |  |  |
-| `objective:1016/npc_talk/19/turn_in` | Rain's Maple Quiz 4: npc talk Rain | verified | 54 pass |  |  |
-| `objective:1016/other/quiz` | Rain's Maple Quiz 4: other quiz | verified | 54 pass |  |  |
-| `objective:1017/npc_talk/19/turn_in` | Rain's Maple Quiz 5: npc talk Rain | verified | 53 pass |  |  |
-| `objective:1017/other/quiz` | Rain's Maple Quiz 5: other quiz | verified | 53 pass |  |  |
-| `objective:1018/npc_talk/19/turn_in` | Rain's Maple Quiz 6: npc talk Rain | verified | 55 pass |  |  |
-| `objective:1018/other/quiz` | Rain's Maple Quiz 6: other quiz | verified | 55 pass |  |  |
-| `objective:1019/npc_talk/19/turn_in` | Rain's Maple Quiz 7: npc talk Rain | verified | 51 pass |  |  |
-| `objective:1019/other/quiz` | Rain's Maple Quiz 7: other quiz | verified | 51 pass |  |  |
+| `objective:1000/npc_talk/2/turn_in` | Borrowing Sera's Mirror: npc talk Sera | verified | 86 pass |  |  |
+| `objective:1001/item_collection/438` | Bringing a Mirror to Heena: item collection Sera's Mirror x1 | verified | 81 pass |  |  |
+| `objective:1001/npc_talk/1/turn_in` | Bringing a Mirror to Heena: npc talk Heena | verified | 81 pass |  |  |
+| `objective:1002/item_usage/235` | Roger's Apple: item usage Roger's Apple x1 | verified | 103 pass |  |  |
+| `objective:1002/npc_talk/3/turn_in` | Roger's Apple: npc talk Roger | verified | 103 pass |  |  |
+| `objective:1003/npc_talk/5/turn_in` | What Sen wants to eat: npc talk Sen | verified | 86 pass |  |  |
+| `objective:1004/npc_talk/4/turn_in` | Returning to Nina: npc talk Nina | verified | 77 pass |  |  |
+| `objective:1005/item_collection/347` | Todd's How-to-Hunt: item collection Jr. Sentinel Shellpiece x3 | verified | 93 pass |  |  |
+| `objective:1005/monster_kills/1` | Todd's How-to-Hunt: monster kills Tutorial Jr. Sentinel x3 | verified | 93 pass |  |  |
+| `objective:1005/npc_talk/6/turn_in` | Todd's How-to-Hunt: npc talk Peter | verified | 93 pass |  |  |
+| `objective:1006/monster_kills/2` | Sam's Suggestion: monster kills Snail x10 | verified | 148 pass |  |  |
+| `objective:1006/npc_talk/11/turn_in` | Sam's Suggestion: npc talk Mai | verified | 148 pass |  |  |
+| `objective:1007/item_collection/439` | Letter for Lucas: item collection Maria's Letter x1 | verified | 96 pass |  |  |
+| `objective:1007/npc_talk/17/turn_in` | Letter for Lucas: npc talk Lucas | verified | 96 pass |  |  |
+| `objective:1008/item_collection/440` | Lucas's Reply: item collection Lucas's Letter x1 | verified | 93 pass |  |  |
+| `objective:1008/npc_talk/10/turn_in` | Lucas's Reply: npc talk Maria | verified | 93 pass |  |  |
+| `objective:1009/monster_kills/3` | Mai's Training: monster kills Blue Snail x10 | verified | 143 pass |  |  |
+| `objective:1009/monster_kills/4` | Mai's Training: monster kills Shroom x10 | verified | 143 pass |  |  |
+| `objective:1009/monster_kills/5` | Mai's Training: monster kills Red Snail x5 | verified | 143 pass |  |  |
+| `objective:1009/npc_talk/11/turn_in` | Mai's Training: npc talk Mai | verified | 143 pass |  |  |
+| `objective:1010/monster_kills/9` | Mai's Final Training: monster kills Orange Mushroom x1 | verified | 95 pass |  |  |
+| `objective:1010/npc_talk/11/turn_in` | Mai's Final Training: npc talk Mai | verified | 95 pass |  |  |
+| `objective:1011/item_collection/349` | Biggs's Collection of Items: item collection Blue Snail Shell x10 | verified | 91 pass |  |  |
+| `objective:1011/item_collection/356` | Biggs's Collection of Items: item collection Orange Mushroom Cap x1 | verified | 91 pass |  |  |
+| `objective:1011/npc_talk/12/turn_in` | Biggs's Collection of Items: npc talk Biggs | verified | 91 pass |  |  |
+| `objective:1012/item_collection/441` | Pio's Collecting Recycled Goods: item collection Rusty Screw x3 | verified | 141 pass |  |  |
+| `objective:1012/item_collection/442` | Pio's Collecting Recycled Goods: item collection Old Wooden Board x3 | verified | 141 pass |  |  |
+| `objective:1012/npc_talk/18/turn_in` | Pio's Collecting Recycled Goods: npc talk Pio | verified | 141 pass |  |  |
+| `objective:1013/npc_talk/19/turn_in` | Rain's Maple Quiz 1: npc talk Rain | verified | 108 pass |  |  |
+| `objective:1013/other/quiz` | Rain's Maple Quiz 1: other quiz | verified | 108 pass |  |  |
+| `objective:1014/npc_talk/19/turn_in` | Rain's Maple Quiz 2: npc talk Rain | verified | 101 pass |  |  |
+| `objective:1014/other/quiz` | Rain's Maple Quiz 2: other quiz | verified | 101 pass |  |  |
+| `objective:1015/npc_talk/19/turn_in` | Rain's Maple Quiz 3: npc talk Rain | verified | 101 pass |  |  |
+| `objective:1015/other/quiz` | Rain's Maple Quiz 3: other quiz | verified | 101 pass |  |  |
+| `objective:1016/npc_talk/19/turn_in` | Rain's Maple Quiz 4: npc talk Rain | verified | 102 pass |  |  |
+| `objective:1016/other/quiz` | Rain's Maple Quiz 4: other quiz | verified | 102 pass |  |  |
+| `objective:1017/npc_talk/19/turn_in` | Rain's Maple Quiz 5: npc talk Rain | verified | 101 pass |  |  |
+| `objective:1017/other/quiz` | Rain's Maple Quiz 5: other quiz | verified | 101 pass |  |  |
+| `objective:1018/npc_talk/19/turn_in` | Rain's Maple Quiz 6: npc talk Rain | verified | 103 pass |  |  |
+| `objective:1018/other/quiz` | Rain's Maple Quiz 6: other quiz | verified | 103 pass |  |  |
+| `objective:1019/npc_talk/19/turn_in` | Rain's Maple Quiz 7: npc talk Rain | verified | 95 pass |  |  |
+| `objective:1019/other/quiz` | Rain's Maple Quiz 7: other quiz | verified | 95 pass |  |  |
 
 ## Quest rewards
 
@@ -746,31 +750,31 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `reward:1001/exp` | Bringing a Mirror to Heena: 2 EXP | verified | 43 pass |  |  |
-| `reward:1004/exp` | Returning to Nina: 3 EXP | verified | 41 pass |  |  |
-| `reward:1005/exp` | Todd's How-to-Hunt: 10 EXP | verified | 53 pass |  |  |
-| `reward:1006/exp` | Sam's Suggestion: 30 EXP | verified | 104 pass |  |  |
-| `reward:1006/item/237` | Sam's Suggestion: Egg x3 | verified | 104 pass |  |  |
-| `reward:1008/exp` | Lucas's Reply: 50 EXP | verified | 53 pass |  |  |
-| `reward:1008/random/0` | Lucas's Reply: one of Brown Skullcap, Green Skullcap, Red Headband, Black Headband, Green Headband, Yellow Headband, Blue Headband | verified | 53 pass |  |  |
-| `reward:1009/exp` | Mai's Training: 70 EXP | verified | 73 pass |  |  |
-| `reward:1009/item/237` | Mai's Training: Egg x5 | verified | 73 pass |  |  |
-| `reward:1010/exp` | Mai's Final Training: 100 EXP | verified | 53 pass |  |  |
-| `reward:1010/item/237` | Mai's Final Training: Egg x10 | verified | 53 pass |  |  |
-| `reward:1010/mesos` | Mai's Final Training: 150 mesos | verified | 53 pass |  |  |
-| `reward:1011/exp` | Biggs's Collection of Items: 70 EXP | verified | 55 pass |  |  |
-| `reward:1011/random/0` | Biggs's Collection of Items: one of Fruit Knife, Razor | verified | 55 pass |  |  |
-| `reward:1012/exp` | Pio's Collecting Recycled Goods: 100 EXP | verified | 79 pass |  |  |
-| `reward:1012/item/522` | Pio's Collecting Recycled Goods: The Green Relaxer x1 | verified | 79 pass |  |  |
-| `reward:1012/mesos` | Pio's Collecting Recycled Goods: 150 mesos | verified | 79 pass |  |  |
-| `reward:1013/exp` | Rain's Maple Quiz 1: 20 EXP | verified | 62 pass |  |  |
-| `reward:1014/exp` | Rain's Maple Quiz 2: 25 EXP | verified | 53 pass |  |  |
-| `reward:1015/exp` | Rain's Maple Quiz 3: 30 EXP | verified | 53 pass |  |  |
-| `reward:1016/exp` | Rain's Maple Quiz 4: 35 EXP | verified | 54 pass |  |  |
-| `reward:1017/exp` | Rain's Maple Quiz 5: 40 EXP | verified | 53 pass |  |  |
-| `reward:1018/exp` | Rain's Maple Quiz 6: 45 EXP | verified | 55 pass |  |  |
-| `reward:1019/exp` | Rain's Maple Quiz 7: 50 EXP | verified | 51 pass |  |  |
-| `reward:1019/item/239` | Rain's Maple Quiz 7: Orange x10 | verified | 51 pass |  |  |
+| `reward:1001/exp` | Bringing a Mirror to Heena: 2 EXP | verified | 81 pass |  |  |
+| `reward:1004/exp` | Returning to Nina: 3 EXP | verified | 77 pass |  |  |
+| `reward:1005/exp` | Todd's How-to-Hunt: 10 EXP | verified | 93 pass |  |  |
+| `reward:1006/exp` | Sam's Suggestion: 30 EXP | verified | 148 pass |  |  |
+| `reward:1006/item/237` | Sam's Suggestion: Egg x3 | verified | 148 pass |  |  |
+| `reward:1008/exp` | Lucas's Reply: 50 EXP | verified | 93 pass |  |  |
+| `reward:1008/random/0` | Lucas's Reply: one of Brown Skullcap, Green Skullcap, Red Headband, Black Headband, Green Headband, Yellow Headband, Blue Headband | verified | 93 pass |  |  |
+| `reward:1009/exp` | Mai's Training: 70 EXP | verified | 143 pass |  |  |
+| `reward:1009/item/237` | Mai's Training: Egg x5 | verified | 143 pass |  |  |
+| `reward:1010/exp` | Mai's Final Training: 100 EXP | verified | 95 pass |  |  |
+| `reward:1010/item/237` | Mai's Final Training: Egg x10 | verified | 95 pass |  |  |
+| `reward:1010/mesos` | Mai's Final Training: 150 mesos | verified | 95 pass |  |  |
+| `reward:1011/exp` | Biggs's Collection of Items: 70 EXP | verified | 91 pass |  |  |
+| `reward:1011/random/0` | Biggs's Collection of Items: one of Fruit Knife, Razor | verified | 91 pass |  |  |
+| `reward:1012/exp` | Pio's Collecting Recycled Goods: 100 EXP | verified | 141 pass |  |  |
+| `reward:1012/item/522` | Pio's Collecting Recycled Goods: The Green Relaxer x1 | verified | 141 pass |  |  |
+| `reward:1012/mesos` | Pio's Collecting Recycled Goods: 150 mesos | verified | 141 pass |  |  |
+| `reward:1013/exp` | Rain's Maple Quiz 1: 20 EXP | verified | 108 pass |  |  |
+| `reward:1014/exp` | Rain's Maple Quiz 2: 25 EXP | verified | 101 pass |  |  |
+| `reward:1015/exp` | Rain's Maple Quiz 3: 30 EXP | verified | 101 pass |  |  |
+| `reward:1016/exp` | Rain's Maple Quiz 4: 35 EXP | verified | 102 pass |  |  |
+| `reward:1017/exp` | Rain's Maple Quiz 5: 40 EXP | verified | 101 pass |  |  |
+| `reward:1018/exp` | Rain's Maple Quiz 6: 45 EXP | verified | 103 pass |  |  |
+| `reward:1019/exp` | Rain's Maple Quiz 7: 50 EXP | verified | 95 pass |  |  |
+| `reward:1019/item/239` | Rain's Maple Quiz 7: Orange x10 | verified | 95 pass |  |  |
 
 ## Beginner skills and mechanics
 
@@ -778,15 +782,15 @@ Runtime: present (`game/scripts/actors/combat/player_skills.gd`, `game/scripts/c
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:ap-allocation` | AP allocation (AP behaviour remains correct) | verified | 19 pass |  |  |
+| `mechanic:ap-allocation` | AP allocation (AP behaviour remains correct) | verified | 30 pass |  |  |
 | `mechanic:beginner-sp-gain` | SP gained per level as a Beginner (canonical) | verified | 5 pass |  |  |
 | `mechanic:level-up-gains` | EXP and level-ups follow the canonical EXP table and give the canonical AP, SP and HP/MP | verified | 14 pass |  |  |
 | `mechanic:new-character` | A new character is a canonical Beginner: level 1, starting stats, creation AP, starter weapon and clothes | verified | 8 pass |  | adaptation: new_character.json |
 | `mechanic:sp-allocation` | Spending SP on Beginner skills (canonical max levels and prerequisites) | verified | 14 pass |  |  |
 | `mechanic:timed-effects` | Timed skill effects and cooldowns count down (remaining seconds) | verified | 12 pass |  | adaptation: skills.json |
-| `skill:0001000` | Three Snails (max level 3) | verified | 24 pass |  |  |
-| `skill:0001001` | Recovery (max level 3) | verified | 19 pass |  |  |
-| `skill:0001002` | Nimble Feet (max level 3) | verified | 20 pass |  |  |
+| `skill:0001000` | Three Snails (max level 3) | verified | 37 pass |  |  |
+| `skill:0001001` | Recovery (max level 3) | verified | 29 pass |  |  |
+| `skill:0001002` | Nimble Feet (max level 3) | verified | 31 pass |  |  |
 
 ## Breakables
 
@@ -794,31 +798,31 @@ Runtime: present (`game/scripts/actors/breakables/breakable_system.gd`, `game/sc
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `breakable:0000001` | Wooden Box (breaks in 4 hits) | verified | 26 pass | 3 |  |
+| `breakable:0000001` | Wooden Box (breaks in 4 hits) | verified | 40 pass | 3 |  |
 | `drop:0000001/apple` | Wooden Box: Apple | verified | 3 pass |  |  |
 | `drop:0000001/egg` | Wooden Box: Egg | partial (source-data gap) | 3 pass | 1 |  |
 | `drop:0000001/old-wooden-board` | Wooden Box: Old Wooden Board | verified | 4 pass |  | quest-gated to 1012 |
 | `drop:0000001/rusty-screw` | Wooden Box: Rusty Screw | verified | 4 pass |  | quest-gated to 1012 |
 | `mechanic:breakable-hit-break-respawn` | A Wooden Box breaks after the canonical landed hits and respawns after its placement's canonical time | verified | 16 pass |  | adaptation: breakables.json |
-| `placement:000001000/0` | Wooden Box placement 0 on The Field West of Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001000/1` | Wooden Box placement 1 on The Field West of Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001000/2` | Wooden Box placement 2 on The Field West of Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001000/3` | Wooden Box placement 3 on The Field West of Amherst (respawn 180 s) | verified | 31 pass |  |  |
-| `placement:000001000/4` | Wooden Box placement 4 on The Field West of Amherst (respawn 90 s) | verified | 31 pass |  |  |
-| `placement:000001010/0` | Wooden Box placement 0 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001010/1` | Wooden Box placement 1 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001010/2` | Wooden Box placement 2 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001010/3` | Wooden Box placement 3 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001010/4` | Wooden Box placement 4 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001010/5` | Wooden Box placement 5 on Amherst (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001011/0` | Wooden Box placement 0 on Amherst Weapon Store (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001011/1` | Wooden Box placement 1 on Amherst Weapon Store (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001012/0` | Wooden Box placement 0 on Amherst Townstreet (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001012/1` | Wooden Box placement 1 on Amherst Townstreet (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001013/0` | Wooden Box placement 0 on Amherst Department Store (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001014/0` | Wooden Box placement 0 on Snail Field of Flowers (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001014/1` | Wooden Box placement 1 on Snail Field of Flowers (respawn 120 s) | verified | 31 pass |  |  |
-| `placement:000001014/2` | Wooden Box placement 2 on Snail Field of Flowers (respawn 120 s) | verified | 31 pass |  |  |
+| `placement:000001000/0` | Wooden Box placement 0 on The Field West of Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001000/1` | Wooden Box placement 1 on The Field West of Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001000/2` | Wooden Box placement 2 on The Field West of Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001000/3` | Wooden Box placement 3 on The Field West of Amherst (respawn 180 s) | verified | 45 pass |  |  |
+| `placement:000001000/4` | Wooden Box placement 4 on The Field West of Amherst (respawn 90 s) | verified | 45 pass |  |  |
+| `placement:000001010/0` | Wooden Box placement 0 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001010/1` | Wooden Box placement 1 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001010/2` | Wooden Box placement 2 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001010/3` | Wooden Box placement 3 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001010/4` | Wooden Box placement 4 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001010/5` | Wooden Box placement 5 on Amherst (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001011/0` | Wooden Box placement 0 on Amherst Weapon Store (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001011/1` | Wooden Box placement 1 on Amherst Weapon Store (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001012/0` | Wooden Box placement 0 on Amherst Townstreet (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001012/1` | Wooden Box placement 1 on Amherst Townstreet (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001013/0` | Wooden Box placement 0 on Amherst Department Store (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001014/0` | Wooden Box placement 0 on Snail Field of Flowers (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001014/1` | Wooden Box placement 1 on Snail Field of Flowers (respawn 120 s) | verified | 45 pass |  |  |
+| `placement:000001014/2` | Wooden Box placement 2 on Snail Field of Flowers (respawn 120 s) | verified | 45 pass |  |  |
 
 ## Chairs
 
@@ -826,15 +830,15 @@ Runtime: present (`game/scripts/actors/player/player_controller.gd ("&\"seated\"
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `chair:522` | The Green Relaxer (Pio's quest, Maple Island) | verified | 27 pass |  |  |
+| `chair:522` | The Green Relaxer (Pio's quest, Maple Island) | verified | 39 pass |  |  |
 | `chair:525` | Sky-blue Wooden Chair (Mina, Lith Harbor, 1,000 mesos) | verified (out of scope) | 1 pass |  | out of scope: The Sky-blue Wooden Chair is sold by Mina in Lith Harbor (Victoria Island), outside Iteration Three (brief: Explicitly Out of Scope) |
 
 ## Map mechanics
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:chair-hp-bonus` | A chair's own HP bonus per interval while seated (The Green Relaxer: 30 HP per 10 s), on its own clock | verified | 7 pass |  |  |
-| `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | verified | 127 pass |  |  |
+| `mechanic:chair-hp-bonus` | A chair's own HP bonus per interval while seated (The Green Relaxer: 30 HP per 10 s), on its own clock | verified | 9 pass |  |  |
+| `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | verified | 137 pass |  |  |
 | `mechanic:map-seats` | Sitting without a chair (ground sit) and map benches | partial (source-data gap) | 0 pass | 1 |  |
 | `mechanic:minimap` | Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode); M folds it | verified | 201 pass |  |  |
 | `mechanic:natural-hp-regen` | Natural HP regeneration: 10 HP per 10 s of eligible (standing still or sitting) time; the clock pauses, never resets; never above Max HP | verified | 14 pass |  | adaptation: recovery.json |
@@ -845,10 +849,10 @@ Runtime: present (`game/scripts/actors/player/player_controller.gd ("&\"seated\"
 | `mechanic:natural-mp-regen` | Natural MP recovery: none, because MeowDB documents none (not inferred from the HP rule) | partial (source-data gap) | 1 pass | 1 | adaptation: recovery.json |
 | `mechanic:npc-idle-chatter-bubbles` | NPC speech bubbles from their canonical idle lines | verified | 1 pass |  | adaptation: npcs/_speech_bubbles.json |
 | `mechanic:portal-transition` | Portals and map transitions (trails walked through their gates, doors with Up) | verified | 57 pass |  |  |
-| `mechanic:quest-random-rewards` | Random quest rewards are weighted draws from the canonical set (seeded tests), never the first option | verified | 10 pass |  |  |
+| `mechanic:quest-random-rewards` | Random quest rewards are weighted draws from the canonical set (seeded tests), never the first option | verified | 18 pass |  |  |
 | `mechanic:quest-rewards-received` | A completion records the rewards it granted, random picks included (contract C3 rewards_received) | verified | 7 pass |  |  |
-| `mechanic:quiz-quests` | Quiz quests: question, canonical answers, wrong-answer line and behaviour, progression, reward | verified | 45 pass |  | adaptation: dialogue/_rules.json |
-| `mechanic:sitting` | Sitting down and standing up; movement, jumps, attacks, skills, knockback, death and warps stand the player up | verified | 24 pass |  | adaptation: recovery.json |
+| `mechanic:quiz-quests` | Quiz quests: question, canonical answers, wrong-answer line and behaviour, progression, reward | verified | 87 pass |  | adaptation: dialogue/_rules.json |
+| `mechanic:sitting` | Sitting down and standing up; movement, jumps, attacks, skills, knockback, death and warps stand the player up | verified | 34 pass |  | adaptation: recovery.json |
 | `mechanic:southperry-departure` | Shanks in Southperry: the departure boundary (canonical level and fare checked, unfinished quests listed, End of Maple Island) | verified | 3 pass |  | adaptation: npcs/15.json |
 | `mechanic:stuck-region-scan` | Automated stuck-region scan over all 25 maps (no confirmed trap) | verified | 14 pass |  |  |
 | `mechanic:trap-regression-guard` | Every former trap spot is escaped with real input in the real game (trap_probe) | verified | 55 pass |  |  |
@@ -889,10 +893,10 @@ Runtime: present (`game/scripts/core/drops/drop_roller.gd`, `game/scripts/core/d
 | `mechanic:drop-membership-authoritative` | Drop membership is the membership source's list, nothing else (MeowDB for the Wooden Box, Hidden Street for monsters: D3-6) | verified | 4 pass |  |  |
 | `mechanic:drop-roll-seeded` | Drop rolls are deterministic under a seeded RNG | verified | 1 pass |  |  |
 | `mechanic:drop-simulation` | A large offline simulation matches the configured rates (a sanity check, not a source) | verified | 1 pass |  |  |
-| `mechanic:loot-pickup` | Item drops land in the world and can be picked up (stacks merge, full inventory leaves the drop) | verified | 11 pass |  |  |
+| `mechanic:loot-pickup` | Item drops land in the world and can be picked up (stacks merge, full inventory leaves the drop) | verified | 13 pass |  |  |
 | `mechanic:meso-amount-source` | Meso amount comes from MeowDB (Hidden Street only where MeowDB has no report) | verified | 5 pass |  |  |
 | `mechanic:meso-chance-source` | Meso drop probability comes from KuroDB | verified | 5 pass |  |  |
-| `mechanic:meso-pickup` | Meso bags drop into the world, show their amount, are collected and saved | verified | 4 pass |  |  |
+| `mechanic:meso-pickup` | Meso bags drop into the world, show their amount, are collected and saved | verified | 6 pass |  |  |
 | `mechanic:no-placeholder-drop-rates` | No placeholder drop chance, quantity or meso amount anywhere (Definition of Done: Placeholder Removal) | verified | 2 pass |  |  |
 | `mechanic:quest-gated-drops` | Quest-gated drops roll only while their quest is in progress (contract C1 gate rule) | verified | 4 pass |  | adaptation: drop_rates.json |
 | `mechanic:unresolved-drops-never-roll` | An unresolved member (no chance or no item) never rolls | verified | 2 pass |  |  |
@@ -906,7 +910,7 @@ Runtime: present (`game/scripts/core/character/character_state.gd`, `game/script
 | `mechanic:atomic-save-backup` | Saves are written atomically with a backup generation | verified | 6 pass |  |  |
 | `mechanic:autosave` | Autosave on progression events | verified | 5 pass |  |  |
 | `mechanic:quest-persistence` | Quest state survives save, Quit and a new process at every intermediate state | verified | 15 pass |  |  |
-| `mechanic:save-load` | Saving and loading every Maple Island system (Phase 14 list) | verified | 122 pass |  |  |
+| `mechanic:save-load` | Saving and loading every Maple Island system (Phase 14 list) | verified | 212 pass |  |  |
 | `mechanic:save-migration` | Iteration Two saves migrate to the current schema (Definition of Done: save migration works) | verified | 42 pass |  |  |
 | `persistence:ap-stats` | AP and stats persist | verified | 8 pass |  |  |
 | `persistence:breakable-state` | Breakable state, monsters and ground drops are not saved (contract C3) | verified | 3 pass |  |  |
@@ -939,7 +943,7 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | verified | 7 pass |  |  |
+| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | verified | 9 pass |  |  |
 | `mechanic:inventory-full-warning` | Inventory-full warning | verified | 7 pass |  |  |
 | `minimap:000000001` | Minimap of Mushroom Town - West Entrance (000000001): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
 | `minimap:000000010` | Minimap of Mushroom Town (000000010): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
@@ -976,10 +980,10 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 | `ui:minimap-map-id-debug` | The canonical map id on the minimap in debug mode (F3) | verified | 2 pass |  |  |
 | `ui:minimap-projection` | The minimap draws the isometric map through the gameplay camera's projection | verified | 3 pass |  |  |
 | `ui:portal-cue` | Portal cue: trails and doors are recognisable; the trail tag names the destination | verified | 4 pass |  |  |
-| `ui:quest-indicators` | NPC quest markers (available, in progress, ready to turn in) | verified | 163 pass |  |  |
-| `ui:quest-log` | Quest log with objectives, quantities, NPC, state and chain progress | verified | 159 pass |  |  |
+| `ui:quest-indicators` | NPC quest markers (available, in progress, ready to turn in) | verified | 305 pass |  |  |
+| `ui:quest-log` | Quest log with objectives, quantities, NPC, state and chain progress | verified | 295 pass |  |  |
 | `ui:shop-indication` | Shop indication: shopkeeper tags and shop badges on doors | verified | 10 pass |  |  |
-| `ui:skill-window` | Skill window: levels, SP allocation, binding, persistence | verified | 25 pass |  |  |
+| `ui:skill-window` | Skill window: levels, SP allocation, binding, persistence | verified | 44 pass |  |  |
 | `ui:sp-notification` | SP-available notification | partial | 5 pass, **1 fail** |  | 1 tagged check(s) failed |
 
 ## Clean-character playthrough (Definition of Done: Gameplay)
@@ -989,26 +993,26 @@ Runtime: present; no runtime of its own.
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `mechanic:no-console-playthrough` | Strict mode: after setup, any console or API cheat or unannounced state change fails the run (the guard the playthrough rows rely on) | verified | 28 pass |  |  |
-| `playthrough:allocate-ap` | Allocate AP | verified | 6 pass |  |  |
-| `playthrough:begin-maple-island` | Begin Maple Island at the canonical start map | verified | 1 pass |  |  |
-| `playthrough:complete-every-quest` | Complete every Maple Island quest | verified | 1 pass |  |  |
-| `playthrough:complete-every-quiz` | Complete every quiz | verified | 7 pass |  |  |
-| `playthrough:create-character` | From a clean character: create the character through the screens | verified | 1 pass |  |  |
-| `playthrough:die-and-respawn` | Die and respawn correctly | verified | 2 pass |  |  |
-| `playthrough:equip-gear` | Equip gear | verified | 1 pass |  |  |
-| `playthrough:fight-every-monster-type` | Fight every Maple Island monster type | verified | 6 pass |  |  |
-| `playthrough:level-naturally` | Level naturally | verified | 8 pass |  |  |
-| `playthrough:monster-drops` | Obtain normal monster drops | verified | 1 pass |  |  |
-| `playthrough:monster-mesos` | Obtain mesos through actual monster drops | verified | 1 pass |  |  |
-| `playthrough:no-developer-console` | No developer console is required during the canonical playthrough (strict after character creation) | verified | 8 pass |  |  |
-| `playthrough:obtain-and-use-chair` | Obtain and use a chair | verified | 1 pass |  |  |
-| `playthrough:reach-southperry` | Reach Southperry legitimately | verified | 1 pass |  |  |
-| `playthrough:ready-to-depart` | Arrive ready to depart Maple Island (Shanks' boundary) | verified | 2 pass |  |  |
-| `playthrough:save-and-reload` | Save and reload during progression | verified | 6 pass |  |  |
-| `playthrough:tutorial-content` | Complete the opening and tutorial content | verified | 6 pass |  |  |
-| `playthrough:use-consumables` | Use consumables | verified | 1 pass |  |  |
-| `playthrough:use-every-shop` | Use every Maple Island shop | verified | 3 pass |  |  |
-| `playthrough:visit-all-25-maps` | Visit all 25 maps | verified | 25 pass |  |  |
+| `playthrough:allocate-ap` | Allocate AP | verified | 17 pass |  |  |
+| `playthrough:begin-maple-island` | Begin Maple Island at the canonical start map | verified | 3 pass |  |  |
+| `playthrough:complete-every-quest` | Complete every Maple Island quest | verified | 3 pass |  |  |
+| `playthrough:complete-every-quiz` | Complete every quiz | verified | 21 pass |  |  |
+| `playthrough:create-character` | From a clean character: create the character through the screens | verified | 3 pass |  |  |
+| `playthrough:die-and-respawn` | Die and respawn correctly | verified | 6 pass |  |  |
+| `playthrough:equip-gear` | Equip gear | verified | 3 pass |  |  |
+| `playthrough:fight-every-monster-type` | Fight every Maple Island monster type | verified | 18 pass |  |  |
+| `playthrough:level-naturally` | Level naturally | verified | 24 pass |  |  |
+| `playthrough:monster-drops` | Obtain normal monster drops | verified | 3 pass |  |  |
+| `playthrough:monster-mesos` | Obtain mesos through actual monster drops | verified | 3 pass |  |  |
+| `playthrough:no-developer-console` | No developer console is required during the canonical playthrough (strict after character creation) | verified | 24 pass |  |  |
+| `playthrough:obtain-and-use-chair` | Obtain and use a chair | verified | 3 pass |  |  |
+| `playthrough:reach-southperry` | Reach Southperry legitimately | verified | 3 pass |  |  |
+| `playthrough:ready-to-depart` | Arrive ready to depart Maple Island (Shanks' boundary) | verified | 6 pass |  |  |
+| `playthrough:save-and-reload` | Save and reload during progression | verified | 18 pass |  |  |
+| `playthrough:tutorial-content` | Complete the opening and tutorial content | verified | 18 pass |  |  |
+| `playthrough:use-consumables` | Use consumables | verified | 3 pass |  |  |
+| `playthrough:use-every-shop` | Use every Maple Island shop | verified | 9 pass |  |  |
+| `playthrough:visit-all-25-maps` | Visit all 25 maps | verified | 75 pass |  |  |
 
 ## Cross-reference validation (Phase 16)
 
