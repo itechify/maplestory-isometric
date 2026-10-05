@@ -847,6 +847,8 @@ func _fight_species(mob: String, map: String) -> void:
 	var t0 := d.game_s()
 	var excluded_at := {}
 	var zero_on := {}
+	# The last call left the player pressed against something (no attack, no movement): plan around it next time.
+	var replan := false
 	while d.game_s() - t0 < SPECIES_BUDGET_S:
 		if _hits_on(mob) >= hit_target and _kills_of(mob) >= 2:
 			break
@@ -868,8 +870,16 @@ func _fight_species(mob: String, map: String) -> void:
 			await d.walk_to(target.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1})
 			if not is_instance_valid(target) or not target.is_alive():
 				continue
+		elif replan:
+			# The driver's straight approach pushed into a wall or a prop: walk to the next target over the grid planner
+			# (real collision) instead.
+			await d.walk_to(target.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1, "planner": "grid"})
+			if not is_instance_valid(target) or not target.is_alive():
+				continue
+		replan = false
 		var tid := target.get_instance_id()
 		var a0 := attacks.size()
+		var at0 := d.player().global_position
 		var r: Dictionary = await d.face_and_attack_nearest(FIGHT_CALL_S, {"mob_id": mob, "exclude": pick["exclude"], "max_dist_m": 80.0})
 		if attacks.size() > a0 or not is_instance_valid(target) or not bool(target.call("is_alive")):
 			zero_on.erase(tid)
@@ -881,7 +891,9 @@ func _fight_species(mob: String, map: String) -> void:
 			zero_on.erase(tid)
 			continue
 		zero_on[tid] = int(zero_on.get(tid, 0)) + 1
-		if int(zero_on[tid]) >= 2 or String(r["why"]).begins_with("could not reach"):
+		var held := d.player().global_position.distance_to(at0) < 0.05
+		replan = held
+		if held or int(zero_on[tid]) >= 2 or String(r["why"]).begins_with("could not reach"):
 			excluded_at[tid] = d.game_s()
 			zero_on.erase(tid)
 			var p := d.player()
