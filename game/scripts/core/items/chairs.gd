@@ -54,7 +54,8 @@ static func first_owned(c: CharacterState, db: ContentDB) -> String:
 
 ## Uses a chair: sits on it, stands up when already seated on it, or moves over from another chair. Refused (nothing
 ## changes) when the item is not a chair, is not owned, needs a higher level, the character is dead (Consumables.is_dead
-## with `dead_check`), or the player cannot sit now (the seat's can_sit()).
+## with `dead_check`), or the player cannot sit now (the seat's can_sit()). Moving over stands up from the old chair
+## first, so a refusal at that point (cannot_sit) leaves the player standing.
 static func use(c: CharacterState, item_id: String, db: ContentDB, seat: Object = null,
 		dead_check: Callable = Callable()) -> Dictionary:
 	var def := ItemDef.of(item_id, db)

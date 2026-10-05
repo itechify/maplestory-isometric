@@ -137,7 +137,7 @@ this order:
 |---|---|
 | `&"other"` | no movement model, not in the tree, or not processing (frozen for a warp, the tree paused) |
 | `&"dead"` | after `die()` until `revive()` |
-| `&"seated"` | sitting on a chair (below) |
+| `&"seated"` | sitting on a chair (below). On the one tick an attack or cast starts from the chair (before the player stands up), `&"attacking"` |
 | `&"hitstun"` | a knockback in flight |
 | `&"climbing"` | on a ladder, rope or vine |
 | `&"attacking"` | `PlayerCombat.is_attacking()`: a basic attack's lockout, or a skill cast's (the skills package makes it true while casting). A planted ground attack has speed 0 but is not standing still |
@@ -174,8 +174,9 @@ SafeGround and the floor sync are unchanged.
   swings and stands the player up; PlayerCombat filters the mouse, so a click on a window never counts; a skill cast
   stands up the same way); `apply_knockback` (`knockback`); `die` (`death`); `grab_climbable` (`climb`); `teleport`
   (`teleport`: warps, respawns, loads, fall recovery); `MapSession.transition_started` (`warp`, before the fade);
-  `Game.character_replaced` (`character`); and `Events.item_lost` when the last copy of the chair leaves the bag
-  (`chair_lost`). Opening a dialogue or a window does not stand the player up.
+  `Game.character_replaced` (`character`); `Events.item_lost` when the last copy of the chair leaves the bag
+  (`chair_lost`); and leaving the ground, e.g. the floor gone from under the chair (`fall`). Opening a dialogue or a
+  window does not stand the player up.
 - **Not saved.** The seated state is never written to the save (contract C3): a loaded game arrives standing, and the
   chair itself stays in the Set-up tab.
 - **Pose.** `PlayerVisual` settles the body 0.2 m and leans it back 8° over 0.12 s onto a small procedural chair

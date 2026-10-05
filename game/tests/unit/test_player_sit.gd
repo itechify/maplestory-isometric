@@ -18,6 +18,7 @@ func parity_keys() -> Dictionary:
 		"test_a_jump_press_stands_up_without_jumping": sit,
 		"test_an_attack_or_a_cast_stands_up": sit,
 		"test_knockback_death_climb_and_teleport_stand_up": sit,
+		"test_leaving_the_ground_stands_up": sit,
 		"test_sit_key_toggles_on_the_first_owned_chair": sit + ["chair:522"],
 		"test_sit_key_without_a_chair_says_so": sit,
 		"test_losing_the_chair_stands_up": sit + ["chair:522"],
@@ -136,8 +137,11 @@ func test_an_attack_or_a_cast_stands_up() -> void:
 	rig.run(2)
 	assert_true(rp.sit(RELAXER), "seated")
 	rig.w.bot.press(&"attack")
-	rig.run(2)
+	rig.run(1)
 	assert_eq(rig.system.player_combat.attacks, 1, "the attack press swings (PlayerCombat runs after the body)")
+	assert_true(rp.is_seated(), "the body stood before PlayerCombat swung: it stands up on the next tick")
+	assert_eq(rp.activity(), &"attacking", "the swing from the chair is not seated (resting) time")
+	rig.run(1)
 	assert_false(rp.is_seated(), "the swing stands the player up")
 	assert_eq(rig_seen.back(), ["stood", &"attack"])
 	rig.free_all()
@@ -177,6 +181,22 @@ func test_knockback_death_climb_and_teleport_stand_up() -> void:
 	assert_false(p.is_seated(), "a climb")
 	var reasons := seen.filter(func(e: Array) -> bool: return e[0] == "stood").map(func(e: Array) -> StringName: return e[1])
 	assert_eq(reasons, [&"knockback", &"death", &"teleport", &"climb"])
+
+
+func test_leaving_the_ground_stands_up() -> void:
+	var ledge := w.add_box(Vector3(30, 2.5, 30), Vector3(2, 1, 2))
+	var p := w.spawn_player(Vector3(30, 3, 30))
+	var seen := _record(p)
+	w.run(5)
+	assert_true(p.is_grounded(), "on the ledge")
+	assert_true(p.sit(RELAXER), "seated on the ledge")
+	ledge.free()
+	w.run(1)
+	assert_false(p.is_seated(), "the floor gone from under the chair: standing (falling)")
+	assert_eq(seen.back(), ["stood", &"fall"])
+	assert_eq(p.activity(), &"jumping", "airborne, so no resting time")
+	w.run(90)
+	assert_true(p.is_grounded() and not p.is_seated(), "landed below, standing")
 
 
 func test_seated_player_ignores_ladder_keys() -> void:

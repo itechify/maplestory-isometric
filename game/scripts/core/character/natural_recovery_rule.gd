@@ -64,7 +64,7 @@ static func from_config(cfg: Dictionary) -> NaturalRecoveryRule:
 		if not (chair.get(k, null) is bool):
 			push_error("[NaturalRecoveryRule] recovery.json chair_bonus.%s must be true or false" % k)
 			return null
-	if not (hp["eligible_activities"] is Array) or float(hp["tick_s"]) <= 0.0 or int(hp["hp_per_tick"]) < 0:
+	if not (hp["eligible_activities"] is Array) or float(hp["tick_s"]) <= EPSILON_S or int(hp["hp_per_tick"]) < 0:
 		push_error("[NaturalRecoveryRule] recovery.json natural_hp: hp_per_tick >= 0, tick_s > 0, eligible_activities a list")
 		return null
 	var r := NaturalRecoveryRule.new()
@@ -97,7 +97,7 @@ func step(dt: float, activity: StringName, hp: int, max_hp: int, chair_hp: int =
 			rest_s = maxf(0.0, rest_s - tick_s)
 			heal += hp_per_tick
 	# The chair's own clock, only while seated on a chair.
-	if activity != SEATED or chair_hp <= 0 or chair_interval_s <= 0.0:
+	if activity != SEATED or chair_hp <= 0 or chair_interval_s <= EPSILON_S:
 		if chair_stand_resets_clock:
 			chair_rest_s = 0.0
 	elif alive and (room > 0 or not chair_full_hp_holds_clock):

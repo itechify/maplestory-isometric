@@ -74,7 +74,7 @@ func _play(d: PlaytestDriver) -> void:
 	await d.wait_until(func() -> bool: return p.is_grounded(), 2.0)
 	var jumped := _clock(d)
 	# The landing ticks between the hops of a held jump count as jumping; the last landing may add a tick or two.
-	d.check("5 s of jumping (Space held, hopping) pause the clock", jumped - banked < 0.1 and c.hp == hp,
+	d.check("5 s of jumping (Space held, hopping) pause the clock", absf(jumped - banked) < 0.1 and c.hp == hp,
 		"clock %.2f -> %.2f s over the hops, HP %d -> %d" % [banked, jumped, hp, c.hp])
 	var combat := p.get_node_or_null(^"PlayerCombat")
 	var attacks0 := int(combat.get("attacks")) if combat != null else 0
@@ -83,7 +83,7 @@ func _play(d: PlaytestDriver) -> void:
 	await d.wait_until(func() -> bool: return combat == null or not bool(combat.call("is_attacking")), 2.0)
 	var attacked := _clock(d)
 	var swings := (int(combat.get("attacks")) if combat != null else 0) - attacks0
-	d.check("5 s of attacking (J held, planted) pause the clock", swings > 3 and attacked - banked < 0.1 and c.hp == hp,
+	d.check("5 s of attacking (J held, planted) pause the clock", swings > 3 and absf(attacked - banked) < 0.1 and c.hp == hp,
 		"%d swings, clock %.2f -> %.2f s, HP %d -> %d" % [swings, banked, attacked, hp, c.hp])
 	left = tick_s - _clock(d)
 	await d.wait(left - 0.25)

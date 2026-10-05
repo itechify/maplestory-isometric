@@ -36,7 +36,7 @@ extends CharacterBody3D
 ## still, alive and with input enabled (no modal window); while seated it cannot walk, jump or climb. A move or jump
 ## press stands it up (that press does not also move or jump), and so do an attack or skill (PlayerCombat attacking),
 ## the sit key, knockback, death, teleport (warps, respawns, loads), a MapSession transition starting, the character
-## being replaced, and losing the chair item. The seated state is never saved.
+## being replaced, losing the chair item, and leaving the ground. The seated state is never saved.
 
 signal jumped
 ## Emitted on touching walkable ground after being airborne; fall_speed is the downward speed at impact (m/s).
@@ -54,7 +54,7 @@ signal fell_out_of_world(at: Vector3)
 ## Sat down on the chair item `chair_id` (also Events.player_sat_down).
 signal sat_down(chair_id: String)
 ## Stood up; reason: &"move", &"jump", &"attack", &"sit_key", &"chair", &"knockback", &"death", &"climb", &"teleport",
-## &"warp", &"chair_lost", &"character", or what the caller of stand_up() passed (also Events.player_stood_up).
+## &"warp", &"chair_lost", &"character", &"fall", or what the caller of stand_up() passed (also Events.player_stood_up).
 signal stood_up(reason: StringName)
 
 enum State { GROUND, AIR, CLIMB }
@@ -203,6 +203,9 @@ func step(delta: float) -> void:
 		_step_climb(delta, intent)
 	else:
 		_step_move(delta, intent)
+	# Seated is a flag on GROUND: a seat never leaves the ground (the floor gone under it, a push off a ledge).
+	if is_seated() and state != State.GROUND:
+		stand_up(&"fall")
 	_post_step(delta, start_pos)
 
 
@@ -224,8 +227,9 @@ func is_input_enabled() -> bool:
 
 
 ## What the player is doing now (contract C4), one of:
-##   &"dead"; &"seated"; &"hitstun" (a knockback in flight); &"climbing"; &"attacking" (PlayerCombat.is_attacking():
-##   a basic attack's or a skill cast's lockout); &"jumping" (any airborne state: a jump, a fall; also the landing
+##   &"dead"; &"seated" (&"attacking" on the tick an attack starts from the chair); &"hitstun" (a knockback in
+##   flight); &"climbing"; &"attacking" (PlayerCombat.is_attacking(): a basic attack's or a skill cast's lockout);
+##   &"jumping" (any airborne state: a jump, a fall; also the landing
 ##   ticks between the hops of a held jump); &"walking" (movement input, or still moving faster than STILL_SPEED, also
 ##   input pushing into a wall); &"still" (grounded, no movement input, horizontal speed about zero; input disabled by
 ##   a dialogue counts as no input); &"other" (no movement model, not in the tree, or not processing: frozen for a
@@ -237,7 +241,9 @@ func activity() -> StringName:
 	if _dead:
 		return &"dead"
 	if is_seated():
-		return &"seated"
+		# An attack or a skill cast started from the chair (PlayerCombat runs after this body) stands the player up on the
+		# next tick (_step_seated); the swing itself is never resting time.
+		return &"attacking" if _combat_attacking() else &"seated"
 	if in_hitstun:
 		return &"hitstun"
 	if state == State.CLIMB:
