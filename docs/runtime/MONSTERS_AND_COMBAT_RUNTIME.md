@@ -431,9 +431,10 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   hang over one). A map always gets the same boxes.
 - **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
   one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
-  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Another attack source
-  may call `land_hit(box)` or `box.receive_hit(...)`; Three Snails does not (it searches monsters only), so skills do
-  not break boxes today (an open owner question).
+  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Three Snails counts
+  too: its cast picks the nearest target among the live monsters and the intact boxes in its canonical band, one
+  target per cast, and a box it picks takes one landed hit through `land_hit(box, "skill:0001000")` (a MisoStory
+  choice, `breakables.json hit_rule`, `verified: false`; the owner may rule that skills search monsters only).
 - **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
   with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (1/1, only while Pio's quest
   1012 is in progress), Apple (1/4); the Egg never rolls (no KuroDB value) and the box drops no mesos. The loot goes

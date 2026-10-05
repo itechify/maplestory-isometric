@@ -211,7 +211,17 @@ seconds (`effects`, `cooldowns`, `natural_recovery`), never as clock times.
   no longer exists (an Iteration Three trap fix, say). The player arrives at the saved `entry` (or player spawn 0)
   and the reason is logged. Without both hashes (a save that has none, or a build without the world export, where
   the current hash is `""`) only the physical validation applies, as before. The hash covers the map's own chunk
-  only, not the shared `World_Plinths`, `World_Trails` or `World_IslandBody` chunks.
+  and every shared world chunk (`World_Plinths`, `World_Trails`, `World_IslandBody`, ...) whose bounds overlap the
+  map's region (`MapDefinitions.resume_hash`), since a trap fix may change those chunks rather than the map's own.
+- **The resume point and the entry portal (G1).** The physical validation (`IslandWorld.validate_resume`,
+  MAP_ARCHITECTURE §4.9 step 1) refuses a point inside a portal trigger, **except the trigger of the save's own entry
+  portal**: `ArrivalResolver.resolve_load` passes the saved `entry`, an accepted resume arrives through it, and the
+  load disarms that portal exactly as a real arrival does. Crossing a trail's far gate leaves the player just inside
+  the trigger of the portal they arrived through, so a save made there used to be refused and the load fell back to
+  the arrival spawn with a warning; now it resumes where it was (the `resume_gate` scenario).
+- **Saves on a trail** arrive at the trail's mouth, by design: on a trail `capture_location()` omits `resume` and
+  sets `entry` to the current map's portal at the trail's start (MAP_ARCHITECTURE §4.9), so Continue arrives at that
+  portal's spawn, not at the point on the trail.
 - **`meta`** is recomputed on load, so it always matches the character.
 - **Numbers.** JSON has one number type. On load, every integral number (|x| ≤ 2^53) becomes an `int`, so ids,
   counts and `spawn_index` come back as ints. A float that happened to be integral (for example `135.0`) comes back

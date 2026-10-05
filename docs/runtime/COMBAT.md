@@ -180,9 +180,13 @@ it is never refunded, because MeowDB documents no way back.
 **Search band** (`SkillTargeting`, canonical `attack_styles.json three_snails_targeting` and `ranged_search_bands`):
 20 px bands from 50 px ahead to the 300 px reach; the band that starts d px ahead is centred 28 px above the feet
 with a half-height of `floor(d / 4)`, so the last band (290-300 px) reaches 100 px up and 44 px down, as MeowDB
-states. A monster whose canonical touch box overlaps a band qualifies; the nearest is hit (projectile skills:
-"nearest monsters first"). Bands are placed in 3D like basic-attack boxes (`MeleeQuery`, `WorldScale.actor`), with
-the shared isometric depth across the facing (`combat.json isometric_reach`). The 50 px start is the canonical
+states. A monster whose canonical touch box overlaps a band qualifies, and so does an intact Wooden Box
+(`BreakableSystem.attack_candidates()`, kind `breakable`); the nearest of them is hit, one target per cast (projectile
+skills: "nearest monsters first"; one shell is one target), so a box in front shields a monster behind it. Bands are
+placed in 3D like basic-attack boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the
+facing (`combat.json isometric_reach`). A box the cast picks takes one landed hit through `BreakableSystem.land_hit`
+(source `skill:0001000`: no damage, no MISS), exactly like a swing; MeowDB says only that boxes break after 4 "basic
+attacks", so counting the skill is a MisoStory choice (`breakables.json hit_rule`, `verified: false`). The 50 px start is the canonical
 choice over the targeting tab's 65 px (`attack_styles.json discrepancies`).
 
 **Runtime.** `PlayerSkills` (`scripts/actors/combat/player_skills.gd`) and `EffectTicker`
@@ -191,8 +195,9 @@ choice over the targeting tab's 65 px (`attack_styles.json discrepancies`).
 no attack or cast in progress), then `SkillBook.check_cast` from the current position ("rope" on a ladder or rope,
 "ground", else "air"), stands a seated player up (contract C5), pays MP through `Game.change_mp` and the shell
 through `ItemService.lose` (so `Events.item_lost` reaches quest counts), applies the skill, starts the canonical
-cooldown and emits `Events.skill_used`. A Three Snails hit goes through `MonsterSystem.apply_player_hit`, the same
-path as a basic attack (damage numbers, stagger, EXP and drops on a kill). Casts share `PlayerCombat`'s lockout
+cooldown and emits `Events.skill_used`. A Three Snails hit on a monster goes through `MonsterSystem.apply_player_hit`,
+the same path as a basic attack (damage numbers, stagger, EXP and drops on a kill); a hit on a Wooden Box goes through
+`BreakableSystem.land_hit` (`PlayerSkills._hit_box`), and `cast_resolved` then reports `(skill, box, null)`. Casts share `PlayerCombat`'s lockout
 (`begin_lockout`), so `PlayerCombat.is_attacking()` is true during a cast (contract C4) and a basic attack never
 overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; the console has `skills` and
 `cast <id|name>`.

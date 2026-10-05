@@ -51,7 +51,10 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 `PLAYTEST_STOP_PHASE=<n>` stops the run before phase `n` starts and leaves the report `RELOADING` (exit 1). With a
 copy of that `--out` directory and `--resume`, a long scenario's later phase can be replayed after a code change
 without playing the earlier phases again (the playthrough was developed this way). `PLAYTHROUGH_STOP=<step>` ends the
-`playthrough` scenario after one of its steps.
+`playthrough` scenario after one of its steps: the report can still pass, but it records the stop (`carry.stopped_after`
+and a `PLAYTHROUGH_STOP=` note) and never reaches the final boundary check ("ready to depart: the End of Maple Island
+screen reached in Southperry"), so the parity generator does not count it as a clean-character run: no `playthrough:*`
+row is verified by it (`tools/parity/parity.mjs` `cleanRun`; a `RELOADING` report is not one either).
 
 **Exit code:**
 

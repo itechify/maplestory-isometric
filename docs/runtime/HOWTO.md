@@ -137,8 +137,8 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
 Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
-node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, spawn-row check (52 tests)
-node --test tools/parity/test/      # the parity state rule (9 tests)
+node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, spawn-row check (54 tests)
+node --test tools/parity/test/      # the parity state rule (14 tests)
 ```
 
 ## Run real-game playtests
@@ -161,8 +161,11 @@ bash scripts/playtest_quests.sh                                   # every Maple 
   then every box of the other five maps: 16 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
-  hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `kit` (PlaytestKit's
-  reference run), `trap_probe` and `walk_probe` (single spots). Tests A-G are as in Iteration Two.
+  hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `npc_shanks` (the
+  departure boundary and the fare refusal), `npc_bubbles` (the NPC speech bubbles), `pause_load` (a Load through the
+  pause menu), `resume_gate` (a save just past a trail gate resumes where it was), `kit` (PlaytestKit's reference
+  run), `playthrough` (the clean-character playthrough, creation to Shanks), `trap_probe` and `walk_probe` (single
+  spots). Tests A-G are as in Iteration Two.
 - **The every-quest set.** `scripts/playtest_quests.sh [--jobs N] [--seed N] [--out DIR] [--isolate PREFIX]
   [chains...]` runs the `quest` scenario once per chain (`--list` prints the 9 chains), `--jobs` at a time (default 3)
   in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one
@@ -231,11 +234,10 @@ bash scripts/check_canonical.sh               # every extractor re-run cache-onl
 
 `check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
 extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
-a missing cache. **On the integrated Iteration Three build it exits 2**: `extract_monsters.mjs` now resolves drop
-members against the local items and quests (`tools/sources/drops_merge.mjs`), but the script empties
-`game/data/canonical/items` and runs `extract_items` after `extract_monsters`. A copy of the script with
-`extract_items` (and `extract_quests`) before `extract_monsters` passes with every canonical file the same (see
-[`../DEFERRED.md`](../DEFERRED.md)). To regenerate canonical data, see [`../canonical/README.md`](../canonical/README.md).
+a missing cache. It runs the extractors in their documented order (items and quests before monsters, which resolve
+drop members against them) and passes on the final Iteration Three build: every canonical file is reproduced byte for
+byte, Green Apple's record (242) from its two hand-read captures included. To regenerate canonical data, see
+[`../canonical/README.md`](../canonical/README.md).
 
 ## Build the parity manifest
 
@@ -254,8 +256,19 @@ node tools/parity/build_parity.mjs --check --tests _scratch/ev/full.json --playt
 
 `--playtest` takes a report.json or a folder searched for them; repeat `--tests` and `--playtest` as needed.
 `--out-json` / `--out-md` write elsewhere. `--check` exits 1 when the committed files differ from a fresh build; it
-needs the same inputs the committed build used (its "Evidence used" section lists them), which live in git-ignored
-`_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one.
+needs the same inputs the committed build used (its "Evidence used" section lists them, with the exact command),
+which live in git-ignored `_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one.
+The scenarios the rules consume are Tests A-G, `regen`, `test_skills`, `test_box`, `trap_probe`,
+`npcs`, `npc_shanks`, `npc_bubbles`, `ui_minimap`, `save_it2_continue`, `pause_load`, `resume_gate` and `kit`, plus the
+every-quest set and the clean-character playthrough (`--playtest` with its report or directory).
+
+The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
+sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the
+value on a page nobody has read yet: not excused, the entry stays partial and open). `tools/parity/rules.json`
+`pending_source_reads` declares each read; when the page is read and the data regenerated, remove the declaration
+(the generator fails a stale one). The clean-character playthrough rows (`playthrough:*`) count only checks of a clean
+run: a passing, strict report with no console or api step whose final boundary check passed and that no
+`PLAYTHROUGH_STOP` ended early.
 
 ## Capture a source page by hand
 

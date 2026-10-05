@@ -140,6 +140,23 @@ skill, knockback, death or warp stands the player up. While seated: natural reco
 - Parity keys are `<category>:<id>`, for example `quest:1005`, `monster:2`, `npc:7`, `shop:maple-road-pan`,
   `item:348`, `map:000000010`, `portal:000000010/out00`, `skill:0001000`, `breakable:0000001`,
   `mechanic:natural-hp-regen`, `drop:2/snail-shell` and `chair:522`.
+- The parity manifest reads that evidence: `node tools/parity/build_parity.mjs` writes `docs/maple_island_parity.json`
+  (`format` 3) and `docs/MAPLE_ISLAND_PARITY.md`. Every entry has a `state` (`missing`, `partial`, `implemented`,
+  `verified`; the rule is in `tools/parity/parity.mjs` and the markdown) and two labels that are never set together:
+  - `source_data_gap`: the sources were read and do not give a value the entry needs (no KuroDB chance for a member,
+    no meso amount, no MeowDB rule). The entry stays `partial` but is excused from the exit criterion.
+  - `pending_source_read` (new in format 3): a source publishes the value on a page nobody has read yet. It is not a
+    gap and not excused: the entry stays `partial` and open until the page is read and the data regenerated. Such
+    reads are declared in `tools/parity/rules.json` `pending_source_reads` (the read, what it resolves, and for a
+    record the fields its `gaps` name); a drop record's excluded KuroDB candidate row marks its member pending even
+    when undeclared. A declaration the data no longer supports fails the build as stale. Format 3 lists them apart
+    (`pending_source_reads`, the entries' `pending_reads`) and counts them per category (`totals.*.pending_source_read`)
+    beside `source_data_gaps`.
+- Quests, objectives, rewards and chains are verified only by a playtest (real-game) check. The `playthrough:*` rows
+  are verified only by checks of a clean-character run: a passing report in strict mode with no console or api step
+  that reached the departure boundary (its final boundary check "ready to depart: the End of Maple Island screen
+  reached in Southperry" passed, and no `PLAYTHROUGH_STOP` flag); the manifest's "Evidence used" says why a
+  playthrough report is not one.
 
 ## C7. Provenance authorities
 

@@ -28,8 +28,10 @@ items were left on purpose or found along the way.
 - **54 of the 75 drop members never roll** (`bash scripts/validate_data.sh` lists each as a `drop_unresolved`
   warning). 24 have a local item but no KuroDB chance (Blue Potion, Orange Potion, Arrow for Bow and the like); 30
   have no unambiguous local item. Named cases ([`../tools/sources/crosswalk/README.md`](../tools/sources/crosswalk/README.md)):
-  - **Omok Piece : Mushroom** (Orange Mushroom, KuroDB 1%): MeowDB has three items of that name (486, 495, 498), all
-    quest items with no drop source (D3-8). An owner pick, or a hand read that settles which one.
+  - **Omok Piece : Mushroom** (Orange Mushroom, KuroDB 1%): a source-data gap, not an unread page. Hidden Street and
+    KuroDB name the drop, but MeowDB has three items of that name (486, 495, 498; their item API bodies are in
+    `tools/meowdb/captures/items_api.json`), all quest items with no drop source, so no source says which one it is
+    and none is chosen (D3-8). The member never drops; only an owner pick (an adaptation) would settle it.
   - **Scroll for Shoes for Jump 10%** (Orange Mushroom): resolved to MeowDB 177, but KuroDB's possible row "Scroll for
     Shoes for Jump" (2040705, 0.03%) has no success rate, and its item page was not read (D3-8). A hand read of KuroDB
     item 2040705.
@@ -65,10 +67,11 @@ items were left on purpose or found along the way.
   quest needs it, so the quest-item sell guard does not hold it.
 - **The Snail's meso amount:** MeowDB's one player report (2) is kept over Hidden Street's 1. This is the
   orchestrator's reading of the brief ("do not replace MeowDB values"), not an owner decision (D3-5).
-- **Skills as Wooden Box hits:** MeowDB says boxes break after 4 "basic attacks". Only basic attacks count today:
-  Three Snails searches monsters only, so it never reaches a box, although `breakables.json` would count a hit that
-  asked `BreakableSystem.land_hit`.
-- **Which Omok Piece : Mushroom** (486, 495 or 498) the Orange Mushroom drops (also a source gap, above).
+- **Skills as Wooden Box hits:** MeowDB says boxes break after 4 "basic attacks" and nothing about skills. Three
+  Snails counts as one hit today (one target per cast, the nearest of the monsters and boxes in its band;
+  `breakables.json hit_rule`, `verified: false`). Confirm, or have skills search monsters only.
+- **Which Omok Piece : Mushroom** (486, 495 or 498) the Orange Mushroom drops, if any: the sources leave it a gap
+  (above), so only an owner pick would make it drop.
 - **Sera's and Sen's mid-quest lines** ("Did you give my mirror to Heena?", "What did my sister say?") show after
   completion under the default-talk rule; `dialogue/_rules.json` or an override could move them.
 - A **player-facing quest forfeit** in the Quest Log (today only the console forfeits; Roger re-issues a lost apple
@@ -145,10 +148,8 @@ items were left on purpose or found along the way.
   000001006 out00, is closed in the source). Not built: the check that every NPC talk zone, spawn slot, portal
   trigger and Wooden Box placement can be reached from the map's entries, and caching scan results by collision
   content hash (the scan costs 80-110 s in the suite). 000001000 is at 391,938 of its 400,000-triangle budget.
-- **Saves:** the resume guard compares only the map chunk's collision hash, not the shared `World_Plinths`,
-  `World_Trails` or `World_IslandBody` chunks. A hand-edited save with a huge inventory capacity or index can exhaust
-  memory (predates Iteration Three). `skill_used` and `skill_leveled` are not autosave triggers (the Skills window
-  requests one itself).
+- **Saves:** `skill_used` and `skill_leveled` are not autosave triggers (the Skills window requests one itself). A
+  save made on a trail arrives at the trail's mouth on Continue, by design (MAP_ARCHITECTURE §4.9).
 - **Mechanics:** `PlayerController.activity()` reads `attacking`, not `seated`, on the one tick an attack or cast
   starts from the chair (use `is_seated()` to detect sitting). The "fall" stand-up would fire on a surface where a
   still player's ground state flickers. The natural clock is saved and never reset, so a tick can land within a

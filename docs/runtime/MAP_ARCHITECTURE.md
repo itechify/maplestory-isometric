@@ -608,9 +608,14 @@ every commit once `IDLE` is reached.
    - `region_of(world)` is the saved map;
    - a ray from 1 m above to 3 m below hits `walkable`;
    - a capsule shape cast at the hit point + 0.05 m is clear;
-   - the point is not inside any portal trigger.
+   - the point is not inside any portal trigger, except the trigger of the saved `entry` portal: the load arrives
+     through that portal and disarms it as a real arrival does, and crossing a trail's far gate leaves the player
+     inside it (G1; `IslandWorld.validate_resume`).
 
-   `map_content_hash` is diagnostic only; validation is the gate.
+   Before that validation, a saved `map_content_hash` that differs from the map's current one (the map chunk's
+   collision plus every shared world chunk overlapping its region, `MapDefinitions.resume_hash`) skips this step:
+   the point was vetted against geometry that changed (`ArrivalResolver.stale_resume`). Without both hashes only the
+   validation applies.
 2. **`entry`**: that portal's `spawn_transform`, or the spawn point.
 3. **`player_spawns[0]`** of `map_id`.
 4. **Unknown map id:** use 000000001 `player_spawns[0]` and log an error.
