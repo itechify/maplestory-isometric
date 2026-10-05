@@ -160,7 +160,9 @@ items were left on purpose or found along the way.
   still bounds crowding). Stale comments: `monster_system.gd` (natural recovery "combat.json") and
   `map_instance_state.gd`'s header (capacity).
 - **Harness:** a clean-character end-to-end playthrough that is strict from creation to Southperry is not written
-  yet (PlaytestKit, strict mode, checkpoints and PlaytestQuestPlan are its parts). `test_b_combat`, `test_d_inventory`,
+  yet (PlaytestKit, strict mode, checkpoints and PlaytestQuestPlan are its parts). The Shanks departure boundary and
+  the NPC speech bubbles have no committed real-game scenario (the quests package checked them with real keys in
+  scratch scenarios, 22 and 4 checks, that were not adopted). `test_b_combat`, `test_d_inventory`,
   `test_f_death` and `test_g_shop` still carry their own copies of kit helpers. `unstick()` is verified only on the
   talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
   a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample.

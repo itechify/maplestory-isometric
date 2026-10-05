@@ -159,7 +159,7 @@ The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `ope
 
 `NpcPresenter.attach(world_npc, overlay, db)` adds a `Presenter` child to each `WorldNpc`; `world_npc.gd` itself is not edited. Each presenter:
 
-- **Name tag** under the feet, MapleStory style: a dark plate with the name in yellow, and the canonical `function_title` on a second line for shopkeepers ("Grocer"). It is drawn in screen space, so it stays crisp, and it shows only for current-map NPCs on screen (`WorldNpc.interaction_enabled`). The world's placeholder Label3D is hidden.
+- **Name tag** under the feet, MapleStory style: a dark plate with the name in yellow, and the canonical `function_title` on a second line for shopkeepers ("Grocer"). It is drawn in screen space, so it stays crisp, and it shows only for current-map NPCs on screen (`WorldNpc.interaction_enabled`). The world's placeholder Label3D is hidden. Since Iteration Three a role icon stands before the name (`MapIcons.npc_role`, the minimap's icons, procedural): a gold coin for an NPC with a canonical `shop` (or the role "Shopkeeper": Pan, Sid, Lucy) and a boat for the role "Transport"; Shanks, who has no `function_title`, shows his canonical role "Transport" on the second line. `NpcPresenter` passes the role from the canonical record.
 - **Quest marker** above the head, from `npc_talk.marker(id)`, refreshed every 0.3 s and on quest, item and level events:
   - available: a gold badge with "!" that bounces;
   - in progress: a slate badge with "..." that stays still;
