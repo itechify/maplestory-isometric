@@ -242,7 +242,7 @@ func _on_mesos_changed(mesos: int, delta: int) -> void:
 	if delta > 0:
 		log_panel.add_line(MisoUiText.mesos_gained_line(delta), "mesos")
 	elif delta < 0:
-		log_panel.add_line("You have spent %s mesos." % MisoTheme.thousands(-delta), "info")
+		log_panel.add_line("You have spent %s mesos." % MisoTheme.thousands(-delta), "spend")
 
 
 func _on_stats_changed() -> void:
@@ -270,22 +270,35 @@ func _on_quest_started(quest_id: String) -> void:
 	_snapshot_quest(quest_id)
 
 
+## Logs what a quest_progressed moved (quest_progress_line). A turn-in talk logs nothing: "Quest complete" follows.
 func _on_quest_progressed(quest_id: String) -> void:
 	var engine := env.quest_engine() if env != null else null
 	if engine == null:
 		log_panel.add_line("Quest updated: %s" % _quest_name(quest_id), "quest")
 		return
 	var before: Dictionary = _quest_progress.get(quest_id, {})
-	var changed: PackedStringArray = []
-	for row: Dictionary in engine.objective_status(quest_id):
-		var k := String(row.get("key", ""))
-		if int(row.get("current", 0)) != int(before.get(k, -1)) and String(row.get("kind", "")) != "npc_talk":
-			changed.append(MisoUiText.objective_text(row))
+	var line := quest_progress_line(_quest_name(quest_id), before, engine.objective_status(quest_id))
 	_snapshot_quest(quest_id)
-	if changed.is_empty():
-		log_panel.add_line("Quest updated: %s" % _quest_name(quest_id), "quest")
-	else:
-		log_panel.add_line("%s: %s" % [_quest_name(quest_id), ", ".join(changed)], "quest")
+	if line != "":
+		log_panel.add_line(line, "quest")
+
+
+## The log line for a quest's progress: "<quest>: " + every objective row whose count differs from `before`
+## ({objective key: current}; a key it lacks counts as changed), comma-separated: "Snail 7/10", "Visit ...", and
+## "spoke to <npc>" for an NPC talked to en route. A turn-in talk (npc_talk purpose "turn_in") is the completion act
+## itself, announced by "Quest complete", so it names nothing. "" when nothing nameable moved.
+static func quest_progress_line(quest_name: String, before: Dictionary, rows: Array) -> String:
+	var changed: PackedStringArray = []
+	for row: Dictionary in rows:
+		var k := String(row.get("key", ""))
+		if int(row.get("current", 0)) == int(before.get(k, -1)):
+			continue
+		if String(row.get("kind", "")) == "npc_talk":
+			if String(row.get("purpose", "")) != "turn_in" and int(row.get("current", 0)) > 0:
+				changed.append("spoke to %s" % String(row.get("name", row.get("id", ""))))
+			continue
+		changed.append(MisoUiText.objective_text(row))
+	return "" if changed.is_empty() else "%s: %s" % [quest_name, ", ".join(changed)]
 
 
 func _on_quest_completed(quest_id: String) -> void:

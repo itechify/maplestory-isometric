@@ -102,6 +102,7 @@ func _run() -> void:
 	_seed_rngs()
 	driver = PlaytestDriver.new()
 	driver.setup(report, phase, out_dir)
+	driver.trace_steps = "--trace" in OS.get_cmdline_user_args() or OS.get_environment("PLAYTEST_TRACE") == "1"
 	driver.reload_requested.connect(func() -> void: _finish("reload"))
 	add_child(driver)
 	if not await driver.boot():

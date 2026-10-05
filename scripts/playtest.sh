@@ -5,6 +5,8 @@
 #   bash scripts/playtest.sh --list
 #   ISOLATE=<name> bash scripts/playtest.sh smoke   # private copy _scratch/godot_runs/<name>/game (default "playtest";
 #                                                   # use your own name when several agents run at once)
+#   PLAYTEST_REUSE_COPY=1 ISOLATE=<name> ...        # run on that copy as the last run left it (no mirror, no import):
+#                                                   # repeat runs on a frozen tree
 #
 # The scenario is game/tools/playtest/scenarios/<scenario>.gd (a PlaytestScenario). It runs in a mirror of game/ with
 # the exported world, like `ISOLATE=... INCLUDE_WORLD=1 bash scripts/test.sh`, so it never shares a .godot/ import
@@ -16,6 +18,8 @@
 #   --seed <n>          Game.rng and MapSession's instance RNG (default 1)
 #   --max-s <s>         game-time budget of one phase (default: the scenario's max_seconds())
 #   --max-wall-s <s>    wall-time budget of one phase (default: 3 x the game budget, 900 to 3300)
+#   --trace             record a state digest (RNG states, position, vitals, monsters) on every step, to diff two
+#                       runs of one seed
 # A scenario that calls reload_process() runs as several processes (phases) sharing <out>/saves; this script starts
 # the next one while the report asks for it. Exit code: 0 when the report passes, 1 on a failed check or an error,
 # 2 on a bad command line or when no report was written.
@@ -35,6 +39,7 @@ while [[ $# -gt 0 ]]; do
     --realtime) REALTIME=1; shift ;;
     --out) OUT="${2:-}"; shift 2 ;;
     --seed|--max-s|--max-wall-s) PASS+=("$1" "${2:-}"); shift 2 ;;
+    --trace) PASS+=("$1"); shift ;;
     --list) list; exit 0 ;;
     -h|--help) usage; exit 0 ;;
     -*) echo "playtest.sh: unknown option $1" >&2; usage >&2; exit 2 ;;
@@ -66,15 +71,20 @@ OUT="$(cygpath -m "$OUT" 2>/dev/null || echo "$OUT")"
 ISO="${ISOLATE:-playtest}"
 DEST="$REPO/_scratch/godot_runs/$ISO"
 PROJECT_SRC="$REPO/game"
-mkdir -p "$DEST/game"
-(cd "$PROJECT_SRC" && tar --exclude=./.godot --exclude=./assets/world -cf - .) | (cd "$DEST/game" && tar -xf -)
-(cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT_SRC/$f" ]] || rm -f "$f"; done)
-mkdir -p "$DEST/game/assets"
-cp -ru "$PROJECT_SRC/assets/world" "$DEST/game/assets/"
 PROJECT="$DEST/game"
-
 GODOT_CMD=(bash "$REPO/scripts/godot.sh")
-"${GODOT_CMD[@]}" --headless --path "$PROJECT" --import >/dev/null 2>&1 || true
+if [[ "${PLAYTEST_REUSE_COPY:-0}" == "1" && -f "$PROJECT/project.godot" ]]; then
+  # A repeat run on a frozen tree (the seed comparison in PLAYTEST_HARNESS.md): the copy stays exactly as the last
+  # run left it, whatever changed in game/ since.
+  echo "playtest.sh: PLAYTEST_REUSE_COPY=1: reusing $PROJECT as it is (no mirror, no import)"
+else
+  mkdir -p "$DEST/game"
+  (cd "$PROJECT_SRC" && tar --exclude=./.godot --exclude=./assets/world -cf - .) | (cd "$DEST/game" && tar -xf -)
+  (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT_SRC/$f" ]] || rm -f "$f"; done)
+  mkdir -p "$DEST/game/assets"
+  cp -ru "$PROJECT_SRC/assets/world" "$DEST/game/assets/"
+  "${GODOT_CMD[@]}" --headless --path "$PROJECT" --import >/dev/null 2>&1 || true
+fi
 
 if [[ "$WINDOWED" == "1" ]]; then
   MODE=(--resolution 1600x900 --disable-vsync)

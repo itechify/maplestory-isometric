@@ -283,6 +283,53 @@ func test_stats_window_applies_ap_and_refreshes_derived_numbers() -> void:
 	assert_false(st.add_point("luk"), "no AP left: refused")
 
 
+## STR / DEX / INT / LUK each keep their value on their own row, with or without AP. A GridContainer skips hidden
+## children, so hiding the "+" at 0 AP used to reflow the 3-column grid into "STR 9 DEX" / "8 INT 4" / "LUK 4".
+func test_stats_rows_keep_each_value_beside_its_name_at_any_ap() -> void:
+	var c := _character()
+	var root := _windows(c)
+	root.open_window("stats")
+	var st := root.stats
+	assert_eq(c.ap, 0, "a new Beginner has every creation AP placed")
+	var rows_0 := _stat_rows(st, "AP 0")
+	Progression.gain_exp(c, Progression.exp_to_next(c.level, db()), db())
+	bus.emit_signal("leveled_up", c.level)
+	assert_true(c.ap > 0, "a level-up grants AP")
+	var rows_ap := _stat_rows(st, "AP %d" % c.ap)
+	for stat in CharacterState.STAT_KEYS:
+		assert_eq(rows_ap[stat], rows_0[stat], "%s keeps its row when the '+' appears" % stat)
+	while c.ap > 0:
+		assert_true(st.add_point("dex"), "spent")
+	var rows_spent := _stat_rows(st, "AP spent")
+	for stat in CharacterState.STAT_KEYS:
+		assert_eq(rows_spent[stat], rows_0[stat], "%s keeps its row when the '+' goes" % stat)
+
+
+## Lays the window out (containers sort deferred) and checks each stat's value against its name label: same row (the
+## playtest's 2 px tolerance), value to the right, rows in STAT_KEYS order. Returns stat -> the row's global y.
+func _stat_rows(st: MisoStatsWindow, tag: String) -> Dictionary:
+	st.reset_size()
+	st.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var out := {}
+	var last_y := -INF
+	for stat in CharacterState.STAT_KEYS:
+		var v := st.values[stat] as Label
+		var name_l := v.get_parent().get_child(v.get_index() - 1) as Label
+		assert_true(name_l != null, "%s %s: the cell before the value is the name label" % [tag, stat])
+		if name_l == null:
+			continue
+		assert_eq(name_l.text, String(MisoUiText.STAT_NAMES.get(stat, stat.to_upper())), "%s %s: name label" % [tag, stat])
+		var vr := v.get_global_rect()
+		var nr := name_l.get_global_rect()
+		assert_true(absf(vr.position.y - nr.position.y) <= 2.0, "%s %s: value '%s' at y %.0f on its name's row (y %.0f)"
+			% [tag, stat, v.text, vr.position.y, nr.position.y])
+		assert_true(vr.position.x > nr.position.x, "%s %s: value right of its name" % [tag, stat])
+		assert_true(nr.position.y > last_y, "%s %s: below the previous stat's row" % [tag, stat])
+		last_y = nr.position.y
+		out[stat] = nr.position.y
+	return out
+
+
 # --- quests ---------------------------------------------------------------------------------------------------
 
 func test_quest_log_shows_sams_suggestion_progress_after_kills() -> void:
@@ -336,6 +383,53 @@ func test_quest_log_shows_sams_suggestion_progress_after_kills() -> void:
 			assert_eq(r["text"], "%s %d/%d" % [String(kill["name"]), need, need], "capped at the requirement")
 			assert_true(r["done"], "ticked")
 	qs.detach()
+
+
+## Available quests whose start NPC stands on the current map come first, marked "[nearby]". Canonical NPCs give their
+## map in locations[].map_id (no top-level map_id): Sam (9), who starts Sam's Suggestion (1006), is in 000000040.
+func test_quest_log_marks_quests_whose_start_npc_is_here_nearby() -> void:
+	var c := _character()
+	var qs := QuestService.create(bus, db(), c, RandomNumberGenerator.new())
+	var root := _windows(c)
+	game.quests = qs
+	assert_eq(qs.engine.definition("1006").start_npc_id, "9", "Sam starts Sam's Suggestion (canonical)")
+	var sam_maps: PackedStringArray = []
+	for loc: Dictionary in db().npc("9").get("locations", []):
+		sam_maps.append(String(loc.get("map_id", "")))
+	assert_true("000000040" in sam_maps, "Sam stands in Snail Hunting Ground I: %s" % sam_maps)
+	c.location["map_id"] = "000000040"
+	root.open_window("quests")
+	var ql := root.quests
+	ql.select_tab(MisoQuestWindow.TAB_AVAILABLE)
+	assert_true(ql.entries.size() > 1, "several quests are available to a new Beginner")
+	assert_eq(String(ql.entries[0]["quest_id"]), "1006", "Sam's quest is listed first in his map")
+	assert_true(bool(ql.entries[0]["nearby"]), "and marked nearby")
+	assert_true(_quest_button_text(ql, "1006").ends_with("[nearby]"), "list: '%s'" % _quest_button_text(ql, "1006"))
+	assert_true("Available nearby" in " ".join(ql.detail_texts()), "detail status: %s" % ql.detail_texts())
+	for e: Dictionary in ql.entries:
+		var here := false
+		for loc: Dictionary in db().npc(String(e.get("start_npc_id", ""))).get("locations", []):
+			here = here or String(loc.get("map_id", "")) == "000000040"
+		assert_eq(bool(e["nearby"]), here, "quest %s nearby only when its start NPC is here" % e["quest_id"])
+	# Elsewhere Sam's quest is an ordinary available quest.
+	c.location["map_id"] = "000000041"
+	ql.refresh()
+	var sam_entry: Dictionary = {}
+	for e: Dictionary in ql.entries:
+		if String(e["quest_id"]) == "1006":
+			sam_entry = e
+	assert_false(sam_entry.is_empty(), "still available")
+	assert_false(bool(sam_entry.get("nearby", true)), "not nearby in 000000041")
+	assert_false(_quest_button_text(ql, "1006").contains("[nearby]"), "no tag: '%s'" % _quest_button_text(ql, "1006"))
+	ql.select_quest("1006")
+	assert_false("Available nearby" in " ".join(ql.detail_texts()), "detail status: %s" % ql.detail_texts())
+
+
+func _quest_button_text(ql: MisoQuestWindow, quest_id: String) -> String:
+	for b in ql.list_box.get_children():
+		if b is Button and String(b.get_meta("quest_id", "")) == quest_id:
+			return (b as Button).text
+	return ""
 
 
 # --- the window stack -----------------------------------------------------------------------------------------
@@ -551,6 +645,64 @@ func test_tooltip_rows_and_unmet_requirements() -> void:
 	assert_eq(String(root.tooltip.rows[0]["text"]), "%s (x2)" % potion.name, "tooltip for the hovered stack")
 	root.inventory.slots[0].hover_changed.emit(root.inventory.slots[0], false)
 	assert_false(root.tooltip.visible, "hidden on exit")
+
+
+## The card sits beside its anchor and never covers it: right of it when that fits, else left of it, else above or
+## below; kept on screen. Before, a slot near the right edge got the card flipped back over itself.
+func test_item_tooltip_sits_beside_its_anchor() -> void:
+	var c := _character()
+	var tip := MisoItemTooltip.new()
+	tip.top_level = true
+	tip.theme = MisoTheme.get_theme()
+	_parent().add_child(tip)
+	nodes.append(tip)
+	tip.show_item("270", c, db(), {"qty": 2, "hint": "Double-click to use"})
+	var bounds := Rect2(0, 0, 1600, 900)
+	var cases := {
+		"right edge": Rect2(1540, 300, 48, 48), "left edge": Rect2(12, 300, 48, 48), "bottom-right corner": Rect2(1540, 846, 48, 48),
+		"top-right corner": Rect2(1540, 4, 48, 48), "middle": Rect2(780, 420, 48, 48),
+	}
+	for what: String in cases:
+		var anchor: Rect2 = cases[what]
+		tip.place_beside(anchor, bounds)
+		var r := Rect2(tip.global_position, tip.size)
+		assert_false(r.intersects(anchor), "%s: the card %s covers the anchor %s" % [what, r, anchor])
+		assert_true(bounds.encloses(r), "%s: the card %s stays on screen" % [what, r])
+	tip.place_beside(cases["left edge"], bounds)
+	assert_true(tip.global_position.x >= cases["left edge"].end.x, "room on the right: the card goes right")
+	tip.place_beside(cases["right edge"], bounds)
+	assert_true(tip.global_position.x + tip.size.x <= cases["right edge"].position.x, "no room on the right: left")
+	# Too narrow for either side: above (or below near the top), never over the anchor.
+	var narrow := Rect2(0, 0, tip.size.x + 60.0, 900)
+	for anchor: Rect2 in [Rect2(30, 700, 48, 48), Rect2(30, 10, 48, 48)]:
+		tip.place_beside(anchor, narrow)
+		var r := Rect2(tip.global_position, tip.size)
+		assert_false(r.intersects(anchor), "narrow: the card %s covers the anchor %s" % [r, anchor])
+		assert_true(narrow.encloses(r), "narrow: on screen %s" % r)
+
+	# In the windows: the right-docked inventory and the Equipment doll beside it.
+	ItemService.new(c, db(), null).gain("270", 2)
+	var root := _windows(c)
+	root.open_window("equipment")
+	root.open_window("inventory")
+	root.inventory.select_tab("use")
+	for w: MisoWindow in [root.inventory, root.equipment]:
+		w.reset_size()
+		w.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var view := root.get_viewport_rect()
+	var hovered: Array = [root.inventory.slots[0]]
+	for s: String in root.equipment.slot_controls:
+		if not (root.equipment.slot_controls[s] as MisoItemSlot).is_empty():
+			hovered.append(root.equipment.slot_controls[s])
+	assert_true(hovered.size() > 1, "the Beginner wears something")
+	for slot: MisoItemSlot in hovered:
+		slot.hover_changed.emit(slot, true)
+		assert_true(root.tooltip.visible, "shown for %s" % slot.item_id)
+		var r := Rect2(root.tooltip.global_position, root.tooltip.size)
+		var a := slot.get_global_rect()
+		assert_false(r.intersects(a), "hovering %s at %s: the card %s covers the slot" % [slot.item_id, a, r])
+		assert_true(view.encloses(r), "the card %s stays on screen %s" % [r, view])
+		slot.hover_changed.emit(slot, false)
 
 
 func test_every_canonical_item_has_a_procedural_icon() -> void:

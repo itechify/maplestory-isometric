@@ -168,14 +168,17 @@ func refresh_quickslots() -> void:
 
 # --- tooltip host -----------------------------------------------------------------------------------------------
 
-## Shows the item card beside `anchor` (a slot).
+## Shows the item card beside `anchor` (a slot) without covering it (MisoItemTooltip.place_beside): right of the slot,
+## or left of it when the right side does not fit (the right-docked inventory, the Equipment doll next to it).
 func show_item_tooltip(item_id: String, opts: Dictionary, anchor: Control) -> void:
 	if env == null:
 		return
 	tooltip.show_item(item_id, env.character(), env.get_db(), opts)
 	var bounds := get_viewport_rect() if is_inside_tree() else Rect2(Vector2.ZERO, Vector2(1600, 900))
-	var at := anchor.global_position + Vector2(anchor.size.x - 10.0, -6.0) if anchor != null else Vector2.ZERO
-	tooltip.place_near(at, bounds)
+	if anchor != null:
+		tooltip.place_beside(anchor.get_global_rect(), bounds)
+	else:
+		tooltip.place_near(Vector2.ZERO, bounds)
 
 
 func hide_item_tooltip() -> void:

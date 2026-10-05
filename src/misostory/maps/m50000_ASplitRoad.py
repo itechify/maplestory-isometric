@@ -257,8 +257,12 @@ def build(m):
     m.ladder("Rope_2010", 50.6, 24.4, T4W, TRIO, facing=90, kind="rope")
 
     # ================= the upper road (embankment, back right) =================
-    m.terrace("T4_UpperRoad_Low", [(49.6, 13.0), (55, 12.6), (59.6, 13.4), (60.0, 24.0), (64.8, 25.0), (64.8, 32.6),
-                                   (47.6, 32.6), (47.6, 22.0)], top=T4W, bottom=-0.5)
+    # Its east edge follows T4_Ramp's north edge to the crest: the ground-level pocket that used to lie between the
+    # ramp, this cap and the crest (walls 2.2-4.0 m against a 1.35 m jump reach) trapped players who stepped off the
+    # ramp (Iteration Two playtest finding split-road-pit-trap). The cap now fills it, so a fall off the ramp's north
+    # side lands on this cap and walks back to the road.
+    m.terrace("T4_UpperRoad_Low", [(49.6, 13.0), (55, 12.6), (59.6, 13.4), (60.0, 21.85), (64.3, 23.05), (64.8, 25.0),
+                                   (64.8, 32.6), (47.6, 32.6), (47.6, 22.0)], top=T4W, bottom=-0.5)
     m.ladder("Ladder_2095", 53.6, 12.4, 0.0, T4W, facing=90)
     m.terrace("T4_UpperRoad_Crest", [(64.4, 18.0), (70, 17.6), (77.0, 18.0), (77.0, 32.6), (64.4, 32.6),
                                      (64.0, 25.0)], top=T4C, bottom=-0.5)

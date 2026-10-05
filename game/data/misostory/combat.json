@@ -57,6 +57,14 @@
     "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. MisoStory grants a Beginner no SP after level 10.",
     "verified": false
   },
+  "natural_recovery": {
+    "hp_per_tick": 10,
+    "tick_s": 10.0,
+    "delay_s": 5.0,
+    "requires_standing_still": true,
+    "reason": "Canonical, qualitative only: 'When you're not in combat, just standing still will slowly restore your HP' (formulas/recovery.json natural_regeneration.statements[0]; documented_values false, hp_per_tick, mp_per_tick and tick_interval_s all null). MeowDB publishes no amount, interval or combat timer, so all three are MisoStory choices. tick_s 10: the only resting interval MeowDB documents is the chairs' 'additional 30 HP every 10 seconds', which stacks with natural regeneration (recovery.json chairs tick_interval_s 10, stacks_with_natural_regen true), so natural recovery ticks on the same 10 s. hp_per_tick 10: slow, as the statement says, and well below a chair's extra 30, so sitting stays 'faster than when you're just standing' (the statement's second line; sitting and chairs are not built yet). A level-1 Beginner (50 HP) refills in under a minute, a level-8 one (162 HP) in a few minutes, so a death or a hard fight costs a rest instead of a death spiral (misostory/death.json respawn_vitals assumes 'a death costs a potion or a rest'). delay_s 5: 'not in combat' read as no attack made and no monster touch (hit, miss or guard) or damage taken for 5 s, longer than the canonical 1.5 s post-hit invincibility (accuracy.json after_hit). The rest time only counts while the character is alive, on the ground, not moving, not climbing, not knocked back and not warping, and with HP below Max HP; any of those failing starts the 10 s again. requires_standing_still true: the statement's 'just standing still'. HP only: the statement names HP, and MeowDB documents no natural MP recovery (mp_per_tick null), so MP does not recover on its own. Read by scripts/actors/combat/natural_recovery.gd (NaturalRecovery); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md.",
+    "verified": false
+  },
   "ap_allocation": {
     "ap_into_hp_mp": false,
     "reason": "MeowDB pages disagree on whether AP can raise Max HP or Max MP: the glossary says yes, while the HP/MP guide and the Beginner's guide list no AP term. The canonical decision (beginner.json ap.allocatable_stats = STR/DEX/INT/LUK; hp_mp_gain.json ap_into_hp_mp = null with a discrepancy entry) is STR/DEX/INT/LUK only. MisoStory follows it: AP cannot be put into Max HP or Max MP.",

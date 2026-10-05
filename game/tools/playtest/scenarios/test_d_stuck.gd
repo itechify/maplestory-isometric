@@ -3,6 +3,11 @@ extends PlaytestScenario
 ## ended at world (114.59, 4.00, 506.22) and could not walk anywhere for 300+ game seconds (every walk STALLED with
 ## 0.0 m progress). This places the player there (an API teleport: setup for the diagnosis) and tries to walk out
 ## with real input in 8 directions, with and without jumping; it notes what is above and around the body.
+##
+## Since fix round F1 the pocket is filled in the Blender source (T4_UpperRoad_Low now runs up to T4_Ramp's north
+## edge), so the hard check is that the first walkable surface above the old pocket floor is the upper-road cap
+## (T4W, 2.2 m above the map base). The teleport below then lands the body inside that solid, so its walk notes are
+## diagnostics only.
 
 const MAP := "000000050"
 const SPOT := Vector3(114.59, 4.0, 506.22)
@@ -27,6 +32,9 @@ func run(d: PlaytestDriver) -> void:
 	var def := w.defs.get_def(MAP)
 	d.note("spot local %s, region %s" % [def.to_local(SPOT), w.region_index.region_of(SPOT, MAP) if w.region_index != null else {}])
 	_probe_columns(d, SPOT)
+	var top := _top_ground_y(d, SPOT)
+	d.check("the old pocket is filled to the upper-road cap", top >= SPOT.y + 2.0,
+		"top surface y %.2f above the pocket floor y %.2f" % [top, SPOT.y])
 	w.place_player(Transform3D(p.global_transform.basis, SPOT + Vector3.UP * 0.05))
 	await d.wait(1.0)
 	d.note("after placing: at %s on_floor %s local %s" % [p.global_position, p.is_on_floor(), def.to_local(p.global_position)])
@@ -97,6 +105,13 @@ static func _height_map(d: PlaytestDriver, at: Vector3, half: float, step: float
 			var h := space.intersect_ray(q)
 			row.append("##" if h.is_empty() else ("%2d" % roundi(((h.position as Vector3).y - at.y) * 10.0)).replace(" ", "+") if (h.position as Vector3).y - at.y < 9.95 else "^^")
 		d.note("z %.1f: %s" % [at.z + iz * step, " ".join(row)])
+
+
+## The y of the first collider a ray cast down from 20 m above the point hits: the surface a falling player lands on.
+static func _top_ground_y(d: PlaytestDriver, at: Vector3) -> float:
+	var space := d.player().get_world_3d().direct_space_state
+	var h := space.intersect_ray(PhysicsRayQueryParameters3D.create(at + Vector3.UP * 20.0, at + Vector3.DOWN * 5.0))
+	return (h.position as Vector3).y if not h.is_empty() else -INF
 
 
 static func _probe_columns(d: PlaytestDriver, at: Vector3) -> void:

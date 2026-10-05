@@ -370,6 +370,44 @@ func test_notice_log_fades_and_caps() -> void:
 	assert_eq(h.log_panel.visible_count(), 0, "lines fade away")
 
 
+## Every gain (and spend) is its own event and gets its own line, even when the text repeats at once (selling one
+## Orange Potion twice in half a second). Only notices and warnings that repeat the previous line are dropped: a full
+## inventory announced again while pickup is held, and a pickup notice that words the HUD's own gain line again.
+func test_notice_log_logs_every_gain_and_drops_only_repeated_notices() -> void:
+	var c := _character()
+	var h := _hud(c)
+	var gained := MisoUiText.mesos_gained_line(15)
+	bus.emit_signal("mesos_changed", 115, 15)
+	bus.emit_signal("mesos_changed", 130, 15)
+	assert_eq(h.log_panel.texts().count(gained), 2, "two sales, two lines: %s" % h.log_panel.texts())
+	bus.emit_signal("mesos_changed", 80, -50)
+	bus.emit_signal("mesos_changed", 30, -50)
+	assert_eq(h.log_panel.texts().count("You have spent 50 mesos."), 2, "two purchases, two lines")
+	bus.emit_signal("exp_gained", 3, "monster:100100")
+	bus.emit_signal("exp_gained", 3, "monster:100100")
+	assert_eq(h.log_panel.texts().count(MisoUiText.exp_gained_line(3)), 2, "two kills, two lines")
+	var potion_line := MisoUiText.item_gained_line(String(db().item("270").get("name")), 1)
+	bus.emit_signal("item_gained", "270", 1)
+	bus.emit_signal("item_gained", "270", 1)
+	assert_eq(h.log_panel.texts().count(potion_line), 2, "two pickups, two lines")
+	# A pickup's notice repeats the HUD's own line word for word (LootPickupRules.pickup_notice): shown once.
+	bus.emit_signal("notice", potion_line)
+	assert_eq(h.log_panel.texts().count(potion_line), 2, "the pickup notice collapses into the gain line")
+	bus.emit_signal("mesos_changed", 145, 15)
+	bus.emit_signal("notice", gained)
+	assert_eq(h.log_panel.texts().count(gained), 3, "a meso pickup's notice collapses too")
+	# Refusals: holding pickup at a full bag says it once.
+	var n := h.log_panel.history.size()
+	bus.emit_signal("inventory_full", "270")
+	bus.emit_signal("notice", "Your inventory is full.")
+	bus.emit_signal("inventory_full", "270")
+	assert_eq(h.log_panel.history.size(), n + 1, "a full inventory is logged once: %s" % h.log_panel.texts())
+	# After DEDUPE_S the same refusal is news again.
+	h.log_panel.advance(MisoNoticeLog.DEDUPE_S + 0.1)
+	bus.emit_signal("inventory_full", "270")
+	assert_eq(h.log_panel.history.size(), n + 2, "logged again after %.1f s" % MisoNoticeLog.DEDUPE_S)
+
+
 func test_quickslot_bind_use_decrement_and_persist() -> void:
 	var c := _character()
 	var items := ItemService.new(c, db(), bus)
@@ -452,7 +490,40 @@ func test_quest_progress_lines() -> void:
 	bus.emit_signal("monster_killed", String(kill["id"]), "000000040")
 	assert_true(_has_line(h, "%s: %s 1/%d" % [quest_name, String(kill["name"]), int(kill["count"])]),
 		"progress line: %s" % str(h.log_panel.texts()))
+	# The turn-in: talking to the end NPC ticks the npc_talk objective (quest_progressed), then the quest completes.
+	# The talk is the completion itself, so no "Quest updated" line comes before "Quest complete".
+	for i in int(kill["count"]) - 1:
+		bus.emit_signal("monster_killed", String(kill["id"]), "000000040")
+	var d := qs.engine.definition("1006")
+	var progressed := [0]
+	bus.quest_progressed.connect(func(_q: String) -> void: progressed[0] += 1)
+	var before := h.log_panel.history.size()
+	bus.emit_signal("npc_talked", d.end_npc_id)
+	assert_eq(progressed[0], 1, "talking to %s ticks the turn-in objective (quest_progressed)" % d.end_npc_id)
+	assert_eq(h.log_panel.history.size(), before, "the turn-in talk adds no line: %s" % str(h.log_panel.texts()))
+	assert_true(qs.complete("1006").get("ok", false), "turned in")
+	assert_true(_has_line(h, "Quest complete: %s" % quest_name), "complete line: %s" % str(h.log_panel.texts()))
+	for t: String in h.log_panel.texts():
+		assert_false(t.begins_with("Quest updated:"), "no generic line at the turn-in: %s" % str(h.log_panel.texts()))
 	qs.detach()
+
+
+## The quest_progressed line names what moved: counts, a visited map, an NPC spoken to en route. A turn-in talk
+## names nothing (the completion follows); nothing identifiable, no line.
+func test_quest_progress_line_names_what_moved() -> void:
+	var kill := {"key": "monster_kills:100100", "kind": "monster_kills", "name": "Snail", "current": 3, "required": 10}
+	var talk := {"key": "npc_talk:11", "kind": "npc_talk", "id": "11", "name": "Mai", "purpose": "talk", "current": 1,
+		"required": 1}
+	var turn_in := {"key": "npc_talk:9", "kind": "npc_talk", "id": "9", "name": "Sam", "purpose": "turn_in", "current": 1,
+		"required": 1}
+	var was := {"monster_kills:100100": 2, "npc_talk:11": 0, "npc_talk:9": 0}
+	assert_eq(MisoHud.quest_progress_line("Q", was, [kill]), "Q: Snail 3/10", "a count")
+	assert_eq(MisoHud.quest_progress_line("Q", was, [kill, talk]), "Q: Snail 3/10, spoke to Mai", "a count and a talk")
+	assert_eq(MisoHud.quest_progress_line("Q", was, [talk]), "Q: spoke to Mai", "an NPC spoken to en route")
+	assert_eq(MisoHud.quest_progress_line("Q", was, [turn_in]), "", "a turn-in talk: no line")
+	assert_eq(MisoHud.quest_progress_line("Q", was, [kill, turn_in]), "Q: Snail 3/10", "the turn-in adds nothing")
+	var same := {"monster_kills:100100": 3, "npc_talk:11": 1}
+	assert_eq(MisoHud.quest_progress_line("Q", same, [kill, talk]), "", "nothing moved: no line")
 
 
 func test_reparenting_keeps_the_hud_listening() -> void:

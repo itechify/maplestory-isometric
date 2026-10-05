@@ -197,9 +197,12 @@ touching it, else in the map of an armed gate.
 - **The trail HUD line.** The same sample reports the trail under the live position to
   `MapSession.set_trail(link_id, dest_map_id)`, which emits `trail_changed(dest_map_id)` when the destination changes
   (`""` off trails, and on every map change). `MapSession.trail_destination` / `trail_link_id` hold the current
-  value. The HUD is meant to show "→ <destination map name>" from it (the HUD system's part). **Not wired yet:**
-  nothing under `game/scripts/ui` listens to `trail_changed`, so in the game a walk along a trail shows only the map
-  banner of the map you left (seen in the review's windowed run, 000000040 → 000000041). Requested from the HUD.
+  value. The HUD listens: `MisoHud` (`game/scripts/ui/hud/hud.gd`, `SESSION_HANDLERS`) connects `trail_changed` to
+  `_on_trail_changed` → `MisoMapBanner.show_trail`, which holds the current map's name with
+  "-> <destination map name>" under it while the player is on the trail (an ASCII "->": the HUD font has no arrow;
+  UI.md "Decisions and adaptations"). The world only reports the trail; the line, its fade and its tests
+  (`test_ui_hud.gd`) are the HUD's. In the real game the `test_a_traversal` playtest reads the banner's trail label
+  on every edge-mode trail leg (a soft check: "the trail line showed '-> <destination>' on the trail").
 - **SafeGround** (`FallRecovery.is_safe_point`): `allowed(pos, current_map)` without armed gates: the map or one of
   its trails.
 
@@ -442,9 +445,12 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
 ### NPC talk zones
 
 The interact key talks to a current-map NPC whose talk zone overlaps the player's body (`WorldNpc.in_range`, through
-`IslandWorld.nearest_interactable`; a body off the player layer falls back to its feet within
-`npc.interaction_radius_m` of the NPC's). The zone is the NPC's `TalkArea`, a `SphereShape3D` centred above the NPC's
-feet, sized by `WorldTuning.talk_zone(npc_id)` (`WorldNpc.talk_radius_m`, `talk_centre_height_m`, `talk_profile`):
+`IslandWorld.nearest_interactable`). When the overlap is not reported (a body off the player layer, or no physics
+step yet) the fallback is the body's origin within that NPC's own `talk_radius_m` of the NPC's feet; with no player
+at all, `nearest_interactable(pos)` cuts at the same per-NPC radius. So the fallback reaches as far as the sphere:
+2.4 m for the shopkeepers, never the global 1.6 m. The zone is the NPC's `TalkArea`, a `SphereShape3D` centred above
+the NPC's feet, sized by `WorldTuning.talk_zone(npc_id)` (`WorldNpc.talk_radius_m`, `talk_centre_height_m`,
+`talk_profile`):
 
 | Profile | NPCs | Radius | Centre above the feet | Why |
 |---|---|---|---|---|
@@ -555,8 +561,9 @@ work in the real game, not only in the player sandbox and the bot.
 ortho_size: float, blend_s: float)` (ortho size is the frame width, `Camera3D.KEEP_WIDTH`) and `snap()`. A gate
 commit blends the bounds over 0.35 s without a snap; a link-mode change re-applies them (`refresh_camera`).
 
-**HUD**: `MapSession.trail_changed(dest_map_id)` / `MapSession.trail_destination` for the trail line "→ <map name>"
-(`""` off trails); `Events.map_entered` for the map banner, as before (a gate commit emits it like any warp).
+**HUD**: `MapSession.trail_changed(dest_map_id)` / `MapSession.trail_destination` for the trail line "-> <map name>"
+(`""` off trails; `MisoHud` listens, "Region index" above); `Events.map_entered` for the map banner, as before (a gate
+commit emits it like any warp).
 
 **Main scene**: instance `scenes/world/world.tscn`, drive a loading screen from `load_progress`, on `world_ready` add
 the player and call `set_player()`, give the world the context with `world.set_context(ctx)`, then
@@ -660,7 +667,7 @@ bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://to
 | `test_map_session.gd` | L0 | guards, event order, 40 → 30 rejected, walk-only gate rejected by press, doors, death/respawn (4 maps), ring buffer, cache round trip and eviction, load chain, save block, debug hooks (edge works, doors refuse it); `reset()`; the death commit |
 | `test_portal_one_way_ledge.gd` | L0/L1 | the 30 → 40 ledge invariant: `MovementModel.jump_apex_at_cap()` + `step_up` + 0.3 m ≤ the exported ledge height (2.4 m) ≤ 2.6 m; the face on 40's arrival gate plane (footprint + 1 m) within 0.1 m; player_spawns[0] on the landing |
 | `test_map_sidecar_tolerance.gd` | L0 | missing Todd/Sam/Mai markers → logged fallback; the Phase 1 export shape; unknown added fields; authored fields win |
-| `test_world_talk_zones.gd` | L0 | `WorldTuning.talk_zone`: the default zone from `npc.interaction_radius_m` / `talk_centre_height_m` (where the old half-the-radius rule put it); `across_counter` lists exactly the NPCs of the canonical shops, reaches further and is not raised, has a reason and `verified: false`; the shipped profiles are sound and `talk_zone_errors` catches a duplicate listing, a missing reason or radius and an empty profile (the first profile by name wins); `WorldNpc` builds its sphere with the zone's radius at its centre height (NAN keeps half the radius) |
+| `test_world_talk_zones.gd` | L0 | `WorldTuning.talk_zone`: the default zone from `npc.interaction_radius_m` / `talk_centre_height_m` (where the old half-the-radius rule put it); `across_counter` lists exactly the NPCs of the canonical shops, reaches further and is not raised, has a reason and `verified: false`; the shipped profiles are sound and `talk_zone_errors` catches a duplicate listing, a missing reason or radius and an empty profile (the first profile by name wins); `WorldNpc` builds its sphere with the zone's radius at its centre height (NAN keeps half the radius); `IslandWorld.nearest_interactable` on an unbuilt world (a player off the player layer, then none) uses each NPC's own `talk_radius_m`: 2.0 m from Sid is in range, 2.6 m is not, 2.0 m from a default-zone NPC is not; `WorldNpc.in_range` defaults to `talk_radius_m` and an explicit radius still wins |
 | `test_npc_reach_scenario.gd` | L2 (export) | the `npcs` playtest scenario in child processes: PASS with no soft check, 21 NPCs talked to on foot from their arrival, each with a player pressing on at least 0.4 m inside its talk zone (`carry.npc_margins`), only `warp` console steps |
 | `test_world_static.gd` | L1 | the island builds with **0 errors and 0 warnings**; collision layered; every arrival, player_spawns[0], NPC and slot grounded, capsule-clear, in its own map, outside other triggers and keep-outs; every ring closed except its gate gaps (probed along every ring line), the gaps open in edge mode and plugged in warp mode; 20 trails, 20 wall bodies, 40 plugs; every gate on its ring line with its portal's normal; the ribbon between the gates in no map region and in its zone; kill_y below the trails; side walls beside every ribbon edge and never on it; no other map's ring on a ribbon (except the one known case, `KNOWN_RING_CROWDING`); the ledge gate = the sidecar's gate plane; no gap wider than its corridor; no containment wall within a body capsule of any route point (every trail mouth plugged); a region extension's ring vertices on the map's ring line, and its kept wall closed below its height and open above |
 | `test_traversal_routes.gd` | L2 | the route sweep (`TraversalBot.sweep`): every route of all 25 maps, both ways (one_way once), 360 runs, **0 failures** |

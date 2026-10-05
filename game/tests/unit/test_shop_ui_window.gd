@@ -144,6 +144,44 @@ func test_full_inventory_is_refused() -> void:
 	assert_has(_emitted("inventory_full"), ["270"])
 
 
+## Test G finding: Pan's detail panel never said the White Tube Top (canonical gender "female") is for female
+## characters. The panel now states the canonical gender requirement in the tooltip's words; buying stays allowed
+## (classic sells it to anyone) and Equipment refuses the equip on a mismatch.
+func test_detail_panel_states_the_gender_requirement_and_buying_stays_allowed() -> void:
+	var tube_top := "937"  # White Tube Top, Pan
+	var undershirt := "933"  # White Undershirt, Pan
+	var sandals := "1305"  # Leather Sandals, Pan
+	assert_eq(String(db().item(tube_top).get("gender", "")), "female", "canonical: the Tube Top is female-only")
+	assert_eq(String(db().item(undershirt).get("gender", "")), "male", "canonical: the White Undershirt is male-only")
+	assert_eq(String(db().item(sandals).get("gender", "")), "any", "canonical: the Leather Sandals fit anyone")
+	character.gender = "male"
+	character.mesos = 1000
+	win.open_shop("maple-road-pan", "16")
+	assert_true(win.select_buy_item(tube_top))
+	assert_true(win.detail_stats.visible, "the requirement block is shown")
+	assert_true(win.detail_stats.text.contains("For female characters"), win.detail_stats.text)
+	assert_true(win.check_label.text.is_empty(), "the gender requirement is not a purchase refusal: " + win.check_label.text)
+	var r := win.confirm()
+	assert_true(bool(r["ok"]), "a male character may still buy the female-only top: %s" % r)
+	assert_eq(character.inventory.count(tube_top), 1)
+	assert_eq(character.mesos, 1000 - _price("maple-road-pan", tube_top))
+	assert_eq(character.equipment.equip_check(character, tube_top, db())["code"], ItemCodes.GENDER_MISMATCH,
+		"wearing it is what is refused")
+	assert_true(win.select_buy_item(undershirt))
+	assert_true(win.detail_stats.text.contains("For male characters"), win.detail_stats.text)
+	assert_false(win.detail_stats.text.contains("female"), win.detail_stats.text)
+	assert_true(win.select_buy_item(sandals))
+	assert_false(win.detail_stats.text.contains("characters"), "no line for an item anyone can wear: " + win.detail_stats.text)
+	# The line is the item's requirement, not a verdict on the buyer: a female character reads the same line.
+	character.gender = "female"
+	assert_true(win.select_buy_item(tube_top))
+	assert_true(win.detail_stats.text.contains("For female characters"), win.detail_stats.text)
+	# The Sell tab's detail panel states it too.
+	win.set_sell_tab("equip")
+	assert_true(win.select_sell_slot("equip", int(win.sell_rows[0]["index"])))
+	assert_true(win.detail_stats.text.contains("For female characters"), "sell tab: " + win.detail_stats.text)
+
+
 func test_quantity_picker_respects_mesos_and_space() -> void:
 	var price := _price("maple-road-lucy", "270")
 	character.mesos = price * 2 + 10

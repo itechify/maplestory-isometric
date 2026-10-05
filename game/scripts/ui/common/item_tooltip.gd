@@ -23,6 +23,9 @@ const STAT_ORDER: PackedStringArray = ["str", "dex", "int", "luk", "max_hp", "ma
 const TAB_NAMES := {"equip": "Equip", "use": "Use", "setup": "Set-up", "etc": "Etc", "cash": "Cash"}
 ## Tooltip width in px.
 const WIDTH := 290.0
+## place_beside: px between the anchor and the card, and how far the card's top sits above the anchor's.
+const ANCHOR_GAP := 8.0
+const ANCHOR_RISE := 6.0
 
 ## The rows currently shown ([{text, tone}]); tones: title, sub, text, good, bad, desc, price, hint, sep.
 var rows: Array = []
@@ -250,6 +253,29 @@ func _row_control(r: Dictionary) -> Control:
 		_:
 			l.theme_type_variation = &"MisoSmall"
 	return l
+
+
+## Places the card beside `anchor` (a slot's global rect) without covering it, kept inside `bounds`: to its right
+## when the card fits there, else to its left, else above it (below near the top edge). On a side the card's top is
+## level with the anchor's (ANCHOR_RISE above it) and only slides up or down to stay on screen, so it never moves
+## back over the anchor.
+func place_beside(anchor: Rect2, bounds: Rect2) -> void:
+	reset_size()
+	var sz := get_combined_minimum_size()
+	var pos := Vector2(anchor.end.x + ANCHOR_GAP, anchor.position.y - ANCHOR_RISE)
+	var side := true
+	if pos.x + sz.x > bounds.end.x:
+		pos.x = anchor.position.x - ANCHOR_GAP - sz.x
+		if pos.x < bounds.position.x:
+			side = false
+	if not side:
+		pos.x = anchor.get_center().x - sz.x * 0.5
+		pos.y = anchor.position.y - ANCHOR_GAP - sz.y
+		if pos.y < bounds.position.y:
+			pos.y = anchor.end.y + ANCHOR_GAP
+	pos.x = clampf(pos.x, bounds.position.x, maxf(bounds.position.x, bounds.end.x - sz.x))
+	pos.y = clampf(pos.y, bounds.position.y, maxf(bounds.position.y, bounds.end.y - sz.y))
+	global_position = pos
 
 
 ## Places the card next to a screen point, kept inside `bounds` (flips left/up near the edges).

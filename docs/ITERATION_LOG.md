@@ -192,3 +192,21 @@ probed the running game rather than sandboxes and found 32 defects; the worst ar
 | P4-3 | Roger's offer showed the item-use instructions as a Yes/No question, because MeowDB has no on-accept text for 1002. | The offer is the canonical journal summary with a generic system prompt; the canonical instructions follow the accept. |
 | P4-4 | Monsters behind cliffs (terrain never fades) were invisible, and a potion could be used under the death notice. | Monsters get a stencil-based see-through silhouette. Consumables check the death state, not `hp <= 0`. |
 | P4-5 | Ad-hoc test drivers kept being rewritten. | `game/tools/playtest/`: a real-input driver for the real main scene with scenario scripts and reports (`bash scripts/playtest.sh <scenario>`). On its first run it found that 5 of the 21 NPCs could not be reached on foot (Roger, Heena, Nina, Sid, Lucy). |
+
+## Phase V1: real-game playthroughs (Tests A–G) and the movement, camera, combat and world reviews
+
+Eight playtesters wrote harness scenarios (`game/tools/playtest/scenarios/test_*`) that play the real main scene with
+real input; console use is setup-only and counted separately. Every Test A–G scenario passes: 25/25 maps and 47/47
+portals visited on foot, every hit inside CombatFormula's range, EXP per kill canonical, levels gained purely by
+killing, inventory/equipment/quickslots persisting across a process restart, Sam's Suggestion's exact reward (30 EXP,
+3 Eggs) across a save/quit/reload at 5/10, the death penalty applied once across quit and reload, and canonical prices
+at all three shops. A triage lead verified 60 findings against the code and data, merged duplicates, and rejected 10
+as working-as-canonical or harness artefacts.
+
+| # | Problem found | Correction |
+|---|---|---|
+| V1-1 | 5 of 21 NPCs could not be talked to on foot. Heena (1.64 m bush), Nina (2.0 m stump) and Roger (3.0 m garden behind a hedge) are above the 1.35 m jump reach; Sid and Lucy stood 1–18 cm outside their talk zones behind counters. | Source world: walkable stairs (8–15 risers of about 0.2 m) up to all three, keeping their classic places. Counter NPCs get an `across_counter` talk-zone profile (2.4 m sphere, an adaptation). The `npcs` scenario is a hard check: 21/21, every margin at least 0.6 m. |
+| V1-2 | BLOCKER: a pocket beside A Split Road's T4 ramp traps a walking player (walls 2.1–3.8 m against a 1.35 m reach), and Continue resumed inside it. 7 of 31 hunts there got trapped. | Fixed in the Blender source in phase F1, with a trap-survey scenario to catch the class. |
+| V1-3 | MAJOR: Hunting Ground Middle of the Forest I's out00 arrival sat inside a mound, 2.7 m from a ladder foot, so Up both grabbed the ladder and warped. | Anchor fix in Blender, plus export-gate checks that no climbable's grab zone meets a portal trigger (phase F1). |
+| V1-4 | MAJOR fidelity: no HP regeneration existed at all, although MeowDB documents that standing still slowly restores HP (without numbers). Low-level characters death-spiralled. | Natural regeneration as a labelled adaptation (phase F1). |
+| V1-5 | Pressed jumps against a face missed ledges well under the documented 1.35 m reach. Space confirmed the death notice while also being the jump key. The stats window grid reflowed at 0 AP. | Fix round F1. |

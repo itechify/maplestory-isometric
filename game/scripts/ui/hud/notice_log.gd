@@ -3,13 +3,20 @@ extends VBoxContainer
 ## The HUD message log (bottom left, above the bar): classic "You have gained ..." lines for items, mesos and EXP,
 ## quest updates, warnings and system notices. The newest line is at the bottom; each fades out after LIFETIME_S,
 ## and at most MAX_VISIBLE lines are on screen. Every line is also kept in `history` (newest last).
+##
+## Gains, spends, EXP and quest lines are facts of one event each and are always logged, even when the same text comes
+## twice in a row (selling one potion twice). Notices and warnings (tones in DEDUPE_TONES) that repeat the previous
+## line within DEDUPE_S are dropped: a full inventory announced again while pickup is held, or a pickup notice that
+## words the HUD's own gain line again (LootPickupRules.pickup_notice).
 
 const MAX_VISIBLE := 7
 const LIFETIME_S := 8.0
 const FADE_S := 1.2
 const HISTORY_SIZE := 100
-## An identical line within this many seconds is not repeated (e.g. a full inventory while holding pickup).
+## A line of a DEDUPE_TONES tone that repeats the previous line within this many seconds is not shown again.
 const DEDUPE_S := 1.5
+## Tones that may repeat the previous line without news: notices (refusals, pickup notices) and warnings.
+const DEDUPE_TONES: PackedStringArray = ["info", "warn"]
 
 ## Every logged line, oldest first: {text, tone, time}.
 var history: Array = []
@@ -23,9 +30,10 @@ func _init() -> void:
 	add_theme_constant_override("separation", 2)
 
 
-## Adds a line. tone: "item", "mesos", "exp", "quest", "warn", "info" (MisoTheme.LOG_* colours).
+## Adds a line. tone: "item", "mesos", "spend", "exp", "quest" (always logged), "warn", "info" (dropped when they
+## repeat the previous line within DEDUPE_S). Colours: MisoTheme.LOG_* (a "spend" line is coloured as info).
 func add_line(text: String, tone: String = "info") -> void:
-	if not history.is_empty():
+	if tone in DEDUPE_TONES and not history.is_empty():
 		var last: Dictionary = history[history.size() - 1]
 		if String(last["text"]) == text and _clock - float(last["time"]) < DEDUPE_S:
 			return

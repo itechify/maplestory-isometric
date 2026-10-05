@@ -514,6 +514,10 @@ func _stat_text(def: ItemDef) -> String:
 	for k in def.req_stats:
 		if int(def.req_stats[k]) > 0:
 			lines.append("Req. %s %d" % [String(k).to_upper(), int(def.req_stats[k])])
+	# The canonical gender requirement, worded as MisoItemTooltip words it. Shown to every character: buying stays
+	# allowed (classic sells it to anyone), Equipment refuses the equip on a mismatch.
+	if def.gender != "":
+		lines.append("For %s characters" % ("male" if def.gender == "male" else "female"))
 	var st := def.stat_lines()
 	for k: String in st:
 		lines.append("%s %+d" % [STAT_LABELS.get(k, k), int(st[k])])

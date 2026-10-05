@@ -1,7 +1,8 @@
 extends TestCase
 ## The shell's screens built headless (no frames needed): the title's Continue/Load from save entries, the slot
-## list text (name, level, map, play time), the creation screen's Start gating and +/- buttons, the controls list,
-## the pause menu's sub-panels, the death notice's single confirmation and the root window's theme.
+## list text (name, level, map, play time), the creation screen's Start gating and +/- buttons, the controls list
+## (working actions only), the pause menu's sub-panels, the death notice's single confirmation (a click or Enter,
+## never a jump key or key echo) and the root window's theme.
 
 var holder: Node = null
 
@@ -98,16 +99,62 @@ func test_creation_screen_gates_start() -> void:
 	assert_false(s.submit(), "an invalid name cannot start")
 
 
-func test_controls_list_covers_every_binding() -> void:
+func test_controls_list_covers_every_working_binding() -> void:
 	var rows := ControlsPanel.rows()
-	assert_eq(rows.size(), ControlsPanel.BINDINGS.size(), "one row per action")
 	var by_action := {}
 	for r in rows:
 		by_action[r["action"]] = r
+	for action: String in ["sit", "toggle_skills", "toggle_minimap"]:
+		assert_true(ControlsPanel.BINDINGS.has(action), "%s stays reserved in Controls.BINDINGS" % action)
+		assert_true(ControlsPanel.NOT_AVAILABLE.has(action), "%s is listed as not available yet" % action)
+		assert_false(by_action.has(action), "the panel does not advertise %s: nothing handles it yet" % action)
+	for action: String in ControlsPanel.BINDINGS:
+		if not ControlsPanel.NOT_AVAILABLE.has(action):
+			assert_true(by_action.has(action), "%s has a row" % action)
+	for action: String in ControlsPanel.NOT_AVAILABLE:
+		assert_true(ControlsPanel.BINDINGS.has(action), "%s: hidden actions are Controls actions" % action)
+	assert_eq(rows.size(), ControlsPanel.BINDINGS.size() - ControlsPanel.NOT_AVAILABLE.size(), "one row per working action")
+	var shown := PackedStringArray()
+	var panel := ControlsPanel.new()
+	holder.add_child(panel)
+	for l: Node in panel.find_children("*", "Label", true, false):
+		shown.append((l as Label).text)
+	for label: String in ["Sit", "Skills", "Minimap"]:
+		assert_false(shown.has(label), "no '%s' row on the panel: %s" % [label, ", ".join(shown)])
+	assert_true(shown.has("Jump"), "the working rows are drawn")
 	assert_eq(by_action["jump"]["label"], ControlsPanel.LABELS["jump"], "labels from Controls.LABELS")
 	assert_true(String(by_action["jump"]["keys"]).contains("Space"), "Space jumps: %s" % by_action["jump"]["keys"])
 	assert_true(String(by_action["attack"]["keys"]).contains("Left click"), "mouse binding named")
 	assert_true(String(by_action["menu"]["keys"]).contains("Escape"), "Esc opens the menu")
+
+
+## Keeps NOT_AVAILABLE honest: a hidden action is one no script reads. When a feature starts handling one (a Minimap
+## reading "toggle_minimap"), this fails until it is taken off the list, so the panel never hides a working key.
+func test_hidden_controls_have_no_handler_yet() -> void:
+	# The key map itself and the panel that lists it.
+	var skip := ["res://scripts/autoload/controls.gd", "res://scripts/ui/screens/controls_panel.gd"]
+	var files := _scripts_under("res://scripts")
+	assert_true(files.size() > 50, "the game's scripts were found (%d)" % files.size())
+	for path: String in files:
+		if skip.has(path):
+			continue
+		var text := FileAccess.get_file_as_string(path)
+		for action: String in ControlsPanel.NOT_AVAILABLE:
+			assert_false(text.contains("\"%s\"" % action) or text.contains("'%s'" % action),
+				"%s names the hidden action '%s': if it handles it now, take it off ControlsPanel.NOT_AVAILABLE" % [path, action])
+
+
+func _scripts_under(dir_path: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return out
+	for f in dir.get_files():
+		if f.ends_with(".gd"):
+			out.append(dir_path.path_join(f))
+	for sub in dir.get_directories():
+		out.append_array(_scripts_under(dir_path.path_join(sub)))
+	return out
 
 
 func test_pause_menu_sub_panels() -> void:
@@ -145,6 +192,90 @@ func test_death_notice_confirms_once() -> void:
 	n.confirm()
 	assert_eq(count.size(), 2, "a new death can be confirmed again")
 	assert_false(n.detail.visible, "no detail line without text")
+
+
+## One key event, with keycode and physical_keycode both set (Godot's ui_accept matches on keycode, the Controls
+## actions on physical_keycode), through the real GUI dispatch: the focused control sees it like a keyboard press.
+func _key(code: Key, pressed: bool, echo: bool = false) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = code
+	ev.physical_keycode = code
+	ev.pressed = pressed
+	ev.echo = echo
+	holder.get_viewport().push_input(ev)
+
+
+func _tap(code: Key) -> void:
+	_key(code, true)
+	_key(code, false)
+
+
+## Space is Godot's default ui_accept and also the jump key, which players hold (hold_to_rejump) and mash at a death:
+## on the focused OK it must not confirm. Alt (the other jump key) and key echo do not either; Enter does. The fix is
+## scoped to the notice: the global ui_accept is untouched, so Space still presses the pause menu's Resume.
+func test_death_notice_ignores_the_jump_keys_and_echo() -> void:
+	var p := PauseMenu.new()
+	holder.add_child(p)
+	p.open()
+	var resumed: Array = []
+	p.resume_pressed.connect(func() -> void: resumed.append(1))
+	assert_true(p.resume_button.has_focus(), "Resume has the focus")
+	_tap(KEY_SPACE)
+	assert_eq(resumed.size(), 1, "Space is still ui_accept elsewhere (the global map is untouched): Resume pressed")
+	p.hide()
+
+	var n := DeathNotice.new()
+	holder.add_child(n)
+	var count: Array = []
+	n.confirmed.connect(func() -> void: count.append(1))
+	n.open("Returns you to Southperry")
+	assert_true(n.ok_button.has_focus(), "OK has the focus (so Enter lands on it and nothing else takes the keys)")
+	_tap(KEY_SPACE)
+	assert_eq(count.size(), 0, "Space (the jump key) does not confirm the death notice")
+	n.open()
+	count.clear()
+	_tap(KEY_ALT)
+	assert_eq(count.size(), 0, "Alt (the other jump key) does not confirm")
+	n.open()
+	count.clear()
+	_key(KEY_SPACE, true)
+	_key(KEY_SPACE, true, true)
+	_key(KEY_SPACE, false)
+	assert_eq(count.size(), 0, "a held Space with key repeat does not confirm")
+	n.open()
+	count.clear()
+	_key(KEY_ENTER, true, true)
+	_key(KEY_ENTER, false)
+	assert_eq(count.size(), 0, "key repeat (Enter held from before the death, then let go) does not confirm")
+	assert_true(n.ok_button.has_focus() and n.visible and not n.ok_button.disabled, "the notice is still up, OK enabled")
+	_tap(KEY_ENTER)
+	assert_eq(count.size(), 1, "Enter confirms")
+	n.open()
+	count.clear()
+	_tap(KEY_KP_ENTER)
+	assert_eq(count.size(), 1, "keypad Enter confirms")
+
+
+## Where the Controls autoload has not registered its actions, the notice reads the jump keys from Controls.BINDINGS.
+func test_death_notice_knows_the_jump_keys_without_the_input_map() -> void:
+	var space := InputEventKey.new()
+	space.keycode = KEY_SPACE
+	space.physical_keycode = KEY_SPACE
+	space.pressed = true
+	var enter := InputEventKey.new()
+	enter.keycode = KEY_ENTER
+	enter.physical_keycode = KEY_ENTER
+	enter.pressed = true
+	assert_true(DeathNotice.ignores_key(space) and not DeathNotice.ignores_key(enter), "with the InputMap")
+	if InputMap.has_action(&"jump"):
+		InputMap.erase_action(&"jump")
+	var alt := InputEventKey.new()
+	alt.physical_keycode = KEY_ALT
+	alt.pressed = true
+	assert_true(DeathNotice.ignores_key(space) and DeathNotice.ignores_key(alt), "Space and Alt from Controls.BINDINGS")
+	assert_false(DeathNotice.ignores_key(enter), "Enter still confirms")
+	DeathNotice.CONTROLS_SCRIPT.register()
+	assert_true(InputMap.has_action(&"jump"), "the key map is restored")
 
 
 ## MainShell gives the root window MisoTheme at boot, so tooltips and popups (their own windows) share the look. It is

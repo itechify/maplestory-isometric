@@ -714,8 +714,9 @@ func portal_under_player() -> WorldPortal:
 
 
 ## The nearest thing the interact key would act on at `pos`: a portal the player is inside (armed, pressable) or a
-## current-map NPC within talk range. {"kind": "portal"|"npc", "node", "id", "distance"} or {} when nothing.
-## The NPC/dialogue system should act on interact only when kind == "npc"; PortalInteractor acts on "portal".
+## current-map NPC whose own talk zone (WorldNpc.in_range, WorldTuning.talk_zone) holds the player. With no player,
+## `pos` within the NPC's talk_radius_m of its feet. {"kind": "portal"|"npc", "node", "id", "distance"} or {} when
+## nothing. The NPC/dialogue system should act on interact only when kind == "npc"; PortalInteractor acts on "portal".
 func nearest_interactable(pos: Vector3) -> Dictionary:
 	var best := {}
 	var best_d := INF
@@ -723,12 +724,11 @@ func nearest_interactable(pos: Vector3) -> Dictionary:
 	if under != null:
 		best_d = pos.distance_to(under.def.anchor_ground)
 		best = {"kind": "portal", "node": under, "id": under.def.key(), "distance": best_d}
-	var radius := tuning.num("npc", "interaction_radius_m")
 	for n in npcs_of(current_map_id()):
-		if player != null and not n.in_range(player, radius):
+		if player != null and not n.in_range(player):
 			continue
 		var d := pos.distance_to(n.global_position)
-		if player == null and d > radius:
+		if player == null and d > n.talk_radius_m:
 			continue
 		if d < best_d:
 			best_d = d

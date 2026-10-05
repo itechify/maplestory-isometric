@@ -99,6 +99,70 @@ func test_world_npc_builds_its_sphere_from_the_zone() -> void:
 	old.free()
 
 
+## The session IslandWorld.nearest_interactable reads current_map from.
+class MapStub extends Node:
+	var current_map: String = "000001011"
+
+
+## IslandWorld.nearest_interactable without physics (an unbuilt world, never in the tree): its distance fallback (a
+## body off the player layer, or no player at all) is each NPC's own talk zone, WorldNpc.talk_radius_m. A shopkeeper's
+## across_counter zone (2.4 m) reaches as far as its sphere does; a default NPC's stays npc.interaction_radius_m.
+## Before the fix the fallback was the global 1.6 m for every NPC, so Sid at 2.0 m was out of range.
+func test_nearest_interactable_uses_each_npc_s_own_talk_radius() -> void:
+	var t := tuning()
+	var counter := t.talk_zone("20")
+	var dflt := t.talk_zone("8")
+	assert_true(float(counter.radius_m) > 2.2 and float(dflt.radius_m) < 1.8, "the zones this test spans: %s / %s" % [counter, dflt])
+	var root := (Engine.get_main_loop() as SceneTree).current_scene
+	var world := IslandWorld.new()  # never enters the tree: no build
+	world.tuning = t
+	var session := MapStub.new()
+	world.session = session
+	var sid := _resident(root, world, "20", "Sid", Vector3.ZERO, t)  # across_counter
+	var robin := _resident(root, world, "8", "Robin", Vector3(100.0, 0.0, 0.0), t)  # default (moved onto Sid's map)
+	var player := Node3D.new()  # off the player layer: in_range takes the distance fallback
+	root.add_child(player)
+	world.player = player
+	# 2.0 m: inside Sid's 2.4 m zone, outside a default 1.6 m one.
+	player.global_position = Vector3(2.0, 0.0, 0.0)
+	var near := world.nearest_interactable(player.global_position)
+	assert_eq(String(near.get("kind", "")), "npc", "2.0 m from Sid: an NPC is in range (%s)" % str(near.get("id", "")))
+	assert_eq(String(near.get("id", "")), "20", "Sid's 2.4 m zone reaches 2.0 m")
+	assert_true(sid.in_range(player), "WorldNpc.in_range defaults to the NPC's own talk_radius_m")
+	assert_false(sid.in_range(player, float(dflt.radius_m)), "an explicit radius still wins")
+	player.global_position = Vector3(2.6, 0.0, 0.0)
+	assert_eq(world.nearest_interactable(player.global_position), {}, "2.6 m from Sid: outside even the counter zone")
+	player.global_position = Vector3(102.0, 0.0, 0.0)
+	assert_eq(world.nearest_interactable(player.global_position), {}, "2.0 m from Robin: a default zone does not grow")
+	player.global_position = Vector3(101.0, 0.0, 0.0)
+	assert_eq(String(world.nearest_interactable(player.global_position).get("id", "")), "8", "1.0 m from Robin: in range")
+	# No player: the distance cut is the same per-NPC radius.
+	world.player = null
+	assert_eq(String(world.nearest_interactable(Vector3(2.0, 0.0, 0.0)).get("id", "")), "20", "no player, 2.0 m from Sid")
+	assert_eq(world.nearest_interactable(Vector3(102.0, 0.0, 0.0)), {}, "no player, 2.0 m from Robin")
+	for n: Node in [player, sid, robin]:
+		root.remove_child(n)
+		n.free()
+	session.free()
+	world.free()
+
+
+## A WorldNpc of `id` on MapStub's map at `pos`, in the tree, with its zone from `t`, interaction on, in world.npc_nodes.
+static func _resident(root: Node, world: IslandWorld, id: String, npc_name: String, pos: Vector3, t: WorldTuning) -> WorldNpc:
+	var pl := NpcPlacement.new()
+	pl.npc_id = id
+	pl.npc_name = npc_name
+	pl.map_id = "000001011"
+	pl.transform = Transform3D(Basis.IDENTITY, pos)
+	var z := t.talk_zone(id)
+	var n := WorldNpc.new()
+	root.add_child(n)
+	n.setup(pl, null, float(z.radius_m), float(z.centre_height_m), String(z.profile))
+	n.set_interaction_enabled(true)
+	world.npc_nodes[id] = n
+	return n
+
+
 static func _sphere_of(n: WorldNpc) -> CollisionShape3D:
 	if n.talk_area == null:
 		return null

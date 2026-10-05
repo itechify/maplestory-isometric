@@ -4,7 +4,31 @@ extends MisoWindow
 ## fame; STR / DEX / INT / LUK as total (base + bonus) with a "+" button per stat while AP is available (spent
 ## through Game.allocate_ap, which announces the change); and the derived numbers of StatCalculator.snapshot: the
 ## damage range, ACC, AVOID, W.DEF, M.DEF, Magic, Speed and Jump. Which stats take AP comes from canonical
-## formulas/beginner.json ap.allocatable_stats.
+## formulas/beginner.json ap.allocatable_stats. Each "+" sits in a PlusCell that keeps its size while the button is
+## hidden, so STR / DEX / INT / LUK keep one row each at any AP (a GridContainer skips hidden children).
+
+## The size of a "+" button (and of the cell that holds it).
+const PLUS_SIZE := Vector2(34, 26)
+
+
+## A grid cell holding one "+" button. Its minimum size is the button's whether or not the button is shown, so hiding
+## the button at 0 AP leaves the 3-column grid (name, value, "+") in place instead of reflowing the next row's cells
+## into this one.
+class PlusCell extends Container:
+	var button: Button
+
+	func _init(b: Button) -> void:
+		button = b
+		mouse_filter = MOUSE_FILTER_IGNORE
+		add_child(b)
+
+	func _get_minimum_size() -> Vector2:
+		return button.get_combined_minimum_size()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_SORT_CHILDREN:
+			fit_child_in_rect(button, Rect2(Vector2.ZERO, size))
+
 
 ## value key -> Label
 var values: Dictionary = {}
@@ -54,12 +78,12 @@ func _build() -> void:
 		abil_grid.add_child(v)
 		values[stat] = v
 		var plus := MisoWindow.make_button("+", &"MisoAccentButton")
-		plus.custom_minimum_size = Vector2(34, 26)
+		plus.custom_minimum_size = PLUS_SIZE
 		plus.add_theme_font_size_override("font_size", 19)
 		plus.add_theme_font_override("font", MisoTheme.black_font())
 		plus.tooltip_text = "Spend 1 AP on %s" % name_l.text
 		plus.pressed.connect(add_point.bind(String(stat)))
-		abil_grid.add_child(plus)
+		abil_grid.add_child(PlusCell.new(plus))
 		plus_buttons[stat] = plus
 
 	var derived := _section()

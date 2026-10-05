@@ -1,7 +1,8 @@
 class_name MisoQuestWindow
 extends MisoWindow
 ## The Quest log (toggle_quests, Q / L). Three lists: In Progress, Available (quests the character can accept now,
-## those whose start NPC stands on the current map first and marked "nearby") and Completed. The selected quest
+## those whose start NPC stands on the current map first and marked "nearby": canonical npcs/<id>.json
+## locations[].map_id, see npc_is_on_map) and Completed. The selected quest
 ## shows its journal text, its objectives with check boxes and counts ("Snail 7/10", "Return to Mai") and its
 ## canonical rewards (EXP, mesos, fame, items, random and selectable item groups).
 ##
@@ -150,12 +151,26 @@ func _entries_for(tab: String) -> Array:
 			var far: Array = []
 			for qid in _available_ids(engine):
 				var s := engine.quest_summary(qid)
-				var npc_map := String(db.npc(String(s.get("start_npc_id", ""))).get("map_id", "")) if db != null else ""
-				s["nearby"] = here != "" and npc_map == here
-				s["start_npc_name"] = String(db.npc(String(s.get("start_npc_id", ""))).get("name", "")) if db != null else ""
+				var npc: Dictionary = db.npc(String(s.get("start_npc_id", ""))) if db != null else {}
+				s["nearby"] = npc_is_on_map(npc, here)
+				s["start_npc_name"] = String(npc.get("name", ""))
 				(near if s["nearby"] else far).append(s)
 			return near + far
 	return []
+
+
+## True when a canonical NPC record stands on `map_id`. MeowDB places NPCs through locations[].map_id (the record has
+## no top-level map_id); any of its locations counts.
+static func npc_is_on_map(npc: Dictionary, map_id: String) -> bool:
+	if map_id == "":
+		return false
+	var locs: Variant = npc.get("locations", [])
+	if not (locs is Array):
+		return false
+	for loc: Variant in locs:
+		if loc is Dictionary and String((loc as Dictionary).get("map_id", "")) == map_id:
+			return true
+	return false
 
 
 func _available_ids(engine: QuestEngine) -> PackedStringArray:
@@ -220,8 +235,11 @@ func _fill_detail() -> void:
 	if s.is_empty():
 		return
 	var db := env.get_db()
+	var start_npc: Dictionary = db.npc(String(s.get("start_npc_id", ""))) if db != null else {}
+	# "Available nearby" (read by _status_text for a quest not started yet), as in the list.
+	s["nearby"] = npc_is_on_map(start_npc, env.current_map_id())
 	detail_box.add_child(_label(String(s.get("name", selected_quest)), &"MisoTitle"))
-	var start_name := String(db.npc(String(s.get("start_npc_id", ""))).get("name", "")) if db != null else ""
+	var start_name := String(start_npc.get("name", ""))
 	var end_name := String(s.get("end_npc_name", ""))
 	var who: PackedStringArray = []
 	if start_name != "":

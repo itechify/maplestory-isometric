@@ -69,10 +69,14 @@ func set_interaction_enabled(on: bool) -> void:
 		talk_area.monitorable = on
 
 
-## True when `body` is within talk range (Area3D overlap, or distance as a fallback for off-layer bodies).
-func in_range(body: Node3D, radius: float) -> bool:
+## True when `body` is within talk range: the TalkArea overlaps it, or else (an off-layer body, a frame before the
+## physics server has reported the overlap) its origin lies within `radius` of the NPC's feet. `radius` defaults
+## (NAN) to this NPC's own zone, talk_radius_m, so the fallback reaches as far as the sphere: 2.4 m for the
+## across_counter shopkeepers, not the global npc.interaction_radius_m.
+func in_range(body: Node3D, radius: float = NAN) -> bool:
 	if not interaction_enabled or body == null:
 		return false
 	if body is CollisionObject3D and talk_area != null and talk_area.overlaps_body(body):
 		return true
-	return body.global_position.distance_to(global_position) <= radius
+	var r := talk_radius_m if is_nan(radius) else radius
+	return body.global_position.distance_to(global_position) <= r

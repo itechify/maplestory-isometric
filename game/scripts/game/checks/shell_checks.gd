@@ -11,7 +11,8 @@ extends Node
 ##        BOOT) -> continue -> same map, position, stats -> quit to title -> a second new game
 ## death  brief Test F: die in 000000040 and 000001014 (HP 0 through Game.change_hp) and once by another system's
 ##        Events.player_died: the loss taken and saved at the death, notice, the HUD under it (EXP bar already
-##        dropped, HP 0), OK only travels to the returnMap, death.json HP/MP, revive, valid save,
+##        dropped, HP 0), the jump keys pressed for real leave it up, OK only travels to the returnMap, death.json
+##        HP/MP, revive, valid save,
 ##        inventory/equipment/quests untouched; a death mid-warp, by monster touch, with a dialogue open and while
 ##        paused; then quit to title and continue from that save, a load from the death screen, and closing the
 ##        window while dead
@@ -21,7 +22,7 @@ extends Node
 ##        the window (NOTIFICATION_WM_CLOSE_REQUEST through the tree) and exit
 ## death_reload  the last link: Continue and verify the previous death (test_death_quit_reload.gd runs the chain)
 ## shots  windowed screenshots of the title, creation (and a tooltip on it), the game after spawning, the death notice,
-##        the pause menu and the title's slot list
+##        the pause menu, its Controls panel and the title's slot list
 ##
 ## Output: "SHELL_CHECK PASS|FAIL <name>[: detail]", "SHELL_INFO ...", "SHELL_SHOT <path>", and finally
 ## "SHELL_CHECKS_DONE <passed> <failed>"; exit code 0 when nothing failed. Saves go to a private user://_tests/
@@ -336,6 +337,16 @@ func _death() -> void:
 			"%s dead=%s flow=%s" % [session.call("state_name"), p.is_dead(), ShellFlow.state_name(main.flow.state)])
 		_check("%s: death notice shown as a modal" % map_id, notice != null and notice.visible and main.ctx().is_modal_active())
 		_check("%s: Esc does not close the notice or pause" % map_id, not main.handle_menu_action() and notice.visible)
+		# Space is Godot's default ui_accept and OK holds the focus, but Space and Alt are the jump keys: as real key
+		# presses they must leave the notice up (only a click or Enter confirms).
+		var focused_ok := notice.ok_button.has_focus()
+		for key: Key in [KEY_SPACE, KEY_ALT]:
+			await _tap_key(key)
+		await _frames(3)
+		_check("%s: the jump keys (Space, Alt) do not confirm the notice" % map_id, focused_ok and notice.visible
+			and not notice.ok_button.disabled and session.call("state_name") == "DEAD" and main.flow.is_in(ShellFlow.State.DEAD),
+			"OK focused %s, notice %s, session %s, flow %s" % [focused_ok, notice.visible, session.call("state_name"),
+				ShellFlow.state_name(main.flow.state)])
 		_check("%s: the death is committed once, at the death" % map_id, commits == [map_id]
 			and bool(session.call("is_death_committed")), str(commits))
 		# The HUD under the notice: the EXP bar already dropped (Events.exp_gained(-exp_lost, "death")); the HP gauge
@@ -760,6 +771,10 @@ func _shots() -> void:
 	main.pause()
 	await _frames(5)
 	await _shot("pause_menu")
+	main.pause_menu.show_controls()
+	await _frames(5)
+	await _shot("pause_controls")
+	main.pause_menu.show_main()
 	main.quit_to_title()
 	await _frames(20)
 	main.title.show_slots()
@@ -816,6 +831,18 @@ func _physics(n: int) -> void:
 
 func _seconds(s: float) -> void:
 	await get_tree().create_timer(s, true).timeout
+
+
+## A real key press and release (keycode and physical_keycode, like the keyboard), one frame apart. Await it.
+func _tap_key(code: Key) -> void:
+	for pressed: bool in [true, false]:
+		var ev := InputEventKey.new()
+		ev.keycode = code
+		ev.physical_keycode = code
+		ev.pressed = pressed
+		Input.parse_input_event(ev)
+		Input.flush_buffered_events()
+		await get_tree().process_frame
 
 
 static func _flat(v: Vector3) -> float:

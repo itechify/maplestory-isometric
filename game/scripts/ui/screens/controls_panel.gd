@@ -1,7 +1,9 @@
 class_name ControlsPanel
 extends PanelContainer
-## The key-binding list of the pause menu: every action of the Controls autoload (BINDINGS / LABELS) with all its
-## keyboard and mouse bindings. Read-only for now (rebinding is a later feature).
+## The key-binding list of the pause menu: every action of the Controls autoload (BINDINGS / LABELS) that the game
+## handles, with all its keyboard and mouse bindings. Read-only for now (rebinding is a later feature). The actions
+## in NOT_AVAILABLE are reserved in Controls.BINDINGS (an ARCHITECTURE.md contract) but nothing reads them yet, so
+## the panel does not advertise their keys.
 
 signal closed
 
@@ -9,6 +11,9 @@ signal closed
 const CONTROLS_SCRIPT := preload("res://scripts/autoload/controls.gd")
 const BINDINGS: Dictionary = CONTROLS_SCRIPT.BINDINGS
 const LABELS: Dictionary = CONTROLS_SCRIPT.LABELS
+## Reserved actions with no handler yet (no sitting, no skills window, no minimap): hidden from the list. Take one off
+## when its feature lands; test_shell_screens fails while a hidden action is named by another script.
+const NOT_AVAILABLE: PackedStringArray = ["sit", "toggle_skills", "toggle_minimap"]
 ## Mouse button names for "mouse:<n>" bindings.
 const MOUSE_NAMES := {1: "Left click", 2: "Right click", 3: "Middle click"}
 
@@ -53,10 +58,12 @@ func focus_default() -> void:
 		back.grab_focus()
 
 
-## [{"action", "label", "keys"}] in the key map's order.
+## [{"action", "label", "keys"}] in the key map's order, without the NOT_AVAILABLE actions.
 static func rows() -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for action: String in BINDINGS:
+		if NOT_AVAILABLE.has(action):
+			continue
 		out.append({"action": action, "label": String(LABELS.get(action, action.capitalize())), "keys": keys_text(action)})
 	return out
 

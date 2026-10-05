@@ -222,12 +222,17 @@ character on each event. No character object is cached.
 | `exp_gained` | "You have gained experience (+15)" when amount > 0; nothing for amount <= 0 (a refresh: the death penalty's -N, or 0), though the EXP bar still redraws |
 | `leveled_up` | "Congratulations! You have reached level N." plus "You have N AP to distribute (press C)." |
 | `quest_started`, `quest_completed`, `quest_forfeited` | "Quest started: ...", "Quest complete: ...", "Quest forfeited: ..." |
-| `quest_progressed` | "Sam's Suggestion: Snail 7/10". The HUD compares objective counts with the last ones it saw, so the line names what moved |
+| `quest_progressed` | "Sam's Suggestion: Snail 7/10". The HUD compares objective counts with the last ones it saw, so the line names what moved (`MisoHud.quest_progress_line`); an NPC talked to en route reads "...: spoke to Mai". The turn-in talk (`npc_talk` purpose `turn_in`, the completion act) adds no line: "Quest complete: ..." follows. Nothing nameable moved: no line |
 | `inventory_full` | "Your inventory is full." |
 | `player_died` | "You have died." |
 | `notice` | The text as given |
 
-An identical line within 1.5 s is dropped, so holding pickup at a full bag does not spam.
+Every gain, spend, EXP and quest line is logged, even when the same text comes twice in a row: selling one Orange
+Potion twice in half a second logs "You have gained mesos (+15)" twice. Only a notice or a warning (`MisoNoticeLog`
+tones `info` and `warn`) that repeats the previous line within 1.5 s is dropped. That keeps holding pickup at a full
+bag to one "Your inventory is full.", and shows a loot pickup once: its `Events.notice` words the HUD's own
+`item_gained` / `mesos_changed` line again (`LootPickupRules.pickup_notice`). "You have spent ..." has its own tone,
+`spend`, coloured as info but never dropped.
 
 **Banner and flourish.** On `map_entered` the banner shows the canonical `street_name` above `name`, then fades. On
 `leveled_up`, the flourish shows "LEVEL UP!", "Level N" and a star burst.
@@ -260,21 +265,30 @@ a 2400 x 900 window keeps it centred (before the fix it stayed at x 800 of 2400)
 **Character Stats (C).**
 - Name, Job, Level, EXP "cur / needed (pct)", HP, MP, Fame.
 - Ability Points (gold while above 0), and STR/DEX/INT/LUK as total, with "(base + bonus)" when gear adds to it.
-- An orange "+" per allocatable stat while AP > 0.
+- An orange "+" per allocatable stat while AP > 0. Each stat keeps its own row, with its value beside its name, at any
+  AP: the "+" sits in a cell (`MisoStatsWindow.PlusCell`) that keeps the button's size while the button is hidden. A
+  `GridContainer` skips hidden children, so hiding the bare button at 0 AP used to reflow the 3-column grid into
+  "STR 9 DEX" / "8 INT 4" / "LUK 4" (playtest Test C).
 - Damage "min ~ max" (the `StatCalculator` stat window), ACC, AVOID, W.DEF, M.DEF, Magic (`matk`, MagicTotal),
   Speed %, Jump %.
 
 **Quest Log (Q / L).** In Progress, Available and Completed tabs, each with a count.
 - In Progress entries that are ready to turn in show "[ready]".
 - Available lists quests the character can accept now (`QuestEngine.is_available`). Quests whose start NPC stands on
-  the current map come first, marked "[nearby]".
+  the current map come first, marked "[nearby]", and the detail pane reads "Available nearby". The NPC's map is any
+  of its canonical `locations[].map_id` (`MisoQuestWindow.npc_is_on_map`): in Snail Hunting Ground I (000000040),
+  Sam's Suggestion (Sam, 9) is listed first and tagged.
 - The detail pane shows:
   - name, status, start NPC and turn-in NPC;
   - the journal text (`QuestEngine.journal_text`);
   - objectives with ticks and counts ("Snail 7/10", "Return to Mai", "Use Roger's Apple 0/1", "Answer the quiz");
   - canonical rewards: EXP, mesos, fame, items with icons, "One of these at random" and "Choose one" groups.
 
-**Tooltip.** Hovering an inventory slot, an equipped piece or a quickslot shows:
+**Tooltip.** Hovering an inventory slot, an equipped piece or a quickslot shows a card. For inventory and Equipment
+slots the card sits beside the slot and never covers it (`MisoItemTooltip.place_beside`). It goes to the slot's right
+when it fits there, else to its left (the right-docked inventory, and usually the Equipment doll next to it), else
+above or below. It slides only vertically to stay on screen. Before, a right-edge slot had the card clamped back over
+itself. A quickslot's card sits above the bar. The card shows:
 - icon, name (with quantity), category and subtype;
 - "Equipped", "Quest item" and "Untradeable" flags;
 - requirements (REQ LEV/STR/DEX/INT/LUK/POP/JOB and gender), each **red when unmet** (total stats, the same basis as
@@ -309,7 +323,8 @@ doc comment.
 | Binding changes notify the group `miso_quickslot_listeners` (`refresh_quickslots()`) instead of an `Events` signal | `events.gd` is a fixed contract and has no quickslot signal; HUD and inventory are separate scenes |
 | Requirement colouring uses total stats | The same basis as `Equipment.equip_check` (ITEMS.md "Requirement basis") |
 | "Shops will not buy this" when `sell_price_mesos` is null | `ShopService` refuses those (`no_sell_price`) |
-| "Nearby" means the quest's start NPC (`npcs/<id>.json map_id`) is on `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map |
+| "Nearby" means one of the quest's start NPC's canonical locations (`npcs/<id>.json locations[].map_id`) is `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map, in `locations[]` only (no top-level `map_id`; reading one left every quest un-tagged until the Test E playtest caught it) |
+| The message log drops a repeated line only for notices and warnings, never for gains, spends, EXP or quest lines | The repeat filter exists for a full inventory announced again while pickup is held, and for loot pickup notices that word the HUD's own gain line again. Applied to every line, it also swallowed a second, separate sale (Test G) |
 | Log wording ("You have gained an item (...)") is MapleStory-inspired | MeowDB publishes no client messages. The wording is presentation, not canonical text |
 | Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider. They are draggable by the title strip and clamped so it stays on screen | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text) |
 | A press anywhere inside a window (its slots and buttons included) brings it to the front and makes it "newest" for Esc | Classic focus behaviour; Esc closes what the player touched last. Slots and buttons stop the mouse event, so this is done in `MisoWindow._input` from the frontmost control under the pointer |

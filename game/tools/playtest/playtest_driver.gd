@@ -70,6 +70,9 @@ var notices: PackedStringArray = []
 var log_steps: bool = true
 ## True once reload_process() ended this phase.
 var reloading: bool = false
+## Record trace_digest() on every step ("trace0" when it begins, "trace" when it ends): the runner's --trace, or the
+## PLAYTEST_TRACE environment variable. For diffing two runs of one seed (docs/runtime/PLAYTEST_HARNESS.md "Seeds").
+var trace_steps: bool = false
 
 var _f0: int = 0
 var _open_steps: Array[int] = []
@@ -325,6 +328,41 @@ func state() -> Dictionary:
 	out["dialogue_open"] = dw != null and bool(dw.call("is_open"))
 	var sw := shop()
 	out["shop_open"] = sw != null and bool(sw.call("is_open"))
+	return out
+
+
+## A compact fingerprint of everything that decides what happens next, for diffing two runs of one seed: the physics
+## frame (since boot), the RNG states (Game.rng and MapSession's instance RNG), the map and session state, the
+## player's position, vitals and EXP, and the live monsters (count, plus a hash of their positions and HP). Two runs
+## of one seed diverge at the first step whose digest differs. Never changes the game.
+func trace_digest() -> Dictionary:
+	var out := {"frame": Engine.get_physics_frames() - _f0}
+	var g := game()
+	if g != null and g.get("rng") is RandomNumberGenerator:
+		out["game_rng"] = str((g.get("rng") as RandomNumberGenerator).state)
+	var s := session()
+	if s != null:
+		var r: Variant = s.get("rng")
+		if r is RandomNumberGenerator:
+			out["session_rng"] = str((r as RandomNumberGenerator).state)
+		out["map"] = String(s.get("current_map"))
+		out["session"] = String(s.call("state_name"))
+	var p := player()
+	if p != null and is_instance_valid(p):
+		var v := p.global_position
+		out["pos"] = "%.3f,%.3f,%.3f" % [v.x, v.y, v.z]
+	var c := character()
+	if c != null:
+		out["vitals"] = "L%d exp %d hp %d mp %d mesos %d" % [c.level, c.exp, c.hp, c.mp, c.mesos]
+	var ms := monsters()
+	if ms != null and ms.has_method("live_monsters"):
+		var parts := PackedStringArray()
+		for m: Node3D in ms.call("live_monsters"):
+			if is_instance_valid(m):
+				var q := m.global_position
+				parts.append("%s@%.2f,%.2f,%.2f:%s" % [m.name, q.x, q.y, q.z, str(m.get("hp"))])
+		out["mobs"] = parts.size()
+		out["mobs_hash"] = str(";".join(parts).hash())
 	return out
 
 
@@ -1472,6 +1510,8 @@ func console(cmd: String) -> String:
 func _begin(kind: String, step_name: String, detail: String = "") -> int:
 	var i := report.begin_step(phase, kind, step_name, detail, game_s(), Time.get_ticks_msec())
 	(report.steps[i] as Dictionary)["depth"] = _open_steps.size()
+	if trace_steps:
+		(report.steps[i] as Dictionary)["trace0"] = trace_digest()
 	if log_steps:
 		print("PLAYTEST STEP %s[%s] %s%s" % ["  ".repeat(_open_steps.size()), kind, step_name, (" " + detail) if detail != "" else ""])
 	_open_steps.append(i)
@@ -1480,6 +1520,8 @@ func _begin(kind: String, step_name: String, detail: String = "") -> int:
 
 func _end(i: int, ok: bool, result: String = "") -> void:
 	report.end_step(i, ok, result, game_s(), Time.get_ticks_msec())
+	if trace_steps and i >= 0 and i < report.steps.size():
+		(report.steps[i] as Dictionary)["trace"] = trace_digest()
 	_open_steps.erase(i)
 	if log_steps:
 		var s: Dictionary = report.steps[i]
