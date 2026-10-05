@@ -65,6 +65,8 @@ const EDGE_NAMES := ["walk", "drop", "ladder", "jump", "long drop", "hop", "slid
 ## Verification: ticks per try, the number of nearest escapable targets tried, the directions of the fallback sweep,
 ## the samples per component and the try budget per component.
 const TRY_TICKS := 180
+## Extra ticks a try keeps going while the body climbs (a 12 m climb at the canonical climb speed fits).
+const CLIMB_TICKS := 600
 const SWEEP_TICKS := 120
 const TARGETS := 4
 const SWEEP_DIRECTIONS := 16
@@ -1420,7 +1422,9 @@ func _try(g: MapGraph, pw: PlayerTestWorld, s: Vector3, plan: Dictionary) -> Dic
 	var ticks: int = plan.ticks
 	var runup := 18 if plan.jump == "runup" else 0
 	var via_done := false
-	for t in ticks + runup:
+	var t := 0
+	# A climb under way finishes (up to CLIMB_TICKS more): a tall ladder takes longer than a try.
+	while t < ticks + runup or (p.is_climbing() and t < ticks + runup + CLIMB_TICKS):
 		var d := Vector3.ZERO
 		if plan.has("via") and not via_done:
 			var vp: Vector3 = plan.via
@@ -1437,11 +1441,15 @@ func _try(g: MapGraph, pw: PlayerTestWorld, s: Vector3, plan: Dictionary) -> Dic
 			d = plan.dir
 		if t < runup:
 			d = -d
+		# On a ladder or rope only Up is held (a direction toward the camera would read as Down and cancel the climb).
+		if p.is_climbing():
+			d = Vector3.ZERO
 		pw.bot.world_dir = d
 		var jumping: bool = plan.jump == "hold" or (plan.jump == "runup" and t >= runup)
 		pw.bot.hold(&"jump", jumping and t >= 1)
 		pw.bot.hold(&"portal_enter", t % 12 != 0)
 		pw.run(1)
+		t += 1
 		if fell[0]:
 			break
 		if p.is_grounded() or p.is_climbing():

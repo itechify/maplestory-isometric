@@ -132,20 +132,20 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 0.49,
+   "seconds": 0.5,
    "portals": [
     {
      "name": "out00",
      "x": 31.0,
      "y": 10.0,
-     "z": 0.0,
+     "z": 3.0517578125e-05,
      "to_map": 10000,
      "to_portal": "in00",
      "kind": "edge",
      "world": [
       22.164243698120117,
       -23.86935806274414,
-      14.0
+      14.000030517578125
      ],
      "one_way": false,
      "to_arrival": ""
@@ -459,20 +459,20 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 0.42,
+   "seconds": 0.43,
    "portals": [
     {
      "name": "in00",
      "x": 1.0,
      "y": 10.0,
-     "z": 3.0517578125e-05,
+     "z": 0.0,
      "to_map": 0,
      "to_portal": "out00",
      "kind": "edge",
      "world": [
       26.853017807006836,
       -34.9154167175293,
-      14.000030517578125
+      14.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -590,13 +590,13 @@
      "index": 0,
      "x": 4.5,
      "y": 10.5,
-     "z": 0.0,
+     "z": -3.0517578125e-05,
      "rot": 90,
      "note": "sp x -91: ~3 m east of in00 on the arrival meadow",
      "world": [
       28.24184799194336,
       -38.166748046875,
-      14.0
+      13.999969482421875
      ]
     }
    ],
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 0.46,
+   "seconds": 0.38,
    "portals": [
     {
      "name": "in01",
@@ -787,14 +787,14 @@
      "name": "in00",
      "x": 1.0,
      "y": 14.0,
-     "z": -3.0517578125e-05,
+     "z": 0.0,
      "to_map": 10000,
      "to_portal": "out00",
      "kind": "edge",
      "world": [
       43.57243347167969,
       -88.3201904296875,
-      13.999969482421875
+      14.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -986,13 +986,13 @@
      "index": 0,
      "x": 4.0,
      "y": 13.5,
-     "z": 0.0,
+     "z": -3.0517578125e-05,
      "rot": 90,
      "note": "sp x -256: beside in00 on the west lawn",
      "world": [
       43.07243347167969,
       -91.3201904296875,
-      14.0
+      13.999969482421875
      ]
     }
    ],
@@ -1175,20 +1175,20 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.87,
+   "seconds": 0.72,
    "portals": [
     {
      "name": "in00",
      "x": 1.0,
      "y": 12.0,
-     "z": -6.103515625e-05,
+     "z": 3.0517578125e-05,
      "to_map": 20000,
      "to_portal": "out00",
      "kind": "edge",
      "world": [
       46.52656173706055,
       -140.27452087402344,
-      14.99993896484375
+      15.000030517578125
      ],
      "one_way": false,
      "to_arrival": ""
@@ -1831,20 +1831,20 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 1.12,
+   "seconds": 1.25,
    "portals": [
     {
      "name": "east00",
      "x": 63.0,
      "y": 12.0,
-     "z": -3.0517578125e-05,
+     "z": 0.0,
      "to_map": 40001,
      "to_portal": "west00",
      "kind": "edge",
      "world": [
       57.3870964050293,
       -270.7391052246094,
-      10.999969482421875
+      11.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -2680,20 +2680,20 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 1.88,
+   "seconds": 2.09,
    "portals": [
     {
      "name": "west00",
      "x": 1.0,
      "y": 12.0,
-     "z": 0.60003662109375,
+     "z": 0.600006103515625,
      "to_map": 40000,
      "to_portal": "east00",
      "kind": "edge",
      "world": [
       55.68092727661133,
       -284.634765625,
-      8.60003662109375
+      8.600006103515625
      ],
      "one_way": false,
      "to_arrival": ""
@@ -2702,14 +2702,14 @@
      "name": "east00",
      "x": 63.0,
      "y": 12.0,
-     "z": -3.0517578125e-05,
+     "z": 3.0517578125e-05,
      "to_map": 40002,
      "to_portal": "west00",
      "kind": "edge",
      "world": [
       41.73395919799805,
       -345.0456848144531,
-      7.999969482421875
+      8.000030517578125
      ],
      "one_way": false,
      "to_arrival": ""
@@ -3748,7 +3748,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 2.57,
+   "seconds": 2.7,
    "portals": [
     {
      "name": "west00",
@@ -4796,7 +4796,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 2.94,
+   "seconds": 3.23,
    "portals": [
     {
      "name": "west00",
@@ -5734,7 +5734,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 2.46,
+   "seconds": 2.44,
    "portals": [
     {
      "name": "west00",
@@ -6369,7 +6369,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.62,
+   "seconds": 0.54,
    "portals": [
     {
      "name": "out00",
@@ -6668,7 +6668,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.29,
+   "seconds": 0.27,
    "portals": [
     {
      "name": "out00",
@@ -7131,7 +7131,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 3.87,
+   "seconds": 5.26,
    "portals": [
     {
      "name": "in00",
@@ -7201,14 +7201,14 @@
      "name": "in02",
      "x": 62.0,
      "y": 1.0,
-     "z": -3.0517578125e-05,
+     "z": 0.0,
      "to_map": 1000003,
      "to_portal": "out00",
      "kind": "edge",
      "world": [
       175.98284912109375,
       -571.669677734375,
-      4.999969482421875
+      5.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -7217,14 +7217,14 @@
      "name": "in03",
      "x": 78.0,
      "y": 1.0,
-     "z": 0.0,
+     "z": -3.0517578125e-05,
      "to_map": 1000004,
      "to_portal": "out00",
      "kind": "edge",
      "world": [
       188.76101684570312,
       -581.2987060546875,
-      5.0
+      4.999969482421875
      ],
      "one_way": false,
      "to_arrival": ""
@@ -7249,14 +7249,14 @@
      "name": "east00",
      "x": 79.0,
      "y": 12.0,
-     "z": -3.0517578125e-05,
+     "z": 0.0,
      "to_map": 1010000,
      "to_portal": "west00",
      "kind": "edge",
      "world": [
       196.17962646484375,
       -573.1155395507812,
-      4.999969482421875
+      5.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -8369,7 +8369,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.73,
+   "seconds": 2.03,
    "portals": [
     {
      "name": "out00",
@@ -9210,18 +9210,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@19.5,10.1",
-     "X1000002_Toadstool_Dark@16.9,12.4",
      "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@19.5,10.1",
+     "X1000002_Toadstool_Dark@17.8,17.2",
      "X1000002_Toadstool_Dark@32.8,25.2",
      "X1000002_Toadstool_Dark@20.8,8.6",
-     "X1000002_Toadstool_Dark@17.8,17.2"
+     "X1000002_Toadstool_Dark@16.9,12.4"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 2.16,
+   "seconds": 3.22,
    "portals": [
     {
      "name": "out01",
@@ -9991,7 +9991,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 1.16,
+   "seconds": 1.54,
    "portals": [
     {
      "name": "out00",
@@ -10757,7 +10757,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 2.24,
+   "seconds": 3.3,
    "portals": [
     {
      "name": "out00",
@@ -11006,7 +11006,7 @@
       ],
       [
        23.5,
-       24.318975734710694
+       24.318975615501405
       ],
       [
        23.5,
@@ -11854,7 +11854,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 2.71,
+   "seconds": 3.51,
    "portals": [
     {
      "name": "out00",
@@ -13095,7 +13095,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 5.34,
+   "seconds": 6.01,
    "portals": [
     {
      "name": "out00",
@@ -14009,20 +14009,20 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.54,
+   "seconds": 1.63,
    "portals": [
     {
      "name": "west00",
      "x": 1.0,
      "y": 12.0,
-     "z": 0.0,
+     "z": -3.0517578125e-05,
      "to_map": 1000000,
      "to_portal": "east00",
      "kind": "edge",
      "world": [
       206.07911682128906,
       -583.0150146484375,
-      6.0
+      5.999969482421875
      ],
      "one_way": false,
      "to_arrival": ""
@@ -14031,14 +14031,14 @@
      "name": "east00",
      "x": 75.0,
      "y": 12.0,
-     "z": 3.0517578125e-05,
+     "z": -6.103515625e-05,
      "to_map": 1020000,
      "to_portal": "west00",
      "kind": "edge",
      "world": [
       258.405029296875,
       -635.3409423828125,
-      6.000030517578125
+      5.99993896484375
      ],
      "one_way": false,
      "to_arrival": ""
@@ -14326,13 +14326,13 @@
      "index": 0,
      "x": 13.6,
      "y": 11.8,
-     "z": 3.0517578125e-05,
+     "z": -3.0517578125e-05,
      "rot": 90,
      "note": "sp x 282: on the west street between Rain and Pio",
      "world": [
       214.8472442626953,
       -592.0659790039062,
-      6.000030517578125
+      5.999969482421875
      ]
     }
    ],
@@ -14516,7 +14516,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.36,
+   "seconds": 0.33,
    "portals": [
     {
      "name": "out00",
@@ -14808,7 +14808,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.41,
+   "seconds": 0.48,
    "portals": [
     {
      "name": "out00",
@@ -14830,14 +14830,14 @@
      "name": "west00",
      "x": 1.0,
      "y": 12.0,
-     "z": -3.0517578125e-05,
+     "z": 0.0,
      "to_map": 1010004,
      "to_portal": "east00",
      "kind": "edge",
      "world": [
       273.2542724609375,
       -586.550537109375,
-      7.999969482421875
+      8.0
      ],
      "one_way": false,
      "to_arrival": ""
@@ -15086,7 +15086,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 1.9,
+   "seconds": 2.66,
    "portals": [
     {
      "name": "out00",
@@ -15784,7 +15784,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 2.16,
+   "seconds": 2.53,
    "portals": [
     {
      "name": "east00",
@@ -16704,7 +16704,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 4.47,
+   "seconds": 4.7,
    "portals": [
     {
      "name": "west00",
@@ -17661,7 +17661,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 2.86,
+   "seconds": 2.73,
    "portals": [
     {
      "name": "out00",
@@ -18168,7 +18168,7 @@
    }
   }
  },
- "started": "2026-10-05 07:50:50",
+ "started": "2026-10-05 09:34:28",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -19687,6 +19687,6 @@
   }
  ],
  "forest_trees": 1125,
- "seconds": 76.3,
- "objects": 17707
+ "seconds": 86.6,
+ "objects": 18017
 }
