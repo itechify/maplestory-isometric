@@ -55,10 +55,11 @@ static func collect(out_dir: String, chains: PackedStringArray) -> Dictionary:
 			"phases": (r.get("phases", []) as Array).size(), "console_setup": console_setup,
 			"errors": (r.get("errors", []) as Array).size()})
 		var results: Dictionary = (r.get("carry", {}) as Dictionary).get("quest_results", {})
+		var names: Dictionary = (r.get("carry", {}) as Dictionary).get("quest_names", {})
 		var parity: Dictionary = r.get("parity", {})
 		for id in _chain_ids(chain):
 			var q: Dictionary = results.get(id, {})
-			var row := {"id": id, "chain": chain, "name": String(q.get("name", "")), "result": String(q.get("result", "")),
+			var row := {"id": id, "chain": chain, "name": String(q.get("name", names.get(id, ""))), "result": String(q.get("result", "")),
 				"completed": bool(q.get("completed", false)), "checks": int(q.get("checks", 0)),
 				"failed": Array(q.get("failed", [])), "warnings": int(q.get("warnings", 0)),
 				"random": Array((r.get("carry", {}) as Dictionary).get("random_%s" % id, []))}

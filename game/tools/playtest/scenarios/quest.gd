@@ -56,8 +56,12 @@ func run(p_d: PlaytestDriver) -> void:
 	if not d.check("--quest / QUEST names canonical quests ('%s')" % spec, not ids.is_empty(), "known: %s" % db.ids("quests")):
 		return
 	d.carry["quest_spec"] = spec
+	var names := {}
 	for id in ids:
 		plans[id] = PlaytestQuestPlan.plan(id, db)
+		names[id] = String((plans[id] as Dictionary).get("name", id))
+	# The quests' names for PlaytestQuestSummary, even when a run ends before its verdict.
+	d.carry["quest_names"] = names
 	if d.phase == 0:
 		await _setup_phase()
 		return
