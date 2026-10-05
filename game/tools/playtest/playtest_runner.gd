@@ -21,7 +21,7 @@ extends Node
 
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const DEFAULT_SEED := 1
-const MAX_PHASES := 8
+const MAX_PHASES := 12
 ## Exit code when the process has to end itself after a reload request the game did not complete.
 const RELOAD_EXIT_CODE := 75
 ## The largest default wall-time budget (s): below scripts/playtest.sh's outer timeout (3600 s by default).
@@ -197,6 +197,9 @@ func _open_report() -> PlaytestReport:
 			_finish_early(r)
 			return null
 		prev.reload_requested = false
+		# The report is written where this process was told (--out), never where an earlier phase wrote it: a run
+		# continued from a copy of its --out directory (playtest.sh --resume) must not write into the original.
+		prev.out_dir = out_dir
 		phase = prev.phases.size()
 		return prev
 	for f in ["report.json", "report.md"]:

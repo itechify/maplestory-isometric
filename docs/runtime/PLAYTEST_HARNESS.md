@@ -20,6 +20,8 @@ ISOLATE=<your-name> bash scripts/playtest.sh <scenario> --out _scratch/playtest/
 bash scripts/playtest.sh --list                     # the scenarios
 bash scripts/playtest.sh quest --quest 1013-1019    # one quest chain of the every-quest set (strict after setup)
 bash scripts/playtest_quests.sh                     # every quest: one run per chain, 3 in parallel, one table
+PLAYTEST_TIMEOUT_S=7500 bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out _scratch/pt/seed1
+                                                    # the clean-character playthrough: creation to Shanks, strict
 ```
 
 The script mirrors `game/` (with the exported world) into `_scratch/godot_runs/$ISOLATE/game`, the same way
@@ -43,6 +45,12 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 | `--max-s <s>` | the game-time budget of one phase (default: the scenario's `max_seconds()`) |
 | `--max-wall-s <s>` | the wall-time budget of one phase (default: three times the game budget, at least 900 and at most 3300, so it fires before the outer 3600 s timeout) |
 | `--quest <spec>` | for the `quest` scenario: `1002`, `1013-1019` or `1006,1009,1010` (the `QUEST` environment variable does the same) |
+| `--resume` | continue a run in `--out` that stopped between phases (below): its report and saves are kept and the next phase starts with `--continue-run`. Development only: the report then mixes the code of two runs |
+
+`PLAYTEST_STOP_PHASE=<n>` stops the run before phase `n` starts and leaves the report `RELOADING` (exit 1). With a
+copy of that `--out` directory and `--resume`, a long scenario's later phase can be replayed after a code change
+without playing the earlier phases again (the playthrough was developed this way). `PLAYTHROUGH_STOP=<step>` ends the
+`playthrough` scenario after one of its steps.
 
 **Exit code:**
 
@@ -63,7 +71,8 @@ watchdog normally stops the run first.
 | `game/tools/playtest/playtest_kit.gd` | `PlaytestKit` | the composite play every scenario shares: travel, talk, conversations and quizzes, markers, the Quest Log, item use, AP, shops, precise pickup, hunting with a survival policy, deaths, and the contract helpers for sitting, chairs, skills and Wooden Boxes (see "PlaytestKit") |
 | `game/tools/playtest/playtest_ledger.gd` | `PlaytestLedger` | strict mode's bookkeeping: every change to EXP, mesos, items and quests must be announced by the event bus |
 | `game/tools/playtest/playtest_quest_plan.gd` | `PlaytestQuestPlan` | how to play a quest, derived from canonical data only (see "Quest plans") |
-| `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json` |
+| `game/tools/playtest/playtest_quest_runner.gd` | `PlaytestQuestRunner` | plays one quest step by step with real input (offer, objectives, turn-in, rewards, follow-ups) and records its evidence; `quest` and `playthrough` both use it (see "The quest runner") |
+| `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json`; `--combine` merges several runs (seeds) into the per-quest evidence report |
 | `game/tools/playtest/playtest_input.gd` | `PlaytestInput` | real input: keys, actions (analog movement), mouse, typing; held state and focus re-assert |
 | `game/tools/playtest/playtest_walker.gd` | `PlaytestWalker` | path planning and following with real input (RouteBot steering) |
 | `game/tools/playtest/playtest_grid_nav.gd` | `PlaytestGridNav` | A* on the real collision, for targets the route network does not reach |
@@ -134,7 +143,8 @@ Rules:
 - **Phases.** `reload_process()` ends the process the way a player does: the pause menu's Quit Game, then the shell
   saves and quits. The runner then starts a new process with `phase + 1` on the same save directory and calls
   `run()` again. Branch on `d.phase`. Values travel in `d.carry`, which is written with `var_to_str`, so ints stay
-  ints and vectors stay vectors. A run has at most 8 phases.
+  ints and vectors stay vectors. A run has at most 12 phases (8 before the clean-character playthrough, which
+  restarts the process seven times).
 
 ## The driver API
 
@@ -352,7 +362,7 @@ the driver's real input and reads the live game; nothing writes game state, so e
 |---|---|
 | bus | `connect_bus()` (EXP awards, quest events, touches), `exp_since(t0)`, `damage_taken`, `touches`, `touched_recently()` |
 | travel | `travel_to(map, opts)`: map by map over the canonical portals (`portal_path(db, from, to)`, a breadth-first search that knows 000000030 -> 000000040 is one-way), each hop a `walk_trail` with one retry, deaths answered with OK. opts `fallback_warp` (non-strict scenarios only: a failed hop becomes a WARN and a logged console warp; otherwise a failed check), `safe` (default true: the survival policy on the trails). `travel_rows`, `travel_text()`, `fallbacks` |
-| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. `unstick()`: off a spot where every planned walk stalls at once (a ledge corner whose way off neither planner takes, though a player steps off or jumps), real-input pushes in 8 directions, then with a jump, until the feet are 2.5 m away (a logged `kit.unstick` step); `walk_safely` opts `unstick` uses it after a walk that stalled where it began, and so do the talk retry's walk to the arrival, the hunt's slot tour and a trail hop that stalled twice where it began. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
+| survival | `walk_safely(target, opts)`, `survive(opts)`, `rest(until)`, `threat()`, `best_heal_item()`, `hp_frac()`, counters in `survival`. The policy: a walk is interrupted only when HP falls below `hp_floor` (0.4 of Max HP), or, above 55% HP (`FIGHT_BACK_HP`), when a monster the player can beat (at most 3 levels above it) hit the player in the last 1.5 s and is still next to it (`on_threat` "fight"; "ignore" keeps walking); `interrupt_when()` is that guard for scenarios that walk with the driver (Test A does). A fight back takes that monster (never a namesake on another tier) and does not chase it over the routes. Below the floor the player drinks the best HP consumable it holds (Item window, Use button), else walks to the arrival point farthest from the monsters (at most 25 m away; a new touch on the way ends that walk) and stands still until `hp_resume` (0.8); a monster that comes close is walked away from, and only a cornered player that keeps being hit fights back. Monsters that merely pass by never stop a walk. A monster a fight back cannot reach without a chase (a ledge just above or below) is shunned for `SHUN_S` (4 s): it stops counting as a threat and the walk goes on (`shun()`, `shunned()`; without it seed 2 of the 1006 chain spun 24 interrupts in 2 s of game time at the foot of a Snail Hunting Ground I ledge and failed its trail hop). `unstick()`: off a spot where every planned walk stalls at once (a ledge corner whose way off neither planner takes, though a player steps off or jumps), real-input pushes in 8 directions, then with a jump, until the feet are 2.5 m away (a logged `kit.unstick` step); `walk_safely` opts `unstick` uses it after a walk that stalled where it began, and so do the talk retry's walk to the arrival, the hunt's slot tour and a trail hop that stalled twice where it began. Test A with it (2026-10-05, seed 1): 54 legs, 472 checks, no death (the baseline walker died on legs 22 and 32 in 000001000; they now pass with 2 and 0 survival stops) |
 | NPCs | `approach(npc)` (to 3.5 m, so the marker is on screen), `talk(npc)` (talk_to; a death on the way is a WARN and a retry; an NPC that cannot be planned to from where the player stands is tried again from the map's arrival; the result carries `pre`, the reward baseline taken right before the chat opened), `marker(npc)` (the presenter's state and the engine's), `quest_window(qid, tab)`, `row_has`, `rows_text` |
 | conversations | `converse(goals, opts)`: goals `quest id -> "accept" \| "decline" \| "complete" \| "quiz_wrong[:rank]"`. A menu picks the entry of a goal not met yet (else End Chat), a Yes/No answers Y only for an "accept" of a quest not started, lines are paged with Enter, and a quiz menu (node `q<id>.quiz`) is answered with the canonical correct choice or the requested wrong one. Returns the pages, the banners and the quiz answers with the line shown after each |
 | quizzes | `PlaytestKit.quiz_answer(db, qid)` (static): the correct choice by the canonical `correct_choice_index` (1018's is inferred and says so in `basis`), the question, the choices, and each wrong choice with the wrong-answer line MeowDB lists for it (in choice order, as the game pairs them) |
@@ -362,8 +372,10 @@ the driver's real input and reads the live game; nothing writes game state, so e
 | loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z. A logged `kit.pickup` step whose result names the map-local spot it started and ended at (a walk onto a drop below a ledge can end in a pocket) |
 | hunting | `hunt(mob_ids, cond, opts)`: the survival policy first, whatever is hitting the player, then the nearest wanted monster with the attack key, the drops picked up after every kill, unspent AP spent through the stats window (`ap_plan`), deaths answered and the walk back to `map`, a tour of the spawn slots when nothing is in sight. `nearest_of(mob_ids)` |
 | deaths | `is_dead()`, `death_notice()`, `respawn(opts)` (the notice's OK; the row goes to `deaths`) |
-| contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8: walk up, face, attack until broken, pick up). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
-| record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, equipment, ETC items and quest states into `d.carry["checkpoints"]` and a note: the brief's progression audit), `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
+| contracts | `activity()` (C4), `sit()` (X, C5), `stand()`, `use_chair(id)` (a double-click in the Set-up tab, C5), `skill_key(id)` / `cast_skill(id)` (the skill's quickslot key, C3 `{"kind": "skill"}`; a cast shows as a cooldown, an effect from `skill:<id>` or the attacking activity), `breakables()` / `break_box(box)` (nodes in group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()`, C8; test_box's approach: spots beside the box on its own ground at 0.6 of the weapon's canonical reach (`box_reach_m()`, `box_spots()`), walked to with the routes, then the grid, up to 6 spots; no attack from another tier; closer after 3 whiffs; `break_box(null)` passes over a box it cannot stand beside for the next nearest, at most 3. Amherst's box 000001010:0 stands at the foot of a 1.6 m terrace: from Lucas (on the plaza above) the old walk-up ended on the terrace edge 1.3 m above it and 40 attacks whiffed, which failed both playthrough seeds' 1012 gate probe). Until the packages that build these land, each returns `{"ok": false, "why": "... is not built"}` |
+| skills | `learn_skill(id)` (K, then the skill's "+" with the mouse; one SP), `bind_skill(id, key)` (the skill's row, Set key, the key), `throw_at(target, opts)` (Three Snails from inside its canonical band: walks to about 150 px, faces, taps the skill's key; every hit heard on `PlayerSkills.cast_resolved`), `skills_window()` |
+| death | `let_monsters_win(mob_ids, opts)`: the player stops defending and walks into the nearest monster again and again (real input, no attack, no potion) until it dies; every hit is the monster's own contact damage |
+| record | `snapshot()`, `bag_delta(a, b, skip)`, `total_exp()`, `checkpoint(tag)` (level, EXP, mesos, AP, SP, HP, MP, stats, equipment, ETC and Use items, skills, deaths, quest states, `play_s` (the run's game time over every phase) and `play_time_s` (the character's own saved clock) into `d.carry["checkpoints"]` and a note: the brief's progression audit), `track()` (from the event bus into `d.carry`, across phases: `visited_maps`, `kills_by_mob`, `exp_by_source`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_gained`/`lost`/`used`, `skills_used`, `sat`), `carry_totals()` (this process's pickup and survival counters, per phase and summed: `picked_mesos` and `picked_bags` count the meso bags picked up with Z), `play_s()`, `local_pos()`, `log_clock()`, `log_since(t)`, `log_on_screen()`, `shot(name)` |
 
 ## Strict mode
 
@@ -381,10 +393,11 @@ scenario; "after character creation" for a clean playthrough). From that step on
   `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
   adding to the inventory, completing a quest) is a mismatch.
 - The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
-- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit) and fails on teleports
-  (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console calls outside `_setup*`
-  functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats, skills, cooldowns,
-  effects, quickslots, inventory, equipment, the quest log), calls into the game's services that change it
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit and the quest runner) and
+  fails on teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console
+  calls outside `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats,
+  skills, cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that
+  change it
   (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the quest
   engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
   `report_monster_killed`) and writes to the save on disk. A synthetic scenario in the same test proves the scan flags
@@ -410,10 +423,36 @@ and `quest_gate`; Iteration Two tables by membership and the placeholder rate Dr
 farm, the item-use objectives, the quiz answer key, the rewards and the hand-ins (`hand_ins`: canonical
 `items_removed_on_completion`, the list the quest engine removes). `source_why(row, quest)` is the obtainability rule:
 an unresolved chance, a chance of 0, a gate to another quest (C1/C2) or no map holding the owner rules a source out.
-An objective that only an unresolved drop could supply is listed in `blocked` as a source-data gap, never faked. `setup_for(ids)` says what a chain needs first (the
-first quest's level and start map, the prerequisites outside the chain, prerequisites first), `chains(db)` is the
-every-quest set (one chain per canonical quest line, each standalone quest alone), `parse_ids` and `chain_spec` name
-chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` are public.
+An objective that only an unresolved drop could supply is listed in `blocked` as a source-data gap, never faked.
+`setup_for(ids)` says what a chain needs first (the first quest's level and start map, the prerequisites outside
+the chain, prerequisites first), `chains(db)` is the every-quest set (one chain per canonical quest line, each
+standalone quest alone), `parse_ids` and `chain_spec` name chains, and `item_sources`, `best_source`,
+`spawn_maps`, `hunt_map` and `hops` are public.
+
+## The quest runner
+
+`PlaytestQuestRunner` (`game/tools/playtest/playtest_quest_runner.gd`) plays one quest at a time, step by step, with
+the kit's real input and the plan's canonical facts. The `quest` scenario and the clean-character `playthrough` both
+play their quests through it, so a quest is checked the same way in both.
+
+| Call | Does |
+|---|---|
+| `offer(qid)` | below the quest's `min_level`: checks the refusal, then hunts to the level; walks to the start NPC's map; for a quest whose items come from a breakable gated to it, breaks one box first (it must drop none of them); the NPC's marker, the engine and the Quest Log's Available tab; the accept in the dialogue (Yes); the accept items in the bag; the HUD log; the marker after the accept; the In Progress tab |
+| `objectives(qid)` | from the live progress: kills with the attack key in the hunt map, items from their best source (monster drops picked up with Z, Wooden Boxes broken), items used by a double-click; the Quest Log row after each kill objective |
+| `turn_in(qid)` | the turn-in NPC's completable marker; a quiz with one wrong answer first (its canonical line, the quest still in progress), then the canonical answer; the completion; `check_rewards()`: total EXP + `rewards.exp` in one `quest:<id>` EXP event, mesos + `rewards.mesos`, the fixed items, one item of each random group, the canonical hand-ins taken, nothing else in the bag, and the C3 `rewards_received` record; the HUD log and the Completed tab |
+| `after(qid)` | each canonical follow-up is available (or level-gated) and its NPC's marker offers it when the NPC is in this map |
+| `play(qid)` | all four from the quest's live status |
+| `mid_reload(tag, when)` / `verify_mid()` | the save through the pause menu and Quit Game; after the next Continue, the quest log, level, EXP, mesos, bag and map are the saved ones and the Quest Log still lists the quest |
+| `results(ids)` | the per-quest verdicts into `d.carry["quest_results"]` |
+
+`mid_reload_policy` decides where a run restarts in the middle of a quest: `"auto"` (the `quest` scenario: each quest
+with objectives once, at half of its first kill or item objective, and the run's first talk-only quest right after
+its accept), `"listed"` (only the quests in `mid_reload_quests`; the playthrough lists 1009 and 1012) or `"off"`.
+
+What each quest showed is kept in `d.carry["quest_evidence"][qid]` (it survives the restarts): the offer (marker,
+engine, Quest Log, level), the gate probe, the accept (pages, items, Quest Log row), each objective's progress and
+source, the quiz answers, the completion, the rewards (EXP and mesos against canonical, the bag change, the random
+pick, the `rewards_received` record), the follow-ups and the mid-quest restart. `PlaytestQuestSummary` renders it.
 
 ## The every-quest set
 
@@ -438,7 +477,8 @@ chains, and `item_sources`, `best_source`, `spawn_maps`, `hunt_map` and `hops` a
   when the quest log has it); the HUD log and the Completed tab; and each follow-up's availability and marker.
 - **Save and restart in the middle:** a save through the pause menu and Quit Game at the half of the first kill or
   item objective of each quest (a monster drop or a Wooden Box item alike), after the accept of the first quest with
-  nothing to hunt, and after the middle quest of a chain of three or more. The next phase checks the quest log,
+  nothing to hunt, and once between two quests at the middle of a chain of three or more (after quest
+  `floor(n / 2)`: after 1006 in 1006,1009,1010, after 1015 in 1013-1019). The next phase checks the quest log,
   level, EXP, mesos, bag and map against the saved ones and the Quest Log's In Progress row.
 - Every quest check carries `quest:<id>`; `d.carry["quest_results"]` holds the per-quest verdict. The table
   (`PlaytestQuestSummary`) fails every quest of a chain whose strict block was violated, or whose report has a fatal
@@ -450,42 +490,77 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
-### Results (2026-10-05, the Iteration Three base build with this harness, seeds 1, 2 and 3)
+### Results (2026-10-05, the integrated Iteration Three build, seeds 1, 2 and 3)
 
-On each seed 19 of 20 quests pass in the real game with real input, every chain strict after its setup (0 console
-steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches). 1012 (Pio) is blocked by design: Rusty Screw and
-Old Wooden Board come only from the Wooden Box, and the base build has no breakables runtime (contract C8), so its run
-fails at "Wooden Boxes stand in 000001010" right after the accept. The WARNs are the C3 `rewards_received` record of
-1008 and 1011, which the quest log does not keep yet. Checks per quest are the same on every seed; the random rewards
-and the times differ.
+**20 of 20 quests PASS on each seed** (523 quest checks per seed, 0 failed, 0 warnings), every chain strict after its
+setup (0 console steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches); 1000-1001 strict from character
+creation. 1012 passes with the real Wooden Box (contract C8) and the 1012-gated drops (C1/C2), and the C3
+`rewards_received` record of 1008 and 1011 is now a hard check that matches the random pick. Per quest and per seed,
+with what each run showed: [QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
 
-| Chain | Quests | Result (checks) | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
+| Chain | Quests | Checks | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
 |---|---|---|---|---|---|---|---|
-| 1000-1001 | Sera's Mirror | PASS (45) | 0 | 3 | 74 / 79 / 76 | 14 / 13 / 14 | |
-| 1002 | Roger's Apple | PASS (25) | 1 | 3 | 54 / 57 / 48 | 11 / 10 / 11 | |
-| 1003-1004 | Nina and Sen's dinner | PASS (44) | 1 | 3 | 96 / 100 / 101 | 15 / 15 / 16 | |
-| 1005 | Todd's How-to-Hunt | PASS (27) | 1 | 3 | 104 / 94 / 77 | 15 / 13 / 16 | |
-| 1006, 1009, 1010 | Mai's Training | PASS (93) | 1 | 6 | 757 / 612 / 574 | 148 / 94 / 121 | |
-| 1007-1008 | the letters | PASS (48, 1 WARN) | 2 | 3 | 420 / 407 / 313 | 71 / 66 / 68 | 712 Black / 714 Yellow / 713 Green Headband |
-| 1011 | Biggs's collection | PASS (30, 1 WARN) | 2 | 3 | 533 / 1144 / 1112 | 93 / 155 / 186 | 559 Fruit Knife on all three |
-| 1012 | Pio's recycled goods | FAIL: no Wooden Box runtime yet | 2 | 2 | 19 / 39 / 33 | 9 / 6 / 6 | |
-| 1013-1019 | Rain's seven quizzes, one wrong answer each | PASS (178) | 2 | 4 | 58 / 81 / 59 | 26 / 20 / 24 | |
+| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 86 / 85 / 92 | 13 / 13 / 12 | |
+| 1002 | Roger's Apple | 25 | 1 | 3 | 62 / 64 / 69 | 11 / 10 / 10 | |
+| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 111 / 106 / 114 | 15 / 14 / 14 | |
+| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 116 / 110 / 116 | 14 / 14 / 13 | |
+| 1006, 1009, 1010 | Mai's Training | 93 | 1 | 6 | 707 / 744 / 708 | 105 / 115 / 116 | |
+| 1007-1008 | the letters | 48 | 2 | 3 | 384 / 343 / 351 | 58 / 50 / 54 | 713 Green / 712 Black / 712 Black Headband |
+| 1011 | Biggs's collection | 30 | 2 | 3 | 380 / 581 / 502 | 54 / 87 / 73 | 558 Razor / 559 Fruit Knife / 559 Fruit Knife |
+| 1012 | Pio's recycled goods | 33 | 2 | 3 | 101 / 101 / 91 | 13 / 13 / 13 | |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 90 / 92 / 77 | 20 / 21 / 23 | |
 
-**1012 with the Wooden Box (review probe, 2026-10-05, seed 1).** This harness with the breakables package (C8) and
-the drops package's schema v2 records (C1) merged in a scratch copy: 1012 PASS, 33 quest checks, strict ok. The box
-broken before the accept dropped neither Rusty Screw nor Old Wooden Board (both gated to 1012); every box broke after
-the canonical 4 hits and dropped one of each; the save and restart came at 1/3 Rusty Screw; two more boxes, then EXP
-+100, mesos +150, the hand-ins taken and The Green Relaxer given, exactly. 98 s of game time over 3 phases.
+**Before the shun fix (the wave-1 harness on this build).** Seeds 1 and 3 passed 20/20; seed 2 failed 1006, 1009 and
+1010 at the trail hop from Snail Hunting Ground I to II (the survival guard spin, "Findings"). On the base build
+before wave 2, 1012 failed at "Wooden Boxes stand in 000001010" (no breakables runtime), and 1008 and 1011 had a
+`rewards_received` WARN (the quest log did not keep it yet).
 
-**Strict from character creation.** Since the review, 1000-1001 (no setup at all) runs strict from the step after
-`new_game`: phase 0 strict ok, 0 console steps in the whole run.
+## The clean-character playthrough
 
-**Review re-run (2026-10-05, seed 1, the harness after the review fixes).** 19 of 20 PASS, every chain strict ok,
-the same check counts per chain as the table above; 1012 fails only at "Wooden Boxes stand in 000001010". Random
-rewards: 1008 708 Brown Skullcap, 1011 559 Fruit Knife. A run before `unstick()` existed failed 1009 on the A Split
-Road ledge (see "Findings"). The `kit` scenario with the mechanics and breakables packages merged in a scratch copy:
-`use_chair` (a double-click on The Green Relaxer), `sit` (X) and both stands PASS, the store's Wooden Box is found;
-only `cast_skill` stays a WARN.
+`scenarios/playthrough.gd` is ONE run from a brand-new character to Shanks' departure boundary (brief Phase 15 and
+the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) (Iteration Three).
+
+- **Strict from character creation.** `new_game` drives the title and creation screens (the name typed, the
+  Recommended stats and weapon, Start); `begin_strict("after character creation")` follows at once. From there on no
+  console command, no api fallback, no developer command and no change the event bus did not announce, in every
+  phase; the only reloads are the pause menu's Save and Quit Game (or Quit to Title) and the title's Continue.
+- **A route of named steps** (`STEPS`), in the island's order: Heena and Sera, Roger, Nina and Sen, Todd and Peter,
+  Robin, Sam (the first SP: Three Snails learned with "+", put on key 1 and thrown at a Snail), the Snail Hunting
+  Grounds to A Split Road (Mai, Maria), Southperry (Yoona, Bari, Biggs, Shanks refusing a low level, Pan), Mai's
+  training, Recovery and Nimble Feet, The Field West of Amherst (1010's Orange Mushroom, 1011's drops), Amherst
+  (Lucas, Pio's boxes), a death back in The Field West of Amherst, The Green Relaxer sat on at low HP where the
+  respawn left the player, Rain's quizzes, Sid, Lucy (an Orange after a Nimble Feet cast), the maps around Amherst and
+  the six forest maps, the last turn-ins, the quest hat and knife, Pan again, the boarding level and fare, and
+  Shanks. Each step is checked done in `d.carry["steps_done"]`, so a phase resumes at the first step not done; every
+  step reads the live game state (quest status, inventory), so a restart in the middle of a step resumes it.
+- **Quests** are played by `PlaytestQuestRunner` with the canonical checks of the every-quest set
+  (`mid_reload_policy` "listed": the process restarts in the middle of 1009 and of 1012).
+- **Restarts:** after Mushroom Town (plus an in-process Save, Quit to Title and Continue), after Southperry, in the
+  middle of 1009 and of 1012, after Amherst, before boarding and after the departure screen. After each Continue the
+  character is compared with what was saved (level, EXP, mesos, AP, SP, skills, bag, equipment, quests, map, play
+  time).
+- **What the scenario decides, and nothing else:** the route; the AP split (`AP_PLAN`, STR and DEX); the SP order
+  (one point in each Beginner skill, then round the three); what it buys (Pan: Leather Sandals, Sid: a Sword, Lucy:
+  two Red Potions; a buy it cannot afford is tried, refused and retried on a later visit) and sells (loot no open quest
+  needs, keeping 6 Snail Shells for Three Snails); the death. Prices, rewards, levels, the route's fare and level, the
+  death penalty and the return maps are read from canonical data.
+- **The death:** when no death has happened by then (after Pio), `let_monsters_win` walks into the Orange
+  Mushrooms, Red Snails and Shrooms of The Field West of Amherst without attacking or drinking until they win; the
+  notice's OK respawns the player at the map's canonical return map (Amherst), and the EXP lost is checked against
+  `formulas/death.json`. The respawn leaves the player at low HP, so the chair that follows shows its own bonus on
+  top of natural recovery (one interval seated: the bonus plus one or two natural ticks).
+- **The audit** (`k.track()` plus checkpoints) is in `d.carry`: `checkpoints`, `exp_by_source`, `kills_by_mob`,
+  `visited_maps`, `talked_to`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_used`, `skills_cast`, `shops`,
+  `equipped`, `chair`, `departure`, `quest_evidence`, `findings` and `totals`. The end of the run checks every
+  Definition of Done "Gameplay" item from them (every quest, map, NPC and monster type, monster drops and meso bags,
+  natural levelling, every AP spent, the skills, the three shops bought from and sold to, consumables, gear, the
+  chair, the death, the departure, the restarts).
+- **Findings:** a step that cannot be completed stops the run with a failed check and a row in `d.carry["findings"]`
+  (the step, map, map-local position, level, what happened and what was expected).
+
+```bash
+PLAYTEST_TIMEOUT_S=7500 ISOLATE=pt bash scripts/playtest.sh playthrough --seed 2 --max-wall-s 7000 --out _scratch/pt/s2
+```
 
 ## Cost
 
@@ -500,7 +575,8 @@ skips it; `playtest_quests.sh` does that for every chain after a worker's first)
 | `quest --quest 1002` | 45-60 s (3 phases) | 9-13 s | 5x |
 | `quest --quest 1006,1009,1010` | 610 s (6 phases) | 94-147 s | 4-6.5x |
 | `quest --quest 1011` | 1020-1035 s (3 phases) | 175-230 s | 4.5-6x |
-| `playtest_quests.sh --jobs 3` (all 9 chains) | about 2400 s summed | 8-10 min | |
+| `playtest_quests.sh --jobs 3` (all 9 chains) | 2040-2230 s summed | about 6 min (5-6 min with two playthroughs running beside it) | |
+| `playthrough` (creation to Shanks, 8 phases) | 2200-2540 s | 316-359 s (three seeds in parallel) | 7x |
 
 Wall times grow with the machine's load (the ranges are two runs, the slower one beside other agents' Godot runs).
 
@@ -514,7 +590,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
 | `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
 | `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
-| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery's key, the Wooden Box in the store. The chair and box checks WARN until the mechanics and breakables packages land; `cast_skill` stays a WARN here (no Skills window to learn and bind a skill with; `test_skills` casts through it) | harness |
+| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store | harness |
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
@@ -526,12 +602,26 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload | harness |
 | `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling | harness |
 | `test_feel_*` | the movement, camera, ledge, gate and route feel reviews (`test_feel_common` is their library) | harness |
+| `playthrough` | the clean-character playthrough: creation to Shanks' departure boundary, strict from the step after character creation (see "The clean-character playthrough") | harness |
+| `npc_shanks` | Shanks' departure boundary: refused below level 7 and without the fare, the guide's sentence and the unfinished quests, Yes -> End of Maple Island (no voyage, no fare taken, the flag set), Space ignored, Enter and Esc close it, the flag survives a reload (setup: warp, level, mesos) | harness (from quests) |
+| `npc_bubbles` | NPC speech bubbles in Amherst: every text one of the NPC's canonical idle lines, none while talking (strict after the setup warp) | harness (from quests) |
 | `regen` | natural HP recovery in the real game | mechanics |
 | `trap_probe` | escape attempts from known former trap spots | world |
 | `test_skills`, `test_box` | the Beginner skills and the Wooden Boxes (Iteration Three packages) | skills, breakables |
+| `test_b_population` | the monster population of all 15 hunting maps | monsters |
+| `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
+| `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2 | UI |
 
 ## Findings (2026-10-05)
 
+- **Iteration Three playthrough package (the harness defects its runs found, all fixed):** the survival guard spun
+  on a monster it could not reach (seed 2 of 1006: 24 interrupts in 2 s; `shun()`); `break_box` walked up to a box
+  at the foot of a terrace from the terrace above and whiffed 40 times (Amherst 000001010:0; test_box's tier-aware
+  approach and the next-box fallback); Three Snails walked toward a Snail on a ledge and never threw (`throw_at` stops
+  only when level with the target, `same_tier_monster()`); `let_monsters_win` stopped 0.75 m short of every monster
+  (now the last step is straight at it); a run continued with `--resume` from a copy wrote its report into the
+  original `--out` (the runner now writes where it is told). Details and the one open game observation (a Continue
+  just past a trail gate logs a resume-point warning): [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) "Findings".
 - **A trap in The Field West of Amherst (000001000), confirmed.** Test C's hunter (seed 1, final harness) ended phase
   1 at map-local (62.5, 0.0, -37.5), world (196.9, 5.0, 541.9), below terraces 4-9 m up; the Continue of phase 2
   resumed it there, and in the whole phase it reached none of 393 targets ("phase 2: every kill gave its canonical
@@ -584,7 +674,7 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 | File | Covers |
 |---|---|
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
-| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios and the kit make no cheat call, and the scan flags a synthetic scenario's service calls, teleport, AP write and console call outside `_setup*` |
+| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios (quest, playthrough, npc_bubbles), the kit and the quest runner make no cheat call, and the scan flags a synthetic scenario's service calls, teleport, AP write and console call outside `_setup*` |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
 | `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |

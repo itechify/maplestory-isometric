@@ -312,7 +312,8 @@ static func best_source(sources: Array, near_map: String, db: ContentDB) -> Dict
 
 
 ## The entry of `item_id` in one drop table with the runtime's chance: {"chance", "chance_state", "quest_gate",
-## "schema"}; {} when the table does not list the item.
+## "schema", "key" (schema v2: the entry's stable slug, the parity key drop:<owner>/<key>)}; {} when the table does not
+## list the item.
 static func _source_row(owner: String, table: Dictionary, item_id: String, db: ContentDB) -> Dictionary:
 	if int(table.get("schema_version", 1)) >= 2:
 		for e: Variant in table.get("entries", []):
@@ -321,7 +322,8 @@ static func _source_row(owner: String, table: Dictionary, item_id: String, db: C
 			var resolved := String(e.get("chance_state", "")) == "resolved" and e.get("probability") != null
 			var gate: Variant = e.get("quest_gate")
 			return {"chance": float(e["probability"]) if resolved else null, "chance_state": String(e.get("chance_state", "")),
-				"quest_gate": String((gate as Dictionary).get("quest_id", "")) if gate is Dictionary else "", "schema": 2}
+				"quest_gate": String((gate as Dictionary).get("quest_id", "")) if gate is Dictionary else "", "schema": 2,
+				"key": String(e.get("key", ""))}
 		return {}
 	var listed := false
 	for e: Variant in table.get("entries", []):

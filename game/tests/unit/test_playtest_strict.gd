@@ -7,6 +7,8 @@ extends TestCase
 
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const KIT := "res://tools/playtest/playtest_kit.gd"
+## The quest runner the strict scenarios (quest, playthrough) play their quests through: scanned like the kit.
+const QUEST_RUNNER := "res://tools/playtest/playtest_quest_runner.gd"
 ## Calls a strict scenario (or the kit) may never make: teleports, the developer console behind the driver's back,
 ## and direct writes to the character or its services. The game's own services announce what they change on the
 ## event bus, so PlaytestLedger cannot tell a service call from play (and it does not cover AP, SP, stats, HP, skills
@@ -145,7 +147,7 @@ func test_ledger_explains_service_changes_and_flags_direct_writes() -> void:
 
 
 func test_strict_scenarios_and_the_kit_make_no_cheat_calls() -> void:
-	var files := PackedStringArray([KIT])
+	var files := PackedStringArray([KIT, QUEST_RUNNER])
 	var strict_n := 0
 	for f in DirAccess.get_files_at(SCENARIO_DIR):
 		if not f.ends_with(".gd"):

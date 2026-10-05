@@ -200,13 +200,14 @@ func _phase0(d: PlaytestDriver) -> void:
 	await _equip_section(d, top, bottom)
 	await _dropped_equipment_section(d, [top, bottom])
 
-	# Observation (not Test D): standing still in town with HP below the maximum. recovery.json natural_regeneration
-	# states that HP slowly recovers out of combat (no values published).
+	# Observation (not Test D): standing still in town with HP below the maximum. Natural recovery is the project
+	# owner's rule (misostory/recovery.json natural_hp: 10 HP per 10 s of standing still or sitting; MeowDB publishes
+	# no rate), so 60 s still must heal.
 	var hp_a := d.character().hp
 	var max_a := StatCalculator.max_hp(d.character(), db)
 	if hp_a < max_a:
 		await d.wait(60.0)
-		d.soft_check("HP recovers while standing still out of combat (canonical statement, no published rate)",
+		d.soft_check("HP recovers while standing still (natural recovery, misostory/recovery.json natural_hp)",
 			d.character().hp > hp_a, "HP %d / %d before and %d / %d after 60 s standing in %s" % [hp_a, max_a, d.character().hp,
 				StatCalculator.max_hp(d.character(), db), d.current_map()])
 	else:
