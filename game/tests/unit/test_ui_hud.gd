@@ -549,6 +549,47 @@ func test_reparenting_keeps_the_hud_listening() -> void:
 	assert_eq(h.status.hp_gauge.value_label.text, "9 / 50", "listening again after re-entering the tree")
 
 
+## Active timed effects are visible (a UI adaptation: a buff showed nowhere but its quickslot's cooldown): one icon per
+## effect at the top right with the time left, the name and level in the tooltip, a sweep that grows as it runs out;
+## it counts down without events, and an ended effect's icon goes on effects_changed.
+func test_active_effects_show_with_their_time_left() -> void:
+	var c := _character()
+	var h := _hud(c)
+	assert_eq(h.effects.snapshot(), [], "no effect, no icon")
+	var feet := SkillDef.of("0001002", db())
+	var recovery := SkillDef.of("0001001", db())
+	EffectBook.add(c, "skill:0001002", "skill:0001002", 75.0, {"skill_id": "0001002", "level": 3, "duration_s": 100.0})
+	EffectBook.add(c, "skill:0001001", "skill:0001001", 30.0, {"skill_id": "0001001", "level": 1, "duration_s": 30.0})
+	bus.emit_signal("effects_changed")
+	var shown := h.effects.snapshot()
+	assert_eq(shown.size(), 2, "two icons")
+	if shown.size() == 2:
+		assert_eq([shown[0].skill_id, shown[1].skill_id], ["0001002", "0001001"], "in the order they were cast")
+		assert_eq(String(shown[0].name), feet.name, "the canonical skill name")
+		assert_eq(String(shown[0].time), "1:15", "75 s left")
+		assert_eq(String(shown[1].time), "30s", "30 s left")
+		assert_true(String(shown[0].tooltip).contains("%s  Lv. 3" % feet.name), String(shown[0].tooltip))
+		assert_true(String(shown[1].tooltip).contains(recovery.name), String(shown[1].tooltip))
+		assert_near(float(shown[0].sweep), 0.25, 1e-4, "a quarter of Nimble Feet has run")
+		assert_near(float(shown[1].sweep), 0.0, 1e-4, "Recovery just cast")
+	# Remaining time counts down every tick without an event: the row follows on its own.
+	(EffectBook.find(c, "skill:0001002") as Dictionary)["remaining_s"] = 9.2
+	h.effects._process(MisoEffectsBar.REDRAW_S)
+	assert_eq(String(h.effects.snapshot()[0].time), "10s", "rounded up")
+	EffectBook.remove(c, "skill:0001001")
+	bus.emit_signal("effects_changed")
+	assert_eq(h.effects.snapshot().size(), 1, "the ended effect's icon is gone")
+	# A loaded character brings its own effects (game_loaded redraws everything).
+	var other := _character()
+	EffectBook.add(other, "skill:0001001", "skill:0001001", 12.0, {"skill_id": "0001001", "level": 2, "duration_s": 30.0})
+	h.configure(MisoUiEnv.isolated(other, db(), bus))
+	assert_eq(h.effects.snapshot().size(), 1)
+	assert_eq(String(h.effects.snapshot()[0].skill_id), "0001001", "the loaded character's effect")
+	assert_eq(MisoEffectsBar.time_text(0.2), "1s")
+	assert_eq(MisoEffectsBar.time_text(60.0), "1:00")
+	assert_eq(MisoEffectsBar.time_text(0.0), "0s")
+
+
 func test_without_character_or_content_nothing_breaks() -> void:
 	var h := MisoHud.new()
 	h.configure(MisoUiEnv.isolated(null, null, bus))

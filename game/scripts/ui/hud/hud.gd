@@ -8,7 +8,8 @@ extends Control
 ##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
 ##     level-up the unspent AP and SP;
 ##   - level-up flourish;
-##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots).
+##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots);
+##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left.
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
 ## inventory_changed, equipment_changed, game_loaded (plus Game.character_replaced); values are read from the live
 ## character (re-resolved every time, never cached). Between Events.player_died and Events.player_respawned the HP
@@ -43,8 +44,11 @@ const BUS_HANDLERS := {
 	"player_respawned": "_on_player_respawned",
 	"notice": "_on_notice",
 	"game_loaded": "_on_game_loaded",
+	"effects_changed": "_on_effects_changed",
 }
 const LOG_WIDTH := 560.0
+## Inset of the effects row from the top-right corner (presentation).
+const EFFECTS_MARGIN := 12.0
 
 var env: MisoUiEnv = null
 var status: MisoStatusBar
@@ -52,6 +56,7 @@ var log_panel: MisoNoticeLog
 var banner: MisoMapBanner
 var flourish: MisoLevelUpFlourish
 var tooltip: MisoItemTooltip
+var effects: MisoEffectsBar
 ## True between Events.player_died and Events.player_respawned (or a Game.character_replaced after which the game no
 ## longer says dead): the HP gauge then reads 0 whatever HP the character holds (the death commit sets the respawn HP
 ## while the death notice is up).
@@ -87,6 +92,13 @@ func _init() -> void:
 
 	banner = MisoMapBanner.new()
 	add_child(banner)
+	effects = MisoEffectsBar.new()
+	effects.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	effects.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	effects.offset_left = -EFFECTS_MARGIN
+	effects.offset_right = -EFFECTS_MARGIN
+	effects.offset_top = EFFECTS_MARGIN
+	add_child(effects)
 	flourish = MisoLevelUpFlourish.new()
 	add_child(flourish)
 	tooltip = MisoItemTooltip.new()
@@ -122,6 +134,7 @@ func configure(e: MisoUiEnv) -> void:
 	_unbind()
 	env = e
 	status.quickslots.env = e
+	effects.env = e
 	dead = e != null and e.is_character_dead(false)
 	_bind()
 	_snapshot_quests()
@@ -142,6 +155,7 @@ func refresh_all() -> void:
 		status.set_ap(0)
 		status.set_sp(0)  # skills package hook (Iteration Three): the SP badge
 		status.quickslots.refresh()
+		effects.refresh()
 		return
 	status.set_identity(c.level, c.name, env.job_name(c))
 	_show_hp(c.hp, StatCalculator.max_hp(c, db))
@@ -151,6 +165,7 @@ func refresh_all() -> void:
 	status.set_ap(c.ap)
 	status.set_sp(c.sp)  # skills package hook (Iteration Three): the SP badge
 	status.quickslots.refresh()
+	effects.refresh()
 
 
 ## MisoQuickslots group hook.
@@ -254,6 +269,10 @@ func _on_mesos_changed(mesos: int, delta: int) -> void:
 
 func _on_stats_changed() -> void:
 	refresh_all()
+
+
+func _on_effects_changed() -> void:
+	effects.refresh()
 
 
 func _on_inventory_changed() -> void:
