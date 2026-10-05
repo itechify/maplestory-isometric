@@ -5,7 +5,8 @@ extends Control
 ##     mesos; buttons that open the character windows; the quickslot bar;
 ##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
 ##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
-##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices;
+##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
+##     level-up the unspent AP and SP;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
@@ -235,6 +236,10 @@ func _on_leveled_up(new_level: int) -> void:
 	if c != null and c.ap > 0:
 		var key := MisoUiEnv.key_label("toggle_stats")
 		log_panel.add_line("You have %d AP to distribute%s." % [c.ap, " (press %s)" % key if key != "" else ""], "info")
+	# SP (canonical beginner.json sp, granted by Progression) was shown only by the debug `char` command.
+	if c != null and c.sp > 0:
+		var skill_key := MisoUiEnv.key_label("toggle_skills")
+		log_panel.add_line("You have %d SP to distribute%s." % [c.sp, " (press %s)" % skill_key if skill_key != "" else ""], "info")
 
 
 func _on_mesos_changed(mesos: int, delta: int) -> void:
