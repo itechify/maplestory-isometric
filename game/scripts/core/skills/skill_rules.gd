@@ -20,9 +20,13 @@ var recovery_tick_s: float = 0.0
 var buff_lockout_s: float = 0.0
 ## Three Snails: a cast with no target still spends the shell and MP (three_snails.whiff_consumes_costs).
 var whiff_consumes_costs: bool = true
-## Three Snails: walls and platforms block the search (three_snails.terrain_check). Only false is supported: no such
-## test exists, so true is reported in `errors` and read as false.
+## Three Snails: terrain and buildings block the throw (three_snails.terrain_check, the owner's rule in #6): the target
+## is the nearest monster in the band with a clear line from the player (SkillSight), and a shell with no such target
+## flies until a wall or its range ends.
 var terrain_check: bool = false
+## Three Snails: the prop-hull objects that still block a throw (buildings and terrain pieces the export cuts into
+## prisms; three_snails.sight_blocking_hulls, SkillSight.blocks). Every other prop hull is passed through.
+var sight_blocking_hulls: PackedStringArray = []
 ## Three Snails presentation: the shell's flight speed (m/s) and size (m); 0 = no projectile drawn.
 var projectile_speed_mps: float = 0.0
 var projectile_size_m: float = 0.0
@@ -78,11 +82,7 @@ func _read(table: Variant) -> void:
 	var snails := _section(t, "three_snails")
 	whiff_consumes_costs = _flag(snails, "three_snails", "whiff_consumes_costs", true)
 	terrain_check = _flag(snails, "three_snails", "terrain_check", false)
-	if terrain_check:
-		# Recorded so the choice is visible, but there is no wall/platform test to switch on (canonical: "not
-		# confirmed"). A true value would silently do nothing, so it is an error and the search stays unblocked.
-		_fail("three_snails.terrain_check true is not supported: no wall or platform test exists")
-		terrain_check = false
+	sight_blocking_hulls = _names(snails, "three_snails", "sight_blocking_hulls") if terrain_check else PackedStringArray()
 	projectile_speed_mps = _num(snails, "three_snails", "projectile_speed_mps", 0.0)
 	projectile_size_m = _num(snails, "three_snails", "projectile_size_m", 0.0)
 	var death := _section(t, "effects_on_death")
@@ -116,6 +116,24 @@ func _flag(section: Dictionary, name: String, key: String, off: bool) -> bool:
 		return v
 	_fail("%s.%s must be true or false" % [name, key])
 	return off
+
+
+## A list of non-empty strings; anything else is an error and reads as the empty list.
+func _names(section: Dictionary, name: String, key: String) -> PackedStringArray:
+	if section.is_empty():
+		return PackedStringArray()
+	var v: Variant = section.get(key, null)
+	var out := PackedStringArray()
+	if v is Array:
+		for e in v:
+			if not (e is String) or String(e) == "":
+				out = PackedStringArray()
+				break
+			out.append(e)
+		if out.size() == (v as Array).size():
+			return out
+	_fail("%s.%s must be a list of non-empty names" % [name, key])
+	return PackedStringArray()
 
 
 func _fail(msg: String) -> void:

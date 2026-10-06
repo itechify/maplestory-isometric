@@ -27,6 +27,7 @@ described in [`../canonical/oracles.md`](../canonical/oracles.md).
 | `SkillDef` (`scripts/core/skills/skill_def.gd`) | one skill's canonical record (`formulas/<class>.json skills[]`) joined with its timing row (`attack_speed.json`) and search band (`attack_styles.json`) by `skill_id`; `SkillDef.catalog(job, db)` |
 | `SkillBook` (`skills/skill_book.gd`) | SP spending (`learn`: one SP per level, max level, prerequisites, no refunds) and `check_cast` (learned, cast position, cooldown, MP, shell) |
 | `SkillTargeting` (`skills/skill_targeting.gd`) | the stepped forward search band of a projectile skill and its nearest-first pick |
+| `SkillSight` (`scripts/actors/combat/skill_sight.gd`) | the line-of-sight ray of a thrown skill: terrain and buildings block, props do not (#6) |
 | `SkillRules` (`skills/skill_rules.gd`) | the `misostory/skills.json` gaps, cached per `ContentDB` |
 | `EffectBook` (`scripts/core/character/effect_book.gd`) | timed effects and cooldowns as remaining seconds on `CharacterState` (add, tick, heal-over-time ticks, cooldowns) |
 
@@ -189,6 +190,18 @@ boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across
 isometric_reach`). The 50 px start is the canonical choice over the targeting tab's 65 px (`attack_styles.json
 discrepancies`).
 
+**Walls** (`SkillSight`, `scripts/actors/combat/skill_sight.gd`; `skills.json three_snails.terrain_check`, the
+owner's rule in #6). MeowDB does not confirm the skill's wall and platform behaviour (a source-data gap). The hit is
+still decided at the moment of the throw, by a ray from the 28 px aim line above the player's feet to the target's
+body centre: the target is the nearest monster in the band with a clear line, so a nearer monster behind a wall is
+skipped. Only terrain and buildings block: the export's `Ground` and `Walls` trimeshes, the island's scenery, and the
+prop hulls (`<object>_hull<k>`) of the objects listed in `three_snails.sight_blocking_hulls` (houses, shops, towers,
+portal doors, plinth outcrops; the kit's `house`, `shed`, `facade` and `portal_door` tags). Every other prop hull
+(crates, fences, lamps, signs, trees), monsters (their own layer), Wooden Boxes (no body) and the containment rings
+are passed through. With no monster on a clear line the shell flies straight ahead until the first wall or its
+300 px reach (`PlayerSkills.shell_end`, `last_shell_to`), and the shell and the MP are spent. The basic attack tests
+no walls.
+
 **Runtime.** `PlayerSkills` (`scripts/actors/combat/player_skills.gd`) and `EffectTicker`
 (`actors/combat/effect_ticker.gd`) are children of the player, made by its `PlayerCombat` (`ensure_skill_nodes`).
 `PlayerSkills.cast(id)` checks that the player can act (alive, input enabled, no hit-stun, no attack or cast in
@@ -216,11 +229,11 @@ and a malformed entry from an older save is dropped. At death the skill effects 
 |---|---|---|
 | `recovery_heal` | equal ticks every 5 s (6 ticks; floor-difference split when a total does not divide) | MeowDB gives only the 30 s total ("Timing unavailable" for the tick) |
 | `buff_cast` | lockout 0 s for Recovery and Nimble Feet | their pages say "Timing unavailable"; zero is recorded as a choice, not a fact |
-| `three_snails` | a whiff still spends the shell and MP; no wall or platform check; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill"; no projectile speed is published |
+| `three_snails` | a whiff still spends the shell and MP; terrain and buildings block the throw (`terrain_check`, `sight_blocking_hulls`; #6), props, monsters and boxes do not; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill" (a source-data gap; the wall rule is the owner's); no projectile speed is published |
 | `effects_on_death` | skill effects end at death, cooldowns keep running | undocumented |
 
-`SkillRules` reads `three_snails.terrain_check` but only accepts `false` (no wall or platform test exists; `true` is
-reported as an error). The debug console's `cast` command casts past the input hold of the open console itself
+`SkillRules` reads `three_snails.terrain_check` (true: the wall test of #6; false: no wall test) and, when it is on,
+`sight_blocking_hulls` (a malformed list is an error and reads as empty). The debug console's `cast` command casts past the input hold of the open console itself
 (`PlayerSkills.cast(id, true)`); every other refusal still applies.
 
 ## Canonical sources used
@@ -290,7 +303,7 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_progression_exp.gd` | thresholds, single/multiple level-ups, the cap, AP/SP, HP/MP growth to level 11, allocation, death penalty |
 | `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
 | `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
-| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only, never a Wooden Box (#5); Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
+| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only, never a Wooden Box (#5); walls (#6): the nearer monster behind a wall skipped, a whiff's shell stopped at the wall, monsters, boxes and props on the line passed through, `SkillSight`'s rules, the basic attack through a wall unchanged; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits

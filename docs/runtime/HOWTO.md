@@ -78,7 +78,9 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
   key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
-  skill level).
+  skill level). It hits the nearest monster in front of you that no wall stands before: terrain and buildings stop
+  the shell, props, monsters and Wooden Boxes do not, and a throw with no such monster still spends the shell and the
+  MP (the owner's rulings in #5 and #6).
 - **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
   (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
   have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up. While you sit, the HUD
