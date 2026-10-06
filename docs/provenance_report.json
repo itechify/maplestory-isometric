@@ -17515,9 +17515,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].change_notes",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17526,9 +17531,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_subtype",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17537,9 +17547,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_type",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17548,9 +17563,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].max_per_stack",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17559,9 +17579,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].name",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17570,9 +17595,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].other_change_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17592,9 +17622,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].recharge_cost_mesos_per_unit",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17603,9 +17638,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].rechargeable",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17614,9 +17654,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_basis",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17625,9 +17670,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17636,10 +17686,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_mesos",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}",
-            "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         },
@@ -17648,9 +17702,14 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_source",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/270",
+            "https://meowdb.com/msclassic/item-db/271",
+            "https://meowdb.com/msclassic/item-db/236",
+            "https://meowdb.com/msclassic/item-db/237",
+            "https://meowdb.com/msclassic/item-db/239",
+            "https://meowdb.com/msclassic/item-db/269"
           ],
           "via": "field_sources"
         }
@@ -17683,9 +17742,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].change_notes",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17694,9 +17765,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_subtype",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17705,9 +17788,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_type",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17716,9 +17811,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].max_per_stack",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17727,9 +17834,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].name",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17738,9 +17857,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].other_change_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17760,9 +17891,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].recharge_cost_mesos_per_unit",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17771,9 +17914,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].rechargeable",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17782,9 +17937,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_basis",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17793,9 +17960,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         },
@@ -17804,10 +17983,34 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_mesos",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}",
-            "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306",
+            "https://meowdb.com/msclassic/api/items/933?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/934?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/935?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/937?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/938?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/939?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/940?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1157?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1158?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1160?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1161?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1305?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/1306?locale=en&preview=1"
           ],
           "via": "field_sources"
         },
@@ -17816,9 +18019,21 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_source",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/933",
+            "https://meowdb.com/msclassic/item-db/934",
+            "https://meowdb.com/msclassic/item-db/935",
+            "https://meowdb.com/msclassic/item-db/937",
+            "https://meowdb.com/msclassic/item-db/938",
+            "https://meowdb.com/msclassic/item-db/939",
+            "https://meowdb.com/msclassic/item-db/940",
+            "https://meowdb.com/msclassic/item-db/1157",
+            "https://meowdb.com/msclassic/item-db/1158",
+            "https://meowdb.com/msclassic/item-db/1160",
+            "https://meowdb.com/msclassic/item-db/1161",
+            "https://meowdb.com/msclassic/item-db/1305",
+            "https://meowdb.com/msclassic/item-db/1306"
           ],
           "via": "field_sources"
         }
@@ -17851,9 +18066,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].change_notes",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17862,9 +18080,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_subtype",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17873,9 +18094,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].item_type",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17884,9 +18108,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].max_per_stack",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17895,9 +18122,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].name",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17906,9 +18136,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].other_change_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17928,9 +18161,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].recharge_cost_mesos_per_unit",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17939,9 +18175,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].rechargeable",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17950,9 +18189,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_basis",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17961,9 +18203,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_history",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         },
@@ -17972,10 +18217,15 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_mesos",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}",
-            "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558",
+            "https://meowdb.com/msclassic/api/items/541?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+            "https://meowdb.com/msclassic/api/items/585?locale=en&preview=1"
           ],
           "via": "field_sources"
         },
@@ -17984,9 +18234,12 @@
           "capture": null,
           "decision": null,
           "property": "items[].sell_price_source",
-          "read_at": "per item: items[].item_page.retrieved_at",
+          "read_at": null,
           "urls": [
-            "https://meowdb.com/msclassic/item-db/{item_id}"
+            "https://meowdb.com/msclassic/item-db/541",
+            "https://meowdb.com/msclassic/item-db/576",
+            "https://meowdb.com/msclassic/item-db/585",
+            "https://meowdb.com/msclassic/item-db/558"
           ],
           "via": "field_sources"
         }

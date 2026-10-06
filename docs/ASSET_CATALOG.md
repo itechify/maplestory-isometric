@@ -49,7 +49,7 @@
 | Foliage | `Bush_A` | 1.4 | bush |  |
 | Foliage | `Bush_B` | 2.0 | bush |  |
 | Foliage | `Bush_C` | 0.9 | bush |  |
-| Foliage | `Bush_Flowering_A` | 1.6 | bush |  |
+| Foliage | `Bush_Flowering_A` | 1.6 | bush, passable |  |
 | Foliage | `Butterfly` | 0.2 | flower | Hovering butterfly, big enough to read at map scale (0.35 m wings, 1.45 m up). |
 | Foliage | `Butterfly_Pink` | 0.4 | flower | A visible (0.35 m) pink butterfly with white spots hovering 1.45 m up. |
 | Foliage | `Butterfly_Yellow` | 0.4 | flower | A visible (0.35 m) yellow butterfly with orange spots hovering 1.45 m up. |
@@ -87,6 +87,7 @@
 | Monsters | `Mob_RedSnail` | 1.05 | mob | Red Snail (130101): the Blue Snail sprite with a crimson shell. |
 | Monsters | `Mob_Shroom` | 0.8 | mob | Shroom (120100): red-orange spotted cap over a tan face-stem with an angry, lopsided face. |
 | Monsters | `Mob_Snail` | 1.0 | mob | Snail (100100): low pale-lavender slug, single sleepy eye on a raised head, teal shell. |
+| Monsters | `Mob_TutorialJrSentinel` | 0.6 | mob | Tutorial Jr. Sentinel (MeowDB monster 1, East Entrance to Mushroom Town): MeowDB calls it 'a training dummy |
 | Props | `Anchor` | 1.2 | prop, port |  |
 | Props | `Armor_Stand` | 1.0 | interior |  |
 | Props | `Barrel` | 0.9 | prop |  |
@@ -149,4 +150,4 @@
 | Trees | `Tree_Sapling_A` | 1.2 | tree, small |  |
 | Trees | `Tree_Tall_A` | 3.0 | tree | Tall tree with two canopy tiers (forest maps). |
 
-Monster names for `m.mobs(name, ...)`: `Snail`, `Blue Snail`, `Red Snail`, `Shroom`, `Spore`, `Orange Mushroom`
+Monster names for `m.mobs(name, ...)`: `Tutorial Jr. Sentinel`, `Snail`, `Blue Snail`, `Red Snail`, `Shroom`, `Spore`, `Orange Mushroom`
