@@ -14,7 +14,9 @@ extends Node3D
 ## feet), and `depth_px` deep across it, centred on the facing line (combat.json isometric_reach.attack_box_depth_px,
 ## the isometric depth the hit test uses; MonsterSystem sets it). A monster is hit when its touch zone overlaps that
 ## box, so a slash that reaches a monster beside the facing line is seen to reach it. The footprint fades with the
-## effect; it never changes what is hit.
+## effect; it never changes what is hit. It is drawn without the depth test (#13): a slope rising ahead, a step or a
+## ledge, a bush or the grass would otherwise hide the part of the flat box that lies below them. It reads the
+## player's stencil (PlayerVisual.STENCIL_REF) and skips the player's visible pixels, so it never paints over the body.
 
 ## Presentation constants: lifetimes (s), colours and shapes.
 const SWING_LIFE_S := 0.28
@@ -30,6 +32,9 @@ const REACH_FILL := Color(1.0, 0.96, 0.8, 0.16)
 const REACH_RIM := Color(1.0, 0.96, 0.8, 0.55)
 const REACH_RIM_M := 0.045
 const REACH_LIFT_M := 0.03
+## Transparent-pass order of the footprint: after the world's transparent meshes, before the hit bursts (8) and the
+## player's X-ray fill (PlayerVisual.FILL_PRIORITY).
+const REACH_PRIORITY := 4
 ## The slash plane is tilted this far from vertical about the facing axis, so it reads from the isometric camera in
 ## every facing (a vertical arc is edge-on when the player faces toward or away from the camera).
 const SLASH_TILT_DEG := 55.0
@@ -81,9 +86,7 @@ func _reach(feet: Vector3, facing: Vector3, box_px: Rect2, life: float) -> MeshI
 	var mi := MeshInstance3D.new()
 	mi.name = "Reach"
 	mi.mesh = mesh
-	var mat := fx_material(false, false)
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
-	mi.material_override = mat
+	mi.material_override = reach_material()
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(mi)
 	var f := _flat(facing)
@@ -179,6 +182,20 @@ static func fx_material(billboard: bool, no_depth: bool) -> StandardMaterial3D:
 	if billboard:
 		m.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 		m.billboard_keep_scale = true
+	return m
+
+
+## The footprint's material: alpha-blended vertex colours with no depth test, so the ground, a slope, a step or a
+## ledge never hides part of it, and a stencil read that leaves out the player's visible pixels (PlayerVisual writes
+## STENCIL_REF there), so it shows around the body and never over it.
+static func reach_material() -> StandardMaterial3D:
+	var m := fx_material(false, true)
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	m.render_priority = REACH_PRIORITY
+	m.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	m.stencil_flags = BaseMaterial3D.STENCIL_FLAG_READ
+	m.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_NOT_EQUAL
+	m.stencil_reference = PlayerVisual.STENCIL_REF
 	return m
 
 
