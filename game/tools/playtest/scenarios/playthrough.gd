@@ -670,6 +670,18 @@ func _shop(npc: String, map_id: String, buys: Array, visit: String) -> bool:
 	if not d.check("talking to %s opens the shop" % k.npc_name(npc), await k.open_shop(npc), "", ["npc:" + npc]):
 		_finding("shop", "%s's shop did not open" % k.npc_name(npc), "talking to a shopkeeper opens the shop")
 		return false
+	# No NPC speech bubble over (or under) the open shop window (the acceptance review saw Lucy's cut off by it).
+	await d.wait(0.2)
+	var talking := PackedStringArray()
+	var presenters: Variant = d.interaction().get("presenters") if d.interaction() != null else null
+	if presenters is Dictionary:
+		for id: String in presenters:
+			var p: Variant = presenters[id]
+			if p is NpcPresenter and is_instance_valid(p) and (p as NpcPresenter).bubble != null \
+					and (p as NpcPresenter).bubble.visible:
+				talking.append(k.npc_name(id))
+	d.check("no NPC speech bubble shows while %s's shop is open" % k.npc_name(npc), talking.is_empty(), ", ".join(talking))
+	await k.shot("shop_" + k.npc_name(npc).to_lower())
 	var c := d.character()
 	var shop_id := String(d.shop().get("shop_id"))
 	var row: Dictionary = (d.carry.get("shops", {}) as Dictionary).get(npc, {"bought": [], "sold": [], "refused": []})
@@ -771,6 +783,12 @@ func _chair() -> bool:
 	var still := k.activity() == &"seated"
 	d.check("seated for %.0f s: still seated, HP %d -> %d of %d" % [seated_s, hp0, c.hp, mx], still,
 		"activity %s" % k.activity(), ["chair:" + CHAIR, "mechanic:sitting"])
+	# What a player sees: the HUD's seated cue above the HP gauge names the chair's bonus (the chair itself, green on
+	# grass, is easy to miss).
+	var cue := String((d.hud() as MisoHud).status.seat_label.text)
+	d.check("while seated the HUD's cue shows the chair's +%d HP" % bonus, cue.begins_with("Seated") and cue.contains("+%d HP" % bonus),
+		cue, ["chair:" + CHAIR, "mechanic:sitting"])
+	await k.shot("seated_on_the_green_relaxer")
 	# One interval seated: the chair's own clock starts at the sit (one bonus tick), natural recovery's clock is the
 	# saved one (one or two ticks of misostory/recovery.json natural_hp in 11 s). With room for all of it, HP rises by
 	# the bonus plus one or two natural ticks; otherwise it reaches Max HP.
@@ -789,6 +807,8 @@ func _chair() -> bool:
 		d.note("HP was full (%d) when the player sat down: the chair's bonus had nothing to heal" % hp0)
 	var up: Dictionary = await k.stand()
 	d.check("a step stands the player up from the chair", bool(up["ok"]), str(up), ["mechanic:sitting"])
+	d.check("standing up clears the HUD's seated cue", not (d.hud() as MisoHud).status.is_seated_shown(),
+		String((d.hud() as MisoHud).status.seat_label.text), ["mechanic:sitting"])
 	var x: Dictionary = await k.sit()
 	d.check("X sits on the first chair the character owns", bool(x["ok"]), str(x), ["chair:" + CHAIR, "mechanic:sitting"])
 	var up2: Dictionary = await k.stand()

@@ -1482,6 +1482,9 @@ func talk_to(npc_id: String) -> Dictionary:
 	v["npc_distance_m"] = snappedf(npc_distance(npc), 0.01)
 	_end(i, ok, String(v.get("text", "")).left(80) + (" (reached over %d prop-top cells)" % props if props > 0 else "")
 		+ (" (after leaning in)" if leaned > 0 else "") + " [%.2f m from the NPC]" % npc_distance(npc))
+	if npc_distance(npc) < talk_min_gap() - 0.05:
+		soft_check("talking to %s: the bodies stay apart" % String(npc.get("npc_name") if "npc_name" in npc else npc_id), false,
+			"%.2f m between the feet (at least %.2f m keeps the bodies apart)" % [npc_distance(npc), talk_min_gap()])
 	return v
 
 

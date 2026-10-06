@@ -341,6 +341,12 @@ func _break_box(box: Node, stop_after: int = 0, walk_s: float = 25.0) -> Diction
 		var left := int(box.call("hits_left"))
 		var swings := int(pc.get("attacks"))
 		if d.phase == 0 and broken_rows.size() < 3 and int(out["swings"]) == 0 and stop_after == 0:
+			# The cues that set a Wooden Box apart from the decorative crates (BreakableSystem.update_cues): the rim
+			# while the swing can reach it, the marker while Pio's quest still needs its drops.
+			await d.wait(0.15)
+			d.check("box %s before the first swing: the reach rim and Pio's quest marker show" % key,
+				bool(box.get("in_reach")) and bool(box.get("wanted")), "in_reach %s, wanted %s" % [box.get("in_reach"),
+				box.get("wanted")], ["breakable:0000001"])
 			await d.screenshot("box_%d_before_hit" % (broken_rows.size() + 1))
 		await d.input.tap_action(&"attack")
 		if int(pc.get("attacks")) == swings:

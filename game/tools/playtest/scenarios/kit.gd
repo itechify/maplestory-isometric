@@ -87,8 +87,14 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("use_chair: a double-click on the chair in the Set-up tab seats the player (contracts C4/C5)",
 		bool(ch["ok"]), str(ch), ["chair:" + CHAIR])
 	if bool(ch["ok"]):
+		var cue := String((d.hud() as MisoHud).status.seat_label.text)
+		d.check("seated: the HUD's seated cue above the HP gauge says what sitting recovers", cue.begins_with("Seated")
+			and cue.contains("HP / "), cue, ["mechanic:sitting"])
+		await d.screenshot("seated_on_the_chair")
 		var up0: Dictionary = await k.stand()
 		d.check("stand: a step stands the player up from the chair", bool(up0["ok"]), str(up0), ["chair:" + CHAIR])
+		d.check("standing clears the seated cue", not (d.hud() as MisoHud).status.is_seated_shown(),
+			String((d.hud() as MisoHud).status.seat_label.text), ["mechanic:sitting"])
 	var st: Dictionary = await k.sit()
 	d.check("sit (X): seated on the first chair the character owns (contracts C4/C5)", bool(st["ok"]), str(st),
 		["chair:" + CHAIR])

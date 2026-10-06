@@ -441,6 +441,7 @@ func turn_in(qid: String) -> bool:
 		if not d.check("%s: %s can be talked to for the quiz" % [qid, p["end"]["npc_name"]], bool(tw.get("open", false)),
 				String(tw.get("why", "")), pq):
 			return false
+		await d.screenshot("quiz_%s_talk" % qid)
 		var cw: Dictionary = await k.converse({qid: "quiz_wrong"})
 		var aw: Dictionary = (cw["quiz"] as Array)[0] if not (cw["quiz"] as Array).is_empty() else {}
 		d.check("%s: the quiz '%s' is a menu of the canonical choices" % [qid, quiz["question"]], not aw.is_empty(),
