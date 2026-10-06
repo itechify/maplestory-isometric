@@ -27,6 +27,7 @@ described in [`../canonical/oracles.md`](../canonical/oracles.md).
 | `SkillDef` (`scripts/core/skills/skill_def.gd`) | one skill's canonical record (`formulas/<class>.json skills[]`) joined with its timing row (`attack_speed.json`) and search band (`attack_styles.json`) by `skill_id`; `SkillDef.catalog(job, db)` |
 | `SkillBook` (`skills/skill_book.gd`) | SP spending (`learn`: one SP per level, max level, prerequisites, no refunds) and `check_cast` (learned, cast position, cooldown, MP, shell) |
 | `SkillTargeting` (`skills/skill_targeting.gd`) | the stepped forward search band of a projectile skill and its nearest-first pick |
+| `SkillSight` (`scripts/actors/combat/skill_sight.gd`) | the line-of-sight ray of a thrown skill: terrain and buildings block, props do not (#6) |
 | `SkillRules` (`skills/skill_rules.gd`) | the `misostory/skills.json` gaps, cached per `ContentDB` |
 | `EffectBook` (`scripts/core/character/effect_book.gd`) | timed effects and cooldowns as remaining seconds on `CharacterState` (add, tick, heal-over-time ticks, cooldowns) |
 
@@ -180,14 +181,26 @@ it is never refunded, because MeowDB documents no way back.
 **Search band** (`SkillTargeting`, canonical `attack_styles.json three_snails_targeting` and `ranged_search_bands`): 20
 px bands from 50 px ahead to the 300 px reach; the band that starts d px ahead is centred 28 px above the feet with a
 half-height of `floor(d / 4)`, so the last band (290-300 px) reaches 100 px up and 44 px down, as MeowDB states. A
-monster whose canonical touch box overlaps a band qualifies, and so does an intact Wooden Box
-(`BreakableSystem.attack_candidates()`, kind `breakable`); the nearest of them is hit, one target per cast (projectile
-skills: "nearest monsters first"; one shell is one target), so a box in front shields a monster behind it. Bands are
-placed in 3D like basic-attack boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the
-facing (`combat.json isometric_reach`). A box the cast picks takes one landed hit through `BreakableSystem.land_hit`
-(source `skill:0001000`: no damage, no MISS), exactly like a swing; MeowDB says only that boxes break after 4 "basic
-attacks", so counting the skill is a MisoStory choice (`breakables.json hit_rule`, `verified: false`). The 50 px start
-is the canonical choice over the targeting tab's 65 px (`attack_styles.json discrepancies`).
+monster whose canonical touch box overlaps a band qualifies; the nearest is hit, one target per cast (projectile
+skills: "nearest monsters first"; one shell is one target). Wooden Boxes are never searched: MeowDB says only that
+boxes break after 4 "basic attacks", and the owner ruled that skills do not count as hits (`breakables.json hit_rule`,
+#5, `verified: false`). A box nearer than a monster does not shield it, and a cast with only a box in its band is a
+cast with no target (the shell and the MP are spent; the box takes no hit). Bands are placed in 3D like basic-attack
+boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the facing (`combat.json
+isometric_reach`). The 50 px start is the canonical choice over the targeting tab's 65 px (`attack_styles.json
+discrepancies`).
+
+**Walls** (`SkillSight`, `scripts/actors/combat/skill_sight.gd`; `skills.json three_snails.terrain_check`, the
+owner's rule in #6). MeowDB does not confirm the skill's wall and platform behaviour (a source-data gap). The hit is
+still decided at the moment of the throw, by a ray from the 28 px aim line above the player's feet to the target's
+body centre: the target is the nearest monster in the band with a clear line, so a nearer monster behind a wall is
+skipped. Only terrain and buildings block: the export's `Ground` and `Walls` trimeshes, the island's scenery, and the
+prop hulls (`<object>_hull<k>`) of the objects listed in `three_snails.sight_blocking_hulls` (houses, shops, towers,
+portal doors, plinth outcrops; the kit's `house`, `shed`, `facade` and `portal_door` tags). Every other prop hull
+(crates, fences, lamps, signs, trees), monsters (their own layer), Wooden Boxes (no body) and the containment rings
+are passed through. With no monster on a clear line the shell flies straight ahead until the first wall or its
+300 px reach (`PlayerSkills.shell_end`, `last_shell_to`), and the shell and the MP are spent. The basic attack tests
+no walls.
 
 **Runtime.** `PlayerSkills` (`scripts/actors/combat/player_skills.gd`) and `EffectTicker`
 (`actors/combat/effect_ticker.gd`) are children of the player, made by its `PlayerCombat` (`ensure_skill_nodes`).
@@ -196,11 +209,11 @@ progress), then `SkillBook.check_cast` from the current position ("rope" on a la
 stands a seated player up (contract C5), pays MP through `Game.change_mp` and the shell through `ItemService.lose` (so
 `Events.item_lost` reaches quest counts), applies the skill, starts the canonical cooldown and emits
 `Events.skill_used`. A Three Snails hit on a monster goes through `MonsterSystem.apply_player_hit`, the same path as a
-basic attack (damage numbers, stagger, EXP and drops on a kill); a hit on a Wooden Box goes through
-`BreakableSystem.land_hit` (`PlayerSkills._hit_box`), and `cast_resolved` then reports `(skill, box, null)`. Casts share
+basic attack (damage numbers, stagger, EXP and drops on a kill). Casts share
 `PlayerCombat`'s lockout (`begin_lockout`), so `PlayerCombat.is_attacking()` is true during a cast (contract C4) and a
-basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; the console has `skills`
-and `cast <id|name>`.
+basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; a held skill key casts
+again as soon as the lockout and any cooldown end (`PlayerSkills.ready_to_cast`, #20). The console has `skills` and
+`cast <id|name>`.
 
 **Effects and cooldowns** are remaining seconds of game time on the character (contract C3): `CharacterState.effects`
 `[{"id": "skill:0001002", "source": "skill:0001002", "remaining_s", "data": {"skill_id", "level", "duration_s",
@@ -217,11 +230,11 @@ and a malformed entry from an older save is dropped. At death the skill effects 
 |---|---|---|
 | `recovery_heal` | equal ticks every 5 s (6 ticks; floor-difference split when a total does not divide) | MeowDB gives only the 30 s total ("Timing unavailable" for the tick) |
 | `buff_cast` | lockout 0 s for Recovery and Nimble Feet | their pages say "Timing unavailable"; zero is recorded as a choice, not a fact |
-| `three_snails` | a whiff still spends the shell and MP; no wall or platform check; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill"; no projectile speed is published |
+| `three_snails` | a whiff still spends the shell and MP; terrain and buildings block the throw (`terrain_check`, `sight_blocking_hulls`; #6), props, monsters and boxes do not; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill" (a source-data gap; the wall rule is the owner's); no projectile speed is published |
 | `effects_on_death` | skill effects end at death, cooldowns keep running | undocumented |
 
-`SkillRules` reads `three_snails.terrain_check` but only accepts `false` (no wall or platform test exists; `true` is
-reported as an error). The debug console's `cast` command casts past the input hold of the open console itself
+`SkillRules` reads `three_snails.terrain_check` (true: the wall test of #6; false: no wall test) and, when it is on,
+`sight_blocking_hulls` (a malformed list is an error and reads as empty). The debug console's `cast` command casts past the input hold of the open console itself
 (`PlayerSkills.cast(id, true)`); every other refusal still applies.
 
 ## Canonical sources used
@@ -245,7 +258,7 @@ fails if the published text changes. Every constant that exists as a data field 
 |---|---|---|
 | `bare_hands` | weapon W.ATK 0, multiplier 1.0, STR/DEX, tier 6, equal Punch 1/2 odds | MeowDB has no unarmed model. The documented formula with W.ATK 0 gives 1 damage after the final clamp. `weapon_watk` is the empty slot's line in the Total Weapon Attack pool (`StatCalculator.compute` adds it only when no weapon is equipped), so other W.ATK lines (gloves) still count. |
 | `post_hit_invincibility` | `override_s: null` → canonical 1.5 s, also after a miss or guard | the canonical value is kept; this is the slot for an isometric adjustment |
-| `player_knockback` | push on landed hits only (`on_landed_hit`, `on_miss_or_guard`) | only the vertical airtime is published; the horizontal speed has one owner, `movement.json knockback_horizontal_speed_mps` (player controller), and is deliberately not repeated here |
+| `player_knockback` | push on landed hits only (`on_landed_hit`, `on_miss_or_guard`), away from the monster (backwards from the facing when it stands within 5 cm, `movement.json knockback_point_blank_m`, #17) | only the vertical airtime is published; the horizontal speed has one owner, `movement.json knockback_horizontal_speed_mps` (player controller), and is deliberately not repeated here |
 | `monster_knockback` | stagger when `damage >= KB`; stagger time: the canonical record's `stagger_ms` first (`stagger_from_canonical_record`, read by `MonsterDef`; 600 ms for all six), else `CombatFormula.monster_stagger_s` (the monster's `hit1` clip, fallback 0.6 s); a hit in mid-hop cancels the hop, then pushes (`airborne_hit`); 20 px push | the KB stat is canonical (all Maple Island monsters: KB 1), and so is the stagger time since the live pages publish it (Iteration Three); the push distance and the mid-hop rule are not |
 | `fixed_damage_skills.0001000` | Three Snails: hit check yes, defense/level gap/crit no | MeowDB only says stats, weapon and defense don't scale it |
 | `level_up` | full heal; excess EXP carries; several levels per award; EXP discarded at the cap | MeowDB implies a heal but not its amount; overflow is undocumented |
@@ -291,7 +304,7 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_progression_exp.gd` | thresholds, single/multiple level-ups, the cap, AP/SP, HP/MP growth to level 11, allocation, death penalty |
 | `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
 | `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
-| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
+| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only, never a Wooden Box (#5); walls (#6): the nearer monster behind a wall skipped, a whiff's shell stopped at the wall, monsters, boxes and props on the line passed through, `SkillSight`'s rules, the basic attack through a wall unchanged; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits

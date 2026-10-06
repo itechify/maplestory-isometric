@@ -259,10 +259,21 @@ func test_skill_rules_read_the_adaptation_table() -> void:
 	assert_true(broken.errors.size() >= 4, "missing sections and a bad value are reported: %s" % "; ".join(broken.errors))
 	assert_eq(broken.recovery_tick_s, 0.0, "a bad tick turns the ticks off (one heal at the end)")
 	assert_eq(SkillRules.from_table(null).errors.size(), 1, "a missing table is one error")
-	# terrain_check has no runtime behind it: true is an error, never a switch that silently does nothing.
-	assert_false(r.terrain_check, "no wall or platform test (canonical: not confirmed)")
-	var walls: Dictionary = t.duplicate(true)
-	walls["three_snails"]["terrain_check"] = true
-	var w := SkillRules.from_table(walls)
-	assert_eq(w.errors.size(), 1, "terrain_check true is reported: %s" % "; ".join(w.errors))
-	assert_false(w.terrain_check, "and read as false")
+	# terrain_check (#6): walls block Three Snails; the canonical value stays a source-data gap.
+	assert_true(r.terrain_check, "the owner's wall rule is on")
+	assert_eq(r.errors.size(), 0, "skills.json reads cleanly: %s" % "; ".join(r.errors))
+	assert_eq(r.sight_blocking_hulls, PackedStringArray(t["three_snails"]["sight_blocking_hulls"]), "the blocking hull list")
+	assert_true(r.sight_blocking_hulls.has("X1010000_YellowHouse") and not r.sight_blocking_hulls.has("Barrel"),
+		"a house blocks, a barrel does not")
+	assert_true(String(t["three_snails"]["terrain_check_reason"]).contains("#6"), "the reason cites the owner's ruling")
+	var open: Dictionary = t.duplicate(true)
+	open["three_snails"]["terrain_check"] = false
+	var o := SkillRules.from_table(open)
+	assert_eq(o.errors.size(), 0, "false is accepted too")
+	assert_false(o.terrain_check, "no wall test")
+	assert_eq(o.sight_blocking_hulls.size(), 0, "and no list read")
+	var bad: Dictionary = t.duplicate(true)
+	bad["three_snails"]["sight_blocking_hulls"] = ["House_Cottage_Red", 3]
+	var b := SkillRules.from_table(bad)
+	assert_eq(b.errors.size(), 1, "a malformed list is reported: %s" % "; ".join(b.errors))
+	assert_eq(b.sight_blocking_hulls.size(), 0, "and read as empty")

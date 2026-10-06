@@ -76,7 +76,7 @@ of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 - **Beginner mechanics:** natural HP recovery by the project owner's rule (10 HP per 10 s standing still or sitting,
   paused by moving, jumping or attacking), sitting and The Green Relaxer (with a seated cue on the HUD), the three
   Beginner skills with SP, a Skills window, skill quickslots and an effects bar for the timed buffs.
-- **The Wooden Box** on its 19 canonical placements, in the camera's sight: 4 hits (basic attacks or Three Snails),
+- **The Wooden Box** on its 19 canonical placements, in the camera's sight: 4 hits (basic attacks only),
   per-placement respawn, Pio's quest items while his quest is in progress, a gold marker while a quest wants a box.
 - **Every quest playable and played:** all 20 Maple Island quests run through the real game with real input in the
   every-quest set, strict (no developer help) after a logged setup, and again in one clean-character playthrough from

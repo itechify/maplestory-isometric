@@ -106,7 +106,7 @@ at 60 Hz.
 | `foot_radius_m` | 0.15 | the feet disc (above) |
 | `jump_apex_m_at_cap` | 1.2987 | derived (111 px × 0.0117) for MAP_ARCHITECTURE §4.4; a test pins it to the canonical table |
 | `climb_*` | see file | grab radii, standoff, top-exit threshold, jump-off hop (half apex), re-grab cooldown |
-| `knockback_*` | 2.2 m/s, 0.6 s | horizontal push (MeowDB gap); hit-stun lasts until landing, at most 0.6 s |
+| `knockback_*` | 2.2 m/s, 0.6 s, 0.05 m | horizontal push (MeowDB gap); hit-stun lasts until landing, at most 0.6 s; a source within 5 cm of the player (horizontally) pushes it backwards from its facing (#17) |
 | `visual_step_smoothing_s`, `facing_turn_rate_deg_per_s` | 0.08, 1440 | presentation only |
 
 Movement is 8-directional and relative to the camera: W walks along the camera's ground-projected forward axis
@@ -214,7 +214,7 @@ combat) should read `player.input_source` too. The bot can then press their keys
 | `safe_ground: SafeGround` | FallRecovery, saves | recorded on every grounded (not wedged), alive, not-in-hit-stun tick that passes `safe_ground_filter` (`func(pos)` or `func(pos, collider)`); `safe_ground.transform()` for recovery |
 | `kill_y`, signal `fell_out_of_world(at)` | optional | FallRecovery checks kill_y itself; the sandbox uses the signal |
 | `apply_knockback(from_dir, strength = 1, invulnerability_s = -1)` | combat | `from_dir` points **from the damage source toward the player**; zero = pushed backwards. Negative invulnerability = the combat data's 1.5 s |
-| `apply_knockback_from_point(source_pos, ...)` | combat | same, with the push direction taken from the source position |
+| `apply_knockback_from_point(source_pos, ...)` | combat | same, pushed away from the source position; a source within `knockback_point_blank_m` (5 cm, horizontally: a monster standing on the player) pushes backwards from the facing instead (#17) |
 | `set_invulnerable(s)`, `is_invulnerable()`, `invulnerable_time_left()` | combat | the model blinks while invulnerable |
 | `die()`, `revive()`, `is_dead()`; signals `died`, `revived` | death flow | also driven by `Events.player_died` / `player_respawned`. Input is off while dead; gravity still applies |
 | `set_input_enabled(bool)` | UI windows, transitions | physics keeps running |

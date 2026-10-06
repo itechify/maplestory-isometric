@@ -14,9 +14,9 @@ extends PlaytestScenario
 ## exactly the natural ticks the clock shows (_natural_ticks); the old exact "HP 50" failed (HP 60) whenever the banked
 ## clock was above about 9 s.
 ##
-## Setup (marked): console warps, level/EXP/AP, items, mesos and quests; HP lowered to 1 (and MP below max) through
-## Game.change_hp/change_mp as an api step, because the console has no command that sets HP. The killing blow is
-## always a real MonsterSystem touch while the player walks (or hops) into a monster with real input.
+## Setup (marked): console warps, level/EXP/AP, items, mesos and quests; HP lowered to 1 (and MP below max) with the
+## console's hp and mp commands. The killing blow is always a real MonsterSystem touch while the player walks (or hops)
+## into a monster with real input.
 
 const SHG1 := "000000040"
 const SPLIT := "000000050"
@@ -248,12 +248,9 @@ func _die(d: PlaytestDriver, label: String, opts: Dictionary) -> Dictionary:
 		return {}
 	var max_mp := StatCalculator.max_mp(c, db)
 	var mp_target := clampi(int(max_mp * 0.5) - int(label.substr(1, 1)), 1, maxi(1, max_mp - 1))
-	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp / change_mp", "%s: HP %d -> 1, MP %d -> %d" % [label,
-		c.hp, c.mp, mp_target])
-	d._fallback(i, "setup: no console command sets HP or MP (DEBUG_TOOLS.md: heal and god only); the killing blow is a real touch")
-	d.game().change_hp(1 - c.hp)
-	d.game().change_mp(mp_target - c.mp)
-	d._end(i, c.hp == 1 and c.mp == mp_target, "HP %d, MP %d" % [c.hp, c.mp])
+	# Setup by the console's hp and mp commands (counted console steps, #39); the killing blow is a real touch.
+	await d.console("hp 1")
+	await d.console("mp %d" % mp_target)
 
 	var pre := {"map": map_id, "slot": String(d.game().current_slot), "level": c.level, "exp": c.exp,
 		"luk": int(c.base_stats.get("luk", 0)), "hp": c.hp, "mp": c.mp, "max_hp": StatCalculator.max_hp(c, db),

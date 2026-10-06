@@ -13,28 +13,29 @@ extends Node
 ##   3. a seated player stands up first (contract C5: a skill stands the player up).
 ##   4. the costs: MP through Game.change_mp, the shell through ItemService.lose (so Events.item_lost reaches quests).
 ##   5. the effect, from canonical data (SkillDef):
-##        Three Snails  the stepped search band (SkillTargeting) in front of the facing picks the nearest target among
-##                      the live monsters and the intact Wooden Boxes (BreakableSystem.attack_candidates, contract
-##                      C8), as many as the skill's canonical target count (one). A monster takes
+##        Three Snails  the stepped search band (SkillTargeting) in front of the facing picks the nearest live monster
+##                      with a clear line from the player at the moment of the throw (SkillSight, the owner's rule in
+##                      #6: terrain and buildings block, monsters, boxes and props do not), as many as the skill's
+##                      canonical target count (one). Wooden Boxes are never a target (breakables.json hit_rule, the
+##                      owner's ruling in #5: only basic attacks break boxes), so a cast with only a box in its band
+##                      is a whiff; a whiff's shell flies until a wall or its range ends (shell_end). A monster takes
 ##                      CombatFormula.resolve_fixed_damage(level's fixed damage, "0001000") through
-##                      MonsterSystem.apply_player_hit, the same path as a basic attack (numbers, EXP, drops); a box
-##                      takes one landed hit through BreakableSystem.land_hit, like a swing (breakables.json
-##                      hit_rule: no damage, no MISS). The cast locks out for the canonical action time (800 ms base,
-##                      weapon-speed scaled: 810 ms at Normal 6) and plants the player like a ground attack. The
-##                      thrown shell is presentation.
+##                      MonsterSystem.apply_player_hit, the same path as a basic attack (numbers, EXP, drops). The cast
+##                      locks out for the canonical action time (800 ms base, weapon-speed scaled: 810 ms at Normal 6)
+##                      and plants the player like a ground attack. The thrown shell is presentation.
 ##        Recovery      a timed effect: the level's HP total over its 30 s in equal ticks (EffectTicker heals).
 ##        Nimble Feet   a timed effect: Speed + the level's bonus for its duration (StatCalculator counts it; the
 ##                      PlayerController re-reads its speed on Events.stats_changed).
 ##   6. the canonical cooldown starts (CharacterState.cooldowns, remaining seconds), and Events.skill_used fires.
-## The MisoStory values (Recovery's tick, the buff cast lockout, whether a whiff spends the shell, the projectile) come
-## from data/misostory/skills.json (SkillRules).
+## The MisoStory values (Recovery's tick, the buff cast lockout, whether a whiff spends the shell, the wall test and
+## what blocks it, the projectile) come from data/misostory/skills.json (SkillRules).
 ##
 ## Collaborators resolve through the owning PlayerCombat at call time (tests set its db/game after it entered the
 ## tree); every one may be overridden here.
 
 signal cast_started(skill_id: String, level: int, lockout_s: float)
-## After a Three Snails cast, once per target hit: a monster with its DamageResult, a Wooden Box with result null (a
-## box takes a landed hit, not damage), or target and result both null on a whiff.
+## After a Three Snails cast, once per target hit: a monster with its DamageResult, or target and result both null on a
+## whiff.
 signal cast_resolved(skill_id: String, target: Node, result: DamageResult)
 signal cast_refused(skill_id: String, code: String)
 
@@ -54,9 +55,6 @@ var game: Node = null
 var character: CharacterState = null
 var rng: RandomNumberGenerator = null
 var bus: Object = null
-## The Wooden Boxes' system (duck-typed: attack_candidates(), land_hit(box, source)); null = the node in group
-## &"breakable_system" (BreakableSystem), when there is one.
-var breakables: Node = null
 
 ## Successful casts (tests, the sandbox report) and the last one.
 var casts: int = 0
@@ -66,6 +64,9 @@ var last_lockout_s: float = 0.0
 var last_target: Node = null
 var last_result: DamageResult = null
 var last_refusal: Dictionary = {}
+## Where the last thrown shell ended (shell_end) and whether a wall stopped it short of its reach.
+var last_shell_to: Vector3 = Vector3.ZERO
+var last_shell_stopped: bool = false
 
 ## The last cast set a lockout, and PlayerCombat's attack count when it did (is_casting()).
 var _cast_locked := false
@@ -140,6 +141,16 @@ func position_now() -> String:
 	return "air"
 
 
+## True when a cast of `skill_id` would not wait: the player can act now (alive, input enabled, no hit-stun, no attack
+## or cast lockout running) and the skill is not cooling down. A held skill key (MisoHud, #20) casts again only then,
+## so the lockout and the cooldown are waited out silently; every other rule (MP, shell, position) is cast()'s.
+func ready_to_cast(skill_id: String) -> bool:
+	var c := _character()
+	if player == null or not is_instance_valid(player) or c == null or _is_dead() or not _can_act():
+		return false
+	return EffectBook.cooldown_left(c, skill_id) <= 0.0
+
+
 ## True while the last cast's lockout runs (PlayerCombat.is_attacking() covers casts and attacks alike).
 func is_casting() -> bool:
 	return _cast_locked and combat != null and is_instance_valid(combat) and combat.lockout_left > 0.0 \
@@ -180,22 +191,33 @@ static func _position_phrase(def: SkillDef) -> String:
 # --- the effects -------------------------------------------------------------------------------------------------
 
 ## The targets a Three Snails cast would hit from where the player stands now, nearest first (at most the skill's
-## canonical target count): live monsters and intact Wooden Boxes alike (a box candidate carries "kind": "breakable").
+## canonical target count): live monsters only. Wooden Boxes are never searched (breakables.json hit_rule, #5). With
+## skills.json three_snails.terrain_check (#6) a monster counts only with a clear line from the aim point to its body
+## (SkillSight: terrain and buildings block, props do not), so a nearer monster behind a wall is skipped.
 func _search(def: SkillDef) -> Array:
 	var d := _db()
 	var sys := _system()
 	var candidates: Array = []
 	if sys != null and sys.has_method("attack_candidates"):
 		candidates.append_array(sys.call("attack_candidates"))
-	var boxes := _breakables()
-	if boxes != null and boxes.has_method("attack_candidates"):
-		candidates.append_array(boxes.call("attack_candidates"))
 	if candidates.is_empty() or def.band.is_empty():
 		return []
 	var facing: Vector3 = player.get("facing") if "facing" in player else Vector3.BACK
 	var bands := SkillTargeting.bands_px(def.band)
-	return SkillTargeting.pick(player.global_position, facing, bands, CombatReach.attack_box_depth_px(d), candidates,
-		maxi(1, def.targets))
+	var depth := CombatReach.attack_box_depth_px(d)
+	var cap := maxi(1, def.targets)
+	var rules := SkillRules.of(d)
+	var space := _space()
+	if not rules.terrain_check or space == null:
+		return SkillTargeting.pick(player.global_position, facing, bands, depth, candidates, cap)
+	var out: Array = []
+	var from := _aim_from(def)
+	for h: Dictionary in SkillTargeting.pick(player.global_position, facing, bands, depth, candidates, candidates.size()):
+		if out.size() >= cap:
+			break
+		if SkillSight.clear(space, from, _aim_at(def, h["node"]), rules.sight_blocking_hulls):
+			out.append(h)
+	return out
 
 
 func _throw(def: SkillDef, level: int, hits: Array, out: Dictionary) -> void:
@@ -213,9 +235,6 @@ func _throw(def: SkillDef, level: int, hits: Array, out: Dictionary) -> void:
 	var r := _rng()
 	for h: Dictionary in hits:
 		var target: Node = h["node"]
-		if String(h.get("kind", "")) == "breakable":
-			_hit_box(def, level, target)
-			continue
 		var target_stats: MonsterCombatStats = target.get("def").stats if target != null and target.get("def") != null else null
 		if target_stats == null:
 			continue
@@ -235,19 +254,6 @@ func _throw(def: SkillDef, level: int, hits: Array, out: Dictionary) -> void:
 		cast_resolved.emit(def.id, null, null)
 	out["target"] = last_target
 	out["result"] = last_result
-
-
-## The shell reached a Wooden Box: one landed hit through the box's own system (BreakableSystem.land_hit, the swing's
-## path: the fourth hit breaks it and rolls its drops), never damage (breakables.json hit_rule).
-func _hit_box(def: SkillDef, level: int, box: Node) -> void:
-	var boxes := _breakables()
-	if box == null or boxes == null or not boxes.has_method("land_hit"):
-		return
-	if last_target == null:
-		last_target = box
-	_play_shell(def, level, box)
-	boxes.call("land_hit", box, "skill:" + def.id)
-	cast_resolved.emit(def.id, box, null)
 
 
 func _start_heal(c: CharacterState, def: SkillDef, level: int, rules: SkillRules) -> void:
@@ -290,23 +296,52 @@ func _pay(c: CharacterState, d: ContentDB, mp: int, item_id: String, qty: int) -
 
 # --- presentation ------------------------------------------------------------------------------------------------
 
-## A shell flies from the player's aim line to the target's body (or straight ahead to the full reach on a whiff).
-func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vector3.ZERO) -> void:
+## Where the shell leaves the player: the canonical aim line (aim_px above the feet).
+func _aim_from(def: SkillDef) -> Vector3:
+	return player.global_position + Vector3.UP * WorldScale.actor(float(def.band.get("aim_px", 0.0)))
+
+
+## Where the shell meets `target`: its body centre (Monster.body_center), else the aim height above its feet.
+func _aim_at(def: SkillDef, target: Node) -> Vector3:
+	if target is Node3D and target.has_method("body_center"):
+		return target.call("body_center")
+	return (target as Node3D).global_position + Vector3.UP * WorldScale.actor(float(def.band.get("aim_px", 0.0)))
+
+
+## Where a thrown shell ends: on the target's body, or on a whiff straight ahead at the full reach, cut short by the
+## first wall in the way when terrain_check is on (SkillSight.first_block). Sets last_shell_to / last_shell_stopped.
+func shell_end(def: SkillDef, target: Node, facing: Vector3) -> Vector3:
+	var from := _aim_from(def)
+	last_shell_stopped = false
+	if target is Node3D and (target as Node3D).is_inside_tree():
+		last_shell_to = _aim_at(def, target)
+		return last_shell_to
+	var f := Vector3(facing.x, 0.0, facing.z)
+	f = f.normalized() if f.length_squared() > 1e-6 else Vector3.FORWARD
+	last_shell_to = from + f * WorldScale.actor(def.range_px)
 	var rules := SkillRules.of(_db())
-	if rules.projectile_speed_mps <= 0.0 or rules.projectile_size_m <= 0.0 or player == null or not player.is_inside_tree():
+	var space := _space()
+	if rules.terrain_check and space != null:
+		var hit := SkillSight.first_block(space, from, last_shell_to, rules.sight_blocking_hulls)
+		if not hit.is_empty():
+			last_shell_to = hit["position"]
+			last_shell_stopped = true
+	return last_shell_to
+
+
+## A shell flies from the player's aim line to the target's body (or, on a whiff, to shell_end: the full reach or the
+## first wall).
+func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vector3.ZERO) -> void:
+	if player == null or not player.is_inside_tree():
+		return
+	var from := _aim_from(def)
+	var to := shell_end(def, target, facing)
+	var rules := SkillRules.of(_db())
+	if rules.projectile_speed_mps <= 0.0 or rules.projectile_size_m <= 0.0:
 		return
 	var parent := _fx_parent()
 	if parent == null:
 		return
-	var aim := WorldScale.actor(float(def.band.get("aim_px", 0.0)))
-	var from := player.global_position + Vector3.UP * aim
-	var to: Vector3
-	if target is Node3D and (target as Node3D).is_inside_tree():
-		to = (target as Node3D).call("body_center") if target.has_method("body_center") else (target as Node3D).global_position + Vector3.UP * aim
-	else:
-		var f := Vector3(facing.x, 0.0, facing.z)
-		f = f.normalized() if f.length_squared() > 1e-6 else Vector3.FORWARD
-		to = from + f * WorldScale.actor(def.range_px)
 	var shell := MeshInstance3D.new()
 	shell.name = SHELL_FX_NAME
 	var mesh := SphereMesh.new()
@@ -376,10 +411,11 @@ func _system() -> Node:
 	return combat.system if combat != null and is_instance_valid(combat) else null
 
 
-func _breakables() -> Node:
-	if breakables != null:
-		return breakables if is_instance_valid(breakables) else null
-	return get_tree().get_first_node_in_group(&"breakable_system") if is_inside_tree() else null
+## The physics space the line-of-sight test reads (the player's world), or null outside a world.
+func _space() -> PhysicsDirectSpaceState3D:
+	if player == null or not player.is_inside_tree() or player.get_world_3d() == null:
+		return null
+	return player.get_world_3d().direct_space_state
 
 
 func _db() -> ContentDB:

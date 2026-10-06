@@ -70,7 +70,7 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 | Z | pick up drops |
 | X | sit on your first chair, or stand up |
 | I / E / C / Q (or L) / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
-| 1 - 8 | quickslots: potions, food, a chair or a learned skill |
+| 1 - 8 | quickslots: potions, food, a chair or a learned skill (hold a skill's key to cast it again each time it is ready) |
 | M | fold the minimap to its title strip (the map name stays); the status bar's Map [M] button does the same, and the fold is remembered across restarts |
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console / debug overlay (F3 also shows the canonical map id on the minimap) |
@@ -85,8 +85,13 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   character starts with 0 SP and a Beginner past level 10 gets none: adaptations, by the owner's ruling (#4), where
   MeowDB does not say. K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
-  key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
-  skill level).
+  key 1-8; that key casts it. Hold the key to keep casting: it casts again as soon as the last cast's lockout (and
+  any cooldown) ends, and stops when you let go; nothing is queued beyond holding it, and a refusal (no MP, no shell)
+  is said once per hold (the owner's decision in #20). Potion and chair keys still use one item per press. Three
+  Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
+  skill level). It hits the nearest monster in front of you that no wall stands before: terrain and buildings stop
+  the shell, props, monsters and Wooden Boxes do not, and a throw with no such monster still spends the shell and the
+  MP (the owner's rulings in #5 and #6).
 - **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
   (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
   have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up. While you sit, the HUD
@@ -96,10 +101,10 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
   naturally, by the owner's ruling (#4): MeowDB documents none, and a future Magician skill will grant it.
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
-  landed hits, basic attacks or Three Snails throws (one target per cast: the nearest monster or box in its band;
-  whether skills may hit boxes is still an owner decision), and comes back after its canonical respawn time. Old
-  Wooden Board and Rusty Screw drop only while Pio's quest is in progress; a gold marker shows over the boxes while
-  the quest still wants them, and a warm rim while your swing can reach one.
+  landed basic attacks (skills never hit a box: Three Snails searches monsters only, the owner's ruling in #5), and
+  comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only while Pio's quest is in
+  progress; a gold marker shows over the boxes while the quest still wants them, and a warm rim while your swing can
+  reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
   the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
@@ -182,7 +187,7 @@ bash scripts/playtest_quests.sh                                   # every Maple 
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
   copy of `game/` under `_scratch/godot_runs/`.
 - Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
-  a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken),
+  Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
   hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `npc_shanks` (the
@@ -387,6 +392,7 @@ level 8                   # set the level consistently (AP/SP/HP/MP)
 quest complete 1006       # quest accept|complete|forfeit|reset <id> [force], quests
 skills                    # skill levels, SP, cooldowns and active effects
 cast recovery             # cast a learned skill now (by id or name)
+hp 10                     # set HP (clamped to 0..Max HP; 0 is a death); mp 3 sets MP; "max" fills either
 ```
 
 ## Drops and Wooden Boxes

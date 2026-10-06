@@ -32,6 +32,8 @@ var gravity: float = 0.0
 var knockback_up_speed: float = 0.0
 var knockback_speed: float = 0.0
 var knockback_max_hitstun: float = 0.0
+## m, horizontal: a knockback source this close to the player pushes it backwards from its facing (#17).
+var knockback_point_blank: float = 0.0
 ## Post-hit invincibility (s): combat.json override, else canonical accuracy.after_hit (set by from_db()).
 var default_invulnerability: float = 0.0
 var max_fall_speed: float = 0.0
@@ -111,6 +113,7 @@ func _load_constants() -> void:
 		push_error("[MovementModel] canonical movement.knockback_airtime.gravity_px_per_s2 missing")
 	knockback_speed = _num("knockback_horizontal_speed_mps", 2.0)
 	knockback_max_hitstun = _num("knockback_max_hitstun_s", 0.6)
+	knockback_point_blank = _num("knockback_point_blank_m", 0.05)
 	max_fall_speed = _num("max_fall_speed_mps", 12.0)
 	ground_accel = _num("ground_accel_mps2", 60.0)
 	ground_decel = _num("ground_decel_mps2", 90.0)

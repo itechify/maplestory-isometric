@@ -1787,8 +1787,10 @@ func console(cmd: String) -> String:
 		return ""
 	var out := str(dbg.call("run", cmd))
 	await frames(1)
+	# A command that started a transition (a warp, a respawn) is waited out; one that left the character dead
+	# ("hp 0") is not: DEAD lasts until a respawn, which is the scenario's next move.
 	var s := session()
-	if s != null and not bool(s.call("is_idle")) and String(s.call("state_name")) != "BOOT":
+	if s != null and not bool(s.call("is_idle")) and not (String(s.call("state_name")) in ["BOOT", "DEAD"]):
 		await wait_idle()
 	_end(i, not out.begins_with("unknown command"), out.left(200).replace("\n", " / "))
 	return out

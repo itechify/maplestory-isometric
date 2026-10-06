@@ -59,6 +59,33 @@ func test_knockback_direction_conventions() -> void:
 	assert_true(p.move_velocity.x > 0.0, "pushed away from the source point")
 
 
+## #17: a monster standing on the player (its position within movement.json knockback_point_blank_m, 5 cm,
+## horizontally) gives no stable "away from the monster", so the push is backwards from the player's facing, the same
+## whatever the offset and its direction; beyond 5 cm the push is away from the monster, as before.
+func test_a_monster_on_the_player_pushes_it_backwards_from_its_facing() -> void:
+	var model := MovementModel.from_db(db())
+	assert_near(model.knockback_point_blank, 0.05, 1e-9, "movement.json knockback_point_blank_m")
+	var dirs := [Vector3(1, 0, 0), Vector3(-1, 0, 0), Vector3(0, 0, 1), Vector3(0, 0, -1), Vector3(1, 0, 1).normalized(),
+		Vector3(-0.6, 0, 0.8)]
+	for facing: Vector3 in [Vector3(0, 0, 1), Vector3(1, 0, 0), Vector3(-0.8, 0, -0.6)]:
+		for offset in [0.0, 0.01, 0.049]:
+			for dir: Vector3 in dirs:
+				var p := w.spawn_player(Vector3(0, 0, 0), facing)
+				# A height difference does not count: the monster's feet may sit a little above or below the player's.
+				p.apply_knockback_from_point(p.global_position + dir * offset + Vector3(0, 0.3, 0))
+				var push := Vector3(p.move_velocity.x, 0.0, p.move_velocity.z).normalized()
+				assert_true(push.dot(-facing) > 0.999, "facing %s, monster %.3f m toward %s: pushed backwards (%s)" % [facing,
+					offset, dir, push])
+				p.free()
+	for offset in [0.06, 0.5, 2.0]:
+		for dir: Vector3 in dirs:
+			var p := w.spawn_player(Vector3(0, 0, 0), Vector3(0, 0, 1))
+			p.apply_knockback_from_point(p.global_position + dir * offset)
+			var push := Vector3(p.move_velocity.x, 0.0, p.move_velocity.z).normalized()
+			assert_true(push.dot(-dir) > 0.999, "monster %.2f m toward %s: pushed away from it (%s)" % [offset, dir, push])
+			p.free()
+
+
 func test_invulnerability_timer_and_default() -> void:
 	var p := w.spawn_player(Vector3(0, 0, 0))
 	p.apply_knockback(Vector3(1, 0, 0), 1.0, 0.5)

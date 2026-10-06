@@ -21,7 +21,7 @@
   "player_knockback": {
     "on_landed_hit": true,
     "on_miss_or_guard": false,
-    "reason": "MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage; a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value.",
+    "reason": "MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage (backwards from its facing when the monster stands within movement.json knockback_point_blank_m of it, #17); a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value.",
     "verified": false
   },
   "monster_knockback": {

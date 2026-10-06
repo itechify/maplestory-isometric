@@ -3,12 +3,13 @@ extends PlaytestScenario
 ## attack key to level 2 (the first canonical SP, shown on the HUD's Skill button), then a console "exp" grant (setup)
 ## brings the character to level 4. The SP is spent with the "+" buttons of the Skills window (K) by mouse, and the
 ## three skills are put on keys 1-3 with the window's Set key picker. Key 1 (Three Snails) kills a full-HP Snail with
-## thrown shells only (MP and one Snail Shell per cast, the canonical fixed damage per hit); in Mushroom Town key 2
-## (Recovery) heals exactly its canonical total over 30 s while the player walks (walking pauses natural recovery) and
+## thrown shells only (MP and one Snail Shell per cast, the canonical fixed damage per hit). In Mushroom Town key 1
+## held over three lockouts casts four times and stops on release, and held with no MP announces its refusal once
+## (#20; MP set with the console's "mp", setup); key 2 (Recovery) heals exactly its canonical total over 30 s while the player walks (walking pauses natural recovery) and
 ## starts its 2 min cooldown, and key 3 (Nimble Feet) raises the walk speed by the canonical Speed bonus. Quit Game and
 ## Continue: the skill levels, the quickslot bindings and the running cooldowns come back, and the restored cooldown
-## still refuses key 2; once it runs out key 2 casts Recovery again, and a death (an api setup step) ends that heal while
-## the cooldowns keep counting. Every number is read from canonical data (SkillDef), never written here.
+## still refuses key 2; once it runs out key 2 casts Recovery again, and a death (setup: the console's "hp 0") ends
+## that heal while the cooldowns keep counting. Every number is read from canonical data (SkillDef), never written here.
 
 const FIELD := "000000040"
 const TOWN := "000000010"
@@ -109,6 +110,7 @@ func _phase_play(d: PlaytestDriver) -> void:
 	await d.console("warp " + TOWN)
 	d.check("in Mushroom Town", d.current_map() == TOWN, d.current_map())
 	await d.wait(1.0)
+	await _held_key(d)
 	await _recovery(d)
 	await _nimble_feet(d)
 
@@ -201,14 +203,46 @@ func _kill_with_three_snails(d: PlaytestDriver, def: SkillDef) -> void:
 	await d.screenshot("three_snails_kill")
 
 
+## A held skill key (#20, the owner's decision): key 1 held with real input over three Three Snails lockouts casts
+## once at the press and once as each lockout ends, then stops when it is released; held with no MP, the refusal is
+## announced once, not on every attempt. Setup (console, counted): the shells and the MP.
+func _held_key(d: PlaytestDriver) -> void:
+	var c := d.character()
+	var db := d.db()
+	var def := SkillDef.of(SNAILS, db)
+	var ps: PlayerSkills = d.player().get_node(^"PlayerSkills")
+	var shell := String(def.item_cost(1)["item_id"])
+	if c.inventory.count(shell) < 4:
+		await d.console("give %s %d" % [shell, 4 - c.inventory.count(shell)])
+	await d.console("mp max")
+	var stats := PlayerCombatStats.from_character(c, db)
+	var weapon := stats.weapon if stats.weapon != null else WeaponProfile.bare_hands(db)
+	var lock := def.action_ms(weapon.speed_tier, db) / 1000.0
+	var lockouts := 3
+	var want := mini(lockouts + 1, mini(c.inventory.count(shell), c.mp / def.mp_cost(1)))
+	var casts0 := ps.casts
+	await d.press(&"quickslot_1", (lockouts + 0.5) * lock)
+	var held := ps.casts - casts0
+	await d.wait(2.0 * lock)
+	d.check("key 1 held over %d lockouts of %.3f s casts Three Snails %d times, then stops when released" % [lockouts, lock,
+		want], held == want and ps.casts - casts0 == held, "%d casts while held, %d after the release (MP %d, %d shells left)"
+		% [held, ps.casts - casts0 - held, c.mp, c.inventory.count(shell)], ["skill:0001000"])
+	await d.console("mp 0")
+	var refusals0 := _count_noticed(d, "Not enough MP")
+	var casts1 := ps.casts
+	await d.press(&"quickslot_1", 1.5)
+	d.check("key 1 held with no MP: the refusal is announced once, not on every attempt", ps.casts == casts1
+		and _count_noticed(d, "Not enough MP") == refusals0 + 1, "%d notices" % (_count_noticed(d, "Not enough MP") - refusals0),
+		["skill:0001000"])
+	await d.console("mp max")
+
+
 func _recovery(d: PlaytestDriver) -> void:
 	var c := d.character()
 	var db := d.db()
 	var def := SkillDef.of(RECOVERY, db)
 	var ticker: EffectTicker = d.player().get_node(^"EffectTicker")
-	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp", "setup: HP %d -> 20 (no console HP setter)" % c.hp)
-	d.game().change_hp(20 - c.hp)
-	d._end(i, true, "HP %d / %d" % [c.hp, StatCalculator.max_hp(c, db)])
+	await d.console("hp 20")
 	var mp0 := c.mp
 	var hp0 := c.hp
 	var healed0 := ticker.healed
@@ -316,9 +350,8 @@ func _death_ends_effects(d: PlaytestDriver) -> void:
 	d.check("key 2 casts Recovery again once its cooldown is over", EffectBook.has(c, PlayerSkills.effect_id(RECOVERY))
 		and c.mp == mp0 - def.mp_cost(1), "MP %d -> %d, %s" % [mp0, c.mp, str(c.effects)])
 	var nimble_left := EffectBook.cooldown_left(c, NIMBLE)
-	var i := d._begin(PlaytestReport.KIND_API, "Game.damage_player", "setup: a death with Recovery running (no console command kills the player)")
-	d.game().damage_player(c.hp)
-	d._end(i, true, "HP %d" % c.hp)
+	# Setup: a death with Recovery running, by the console's hp command (HP 0 is a death, as a lethal hit).
+	await d.console("hp 0")
 	await d.wait(1.0)
 	d.check("the player died", bool(d.game().is_character_dead()), "HP %d" % c.hp)
 	d.check("the death ended Recovery's heal", not EffectBook.has(c, PlayerSkills.effect_id(RECOVERY)), str(c.effects))
@@ -344,6 +377,14 @@ static func _noticed(d: PlaytestDriver, part: String) -> bool:
 		if part in t:
 			return true
 	return false
+
+
+static func _count_noticed(d: PlaytestDriver, part: String) -> int:
+	var n := 0
+	for t in d.notices:
+		if part in t:
+			n += 1
+	return n
 
 
 static func _flat(v: Vector3) -> float:
