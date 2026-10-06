@@ -2,18 +2,45 @@
   "id": "drop_rates",
   "kind": "misostory_adaptation",
   "canonical": false,
+  "decision": "D3-11",
   "verified": false,
-  "description": "The MisoStory rules the drop runtime (scripts/core/drops/drop_rates.gd, drop_roller.gd) applies to the canonical drop records. This file holds no drop chance, quantity or meso amount: every one of those comes from data/canonical/drops/<owner id>.json (schema v2, contract C1 in docs/runtime/ITERATION_THREE_CONTRACTS.md), where membership comes from Hidden Street (monsters) or MeowDB (the Wooden Box), chances from KuroDB and meso amounts from MeowDB or Hidden Street, each with its source. DropRates.validate rejects any rate, quantity or meso number here. The ground rules (lifetime, ownership, scatter) are data/misostory/drops.json. See docs/runtime/ITEMS.md.",
-  "reason": "Iteration Two kept placeholder drop chances, quantities and meso amounts here because MeowDB publishes none. Iteration Three replaced all of them with sourced values in the canonical records (decisions D3-3 to D3-9, docs/ITERATION_LOG.md). What remains are the interpretations the runtime needs to turn those sourced values into rolls; each is a MisoStory reading, not a MapleStory fact.",
-  "meso_amount_distribution": {
-    "value": "uniform_integer_inclusive",
-    "verified": false,
-    "reason": "Hidden Street gives a meso amount as a range ('Mesos: 4-6') and MeowDB's player report as one value per kill; neither says how an amount is chosen within a range. MisoStory draws a uniform integer in [min, max] (both ends included), the reading recorded in each record's meso.amount_source.interpretation. DropRoller implements exactly this; DropRates.validate fails if this value names anything else."
+  "description": "The project owner's drop chance table (decision D3-11, docs/ITERATION_LOG.md), applied by the drop runtime (scripts/core/drops/drop_rates.gd DropRates, drop_roller.gd DropRoller) to the canonical drop records (data/canonical/drops/<owner id>.json, schema 3, contract C1 in docs/runtime/ITERATION_THREE_CONTRACTS.md). A record lists who can drop what (MeowDB's community list 'Drops (MS Classic)'), each member's rarity (Henesys.gg's label) and its chance_category; the chance of a member is chance_table[chance_category][rarity], a probability in [0, 1] (1.0 = always, 0.001 = 0.1%). The same table applies to monsters and the Wooden Box. Edit any cell to tune a drop: DropChecks requires every category x rarity cell, each a number in [0, 1]. The ground rules (lifetime, ownership, scatter) are data/misostory/drops.json; mesos are data/misostory/meso_rules.json (decision D3-12).",
+  "reason": "MeowDB MS Classic publishes no drop chances and Henesys.gg publishes only a rarity label per item, so the project owner approved this table on 2026-10-06 as a MisoStory adaptation (decision D3-11): a chance per item category and rarity. It is not a MapleStory fact and is not verified against anything.",
+  "rarities": ["Common", "Rare", "Very Rare", "Extremely Rare"],
+  "category_rules": {
+    "etc_own_leftover": "Etc item whose MeowDB subtype is 'Monster Drop' (the monster's own leftover: Snail Shell, Mushroom Spore, Jr. Sentinel Shellpiece)",
+    "etc_quest_gated": "Etc item whose MeowDB subtype is 'Quest Item' and that a Maple Island quest objective asks for (the quest-gate rule, quest_gate_rule below): it drops only while that quest is in progress",
+    "etc_other": "any other Etc item (ores, gems, Monster Card, a quest item no Maple Island quest asks for)",
+    "use_consumable": "Use item whose MeowDB subtype is not 'Scroll' (potions, food, arrows)",
+    "use_scroll": "Use item whose MeowDB subtype is 'Scroll'",
+    "equip": "any Equip item",
+    "setup": "any Setup item (chairs)"
   },
+  "chance_table": {
+    "etc_own_leftover": {"Common": 1.0, "Rare": 0.5, "Very Rare": 0.2, "Extremely Rare": 0.05},
+    "etc_quest_gated": {"Common": 1.0, "Rare": 1.0, "Very Rare": 1.0, "Extremely Rare": 1.0},
+    "etc_other": {"Common": 0.03, "Rare": 0.01, "Very Rare": 0.003, "Extremely Rare": 0.001},
+    "use_consumable": {"Common": 0.02, "Rare": 0.005, "Very Rare": 0.001, "Extremely Rare": 0.0002},
+    "use_scroll": {"Common": 0.001, "Rare": 0.0003, "Very Rare": 0.0001, "Extremely Rare": 0.00003},
+    "equip": {"Common": 0.001, "Rare": 0.0004, "Very Rare": 0.0001, "Extremely Rare": 0.00002},
+    "setup": {"Common": 0.0005, "Rare": 0.0002, "Very Rare": 0.00005, "Extremely Rare": 0.00001}
+  },
+  "quantity_per_drop": 1,
+  "quantity_per_drop_reason": "No source gives a drop quantity; the owner's table drops one item per successful roll (decision D3-11).",
   "quest_gate_rule": {
-    "value": "an entry is gated to a quest only when its membership source or MeowDB's item subtype marks it a quest item AND a Maple Island quest objective asks for it; it rolls only while that quest is in progress, and without a roll context it never rolls",
+    "value": "an entry is gated to a quest only when its item's MeowDB subtype is 'Quest Item' AND a Maple Island quest objective asks for it; it rolls only while that quest is in progress, and without a roll context it never rolls",
     "decision": "D3-9",
     "verified": false,
-    "reason": "MeowDB does not say who can loot a quest item; KuroDB flags some rows '| Quest N' with its own quest ids, but the brief limits KuroDB to probabilities. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not."
+    "reason": "MeowDB does not say who can loot a quest item. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not."
+  },
+  "provenance": {
+    "chance_table": {
+      "authority": "Project owner",
+      "decision": "D3-11 (docs/ITERATION_LOG.md): the drop chance table by item category x Henesys.gg rarity, approved 2026-10-06"
+    },
+    "quantity_per_drop": {
+      "authority": "Project owner",
+      "decision": "D3-11 (docs/ITERATION_LOG.md): quantity 1 per drop"
+    }
   }
 }

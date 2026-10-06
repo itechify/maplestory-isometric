@@ -1,0 +1,28 @@
+{
+  "id": "meso_rules",
+  "kind": "misostory_adaptation",
+  "canonical": false,
+  "decision": "D3-12",
+  "verified": false,
+  "description": "The project owner's meso drop rule (decision D3-12, docs/ITERATION_LOG.md), applied by the drop runtime (scripts/core/drops/drop_rates.gd DropRates.meso_rule, drop_roller.gd DropRoller). Amount: MeowDB's player report where the canonical drop record has one (data/canonical/drops/<owner id>.json meso.amount_source; today only the Snail, 2 per kill); otherwise a uniform integer in [level x amount_level_multiplier_min, level x amount_level_multiplier_max] of the monster's canonical level (data/canonical/monsters/<id>.json level). When a newer MeowDB capture or cache gains a report for another monster, tools/meowdb/extract_monsters.mjs writes it into that record and the runtime uses it instead of the formula, with no change here. Chance: the same for every monster that drops mesos (MeowDB publishes no meso drop chance). no_mesos lists the owners that never drop mesos.",
+  "reason": "MeowDB MS Classic has a player meso report for only one Maple Island monster and publishes no meso drop chance, so the project owner approved this rule on 2026-10-06 as a MisoStory adaptation (decision D3-12). It is not a MapleStory fact and is not verified against anything.",
+  "amount_distribution": "uniform_integer_inclusive",
+  "amount_level_multiplier_min": 1,
+  "amount_level_multiplier_max": 2,
+  "chance": 0.6,
+  "chance_reason": "60% per kill for every monster that drops mesos, also for a monster with a MeowDB amount: MeowDB publishes no meso chance (decision D3-12).",
+  "no_mesos": {
+    "1": {"name": "Tutorial Jr. Sentinel", "reason": "The project owner's choice: the tutorial monster drops no mesos (decision D3-12)."},
+    "0000001": {"name": "Wooden Box", "reason": "MeowDB has no meso reports for breakables; the Wooden Box drops no mesos (decision D3-12)."}
+  },
+  "provenance": {
+    "chance": {
+      "authority": "Project owner",
+      "decision": "D3-12 (docs/ITERATION_LOG.md): meso drop chance 60%, approved 2026-10-06"
+    },
+    "amount": {
+      "authority": "Project owner",
+      "decision": "D3-12 (docs/ITERATION_LOG.md): MeowDB player reports where they exist, else a uniform integer in [level, 2 x level]"
+    }
+  }
+}

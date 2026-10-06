@@ -221,8 +221,8 @@
     }
   },
   "gaps": [
-    "mesos per kill: no player reports on MeowDB (see drops/1.json)",
-    "drop chances and quantities: MeowDB gives none; drops/1.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)",
+    "mesos per kill: no player reports on MeowDB (see drops/1.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)",
+    "drop chances and quantities: MeowDB gives none; drops/1.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)",
     "kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)",
     "attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)",
     "monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters",

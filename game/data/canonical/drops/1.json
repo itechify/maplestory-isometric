@@ -1,13 +1,14 @@
 {
   "id": "1",
   "name": "Tutorial Jr. Sentinel drop table",
-  "schema_version": 2,
+  "schema_version": 3,
   "owner": {
     "kind": "monster",
     "id": "1",
     "name": "Tutorial Jr. Sentinel"
   },
-  "membership_authority": "Hidden Street",
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
   "entries": [
     {
       "key": "jr-sentinel-shellpiece",
@@ -15,92 +16,96 @@
       "item_id": "347",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
+        "method": "exact_name",
         "candidates": [
-          "347",
-          "2584"
+          "347"
         ],
-        "note": "MeowDB has two items named 'Jr. Sentinel Shellpiece' (347, icon key 4000000; 2584, icon key 4000067). 347 is the one MeowDB's own Tutorial Jr. Sentinel drop list uses (api_drops_q_monsterId_1.html) and the one quest 1005's itemRefs name (docs/canonical/quests.md, discrepancy 1); 2584 is needed by a Victoria Island quest."
+        "evidence": "game/data/canonical/items/347.json is the only local item named \"Jr. Sentinel Shellpiece\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=1, retrieved 2026-10-04T10:06:55.625Z; entry 87) carries item 347, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/tutorial-jr-sentinel",
-        "read_at": "2026-10-05T08:09:54.751Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Etc. drop: Jr. Sentinel Shellpiece",
-        "categories": [
-          "Etc. drop"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/1",
+        "read_at": "2026-10-05T07:49:19.434Z",
+        "capture": "tools/meowdb/captures/monster_1.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Jr. Sentinel Shellpiece\nMonster Drop\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
       },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/9300018",
-        "read_at": "2026-10-05T07:46:08.420Z",
-        "capture": "tools/kurodb/captures/9300018.json",
-        "kuro_item_id": "4031802",
-        "kuro_name": "Jr. Sentinel Shellpiece",
-        "match_method": "exact",
-        "raw_value": "100.00% base | Qty 1 | Quest 1035",
-        "format": "percent_base",
-        "normalized_probability": 1,
-        "conversion": "100.00 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": "1035"
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Jr. Sentinel Shellpiece | Monster Drop | A hard piece of rock that forms the body of a Jr. | Common  /  Jr. Sentinel Shellpiece | Monster Drop | A hard shellpiece that's a part of Jr. | Common"
+        }
       },
-      "chance_state": "resolved",
-      "probability": 1,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Monster Drop",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/347.json"
       },
+      "chance_category": "etc_own_leftover",
       "quest_gate": null,
-      "notes": [
-        "KuroDB flags the row 'Quest 1035'; under the C1 gate rule (D3-9) it is recorded as corroboration only: 347 is MeowDB subtype 'Monster Drop', so the entry is not quest-gated."
-      ]
+      "notes": []
     }
   ],
-  "excluded_kuro_only": [],
-  "pending_kuro_candidates": [],
   "meowdb_reference": {
-    "note": "MeowDB's community-voted Classic drop list (with votes) and its read-only MSEA list, from the live page. Reference only: monster drop membership comes from Hidden Street (D3-6). item_id is MeowDB's own id for the name in its cached lists (null when the cache does not name it or no local item exists).",
+    "note": "MeowDB's read-only \"MSEA reference drops\" list from the live page: reference only, never a member (decision D3-11). item_id is MeowDB's own id for the name on the cached page (null when it does not name it once or no local item exists).",
     "source": {
       "authority": "MeowDB MS Classic",
       "url": "https://meowdb.com/msclassic/monsters/1",
       "read_at": "2026-10-05T07:49:19.434Z",
       "capture": "tools/meowdb/captures/monster_1.json"
     },
-    "community_drops": [
-      {
-        "name": "Jr. Sentinel Shellpiece",
-        "category": "ETC",
-        "detail": "Monster Drop",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "347"
-      }
-    ],
     "msea_reference": []
   },
-  "meso": null,
+  "meso": {
+    "amount_state": "not_reported",
+    "min": null,
+    "max": null,
+    "amount_source": null,
+    "sources_compared": [
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/1",
+        "read_at": "2026-10-05T07:49:19.434Z",
+        "capture": "tools/meowdb/captures/monster_1.json",
+        "raw_value": "No meso reports yet."
+      },
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
+        "retrieved_at": "2026-10-04T10:06:56.822Z",
+        "raw_value": "summary: count 0, medianMin 0, medianMax 0"
+      }
+    ],
+    "gaps": [
+      "meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/1, 2026-10-05T07:49:19.434Z: \"No meso reports yet.\"); the runtime uses the owner's level formula (decision D3-12, game/data/misostory/meso_rules.json)",
+      "meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)"
+    ]
+  },
   "provenance": {
     "membership": {
-      "authority": "Hidden Street",
-      "url": "https://bc.hidden-street.net/monster/tutorial-jr-sentinel",
-      "read_at": "2026-10-05T08:09:54.751Z",
-      "capture": "tools/hiddenstreet/captures/monsters.json",
-      "decision": "D3-6",
-      "version_note": "Front page, 'Before Chaos', posted 21 June 2011: 'This site is archived directly from our GMS database ... with its Big Bang updates and changes.' It is post-Big-Bang GMS (v0.96 era), a different game version from MapleStory Classic World (MeowDB). Its stats differ from MeowDB's (Snail HP 15 here, 45 on MeowDB)."
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "read_at": "2026-10-05T07:49:19.434Z",
+      "capture": "tools/meowdb/captures/monster_1.json",
+      "decision": "D3-11"
     },
-    "probability": {
-      "authority": "KuroDB",
-      "url": "https://playkuro.com/database/#monsters/9300018",
-      "read_at": "2026-10-05T07:46:08.420Z",
-      "capture": "tools/kurodb/captures/9300018.json",
-      "decision": "D3-3",
-      "site_updated_label": "Updated 10/2/2026"
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
     }
   },
   "source": {
@@ -110,21 +115,22 @@
     "capture": "tools/meowdb/captures/monster_1.json"
   },
   "field_sources": {
-    "meowdb_reference.item_ids": {
+    "entries[].item_id": {
       "url": "https://meowdb.com/msclassic/api/drops?monsterId=1",
       "retrieved_at": "2026-10-04T10:06:55.625Z",
-      "note": "MeowDB item ids for the reference lists, matched by name within MeowDB's own cached drop list"
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
     }
   },
   "gaps": [
-    "mesos: KuroDB's Tutorial Jr. Sentinel page (tools/kurodb/captures/9300018.json) has no \"Meso drop\" row, so the monster drops no mesos (D3-5); MeowDB has no meso report and Hidden Street says \"Mesos: ?\""
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
   ],
   "discrepancies": [],
   "notes": [
-    "Membership: Hidden Street's \"Before Chaos\" drop lists (https://bc.hidden-street.net/monster/tutorial-jr-sentinel, read 2026-10-05T08:09:54.751Z): post-Big-Bang GMS v0.96, a different game version from MapleStory Classic, used by the project owner's decision D3-6. Every member stays in entries; one without a KuroDB chance or a local item never rolls.",
-    "Chance: KuroDB (https://playkuro.com/database/#monsters/9300018, read 2026-10-05T07:46:08.420Z, \"Updated 10/2/2026\"), only for members its page also lists, joined by name through tools/sources/crosswalk/drop_items.json (D3-4). KuroDB \"<p>% base\" is the chance before any server-wide drop-rate multiplier; MisoStory applies none (multiplier 1).",
-    "excluded_kuro_only: KuroDB rows for this monster that no member matches. They never drop (KuroDB never adds a member, D3-6).",
-    "pending_kuro_candidates: KuroDB rows that may be a member under another name, waiting for a hand read of their item page (decision D3-8; tools/kurodb/captures/item_<kuro id>.json). They never drop, and their member's chance is a pending source read, not a source-data gap. Once the page is read, the merge confirms the row as the member's chance (alias_with_evidence) or moves it to excluded_kuro_only with what the page showed.",
-    "Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress. The meso bag rolls only when its amount and chance are both resolved; the amount is a uniform integer in [min, max]."
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/monsters/1, read 2026-10-05T07:49:19.434Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: MeowDB's player report when there is one (meso.amount_source), else the owner's level formula; chance and exceptions in game/data/misostory/meso_rules.json (decision D3-12).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }

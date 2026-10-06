@@ -5,14 +5,15 @@
 // Outputs (one entity per file):
 //   game/data/canonical/monsters/<monster_id>.json     e.g. monsters/2.json  (Snail)
 //   game/data/canonical/drops/<owner_id>.json          monsters/<id> -> drops/<id>.json; breakable 0000001 -> drops/0000001.json
-//                                                      schema v2 records (contract C1) built by tools/sources/drops_merge.mjs
-//                                                      from the dated captures + the reviewed crosswalk (this extractor is
-//                                                      their single writer)
+//                                                      schema 3 records (contract C1) built by tools/sources/drops_merge.mjs
+//                                                      from the dated captures and the cache (this extractor is their
+//                                                      single writer)
 //   game/data/canonical/breakables/<breakable_id>.json e.g. breakables/0000001.json (Wooden Box)
 //
-// Dated hand-read captures (tools/*/captures, read through tools/sources/captures.mjs; decisions D3-1 to D3-9):
+// Dated hand-read captures (tools/*/captures, read through tools/sources/captures.mjs; decisions D3-1, D3-11, D3-12):
 //   tools/meowdb/captures/monster_<id>.*    live monster pages: STAGGER (stagger_ms), meso report, community lists
-//   drop records: Hidden Street membership, KuroDB chances, MeowDB / Hidden Street meso amounts (see drops_merge.mjs)
+//   tools/henesys/captures/item_rarity.json Henesys.gg rarity labels of the drop-list items
+//   drop records: MeowDB community-list membership, Henesys.gg rarity, MeowDB meso reports (see drops_merge.mjs)
 //
 // Sources (MeowDB MS Classic cache; see docs/canonical/monsters.md):
 //   /maps/<id>                              which monsters / breakables are on the 25 maps (the monster list is DERIVED here)
@@ -641,8 +642,8 @@ function buildMonster(id, pg, P, raw, rawMeta, mesos, maps, glossary, spawnFormu
 
   const mesosSummary = mesos.json.summary;
   if (!P.touch_damage_estimate) gaps.push('touch damage estimate not shown on the page');
-  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/${id}.json takes the meso chance from KuroDB, decision D3-5)`));
-  gaps.push('drop chances and quantities: MeowDB gives none; drops/' + id + '.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)');
+  gaps.push('mesos per kill: ' + (mesosSummary.count === 0 ? 'no player reports on MeowDB (see drops/' + id + '.json)' : `${mesosSummary.count} player report(s) only`) + '; MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)');
+  gaps.push('drop chances and quantities: MeowDB gives none; drops/' + id + '.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)');
   gaps.push('kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB\'s simulator data chunk (field_sources)');
   gaps.push('attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)');
   const stagger = liveStagger(live);
@@ -878,8 +879,8 @@ async function main() {
     console.log(`breakable ${bid} ${B.name}: ${B.hits_to_break} hits; ${placements.length} Maple Island placements`);
   }
 
-  // Drop records (contract C1): Hidden Street / MeowDB membership, KuroDB chances, the reviewed crosswalk. The merge must
-  // cover exactly the drop owners found on the 25 maps.
+  // Drop records (contract C1): MeowDB community-list membership and Henesys.gg rarity. The build must cover exactly the
+  // drop owners found on the 25 maps.
   const { records, summary } = buildDropRecords({ captures, meowdbCache });
   const owners = [...monsterIds, ...breakableIds];
   if (owners.slice().sort().join() !== Object.keys(records).sort().join()) {

@@ -1,13 +1,14 @@
 {
   "id": "9",
   "name": "Orange Mushroom drop table",
-  "schema_version": 2,
+  "schema_version": 3,
   "owner": {
     "kind": "monster",
     "id": "9",
     "name": "Orange Mushroom"
   },
-  "membership_authority": "Hidden Street",
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
   "entries": [
     {
       "key": "orange-mushroom-cap",
@@ -15,439 +16,137 @@
       "item_id": "356",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 356 'Orange Mushroom Cap'."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Etc. drop: Orange Mushroom Cap, Omok Piece : Mushroom",
-        "categories": [
-          "Etc. drop"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "4000001",
-        "kuro_name": "Orange Mushroom Cap",
-        "match_method": "exact",
-        "raw_value": "100% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 1,
-        "conversion": "100 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null
-      },
-      "chance_state": "resolved",
-      "probability": 1,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
-      },
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 356 is \"Orange Mushroom Cap\" (Etc/Monster Drop), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Orange Mushroom Cap\" (4000001) \"100% base | Qty 1\" = 100%, so it rolls at 1."
-      ]
-    },
-    {
-      "key": "omok-piece-mushroom",
-      "name": "Omok Piece : Mushroom",
-      "item_id": null,
-      "item_resolution": {
-        "state": "ambiguous",
-        "method": "normalized",
+        "method": "exact_name",
         "candidates": [
-          "486",
-          "495",
-          "498"
+          "356"
         ],
-        "note": "MeowDB has three items named 'Omok Piece: Mushroom' (486, 495, 498; tools/meowdb/captures/items_api.json), all Etc/Quest Item with no drop sources. Nothing offline picks one (decision D3-8)."
+        "evidence": "game/data/canonical/items/356.json is the only local item named \"Orange Mushroom Cap\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 9) carries item 356, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Etc. drop: Orange Mushroom Cap, Omok Piece : Mushroom",
-        "categories": [
-          "Etc. drop"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Orange Mushroom Cap\nMonster Drop\n▲\n14\n▼\n1",
+        "votes": {
+          "up": 14,
+          "down": 1,
+          "score": 13
+        }
       },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "4030001",
-        "kuro_name": "Omok Piece : Mushroom",
-        "match_method": "exact",
-        "raw_value": "1.00% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 0.01,
-        "conversion": "1.00 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Orange Mushroom Cap | Monster Drop | A cap removed from an Orange Mushroom. | Common"
+        }
       },
-      "chance_state": "resolved",
-      "probability": 0.01,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Monster Drop",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/356.json"
       },
+      "chance_category": "etc_own_leftover",
       "quest_gate": null,
-      "notes": [
-        "The chance is known (1%) but the item is not, so the entry never rolls until the owner picks a MeowDB id (D3-8)."
-      ]
+      "notes": []
     },
     {
-      "key": "red-swimming-cap",
-      "name": "Red Swimming Cap",
-      "item_id": null,
-      "item_resolution": {
-        "state": "not_in_snapshot",
-        "method": "exact",
-        "candidates": [
-          "718"
-        ],
-        "note": "MeowDB's npc-shops.html links item-db/718 as 'Red Swimming Cap'. No local definition."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Common equipment: Red Swimming Cap, Yellow Bandana, Red Headband",
-        "categories": [
-          "Common equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: the MeowDB cache links item-db/718 next to \"Red Swimming Cap\" (npc-shops.html, npc-shops_item-efficiency_beginner.html), but game/data/canonical/items/718.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "yellow-bandana",
-      "name": "Yellow Bandana",
-      "item_id": null,
-      "item_resolution": {
-        "state": "not_in_snapshot",
-        "method": "exact",
-        "candidates": [
-          "722"
-        ],
-        "note": "MeowDB's npc-shops.html links item-db/722 as 'Yellow Bandana'. No local definition."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Common equipment: Red Swimming Cap, Yellow Bandana, Red Headband",
-        "categories": [
-          "Common equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: the MeowDB cache links item-db/722 next to \"Yellow Bandana\" (item-db_724.html, npc-shops.html), but game/data/canonical/items/722.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "red-headband",
-      "name": "Red Headband",
-      "item_id": "711",
+      "key": "bronze-ore",
+      "name": "Bronze Ore",
+      "item_id": "413",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 711 'Red Headband'."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Common equipment: Red Swimming Cap, Yellow Bandana, Red Headband",
-        "categories": [
-          "Common equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 711 is \"Red Headband\" (Equip/Hat), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "crossbow",
-      "name": "Crossbow",
-      "item_id": null,
-      "item_resolution": {
-        "state": "not_in_snapshot",
-        "method": "exact",
+        "method": "exact_name",
         "candidates": [
-          "672"
+          "413"
         ],
-        "note": "MeowDB's npc-shops.html links item-db/672 as 'Crossbow'. No local definition."
+        "evidence": "game/data/canonical/items/413.json is the only local item named \"Bronze Ore\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 97) carries item 413, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Bowman equipment: Crossbow, Yellow Avelin (F), Brown Hard Leather Boots",
-        "categories": [
-          "Bowman equipment"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Bronze Ore\nOre & Mineral\n▲\n10\n▼\n1",
+        "votes": {
+          "up": 10,
+          "down": 1,
+          "score": 9
+        }
       },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Bronze Ore | Ore | Used in equipment crafting. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Ore & Mineral",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/413.json"
+      },
+      "chance_category": "etc_other",
       "quest_gate": null,
-      "notes": [
-        "Re-checked: the MeowDB cache links item-db/672 next to \"Crossbow\" (npc-shops.html), but game/data/canonical/items/672.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
+      "notes": []
     },
     {
-      "key": "yellow-avelin-f",
-      "name": "Yellow Avelin (F)",
-      "item_id": null,
-      "item_resolution": {
-        "state": "not_in_snapshot",
-        "method": "normalized",
-        "candidates": [
-          "956"
-        ],
-        "note": "MeowDB's npc-shops.html links item-db/956 with the text 'Yellow Avelin (F)'. No local definition."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Bowman equipment: Crossbow, Yellow Avelin (F), Brown Hard Leather Boots",
-        "categories": [
-          "Bowman equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: the MeowDB cache links item-db/956 next to \"Yellow Avelin\" (npc-shops.html), but game/data/canonical/items/956.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "brown-hard-leather-boots",
-      "name": "Brown Hard Leather Boots",
-      "item_id": "1314",
+      "key": "diamond-ore",
+      "name": "Diamond Ore",
+      "item_id": "327",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 1314 'Brown Hard Leather Boots'."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Bowman equipment: Crossbow, Yellow Avelin (F), Brown Hard Leather Boots",
-        "categories": [
-          "Bowman equipment"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "1072015",
-        "kuro_name": "Brown Hard Leather Boots",
-        "match_method": "exact",
-        "raw_value": "0.0800% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 0.0008,
-        "conversion": "0.0800 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null
-      },
-      "chance_state": "resolved",
-      "probability": 0.0008,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
-      },
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 1314 is \"Brown Hard Leather Boots\" (Equip/Shoes), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Brown Hard Leather Boots\" (1072015) \"0.0800% base | Qty 1\" = 0.08%, so it rolls at 0.0008."
-      ]
-    },
-    {
-      "key": "blue-cloth-pants-m",
-      "name": "Blue Cloth Pants (M)",
-      "item_id": null,
-      "item_resolution": {
-        "state": "ambiguous",
-        "method": "normalized",
+        "method": "exact_name",
         "candidates": [
-          "1169",
-          "1178"
+          "327"
         ],
-        "note": "Two MeowDB items are named 'Blue Cloth Pants': 1169 (npc-shops.html; next to male 1168 on item-db_1168.html) and 1178 (next to female 1177 on item-db_1177.html). Neither is local; the gender is inferred from neighbours only."
+        "evidence": "game/data/canonical/items/327.json is the only local item named \"Diamond Ore\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 203) carries item 327, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Thief equipment: Blue Cloth Pants (M), Black Cloth Pants (F), Garnier, Red Ninja Sandals",
-        "categories": [
-          "Thief equipment"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Diamond Ore\nGem\n▲\n9\n▼\n0",
+        "votes": {
+          "up": 9,
+          "down": 0,
+          "score": 9
+        }
       },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Diamond Ore | Ore | Used in equipment crafting. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Gem",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/327.json"
+      },
+      "chance_category": "etc_other",
       "quest_gate": null,
-      "notes": [
-        "Re-checked: candidates 1169 / 1178 (none local); no offline source gives their gender, so the (M) cannot pick one and the row is left ambiguous rather than guessed; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "black-cloth-pants-f",
-      "name": "Black Cloth Pants (F)",
-      "item_id": null,
-      "item_resolution": {
-        "state": "ambiguous",
-        "method": "normalized",
-        "candidates": [
-          "1170",
-          "1179"
-        ],
-        "note": "Two MeowDB items are named 'Black Cloth Pants' (1170, 1179); see the Red Snail's 'Black Cloth Pants (M)'. Neither is local."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Thief equipment: Blue Cloth Pants (M), Black Cloth Pants (F), Garnier, Red Ninja Sandals",
-        "categories": [
-          "Thief equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: candidates 1170 / 1179 (none local); no offline source gives their gender, so the (F) cannot pick one and the row is left ambiguous rather than guessed; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "garnier",
-      "name": "Garnier",
-      "item_id": null,
-      "item_resolution": {
-        "state": "not_in_snapshot",
-        "method": "exact",
-        "candidates": [
-          "680"
-        ],
-        "note": "MeowDB's npc-shops.html links item-db/680 as 'Garnier'. No local definition."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Thief equipment: Blue Cloth Pants (M), Black Cloth Pants (F), Garnier, Red Ninja Sandals",
-        "categories": [
-          "Thief equipment"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: the MeowDB cache links item-db/680 next to \"Garnier\" (npc-shops.html), but game/data/canonical/items/680.json does not exist, so the item stays unresolved; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "red-ninja-sandals",
-      "name": "Red Ninja Sandals",
-      "item_id": "1327",
-      "item_resolution": {
-        "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 1327 'Red Ninja Sandals'."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Thief equipment: Blue Cloth Pants (M), Black Cloth Pants (F), Garnier, Red Ninja Sandals",
-        "categories": [
-          "Thief equipment"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "1072031",
-        "kuro_name": "Red Ninja Sandals",
-        "match_method": "exact",
-        "raw_value": "0.0800% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 0.0008,
-        "conversion": "0.0800 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null
-      },
-      "chance_state": "resolved",
-      "probability": 0.0008,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
-      },
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 1327 is \"Red Ninja Sandals\" (Equip/Shoes), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Red Ninja Sandals\" (1072031) \"0.0800% base | Qty 1\" = 0.08%, so it rolls at 0.0008."
-      ]
+      "notes": []
     },
     {
       "key": "red-potion",
@@ -455,428 +154,515 @@
       "item_id": "270",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 270 'Red Potion'."
+        "method": "exact_name",
+        "candidates": [
+          "270"
+        ],
+        "evidence": "game/data/canonical/items/270.json is the only local item named \"Red Potion\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 100) carries item 270, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Useable drop: Red Potion, Orange Potion, Blue Potion, Arrow for Bow, Scroll for Shoes for Jump 10%",
-        "categories": [
-          "Useable drop"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Red Potion\nPotion\n▲\n10\n▼\n0",
+        "votes": {
+          "up": 10,
+          "down": 0,
+          "score": 10
+        }
       },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "2000000",
-        "kuro_name": "Red Potion",
-        "match_method": "exact",
-        "raw_value": "2.00% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 0.02,
-        "conversion": "2.00 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Red Potion | Potion | Restores HP and/or MP. | Common"
+        }
       },
-      "chance_state": "resolved",
-      "probability": 0.02,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Potion",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/270.json"
       },
+      "chance_category": "use_consumable",
       "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 270 is \"Red Potion\" (Use/Potion), an exact match; KuroDB tools/kurodb/captures/1210102.json row \"Red Potion\" (2000000) \"2.00% base | Qty 1\" = 2%, so it rolls at 0.02."
-      ]
+      "notes": []
     },
     {
-      "key": "orange-potion",
-      "name": "Orange Potion",
-      "item_id": "271",
+      "key": "arrows-for-crossbows",
+      "name": "Arrows for Crossbows",
+      "item_id": "213",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 271 'Orange Potion'."
+        "method": "exact_name",
+        "candidates": [
+          "213"
+        ],
+        "evidence": "game/data/canonical/items/213.json is the only local item named \"Arrows for Crossbows\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 70) carries item 213, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Useable drop: Red Potion, Orange Potion, Blue Potion, Arrow for Bow, Scroll for Shoes for Jump 10%",
-        "categories": [
-          "Useable drop"
-        ]
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Arrows for Crossbows\nArrow\n▲\n6\n▼\n0",
+        "votes": {
+          "up": 6,
+          "down": 0,
+          "score": 6
+        }
       },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Arrows for Crossbows | Arrow | Ammunition for crossbow. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Arrow",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/213.json"
+      },
+      "chance_category": "use_consumable",
       "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 271 is \"Orange Potion\" (Use/Potion), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
+      "notes": []
     },
     {
-      "key": "blue-potion",
-      "name": "Blue Potion",
-      "item_id": "273",
-      "item_resolution": {
-        "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 273 'Blue Potion'."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Useable drop: Red Potion, Orange Potion, Blue Potion, Arrow for Bow, Scroll for Shoes for Jump 10%",
-        "categories": [
-          "Useable drop"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 273 is \"Blue Potion\" (Use/Potion), an exact match; none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "arrow-for-bow",
-      "name": "Arrow for Bow",
+      "key": "arrows-for-bows",
+      "name": "Arrows for Bows",
       "item_id": "209",
       "item_resolution": {
         "state": "resolved",
-        "method": "alias_with_evidence",
-        "candidates": [],
-        "note": "MeowDB's name is 'Arrows for Bows' (items/209.json); MeowDB's own npc-shops.html links item-db/209 with the text 'Arrow for Bow'."
+        "method": "exact_name",
+        "candidates": [
+          "209"
+        ],
+        "evidence": "game/data/canonical/items/209.json is the only local item named \"Arrows for Bows\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 445) carries item 209, the same id"
       },
       "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Useable drop: Red Potion, Orange Potion, Blue Potion, Arrow for Bow, Scroll for Shoes for Jump 10%",
-        "categories": [
-          "Useable drop"
-        ]
-      },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
-      "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 209 is \"Arrows for Bows\" (Use/Arrow), an alias_with_evidence match (the evidence above); none of the 20 item rows on KuroDB tools/kurodb/captures/1210102.json is this item, so its chance stays unresolved and it never rolls."
-      ]
-    },
-    {
-      "key": "scroll-for-shoes-for-jump-10",
-      "name": "Scroll for Shoes for Jump 10%",
-      "item_id": "177",
-      "item_resolution": {
-        "state": "resolved",
-        "method": "alias_with_evidence",
-        "candidates": [],
-        "note": "MeowDB names scrolls by grade. 177 'Shoes Jump Scroll: Greater' is a Shoes Jump scroll with success_rate_pct 10 and no destruction (items/177.json scroll block), and MeowDB's own Orange Mushroom page lists 'Shoes Jump Scroll: Greater' in its MSEA reference drops (tools/meowdb/captures/monster_9.json). MeowDB's scroll table (cached chunk _next_static_chunks_6549-*.js) has one other 10% Shoes Jump scroll, 'Shoes Jump Scroll: Chaos' (destroys on failure, no local definition); Hidden Street's plain 'Scroll for Shoes for Jump 10%' (no 'Dark') is read as the non-destroying one."
-      },
-      "membership_source": {
-        "authority": "Hidden Street",
-        "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-        "read_at": "2026-10-05T08:04:12.549Z",
-        "capture": "tools/hiddenstreet/captures/monsters.json",
-        "raw_value": "Useable drop: Red Potion, Orange Potion, Blue Potion, Arrow for Bow, Scroll for Shoes for Jump 10%",
-        "categories": [
-          "Useable drop"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#monsters/1210102",
-        "read_at": "2026-10-05T07:45:49.813Z",
-        "capture": "tools/kurodb/captures/1210102.json",
-        "kuro_item_id": "2040705",
-        "kuro_name": "Scroll for Shoes for Jump",
-        "match_method": "alias_with_evidence",
-        "raw_value": "0.0300% base | Qty 1",
-        "format": "percent_base",
-        "normalized_probability": 0.0003,
-        "conversion": "0.0300 / 100",
-        "interpretation": null,
-        "kuro_quest_condition": null,
-        "match_evidence": {
-          "capture": "tools/kurodb/captures/item_2040705.json",
-          "url": "https://playkuro.com/database/#items/2040705",
-          "read_at": "2026-10-06T03:45:55.467Z",
-          "shows": "Success rate:10% (description), bonuses {\"dex\":3,\"jump\":5,\"speed\":1} (item stats); name \"Scroll for Shoes for Jump\" (the member's name is the page's plus its success rate 10%); its MONSTER DROPS list Orange Mushroom at \"0.0300% base | Qty 1\", as the monster page does (it lists Orange Mushroom again at \"0.0750% base | Qty 1\", a row the monster page does not have: not used)",
-          "version_difference": "KuroDB's item data is another game version: its bonus jump +5 (MeowDB 177: +3); also dex +3, speed +1 (not on MeowDB 177). Recorded only: the item's stats come from MeowDB 177 (decision D3-10).",
-          "decision": "D3-8, D3-10"
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Arrows for Bows\nArrow\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
         }
       },
-      "chance_state": "resolved",
-      "probability": 0.0003,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "KuroDB 'Qty 1'"
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Arrows for Bows | Arrow | Ammunition for bow. | Common"
+        }
       },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Arrow",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/209.json"
+      },
+      "chance_category": "use_consumable",
       "quest_gate": null,
-      "notes": [
-        "Item and chance resolved. KuroDB's item page 2040705 (read 2026-10-06) shows 'Scroll for Shoes for Jump', Success rate 10%, bonuses JUMP +5, DEX +3, SPEED +1, and lists the Orange Mushroom at '0.0300% base | Qty 1', the monster page's value (it lists an Orange Mushroom again at 0.0750%, a row the monster page does not have). Under the orchestrator's decision D3-10 that confirms the row as this member's chance: the name is Hidden Street's without the rate, the rate is MeowDB 177's 10%, and jump, 177's stat, is among the bonuses. The bonus amounts (+5 against MeowDB's Jump +3) and the extra DEX and SPEED are another game version's item data, recorded as a version difference; the item's stats stay MeowDB 177's.",
-        "KuroDB candidate row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") confirmed by its item page (tools/kurodb/captures/item_2040705.json, read 2026-10-06T03:45:55.467Z; decision D3-10): it shows Success rate:10% (description), bonuses {\"dex\":3,\"jump\":5,\"speed\":1} (item stats); name \"Scroll for Shoes for Jump\" (the member's name is the page's plus its success rate 10%); its MONSTER DROPS list Orange Mushroom at \"0.0300% base | Qty 1\", as the monster page does (it lists Orange Mushroom again at \"0.0750% base | Qty 1\", a row the monster page does not have: not used). KuroDB's item data is another game version: its bonus jump +5 (MeowDB 177: +3); also dex +3, speed +1 (not on MeowDB 177). Recorded only: the item's stats come from MeowDB 177 (decision D3-10)."
-      ]
-    }
-  ],
-  "excluded_kuro_only": [
-    {
-      "kuro_item_id": "2380007",
-      "name": "Orange Mushroom Card",
-      "raw_value": "26% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
+      "notes": []
     },
     {
-      "kuro_item_id": "4032314",
-      "name": "Orange Mushroom Horn",
-      "raw_value": "15% base | Qty 1 | Quest 21709",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "4001354",
-      "name": "Young Soul",
-      "raw_value": "8.00% base | Qty 1 | Quest 28209",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "4001364",
-      "name": "Orange Mushroom Sample",
-      "raw_value": "8.00% base | Qty 1 | Quest 28192",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "4001345",
-      "name": "Sunglasses",
-      "raw_value": "7.00% base | Qty 1 | Quest 28170",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "4010000",
-      "name": "Bronze Ore",
-      "raw_value": "0.90% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "4020007",
-      "name": "Diamond Ore",
-      "raw_value": "0.90% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "1002043",
-      "name": "Bronze Koif",
-      "raw_value": "0.13% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "1082012",
-      "name": "Basic Archer Gloves",
-      "raw_value": "0.10% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "1072004",
-      "name": "White Gomushin",
-      "raw_value": "0.0800% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "1052095",
-      "name": "Brown Rocky Suit",
-      "raw_value": "0.0700% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
-    },
-    {
-      "kuro_item_id": "1312000",
+      "key": "double-axe",
       "name": "Double Axe",
-      "raw_value": "0.0700% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
+      "item_id": "577",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "577"
+        ],
+        "evidence": "game/data/canonical/items/577.json is the only local item named \"Double Axe\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 187) carries item 577, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Double Axe\nLv 10 · Any\n▲\n5\n▼\n0",
+        "votes": {
+          "up": 5,
+          "down": 0,
+          "score": 5
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Double Axe | One-Handed Axe | ATK | +27 | Fast (4) | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "One-Handed Axe",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/577.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "kuro_item_id": "1432000",
+      "key": "long-sword",
+      "name": "Long Sword",
+      "item_id": "543",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "543"
+        ],
+        "evidence": "game/data/canonical/items/543.json is the only local item named \"Long Sword\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 202) carries item 543, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Long Sword\nLv 10 · Any\n▲\n4\n▼\n0",
+        "votes": {
+          "up": 4,
+          "down": 0,
+          "score": 4
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Long Sword | One-Handed Sword | ATK | +27 | Fast (4) | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "One-Handed Sword",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/543.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "spear",
       "name": "Spear",
-      "raw_value": "0.0500% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
+      "item_id": "633",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "633"
+        ],
+        "evidence": "game/data/canonical/items/633.json is the only local item named \"Spear\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 358) carries item 633, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Spear\nLv 10 · Warrior/Bowman/Thief\n▲\n4\n▼\n0",
+        "votes": {
+          "up": 4,
+          "down": 0,
+          "score": 4
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Spear | Spear · Warrior/Bowman/Thief | ATK | +32 | Slow (7) | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Spear",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/633.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "kuro_item_id": "2330000",
-      "name": "Bullet",
-      "raw_value": "0.0500% base | Qty 1",
-      "reason": "not on the membership list (KuroDB never adds members)"
+      "key": "bronze-koif",
+      "name": "Bronze Koif",
+      "item_id": "724",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "724"
+        ],
+        "evidence": "game/data/canonical/items/724.json is the only local item named \"Bronze Koif\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 359) carries item 724, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Bronze Koif\nLv 10 · Warrior\n▲\n3\n▼\n0",
+        "votes": {
+          "up": 3,
+          "down": 0,
+          "score": 3
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Bronze Koif | Helmet · Warrior | DEX | +1 | DEF | +22 | ACC | +1 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Hat",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/724.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "red-ninja-sandals",
+      "name": "Red Ninja Sandals",
+      "item_id": "1327",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "1327"
+        ],
+        "evidence": "game/data/canonical/items/1327.json is the only local item named \"Red Ninja Sandals\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 357) carries item 1327, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Red Ninja Sandals\nLv 15 · Thief\n▲\n3\n▼\n0",
+        "votes": {
+          "up": 3,
+          "down": 0,
+          "score": 3
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Red Ninja Sandals | Shoes · Thief | STR | +1 | DEF | +12 | HP | +5 | AVD | +1 | 5 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Shoes",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/1327.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "white-gomushin",
+      "name": "White Gomushin",
+      "item_id": "1317",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "1317"
+        ],
+        "evidence": "game/data/canonical/items/1317.json is the only local item named \"White Gomushin\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 448) carries item 1317, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "White Gomushin\nLv 11 · Any\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "White Gomushin | Shoes | DEF | +11 | SPD | +1 | 5 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Shoes",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/1317.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "brown-hard-leather-boots",
+      "name": "Brown Hard Leather Boots",
+      "item_id": "1314",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "1314"
+        ],
+        "evidence": "game/data/canonical/items/1314.json is the only local item named \"Brown Hard Leather Boots\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 446) carries item 1314, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Brown Hard Leather Boots\nLv 10 · Bowman\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Brown Hard Leather Boots | Shoes · Bowman | DEF | +10 | AVD | +1 | SPD | +1 | 5 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Shoes",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/1314.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "green-winter-hat",
+      "name": "Green Winter Hat",
+      "item_id": "731",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "731"
+        ],
+        "evidence": "game/data/canonical/items/731.json is the only local item named \"Green Winter Hat\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=9, retrieved 2026-10-04T10:07:14.912Z; entry 447) carries item 731, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Green Winter Hat\nLv 10 · Bowman\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Green Winter Hat | Helmet · Bowman | DEX | +1 | DEF | +15 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Hat",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/731.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     }
   ],
-  "pending_kuro_candidates": [],
   "meowdb_reference": {
-    "note": "MeowDB's community-voted Classic drop list (with votes) and its read-only MSEA list, from the live page. Reference only: monster drop membership comes from Hidden Street (D3-6). item_id is MeowDB's own id for the name in its cached lists (null when the cache does not name it or no local item exists).",
+    "note": "MeowDB's read-only \"MSEA reference drops\" list from the live page: reference only, never a member (decision D3-11). item_id is MeowDB's own id for the name on the cached page (null when it does not name it once or no local item exists).",
     "source": {
       "authority": "MeowDB MS Classic",
       "url": "https://meowdb.com/msclassic/monsters/9",
       "read_at": "2026-10-05T07:48:54.363Z",
       "capture": "tools/meowdb/captures/monster_9.json"
     },
-    "community_drops": [
-      {
-        "name": "Orange Mushroom Cap",
-        "category": "ETC",
-        "detail": "Monster Drop",
-        "upvotes": 14,
-        "downvotes": 1,
-        "score": 13,
-        "disputed": false,
-        "item_id": "356"
-      },
-      {
-        "name": "Bronze Ore",
-        "category": "ETC",
-        "detail": "Ore & Mineral",
-        "upvotes": 10,
-        "downvotes": 1,
-        "score": 9,
-        "disputed": false,
-        "item_id": "413"
-      },
-      {
-        "name": "Diamond Ore",
-        "category": "ETC",
-        "detail": "Gem",
-        "upvotes": 9,
-        "downvotes": 0,
-        "score": 9,
-        "disputed": false,
-        "item_id": "327"
-      },
-      {
-        "name": "Red Potion",
-        "category": "USE",
-        "detail": "Potion",
-        "upvotes": 10,
-        "downvotes": 0,
-        "score": 10,
-        "disputed": false,
-        "item_id": "270"
-      },
-      {
-        "name": "Arrows for Crossbows",
-        "category": "USE",
-        "detail": "Arrow",
-        "upvotes": 6,
-        "downvotes": 0,
-        "score": 6,
-        "disputed": false,
-        "item_id": "213"
-      },
-      {
-        "name": "Arrows for Bows",
-        "category": "USE",
-        "detail": "Arrow",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "209"
-      },
-      {
-        "name": "Double Axe",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Any",
-        "upvotes": 5,
-        "downvotes": 0,
-        "score": 5,
-        "disputed": false,
-        "item_id": "577"
-      },
-      {
-        "name": "Long Sword",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Any",
-        "upvotes": 4,
-        "downvotes": 0,
-        "score": 4,
-        "disputed": false,
-        "item_id": "543"
-      },
-      {
-        "name": "Spear",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Warrior/Bowman/Thief",
-        "upvotes": 4,
-        "downvotes": 0,
-        "score": 4,
-        "disputed": false,
-        "item_id": "633"
-      },
-      {
-        "name": "Bronze Koif",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Warrior",
-        "upvotes": 3,
-        "downvotes": 0,
-        "score": 3,
-        "disputed": false,
-        "item_id": "724"
-      },
-      {
-        "name": "Red Ninja Sandals",
-        "category": "EQUIPMENT",
-        "detail": "Lv 15 · Thief",
-        "upvotes": 3,
-        "downvotes": 0,
-        "score": 3,
-        "disputed": false,
-        "item_id": "1327"
-      },
-      {
-        "name": "White Gomushin",
-        "category": "EQUIPMENT",
-        "detail": "Lv 11 · Any",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "1317"
-      },
-      {
-        "name": "Brown Hard Leather Boots",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Bowman",
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1,
-        "disputed": false,
-        "item_id": "1314"
-      },
-      {
-        "name": "Green Winter Hat",
-        "category": "EQUIPMENT",
-        "detail": "Lv 10 · Bowman",
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1,
-        "disputed": false,
-        "item_id": "731"
-      }
-    ],
     "msea_reference": [
       {
         "name": "Orange Mushroom Cap",
@@ -953,63 +739,44 @@
     ]
   },
   "meso": {
-    "amount_state": "resolved",
-    "min": 9,
-    "max": 13,
-    "amount_source": {
-      "authority": "Hidden Street",
-      "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-      "read_at": "2026-10-05T08:04:12.549Z",
-      "capture": "tools/hiddenstreet/captures/monsters.json",
-      "raw_value": "Mesos: 9-13",
-      "interpretation": "Hidden Street range 9-13 read as a uniform integer in [9, 13] (MisoStory interpretation, verified: false)",
-      "decision": "D3-5",
-      "meowdb_note": "MeowDB (https://meowdb.com/msclassic/monsters/9, read 2026-10-05T07:48:54.363Z): \"No meso reports yet.\""
-    },
-    "chance_state": "resolved",
-    "probability": 0.4,
-    "chance_source": {
-      "authority": "KuroDB",
-      "url": "https://playkuro.com/database/#monsters/1210102",
-      "read_at": "2026-10-05T07:45:49.813Z",
-      "capture": "tools/kurodb/captures/1210102.json",
-      "raw_value": "40% base | Meso drop",
-      "format": "percent_base",
-      "normalized_probability": 0.4,
-      "conversion": "40 / 100"
-    },
-    "discrepancies": []
+    "amount_state": "not_reported",
+    "min": null,
+    "max": null,
+    "amount_source": null,
+    "sources_compared": [
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/9",
+        "read_at": "2026-10-05T07:48:54.363Z",
+        "capture": "tools/meowdb/captures/monster_9.json",
+        "raw_value": "No meso reports yet."
+      },
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=9",
+        "retrieved_at": "2026-10-04T10:07:16.120Z",
+        "raw_value": "summary: count 0, medianMin 0, medianMax 0"
+      }
+    ],
+    "gaps": [
+      "meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/9, 2026-10-05T07:48:54.363Z: \"No meso reports yet.\"); the runtime uses the owner's level formula (decision D3-12, game/data/misostory/meso_rules.json)",
+      "meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)"
+    ]
   },
   "provenance": {
     "membership": {
-      "authority": "Hidden Street",
-      "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-      "read_at": "2026-10-05T08:04:12.549Z",
-      "capture": "tools/hiddenstreet/captures/monsters.json",
-      "decision": "D3-6",
-      "version_note": "Front page, 'Before Chaos', posted 21 June 2011: 'This site is archived directly from our GMS database ... with its Big Bang updates and changes.' It is post-Big-Bang GMS (v0.96 era), a different game version from MapleStory Classic World (MeowDB). Its stats differ from MeowDB's (Snail HP 15 here, 45 on MeowDB)."
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/9",
+      "read_at": "2026-10-05T07:48:54.363Z",
+      "capture": "tools/meowdb/captures/monster_9.json",
+      "decision": "D3-11"
     },
-    "probability": {
-      "authority": "KuroDB",
-      "url": "https://playkuro.com/database/#monsters/1210102",
-      "read_at": "2026-10-05T07:45:49.813Z",
-      "capture": "tools/kurodb/captures/1210102.json",
-      "decision": "D3-3",
-      "site_updated_label": "Updated 10/2/2026"
-    },
-    "mesos.amount": {
-      "authority": "Hidden Street",
-      "url": "https://bc.hidden-street.net/monster/orange-mushroom",
-      "read_at": "2026-10-05T08:04:12.549Z",
-      "capture": "tools/hiddenstreet/captures/monsters.json",
-      "decision": "D3-5"
-    },
-    "mesos.probability": {
-      "authority": "KuroDB",
-      "url": "https://playkuro.com/database/#monsters/1210102",
-      "read_at": "2026-10-05T07:45:49.813Z",
-      "capture": "tools/kurodb/captures/1210102.json",
-      "decision": "D3-5"
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
     }
   },
   "source": {
@@ -1019,39 +786,22 @@
     "capture": "tools/meowdb/captures/monster_9.json"
   },
   "field_sources": {
-    "meowdb_reference.item_ids": {
+    "entries[].item_id": {
       "url": "https://meowdb.com/msclassic/api/drops?monsterId=9",
       "retrieved_at": "2026-10-04T10:07:14.912Z",
-      "note": "MeowDB item ids for the reference lists, matched by name within MeowDB's own cached drop list and the cached page's MSEA list (https://meowdb.com/msclassic/monsters/9)"
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
     }
   },
   "gaps": [
-    "item unresolved: \"Omok Piece : Mushroom\" (ambiguous, MeowDB candidates 486, 495, 498), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Red Swimming Cap\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Red Swimming Cap\" (not_in_snapshot, MeowDB candidates 718), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Yellow Bandana\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Yellow Bandana\" (not_in_snapshot, MeowDB candidates 722), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Red Headband\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Crossbow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Crossbow\" (not_in_snapshot, MeowDB candidates 672), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Yellow Avelin (F)\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Yellow Avelin (F)\" (not_in_snapshot, MeowDB candidates 956), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Blue Cloth Pants (M)\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Blue Cloth Pants (M)\" (ambiguous, MeowDB candidates 1169, 1178), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Black Cloth Pants (F)\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Black Cloth Pants (F)\" (ambiguous, MeowDB candidates 1170, 1179), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Garnier\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "item unresolved: \"Garnier\" (not_in_snapshot, MeowDB candidates 680), so it never rolls; see its item_resolution.note",
-    "chance unresolved: \"Orange Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Blue Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)"
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
   ],
   "discrepancies": [],
   "notes": [
-    "Membership: Hidden Street's \"Before Chaos\" drop lists (https://bc.hidden-street.net/monster/orange-mushroom, read 2026-10-05T08:04:12.549Z): post-Big-Bang GMS v0.96, a different game version from MapleStory Classic, used by the project owner's decision D3-6. Every member stays in entries; one without a KuroDB chance or a local item never rolls.",
-    "Chance: KuroDB (https://playkuro.com/database/#monsters/1210102, read 2026-10-05T07:45:49.813Z, \"Updated 10/2/2026\"), only for members its page also lists, joined by name through tools/sources/crosswalk/drop_items.json (D3-4). KuroDB \"<p>% base\" is the chance before any server-wide drop-rate multiplier; MisoStory applies none (multiplier 1).",
-    "excluded_kuro_only: KuroDB rows for this monster that no member matches. They never drop (KuroDB never adds a member, D3-6).",
-    "pending_kuro_candidates: KuroDB rows that may be a member under another name, waiting for a hand read of their item page (decision D3-8; tools/kurodb/captures/item_<kuro id>.json). They never drop, and their member's chance is a pending source read, not a source-data gap. Once the page is read, the merge confirms the row as the member's chance (alias_with_evidence) or moves it to excluded_kuro_only with what the page showed.",
-    "Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress. The meso bag rolls only when its amount and chance are both resolved; the amount is a uniform integer in [min, max]."
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/monsters/9, read 2026-10-05T07:48:54.363Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: MeowDB's player report when there is one (meso.amount_source), else the owner's level formula; chance and exceptions in game/data/misostory/meso_rules.json (decision D3-12).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }

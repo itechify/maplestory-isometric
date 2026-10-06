@@ -1,5 +1,5 @@
 {
-  "method": "manual reads in a normal browser (T3 preview tab), 2026-10-05 ~08:17Z: item 486 by navigating to its API URL; items 495, 498 and 242 through the page's own fetch() at human pace (3 requests, 1.5 s apart). Purpose: resolve two Hidden Street drop-list items (Green Apple; Omok Piece : Mushroom) to MeowDB item definitions.",
+  "method": "manual reads in a normal browser (T3 preview tab), 2026-10-05 ~08:17Z: item 486 by navigating to its API URL; items 495, 498 and 242 through the page's own fetch() at human pace (3 requests, 1.5 s apart). Purpose: read the MeowDB item definitions of Green Apple and the 'Omok Piece: Mushroom' items, which no cached item page covered.",
   "search_results": {
     "Green Apple": ["/msclassic/item-db/242 :: Green Apple Food", "/msclassic/item-db/236 :: Apple Food"],
     "Omok Piece: Mushroom": ["/msclassic/item-db/486", "/msclassic/item-db/495", "/msclassic/item-db/498"]
@@ -11,7 +11,7 @@
     "498": {"url": "https://meowdb.com/msclassic/api/items/498?locale=en&preview=1", "body": {"id":498,"name":"Omok Piece: Mushroom","type":"Etc","subtype":"Quest Item","description":"A mushroom-shaped Omok piece to play Omok.","flavorText":null,"colorTags":null,"stats":{"price":1},"reqJob":null,"levelReq":0,"iconKey":"4031060","createdAt":"2026-04-09 02:57:07","updatedAt":"2026-04-09 02:57:07","displayName":"Omok Piece: Mushroom","displaySubtype":"Quest Item","previewSources":{"drops":[],"moreDrops":false,"shops":[],"moreShops":false}}}
   },
   "conclusions": {
-    "Green Apple": "MeowDB item 242 (Use/Food, restores 30 MP, price 3). Hidden Street and KuroDB both list Green Apple for Snail, Blue Snail, Shroom and Red Snail (KuroDB 2.00% base).",
-    "Omok Piece : Mushroom": "Ambiguous: MeowDB has three 'Omok Piece: Mushroom' items (486, 495, 498), all Etc/Quest Item with no drop sources. KuroDB's Orange Mushroom drop is its item 4030001 (a non-quest Omok piece). No MeowDB definition can be chosen without guessing, so this Orange Mushroom drop stays unresolved."
+    "Green Apple": "MeowDB item 242 (Use/Food, restores 30 MP, price 3). Its record (items/242.json) is built from this body and item_242.txt.",
+    "Omok Piece : Mushroom": "MeowDB has three 'Omok Piece: Mushroom' items (486, 495, 498), all Etc/Quest Item with no drop sources. None of them is extracted; the bodies are kept as read."
   }
 }

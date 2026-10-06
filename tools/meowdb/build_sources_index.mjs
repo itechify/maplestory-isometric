@@ -10,9 +10,9 @@
 // gap/discrepancy counts. Two keys appear only when the record has them (so MeowDB-only records stay unchanged):
 //   capture_files     every dated capture the record cites (any "capture" key, at any depth: tools/*/captures/...)
 //   property_sources  per-property authorities and URLs (Iteration Three contract C7): the record-level
-//                     provenance.<property> blocks plus, in schema v2 drop records (contract C1), each entry's
-//                     membership_source ("membership") and chance_source ("probability") and the meso amount_source
-//                     ("mesos.amount") and chance_source ("mesos.probability")
+//                     provenance.<property> blocks plus, in schema 3 drop records (contract C1), each entry's
+//                     membership_source ("membership") and rarity.source ("rarity") and the meso amount_source
+//                     ("mesos.amount")
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,9 +21,13 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 const CANON = path.join(ROOT, 'game', 'data', 'canonical');
 const OUT = path.join(CANON, 'canonical_sources.json');
 
-// Per-entry and meso source keys of a schema v2 drop record -> the property they supply (ProvenanceChecks mirrors this).
-const ENTRY_SOURCE_PROPERTIES = { membership_source: 'membership', chance_source: 'probability' };
-const MESO_SOURCE_PROPERTIES = { amount_source: 'mesos.amount', chance_source: 'mesos.probability' };
+// Per-entry and meso source paths of a schema 3 drop record -> the property they supply (ProvenanceAuthorities
+// SOURCE_PROPERTIES mirrors this).
+const DROP_SCHEMA_VERSION = 3;
+const ENTRY_SOURCE_PROPERTIES = { membership_source: 'membership', 'rarity.source': 'rarity' };
+const MESO_SOURCE_PROPERTIES = { amount_source: 'mesos.amount' };
+/** The value at a dotted path ("rarity.source") under node, or undefined. */
+const at = (node, p) => p.split('.').reduce((cur, k) => (cur && typeof cur === 'object' ? cur[k] : undefined), node);
 
 const byKey = ([a], [b]) => (a < b ? -1 : a > b ? 1 : 0);
 
@@ -39,17 +43,25 @@ function captureFiles(node, out = new Set()) {
   return out;
 }
 
-/** [property, source object] pairs: provenance.<property>, then (drops schema v2) entries[] and meso sources. */
+/** [property, source object] pairs: provenance.<property>, then (drops schema 3) entries[] and meso sources. */
 function sourceObjects(domain, rec) {
   const out = [];
   const prov = rec.provenance;
   if (prov && typeof prov === 'object' && !Array.isArray(prov)) for (const [p, s] of Object.entries(prov)) out.push([p, s]);
-  if (domain === 'drops' && rec.schema_version === 2) {
+  if (domain === 'drops' && rec.schema_version === DROP_SCHEMA_VERSION) {
     for (const e of Array.isArray(rec.entries) ? rec.entries : []) {
-      for (const [k, p] of Object.entries(ENTRY_SOURCE_PROPERTIES)) if (e && e[k] && typeof e[k] === 'object') out.push([p, e[k]]);
+      for (const [k, p] of Object.entries(ENTRY_SOURCE_PROPERTIES)) {
+        const src = at(e, k);
+        if (src && typeof src === 'object' && !Array.isArray(src)) out.push([p, src]);
+      }
     }
     const meso = rec.meso;
-    if (meso && typeof meso === 'object') for (const [k, p] of Object.entries(MESO_SOURCE_PROPERTIES)) if (meso[k] && typeof meso[k] === 'object') out.push([p, meso[k]]);
+    if (meso && typeof meso === 'object') {
+      for (const [k, p] of Object.entries(MESO_SOURCE_PROPERTIES)) {
+        const src = at(meso, k);
+        if (src && typeof src === 'object' && !Array.isArray(src)) out.push([p, src]);
+      }
+    }
   }
   return out;
 }

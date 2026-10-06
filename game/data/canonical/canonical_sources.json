@@ -5,9 +5,9 @@
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
     "records": 192,
-    "distinct_source_urls": 433,
+    "distinct_source_urls": 418,
     "external_values": 0,
-    "capture_files": 19
+    "capture_files": 11
   },
   "records": [
     {
@@ -43,10 +43,10 @@
         "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001"
       ],
       "external": [],
-      "gap_count": 4,
+      "gap_count": 3,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/kurodb/captures/reactor_2001_items.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/breakable_0000001.txt"
       ],
       "property_sources": {
@@ -58,15 +58,12 @@
             "https://meowdb.com/msclassic/breakables/0000001"
           ]
         },
-        "probability": {
+        "rarity": {
           "authorities": [
-            "KuroDB"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://playkuro.com/database/#items/2010000",
-            "https://playkuro.com/database/#items/2010002",
-            "https://playkuro.com/database/#items/4031161",
-            "https://playkuro.com/database/#items/4031162"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -83,28 +80,27 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=1"
       ],
       "external": [],
-      "gap_count": 1,
+      "gap_count": 2,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/9300018.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_1.json"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/tutorial-jr-sentinel"
+            "https://meowdb.com/msclassic/monsters/1"
           ]
         },
-        "probability": {
+        "rarity": {
           "authorities": [
-            "KuroDB"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://playkuro.com/database/#monsters/9300018"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -121,20 +117,19 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=2"
       ],
       "external": [],
-      "gap_count": 12,
+      "gap_count": 2,
       "discrepancy_count": 1,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/100100.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_2.txt"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/snail"
+            "https://meowdb.com/msclassic/monsters/2"
           ]
         },
         "mesos.amount": {
@@ -145,20 +140,12 @@
             "https://meowdb.com/msclassic/monsters/2"
           ]
         },
-        "mesos.probability": {
+        "rarity": {
           "authorities": [
-            "KuroDB"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://playkuro.com/database/#monsters/100100"
-          ]
-        },
-        "probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/100100"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -175,44 +162,27 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=3"
       ],
       "external": [],
-      "gap_count": 14,
+      "gap_count": 2,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/100101.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_3.json"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/blue-snail"
+            "https://meowdb.com/msclassic/monsters/3"
           ]
         },
-        "mesos.amount": {
+        "rarity": {
           "authorities": [
-            "Hidden Street"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/blue-snail"
-          ]
-        },
-        "mesos.probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/100101"
-          ]
-        },
-        "probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/100101"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -229,44 +199,27 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=4"
       ],
       "external": [],
-      "gap_count": 20,
+      "gap_count": 2,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/120100.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_4.json"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/shroom"
+            "https://meowdb.com/msclassic/monsters/4"
           ]
         },
-        "mesos.amount": {
+        "rarity": {
           "authorities": [
-            "Hidden Street"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/shroom"
-          ]
-        },
-        "mesos.probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/120100"
-          ]
-        },
-        "probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/120100"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -283,44 +236,27 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=5"
       ],
       "external": [],
-      "gap_count": 16,
+      "gap_count": 2,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/130101.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_5.json"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/red-snail"
+            "https://meowdb.com/msclassic/monsters/5"
           ]
         },
-        "mesos.amount": {
+        "rarity": {
           "authorities": [
-            "Hidden Street"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/red-snail"
-          ]
-        },
-        "mesos.probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/130101"
-          ]
-        },
-        "probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/130101"
+            "https://henesys.gg/loot"
           ]
         }
       }
@@ -337,45 +273,27 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=9"
       ],
       "external": [],
-      "gap_count": 19,
+      "gap_count": 2,
       "discrepancy_count": 0,
       "capture_files": [
-        "tools/hiddenstreet/captures/monsters.json",
-        "tools/kurodb/captures/1210102.json",
-        "tools/kurodb/captures/item_2040705.json",
+        "tools/henesys/captures/item_rarity.json",
         "tools/meowdb/captures/monster_9.json"
       ],
       "property_sources": {
         "membership": {
           "authorities": [
-            "Hidden Street"
+            "MeowDB MS Classic"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/orange-mushroom"
+            "https://meowdb.com/msclassic/monsters/9"
           ]
         },
-        "mesos.amount": {
+        "rarity": {
           "authorities": [
-            "Hidden Street"
+            "Henesys.gg"
           ],
           "urls": [
-            "https://bc.hidden-street.net/monster/orange-mushroom"
-          ]
-        },
-        "mesos.probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/1210102"
-          ]
-        },
-        "probability": {
-          "authorities": [
-            "KuroDB"
-          ],
-          "urls": [
-            "https://playkuro.com/database/#monsters/1210102"
+            "https://henesys.gg/loot"
           ]
         }
       }

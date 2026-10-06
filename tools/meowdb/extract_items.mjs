@@ -55,8 +55,8 @@ const ITEM_IDS = [
   724, 731, 900, 933, 934, 935, 937, 938, 939, 940, 945, 960, 963, 1157, 1160, 1163, 1168, 1175, 1177, 1181, 1195,
   1305, 1308, 1314, 1317, 1325, 1327, 1439, 1440, 235, 239, 269, 271, 438, 585, 1158, 1161, 1306, 439, 440, 559, 708,
   712, 525, 238, 240, 273, 551,
-  // Iteration Three: Green Apple, a Hidden Street drop member of the Snail, Blue Snail, Shroom and Red Snail with a
-  // KuroDB chance (decision D3-6). API-only: built from tools/meowdb/captures/items_api.json.
+  // Iteration Three: Green Apple, read by hand because no cached item page covered it. API-only: built from
+  // tools/meowdb/captures/items_api.json and item_242.txt.
   242,
 ].map(String);
 

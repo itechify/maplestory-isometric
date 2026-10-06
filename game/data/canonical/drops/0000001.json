@@ -1,13 +1,14 @@
 {
   "id": "0000001",
   "name": "Wooden Box drop table",
-  "schema_version": 2,
+  "schema_version": 3,
   "owner": {
     "kind": "breakable",
     "id": "0000001",
     "name": "Wooden Box"
   },
   "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
   "entries": [
     {
       "key": "old-wooden-board",
@@ -15,58 +16,51 @@
       "item_id": "442",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 442 'Old Wooden Board' (the breakable's own drop list, api_breakable-drops_q_breakableId_0000001.html)."
+        "method": "exact_name",
+        "candidates": [
+          "442"
+        ],
+        "evidence": "game/data/canonical/items/442.json is the only local item named \"Old Wooden Board\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 1) carries item 442, the same id"
       },
       "membership_source": {
         "authority": "MeowDB MS Classic",
         "url": "https://meowdb.com/msclassic/breakables/0000001",
         "read_at": "2026-10-05T07:49:44.592Z",
         "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
         "raw_value": "Old Wooden Board\nQuest Item\n▲\n2\n▼\n0",
-        "categories": [
-          "ETC"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#items/4031162",
-        "read_at": "2026-10-05T07:50:30.002Z",
-        "capture": "tools/kurodb/captures/reactor_2001_items.json",
-        "kuro_item_id": "4031162",
-        "kuro_name": "Old Wooden Board",
-        "kuro_reactor_id": "2001",
-        "match_method": "exact",
-        "raw_value": "Chance value 1 | Quest 1008",
-        "format": "reactor_chance_value",
-        "normalized_probability": 1,
-        "conversion": "1 / 1 (interpretation, decision D3-7)",
-        "interpretation": "KuroDB reactor value \"Chance value N\" read as a 1-in-N chance (1 / N), as in the OdinMS-family reactor code; decision D3-7. KuroDB shows it as a value, not a percentage.",
-        "kuro_quest_condition": "1008"
-      },
-      "chance_state": "resolved",
-      "probability": 1,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
-        "adaptation": {
-          "value": "one item per successful roll",
-          "reason": "A resolved drop needs a quantity and KuroDB gives none for reactor (breakable) drops. One per roll is the reading that goes with decision D3-7 (KuroDB reactor values follow the OdinMS-family reactor code, whose reactor drops have no quantity). MeowDB publishes no quantity either.",
-          "verified": false
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
         }
       },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Old Wooden Board | Quest Item | An old wooden board from an old, unusable box that was broken down. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Quest Item",
+        "quest_gated": true,
+        "item": "game/data/canonical/items/442.json"
+      },
+      "chance_category": "etc_quest_gated",
       "quest_gate": {
         "quest_id": "1012",
-        "basis": "MeowDB item subtype \"Quest Item\" (items/442.json) and the membership source lists it as \"Quest Item\"; quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress. KuroDB's \"Quest 1008\" flag (its own quest id) corroborates.",
-        "rule": "C1 quest-gate rule (docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
+        "basis": "MeowDB item subtype \"Quest Item\" (items/442.json); quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress.",
+        "rule": "quest-gate rule (contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
         "decision": "D3-9",
         "verified": false
       },
-      "notes": [
-        "MeowDB subtype 'Quest Item', required by quest 1012: quest-gated under the C1 rule (D3-9). KuroDB's 'Quest 1008' is its own quest id, recorded as corroboration."
-      ]
+      "notes": []
     },
     {
       "key": "rusty-screw",
@@ -74,58 +68,51 @@
       "item_id": "441",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 441 'Rusty Screw' (the breakable's own drop list)."
+        "method": "exact_name",
+        "candidates": [
+          "441"
+        ],
+        "evidence": "game/data/canonical/items/441.json is the only local item named \"Rusty Screw\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 6) carries item 441, the same id"
       },
       "membership_source": {
         "authority": "MeowDB MS Classic",
         "url": "https://meowdb.com/msclassic/breakables/0000001",
         "read_at": "2026-10-05T07:49:44.592Z",
         "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
         "raw_value": "Rusty Screw\nQuest Item\n▲\n2\n▼\n0",
-        "categories": [
-          "ETC"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#items/4031161",
-        "read_at": "2026-10-05T07:50:48.209Z",
-        "capture": "tools/kurodb/captures/reactor_2001_items.json",
-        "kuro_item_id": "4031161",
-        "kuro_name": "Rusty Screw",
-        "kuro_reactor_id": "2001",
-        "match_method": "exact",
-        "raw_value": "Chance value 1 | Quest 1008",
-        "format": "reactor_chance_value",
-        "normalized_probability": 1,
-        "conversion": "1 / 1 (interpretation, decision D3-7)",
-        "interpretation": "KuroDB reactor value \"Chance value N\" read as a 1-in-N chance (1 / N), as in the OdinMS-family reactor code; decision D3-7. KuroDB shows it as a value, not a percentage.",
-        "kuro_quest_condition": "1008"
-      },
-      "chance_state": "resolved",
-      "probability": 1,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
-        "adaptation": {
-          "value": "one item per successful roll",
-          "reason": "A resolved drop needs a quantity and KuroDB gives none for reactor (breakable) drops. One per roll is the reading that goes with decision D3-7 (KuroDB reactor values follow the OdinMS-family reactor code, whose reactor drops have no quantity). MeowDB publishes no quantity either.",
-          "verified": false
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
         }
       },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Rusty Screw | Quest Item | A rusty screw from an old, unusable box that was broken down. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Quest Item",
+        "quest_gated": true,
+        "item": "game/data/canonical/items/441.json"
+      },
+      "chance_category": "etc_quest_gated",
       "quest_gate": {
         "quest_id": "1012",
-        "basis": "MeowDB item subtype \"Quest Item\" (items/441.json) and the membership source lists it as \"Quest Item\"; quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress. KuroDB's \"Quest 1008\" flag (its own quest id) corroborates.",
-        "rule": "C1 quest-gate rule (docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
+        "basis": "MeowDB item subtype \"Quest Item\" (items/441.json); quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress.",
+        "rule": "quest-gate rule (contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
         "decision": "D3-9",
         "verified": false
       },
-      "notes": [
-        "Gated to quest 1012 like Old Wooden Board."
-      ]
+      "notes": []
     },
     {
       "key": "apple",
@@ -133,52 +120,45 @@
       "item_id": "236",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 236 'Apple' (the breakable's own drop list)."
+        "method": "exact_name",
+        "candidates": [
+          "236"
+        ],
+        "evidence": "game/data/canonical/items/236.json is the only local item named \"Apple\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 7) carries item 236, the same id"
       },
       "membership_source": {
         "authority": "MeowDB MS Classic",
         "url": "https://meowdb.com/msclassic/breakables/0000001",
         "read_at": "2026-10-05T07:49:44.592Z",
         "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
         "raw_value": "Apple\nFood\n▲\n2\n▼\n0",
-        "categories": [
-          "USE"
-        ]
-      },
-      "chance_source": {
-        "authority": "KuroDB",
-        "url": "https://playkuro.com/database/#items/2010000",
-        "read_at": "2026-10-05T07:50:58.092Z",
-        "capture": "tools/kurodb/captures/reactor_2001_items.json",
-        "kuro_item_id": "2010000",
-        "kuro_name": "Apple",
-        "kuro_reactor_id": "2001",
-        "match_method": "exact",
-        "raw_value": "Chance value 4",
-        "format": "reactor_chance_value",
-        "normalized_probability": 0.25,
-        "conversion": "1 / 4 (interpretation, decision D3-7)",
-        "interpretation": "KuroDB reactor value \"Chance value N\" read as a 1-in-N chance (1 / N), as in the OdinMS-family reactor code; decision D3-7. KuroDB shows it as a value, not a percentage.",
-        "kuro_quest_condition": null
-      },
-      "chance_state": "resolved",
-      "probability": 0.25,
-      "quantity": {
-        "min": 1,
-        "max": 1,
-        "source": "not published: KuroDB reactor rows (\"Chance value N\") carry no quantity",
-        "adaptation": {
-          "value": "one item per successful roll",
-          "reason": "A resolved drop needs a quantity and KuroDB gives none for reactor (breakable) drops. One per roll is the reading that goes with decision D3-7 (KuroDB reactor values follow the OdinMS-family reactor code, whose reactor drops have no quantity). MeowDB publishes no quantity either.",
-          "verified": false
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
         }
       },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Apple | Food | A red, ripe, and tasty apple. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Food",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/236.json"
+      },
+      "chance_category": "use_consumable",
       "quest_gate": null,
-      "notes": [
-        "Re-checked: local MeowDB 236 is \"Apple\" (Use/Food), an exact match; KuroDB item page 2010000 \"Apple\" (tools/kurodb/captures/reactor_2001_items.json) gives \"Reactor 2001\" \"Chance value 4\", read as 1 / 4 = 0.25 under D3-7; the page's other reactors (1302000, 9102000, 9102001) are not used: reactor 2001 is taken as the Wooden Box (kuro_reactor_identity)."
-      ]
+      "notes": []
     },
     {
       "key": "egg",
@@ -186,83 +166,48 @@
       "item_id": "237",
       "item_resolution": {
         "state": "resolved",
-        "method": "exact",
-        "candidates": [],
-        "note": "MeowDB item 237 'Egg' (the breakable's own drop list)."
+        "method": "exact_name",
+        "candidates": [
+          "237"
+        ],
+        "evidence": "game/data/canonical/items/237.json is the only local item named \"Egg\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 8) carries item 237, the same id"
       },
       "membership_source": {
         "authority": "MeowDB MS Classic",
         "url": "https://meowdb.com/msclassic/breakables/0000001",
         "read_at": "2026-10-05T07:49:44.592Z",
         "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
         "raw_value": "Egg\nFood\n▲\n2\n▼\n0",
-        "categories": [
-          "USE"
-        ]
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
       },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Egg | Food | A nutritious egg. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Food",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/237.json"
+      },
+      "chance_category": "use_consumable",
       "quest_gate": null,
-      "notes": [
-        "Membership is MeowDB's; the chance is unresolved, so Egg never drops from the box (D3-7). No quest needs it."
-      ]
+      "notes": []
     }
   ],
-  "excluded_kuro_only": [],
-  "pending_kuro_candidates": [],
-  "meowdb_reference": {
-    "note": "MeowDB's community-voted Classic drop list for this breakable (with votes), from the live page. For the Wooden Box this list IS the membership: Hidden Street has no breakables (D3-7).",
-    "source": {
-      "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/breakables/0000001",
-      "read_at": "2026-10-05T07:49:44.592Z",
-      "capture": "tools/meowdb/captures/breakable_0000001.txt"
-    },
-    "community_drops": [
-      {
-        "name": "Old Wooden Board",
-        "category": "ETC",
-        "detail": "Quest Item",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "442"
-      },
-      {
-        "name": "Rusty Screw",
-        "category": "ETC",
-        "detail": "Quest Item",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "441"
-      },
-      {
-        "name": "Apple",
-        "category": "USE",
-        "detail": "Food",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "236"
-      },
-      {
-        "name": "Egg",
-        "category": "USE",
-        "detail": "Food",
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2,
-        "disputed": false,
-        "item_id": "237"
-      }
-    ]
-  },
+  "meowdb_reference": null,
   "meso": null,
   "provenance": {
     "membership": {
@@ -270,22 +215,14 @@
       "url": "https://meowdb.com/msclassic/breakables/0000001",
       "read_at": "2026-10-05T07:49:44.592Z",
       "capture": "tools/meowdb/captures/breakable_0000001.txt",
-      "decision": "D3-7"
+      "decision": "D3-11"
     },
-    "probability": {
-      "authority": "KuroDB",
-      "urls": [
-        "https://playkuro.com/database/#items/2010000",
-        "https://playkuro.com/database/#items/2010002",
-        "https://playkuro.com/database/#items/4031161",
-        "https://playkuro.com/database/#items/4031162"
-      ],
-      "read_at": "2026-10-05T07:50:30.002Z",
-      "read_at_last": "2026-10-05T07:51:01.599Z",
-      "capture": "tools/kurodb/captures/reactor_2001_items.json",
-      "decision": "D3-7",
-      "site_updated_label": "Updated 10/2/2026",
-      "reactor_identity": "KuroDB has no breakables section; reactor drops appear on item pages. Reactor 2001 is taken to be MeowDB's Wooden Box: it is the only reactor that drops both Old Wooden Board and Rusty Screw for Pio's recycling quest plus Apple (tools/kurodb/captures/reactor_2001_items.json reactor_identity_inference)."
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
     }
   },
   "source": {
@@ -295,23 +232,23 @@
     "capture": "tools/meowdb/captures/breakable_0000001.txt"
   },
   "field_sources": {
-    "meowdb_reference.item_ids": {
+    "entries[].item_id": {
       "url": "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001",
       "retrieved_at": "2026-10-04T10:07:46.821Z",
-      "note": "MeowDB item ids for the breakable's list, matched by name within MeowDB's own cached breakable drop list"
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
     }
   },
   "gaps": [
-    "chance unresolved: \"Egg\" is on MeowDB's Wooden Box list but no read KuroDB page gives reactor 2001 a value for it, so it never drops (D3-7)",
-    "quantity per roll: KuroDB reactor rows give none; 1 per roll is a MisoStory adaptation (each entry's quantity.adaptation, verified: false)",
-    "KuroDB-only drops: KuroDB has no page listing every drop of reactor 2001; only the item pages of MeowDB's members were read, so no KuroDB-only row is known (excluded_kuro_only is empty for that reason)",
-    "mesos: none. MeowDB has no meso reports for breakables and KuroDB lists no meso drop for reactors; meso is null (the box never drops mesos)"
+    "mesos: MeowDB has no meso reports for breakables; the Wooden Box drops no mesos (decision D3-12)",
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
   ],
   "discrepancies": [],
   "notes": [
-    "Membership: MeowDB's live Wooden Box page (https://meowdb.com/msclassic/breakables/0000001, read 2026-10-05T07:49:44.592Z); Hidden Street has no breakables (D3-7).",
-    "Chance: KuroDB reactor 2001 rows on the members' item pages (tools/kurodb/captures/reactor_2001_items.json). KuroDB has no breakables section; reactor drops appear on item pages. Reactor 2001 is taken to be MeowDB's Wooden Box: it is the only reactor that drops both Old Wooden Board and Rusty Screw for Pio's recycling quest plus Apple (tools/kurodb/captures/reactor_2001_items.json reactor_identity_inference).",
-    "\"Chance value N\" is read as 1 / N, an interpretation (decision D3-7).",
-    "Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress."
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/breakables/0000001, read 2026-10-05T07:49:44.592Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: none (decision D3-12, game/data/misostory/meso_rules.json).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }
