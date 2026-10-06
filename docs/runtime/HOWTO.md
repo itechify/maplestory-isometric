@@ -136,7 +136,8 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
 ```
 
 - The full suite with the world is 1564 tests in 174 files (the final evidence run, 2026-10-06) and took 12 minutes
-  beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe
+  beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s, under 20 s when its cache
+  holds the results for the current collision, see "Run the stuck-region scan") and the former-trap probe
   (`test_playtest_traps.gd`, about 2 minutes) are the slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a
   `game/assets/world/` in the project you run).
 - `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
@@ -234,9 +235,16 @@ TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap
 ```
 
 The tool exits 1 on a CONFIRMED trap the allowlist's `entries` do not list (`game/data/misostory/stuck_allowlist.json`;
-empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (13 components
+empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (9 components
 reviewed by hand) does not list, and on escapable ground outside every map region. The
 final Iteration Three scan reports 0 confirmed traps; every former trap (54 spots) is replayed by `trap_probe`.
+
+The scan caches its results in `_scratch/stuck_scan_cache/` (git-ignored; an ISOLATE copy uses the repository's),
+keyed by the collision as built, the maps' regions, entries and exits, the movement numbers, the parameters and the
+scanner's code. With nothing changed the tool and `test_stuck_scan.gd` read the results in under a second instead
+of scanning for about 90 s, and the allowlist is matched afresh on every run. `--no-cache` (the tool) or
+`STUCK_SCAN_CACHE=0` scans anyway; `STUCK_SCAN_CACHE=<dir>` moves the cache ([STUCK_SCAN.md](STUCK_SCAN.md) "The
+cache").
 
 ## Run canonical-data validation
 

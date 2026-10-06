@@ -1,12 +1,12 @@
 {
   "generated_by": "game/tools/stuck_scan_tool.tscn",
-  "generated_at": "2026-10-05T17:42:09Z",
+  "generated_at": "2026-10-06T19:38:28Z",
   "engine": "4.7.2-stable (official)",
   "verified": true,
   "maps_requested": [
     "all"
   ],
-  "build_ms": 1129,
+  "build_ms": 1060,
   "allowlist": "game/data/misostory/stuck_allowlist.json",
   "params": {
     "cell_m": 0.35,
@@ -30,23 +30,23 @@
   },
   "totals": {
     "maps": 25,
-    "nodes": 491630,
-    "certain_edges": 3630167,
-    "into_edges": 2901111,
-    "reachable": 373506,
-    "flagged": 408,
-    "components": 38,
+    "nodes": 491614,
+    "certain_edges": 3630145,
+    "into_edges": 2900886,
+    "reachable": 373492,
+    "flagged": 392,
+    "components": 34,
     "confirmed": 0,
     "cleared": 25,
-    "unenterable": 13,
+    "unenterable": 9,
     "unverified": 0,
     "allowlisted": 0,
     "new_traps": 0,
     "unreviewed_unenterable": 0,
-    "fall_outs": 4929,
+    "fall_outs": 4881,
     "outside_regions": 160,
     "outside_regions_escapable": 0,
-    "ms": 86450
+    "ms": 73761
   },
   "traps": [],
   "unreviewed_unenterable": [],
@@ -64,9 +64,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 272,
-      "edges_ms": 599,
-      "ms": 944,
+      "sample_ms": 256,
+      "edges_ms": 511,
+      "ms": 826,
       "rays": 60981,
       "shape_queries": 30132,
       "sweeps": 113483,
@@ -90,9 +90,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 438,
-      "edges_ms": 950,
-      "ms": 1522,
+      "sample_ms": 462,
+      "edges_ms": 999,
+      "ms": 1639,
       "rays": 76263,
       "shape_queries": 47600,
       "sweeps": 166423,
@@ -116,9 +116,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 418,
-      "edges_ms": 771,
-      "ms": 1321,
+      "sample_ms": 489,
+      "edges_ms": 849,
+      "ms": 1471,
       "rays": 101109,
       "shape_queries": 45985,
       "sweeps": 143302,
@@ -142,9 +142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 188,
-      "sample_ms": 25,
-      "edges_ms": 171,
-      "ms": 211,
+      "sample_ms": 21,
+      "edges_ms": 145,
+      "ms": 182,
       "rays": 6195,
       "shape_queries": 2806,
       "sweeps": 30786,
@@ -273,7 +273,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.46, 2.6, -13.65])",
-          "verify_ms": 664,
+          "verify_ms": 629,
           "in_edges": [
             {
               "kind": "slide",
@@ -440,9 +440,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 488,
-      "edges_ms": 1175,
-      "ms": 1809,
+      "sample_ms": 570,
+      "edges_ms": 1263,
+      "ms": 1948,
       "rays": 107755,
       "shape_queries": 54098,
       "sweeps": 219210,
@@ -490,7 +490,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [-0.19, 1.2, -16.21])",
-          "verify_ms": 69,
+          "verify_ms": 91,
           "in_edges": [
             {
               "kind": "slide",
@@ -574,7 +574,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (hop edge from local [34.81, 4.6, -33.01])",
-          "verify_ms": 2,
+          "verify_ms": 4,
           "in_edges": [
             {
               "kind": "hop",
@@ -607,9 +607,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 824,
-      "edges_ms": 1708,
-      "ms": 2793,
+      "sample_ms": 795,
+      "edges_ms": 1645,
+      "ms": 2726,
       "rays": 202371,
       "shape_queries": 85298,
       "sweeps": 275673,
@@ -639,7 +639,7 @@
     "000000041": {
       "nodes": 45671,
       "certain_edges": 347702,
-      "into_edges": 175873,
+      "into_edges": 175808,
       "refined_jumps": 8,
       "entries": 430,
       "exits": 191,
@@ -649,12 +649,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 651,
-      "sample_ms": 1725,
-      "edges_ms": 2405,
-      "ms": 4446,
+      "sample_ms": 1887,
+      "edges_ms": 2439,
+      "ms": 4641,
       "rays": 376740,
       "shape_queries": 128845,
-      "sweeps": 357477,
+      "sweeps": 357332,
       "name": "Snail Hunting Ground II",
       "kill_y_local": -8.24,
       "fall_out_samples_local": [
@@ -780,7 +780,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [15.39, 9.18, -38.12])",
-          "verify_ms": 10,
+          "verify_ms": 8,
           "in_edges": [
             {
               "kind": "drop",
@@ -886,7 +886,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 117,
+          "verify_ms": 106,
           "in_edges": [
             {
               "kind": "slide",
@@ -970,7 +970,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 488,
+          "verify_ms": 485,
           "in_edges": [
             {
               "kind": "slide",
@@ -1054,7 +1054,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 65,
+          "verify_ms": 76,
           "in_edges": [
             {
               "kind": "slide",
@@ -1138,7 +1138,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [41.83, 2.6, -15.13])",
-          "verify_ms": 63,
+          "verify_ms": 70,
           "in_edges": [
             {
               "kind": "slide",
@@ -1222,7 +1222,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 151,
+          "verify_ms": 174,
           "in_edges": [
             {
               "kind": "slide",
@@ -1283,9 +1283,9 @@
         }
       ],
       "fall_outs": 1494,
-      "sample_ms": 2370,
-      "edges_ms": 2191,
-      "ms": 4905,
+      "sample_ms": 2457,
+      "edges_ms": 2325,
+      "ms": 5198,
       "rays": 550888,
       "shape_queries": 176992,
       "sweeps": 321413,
@@ -1414,7 +1414,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.18, 2.96, -12.96])",
-          "verify_ms": 312,
+          "verify_ms": 322,
           "in_edges": [
             {
               "kind": "slide",
@@ -1498,7 +1498,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 692,
+          "verify_ms": 703,
           "in_edges": [
             {
               "kind": "slide",
@@ -1560,10 +1560,10 @@
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 1805,
-      "edges_ms": 1830,
-      "ms": 3896,
-      "rays": 329777,
+      "sample_ms": 1869,
+      "edges_ms": 1877,
+      "ms": 4024,
+      "rays": 329773,
       "shape_queries": 139026,
       "sweeps": 264408,
       "name": "A Split Road",
@@ -1595,16 +1595,16 @@
       "outside_regions_samples_local": []
     },
     "000000060": {
-      "nodes": 32180,
-      "certain_edges": 231063,
-      "into_edges": 286661,
+      "nodes": 32164,
+      "certain_edges": 231041,
+      "into_edges": 286509,
       "refined_jumps": 33,
       "entries": 431,
       "exits": 117,
-      "reachable": 28571,
+      "reachable": 28557,
       "escapable": 32059,
-      "flagged_before_refine": 1571,
-      "flagged": 28,
+      "flagged_before_refine": 1555,
+      "flagged": 12,
       "components": [
         {
           "id": "000000060#0",
@@ -1631,7 +1631,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [77.56, 7.2, 0.99])",
-          "verify_ms": 40,
+          "verify_ms": 32,
           "in_edges": [
             {
               "kind": "slide",
@@ -1711,327 +1711,15 @@
               "best_rise_m": 1.41
             }
           ]
-        },
-        {
-          "id": "000000060#1",
-          "nodes": 9,
-          "area_m2": 1.1,
-          "local": [
-            72.09,
-            4.6,
-            1.33
-          ],
-          "blender_local_xy": [
-            72.09,
-            -1.33
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 9
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 742,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                70.53,
-                6.52,
-                1.43
-              ],
-              "to_local": [
-                70.53,
-                4.6,
-                1.43
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.85,
-                6.52,
-                1.56
-              ],
-              "to_local": [
-                70.53,
-                4.6,
-                1.43
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                71.31,
-                6.52,
-                1.38
-              ],
-              "to_local": [
-                71.31,
-                4.6,
-                1.38
-              ],
-              "dy": -1.92
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                72.09,
-                4.6,
-                1.33
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall, 1.9 m under the front terrain and inside the solid terrain: the face-count buried test cannot see it on Southperry's double-sided trimesh."
-        },
-        {
-          "id": "000000060#2",
-          "nodes": 4,
-          "area_m2": 0.49,
-          "local": [
-            74.76,
-            4.6,
-            1.32
-          ],
-          "blender_local_xy": [
-            74.76,
-            -1.32
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.93,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 4
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 586,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                75.54,
-                6.53,
-                1.27
-              ],
-              "to_local": [
-                75.54,
-                4.6,
-                1.27
-              ],
-              "dy": -1.93
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                74.76,
-                4.6,
-                1.32
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
-        },
-        {
-          "id": "000000060#3",
-          "nodes": 2,
-          "area_m2": 0.24,
-          "local": [
-            76.64,
-            4.6,
-            1.36
-          ],
-          "blender_local_xy": [
-            76.64,
-            -1.36
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 2
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 541,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                76.64,
-                6.52,
-                1.36
-              ],
-              "to_local": [
-                76.64,
-                4.6,
-                1.36
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                76.97,
-                6.52,
-                1.5
-              ],
-              "to_local": [
-                76.97,
-                4.6,
-                1.5
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                77.29,
-                6.52,
-                1.63
-              ],
-              "to_local": [
-                76.97,
-                4.6,
-                1.5
-              ],
-              "dy": -1.92
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                76.64,
-                4.6,
-                1.36
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
-        },
-        {
-          "id": "000000060#4",
-          "nodes": 1,
-          "area_m2": 0.12,
-          "local": [
-            69.75,
-            4.6,
-            1.47
-          ],
-          "blender_local_xy": [
-            69.75,
-            -1.47
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 1
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 434,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                69.75,
-                6.52,
-                1.47
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.07,
-                6.52,
-                1.61
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.35,
-                7.2,
-                0.97
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -2.6
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
         }
       ],
-      "fall_outs": 231,
-      "sample_ms": 2334,
-      "edges_ms": 3979,
-      "ms": 6681,
-      "rays": 386861,
+      "fall_outs": 183,
+      "sample_ms": 2095,
+      "edges_ms": 3076,
+      "ms": 5459,
+      "rays": 386889,
       "shape_queries": 216318,
-      "sweeps": 560811,
+      "sweeps": 560428,
       "name": "Southperry",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -2157,7 +1845,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [12.25, 1.91, -7.85])",
-          "verify_ms": 123,
+          "verify_ms": 92,
           "in_edges": [
             {
               "kind": "drop",
@@ -2324,9 +2012,9 @@
         }
       ],
       "fall_outs": 342,
-      "sample_ms": 27,
-      "edges_ms": 220,
-      "ms": 273,
+      "sample_ms": 21,
+      "edges_ms": 170,
+      "ms": 208,
       "rays": 6072,
       "shape_queries": 2848,
       "sweeps": 38206,
@@ -2455,7 +2143,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 564,
+          "verify_ms": 451,
           "in_edges": [
             {
               "kind": "slide",
@@ -2540,7 +2228,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [66.77, 1.19, -17.46])",
-          "verify_ms": 14,
+          "verify_ms": 12,
           "in_edges": [
             {
               "kind": "slide",
@@ -2646,7 +2334,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 574,
+          "verify_ms": 474,
           "in_edges": [
             {
               "kind": "slide",
@@ -2815,7 +2503,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "hop (hop edge from local [60.94, 6.4, -29.27])",
-          "verify_ms": 22,
+          "verify_ms": 20,
           "in_edges": [
             {
               "kind": "hop",
@@ -2871,7 +2559,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 771,
+          "verify_ms": 606,
           "in_edges": [
             {
               "kind": "slide",
@@ -2933,9 +2621,9 @@
         }
       ],
       "fall_outs": 707,
-      "sample_ms": 4219,
-      "edges_ms": 3970,
-      "ms": 9113,
+      "sample_ms": 3495,
+      "edges_ms": 3154,
+      "ms": 7292,
       "rays": 748619,
       "shape_queries": 247180,
       "sweeps": 539496,
@@ -3085,7 +2773,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [29.39, 1.56, -10.02])",
-          "verify_ms": 164,
+          "verify_ms": 135,
           "in_edges": [
             {
               "kind": "drop",
@@ -3180,7 +2868,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 232,
+          "verify_ms": 182,
           "in_edges": [
             {
               "kind": "slide",
@@ -3264,7 +2952,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.28, 1.56, -0.82])",
-          "verify_ms": 6,
+          "verify_ms": 4,
           "in_edges": [
             {
               "kind": "slide",
@@ -3348,7 +3036,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.66, 1.57, -10.05])",
-          "verify_ms": 257,
+          "verify_ms": 197,
           "in_edges": [
             {
               "kind": "slide",
@@ -3409,9 +3097,9 @@
         }
       ],
       "fall_outs": 144,
-      "sample_ms": 638,
-      "edges_ms": 1595,
-      "ms": 2374,
+      "sample_ms": 505,
+      "edges_ms": 1206,
+      "ms": 1808,
       "rays": 109638,
       "shape_queries": 46662,
       "sweeps": 204170,
@@ -3516,9 +3204,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 55,
-      "sample_ms": 904,
-      "edges_ms": 1323,
-      "ms": 2333,
+      "sample_ms": 715,
+      "edges_ms": 1028,
+      "ms": 1840,
       "rays": 139091,
       "shape_queries": 59054,
       "sweeps": 186762,
@@ -3648,7 +3336,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 436,
+          "verify_ms": 387,
           "in_edges": [
             {
               "kind": "slide",
@@ -3733,7 +3421,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [32.23, 11.57, -25.08])",
-          "verify_ms": 14,
+          "verify_ms": 10,
           "in_edges": [
             {
               "kind": "slide",
@@ -3817,7 +3505,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (drop edge from local [26.03, 12.81, -30.27])",
-          "verify_ms": 66,
+          "verify_ms": 46,
           "in_edges": [
             {
               "kind": "drop",
@@ -3878,9 +3566,9 @@
         }
       ],
       "fall_outs": 56,
-      "sample_ms": 843,
-      "edges_ms": 976,
-      "ms": 1898,
+      "sample_ms": 713,
+      "edges_ms": 803,
+      "ms": 1596,
       "rays": 173185,
       "shape_queries": 59889,
       "sweeps": 154433,
@@ -3985,9 +3673,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 2,
-      "sample_ms": 1102,
-      "edges_ms": 1425,
-      "ms": 2636,
+      "sample_ms": 938,
+      "edges_ms": 1116,
+      "ms": 2146,
       "rays": 196198,
       "shape_queries": 75534,
       "sweeps": 197250,
@@ -4046,7 +3734,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [-0.41, 5.33, -16.45])",
-          "verify_ms": 453,
+          "verify_ms": 349,
           "in_edges": [
             {
               "kind": "drop",
@@ -4107,9 +3795,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 681,
-      "edges_ms": 1757,
-      "ms": 2582,
+      "sample_ms": 594,
+      "edges_ms": 1507,
+      "ms": 2217,
       "rays": 119667,
       "shape_queries": 56679,
       "sweeps": 255384,
@@ -4157,7 +3845,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 573,
+          "verify_ms": 405,
           "in_edges": [
             {
               "kind": "slide",
@@ -4219,9 +3907,9 @@
         }
       ],
       "fall_outs": 299,
-      "sample_ms": 1354,
-      "edges_ms": 2175,
-      "ms": 3731,
+      "sample_ms": 1041,
+      "edges_ms": 1733,
+      "ms": 2935,
       "rays": 181006,
       "shape_queries": 78434,
       "sweeps": 283385,
@@ -4347,9 +4035,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 54,
-      "sample_ms": 2341,
-      "edges_ms": 3330,
-      "ms": 6246,
+      "sample_ms": 1818,
+      "edges_ms": 2728,
+      "ms": 4907,
       "rays": 430255,
       "shape_queries": 150816,
       "sweeps": 465351,
@@ -4454,9 +4142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 229,
-      "sample_ms": 33,
-      "edges_ms": 245,
-      "ms": 293,
+      "sample_ms": 23,
+      "edges_ms": 185,
+      "ms": 218,
       "rays": 6025,
       "shape_queries": 2996,
       "sweeps": 39052,
@@ -4551,7 +4239,7 @@
     "000001012": {
       "nodes": 7665,
       "certain_edges": 52875,
-      "into_edges": 72411,
+      "into_edges": 72403,
       "refined_jumps": 2,
       "entries": 54,
       "exits": 176,
@@ -4561,12 +4249,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 291,
-      "edges_ms": 914,
-      "ms": 1279,
+      "sample_ms": 225,
+      "edges_ms": 677,
+      "ms": 959,
       "rays": 45525,
       "shape_queries": 20911,
-      "sweeps": 142037,
+      "sweeps": 142029,
       "name": "Amherst Townstreet",
       "kill_y_local": -7.34,
       "fall_out_samples_local": [],
@@ -4611,7 +4299,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 168,
+          "verify_ms": 141,
           "in_edges": [
             {
               "kind": "slide",
@@ -4672,9 +4360,9 @@
         }
       ],
       "fall_outs": 428,
-      "sample_ms": 27,
-      "edges_ms": 240,
-      "ms": 284,
+      "sample_ms": 23,
+      "edges_ms": 247,
+      "ms": 289,
       "rays": 5940,
       "shape_queries": 2862,
       "sweeps": 41000,
@@ -4779,9 +4467,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 35,
-      "sample_ms": 886,
-      "edges_ms": 1626,
-      "ms": 2659,
+      "sample_ms": 768,
+      "edges_ms": 1354,
+      "ms": 2240,
       "rays": 142179,
       "shape_queries": 61802,
       "sweeps": 227929,
@@ -4910,7 +4598,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 726,
+          "verify_ms": 577,
           "in_edges": [
             {
               "kind": "slide",
@@ -4995,7 +4683,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 517,
+          "verify_ms": 404,
           "in_edges": [
             {
               "kind": "slide",
@@ -5080,7 +4768,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 498,
+          "verify_ms": 397,
           "in_edges": [
             {
               "kind": "slide",
@@ -5142,9 +4830,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 1481,
-      "edges_ms": 1724,
-      "ms": 3422,
+      "sample_ms": 1252,
+      "edges_ms": 1376,
+      "ms": 2778,
       "rays": 288397,
       "shape_queries": 112615,
       "sweeps": 245085,
@@ -5184,9 +4872,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 4,
-      "sample_ms": 1401,
-      "edges_ms": 2013,
-      "ms": 3580,
+      "sample_ms": 1307,
+      "edges_ms": 1753,
+      "ms": 3207,
       "rays": 242495,
       "shape_queries": 91511,
       "sweeps": 317820,
@@ -5218,5 +4906,10 @@
       "outside_regions_escapable": 0,
       "outside_regions_samples_local": []
     }
+  },
+  "cache": {
+    "key": "",
+    "maps_scanned": 25,
+    "maps_from_cache": 0
   }
 }
