@@ -487,7 +487,7 @@ doc comment.
 ## Testing
 
 ```bash
-ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 63 tests (20 of them the minimap's: test_ui_minimap)
+ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system's test_ui_* files (the minimap's: test_ui_minimap*)
 ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 ```
 

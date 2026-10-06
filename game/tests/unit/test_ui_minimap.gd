@@ -1,7 +1,8 @@
 extends TestCase
 ## MisoMinimap (res://scenes/ui/minimap.tscn) on a private bus, a private map_session.gd and MisoUiEnv.isolated, over
 ## small stand-in maps built from the canonical records (their portals, NPCs and names; the geometry is made up): no
-## autoload state is read or changed, and no world export is needed (test_ui_minimap_world covers the real maps).
+## autoload state is read or changed, and no world export is needed (test_ui_minimap_world covers the real maps). The
+## fold's restart test writes one private preferences file under user://_tests/ and removes it.
 ## Checks: the title strip names the canonical street and map and stays when M folds the map away; the map id shows
 ## exactly while the debug overlay is on; M toggles and stays quiet under a modal; NPC dots follow the quest engine
 ## (Sam "!" -> "..." after accepting 1006, Mai "?" once the Snails are killed); the player's arrow follows the player,
@@ -276,9 +277,8 @@ func test_m_folds_the_map_to_the_title_and_is_quiet_under_a_modal() -> void:
 ## and starting again shows it folded. Here a private file in user:// stands for the save directory's, and a second
 ## minimap on it for the next start. With no file it opens unfolded; an env with no preferences keeps nothing.
 func test_the_fold_survives_a_restart() -> void:
-	var dir := "user://test_ui_minimap_prefs"
+	var dir := "user://_tests/ui_minimap_prefs_%d_%d" % [Time.get_ticks_usec(), randi()]
 	var prefs := dir.path_join(MisoUiPrefs.FILE_NAME)
-	DirAccess.remove_absolute(prefs)
 	var first: MisoMinimap = _minimap(SAM_MAP, null, null, null, prefs)["minimap"]
 	assert_true(first.is_expanded(), "no saved preference: unfolded")
 	var press := InputEventAction.new()
