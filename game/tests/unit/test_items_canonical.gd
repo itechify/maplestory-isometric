@@ -790,6 +790,10 @@ func _price_problems(id: String, rec: Dictionary, d: ContentDB) -> PackedStringA
 	var res := ShopService.quote_sell(seller, any_shop, id, qty, d)
 	if sell == null:
 		_eq(p, "sell: no sell-back value", String(res.get("code", "")), ItemCodes.NO_SELL_PRICE)
+	elif not ItemsConfig.protected_item(id, d).is_empty():
+		# A protected item (inventory.json shop.protected_items, owner ruling #7) keeps its canonical sell-back value,
+		# but no shop buys it.
+		_eq(p, "sell: protected item refused", String(res.get("code", "")), ShopService.PROTECTED_ITEM)
 	else:
 		_eq(p, "sell: quote", String(res.get("code", "")), ItemCodes.OK)
 		_eq(p, "sell: total for %d" % qty, int(res.get("total", -1)), int(sell) * qty)
