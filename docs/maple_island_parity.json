@@ -16,15 +16,15 @@
     "tests": [
       {
         "file": "_scratch/ev/full.json",
-        "run_at": "2026-10-06T00:39:01Z",
-        "commit": "300b84bec228c9267812ba8577b3ac6b5575257d",
+        "run_at": "2026-10-06T01:13:32Z",
+        "commit": "f78c320ec792116b3e7705bfc41e028b12d9d7e0",
         "dirty": false,
         "world_present": true,
         "totals": {
           "failed": 0,
           "files": 173,
-          "ms": 670139,
-          "tests": 1572
+          "ms": 718609,
+          "tests": 1573
         },
         "world_refused": {
           "tests": 0,
@@ -730,7 +730,7 @@
         "scenario": "kit",
         "result": "PASS",
         "seed": 1,
-        "commit": "300b84bec228c9267812ba8577b3ac6b5575257d",
+        "commit": "f78c320ec792116b3e7705bfc41e028b12d9d7e0",
         "dirty": false,
         "mixed": false,
         "reused_copy": false,

@@ -22,7 +22,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/ev/full.json`: run 2026-10-06T00:39:01Z, commit 300b84bec228c9267812ba8577b3ac6b5575257d (clean tree), world present, 1572 tests, 0 failed
+- Unit tests `_scratch/ev/full.json`: run 2026-10-06T01:13:32Z, commit f78c320ec792116b3e7705bfc41e028b12d9d7e0 (clean tree), world present, 1573 tests, 0 failed
 - Playtest `_scratch/final/pt/npc_bubbles/report.json`: npc_bubbles seed 1, PASS, commit not recorded, 7 checks (5 tagged by the scenario, 0 by rules.json playtest_tags)
 - Playtest `_scratch/final/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, commit not recorded, 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
 - Playtest `_scratch/final/pt/npcs/report.json`: npcs seed 1, PASS, commit not recorded, 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
@@ -72,7 +72,7 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - Playtest `_scratch/final/pt/test_skills/report.json`: test_skills seed 1, PASS, commit not recorded, 50 checks (0 tagged by the scenario, 41 by rules.json playtest_tags)
 - Playtest `_scratch/final/pt/trap_probe/report.json`: trap_probe seed 1, PASS, commit not recorded, 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
 - Playtest `_scratch/final/pt/ui_minimap/report.json`: ui_minimap seed 1, PASS, commit not recorded, 230 checks (0 tagged by the scenario, 216 by rules.json playtest_tags)
-- Playtest `_scratch/pt/kit/report.json`: kit seed 1, PASS, commit 300b84bec228c9267812ba8577b3ac6b5575257d (clean tree), 19 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/pt/kit/report.json`: kit seed 1, PASS, commit f78c320ec792116b3e7705bfc41e028b12d9d7e0 (clean tree), 19 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
 - Provenance report: 192 records, 0 errors, 54 warnings
 - A playtest_tags rule matched no check in 1 report(s) of test_c_progression (renamed checks?): `97: ^phase \d+: each death took the canonical EXP penalty$`
 - A playtest_tags rule matched no check in 1 report(s) of ui_minimap (renamed checks?): `129: ^every pickup is announced in the HUD log$`
