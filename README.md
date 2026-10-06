@@ -23,6 +23,10 @@ Briefs: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md),
 [`docs/runtime/CONTENT_AUTHORING.md`](docs/runtime/CONTENT_AUTHORING.md). What was found and fixed:
 [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 
+To play without building, download the Windows (`.zip`) or Linux (`.tar.gz`) build from the
+[latest release](https://github.com/itechify/maplestory-isometric/releases/latest), unpack it and run
+`MisoStory.exe` or `./MisoStory.x86_64`. To build and run from source:
+
 ```bash
 bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
 bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)

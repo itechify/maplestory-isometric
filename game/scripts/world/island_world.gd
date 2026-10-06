@@ -238,7 +238,7 @@ func _chunk_plan() -> Array[Dictionary]:
 		var sc := sidecars.chunk(chunk)
 		var meta := {"chunk": chunk, "kind": String(sc.get("kind", "")), "trails": sc.has("trails")}
 		var col := sidecars.file_path(chunk, "collision")
-		if col != "" and not FileAccess.file_exists(col):
+		if col != "" and not ResourceLoader.exists(col):
 			build_warnings.append("%s lists %s, which does not exist; skipped" % [chunk, col])
 			col = ""
 		if col != "":
@@ -247,7 +247,7 @@ func _chunk_plan() -> Array[Dictionary]:
 			m["which"] = "collision"
 			out.append(m)
 		var vis := sidecars.file_path(chunk, "visual")
-		if vis != "" and not FileAccess.file_exists(vis):
+		if vis != "" and not ResourceLoader.exists(vis):
 			build_warnings.append("%s lists %s, which does not exist; skipped" % [chunk, vis])
 			vis = ""
 		if load_visuals and vis != "":

@@ -55,7 +55,7 @@ look changes noticeably or at a milestone:
 Don't commit full-size PNG renders. To show another view in the README, add it to `PICKS` in
 `scripts/readme_images.py`.
 
-## Releases (how the `.blend` and renders are shared)
+## Releases (how the game, the `.blend` and the renders are shared)
 
 Cut a release at each milestone (an iteration, or a notable visual pass), from a clean build of the tagged commit:
 
@@ -64,8 +64,23 @@ Cut a release at each milestone (an iteration, or a notable visual pass), from a
 "$B" -b MapleIsland.blend --python scripts/validate.py          # every check should pass
 bash scripts/render_all.sh final 3 --debug
 powershell -NoProfile -Command "Compress-Archive -Force renders/final renders-final.zip"
-gh release create v0.2-<name> MapleIsland.blend renders-final.zip --title "..." --notes "..."
+bash scripts/build_runtime.sh                                    # exports the world into game/assets/world/
+bash scripts/export_game.sh v0.4-<name>                          # desktop builds into game/export/
+gh release create v0.4-<name> MapleIsland.blend renders-final.zip \
+  game/export/MisoStory-v0.4-<name>-windows-x86_64.zip game/export/MisoStory-v0.4-<name>-linux-x86_64.tar.gz \
+  --title "..." --notes "..."
 ```
+
+`scripts/export_game.sh` exports the two presets in `game/export_presets.cfg` (Windows and Linux x86_64, one
+self-contained executable each, without `tests/` and `tools/`). On first use it downloads the official Godot export
+templates and checks them against Godot's published SHA-512 sums. The release templates can't load another scene from
+the command line. To playtest an exported build, export a copy of `game/` with `tools/` included and
+`run/main_scene` set to `res://tools/playtest/playtest_runner.tscn`, then run
+`MisoStory.exe --headless --fixed-fps 60 -- --scenario <name> --out <dir>`.
+
+In exported builds, only imported resources exist under `res://`: a `.glb` or `.ttf` is there as its imported copy,
+not as the original file. Check for them with `ResourceLoader.exists()`, not `FileAccess.file_exists()`. JSON data
+(and `*.txt`) is packed as is, through the presets' include filter.
 
 Release assets don't touch git history, and each can be up to 2 GB. Download the latest with
 `gh release download --repo itechify/maplestory-isometric --pattern "*.blend"`, or simply rebuild from source.
