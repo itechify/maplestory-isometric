@@ -282,7 +282,9 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   `arrival.inset_m`), in a 0.3 m × 1.5 m body. Nothing that collides may stand there: no door mound, hedge, gate post
   or crate within about 1.8 m inward of an edge anchor. 1000000's front-edge barrel-door mounds stand 3.6–3.8 m behind
   their portals for this (`_door(..., back=...)`; the docstring has the arithmetic), and hidden-lane trail hedges
-  stop at the footprint edge.
+  stop at the footprint edge. The straight line from the anchor to the arrival point must be clear at body height
+  too (0.45–1.5 m above the ground under it: no prop prism, no wall across it), so nothing stands between a portal
+  and the player it lets in.
 - **Route ends must be clear.** The runtime's route bot starts a run at either end of every route, in the
   controller's body (a floating capsule 0.3 m wide from `step_up_m` 0.45 m to 1.5 m above the feet). End routes at
   least 0.35 m from walls, house stems and gate posts (the walls of a door alcove count), and never under low

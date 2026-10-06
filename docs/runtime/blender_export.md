@@ -55,7 +55,12 @@ shipped export:
   height in [jump apex at the cap + step-up + 0.30, 2.6] m from `movement.json`, face within 0.1 m of the gate plane,
   gate plane 1 m outside the footprint and on the runtime's containment ring (`presentation.json` `ring_offset_m`), blocked in reverse); World_Trails one-way flags;
   **portal arrivals** grounded and clear (every blocked or ungrounded one fails; they are also listed as
-  `arrival_warnings`); **route ends** clear for the controller's body (`spawn_clearance.route_ends`: the route bot
+  `arrival_warnings`); the **line from each portal's anchor to its arrival point** clear at body height
+  (`spawn_clearance.portal_arrivals[].segment`: the export samples it every 0.25 m, grounds each sample, and fails
+  it on a prop prism or a wall inside the controller's body band, `step_up_m` 0.45 m to `body_height_m` 1.5 m above
+  the ground: an upward ray at each sample and horizontal rays between neighbouring samples at the band's bottom,
+  middle and top, for a thin wall between two samples; a line, not a capsule, because a door's anchor stands
+  against its wall); **route ends** clear for the controller's body (`spawn_clearance.route_ends`: the route bot
   starts runs there); no route sample under a **real overhang** (`collision.summary.route_check.overhead_by_kind.body`);
   every portal **reached by a declared route** that enters its press-Up trigger box (`portal_adaptations.json`
   `trigger`, 4.5 × 1.6 m centred on the anchor: a route that stops short no longer proves the portal reachable).

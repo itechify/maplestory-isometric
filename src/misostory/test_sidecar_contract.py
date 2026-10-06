@@ -244,6 +244,14 @@ class ExportContract(unittest.TestCase):
             {"portal": "in02", "clear": False, "grounded": True, "blockers": ["DoorMound_in02"]}])
         self.assertFails(self.contract(), "contract_failures", "000001000.in02 arrival blocked", "DoorMound_in02")
 
+    def test_blocked_anchor_to_arrival_segment_fails(self):
+        # the arrival point itself is clear, but something stands on the line from the anchor to it at body height
+        self._set_clearance("000001000", portal_arrivals=[
+            {"portal": "in02", "clear": True, "grounded": True, "blockers": [],
+             "segment": {"clear": False, "samples": 7, "blockers": ["Crate_Stack_in02"]}}])
+        self.assertFails(self.contract(), "contract_failures", "000001000.in02", "anchor to the arrival point",
+                         "Crate_Stack_in02")
+
     def test_ungrounded_portal_arrival_fails(self):
         self._set_clearance("000001021", portal_arrivals=[
             {"portal": "out00", "clear": False, "grounded": False, "blockers": []}])
