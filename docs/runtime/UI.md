@@ -60,6 +60,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
+| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size; a window that grows, a drag and a smaller viewport are clamped back (6 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
 ## Integration (game shell)
@@ -370,12 +371,26 @@ effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent S
 - Clicking a row selects it: the description shows the cast position, the description, the current level and the next
   level's effect.
 - A learned skill's icon drags onto a HUD quickslot; or select it, press `Set key` and pick 1-8.
-- It opens under the Quest Log (`MisoWindowsRoot.BELOW`).
+- It keeps one size whatever is learned or selected (573 px tall at 1600 x 900): every row reserves two lines for its
+  effect text, the description scrolls inside five lines (`detail_scroll`), the status line keeps two lines and the
+  1-8 picker's row is held while the picker is folded. The acceptance review saw it grow from 365 to 511 px after
+  three "+" clicks, off the bottom of the windowed screen and over the HP gauge, with `Set key` at y 948 of 900.
+- It opens under the Quest Log (`MisoWindowsRoot.BELOW`), pulled up so its whole height sits above the HUD's status
+  bar (it then overlaps the Quest Log's lower part when both are open).
+
+**Every window stays on screen.** `MisoWindow` clamps its whole rect (not only the title strip) into
+`screen_area()`: the viewport above the HUD's status bar (`MisoUiEnv.bottom_bar_inset`, found by layout as NpcUi
+does, plus `BAR_GAP` 6 px; the whole viewport without a HUD). It does so when the window opens, while it is dragged,
+whenever its size changes (`resized`) and when the viewport changes size. `test_ui_window_fit` opens every window with
+its largest realistic content (all three skills learned, a row selected and the picker open; a full Use tab with its
+picker; every Maple Island quest in progress and 1006 selected; the largest shop) on exactly 1600 x 900 and checks
+that each lies on screen and off the status bar.
 
 **Quest Log (Q / L).** In Progress, Available and Completed tabs, each with a count.
-- In Progress entries that are ready to turn in show "[ready]".
+- In Progress entries that are ready to turn in show "[ready]" before the name, so a long name is what the ellipsis
+  trims ("Borrowing Sera's Mirror" had its trailing tag clipped away).
 - Available lists quests the character can accept now (`QuestEngine.is_available`). Quests whose start NPC stands on
-  the current map come first, marked "[nearby]", and the detail pane reads "Available nearby". The NPC's map is any
+  the current map come first, marked "[nearby]" (before the name), and the detail pane reads "Available nearby". The NPC's map is any
   of its canonical `locations[].map_id` (`MisoQuestWindow.npc_is_on_map`): in Snail Hunting Ground I (000000040),
   Sam's Suggestion (Sam, 9) is listed first and tagged.
 - The detail pane shows:
@@ -426,7 +441,9 @@ doc comment.
 | "Nearby" means one of the quest's start NPC's canonical locations (`npcs/<id>.json locations[].map_id`) is `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map, in `locations[]` only (no top-level `map_id`; reading one left every quest un-tagged until the Test E playtest caught it) |
 | The message log drops a repeated line only for notices and warnings, never for gains, spends, EXP or quest lines | The repeat filter exists for a full inventory announced again while pickup is held, and for loot pickup notices that word the HUD's own gain line again. Applied to every line, it also swallowed a second, separate sale (Test G) |
 | Log wording ("You have gained an item (...)") is MapleStory-inspired | MeowDB publishes no client messages. The wording is presentation, not canonical text |
-| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider. They are draggable by the title strip and clamped so it stays on screen | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text) |
+| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider. They are draggable by the title strip, and the whole window is clamped above the HUD's status bar (on open, drag, resize and a viewport change) | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text). The clamp kept only the title strip on screen, once, at the first open, so a window that grew afterwards (the Skills window after a "+") ran off the screen and over the gauges (acceptance review) |
+| The Skills window keeps one size (reserved lines, a scrolling description, the picker's row held) | A window that grows under the pointer moves the button the player is clicking; a fixed size also lets it open where its whole height fits above the status bar |
+| While the player sits, the status bar shows a green cue above the HP gauge: "Seated  ·  +10 HP / 10 s  ·  The Green Relaxer +30 HP / 10 s" (`MisoHud.seated_text`: the natural rate from `recovery.json` natural_hp and the chair's canonical bonus, `Chairs.bonus`); standing, a load or a replaced character clears it. Its line is held empty while standing, so the gauges never move | The acceptance review could not see the green chair on green grass and had no seated cue. Presentation; every number is read from data |
 | A press anywhere inside a window (its slots and buttons included) brings it to the front and makes it "newest" for Esc | Classic focus behaviour; Esc closes what the player touched last. Slots and buttons stop the mouse event, so this is done in `MisoWindow._input` from the frontmost control under the pointer |
 | The trail line lives in the map banner, held while on the trail, rather than in a separate widget | The banner is the HUD's only map-name element; §4.11 puts the line under the current map's name. The banner was already the arrival cue, so a trail reads as "still in this map, heading to that one" |
 | The trail line's prefix is the ASCII "-> " | Nunito (the MisoTheme font) has no U+2192 arrow; Godot would draw a system fallback glyph, which differs per platform |
@@ -530,6 +547,11 @@ staying disconnected after a reparent.
   the lane. Showing it (always, faintly, or once Tomato Field has been visited) is an owner decision.
 - **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
   them. The fold state is not saved (it lasts the session).
+- **The Skills window overlaps the Quest Log** when both are open: the five windows are wider together than the
+  screen, and the Skills window's full height fits only above the Quest Log's bottom edge. Either can be dragged.
+- **NPC speech bubbles hide while any modal is open** (a shop, a chat, the pause menu: `NpcPresenter.is_modal_open`,
+  the interaction system's GameContext), so a bubble never shows over or under an open window (the acceptance review
+  saw Lucy's cut off behind her shop). Name tags and quest markers stay.
 - **The minimap shows no monsters and no Wooden Boxes,** as classic minimaps do not.
 - **Phase 12 follow-ups outside the HUD and minimap** (found by the `ui_minimap` real-play check and the review):
   all closed at the Iteration Three integration. The status bar's Skill button carries an SP badge
