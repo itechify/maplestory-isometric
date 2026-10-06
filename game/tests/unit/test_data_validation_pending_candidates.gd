@@ -44,13 +44,21 @@ func _member(rec: Dictionary, key: String) -> Dictionary:
 
 func test_the_shipped_pending_rows_are_valid() -> void:
 	for f in baseline().findings:
-		assert_false(String(f.message).contains("pending_kuro_candidates"), "the shipped data raises nothing about its pending rows: %s" % f.message)
+		if f.severity == "error":
+			assert_false(String(f.message).contains("pending_kuro_candidates"), "no error about the shipped pending rows: %s" % f.message)
 	var c := clone_db()
 	var p := _with_pending(c)
 	reindex(c)
-	expect_no_new(run_validator(c), "drop_record")
-	expect_no_new(run_validator(c), "drop_policy")
+	var r := run_validator(c)
+	expect_no_new(r, "drop_record")
+	expect_no_new(r, "drop_policy")
 	assert_true(String(p.row.member) != "", "a pending row names its member")
+	var said := 0
+	var want := "chance pending: KuroDB item page %s is not read yet" % p.row.kuro_item_id
+	for f in r.findings:
+		if f.check == "drop_unresolved" and f.id == p.id and String(f.message).contains(want):
+			said += 1
+	assert_eq(said, 1, "the member's warning says its chance is a pending read, not a missing value")
 
 
 func test_a_pending_member_must_stay_unresolved() -> void:

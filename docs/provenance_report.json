@@ -340,9 +340,9 @@
       "file": "game/data/misostory/new_character.json",
       "kind": "misostory_adaptation",
       "path": "starting_sp",
-      "reason": "formulas/beginner.json sp.calculator_caveat: 'per the Beginner's guide a Beginner has 0 SP at level 1 and gains 1 SP at each level-up from 2 to 10'. MeowDB states it in prose only (no numeric field), so the number lives here with that quote.",
-      "verified": true,
-      "verified_against": "game/data/canonical/formulas/beginner.json sp.calculator_caveat ('a Beginner has 0 SP at level 1', quoting MeowDB's Beginner's guide)"
+      "reason": "No MeowDB page states a starting SP number. The cached Beginner's guide (https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world, formulas/beginner.json sp.note) says only 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10)', and the /formulas/leveling calculator prints the level-10 total 'Beginner SP = 9' at every level (sp.calculator_caveat). 0 at level 1 is the arithmetic that sentence leaves (9 SP, all from the 9 level-ups), a derivation and not a published value, so it is an adaptation here and not canonical data.",
+      "verified": false,
+      "verified_against": null
     },
     {
       "file": "game/data/misostory/portal_adaptations.json",
@@ -476,7 +476,7 @@
       "file": "game/data/misostory/presentation.json",
       "kind": "misostory_adaptation",
       "path": "fall_recovery",
-      "reason": "MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage, matching classic's lack of fall damage. A sea-level kill plane catches anything that leaves every map.",
+      "reason": "MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage. A sea-level kill plane catches anything that leaves every map. MeowDB documents fall damage (canonical formulas/movement.json fall_damage, from https://meowdb.com/msclassic/formulas/damage-taken: a landing after at least 45 consecutive fast-falling movement updates (downward speed at least 500 px/s) deals base 24, rising to 36; 'Maps can disable fall damage'); MisoStory applies none, neither on a landing nor on a recovery. The canonical rule cannot be applied as published: the length of one movement update is not documented (fall_damage.gaps) and MeowDB does not say which maps disable fall damage, so whether Maple Island's maps have it is unknown. No damage is the adaptation, not a canonical statement.",
       "verified": false,
       "verified_against": null
     },
@@ -959,8 +959,8 @@
   ],
   "counts": {
     "adaptations": 117,
-    "adaptations_unverified": 114,
-    "adaptations_verified": 3,
+    "adaptations_unverified": 115,
+    "adaptations_verified": 2,
     "capture_files": 18,
     "property_rows": 1264,
     "property_rows_by_authority": {
@@ -2818,7 +2818,7 @@
         },
         {
           "check": "drop_unresolved",
-          "message": "'Scroll for Shoes for Jump 10%' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)",
+          "message": "'Scroll for Shoes for Jump 10%' never rolls: chance pending: KuroDB item page 2040705 is not read yet (pending_kuro_candidates, D3-8; a pending source read)",
           "severity": "warning"
         }
       ],
@@ -18863,7 +18863,7 @@
       {
         "kind": "gap",
         "record": "drops/9",
-        "text": "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls"
+        "text": "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") whose item page has not been read (pending_kuro_candidates; a pending source read, not a source-data gap), so it never rolls"
       },
       {
         "candidates": [
@@ -21165,7 +21165,7 @@
         "check": "drop_unresolved",
         "domain": "drops",
         "id": "9",
-        "message": "'Scroll for Shoes for Jump 10%' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)",
+        "message": "'Scroll for Shoes for Jump 10%' never rolls: chance pending: KuroDB item page 2040705 is not read yet (pending_kuro_candidates, D3-8; a pending source read)",
         "severity": "warning"
       }
     ],
