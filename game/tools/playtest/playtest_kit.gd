@@ -901,8 +901,10 @@ func respawn(opts: Dictionary = {}) -> Dictionary:
 ## spawn 0), where every NPC's way starts (the npcs survey), and tries once more from there; a player whose walk to
 ## the arrival stalls where it began steps off the spot first (unstick()). The result carries
 ## "pre": a snapshot taken right before the approach that opened the chat ("t", "clock", "notices" too), the
-## baseline of a reward check: a quest with no completion text completes the moment the chat opens. Await it.
-func talk(npc_id: String) -> Dictionary:
+## baseline of a reward check: a quest with no completion text completes the moment the chat opens. opts go to the
+## walks back: travel_to's after a death ("fallback_warp", "safe") and the survival opts ("hp_floor", "hp_resume",
+## "on_threat") for those and the walk to the arrival. Await it.
+func talk(npc_id: String, opts: Dictionary = {}) -> Dictionary:
 	var map := d.current_map()
 	var v: Dictionary = {}
 	var from_spawn := false
@@ -926,13 +928,13 @@ func talk(npc_id: String) -> Dictionary:
 			from_spawn = true
 			d.note("%s cannot be reached from here (%s): walking back to the map's arrival and trying again" % [
 				npc_name(npc_id), String(v.get("why", "")).left(120)])
-			await walk_safely("spawn:0", {"max_s": 60.0, "unstick": true})
+			await walk_safely("spawn:0", _survival_opts(opts, {"max_s": 60.0, "unstick": true}))
 			continue
 		d.soft_check("the walk up to %s (%s) ends alive" % [npc_name(npc_id), map], false,
 			"died on the approach (attempt %d): HP %d at the start, %d damage from %d touches since (%s)" % [attempt + 1, hp0,
 				damage_taken - dmg0, touches.size() - tc0, ", ".join(touches.slice(tc0))])
 		await respawn()
-		if not await travel_to(map):
+		if not await travel_to(map, opts):
 			return v
 	return v
 
