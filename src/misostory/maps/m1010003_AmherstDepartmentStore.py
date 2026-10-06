@@ -552,6 +552,6 @@ def build(m):
     # on the chest shelf the route loops out to its east end before stepping onto the chest lid, so the
     # validator's 1.2 m slope window never spans board -> shelf -> lid in a short straight distance
     m.route("PoleShelf", [(14.4, 8.0), (13.9, 8.9)] + ring + [(12.45, 10.1), (12.45, 10.55), (13.15, 10.6),
-                                                             (13.15, 11.1), (12.25, 11.1), (11.3, 11.1),
-                                                             (10.4, 11.0)])  # (a body at y 11.1 touches the wall)
+                                                             (13.15, 11.05), (12.25, 11.05), (11.3, 11.05),
+                                                             (10.4, 11.0)])  # (at y 11.1 a body touched the frame)
     m.route("BeamDrop", [(10.4, 11.05), (9.7, 10.9)], one_way=True)   # 1.9 m jump down onto the potion board

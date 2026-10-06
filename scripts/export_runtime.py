@@ -1091,7 +1091,8 @@ def environment_block(scene):
 def route_samples(markers, step=0.25, walk_flags=False):
     """Blender-space samples of every declared route: [(route name, Vector)]. With walk_flags, each sample also
     says whether its route segment is walked (no steeper than movement.json floor_max_angle_deg and no rise above
-    step_up_m in one step) rather than climbed or dropped: [(route name, Vector, walked)]."""
+    step_up_m in one step) rather than climbed or dropped, and gives the unit horizontal vector across the segment
+    (to its left; zero on a vertical segment): [(route name, Vector, walked, across)]."""
     tan_max = math.tan(math.radians(misostory_value("movement", "", "floor_max_angle_deg", 38.0)))
     step_up = misostory_value("movement", "", "step_up_m", 0.45)
     out = []
@@ -1102,7 +1103,8 @@ def route_samples(markers, step=0.25, walk_flags=False):
             if walk_flags:
                 dz, run = abs(b.z - a.z), math.hypot(b.x - a.x, b.y - a.y)
                 walked = dz <= step_up or dz <= run * tan_max
-                out += [(r["name"], a.lerp(b, k / n), walked) for k in range(n)]
+                across = Vector((-(b.y - a.y) / run, (b.x - a.x) / run, 0.0)) if run > 1e-6 else Vector((0, 0, 0))
+                out += [(r["name"], a.lerp(b, k / n), walked, across) for k in range(n)]
             else:
                 out += [(r["name"], a.lerp(b, k / n)) for k in range(n)]
     return out
@@ -1178,11 +1180,15 @@ def wall_name_of(an, tri_index):
 
 def route_block_check(an, markers):
     """Final check of the shipped collision: route samples blocked by a prop hull, or by wall geometry overhead in
-    the body band (an upward ray from 0.15 m to 1.5 m). Samples within 0.8 m (xy) of a climbable are exempt.
+    the body band (an upward ray from 0.15 m to 1.5 m). Like the traversal validator's blocking test, each sample
+    is a body: its centre and two points a body's half-width (presentation.json grounding.capsule_radius_m) either
+    side across the route, so a shoulder that meets a hull or a wall counts. Samples within 0.8 m (xy) of a
+    climbable are exempt.
 
     `offenders` counts per (route, cause); `overhead` lists every wall-overhead sample with its Godot position, the
-    height of the hit above the sample, the wall object hit and the distance to the nearest climbable, so a reader
-    can tell a terrace lip beside a ladder from a real overhang."""
+    ray that met the wall (`centre`, `left` or `right`), the height of the hit above the sample, the wall object hit
+    and the distance to the nearest climbable, so a reader can tell a terrace lip beside a ladder from a real
+    overhang."""
     items = an["hull_items"]
     grid = hull_grid(items)
     climbs = climb_points(markers)
@@ -1193,19 +1199,27 @@ def route_block_check(an, markers):
     bvh = an.get("walls_bvh")
     up = Vector((0.0, 0.0, 1.0))
     step_up = misostory_value("movement", "", "step_up_m", 0.45)
-    for rname, sp, walked in route_samples(markers, walk_flags=True):
+    half = misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    for rname, sp, walked, across in route_samples(markers, walk_flags=True):
         total += 1
         near = min((math.hypot(sp.x - cx, sp.y - cy) for cx, cy in climbs), default=math.inf)
         if near < 0.8:
             continue
-        i = hull_hit(items, grid, sp, sp.z + 0.15, sp.z + 1.5)
+        rays = [("centre", sp)] + ([("left", sp + across * half), ("right", sp - across * half)]
+                                   if across.length > 0.0 else [])
+        i = next((k for k in (hull_hit(items, grid, p, sp.z + 0.15, sp.z + 1.5) for _r, p in rays)
+                  if k is not None), None)
         if i is not None:
             blocked_hull += 1
             key = rname + " <- " + (items[i]["asset"] or items[i]["name"])
             offenders[key] = offenders.get(key, 0) + 1
             continue
         if bvh is not None:
-            hit = bvh.ray_cast(sp + Vector((0, 0, 0.15)), up, 1.35)
+            hit, ray = (None,), None
+            for ray, p in rays:
+                hit = bvh.ray_cast(Vector((p.x, p.y, sp.z + 0.15)), up, 1.35)
+                if hit[0] is not None:
+                    break
             if hit[0] is not None:
                 blocked_wall += 1
                 key = rname + " <- wall overhead"
@@ -1216,7 +1230,7 @@ def route_block_check(an, markers):
                 # dropped segment, not walked; body: a real overhang inside a walking player's body
                 kind = "step" if above < step_up else ("body" if walked else "climb_or_drop")
                 kinds[kind] += 1
-                overhead.append({"route": rname, "at": gpos(sp), "hit_above_m": rnd(above, 3), "kind": kind,
+                overhead.append({"route": rname, "at": gpos(sp), "ray": ray, "hit_above_m": rnd(above, 3), "kind": kind,
                                  "wall": wall_name_of(an, hit[2]),
                                  "nearest_climb_m": None if near == math.inf else rnd(near, 2)})
     return {"samples": total, "blocked_by_hulls": blocked_hull, "blocked_by_walls_overhead": blocked_wall,

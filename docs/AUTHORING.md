@@ -203,8 +203,8 @@ height; `m.size` is `(L, D)`.
 - **Validator:** routes may include ladder and rope climbs (the slope window stops at climbs), so a route can walk
   up to a ladder, climb it and carry on: no need to start a separate route at every cliff. It also reports props
   blocking a route (`blocked`: geometry inside the body band `traversal.BODY_Z` = 0.15–1.5 m above the walk
-  surface; props beside a ladder/rope climb are exempt, see §5) and ladders or ropes without ground at their foot
-  or top.
+  surface, on the centreline or a body's half-width to either side; props beside a ladder/rope climb are exempt, see
+  §5) and ladders or ropes without ground at their foot or top.
 
 ### Layout rules from the island review
 
@@ -225,10 +225,15 @@ height; `m.size` is `(L, D)`.
 - Drops of up to 2.6 m are allowed but one-way. Avoid drops on main routes.
 - Every anchor portal must stand on ground, and every declared route must have ground everywhere.
 - Paths are at least 2.5 m wide, and nothing tall stands on them.
-- **Blocked:** an upward ray from every walk sample must not hit a placed prop or architecture inside the body band
-  `BODY_Z = (0.15, PLAYER_HEIGHT)` (0.15–1.5 m). Hits on the authored route segment that contains a ladder/rope
-  climb, or within 0.8 m of the climb, are exempt when a ladder or rope stands within 2.2 m (a trellis behind a rope,
-  dressing on the lip above a ladder foot); they are listed as `climb_exempt` on the route.
+- **Blocked:** three upward rays from every walk sample, one on the centreline and one `traversal.BODY_HALF_WIDTH`
+  (0.3 m, the runtime's capsule radius) to each side across the walking direction, must not hit a placed prop or
+  architecture inside the body band `BODY_Z = (0.15, PLAYER_HEIGHT)` (0.15–1.5 m): a post the body would meet with a
+  shoulder blocks the route too (the issue says which ray, `"ray": "left"`). So walk at least 0.3 m clear of walls,
+  frames and props. Hits on the authored route segment that contains a ladder/rope climb, or within 0.8 m of the
+  climb, are exempt when a ladder or rope stands within 2.2 m (a trellis behind a rope, dressing on the lip above a
+  ladder foot); they are listed as `climb_exempt` on the route. What counts as an obstacle is registry data
+  (`collision_tags.passable`): climbables, `passable` objects, meshes tagged `none` and kit assets with a
+  `PASSABLE_TAGS` tag never block; an object's name plays no part.
 - **Props near routes (island validator):** `validate.py`'s `props_near_routes` reports `m.place` props that are
   solid at body height near a route centreline. **Medium** (fails the check): less than 0.45 m body clearance.
   **Low**: 0.45 m up to 1.5 m outdoors (0.8 m in interiors). Hop-able furniture (top under 0.6 m) and archways

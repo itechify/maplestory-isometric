@@ -6,8 +6,9 @@ height changes between samples:
   * climb  - larger rise/fall within CLIMB_RADIUS of a ladder/rope spanning it
   * drop   - a fall of <= MAX_DROP (allowed, one-way)
   * error  - unclimbable step, missing ground, slope steeper than MAX_SLOPE_DEG, or a
-             prop blocking the way (an upward ray from the walk surface hits geometry
-             inside the body band BODY_Z; not on the approach to a ladder/rope climb)
+             prop blocking the way (one of three upward rays, at the centre and a body's
+             half-width to either side, hits geometry inside the body band BODY_Z; not on
+             the approach to a ladder/rope climb)
 It also checks that every ladder/rope has walkable ground at its foot and top, that
 portals stand on ground, that terrain stays near the map footprint, and that the declared
 routes form one connected graph that joins every portal (route_graph).
@@ -29,7 +30,11 @@ CLIMB_RADIUS = 2.2
 SAMPLE = 0.4
 PLAYER_HEIGHT = core.PLAYER_HEIGHT
 BODY_Z = (0.15, PLAYER_HEIGHT)  # body band above the walk surface: geometry inside it blocks a route
-HEAD = BODY_Z[1] - BODY_Z[0]    # length of the upward 'blocked' ray (kept for older callers)
+HEAD = BODY_Z[1] - BODY_Z[0]    # length of the upward 'blocked' rays (kept for older callers)
+# the 'blocked' test casts three upward rays per walk sample: the centre and this far either side across the walking
+# direction, a body's half-width (the runtime's grounding capsule radius, game/data/misostory/presentation.json), so
+# an obstacle a body would meet with a shoulder is found too
+BODY_HALF_WIDTH = 0.3
 SMALL_FOOTPRINT = 0.9  # props smaller than this (flowers, tufts) never block
 CLIMB_EXEMPT_SAMPLES = 2  # 'blocked' hits this many samples (0.8 m) from a climb, beside a ladder/rope, are exempt
 # route graph (route_graph): two routes join where a vertex of one lies within JOIN_XY (xy) and JOIN_Z (ground
@@ -140,6 +145,25 @@ def _resample_indexed(pts, step):
     return out, seg
 
 
+def body_hit(ctx, obstacles, a, b, z):
+    """The 'blocked' test of a body standing at local (x, y) b on ground height z (local), walking from a: three
+    upward rays through the body band BODY_Z, at the centre and BODY_HALF_WIDTH either side across the walking
+    direction. Returns (BVH hit, ray) of the first ray that meets an obstacle ("centre", "left" or "right"), or
+    (None, None)."""
+    wa, wb = ctx.w(a[0], a[1]), ctx.w(b[0], b[1])
+    d = Vector((wb.x - wa.x, wb.y - wa.y, 0.0))
+    side = Vector((-d.y, d.x, 0.0)).normalized() if d.length > 1e-6 else Vector((0.0, 0.0, 0.0))
+    z0 = ctx.origin.z + z + BODY_Z[0]
+    for ray, off in (("centre", 0.0), ("left", BODY_HALF_WIDTH), ("right", -BODY_HALF_WIDTH)):
+        if ray != "centre" and side.length == 0.0:
+            break
+        o = Vector((wb.x + side.x * off, wb.y + side.y * off, z0))
+        hit = obstacles.ray_cast(o, Vector((0, 0, 1)), BODY_Z[1] - BODY_Z[0])
+        if hit[0] is not None:
+            return hit, ray
+    return None, None
+
+
 def _near_ladder_xy(ctx, ladders, x, y):
     w = ctx.w(x, y)
     return any(math.hypot(l[0] - w.x, l[1] - w.y) < CLIMB_RADIUS for l in ladders)
@@ -188,12 +212,11 @@ def check_route(ctx, route, ladders, obstacles, reverse=False):
             else:
                 stats["walk"] += 1
             if obstacles is not None:
-                w = ctx.w(x1, y1, z1)
-                hit = obstacles.ray_cast(Vector((w.x, w.y, w.z + BODY_Z[0])), Vector((0, 0, 1)), BODY_Z[1] - BODY_Z[0])
-                if hit[0] is not None:
+                hit, ray = body_hit(ctx, obstacles, (x0, y0), (x1, y1), z1)
+                if hit is not None:
                     events.append((i + 1, {"type": "blocked", "at": [round(x1, 1), round(y1, 1)],
-                                           "height": round(hit[0].z - w.z, 2), "by": owner_of(obstacles, hit[2])},
-                                   True))
+                                           "height": round(hit[0].z - ctx.origin.z - z1, 2), "ray": ray,
+                                           "by": owner_of(obstacles, hit[2])}, True))
             continue
         near = _near_climb(ctx, ladders, (x0 + x1) / 2, (y0 + y1) / 2, z0, z1, allow_down_only=dz < 0)
         if near:

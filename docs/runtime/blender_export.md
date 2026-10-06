@@ -376,7 +376,12 @@ triangles and walls from 919 k to 357 k. The whole collision set is 10.3 MiB.
 
 ### Validation
 
-At export, every route is sampled every 0.25 m (15,681 samples) against the shipped collision:
+At export, every route is sampled every 0.25 m (15,681 samples) against the shipped collision. Since #28 each sample
+is a body, like the traversal validator's: its centre and two points 0.3 m (`grounding.capsule_radius_m`) either side
+across the route, so a shoulder that meets a hull or a wall counts, and every `overhead[]` entry names its `ray`
+(`centre`, `left`, `right`). With the side rays (2026-10-06 export: 15,782 samples) 1 sample meets a prop hull (1010003
+`PoleShelf` passes 0.25 m from the 0.45 m `X1010003_Jar` on the chest shelf, a step for the controller) and 20 have
+wall geometry overhead, 16 `step` and 4 `climb_or_drop`, still 0 `body`. The figures below are the single-ray round:
 
 - **0** samples are blocked by a prop hull;
 - **12** samples have wall geometry overhead in the body band (an upward ray from 0.15 to 1.5 m). Each is classified
@@ -485,8 +490,8 @@ back-face culling, and the glows use alpha blending.
 8. **Collision gaps.** Stairs collide as their exact stepped mesh (the contract asks for one inclined ramp per
    flight). There are no containment walls at map or trail edges and no kill volume (use `sea_level_y` or a margin
    under the island). Water is data only. 5 climbables have no `foot_ground` within 1.5 m of `climb_z0` (the
-   descend-only vines and ropes over pits). There are 12 overhead hits at lips and climbs, none inside a walking
-   body (above). Tree canopies, bushes and flowers never collide, by design.
+   descend-only vines and ropes over pits). There are 20 overhead hits at lips and climbs (12 before the side rays),
+   none inside a walking body (above). Tree canopies, bushes and flowers never collide, by design.
 9. **Lighting is approximate in Godot.** Blender sun W/m² and EEVEE indirect light have no exact Godot equivalent.
    The probe used energy = strength / π with ambient `#B9DCFF` and linear tonemapping. A real environment preset
    belongs in `game/data/misostory`.
