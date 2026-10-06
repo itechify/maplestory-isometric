@@ -60,7 +60,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
-| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size; a window that grows, a drag and a smaller viewport are clamped back (6 tests) |
+| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); a window that grows, a drag and a smaller viewport are clamped back (7 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
 ## Integration (game shell)
@@ -218,8 +218,8 @@ character on each event. No character object is cached.
   - `setup(ctx)`, `configure(env)`;
   - `window_by_name(name)`, `open_window`, `close_window`, `toggle_window`, `is_open`, `close_all`, `refresh_open`;
   - `default_position(name)`, `window_width(name)` and `window_size(name)` (the first-open placement: `LEFT_ROW`,
-    `RIGHT_ROW`, and `BELOW` for the Skills window, which opens under the Quest Log because the five windows are
-    wider together than the screen);
+    `RIGHT_ROW`, and `BELOW` for the Skills window, which opens by the Quest Log because the five windows are wider
+    together than the screen: under it when its whole height fits there, else beside it);
   - `show_item_tooltip(item_id, opts, anchor)` and `hide_item_tooltip()`;
   - the windows: `inventory`, `equipment`, `stats`, `quests`, `skills`.
 
@@ -376,8 +376,12 @@ effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent S
   effect text, the description scrolls inside five lines (`detail_scroll`), the status line keeps two lines and the
   1-8 picker's row is held while the picker is folded. The acceptance review saw it grow from 365 to 511 px after
   three "+" clicks, off the bottom of the windowed screen and over the HP gauge, with `Set key` at y 948 of 900.
-- It opens under the Quest Log (`MisoWindowsRoot.BELOW`), pulled up so its whole height sits above the HUD's status
-  bar (it then overlaps the Quest Log's lower part when both are open).
+- It opens by the Quest Log (`MisoWindowsRoot.BELOW`) and never over it: under it when its whole height fits above
+  the HUD's status bar there (a tall screen), else beside it, 10 px to its right and as low as the bar allows. On
+  1600 x 900 that is (896, 217): clear of the Quest Log, Character Stats and the Item Inventory, over the lower left
+  corner of the Equipment window (226 x 228 px of it, below its title strip). No place on that screen is clear of all
+  four: no two windows fit one above the other, and the five side by side are 1764 px wide. Until the owner's
+  decision of 2026-10-06 (issue #8) it opened under the Quest Log, pulled up over its lower part (366 x 283 px).
 
 **Every window stays on screen.** `MisoWindow` clamps its whole rect (not only the title strip) into
 `screen_area()`: the viewport above the HUD's status bar (`MisoUiEnv.bottom_bar_inset`, found by layout as NpcUi
@@ -442,7 +446,7 @@ doc comment.
 | "Nearby" means one of the quest's start NPC's canonical locations (`npcs/<id>.json locations[].map_id`) is `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map, in `locations[]` only (no top-level `map_id`; reading one left every quest un-tagged until the Test E playtest caught it) |
 | The message log drops a repeated line only for notices and warnings, never for gains, spends, EXP or quest lines | The repeat filter exists for a full inventory announced again while pickup is held, and for loot pickup notices that word the HUD's own gain line again. Applied to every line, it also swallowed a second, separate sale (Test G) |
 | Log wording ("You have gained an item (...)") is MapleStory-inspired | MeowDB publishes no client messages. The wording is presentation, not canonical text |
-| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider. They are draggable by the title strip, and the whole window is clamped above the HUD's status bar (on open, drag, resize and a viewport change) | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text). The clamp kept only the title strip on screen, once, at the first open, so a window that grew afterwards (the Skills window after a "+") ran off the screen and over the gauges (acceptance review) |
+| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider; the Skills window opens by the Quest Log, never over it (see "Skills (K)"). They are draggable by the title strip, and the whole window is clamped above the HUD's status bar (on open, drag, resize and a viewport change) | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text). The clamp kept only the title strip on screen, once, at the first open, so a window that grew afterwards (the Skills window after a "+") ran off the screen and over the gauges (acceptance review) |
 | The Skills window keeps one size (reserved lines, a scrolling description, the picker's row held) | A window that grows under the pointer moves the button the player is clicking; a fixed size also lets it open where its whole height fits above the status bar |
 | While the player sits, the status bar shows a green cue above the HP gauge: "Seated  ·  +10 HP / 10 s  ·  The Green Relaxer +30 HP / 10 s" (`MisoHud.seated_text`: the natural rate from `recovery.json` natural_hp and the chair's canonical bonus, `Chairs.bonus`); standing, a load or a replaced character clears it. Its line is held empty while standing, so the gauges never move | The acceptance review could not see the green chair on green grass and had no seated cue. Presentation; every number is read from data |
 | A press anywhere inside a window (its slots and buttons included) brings it to the front and makes it "newest" for Esc | Classic focus behaviour; Esc closes what the player touched last. Slots and buttons stop the mouse event, so this is done in `MisoWindow._input` from the frontmost control under the pointer |
@@ -549,8 +553,9 @@ staying disconnected after a reparent.
   the lane. The owner decided on 2026-10-06 never to show it.
 - **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
   them. The fold state is not saved (it lasts the session).
-- **The Skills window overlaps the Quest Log** when both are open: the five windows are wider together than the
-  screen, and the Skills window's full height fits only above the Quest Log's bottom edge. Either can be dragged.
+- **The Skills window covers a corner of the Equipment window** when both are open at their first places on
+  1600 x 900 (226 x 228 px, below its title strip; see "Skills (K)"): no place on that screen is clear of all four
+  other windows. Either can be dragged.
 - **NPC speech bubbles hide while any modal is open** (a shop, a chat, the pause menu: `NpcPresenter.is_modal_open`,
   the interaction system's GameContext), so a bubble never shows over or under an open window (the acceptance review
   saw Lucy's cut off behind her shop). Name tags and quest markers stay.

@@ -193,6 +193,75 @@ func test_the_skills_window_keeps_one_size_as_skills_are_learned() -> void:
 	_assert_fits("skills after learning", root.skills, bar)
 
 
+## Issue #8: on 1600 x 900 the Skills window opened under the Quest Log, pulled up over its lower part (366 x 283 px
+## of it). It now opens beside the Quest Log and covers none of it. No place on this screen is clear of all four other
+## windows (no two fit one above the other, and the five side by side are wider than the screen), so it covers the
+## Equipment window's lower left corner instead: less than it covered of the Quest Log, and never Equipment's title
+## strip. The four other windows still overlap nothing.
+func test_the_skills_window_opens_clear_of_the_quest_log() -> void:
+	var c := _character()
+	_learn_all_skills(c)
+	var ui := _ui(c)
+	var root: MisoWindowsRoot = ui.root
+	var bar := _bar(ui.hud)
+	var names := ["stats", "quests", "skills", "equipment", "inventory"]
+	for n in names:
+		root.open_window(n)
+	for w: MisoWindow in root.windows.values():
+		w.refresh()
+		_layout(w)
+	var rects := {}
+	for n in names:
+		_assert_fits(n, root.window_by_name(n), bar)
+		rects[n] = _rect(root.window_by_name(n))
+	var skills: Rect2 = rects["skills"]
+	var quests: Rect2 = rects["quests"]
+	assert_eq(skills.size, Vector2(366, 573), "the Skills window keeps its size")
+	assert_false(skills.intersects(quests), "the Skills window %s is clear of the Quest Log %s" % [skills, quests])
+	# The old place: under the Quest Log, left-aligned, pulled up to sit above the status bar.
+	var old := Rect2(Vector2(quests.position.x, bar.position.y - MisoWindow.BAR_GAP - skills.size.y), skills.size)
+	var before := old.intersection(quests).get_area()
+	assert_true(before > 0.0, "under the Quest Log it covered %.0f px2 of it" % before)
+	for i in names.size():
+		for j in range(i + 1, names.size()):
+			var a: Rect2 = rects[names[i]]
+			var b: Rect2 = rects[names[j]]
+			var area := a.intersection(b).get_area() if a.intersects(b) else 0.0
+			print("overlap %s / %s: %.0f px2" % [names[i], names[j], area])
+			if names[i] != "skills" and names[j] != "skills":
+				assert_eq(area, 0.0, "%s %s and %s %s do not overlap" % [names[i], a, names[j], b])
+			else:
+				assert_true(area < before, "%s / %s overlap %.0f px2, less than the Skills window covered of the Quest Log (%.0f)"
+					% [names[i], names[j], area, before])
+	var title := root.equipment._title_bar.get_global_rect()
+	assert_false(skills.intersects(title), "the Equipment window's title strip %s stays uncovered" % title)
+	# Both can still be dragged by their title strips (MisoWindow): a drag moves each and keeps it on screen.
+	for n in ["skills", "quests"]:
+		var w := root.window_by_name(n)
+		var at := w.position
+		var grab := w._title_bar.get_global_rect().get_center()
+		w._on_title_input(_mouse_button(grab, true))
+		w._on_title_input(_mouse_motion(grab + Vector2(-40, -30)))
+		w._on_title_input(_mouse_button(grab + Vector2(-40, -30), false))
+		assert_eq(w.position, at + Vector2(-40, -30), "%s follows a title drag" % n)
+
+
+func _mouse_button(at: Vector2, pressed: bool) -> InputEventMouseButton:
+	var e := InputEventMouseButton.new()
+	e.button_index = MOUSE_BUTTON_LEFT
+	e.pressed = pressed
+	e.position = at
+	e.global_position = at
+	return e
+
+
+func _mouse_motion(at: Vector2) -> InputEventMouseMotion:
+	var e := InputEventMouseMotion.new()
+	e.position = at
+	e.global_position = at
+	return e
+
+
 func test_a_window_that_grows_after_it_opens_is_pulled_back_inside() -> void:
 	var c := _character()
 	var ui := _ui(c)
