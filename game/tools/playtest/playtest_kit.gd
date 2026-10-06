@@ -13,7 +13,7 @@ extends RefCounted
 ##   await k.hunt(["3", "4"], func() -> bool: ..., {}) # fights with the survival policy, picks up precisely
 ##
 ##   travel    travel_to(map, opts)  portal_path(db, from, to)  walk_safely(target, opts)  unstick(opts)
-##   NPCs      approach(npc)  talk(npc)  last_talk  converse(goals, opts)  marker(npc)  quest_window(qid, tab)
+##   NPCs      approach(npc)  talk(npc, opts)  last_talk  converse(goals, opts)  marker(npc)  quest_window(qid, tab)
 ##   quiz      quiz_answer(db, qid)  (static: the canonical correct choice and the paired wrong-answer lines)
 ##   items     use_item(id, via, opts)  equip(id)  drink(id)  bind_quickslot(id, key)  double_click(c)  drag(a, b)
 ##             tooltip_rows(c)  row_texts(rows)  slot_index(tab, id)
