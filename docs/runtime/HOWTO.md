@@ -287,7 +287,7 @@ one of them passed: seed 1 headless, the every-quest set and the playthrough on 
 `test_skills`, `test_box` and `kit` also windowed. The manifest has 652 entries: 646 verified, 3 partial (all
 source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD, it warns that `tools/` differs from the
 evidence commit: after the run only the wording of the drop rows in `tools/parity` changed, which no Godot test or
-scenario runs.
+scenario runs, and the text of `tools/henesys/captures/README.md`, which nothing loads.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the

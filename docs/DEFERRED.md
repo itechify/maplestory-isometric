@@ -160,7 +160,8 @@ No source read is pending. What the sources do not give:
   world without saying so; it carries no parity keys today). One `playtest_tags` rule matched no check in that run:
   `test_c_progression`'s "each death took the canonical EXP penalty" runs only when the hunter dies, which it did not;
   its key, `mechanic:death-respawn`, is verified by other checks (142 passing). The manifest's build also warns that
-  `tools/` differs from the evidence commit: only the drop rows' wording in `tools/parity` changed after the run.
+  `tools/` differs from the evidence commit: after the run only the drop rows' wording in `tools/parity` and the text
+  of `tools/henesys/captures/README.md` (which nothing loads) changed.
 - **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue
   findings. The progression-blocker check is conservative (it ignores other sources of an item).
 - **Research notes edited by hand:** `docs/MAP_INVENTORY.md`, `docs/topology.json` and `docs/topology.mmd` are
