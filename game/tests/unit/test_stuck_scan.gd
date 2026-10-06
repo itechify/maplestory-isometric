@@ -314,7 +314,9 @@ func test_a_cached_scan_reports_what_a_fresh_scan_does() -> void:
 		print("SKIP test_a_cached_scan_reports_what_a_fresh_scan_does: game/assets/world not present (run with INCLUDE_WORLD=1)")
 		return
 	var world := _island()
-	var dir := ProjectSettings.globalize_path("user://stuck_scan_cache_test")
+	# A directory of this process's own: user:// is shared by every checkout and copy that runs the suite.
+	var dir := ProjectSettings.globalize_path("user://stuck_scan_cache_test_%d" % OS.get_process_id())
+	DirAccess.make_dir_recursive_absolute(dir)
 	for n in DirAccess.get_files_at(dir):
 		DirAccess.remove_absolute(dir.path_join(n))
 	var maps := PackedStringArray(["000000061", "000001013"])
@@ -347,6 +349,9 @@ func test_a_cached_scan_reports_what_a_fresh_scan_does() -> void:
 		shape.set_faces(faces)
 		assert_ne(String(again.cache.key), String(stored.cache.key), "a moved vertex: another key")
 		assert_eq(int(again.cache.maps_scanned), 2, "and both maps scanned again")
+	for n in DirAccess.get_files_at(dir):
+		DirAccess.remove_absolute(dir.path_join(n))
+	DirAccess.remove_absolute(dir)
 	world.free()
 
 
