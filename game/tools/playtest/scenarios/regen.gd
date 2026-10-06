@@ -9,7 +9,9 @@ extends PlaytestScenario
 ## move key stands up; X sits on the first chair owned; a warp stands the player up. Finally time is banked on the
 ## clock, the player sits down, and Quit Game saves.
 ## Phase 1: Continue. The player arrives standing (the seat is not saved), the chair is still owned, and the banked
-## clock is restored and completes the next tick. tests/unit/test_playtest_regen.gd runs it headless.
+## clock is restored and completes the next tick. Last, on 000000001's ladder near its top at 40% HP (an api setup
+## step: no console command lowers HP or grabs a ladder): climbing pauses the clock, and PlaytestKit.rest() climbs off
+## before it stands still, so natural recovery heals. tests/unit/test_playtest_regen.gd runs it headless.
 
 const CHAIR := "522"
 const WARP_MAP := "000000010"
@@ -23,7 +25,7 @@ func description() -> String:
 
 
 func max_seconds() -> float:
-	return 300.0
+	return 400.0
 
 
 func run(d: PlaytestDriver) -> void:
@@ -179,6 +181,42 @@ func _after_reload(d: PlaytestDriver) -> void:
 	await d.frames(2)
 	d.check("the chair still works after the reload (X)", p.is_seated() and p.seated_chair_id() == CHAIR,
 		"seated %s" % p.is_seated())
+	await _ladder(d)
+
+
+## On a ladder: climbing is not resting time (contract C4: only still and seated count), and PlaytestKit.rest() gets
+## off the ladder before it stands still. Test C's hunter once grabbed a ladder chasing a Shroom on A Split Road and
+## "rested" on it through 15 rests, 2,250 s of game time, without one tick (the final evidence run of 2026-10-06).
+func _ladder(d: PlaytestDriver) -> void:
+	await d.console("warp 000000001")
+	await d.wait_idle()
+	var p := d.player()
+	var c := d.character()
+	# The nearest ladder with ground at its foot (PlayerController.climbables lists every map's ladders and ropes).
+	var ladder: ClimbableDef = null
+	for x: ClimbableDef in p.climbables:
+		if x.has_foot_ground and not x.descend_only and x.height() > 2.0 and (ladder == null
+				or x.line_distance_xz(p.global_position) < ladder.line_distance_xz(p.global_position)):
+			ladder = x
+	if not d.check("a ladder with ground at its foot in 000000001", ladder != null and ladder.line_distance_xz(p.global_position) < 60.0,
+			"%s" % (ladder.name if ladder != null else "none of %d climbables" % p.climbables.size())):
+		return
+	var max_hp := StatCalculator.max_hp(c, d.db())
+	_set_hp(d, int(max_hp * 0.4))
+	var i := d._begin(PlaytestReport.KIND_API, "PlayerController.grab_climbable", "setup: on %s near its top" % ladder.name)
+	var grabbed := p.grab_climbable(ladder, true)
+	d._end(i, grabbed and p.is_climbing(), "climbing %s" % p.is_climbing())
+	var hp := c.hp
+	var clock := _clock(d)
+	await d.wait(3.0)
+	d.check("climbing pauses natural recovery: 3 s on the ladder leave the clock and HP as they were (contract C4)",
+		p.is_climbing() and absf(_clock(d) - clock) < 0.05 and c.hp == hp,
+		"climbing %s, clock %.2f -> %.2f s, HP %d -> %d" % [p.is_climbing(), clock, _clock(d), hp, c.hp])
+	var kit := PlaytestKit.new(d)
+	var rested: float = await kit.rest(PlaytestKit.HP_RESUME, {"rest_max_s": 45.0})
+	d.check("PlaytestKit.rest() from the ladder: off it first, then natural recovery heals",
+		grabbed and not p.is_climbing() and c.hp >= hp + 10,
+		"rested %.1f s, HP %d -> %d / %d, climbing %s" % [rested, hp, c.hp, max_hp, p.is_climbing()])
 
 
 ## The live character's natural recovery clock (CharacterState.natural_recovery.hp_rest_s, contract C3).
