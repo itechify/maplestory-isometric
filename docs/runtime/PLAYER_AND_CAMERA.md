@@ -483,8 +483,13 @@ show instead:
   procedural.
 - Sitting needs a chair item: there is no ground sit and no map bench (MeowDB documents neither on Maple Island;
   Rain's quiz 1016 only mentions chairs and benches in general).
-- Crouch and down-jump through platforms (the classic statement from Rain's quiz) and fall damage (MeowDB's formula
-  exists; MAP_ARCHITECTURE §4.6 chose none) are not implemented.
+- Crouch and down-jump through platforms (the classic statement from Rain's quiz) are not implemented: excluded as an
+  isometric adaptation (parity row `mechanic:crouch-down-jump`, `tools/parity/rules.json` `out_of_scope`): the down key
+  walks toward the camera, the maps have no pass-through floors, and a lower floor is reached by walking off an edge or
+  by a rope or ladder.
+- Fall damage is not applied. MeowDB documents it (canonical `formulas/movement.json` `fall_damage`), but the length of
+  one movement update and the maps that disable it are unpublished, so MisoStory applies none, an adaptation
+  (`presentation.json` `fall_recovery`, MAP_ARCHITECTURE §4.6; parity row `mechanic:fall-damage`, a source-data gap).
 - `IslandWorld` with `load_visuals = true` segfaults in headless runs (threaded visual load in the dummy renderer), so
   the sandbox's `--world` mode loads collision only when headless.
 - `set_input_enabled(false)` (dialogue, transitions) gates only the controller. Systems that read

@@ -268,9 +268,10 @@ changes make the modes agree on what a player can click:
 - The click rules of `click`, `pointer_onto`, the kit's `double_click` and `drag` (above): a control off the visible
   rect or covered by another control is refused, with a failed check, in both modes.
 
-With the code before the Skills window fix, a headless `test_skills` on the pinned screen fails exactly as the review's
-windowed run did ("Button 'Set key' (338, 948 342x30) lies outside the visible screen (0, 0 1600x900)"); after it, it
-passes in both modes. What still differs: windowed runs load the visual chunks (headless, collision only), so a
+With the code before the Skills window fix, a headless `test_skills` on the pinned screen fails on the same button as the
+review's windowed run did ("Button 'Set key' (338, 948 342x30) lies outside the visible screen (0, 0 1600x900)"; 19
+failed checks before it stopped, against the windowed run's 22); after it, it passes in both modes (51 checks headless
+and windowed in the final evidence run). What still differs: windowed runs load the visual chunks (headless, collision only), so a
 check about what is drawn (a canopy hiding a box, a colour) needs `--windowed` and a look at its screenshots.
 
 ## Walking
@@ -325,6 +326,7 @@ still, and that time is not counted as a stall.
 | `errors` | fatal: `[{phase, kind (script, scenario, timeout, harness), message}]` |
 | `engine_errors` | not fatal: push_error, engine errors and warnings while the scenario ran |
 | `notes`, `carry` (readable), `carry_var` | `carry_var` holds the typed copy |
+| `git` | `{commit, dirty, mixed, reused_copy}`: the commit `scripts/playtest.sh` found at HEAD for the first phase, whether `game/`, `tools/` or `scripts/` differed from it in any phase, whether a later phase ran another commit, and whether the run reused a mirrored copy (`PLAYTEST_REUSE_COPY=1`). `report.md` prints it on its "Code" line, and the parity build warns about missing, dirty or mixed commits |
 
 `report.md` holds the same report as a header (with the strict verdict) and tables: Strict violations, Errors, Checks
 (PASS, **FAIL**, WARN, with their parity keys), Parity keys, Steps (nested steps indented with `·`), Screenshots,
@@ -425,13 +427,14 @@ scenario; "after character creation" for a clean playthrough). From that step on
   `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
   adding to the inventory, completing a quest) is a mismatch.
 - The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
-- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` (and the kit and the quest runner) and
-  fails on teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict`, the kit, the quest runner, the driver, the
+  walker, the grid planner, the input and the runner (their logged api and console paths are whitelisted by file,
+  function and call, allowed only after the function opened a logged step; a whitelist entry that matches nothing fails)
+  and fails on teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console
   calls outside `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats,
   skills, cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that
-  change it
-  (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the quest
-  engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
+  change it (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the
+  quest engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
   `report_monster_killed`) and writes to the save on disk. A synthetic scenario in the same test proves the scan flags
   each kind.
 
@@ -522,25 +525,31 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
-### Results (2026-10-05, the integrated Iteration Three build, seeds 1, 2 and 3)
+### Results (2026-10-05, the final Iteration Three build, seeds 1, 2 and 3)
 
-**20 of 20 quests PASS on each seed** (523 quest checks per seed, 0 failed, 0 warnings), every chain strict after its
+**20 of 20 quests PASS on each seed** (520 / 523 / 523 quest checks, 0 failed, 0 warnings), every chain strict after its
 setup (0 console steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches); 1000-1001 strict from character
-creation. 1012 passes with the real Wooden Box (contract C8) and the 1012-gated drops (C1/C2), and the C3
-`rewards_received` record of 1008 and 1011 is now a hard check that matches the random pick. Per quest and per seed,
-with what each run showed: [QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
+creation. These are the final evidence run's reports (commit `9ddf137`, headless on the pinned 1600x900 screen with
+the click gate, `--jobs 1` beside two other runs). 1012 passes with the real Wooden Box (contract C8) and the
+1012-gated drops (C1/C2), and the C3 `rewards_received` record of 1008 and 1011 is a hard check that matches the
+random pick. Per quest and per seed, with what each run showed:
+[QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
 
 | Chain | Quests | Checks | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
 |---|---|---|---|---|---|---|---|
-| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 86 / 85 / 92 | 13 / 13 / 12 | |
-| 1002 | Roger's Apple | 25 | 1 | 3 | 62 / 64 / 69 | 11 / 10 / 10 | |
-| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 111 / 106 / 114 | 15 / 14 / 14 | |
-| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 116 / 110 / 116 | 14 / 14 / 13 | |
-| 1006, 1009, 1010 | Mai's Training | 93 | 1 | 6 | 707 / 744 / 708 | 105 / 115 / 116 | |
-| 1007-1008 | the letters | 48 | 2 | 3 | 384 / 343 / 351 | 58 / 50 / 54 | 713 Green / 712 Black / 712 Black Headband |
-| 1011 | Biggs's collection | 30 | 2 | 3 | 380 / 581 / 502 | 54 / 87 / 73 | 558 Razor / 559 Fruit Knife / 559 Fruit Knife |
-| 1012 | Pio's recycled goods | 33 | 2 | 3 | 101 / 101 / 91 | 13 / 13 / 13 | |
-| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 90 / 92 / 77 | 20 / 21 / 23 | |
+| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 96 / 100 / 94 | 12 / 11 / 12 | |
+| 1002 | Roger's Apple | 25 | 1 | 3 | 70 / 74 / 58 | 9 / 8 / 10 | |
+| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 118 / 120 / 116 | 14 / 12 / 13 | |
+| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 112 / 126 / 105 | 12 / 12 / 12 | |
+| 1006, 1009, 1010 | Mai's Training | 90 / 93 / 93 | 1 | 6 | 722 / 717 / 687 | 105 / 92 / 98 | |
+| 1007-1008 | the letters | 48 | 2 | 3 | 390 / 435 / 343 | 54 / 55 / 49 | 712 Black / 715 Blue Headband / 709 Green Skullcap |
+| 1011 | Biggs's collection | 30 | 2 | 3 | 562 / 757 / 400 | 75 / 101 / 52 | 559 Fruit Knife / 558 Razor / 558 Razor |
+| 1012 | Pio's recycled goods | 33 | 2 | 3 | 110 / 115 / 108 | 13 / 12 / 13 | |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 102 / 109 / 106 | 19 / 19 / 19 | |
+
+Seed 1's 1009 has 3 checks fewer: its 5 Red Snails were all killed during the other hunts, so that objective needed
+no hunt of its own. The previous final run (`c4e9ac5`, before wave 4: the 1600x1600 headless GUI area, no click gate)
+had also passed 20 of 20 on each seed.
 
 **Before the shun fix (the wave-1 harness on this build).** Seeds 1 and 3 passed 20/20; seed 2 failed 1006, 1009 and
 1010 at the trail hop from Snail Hunting Ground I to II (the survival guard spin, "Findings"). On the base build
@@ -611,7 +620,9 @@ skips it; `playtest_quests.sh` does that for every chain after a worker's first)
 | `quest --quest 1006,1009,1010` | 610 s (6 phases) | 94-147 s | 4-6.5x |
 | `quest --quest 1011` | 1020-1035 s (3 phases) | 175-230 s | 4.5-6x |
 | `playtest_quests.sh --jobs 3` (all 9 chains) | 2040-2230 s summed | about 6 min (5-6 min with two playthroughs running beside it) | |
-| `playthrough` (creation to Shanks, 8 phases) | 2200-2540 s | 316-359 s (three seeds in parallel) | 7x |
+| `playtest_quests.sh --jobs 1` (all 9 chains, final evidence run) | 2020-2550 s summed | 6.4-7.4 min beside two other runs | 7-8x |
+| `playthrough` (creation to Shanks, 8 phases) | 2200-2590 s | 308-411 s (beside two other runs) | 6-7.5x |
+| `playthrough --windowed` (seed 1, final evidence run) | 2573 s | 696 s (beside two headless runs) | 3.7x |
 
 Wall times grow with the machine's load (the ranges are two runs, the slower one beside other agents' Godot runs).
 
@@ -736,7 +747,7 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 | File | Covers |
 |---|---|
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
-| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios (quest, playthrough, npc_bubbles), the kit and the quest runner make no cheat call, and the scan flags a synthetic scenario's service calls, teleport, AP write and console call outside `_setup*` |
+| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios (quest, playthrough, npc_bubbles), the kit, the quest runner, the driver, the walker, the grid planner, the input and the runner make no cheat call outside their whitelisted logged steps, and the scan flags a synthetic scenario's (and a synthetic driver's) service calls, teleport, AP write and console call outside `_setup*` |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
 | `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest); `combined_markdown` over two synthetic runs (verdicts and chains side by side, the per-quest evidence table); `PlaytestQuestRunner`'s mid-quest restart policy (`auto`, `listed`, `off`, never twice) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |

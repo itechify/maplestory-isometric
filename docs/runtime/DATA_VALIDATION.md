@@ -28,11 +28,11 @@ GODOT=/path/to/godot bash scripts/validate_data.sh      # binary override, passe
 An isolated run copies the small `game/assets/world/*.json` sidecars (and `index.json`) but not the glTF chunks, and
 mirrors `tools/*/captures/` next to the copy (as `scripts/test.sh` does), because the validator checks that every
 cited capture file exists at `res://../tools/...`. The last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`.
-Shipped data on the integrated Iteration Three build (2026-10-05): 0 errors and 54 warnings, all `drop_unresolved`
+Shipped data on the final Iteration Three build (2026-10-06): 0 errors and 53 warnings, all `drop_unresolved`
 (the drop members no source gives a chance or an item for, listed by design), so `--strict` exits 1; 158 out-of-scope
-references skipped (listed per rule in every report); 192 canonical records, 37 adaptation files, 47 portals, 25
-sidecars, 203 capture paths, 172 per-property sources, 7 schema v2 drop records with 75 entries, 2,194 references and
-3,260 names checked; the quest, NPC and dialogue validation ran.
+references skipped (listed per rule in every report); 192 canonical records, 39 adaptation files, 47 portals, 25
+sidecars, 209 capture paths, 173 per-property sources, 7 schema v2 drop records with 75 entries, 2,196 references and
+3,262 names checked; the quest, NPC and dialogue validation ran.
 
 Every report lists the out-of-scope skips grouped by rule (`SKIPPED (out of scope) 125 x monsters.spawns[].map_id ->
 maps (maple_island: false)`); `--verbose` adds one line per skipped reference. The summary's stats include one
@@ -274,7 +274,10 @@ unless noted):
   member under another name, waiting for a hand read of its item page, D3-8) is `{kuro_item_id, name, raw_value,
   member, read, reason}` with non-empty strings. `member` is an entry key whose `chance_state` is `unresolved` with no
   `chance_source` (a pending row never rolls); the row is listed once and is not also an `excluded_kuro_only` row.
-  `DropChecks` (check `drop_policy`) also refuses a pending row that is some entry's chance source.
+  `DropChecks` (check `drop_policy`) also refuses a pending row that is some entry's chance source. No shipped record
+  holds one since KuroDB item 2040705 was read (D3-10); `test_data_validation_pending_candidates.gd` gives a copy of a
+  record a synthetic row (item 9999999) instead. A candidate its item page confirmed is an ordinary resolved entry
+  whose `chance_source.match_evidence` cites the item page capture, which must exist (check `provenance`).
 - **Chance.** `chance_state` is `resolved` or `unresolved`. Resolved: `probability` is a number in [0, 1];
   `chance_source` is present (a source object for `probability`); its `normalized_probability` equals `probability`
   and re-derives from `raw_value` by `format` within 1e-12: `percent_base` (`"<p>% base | ..."`, p / 100; an item
@@ -452,10 +455,11 @@ schema v2). Since the drops package's records landed they are verified by the te
 them `partial`. The manifest (format 3) also separates two kinds of open value it finds in the records and rules: a
 `source_data_gap` (the sources were read and give nothing: a `drop_unresolved` member with no KuroDB chance, an item no
 source names; excused) and a `pending_source_read` (the value is published on a page nobody has read yet:
-`tools/parity/rules.json` `pending_source_reads`, or a drop record's excluded KuroDB candidate row; never excused). The
-validator itself treats both the same way (an unresolved value stays visible in `gaps` or as `drop_unresolved`); the
-label is the manifest's. The drop policy's own tests are `test_drop_sources.gd`, `test_drop_chance.gd`,
-`test_drops_data.gd`, `test_drops_roller.gd` and `test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
+`tools/parity/rules.json` `pending_source_reads`, or a drop record's `pending_kuro_candidates` row; never excused;
+none is left since KuroDB item 2040705 was read, D3-10). The validator itself treats both the same way (an
+unresolved value stays visible in `gaps` or as `drop_unresolved`); the label is the manifest's. The drop policy's
+own tests are `test_drop_sources.gd`, `test_drop_chance.gd`, `test_drops_data.gd`, `test_drops_roller.gd` and
+`test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an

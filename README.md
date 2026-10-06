@@ -26,7 +26,7 @@ Briefs: [`docs/ITERATION_TWO_BRIEF.md`](docs/ITERATION_TWO_BRIEF.md),
 ```bash
 bash scripts/build_runtime.sh   # once (~6 min): builds MapleIsland.blend, exports the world, imports it into Godot
 bash scripts/play.sh            # launches the game (Godot 4.7.2 is downloaded on first use)
-bash scripts/test.sh            # 1500+ headless tests;  bash scripts/validate_data.sh checks the canonical data
+bash scripts/test.sh            # 1580+ headless tests;  bash scripts/validate_data.sh checks the canonical data
 bash scripts/playtest_quests.sh # every Maple Island quest played in the real game with real input (one table)
 ```
 
@@ -45,26 +45,41 @@ bash scripts/playtest_quests.sh # every Maple Island quest played in the real ga
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console (`help`, `warp <map>`, `give <item> [qty]`, `exp <n>`, `level <n>`, `mesos <n>`) / debug overlay |
 
+### Status
+
+Iteration Three is complete by its own exit criterion. In the final evidence run (2026-10-05, commit `9ddf137`) the
+full test suite with the exported world passes (1587 tests), canonical data validation passes (0 errors; 53 warnings,
+one per drop member no source resolves), and every real-game scenario passes: all 20 quests on three seeds, and one
+clean character played from the creation screen to Shanks with no developer help on three seeds headless and once in
+a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)) has 640 entries: 581
+verified and 56 source-data gaps (values the sources were read for and do not give), with none left open. Maple
+Island holds 20 quests, 6 monster species and the Wooden Box, 21 NPCs and 3 shops. What is still open (owner
+decisions, art, the limits below) is in [`docs/DEFERRED.md`](docs/DEFERRED.md); the final report is the last section
+of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
+
 ### What Iteration Three adds
 
 - **Canonical drops with their sources kept apart.** Monster drop membership comes from Hidden Street's per-monster
   lists and the Wooden Box's from MeowDB; drop and meso-drop chances from KuroDB, only for items on both lists; meso
   amounts from MeowDB (the Snail) or Hidden Street. Every value keeps its raw source text, URL and dated capture, and
-  a member no source gives a chance for never drops and stays visible in validation (decisions D3-3 to D3-9 in the
-  iteration log; the Snail's meso amount and the quest-gate rule are the orchestrator's readings of the brief, not
-  owner decisions).
+  a member no source gives a chance for never drops and stays visible in validation (decisions D3-3 to D3-10 in the
+  iteration log; the Snail's meso amount, the quest-gate rule and the KuroDB item-page rule are the orchestrator's
+  readings of the brief, not owner decisions).
 - **Beginner mechanics:** natural HP recovery by the project owner's rule (10 HP per 10 s standing still or sitting,
-  paused by moving, jumping or attacking), sitting and The Green Relaxer, the three Beginner skills with SP, a Skills
-  window and skill quickslots.
-- **The Wooden Box** on its 19 canonical placements: 4 hits, per-placement respawn, Pio's quest items while his quest
-  is in progress.
+  paused by moving, jumping or attacking), sitting and The Green Relaxer (with a seated cue on the HUD), the three
+  Beginner skills with SP, a Skills window, skill quickslots and an effects bar for the timed buffs.
+- **The Wooden Box** on its 19 canonical placements, in the camera's sight: 4 hits (basic attacks or Three Snails),
+  per-placement respawn, Pio's quest items while his quest is in progress, a gold marker while a quest wants a box.
 - **Every quest playable and played:** all 20 Maple Island quests run through the real game with real input in the
-  every-quest set, strict (no developer help) after a logged setup. The Quest Log shows chain progress, NPC maps and
-  the Missable tag; the island ends at Shanks' "End of Maple Island" screen.
+  every-quest set, strict (no developer help) after a logged setup, and again in one clean-character playthrough from
+  character creation to Shanks with no developer help at all. The Quest Log shows chain progress, NPC maps and the
+  Missable tag; the island ends at Shanks' "End of Maple Island" screen.
 - **World:** a minimap on all 25 maps, NPC speech bubbles, monsters that stay on their floor and pace, visible attack
   areas, spawns clear of NPCs and the player, and a stuck-region scan of every map (its first run confirmed 42 traps
   in 13 maps; they and the ones its review found are fixed in the Blender source, and the final scan confirms none).
 - **Saves v2** with a migration from Iteration Two saves (real Iteration Two saves are test fixtures).
+- **A harness that clicks only what a player can:** headless runs use the windowed 1600x900 screen, a click on a
+  control off the screen or under another fails, and every window stays on screen above the HUD's status bar.
 - **Provenance and parity reports:** [`docs/PROVENANCE_REPORT.md`](docs/PROVENANCE_REPORT.md) (every record and
   property with its authority, URL, read time and capture; every unresolved value; every adaptation) and
   [`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md) (every canonical entry's state, from test and playtest
@@ -217,17 +232,22 @@ Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
   lunge and a simple sit pose); skill icons and effects are procedural. There is no audio.
 - **Maple Island only.** One Beginner, from character creation to Southperry: no job advancement, no Victoria Island
   (Shanks' boat ends at an "End of Maple Island" screen; nobody travels and no fare is taken), no multiplayer.
-- **Some drops never happen, on purpose.** 54 of the 75 canonical drop members never roll, because no source gives
+- **Some drops never happen, on purpose.** 53 of the 75 canonical drop members never roll, because no source gives
   their chance (KuroDB has no row) or their item (an ambiguous or missing MeowDB item); none of them is guessed, and
   validation lists each one. Monster drop membership comes from Hidden Street's archive, which describes post-Big-Bang
   GMS v0.96, a different game version, by the project owner's decision; MeowDB's own community lists are kept as
   reference. Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
 - **MisoStory choices are labelled.** Where no source gives a value the game needs (the chair clock, skill tick and
   cast times, box placement, spawn spacing, knockback push, ground lifetime of drops), the value is an adaptation in
-  `game/data/misostory/` with its reason, marked unverified.
+  `game/data/misostory/` with its reason, marked unverified. Two canonical mechanics are not applied: fall damage
+  (MeowDB's rule needs a movement-update length and a per-map switch it does not publish) and crouch with the
+  down-jump (the isometric maps have no pass-through floors).
+- **Owner decisions are pending** (`docs/DEFERRED.md`): showing the hidden Tomato Field portal on the minimap,
+  protecting The Green Relaxer from being sold, the Snail's meso amount (MeowDB 2 or Hidden Street 1), square or disc
+  touch zones, the Skills window overlapping the Quest Log, and whether Three Snails may hit Wooden Boxes.
 - **Playthroughs are automated.** Every quest, Tests A-G and the Iteration Three scenarios run as scripted real-input
-  playthroughs of the real game ([`docs/runtime/PLAYTEST_HARNESS.md`](docs/runtime/PLAYTEST_HARNESS.md)); a human
-  playthrough is still to come.
+  playthroughs of the real game ([`docs/runtime/PLAYTEST_HARNESS.md`](docs/runtime/PLAYTEST_HARNESS.md)), headless and
+  (the clean-character playthrough, the skills, the boxes and the kit) windowed; a human playthrough is still to come.
 - **Approximate platform translation.** Maps keep the classic tier structure, ladders, ropes, landmarks and route
   rhythm, not pixel-exact footholds. Vertical scale is about 0.55-0.7 m per classic 60 px tier, capped near 14 m.
 - **Interiors are staged remotely.** The four interiors (20001, 60001, 1010001, 1010003) are cutaway rooms on an

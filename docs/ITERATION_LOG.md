@@ -396,21 +396,52 @@ playthrough and the every-quest report; the parity manifest; documentation.
 
 ## Final evidence run
 
-All runs were on code `c4e9ac5` (2026-10-05). The world export matches the source (nothing under `src/` changed after
-4b61650).
+All runs were on code `9ddf137` (2026-10-05; waves 1-4 merged and the KuroDB 2040705 read applied, D3-10), a clean
+tree: the unit evidence and every one of the 54 playtest reports record that commit with `dirty: false`. The world
+export matches the source (nothing under `src/` or `scripts/export_runtime.py` changed after 4b61650). Wave 4 pinned
+headless runs to the windowed 1600x900 screen and made a click on a control a player cannot see or reach fail, so
+every earlier headless result was run again.
 
-- **Unit suite with the world:** 1555 tests in 169 files, 0 failed. The Node tests (54 for sources, 14 for parity) pass.
-- **Canonical data validation:** 0 errors and 54 warnings (the drop members no source resolves).
-- **Real-game scenarios on seed 1:** all pass: Test A (476 checks), B (53), B population (79), C (76: level 10 by
-  killing only), D (90), E (103), F (237), G (184), `regen` (29), `test_skills` (50), `test_box` (37), `trap_probe` (55),
-  `npcs` (66), `npc_shanks` (26), `npc_bubbles` (7), `ui_minimap` (230), `save_it2_continue` (55), `pause_load` (12),
-  `resume_gate` (23) and `kit` (19).
-- **Every-quest set:** 20 of 20 on seeds 1, 2 and 3.
-- **Clean-character playthrough:** passes strict on seeds 1, 2 and 3: 620, 617 and 617 checks, 0 failed, 0 console or
-  api steps, 8 processes each. It ends at level 8, 7 and 7 with 418, 417 and 377 mesos, after 2,583, 2,453 and 2,295 s
-  of game time.
-- **Parity manifest** (`docs/MAPLE_ISLAND_PARITY.md`): 638 entries, 580 verified, 0 implemented, 56 partial and 0
-  missing (plus 2 out of scope: item and chair 525, which belong to Victoria Island). Of the 56 partial entries, 55 are
-  source-data gaps and 1 is a pending hand read (KuroDB item 2040705, the Orange Mushroom's jump scroll).
-  - The 55 gaps: 52 Hidden Street drop members that no source gives a chance or an item for, the Wooden Box's Egg,
-    no map seats, and no natural MP recovery.
+- **Unit suite with the world:** 1587 tests in 175 files, 0 failed, no SKIP line (`TEST_TIMEOUT_S=3000`, 13 minutes).
+  The Node tests pass: 87 (69 for sources, 18 for parity). `scripts/check_canonical.sh` reproduces every canonical file
+  byte for byte.
+- **Canonical data validation:** 0 errors and 53 warnings (the drop members no source resolves).
+- **Real-game scenarios on seed 1, headless:** all pass: Test A (476 checks, 3 warnings: one death on leg 30, retried),
+  B (53), B population (79), C (75, 1 warning: level 9 by killing only, one death), D (90), E (103), F (237), G (184),
+  `regen` (29), `test_skills` (51), `test_box` (40: 17 of the 19 boxes broken), `trap_probe` (55), `npcs` (66),
+  `npc_shanks` (26), `npc_bubbles` (7), `ui_minimap` (230), `save_it2_continue` (55), `pause_load` (12), `resume_gate`
+  (23) and `kit` (21).
+- **Windowed (one at a time):** the clean-character playthrough on seed 1 (695 checks, strict), `test_skills` (51),
+  `test_box` (40) and `kit` (21): all pass, 0 failed, 0 warnings. The Skills window, with every skill learned and the
+  key picker open, sits on screen above the status bar.
+- **Every-quest set:** 20 of 20 on seeds 1, 2 and 3 (520, 523 and 523 quest checks), every chain strict after its setup.
+- **Clean-character playthrough:** passes strict on seeds 1, 2 and 3 headless: 625, 623 and 623 checks, 0 failed, 0
+  console or api steps, 8 processes each. It ends at level 8, 7 and 7 with 497, 428 and 383 mesos, after 2,590, 2,329
+  and 2,298 s of game time.
+- **Parity manifest** (`docs/MAPLE_ISLAND_PARITY.md`, built from that evidence): 640 entries, 581 verified, 0
+  implemented, 56 partial and 0 missing (plus 3 out of scope: item and chair 525, which belong to Victoria Island, and
+  `mechanic:crouch-down-jump`, excluded as an isometric adaptation). All 56 partial entries are source-data gaps: 52
+  Hidden Street drop members that no source gives a chance or an item for, the Wooden Box's Egg, fall damage (the
+  movement-update length and the maps that disable it are unpublished), no map seats, and no natural MP recovery. No
+  source read is pending, so **0 entries are open for the exit criterion**.
+
+**Final report** (the brief's "Final Deliverables" list):
+
+| What | Count |
+|---|---|
+| Quests | 20 (MeowDB 1000-1019): 5 chains and 4 standalone quests, all played in the real game |
+| Monsters | 6 species (Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom), plus 1 breakable (the Wooden Box, 19 placements) |
+| NPCs | 21 |
+| Shops | 3 (Pan, Sid, Lucy) |
+| Unresolved source-data fields | 517 values ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values": record gaps plus unresolved drop and meso values); in the parity manifest they leave 56 entries partial, all source-data gaps (above) |
+| Deliberate MisoStory adaptations | 122 objects with a verified flag ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Adaptations"): 2 verified (the owner's natural-regen rule, checked against the brief, and the one-way portal allowlist, checked against the canonical maps), 120 not |
+
+The deliberate choices. Source decisions: Hidden Street drop membership and meso amounts (D3-5, D3-6), KuroDB reactor
+values read as 1/N (D3-7), the quest-gate rule (D3-9), the KuroDB item-page rule (D3-10), the Snail's meso amount kept
+at MeowDB's 2. MisoStory adaptations: recovery's tick and the buff cast timing, the chair clock and the sit key (W1-D1,
+W1-D2); how a Wooden Box is hit, placed (in the camera's sight, canopies included) and how much it drops (W1-D3, W1-D4);
+monster floors, pacing and spawn spacing, the mob rate not applied (W1-D5); quest wording, the sell guard and Shanks'
+boundary (W1-D6); the minimap drawn from the runtime collision (W1-D7); no fall damage, no crouch or down-jump, starting
+SP 0, and the marked "[MisoStory]" hint pages after Heena's control lines and Rain's chair answers. Every one has its
+reason in `game/data/misostory/` and is listed in the provenance report. What stays open is in
+[`DEFERRED.md`](DEFERRED.md).

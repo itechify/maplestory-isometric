@@ -49,7 +49,9 @@ Wooden Box (`0000001`).
                                              // only rows no member matches (a candidate its item page did not
                                              // confirm is one too, with what the page showed as its reason)
   "pending_kuro_candidates": [{              // optional (absent = none): KuroDB rows that may be a member under
-    "kuro_item_id": "2040705",               // another name, waiting for a hand read of their item page (D3-8)
+    "kuro_item_id": "2040705",               // another name, waiting for a hand read of their item page (D3-8;
+                                             // this example is the state before 2040705 was read: every shipped
+                                             // record has none now)
     "name": "Scroll for Shoes for Jump", "raw_value": "0.0300% base | Qty 1",
     "member": "scroll-for-shoes-for-jump-10", // the entry key; that entry stays unresolved with no chance_source
     "read": "KuroDB item page 2040705 (...); saved as tools/kurodb/captures/item_2040705.json",
@@ -90,7 +92,12 @@ Runtime rule (the drop roller):
   the capture exists, the merge (`tools/sources/drops_merge.mjs` `judgeKuroCandidate`) makes the row the member's
   chance source when the page shows the member's item (`match_method` `alias_with_evidence`, the page cited in
   `chance_source.match_evidence`), and otherwise moves it to `excluded_kuro_only` with what the page showed. A row is
-  matched, excluded or pending, never two of them, and never anybody else's chance source.
+  matched, excluded or pending, never two of them, and never anybody else's chance source. The rule (`meowdb_scroll`,
+  decision D3-10): the page's item name relates to the member's, its success rate equals the MeowDB scroll's, the
+  MeowDB scroll's bonus stats are among the page's bonuses, and its MONSTER DROPS row for the monster reads as the
+  monster page's; other bonus amounts or extra stats are kept as `match_evidence.version_difference` (item stats come
+  from MeowDB), never a rejection. KuroDB item 2040705 was read on 2026-10-06 and confirms the Orange Mushroom's
+  "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.0003.
 - **Quest-gate rule** (a MisoStory derivation, recorded with `verified: false`): an entry gets a `quest_gate` only when
   two things hold. First, the membership source, or MeowDB's own item subtype, marks the item as a quest item (MeowDB
   subtype "Quest Item"). Second, a Maple Island quest objective requires that item; the gate is that quest. KuroDB's
@@ -203,7 +210,11 @@ seconds) on walkable ground at runtime, the same way monster spawn slots are pla
 Store ×1, Amherst Weapon Store ×2, Amherst Townstreet ×2) have no species-tagged spawn regions. For them, and for any
 map whose regions cannot hold a box, the planner samples walkable floor inside the map's footprint and region
 extensions, seeded and deterministic per map. It keeps the same clearances as spawn slots (portals and arrivals, NPC
-interaction spaces, walls, other placements). This is a recorded MisoStory adaptation (`verified: false`), and every
-box position is checked by a physics test. The box breaks after
-`hits_to_break` landed hits (4) and drops through `DropRoller.roll("0000001", db, rng, ctx)`. It respawns after its
-placement's respawn time, and it is not persisted.
+interaction spaces, walls, other placements) and needs a clear line toward the gameplay camera, tested against the
+collision and against the tree canopies (`breakables.json` `placement.canopies`, a canopy box per tree asset measured
+from the export: canopies have no collision). With the canopy rule, Amherst's boxes 000001010:2, :4 and :5 moved to
+(257.61, 6.00, 611.37), (214.55, 6.00, 605.54) and (216.34, 6.00, 580.98); the other 16 are unchanged. This is a
+recorded MisoStory adaptation (`verified: false`), and every box position is checked by a physics test. The box
+breaks after `hits_to_break` landed hits (4: basic attacks, or Three Snails throws, one target per cast) and drops
+through `DropRoller.roll("0000001", db, rng, ctx)`. It respawns after its placement's respawn time, and it is not
+persisted.

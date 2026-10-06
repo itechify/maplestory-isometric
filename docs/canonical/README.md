@@ -99,10 +99,9 @@ change with each world build; refresh it with `node tools/meowdb/extract_maps.mj
 parse of `layout.py` against `docs/topology.json` (`LINKS` and `DOOR_LINKS` join exactly its 24 map pairs; every
 `ONE_WAY` anchor is an arrival point there), so a layout change does not break the extractor, and the diff says whether
 `ONE_WAY` still equals the landing anchors of MeowDB's one-way links. The cache is git-ignored, so the check runs
-locally; run it before each milestone. **On the integrated Iteration Three build it exits 2**: its step list still runs
-`extract_monsters` before `extract_items`, so the drop merge finds no items folder. With the order above (a copy of the
-script with `extract_items` and `extract_quests` moved first) every canonical file reproduces byte for byte
-(`docs/DEFERRED.md`).
+locally; run it before each milestone. It runs the extractors in the order above (items and quests before monsters,
+which resolve drop members against them), and on the final Iteration Three build every canonical file reproduces byte
+for byte, the KuroDB item page read on 2026-10-06 (decision D3-10) included.
 
 **Reports.** `bash scripts/validate_data.sh --report` writes the provenance validation report
 ([`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md): every record and property with its authority, URL, read time
@@ -120,7 +119,7 @@ and capture; every unresolved value; every adaptation), and `node tools/parity/b
 
 | Gap | Where the value or adaptation lives |
 |---|---|
-| Item drop chances, meso drop chances, most meso amounts (MeowDB lists drops and votes only) | Not adaptations: KuroDB chances and Hidden Street membership and amounts, by the owner's decisions D3-3 to D3-7, in the schema v2 drop records (contract C1); every shipped record is v2. A value neither source gives stays unresolved and never drops (54 of 75 members; the provenance report lists each). The roller's own readings (a meso amount is a uniform integer in [min, max]; the D3-9 quest-gate rule) are in `game/data/misostory/drop_rates.json`, which holds no number; the Wooden Box's quantity of 1 per roll is a labelled adaptation inside `drops/0000001.json` |
+| Item drop chances, meso drop chances, most meso amounts (MeowDB lists drops and votes only) | Not adaptations: KuroDB chances and Hidden Street membership and amounts, by the owner's decisions D3-3 to D3-7 (and D3-8 to D3-10 for which item a KuroDB row is), in the schema v2 drop records (contract C1); every shipped record is v2. A value neither source gives stays unresolved and never drops (53 of 75 members; the provenance report lists each). The roller's own readings (a meso amount is a uniform integer in [min, max]; the D3-9 quest-gate rule) are in `game/data/misostory/drop_rates.json`, which holds no number; the Wooden Box's quantity of 1 per roll is a labelled adaptation inside `drops/0000001.json` |
 | Drop ground lifetime and ownership time | `game/data/misostory/drops.json` |
 | Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` `natural_hp` (Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery: MeowDB documents none (`natural_mp`, an unresolved source gap) |
 | When a chair's bonus clock starts and whether it holds at full HP; the sit key; ground sitting and map benches (none documented) | `game/data/misostory/recovery.json` `chair_bonus`, `sitting` |

@@ -6,7 +6,7 @@ prove it works. Three rules hold throughout:
 
 - **Canonical facts come from their sources** and live in `game/data/canonical/` with provenance. MeowDB MS Classic is
   the authority for everything, except that KuroDB supplies drop and meso-drop probabilities and Hidden Street
-  supplies monster drop membership and meso amounts (decisions D3-3 to D3-7 in
+  supplies monster drop membership and meso amounts (decisions D3-3 to D3-10 in
   [`../ITERATION_LOG.md`](../ITERATION_LOG.md); contract C7). The extractors in `tools/meowdb/` write these files from
   the local cache and the dated captures; they are never edited by hand ([`../canonical/README.md`](../canonical/README.md)).
 - **Everything the sources do not publish is a MisoStory adaptation** in `game/data/misostory/`, with a `reason` and
@@ -27,8 +27,8 @@ prove it works. Three rules hold throughout:
 |---|---|
 | Maps | All 25 Maple Island maps, with every MeowDB portal, spawn, NPC and return map. Each has a minimap, and the stuck-region scan finds no trap on any of them. |
 | Monsters | All 6 Maple Island species, with canonical stats (the stagger time from the live pages), floor-bound pacing and fair hit areas. |
-| Drops | 7 schema v2 drop records (6 monsters and the Wooden Box): 75 members, 21 of which roll with a KuroDB chance; 54 never roll because a source leaves the chance or the item unresolved (each listed by the validator). Meso amounts for 5 monsters (MeowDB for the Snail, Hidden Street for the rest) at KuroDB's 40% chance. |
-| Breakables | The Wooden Box (0000001): its 19 placements on six maps, 4 hits to break, per-placement respawn, its drops through the same roller. |
+| Drops | 7 schema v2 drop records (6 monsters and the Wooden Box): 75 members, 22 of which roll with a KuroDB chance; 53 never roll because a source leaves the chance or the item unresolved (each listed by the validator). No KuroDB read is pending: the Orange Mushroom's jump scroll was settled by its item page (D3-10). Meso amounts for 5 monsters (MeowDB for the Snail, Hidden Street for the rest) at KuroDB's 40% chance. |
+| Breakables | The Wooden Box (0000001): its 19 placements on six maps (in the gameplay camera's sight, tree canopies included), 4 hits to break (basic attacks or Three Snails), per-placement respawn, its drops through the same roller, a reach rim and a quest marker. |
 | NPCs | All 21 Maple Island NPCs, all reachable and talkable, with speech bubbles of their canonical idle lines. Shanks ends the island at the departure boundary. |
 | Quests | All 20 Maple Island quests (1000-1019), each played in the real game by the every-quest set, strict after its setup. |
 | Shops | Pan, Sid and Lucy, at canonical prices. A shop refuses to buy a quest item an in-progress quest still needs. |
@@ -57,8 +57,8 @@ Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Ever
    it. Run an extractor twice: the output must be byte-identical.
 3. **Index and check:** `node tools/meowdb/build_sources_index.mjs` (rebuilds `canonical_sources.json`; the validator
    fails a stale index), `node --test tools/sources/test/`, `bash scripts/validate_data.sh`, and
-   `bash scripts/check_canonical.sh` (it re-runs every extractor offline and diffs the result; see HOWTO for its
-   current extractor-order defect).
+   `bash scripts/check_canonical.sh` (it re-runs every extractor offline, in their documented order, and diffs the
+   result byte for byte).
 4. **Reports:** `bash scripts/validate_data.sh --report` (the provenance report) and the parity manifest
    (`node tools/parity/build_parity.mjs`, HOWTO "Build the parity manifest").
 
@@ -80,6 +80,22 @@ To change a drop: read the capture again, edit the row (evidence and reviewer no
 `node --test tools/sources/test/` and `bash scripts/validate_data.sh`. Do not resolve an ambiguous name by guessing:
 leave it `ambiguous` and say why. When an item file is added for an id a row lists as a candidate,
 `extract_monsters.mjs` stops ("candidate N is now a local item; review the crosswalk row") until the row is reviewed.
+The drop tests follow the data (no test pins a member's state by hand), so a changed drop needs no test edit; a
+`pending_source_reads` declaration in `tools/parity/rules.json` that the data no longer supports fails the parity
+build until it is removed.
+
+**A KuroDB row under another name (a candidate).** When the owner's KuroDB page has a row that may be a member under
+another name (its name lacks the member's success rate, say), the crosswalk row stays `none` and records it as a
+`candidate` with `confirm_with` (decision D3-8). Until its KuroDB **item page** is read, the merge writes it to the
+record's `pending_kuro_candidates` and the member's chance is a pending source read (never excused in the parity
+manifest). The hand read goes in `tools/kurodb/captures/item_<kuro id>.json` (`tools/kurodb/captures/README.md` has
+the shape and the steps); re-running `extract_monsters.mjs` then settles the row by rule D3-10 (`meowdb_scroll`):
+confirmed as the member's chance (`alias_with_evidence`, the item page cited in `chance_source.match_evidence`, any
+other bonus amounts recorded as `version_difference` and never used) when the page's name relates to the member's, its
+success rate is the MeowDB scroll's, its bonuses include the scroll's stat and its MONSTER DROPS list the monster at the
+monster page's value; otherwise moved to `excluded_kuro_only` with what the page showed. The one candidate so far,
+KuroDB 2040705 on the Orange Mushroom, was read on 2026-10-06 and confirmed: "Scroll for Shoes for Jump 10%" (MeowDB
+177) rolls at 0.0003.
 
 ## Drop records (schema v2)
 
@@ -92,7 +108,10 @@ leave it `ambiguous` and say why. When an item file is added for an id a row lis
   `chance_source` (KuroDB, with its raw value, `format` `percent_base` or `reactor_chance_value`, the exact
   conversion and the normalised probability; null when KuroDB has no row), `chance_state`, `probability`, `quantity`,
   `quest_gate` and notes.
-- `excluded_kuro_only[]`: KuroDB rows no membership source lists. KuroDB never adds a member.
+- `excluded_kuro_only[]`: KuroDB rows no membership source lists, or a candidate its item page did not confirm (the
+  reason says which). KuroDB never adds a member.
+- `pending_kuro_candidates[]` (empty today): candidate rows waiting for a hand read of their KuroDB item page; they
+  never drop, and their member's chance is a pending source read.
 - `meso`: amount (MeowDB report, else Hidden Street) and chance (KuroDB), each with its state and source; `null` for
   an owner that never drops mesos.
 
@@ -121,10 +140,13 @@ source and why a member never rolls) and with `bash scripts/test.sh drop`.
   (the UI.md convention); a gameplay value never does.
 - Iteration Three's adaptation files: `recovery.json` (the owner's natural-regen rule, the chair clock, the sit key),
   `skills.json` (Recovery's tick, the buff cast lockout, Three Snails' whiff costs and projectile, effects at death),
-  `breakables.json` (box size, hit rule, respawn clock, placement rules), `stuck_allowlist.json` (reviewed scan
-  results), `presentation.json` `spawns` and `map_mob_rate`, `monsters/_shared.json` floors and pacing,
-  `combat.json` `monster_knockback`, `drop_rates.json`, `npcs/15.json` `departure`, `npcs/_speech_bubbles.json`,
-  `quests/_quest_items.json`, `dialogue/_rules.json` and the new lines in `dialogue/_system.json`.
+  `breakables.json` (box size, hit rule, respawn clock, placement rules with the canopy table, the box cues),
+  `stuck_allowlist.json` (reviewed scan results), `presentation.json` `spawns` and `map_mob_rate`,
+  `monsters/_shared.json` floors and pacing, `combat.json` `monster_knockback`, `drop_rates.json`, `npcs/15.json`
+  `departure`, `npcs/_speech_bubbles.json`, `quests/_quest_items.json`, `dialogue/_rules.json`, the new lines in
+  `dialogue/_system.json` (with the marked "[MisoStory]" hint pages after Heena's control lines and Rain's chair answers
+  in `dialogue/1.json` and `19.json`), `presentation.json` `fall_recovery` (no fall damage) and `new_character.json`
+  `starting_sp`.
 
 ## Add or change a quest
 
@@ -206,11 +228,14 @@ Monsters spawn at slots the runtime plans on Blender's spawn regions; MeowDB's 2
    gameplay camera's sight). Interiors with no spawn regions sample the map's floor.
 3. **Runtime:** `BreakableSystem` reads hits and drops by each placement's breakable id, but the actor it shows is the
    Wooden Box (`WoodenBox`, size `breakables.json box.touch_px`); a breakable that looks or sizes differently needs its
-   own actor and size entry. The hit rule (one landed basic attack, nearest box) and the exact respawn clock are in
-   `breakables.json`. Box state is never saved.
+   own actor and size entry. The hit rule (one landed basic attack or Three Snails throw, nearest box) and the exact
+   respawn clock are in `breakables.json`. Box state is never saved. The sight rule tests tree canopies too, from the
+   canopy table in `breakables.json` `placement.canopies` (measured from the export; `test_breakables_canopies`
+   checks it against the world, so rerun it after the Blender trees change).
 4. **Verify:** `test_breakables_placement.gd` checks every placement against the real collision (with the world),
-   `bash scripts/playtest.sh test_box` breaks boxes in the real game (Amherst's until Pio's quest is done, then every
-   box of the other five maps: 16 of the 19), and the `boxes` console command shows the current map's boxes. A
+   `bash scripts/playtest.sh test_box` breaks boxes in the real game (Amherst's until Pio's quest is done, one with
+   Three Snails, then every box of the other five maps: 17 of the 19), and the `boxes` console command
+   shows the current map's boxes. A
    breakable on a new map needs that map added to `test_box`'s `OTHER_BOX_MAPS`.
 
 ## Add a skill
@@ -317,4 +342,4 @@ an entry in `IT2_STEPS` and the reshape checks in `test_save_it2_fixtures.gd`; n
 - the game's own quest, NPC and dialogue validation (unsupported objectives, unplaceable NPCs, dangling nodes).
 
 It warns, by design, about every drop member or meso value that never rolls because a source leaves it unresolved, so
-missing probabilities stay visible (54 on the integrated Iteration Three data).
+missing probabilities stay visible (53 on the final Iteration Three data).

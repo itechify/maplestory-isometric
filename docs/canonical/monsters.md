@@ -195,7 +195,8 @@ retrieval time.
 
 `drops/<owner_id>.json` is a **schema v2 drop record** (contract C1 in
 [`../runtime/ITERATION_THREE_CONTRACTS.md`](../runtime/ITERATION_THREE_CONTRACTS.md)). It keeps *what can drop* and
-*how often* apart, each value with its own source (decisions D3-3 to D3-9 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)):
+*how often* apart, each value with its own source (decisions D3-3 to D3-10 in
+[`../ITERATION_LOG.md`](../ITERATION_LOG.md)):
 
 | Property | Monsters 1 2 3 4 5 9 | Wooden Box 0000001 |
 |---|---|---|
@@ -213,6 +214,15 @@ Shell, KuroDB 4000001 is Orange Mushroom Cap), so the join is **by name**, throu
 stays in `entries` with `chance_state: "unresolved"` or `item_id: null`, never rolls, is listed in the record's `gaps`,
 and the data validator lists it as a `drop_unresolved` warning.
 
+A KuroDB row that may be a member under another name is a crosswalk **candidate** (D3-8). Until its KuroDB item page
+is read it is a `pending_kuro_candidates` row: it never drops, and the member's chance is a pending source read. With
+the page captured (`tools/kurodb/captures/item_<kuro id>.json`), the merge settles it by rule D3-10: confirmed as the
+member's chance when the page's name relates to the member's, its success rate is the MeowDB scroll's, its bonuses
+include the scroll's stat and its MONSTER DROPS list the monster at the monster page's value (other bonus amounts are
+the other game version's data, kept as `match_evidence.version_difference`); otherwise excluded with what the page
+showed. The only candidate, the Orange Mushroom's "Scroll for Shoes for Jump" (KuroDB 2040705), was read on 2026-10-06
+and confirmed, so no record holds a pending row today.
+
 ### Record fields
 
 | Field | Meaning |
@@ -224,10 +234,11 @@ and the data validator lists it as a `drop_unresolved` warning.
 | `entries[].key`, `name` | Slug of the member's name, and the name as the membership source writes it |
 | `entries[].item_id`, `item_resolution` | The local MeowDB item, or `null`; `{state: resolved / ambiguous / not_in_snapshot, method, candidates, note}` from the crosswalk |
 | `entries[].membership_source` | `{authority, url, read_at, capture, raw_value, categories}`: the verbatim line(s) that list the member |
-| `entries[].chance_source` | `{authority: "KuroDB", url, read_at, capture, kuro_item_id, kuro_name, match_method, raw_value, format, normalized_probability, conversion, interpretation, kuro_quest_condition}`, or `null` |
+| `entries[].chance_source` | `{authority: "KuroDB", url, read_at, capture, kuro_item_id, kuro_name, match_method, raw_value, format, normalized_probability, conversion, interpretation, kuro_quest_condition}`, plus `match_evidence {capture, url, read_at, shows, version_difference, decision}` when an item page confirmed a candidate; or `null` |
 | `entries[].chance_state`, `probability`, `quantity` | `resolved` with a probability in [0, 1] and `{min, max, source}`, or `unresolved` with both `null` |
 | `entries[].quest_gate` | `{quest_id, basis, rule, decision: "D3-9", verified: false}` or `null` (see below) |
-| `excluded_kuro_only[]` | `{kuro_item_id, name, raw_value, reason}`: KuroDB rows for this owner that are not members |
+| `excluded_kuro_only[]` | `{kuro_item_id, name, raw_value, reason}`: KuroDB rows for this owner that are not members (no member's row, or a candidate its item page did not confirm) |
+| `pending_kuro_candidates[]` | `{kuro_item_id, name, raw_value, member, read, reason, decision}`: candidate rows waiting for a read of their item page (empty in every shipped record) |
 | `meowdb_reference` | MeowDB's community-voted list (with votes) and MSEA reference list from the live page, with MeowDB's item ids where its cached lists name them. Reference only for monsters |
 | `meso` | `{amount_state, min, max, amount_source, chance_state, probability, chance_source, discrepancies}`, or `null` (never drops mesos) |
 | `provenance` | Per-property authorities: `membership`, `probability`, `mesos.amount`, `mesos.probability` (contract C7) |
@@ -249,20 +260,23 @@ Jr. Sentinel Shellpiece (MeowDB subtype "Monster Drop") is not, although KuroDB 
 | 3 Blue Snail | 349 Blue Snail Shell 1.0, 270 0.02, 242 0.02 | 4 @ 0.4 | 9 | 13 |
 | 4 Shroom | 350 Mushroom Spore 1.0, 270 0.02, 242 0.02 | 4-6 @ 0.4 | 12 | 10 |
 | 5 Red Snail | 351 Red Snail Shell 1.0, 1325 Brown Woodsman Boots 0.0008, 270 0.02, 242 0.02 | 8-12 @ 0.4 | 11 | 18 |
-| 9 Orange Mushroom | 356 Orange Mushroom Cap 1.0, 1314 Brown Hard Leather Boots 0.0008, 1327 Red Ninja Sandals 0.0008, 270 0.02 | 9-13 @ 0.4 | 13 | 15 |
+| 9 Orange Mushroom | 356 Orange Mushroom Cap 1.0, 1314 Brown Hard Leather Boots 0.0008, 1327 Red Ninja Sandals 0.0008, 270 0.02, 177 Shoes Jump Scroll: Greater 0.0003 | 9-13 @ 0.4 | 12 | 14 |
 | 0000001 Wooden Box | 442 Old Wooden Board 1.0 and 441 Rusty Screw 1.0 (gated to 1012), 236 Apple 0.25 | none | 1 (Egg) | 0 |
 
-54 of 75 members never roll. Most are equipment, potions and arrows Hidden Street lists but KuroDB's page for that
+53 of 75 members never roll. Most are equipment, potions and arrows Hidden Street lists but KuroDB's page for that
 monster does not. Named open cases (decisions D3-7, D3-8):
 
 - **Omok Piece : Mushroom** (Orange Mushroom): KuroDB gives 1%, but MeowDB has three items of that name (486, 495,
   498), all quest items with no drop source. The item is ambiguous, so the entry never rolls.
-- **Scroll for Shoes for Jump 10%** (Orange Mushroom): resolved to MeowDB 177 (Shoes Jump Scroll: Greater, 10%), but
-  KuroDB's "Scroll for Shoes for Jump" (2040705, 0.03%) has no success rate in its name and its item page was not
-  read. Its chance is unresolved and the KuroDB row is excluded with that reason.
 - **Egg** (Wooden Box): KuroDB's Egg page lists no reactor 2001 drop. Unresolved; no quest needs it.
 - Gender-suffixed names with two MeowDB items each (Blue Cloth Vest (M), Black Cloth Pants (M)/(F), Blue Cloth Pants
   (M)) are `ambiguous`; Pan Lid, Wooden Samurai Sword and Pistol have no MeowDB item in the local cache.
+
+Settled: **Scroll for Shoes for Jump 10%** (Orange Mushroom), MeowDB 177 (Shoes Jump Scroll: Greater, 10%, Jump +3).
+KuroDB's row "Scroll for Shoes for Jump" (2040705, "0.0300% base | Qty 1") names no success rate; its item page, read
+on 2026-10-06, shows "Success rate:10%", JUMP +5, DEX +3, SPEED +1 and the Orange Mushroom at 0.0300%, so by D3-10 the
+row is the member's chance (0.0003). The bonus amounts that differ from MeowDB's are recorded as a version difference;
+the item's stats stay MeowDB 177's.
 
 Meso amounts are drawn as a uniform integer in `[min, max]`; for a Hidden Street range this is labelled an
 interpretation in `meso.amount_source.interpretation`. The Snail keeps MeowDB's report (2); Hidden Street's "Mesos: 1"

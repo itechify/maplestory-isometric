@@ -1006,7 +1006,7 @@ midpoint estimate : `MidpointTaken × PhysicalHitChance × (1 - GuardChance)`. M
 10. **Beginner progression**: level 1, 4/4/4/4 + 9 creation AP (25 total), +5 AP per level, +1 SP per level up to 9 SP at level 10, HP 50 + 16 × (L - 1), MP 5 + 12 × (L - 1) (flat, no randomness), first job at level 10 with no stat requirement, AP never resets on advancement.
 11. **Death**: the character dies when HP reaches 0 (Roger, npc 3). Lose `floor(EXP to next level × (5 + 20 / baseLUK) / 100)` EXP, floored at 0 EXP (never de-levels). `baseLUK` is the character's own LUK including the starting 4 (before gear), not just the AP placed in LUK; a value of 0 would divide by zero. No town or Beginner exception is documented. Respawn at the map's Respawn Map (maps domain).
 12. **Chairs** add a bonus: "an additional 30 HP every 10 seconds" on top of the resting regeneration, whose base amount is undocumented. The Sky-blue Wooden Chair needs level 5. Do not treat 30 HP / 10 s as the whole sitting regen.
-13. **Beginner SP**: the calculator's "Beginner SP = 9" is the level-10 total. A Beginner starts with 0 SP and gains 1 SP per level-up from level 2 to 10.
+13. **Beginner SP**: the calculator's "Beginner SP = 9" is the level-10 total. The Beginner's guide gives only "9 SP by the time you hit level 10 (1 per level-up)"; 1 SP per level-up from level 2 to 10, and so 0 SP at level 1, is arithmetic from that sentence, not a value any page states (MisoStory starts at 0: `new_character.json` `starting_sp`, an adaptation).
 
 ## 5. Ambiguities (rounding order, truncation, floor placement)
 

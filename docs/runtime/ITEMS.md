@@ -226,9 +226,10 @@ unresolved has `chance` 0 and `excluded` = `unresolved_chance` / `unresolved_ite
 
 What rolls today (per kill): every monster drops its own leftover (Snail Shell, Blue Snail Shell, Mushroom Spore, Red
 Snail Shell, Orange Mushroom Cap, Jr. Sentinel Shellpiece) at 1.0; Red Potion at 0.02 (not the Sentinel); Green Apple at
-0.02 (Snail, Blue Snail, Shroom, Red Snail); three boots/sandals at 0.0008 (Red Snail, Orange Mushroom); a meso bag at
-0.4 (not the Sentinel). The Wooden Box drops Apple at 0.25 and, while Pio's
-quest 1012 is in progress, one Old Wooden Board and one Rusty Screw every time. 54 of the 75 members never roll.
+0.02 (Snail, Blue Snail, Shroom, Red Snail); three boots/sandals at 0.0008 (Red Snail, Orange Mushroom); the Shoes Jump
+Scroll: Greater (177) at 0.0003 (Orange Mushroom; its KuroDB row settled by the item page read on 2026-10-06, D3-10); a
+meso bag at 0.4 (not the Sentinel). The Wooden Box drops Apple at 0.25 and, while Pio's quest 1012 is in progress, one
+Old Wooden Board and one Rusty Screw every time. 53 of the 75 members never roll.
 
 **Quest-gated drops.** An entry with `quest_gate` rolls only while that quest is in progress (C1 rule, D3-9:
 `drop_rates.json quest_gate_rule`). The monster system passes `DropRoller.context_for(character)`; a breakable must do
@@ -298,7 +299,7 @@ node --test tools/sources/test/                                                 
   the chair after 1012; whether to protect it (untradeable, not obtainable again) is an owner decision.
 - **A chair refused for level** reads "You need to be level N to equip that." (`MisoUiText.result_message` words
   `level_too_low` for equipment); only 525, an off-island chair, has a level requirement.
-- **Unresolved drops.** 54 drop members never roll until a source resolves them (see
+- **Unresolved drops.** 53 drop members never roll until a source resolves them (see
   [`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-v2-records)); the validator lists each one.
 - **Shop rules live in `inventory.json`.** The `shop` section is there only because this system owns no shop
   adaptation file. It can move to `shop.json`.

@@ -10,7 +10,7 @@ reference; most of its gameplay items are now done.
 Iteration Three built Maple Island's remaining content and mechanics on the Iteration Two foundation and played every
 quest in the real game (the every-quest set; [`runtime/PLAYTEST_HARNESS.md`](runtime/PLAYTEST_HARNESS.md)). Per-entry
 status is in [`MAPLE_ISLAND_PARITY.md`](MAPLE_ISLAND_PARITY.md) and every unresolved source value in
-[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (519 values: record gaps plus unresolved drop and meso values). These
+[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (517 values: record gaps plus unresolved drop and meso values). These
 items were left on purpose or found along the way.
 
 ## Out of scope
@@ -19,22 +19,27 @@ items were left on purpose or found along the way.
   "End of Maple Island" screen: nobody travels and no fare is taken (`misostory/npcs/15.json` `departure`).
 - Jobs and job advancement, parties, trading, the Cash Shop, final character, monster and UI art, and audio (the
   brief's out-of-scope list).
+- **Crouch and the crouching down-jump** (`mechanic:crouch-down-jump`, excluded in `tools/parity/rules.json`
+  `out_of_scope` as an isometric adaptation, `verified: false`): the down key walks toward the camera, so there is no
+  crouch stance, and the maps have no pass-through floors to drop through. A player reaches a lower floor by walking
+  off its edge or by a rope or ladder, and no input reaches the crouched attack.
 - Ask MeowDB for permission before extracting more pages or publishing the dataset
   ([canonical/README.md](canonical/README.md)). KuroDB and Hidden Street were read by hand only, after the project
   owner passed their Cloudflare checks; the same caution applies to them.
 
 ## Unresolved source data (never guessed; each stays visible in validation)
 
-- **54 of the 75 drop members never roll** (`bash scripts/validate_data.sh` lists each as a `drop_unresolved`
-  warning). 24 have a local item but no KuroDB chance (Blue Potion, Orange Potion, Arrow for Bow and the like); 30
-  have no unambiguous local item. Named cases ([`../tools/sources/crosswalk/README.md`](../tools/sources/crosswalk/README.md)):
-  - **Omok Piece : Mushroom** (Orange Mushroom, KuroDB 1%): a source-data gap, not an unread page. Hidden Street and
-    KuroDB name the drop, but MeowDB has three items of that name (486, 495, 498; their item API bodies are in
-    `tools/meowdb/captures/items_api.json`), all quest items with no drop source, so no source says which one it is
-    and none is chosen (D3-8). The member never drops; only an owner pick (an adaptation) would settle it.
-  - **Scroll for Shoes for Jump 10%** (Orange Mushroom): resolved to MeowDB 177, but KuroDB's possible row "Scroll for
-    Shoes for Jump" (2040705, 0.03%) has no success rate, and its item page was not read (D3-8). A hand read of KuroDB
-    item 2040705.
+No source read is pending: the last one, KuroDB's item page 2040705, was read on 2026-10-06 and confirms the Orange
+Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10 in
+[`ITERATION_LOG.md`](ITERATION_LOG.md)). What the sources do not give:
+
+- **53 of the 75 drop members never roll** (`bash scripts/validate_data.sh` lists each as a `drop_unresolved` warning).
+  23 have a local item but no KuroDB chance (Blue Potion, Orange Potion, Arrow for Bow and the like); 30 have no
+  unambiguous local item. Named cases ([`../tools/sources/crosswalk/README.md`](../tools/sources/crosswalk/README.md)):
+  - **Omok Piece : Mushroom** (Orange Mushroom, KuroDB 1%): Hidden Street and KuroDB name the drop, but MeowDB has
+    three items of that name (486, 495, 498; their item API bodies are in `tools/meowdb/captures/items_api.json`), all
+    quest items with no drop source, so no source says which one it is and none is chosen (D3-8). The member never
+    drops; only an owner pick (an adaptation) would settle it.
   - **Egg on the Wooden Box**: KuroDB lists no reactor-2001 value for it.
   - **Gender-suffixed names with two MeowDB items each:** Blue Cloth Vest (M) (949/958), Black Cloth Pants (M)/(F)
     (1170/1179), Blue Cloth Pants (M) (1169/1178). The genders of 944, 949/958, 1169/1178 and 1170/1179 cannot be
@@ -44,14 +49,22 @@ items were left on purpose or found along the way.
   - **20 MeowDB ids without a local item** (`not_in_snapshot`: 944, 916, 625, 727, 721, 720, 650, 722, 1319, 717,
     1435, 943, 951, 735, 617, 1318, 718, 672, 956, 680). None has a KuroDB chance, so none would drop even with an
     item file; adding one makes `extract_monsters.mjs` stop until its crosswalk row is reviewed.
+- **Fall damage** (`mechanic:fall-damage`, a source-data gap): MeowDB documents it (canonical `formulas/movement.json`
+  `fall_damage`: a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36;
+  "Maps can disable fall damage"), but the length of one movement update is not published and neither is which maps
+  disable it, so the rule cannot be applied. MisoStory applies none, on a landing or on a fall recovery
+  (`presentation.json` `fall_recovery`, an adaptation; MAP_ARCHITECTURE §4.6).
 - **The Tutorial Jr. Sentinel's mesos:** Hidden Street says "?" and KuroDB has no meso row, so it drops none.
 - **Natural MP recovery:** MeowDB documents none, so MP does not recover naturally (`recovery.json` `natural_mp`).
 - **Ground sitting and map benches:** MeowDB documents neither on Maple Island; only chairs sit
-  (`recovery.json` `sitting`).
+  (`recovery.json` `sitting`). Rain's quiz 1016 mentions chairs and benches, so a marked "[MisoStory]" page after
+  its answers says the sit key works on chairs the player owns.
+- **Starting SP:** no page states it; 0 at level 1 is arithmetic from the Beginner's guide's "9 SP by level 10, 1 per
+  level-up" (`new_character.json` `starting_sp`, `verified: false`).
 - **Beginner skill timing:** Recovery and Nimble Feet show "Timing unavailable" (cast instantly, lockout 0); how
   Recovery's heal is spread over its 30 s (5 s equal ticks); what a Three Snails cast with no target costs (MP and the
   shell); whether it checks walls and platforms (it does not). All in `skills.json`, `verified: false`.
-- **Monster knockback distance** (the 20 px push stays an adaptation; the stagger time is now canonical).
+- **Monster knockback distance** (the 20 px push stays an adaptation; the stagger time is canonical).
 - **Peter's possible scripted warp** (his idle line hints at one; `docs/canonical/maps.md`).
 - **Quest timestamps:** `started_at` / `completed_at` are per-process `Game.clock` values (informational only).
 - The shop records' `field_sources` cite `{item_id}` template URLs; the real per-item URLs are in `items[]`. A fix
@@ -60,46 +73,58 @@ items were left on purpose or found along the way.
 ## Decisions for the project owner
 
 - Show the **hidden portal to Tomato Field** (000001020 in00) on the minimap: always, faintly, after the first visit,
-  or never (today: never, as in classic).
+  or never (today: never, as in classic, and the world shows no swirl or prompt there either, so a player has to find
+  the hedge lane; the playthrough reaches it because the harness reads the canonical portal list).
 - Protect **The Green Relaxer** (522, untradeable, cannot be obtained again) from being **sold**: no in-progress
   quest needs it, so the quest-item sell guard does not hold it.
 - **The Snail's meso amount:** MeowDB's one player report (2) is kept over Hidden Street's 1. This is the
   orchestrator's reading of the brief ("do not replace MeowDB values"), not an owner decision (D3-5).
-- **Skills as Wooden Box hits:** MeowDB says boxes break after 4 "basic attacks" and nothing about skills. Three
-  Snails counts as one hit today (one target per cast, the nearest of the monsters and boxes in its band;
-  `breakables.json hit_rule`, `verified: false`). Confirm, or have skills search monsters only.
+- **Square or disc touch zones:** a monster's touch zone is a square prism whose corners reach √2 times further on
+  the diagonals (a disc instead?), and the 60 px isometric attack depth reaches monsters up to ±1.21 m (Snail) and
+  ±1.54 m (Orange Mushroom) to the side, drawn with every swing.
+- **The Skills window overlaps the Quest Log** when both are open: the five windows are wider together than the
+  1600 px screen, and the Skills window (one fixed size, about 570 px tall) fits its full height only above the
+  Quest Log's bottom edge (`UI.md` "Known gaps"). Place it elsewhere, shorten it, or keep it (either can be dragged).
+- **Whether Three Snails may hit Wooden Boxes:** MeowDB says boxes break after 4 "basic attacks" and nothing about
+  skills. Three Snails counts as one hit today (one target per cast, the nearest of the monsters and boxes in its
+  band; `breakables.json` `hit_rule`, `verified: false`). Confirm, or have skills search monsters only.
 - **Which Omok Piece : Mushroom** (486, 495 or 498) the Orange Mushroom drops, if any: the sources leave it a gap
   (above), so only an owner pick would make it drop.
 - **Sera's and Sen's mid-quest lines** ("Did you give my mirror to Heena?", "What did my sister say?") show after
   completion under the default-talk rule; `dialogue/_rules.json` or an override could move them.
 - A **player-facing quest forfeit** in the Quest Log (today only the console forfeits; Roger re-issues a lost apple
   instead).
-- **Combat reach shapes:** the touch zone is a square prism whose corners reach √2 times further on the diagonals (a
-  disc instead?), and the 60 px isometric attack depth reaches monsters up to ±1.21 m (Snail) and ±1.54 m (Orange
-  Mushroom) to the side, now drawn with every swing.
 - The **map mob rate** is ignored (`presentation.json map_mob_rate.apply` false), a choice between MeowDB pages that
-  disagree; the switch exists.
+  disagree; the switch exists, and every spawn-rule row of the parity manifest names this adaptation.
 - The **Wooden Box's quantity** of 1 per roll is an adaptation stored inside a canonical record
   (`drops/0000001.json quantity.adaptation`), because C1 lets nothing outside the record supply one. Confirm, or
   move it.
+- **The Wooden Box's reach rim:** the warm rim that shows while a swing can reach a box is faint (0.06 m); the gold
+  marker shown while a quest wants a box's drops reads clearly. Make the rim stronger if wanted (`wooden_box.gd`
+  `REACH_RIM_M`, `REACH_COLOR`).
 
 ## Art and presentation
 
 - Monster and character proxies stay Iteration One's chibi models with procedural motion; the Tutorial Jr. Sentinel
   proxy is new (a stone sentinel fitted to its 68 px sprite height). Small monsters are about 30 px tall at
   1600x900, and Shroom caps resemble the decorative red mushrooms.
-- No skill art: skill icons and the thrown shell are procedural. No buff indicator on the HUD (only a quickslot's
-  cooldown sweep).
-- The sit pose is a settle and lean onto a procedural chair (the proxy has no skeleton). No seated indicator on the
-  HUD.
-- Wooden Boxes: lighter, faintly glowing planks keep them apart from the decorative crates. Camera sight is checked
-  against collision only, so a box can stand under a colliderless canopy (000001010:4 under the orange tree by Pio's
-  neighbour's house); a crate's rotated corner can clip slightly into a wall.
+- No skill art: skill icons and the thrown shell are procedural. The HUD's effects bar (top right) shows Nimble Feet
+  and Recovery with their time left, but its icons are small (about 24 px) and far from the status bar.
+- The sit pose is a settle and lean onto a procedural chair (the proxy has no skeleton). The HUD shows a seated cue
+  above the HP gauge ("Seated · +10 HP / 10 s · The Green Relaxer +30 HP / 10 s"), and the chair has a dark wooden
+  frame around its green cushions. The frame has not been seen on grass: in the final windowed playthrough the player
+  sits on Amherst's grey road, where the cue reads clearly but the chair under the leaning body hardly shows.
+- Wooden Boxes: lighter planks, a warm rim while in reach (faint, above) and a gold marker while a quest wants their
+  drops set them apart from the decorative crates. Camera sight is now also checked against the tree canopies
+  (`breakables.json` `placement.canopies`, measured from the export; Amherst boxes 000001010:2, :4 and :5 moved out from
+  under them). If the Blender tree assets change, rerun `test_breakables_canopies` and update that table. A crate's
+  rotated corner can clip slightly into a wall.
 - The attack's hit-area footprint is a flat quad 3 cm above the feet, partly hidden on uneven ground.
 - Quest markers over NPCs are drawn even where the HUD bar covers them.
 - Flat untextured green slopes fill 40-50% of the arrival frames at 000000040, 000000050 and 000001010.
 - The minimap's fold state lasts for the session only; there is no "Map [M]" button on the status bar; on
-  000001000 three of eight exit names show only on hover (43 of the island's 46 named in the suite's layout).
+  000001000 three of eight exit names show only on hover and the labels crowd the terrain (43 of the island's 46
+  named in the suite's layout).
 
 ## Gameplay and feel
 
@@ -117,21 +142,25 @@ items were left on purpose or found along the way.
   fewer until the player moves. `m.mobs` regions without a `z_band` give a walker on sloped ground a ±0.5 m strip
   around its own spawn height.
 
-## Open review findings (verified still open on the integrated build)
+## Open review findings (verified still open on the final build)
 
-- **The parity manifest's one open entry** (`MAPLE_ISLAND_PARITY.md`, built from the final evidence run: 638 entries,
-  580 verified, 0 implemented, 56 partial, 0 missing, 2 out of scope): 55 of the partial entries are source-data gaps
-  (excused) and one is a pending source read, `drop:9/scroll-for-shoes-for-jump-10` (KuroDB item page 2040705, above),
-  which stays open for the exit criterion until that page is read. Two `playtest_tags` rules matched no check in this
-  run, both conditional checks whose condition did not occur (`test_c_progression` had no death, so no death-penalty
-  check; `ui_minimap` found nothing dropped nearby, so no pickup-announcement check); both keys are verified by other
-  evidence.
+- **The parity manifest** (final evidence run at `9ddf137`: 640 entries, 581 verified, 0 implemented, 56 partial, all
+  source-data gaps, 0 missing, 3 out of scope, 0 open for the exit criterion) rests on git-ignored evidence. Each input
+  now records its commit, a dirty flag and (unit evidence) whether the exported world was present, and
+  `build_parity.mjs` warns on the console about missing or mixed commits, dirty trees and code trees that differ from
+  HEAD; but stale evidence is only a warning (an older unit evidence file could still verify a drop entry whose data
+  changed after it ran), `--check` cannot run without the evidence files, and no compact evidence digest is committed. A
+  unit test's need for the world is read from the text `INCLUDE_WORLD` in its file (`test_gate_monitor.gd` needs the
+  world without saying so; it carries no parity keys today). One `playtest_tags` rule matched no check in that run:
+  `ui_minimap`'s "every pickup is announced in the HUD log" runs only when something dropped near the player, which it
+  did not; its key, `ui:item-pickup-feedback`, is verified by other checks.
 - **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue
-  findings. The progression-blocker check is conservative (it ignores other sources of an item). The test evidence
-  records `git rev-parse HEAD` even for a dirty tree, and `build_parity.mjs --check` neither detects stale evidence nor
-  runs without the git-ignored evidence files.
-- **Crosswalk notes:** the 65 crosswalk reviewer notes were written by script from checked facts; an owner pass may
-  be wanted.
+  findings. The progression-blocker check is conservative (it ignores other sources of an item).
+- **Crosswalk notes:** the crosswalk reviewer notes were written by script from checked facts; an owner pass may be
+  wanted.
+- **The KuroDB item page reader** knows the layouts of the reactor item pages and of item 2040705. An unexpected label
+  or format stops the merge or the loader with an error instead of a silent verdict, so another item page may need a
+  reader tweak first.
 - **The stuck-region scan's limits** ([`runtime/STUCK_SCAN.md`](runtime/STUCK_SCAN.md)): verification replays only the
   last edge into a component; hops are swept as an L at apex height; a body wedged on two rims over a narrow gap is not
   modelled; Southperry's double-sided trimesh defeats the buried-surface test (4 ring-top components are listed
@@ -146,41 +175,51 @@ items were left on purpose or found along the way.
   starts from the chair (use `is_seated()` to detect sitting). The "fall" stand-up would fire on a surface where a
   still player's ground state flickers. The natural clock is saved and never reset, so a tick can land within a
   fraction of a second of a Continue or a respawn. Pressing Up at a real portal while seated is tested only through
-  the console warp.
+  the console warp. `BreakableSystem.wanted()` rebuilds a QuestDef every 0.1 s while quest 1012 is active (harmless
+  at one gate quest; could be cached).
 - **Quests and NPCs:** `flags.maple_island_departure_ready_at` records the latest boarding, not the first.
-- **Harness:** `test_b_combat`, `test_d_inventory`,
-  `test_f_death` and `test_g_shop` still carry their own copies of kit helpers. `unstick()` is verified only on the
-  talk path. Strict mode's ledger reconciles EXP, mesos, items and quests only; AP, SP, stats, HP and position rest on
-  a source scan. Two runs of one seed can part ways on a physics outcome, so a long run is one sample. In the final
-  evidence run `test_a_traversal` passes (seed 1: 476 checks, 0 failed, 3 warnings: the walker died once, on leg 30 in
-  000001000, and retried the leg; earlier runs died on legs 22 and 46, so "no death" is still not reliable) and so
-  does `test_c_progression` (seed 1: 76 checks, 0 failed, 0 warnings, level 10 by killing only with no death).
-- **`test_box` breaks 17 of the 19 boxes** (its header says so): Pio's quest takes three of Amherst's six (1/1 Board
-  and Screw while it is in progress) and Three Snails one more; two of Amherst's are never broken in the real game.
-  Breaking the rest of Amherst after the quest would close it.
+- **Harness:** `test_b_combat`, `test_d_inventory`, `test_f_death` and `test_g_shop` still carry their own copies of kit
+  helpers. `unstick()` is verified only on the talk path. Strict mode's ledger reconciles EXP, mesos, items and quests
+  only; AP, SP, stats, HP and position rest on a source scan, which now covers the strict scenarios, the kit, the quest
+  runner, the driver, the walker, the grid planner, the input and the runner, but not the scenario base, the process
+  runner or the ledger. Two of the wave-4 playtest checks are weak (the unit tests behind them are not): the
+  playthrough's "no speech bubble while a shop is open" depends on the bubble schedule, and `test_box`'s cue check reads
+  the box's flags, not its meshes. Two runs of one seed can part ways on a physics outcome, so a long run is one sample.
+  In the final evidence run `test_a_traversal` passes (seed 1: 476 checks, 0 failed, 3 warnings: the walker died once,
+  on leg 30 in 000001000, and retried the leg, so "no death" is still not reliable) and so does `test_c_progression`
+  (seed 1: 75 checks, 0 failed, 1 warning: level 9 by killing only in 5,969 s of game time, with one death at level 9
+  that its survival guard did not prevent; the EXP penalty was the canonical 124).
+- **`test_box` breaks 17 of the 19 boxes** (its header says so): Pio's quest takes three of Amherst's six (1/1 Board and
+  Screw while it is in progress) and Three Snails one more; two of Amherst's are never broken in the real game. Breaking
+  the rest of Amherst after the quest would close it.
 
 ## Prevention and tooling
 
 - An export-gate check that the anchor-to-arrival segment is clear at body height (the climbable-vs-trigger check is
   done).
-- Harness: seed repeatability across windowed and headless runs; console commands that set HP and MP.
-- A human (L4) playthrough of Test A and the gameplay checklist.
+- Harness: console commands that set HP and MP. Headless runs now use the windowed 1600x900 GUI area and click only
+  what a player could (PLAYTEST_HARNESS.md "Headless and windowed"), but only windowed runs load the visual chunks, so
+  a check about what is drawn still needs a windowed run and a look at its screenshots.
+- A human (L4) playthrough of Test A and the gameplay checklist. Every playthrough so far is scripted: the harness
+  reads canonical data for quiz answers, NPC maps and monster positions, so "quest states are understandable without
+  debug mode" rests on automated checks that the markers, Quest Log rows and notices exist, plus the screenshots of
+  the windowed runs.
 
 # What became of the Iteration Two list
 
 | Iteration Two item | Iteration Three |
 |---|---|
-| Verify the remaining quests by playthrough | Done: the every-quest set plays all 20 in the real game, strict after setup (20 of 20 on seed 1) |
+| Verify the remaining quests by playthrough | Done: the every-quest set plays all 20 in the real game, strict after setup (20 of 20 on seeds 1, 2 and 3), and the clean-character playthrough plays them all from character creation |
 | Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; all 19 stand on real collision (`test_breakables_placement`), and `test_box` breaks 17 of them in the real game (Pio's quest needs three of Amherst's six, Three Snails breaks one more, two are only shown) |
 | Beginner skills and the skills window | Done: SP, the Skills window (K), typed quickslots, the three skills |
-| Sitting and chairs | Done: X, The Green Relaxer, the chair's own bonus clock |
+| Sitting and chairs | Done: X, The Green Relaxer, the chair's own bonus clock, a seated cue on the HUD |
 | Drop chances and meso amounts as placeholders | Done: KuroDB chances on Hidden Street (monsters) and MeowDB (Wooden Box) membership, meso amounts from MeowDB and Hidden Street; what no source gives is unresolved and never rolls |
 | Natural regeneration as an adaptation | Done: the project owner's rule (10 HP per 10 s still or seated; pause, never reset) |
 | Proxy monsters wider than their touch boxes; the grey Tutorial Jr. Sentinel | Done: footprints within 1.25x of the touch zones, a Sentinel proxy |
 | A flood-fill trap survey | Done: the stuck-region scan (0 confirmed traps; 54 former trap spots replayed) |
 | No minimap; no exit in view at first arrival | Done: the minimap shows the map's exits with their destinations (the hidden Tomato Field portal excepted) |
 | Harness: precise pickup, monster-aware walking | Done: `PlaytestKit.pickup` and the survival policy |
-| Continue resumes wherever the last safe ground was | Partly: a resume point whose map collision changed falls back to the saved entry (the shared chunks are not covered) |
+| Continue resumes wherever the last safe ground was | Done: a resume point whose map collision changed, or a shared `World_*` chunk its region overlaps, falls back to the saved entry (`MapDefinitions.resume_hash`; SAVES.md) |
 | Shanks' ship, Victoria Island, MeowDB permission, the feel items, trail lengths, art | Still open (above) |
 
 # The Iteration One backlog (deferred to Iteration Two)

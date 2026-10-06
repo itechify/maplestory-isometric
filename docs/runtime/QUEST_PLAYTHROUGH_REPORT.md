@@ -4,7 +4,10 @@ This report answers the brief's "Full Quest Playthrough Requirement": every cano
 quests 1000-1019: 5 chains and 4 standalone quests) is exercised through the actual game with real input, and for
 each quest the run checks availability, acceptance, objective progress, completion, rewards and follow-up behaviour,
 with a save and a process restart in the middle. Date: 2026-10-05. The results below are the final evidence run, on
-the final Iteration Three build (waves 1-3 merged and the final cleanup; game, harness and data at commit `c4e9ac5`).
+the final Iteration Three build (waves 1-4 merged and the KuroDB 2040705 read applied; game, harness and data at commit
+`9ddf137`, a clean tree, recorded in every report's `git` block). The runs are headless on the pinned 1600x900
+screen with the click gate (PLAYTEST_HARNESS.md "Headless and windowed"), so a quest control a player could not see
+or reach would have failed its check.
 
 The clean-character playthrough plays the same 20 quests again, in one strict run from character creation to
 Shanks, on two more seeds: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) (Iteration Three).
@@ -14,24 +17,24 @@ Shanks, on two more seeds: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) (Itera
 **20 of 20 quests PASS on each of seeds 1, 2 and 3** (60 quest runs, 520 / 523 / 523 quest checks, 0 failed, 0
 warnings). Every chain is strict after its setup: 0 console commands, 0 api fallbacks, 0 developer commands and 0
 ledger mismatches from the strict step on. 1000-1001 needs no setup at all and is strict from character creation.
-Each seed took about 2,050-2,490 s of game time and 260-340 s of wall time in total (the chains one or two at a time,
-beside other runs of the evidence run).
+Each seed took about 2,020-2,550 s of game time and 280-325 s of wall time in total (one chain at a time, beside two
+other runs of the evidence run).
 
 | Seed | Quests PASS | Quest checks | Game s (sum of chains) | Wall s (sum of chains) | 1008 random hat | 1011 random knife |
 |---|---|---|---|---|---|---|
-| 1 | 20 / 20 | 520 | 2253 | 310 | 712 Black Headband | 559 Fruit Knife |
-| 2 | 20 / 20 | 523 | 2485 | 340 | 715 Blue Headband | 559 Fruit Knife |
-| 3 | 20 / 20 | 523 | 2047 | 259 | 709 Green Skullcap | 559 Fruit Knife |
+| 1 | 20 / 20 | 520 | 2282 | 313 | 712 Black Headband | 559 Fruit Knife |
+| 2 | 20 / 20 | 523 | 2554 | 323 | 715 Blue Headband | 558 Razor |
+| 3 | 20 / 20 | 523 | 2018 | 278 | 709 Green Skullcap | 558 Razor |
 
 Seed 1's 1009 has 3 checks fewer: its 5 Red Snails were all killed during the Blue Snail and Shroom hunts, so the Red
 Snail objective needed no hunt of its own (recorded in the evidence as "already 5 of 5").
 
-Run it: `bash scripts/playtest_quests.sh --seed <n> --out <dir>` (about 6 minutes with 3 jobs), then
-`godot --headless --path game --script res://tools/playtest/playtest_quest_summary.gd -- --combine "<dir1> <dir2>
-<dir3>" --out <file.md>` for the tables below. On Windows (Git Bash) give the directories in Windows form
-(`cygpath -m`): MSYS converts only the first `/c/...` path inside one argument, and the summary then reads one run
-only. The evidence of this report is `_scratch/final/pt/quests_s{1,2,3}` (git-ignored; regenerate with the commands
-above).
+Run it: `bash scripts/playtest_quests.sh --seed <n> --out <dir>` (about 6 minutes with 3 jobs, 7 with `--jobs 1`),
+then `bash scripts/godot.sh --headless --path game --script res://tools/playtest/playtest_quest_summary.gd --
+--combine "<dir1> <dir2> <dir3>" --out <file.md>` for the tables below. On Windows (Git Bash) give the directories in
+Windows form (`cygpath -m`): MSYS converts only the first `/c/...` path inside one argument, and the summary then
+reads one run only. The evidence of this report is `_scratch/final2/pt/quests_s{1,2,3}` (git-ignored; regenerate with
+the commands above).
 
 ## How each quest is played
 
@@ -84,7 +87,10 @@ Notes on reading the tables:
 
 ## History on this build
 
-- **Final evidence run (`c4e9ac5`, the final build):** the result above. The tables below are generated from it.
+- **Final evidence run (`9ddf137`, the final build):** the result above. The tables below are generated from it.
+- **The earlier final run (`c4e9ac5`, before wave 4):** also 20/20 on each seed (520 / 523 / 523 quest checks), but
+  headless on the old 1600x1600 GUI area and without the click gate, so it is superseded; its 1008 drew 712 / 715 / 709
+  and its 1011 the Fruit Knife on every seed.
 - **Before this package's fixes (harness as merged in wave 1, integrated build):** seed 1 20/20, seed 3 20/20, seed 2
   17/20. On seed 2 the 1006,1009,1010 chain failed its trail hop from Snail Hunting Ground I to II: a Snail on a ledge
   1 m above the path touched the player, the survival guard stopped the walk to fight back, the fight back could not
@@ -136,15 +142,15 @@ number of quest checks), each chain's run, then one table per quest with what ea
 
 | Chain | seed 1 | seed 2 | seed 3 |
 |---|---|---|---|
-| 1000-1001 | PASS, strict ok, 0 setup console, 3 phases, 90 game s / 12 wall s | PASS, strict ok, 0 setup console, 3 phases, 93 game s / 12 wall s | PASS, strict ok, 0 setup console, 3 phases, 98 game s / 12 wall s |
-| 1002 | PASS, strict ok, 1 setup console, 3 phases, 65 game s / 10 wall s | PASS, strict ok, 1 setup console, 3 phases, 68 game s / 9 wall s | PASS, strict ok, 1 setup console, 3 phases, 62 game s / 10 wall s |
-| 1003-1004 | PASS, strict ok, 1 setup console, 3 phases, 113 game s / 13 wall s | PASS, strict ok, 1 setup console, 3 phases, 119 game s / 13 wall s | PASS, strict ok, 1 setup console, 3 phases, 119 game s / 12 wall s |
-| 1005 | PASS, strict ok, 1 setup console, 3 phases, 105 game s / 12 wall s | PASS, strict ok, 1 setup console, 3 phases, 119 game s / 13 wall s | PASS, strict ok, 1 setup console, 3 phases, 107 game s / 11 wall s |
-| 1006,1009,1010 | PASS, strict ok, 1 setup console, 6 phases, 741 game s / 105 wall s | PASS, strict ok, 1 setup console, 6 phases, 705 game s / 98 wall s | PASS, strict ok, 1 setup console, 6 phases, 695 game s / 92 wall s |
-| 1007-1008 | PASS, strict ok, 2 setup console, 3 phases, 391 game s / 53 wall s | PASS, strict ok, 2 setup console, 3 phases, 428 game s / 58 wall s | PASS, strict ok, 2 setup console, 3 phases, 344 game s / 46 wall s |
-| 1011 | PASS, strict ok, 2 setup console, 3 phases, 541 game s / 73 wall s | PASS, strict ok, 2 setup console, 3 phases, 749 game s / 104 wall s | PASS, strict ok, 2 setup console, 3 phases, 402 game s / 46 wall s |
-| 1012 | PASS, strict ok, 2 setup console, 3 phases, 107 game s / 12 wall s | PASS, strict ok, 2 setup console, 3 phases, 107 game s / 12 wall s | PASS, strict ok, 2 setup console, 3 phases, 112 game s / 12 wall s |
-| 1013-1019 | PASS, strict ok, 2 setup console, 4 phases, 100 game s / 19 wall s | PASS, strict ok, 2 setup console, 4 phases, 97 game s / 19 wall s | PASS, strict ok, 2 setup console, 4 phases, 108 game s / 18 wall s |
+| 1000-1001 | PASS, strict ok, 0 setup console, 3 phases, 96 game s / 12 wall s | PASS, strict ok, 0 setup console, 3 phases, 100 game s / 11 wall s | PASS, strict ok, 0 setup console, 3 phases, 94 game s / 12 wall s |
+| 1002 | PASS, strict ok, 1 setup console, 3 phases, 70 game s / 9 wall s | PASS, strict ok, 1 setup console, 3 phases, 74 game s / 8 wall s | PASS, strict ok, 1 setup console, 3 phases, 58 game s / 10 wall s |
+| 1003-1004 | PASS, strict ok, 1 setup console, 3 phases, 118 game s / 14 wall s | PASS, strict ok, 1 setup console, 3 phases, 120 game s / 12 wall s | PASS, strict ok, 1 setup console, 3 phases, 116 game s / 13 wall s |
+| 1005 | PASS, strict ok, 1 setup console, 3 phases, 112 game s / 12 wall s | PASS, strict ok, 1 setup console, 3 phases, 126 game s / 12 wall s | PASS, strict ok, 1 setup console, 3 phases, 105 game s / 12 wall s |
+| 1006,1009,1010 | PASS, strict ok, 1 setup console, 6 phases, 722 game s / 105 wall s | PASS, strict ok, 1 setup console, 6 phases, 717 game s / 92 wall s | PASS, strict ok, 1 setup console, 6 phases, 687 game s / 98 wall s |
+| 1007-1008 | PASS, strict ok, 2 setup console, 3 phases, 390 game s / 54 wall s | PASS, strict ok, 2 setup console, 3 phases, 435 game s / 55 wall s | PASS, strict ok, 2 setup console, 3 phases, 343 game s / 49 wall s |
+| 1011 | PASS, strict ok, 2 setup console, 3 phases, 562 game s / 75 wall s | PASS, strict ok, 2 setup console, 3 phases, 757 game s / 101 wall s | PASS, strict ok, 2 setup console, 3 phases, 400 game s / 52 wall s |
+| 1012 | PASS, strict ok, 2 setup console, 3 phases, 110 game s / 13 wall s | PASS, strict ok, 2 setup console, 3 phases, 115 game s / 12 wall s | PASS, strict ok, 2 setup console, 3 phases, 108 game s / 13 wall s |
+| 1013-1019 | PASS, strict ok, 2 setup console, 4 phases, 102 game s / 19 wall s | PASS, strict ok, 2 setup console, 4 phases, 109 game s / 19 wall s | PASS, strict ok, 2 setup console, 4 phases, 106 game s / 19 wall s |
 
 ### 1000 Borrowing Sera's Mirror
 
@@ -274,7 +280,7 @@ number of quest checks), each chain's run, then one table per quest with what ea
 | Acceptance | accepted at level 5 (phase 4); marker after 'in_progress'; Quest Log: Orange Mushroom 0/1; Return to Mai | accepted at level 5 (phase 4); marker after 'in_progress'; Quest Log: Orange Mushroom 0/1; Return to Mai | accepted at level 5 (phase 4); marker after 'in_progress'; Quest Log: Orange Mushroom 0/1; Return to Mai |
 | Objectives | kill Orange Mushroom x1 in 000001000: 0 -> 1 of 1 | kill Orange Mushroom x1 in 000001000: 0 -> 1 of 1 | kill Orange Mushroom x1 in 000001000: 0 -> 1 of 1 |
 | Completion | Mai's marker 'completable'; completed at level 6 (phase 5); Completed tab yes | Mai's marker 'completable'; completed at level 6 (phase 5); Completed tab yes | Mai's marker 'completable'; completed at level 6 (phase 5); Completed tab yes |
-| Rewards | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 6 -> 6 | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 5 -> 6 | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 6 -> 6 |
+| Rewards | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 5 -> 6 | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 5 -> 6 | EXP +100 (canonical 100), mesos +150 (canonical 150), bag 237 Egg +10; level 6 -> 6 |
 | Random reward | - | - | - |
 | rewards_received | { "exp": 100, "mesos": 150, "items": [{ "item_id": "237", "qty": 10 }], "random_picks": [] } | { "exp": 100, "mesos": 150, "items": [{ "item_id": "237", "qty": 10 }], "random_picks": [] } | { "exp": 100, "mesos": 150, "items": [{ "item_id": "237", "qty": 10 }], "random_picks": [] } |
 | Follow-ups | none (canonical) | none (canonical) | none (canonical) |
@@ -318,10 +324,10 @@ number of quest checks), each chain's run, then one table per quest with what ea
 | Availability | refused at level 1; Biggs's marker 'available' (engine 'available') at level 3; Quest Log Available yes | refused at level 1; Biggs's marker 'available' (engine 'available') at level 3; Quest Log Available yes | refused at level 1; Biggs's marker 'available' (engine 'available') at level 3; Quest Log Available yes |
 | Acceptance | accepted at level 3 (phase 1); marker after 'in_progress'; Quest Log: Blue Snail Shell 0/10; Orange Mushroom Cap 0/1; Return to Biggs | accepted at level 3 (phase 1); marker after 'in_progress'; Quest Log: Blue Snail Shell 0/10; Orange Mushroom Cap 0/1; Return to Biggs | accepted at level 3 (phase 1); marker after 'in_progress'; Quest Log: Blue Snail Shell 0/10; Orange Mushroom Cap 0/1; Return to Biggs |
 | Objectives | item Blue Snail Shell x10 in 000000050: 6 -> 10 of 10 from monster Blue Snail (chance 1.0); item Orange Mushroom Cap x1 in 000001000: 0 -> 1 of 1 from monster Orange Mushroom (chance 1.0) | item Blue Snail Shell x10 in 000000050: 5 -> 10 of 10 from monster Blue Snail (chance 1.0); item Orange Mushroom Cap x1 in 000001000: 0 -> 1 of 1 from monster Orange Mushroom (chance 1.0) | item Blue Snail Shell x10 in 000000050: 5 -> 10 of 10 from monster Blue Snail (chance 1.0); item Orange Mushroom Cap x1 in 000001000: 0 -> 1 of 1 from monster Orange Mushroom (chance 1.0) |
-| Completion | Biggs's marker 'completable'; completed at level 5 (phase 2); Completed tab yes | Biggs's marker 'completable'; completed at level 5 (phase 2); Completed tab yes | Biggs's marker 'completable'; completed at level 5 (phase 2); Completed tab yes |
-| Rewards | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 559 Fruit Knife +1; level 4 -> 5 | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 559 Fruit Knife +1; level 4 -> 5 | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 559 Fruit Knife +1; level 4 -> 5 |
-| Random reward | 559 Fruit Knife | 559 Fruit Knife | 559 Fruit Knife |
-| rewards_received | { "exp": 70, "mesos": 0, "items": [{ "item_id": "559", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "559", "qty": 1 }] } (matches the pick) | { "exp": 70, "mesos": 0, "items": [{ "item_id": "559", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "559", "qty": 1 }] } (matches the pick) | { "exp": 70, "mesos": 0, "items": [{ "item_id": "559", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "559", "qty": 1 }] } (matches the pick) |
+| Completion | Biggs's marker 'completable'; completed at level 4 (phase 2); Completed tab yes | Biggs's marker 'completable'; completed at level 5 (phase 2); Completed tab yes | Biggs's marker 'completable'; completed at level 5 (phase 2); Completed tab yes |
+| Rewards | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 559 Fruit Knife +1; level 3 -> 4 | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 558 Razor +1; level 4 -> 5 | EXP +70 (canonical 70), mesos +0 (canonical 0), bag 349 Blue Snail Shell -10, 356 Orange Mushroom Cap -1, 558 Razor +1; level 4 -> 5 |
+| Random reward | 559 Fruit Knife | 558 Razor | 558 Razor |
+| rewards_received | { "exp": 70, "mesos": 0, "items": [{ "item_id": "559", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "559", "qty": 1 }] } (matches the pick) | { "exp": 70, "mesos": 0, "items": [{ "item_id": "558", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "558", "qty": 1 }] } (matches the pick) | { "exp": 70, "mesos": 0, "items": [{ "item_id": "558", "qty": 1 }], "random_picks": [{ "group": 0, "item_id": "558", "qty": 1 }] } (matches the pick) |
 | Follow-ups | none (canonical) | none (canonical) | none (canonical) |
 | Mid-quest save and restart | at 6/10 Blue Snail Shell in 000000050 (phase 1 -> 2): progress restored; Quest Log after: Blue Snail Shell 6/10; Orange Mushroom Cap 0/1; Return to Biggs | at 5/10 Blue Snail Shell in 000000050 (phase 1 -> 2): progress restored; Quest Log after: Blue Snail Shell 5/10; Orange Mushroom Cap 0/1; Return to Biggs | at 5/10 Blue Snail Shell in 000000050 (phase 1 -> 2): progress restored; Quest Log after: Blue Snail Shell 5/10; Orange Mushroom Cap 0/1; Return to Biggs |
 | Setup | 2 console step(s) before strict mode (after the setup save): warp 000000060; level 3 | 2 console step(s) before strict mode (after the setup save): warp 000000060; level 3 | 2 console step(s) before strict mode (after the setup save): warp 000000060; level 3 |

@@ -59,7 +59,7 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 |---|---|
 | W A S D | move (8 directions, relative to the camera) |
 | Space / Alt | jump |
-| J / Ctrl / left click | attack (also breaks Wooden Boxes: 4 landed hits) |
+| J / Ctrl / left click | attack (also hits Wooden Boxes: 4 landed hits break one) |
 | F | talk to the NPC in front of you |
 | Up arrow | enter a portal, grab a ladder or rope (W/S or Up/Down to climb) |
 | Z | pick up drops |
@@ -81,17 +81,21 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   skill level).
 - **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
   (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
-  have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up.
+  have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up. While you sit, the HUD
+  shows what sitting recovers above the HP gauge.
 - **Natural recovery.** 10 HP for every 10 s you stand still or sit, the project owner's rule. Walking, jumping,
   climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved.
   Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
   naturally (MeowDB documents none).
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
-  landed basic attacks and comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only
-  while Pio's quest is in progress.
+  landed hits, basic attacks or Three Snails throws (one target per cast: the nearest monster or box in its band;
+  whether skills may hit boxes is still an owner decision), and comes back after its canonical respawn time. Old
+  Wooden Board and Rusty Screw drop only while Pio's quest is in progress; a gold marker shows over the boxes while
+  the quest still wants them, and a warm rim while your swing can reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
-  the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The hidden portal to Tomato Field is not shown.
+  the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
+  hidden portal to Tomato Field is not shown.
 - **Finishing Maple Island.** Talk to Shanks in Southperry (000000060) at level 7 or higher with 300 mesos (the
   canonical route to Lith Harbor). He lists any unfinished Maple Island quests, then asks whether to sail. Yes shows the
   "End of Maple Island" screen: Victoria Island is not in this build, so nobody travels, no mesos are taken, and you
@@ -118,14 +122,18 @@ ISOLATE=me INCLUDE_WORLD=1 bash scripts/test.sh     # in a private copy (paralle
 ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
 ```
 
-- The full suite with the world is 1509 tests in 167 files and takes 9-10 minutes; the stuck-region scan
-  (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe (`test_playtest_traps.gd`, about 2 minutes) are the
-  slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a `game/assets/world/` in the project you run).
+- The full suite with the world is 1587 tests in 175 files (the final evidence run, 2026-10-05) and took 13 minutes
+  beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe
+  (`test_playtest_traps.gd`, about 2 minutes) are the slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a
+  `game/assets/world/` in the project you run).
 - `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
-- `TEST_EVIDENCE_OUT=<file>` also writes the machine-readable test evidence (contract C6): `{format, run_at, commit,
-  filters, totals, tests: [{file, name, ok, failures, parity}]}`. A test file declares parity keys with an optional
-  `func parity_keys() -> Dictionary`; a key that names a missing test, or is malformed, fails as `<file>::parity_keys`.
-  The commit recorded is `git rev-parse HEAD`, whether or not the tree is clean.
+- `TEST_EVIDENCE_OUT=<file>` also writes the machine-readable test evidence (contract C6), format 2: `{format, run_at,
+  commit, dirty, world_present, filters, totals, tests: [{file, name, ok, failures, parity, needs_world}]}`. A test
+  file declares parity keys with an optional `func parity_keys() -> Dictionary`; a key that names a missing test, or
+  is malformed, fails as `<file>::parity_keys`. `commit` is `git rev-parse HEAD`; `dirty` is true when `game/`,
+  `tools/` or `scripts/` differ from it (untracked files included); `world_present` says whether the exported world
+  was there, and `needs_world` marks a test whose file names `INCLUDE_WORLD` (the parity build refuses such a test's
+  keys from evidence that ran without the world).
 - **The Jolt body cap.** Godot 4.7.2's Jolt integration evidently does not reuse the body slots of freed collision
   objects within one process (inferred from the fix below; the engine side was not root-caused), so a test process
   that builds and frees the island more than about ten times aborted with exit code 3 and printed nothing (the suite
@@ -137,8 +145,8 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
 Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
-node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, spawn-row check (54 tests)
-node --test tools/parity/test/      # the parity state rule (14 tests)
+node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, KuroDB item pages (69 tests)
+node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (18 tests)
 ```
 
 ## Run real-game playtests
@@ -155,10 +163,18 @@ bash scripts/playtest.sh quest --quest 1012                       # one quest or
 bash scripts/playtest_quests.sh                                   # every Maple Island quest (7-10 min)
 ```
 
+- **Headless and windowed.** A headless run lays the game out on the windowed 1600x900 screen (the GUI area and the
+  camera's 16:9 view), and every click, double-click and drag first checks that a player could make it: a control off
+  the screen, or covered by another, fails the run's check with the reason in both modes
+  ([PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) "Headless and windowed"). Only windowed runs load the visual chunks and
+  take screenshots, so a check about what is drawn needs `--windowed` and a look at its `shots/`.
+- `report.json` records the code it played in a `git` block (`commit`, `dirty`, `mixed` when a later phase ran
+  another commit, `reused_copy` for a `PLAYTEST_REUSE_COPY=1` run), and `report.md` says it on its "Code" line.
+
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
   copy of `game/` under `_scratch/godot_runs/`.
 - Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
-  then every box of the other five maps: 16 of the 19 broken),
+  a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
   hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `npc_shanks` (the
@@ -171,8 +187,8 @@ bash scripts/playtest_quests.sh                                   # every Maple 
   in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one
   row per quest (PASS, FAIL or NOT_PLAYED, checks, the random reward drawn) and one per chain. Exit 0 only when every
   quest passes. One chain alone: `bash scripts/playtest.sh quest --quest 1013-1019` (or `1002`, `1006,1009,1010`, or
-  `QUEST=<spec>`). On the integrated Iteration Three build the whole set passes, 20 of 20 quests on seed 1 with every
-  chain strict ok, in about 7 minutes with `--jobs 3`; 1012 now plays with the Wooden Boxes.
+  `QUEST=<spec>`). On the final Iteration Three build the whole set passes, 20 of 20 quests on each of seeds 1, 2 and 3
+  with every chain strict ok, in about 7 minutes with `--jobs 3` (6.4-7.4 minutes with `--jobs 1` beside two other runs).
 - **Strict mode.** A scenario that calls `d.begin_strict(reason)` may use no developer help after that step: a
   console command is refused, an api fallback, any developer command or any change to EXP, mesos, items or quests the
   event bus did not announce is a violation. `report.json` carries a `strict` block (`console_steps`, `api_steps`,
@@ -221,7 +237,7 @@ It runs the game's own loader over `game/data/canonical` and `game/data/misostor
 ([DATA_VALIDATION.md](DATA_VALIDATION.md)): references, provenance per authority (MeowDB, KuroDB, Hidden Street,
 Project owner) with capture files that must exist, the schema v2 drop records and the drop policy, adaptations
 (`verified: true` needs `verified_against`), and the quest, NPC and dialogue validation. On the integrated build it
-passes with 0 errors and 54 warnings: the 54 drop members that never roll (`drop_unresolved`, listed by design). So
+passes with 0 errors and 53 warnings: the 53 drop members that never roll (`drop_unresolved`, listed by design). So
 `--strict` (warnings fail too) exits 1 until those source gaps are resolved. The provenance report is deterministic:
 regenerating it over unchanged data gives the same files.
 
@@ -247,30 +263,36 @@ a state: missing, partial, implemented or verified. They are generated from the 
 evidence:
 
 ```bash
-ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
+ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/final2/unit_evidence.json" bash scripts/test.sh
 bash scripts/validate_data.sh --report
-bash scripts/playtest_quests.sh --out "$PWD/_scratch/ev/quests"        # and any other playtests, each with --out
-node tools/parity/build_parity.mjs --tests _scratch/ev/full.json --playtest _scratch/ev/quests
-node tools/parity/build_parity.mjs --check --tests _scratch/ev/full.json --playtest _scratch/ev/quests
+ISOLATE=ev bash scripts/playtest.sh test_box --out "$PWD/_scratch/final2/pt/test_box"     # each scenario, its own --out
+bash scripts/playtest_quests.sh --seed 1 --out "$PWD/_scratch/final2/pt/quests_s1"           # seeds 1, 2 and 3
+PLAYTEST_TIMEOUT_S=7500 bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out "$PWD/_scratch/final2/pt/playthrough_s1"
+bash scripts/playtest.sh test_skills --windowed --out "$PWD/_scratch/final2/pt/win_test_skills"  # windowed runs count too
+node tools/parity/build_parity.mjs --tests _scratch/final2/unit_evidence.json --playtest _scratch/final2/pt
+node tools/parity/build_parity.mjs --check --tests _scratch/final2/unit_evidence.json --playtest _scratch/final2/pt
 ```
 
 `--playtest` takes a report.json or a folder searched for them; repeat `--tests` and `--playtest` as needed.
 `--out-json` / `--out-md` write elsewhere. `--check` exits 1 when the committed files differ from a fresh build; it
-needs the same inputs the committed build used (its "Evidence used" section lists them, with the exact command),
-which live in git-ignored `_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one.
-The scenarios the rules consume are Tests A-G, `regen`, `test_skills`, `test_box`, `trap_probe`,
-`npcs`, `npc_shanks`, `npc_bubbles`, `ui_minimap`, `save_it2_continue`, `pause_load`, `resume_gate` and `kit`, plus the
-every-quest set and the clean-character playthrough (`--playtest` with its report or directory). In the final
-evidence run every one of them passed (seed 1; the every-quest set and the playthrough on seeds 1, 2 and 3), and the
-manifest has 638 entries: 580 verified, 56 partial (55 source-data gaps, 1 pending source read), 0 missing.
+needs the same inputs the committed build used (its "Evidence used" section lists them, with the exact command), which
+live in git-ignored `_scratch/`. A key is "verified" only by a passing check tagged with it and no failing one. The
+scenarios the rules consume are Tests A-G, `regen`, `test_skills`, `test_box`, `trap_probe`, `npcs`, `npc_shanks`,
+`npc_bubbles`, `ui_minimap`, `save_it2_continue`, `pause_load`, `resume_gate` and `kit`, plus the every-quest set and
+the clean-character playthrough (`--playtest` with its report or directory). The script also warns on the console (never
+in the manifest) when an input records no commit, a dirty tree or a commit whose `game/`, `tools/` or `scripts/` differs
+from HEAD, and when the inputs ran on different commits. In the final evidence run (commit `9ddf137`, 2026-10-05) every
+one of them passed: seed 1 headless, the every-quest set and the playthrough on seeds 1, 2 and 3, and the playthrough,
+`test_skills`, `test_box` and `kit` also windowed. The manifest has 640 entries: 581 verified, 56 partial (all
+source-data gaps), 0 missing, 3 out of scope, 0 open.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the
 value on a page nobody has read yet: not excused, the entry stays partial and open). `tools/parity/rules.json`
 `pending_source_reads` declares each read; when the page is read and the data regenerated, remove the declaration
-(the generator fails a stale one). The clean-character playthrough rows (`playthrough:*`) count only checks of a clean
-run: a passing, strict report with no console or api step whose final boundary check passed and that no
-`PLAYTHROUGH_STOP` ended early.
+(the generator fails a stale one). None is declared since KuroDB item 2040705 was read (D3-10). The clean-character
+playthrough rows (`playthrough:*`) count only checks of a clean run: a passing, strict report with no console or api
+step whose final boundary check passed and that no `PLAYTHROUGH_STOP` ended early.
 
 ## Capture a source page by hand
 
@@ -298,7 +320,10 @@ check.
    the new reading and its own read time; never edit a captured text by hand.
 3. Check it loads: `tools/sources/captures.mjs` reads every file in the three folders (README.md is skipped) and stops
    on an unknown file name, a missing or non-ISO read time, or rows that are not in the captured text. A new kind of page
-   needs a reader there first.
+   needs a reader there first. KuroDB has two: a monster page is `<kuro monster id>.json` and an item page
+   `item_<kuro item id>.json` (an item page saved under a bare number is refused). An item page settles a crosswalk
+   candidate row, a KuroDB row that may be a drop member under another name: `tools/kurodb/captures/README.md` gives
+   the steps and the rule (D3-10), as applied to item 2040705.
 
    ```bash
    node -e "import('./tools/sources/captures.mjs').then(m => console.log(m.loadCaptures().files.length, 'capture files'))"
