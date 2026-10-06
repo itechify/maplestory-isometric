@@ -125,6 +125,40 @@ func test_field_source_outside_meowdb_needs_an_external_entry() -> void:
 	assert_eq(run_validator(c).matching("provenance", "items", id).size(), 0, "declared external field source accepted")
 
 
+## #31: a cited URL is a real page, never a URL template with a placeholder such as {item_id}. The shop records list
+## every row's item page (and the item API responses a sell-back value fell back to) instead.
+func test_a_url_template_is_not_a_source() -> void:
+	var template := "https://meowdb.com/msclassic/item-db/{item_id}"
+	assert_true(ProvenanceChecks.is_url_template(template), "{item_id}")
+	assert_true(ProvenanceChecks.is_url_template("https://meowdb.com/msclassic/item-db/<id>"), "<id>")
+	assert_false(ProvenanceChecks.is_url_template("https://meowdb.com/msclassic/npc-shops#maple-road-sid"), "a real URL")
+	for shop_id in db().ids("shops"):
+		var rec := db().shop(shop_id)
+		var page_urls: Array = rec.items.map(func(x: Dictionary) -> String: return x.item_page.url)
+		for field in rec.field_sources:
+			for u in ProvenanceChecks._field_source_urls(rec.field_sources[field]):
+				assert_false(ProvenanceChecks.is_url_template(u), "%s field_sources.%s cites %s" % [shop_id, field, u])
+			if rec.field_sources[field].has("pages"):
+				var listed: Array = rec.field_sources[field].pages.map(func(p: Dictionary) -> String: return p.url)
+				assert_eq(listed, page_urls, "%s field_sources.%s lists every row's item page" % [shop_id, field])
+	var c := clone_db()
+	var ids := c.ids("shops")
+	assert_true(ids.size() >= 3, "three shops to break")
+	c.shop(ids[0]).field_sources["items[].name"] = {"url": template, "retrieved_at": "2026-10-04T00:00:00Z"}
+	c.shop(ids[1]).field_sources["items[].sell_price_mesos"].fallback_pages = [
+		{"url": "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1", "retrieved_at": "2026-10-04T00:00:00Z"}]
+	c.shop(ids[2]).source.url = "https://meowdb.com/msclassic/npc-shops#{slug}"
+	reindex(c)
+	var r := run_validator(c)
+	expect_new(r, "error", "provenance", "shops", ids[0], "field_sources.items[].name cites the URL template")
+	expect_new(r, "error", "provenance", "shops", ids[1], "field_sources.items[].sell_price_mesos cites the URL template")
+	expect_new(r, "error", "provenance", "shops", ids[2], "source.url \"https://meowdb.com/msclassic/npc-shops#{slug}\" is a URL template")
+	var problems := ProvenanceChecks.new(c, ValidationReport.new()).source_object_problems("membership",
+		MEOWDB_SRC.merged({"url": "https://meowdb.com/msclassic/monsters/{id}"}, true))
+	assert_eq(Array(problems), ["url \"https://meowdb.com/msclassic/monsters/{id}\" is a URL template, not a page: cite the real URL"],
+		"a per-property source")
+
+
 func test_external_entry_needs_field_url_reason_and_verified_false() -> void:
 	var c := clone_db()
 	var id := c.ids("monsters")[0]

@@ -4,7 +4,7 @@ Authority: **MeowDB MS Classic** (`https://meowdb.com/msclassic`), which documen
 All ids are MeowDB ids, not GMS ids.
 
 - Data: `game/data/canonical/shops/<shop id>.json`, one shop per file. There is no index file, so every file in the folder is a shop.
-- Extractor: `node tools/meowdb/extract_shops.mjs`. It reads from the cache first (`tools/meowdb/.cache`) and fetches only pages that are missing. `--refresh` downloads everything again. Running it twice on the same cache gives byte-identical output.
+- Extractor: `node tools/meowdb/extract_shops.mjs`. It reads from the cache first (`tools/meowdb/.cache`) and fetches only pages that are missing. `--refresh` downloads everything again; `--offline` never fetches and stops with "not cached" on a missing page. Running it twice on the same cache gives byte-identical output.
 
 ## What is included and why
 
@@ -112,7 +112,7 @@ Top level:
 | `item_count` | int | Number of rows. It equals the NPC page heading "Shop inventory (N items)". |
 | `items` | array | Shop rows in **display order** (see Rules). |
 | `source` | object | `{authority, url: ".../npc-shops#<id>", retrieved_at}`. |
-| `field_sources` | object | Fields that do not come from the shops index. Item-page fields use the URL template `.../item-db/{item_id}`, with the exact URL and time per row in `items[].item_page`. `sell_price_mesos` also has `fallback_url` (the item API template, per-row time in `items[].item_api`). `quantity_per_purchase` cites the Shop Item Efficiency guide. |
+| `field_sources` | object | Fields that do not come from the shops index, each with a `note`. Every URL is a real page; a URL template such as `.../item-db/{item_id}` fails validation. The item-page fields (`name`, `item_type`, `item_subtype`, `max_per_stack`, `sell_price_*`, `rechargeable`, `recharge_cost_mesos_per_unit`, the change history fields) list in `pages` every row's item page as `{url, retrieved_at}`, in display order, the same values as `items[].item_page`. `sell_price_mesos` also lists in `fallback_pages` the item API responses (`items[].item_api`) of the rows whose value came from the API (`sell_price_source: "item_api"`). `quantity_per_purchase` cites the Shop Item Efficiency guide (`url`, `retrieved_at`, and its other tab in `also`). |
 | `cross_checks` | object | What the extractor compared and the result (see Cross-checks). |
 | `discrepancies`, `gaps`, `notes` | arrays | Per-shop copies of the sections below. |
 
@@ -140,8 +140,8 @@ Per item row (`items[]`):
 | `other_change_history` | array of `{stat, cot1, cot2}` | item page Change history | Other changed stats, e.g. Sword "Shop price (mesos)" 3,000 → 50. The page notes "Sold by Karl (Henesys).", so MeowDB ties that COT1 3,000 observation to Karl's shop. It does not say what Sid charged in COT1. Sid's current price is `price_mesos`. |
 | `change_notes` | array of strings | item page Change history | e.g. "Renamed in COT2. It was called White Tubetop." |
 | `price_match_source` | string | index `matchSource` | MeowDB's internal provenance tag for how the row was matched. It is `hand` on every row. |
-| `item_page` | `{url, retrieved_at}` | | The item page each item-page field came from. |
-| `item_api` | `{url, retrieved_at}` | | The item API response used for the sell-back fallback and cross-checks. |
+| `item_page` | `{url, retrieved_at}` | | The item page each item-page field came from (also listed in those fields' `field_sources` `pages`). |
+| `item_api` | `{url, retrieved_at}` | | The item API response used for the sell-back fallback (then also in `field_sources["items[].sell_price_mesos"].fallback_pages`) and the cross-checks. |
 
 Index fields that were dropped: `mseaPrice` and `priceDelta` (`null` on every Maple Island row), `hsSlug` (`null`), `npcPortrait` (an image path), and `stats` (`{expectedCount, priced, extraCount}`; for all three shops expected = priced = row count and extra = 0).
 
