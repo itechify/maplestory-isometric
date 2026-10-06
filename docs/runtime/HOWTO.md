@@ -74,8 +74,9 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
   A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
   buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
-- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
-  Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
+- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills). A new
+  character starts with 0 SP and a Beginner past level 10 gets none: adaptations, by the owner's ruling (#4), where
+  MeowDB does not say. K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
   key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
   skill level).
@@ -86,7 +87,7 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Natural recovery.** 10 HP for every 10 s you stand still or sit, the project owner's rule. Walking, jumping,
   climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved.
   Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
-  naturally (MeowDB documents none).
+  naturally, by the owner's ruling (#4): MeowDB documents none, and a future Magician skill will grant it.
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
   landed hits, basic attacks or Three Snails throws (one target per cast: the nearest monster or box in its band;
   whether skills may hit boxes is still an owner decision), and comes back after its canonical respawn time. Old

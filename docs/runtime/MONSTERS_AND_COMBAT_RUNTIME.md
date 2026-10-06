@@ -383,8 +383,9 @@ owner's (docs/ITERATION_THREE_BRIEF.md "Natural HP Regeneration", contract C4), 
   `setup.interval_s`; The Green Relaxer: 30 HP every 10 s) runs on its own clock on top (contract C5): 10 s on The
   Green Relaxer give 10 + 30 HP. When that clock starts and whether it holds at full HP are adaptations
   (`recovery.json` `chair_bonus`, verified false): it starts again at 0 at each sit and holds while HP is full.
-- **MP.** No natural MP recovery: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
-  `unresolved_source_gap`). The brief forbids inferring one from the HP rule.
+- **MP.** No natural MP recovery, by the owner's ruling (#4, 2026-10-06; a future Magician skill will grant it). It is
+  an adaptation over a source-data gap: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
+  `unresolved_source_gap`, `decision` #4). The brief forbids inferring one from the HP rule.
 
 This replaces Iteration Two's adaptation (`combat.json` `natural_recovery`: a 5 s out-of-combat delay and a rest that
 started over on every movement, attack or monster touch), which is gone.

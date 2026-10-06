@@ -248,8 +248,8 @@ Open work: the GitHub issues. Out of scope, unsourced or decided against: `docs/
 - **MisoStory choices are labelled.** Where no source gives a value the game needs (the chair clock, skill tick and
   cast times, box placement, spawn spacing, knockback push, ground lifetime of drops), the value is an adaptation in
   `game/data/misostory/` with its reason, marked unverified. Two canonical mechanics are not applied: fall damage
-  (MeowDB's rule needs a movement-update length and a per-map switch it does not publish) and crouch with the
-  down-jump (the isometric maps have no pass-through floors).
+  (MeowDB's rule needs a movement-update length and a per-map switch it does not publish; the owner ruled it out,
+  #4) and crouch with the down-jump (the isometric maps have no pass-through floors).
 - **The decisions left pending by Iteration Three were made on 2026-10-06.** Those that change the game have tickets
   (protecting The Green Relaxer from being sold, the Skills window overlapping the Quest Log, Three Snails no longer
   hitting Wooden Boxes); the others are listed with their reasons in `docs/DEFERRED.md` ("Decided, not doing").

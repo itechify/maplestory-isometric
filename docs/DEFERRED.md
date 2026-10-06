@@ -44,14 +44,15 @@ is an adaptation (`verified: false`) and is replaced when a source publishes the
 - **Fall damage:** MeowDB documents it (canonical `formulas/movement.json` `fall_damage`: a landing after at least 45
   consecutive fast-falling movement updates deals base 24, rising to 36; "Maps can disable fall damage"), but not the
   length of one movement update or which maps disable it, so the rule cannot be applied as published. The owner's
-  rule (2026-10-06): MisoStory has no fall damage.
-- **Natural MP recovery:** MeowDB documents none. The owner's rule (2026-10-06): none (see "Jobs" above for the future
-  Magician skill).
+  ruling (#4, 2026-10-06): MisoStory has no fall damage (`presentation.json` `fall_recovery`).
+- **Natural MP recovery:** MeowDB documents none. The owner's ruling (#4, 2026-10-06): none (`recovery.json`
+  `natural_mp`; see "Jobs" above for the future Magician skill).
 - **Ground sitting and map benches:** MeowDB documents neither on Maple Island; only chairs sit
   (`recovery.json` `sitting`). Rain's quiz 1016 mentions chairs and benches, so a marked "[MisoStory]" page after
   its answers says the sit key works on chairs the player owns.
-- **Starting SP:** no page states it. The owner's rule (2026-10-06): 0 at level 1 and 1 per level-up up to and
-  including level 10, 9 in all, which is also what the Beginner's guide's "9 SP by level 10" leaves.
+- **Starting SP:** no page states it. The owner's ruling (#4, 2026-10-06): 0 at level 1 and 1 per level-up up to and
+  including level 10, 9 in all, which is also what the Beginner's guide's "9 SP by level 10" leaves
+  (`new_character.json` `starting_sp`; none after level 10, `combat.json` `beginner_sp_after_level_10`).
 - **Beginner skill timing:** Recovery and Nimble Feet show "Timing unavailable" (cast instantly, lockout 0), and how
   Recovery's heal is spread over its 30 s is not published (5 s equal ticks). All in `skills.json`,
   `verified: false`.
