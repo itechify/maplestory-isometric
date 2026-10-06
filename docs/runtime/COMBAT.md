@@ -211,8 +211,9 @@ stands a seated player up (contract C5), pays MP through `Game.change_mp` and th
 `Events.skill_used`. A Three Snails hit on a monster goes through `MonsterSystem.apply_player_hit`, the same path as a
 basic attack (damage numbers, stagger, EXP and drops on a kill). Casts share
 `PlayerCombat`'s lockout (`begin_lockout`), so `PlayerCombat.is_attacking()` is true during a cast (contract C4) and a
-basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; the console has `skills`
-and `cast <id|name>`.
+basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; a held skill key casts
+again as soon as the lockout and any cooldown end (`PlayerSkills.ready_to_cast`, #20). The console has `skills` and
+`cast <id|name>`.
 
 **Effects and cooldowns** are remaining seconds of game time on the character (contract C3): `CharacterState.effects`
 `[{"id": "skill:0001002", "source": "skill:0001002", "remaining_s", "data": {"skill_id", "level", "duration_s",

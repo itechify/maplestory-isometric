@@ -39,6 +39,9 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	# Input's action state is global: a held key must never leak into the next test.
+	for k in MisoQuickslots.keys():
+		Input.action_release(MisoQuickslots.action_for(k))
 	for n in nodes:
 		if is_instance_valid(n):
 			n.free()
@@ -271,6 +274,118 @@ func test_a_chair_binds_and_asks_the_sitting_system() -> void:
 	# cannot seat anyone: the key reached the chair rules, not the consumable rules. test_chairs_use seats a live player.
 	var res := h.use_quickslot("6")
 	assert_eq(String(res.get("code", "")), ItemCodes.CANNOT_SIT, "routed to Chairs.use (C5): %s" % res)
+
+
+# --- held skill keys (#20) -------------------------------------------------------------------------------------------
+
+## A rig player with Three Snails Lv1 on key 1 (and `shells` Snail Shells) and a HUD casting through it.
+func _held_rig(shells: int) -> MisoHud:
+	rig = MonsterTestRig.create(db(), 3)
+	rig.floor(30.0)
+	var p := rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var c := rig.character()
+	c.skills = {SNAILS: 1, NIMBLE: 1}
+	c.base_max_mp = 500
+	c.mp = 500
+	ItemService.new(c, db(), null).gain("348", shells)
+	rig.run(5)
+	var ctx := GameContext.new()
+	ctx.player = p
+	var h := _hud(c, ctx)
+	assert_true(MisoQuickslots.bind_skill(h.env, "1", SNAILS), "Three Snails on key 1")
+	return h
+
+
+## The key goes down (the Input state a held key leaves) and its press event reaches the HUD.
+func _key_down(h: MisoHud, action: String) -> void:
+	Input.action_press(action)
+	_press(h, action)
+
+
+## `ticks` physics ticks of the rig with the HUD's held-key poll after each; the tick of every cast is appended to
+## `cast_ticks` (PlayerSkills.casts going up).
+func _hold_for(h: MisoHud, ticks: int, cast_ticks: Array) -> void:
+	var ps: PlayerSkills = rig.w.player.get_node(^"PlayerSkills")
+	for i in ticks:
+		rig.tick()
+		var before := ps.casts
+		h.poll_held_skills()
+		if ps.casts > before:
+			cast_ticks.append(i)
+
+
+## Holding a skill key over N lockouts gives N casts, one as each lockout ends (no buffer beyond the hold); releasing
+## the key stops them.
+func test_a_held_skill_key_casts_again_each_time_the_lockout_ends() -> void:
+	var h := _held_rig(20)
+	var ps: PlayerSkills = rig.w.player.get_node(^"PlayerSkills")
+	_key_down(h, "quickslot_1")
+	assert_eq(ps.casts, 1, "the press casts")
+	assert_eq(h.held_skill_keys(), {"1": SNAILS}, "and starts a hold")
+	var lock := ps.last_lockout_s
+	assert_true(lock > 0.5, "Three Snails locks out (%.3f s)" % lock)
+	var lockouts := 4
+	var cast_ticks: Array = []
+	_hold_for(h, int(ceil(lockouts * lock / MonsterTestRig.TICK)) + 1, cast_ticks)
+	assert_eq(ps.casts, 1 + lockouts, "%d lockouts held: %d more casts (ticks %s)" % [lockouts, lockouts, cast_ticks])
+	for k in range(1, cast_ticks.size()):
+		assert_near((cast_ticks[k] - cast_ticks[k - 1]) * MonsterTestRig.TICK, lock, MonsterTestRig.TICK * 1.01,
+			"each cast follows the last by one lockout")
+	Input.action_release("quickslot_1")
+	var after: Array = []
+	_hold_for(h, int(ceil(3.0 * lock / MonsterTestRig.TICK)), after)
+	assert_eq(after, [], "released: no more casts")
+	assert_eq(h.held_skill_keys(), {}, "the hold ended")
+
+
+## A refusal (here: no MP) shows its notice once while the key stays held, though every tick tries again; a new press
+## is a new hold and says it again. A held key waits out a cooldown silently and casts when it ends.
+func test_a_held_skill_key_announces_a_refusal_once_per_hold() -> void:
+	var h := _held_rig(5)
+	var c := rig.character()
+	var ps: PlayerSkills = rig.w.player.get_node(^"PlayerSkills")
+	c.mp = 0
+	var line := "Not enough MP for %s." % SkillDef.of(SNAILS, db()).name
+	_key_down(h, "quickslot_1")
+	_hold_for(h, 120, [])
+	assert_eq(ps.casts, 0, "nothing cast without MP")
+	assert_eq(h.log_panel.texts().count(line), 1, "the refusal is announced once in 2 s of holding")
+	assert_eq(int(seen.get("notice", 0)), 1, "one notice on the bus")
+	Input.action_release("quickslot_1")
+	_hold_for(h, 2, [])
+	_key_down(h, "quickslot_1")
+	assert_eq(int(seen.get("notice", 0)), 2, "a new press, a new hold: announced again")
+	Input.action_release("quickslot_1")
+	_hold_for(h, 2, [])
+	# Nimble Feet (no lockout, a 3 min cooldown): the press casts, the hold waits out the cooldown without a word.
+	c.mp = 500
+	assert_true(MisoQuickslots.bind_skill(h.env, "2", NIMBLE), "Nimble Feet on key 2")
+	var notices := int(seen.get("notice", 0))
+	_key_down(h, "quickslot_2")
+	assert_eq(ps.casts, 1, "the press casts Nimble Feet")
+	_hold_for(h, 60, [])
+	assert_eq(ps.casts, 1, "the cooldown holds the next cast")
+	assert_eq(int(seen.get("notice", 0)), notices, "and the hold announces nothing while it waits")
+	EffectBook.tick(c, SkillDef.of(NIMBLE, db()).cooldown_s(1) + 1.0)
+	_hold_for(h, 1, [])
+	assert_eq(ps.casts, 2, "the cooldown over, the held key casts again")
+	Input.action_release("quickslot_2")
+
+
+## Consumable quickslots behave as before: one press, one use, however long the key is held.
+func test_a_held_consumable_key_uses_its_item_once() -> void:
+	var h := _held_rig(0)
+	var c := rig.character()
+	ItemService.new(c, db(), null).gain("270", 5)
+	assert_true(MisoQuickslots.bind(h.env, "4", "270"), "Red Potion on key 4")
+	c.hp = 1
+	_key_down(h, "quickslot_4")
+	assert_eq(c.inventory.count("270"), 4, "the press drinks one")
+	assert_eq(h.held_skill_keys(), {}, "an item key starts no hold")
+	c.hp = 1
+	_hold_for(h, 120, [])
+	assert_eq(c.inventory.count("270"), 4, "holding it drinks no more")
+	Input.action_release("quickslot_4")
 
 
 # --- layout ---------------------------------------------------------------------------------------------------------

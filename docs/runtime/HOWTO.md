@@ -65,7 +65,7 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 | Z | pick up drops |
 | X | sit on your first chair, or stand up |
 | I / E / C / Q (or L) / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
-| 1 - 8 | quickslots: potions, food, a chair or a learned skill |
+| 1 - 8 | quickslots: potions, food, a chair or a learned skill (hold a skill's key to cast it again each time it is ready) |
 | M | fold the minimap to its title strip (the map name stays) |
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console / debug overlay (F3 also shows the canonical map id on the minimap) |
@@ -77,7 +77,10 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
   Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
-  key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
+  key 1-8; that key casts it. Hold the key to keep casting: it casts again as soon as the last cast's lockout (and
+  any cooldown) ends, and stops when you let go; nothing is queued beyond holding it, and a refusal (no MP, no shell)
+  is said once per hold (the owner's decision in #20). Potion and chair keys still use one item per press. Three
+  Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
   skill level). It hits the nearest monster in front of you that no wall stands before: terrain and buildings stop
   the shell, props, monsters and Wooden Boxes do not, and a throw with no such monster still spends the shell and the
   MP (the owner's rulings in #5 and #6).

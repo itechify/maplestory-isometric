@@ -141,6 +141,16 @@ func position_now() -> String:
 	return "air"
 
 
+## True when a cast of `skill_id` would not wait: the player can act now (alive, input enabled, no hit-stun, no attack
+## or cast lockout running) and the skill is not cooling down. A held skill key (MisoHud, #20) casts again only then,
+## so the lockout and the cooldown are waited out silently; every other rule (MP, shell, position) is cast()'s.
+func ready_to_cast(skill_id: String) -> bool:
+	var c := _character()
+	if player == null or not is_instance_valid(player) or c == null or _is_dead() or not _can_act():
+		return false
+	return EffectBook.cooldown_left(c, skill_id) <= 0.0
+
+
 ## True while the last cast's lockout runs (PlayerCombat.is_attacking() covers casts and attacks alike).
 func is_casting() -> bool:
 	return _cast_locked and combat != null and is_instance_valid(combat) and combat.lockout_left > 0.0 \

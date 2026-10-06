@@ -59,7 +59,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/minimap_projection.gd` | `MinimapProjection` | Pure: world point → the gameplay camera's image plane; fit, clamp |
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
-| `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
+| `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, held skill keys (#20: one cast per lockout, one refusal notice per hold, items once per press), the five window positions (10 tests) |
 | `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size; a window that grows, a drag and a smaller viewport are clamped back (6 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
@@ -178,7 +178,8 @@ character on each event. No character object is cached.
 
 - **`MisoHud`**:
   - `setup(ctx)`, `configure(env)`, `refresh_all()` (also re-syncs the trail line, without restarting the banner);
-  - `use_quickslot(key) -> Dictionary`;
+  - `use_quickslot(key) -> Dictionary`; `poll_held_skills() -> int` (the held skill keys' repeat casts, #20) and
+    `held_skill_keys() -> Dictionary`;
   - `request_window(name)`;
   - `dead`: true between `player_died` and `player_respawned` (the HP gauge reads 0), or until a
     `character_replaced` after which `Game.is_character_dead()` is false;
@@ -263,7 +264,10 @@ character on each event. No character object is cached.
     the cooldown as a dark sweep and the seconds left; it casts through the player's `PlayerSkills`
     (`MisoQuickslots.use_skill`), and a refusal with a reason ("Nimble Feet is not ready yet (164 s).", "Not enough MP
     for Recovery.", "Three Snails needs a Snail Shell.") goes to the log. Its hover shows the skill's name and level;
-  - press the key or double-click the slot to use it;
+  - press the key or double-click the slot to use it. A skill key held down casts again as soon as the lockout and any
+    cooldown have ended (`MisoHud.poll_held_skills` every physics tick, gated by `PlayerSkills.ready_to_cast`), with
+    no input buffer beyond the hold; releasing the key, a modal (window, console, pause menu) or a rebind ends the
+    hold, and a refusal's line goes to the log once per hold (#20). An item key uses one item per press;
   - drop a consumable or a chair from the inventory, or a learned skill from the Skills window, on a slot to bind it;
   - drag between slots to move a binding; right-click to clear it.
 
