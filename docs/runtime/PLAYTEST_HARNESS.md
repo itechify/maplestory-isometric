@@ -525,11 +525,11 @@ to `PlaytestQuestPlan.chains`), `--jobs` at a time in private copies that are mi
 its checks, the failed ones, the random reward drawn) and one per chain (strict verdict, setup console steps, phases,
 game and wall time).
 
-### Results (2026-10-05, the final Iteration Three build, seeds 1, 2 and 3)
+### Results (2026-10-06, the final Iteration Three build, seeds 1, 2 and 3)
 
 **20 of 20 quests PASS on each seed** (520 / 523 / 523 quest checks, 0 failed, 0 warnings), every chain strict after its
 setup (0 console steps, 0 api fallbacks, 0 developer commands, 0 ledger mismatches); 1000-1001 strict from character
-creation. These are the final evidence run's reports (commit `9ddf137`, headless on the pinned 1600x900 screen with
+creation. These are the final evidence run's reports (commit `1f3120c`, headless on the pinned 1600x900 screen with
 the click gate, `--jobs 1` beside two other runs). 1012 passes with the real Wooden Box (contract C8) and the
 1012-gated drops (C1/C2), and the C3 `rewards_received` record of 1008 and 1011 is a hard check that matches the
 random pick. Per quest and per seed, with what each run showed:
@@ -537,19 +537,22 @@ random pick. Per quest and per seed, with what each run showed:
 
 | Chain | Quests | Checks | Setup console steps | Phases | Game s (seed 1 / 2 / 3) | Wall s (1 / 2 / 3) | Random reward (1 / 2 / 3) |
 |---|---|---|---|---|---|---|---|
-| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 96 / 100 / 94 | 12 / 11 / 12 | |
-| 1002 | Roger's Apple | 25 | 1 | 3 | 70 / 74 / 58 | 9 / 8 / 10 | |
-| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 118 / 120 / 116 | 14 / 12 / 13 | |
-| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 112 / 126 / 105 | 12 / 12 / 12 | |
-| 1006, 1009, 1010 | Mai's Training | 90 / 93 / 93 | 1 | 6 | 722 / 717 / 687 | 105 / 92 / 98 | |
-| 1007-1008 | the letters | 48 | 2 | 3 | 390 / 435 / 343 | 54 / 55 / 49 | 712 Black / 715 Blue Headband / 709 Green Skullcap |
-| 1011 | Biggs's collection | 30 | 2 | 3 | 562 / 757 / 400 | 75 / 101 / 52 | 559 Fruit Knife / 558 Razor / 558 Razor |
-| 1012 | Pio's recycled goods | 33 | 2 | 3 | 110 / 115 / 108 | 13 / 12 / 13 | |
-| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 102 / 109 / 106 | 19 / 19 / 19 | |
+| 1000-1001 | Sera's Mirror | 45 | 0 | 3 | 99 / 108 / 103 | 12 / 11 / 12 | |
+| 1002 | Roger's Apple | 25 | 1 | 3 | 69 / 74 / 68 | 10 / 9 / 10 | |
+| 1003-1004 | Nina and Sen's dinner | 44 | 1 | 3 | 114 / 122 / 113 | 14 / 12 / 14 | |
+| 1005 | Todd's How-to-Hunt | 27 | 1 | 3 | 102 / 124 / 102 | 13 / 12 / 12 | |
+| 1006, 1009, 1010 | Mai's Training | 90 / 93 / 93 | 1 | 6 | 721 / 697 / 712 | 102 / 88 / 100 | |
+| 1007-1008 | the letters | 48 | 2 | 3 | 317 / 375 / 416 | 43 / 47 / 60 | 708 Brown Skullcap / 709 Green Skullcap / 711 Red Headband |
+| 1011 | Biggs's collection | 30 | 2 | 3 | 490 / 952 / 432 | 62 / 127 / 54 | 558 Razor / 559 Fruit Knife / 559 Fruit Knife |
+| 1012 | Pio's recycled goods | 33 | 2 | 3 | 113 / 115 / 108 | 12 / 12 / 13 | |
+| 1013-1019 | Rain's seven quizzes, one wrong answer each | 178 | 2 | 4 | 110 / 108 / 100 | 18 / 18 / 20 | |
 
 Seed 1's 1009 has 3 checks fewer: its 5 Red Snails were all killed during the other hunts, so that objective needed
-no hunt of its own. The previous final run (`c4e9ac5`, before wave 4: the 1600x1600 headless GUI area, no click gate)
-had also passed 20 of 20 on each seed.
+no hunt of its own. Seed 2's 1006 chain stepped off the ledge corner of the trail-hop finding below with one unstick,
+and its 1011 needed 2 deaths and 6 rests before the Orange Mushroom Cap. The final run before the drop-source switch
+(`9ddf137`) and the one before wave 4 (`c4e9ac5`: the 1600x1600 headless GUI area, no click gate) had also passed 20
+of 20 on each seed; the first run on the owner's drop sources (`0fc524a`) failed seed 2's 1006 chain at that trail
+hop ("Findings").
 
 **Before the shun fix (the wave-1 harness on this build).** Seeds 1 and 3 passed 20/20; seed 2 failed 1006, 1009 and
 1010 at the trail hop from Snail Hunting Ground I to II (the survival guard spin, "Findings"). On the base build
@@ -620,9 +623,9 @@ skips it; `playtest_quests.sh` does that for every chain after a worker's first)
 | `quest --quest 1006,1009,1010` | 610 s (6 phases) | 94-147 s | 4-6.5x |
 | `quest --quest 1011` | 1020-1035 s (3 phases) | 175-230 s | 4.5-6x |
 | `playtest_quests.sh --jobs 3` (all 9 chains) | 2040-2230 s summed | about 6 min (5-6 min with two playthroughs running beside it) | |
-| `playtest_quests.sh --jobs 1` (all 9 chains, final evidence run) | 2020-2550 s summed | 6.4-7.4 min beside two other runs | 7-8x |
-| `playthrough` (creation to Shanks, 8 phases) | 2200-2590 s | 308-411 s (beside two other runs) | 6-7.5x |
-| `playthrough --windowed` (seed 1, final evidence run) | 2573 s | 696 s (beside two headless runs) | 3.7x |
+| `playtest_quests.sh --jobs 1` (all 9 chains, final evidence run) | 2130-2670 s summed | 6.3-7.2 min beside two other runs | 7-8x |
+| `playthrough` (creation to Shanks, 8 phases) | 2200-2590 s | 299-411 s (beside two other runs) | 6-7.6x |
+| `playthrough --windowed` (seed 1, final evidence run) | 2581 s | 636 s (beside two headless runs) | 4.1x |
 
 Wall times grow with the machine's load (the ranges are two runs, the slower one beside other agents' Godot runs).
 

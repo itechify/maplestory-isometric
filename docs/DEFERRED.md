@@ -10,8 +10,9 @@ reference; most of its gameplay items are now done.
 Iteration Three built Maple Island's remaining content and mechanics on the Iteration Two foundation and played every
 quest in the real game (the every-quest set; [`runtime/PLAYTEST_HARNESS.md`](runtime/PLAYTEST_HARNESS.md)). Per-entry
 status is in [`MAPLE_ISLAND_PARITY.md`](MAPLE_ISLAND_PARITY.md) and every unresolved source value in
-[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (517 values: record gaps plus unresolved drop and meso values). These
-items were left on purpose or found along the way.
+[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) (375 values: the gaps each record lists, among them the drop chance,
+quantity and meso values no source publishes, which the owner's rules fill). These items were left on purpose or found
+along the way.
 
 ## Out of scope
 
@@ -80,7 +81,11 @@ No source read is pending. What the sources do not give:
   spawn rows from the monster records (an extractor change; the capture line stays either way).
 - **Tune the drop table and the meso rule** if play shows a need: every cell of `misostory/drop_rates.json` and the
   meso rule in `meso_rules.json` are the owner's to change (no record or test pins a number). The measured economy of
-  the final evidence run is in [`ITERATION_LOG.md`](ITERATION_LOG.md) ("Final evidence run").
+  the final evidence run is in [`ITERATION_LOG.md`](ITERATION_LOG.md) ("Final evidence run") and
+  [`runtime/PLAYTHROUGH_REPORT.md`](runtime/PLAYTHROUGH_REPORT.md) ("Loot and mesos"): meso bags and items per kill
+  as the tables predict, sales 183-395 mesos per playthrough because ores and gems drop (one Amethyst Ore sells for
+  200), 440-824 mesos at Shanks, and no equipment drop in the three playthroughs (the 0.1% Common Equip cell predicts
+  0.75-1.23 pieces per playthrough; Test C's bag held three by level 9).
 - **Square or disc touch zones:** a monster's touch zone is a square prism whose corners reach √2 times further on
   the diagonals (a disc instead?), and the 60 px isometric attack depth reaches monsters up to ±1.21 m (Snail) and
   ±1.54 m (Orange Mushroom) to the side, drawn with every swing.
@@ -143,16 +148,18 @@ No source read is pending. What the sources do not give:
 
 ## Open review findings (verified still open on the final build)
 
-- **The parity manifest** (final evidence run at `9ddf137`: 640 entries, 581 verified, 0 implemented, 56 partial, all
-  source-data gaps, 0 missing, 3 out of scope, 0 open for the exit criterion) rests on git-ignored evidence. Each input
+- **The parity manifest** (final evidence run at `1f3120c`: 652 entries, 646 verified, 0 implemented, 3 partial, all
+  source-data gaps, 0 missing, 3 out of scope, 0 open for the exit criterion) rests on git-ignored evidence (archived
+  outside the repository as `iteration-three/evidence-final3-1f3120c.zip`). Each input
   now records its commit, a dirty flag and (unit evidence) whether the exported world was present, and
   `build_parity.mjs` warns on the console about missing or mixed commits, dirty trees and code trees that differ from
   HEAD; but stale evidence is only a warning (an older unit evidence file could still verify a drop entry whose data
   changed after it ran), `--check` cannot run without the evidence files, and no compact evidence digest is committed. A
   unit test's need for the world is read from the text `INCLUDE_WORLD` in its file (`test_gate_monitor.gd` needs the
   world without saying so; it carries no parity keys today). One `playtest_tags` rule matched no check in that run:
-  `ui_minimap`'s "every pickup is announced in the HUD log" runs only when something dropped near the player, which it
-  did not; its key, `ui:item-pickup-feedback`, is verified by other checks.
+  `test_c_progression`'s "each death took the canonical EXP penalty" runs only when the hunter dies, which it did not;
+  its key, `mechanic:death-respawn`, is verified by other checks (142 passing). The manifest's build also warns that
+  `tools/` differs from the evidence commit: only the drop rows' wording in `tools/parity` changed after the run.
 - **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue
   findings. The progression-blocker check is conservative (it ignores other sources of an item).
 - **Research notes edited by hand:** `docs/MAP_INVENTORY.md`, `docs/topology.json` and `docs/topology.mmd` are
@@ -183,15 +190,16 @@ No source read is pending. What the sources do not give:
 - **Harness:** `test_b_combat`, `test_d_inventory`, `test_f_death` and `test_g_shop` still carry their own copies of kit
   helpers. `unstick()` is verified on the talk path and on a trail hop (seed 2 of the every-quest set's 1006 chain,
   since the 2026-10-06 fix); `leave_climb()` by the `regen` scenario. Strict mode's ledger reconciles EXP, mesos, items
-  and quests only; AP, SP, stats, HP and position rest on a source scan, which now covers the strict scenarios, the kit, the quest
-  runner, the driver, the walker, the grid planner, the input and the runner, but not the scenario base, the process
-  runner or the ledger. Two of the wave-4 playtest checks are weak (the unit tests behind them are not): the
-  playthrough's "no speech bubble while a shop is open" depends on the bubble schedule, and `test_box`'s cue check reads
-  the box's flags, not its meshes. Two runs of one seed can part ways on a physics outcome, so a long run is one sample.
-  In the final evidence run `test_a_traversal` passes (seed 1: 476 checks, 0 failed, 3 warnings: the walker died once,
-  on leg 30 in 000001000, and retried the leg, so "no death" is still not reliable) and so does `test_c_progression`
-  (seed 1: 75 checks, 0 failed, 1 warning: level 9 by killing only in 5,969 s of game time, with one death at level 9
-  that its survival guard did not prevent; the EXP penalty was the canonical 124).
+  and quests only; AP, SP, stats, HP and position rest on a source scan, which now covers the strict scenarios, the
+  kit, the quest runner, the driver, the walker, the grid planner, the input and the runner, but not the scenario base,
+  the process runner or the ledger. Two of the wave-4 playtest checks are weak (the unit tests behind them are not):
+  the playthrough's "no speech bubble while a shop is open" depends on the bubble schedule, and `test_box`'s cue check
+  reads the box's flags, not its meshes. Two runs of one seed can part ways on a physics outcome, so a long run is one
+  sample. In the final evidence run `test_a_traversal` passes (seed 1: 475 checks, 0 failed, 3 warnings: legs 11, 30
+  and 50 were not walked cleanly, a stretch blocked by props or a stalled route retried; no death this time, but the
+  walker has died in earlier runs, so "no death" is still not reliable) and so does `test_c_progression` (seed 1: 76
+  checks, 0 failed, 0 warnings: level 10 by killing only in 5,432 s of play, no death; it rested 9 times, once after
+  climbing off a ladder).
 - **`test_box` breaks 17 of the 19 boxes** (its header says so): Pio's quest takes three of Amherst's six (1/1 Board and
   Screw while it is in progress) and Three Snails one more; two of Amherst's are never broken in the real game. Breaking
   the rest of Amherst after the quest would close it.

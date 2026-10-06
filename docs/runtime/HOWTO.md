@@ -122,7 +122,7 @@ ISOLATE=me INCLUDE_WORLD=1 bash scripts/test.sh     # in a private copy (paralle
 ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/ev/full.json" bash scripts/test.sh
 ```
 
-- The full suite with the world is 1587 tests in 175 files (the final evidence run, 2026-10-05) and took 13 minutes
+- The full suite with the world is 1564 tests in 174 files (the final evidence run, 2026-10-06) and took 12 minutes
   beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe
   (`test_playtest_traps.gd`, about 2 minutes) are the slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a
   `game/assets/world/` in the project you run).
@@ -282,10 +282,12 @@ scenarios the rules consume are Tests A-G, `regen`, `test_skills`, `test_box`, `
 `npc_bubbles`, `ui_minimap`, `save_it2_continue`, `pause_load`, `resume_gate` and `kit`, plus the every-quest set and
 the clean-character playthrough (`--playtest` with its report or directory). The script also warns on the console (never
 in the manifest) when an input records no commit, a dirty tree or a commit whose `game/`, `tools/` or `scripts/` differs
-from HEAD, and when the inputs ran on different commits. In the final evidence run (commit `9ddf137`, 2026-10-05) every
+from HEAD, and when the inputs ran on different commits. In the final evidence run (commit `1f3120c`, 2026-10-06) every
 one of them passed: seed 1 headless, the every-quest set and the playthrough on seeds 1, 2 and 3, and the playthrough,
-`test_skills`, `test_box` and `kit` also windowed. The manifest has 640 entries: 581 verified, 56 partial (all
-source-data gaps), 0 missing, 3 out of scope, 0 open.
+`test_skills`, `test_box` and `kit` also windowed. The manifest has 652 entries: 646 verified, 3 partial (all
+source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD, it warns that `tools/` differs from the
+evidence commit: after the run only the wording of the drop rows in `tools/parity` changed, which no Godot test or
+scenario runs.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the

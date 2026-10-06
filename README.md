@@ -47,12 +47,13 @@ bash scripts/playtest_quests.sh # every Maple Island quest played in the real ga
 
 ### Status
 
-Iteration Three is complete by its own exit criterion. In the final evidence run (2026-10-05, commit `9ddf137`) the
-full test suite with the exported world passes (1587 tests), canonical data validation passes (0 errors; 53 warnings,
-one per drop member no source resolves), and every real-game scenario passes: all 20 quests on three seeds, and one
-clean character played from the creation screen to Shanks with no developer help on three seeds headless and once in
-a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)) has 640 entries: 581
-verified and 56 source-data gaps (values the sources were read for and do not give), with none left open. Maple
+Iteration Three is complete by its own exit criterion. In the final evidence run (2026-10-06, commit `1f3120c`, on the
+owner's drop and meso sources of decisions D3-11 and D3-12) the full test suite with the exported world passes (1564
+tests), canonical data validation passes (0 errors, 0 warnings), and every real-game scenario passes: all 20 quests on
+three seeds, and one clean character played from the creation screen to Shanks with no developer help on three seeds
+headless and once in a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)) has
+652 entries: 646 verified and 3 source-data gaps (values the sources were read for and do not give), with none left
+open; every drop row is verified on its MeowDB membership and Henesys.gg rarity, its chance the owner's table. Maple
 Island holds 20 quests, 6 monster species and the Wooden Box, 21 NPCs and 3 shops. What is still open (owner
 decisions, art, the limits below) is in [`docs/DEFERRED.md`](docs/DEFERRED.md); the final report is the last section
 of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
