@@ -385,9 +385,15 @@ func apply_knockback(from_dir: Vector3, strength: float = 1.0, invulnerability_s
 	knocked_back.emit(push)
 
 
-## apply_knockback() with the push direction taken from a source position (e.g. the monster's).
+## apply_knockback() with the push direction taken from a source position (e.g. the monster's): away from it. A source
+## within movement.json knockback_point_blank_m (5 cm) of the player, horizontally, gives no stable "away" (a monster
+## standing on the player), so the push is backwards from the player's facing instead (#17).
 func apply_knockback_from_point(source_pos: Vector3, strength: float = 1.0, invulnerability_s: float = -1.0) -> void:
-	apply_knockback(global_position - source_pos, strength, invulnerability_s)
+	var away := global_position - source_pos
+	away.y = 0.0
+	if model != null and away.length() <= model.knockback_point_blank:
+		away = Vector3.ZERO
+	apply_knockback(away, strength, invulnerability_s)
 
 
 ## Starts (or extends) invulnerability for `seconds`.
