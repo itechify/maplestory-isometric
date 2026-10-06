@@ -561,7 +561,7 @@ func test_reparenting_keeps_the_hud_listening() -> void:
 
 
 ## Active timed effects are visible (a UI adaptation: a buff showed nowhere but its quickslot's cooldown): one icon per
-## effect at the top right with the time left, the name and level in the tooltip, a sweep that grows as it runs out;
+## effect on top of the status bar with the time left (its placement at 1600 x 900: test_ui_window_fit), the name and level in the tooltip, a sweep that grows as it runs out;
 ## it counts down without events, and an ended effect's icon goes on effects_changed.
 func test_active_effects_show_with_their_time_left() -> void:
 	var c := _character()

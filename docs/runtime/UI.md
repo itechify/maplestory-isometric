@@ -32,6 +32,7 @@ So every change it makes fires the usual `Events`.
 | `scenes/ui/hud.tscn` → `scripts/ui/hud/hud.gd` | `MisoHud` | HUD root, `setup(ctx)` |
 | `scripts/ui/hud/status_bar.gd` | `MisoStatusBar` | Bottom bar: level, name, job, HP/MP/EXP gauges, mesos, window buttons, quickslots |
 | `scripts/ui/hud/quickslot_bar.gd` | `MisoQuickslotBar` | The 8 quickslots (bind by drop, use, move, clear); item slots and skill slots (icon, MP greying, cooldown sweep) |
+| `scripts/ui/hud/effects_bar.gd` | `MisoEffectsBar` | Active timed effects (Nimble Feet, Recovery) on top of the status bar: icon, time left, run-out sweep |
 | `scripts/ui/hud/notice_log.gd` | `MisoNoticeLog` | Message log (fading lines + history) |
 | `scripts/ui/hud/map_banner.gd` | `MisoMapBanner` | Street + map name on arrival; on a trail, the "-> destination" line under the map name |
 | `scripts/ui/hud/level_up_flourish.gd` | `MisoLevelUpFlourish` | "LEVEL UP!" pop with procedural stars |
@@ -60,7 +61,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
-| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); a window that grows, a drag and a smaller viewport are clamped back (7 tests) |
+| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); the effects row on top of the bar, 40 px icons, covering no gauge, button or quickslot; a window that grows, a drag and a smaller viewport are clamped back (8 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
 ## Integration (game shell)
@@ -266,6 +267,12 @@ character on each event. No character object is cached.
   - press the key or double-click the slot to use it;
   - drop a consumable or a chair from the inventory, or a learned skill from the Skills window, on a slot to bind it;
   - drag between slots to move a binding; right-click to clear it.
+- **Effects.** While Nimble Feet or Recovery runs (`CharacterState.effects`), its icon sits right on top of the status
+  bar over the quickslots, newest last (`MisoEffectsBar`, placed by `MisoHud` from the bar's laid-out height). Each
+  icon is a quickslot's size (40 px) with the time left under it in bold outlined text ("1:15", "30s"); a dark sweep
+  grows over it as it runs out, and its hover gives the name, level and time left. The row grows left from the bar's
+  right end and covers no gauge, button or quickslot (`test_ui_window_fit`); until issue #12 it sat at the top right
+  with 30 px icons, far from the bar.
 
 **Message log.** Fading lines above the bar:
 

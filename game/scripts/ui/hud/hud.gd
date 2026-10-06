@@ -9,7 +9,8 @@ extends Control
 ##     level-up the unspent AP and SP;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots);
-##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left;
+##   - active timed effects (MisoEffectsBar, right on top of the status bar over the quickslots): Nimble Feet,
+##     Recovery, with the time left;
 ##   - while the player sits on a chair (Events.player_sat_down / player_stood_up), the seated cue above the HP
 ##     gauge with what sitting recovers (seated_text: the natural rate and the chair's bonus, from data).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
@@ -51,8 +52,10 @@ const BUS_HANDLERS := {
 	"player_stood_up": "_on_player_stood_up",
 }
 const LOG_WIDTH := 560.0
-## Inset of the effects row from the top-right corner (presentation).
-const EFFECTS_MARGIN := 12.0
+## The effects row sits on the status bar's top edge, right-aligned over the quickslots: EFFECTS_GAP above the bar and
+## EFFECTS_INSET in from its right end (presentation).
+const EFFECTS_GAP := 6.0
+const EFFECTS_INSET := 10.0
 
 var env: MisoUiEnv = null
 var status: MisoStatusBar
@@ -97,12 +100,12 @@ func _init() -> void:
 	banner = MisoMapBanner.new()
 	add_child(banner)
 	effects = MisoEffectsBar.new()
-	effects.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	effects.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	effects.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	effects.offset_left = -EFFECTS_MARGIN
-	effects.offset_right = -EFFECTS_MARGIN
-	effects.offset_top = EFFECTS_MARGIN
+	effects.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	add_child(effects)
+	status.resized.connect(_place_effects)
+	_place_effects()
 	flourish = MisoLevelUpFlourish.new()
 	add_child(flourish)
 	tooltip = MisoItemTooltip.new()
@@ -170,6 +173,15 @@ func refresh_all() -> void:
 	status.set_sp(c.sp)  # skills package hook (Iteration Three): the SP badge
 	status.quickslots.refresh()
 	effects.refresh()
+
+
+## Keeps the effects row right on top of the status bar, over its right end (the quickslots), whatever height the bar
+## lays out to: the row grows left and up from that corner, so it covers no gauge, button or quickslot.
+func _place_effects() -> void:
+	effects.offset_right = status.offset_right - EFFECTS_INSET
+	effects.offset_left = effects.offset_right
+	effects.offset_bottom = status.offset_bottom - status.size.y - EFFECTS_GAP
+	effects.offset_top = effects.offset_bottom
 
 
 ## MisoQuickslots group hook.

@@ -246,6 +246,42 @@ func test_the_skills_window_opens_clear_of_the_quest_log() -> void:
 		assert_eq(w.position, at + Vector2(-40, -30), "%s follows a title drag" % n)
 
 
+## Issue #12: the effects row (Nimble Feet, Recovery) sat top right with 30 px icons, far from the bar. On 1600 x 900
+## it now sits right on top of the status bar over its right end, each icon at least 36 px with its time left under
+## it, and covers no gauge, window button or quickslot.
+func test_the_effects_bar_sits_on_the_status_bar_and_covers_no_control() -> void:
+	var c := _character()
+	EffectBook.add(c, "skill:0001002", "skill:0001002", 75.0, {"skill_id": "0001002", "level": 3, "duration_s": 100.0})
+	EffectBook.add(c, "skill:0001001", "skill:0001001", 30.0, {"skill_id": "0001001", "level": 1, "duration_s": 30.0})
+	var ui := _ui(c)
+	var hud: MisoHud = ui.hud
+	_layout(hud)
+	var bar := _bar(hud)
+	var row := hud.effects.get_global_rect()
+	print("effects %s, bar %s" % [row, bar])
+	assert_eq(hud.effects.snapshot().size(), 2, "both effects show")
+	assert_true(SCREEN.encloses(row), "the row %s is on screen" % row)
+	for cell: Control in hud.effects.cells.values():
+		var icon: Control = cell.get_node("Icon")
+		assert_true(icon.size.x >= 36.0 and icon.size.y >= 36.0, "an icon is at least 36 px: %s" % icon.size)
+		var time: Label = cell.get_node("Time")
+		assert_true(time.get_theme_font_size("font_size") >= 13 and time.text != "", "the time left '%s' is readable" % time.text)
+		assert_true(row.encloses(time.get_global_rect()), "the time left is inside the row")
+	# Next to the bar: on its top edge (a few px above it) and within its width, at its right end.
+	assert_true(row.end.y <= bar.position.y and row.end.y >= bar.position.y - 12.0,
+		"the row's bottom %.0f is on the bar's top edge %.0f" % [row.end.y, bar.position.y])
+	assert_true(row.position.x >= bar.position.x and row.end.x <= bar.end.x, "the row lies over the bar's width")
+	assert_true(row.position.x > bar.get_center().x, "the row sits over the bar's right end")
+	var controls: Array = [hud.status.hp_gauge, hud.status.mp_gauge, hud.status.exp_gauge]
+	controls.append_array(hud.status.menu_buttons.values())
+	controls.append_array(hud.status.quickslots.slots.values())
+	for ctl: Control in controls:
+		var r := ctl.get_global_rect()
+		assert_false(row.intersects(r), "the effects row %s covers %s %s" % [row, ctl.name, r])
+	# Nor does the log above the bar (bottom left) collide with it.
+	assert_false(row.intersects(hud.log_panel.get_global_rect()), "the row clears the message log")
+
+
 func _mouse_button(at: Vector2, pressed: bool) -> InputEventMouseButton:
 	var e := InputEventMouseButton.new()
 	e.button_index = MOUSE_BUTTON_LEFT

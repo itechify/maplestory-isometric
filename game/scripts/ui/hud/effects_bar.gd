@@ -9,10 +9,11 @@ extends HBoxContainer
 ## Events.effects_changed, game_loaded and a replaced character, and the bar redraws itself every REDRAW_S while an
 ## effect runs, since remaining_s counts down every physics tick without an event.
 
-## Presentation constants (UI.md convention: drawn in code, not gameplay values).
-const ICON_SIZE := 30.0
+## Presentation constants (UI.md convention: drawn in code, not gameplay values). The icon is a quickslot's size
+## (MisoQuickslotBar.SLOT_SIZE), and the time left is drawn bold with a dark outline so it reads over any ground.
+const ICON_SIZE := 40.0
 const REDRAW_S := 0.2
-const TIME_FONT_SIZE := 11
+const TIME_FONT_SIZE := 14
 
 var env: MisoUiEnv = null
 ## Effect id -> its cell (VBoxContainer: the icon, then the time label), in c.effects order.
@@ -101,12 +102,9 @@ func _make_cell(id: String) -> Control:
 	icon.name = "Icon"
 	icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
 	cell.add_child(icon)
-	var label := Label.new()
+	var label := MisoTheme.make_label("", TIME_FONT_SIZE, MisoTheme.TEXT, 4, MisoTheme.WEIGHT_BOLD)
 	label.name = "Time"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", TIME_FONT_SIZE)
-	label.add_theme_constant_override("outline_size", 3)
-	label.add_theme_color_override("font_outline_color", MisoSkillIcon.OUTLINE)
 	label.mouse_filter = MOUSE_FILTER_IGNORE
 	cell.add_child(label)
 	return cell
