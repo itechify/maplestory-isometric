@@ -28,11 +28,11 @@ GODOT=/path/to/godot bash scripts/validate_data.sh      # binary override, passe
 An isolated run copies the small `game/assets/world/*.json` sidecars (and `index.json`) but not the glTF chunks, and
 mirrors `tools/*/captures/` next to the copy (as `scripts/test.sh` does), because the validator checks that every
 cited capture file exists at `res://../tools/...`. The last line is `VALIDATION_PASSED` or `VALIDATION_FAILED`.
-Shipped data on the final Iteration Three build (2026-10-06): 0 errors and 53 warnings, all `drop_unresolved`
-(the drop members no source gives a chance or an item for, listed by design), so `--strict` exits 1; 158 out-of-scope
-references skipped (listed per rule in every report); 192 canonical records, 39 adaptation files, 47 portals, 25
-sidecars, 209 capture paths, 173 per-property sources, 7 schema v2 drop records with 75 entries, 2,196 references and
-3,262 names checked; the quest, NPC and dialogue validation ran.
+Shipped data on the final Iteration Three build (2026-10-06, commit `1f3120c`): 0 errors and 0 warnings (every one
+of the 86 drop members resolves to its item, its Henesys.gg rarity and its table category), so `--strict` passes too;
+158 out-of-scope references skipped (listed per rule in every report); 192 canonical records, 40 adaptation files, 47
+portals, 25 sidecars, 268 capture paths, 233 per-property sources, 7 schema 3 drop records with 86 entries, 2,151
+references and 3,127 names checked; the quest, NPC and dialogue validation ran.
 
 Every report lists the out-of-scope skips grouped by rule (`SKIPPED (out of scope) 125 x monsters.spawns[].map_id ->
 maps (maple_island: false)`); `--verbose` adds one line per skipped reference. The summary's stats include one
