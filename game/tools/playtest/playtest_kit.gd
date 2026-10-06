@@ -12,19 +12,24 @@ extends RefCounted
 ##   await k.converse({"1009": "accept"})               # menus, Yes/No, pages; quizzes by the canonical answer
 ##   await k.hunt(["3", "4"], func() -> bool: ..., {}) # fights with the survival policy, picks up precisely
 ##
-##   travel    travel_to(map, opts)  portal_path(db, from, to)  walk_safely(target, opts)
-##   NPCs      approach(npc)  talk(npc)  converse(goals, opts)  marker(npc)  quest_window(qid, tab)  open_shop(npc)
+##   travel    travel_to(map, opts)  portal_path(db, from, to)  walk_safely(target, opts)  unstick(opts)
+##   NPCs      approach(npc)  talk(npc)  last_talk  converse(goals, opts)  marker(npc)  quest_window(qid, tab)
 ##   quiz      quiz_answer(db, qid)  (static: the canonical correct choice and the paired wrong-answer lines)
-##   items     use_item(id, via)  equip(id)  drink(id)  bind_quickslot(id, key)  double_click(c)  drag(a, b)
+##   items     use_item(id, via, opts)  equip(id)  drink(id)  bind_quickslot(id, key)  double_click(c)  drag(a, b)
+##             tooltip_rows(c)  row_texts(rows)  slot_index(tab, id)
 ##   AP        stats_window()  click_plus(stat)  allocate_ap(plan)
 ##   shop      open_shop(npc)  buy(id, qty)  sell(id, qty)  close_shop()
 ##   combat    hunt(mob_ids, cond, opts)  survive(opts)  threat(opts)  pickup(radius, max_s)
+##   monsters  same_tier_monster(mob_ids, skip, opts)  pick_index(cands, feet, mob_ids, skip, opts)  nearest_of(ids)
 ##   death     is_dead()  respawn(opts)
 ##   contracts activity()  sit()  stand()  use_chair(id)  cast_skill(id)  breakables()  break_box(box, opts)
 ##   skills    learn_skill(id)  bind_skill(id, key)  throw_at(target, opts)  (the Skills window, K; Three Snails)
-##   record    snapshot()  bag_delta(a, b, skip)  total_exp()  checkpoint(tag)  log_clock()  log_since(t)
+##   HUD       hud()  hud_mesos()  log_clock()  log_since(t)  log_history()  log_on_screen()
+##   record    snapshot()  bag_delta(a, b, skip)  total_exp()  checkpoint(tag)
 ##             track()  carry_totals()  play_s()  local_pos()   (the progression audit, kept in d.carry)
-##   death     let_monsters_win(mob_ids, opts)  (stand among monsters without fighting until the player dies)
+##   places    map_local(at, map, step)  flat_m(a, b)
+##   death     let_monsters_win(mob_ids, opts)  (walk into monsters without fighting until the player dies, or until
+##             opts "until": the touch probes)
 ##
 ## The contract helpers (sit, chairs, skills, Wooden Boxes) are written against docs/runtime/
 ## ITERATION_THREE_CONTRACTS.md C4/C5/C3/C8. Those features are all built (wave 1); on a build without one, its
@@ -65,6 +70,9 @@ const UNSTICK_M := 2.5
 ## for this long (game s): otherwise a walk it touched is interrupted again at once, and the fight back fails again,
 ## faster than the touch is forgotten (seed 2 of the every-quest set spun 24 times in 2 s on Snail Hunting Ground I).
 const SHUN_S := 4.0
+## hunt()'s opts "fallback_warp": a walk to the arrival that fails within this distance (m) of where it began finds a
+## trap.
+const TRAP_M := 4.0
 ## Three Snails: where to stand from the target for a throw, well inside the canonical 50-300 px band (px, actor
 ## scale), as test_skills does.
 const THROW_FROM_PX := 150.0
@@ -104,6 +112,10 @@ var deaths: Array = []
 var travel_rows: Array = []
 ## Hops that ended in a console warp (non-strict scenarios only).
 var fallbacks: PackedStringArray = []
+## {map, world, local, at_s} per trap a hunt with opts "fallback_warp" left by a console warp (non-strict only).
+var traps: Array = []
+## The result of the last talk() (open_shop's too): talk_to's, plus "pre".
+var last_talk: Dictionary = {}
 ## Survival policy counters: potions drunk, rests, rest seconds, fights back, interrupts of a walk.
 var survival := {"drinks": 0, "rests": 0, "rest_s": 0.0, "fights_back": 0, "interrupts": 0, "unsticks": 0}
 ## The HUD log lines on screen the moment a converse() goal quest completed.
@@ -484,7 +496,7 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 		survival["interrupts"] = int(survival["interrupts"]) + 1
 		await survive(opts)
 	if bool(opts.get("unstick", false)) and not bool(r.get("ok", false)) and d.current_map() == map0 and not is_dead() \
-			and _flat_m(d.player().global_position, at0) < UNSTICK_STALLED_M:
+			and flat_m(d.player().global_position, at0) < UNSTICK_STALLED_M:
 		if bool((await unstick()).get("ok", false)):
 			r = await d.walk_to(target, o)
 	r["interrupts"] = n
@@ -494,39 +506,48 @@ func walk_safely(target: Variant, opts: Dictionary = {}) -> Dictionary:
 ## Gets the player off a spot where every planned walk stalls at once (a ledge corner whose way off neither the
 ## routes nor the grid takes, though a player just steps off or jumps): straight real-input pushes in 8 directions,
 ## then with a jump, each for at most UNSTICK_PUSH_S, until the feet stand UNSTICK_M from where they began. A logged
-## "kit.unstick" step. Returns {"ok", "moved_m", "dir", "jump", "from", "to"} (map-local). Await it.
-func unstick() -> Dictionary:
+## "kit.unstick" step. opts: "toward" (a world point: the pushes go toward it first, then to its sides, away from it
+## and along the diagonals, unstick_dirs()), "jump" ("after" (default): every direction without a jump, then with
+## one; "always": every push hops at once, for a body wedged against a prop or a terrace lip after a knockback, as
+## test_b_combat's fights are), "push_s" (UNSTICK_PUSH_S) and "min_m" (UNSTICK_M: how far counts as free). Returns
+## {"ok", "moved_m", "dir" (index into the directions), "jump", "from", "to"} (map-local). Await it.
+func unstick(opts: Dictionary = {}) -> Dictionary:
 	var step := d._begin(PlaytestReport.KIND_PLAY, "kit.unstick", d.current_map())
 	var p := d.player()
 	var start := p.global_position
+	var push_s := float(opts.get("push_s", UNSTICK_PUSH_S))
+	var min_m := float(opts.get("min_m", UNSTICK_M))
+	var always := String(opts.get("jump", "after")) == "always"
+	var toward: Variant = opts.get("toward")
+	var dirs := unstick_dirs((toward as Vector3) - start if toward is Vector3 else Vector3.ZERO)
 	var out := {"ok": false, "moved_m": 0.0, "dir": -1, "jump": false, "from": _local(start), "to": ""}
-	for jump: bool in [false, true]:
-		for k in 8:
+	for jump: bool in ([true] if always else [false, true]):
+		for k in dirs.size():
 			if is_dead() or d.dialogue_open():
 				break
-			var dir := Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0))
+			var dir: Vector3 = dirs[k]
 			var a := p.global_position
 			var f0 := Engine.get_physics_frames()
 			var jumped := false
-			while Engine.get_physics_frames() - f0 < int(UNSTICK_PUSH_S * Engine.physics_ticks_per_second):
+			while Engine.get_physics_frames() - f0 < int(push_s * Engine.physics_ticks_per_second):
 				d.input.set_move_world(dir, p.view_right, p.view_forward)
-				if jump and not jumped and Engine.get_physics_frames() - f0 > 10:
+				if jump and not jumped and (always or Engine.get_physics_frames() - f0 > 10):
 					jumped = true
 					await d.input.tap_action(&"jump")
 				await d.get_tree().process_frame
 				d.input.reassert()
-				if _flat_m(p.global_position, start) >= UNSTICK_M:
+				if flat_m(p.global_position, start) >= min_m:
 					break
 			d.input.release_movement()
 			await d.wait_idle(3.0)
-			var moved := _flat_m(p.global_position, start)
+			var moved := flat_m(p.global_position, start)
 			out["moved_m"] = snappedf(maxf(float(out["moved_m"]), moved), 0.01)
-			if moved >= UNSTICK_M:
+			if moved >= min_m:
 				out["ok"] = true
 				out["dir"] = k
 				out["jump"] = jump
 				break
-			if _flat_m(p.global_position, a) > 0.3:
+			if flat_m(p.global_position, a) > 0.3:
 				# A push that moved a little but not far enough: back toward the start for the next direction.
 				await d.walk_to(start, {"max_s": 3.0, "retries": 0, "within_m": 0.3, "planner": "grid"})
 		if bool(out["ok"]):
@@ -539,7 +560,24 @@ func unstick() -> Dictionary:
 	return out
 
 
-static func _flat_m(a: Vector3, b: Vector3) -> float:
+## The 8 flat directions unstick() pushes in, in order. With no `toward` (a zero vector): every 45 degrees from +X.
+## Otherwise toward it first, then its two sides, straight away from it, and the four diagonals (front ones first):
+## test_b_combat's order for a wedge on the way to a monster.
+static func unstick_dirs(toward: Vector3) -> Array:
+	var f := Vector3(toward.x, 0.0, toward.z)
+	var out: Array = []
+	if f.length_squared() < 1e-6:
+		for k in 8:
+			out.append(Vector3(cos(TAU * k / 8.0), 0.0, sin(TAU * k / 8.0)))
+		return out
+	f = f.normalized()
+	for a: float in [0.0, PI * 0.5, -PI * 0.5, PI, PI * 0.25, -PI * 0.25, PI * 0.75, -PI * 0.75]:
+		out.append(f.rotated(Vector3.UP, a))
+	return out
+
+
+## The horizontal distance (m) between two world points.
+static func flat_m(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
@@ -548,7 +586,7 @@ static func _flat_m(a: Vector3, b: Vector3) -> float:
 ## player metres along the trail before it stalled at a ledge corner, where the retry then stalls at once (seed 2 of
 ## the every-quest set on Snail Hunting Ground I, 1006: 10 m, then stuck at local (27.0, 1.0, -13.1)).
 static func retry_stalled(retry_start: Vector3, now: Vector3) -> bool:
-	return _flat_m(now, retry_start) < UNSTICK_STALLED_M
+	return flat_m(now, retry_start) < UNSTICK_STALLED_M
 
 
 ## The walk interrupt of the survival policy, as a stop_when Callable for any walk (scenarios that walk with the
@@ -822,16 +860,21 @@ func death_notice() -> DeathNotice:
 
 
 ## As a player does after dying: waits for the death notice, clicks its OK, waits for the respawn. opts "shot":
-## a screenshot name for the notice (once per run, d.carry flag). Returns the row appended to `deaths`. Await it.
+## a screenshot name for the notice (once per run, d.carry flag); "click" (true): false when another key already
+## confirmed the notice and the respawn is under way (test_f_death's jump-key probe), so nothing is clicked and the
+## call only waits for it. Returns the row appended to `deaths` ("ok_clicked", "respawned"). Await it.
 func respawn(opts: Dictionary = {}) -> Dictionary:
 	var c := d.character()
 	var row := {"map": d.current_map(), "level": c.level, "game_s": snappedf(d.game_s(), 0.1)}
-	var shown := await d.wait_until(func() -> bool: return death_notice() != null, 15.0)
+	var click := bool(opts.get("click", true))
+	var shown := false
+	if click:
+		shown = await d.wait_until(func() -> bool: return death_notice() != null, 15.0)
 	var shot_name := String(opts.get("shot", ""))
 	if shown and shot_name != "" and not d.carry.has("shot_" + shot_name):
 		d.carry["shot_" + shot_name] = true
 		await shot(shot_name)
-	var n := death_notice()
+	var n := death_notice() if click else null
 	var clicked := false
 	if n != null:
 		var r: Dictionary = await d.click(n.ok_button)
@@ -874,6 +917,7 @@ func talk(npc_id: String) -> Dictionary:
 		on_screen_at_complete = []
 		v = await d.talk_to(npc_id)
 		v["pre"] = pre
+		last_talk = v
 		if bool(v.get("open", false)):
 			return v
 		if not is_dead():
@@ -1110,6 +1154,16 @@ static func row_contains(rows: Array, needle: String) -> bool:
 	return false
 
 
+## The non-empty texts of rows ({"text", ...}: Quest Log objective rows, item tooltip rows), in order.
+static func row_texts(rows: Array) -> PackedStringArray:
+	var out: PackedStringArray = []
+	for r: Variant in rows:
+		var t := String((r as Dictionary).get("text", "")) if r is Dictionary else ""
+		if t != "":
+			out.append(t)
+	return out
+
+
 static func rows_text(rows: Array) -> String:
 	var out: PackedStringArray = []
 	for r: Dictionary in rows:
@@ -1132,9 +1186,22 @@ func hud() -> MisoHud:
 	return d.hud() as MisoHud
 
 
+## The mesos the HUD's status bar shows, as drawn ("1,234"); "" without a HUD.
+func hud_mesos() -> String:
+	var h := hud()
+	return h.status.mesos_label.text if h != null and h.status != null else ""
+
+
 func log_clock() -> float:
 	var h := hud()
 	return float(h.log_panel.get("_clock")) if h != null else 0.0
+
+
+## The HUD log's history, oldest first ({text, tone, time}; the live array, so an entry kept from before an action
+## can be found again by identity after it); [] without a HUD.
+func log_history() -> Array:
+	var h := hud()
+	return h.log_panel.history if h != null else []
 
 
 ## HUD log lines added at or after `clock0` (the log's own clock).
@@ -1252,6 +1319,24 @@ func drag(from: Control, to: Control) -> Dictionary:
 	return {"dragging": dragging, "target_topmost": topmost, "why": ""}
 
 
+## Hovers a control with the mouse (moving in from 400 px above, so the tooltip opens afresh) and returns the rows
+## of the item tooltip it shows: the windows' tooltip (an Item or Equipment window slot) or the HUD's (a quickslot);
+## [] when none shows. Rows are {"text", ...} (row_texts(), row_contains()). Await it.
+func tooltip_rows(c: Control) -> Array:
+	var at := center(c)
+	d.input.mouse_move(at + Vector2(0, -400))
+	await d.frames(1)
+	d.input.mouse_move(at)
+	await d.frames(2)
+	var tip: MisoItemTooltip = (d.windows() as MisoWindowsRoot).tooltip
+	var hud_tip: Variant = hud().tooltip if hud() != null else null
+	if tip != null and tip.visible:
+		return tip.rows.duplicate(true)
+	if hud_tip is MisoItemTooltip and (hud_tip as MisoItemTooltip).visible:
+		return (hud_tip as MisoItemTooltip).rows.duplicate(true)
+	return []
+
+
 func inventory_window() -> MisoInventoryWindow:
 	return (d.windows() as MisoWindowsRoot).inventory
 
@@ -1277,10 +1362,14 @@ func _open_on_item(item_id: String) -> int:
 
 ## Uses one of an item the way a player does: via "double_click" (default: I, the item's tab, a double-click on its
 ## slot), "button" (I, the slot, the window's Use button) or "quickslot" (the key it is bound to; bind_quickslot).
-## Returns {"ok" (one used), "status", "hp0", "hp1", "n0", "n1", "via"}. Await it.
-func use_item(item_id: String, via: String = "double_click") -> Dictionary:
+## opts "keep_open" (false): leave the Item window open on the item's tab afterwards (a scenario that reads the slot or
+## the window after the use). Returns {"ok" (one used), "status", "hp0", "hp1", "n0", "n1", "via", "slot" (the
+## item's slot in its tab; -1 when it is not held, or for the quickslot)}. Await it.
+func use_item(item_id: String, via: String = "double_click", opts: Dictionary = {}) -> Dictionary:
 	var c := d.character()
-	var out := {"ok": false, "status": "", "hp0": c.hp, "hp1": c.hp, "n0": c.inventory.count(item_id), "n1": 0, "via": via}
+	var keep := bool(opts.get("keep_open", false))
+	var out := {"ok": false, "status": "", "hp0": c.hp, "hp1": c.hp, "n0": c.inventory.count(item_id), "n1": 0, "via": via,
+		"slot": -1}
 	# hp0 / n0 and hp1 / n1 are read right around the input that uses the item (dispatch is synchronous), so a touch
 	# while the window opens or closes does not blur the effect.
 	var probe := func() -> Dictionary: return {"hp": c.hp, "n": c.inventory.count(item_id)}
@@ -1299,8 +1388,10 @@ func use_item(item_id: String, via: String = "double_click") -> Dictionary:
 	else:
 		var idx := await _open_on_item(item_id)
 		var win := inventory_window()
+		out["slot"] = idx
 		if idx < 0 or idx >= win.slots.size():
-			await d.close_window("inventory")
+			if not keep:
+				await d.close_window("inventory")
 			out["status"] = "no slot for %s" % item_id
 			return out
 		if via == "button":
@@ -1313,7 +1404,8 @@ func use_item(item_id: String, via: String = "double_click") -> Dictionary:
 			around = await double_click(win.slots[idx], probe)
 		await d.frames(2)
 		out["status"] = win.status_label.text
-		await d.close_window("inventory")
+		if not keep:
+			await d.close_window("inventory")
 	var before: Dictionary = around.get("before", {}) if around.get("before") is Dictionary else {}
 	var after: Dictionary = around.get("after", {}) if around.get("after") is Dictionary else {}
 	out["hp0"] = int(before.get("hp", out["hp0"]))
@@ -1561,12 +1653,19 @@ func pickup(radius_m: float = 6.0, max_s: float = 30.0) -> Dictionary:
 	return out
 
 
+## A world point in the frame of `map_id` (default: the current map), rounded to `step` m (a finding's "where"); the
+## world point, rounded, when that map is not loaded.
+func map_local(at: Vector3, map_id: String = "", step: float = 0.1) -> Vector3:
+	var w := d.world()
+	var m := map_id if map_id != "" else d.current_map()
+	if w == null or w.defs == null or not w.defs.has_map(m):
+		return at.snappedf(step)
+	return w.defs.get_def(m).to_local(at).snappedf(step)
+
+
 ## A world point in the current map's frame, rounded to 0.1 m (for step results).
 func _local(at: Vector3) -> String:
-	var w := d.world()
-	if w == null or not w.defs.has_map(d.current_map()):
-		return str(at.snappedf(0.1))
-	return str(w.defs.get_def(d.current_map()).to_local(at).snappedf(0.1))
+	return str(map_local(at))
 
 
 ## The precise final approach: half-strength steps straight at `landing` for at most a second, until `done` holds
@@ -1617,7 +1716,13 @@ func nearest_of(mob_ids: Array, opts: Dictionary = {}) -> Node3D:
 ## the survival policy first (drink, rest, fight back what touches), the nearest wanted monster with the attack key,
 ## the drops picked up precisely after every kill (opts "pickup" true), unspent AP into opts "ap_plan" (["str",
 ## "dex"]; [] keeps it) through the stats window, a death answered with OK and the walk back (opts "map", default
-## the current map), and a tour of the spawn slots when nothing is in sight. Returns {"ok" (cond met), "kills",
+## the current map), and a tour of the spawn slots when nothing is in sight. The survival opts ("hp_floor",
+## "hp_resume", "on_threat") hold for the hunt's walks too; "hp_floor" 0 turns the HP stops off (no potion is drunk
+## and no rest taken: test_d_inventory, whose consumables are the test's own). More opts: "pickup_radius_m" (5) and
+## "pickup_s" (10) for the pickup after a kill; "after_kill" (a Callable, awaited after each kill and its pickup);
+## "fallback_warp" (non-strict scenarios only, as travel_to's): after three fights in a row that reach nothing, a walk
+## to the map's arrival, and when that walk cannot leave the spot either, the trap is a WARN ("the hunting player is
+## never trapped", the place in `traps`) and a logged console warp to the map. Returns {"ok" (cond met), "kills",
 ## "fights", "deaths", "picked", "time_s", "why"}. Await it.
 func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 	var out := {"ok": false, "kills": 0, "fights": 0, "deaths": 0, "picked": 0, "time_s": 0.0, "why": ""}
@@ -1627,8 +1732,11 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 	var exclude := {}
 	var idle := 0
 	var slot_i := 0
+	var misses := 0
 	var ap_plan: Array = opts.get("ap_plan", ["str", "dex"])
 	var search := float(opts.get("max_dist_m", 60.0))
+	var after_kill: Callable = opts.get("after_kill", Callable())
+	var trap_warp := bool(opts.get("fallback_warp", false)) and not d.is_strict()
 	while not bool(cond.call()) and d.game_s() - t0 < max_s:
 		if is_dead():
 			await respawn()
@@ -1656,7 +1764,7 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 				var slots: Array = d.world().defs.get_def(d.current_map()).monster_spawn_definitions
 				if not slots.is_empty():
 					slot_i = (slot_i + 7) % slots.size()
-					await walk_safely("slot:%d" % slot_i, {"max_s": 20.0, "unstick": true})
+					await walk_safely("slot:%d" % slot_i, _survival_opts(opts, {"max_s": 20.0, "unstick": true}))
 				exclude.clear()
 			else:
 				await d.wait(1.0)
@@ -1666,16 +1774,22 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 		var r: Dictionary = await d.face_and_attack_nearest(20.0, {"target": target_node, "mob_id": String(target_node.get("def").get("id")),
 			"max_dist_m": search, "exclude": exclude})
 		out["fights"] = int(out["fights"]) + 1
+		misses = 0 if bool(r["ok"]) else misses + 1
 		if bool(r["ok"]):
 			out["kills"] = int(out["kills"]) + 1
 			if bool(opts.get("pickup", true)) and not is_dead():
 				await d.wait(0.6)
-				var pk := await pickup(5.0, 10.0)
+				var pk := await pickup(float(opts.get("pickup_radius_m", 5.0)), float(opts.get("pickup_s", 10.0)))
 				out["picked"] = int(out["picked"]) + int(pk["picked"])
+			if after_kill.is_valid():
+				await after_kill.call()
 		else:
 			var why := String(r["why"])
 			if (why.begins_with("could not reach") or why.begins_with("still alive")) and is_instance_valid(target_node):
 				exclude[target_node.get_instance_id()] = true
+			if trap_warp and misses >= 3:
+				misses = 0
+				await _leave_trap(map, opts)
 		if exclude.size() > 25:
 			exclude.clear()
 	out["ok"] = bool(cond.call())
@@ -1683,6 +1797,32 @@ func hunt(mob_ids: Array, cond: Callable, opts: Dictionary = {}) -> Dictionary:
 	if not bool(out["ok"]) and String(out["why"]) == "":
 		out["why"] = "not done after %.0f s" % float(out["time_s"])
 	return out
+
+
+## The survival opts of `opts` ("hp_floor", "hp_resume", "on_threat") over `base`: a hunt's own walks keep its policy.
+static func _survival_opts(opts: Dictionary, base: Dictionary) -> Dictionary:
+	var o := base.duplicate()
+	for key: String in ["hp_floor", "hp_resume", "on_threat"]:
+		if opts.has(key):
+			o[key] = opts[key]
+	return o
+
+
+## hunt()'s opts "fallback_warp" after three fights in a row that reached nothing: a walk to the map's arrival; a walk
+## that cannot leave the spot either (it fails within TRAP_M of where it began) is a trap, a world finding: a WARN
+## with the place, a row in `traps`, and the console warp to `map` (a logged setup step; never in strict mode).
+func _leave_trap(map: String, opts: Dictionary) -> void:
+	var p := d.player()
+	var a := p.global_position
+	var r: Dictionary = await walk_safely("spawn:0", _survival_opts(opts, {"max_s": 25.0}))
+	var moved := flat_m(p.global_position, a)
+	if bool(r.get("ok", false)) or moved > TRAP_M or d.current_map() != map or is_dead():
+		return
+	var at := map_local(a, "", 0.01)
+	traps.append({"map": d.current_map(), "world": a, "local": at, "at_s": snappedf(d.game_s(), 0.1)})
+	d.soft_check("the hunting player is never trapped", false, ("no walk leaves world %s (map-local %s) in %s: %s via %s, moved %.2f m;"
+		+ " warping to the map's spawn (setup fallback)") % [a, at, d.current_map(), r.get("result", ""), r.get("how", ""), moved])
+	await _setup_warp_fallback(map)
 
 
 # =================================================================================================================
@@ -1876,7 +2016,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 				break
 			var tgt := target
 			var wr: Dictionary = await d.walk_to(d.walker.grounded(target.global_position), {"max_s": 6.0, "within_m": ideal,
-				"stop_when": func() -> bool: return not is_instance_valid(tgt) or (_flat_m(tgt.global_position, p.global_position) <= ideal
+				"stop_when": func() -> bool: return not is_instance_valid(tgt) or (flat_m(tgt.global_position, p.global_position) <= ideal
 					and absf(tgt.global_position.y - p.global_position.y) <= 1.0)})
 			stuck = stuck + 1 if float(wr.get("distance_m", 0.0)) < 0.2 else 0
 			continue
@@ -1915,9 +2055,15 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 
 
 ## Lets monsters win, the way a player who stops defending dies: walks into the nearest live monster of `mob_ids`
-## (any species when empty) again and again with real input, never attacking, never drinking, until the player dies
-## or opts "max_s" (300) pass. No game state is touched: every hit is the monster's contact damage. Returns {"ok"
-## (died), "touches", "damage", "map", "pos", "time_s", "why"}. Await it.
+## (any species when empty; same_tier_monster() with opts "max_dy_m", "max_dist_m", "other_tiers" and
+## "debug_spawns") again and again with real input, never attacking, never drinking, until the player dies or opts
+## "max_s" (300) pass. No game state is touched: every hit is the monster's contact damage. A monster an approach
+## brought no touch from is passed over until no other is left. More opts: "until" (a Callable: stop as well once it
+## holds, alive; test_b_combat's touch probes count touches, a MISS included), "between" (a Callable awaited before
+## each approach: test_b_combat's console heal), "hop" (hold the jump key while closing in from 3 m, so the player
+## jumps again on every landing and a touch can land mid-air: test_f_death), "climb_s" (6: the walk budget, game s, to
+## a monster on another tier). Returns {"ok" (died, or "until" held), "touches", "damage", "map", "pos", "time_s",
+## "why"}. Await it.
 func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	var out := {"ok": false, "touches": 0, "damage": 0, "map": d.current_map(), "pos": local_pos(), "time_s": 0.0, "why": ""}
 	var t0 := d.game_s()
@@ -1925,33 +2071,49 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	var dmg0 := damage_taken
 	var p := d.player()
 	var skip := {}
-	while not is_dead() and d.game_s() - t0 < float(opts.get("max_s", 300.0)):
-		var m := same_tier_monster(mob_ids, skip)
+	var until: Callable = opts.get("until", Callable())
+	var between: Callable = opts.get("between", Callable())
+	var hop := bool(opts.get("hop", false))
+	var jump_key := PlaytestInput.key_for_action(&"jump")
+	var done := func() -> bool: return is_dead() or (until.is_valid() and bool(until.call()))
+	while not bool(done.call()) and d.game_s() - t0 < float(opts.get("max_s", 300.0)):
+		if between.is_valid():
+			await between.call()
+		var m := same_tier_monster(mob_ids, skip, opts)
 		if m == null:
 			skip.clear()
 			await d.wait(1.0)
 			continue
 		var tgt := m
 		var since := last_touch_s
+		var touched := func() -> bool: return last_touch_s > since or bool(done.call())
+		var off_tier := absf(m.global_position.y - p.global_position.y) > float(opts.get("max_dy_m", 1.0))
 		# The planned walk ends about 0.75 m short (RouteBot's arrival), so the last step is straight at the monster's
-		# live position with real input until it touches the player (or 3 s pass).
-		await d.walk_to(d.walker.grounded(m.global_position), {"max_s": 6.0, "retries": 0, "within_m": 1.2,
-			"stop_when": func() -> bool: return is_dead() or last_touch_s > since or not is_instance_valid(tgt)})
+		# live position with real input until it touches the player (or 3 s pass). A hop starts 3 m out.
+		await d.walk_to(d.walker.grounded(m.global_position), {"max_s": float(opts.get("climb_s", 6.0)) if off_tier else 6.0,
+			"retries": 0, "within_m": 3.0 if hop else 1.2,
+			"stop_when": func() -> bool: return bool(touched.call()) or not is_instance_valid(tgt)})
 		var f0 := Engine.get_physics_frames()
-		while is_instance_valid(tgt) and bool(tgt.call("is_alive")) and not is_dead() and last_touch_s <= since \
+		var hopping := false
+		while is_instance_valid(tgt) and bool(tgt.call("is_alive")) and not bool(touched.call()) \
 				and Engine.get_physics_frames() - f0 < 3 * Engine.physics_ticks_per_second:
 			var to := tgt.global_position - p.global_position
 			to.y = 0.0
 			if to.length() > 4.0:
 				break
+			if hop and not hopping and to.length() < 3.0:
+				d.input.key_down(jump_key)
+				hopping = true
 			d.input.set_move_world(to.normalized() if to.length() > 0.05 else p.facing, p.view_right, p.view_forward)
 			await d.get_tree().process_frame
 			d.input.reassert()
+		if hopping:
+			d.input.key_up(jump_key)
 		d.input.release_movement()
-		if last_touch_s <= since and is_instance_valid(tgt):
+		if not bool(touched.call()) and is_instance_valid(tgt):
 			skip[tgt.get_instance_id()] = true
 		await d.wait(0.2)
-	out["ok"] = is_dead()
+	out["ok"] = bool(done.call())
 	out["touches"] = touches.size() - tc0
 	out["damage"] = damage_taken - dmg0
 	out["pos"] = local_pos()
@@ -1961,27 +2123,53 @@ func let_monsters_win(mob_ids: Array, opts: Dictionary = {}) -> Dictionary:
 	return out
 
 
-## The nearest live monster of `mob_ids` (any species when empty) on the player's tier (within 1 m of height), not in
-## `skip` (instance id -> true); null when none.
-func same_tier_monster(mob_ids: Array, skip: Dictionary) -> Node3D:
+## The nearest live monster of `mob_ids` (any species when empty) on the player's tier, not in `skip` (instance id
+## -> true); null when none. The choice is pick_index()'s, with its opts.
+func same_tier_monster(mob_ids: Array, skip: Dictionary, opts: Dictionary = {}) -> Node3D:
 	var p := d.player()
 	var ms := d.monsters()
 	if p == null or ms == null:
 		return null
-	var best: Node3D = null
-	var best_d := 40.0
+	var cands: Array = []
 	for m: Node3D in ms.call("live_monsters"):
-		if not is_instance_valid(m) or not bool(m.call("is_alive")) or skip.has(m.get_instance_id()):
+		if is_instance_valid(m) and bool(m.call("is_alive")):
+			cands.append({"node": m, "id": String(m.get("def").get("id")), "iid": m.get_instance_id(), "pos": m.global_position,
+				"debug": m.has_meta("debug_spawn")})
+	var i := pick_index(cands, p.global_position, mob_ids, skip, opts)
+	return cands[i]["node"] if i >= 0 else null
+
+
+## Which monster a walk into monsters goes for: the index into `cands` ([{"id", "iid", "pos", "debug"}]) of the
+## nearest one (flat distance from `feet`) of `mob_ids` (any species when empty), not in `skip` (iid -> true), whose
+## feet are within opts "max_dy_m" (1.0) of the player's: on its own tier, since walkers keep to their spawn floor and
+## one on a terrace above never comes down. Within opts "max_dist_m" (40). opts "debug_spawns" (true): false leaves
+## out the console's spawns ("debug"); "other_tiers" (false): true takes, when none stands on the player's tier, the
+## nearest on another one, its height difference weighing three times its flat distance (a walk over the routes
+## reaches it; test_f_death's rule). -1 when none.
+static func pick_index(cands: Array, feet: Vector3, mob_ids: Array, skip: Dictionary, opts: Dictionary = {}) -> int:
+	var max_dy := float(opts.get("max_dy_m", 1.0))
+	var debug_ok := bool(opts.get("debug_spawns", true))
+	var best := -1
+	var best_d := float(opts.get("max_dist_m", 40.0))
+	var other := -1
+	var other_d := best_d
+	for i in cands.size():
+		var c: Dictionary = cands[i]
+		if skip.has(int(c.get("iid", 0))) or (bool(c.get("debug", false)) and not debug_ok):
 			continue
-		if not mob_ids.is_empty() and not mob_ids.has(String(m.get("def").get("id"))):
+		if not mob_ids.is_empty() and not mob_ids.has(String(c.get("id", ""))):
 			continue
-		if absf(m.global_position.y - p.global_position.y) > 1.0:
-			continue
-		var dd := _flat_m(m.global_position, p.global_position)
-		if dd < best_d:
-			best_d = dd
-			best = m
-	return best
+		var at: Vector3 = c["pos"]
+		var flat := flat_m(at, feet)
+		var dy := absf(at.y - feet.y)
+		if dy <= max_dy:
+			if flat < best_d:
+				best_d = flat
+				best = i
+		elif flat + 3.0 * dy < other_d:
+			other_d = flat + 3.0 * dy
+			other = i
+	return best if best >= 0 or not bool(opts.get("other_tiers", false)) else other
 
 
 func _cooldown(skill_id: String) -> float:
