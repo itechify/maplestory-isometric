@@ -80,12 +80,13 @@ No source read is pending. What the sources do not give:
   MeowDB data, and captured page text is never edited. Decide: accept them as MeowDB data, or drop the out-of-scope
   spawn rows from the monster records (an extractor change; the capture line stays either way).
 - **Tune the drop table and the meso rule** if play shows a need: every cell of `misostory/drop_rates.json` and the
-  meso rule in `meso_rules.json` are the owner's to change (no record or test pins a number). The measured economy of
-  the final evidence run is in [`ITERATION_LOG.md`](ITERATION_LOG.md) ("Final evidence run") and
-  [`runtime/PLAYTHROUGH_REPORT.md`](runtime/PLAYTHROUGH_REPORT.md) ("Loot and mesos"): meso bags and items per kill
-  as the tables predict, sales 183-395 mesos per playthrough because ores and gems drop (one Amethyst Ore sells for
-  200), 440-824 mesos at Shanks, and no equipment drop in the three playthroughs (the 0.1% Common Equip cell predicts
-  0.75-1.23 pieces per playthrough; Test C's bag held three by level 9).
+  meso rule in `meso_rules.json` are the owner's to change (no record pins a number; a few unit tests pin today's
+  values on purpose and are updated with a change, listed in `runtime/CONTENT_AUTHORING.md` "Drop records (schema
+  3)"). The measured economy of the final evidence run is in [`ITERATION_LOG.md`](ITERATION_LOG.md) ("Final evidence
+  run") and [`runtime/PLAYTHROUGH_REPORT.md`](runtime/PLAYTHROUGH_REPORT.md) ("Loot and mesos"): meso bags and items
+  per kill as the tables predict, sales 183-395 mesos per playthrough because ores and gems drop (one Amethyst Ore
+  sells for 200), 440-824 mesos at Shanks, and no equipment drop in the three playthroughs (the 0.1% Common Equip cell
+  predicts 0.75-1.23 pieces per playthrough; Test C's bag held three by level 9).
 - **Square or disc touch zones:** a monster's touch zone is a square prism whose corners reach √2 times further on
   the diagonals (a disc instead?), and the 60 px isometric attack depth reaches monsters up to ±1.21 m (Snail) and
   ±1.54 m (Orange Mushroom) to the side, drawn with every swing.

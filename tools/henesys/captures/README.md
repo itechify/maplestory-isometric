@@ -25,7 +25,9 @@ data). Never collect them automatically.
 {<item name>: {row, rarity, note?}}}`. The item name is MeowDB's name for the item (today every name is the same on
 both sites; a name that differed would need a small MeowDB-name to Henesys-name map in
 `tools/sources/drops_merge.mjs`). `tools/sources/captures.mjs` loads it and checks that the URL is the loot page, the
-read time is ISO 8601, every rarity is one of the four labels and every row ends with its label.
+read time is ISO 8601, every rarity is one of the four labels, every `row` starts with the item's name, and each page
+row it quotes ends with that label (two rows with one name are joined by "  /  "; a note in place of a repeated row,
+such as Red Cloth Pants' "(a second row with the same name and values)", quotes no row and is not checked).
 
 ## Updating
 

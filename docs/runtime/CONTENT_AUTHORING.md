@@ -91,8 +91,14 @@ through `tools/sources/drops_merge.mjs`, offline, from:
 A record holds no probability. The chance is `game/data/misostory/drop_rates.json` `chance_table[category][rarity]`,
 the project owner's table (decision D3-11, `verified: false`), and the meso rule is `meso_rules.json` (MeowDB's report,
 else [level, 2 x level]; 60%; none for the Tutorial Jr. Sentinel and the Wooden Box; D3-12). To tune a drop, edit a
-cell of `drop_rates.json` (or the meso rule): no record and no test pins a number, and `test_drops_data.gd`
-(`test_an_edited_table_cell_reaches_the_runtime_unchanged`) proves an edited cell reaches the runtime. The validator
+cell of `drop_rates.json` (or the meso rule): no record pins a number, and `test_drops_data.gd`
+(`test_an_edited_table_cell_reaches_the_runtime_unchanged`) proves an edited cell reaches the runtime. Some unit tests
+do pin today's values on purpose, so a tuned cell or meso rule fails them until their expected values are updated with
+it: `test_drops_data.gd` (`test_rolling_entries_by_owner`, every rolling member's chance; the meso rule's 60% and
+[level, 2 x level]; two "shared db untouched" checks, Equip x Common 0.001 and the 60%), `test_drops_roller.gd` (the
+100% cells: the Shellpiece and the Snail Shell every kill, Board and Screw every box during 1012; the Egg's 2% and the
+Board's 100% in the console output; the meso ranges and the 60%), `test_drop_simulation.gd` (the 60%) and
+`test_breakables_system.gd` (Board and Screw every box during 1012, Apple and Egg between 0.2% and 5%). The validator
 requires every category x rarity cell, each in [0, 1]. Ground lifetime, ownership and scatter stay in
 `game/data/misostory/drops.json`.
 

@@ -49,7 +49,7 @@ Those come from the project owner's two rule files (below), which the runtime re
   }],
   "meowdb_reference": {                      // monsters: MeowDB's read-only MSEA list, never a member (null for the box)
     "note": "...", "source": {/* the live page */},
-    "msea_reference": [{"name": "Overall Armor DEX Scroll: Greater", "category": "USE", "detail": "Scroll", "item_id": null}]
+    "msea_reference": [{"name": "Overall Armor DEX Scroll: Greater", "category": "USE", "detail": "Scroll", "item_id": "139"}]
   },
   "meso": {                                  // monsters only; null for a breakable (MeowDB has no meso reports for them)
     "amount_state": "not_reported",          // reported | not_reported
