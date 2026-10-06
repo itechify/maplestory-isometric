@@ -398,7 +398,8 @@ function kuroItemPage(id, j, meta) {
   const mdLines = md.length === 1 && /^No monster drop is recorded\.$/.test(md[0]) ? [] : md;
   for (const [monster, raw] of pairs(mdLines, `${p.name} monster drops`)) {
     const q = parseKuroPercent(raw);
-    p.monster_drops.push({ monster_name: monster, raw, pct: q.percent, probability: q.probability, qty: q.qty, quest: q.quest, kuro_monster_id: q.source_id });
+    p.monster_drops.push({ monster_name: monster, raw, pct: q.percent, probability: q.probability, qty: q.qty, quest: q.quest, kuro_monster_id: q.source_id,
+      maps: q.maps ?? null, excludes: q.excludes ?? [] });
   }
   p.reactor_drops = [];
   if (sections['REACTOR DROPS']) {

@@ -121,8 +121,8 @@ func test_rolling_entries_by_owner() -> void:
 		"9": {"356": 1.0, "1314": 0.0008, "1327": 0.0008, "270": 0.02},
 		"0000001": {"442": 1.0, "441": 1.0, "236": 0.25},
 	}
-	# The Orange Mushroom's jump scroll (MeowDB 177) rolls at its KuroDB row's "0.0300% base" only once the hand read of
-	# KuroDB item page 2040705 confirmed that row (decision D3-8, tools/kurodb/captures/README.md); until then it is a
+	# The Orange Mushroom's jump scroll (MeowDB 177) rolls at its KuroDB row's "0.0300% base" because the hand read of
+	# KuroDB item page 2040705 (2026-10-06) confirmed that row (decisions D3-8, D3-10); without the capture it would be a
 	# pending candidate. test_drop_sources.gd ties that state to the capture.
 	if load("res://tests/unit/test_drop_sources.gd").jump_scroll_confirmed(db()):
 		expected["9"]["177"] = 0.0003

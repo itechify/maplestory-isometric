@@ -71,7 +71,8 @@ test('membership is authoritative: monster entries are exactly Hidden Street\'s 
 });
 
 // The Orange Mushroom's jump-scroll candidate (KuroDB 2040705, D3-8) follows its item page capture: pending without
-// it, then confirmed or excluded by what the page shows. Nothing below pins the pending state by hand.
+// it, then confirmed or excluded by what the page shows (rule D3-10; the page read 2026-10-06 confirms it). Nothing
+// below pins either state by hand.
 const JUMP_KURO = '2040705';
 const jumpPage = c.kurodb.item_pages[JUMP_KURO] ?? null;
 const jumpEntry = () => records['9'].entries.find((e) => e.key === 'scroll-for-shoes-for-jump-10');

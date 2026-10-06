@@ -207,16 +207,17 @@ func test_unknown_probabilities_stay_visible() -> void:
 		for u in DropRates.unresolved(owner_id, db()):
 			count += 1
 			assert_true(listed.has("%s|%s" % [owner_id, u.name]), "validation lists the unresolved %s/%s" % [owner_id, u.name])
-	# 53 members never roll whatever happens, plus the Orange Mushroom's jump scroll until the hand read of its KuroDB
-	# item page confirms its row (decision D3-8; test_the_jump_scroll_candidate_follows_its_item_page ties that state
-	# to the capture).
+	# 53 members never roll whatever happens; the Orange Mushroom's jump scroll rolls since the hand read of its KuroDB
+	# item page confirmed its row (decisions D3-8, D3-10; test_the_jump_scroll_candidate_follows_its_item_page ties that
+	# state to the capture).
 	var jump := 0 if jump_scroll_confirmed(db()) else 1
 	assert_eq(count, 53 + jump, "%d members never roll (%d do)" % [53 + jump, 22 - jump])
 	assert_true(str(db().drop_table("0000001").gaps).contains("Egg"), "the Egg's unresolved chance is in the record's gaps")
 
 
 ## The Orange Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) and its possible KuroDB row 2040705 (decision
-## D3-8, contract C1 pending_kuro_candidates). The row is settled only by the hand read of KuroDB item page 2040705.
+## D3-8, contract C1 pending_kuro_candidates). The row is settled only by the hand read of KuroDB item page 2040705
+## (tools/kurodb/captures/item_2040705.json, read 2026-10-06), by rule D3-10 (tools/sources/drops_merge.mjs).
 const JUMP_KEY := "scroll-for-shoes-for-jump-10"
 const JUMP_KURO := "2040705"
 const JUMP_CAPTURE := "tools/kurodb/captures/item_2040705.json"
@@ -232,9 +233,10 @@ static func jump_scroll_confirmed(content: ContentDB) -> bool:
 	return false
 
 
-## No capture of the item page: the row is pending and the member never rolls. A capture: the row is no longer pending;
-## either the member's chance cites that capture (confirmed) or the row is KuroDB-only (the page showed another item or
-## did not settle it). Never two of them.
+## No capture of the item page: the row is pending and the member never rolls. With the capture the row is no longer
+## pending, and the shipped page (read 2026-10-06: Success rate 10%, JUMP +5, DEX +3, SPEED +1, the Orange Mushroom at
+## 0.0300%) confirms it under D3-10: the member's chance cites that capture and the bonus that differs from MeowDB 177
+## is recorded as a version difference. A re-read that showed another item would fail here: review it, never pass it.
 func test_the_jump_scroll_candidate_follows_its_item_page() -> void:
 	var root := ProvenanceChecks.new(db(), ValidationReport.new()).repo_root()
 	assert_true(DirAccess.dir_exists_absolute(root.path_join("tools/kurodb/captures")), "the KuroDB captures are next to the project (%s)" % root)
@@ -256,15 +258,19 @@ func test_the_jump_scroll_candidate_follows_its_item_page() -> void:
 		assert_false(jump_scroll_confirmed(db()))
 		return
 	assert_eq(pending.size(), 0, "%s exists: the row is no longer pending (regenerate the drop records)" % JUMP_CAPTURE)
-	if jump_scroll_confirmed(db()):
-		assert_eq(String(((cs as Dictionary).get("match_evidence", {}) as Dictionary).get("capture", "")), JUMP_CAPTURE, "confirmed by that page")
-		assert_eq([String((cs as Dictionary).kuro_item_id), String((cs as Dictionary).match_method)], [JUMP_KURO, "alias_with_evidence"])
-		assert_near(float(e.probability), 0.0003, 1e-15, "the Orange Mushroom page's 0.0300% base")
-		assert_eq(excluded.size(), 0, "a confirmed row is not KuroDB-only")
-	else:
-		assert_eq(String(e.get("chance_state", "")), "unresolved", "not confirmed: the member never rolls")
-		assert_eq(excluded.size(), 1, "not confirmed: the row is KuroDB-only")
-		assert_true(String(excluded[0].reason).contains(JUMP_CAPTURE) if excluded.size() == 1 else false, "with what the page showed")
+	assert_true(jump_scroll_confirmed(db()), "the shipped page confirms the row (decision D3-10)")
+	if not jump_scroll_confirmed(db()):
+		return
+	var ev := (cs as Dictionary).get("match_evidence", {}) as Dictionary
+	assert_eq(String(ev.get("capture", "")), JUMP_CAPTURE, "confirmed by that page")
+	assert_true(String(ev.get("decision", "")).contains("D3-10"), "under rule D3-10: %s" % ev.get("decision", ""))
+	assert_true(String(ev.get("version_difference", "")).contains("jump +5 (MeowDB 177: +3)"), "the other version's bonus is recorded, not used: %s" % ev.get("version_difference", ""))
+	assert_eq([String((cs as Dictionary).kuro_item_id), String((cs as Dictionary).match_method)], [JUMP_KURO, "alias_with_evidence"])
+	assert_eq(String((cs as Dictionary).capture), "tools/kurodb/captures/1210102.json", "the chance is the Orange Mushroom page's row")
+	assert_near(float(e.probability), 0.0003, 1e-15, "the Orange Mushroom page's 0.0300% base")
+	assert_eq(excluded.size(), 0, "a confirmed row is not KuroDB-only")
+	var bonus: Dictionary = ((db().item("177").get("scroll", {}) as Dictionary).get("stat_bonus_on_success", {}) as Dictionary)
+	assert_eq([bonus.keys(), float(bonus.get("jump", -1))], [["jump"], 3.0], "the item's stats stay MeowDB 177's")
 
 
 func test_all_drop_item_ids_exist() -> void:

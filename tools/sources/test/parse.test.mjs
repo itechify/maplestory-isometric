@@ -61,6 +61,18 @@ test('"40% base | Meso drop" is a meso chance', () => {
   assert.equal(r.qty, null);
 });
 
+test('an item page\'s global drop rule: "| Maps <from>-<to>" and "| Excludes ..." are read, not dropped', () => {
+  const r = parseKuroPercent('0.0500% base | Qty 1 | Maps 211060100-211060900 | Excludes bosses | Excludes friendly mobs');
+  assert.deepEqual([r.probability, r.qty, r.maps, r.excludes], [0.0005, { min: 1, max: 1 }, { from: '211060100', to: '211060900' }, ['bosses', 'friendly mobs']]);
+  assert.deepEqual(parseKuroPercent('1% base | Qty 1 | Maps 100000000').maps, { from: '100000000', to: '100000000' }, 'one map');
+  const plain = parseKuroPercent('0.0300% base | Qty 1');
+  assert.ok(!('maps' in plain) && !('excludes' in plain), 'an ordinary row has neither key');
+  for (const raw of ['1% base | Maps 5-3', '1% base | Maps 1-2 | Maps 3-4', '1% base | Maps abc', '1% base | Excludes everyone',
+    '1% base | Excludes bosses | Excludes bosses']) {
+    throwsParse(() => parseKuroPercent(raw));
+  }
+});
+
 test('trap: integer truncation never turns a small percentage into 0', () => {
   for (const raw of ['0.0700% base | Qty 1', '0.0300% base | Qty 1', '0.05% base | Qty 1', '0.0001% base | Qty 1']) {
     const r = parseKuroPercent(raw);

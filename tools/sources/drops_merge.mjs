@@ -19,7 +19,7 @@
 // unresolved item whose candidate is now local (review the row), an unparsable raw value, a quest item two quests ask
 // for, a row without a reviewer_note. A KuroDB row no member claims becomes an excluded_kuro_only row (KuroDB never adds
 // a member). A crosswalk "candidate" row (a KuroDB row that may be the member under another name, D3-8) is settled by
-// its KuroDB item page capture (tools/kurodb/captures/item_<kuro id>.json, judgeKuroCandidate): confirmed, it is the
+// its KuroDB item page capture (tools/kurodb/captures/item_<kuro id>.json, judgeKuroCandidate, rule D3-10): confirmed, it is the
 // member's chance (alias_with_evidence, the page cited in chance_source.match_evidence); rejected or not settled by the
 // page, it is excluded_kuro_only with what the page showed; with no capture yet, it is a pending_kuro_candidates row and
 // the member's chance a pending source read.
@@ -198,18 +198,30 @@ export const CANDIDATE_RULES = ['meowdb_scroll'];
  * What a KuroDB item page capture (tools/kurodb/captures/item_<id>.json, captures.mjs kuroItemPage) says about a
  * crosswalk candidate: a KuroDB monster-page row that may be a member under another name. Returns
  *   {outcome: "pending"}                       no capture of the item page yet: the member's chance stays a pending read
- *   {outcome: "confirmed", shows}              the page shows the member's item: the row becomes its chance source
- *                                              (match_method alias_with_evidence, the page cited)
+ *   {outcome: "confirmed", shows, version_difference}   the page shows the member's item: the row becomes its
+ *                                              chance source (match_method alias_with_evidence, the page cited);
+ *                                              version_difference: the bonus amounts or stats that differ, or null
  *   {outcome: "rejected" | "inconclusive", reasons}   the page shows another item, or does not show enough: the row
  *                                              is KuroDB-only (excluded_kuro_only) and the member's chance a real gap
- * Rule "meowdb_scroll": the member's local MeowDB item is a scroll; the page must show the same success rate
- * (scroll.success_rate_pct) and exactly the same "+N" stat bonuses (scroll.stat_bonus_on_success). A shown value that
- * differs rejects; a value the page does not show leaves it inconclusive; a bonus name the reader cannot map to a
- * MeowDB stat key (captures.mjs SCROLL_STAT_KEYS) stops the merge. When the page lists this monster among its
- * MONSTER DROPS, that row must read as the monster page's row (else inconclusive: KuroDB disagrees with itself). Never
- * guesses: only what the page text shows is compared.
+ * Rule "meowdb_scroll" (decision D3-10, which amends D3-8): the member's local MeowDB item is a scroll. The page
+ * CONFIRMS the row when all four hold:
+ *   - its item name relates to the member's name: the same name, or the member's name is the page's name plus the
+ *     success rate (Hidden Street's "Scroll for Shoes for Jump 10%" and KuroDB's "Scroll for Shoes for Jump"), and that
+ *     rate is the page's success rate;
+ *   - its success rate equals the MeowDB scroll's (scroll.success_rate_pct);
+ *   - every stat of the MeowDB scroll's bonus (scroll.stat_bonus_on_success: the primary stat, jump for 177) is among
+ *     the page's "+N" bonuses;
+ *   - its MONSTER DROPS lists this monster with the monster page's raw value.
+ * Bonus AMOUNTS that differ and bonus stats MeowDB's scroll does not have are a version difference, recorded with the
+ * match (`version_difference`), not a rejection: items are joined across the sites by name with evidence, KuroDB
+ * gives only the chance, and item stats always come from MeowDB (the versions differ in stats everywhere: KuroDB's
+ * Snail has 8 HP, MeowDB's 45). Rejected: another success rate, a primary stat the page's bonuses lack, a name that
+ * does not relate, or MONSTER DROPS rows for this monster none of which reads as the monster page's row. Inconclusive
+ * (not settled): the page shows no success rate, no bonus at all, or does not list this monster. A bonus name the
+ * reader cannot map to a MeowDB stat key (captures.mjs SCROLL_STAT_KEYS) stops the merge. Never guesses: only what
+ * the page text shows is compared.
  */
-export function judgeKuroCandidate({ cand, page, memberItem, monsterRow, monsterName, where }) {
+export function judgeKuroCandidate({ cand, page, memberItem, memberName, monsterRow, monsterName, where }) {
   if (!page) return { outcome: 'pending' };
   if (!CANDIDATE_RULES.includes(cand.confirm_with)) fail(`${where}: candidate ${cand.kuro_item_id} needs confirm_with (one of ${CANDIDATE_RULES.join(', ')}) to be settled by its item page ${page.file}`);
   if (page.name !== cand.kuro_name) fail(`${where}: KuroDB item page ${page.file} is "${page.name}", the candidate row is "${cand.kuro_name}"`);
@@ -225,20 +237,47 @@ export function judgeKuroCandidate({ cand, page, memberItem, monsterRow, monster
     fail(`${where}: KuroDB item page ${page.file} gives stat bonus name(s) ${unknown.map((k) => JSON.stringify(k)).join(', ')} that map to no MeowDB scroll stat (${SCROLL_STAT_KEYS.join(', ')}); `
       + 'extend tools/sources/captures.mjs STAT_ALIASES rather than judge a page the reader does not understand');
   }
+  if (memberName == null) fail(`${where}: judgeKuroCandidate needs the member's name`);
   const wantRate = scroll.success_rate_pct;
-  const wantStats = Object.fromEntries(Object.entries(scroll.stat_bonus_on_success ?? {}).sort(([a], [b]) => (a < b ? -1 : 1)));
+  // The name: the member's (Hidden Street) name is the page's, or the page's plus a success rate the page shows.
+  const named = /^(.*\S)\s+(\d+(?:\.\d+)?)\s*%$/.exec(memberName);
+  const nameRelates = sameItemName(memberName, page.name) ? { how: 'the same name' }
+    : named && sameItemName(named[1], page.name) ? { how: `the member's name is the page's plus its success rate ${named[2]}%`, rate: Number(named[2]) }
+      : null;
+  if (!nameRelates) differs.push(`its item name "${page.name}" does not relate to the member's name "${memberName}"`);
   if (page.success_rate == null) reasons.push('the page shows no success rate');
   else if (page.success_rate.pct !== wantRate) differs.push(`its success rate is ${page.success_rate.pct}% ("${page.success_rate.raw}"), MeowDB ${memberItem.id}'s is ${wantRate}%`);
-  if (!Object.keys(page.stat_bonuses).length) reasons.push('the page shows no stat bonus');
-  else if (JSON.stringify(page.stat_bonuses) !== JSON.stringify(wantStats)) differs.push(`its stat bonuses are ${JSON.stringify(page.stat_bonuses)}, MeowDB ${memberItem.id}'s are ${JSON.stringify(wantStats)}`);
-  const own = page.monster_drops.filter((d) => d.monster_name === monsterName);
-  if (own.length && !own.some((d) => d.raw === monsterRow.raw)) {
-    reasons.push(`its MONSTER DROPS row for ${monsterName} reads ${own.map((d) => `"${d.raw}"`).join(', ')}, the monster page "${monsterRow.raw}"`);
+  if (nameRelates?.rate != null && page.success_rate != null && nameRelates.rate !== page.success_rate.pct) {
+    differs.push(`the member's name says ${nameRelates.rate}%, the page's success rate is ${page.success_rate.pct}%`);
   }
+  const wantStats = Object.fromEntries(Object.entries(scroll.stat_bonus_on_success ?? {}).sort(([a], [b]) => (a < b ? -1 : 1)));
+  const primary = Object.keys(wantStats);
+  if (!primary.length) fail(`${where}: confirm_with meowdb_scroll but MeowDB ${memberItem.id}'s scroll has no stat bonus to compare`);
+  const got = page.stat_bonuses ?? {};
+  if (!Object.keys(got).length) reasons.push('the page shows no stat bonus');
+  else {
+    const missing = primary.filter((k) => !(k in got));
+    if (missing.length) differs.push(`its stat bonuses ${JSON.stringify(got)} lack ${missing.join(', ')}, MeowDB ${memberItem.id}'s primary stat(s) (${JSON.stringify(wantStats)})`);
+  }
+  const own = page.monster_drops.filter((d) => d.monster_name === monsterName);
+  const ownRow = own.find((d) => d.raw === monsterRow.raw) ?? null;
+  if (!own.length) reasons.push(`its MONSTER DROPS do not list ${monsterName}`);
+  else if (!ownRow) differs.push(`its MONSTER DROPS row(s) for ${monsterName} read ${own.map((d) => `"${d.raw}"`).join(', ')}, the monster page "${monsterRow.raw}"`);
   if (differs.length) return { outcome: 'rejected', reasons: [...differs, ...reasons] };
   if (reasons.length) return { outcome: 'inconclusive', reasons };
-  const shows = `${page.success_rate.raw} (${page.success_rate.source}), bonuses ${JSON.stringify(page.stat_bonuses)} (${page.stat_bonuses_source})`;
-  return { outcome: 'confirmed', shows };
+  // Confirmed. What differs from MeowDB's scroll in the bonus is the other game version's data, kept as evidence only.
+  const amounts = primary.filter((k) => got[k] !== wantStats[k]).map((k) => `${k} +${got[k]} (MeowDB ${memberItem.id}: +${wantStats[k]})`);
+  const extra = Object.keys(got).filter((k) => !(k in wantStats)).map((k) => `${k} +${got[k]}`);
+  const versionDifference = amounts.length || extra.length
+    ? `KuroDB's item data is another game version: its bonus ${[...amounts, ...(extra.length ? [`also ${extra.join(', ')} (not on MeowDB ${memberItem.id})`] : [])].join('; ')}. `
+      + `Recorded only: the item's stats come from MeowDB ${memberItem.id} (decision D3-10).`
+    : null;
+  const others = own.filter((d) => d !== ownRow).map((d) => `"${d.raw}"`);
+  const monsterRows = `its MONSTER DROPS list ${monsterName} at "${ownRow.raw}", as the monster page does`
+    + (others.length ? ` (it lists ${monsterName} again at ${others.join(', ')}, a row the monster page does not have: not used)` : '');
+  const shows = `${page.success_rate.raw} (${page.success_rate.source}), bonuses ${JSON.stringify(got)} (${page.stat_bonuses_source}); `
+    + `name "${page.name}" (${nameRelates.how}); ${monsterRows}`;
+  return { outcome: 'confirmed', shows, version_difference: versionDifference };
 }
 
 /** Where a pending candidate's item page goes once read. */
@@ -384,13 +423,13 @@ function buildMonsterRecord(ownerId, cw, ctx) {
       const ckey = `${cand.kuro_item_id}|${cand.kuro_name}`;
       candidates.set(ckey, m.name);
       const page = captures.kurodb.item_pages?.[String(cand.kuro_item_id)] ?? null;
-      const judged = judgeKuroCandidate({ cand, page, memberItem: item_id ? items[item_id] : null, monsterRow: hit[0], monsterName: kuro.name, where: rw });
+      const judged = judgeKuroCandidate({ cand, page, memberItem: item_id ? items[item_id] : null, memberName: m.name, monsterRow: hit[0], monsterName: kuro.name, where: rw });
       const label = `KuroDB candidate row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit[0].raw}")`;
       if (judged.outcome === 'confirmed') {
         k = hit[0];
         side = { method: 'alias_with_evidence' };
-        matchEvidence = { capture: page.file, url: page.url, read_at: page.read_at, shows: judged.shows, decision: 'D3-8' };
-        extraNotes.push(`${label} confirmed by its item page (${page.file}, read ${page.read_at}): it shows ${judged.shows}, as MeowDB ${item_id}'s scroll does (decision D3-8)`);
+        matchEvidence = { capture: page.file, url: page.url, read_at: page.read_at, shows: judged.shows, version_difference: judged.version_difference, decision: 'D3-8, D3-10' };
+        extraNotes.push(`${label} confirmed by its item page (${page.file}, read ${page.read_at}; decision D3-10): it shows ${judged.shows}${judged.version_difference ? `. ${judged.version_difference}` : ''}`);
       } else if (judged.outcome === 'pending') {
         pending.push({
           kuro_item_id: String(cand.kuro_item_id), name: cand.kuro_name, raw_value: hit[0].raw, member: entryKey(m.name),
@@ -401,9 +440,9 @@ function buildMonsterRecord(ownerId, cw, ctx) {
         extraNotes.push(`${label}, pending a read of its item page (pending_kuro_candidates): ${cand.reason}`);
       } else {
         const why = `${judged.outcome === 'rejected' ? 'it shows another item' : 'it does not settle it'}: ${judged.reasons.join('; ')}`;
-        checked.set(ckey, `possible match for the member '${m.name}', checked against its KuroDB item page (${page.file}, read ${page.read_at}): ${why}. Not accepted (decision D3-8); KuroDB never adds a member`);
+        checked.set(ckey, `possible match for the member '${m.name}', checked against its KuroDB item page (${page.file}, read ${page.read_at}): ${why}. Not accepted (decisions D3-8, D3-10); KuroDB never adds a member`);
         extraNotes.push(`${label} checked against its item page (${page.file}): ${why}; excluded`);
-        gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit[0].raw}") whose item page (${page.file}) ${why}, so it never rolls (D3-8)`);
+        gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit[0].raw}") whose item page (${page.file}) ${why}, so it never rolls (D3-8, D3-10)`);
       }
     }
     if (k && !k.qty) fail(`${rw}: KuroDB row ${k.raw} has no quantity`);

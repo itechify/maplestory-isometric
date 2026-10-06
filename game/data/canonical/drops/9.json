@@ -603,14 +603,40 @@
           "Useable drop"
         ]
       },
-      "chance_source": null,
-      "chance_state": "unresolved",
-      "probability": null,
-      "quantity": null,
+      "chance_source": {
+        "authority": "KuroDB",
+        "url": "https://playkuro.com/database/#monsters/1210102",
+        "read_at": "2026-10-05T07:45:49.813Z",
+        "capture": "tools/kurodb/captures/1210102.json",
+        "kuro_item_id": "2040705",
+        "kuro_name": "Scroll for Shoes for Jump",
+        "match_method": "alias_with_evidence",
+        "raw_value": "0.0300% base | Qty 1",
+        "format": "percent_base",
+        "normalized_probability": 0.0003,
+        "conversion": "0.0300 / 100",
+        "interpretation": null,
+        "kuro_quest_condition": null,
+        "match_evidence": {
+          "capture": "tools/kurodb/captures/item_2040705.json",
+          "url": "https://playkuro.com/database/#items/2040705",
+          "read_at": "2026-10-06T03:45:55.467Z",
+          "shows": "Success rate:10% (description), bonuses {\"dex\":3,\"jump\":5,\"speed\":1} (item stats); name \"Scroll for Shoes for Jump\" (the member's name is the page's plus its success rate 10%); its MONSTER DROPS list Orange Mushroom at \"0.0300% base | Qty 1\", as the monster page does (it lists Orange Mushroom again at \"0.0750% base | Qty 1\", a row the monster page does not have: not used)",
+          "version_difference": "KuroDB's item data is another game version: its bonus jump +5 (MeowDB 177: +3); also dex +3, speed +1 (not on MeowDB 177). Recorded only: the item's stats come from MeowDB 177 (decision D3-10).",
+          "decision": "D3-8, D3-10"
+        }
+      },
+      "chance_state": "resolved",
+      "probability": 0.0003,
+      "quantity": {
+        "min": 1,
+        "max": 1,
+        "source": "KuroDB 'Qty 1'"
+      },
       "quest_gate": null,
       "notes": [
-        "Item resolved, chance unresolved: never rolls until KuroDB item 2040705 is read by hand.",
-        "KuroDB candidate row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\"), pending a read of its item page (pending_kuro_candidates): possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted yet: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Pending until a hand read (tools/kurodb/captures/item_2040705.json) shows the success rate and stat bonus of MeowDB 177's scroll (confirmed) or another (excluded)."
+        "Item and chance resolved. KuroDB's item page 2040705 (read 2026-10-06) shows 'Scroll for Shoes for Jump', Success rate 10%, bonuses JUMP +5, DEX +3, SPEED +1, and lists the Orange Mushroom at '0.0300% base | Qty 1', the monster page's value (it lists an Orange Mushroom again at 0.0750%, a row the monster page does not have). Under the orchestrator's decision D3-10 that confirms the row as this member's chance: the name is Hidden Street's without the rate, the rate is MeowDB 177's 10%, and jump, 177's stat, is among the bonuses. The bonus amounts (+5 against MeowDB's Jump +3) and the extra DEX and SPEED are another game version's item data, recorded as a version difference; the item's stats stay MeowDB 177's.",
+        "KuroDB candidate row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") confirmed by its item page (tools/kurodb/captures/item_2040705.json, read 2026-10-06T03:45:55.467Z; decision D3-10): it shows Success rate:10% (description), bonuses {\"dex\":3,\"jump\":5,\"speed\":1} (item stats); name \"Scroll for Shoes for Jump\" (the member's name is the page's plus its success rate 10%); its MONSTER DROPS list Orange Mushroom at \"0.0300% base | Qty 1\", as the monster page does (it lists Orange Mushroom again at \"0.0750% base | Qty 1\", a row the monster page does not have: not used). KuroDB's item data is another game version: its bonus jump +5 (MeowDB 177: +3); also dex +3, speed +1 (not on MeowDB 177). Recorded only: the item's stats come from MeowDB 177 (decision D3-10)."
       ]
     }
   ],
@@ -700,17 +726,7 @@
       "reason": "not on the membership list (KuroDB never adds members)"
     }
   ],
-  "pending_kuro_candidates": [
-    {
-      "kuro_item_id": "2040705",
-      "name": "Scroll for Shoes for Jump",
-      "raw_value": "0.0300% base | Qty 1",
-      "member": "scroll-for-shoes-for-jump-10",
-      "read": "KuroDB item page 2040705 (https://playkuro.com/database/#items/2040705), by hand in a browser; saved as tools/kurodb/captures/item_2040705.json",
-      "reason": "possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted yet: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Pending until a hand read (tools/kurodb/captures/item_2040705.json) shows the success rate and stat bonus of MeowDB 177's scroll (confirmed) or another (excluded).",
-      "decision": "D3-8"
-    }
-  ],
+  "pending_kuro_candidates": [],
   "meowdb_reference": {
     "note": "MeowDB's community-voted Classic drop list (with votes) and its read-only MSEA list, from the live page. Reference only: monster drop membership comes from Hidden Street (D3-6). item_id is MeowDB's own id for the name in its cached lists (null when the cache does not name it or no local item exists).",
     "source": {
@@ -1028,8 +1044,7 @@
     "item unresolved: \"Garnier\" (not_in_snapshot, MeowDB candidates 680), so it never rolls; see its item_resolution.note",
     "chance unresolved: \"Orange Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
     "chance unresolved: \"Blue Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") whose item page has not been read (pending_kuro_candidates; a pending source read, not a source-data gap), so it never rolls"
+    "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)"
   ],
   "discrepancies": [],
   "notes": [

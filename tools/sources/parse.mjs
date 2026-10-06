@@ -76,6 +76,9 @@ function parseQty(seg, raw) {
  * `<p>` is a percentage of the server's base rate. Returns
  * {raw, format: "percent_base", kind: "item"|"meso", percent_text, percent, probability_text, probability,
  *  conversion: "<p> / 100", qty: {min, max}|null, quest: string|null, source_id: string|null}.
+ * An item page's global drop rule (KuroDB item 2040705's "LHC global 10% scroll" row) also carries
+ * "| Maps <from>-<to>" (or "| Maps <id>") and "| Excludes bosses" / "| Excludes friendly mobs"; such a row adds
+ * maps: {from, to} and excludes: ["bosses", "friendly mobs"] (other rows have neither key).
  */
 export function parseKuroPercent(raw) {
   if (typeof raw !== 'string') throw new SourceParseError('KuroDB value must be a string', raw);
@@ -112,6 +115,16 @@ export function parseKuroPercent(raw) {
       out.kind = 'meso';
     } else if ((s = /^ID\s+(\d+)$/.exec(seg))) {
       out.source_id = s[1];
+    } else if ((s = /^Maps\s+(\d+)(?:\s*-\s*(\d+))?$/.exec(seg))) {
+      if (out.maps) throw new SourceParseError('two map ranges', raw);
+      const to = s[2] ?? s[1];
+      if (Number(to) < Number(s[1])) throw new SourceParseError('map range has from > to', raw);
+      out.maps = { from: s[1], to };
+    } else if ((s = /^Excludes\s+(bosses|friendly mobs)$/i.exec(seg))) {
+      const what = s[1].toLowerCase();
+      out.excludes = out.excludes ?? [];
+      if (out.excludes.includes(what)) throw new SourceParseError(`"Excludes ${what}" twice`, raw);
+      out.excludes.push(what);
     } else {
       throw new SourceParseError(`unknown segment "${seg}"`, raw);
     }

@@ -18,13 +18,18 @@ Each row has:
   item's `gender`.
 - `kurodb`: `state` (`matched` | `none`) with `kuro_item_id`, `kuro_name`, `method`, `evidence`; optionally, on a
   `none` row, a `candidate`: a KuroDB row that may be the member under another name (D3-8), with a `reason` and
-  `confirm_with`, the rule its KuroDB item page is judged by (`meowdb_scroll`: the page shows the success rate and
-  exactly the `+N` stat bonuses of the member's MeowDB scroll). Until the page is captured as
+  `confirm_with`, the rule its KuroDB item page is judged by (`meowdb_scroll`, decision D3-10: the page's item name
+  relates to the member's (the same, or the member's minus its success rate), its success rate is the member's MeowDB
+  scroll rate, its `+N` bonuses include every stat of the MeowDB scroll's bonus (the primary stat), and its MONSTER
+  DROPS lists the owner at the monster page's value). Until the page is captured as
   `tools/kurodb/captures/item_<kuro id>.json` the row is written to the record's `pending_kuro_candidates` (the
   member's chance is a pending source read, not a gap). With the capture, the merge confirms it (the member's chance,
-  `alias_with_evidence`, the page cited in `chance_source.match_evidence`), or excludes it (`excluded_kuro_only`, with
-  what the page showed: another rate or stat rejects it, a page that shows neither does not settle it). See
-  `tools/kurodb/captures/README.md` for the capture and the steps after it.
+  `alias_with_evidence`, the page cited in `chance_source.match_evidence`; bonus amounts or extra stats that differ from
+  MeowDB's are the other game version's data, recorded there as `version_difference`, never used), or excludes it
+  (`excluded_kuro_only`, with what the page showed: another rate, a missing primary stat, an unrelated name or the
+  owner at another chance rejects it; a page that shows no rate, no bonus or not the owner does not settle it). The one
+  candidate so far, the Orange Mushroom's "Scroll for Shoes for Jump" (2040705), is confirmed by its page (read
+  2026-10-06) as `Scroll for Shoes for Jump 10%` (MeowDB 177). See `tools/kurodb/captures/README.md` for the capture.
 - `reviewer_note` (required, never empty): the reviewer's verdict on the row, what was re-checked and what follows (it
   rolls, or why it never does). The merge copies it into the record entry's `notes[0]`.
 
@@ -47,10 +52,6 @@ is a `pending_kuro_candidates` row instead.
 
 - `Omok Piece : Mushroom` (Orange Mushroom): KuroDB gives 1%, but MeowDB has three items of that name (486, 495, 498),
   all quest items with no drop source (D3-8).
-- `Scroll for Shoes for Jump 10%` (Orange Mushroom): resolved to MeowDB 177 (Shoes Jump Scroll: Greater, 10%), but its
-  KuroDB row "Scroll for Shoes for Jump" (2040705, 0.03%) has no success rate and the KuroDB item page was not read
-  (D3-8), so the chance is unresolved: a `pending_kuro_candidates` row (a pending source read) until
-  `tools/kurodb/captures/item_2040705.json` exists.
 - Gender-suffixed names with two MeowDB items each: Blue Cloth Vest (M) (949/958), Black Cloth Pants (M)/(F)
   (1170/1179), Blue Cloth Pants (M) (1169/1178).
 - No MeowDB item in the local cache: Pan Lid, Wooden Samurai Sword, Pistol.

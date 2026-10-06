@@ -7,7 +7,7 @@
     "records": 192,
     "distinct_source_urls": 433,
     "external_values": 0,
-    "capture_files": 18
+    "capture_files": 19
   },
   "records": [
     {
@@ -337,11 +337,12 @@
         "https://meowdb.com/msclassic/api/drops?monsterId=9"
       ],
       "external": [],
-      "gap_count": 20,
+      "gap_count": 19,
       "discrepancy_count": 0,
       "capture_files": [
         "tools/hiddenstreet/captures/monsters.json",
         "tools/kurodb/captures/1210102.json",
+        "tools/kurodb/captures/item_2040705.json",
         "tools/meowdb/captures/monster_9.json"
       ],
       "property_sources": {

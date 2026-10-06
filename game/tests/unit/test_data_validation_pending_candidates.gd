@@ -1,8 +1,8 @@
 extends DataValidationTestCase
 ## Contract C1 pending_kuro_candidates: a KuroDB row that may be a member under another name, waiting for a hand read
 ## of its item page (decision D3-8). It never rolls, its member stays unresolved, and it is neither a KuroDB-only row
-## nor anybody's chance source. The shipped Orange Mushroom record holds one while KuroDB item 2040705 is unread; each
-## test corrupts a copy of a record with one and expects the finding that names the corruption.
+## nor anybody's chance source. The shipped records hold none since KuroDB item 2040705 was read (2026-10-06), so the
+## tests give a copy of a record a synthetic pending row (item 9999999) and expect the finding that names the corruption.
 
 
 func parity_keys() -> Dictionary:
@@ -89,7 +89,7 @@ func test_a_pending_member_must_stay_unresolved() -> void:
 ## What tools/sources/drops_merge.mjs writes once the item page confirms the row (its synthetic-page node test shows the
 ## same shape): the row leaves the pending bucket and becomes the member's chance source, match_method
 ## alias_with_evidence, the page cited in match_evidence. The validators accept that record; the only thing they ask is
-## that the cited item page capture exists (here it does not: nobody has read KuroDB item 2040705).
+## that the cited item page capture exists (here it does not: the synthetic item 9999999 has no capture).
 func test_a_confirmed_candidate_is_valid_data_that_cites_its_item_page() -> void:
 	var c := clone_db()
 	var p := _with_pending(c)

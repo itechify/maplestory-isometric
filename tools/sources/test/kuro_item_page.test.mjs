@@ -1,9 +1,10 @@
 // node --test tools/sources/test/
 // KuroDB item page captures (tools/kurodb/captures/item_<kuro id>.json, tools/sources/captures.mjs kuroItemPage) and how
-// the drop merge settles a crosswalk candidate with one (decision D3-8, drops_merge.mjs judgeKuroCandidate): the
-// Orange Mushroom's "Scroll for Shoes for Jump" row (KuroDB 2040705) against Hidden Street's "Scroll for Shoes for Jump
-// 10%" (MeowDB 177: success rate 10%, Jump +3). Every page here is SYNTHETIC (tools/sources/test/fixtures/): nobody has
-// read KuroDB item 2040705, and no test writes into the real capture folders; each case copies them to a temp root.
+// the drop merge settles a crosswalk candidate with one (decision D3-8; the rule is D3-10, drops_merge.mjs
+// judgeKuroCandidate): the Orange Mushroom's "Scroll for Shoes for Jump" row (KuroDB 2040705) against Hidden Street's
+// "Scroll for Shoes for Jump 10%" (MeowDB 177: success rate 10%, Jump +3). The rule's cases use SYNTHETIC pages
+// (tools/sources/test/fixtures/), and no test writes into the real capture folders: each case copies them to a temp
+// root without the real item page. The last tests read the real page (item_2040705.json, read by hand 2026-10-06).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -151,17 +152,30 @@ test('a page that shows MeowDB 177\'s rate and stat confirms the row: the member
   const cs = e.chance_source;
   assert.deepEqual([cs.authority, cs.kuro_item_id, cs.kuro_name, cs.match_method, cs.raw_value, cs.capture],
     ['KuroDB', '2040705', 'Scroll for Shoes for Jump', 'alias_with_evidence', '0.0300% base | Qty 1', 'tools/kurodb/captures/1210102.json']);
-  assert.deepEqual([cs.match_evidence.capture, cs.match_evidence.url, cs.match_evidence.decision], [CAPTURE, FIXTURE.url, 'D3-8']);
+  assert.deepEqual([cs.match_evidence.capture, cs.match_evidence.url, cs.match_evidence.decision], [CAPTURE, FIXTURE.url, 'D3-8, D3-10']);
   assert.match(cs.match_evidence.shows, /Success rate: 10%.*\{"jump":3\}/);
+  assert.equal(cs.match_evidence.version_difference, null, 'the same bonus as MeowDB 177: no version difference');
   assert.deepEqual(rec.pending_kuro_candidates, []);
   assert.ok(!rec.gaps.some((g) => g.includes('"Scroll for Shoes for Jump 10%"')), 'no chance gap left');
   assert.ok(e.notes.some((n) => n.includes('confirmed by its item page')));
   everyRowOnce(rec);
 });
 
-test('a page that shows another rate or stat rejects the row: KuroDB-only, the member a real gap', () => {
+test('other bonus amounts or extra bonus stats are a version difference: confirmed, the difference recorded (D3-10)', () => {
+  const rec = om({ 'item_2040705.json': withText('Success rate: 10%, Jump +3', 'Success rate: 10%, Jump +2, DEX +1') });
+  const e = rec.entries.find((x) => x.key === MEMBER);
+  assert.deepEqual([e.chance_state, e.probability, e.chance_source.match_method], ['resolved', 0.0003, 'alias_with_evidence']);
+  assert.match(e.chance_source.match_evidence.version_difference, /jump \+2 \(MeowDB 177: \+3\); also dex \+1 \(not on MeowDB 177\)/);
+  assert.match(e.chance_source.match_evidence.version_difference, /the item's stats come from MeowDB 177/);
+  assert.ok(!rowKeys(rec.excluded_kuro_only).includes('2040705|Scroll for Shoes for Jump'));
+  everyRowOnce(rec);
+});
+
+test('a page that shows another rate, lacks the primary stat or lists the monster at another chance rejects the row: KuroDB-only, the member a real gap', () => {
   for (const [variant, re] of [[withText('Success rate: 10%, Jump +3', 'Success rate: 60%, Jump +1'), /success rate is 60%.*MeowDB 177's is 10%/],
-    [withText('Success rate: 10%, Jump +3', 'Success rate: 10%, Jump +2, DEX +1'), /stat bonuses are \{"dex":1,"jump":2\}/]]) {
+    [withText('Success rate: 10%, Jump +3', 'Success rate: 10%, Speed +3'), /stat bonuses \{"speed":3\} lack jump, MeowDB 177's primary stat/],
+    [withText('Orange Mushroom\n0.0300% base | Qty 1', 'Orange Mushroom\n0.0500% base | Qty 1'),
+      /MONSTER DROPS row\(s\) for Orange Mushroom read "0\.0500% base \| Qty 1", the monster page "0\.0300% base \| Qty 1"/]]) {
     const rec = om({ 'item_2040705.json': variant });
     const e = rec.entries.find((x) => x.key === MEMBER);
     assert.equal(e.chance_state, 'unresolved');
@@ -175,16 +189,33 @@ test('a page that shows another rate or stat rejects the row: KuroDB-only, the m
   }
 });
 
-test('a page that shows no rate or stat does not settle it: excluded as not settled, never guessed', () => {
+test('a page that shows no rate or stat, or does not list the monster, does not settle it: excluded as not settled, never guessed', () => {
   const rec = om({ 'item_2040705.json': withText('Success rate: 10%, Jump +3', 'A scroll for shoes.') });
   const e = rec.entries.find((x) => x.key === MEMBER);
   assert.equal(e.chance_state, 'unresolved');
   const x = rec.excluded_kuro_only.find((r) => r.kuro_item_id === '2040705');
   assert.match(x.reason, /it does not settle it: the page shows no success rate; the page shows no stat bonus/);
   everyRowOnce(rec);
-  // The page lists the Orange Mushroom at another chance than its monster page: KuroDB disagrees with itself.
-  const off = om({ 'item_2040705.json': withText('Orange Mushroom\n0.0300% base | Qty 1', 'Orange Mushroom\n0.0500% base | Qty 1') });
-  assert.match(off.excluded_kuro_only.find((r) => r.kuro_item_id === '2040705').reason, /MONSTER DROPS row for Orange Mushroom reads "0\.0500% base \| Qty 1", the monster page "0\.0300% base \| Qty 1"/);
+  const elsewhere = om({ 'item_2040705.json': withText('Orange Mushroom\n0.0300% base | Qty 1', 'Jr. Cactus\n0.0300% base | Qty 1') });
+  assert.equal(elsewhere.entries.find((y) => y.key === MEMBER).chance_state, 'unresolved');
+  assert.match(elsewhere.excluded_kuro_only.find((r) => r.kuro_item_id === '2040705').reason, /it does not settle it: its MONSTER DROPS do not list Orange Mushroom/);
+});
+
+test('the name rule: the member\'s name is the page\'s, or the page\'s plus the success rate the page shows', () => {
+  const cand = { kuro_item_id: '2040705', kuro_name: 'Scroll for Shoes for Jump', confirm_with: 'meowdb_scroll', reason: 'r' };
+  const pageOf = (patch = {}) => ({ file: CAPTURE, name: 'Scroll for Shoes for Jump', success_rate: { pct: 10, raw: 'Success rate: 10%', source: 'description' },
+    stat_bonuses: { jump: 3 }, stat_bonuses_source: 'description', monster_drops: [{ monster_name: 'Orange Mushroom', raw: '0.0300% base | Qty 1' }], ...patch });
+  const judge = (memberName, patch) => judgeKuroCandidate({ cand, page: pageOf(patch), memberItem: items['177'], memberName,
+    monsterRow: { raw: '0.0300% base | Qty 1' }, monsterName: 'Orange Mushroom', where: 't' });
+  assert.equal(judge('Scroll for Shoes for Jump 10%').outcome, 'confirmed');
+  assert.equal(judge('Scroll for Shoes for Jump').outcome, 'confirmed', 'the same name');
+  const other = judge('Scroll for Shoes for Speed 10%');
+  assert.equal(other.outcome, 'rejected');
+  assert.match(other.reasons.join('; '), /item name "Scroll for Shoes for Jump" does not relate to the member's name "Scroll for Shoes for Speed 10%"/);
+  const rate = judge('Scroll for Shoes for Jump 60%');
+  assert.equal(rate.outcome, 'rejected');
+  assert.match(rate.reasons.join('; '), /the member's name says 60%, the page's success rate is 10%/);
+  assert.throws(() => judge(undefined), /needs the member's name/);
 });
 
 test('a page whose bonus the reader cannot name stops the merge: never judged as "another item"', () => {
@@ -194,6 +225,22 @@ test('a page whose bonus the reader cannot name stops the merge: never judged as
   // A bonus name nothing maps ("Improves jump on shoes +3"): the merge fails instead of rejecting the row.
   assert.throws(() => om({ 'item_2040705.json': withText('Success rate: 10%, Jump +3', 'Success rate: 10%\nImproves jump on shoes +3') }),
     (err) => err instanceof DropMergeError && /stat bonus name\(s\) "improvesjumponshoes" that map to no MeowDB scroll stat/.test(err.message));
+});
+
+test('the real page (read by hand 2026-10-06) confirms the row under D3-10, its other bonus recorded as a version difference', () => {
+  const real = loadCaptures().kurodb.item_pages['2040705'];
+  assert.ok(real, `${CAPTURE} is captured`);
+  assert.deepEqual([real.name, real.success_rate.pct, real.stat_bonuses], ['Scroll for Shoes for Jump', 10, { dex: 3, jump: 5, speed: 1 }]);
+  assert.ok(real.monster_drops.some((d) => d.monster_name === 'Orange Mushroom' && d.raw === '0.0300% base | Qty 1'), 'it lists the Orange Mushroom at the monster page\'s value');
+  const global = real.monster_drops.find((d) => d.maps);
+  assert.deepEqual([global.maps, global.excludes], [{ from: '211060100', to: '211060900' }, ['bosses', 'friendly mobs']], 'the global drop rule row reads');
+  const rec = buildDropRecords({ captures: loadCaptures(), crosswalk, items, quests, meowdbCache: stubCache() }).records['9'];
+  const e = rec.entries.find((x) => x.key === MEMBER);
+  assert.deepEqual([e.item_id, e.chance_state, e.probability, e.chance_source.capture, e.chance_source.match_evidence.capture],
+    ['177', 'resolved', 0.0003, 'tools/kurodb/captures/1210102.json', CAPTURE]);
+  assert.match(e.chance_source.match_evidence.version_difference, /jump \+5 \(MeowDB 177: \+3\); also dex \+3, speed \+1/);
+  assert.deepEqual(rec.pending_kuro_candidates, []);
+  everyRowOnce(rec);
 });
 
 test('the copied capture folders hold only the item pages a case names', () => {
