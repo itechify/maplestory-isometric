@@ -17,7 +17,7 @@ property of Nexon Co., Ltd.
 | npcs | the 21 Maple Island NPCs with dialogue | [npcs.md](npcs.md) |
 | quests | the 20 Maple Island quests (1000–1019), with the live tracker's tags (all "Missable", "COT2") | [quests.md](quests.md) |
 | shops | Pan, Sid, Lucy | [shops.md](shops.md) |
-| items | the 96 items those reference (Green Apple, 242, built from a hand-read API capture and a hand-read text capture of its item page) | [items.md](items.md) |
+| items | 96 items: the Iteration Two subset and Green Apple (242, built from a hand-read API capture and a hand-read text capture of its item page) | [items.md](items.md) |
 | formulas | EXP table, Beginner rules, damage, accuracy, derived stats, attack speed and styles, spawn model, HP/MP gain, movement, recovery, death, loot rules | [formulas.md](formulas.md) |
 | parity vectors (tests only) | 818 golden vectors computed by MeowDB's own calculators → `game/tests/data/parity_vectors.json` | [oracles.md](oracles.md) |
 

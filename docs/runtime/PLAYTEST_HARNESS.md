@@ -636,7 +636,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `api` | every remaining driver call (keys, windows, the grid planner, Lucy's shop, a door, End Chat, a declined offer, a mouse click) | harness |
 | `npcs` | talk to every NPC of the 25 maps on foot from its map's arrival, then press on until well inside its talk zone (21/21 since V1-1) | harness |
 | `counter` | Pan across his counter: the walk, the lean, `talk_gap` against the game's prompt | harness |
-| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store (all hard checks since wave 1 merged them); last, `rest()` from a ladder in 000000001 at 40% HP: it climbs off first and natural recovery heals | harness |
+| `kit` | PlaytestKit's reference run: AP through the stats window, Lucy's shop opened by talking, buy and sell at canonical prices, a quickslot bound by a drag and used, a potion drunk, sandals equipped, a checkpoint; the contract helpers: The Green Relaxer (given in the setup) from the Set-up tab and with X, Recovery learned with the Skills window's "+" (`learn_skill`), put on key 2 with Set key (`bind_skill`) and cast with it (`cast_skill`), the Wooden Box in the store (all hard checks since wave 1 merged them) | harness |
 | `quest` | the every-quest set (see above) | harness |
 | `test_a_traversal`, `test_a_routes`, `test_a_detours`, `test_a_ladders` | Test A: the island on foot, every route, the routes planner against the grid, every ladder foot against every press-Up trigger | harness |
 | `test_a_probe_1005`, `test_a_probe_trap`, `test_d_probe`, `test_d_stuck` | one-off diagnostics of single spots (000001005 out00, a 000001000 trap, kill and drop rates, the A Split Road pocket) | harness |
@@ -651,7 +651,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `playthrough` | the clean-character playthrough: creation to Shanks' departure boundary, strict from the step after character creation (see "The clean-character playthrough") | harness |
 | `npc_shanks` | Shanks' departure boundary: refused below level 7 and without the fare, the guide's sentence and the unfinished quests, Yes -> End of Maple Island (no voyage, no fare taken, the flag set), Space ignored, Enter and Esc close it, the flag survives a reload (setup: warp, level, mesos) | harness (from quests) |
 | `npc_bubbles` | NPC speech bubbles in Amherst: every text one of the NPC's canonical idle lines, none while talking (strict after the setup warp) | harness (from quests) |
-| `regen` | natural HP recovery in the real game | mechanics |
+| `regen` | natural HP recovery in the real game; last, on a ladder: climbing pauses the clock, and `PlaytestKit.rest()` climbs off before it rests | mechanics |
 | `trap_probe` | escape attempts from known former trap spots | world |
 | `test_skills`, `test_box` | the Beginner skills; the Wooden Boxes: 1012 with real boxes, box state not saved, every box of the other five box maps, and Three Snails breaking an Amherst box in exactly hits_to_break throws (Iteration Three packages) | skills, breakables |
 | `pause_load` | the pause menu's Load inside a running session (contract C3): after a save, a box broken and drops on the ground; Esc, Load, the slot's Load: the same map, a new instance, both boxes whole, no ground drop, nothing parked, the saved character (adopted from the wave-2 integration review) | harness |
@@ -721,8 +721,11 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   150 s budget, 2,250 s of game time, without one natural-recovery tick, because natural recovery pauses while
   climbing (contract C4: only still and seated time counts; the game was right). A logged diagnostic showed
   `activity()` "climbing" in all 226 samples. `rest()` now gets off the climbable first (`leave_climb()`); the
-  `kit` scenario checks it (HP 40% on 000000001's ladder near its top: the rest climbs down and heals 32 -> 72 of
-  82; without the fix the player stays on the ladder and heals nothing).
+  `regen` scenario checks both sides at the end of its phase 1 (HP 40% on 000000001's ladder near its top: 3 s on
+  the ladder leave the clock and HP as they were, then the rest climbs down and heals 20 -> 40 of 50; without the
+  fix the player stays on the ladder and heals nothing). The check lives in `regen`, not in `kit`, because its
+  setup needs an api step (no console command lowers HP or grabs a ladder) and `kit` is the api-free reference run
+  (`test_playtest_smoke.gd`).
 - **Runs of one seed: repeatable since the clock fix, as far as measured.** Before wave 2's integration fix, two
   headless seed-1 runs of the same chain (the engineer's and the review's) diverged in phase 2: the same trail walk
   took 10.6 s / 31.7 m and 8.7 s / 25.9 m. The cause was `Game.clock` running through the threaded island load, a

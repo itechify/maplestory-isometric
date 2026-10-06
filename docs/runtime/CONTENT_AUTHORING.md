@@ -33,7 +33,7 @@ prove it works. Three rules hold throughout:
 | NPCs | All 21 Maple Island NPCs, all reachable and talkable, with speech bubbles of their canonical idle lines. Shanks ends the island at the departure boundary. |
 | Quests | All 20 Maple Island quests (1000-1019), each played in the real game by the every-quest set, strict after its setup. |
 | Shops | Pan, Sid and Lucy, at canonical prices. A shop refuses to buy a quest item an in-progress quest still needs. |
-| Items | The 96 items the data references. The Green Relaxer (522) works as a chair. |
+| Items | 96 canonical items: the Iteration Two subset and Green Apple (242). The Green Relaxer (522) works as a chair. |
 | Skills | The three Beginner skills (Three Snails, Recovery, Nimble Feet), with SP, the Skills window and quickslots. |
 
 Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Every unresolved source value:
