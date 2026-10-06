@@ -9,9 +9,13 @@ extends MisoWindow
 ## "Talk to Mai"; "Return to Roger" only for an NPC already met), its canonical rewards (EXP, mesos, fame, items,
 ## random and selectable item groups) and, once completed, the random reward actually received.
 ##
-## Everything is read from QuestEngine (quest_summaries / quest_summary / availability / definition); the window
-## never changes quest state. It refreshes on quest_* events and on inventory changes (item-collection counts are
-## read live from the inventory).
+## Everything is read from QuestEngine (quest_summaries / quest_summary / availability / definition). The one change
+## it makes is a forfeit (owner ruling #10): an in-progress quest's detail has a Forfeit button (or the Delete key
+## while the log is open), which asks first (MisoForfeitPrompt: Forfeit / Cancel); confirming forfeits through
+## Game.quests' QuestService.forfeit, the path the debug console's `quest forfeit` uses, so quest_forfeited and the
+## taken-back accept items reach the bus and the quest can be accepted again from its NPC. Completed and available
+## quests have no button. It refreshes on quest_* events and on inventory changes (item-collection counts are read
+## live from the inventory).
 
 const LIST_WIDTH := 200.0
 const TAB_IN_PROGRESS := "in_progress"
@@ -19,6 +23,9 @@ const TAB_AVAILABLE := "available"
 const TAB_COMPLETED := "completed"
 const TABS: PackedStringArray = [TAB_IN_PROGRESS, TAB_AVAILABLE, TAB_COMPLETED]
 const TAB_LABELS := {TAB_IN_PROGRESS: "In Progress", TAB_AVAILABLE: "Available", TAB_COMPLETED: "Completed"}
+const FORFEIT_TEXT := "Forfeit"
+## The key that asks to forfeit the selected in-progress quest while the log is open (Enter is the inventory's).
+const FORFEIT_KEY := KEY_DELETE
 
 var current_tab: String = TAB_IN_PROGRESS
 var selected_quest: String = ""
@@ -27,6 +34,10 @@ var list_box: VBoxContainer
 var detail_box: VBoxContainer
 ## The summaries listed in the current tab (QuestEngine.quest_summary rows, plus "nearby" for available ones).
 var entries: Array = []
+## The selected in-progress quest's Forfeit button (null while the detail shows another kind of quest).
+var forfeit_button: Button = null
+## The confirmation; MisoWindowsRoot assigns its own (above every window), else one is made on first use.
+var forfeit_prompt: MisoForfeitPrompt = null
 var _tab_group := ButtonGroup.new()
 var _list_group := ButtonGroup.new()
 
@@ -138,6 +149,64 @@ func objective_rows() -> Array:
 	return out
 
 
+# --- forfeit ----------------------------------------------------------------------------------------------------
+
+## The confirmation, made (and put above the windows, in this window's parent) on first use when no root gave one.
+func prompt() -> MisoForfeitPrompt:
+	if forfeit_prompt == null:
+		forfeit_prompt = MisoForfeitPrompt.new()
+		var host: Node = get_parent() if get_parent() != null else self
+		host.add_child(forfeit_prompt)
+	if forfeit_prompt.env != env:
+		forfeit_prompt.env = env
+	if not forfeit_prompt.confirmed.is_connected(_on_forfeit_confirmed):
+		forfeit_prompt.confirmed.connect(_on_forfeit_confirmed)
+	return forfeit_prompt
+
+
+## Asks to forfeit the selected quest (the Forfeit button, or Delete). Only an in-progress quest is asked about;
+## true when the prompt opened.
+func request_forfeit() -> bool:
+	var engine := env.quest_engine() if env != null else null
+	if engine == null or selected_quest == "" or engine.status(selected_quest) != QuestLog.IN_PROGRESS:
+		return false
+	var s := engine.quest_summary(selected_quest)
+	prompt().open(selected_quest, String(s.get("name", selected_quest)), String(s.get("start_npc_name", "")))
+	return true
+
+
+## Forfeits `quest_id` through the game's QuestService (the debug console's path: quest_forfeited, accept items taken
+## back, the autosave trigger). Without a service nothing changes and the HUD says so. Returns the service's result.
+func forfeit(quest_id: String) -> Dictionary:
+	var svc := env.quest_service() if env != null else null
+	if svc == null:
+		if env != null:
+			env.notice("The quest cannot be forfeited right now.")
+		return {"ok": false, "reason": "no_quest_service", "quest_id": quest_id}
+	var r := svc.forfeit(quest_id)
+	refresh()
+	return r
+
+
+func _on_forfeit_confirmed(quest_id: String) -> void:
+	forfeit(quest_id)
+
+
+## Closing the log (its key, the x, a death, the title) cancels an open question.
+func _on_closed() -> void:
+	if forfeit_prompt != null and forfeit_prompt.is_open():
+		forfeit_prompt.cancel()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	var k := event as InputEventKey
+	if not visible or k == null or not k.pressed or k.echo or (env != null and env.is_modal_active()):
+		return
+	var code := k.physical_keycode if k.physical_keycode != KEY_NONE else k.keycode
+	if code == FORFEIT_KEY and request_forfeit():
+		get_viewport().set_input_as_handled()
+
+
 func _entries_for(tab: String) -> Array:
 	var engine := env.quest_engine() if env != null else null
 	if engine == null:
@@ -232,6 +301,7 @@ func _fill_detail() -> void:
 	for ch in detail_box.get_children():
 		detail_box.remove_child(ch)
 		ch.queue_free()
+	forfeit_button = null
 	var engine := env.quest_engine() if env != null else null
 	if engine == null or selected_quest == "":
 		var hint := _label("Select a quest to see its details.", &"MisoDim")
@@ -258,6 +328,16 @@ func _fill_detail() -> void:
 	var who := npc_line(s)
 	if who != "":
 		detail_box.add_child(_label(who, &"MisoSmall"))
+	if String(s.get("status", "")) == QuestLog.IN_PROGRESS:
+		var row := HBoxContainer.new()
+		row.alignment = BoxContainer.ALIGNMENT_END
+		row.mouse_filter = MOUSE_FILTER_IGNORE
+		forfeit_button = MisoWindow.make_button(FORFEIT_TEXT)
+		forfeit_button.name = "Forfeit"
+		forfeit_button.tooltip_text = "Give up this quest (Delete). You are asked first."
+		forfeit_button.pressed.connect(request_forfeit)
+		row.add_child(forfeit_button)
+		detail_box.add_child(row)
 	var chain: Dictionary = s.get("chain", {})
 	if not chain.is_empty():
 		_add_chain_rows(chain)

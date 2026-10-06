@@ -167,7 +167,8 @@ These commands are reused from the systems that register them. Debug does not re
 - `quest <id>` and `quest status <id>` call the QuestService's `quest <id>`, which stays registered as the
   dispatcher's fallback.
 - `list` calls `quests`.
-- `forfeit` is new. It calls `QuestService.forfeit()`, which takes back the accept items.
+- `forfeit` is new. It calls `QuestService.forfeit()`, which takes back the accept items. The Quest Log's Forfeit
+  button (UI.md) goes through the same call on `Game.quests`.
 
 The service is found through the owner of the registered `quest_accept`, else through `Game.quests`. If the game has
 neither, Debug creates an **unattached** fallback QuestService that follows `Game.character`, and its output says so.
