@@ -116,10 +116,11 @@ NINA_ROOT_ANGLES = tuple(2 * math.pi * k / 6 + 0.4 for k in range(6))  # stump-l
 @asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump", "collide_exact"))
 def _nina_stump_roots(coll):
     """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump), 1.1 m high at the bark
-    and sloping into the lawn. They collide with their exact mesh (collide_exact): the player steps onto a low tip and
-    is stopped by a root's side where it stands above a step, so the body never passes through one. (Passable, as a
-    plain Foliage stump is, the body walked through them; as prisms, each root's flat top stood at the root's full
-    1.1 m over its low tip, and a player walking off Nina's stair sideways crossed a root on that invisible top.)"""
+    and sloping into the lawn. They collide with their exact mesh (collide_exact): the player walks over a root, up its
+    sloping side and along its ridge (about 0.65 m high mid-root), and is stopped by it only near the bark, where it
+    rises higher, so the body never passes through one. (Passable, as a plain Foliage stump is, the body walked
+    through them; as prisms, each root's flat top stood at the root's full 1.1 m over its low tip, and a player walking
+    off Nina's stair sideways crossed a root on that invisible top.)"""
     mb = MeshBuilder()
     for a in NINA_ROOT_ANGLES:
         mb.cyl(0.75, 2.2, loc=(math.cos(a) * 1.6, math.sin(a) * 1.6, 0.35), rot=(0, 100, math.degrees(a)),
