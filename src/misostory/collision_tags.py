@@ -55,3 +55,15 @@ def of(obj):
     """obj's authored collision class, or None when it has no tag."""
     v = obj.get(KEY) if obj is not None else None
     return v if v in CLASSES else None
+
+
+def passable(obj, asset_tags=()):
+    """True when the registry says obj never blocks a walking body: a ``climbable`` or ``passable`` flag, the
+    collision tag ``none`` (a mesh), or any of ``PASSABLE_TAGS`` among the kit asset's tags (an instance; pass
+    ``kit.REGISTRY[name]["tags"]``). Never reads the object's name. The traversal validator (traversal.py) and
+    ``validate.py`` decide what blocks a route walk with it; the export applies the same flags and tags to collision."""
+    if obj.get("climbable") or obj.get("passable"):
+        return True
+    if of(obj) == NONE:
+        return True
+    return bool(set(asset_tags) & PASSABLE_TAGS)

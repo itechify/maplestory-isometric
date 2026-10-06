@@ -19,6 +19,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+from . import collision_tags as CT
 from . import core, geo, kit, ledge_rules
 
 MAX_STEP = 0.45
@@ -62,19 +63,10 @@ def climbables(ctx):
     return out
 
 
-_PASSABLE_WORDS = ("rope", "vine", "ladder", "sign", "portal", "banner", "flag", "lantern", "butterfly")
-
-
-def _passable(ob):
-    """Climbables, ropes/vines, signs and anything tagged passable never block a route."""
-    if "climbable" in ob.keys() or ob.get("passable"):
-        return True
-    n = ob.name.lower()
-    return any(w in n for w in _PASSABLE_WORDS)
-
-
 def obstacle_bvh(ctx):
-    """BVH of solid props/architecture of this map (instances + meshes), excluding small foliage."""
+    """BVH of solid props/architecture of this map (instances + meshes), excluding small props and whatever the
+    passable-tag registry calls passable (collision_tags.passable: climbables, passable flags, meshes tagged none,
+    kit assets with a passable tag such as vine, flower or grass). Object names are never read."""
     from .core import GroundIndex
     verts, polys = [], []
     owners = []  # (first face index, owner name)
@@ -89,19 +81,15 @@ def obstacle_bvh(ctx):
     for coll in (ctx.col_arch, ctx.col_props, ctx.col_veg):
         for ob in coll.objects:
             if ob.instance_type == "COLLECTION" and ob.instance_collection is not None:
-                asset = ob.get("asset", "")
-                info = kit.REGISTRY.get(asset, {})
-                if info.get("footprint", 1.0) < SMALL_FOOTPRINT or set(info.get("tags", ())) & {"portal_door"}:
-                    continue
-                if _passable(ob) or any(w in asset.lower() for w in _PASSABLE_WORDS):
-                    continue
-                if set(info.get("tags", ())) & {"flower", "grass"} or "flower" in asset.lower() or "clover" in asset.lower():
+                info = kit.REGISTRY.get(ob.get("asset", ""), {})
+                tags = set(info.get("tags", ()))
+                if info.get("footprint", 1.0) < SMALL_FOOTPRINT or "portal_door" in tags or CT.passable(ob, tags):
                     continue
                 me_w = GroundIndex.object_world_matrix(ob)
                 for src in ob.instance_collection.all_objects:
                     if src.type == "MESH":
                         add_mesh(src, me_w @ src.matrix_basis, owner=ob.name)
-            elif ob.type == "MESH" and not _passable(ob):
+            elif ob.type == "MESH" and not CT.passable(ob):
                 add_mesh(ob, GroundIndex.object_world_matrix(ob))
     if not polys:
         return None

@@ -136,8 +136,6 @@ try:  # the trail builder's walk constants (trail_walk: the one-way ledge zone)
 except Exception:  # noqa: BLE001
     TR = None
     record_exception("import trails", traceback.format_exc(), severity="medium")
-PASSABLE_WORDS = getattr(TV, "_PASSABLE_WORDS", ("rope", "vine", "ladder", "sign", "portal", "banner", "flag",
-                                                 "lantern", "butterfly"))
 _PLAYER_H = getattr(TV, "PLAYER_HEIGHT", None)
 if _PLAYER_H is None:
     try:
@@ -184,13 +182,9 @@ def asset_tags(name):
 
 
 def is_passable(ob, asset):
-    """Climbables, ropes/vines, signs, flowers/grass and anything tagged passable never block a route."""
-    if "climbable" in ob.keys() or ob.get("passable"):
-        return True
-    low = (ob.name + " " + asset).lower()
-    if any(w in low for w in PASSABLE_WORDS) or "flower" in low or "clover" in low:
-        return True
-    return bool(asset_tags(asset) & NON_SOLID_TAGS)
+    """What the passable-tag registry calls passable never blocks a route (collision_tags.passable: climbables,
+    passable flags, kit assets tagged vine, flower, grass, ...), as in traversal.obstacle_bvh. Names are not read."""
+    return CT.passable(ob, asset_tags(asset))
 
 
 # ---------------------------------------------------------------- organization

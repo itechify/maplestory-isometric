@@ -32,6 +32,7 @@ B=blender; PY=python3                                                 # Linux
 "$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out _scratch/export_staging
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py   # contract tests
+"$PY" src/misostory/test_collision_tags.py                           # the passable-tag registry (no Blender)
 cp _scratch/export_staging/*.glb _scratch/export_staging/*.json game/assets/world/   # only when both pass
 ```
 
@@ -496,10 +497,15 @@ back-face culling, and the glows use alpha blending.
     now stand 3.6–3.8 m behind their portals (the arrival lands on the grass between the swirl and the closed door)
     and the lane's hedges stop at the footprint edge. `sidecar_diff` fails on any blocked arrival. The runtime's
     arrival rule is unchanged (anchor + `inset_m` along the anchor normal), so no new field was needed.
-12. **Name heuristics outside the export.** The export's collision classes no longer read names, but Iteration
-    One's route validation still does in places: `traversal._PASSABLE_WORDS` (ropes, signs, banners, lanterns, ...
-    never block a route walk) and `validate.py`'s `PASSABLE_WORDS` / `ARCH_WORDS`. They decide what the validator
-    calls an obstacle, not what collides; moving them onto `collision_tags` is a follow-up.
+12. **Name heuristics outside the export.** What blocks a route walk is registry data too now:
+    `collision_tags.passable` (a climbable or passable flag, the tag `none`, or a `PASSABLE_TAGS` asset tag) decides
+    it in `traversal.obstacle_bvh` and in `validate.py`'s `props_near_routes`; the old word list (rope, sign, banner,
+    lantern, flag, ...) is gone. The traversal verdicts on the island did not change. `props_near_routes` now lists 5
+    more low findings the words had hidden: 4 `Fence_Wood_Seg` beside 000001014's `VineDown_*` routes (the map's slug,
+    `SnailFieldOfFlowers`, contains "flower") and 000000060's `Signpost_Notice` ("sign"); both collide in the game.
+    `Bush_Flowering_A` gained the `passable` tag, which keeps the validator's old verdict (no collision either way:
+    plain foliage). Still name-based in `validate.py`: `ARCH_WORDS` (an archway a route passes through) and the
+    floating check's ground and skip lists; they decide what the validator excuses, not what collides.
 
 ### Gap to the MAP_ARCHITECTURE §4.10 contract
 
