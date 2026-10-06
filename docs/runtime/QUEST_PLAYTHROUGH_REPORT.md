@@ -18,7 +18,7 @@ Shanks, on two more seeds: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH_REPORT.md) (Itera
 **20 of 20 quests PASS on each of seeds 1, 2 and 3** (60 quest runs, 520 / 523 / 523 quest checks, 0 failed, 0
 warnings). Every chain is strict after its setup: 0 console commands, 0 api fallbacks, 0 developer commands and 0
 ledger mismatches from the strict step on. 1000-1001 needs no setup at all and is strict from character creation.
-Each seed took about 2,130-2,670 s of game time and 285-335 s of wall time in total (one chain at a time, beside two
+Each seed took 2,134-2,674 s of game time and 284-336 s of wall time in total (one chain at a time, beside two
 other runs of the evidence run).
 
 | Seed | Quests PASS | Quest checks | Game s (sum of chains) | Wall s (sum of chains) | 1008 random hat | 1011 random knife |
