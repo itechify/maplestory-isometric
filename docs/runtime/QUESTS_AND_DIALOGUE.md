@@ -357,16 +357,24 @@ One entry is entered directly, several are listed in a menu, and none falls back
     canonical sentence or a system line (`_system.json`). Several routes would get a destination menu first.
 - **Default talk:**
   - quest NPCs say their first "What X Says" line, and the last one once all their quests are completed;
+  - except a line of `default_talk.in_progress_lines` (owner ruling #9), which shows only while its quest is in
+    progress (node `talk.during.<k>`); the rule above runs over the NPC's other lines. Sera's "Did you give my mirror
+    to Heena?" is tied to 1001 and Sen's "What did my sister say?" to 1004, so both say line 0 before and after.
+    Sera's talk is reached during 1001 only when no quest entry shows: her conversation opens on the canonical
+    reminder ("It looks like you haven't delivered the mirror to Heena yet.") or the lost-mirror branch first, as
+    before. 1004 has no reminder, so Sen says his line whenever he is talked to during it;
   - townsfolk say all their lines in order;
   - NPCs without quoted lines say their first idle-chatter line.
 
 **Rules as data.** `data/misostory/dialogue/_rules.json` records the rules above that MeowDB does not give, each with
 its reason and `verified: false`: `offer_prompt.line` ("last_on_accept_line"), `default_talk.quest_npc`
-("first_line_until_all_own_quests_completed_then_last_line", or "all_lines_in_order"), `default_talk.townsfolk`,
-`default_talk.no_quoted_lines`, `quiz.wrong_answer`, `quiz.after_right_answer` and `shop_window_title.format`
-("{npc}'s Shop", read by the shop window through `NpcDialogueBuilder.shop_title`). The builder reads them, falls back
-to the same behaviour when the file is absent, and `validate_all()` (`validate_rules()`) fails on a value the code
-does not implement.
+("first_line_until_all_own_quests_completed_then_last_line", or "all_lines_in_order"),
+`default_talk.in_progress_lines` (rows `{npc_id, line, quest_id, reason, verified, decision}`: the line, 0-based,
+shows only while the quest is in progress), `default_talk.townsfolk`, `default_talk.no_quoted_lines`,
+`quiz.wrong_answer`, `quiz.after_right_answer` and `shop_window_title.format` ("{npc}'s Shop", read by the shop window
+through `NpcDialogueBuilder.shop_title`). The builder reads them, falls back to the same behaviour when the file is
+absent, and `validate_all()` (`validate_rules()`) fails on a value the code does not implement, and on an
+in-progress line whose NPC, line or quest does not exist, that repeats a row, or that leaves its NPC no other line.
 
 **Overrides.** `data/misostory/dialogue/<npc_id>.json` takes `{reason, verified, remove_nodes: [...], nodes: {id:
 node} (add or replace), patch_nodes: {id: {key: value}} (replace single keys of a generated node), start?}`, applied
@@ -409,6 +417,7 @@ in that order. A patch for a node that does not exist is a validation error. Sys
 | Wrong quiz answers pair with wrong choices in order; a wrong answer ends the chat, retry by talking again; the next quiz needs a new talk | builder; `_rules.json` `quiz` | MeowDB does not link them (the counts match for every quiz) and does not say whether retries are allowed (1015's text suggests they are) |
 | The last On accept line is the Yes/No prompt, even when it is a statement (1000's Quest Helper tip; 1014-1019 "talk to me when you're ready...") | builder; `_rules.json` `offer_prompt` | MeowDB does not mark the prompt line; writing a question would invent NPC speech |
 | Quest NPC talk: first line before, last line after all their quests | builder; `_rules.json` `default_talk` | MeowDB does not label when each "What X Says" line shows |
+| Sera's "Did you give my mirror to Heena?" shows only while 1001 is in progress, Sen's "What did my sister say?" only while 1004 is; otherwise each says line 0 | builder; `_rules.json` `default_talk.in_progress_lines` (`verified: false`, decision #9) | Owner ruling #9 (2026-10-06): under the general rule these mid-quest lines showed after completion |
 | The shop window is titled "<NPC>'s Shop" | `_rules.json` `shop_window_title` | MeowDB has no shop title |
 | Completing a quest does not auto-start its follow-up; `next_quest_grants` items are given when the follow-up is accepted | engine | the follow-ups have canonical decline branches (1001), and quests.md says not to grant the items twice |
 | Forfeit takes back accept items still held | engine | MeowDB is silent; prevents duplicating quest items by forfeit/re-accept |
@@ -434,6 +443,7 @@ requirement (`quest:1005`, `npc:15`, `shop:maple-road-lucy`, `mechanic:quest-rew
 | `tests/unit/test_quest_service.gd` | Events in/out on a private `events.gd` bus; quest level-ups announced like `Game.gain_exp` (one `leveled_up` per level, `hp_changed`/`mp_changed`, `stats_changed`), including a multi-level reward (1010 at level 1); inventory_full announcement, character provider, detach, debug commands |
 | `tests/unit/test_dialogue_runner.gd` | hand-written graphs: Next/Back, Yes/No, menu conditions (level, mesos, flag, job, items, quest), branch, auto-single, actions clear history, on_fail routing, shop request, give/take, objective conditions, validation errors, overrides and patches, counter validation, `parts` lines (paragraphs, sources, styling, every part validated, counters on a part reported), `answer_quiz`, no crash without content |
 | `tests/unit/test_dialogue_npc_conversations.gd` | every NPC's generated conversation validates and opens; Sam → Mai full flow with Events; decline; full inventory at Mai; Roger's Apple conversation (offer card, instructions after Yes, decline); every quest's offer is canonical NPC speech or (1002 only) a quest card, Sam's offer carries no system text; synthetic card offers (4-line journal: two instruction pages; 2-line: none; no journal: the quest name; canonical accept/decline branches kept); Rain 1013 wrong/right and 1018; Heena/Sera chain with a lost mirror; 1005 item ref remap; Pio's live 1012 counters; a synthetic quiz + selection quest completed from data alone; shop greeting → shop request; townsfolk Back; Shanks |
+| `tests/unit/test_dialogue_default_talk.gd` | the in-progress lines (owner ruling #9): Sera before, during and after 1001 (during: the canonical reminder first, her default talk the mirror line) and Sen before, during and after 1004; every other NPC's conversation is node for node what it is without the overrides, and Heena still says her last line after her quests; `validate_rules()` accepts the shipped rows (unverified, decision #9, the rule's reason cites #9) and rejects a line, NPC or quest that does not exist, a repeated row and an NPC left without a line |
 | `tests/unit/test_npc_catalog.gd` | 21 NPCs, validation, Roger, shops, quest relationships equal the quest records, Shanks' canonical route and departure boundary (and a transport NPC without one is reported), NPCs per map, idle lines |
 | `tests/unit/test_quest_rewards_received.gd` | QuestLog format 2: 1006 (30 EXP, 3 Eggs), 1008 (the random hat, its group, survives a save; other seeds record other hats), 1011 (the random weapon), 1012 (150 mesos, The Green Relaxer) recorded; unrecorded completions; a format 1 log loads; a migration-written record is kept; unknown keys at every level survive load and save, and the engine still works on that log; entries it cannot read (unknown status, not_started, non-dictionary) survive load and save |
 | `tests/unit/test_quest_log_window.gd` | chain_info for every chain; chain steps follow quest state; npc_met and the turn-in wording (Talk to Mai / Return to Roger, Heena, Maria); quest_summary NPCs and maps; missable parsing (flag, sourced object, default false); the window: "Mai's Training 2/3" with steps and maps, "Rain's Maple Quiz 4/7", "Talk to Mai", the Missable tag, "Received: <hat>" after a reload |
@@ -461,5 +471,3 @@ structural checks found no error.
 - `quest_progressed` requests a debounced autosave since the save package added it to `Game.AUTOSAVE_TRIGGERS`, so
   mid-quest kill and use counts survive a crash.
 - `flags.maple_island_departure_ready_at` is overwritten at every boarding, so it records the latest, not the first.
-- Sera's "Did you give my mirror to Heena?" and Sen's "What did my sister say?" read as mid-quest lines but show
-  after completion under the default-talk rule (an owner decision could change `_rules.json` or add an override).

@@ -11,7 +11,26 @@
     "quest_npc": "first_line_until_all_own_quests_completed_then_last_line",
     "townsfolk": "all_lines_in_order",
     "no_quoted_lines": "first_idle_chatter_line",
-    "reason": "MeowDB does not label when each \"What X Says\" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai (Sera's \"Did you give my mirror to Heena?\" and Sen's \"What did my sister say?\" read as mid-quest lines but follow the same rule; an owner decision could move them). quest_npc may also be \"all_lines_in_order\". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line.",
+    "in_progress_lines": [
+      {
+        "npc_id": "2",
+        "line": 1,
+        "quest_id": "1001",
+        "reason": "Sera's \"Did you give my mirror to Heena? When will she help me with the laundry...\" asks about the mirror she hands over in 1001 (Bringing a Mirror to Heena), so it shows only while 1001 is in progress; before and after it she says line 0 (\"It's a fine day for laundry, don't you think?\"). While 1001 is in progress her conversation opens on the canonical reminder (1001's wrong_npc branch) or the lost-mirror branch, so her default talk is reached only when neither shows.",
+        "verified": false,
+        "decision": "#9 (owner ruling, 2026-10-06)"
+      },
+      {
+        "npc_id": "5",
+        "line": 1,
+        "quest_id": "1004",
+        "reason": "Sen's \"What did my sister say? Oh, I'm so hungry...\" waits for Nina's answer, which the player carries in 1004 (Returning to Nina), so it shows only while 1004 is in progress; before and after it he says line 0 (\"There's nothing to eat in here. Oh...\").",
+        "verified": false,
+        "decision": "#9 (owner ruling, 2026-10-06)"
+      }
+    ],
+    "in_progress_lines_reason": "Per-NPC overrides of quest_npc: each row's line (0-based, the NPC's \"What X Says\" lines) shows only while its quest is in progress, and otherwise the NPC's other lines follow the general rule. NpcDialogueBuilder.validate_rules() fails on a row whose NPC, line or quest does not exist.",
+    "reason": "MeowDB does not label when each \"What X Says\" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai. Sera's \"Did you give my mirror to Heena?\" and Sen's \"What did my sister say?\" read as mid-quest lines, so by the owner's ruling (#9) each shows only while the quest it refers to is in progress (in_progress_lines). quest_npc may also be \"all_lines_in_order\". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line.",
     "verified": false
   },
   "quiz": {
