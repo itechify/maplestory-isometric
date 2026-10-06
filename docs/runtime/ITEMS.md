@@ -14,14 +14,17 @@ to ask whether the live character is dead (see "Dead characters cannot use items
 | `game/scripts/core/items/inventory.gd` | `Inventory` | Five-tab inventory (**contract**) |
 | `game/scripts/core/items/equipment.gd` | `Equipment` | Equipped pieces, requirements, slot conflicts (**contract**) |
 | `game/scripts/core/items/consumables.gd` | `Consumables` | Using potions and food |
+| `game/scripts/core/items/chairs.gd` | `Chairs` | Using a chair: sit down or stand up through the player (contract C5) |
 | `game/scripts/core/items/mesos.gd` | `Mesos` | Meso add/spend rules and the cap |
 | `game/scripts/core/items/item_codes.gd` | `ItemCodes` | Result codes and default messages |
 | `game/scripts/core/items/item_service.gd` | `ItemService` | The seam: mutates a `CharacterState` and emits `Events` |
 | `game/scripts/core/shop/shop_service.gd` | `ShopService` | Buying and selling against canonical shop data |
-| `game/scripts/core/drops/drop_rates.gd` | `DropRates` | Resolves placeholder rates against canonical drop tables |
-| `game/scripts/core/drops/drop_roller.gd` | `DropRoller` | Turns a kill into drops with a seeded RNG |
+| `game/scripts/core/drops/drop_rates.gd` | `DropRates` | Reads the canonical drop records (schema 3) and the owner's two rule files: rolling entries and their table chance, quest gates, the meso rule, unresolved members |
+| `game/scripts/core/drops/drop_roller.gd` | `DropRoller` | Turns a kill into drops with a seeded RNG and the roll context (quests in progress) |
+| `game/scripts/core/validation/drop_checks.gd` | `DropChecks` | The drop policy over the shipped records (data validator) |
 | `game/data/misostory/inventory.json` | | Tab sizes, equipment stack size, slots and conflicts, weapon metadata, job tags, meso cap, shop rules |
-| `game/data/misostory/drop_rates.json` | | Placeholder drop chances, quantities and meso amounts |
+| `game/data/misostory/drop_rates.json` | | The project owner's drop chance table by item category x rarity, one item per drop, and the quest-gate rule (decision D3-11, `verified: false`) |
+| `game/data/misostory/meso_rules.json` | | The project owner's meso rule: MeowDB's report, else [level, 2 x level]; 60%; the owners without mesos (decision D3-12, `verified: false`) |
 | `game/data/misostory/drops.json` | | Ground lifetime, owner-only time and drop scatter |
 
 ## Data flow
@@ -29,8 +32,8 @@ to ask whether the live character is dead (see "Dead characters cannot use items
 ```
 data/canonical/items/<id>.json ──► ItemDef ──► Inventory / Equipment / Consumables / ShopService
 data/canonical/shops/<id>.json ──────────────────────────────────────► ShopService.stock / buy / sell
-data/canonical/drops/<owner>.json ─┐
-data/misostory/drop_rates.json ────┴► DropRates ──► DropRoller.roll(owner, db, rng) ──► [{kind, item_id, qty} | {kind: mesos, amount}]
+data/canonical/drops/<owner>.json (schema 3) + data/misostory/drop_rates.json, meso_rules.json ──► DropRates ──► DropRoller.roll(owner, db, rng, ctx) ──► [{kind, item_id, qty} | {kind: mesos, amount}]
+                       ctx = DropRoller.context_for(character) = {"quests_in_progress": character.quests.active_ids()}
 data/misostory/drops.json + formulas/loot_rules.json ──► DropRoller.ground_records(drops, now, owner, db)
     ──► MapInstanceState.add_drop(record + pos_local) ──► ItemService.pickup(record)
 data/misostory/inventory.json ──► ItemsConfig ──► Inventory, Equipment, Mesos, ShopService
@@ -72,8 +75,7 @@ nothing (no `inventory_full`) and push a warning.
 |---|---|---|
 | Items | `data/canonical/items/*.json` | tab (`inventory_tab`), `max_stack`, `equip_slot`, `requirements`, `stats`, `weapon`, `consumable`, `npc_buy_price_mesos`, `sell_price_mesos` / `sell_price_basis`, `tradeable`, `quest_item`, `gender`, `setup`, `scroll` |
 | Shops | `data/canonical/shops/*.json` | stock and display order, `price_mesos`, `quantity_per_purchase`, `citizen_req`, `stock_limit` |
-| Drop tables | `data/canonical/drops/*.json` | which items each owner drops (`status`, `disputed`), owner kind, meso player reports |
-| Monsters | `data/canonical/monsters/*.json` | `level`, for the meso placeholder |
+| Drop records | `data/canonical/drops/*.json` (schema 3, contract C1) | members (MeowDB's community list), their items, Henesys.gg rarity and chance category, quest gates, MeowDB's meso report, owner kind; the chance is `drop_rates.json`'s cell and the meso rule `meso_rules.json` |
 | Formulas | `formulas/loot_rules.json`, `recovery.json`, `beginner.json`, `damage.json`, `derived_stats.json` | inventory-full rule, "mobs drop potions rarely", the job-to-item-tag map (character builder code), weapon formula key names, the total-stats statement |
 
 No canonical number appears in code. Tests read expected values from the same records.
@@ -117,7 +119,15 @@ No canonical number appears in code. Tests read expected values from the same re
 - **Consumables.** These are flat `hp_restore` / `mp_restore`. Percentage restores (`hp_restore_pct`, floored) and
   buffs (`consumable.buffs`, returned in the result for the effect system) are supported as data, but no current item
   has them. Restores are clamped to `StatCalculator.max_hp` / `max_mp`, and one unit is consumed. A potion used at
-  full HP is still consumed. Pet Food, scrolls, chairs, equipment and Etc items return `not_usable`.
+  full HP is still consumed. Pet Food, scrolls, equipment and Etc items return `not_usable`; so does a chair passed
+  to `Consumables.use`, because chairs go through `ItemService.use_item` to `Chairs.use` (below).
+- **Chairs** (contract C5). A chair is a Setup item with canonical `setup` data (`ItemDef.is_chair()`: The Green
+  Relaxer, 522; the Sky-blue Wooden Chair, 525, is off-island). `ItemService.use_item(chair)` is not consumed: it
+  hands the chair to `Chairs.use`, which sits the player down on it, stands it up when it already sits on that chair,
+  or moves it over to another chair (`{"action": "sit" | "stand"}`). `Chairs.sit_key` is the X key: stand up, or sit
+  on the first chair in the Set-up tab (an adaptation, `recovery.json sitting`). Refusals: `not_enough_items` (not
+  owned), `level_too_low`, `dead`, `cannot_sit` (the player is walking, airborne, in a modal or warp), `no_chair`. The
+  seated state itself and the chair's bonus clock belong to the player ([PLAYER_AND_CAMERA.md](PLAYER_AND_CAMERA.md)).
 - **Dead characters cannot use items** (`dead`, checked after the item checks). "Dead" is not "HP 0": the game
   shell takes a death's loss at the moment of death (GAME_SHELL.md "Death and respawn"), so while the death notice is
   up the character already holds its respawn HP (`death.json`). `Consumables.is_dead(character, db, dead_check)` is
@@ -146,10 +156,17 @@ No canonical number appears in code. Tests read expected values from the same re
   The citizenship discount has a hook (`price_for`) that returns the base price, because no Maple Island shop is
   eligible. Cost and units are saturating products, so an absurd quantity reads as unaffordable instead of wrapping
   to a small 64-bit cost. Selling pays the item's canonical `sell_price_mesos` per unit (`per_unit`) or per item (`per_item`),
-  from any shop. MeowDB documents no sell restrictions. Shop equipment is clean (empty instance data).
-- **Drops.** `DropRoller.roll` first rolls one meso bag, then rolls each eligible table entry in canonical order. Each
-  eligible roll uses one `randf()`, and each drop uses one `randi_range`, so a seed reproduces a kill exactly. Drops
-  spawn at death (canonical).
+  from any shop. MeowDB documents no sell restrictions; MisoStory adds one: a shop refuses to buy a quest-critical
+  item (a quest item, an untradeable item, or one handed out on accept) below the quantity an in-progress quest still
+  needs (`quest_item_needed`, `QuestItemGuard`, `misostory/quests/_quest_items.json`), because selling Roger's Apple
+  during 1002 made the quest uncompletable. Tradeable drops stay sellable. Shop equipment is clean (empty instance
+  data).
+- **Drops.** `DropRoller.roll(owner, db, rng, ctx)` first rolls one meso bag (when the record's meso amount and chance
+  are both resolved; the amount is a uniform integer in `[min, max]`), then each rolling entry in the record's order.
+  An entry rolls when its chance is resolved and its item is a local item, and, if it has a `quest_gate`, only while
+  that quest is in progress (`ctx.quests_in_progress`, contract C2; no context = never). Each rolling entry uses one
+  `randf()`, gated or not, and a drop uses a `randi_range` only for a quantity range, so a seed reproduces a kill
+  exactly and a quest starting never shifts the other entries' rolls. Drops spawn at death (canonical).
 - **Ground records.** `DropRoller.ground_records(drops, now, owner, db)` turns rolled drops into the
   `MapInstanceState` record shape (`{item_id | mesos, amount, pos_local, expires_at, owner}`, MAP_ARCHITECTURE
   4.7.2). It adds `expires_at` = now + `ground_lifetime_s`, `owner`, `free_at` = now + `owner_exclusive_s`, and a
@@ -172,7 +189,7 @@ Every value below is marked `"verified": false` with a reason in its file. The v
 |---|---|---|
 | `inventory.json:tab_slots` | 24 per tab | No inventory size on MeowDB; commonly remembered pre-Big-Bang start size |
 | `inventory.json:equipment_max_stack` | 1 | MeowDB has no "Max per Stack" for equipment; unstackable so each piece can carry instance data |
-| `inventory.json:unpublished_max_stack` | 1 | Fallback for a non-equip item with null `max_stack` (none today) |
+| `inventory.json:unpublished_max_stack` | 1 | Fallback for a non-equip item with null `max_stack`: none today (Green Apple, 242, used it until its item page was read: `tools/meowdb/captures/item_242.txt`, Max per Stack 100) |
 | `inventory.json:meso_cap` | 2,147,483,647 | No cap documented; signed 32-bit counter limit so mesos cannot overflow |
 | `inventory.json:equipment_slots` | 10 brief slots + face/eye accessory, pendant, ring 1-4 | Remaining classic slots, so future content is data only |
 | `inventory.json:slot_conflicts` | overall <-> top/bottom, two-handed <-> shield | Classic rules; item pages do not state them |
@@ -180,53 +197,67 @@ Every value below is marked `"verified": false` with a reason in its file. The v
 | `inventory.json:job_item_tags` | beginner [], warrior Warrior, magician Mage, bowman Bowman, thief Thief (+ pirate guess) | Transcribed from MeowDB's character-builder code in `beginner.json` |
 | `inventory.json:shop.sell_zero_value_items` | true | MeowDB does not say whether NPCs refuse 0-value items; MisoStory takes them for 0 |
 | `inventory.json:shop.max_bundles_per_purchase` | null (no limit) | MeowDB documents no per-purchase cap |
-| `drop_rates.json` | see below | No drop chance, quantity or meso amount is published |
+| `drop_rates.json:chance_table` | the owner's table, category x rarity (below) | MeowDB publishes no drop chance; Henesys.gg gives only a rarity label per item (decision D3-11) |
+| `drop_rates.json:quantity_per_drop` | 1 | No source gives a drop quantity (D3-11) |
+| `drop_rates.json:quest_gate_rule` | the C1 gate rule (D3-9) | MeowDB does not say who may loot a quest item |
+| `meso_rules.json` | MeowDB's report, else uniform integer in [level, 2 x level]; chance 0.6; none for the Tutorial Jr. Sentinel and the Wooden Box | MeowDB has one meso report (the Snail) and no meso chance (decision D3-12) |
 | `drops.json:ground_lifetime_s` | 180 | Undocumented; commonly remembered classic value |
 | `drops.json:owner_exclusive_s` | 15 | Ownership exists (formulas/pets) but its duration is undocumented |
 | `drops.json:scatter_spacing_px` | 25 | Drop spacing is undocumented |
 
-### Drop placeholders (`drop_rates.json`)
+### Drop rates (canonical records and the owner's rule files, contract C1)
 
-Each field (`chance`, `min_quantity`, `max_quantity`) comes from the first level of this list that has it:
+The canonical drop record, `data/canonical/drops/<owner>.json` (schema 3; field reference in
+[`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-3-records)), says who drops what and how rare each
+item is; it holds no probability. The chance and the meso rule are the project owner's two rule files, MisoStory
+adaptations (`verified: false`) the owner can tune cell by cell. `DropRates.validate` holds both files complete and in
+range (the data validator reports a broken file as a `drop_policy` error through `DropChecks`), and a table that is not
+schema 3 rolls nothing.
 
-1. `owner_item_overrides[owner][item]`
-2. `item_overrides[item]`
-3. `subtype_rates["Type/Subtype"]`
-4. `type_rates[Type]`
-5. `default_rate`
+| Property | Source |
+|---|---|
+| Members (what can drop) | MeowDB's community list "Drops (MS Classic)" for the monster or the Wooden Box, every entry (decision D3-11) |
+| Rarity | Henesys.gg's per-item label (Common, Rare, Very Rare, Extremely Rare), in the record (D3-11) |
+| Chance | `drop_rates.json` `chance_table[chance_category][rarity]`, the owner's table (D3-11); one item per drop |
+| Meso amount | MeowDB's player report where there is one (the Snail: 2), else a uniform integer in [level, 2 x level] (`meso_rules.json`, D3-12) |
+| Meso chance | `meso_rules.json` `chance`, 0.6; none for the Tutorial Jr. Sentinel and the Wooden Box (D3-12) |
 
-Type and subtype come from the canonical item. An override is an explicit decision: it applies even to excluded
-entries, and the status multiplier is not applied to it. `global_rate_multiplier` (1.0) scales every item chance.
-`DropRates.effective_entries` reports where each chance came from.
+| Category (`chance_category`) | Common | Rare | Very Rare | Extremely Rare |
+|---|---|---|---|---|
+| `etc_own_leftover` (Etc, MeowDB subtype "Monster Drop") | 1.0 | 0.5 | 0.2 | 0.05 |
+| `etc_quest_gated` (Etc, "Quest Item", gated by D3-9) | 1.0 | 1.0 | 1.0 | 1.0 |
+| `etc_other` (other Etc: ores, gems, Monster Card) | 0.03 | 0.01 | 0.003 | 0.001 |
+| `use_consumable` (Use: potions, food, arrows) | 0.02 | 0.005 | 0.001 | 0.0002 |
+| `use_scroll` (Use, "Scroll") | 0.001 | 0.0003 | 0.0001 | 0.00003 |
+| `equip` (any Equip) | 0.001 | 0.0004 | 0.0001 | 0.00002 |
+| `setup` (chairs) | 0.0005 | 0.0002 | 0.00005 | 0.00001 |
 
-| Level | Chance | Justification |
-|---|---|---|
-| status `classic_confirmed` | x1.0 | Players saw it drop in Classic World |
-| status `msea_reference` | off | MeowDB: "historical reference only"; enabling it is a labelled design decision |
-| `disputed` (score <= 0) | off | At least as many players report not seeing it |
-| `Etc/Monster Drop` | 0.40 | The signature drop of every table; 10 Blue Snail Shells take about 25 kills |
-| `Use/Potion`, `Use/Food`, `Use/Arrow` | 0.02 | MeowDB's Beginner's guide: "Mobs drop them rarely" |
-| `Use/Scroll` | 0.001 | The rarest classic drops |
-| `Etc/Gem` / `Etc/Ore & Mineral` | 0.005 / 0.01 | Valuable crafting materials |
-| `Equip` | 0.005 | About 1 in 200 kills per listed piece |
-| `Setup` | 0.002 | Chairs are rare trophies |
-| default | 0.01, quantity 1 | Anything else |
+`DropRates.effective_entries(owner, db)` gives one row per member: `{key, name, item_id, chance, min_quantity,
+max_quantity, quest_gate, excluded, source, item_state, rarity, category}`; `source` says where the chance came from
+(`"drop_rates.json equip x Common = 0.001 (D3-11)"`). A member whose item, rarity or category is unresolved has
+`chance` 0 and `excluded` = `unresolved_item` / `unresolved_rarity` / `unresolved_category` (or `unknown_item`,
+`no_table_chance`); it never rolls. `DropRates.unresolved(owner, db)` lists them (the data validator reports each as
+a `drop_unresolved` warning). `DropRates.meso_rule(owner, db)` returns `{chance, min, max, source, excluded,
+amount_kind}`, `amount_kind` being `meowdb_report` or `level_formula`.
 
-**Quest items are always obtainable.** Each item a Maple Island quest asks the player to collect has an explicit
-override:
+What rolls today (per kill; all 86 members resolve, all Common except one Rare scroll): every monster drops its own
+leftover (Snail Shell, Blue Snail Shell, Mushroom Spore, Red Snail Shell, Orange Mushroom Cap, Jr. Sentinel
+Shellpiece) at 1.0; the ores, gems and Monster Card on its list at 0.03; Red Potion and the two arrow bundles at 0.02
+(not the Sentinel); Overall Armor DEF Scroll: Intermediate (Red Snail, Rare) at 0.0003; each listed equip at 0.001; a
+meso bag at 0.6 (not the Sentinel): 2 mesos from the Snail (MeowDB), [2, 4] Blue Snail, [3, 6] Shroom, [4, 8] Red
+Snail and [8, 16] Orange Mushroom. The Wooden Box drops Apple and Egg at 0.02 and, while Pio's quest 1012 is in
+progress, one Old Wooden Board and one Rusty Screw every time.
 
-- 347 Jr. Sentinel Shellpiece from monster 1: 1.0 (Todd's tutorial cannot stall);
-- 349 from Blue Snail and 356 from Orange Mushroom: 0.4 (quest 1011);
-- 441 and 442 from the Wooden Box `0000001`: 0.5 (quest 1012). Box food drops at 0.3.
+**Quest-gated drops.** An entry with `quest_gate` rolls only while that quest is in progress (C1 rule, D3-9:
+`drop_rates.json quest_gate_rule`). The monster system passes `DropRoller.context_for(character)`; a breakable must do
+the same. Old Wooden Board and Rusty Screw are gated to 1012; the Jr. Sentinel Shellpiece is not.
 
-`test_quest_items_are_obtainable` derives the list from `quests/*.json` objectives, minus the items a quest hands
-out on accept, so a new quest without a source fails the test.
+**Quest items are always obtainable.** `test_quest_items_are_obtainable` derives every item a Maple Island quest asks
+for from `quests/*.json` (minus items handed out on accept) and requires a rolling source while that quest is in
+progress, or a shop. The validator also treats an unresolved member that a quest needs as a progression blocker.
 
-**Mesos.** Chance 0.6 per kill. Where a monster has MeowDB player reports, the amount is read from canonical
-`drops/<id>.json meso.median_min/max` at roll time (Snail: one report, 2 mesos). Otherwise the amount is a uniform
-integer in `[max(1, floor(level x 1.5)), ceil(level x 2.5)]`: Blue Snail 3-5, Shroom 4-8, Red Snail 6-10, Orange
-Mushroom 12-20. The Tutorial Jr. Sentinel drops none (`by_owner`). Breakables drop none (canonical status
-`not_applicable`).
+The debug console's `drops <monster|owner id> [kills] [seed]` simulates kills under the character's quests in progress
+and prints each member's observed and configured rate, its source and why a member never rolls.
 
 ## Result codes
 
@@ -238,9 +269,10 @@ English line. The codes are:
 | `ok`, `unknown_item`, `invalid_quantity` | all |
 | `inventory_full`, `not_enough_items` | inventory |
 | `insufficient_mesos`, `meso_cap` | mesos |
-| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused` | shops |
+| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused`, `quest_item_needed` | shops |
 | `not_equipment`, `unknown_slot`, `slot_empty`, `level_too_low`, `job_mismatch`, `stat_too_low`, `fame_too_low`, `gender_mismatch` | equipment |
 | `not_usable`, `dead` | consumables |
+| `cannot_sit`, `no_chair` (and `not_enough_items`, `level_too_low`, `dead`) | chairs |
 
 Details carry the relevant numbers, for example `stat_too_low {stat, required, actual}` and buy
 `{cost, units, mesos}`.
@@ -248,8 +280,9 @@ Details carry the relevant numbers, for example `stat_too_low {stat, required, a
 ## Testing
 
 ```bash
-ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drops mesos   # 147 tests, 12 files (with test_shop_ui_window)
-ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references
+ISOLATE=items bash scripts/test.sh inventory equipment consumable shop drop mesos chairs   # items, shops, drops, chairs
+ISOLATE=items bash scripts/validate_data.sh                                          # data convention + references + drop policy
+node --test tools/sources/test/                                                      # the drop record builder against the captures
 ```
 
 | File | Covers |
@@ -263,8 +296,12 @@ ISOLATE=items bash scripts/validate_data.sh                                     
 | `test_consumable_dead.gd` | an injected dead check refuses use at positive HP, HP 0 is dead whatever the check says, the check runs at each use and after the item checks, `ItemService.dead_check` refuses silently, `default_dead_check` resolves to `Game.is_character_dead` for the live character only (on a private `GameState` and against the autoload, unchanged), and a committed death (private MapSession and `DeathRules`) refuses potions at the respawn HP until the respawn, leaving the `MapSession` autoload as it was |
 | `test_mesos_wallet.gd` | add/spend validation, never negative, cap, `mesos_changed`, persistence |
 | `test_shop_buy_sell.gd` | stock equals canonical rows, price x quantity, exact affordability, insufficient mesos, full inventory, clean equipment, bad requests, sell-back, 0-value sales, meso cap, `sell_slot`, signals, no 64-bit cost wrap |
-| `test_drops_data.gd` | every drop item exists, `DropRates.validate`, labelled placeholders, sources, MSEA/disputed off, overrides win, quest items and Three Snails shells obtainable, meso rules |
-| `test_drops_roller.gd` | same seed gives the same drops, membership and quantity bounds, frequencies within 4 sigma of resolved rates (20,000 kills), tutorial shellpiece, Snail meso report, box, global multiplier, rolled drops picked up, ground records (lifetime, owner window, scatter in px and m), canonical pickup box through `WorldScale.actor` |
+| `test_shop_quest_items.gd` | the sell guard (a quest item an in-progress quest still needs is refused, and says why; the rest sells) and Roger's re-issue of a lost apple during 1002 |
+| `test_chairs_use.gd` | chairs are the Setup items with setup data; the canonical bonus; the first chair in slot order; the refusals; use sits and stands; a quickslot-bound chair sits the live player (PLAYER_AND_CAMERA.md) |
+| `test_drops_data.gd` | every monster has its record, every record schema 3 and through the drop policy, every member's item exists or is unresolved, both rule files complete labelled adaptations, every rolling chance the table cell, the rolling members per owner, an edited table cell reaches the runtime unchanged, quest items (under their quest) and Three Snails shells obtainable, the meso rule (MeowDB's report, else the formula) |
+| `test_drops_roller.gd` | same seed gives the same drops (with and without a quest context), only rolling entries drop, unresolved members never do, Board and Screw only during 1012 (and the gate costs its roll), tutorial shellpiece every kill, meso amounts from MeowDB or the formula over [min, max], a newer MeowDB report replaces the formula, box never drops mesos, an older schema supplies nothing, rolled drops picked up, ground records (lifetime, owner window, scatter in px and m), canonical pickup box through `WorldScale.actor` |
+| `test_drop_sources.gd` | against the captures themselves: membership is exactly MeowDB's community list on the owner's newest page capture, no MSEA-only item is a member, every rarity is the Henesys.gg capture's label, every category follows the rule, Red Cloth Pants is MeowDB's own item 1168; corrupted records fail `DropChecks` (a member removed or added, an MSEA item, a wrong rarity or category, another owner's page, an older capture, a dropped meso report, an incomplete chance table) |
+| `test_drop_simulation.gd` | 120,000 seeded kills per owner: each observed rate within 5 sigma of the table's chance, the box with and without quest 1012, meso bag rate and uniform amounts (a sanity check, never a source) |
 
 ## Gaps and follow-ups
 
@@ -273,6 +310,13 @@ ISOLATE=items bash scripts/validate_data.sh                                     
 - **Requirement basis.** Total stats are used, as the brief says. `items.md` calls the fields "minimum base stat".
   Re-check against MeowDB when possible.
 - **Not built yet.** Scroll application (failure, slot use), equipment stat variance on drops, recharging, pets and
-  pet food, chairs (sitting is another system's job) and quest-gated drops. MeowDB documents none of these.
+  pet food. MeowDB documents none of these. Chairs work (above).
+- **The Green Relaxer can be sold.** The sell guard holds only what an in-progress quest needs, and no quest needs
+  the chair after 1012; whether to protect it (untradeable, not obtainable again) is an owner decision.
+- **A chair refused for level** reads "You need to be level N to equip that." (`MisoUiText.result_message` words
+  `level_too_low` for equipment); only 525, an off-island chair, has a level requirement.
+- **Unresolved drops.** None today: all 86 drop members resolve. A member that stops resolving never rolls until a
+  source resolves it (see [`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-3-records)); the
+  validator lists each one.
 - **Shop rules live in `inventory.json`.** The `shop` section is there only because this system owns no shop
   adaptation file. It can move to `shop.json`.

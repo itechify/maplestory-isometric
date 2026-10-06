@@ -5,9 +5,13 @@ extends Control
 ##     mesos; buttons that open the character windows; the quickslot bar;
 ##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
 ##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
-##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices;
+##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
+##     level-up the unspent AP and SP;
 ##   - level-up flourish;
-##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots).
+##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots);
+##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left;
+##   - while the player sits on a chair (Events.player_sat_down / player_stood_up), the seated cue above the HP
+##     gauge with what sitting recovers (seated_text: the natural rate and the chair's bonus, from data).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
 ## inventory_changed, equipment_changed, game_loaded (plus Game.character_replaced); values are read from the live
 ## character (re-resolved every time, never cached). Between Events.player_died and Events.player_respawned the HP
@@ -42,8 +46,13 @@ const BUS_HANDLERS := {
 	"player_respawned": "_on_player_respawned",
 	"notice": "_on_notice",
 	"game_loaded": "_on_game_loaded",
+	"effects_changed": "_on_effects_changed",
+	"player_sat_down": "_on_player_sat_down",
+	"player_stood_up": "_on_player_stood_up",
 }
 const LOG_WIDTH := 560.0
+## Inset of the effects row from the top-right corner (presentation).
+const EFFECTS_MARGIN := 12.0
 
 var env: MisoUiEnv = null
 var status: MisoStatusBar
@@ -51,6 +60,7 @@ var log_panel: MisoNoticeLog
 var banner: MisoMapBanner
 var flourish: MisoLevelUpFlourish
 var tooltip: MisoItemTooltip
+var effects: MisoEffectsBar
 ## True between Events.player_died and Events.player_respawned (or a Game.character_replaced after which the game no
 ## longer says dead): the HP gauge then reads 0 whatever HP the character holds (the death commit sets the respawn HP
 ## while the death notice is up).
@@ -86,6 +96,13 @@ func _init() -> void:
 
 	banner = MisoMapBanner.new()
 	add_child(banner)
+	effects = MisoEffectsBar.new()
+	effects.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	effects.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	effects.offset_left = -EFFECTS_MARGIN
+	effects.offset_right = -EFFECTS_MARGIN
+	effects.offset_top = EFFECTS_MARGIN
+	add_child(effects)
 	flourish = MisoLevelUpFlourish.new()
 	add_child(flourish)
 	tooltip = MisoItemTooltip.new()
@@ -121,6 +138,7 @@ func configure(e: MisoUiEnv) -> void:
 	_unbind()
 	env = e
 	status.quickslots.env = e
+	effects.env = e
 	dead = e != null and e.is_character_dead(false)
 	_bind()
 	_snapshot_quests()
@@ -139,7 +157,9 @@ func refresh_all() -> void:
 		status.set_exp(0, 0)
 		status.set_mesos(0)
 		status.set_ap(0)
+		status.set_sp(0)  # skills package hook (Iteration Three): the SP badge
 		status.quickslots.refresh()
+		effects.refresh()
 		return
 	status.set_identity(c.level, c.name, env.job_name(c))
 	_show_hp(c.hp, StatCalculator.max_hp(c, db))
@@ -147,7 +167,9 @@ func refresh_all() -> void:
 	_refresh_exp()
 	status.set_mesos(c.mesos)
 	status.set_ap(c.ap)
+	status.set_sp(c.sp)  # skills package hook (Iteration Three): the SP badge
 	status.quickslots.refresh()
+	effects.refresh()
 
 
 ## MisoQuickslots group hook.
@@ -235,6 +257,10 @@ func _on_leveled_up(new_level: int) -> void:
 	if c != null and c.ap > 0:
 		var key := MisoUiEnv.key_label("toggle_stats")
 		log_panel.add_line("You have %d AP to distribute%s." % [c.ap, " (press %s)" % key if key != "" else ""], "info")
+	# skills package hook (Iteration Three): unspent SP after a level-up.
+	if c != null and c.sp > 0:
+		var skey := MisoUiEnv.key_label("toggle_skills")
+		log_panel.add_line("You have %d SP to spend%s." % [c.sp, " (press %s)" % skey if skey != "" else ""], "info")
 
 
 func _on_mesos_changed(mesos: int, delta: int) -> void:
@@ -247,6 +273,10 @@ func _on_mesos_changed(mesos: int, delta: int) -> void:
 
 func _on_stats_changed() -> void:
 	refresh_all()
+
+
+func _on_effects_changed() -> void:
+	effects.refresh()
 
 
 func _on_inventory_changed() -> void:
@@ -339,7 +369,37 @@ func _on_notice(text: String) -> void:
 
 func _on_game_loaded(_slot: String) -> void:
 	_snapshot_quests()
+	status.set_seated("")  # the seated state is not saved: a load stands the player up (contract C3)
 	refresh_all()
+
+
+## Events.player_sat_down (contract C5): the seated cue above the HP gauge says what sitting recovers, from data:
+## the natural rate while seated (recovery.json natural_hp, the owner's rule) and the chair's canonical bonus
+## (items/<id>.json setup, Chairs.bonus). A green chair on green grass is hard to see; the cue is not.
+func _on_player_sat_down(chair_id: String) -> void:
+	status.set_seated(seated_text(chair_id, env.get_db() if env != null else null), "Seated: natural recovery keeps "
+		+ "running and the chair adds its bonus. Any move, jump, attack or skill stands you up.")
+
+
+func _on_player_stood_up(_reason: String) -> void:
+	status.set_seated("")
+
+
+## "Seated  +10 HP / 10 s  ·  The Green Relaxer +30 HP / 10 s" (numbers from data; a part with no data is left out).
+static func seated_text(chair_id: String, db: ContentDB) -> String:
+	var parts: PackedStringArray = ["Seated"]
+	var rule := NaturalRecoveryRule.from_db(db) if db != null else null
+	if rule != null and rule.hp_per_tick > 0 and NaturalRecoveryRule.SEATED in rule.eligible:
+		parts.append("+%d HP / %s s" % [rule.hp_per_tick, _num(rule.tick_s)])
+	var bonus := Chairs.bonus(chair_id, db) if db != null and chair_id != "" else {}
+	if int(bonus.get("hp", 0)) > 0:
+		var chair_name := String(db.item(chair_id).get("name", chair_id))
+		parts.append("%s +%d HP / %s s" % [chair_name, int(bonus.hp), _num(float(bonus.interval_s))])
+	return "  ·  ".join(parts) if parts.size() > 1 else "Seated"
+
+
+static func _num(v: float) -> String:
+	return str(int(v)) if is_equal_approx(v, roundf(v)) else "%.1f" % v
 
 
 ## A replaced character is not the one that died, so the dead reading is re-taken from Game.is_character_dead(). A
@@ -349,6 +409,7 @@ func _on_game_loaded(_slot: String) -> void:
 ## behind a warp the player died in runs from IDLE, and no player_respawned would ever clear it.
 func _on_character_replaced(_reason: String) -> void:
 	tooltip.visible = false
+	status.set_seated("")
 	dead = env.is_character_dead(dead) if env != null else false
 	_snapshot_quests()
 	refresh_all()

@@ -4,6 +4,16 @@ extends TestCase
 ## the same data the factory uses, never typed in here.
 
 
+## Contract C6: the new character against canonical beginner.json (and MeowDB's own golden values).
+func parity_keys() -> Dictionary:
+	return {
+		"test_new_character_exact_values": ["mechanic:new-character"],
+		"test_new_character_matches_meowdb_golden_values": ["mechanic:new-character", "canon:meowdb-formula-parity"],
+		"test_creation_ap_must_be_exactly_the_canonical_amount": ["mechanic:new-character"],
+		"test_creation_weapons_are_the_canonical_trio": ["mechanic:new-character"],
+	}
+
+
 func _beginner() -> Dictionary:
 	return db().formula("beginner")
 
@@ -54,7 +64,7 @@ func test_new_character_exact_values() -> void:
 	assert_eq(c.ap, 0, "0 free AP after creation")
 	assert_eq(c.ap, int(b["ap"]["free_ap_at_level_1"]) - creation_ap, "free AP = canonical free AP - creation AP")
 	assert_eq(c.sp, int(rules["starting_sp"]["value"]), "SP")
-	assert_eq(c.sp, 0, "a Beginner has 0 SP at level 1 (beginner.json sp.calculator_caveat)")
+	assert_eq(c.sp, 0, "0 SP at level 1 (new_character.json starting_sp: arithmetic from the guide, beginner.json sp.note)")
 	assert_eq(c.mesos, int(rules["starting_mesos"]["value"]), "mesos")
 	assert_eq(c.mesos, 0, "mesos 0 (MeowDB documents no starting mesos)")
 	assert_eq(c.fame, int(rules["starting_fame"]["value"]), "fame")

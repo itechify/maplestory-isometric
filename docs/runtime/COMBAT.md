@@ -24,6 +24,11 @@ described in [`../canonical/oracles.md`](../canonical/oracles.md).
 | `CombatReach` (`combat/combat_reach.gd`) | box mirroring, strict overlap, monster touch box, target order, isometric depth |
 | `StatCalculator` (`scripts/core/character/stat_calculator.gd`) | totals and derived stats, max HP/MP, the stat-window damage range, speed/jump, HP/MP limits |
 | `Progression` (`scripts/core/character/progression.gd`) | EXP table, level-ups, AP/SP, HP/MP growth, level-up heal, AP allocation, death penalty, the EXP calculator |
+| `SkillDef` (`scripts/core/skills/skill_def.gd`) | one skill's canonical record (`formulas/<class>.json skills[]`) joined with its timing row (`attack_speed.json`) and search band (`attack_styles.json`) by `skill_id`; `SkillDef.catalog(job, db)` |
+| `SkillBook` (`skills/skill_book.gd`) | SP spending (`learn`: one SP per level, max level, prerequisites, no refunds) and `check_cast` (learned, cast position, cooldown, MP, shell) |
+| `SkillTargeting` (`skills/skill_targeting.gd`) | the stepped forward search band of a projectile skill and its nearest-first pick |
+| `SkillRules` (`skills/skill_rules.gd`) | the `misostory/skills.json` gaps, cached per `ContentDB` |
+| `EffectBook` (`scripts/core/character/effect_book.gd`) | timed effects and cooldowns as remaining seconds on `CharacterState` (add, tick, heal-over-time ticks, cooldowns) |
 
 ## Data flow
 
@@ -137,7 +142,8 @@ over the kernel's clamp to 1. `incoming_damage_range` exposes MeowDB's kernel, c
 
 ## Character stats and progression
 
-- Totals = base + `Equipment.total_bonuses(db)` + each effect's `"bonuses"` dictionary (`Equipment.BONUS_KEYS` plus
+- Totals = base + `Equipment.total_bonuses(db)` + each effect's `"data": {"bonuses"}` dictionary (an older top-level
+  `"bonuses"` still counts) (`Equipment.BONUS_KEYS` plus
   `StatCalculator.EXTRA_BONUS_KEYS`: `attack_power`, `crit_rate_pct`, `crit_damage_pct`, `max_hp_pct`, `max_mp_pct`,
   `wdef_pct`, `mdef_pct`, `darkness_pct`, `shield_wdef`).
 - ACC per job comes from `accuracy.json derived_accuracy.by_job`. A Beginner gets `floor(Common/2.5 + 5)` with
@@ -157,6 +163,66 @@ over the kernel's clamp to 1. `incoming_damage_range` exposes MeowDB's kernel, c
   where the 9 creation AP are placed on the creation screen. `Progression.init_new_character` is a rules-level helper
   for tests and tools: the same level-1 Beginner (4/4/4/4, 50/5) with the 9 creation AP left unspent.
 - `exp_remaining` / `total_exp_at` / `cumulative_exp_through` / `kills_needed` reproduce MeowDB's EXP calculator.
+
+## Beginner skills (Iteration Three)
+
+MeowDB MS Classic gives the Beginner three skills (`formulas/beginner.json skills[]`), each with max level 3 and no
+prerequisites. A Beginner earns 1 SP per level-up at levels 2-10, 9 in total, exactly enough to max all three
+(`beginner.json sp`; `Progression` grants it). SP is spent one level at a time in the Skills window (`SkillBook.learn`);
+it is never refunded, because MeowDB documents no way back.
+
+| Skill | Per level (canonical) | Cast | Runtime |
+|---|---|---|---|
+| Three Snails `0001000` | MP 3 / 4 / 5 and one Snail / Blue Snail / Red Snail Shell (348 / 349 / 351); fixed damage 15 / 25 / 40; 1 target | ground only | the stepped search band below; `CombatFormula.resolve_fixed_damage` (`combat.json fixed_damage_skills`: hit check yes, defense, level gap and critical no); a lockout of `animation_time_ms(800, weapon tier)` (810 ms at Normal 6) that plants the player like a ground attack |
+| Recovery `0001001` | MP 5 / 10 / 15; HP 24 / 48 / 72 over 30 s; cooldown 2 min | ground, air or rope | a timed heal: equal ticks every 5 s (adaptation), so 4 / 8 / 12 HP per tick, healed through `Game.change_hp`, never above Max HP, whatever the player does |
+| Nimble Feet `0001002` | MP 4 / 7 / 10; Speed +10 (`movement.json nimble_feet_speed_bonus`) for 10 / 20 / 30 s; cooldown 3 min | ground, air or rope | a timed effect with `data.bonuses.speed`; `StatCalculator.speed` counts it (cap 140) and the controller re-reads its walk speed on `Events.stats_changed`: 125 x (Speed + 20) / 100 px/s, so 150 -> 162.5 px/s |
+
+**Search band** (`SkillTargeting`, canonical `attack_styles.json three_snails_targeting` and `ranged_search_bands`): 20
+px bands from 50 px ahead to the 300 px reach; the band that starts d px ahead is centred 28 px above the feet with a
+half-height of `floor(d / 4)`, so the last band (290-300 px) reaches 100 px up and 44 px down, as MeowDB states. A
+monster whose canonical touch box overlaps a band qualifies, and so does an intact Wooden Box
+(`BreakableSystem.attack_candidates()`, kind `breakable`); the nearest of them is hit, one target per cast (projectile
+skills: "nearest monsters first"; one shell is one target), so a box in front shields a monster behind it. Bands are
+placed in 3D like basic-attack boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the
+facing (`combat.json isometric_reach`). A box the cast picks takes one landed hit through `BreakableSystem.land_hit`
+(source `skill:0001000`: no damage, no MISS), exactly like a swing; MeowDB says only that boxes break after 4 "basic
+attacks", so counting the skill is a MisoStory choice (`breakables.json hit_rule`, `verified: false`). The 50 px start
+is the canonical choice over the targeting tab's 65 px (`attack_styles.json discrepancies`).
+
+**Runtime.** `PlayerSkills` (`scripts/actors/combat/player_skills.gd`) and `EffectTicker`
+(`actors/combat/effect_ticker.gd`) are children of the player, made by its `PlayerCombat` (`ensure_skill_nodes`).
+`PlayerSkills.cast(id)` checks that the player can act (alive, input enabled, no hit-stun, no attack or cast in
+progress), then `SkillBook.check_cast` from the current position ("rope" on a ladder or rope, "ground", else "air"),
+stands a seated player up (contract C5), pays MP through `Game.change_mp` and the shell through `ItemService.lose` (so
+`Events.item_lost` reaches quest counts), applies the skill, starts the canonical cooldown and emits
+`Events.skill_used`. A Three Snails hit on a monster goes through `MonsterSystem.apply_player_hit`, the same path as a
+basic attack (damage numbers, stagger, EXP and drops on a kill); a hit on a Wooden Box goes through
+`BreakableSystem.land_hit` (`PlayerSkills._hit_box`), and `cast_resolved` then reports `(skill, box, null)`. Casts share
+`PlayerCombat`'s lockout (`begin_lockout`), so `PlayerCombat.is_attacking()` is true during a cast (contract C4) and a
+basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; the console has `skills`
+and `cast <id|name>`.
+
+**Effects and cooldowns** are remaining seconds of game time on the character (contract C3): `CharacterState.effects`
+`[{"id": "skill:0001002", "source": "skill:0001002", "remaining_s", "data": {"skill_id", "level", "duration_s",
+"bonuses" | "hp_total", "tick_s", "ticks_done"}}]` and `CharacterState.cooldowns` `{skill_id: remaining_s}`.
+`EffectTicker` advances them every physics tick (so the pause menu stops them), heals the due Recovery ticks, and
+announces `stats_changed` when a bonus starts or ends and `effects_changed` when an effect ends. Both are saved as
+they are, so a Quit / Continue resumes them where they were (`ticks_done` keeps a reload from healing a tick twice),
+and a malformed entry from an older save is dropped. At death the skill effects end and the cooldowns keep counting
+(adaptation).
+
+**Adaptations** (`game/data/misostory/skills.json`, all `verified: false`):
+
+| Section | Value | Why |
+|---|---|---|
+| `recovery_heal` | equal ticks every 5 s (6 ticks; floor-difference split when a total does not divide) | MeowDB gives only the 30 s total ("Timing unavailable" for the tick) |
+| `buff_cast` | lockout 0 s for Recovery and Nimble Feet | their pages say "Timing unavailable"; zero is recorded as a choice, not a fact |
+| `three_snails` | a whiff still spends the shell and MP; no wall or platform check; the thrown shell (18 m/s, 0.22 m) is presentation, the hit resolves at the throw | "Wall and platform interactions are not confirmed for this skill"; no projectile speed is published |
+| `effects_on_death` | skill effects end at death, cooldowns keep running | undocumented |
+
+`SkillRules` reads `three_snails.terrain_check` but only accepts `false` (no wall or platform test exists; `true` is
+reported as an error). The debug console's `cast` command casts past the input hold of the open console itself
+(`PlayerSkills.cast(id, true)`); every other refusal still applies.
 
 ## Canonical sources used
 
@@ -180,7 +246,7 @@ fails if the published text changes. Every constant that exists as a data field 
 | `bare_hands` | weapon W.ATK 0, multiplier 1.0, STR/DEX, tier 6, equal Punch 1/2 odds | MeowDB has no unarmed model. The documented formula with W.ATK 0 gives 1 damage after the final clamp. `weapon_watk` is the empty slot's line in the Total Weapon Attack pool (`StatCalculator.compute` adds it only when no weapon is equipped), so other W.ATK lines (gloves) still count. |
 | `post_hit_invincibility` | `override_s: null` → canonical 1.5 s, also after a miss or guard | the canonical value is kept; this is the slot for an isometric adjustment |
 | `player_knockback` | push on landed hits only (`on_landed_hit`, `on_miss_or_guard`) | only the vertical airtime is published; the horizontal speed has one owner, `movement.json knockback_horizontal_speed_mps` (player controller), and is deliberately not repeated here |
-| `monster_knockback` | stagger when `damage >= KB`; stagger time = the monster's `hit1` clip (600 ms), fallback 0.6 s; 20 px push | the KB stat is canonical (all Maple Island monsters: KB 1); distance and duration are not |
+| `monster_knockback` | stagger when `damage >= KB`; stagger time: the canonical record's `stagger_ms` first (`stagger_from_canonical_record`, read by `MonsterDef`; 600 ms for all six), else `CombatFormula.monster_stagger_s` (the monster's `hit1` clip, fallback 0.6 s); a hit in mid-hop cancels the hop, then pushes (`airborne_hit`); 20 px push | the KB stat is canonical (all Maple Island monsters: KB 1), and so is the stagger time since the live pages publish it (Iteration Three); the push distance and the mid-hop rule are not |
 | `fixed_damage_skills.0001000` | Three Snails: hit check yes, defense/level gap/crit no | MeowDB only says stats, weapon and defense don't scale it |
 | `level_up` | full heal; excess EXP carries; several levels per award; EXP discarded at the cap | MeowDB implies a heal but not its amount; overflow is undocumented |
 | `beginner_sp_after_level_10` | 0 | undocumented |
@@ -223,10 +289,15 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_stats_calculator.gd` | totals with gear and effects (via a fake `Equipment`), derived stats per job, HP/MP with gear and %, limits, caps, stat window, the bare-hands W.ATK line in the pool (patched private `ContentDB`), Shield Guard WDEF from a scrolled shield's own stats |
 | `test_combat_kill_and_exp.gd` | end to end on canonical data: seeded basic attacks kill a Snail in the Beginner guide's 3-4 hits, bare hands need one punch per HP, 8 Snails level a Beginner at the published 15 EXP, Orange Mushroom contact kills a level-1 Beginner in 2-3 touches, then the death EXP penalty |
 | `test_progression_exp.gd` | thresholds, single/multiple level-ups, the cap, AP/SP, HP/MP growth to level 11, allocation, death penalty |
+| `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
+| `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
+| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits
 
+- Only the Beginner skills exist; `SkillDef.catalog` adds a class's own skills once its `formulas/<class>.json` lists
+  them. Skill passives (mastery) and job buffs do not exist yet.
 - Job SP after an advancement (1 + 3 per level), 2nd/3rd job slugs, job mastery skills, boosters and Element
   Amplification are not in the canonical JSON or not needed by a Beginner. The hooks are `StatCalculator.JOBS`,
   `StatCalculator.mastery_level`, `tier_offset` and `skill_multiplier`.

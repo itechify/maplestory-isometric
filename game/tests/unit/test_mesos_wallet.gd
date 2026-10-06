@@ -3,6 +3,11 @@ extends TestCase
 ## through ItemService, and persistence.
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {"test_mesos_persist": ["persistence:mesos"]}
+
+
 func test_add_and_spend() -> void:
 	var c := CharacterState.new()
 	assert_eq(Mesos.add(c, 120, db()), 120)

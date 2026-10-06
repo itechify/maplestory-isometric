@@ -4,9 +4,10 @@
   "authority": "MeowDB MS Classic (https://meowdb.com/msclassic)",
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
-    "records": 191,
-    "distinct_source_urls": 413,
-    "external_values": 0
+    "records": 192,
+    "distinct_source_urls": 418,
+    "external_values": 0,
+    "capture_files": 11
   },
   "records": [
     {
@@ -36,12 +37,36 @@
       "name": "Wooden Box drop table",
       "file": "res://data/canonical/drops/0000001.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001",
-      "retrieved_at": "2026-10-04T10:07:46.821Z",
-      "field_source_urls": [],
+      "url": "https://meowdb.com/msclassic/breakables/0000001",
+      "retrieved_at": "2026-10-05T07:49:44.592Z",
+      "field_source_urls": [
+        "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001"
+      ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/breakable_0000001.txt"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/breakables/0000001"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -49,15 +74,36 @@
       "name": "Tutorial Jr. Sentinel drop table",
       "file": "res://data/canonical/drops/1.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=1",
-      "retrieved_at": "2026-10-04T10:06:55.625Z",
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "retrieved_at": "2026-10-05T07:49:19.434Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
-        "https://meowdb.com/msclassic/monsters/1"
+        "https://meowdb.com/msclassic/api/drops?monsterId=1"
       ],
       "external": [],
-      "gap_count": 4,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_1.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/1"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -65,15 +111,44 @@
       "name": "Snail drop table",
       "file": "res://data/canonical/drops/2.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=2",
-      "retrieved_at": "2026-10-04T10:06:58.031Z",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "retrieved_at": "2026-10-05T07:47:01.065Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=2",
-        "https://meowdb.com/msclassic/monsters/2"
+        "https://meowdb.com/msclassic/api/drops?monsterId=2"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_2.txt"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/2"
+          ]
+        },
+        "mesos.amount": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/2"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -81,15 +156,36 @@
       "name": "Blue Snail drop table",
       "file": "res://data/canonical/drops/3.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=3",
-      "retrieved_at": "2026-10-04T10:07:01.651Z",
+      "url": "https://meowdb.com/msclassic/monsters/3",
+      "retrieved_at": "2026-10-05T07:47:34.120Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=3",
-        "https://meowdb.com/msclassic/monsters/3"
+        "https://meowdb.com/msclassic/api/drops?monsterId=3"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_3.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/3"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -97,15 +193,36 @@
       "name": "Shroom drop table",
       "file": "res://data/canonical/drops/4.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=4",
-      "retrieved_at": "2026-10-04T10:07:05.261Z",
+      "url": "https://meowdb.com/msclassic/monsters/4",
+      "retrieved_at": "2026-10-05T07:48:07.614Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=4",
-        "https://meowdb.com/msclassic/monsters/4"
+        "https://meowdb.com/msclassic/api/drops?monsterId=4"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_4.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/4"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -113,15 +230,36 @@
       "name": "Red Snail drop table",
       "file": "res://data/canonical/drops/5.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=5",
-      "retrieved_at": "2026-10-04T10:07:08.887Z",
+      "url": "https://meowdb.com/msclassic/monsters/5",
+      "retrieved_at": "2026-10-05T07:48:29.502Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=5",
-        "https://meowdb.com/msclassic/monsters/5"
+        "https://meowdb.com/msclassic/api/drops?monsterId=5"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_5.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/5"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "drops",
@@ -129,15 +267,36 @@
       "name": "Orange Mushroom drop table",
       "file": "res://data/canonical/drops/9.json",
       "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/drops?monsterId=9",
-      "retrieved_at": "2026-10-04T10:07:14.912Z",
+      "url": "https://meowdb.com/msclassic/monsters/9",
+      "retrieved_at": "2026-10-05T07:48:54.363Z",
       "field_source_urls": [
-        "https://meowdb.com/msclassic/api/mesos-reports?monsterId=9",
-        "https://meowdb.com/msclassic/monsters/9"
+        "https://meowdb.com/msclassic/api/drops?monsterId=9"
       ],
       "external": [],
-      "gap_count": 3,
-      "discrepancy_count": 0
+      "gap_count": 2,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/henesys/captures/item_rarity.json",
+        "tools/meowdb/captures/monster_9.json"
+      ],
+      "property_sources": {
+        "membership": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/monsters/9"
+          ]
+        },
+        "rarity": {
+          "authorities": [
+            "Henesys.gg"
+          ],
+          "urls": [
+            "https://henesys.gg/loot"
+          ]
+        }
+      }
     },
     {
       "domain": "formulas",
@@ -170,6 +329,10 @@
         "https://meowdb.com/msclassic/guides/attack-speed-and-animation-times",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
         "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/skills/beginner/three-snails"
       ],
       "external": [],
@@ -187,6 +350,10 @@
       "field_source_urls": [
         "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
         "https://meowdb.com/msclassic/formulas/targeting",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/skills/beginner/three-snails"
       ],
       "external": [],
@@ -205,10 +372,21 @@
         "https://meowdb.com/_next/static/chunks/2347-d8fa2c57e839440e.js",
         "https://meowdb.com/_next/static/chunks/4068-26c6ed6efe1adbc7.js",
         "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
+        "https://meowdb.com/msclassic/api/drops?monsterId=2",
+        "https://meowdb.com/msclassic/api/drops?monsterId=3",
+        "https://meowdb.com/msclassic/api/drops?monsterId=5",
+        "https://meowdb.com/msclassic/api/items/541?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/558?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+        "https://meowdb.com/msclassic/api/items/585?locale=en&preview=1",
         "https://meowdb.com/msclassic/formulas/leveling",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
         "https://meowdb.com/msclassic/guides/hp-mp-gain-explained",
         "https://meowdb.com/msclassic/guides/what-is-maplestory-classic-worlds",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/beginner",
         "https://meowdb.com/msclassic/quest-tracker/1014",
         "https://meowdb.com/msclassic/quest-tracker/1017",
@@ -232,7 +410,11 @@
       "field_source_urls": [
         "https://meowdb.com/_next/static/chunks/5253-8d210be12f2a3111.js",
         "https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world",
-        "https://meowdb.com/msclassic/guides/explaining-the-damage-formula"
+        "https://meowdb.com/msclassic/guides/explaining-the-damage-formula",
+        "https://meowdb.com/msclassic/item-db/541",
+        "https://meowdb.com/msclassic/item-db/558",
+        "https://meowdb.com/msclassic/item-db/576",
+        "https://meowdb.com/msclassic/item-db/585"
       ],
       "external": [],
       "gap_count": 3,
@@ -888,6 +1070,27 @@
       "external": [],
       "gap_count": 0,
       "discrepancy_count": 0
+    },
+    {
+      "domain": "items",
+      "id": "242",
+      "name": "Green Apple",
+      "file": "res://data/canonical/items/242.json",
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+      "retrieved_at": "2026-10-05T08:17Z",
+      "field_source_urls": [
+        "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
+        "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
+        "https://meowdb.com/msclassic/item-db/242"
+      ],
+      "external": [],
+      "gap_count": 5,
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/item_242.txt",
+        "tools/meowdb/captures/items_api.json"
+      ]
     },
     {
       "domain": "items",
@@ -2448,7 +2651,10 @@
       ],
       "external": [],
       "gap_count": 6,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_1.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2465,7 +2671,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_2.txt"
+      ]
     },
     {
       "domain": "monsters",
@@ -2482,7 +2691,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_3.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2499,7 +2711,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_4.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2516,7 +2731,10 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_5.json"
+      ]
     },
     {
       "domain": "monsters",
@@ -2533,7 +2751,10 @@
       ],
       "external": [],
       "gap_count": 6,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/monster_9.json"
+      ]
     },
     {
       "domain": "npcs",
@@ -2896,7 +3117,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2911,7 +3153,28 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2928,7 +3191,28 @@
       ],
       "external": [],
       "gap_count": 5,
-      "discrepancy_count": 2
+      "discrepancy_count": 2,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2943,7 +3227,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2958,7 +3263,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2973,7 +3299,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 1
+      "discrepancy_count": 1,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -2988,7 +3335,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3003,7 +3371,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3018,7 +3407,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3033,7 +3443,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3048,7 +3479,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3063,7 +3515,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3078,7 +3551,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3093,7 +3587,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3108,7 +3623,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3123,7 +3659,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3138,7 +3695,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3153,7 +3731,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3168,7 +3767,28 @@
       ],
       "external": [],
       "gap_count": 4,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "quests",
@@ -3183,7 +3803,28 @@
       ],
       "external": [],
       "gap_count": 3,
-      "discrepancy_count": 0
+      "discrepancy_count": 0,
+      "capture_files": [
+        "tools/meowdb/captures/quest_tracker_maple_island.txt"
+      ],
+      "property_sources": {
+        "missable": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        },
+        "tracker_tags": {
+          "authorities": [
+            "MeowDB MS Classic"
+          ],
+          "urls": [
+            "https://meowdb.com/msclassic/quest-tracker?area=1"
+          ]
+        }
+      }
     },
     {
       "domain": "shops",
@@ -3194,6 +3835,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-lucy",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],
@@ -3210,6 +3852,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-pan",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],
@@ -3226,6 +3869,7 @@
       "url": "https://meowdb.com/msclassic/npc-shops#maple-road-sid",
       "retrieved_at": "2026-10-04T09:57:45.024Z",
       "field_source_urls": [
+        "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
         "https://meowdb.com/msclassic/item-db/{item_id}",
         "https://meowdb.com/msclassic/npc-shops/item-efficiency/consumables"
       ],

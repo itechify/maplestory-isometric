@@ -130,6 +130,7 @@ func _check(world: IslandWorld) -> void:
 			for o in others:
 				assert_false(o.trigger_contains(s.position() + Vector3.UP * 0.1), "%s slot %d inside trigger %s" % [id, s.index, o.key()])
 	assert_eq(grounded_points, 47 + 25, "47 arrivals + 25 player_spawns[0] grounded")
+	_check_resume_in_entry_trigger(world)
 	_check_rings(world)
 	# Warp mode closes every gap: the plugs fill exactly what the gaps left open.
 	world.defs.graph.set_link_mode("all", PortalDef.LINK_WARP)
@@ -141,6 +142,88 @@ func _check(world: IslandWorld) -> void:
 	world.defs.graph.set_link_mode("all", PortalDef.LINK_WARP)
 	_check_routes_clear_of_containment(world)
 	world.defs.apply_configured_link_modes()
+
+
+## G1 (the clean-character playthrough): a Continue right after a walkable-trail arrival refused the saved resume point,
+## because the player stands just past the gate, inside the trigger of the very portal it arrived through, and
+## validate_resume refused every trigger. A resume arrives through the save's entry and activate_map disarms that
+## portal as on a real arrival, so the entry's own trigger is accepted now; every other trigger is still refused.
+## The two save points the playthrough logged (map-local), then every portal's own trigger on the line from its
+## arrival to its anchor.
+const G1_POINTS := [
+	{"map": "000001010", "portal": "east00", "local": Vector3(74.2, 0.0, -12.0)},  # Amherst, over the trail from 000001020
+	{"map": "000000060", "portal": "west00", "local": Vector3(4.5, 3.3, -44.2)},  # Southperry, from A Split Road
+]
+
+
+func _check_resume_in_entry_trigger(world: IslandWorld) -> void:
+	var d := world.defs
+	var q := world.ground_query
+	var up := d.tuning.num("grounding", "probe_up_m")
+	var down := d.tuning.num("grounding", "probe_down_m")
+	for g1: Dictionary in G1_POINTS:
+		var def := d.get_def(String(g1.map))
+		var pos := def.to_world(g1.local)
+		var p: PortalDef = d.graph.portals.get("%s.%s" % [g1.map, g1.portal], null)
+		assert_true(p != null, "%s.%s exists" % [g1.map, g1.portal])
+		if p == null:
+			continue
+		var g := q.ground_at(pos, up, down)
+		var feet := Vector3(pos.x, float(g.get("y", pos.y)), pos.z)
+		assert_true(p.trigger_contains(feet + Vector3.UP * 0.1), "G1 %s %s lies inside %s's trigger" % [g1.map, g1.local, p.key()])
+		assert_false(world.validate_resume(def.map_id, pos), "G1 %s: refused without the entry (the old warning)" % g1.map)
+		assert_true(world.validate_resume(def.map_id, pos, ArrivalRef.at_portal(def.map_id, p.portal_id)),
+			"G1 %s: resumes when the save's entry is %s" % [g1.map, p.portal_id])
+		for o in def.canonical_portals():
+			if o.portal_id != p.portal_id:
+				assert_false(world.validate_resume(def.map_id, pos, ArrivalRef.at_portal(def.map_id, o.portal_id)),
+					"G1 %s: another entry (%s) does not excuse %s's trigger" % [g1.map, o.portal_id, p.portal_id])
+	# Every portal: the first walkable, capsule-clear point inside its own trigger on the way from its arrival to its
+	# anchor resumes with that portal as the entry, and only then.
+	var probed := 0
+	for id in d.ids():
+		var def := d.get_def(id)
+		for p in def.canonical_portals():
+			var pt := _first_point_in_own_trigger(world, def, p)
+			if pt == Vector3.INF:
+				continue
+			probed += 1
+			assert_false(world.validate_resume(id, pt), "%s: a point in its own trigger is refused without the entry" % p.key())
+			assert_true(world.validate_resume(id, pt, ArrivalRef.at_portal(id, p.portal_id)),
+				"%s: a point in its own trigger resumes when it is the entry" % p.key())
+			assert_false(world.validate_resume(id, pt, ArrivalRef.at_spawn(id, 0)), "%s: a spawn entry excuses no trigger" % p.key())
+	print("resume in the entry's own trigger: %d portals probed" % probed)
+	assert_true(probed >= 40, "nearly every portal has a walkable point inside its own trigger (%d of 47; 47 on the 2026-10-05 export)" % probed)
+
+
+## The first point (0.05 m steps) from `p`'s arrival toward its anchor that stands inside its own trigger on walkable
+## ground, in its map's region, capsule-clear and inside no other portal's trigger; Vector3.INF when there is none.
+func _first_point_in_own_trigger(world: IslandWorld, def: MapDefinition, p: PortalDef) -> Vector3:
+	if not p.has_anchor or p.portal_type == PortalDef.TYPE_ARRIVAL:
+		return Vector3.INF
+	var d := world.defs
+	var q := world.ground_query
+	var a := p.spawn_transform.origin
+	var b := p.anchor_ground
+	var steps := int(ceil(Vector2(b.x - a.x, b.z - a.z).length() / 0.05))
+	for i in steps + 1:
+		var c := a.lerp(b, float(i) / maxf(1.0, float(steps)))
+		var g := q.ground_at(c, d.tuning.num("grounding", "probe_up_m"), d.tuning.num("grounding", "probe_down_m"))
+		if not bool(g.ok):
+			continue
+		var feet := Vector3(c.x, float(g.y), c.z)
+		if not p.trigger_contains(feet + Vector3.UP * 0.1):
+			continue
+		if String(world.region_index.region_of(feet, def.map_id).get("id", "")) != def.map_id:
+			return Vector3.INF
+		if not q.is_clear(feet + Vector3.UP * d.tuning.num("grounding", "capsule_lift_m"),
+				d.tuning.num("grounding", "capsule_radius_m"), d.tuning.num("grounding", "capsule_height_m")):
+			return Vector3.INF
+		for o in def.portals:
+			if o != p and o.has_anchor and o.trigger_contains(feet + Vector3.UP * 0.1):
+				return Vector3.INF
+		return feet
+	return Vector3.INF
 
 
 ## Every ring is closed except where an edge-mode trail's gate crosses it: points along each ring line (inside the

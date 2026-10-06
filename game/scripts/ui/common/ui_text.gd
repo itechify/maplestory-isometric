@@ -12,6 +12,8 @@ static func result_message(res: Dictionary, db: ContentDB = null) -> String:
 	var code := String(res.get("code", ""))
 	match code:
 		ItemCodes.LEVEL_TOO_LOW:
+			if bool(res.get("chair", false)):
+				return "You need to be level %d to sit on that chair." % int(res.get("required", 0))
 			return "You need to be level %d to equip that." % int(res.get("required", 0))
 		ItemCodes.STAT_TOO_LOW:
 			return "You need %d %s to equip that (you have %d)." % [int(res.get("required", 0)),
@@ -28,6 +30,11 @@ static func result_message(res: Dictionary, db: ContentDB = null) -> String:
 			var id := String(res.get("item_id", ""))
 			if db != null and db.has("items", id):
 				return "%s cannot be used." % String(db.item(id).get("name", id))
+		ShopService.QUEST_ITEM_NEEDED:
+			var qid := String(res.get("item_id", ""))
+			var item_name := String(db.item(qid).get("name", qid)) if db != null else qid
+			return "%s is needed for %s (keep %d). The shop will not buy it while the quest is in progress." % [
+				item_name, String(res.get("quest_name", res.get("quest_id", "a quest"))), int(res.get("needed", 1))]
 	return ItemCodes.message(res)
 
 
@@ -44,7 +51,9 @@ static func mesos_gained_line(amount: int) -> String:
 	return "You have gained mesos (+%s)" % MisoTheme.thousands(amount)
 
 
-## One quest objective row as the quest log shows it ("Snail 7/10", "Return to Mai").
+## One quest objective row as the quest log shows it ("Snail 7/10", "Talk to Mai", "Return to Roger"). A turn-in
+## talk says "Return to" only when the row's "met" is true (QuestEngine.npc_met: the player has dealt with that NPC
+## before); 1006 sends a new Beginner from Sam to Mai, whom they have never met, so it reads "Talk to Mai".
 static func objective_text(row: Dictionary) -> String:
 	var name := String(row.get("name", row.get("id", "")))
 	var cur := int(row.get("current", 0))
@@ -55,7 +64,7 @@ static func objective_text(row: Dictionary) -> String:
 		"item_usage":
 			return "Use %s %d/%d" % [name, mini(cur, req), req]
 		"npc_talk":
-			if String(row.get("purpose", "")) == "turn_in":
+			if String(row.get("purpose", "")) == "turn_in" and bool(row.get("met", false)):
 				return "Return to %s" % name
 			return "Talk to %s" % name
 		"map_visit":

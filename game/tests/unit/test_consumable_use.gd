@@ -7,6 +7,22 @@ const ORANGE := "239"
 const ROGERS_APPLE := "235"
 
 
+## Contract C6: each test compares an item's restore with its canonical consumable record; the Lucy test covers every
+## Potion and Food row of her canonical stock.
+func parity_keys() -> Dictionary:
+	var lucy: Array = []
+	for row in db().shop("maple-road-lucy").items:
+		if String(row.item_subtype) in ["Potion", "Food"]:
+			lucy.append("item:" + String(row.item_id))
+	return {
+		"test_potion_restores_documented_hp_and_decrements": ["item:" + RED_POTION],
+		"test_mp_item_restores_mp_and_respects_max_mp": ["item:" + ORANGE],
+		"test_rogers_apple_works": ["item:" + ROGERS_APPLE],
+		"test_every_potion_and_food_lucy_sells_works": lucy,
+		"test_use_persists_through_save_round_trip": ["persistence:inventory", "persistence:hp-mp"],
+	}
+
+
 func _char(hp: int = 10, mp: int = 0) -> CharacterState:
 	var c := CharacterState.new()
 	c.base_max_hp = 1000
@@ -99,6 +115,12 @@ func test_items_that_cannot_be_used() -> void:
 		var res := Consumables.use(c, id, db())
 		assert_eq(res.code, ItemCodes.NOT_USABLE, id)
 		assert_eq(c.inventory.count(id), 1, "%s not consumed" % id)
+	# The chair is not a consumable, but it is usable: ItemService.use_item sits on it (Chairs.use, test_chairs_use.gd)
+	# instead of refusing it, and never consumes it.
+	assert_true(ItemDef.of("522", db()).is_chair(), "522 is a chair")
+	var chair_use := ItemService.new(c, db()).use_item("522")
+	assert_ne(chair_use.code, ItemCodes.NOT_USABLE, "ItemService does not refuse the chair as unusable: %s" % chair_use)
+	assert_eq(c.inventory.count("522"), 1, "the chair is never consumed")
 	assert_eq(Consumables.use(c, RED_POTION, db()).code, ItemCodes.NOT_ENOUGH_ITEMS)
 	assert_eq(Consumables.use(c, "nope", db()).code, ItemCodes.UNKNOWN_ITEM)
 

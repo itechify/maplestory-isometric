@@ -74,9 +74,11 @@ var action_mix_pct: Dictionary = {}
 var attack_cycle_ms: int = 0
 var basic_attacks: Array = []
 
-## Chair data (Setup items).
+## Chair data (Setup items): the canonical setup block. A Setup item with one is a chair (is_chair(), contract C5):
+## sitting on it restores an extra setup_hp_bonus HP every setup_interval_s seconds (Chairs, NaturalRecoveryRule).
 var setup_hp_bonus: int = 0
 var setup_interval_s: float = 0.0
+var has_setup: bool = false
 
 ## Scroll block, verbatim (no scroll system yet).
 var scroll: Dictionary = {}
@@ -165,6 +167,7 @@ static func from_record(rec: Dictionary, db: ContentDB = null) -> ItemDef:
 	var st: Dictionary = _dict(rec.get("setup"))
 	d.setup_hp_bonus = int(_n(st.get("hp_recovery_bonus")))
 	d.setup_interval_s = float(_n(st.get("interval_s")))
+	d.has_setup = not st.is_empty()
 	d.scroll = _dict(rec.get("scroll")).duplicate(true)
 	return d
 
@@ -196,6 +199,11 @@ func is_stackable() -> bool:
 ## True for items the consumable system can use (HP/MP restore or a buff). Pet food needs a pet and is excluded.
 func is_consumable() -> bool:
 	return tab == "use" and (hp_flat > 0 or mp_flat > 0 or hp_pct > 0.0 or mp_pct > 0.0 or not buffs.is_empty())
+
+
+## True for chairs: Setup-tab items with canonical setup data (The Green Relaxer, 522). Using one sits the player down.
+func is_chair() -> bool:
+	return tab == "setup" and has_setup
 
 
 func untradeable() -> bool:

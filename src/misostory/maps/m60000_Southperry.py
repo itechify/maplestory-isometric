@@ -1117,9 +1117,11 @@ def build(m):
               top=Z_QUAY, bottom=-0.5, style="sandstone")
     # the harbour quarter: whitewashed houses stepping up behind the quay in two terraces (where the walled
     # basin used to be), reached by a stair from the quay; a garden terrace fills the corner behind the knoll
-    m.terrace("Quarter_Low", [(54.2, 26.0), (82.6, 25.8), (82.6, 46.6), (54.2, 46.6)], top=Z_QL, bottom=-0.5,
+    # (both reach the back-right corner + 0.9 m: at 82.6 / 46.6 their rounded corner left a body-sized plinth-level
+    # pocket inside the containment ring's corner, 9.6 m under the quarter; Iteration Three stuck-region scan)
+    m.terrace("Quarter_Low", [(54.2, 26.0), (82.9, 25.8), (82.9, 46.9), (54.2, 46.9)], top=Z_QL, bottom=-0.5,
               style="sandstone")
-    m.terrace("Quarter_High", [(57.6, 36.2), (82.6, 36.0), (82.6, 46.6), (57.6, 46.6)], top=Z_QH, bottom=Z_QL - 0.5,
+    m.terrace("Quarter_High", [(57.6, 36.2), (82.9, 36.0), (82.9, 46.9), (57.6, 46.9)], top=Z_QH, bottom=Z_QL - 0.5,
               style="sandstone")
     m.terrace("KnollBack", [(44.4, 39.4), (54.4, 39.4), (54.4, 46.6), (44.4, 46.6)], top=5.4, bottom=-0.5,
               style="grass_sand")

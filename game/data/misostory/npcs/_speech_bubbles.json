@@ -1,0 +1,19 @@
+{
+  "id": "_speech_bubbles",
+  "reason": "MeowDB gives every Maple Island NPC a speech-bubble pool (canonical idle_chatter in game/data/canonical/npcs/<id>.json, 2 to 10 lines; docs/canonical/npcs.md 'Speech bubbles') but no interval, display time or order. MisoStory shows the canonical lines now and then above NPCs of the current map that are on screen and not in a conversation; the timing below is MisoStory's presentation choice, read by NpcBubbleSchedule. The text is always a canonical line.",
+  "verified": false,
+  "first_delay_min_s": 2.0,
+  "first_delay_max_s": 10.0,
+  "interval_min_s": 14.0,
+  "interval_max_s": 26.0,
+  "display_s": 5.0,
+  "order": "sequential",
+  "reasons": {
+    "first_delay_min_s": "The first bubble of each NPC comes 2-10 s after the map is shown (a per-NPC seeded delay), so a town does not speak all at once.",
+    "first_delay_max_s": "See first_delay_min_s.",
+    "interval_min_s": "14-26 s between an NPC's bubbles keeps a town lively without covering the screen; classic NPC balloons appear every several seconds, but the interval is not documented.",
+    "interval_max_s": "See interval_min_s.",
+    "display_s": "Long enough to read the longest Maple Island bubble line at a relaxed pace.",
+    "order": "'sequential': the lines in canonical order from a per-NPC seeded starting line, so every line is seen; 'random' draws each line (seeded)."
+  }
+}

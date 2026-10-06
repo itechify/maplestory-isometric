@@ -150,3 +150,12 @@ func test_rogers_apple_saved_with_the_apple_unused_then_completed_after_reload()
 	assert_eq(c2.mesos, mesos_before, "canonical 0 mesos")
 	assert_eq(c2.inventory.count("235"), apples_before, "no item reward, the apple was eaten")
 	assert_true(_save_and_reload(c2).quests.is_completed("1002"))
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_sams_suggestion_saved_halfway_then_completed_after_reload": ["quest:1006", "mechanic:quest-persistence"],
+		"test_rogers_apple_saved_with_the_apple_unused_then_completed_after_reload": ["quest:1002",
+			"mechanic:quest-persistence"],
+	}

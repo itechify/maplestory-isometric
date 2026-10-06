@@ -19,6 +19,7 @@
   "accuracy": 62,
   "avoidability": 0,
   "knockback_threshold_damage": 1,
+  "stagger_ms": 600,
   "speed": 0,
   "speed_label": "Normal",
   "movement": {
@@ -688,6 +689,12 @@
       "retrieved_at": "2026-10-04T10:05:48.947Z",
       "note": "raw \"kb\"; meaning per MeowDB glossary (https://meowdb.com/msclassic/guides/maplestory-classic-glossary, retrieved 2026-10-04T10:09:34.025Z): \"knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger\""
     },
+    "stagger_ms": {
+      "url": "https://meowdb.com/msclassic/monsters/9",
+      "retrieved_at": "2026-10-05T07:48:54.363Z",
+      "capture": "tools/meowdb/captures/monster_9.json",
+      "note": "live page \"STAGGER 0.6 seconds\" (\"How long the mob is staggered for when knocked back.\"), read by hand in a normal browser (decision D3-1); seconds converted to whole milliseconds. The 2026-10-04 cache predates the field"
+    },
     "flags": {
       "url": "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
       "retrieved_at": "2026-10-04T10:05:48.947Z",
@@ -720,11 +727,11 @@
     }
   },
   "gaps": [
-    "mesos per kill: no player reports on MeowDB (see drops/9.json)",
-    "drop chances and quantities: MeowDB gives none (see drops/9.json)",
+    "mesos per kill: no player reports on MeowDB (see drops/9.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)",
+    "drop chances and quantities: MeowDB gives none; drops/9.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)",
     "kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)",
     "attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)",
-    "monster knockback: MeowDB publishes only the KB threshold (knockback_threshold_damage). How far, how high or how long a monster is pushed or staggered when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters",
+    "monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the \"Knockback Airtime\" model on https://meowdb.com/msclassic/formulas/damage-taken sits under \"After You Get Hit\" and describes the PLAYER being knocked back, not monsters",
     "quests[1010].min_level: the monster page shows no \"Lv N+\" for Mai's Final Training; read quest requirements from the quests domain (quests/1010.json, built from https://meowdb.com/msclassic/quest-tracker/1010), not from this file"
   ],
   "discrepancies": [

@@ -838,7 +838,9 @@ def spawn_region_marker(mc, reg, bvh):
             "polygon_xz": [gxz(x, y) for x, y in wpoly], "polygon_local": [[rnd(x, 3), rnd(y, 3)] for x, y in poly],
             "y_band": None if not zb else [rnd(base + zb[0]), rnd(base + zb[1])],
             "surface_y": rnd(zs[len(zs) // 2]) if zs else None, "area_m2": rnd(poly_area(poly), 1),
-            "walkable_fraction": rnd(len(zs) / total, 3) if total else 0.0}
+            "walkable_fraction": rnd(len(zs) / total, 3) if total else 0.0,
+            # the region's authored avoid zones (m.mobs avoid / spawn_region exclude), Godot xz polygons
+            "exclude_xz": [[gxz(*local_to_world_xy(mc, x, y)) for x, y in ex] for ex in reg.get("exclude") or []]}
 
 
 def point_in_poly_xy(x, y, poly):

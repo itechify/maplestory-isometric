@@ -6,7 +6,7 @@ Classic (GMS v8) structure, from docs/research/maps/1010002_AmherstTownstreet_10
   upper room (bed, chest, curtained window). Out of its WEST door: T01, a short garden path
   with an orange flower bed, a bush and a DANGER sign just before west00, the back way out of
   town to the Snail Field of Flowers. T03 is a contentless strip behind/under the house. No
-  NPCs, no mobs (data). Hidden Street (2005) captions the map "HOUSE IN TOWNSTREET".
+  NPCs, no mobs (data).
 
 3D translation (the camera looks straight along local +y): you arrive from Amherst at the
 front edge (out00) and walk up a grass lane into the big orange house through its cut-away

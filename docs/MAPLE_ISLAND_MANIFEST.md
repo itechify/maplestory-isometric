@@ -11,7 +11,7 @@ NPCs and monsters (MeowDB) are MeowDB's lists: NPC names and, per species, the n
 | 0 | 000000001 | West Entrance to Mushroom Town | Maple Road | town | 32×28 | 14.0 | authored | True | Heena, Sera | Heena, Sera |  |  |
 | 10000 | 000000010 | Mushroom Town | Maple Road | town | 42×36 | 14.0 | authored | True | Roger | Roger |  |  |
 | 20000 | 000000020 | Mushroom Town | Maple Road | town | 42×36 | 14.0 | authored | True | Nina | Nina |  |  |
-| 30000 | 000000030 | East Entrance to Mushroom Town | Maple Road | town | 38×38 | 15.0 | authored | True | Todd, Peter | Peter, Todd | Tutorial Jr. Sentinel×6 |  |
+| 30000 | 000000030 | East Entrance to Mushroom Town | Maple Road | town | 38×38 | 15.0 | authored | True | Todd, Peter | Peter, Todd | Tutorial Jr. Sentinel×6 | Tutorial Jr. Sentinel×4 |
 | 40000 | 000000040 | Snail Hunting Ground I | Maple Road | hunting | 64×40 | 11.0 | authored | True | Robin, Sam | Robin, Sam | Snail×40 | Snail×15 |
 | 40001 | 000000041 | Snail Hunting Ground II | Maple Road | hunting | 64×44 | 8.0 | authored | True |  |  | Snail×32, Blue Snail×13 | Snail×11, Blue Snail×7 |
 | 40002 | 000000042 | Snail Hunting Ground III | Maple Road | hunting | 64×46 | 5.0 | authored | True |  |  | Snail×20, Blue Snail×21, Red Snail×1 | Snail×8, Blue Snail×6, Red Snail×4 |

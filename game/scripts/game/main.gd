@@ -68,6 +68,8 @@ func _ready() -> void:
 	pause_menu.quit_to_title_pressed.connect(quit_to_title)
 	pause_menu.quit_game_pressed.connect(quit_game)
 	screens.add_child(pause_menu)
+	# Shanks' boat: the end-of-Maple-Island boundary screen (quests package, Iteration Three).
+	screens.add_child(DepartureScreen.for_shell(self))
 	flow.changed.connect(_on_flow_changed)
 	# Connected at boot, so before any session's DeathController (signals run in connection order).
 	var ev := _autoload("Events")

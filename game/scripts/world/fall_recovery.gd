@@ -2,7 +2,8 @@ class_name FallRecovery
 extends Node
 ## Fall recovery (MAP_ARCHITECTURE.md section 4.6): an airborne player below the current map's kill_y (which
 ## includes the lowest point of its trails), or one that reaches the sea kill plane, returns to the last SafeGround
-## point with no damage (classic has no fall damage).
+## point with no damage. MeowDB documents fall damage (canonical formulas/movement.json fall_damage); MisoStory
+## applies none, an adaptation (presentation.json fall_recovery; parity row mechanic:fall-damage).
 ## Each recovery logs one line and counts in `recoveries` (the traversal tour requires zero).
 ##
 ## SafeGround (scripts/actors/player/safe_ground.gd) is recorded by the player controller; when the player exposes

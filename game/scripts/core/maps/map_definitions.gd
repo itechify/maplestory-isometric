@@ -119,10 +119,11 @@ func clearance_height(mob_id: String) -> float:
 	return SpawnSlotPlanner.clearance_height(mob_id, tuning, body_heights)
 
 
-## Solo capacity of a map (SpawnModel; mobRate ignored).
+## Capacity of a map (SpawnModel.capacity_for_map: the map's mob rate counts only when presentation.json
+## map_mob_rate.apply is on).
 func capacity_of(map_id: String, players: int = 1) -> int:
 	var def := get_def(map_id)
-	return spawn_model.capacity(def.spawn_point_count(), players) if def != null else 0
+	return spawn_model.capacity_for_map(map_id, def.spawn_point_count(), players) if def != null else 0
 
 
 ## Snaps every transform onto collision (portal arrivals and anchors, player spawns, NPCs) and plans the spawn
@@ -753,7 +754,9 @@ func _apply_sidecar(def: MapDefinition, sc: Dictionary) -> void:
 	def.environment_configuration["camera_forward"] = WorldSidecars.vec3(gcam.get("forward", null))
 	def.environment_configuration["camera_xform"] = WorldSidecars.xform(gcam.get("xform", null))
 	if sidecars != null:
-		def.content_hash = String(sidecars.content_hash(def.slug).get("collision", ""))
+		var rh := resume_hash(String(sidecars.content_hash(def.slug).get("collision", "")), def.footprint, sidecars)
+		def.content_hash = String(rh.hash)
+		def.content_hash_chunks = rh.chunks
 	for sp in sc.get("spawn_points", []):
 		if sp is Dictionary and String(sp.get("species", "")) != "" and String(sp.get("proxy", "")) != "":
 			def.species_proxies[String(sp.species)] = String(sp.proxy)
@@ -764,7 +767,47 @@ func _apply_sidecar(def: MapDefinition, sc: Dictionary) -> void:
 			def.spawn_areas.append(_parse_area(a, def))
 
 
-## One exported spawn area / region -> {name, species, polygon, surface_y, weight}.
+## The hash a saved resume point is checked against (MapDefinition.content_hash; ArrivalResolver.stale_resume): the
+## map chunk's collision hash `map_hash` (index.json chunks.<slug>.content_hash.collision) together with the collision
+## hash of every shared world chunk (sidecar kind "world" with collision: World_IslandBody, World_Plinths,
+## World_Trails, ...) whose sidecar bounds overlap the map's region (`footprint`, world XZ), since a trap fix may change
+## those chunks rather than the map's own (Iteration Three's plinth fills and trail abutments did). The hash of a chunk
+## covers the whole chunk, so a change anywhere in a covered chunk drops the resume points of every map it overlaps:
+## sound but coarse, and the only cost is arriving at the saved entry once. A map that no shared chunk overlaps keeps
+## its own collision hash unchanged. The result has the export's format (16 hex digits) and is "" without a map hash.
+## Returns {"hash": String, "chunks": PackedStringArray (the chunks folded in, the map's own first)}.
+static func resume_hash(map_hash: String, footprint: PackedVector2Array, world: WorldSidecars) -> Dictionary:
+	if map_hash == "" or world == null:
+		return {"hash": map_hash, "chunks": PackedStringArray()}
+	var chunks := PackedStringArray(["map"])
+	if footprint.size() < 3:
+		return {"hash": map_hash, "chunks": chunks}
+	var region := Rect2(footprint[0], Vector2.ZERO)
+	for p in footprint:
+		region = region.expand(p)
+	var parts := PackedStringArray(["map=" + map_hash])
+	for chunk_name in world.chunks_of_kind("world"):  # sorted
+		var h: Variant = world.content_hash(chunk_name).get("collision", null)
+		if not (h is String) or String(h) == "":
+			continue
+		var b: Variant = world.chunk(chunk_name).get("bounds", null)
+		if b is Dictionary:
+			var pos := WorldSidecars.vec3((b as Dictionary).get("position", null))
+			var size := WorldSidecars.vec3((b as Dictionary).get("size", null))
+			if not Rect2(Vector2(pos.x, pos.z), Vector2(size.x, size.z)).abs().grow(0.01).intersects(region, true):
+				continue
+		# A chunk without bounds may lie anywhere: it is folded in (never trusting a resume point it could change).
+		parts.append("%s=%s" % [chunk_name, String(h)])
+		chunks.append(chunk_name)
+	if parts.size() == 1:
+		return {"hash": map_hash, "chunks": chunks}
+	return {"hash": ";".join(parts).sha256_text().substr(0, map_hash.length()), "chunks": chunks}
+
+
+## One exported spawn area / region -> {name, species, polygon, surface_y, weight, weight_from_points, y_lo, y_hi,
+## exclude}. `weight` is the authored proxy count `points` (weight_from_points) or else the area in m^2. `exclude`
+## holds the region's authored avoid zones (sidecar exclude_xz, world XZ polygons: Blender m.mobs(avoid=...)), which
+## SpawnSlotPlanner keeps slots out of.
 func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
 	var species := PackedStringArray()
 	var sv: Variant = a.get("species", a.get("mobs", null))
@@ -784,9 +827,15 @@ func _parse_area(a: Dictionary, def: MapDefinition) -> Dictionary:
 		area_name += "/" + ",".join(species)
 	var band: Variant = a.get("y_band", null)
 	var has_band := band is Array and (band as Array).size() >= 2 and band[0] != null and band[1] != null
+	var exclude: Array[PackedVector2Array] = []
+	for ex in a.get("exclude_xz", []):
+		var ep := WorldSidecars.poly_xz(ex)
+		if ep.size() >= 3:
+			exclude.append(ep)
 	return {"name": area_name, "species": species, "polygon": poly,
 		"surface_y": float(a.get("surface_y", a.get("y", def.base_y))), "weight": maxf(weight, 0.0001),
-		"y_lo": float(band[0]) if has_band else NAN, "y_hi": float(band[1]) if has_band else NAN}
+		"weight_from_points": float(a.get("points", 0)) > 0.0,
+		"y_lo": float(band[0]) if has_band else NAN, "y_hi": float(band[1]) if has_band else NAN, "exclude": exclude}
 
 
 func _apply_portal_marker(pd: PortalDef, marker: Dictionary, def: MapDefinition) -> void:

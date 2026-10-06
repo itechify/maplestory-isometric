@@ -1,15 +1,18 @@
 class_name Monster
 extends CharacterBody3D
-## One live monster (scenes/actors/monster.tscn): a platform walker on WorldLayers.MONSTERS that wanders, turns at
-## ledges, walls and its map's mob region, hops if it is a jumper, takes hits with the canonical knockback rule,
-## touches the player, and dies over its canonical die time. Built by MonsterSystem's factory for MapInstanceView.
+## One live monster (scenes/actors/monster.tscn): a platform walker on WorldLayers.MONSTERS that paces back and forth
+## on its floor, turns at ledges, walls, its map's mob region and the edge of its floor, hops if it is a jumper, takes
+## hits with the canonical knockback rule, touches the player, and dies over its canonical die time. Built by
+## MonsterSystem's factory for MapInstanceView.
 ##
 ## Movement is kinematic and advanced one physics tick at a time by step(delta) (like PlayerController), with
 ## physics queries only: before every step it probes probe_ahead_m ahead for walkable ground within
 ## +/- ledge_tolerance_m (else: a ledge) and casts wall rays at wall_probe_height_m (centre and both sides of the
-## body; a surface steeper than the ledge slope is a wall), and asks its MobRegion whether the step is allowed
-## (MAP_ARCHITECTURE.md section 4.7.4). It then moves and sits on the ground found under its new position. Monsters
-## never collide with each other or with the player (classic: bodies overlap); the capsule is for the kill plane.
+## body; a surface steeper than the ledge slope is a wall), asks its MobRegion whether the step is allowed
+## (MAP_ARCHITECTURE.md section 4.7.4), and checks that the ground ahead stays on its floor (floor_range, from
+## MonsterDef.floor_range of its spawn point: 'Stays on its floor'; a jumper's floor reaches one hop above and below).
+## It then moves and sits on the ground found under its new position. Monsters never collide with each other or with
+## the player (classic: bodies overlap); the capsule is for the kill plane.
 ##
 ## Contract with MapInstanceView: `hp` (survivor HP is written back on release), metadata spawn_slot/mob_id/map_id
 ## set by the view, and the `died` signal (the view connects it and records the kill in MapInstanceState).
@@ -53,13 +56,27 @@ var vertical_speed: float = 0.0
 ## grounding.probe_up_m / probe_down_m, the world's own grounding probe).
 var settle_up_m: float = 1.0
 var settle_down_m: float = 3.0
+## The heights it may walk at on its current floor (x = lowest, y = highest). For a walker that is always its spawn
+## floor (MonsterDef.floor_range of its spawn point and its spawn region's height band); a jumper's current floor
+## changes with its hops (floor_index). Unbounded until setup.
+var floor_range: Vector2 = Vector2(-INF, INF)
+## Which floor it is on: 0 = its spawn floor, +1 / -1 = a floor one hop above / below it (jumpers only).
+var floor_index: int = 0
+## The walking band of its spawn floor.
+var spawn_floor: Vector2 = Vector2(-INF, INF)
 
 # --- counters for tests and the debug overlay ----------------------------------------------------------------------
 var distance_walked: float = 0.0
 var hops: int = 0
 var recoveries: int = 0
-var blocked_by: Dictionary = {"ledge": 0, "wall": 0, "region": 0}
+## Knockback hits that cut a hop short (combat.json monster_knockback.airborne_hit).
+var hops_cut: int = 0
+var blocked_by: Dictionary = {"ledge": 0, "wall": 0, "region": 0, "floor": 0}
 
+## The spawn region's authored height band (NAN when it has none), kept for floor_range.
+var _region_band: Vector2 = Vector2(NAN, NAN)
+## True once the first settle() fixed the spawn height floor_range is measured from.
+var _floor_settled: bool = false
 var _hop: Dictionary = {}
 var _dying: bool = false
 var _walking: bool = false
@@ -91,6 +108,7 @@ func setup(d: MonsterDef, sys: Node, xform: Transform3D, rng_seed: int, p_region
 	var f := Vector3(xform.basis.z.x, 0.0, xform.basis.z.z)
 	facing = f.normalized() if f.length_squared() > 1e-6 else Vector3.BACK
 	brain.start(facing)
+	_set_spawn_floor(xform.origin.y)
 	_wall_cos = cos(atan2(d.ledge_tolerance_m, maxf(d.probe_ahead_m, 0.01)))
 	_build_body()
 	visual = MonsterVisual.new()
@@ -113,7 +131,7 @@ func _physics_process(delta: float) -> void:
 
 
 ## Puts the monster on the ground under it (within settle_up_m above / settle_down_m below); airborne if there is
-## none.
+## none. The first settle on ground fixes the spawn height its floor is measured from.
 func settle() -> void:
 	if ground == null or not is_inside_tree():
 		return
@@ -121,9 +139,51 @@ func settle() -> void:
 	if bool(g.ok):
 		global_position.y = float(g.y)
 		airborne = false
+		if not _floor_settled and def != null:
+			_floor_settled = true
+			_set_spawn_floor(float(g.y))
 	else:
 		airborne = true
 		vertical_speed = 0.0
+
+
+## Its spawn region's authored height band (MonsterSystem, from the slot's region): widens its spawn floor when it
+## spawned on that tier (MonsterDef.floor_range).
+func set_region_band(lo: float, hi: float) -> void:
+	_region_band = Vector2(lo, hi)
+	if def != null:
+		_set_spawn_floor(home.origin.y)
+
+
+## Its spawn floor from the spawn height `y`; it stands on it (floor 0).
+func _set_spawn_floor(y: float) -> void:
+	spawn_floor = def.floor_range(y, _region_band.x, _region_band.y)
+	floor_range = spawn_floor
+	floor_index = 0
+
+
+## A jumper landed (a hop or a fall) at height `y`: on its spawn floor, its current floor, or a new floor one hop
+## above or below the spawn floor (MonsterDef.hop_floor). A landing anywhere else (a fall the probes could not
+## prevent) keeps the current floor, and floor_allows lets it walk back toward it.
+func _landed_at(y: float) -> void:
+	var k := def.hop_floor(floor_index, floor_range, spawn_floor, y)
+	if k == MonsterDef.NO_FLOOR:
+		return
+	if k != floor_index:
+		floor_index = k
+		floor_range = spawn_floor if k == 0 else def.floor_band_at(y)
+
+
+## Whether a step from height `from_y` to ground at `to_y` keeps it on its floor: inside floor_range, or (a monster
+## pushed or fallen off its floor) no further outside than it already is, so a stray is never frozen.
+func floor_allows(from_y: float, to_y: float) -> bool:
+	var v_to := _floor_violation(to_y)
+	return v_to <= 0.0 or v_to <= _floor_violation(from_y) + 1e-4
+
+
+## How far (m) a height lies outside floor_range (negative inside).
+func _floor_violation(y: float) -> float:
+	return maxf(floor_range.x - y, y - floor_range.y)
 
 
 # =================================================================================================================
@@ -137,8 +197,12 @@ func step(delta: float) -> void:
 	_walking = false
 	# The stagger push runs before the brain's tick: the tick that ends the stagger zeroes push_left, so pushing after
 	# it lost the last tick (35 of 36 ticks, playtest finding monster-push-one-tick-short).
-	if not airborne and brain.mode == MonsterBrain.Mode.STAGGER:
-		_step_push(delta)
+	if brain.mode == MonsterBrain.Mode.STAGGER:
+		if not airborne:
+			_step_push(delta)
+		elif _hop.is_empty():
+			# Falling (a hop cut short by the hit, combat.json monster_knockback.airborne_hit): the push carries on.
+			_step_air_push(delta)
 	brain.tick(delta)
 	if airborne:
 		_step_air(delta)
@@ -194,8 +258,13 @@ func receive_hit(res: DamageResult, from: Node3D) -> void:
 		attacker = from
 	var from_pos := from.global_position if from != null and is_instance_valid(from) else global_position - facing
 	# A hit mid-hop staggers too (the canonical KB rule has no airborne exception: playtest finding
-	# airborne-hit-no-stagger). The hop still lands where it was going; the push then runs for the stagger time left.
+	# airborne-hit-no-stagger). With airborne_hit "cancel_hop_then_push" the rest of the hop is cancelled: it falls
+	# straight down from here and the push runs during the fall and after the landing (test_b WARN #43: a hop that
+	# carried on moved monsters up to 1.4 m, toward the attacker).
 	brain.on_hit(global_position, from_pos, res.knockback)
+	if res.knockback and not _hop.is_empty() and def.airborne_hit == MonsterDef.AIRBORNE_CANCEL_HOP \
+			and brain.mode == MonsterBrain.Mode.STAGGER:
+		_cancel_hop()
 	facing = brain.heading
 	if visual != null:
 		visual.on_hit(float(hp) / maxf(def.max_hp, 1))
@@ -252,6 +321,8 @@ func recover() -> void:
 	vertical_speed = 0.0
 	_hop = {}
 	global_transform = home
+	floor_index = 0
+	floor_range = spawn_floor
 	settle()
 
 
@@ -265,10 +336,14 @@ func _step_walk(delta: float) -> void:
 	if dir == Vector3.ZERO:
 		return
 	facing = dir
+	var pacing := brain.mode == MonsterBrain.Mode.WALK
 	if def.is_jumper() and brain.take_hop() and _try_hop(dir):
 		return
 	var why := probe(dir)
-	if why == "" and _advance(dir, def.move_speed_mps * delta):
+	var step_m := def.move_speed_mps * delta
+	if why == "" and _advance(dir, step_m):
+		if pacing:
+			brain.walked(step_m)
 		return
 	if why == "":
 		why = "ledge"
@@ -289,26 +364,63 @@ func _step_push(delta: float) -> void:
 		brain.push_left = 0.0
 
 
-## What stops a step in `dir`: "" (free), "region", "wall" or "ledge".
+## The stagger push of a monster falling after a hop was cut short: it moves away from the attacker in the air as long
+## as the region allows it, no wall is in the way and the ground under the push stays on its floor (never knocked off
+## a cliff); otherwise the push ends and it simply falls.
+func _step_air_push(delta: float) -> void:
+	if brain.push_left <= 0.0:
+		return
+	var d := minf(brain.push_speed() * delta, brain.push_left)
+	brain.push_left -= d
+	var dir := brain.push_dir
+	var pos := global_position
+	var ahead := pos + dir * def.probe_ahead_m
+	var ok := region == null or region.allows_step(pos, ahead)
+	if ok and _wall_ahead(pos, ahead, dir):
+		ok = false
+	if ok and ground != null:
+		var depth := maxf(pos.y - floor_range.x if is_finite(floor_range.x) else 0.0, def.hop_max_drop_m + def.hop_apex_m)
+		var g := ground.ground_at(Vector3(ahead.x, pos.y, ahead.z), def.fall_landing_tolerance_m, maxf(depth, 0.0) + def.fall_landing_tolerance_m)
+		ok = bool(g.ok) and (floor_allows(pos.y, float(g.y))
+			or def.hop_floor(floor_index, floor_range, spawn_floor, float(g.y)) != MonsterDef.NO_FLOOR)
+	if not ok:
+		brain.push_left = 0.0
+		return
+	global_position = pos + dir * d
+
+
+## What stops a step in `dir`: "" (free), "region", "wall", "ledge" or "floor" (the ground ahead would take it off
+## its floor_range).
 func probe(dir: Vector3) -> String:
 	var pos := global_position
 	var ahead := pos + dir * def.probe_ahead_m
 	if region != null and not region.allows_step(pos, ahead):
 		return "region"
-	var space := get_world_3d().direct_space_state if is_inside_tree() else null
-	if space != null:
-		var h := Vector3.UP * def.wall_probe_height_m
-		var side := Vector3.UP.cross(dir).normalized() * def.capsule_radius_m
-		for off in [Vector3.ZERO, side, -side]:
-			var q := PhysicsRayQueryParameters3D.create(pos + h + off, ahead + h + off, WorldLayers.MONSTER_MASK, [get_rid()])
-			var hit := space.intersect_ray(q)
-			if not hit.is_empty() and (hit.normal as Vector3).y < _wall_cos:
-				return "wall"
+	if _wall_ahead(pos, ahead, dir):
+		return "wall"
 	if ground != null:
 		var g := ground.ground_at(ahead, def.ledge_tolerance_m, def.ledge_tolerance_m)
 		if not bool(g.ok):
 			return "ledge"
+		if not floor_allows(pos.y, float(g.y)):
+			return "floor"
 	return ""
+
+
+## Wall rays at wall_probe_height_m from the centre and both sides of the body toward `ahead`: a surface steeper than
+## the ledge slope is a wall.
+func _wall_ahead(pos: Vector3, ahead: Vector3, dir: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state if is_inside_tree() else null
+	if space == null:
+		return false
+	var h := Vector3.UP * def.wall_probe_height_m
+	var side := Vector3.UP.cross(dir).normalized() * def.capsule_radius_m
+	for off in [Vector3.ZERO, side, -side]:
+		var q := PhysicsRayQueryParameters3D.create(pos + h + off, ahead + h + off, WorldLayers.MONSTER_MASK, [get_rid()])
+		var hit := space.intersect_ray(q)
+		if not hit.is_empty() and (hit.normal as Vector3).y < _wall_cos:
+			return true
+	return false
 
 
 ## Moves `dist` along `dir` onto the ground found there (within the ledge tolerance). False when there is none.
@@ -329,7 +441,8 @@ func _advance(dir: Vector3, dist: float) -> bool:
 ## A jumper's hop in `dir`: a ballistic arc with the character's canonical base apex and the canonical gravity,
 ## landing one walk-speed airtime ahead on walkable ground up to hop_max_rise_apex_fraction of the apex above or
 ## hop_max_drop_m below (both from the species adaptation, monsters/_shared.json unless the species overrides them),
-## inside the mob region, with a clear path. False (and nothing changes) when any of that fails.
+## inside the mob region and on its floor_range (its spawn floor or one hop above or below it), with a clear path.
+## False (and nothing changes) when any of that fails.
 func _try_hop(dir: Vector3) -> bool:
 	var g := def.gravity_mps2
 	var h := def.hop_apex_m
@@ -347,7 +460,7 @@ func _try_hop(dir: Vector3) -> bool:
 		return false
 	var y1 := float(gq.y)
 	var dy := y1 - pos.y
-	if dy > rise:
+	if dy > rise or def.hop_floor(floor_index, floor_range, spawn_floor, y1) == MonsterDef.NO_FLOOR:
 		return false
 	land.y = y1
 	var space := get_world_3d().direct_space_state if is_inside_tree() else null
@@ -363,8 +476,23 @@ func _try_hop(dir: Vector3) -> bool:
 	_hop = {"from": pos, "to": land, "t": 0.0, "T": t_up + t_down, "v0": g * t_up}
 	airborne = true
 	hops += 1
+	if brain.mode == MonsterBrain.Mode.WALK:
+		brain.walked(dist)
 	facing = dir
 	return true
+
+
+## A knockback hit in mid-hop (combat.json monster_knockback.airborne_hit "cancel_hop_then_push"): the rest of the
+## hop is dropped, the monster keeps its vertical speed on the arc and falls straight down from here (_step_air), and
+## the stagger push runs during the fall (_step_air_push) and after the landing (_step_push).
+func _cancel_hop() -> void:
+	var t := float(_hop.get("t", 0.0))
+	var from: Vector3 = _hop.get("from", global_position)
+	vertical_speed = float(_hop.get("v0", 0.0)) - def.gravity_mps2 * t
+	distance_walked += Vector2(global_position.x - from.x, global_position.z - from.z).length()
+	_hop = {}
+	airborne = true
+	hops_cut += 1
 
 
 func _step_air(delta: float) -> void:
@@ -383,11 +511,16 @@ func _step_air(delta: float) -> void:
 			distance_walked += Vector2(to.x - from.x, to.z - from.z).length()
 			_hop = {}
 			airborne = false
+			_landed_at(to.y)
 		return
-	# Falling (no ground under it: spawned in the air, or knocked over an edge the probes could not see).
+	# Falling (no ground under it: spawned in the air, knocked over an edge the probes could not see, or a hop cut short
+	# by a hit, which may still be rising).
 	vertical_speed -= g * delta
 	var start := global_position
 	var drop := -vertical_speed * delta
+	if drop <= 0.0:
+		global_position = start + Vector3.UP * -drop
+		return
 	var end := start + Vector3.DOWN * drop
 	if ground != null:
 		var tol := def.fall_landing_tolerance_m
@@ -396,6 +529,12 @@ func _step_air(delta: float) -> void:
 			global_position.y = float(gq.y)
 			airborne = false
 			vertical_speed = 0.0
+			if not _floor_settled:
+				# Spawned in the air: the first ground it lands on is its spawn floor.
+				_floor_settled = true
+				_set_spawn_floor(float(gq.y))
+			else:
+				_landed_at(float(gq.y))
 			return
 	global_position = end
 	if global_position.y < kill_y:

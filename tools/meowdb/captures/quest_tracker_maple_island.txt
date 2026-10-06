@@ -1,0 +1,36 @@
+URL: https://meowdb.com/msclassic/quest-tracker?area=1
+READ_AT: 2026-10-05T07:30Z
+READ_AT_NOTE: normalized on 2026-10-05 from the hand-written "2026-10-05T07:3x" so tools can read it. The minute was
+         not recorded: the page was read between 07:30 and 07:39, in the same browser session as the monster captures
+         (07:44Z-07:49Z), so UTC is inferred from them; 07:30Z is the start of that window. The page's default sort is
+         "Quest chains".
+METHOD: manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the Maple Island rows
+PURPOSE: confirm that the cached quest list (tools/meowdb/.cache/quest-tracker_all.html, 2026-10-04) is still the
+         current Maple Island quest set. Counts on the live page: Regular quests 190, Citizenship 88, All quests 278
+         (the cached page also has 278 rows). The chain-sorted first page lists every Maple Island quest before the
+         first non-Maple-Island row ("[Event] Gift for the New Journey", area Events, Ended):
+---
+Sera's Mirror  0 / 2 Completed
+  Borrowing Sera's Mirror      Level 1 · Heena · Maple Island · COT2 · Missable   Step 1 of 2
+  Bringing a Mirror to Heena   Sera · Maple Island · COT2 · Missable              Step 2 of 2
+Please bring this letter to Lucas  0 / 2 Completed
+  Letter for Lucas             Level 2 · Maria · Maple Island · COT2 · Missable   Step 1 of 2
+  Lucas's Reply                Lucas · Maple Island · COT2 · Missable             Step 2 of 2
+Mai's Training  0 / 3 Completed
+  Sam's Suggestion             Level 1 · Sam · Maple Island · COT2 · Missable     Step 1 of 3
+  Mai's Training               Level 3 · Mai · Maple Island · COT2 · Missable     Step 2 of 3
+  Mai's Final Training         Mai · Maple Island · COT2 · Missable               Step 3 of 3
+Nina and Sen's Dinner Menu  0 / 2 Completed
+  What Sen wants to eat        Level 1 · Nina · Maple Island · COT2 · Missable    Step 1 of 2
+  Returning to Nina            Sen · Maple Island · COT2 · Missable               Step 2 of 2
+Roger's Apple                  Level 1 · Roger · Maple Island · COT2 · Missable
+Todd's How-to-Hunt             Level 1 · Todd · Maple Island · COT2 · Missable
+Biggs's Collection of Items    Level 3 · Biggs · Maple Island · COT2 · Missable
+Pio's Collecting Recycled Goods  Level 5 · Pio · Maple Island · COT2 · Missable
+Rain's Maple Quiz  0 / 7 Completed
+  Rain's Maple Quiz 1 … 7      Level 5 · Rain · Maple Island · COT2 · Missable    Step 1 … 7 of 7
+[Event] Gift for the New Journey   Level 8 · Maple Administrator · Events · COT2 · Ended   (not Maple Island)
+---
+RESULT: 20 Maple Island quests (ids 1000-1019 in the cache), grouped as 5 chains (Sera's Mirror 1000→1001, Letter
+for Lucas 1007→1008, Mai's Training 1006→1009→1010, Nina and Sen's Dinner Menu 1003→1004, Rain's Maple Quiz
+1013→…→1019) and 4 standalone quests (1002, 1005, 1011, 1012). Every one is flagged "Missable".

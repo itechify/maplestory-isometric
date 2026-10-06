@@ -4,7 +4,8 @@ extends MisoWindow
 ## fame; STR / DEX / INT / LUK as total (base + bonus) with a "+" button per stat while AP is available (spent
 ## through Game.allocate_ap, which announces the change); and the derived numbers of StatCalculator.snapshot: the
 ## damage range, ACC, AVOID, W.DEF, M.DEF, Magic, Speed and Jump. Which stats take AP comes from canonical
-## formulas/beginner.json ap.allocatable_stats. Each "+" sits in a PlusCell that keeps its size while the button is
+## formulas/beginner.json ap.allocatable_stats. The unspent Skill Points (CharacterState.sp, granted by Progression)
+## are shown under the AP; they are spent in the Skills window (toggle_skills, K). Each "+" sits in a PlusCell that keeps its size while the button is
 ## hidden, so STR / DEX / INT / LUK keep one row each at any AP (a GridContainer skips hidden children).
 
 ## The size of a "+" button (and of the cell that holds it).
@@ -36,6 +37,8 @@ var values: Dictionary = {}
 var plus_buttons: Dictionary = {}
 var ap_label: Label
 var ap_box: PanelContainer
+var sp_label: Label
+var sp_box: PanelContainer
 
 
 func _init() -> void:
@@ -64,6 +67,24 @@ func _build() -> void:
 	ap_box.add_child(ap_label)
 	ap_row.add_child(ap_box)
 	body.add_child(ap_row)
+
+	var sp_row := HBoxContainer.new()
+	sp_row.mouse_filter = MOUSE_FILTER_IGNORE
+	var sp_title := Label.new()
+	var skills_key := MisoUiEnv.key_label("toggle_skills")
+	sp_title.text = "Skill Points%s" % (" [%s]" % skills_key if skills_key != "" else "")
+	sp_title.theme_type_variation = &"MisoHeading"
+	sp_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sp_title.tooltip_text = "Spend SP in the Skills window"
+	sp_row.add_child(sp_title)
+	sp_box = PanelContainer.new()
+	sp_box.theme_type_variation = &"MisoSlot"
+	sp_box.custom_minimum_size = Vector2(54, 0)
+	sp_label = MisoTheme.make_label("0", 16, MisoTheme.GOLD, 3, MisoTheme.WEIGHT_BLACK)
+	sp_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sp_box.add_child(sp_label)
+	sp_row.add_child(sp_box)
+	body.add_child(sp_row)
 
 	var abil := _section()
 	var abil_grid := _grid(abil, 3)
@@ -106,6 +127,7 @@ func refresh() -> void:
 		for s in plus_buttons:
 			(plus_buttons[s] as Button).visible = false
 		ap_label.text = "-"
+		sp_label.text = "-"
 		return
 	var snap := StatCalculator.snapshot(c, db)
 	_show("name", c.name)
@@ -132,6 +154,8 @@ func refresh() -> void:
 		plus.visible = c.ap > 0 and stat in allowed
 	ap_label.text = str(c.ap)
 	ap_label.add_theme_color_override("font_color", MisoTheme.GOLD if c.ap > 0 else MisoTheme.TEXT_DIM)
+	sp_label.text = str(c.sp)
+	sp_label.add_theme_color_override("font_color", MisoTheme.GOLD if c.sp > 0 else MisoTheme.TEXT_DIM)
 	_show("damage", "%s ~ %s" % [MisoTheme.thousands(int(snap["damage_min"])), MisoTheme.thousands(int(snap["damage_max"]))])
 	_show("acc", str(int(snap["acc"])))
 	_show("avoid", str(int(snap["avoid"])))

@@ -16,7 +16,6 @@ Machine-readable companion: `docs/research/maps/1000005.struct.json`. It uses th
 - Reference images, viewed but not copied: `ref_renders/v8_1000005_render.png` and `v8_1000005_minimap.png`.
 - Cross-checks:
   - `https://maplestory.io/api/GMS/40/map/1000005`: the exit portal parses there. All 157 v8 floor footholds are present and the mobs are identical. v40 also adds geometry; see §7.
-  - Hidden Street 2005, archived at `https://web.archive.org/web/20051210065940/http://www.hidden-street.net:80/maps/miamherst.php`. It calls this map "Hunting Ground in the Middle of the Forest I".
 
 ## 0. Map card
 
@@ -134,16 +133,15 @@ The sprites are `connect/ladder/0` and `connect/rope/0` (hemp rope with a wooden
 ## 2. Portals
 - The parsed v8 JSON has 7 entries: 6 `sp` (listed above) and 1 `null`.
 - Raw v8 WZ `.../001000005.img/portal/6` gives **`out00`, type 2, at (132, 155), going to 1000000 `in04`**. It stands on the mound T34, in front of the door object `door/grassySoil/door/0` at (129, 106).
-- v40 shows the same portal, and the Hidden Street 2005 thumbnail shows the portal glow on the door block.
+- v40 shows the same portal.
 - On the other side, `in04` is in The Field West of Amherst at (389, -688), on an upper level of that map, and links back to `1000005:out00`. Source: raw v8 WZ `https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/7`, also recorded in `1000000.struct.json`.
-- **No edge exits.** The perimeter walls run to the map bottom. This is a dead-end pocket off The Field West of Amherst; Hidden Street lists only that connection.
+- **No edge exits.** The perimeter walls run to the map bottom. This is a dead-end pocket off The Field West of Amherst.
 
 ## 3. Spawns
 - **Snail** (lv 1): 21.
 - **Blue Snail** (lv 2): 16.
 - **Shroom** (120100, lv 2): 12.
 - **Red Snail** (lv 4): 10.
-- That matches Hidden Street 2005: "Snail, Blue Snail, Red Snail, Shroom".
 
 | tier | Snail | Blue | Shroom | Red | note |
 |---|---|---|---|---|---|
@@ -170,7 +168,6 @@ The sprites are `connect/ladder/0` and `connect/rope/0` (hemp rope with a wooden
 ### 4.1 Terrain
 - The tile set is `grassySoil`, the same grass over olive-brown cobbled dirt with grey boulders as the other three maps (v8 render).
 - Backgrounds use set `grassySoil` (`back/0..4`): blue sky, drifting cumulus clouds, a domed hill, one big leafy tree and a golden meadow strip.
-- The Hidden Street 2005 thumbnail shows the big tree (back no.3) as a dark tree shape on the east side.
 
 ### 4.2 Objects (raw WZ; x,y = object origin)
 - **Exit door** at (129, 106) on the door block. Five small round shrubs (`grassySoil/nature/1`, layer 1) sit around its base, at x40-227.

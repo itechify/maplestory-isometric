@@ -10,6 +10,15 @@ var game: GameState = null
 var seen: Dictionary = {}
 
 
+## Contract C6.
+func parity_keys() -> Dictionary:
+	return {
+		"test_stats_window_applies_ap_and_refreshes_derived_numbers": ["mechanic:ap-allocation"],
+		"test_quest_log_shows_sams_suggestion_progress_after_kills": ["ui:quest-log"],
+		"test_quest_log_marks_quests_whose_start_npc_is_here_nearby": ["ui:quest-log"],
+	}
+
+
 func before_each() -> void:
 	bus = load("res://scripts/autoload/events.gd").new()
 	seen = {}
@@ -367,8 +376,8 @@ func test_quest_log_shows_sams_suggestion_progress_after_kills() -> void:
 	assert_true(found, "objective row '%s' in %s" % [kill_text, str(rows)])
 	var texts := ql.detail_texts()
 	assert_true(String(db().quest("1006").get("name")) in texts, "quest name")
-	assert_true("Return to %s" % String(db().npc(qs.engine.definition("1006").end_npc_id).get("name")) in texts,
-		"turn-in row")
+	assert_true("Talk to %s" % String(db().npc(qs.engine.definition("1006").end_npc_id).get("name")) in texts,
+		"turn-in row (Mai not met yet, so not 'Return to')")
 	var d := qs.engine.definition("1006")
 	assert_true("EXP  +%d" % d.reward_exp in texts, "canonical EXP reward")
 	for it: Dictionary in d.reward_items:
@@ -404,7 +413,8 @@ func test_quest_log_marks_quests_whose_start_npc_is_here_nearby() -> void:
 	assert_true(ql.entries.size() > 1, "several quests are available to a new Beginner")
 	assert_eq(String(ql.entries[0]["quest_id"]), "1006", "Sam's quest is listed first in his map")
 	assert_true(bool(ql.entries[0]["nearby"]), "and marked nearby")
-	assert_true(_quest_button_text(ql, "1006").ends_with("[nearby]"), "list: '%s'" % _quest_button_text(ql, "1006"))
+	assert_true(_quest_button_text(ql, "1006").begins_with("[nearby] "), "the tag leads the row (a long name is what "
+		+ "the ellipsis trims): '%s'" % _quest_button_text(ql, "1006"))
 	assert_true("Available nearby" in " ".join(ql.detail_texts()), "detail status: %s" % ql.detail_texts())
 	for e: Dictionary in ql.entries:
 		var here := false
@@ -572,10 +582,10 @@ func test_window_drags_by_its_title_and_stays_on_screen() -> void:
 	_push_motion(vp, grab + Vector2(5000, 5000))
 	var area := root.get_viewport_rect().size
 	assert_eq(w.position.x, area.x - w.size.x, "clamped to the right edge")
-	assert_eq(w.position.y, area.y - 40.0, "the title strip stays on screen")
+	assert_eq(w.position.y, area.y - w.size.y, "the whole window stays on screen (no HUD here: nothing reserved)")
 	_push_button(vp, grab + Vector2(5000, 5000), false)
 	_push_motion(vp, grab)
-	assert_eq(w.position.y, area.y - 40.0, "released: no longer dragging")
+	assert_eq(w.position.y, area.y - w.size.y, "released: no longer dragging")
 	Input.action_release(&"attack")
 
 

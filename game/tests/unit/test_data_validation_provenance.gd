@@ -1,8 +1,57 @@
 extends DataValidationTestCase
 ## Negative tests: duplicate or mismatched canonical ids, missing or foreign provenance, malformed external entries,
-## a stale canonical_sources.json, missing required fields and loader errors are all caught.
+## a stale canonical_sources.json, missing required fields and loader errors are all caught. Per-property provenance
+## (contract C7): sources from the authority registry (MeowDB MS Classic, Henesys.gg for rarity only, Project owner) are
+## accepted, and every misuse of an authority is caught.
 
 const INDEX := "canonical_sources"
+
+## Real citations from the dated captures (tools/henesys/captures/item_rarity.json, tools/meowdb/captures/monster_1.json:
+## the Tutorial Jr. Sentinel, the first monster-owned drop record, which _with_drop_provenance edits).
+const HENESYS_SRC := {"authority": "Henesys.gg", "url": "https://henesys.gg/loot",
+	"read_at": "2026-10-06T05:17:21.423Z", "capture": "tools/henesys/captures/item_rarity.json", "decision": "D3-11"}
+const MEOWDB_SRC := {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/1",
+	"read_at": "2026-10-05T07:49:19.434Z", "capture": "tools/meowdb/captures/monster_1.json", "decision": "D3-11"}
+
+
+## Brief Phase 17 (one record, several authorities per property) and Phase 16 (no duplicate canonical ids).
+func parity_keys() -> Dictionary:
+	var per_property := ["canon:provenance-per-property"]
+	return {
+		"test_duplicate_id_across_files": ["xref:no-duplicate-ids"],
+		"test_per_property_meowdb_and_henesys_sources_are_accepted": per_property,
+		"test_henesys_may_not_supply_membership": per_property + ["canon:membership-rarity-separate"],
+		"test_henesys_may_not_supply_a_chance_or_a_meso_amount": per_property + ["canon:membership-rarity-separate"],
+		"test_non_meowdb_source_needs_read_at_and_capture": per_property,
+		"test_unknown_authority": per_property,
+		"test_urls_must_belong_to_the_authority": per_property,
+		"test_project_owner_needs_a_decision": per_property,
+		"test_sources_index_lists_capture_files_and_property_sources": per_property,
+		"test_quest_tracker_tags_cite_the_capture": per_property,
+	}
+
+
+## Decision D3-2: the live quest tracker (a dated capture) flags all 20 Maple Island quests "Missable" (tag "COT2" too).
+## extract_quests.mjs records both per quest with provenance citing the capture, and the validator accepts them.
+func test_quest_tracker_tags_cite_the_capture() -> void:
+	const CAPTURE := "tools/meowdb/captures/quest_tracker_maple_island.txt"
+	var ids := db().ids("quests")
+	assert_eq(ids.size(), 20, "the Maple Island quest set")
+	for qid in ids:
+		var q := db().quest(qid)
+		assert_eq(q.get("missable", null), true, "quest %s missable" % qid)
+		assert_eq(q.get("tracker_tags", null), ["COT2", "Missable"], "quest %s tracker tags" % qid)
+		for field in ["missable", "tracker_tags"]:
+			var src: Dictionary = q.get("provenance", {}).get(field, {})
+			assert_eq(src.get("authority", null), ProvenanceAuthorities.MEOWDB, "quest %s %s authority" % [qid, field])
+			assert_eq(src.get("capture", null), CAPTURE, "quest %s %s capture" % [qid, field])
+			assert_true(String(src.get("raw_value", "")).contains("Missable"), "quest %s %s raw row: %s" % [qid, field, src.get("raw_value", "")])
+			var row_name := String(src.get("raw_value", "")).split("  ")[0]
+			if src.has("note"):  # a collapsed chain row: "Rain's Maple Quiz 1 … 7"
+				assert_true(row_name.begins_with(String(q.name).rsplit(" ", true, 1)[0]), "quest %s collapsed row: %s" % [qid, row_name])
+			else:
+				assert_eq(row_name, q.name, "quest %s row name" % qid)
+	assert_eq(baseline().matching("provenance", "quests").size(), 0, "the validator accepts the tracker provenance")
 
 
 func test_unbroken_copy_has_no_provenance_errors() -> void:
@@ -169,6 +218,215 @@ func _index_row(c: ContentDB, domain_name: String, id: String) -> Dictionary:
 			return row
 	fail("canonical_sources.json has no row for %s/%s" % [domain_name, id])
 	return {}
+
+
+# --- per-property provenance: the authority registry (contract C7) ----------------------------------------------
+
+## A clone with `block` as the `provenance` of the first monster-owned drop record (its index rebuilt); [clone, id].
+func _with_drop_provenance(block: Dictionary, keep_index: bool = false) -> Array:
+	var c := clone_db()
+	var id := first_id_where(c, "drops", func(t: Dictionary) -> bool: return t.owner.kind == "monster", "owned by a monster")
+	c.drop_table(id)["provenance"] = block
+	if not keep_index:
+		reindex(c)
+	return [c, id]
+
+
+func _src(base: Dictionary, changes: Dictionary = {}) -> Dictionary:
+	var d := base.duplicate(true)
+	for k in changes:
+		if changes[k] == null:
+			d.erase(k)
+		else:
+			d[k] = changes[k]
+	return d
+
+
+func test_per_property_meowdb_and_henesys_sources_are_accepted() -> void:
+	var cid := _with_drop_provenance({"membership": _src(MEOWDB_SRC), "rarity": _src(HENESYS_SRC),
+		"mesos.amount": _src(MEOWDB_SRC),
+		"owner_level": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/3", "retrieved_at": "2026-10-04T09:57:41Z"}})
+	var r := run_validator(cid[0])
+	expect_no_new(r)
+	# The shipped drop records carry their own provenance block: count the replaced block's change.
+	var replaced := (db().drop_table(cid[1]).get("provenance", {}) as Dictionary).size()
+	assert_eq(int(r.stats.get("provenance_sources_checked", 0)) - int(baseline().stats.get("provenance_sources_checked", 0)),
+		4 - replaced, "every property source was checked")
+
+
+func test_henesys_may_not_supply_membership() -> void:
+	var cid := _with_drop_provenance({"membership": _src(HENESYS_SRC)})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1],
+		"provenance.membership: Henesys.gg may not supply 'membership' (it may supply: rarity)")
+
+
+func test_henesys_may_not_supply_a_chance_or_a_meso_amount() -> void:
+	var cid := _with_drop_provenance({"probability": _src(HENESYS_SRC), "mesos.amount": _src(HENESYS_SRC)})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.probability: Henesys.gg may not supply 'probability'")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.mesos.amount: Henesys.gg may not supply 'mesos.amount'")
+
+
+func test_non_meowdb_source_needs_read_at_and_capture() -> void:
+	var cid := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"read_at": null}),
+		"mesos.amount": _src(MEOWDB_SRC, {"read_at": "2026-10-05T08:0x"})})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.rarity: needs read_at, an ISO 8601 timestamp")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.mesos.amount: needs read_at")
+	var cid2 := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"capture": null})})
+	expect_new(run_validator(cid2[0]), "error", "provenance", "drops", cid2[1], "provenance.rarity: Henesys.gg values need capture")
+
+
+func test_missing_capture_file() -> void:
+	var cid := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"capture": "tools/henesys/captures/zz_missing.json"})})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1],
+		"provenance.rarity.capture names tools/henesys/captures/zz_missing.json, which does not exist")
+
+
+func test_capture_path_must_be_a_repo_path_under_tools_captures() -> void:
+	for bad in ["../tools/henesys/captures/item_rarity.json", "game/data/canonical/items/242.json",
+			"tools/henesys/captures/../../../README.md", "C:/repo/tools/henesys/captures/item_rarity.json",
+			"tools\\henesys\\captures\\item_rarity.json", "tools/henesys/item_rarity.json"]:
+		var cid := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"capture": bad})})
+		expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1], "is not a capture path")
+
+
+func test_unknown_authority() -> void:
+	var cid := _with_drop_provenance({"rarity": {"authority": "Some Wiki", "url": "https://example.com/snail",
+		"read_at": "2026-10-05T00:00:00Z"}})
+	expect_new(run_validator(cid[0]), "error", "provenance", "drops", cid[1], "authority \"Some Wiki\" is not registered")
+
+
+func test_urls_must_belong_to_the_authority() -> void:
+	var cid := _with_drop_provenance({
+		"rarity": _src(HENESYS_SRC, {"url": "https://henesys.gg.evil/loot"}),
+		"membership": _src(MEOWDB_SRC, {"url": "https://henesys.gg/loot"}),
+	})
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.rarity: url \"https://henesys.gg.evil/loot\" is not a Henesys.gg page")
+	expect_new(r, "error", "provenance", "drops", cid[1], "provenance.membership: url \"https://henesys.gg/loot\" is not a MeowDB MS Classic page")
+	var cid2 := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"url": null})})
+	expect_new(run_validator(cid2[0]), "error", "provenance", "drops", cid2[1], "provenance.rarity: Henesys.gg needs a url")
+	# Several pages of one site: `urls`.
+	var ok := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"url": null,
+		"urls": ["https://henesys.gg/loot", "https://henesys.gg/loot?search=Snail%20Shell"]})})
+	expect_no_new(run_validator(ok[0]))
+
+
+func test_project_owner_needs_a_decision() -> void:
+	var c := clone_db()
+	var combat: Dictionary = c.miso[""]["combat"]
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner"}}
+	expect_new(run_validator(c), "error", "provenance", "misostory", "combat", "provenance.natural_recovery: needs decision")
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner",
+		"decision": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration"}}
+	expect_no_new(run_validator(c))
+	combat["provenance"] = {"natural_recovery": {"authority": "Project owner", "decision": "D3-11"}}
+	expect_no_new(run_validator(c))
+	combat["provenance"] = {"natural_recovery": _src(HENESYS_SRC)}
+	expect_new(run_validator(c), "error", "provenance", "misostory", "combat", "Henesys.gg may not supply 'natural_recovery'")
+
+
+func test_records_without_a_provenance_block_keep_their_source_rules() -> void:
+	# No provenance block: the record's own `source` covers it, and it must be MeowDB. A foreign authority in `source`
+	# still fails, and a field source off meowdb.com still needs an external entry; the registry does not loosen that.
+	assert_eq(baseline().matching("provenance", "", "", "error").size(), 0, "the shipped data has no provenance errors")
+	var c := clone_db()
+	var item_id := c.ids("items")[0]
+	c.item(item_id).source.authority = "Henesys.gg"
+	c.item(item_id).source.url = "https://henesys.gg/loot"
+	var r := run_validator(c)
+	expect_new(r, "error", "provenance", "items", item_id, "source.authority must be \"MeowDB MS Classic\"")
+	expect_new(r, "error", "provenance", "items", item_id, "is not a MeowDB MS Classic page")
+	var c2 := clone_db()
+	var mon := c2.ids("monsters")[0]
+	c2.monster(mon)["field_sources"] = {"zz": {"url": "https://henesys.gg/loot"}}
+	expect_new(run_validator(c2), "error", "provenance", "monsters", mon, "not on meowdb.com and has no external entry")
+
+
+func test_capture_lookup_is_live_on_the_shipped_data() -> void:
+	# Item 242 (Green Apple) is built from the item API capture; with an empty injected capture list its citations fail.
+	var c := clone_db()
+	var id := first_id_where(c, "items", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "built from a capture")
+	var r := run_validator(c, {"capture_files": {}})
+	expect_new(r, "error", "provenance", "items", id, "source.capture names tools/meowdb/captures/items_api.json, which does not exist (looked under the injected capture_files)")
+	var cited := {}  # every capture the shipped data cites (items_api.json, the quest tracker, the rarity capture, ...)
+	for domain_name in ValidationUtil.canonical_domains(c):
+		for key in c.ids(domain_name):
+			for f in ProvenanceChecks._capture_files(c.get_entity(domain_name, key)):
+				cited[f] = true
+	assert_has(cited, "tools/meowdb/captures/items_api.json", "the shipped data cites the item API capture")
+	assert_has(cited, "tools/henesys/captures/item_rarity.json", "the drop records cite the rarity capture")
+	expect_no_new(run_validator(c, {"capture_files": cited}))
+
+
+func test_sources_index_lists_capture_files_and_property_sources() -> void:
+	# The shipped drop records already cite the rarity capture, so the injected block cites a capture file no record
+	# cites (it exists: the folder's README) to move totals.capture_files.
+	var cid := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"capture": "tools/henesys/captures/README.md"})}, true)
+	var r := run_validator(cid[0])
+	expect_new(r, "error", "sources_index", INDEX, "drops/%s" % cid[1], "capture_files")
+	expect_new(r, "error", "sources_index", INDEX, INDEX, "totals.capture_files")
+	var row := _index_row(db(), "items", first_id_where(db(), "items",
+		func(rec: Dictionary) -> bool: return rec.get("source", {}).has("capture"), "built from a capture"))
+	# Green Apple (242) cites its item API capture and the text capture of its item page (sorted, as the index lists them).
+	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/item_242.txt", "tools/meowdb/captures/items_api.json"],
+		"the shipped index lists both captures")
+	var p := ProvenanceChecks.new(cid[0], ValidationReport.new())
+	var expected := p.index_row("drops", cid[1], cid[0].drop_table(cid[1]))
+	# Every entry's rarity source and the block cite the one Henesys.gg page.
+	assert_eq(expected.property_sources.rarity, {"authorities": ["Henesys.gg"], "urls": ["https://henesys.gg/loot"]})
+	assert_eq(expected.property_sources.membership.authorities, ["MeowDB MS Classic"])
+	assert_false(expected.property_sources.has("probability"), "no chance is a sourced property of a drop record")
+
+
+func test_source_object_rules() -> void:
+	var p := ProvenanceChecks.new(ContentDB.new(), ValidationReport.new(), {"capture_files": {}})
+	var cases := [
+		# [property, source, owner kind, expected problem substring or "" for valid]
+		["rarity", HENESYS_SRC, "", ""],
+		["rarity", _src(HENESYS_SRC, {"decision": null}), "", ""],
+		["rarity", HENESYS_SRC, "breakable", ""],
+		["membership", MEOWDB_SRC, "monster", ""],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/2", "retrieved_at": "2026-10-04T09:57:41Z"}, "", ""],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/2"}, "", "needs read_at"],
+		["anything", {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassicfake/2", "read_at": "2026-10-04T09:57:41Z"}, "", "is not a MeowDB MS Classic page"],
+		["rarity", _src(HENESYS_SRC, {"url": "https://henesys.gg/"}), "", "is not a Henesys.gg page"],
+		["rarity", _src(HENESYS_SRC, {"urls": []}), "", "urls must be a non-empty list"],
+		["mesos.amount", _src(HENESYS_SRC), "", "Henesys.gg may not supply 'mesos.amount'"],
+		["membership", _src(HENESYS_SRC), "", "Henesys.gg may not supply 'membership'"],
+		["probability", _src(HENESYS_SRC), "", "Henesys.gg may not supply 'probability'"],
+		["natural_recovery", {"authority": "Project owner", "decision": "D3"}, "", "needs decision"],
+		["natural_recovery", {"authority": "Project owner", "decision": "owner rule, see D3-12"}, "", ""],
+		["natural_recovery", {"authority": "Project owner", "decision": "D3-12", "read_at": "yesterday"}, "", "needs read_at"],
+		["rarity", _src(HENESYS_SRC, {"decision": "decided"}), "", "needs decision"],
+		["rarity", "Henesys.gg", "", "must be an object"],
+		["rarity", {"authority": null}, "", "is not registered"],
+	]
+	for case in cases:
+		var problems := p.source_object_problems(case[0], case[1], case[2])
+		var want: String = case[3]
+		if want == "":
+			assert_eq(problems.size(), 0, "%s %s: %s" % [case[0], str(case[1]), str(problems)])
+		else:
+			assert_true(problems.size() > 0 and want in "\n".join(problems), "%s %s: expected '%s', got %s" % [case[0], str(case[1]), want, str(problems)])
+
+
+func test_registry_rules() -> void:
+	assert_eq(ProvenanceAuthorities.REGISTRY.keys(), ["MeowDB MS Classic", "Henesys.gg", "Project owner"],
+		"the registered authorities (contract C7)")
+	assert_true(ProvenanceAuthorities.allows("Henesys.gg", "rarity"))
+	for p in ["membership", "probability", "mesos.amount", "mesos.probability", "quantity", "name"]:
+		assert_false(ProvenanceAuthorities.allows("Henesys.gg", p), "Henesys.gg supplies rarity only, not %s" % p)
+	assert_true(ProvenanceAuthorities.allows("MeowDB MS Classic", "membership"))
+	assert_true(ProvenanceAuthorities.allows("MeowDB MS Classic", "mesos.amount"))
+	assert_true(ProvenanceAuthorities.allows("Project owner", "natural_recovery"))
+	assert_true(ProvenanceAuthorities.url_allowed("Henesys.gg", "https://henesys.gg/loot"))
+	assert_false(ProvenanceAuthorities.url_allowed("Henesys.gg", "https://henesys.gg.evil/loot"))
+	assert_false(ProvenanceAuthorities.url_allowed("Henesys.gg", "https://henesys.gg/"))
+	assert_eq(ProvenanceAuthorities.SOURCE_PROPERTIES.entries, {"membership_source": "membership", "rarity.source": "rarity"})
+	assert_eq(ProvenanceAuthorities.at_path({"rarity": {"source": {"a": 1}}}, "rarity.source"), {"a": 1})
+	assert_eq(ProvenanceAuthorities.at_path({"rarity": null}, "rarity.source"), null)
 
 
 func test_empty_content_is_an_error() -> void:

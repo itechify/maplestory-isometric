@@ -1,4 +1,4 @@
-# Live monsters and the player's combat (Iteration Two, wave 2)
+# Live monsters, breakables and the player's combat (Iterations Two and Three)
 
 This system puts the monsters and the fighting into the real scene: brief Phase 7 (monster framework, the Maple Island
 monster set, monster behaviour, spawn-system integration) and the in-world half of Phase 8 (attacks, hit detection,
@@ -17,9 +17,9 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/monsters/monster_system.gd` | `MonsterSystem` | root of `scenes/systems/monster_system.tscn`: `setup(ctx)`, the monster factory/releaser, kill and touch handling, the FX layer, who shows a see-through silhouette (`update_see_through`) |
 | `scripts/actors/monsters/monster.gd` | `Monster` | one live monster (`scenes/actors/monster.tscn`, a `CharacterBody3D` on `WorldLayers.MONSTERS` with `MONSTER_MASK`) |
 | `scripts/actors/monsters/monster_def.gd` | `MonsterDef` | pure: the canonical record joined with its adaptation file; the speed, hop and size conversions |
-| `scripts/actors/monsters/monster_brain.gd` | `MonsterBrain` | pure: stand / walk / turn / stagger / chase |
+| `scripts/actors/monsters/monster_brain.gd` | `MonsterBrain` | pure: stand / pace back and forth / turn / stagger / chase |
 | `scripts/actors/monsters/mob_region.gd` | `MobRegion` | pure XZ geometry: the map's mob region minus the portal-arrival discs |
-| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the proxy model or labelled placeholder, bob, facing, flinch, HP bar, spawn and death fades, the see-through silhouette (stencil 36) |
+| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the proxy model (or a named stone fallback body when the library lacks it), bob, facing, flinch, HP bar, spawn and death fades, the see-through silhouette (stencil 36) |
 | `scripts/actors/monsters/monster_test_rig.gd` | `MonsterTestRig` | synchronous combat lab for tests (private bus, private `GameState`, seeded RNG) |
 | `scripts/actors/monsters/monster_game_checks.gd` | | the real-game checks (`scenes/actors/monster_game_checks.tscn`): `main.tscn`, the console's `spawn`/`kill`, real mouse and key events |
 | `scripts/actors/combat/player_combat.gd` | `PlayerCombat` | the player's basic attack (a child of the player, added by `setup`) |
@@ -28,9 +28,9 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/combat/melee_query.gd` | `MeleeQuery` | pure: canonical hit boxes and touch zones placed in 3D, target selection, touch overlap |
 | `scripts/actors/combat/contact_damage.gd` | `ContactDamage` | pure statics: touch gate, resolve, apply (HP, events, knockback), death announcement |
 | `scripts/actors/combat/damage_numbers.gd` | `DamageNumbers` | floating numbers (`scenes/fx/damage_numbers.tscn`) |
-| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark (`scenes/fx/attack_fx.tscn`) |
-| `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, wander rhythm, chase time, hop landing reach, fall landing tolerance, the see-through silhouette's radius, hysteresis, colour and fade); a species file overrides any key |
-| `data/misostory/monsters/{1,2,3,4,5,9}.json` | | per-species adaptation (model, capsule, walk style, speed model, stand and walk times, touch rule, hop) |
+| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark, and the attack box's footprint on the ground (`scenes/fx/attack_fx.tscn`) |
+| `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, floor band, pacing rhythm, chase time, hop landing reach, fall landing tolerance, the see-through silhouette's radius, hysteresis, colour and fade); a species file overrides any key |
+| `data/misostory/monsters/{1,2,3,4,5,9}.json` | | per-species adaptation (model, capsule, walk style, speed model, stand and walk times, touch rule, hop and its floors) |
 | `data/misostory/combat.json` `player_attack` | | the player-attack feel: ground root, input buffer, target count, model lunge |
 | `scenes/sandbox/monster_sandbox.tscn` (+ `.gd`) | | the real island, player, camera, MapSession and this system, with a fighting bot and screenshots |
 
@@ -96,7 +96,7 @@ modifier, the movement label, the Peace flag, `touch_zone_px`, `sprite_size_px`,
 | Walk speed | `slope x (base_speed + modifier)` px/s → `WorldScale.h`. `slope` is the px/s per Speed point of MeowDB's published walk line (`walk_speed.base_px_per_s` at `base_speed`, `cap_px_per_s` at `speed_cap`: 1.25). The character-only "+20 Speed behind the scenes" is not applied | 43.75 px/s = 0.875 m/s; 125 px/s = 2.5 m/s (player 3.0) |
 | Touch zone | `touch_zone_px` x `WorldScale.actor`, depth = width (`combat.json isometric_reach`) | 0.93 x 0.65 m; 1.58 x 1.45 m |
 | Model size | proxy scaled so its height = `sprite_size_px[1]` x `WorldScale.actor` (`model_fit: sprite_height`) | 0.65 m; 1.45 m |
-| Stagger | `CombatFormula.monster_stagger_s` (the canonical `hit1` clip, 600 ms) | 0.6 s |
+| Stagger | the canonical record's own stagger time when it carries one (MeowDB's live pages, 2026-10-05: "STAGGER 0.6 seconds" for all six; fields `stagger_s`, `stagger_ms`, `stagger_duration_s/_ms` or `stagger` {seconds, ms}; `combat.json monster_knockback.stagger_from_canonical_record`), else `CombatFormula.monster_stagger_s` (the canonical `hit1` clip, 600 ms). `MonsterDef.stagger_source` says which | 0.6 s |
 | Push | `CombatFormula.monster_knockback_distance_px` (20 px) x `WorldScale.h` | 0.4 m |
 | Hop | apex = the character's canonical base jump (`jump_height_px_by_jump` at `base_jump`, 77 px x `WorldScale.v` = 0.90 m); gravity = canonical `knockback_airtime.gravity_px_per_s2` x `WorldScale.v` | Orange Mushroom only |
 
@@ -106,7 +106,8 @@ modifier, the movement label, the Peace flag, `touch_zone_px`, `sprite_size_px`,
 over it (`MonsterDef.merged_adaptation`): any key the species file names wins, and its `reasons` entry wins with it.
 `MonsterDef.adaptation` holds the merged view. The shared table holds what all six species repeated: `model_fit`, the
 three MAP_ARCHITECTURE §4.7.4 probes (`probe_ahead_m` 0.6, `ledge_tolerance_m` 0.45, `wall_probe_height_m` 0.3),
-`new_heading_chance`, `turn_jitter_deg`, `provoked_chase_s`, and the two values that used to be code constants,
+the floor band (`floor_band_m` 0.5), the pacing rhythm (`pace_reverse_chance` 0.35, `pace_min_run_m` 1.0,
+`turn_jitter_deg` 50), `provoked_chase_s`, and the two values that used to be code constants,
 `hop_max_rise_apex_fraction` (0.9, jumpers) and `fall_landing_tolerance_m` (0.05). `speed_model` stays in each
 species file, because its reason carries that species' own conversion (Snail: 1.25 x 35 = 43.75 px/s). A missing
 shared table, or a value missing from both layers, is a `MonsterDef.errors` entry. The data validator treats a file
@@ -115,9 +116,14 @@ whose name starts with `_` in a canonical-domain folder as a shared table, not a
 
 ### Behaviour (`MonsterBrain` + `Monster`)
 
-The classic simple loop. A monster stands (`idle_s`), walks (`walk_s`) on a heading it keeps or re-rolls
-(`new_heading_chance`), and turns around with a random jitter (`turn_jitter_deg`) when blocked. Before every step it
-probes, as MAP_ARCHITECTURE §4.7.4 specifies:
+The classic simple loop. MeowDB's movement labels say how: 'Stays on its floor' ("Walks back and forth on the floor it
+spawns on": species 1-5) and 'Jumps between floors' ("Can hop to a floor above or below its spawn point": the Orange
+Mushroom). A monster stands (`idle_s`) and walks (`walk_s`) **back and forth on one line**, its pacing axis (the facing
+its spawn slot gave it): it turns around exactly when blocked, and after a stand it turns around on the line with
+`pace_reverse_chance` (0.35), else carries on. When it is blocked twice in a row after less than `pace_min_run_m` (1 m)
+each (a corner, a narrow strip of floor), its line itself turns by 90° ± `turn_jitter_deg`. A chase faces the attacker;
+when it ends the monster goes back to its line. Iteration Two re-rolled a random 3D heading after 60% of stands, which
+read as wandering, not pacing. Before every step it probes, as MAP_ARCHITECTURE §4.7.4 specifies:
 
 - **Region.** `MobRegion.allows_step(pos, pos + dir x probe_ahead_m)`. The region is the map's mob region
   (`SpawnSlotPlanner.mob_region`: the footprint inset by `spawns.mob_region_inset_m`, 2 m) minus a disc of
@@ -129,6 +135,13 @@ probes, as MAP_ARCHITECTURE §4.7.4 specifies:
   (`atan(ledge_tolerance / probe_ahead)` = 37°) is a wall; a ramp is not.
 - **Ledge.** `PhysicsGroundQuery.ground_at(ahead, ±ledge_tolerance_m)`: the first surface within ±0.45 m must be
   walkable (a blocking slab within the world's coplanar tolerance counts, as for the player).
+- **Floor.** That ground must stay on the monster's floor (`Monster.floor_range`, probe reason "floor"). A monster's
+  spawn floor is its spawn height ± `floor_band_m` (0.5 m), widened to its spawn region's authored height band
+  (sidecar `spawn_regions` `y_band`, found through the slot's region: `MonsterSystem.region_band`) when the slot lies
+  on that tier (`MonsterDef.floor_range`). Connected by the probes and limited by the mob region, that is "the walkable
+  surface it can walk to from its spawn point, at its spawn height", so a walker never climbs or descends a ramp to
+  another terrace (Iteration Two let any ramp-connected terrace of the mob region count). A monster already off its
+  floor (fallen) may only move back toward it. Chases and stagger pushes obey it too.
 
 Then it moves `speed x dt` and sits on the ground found under its new position. There are no physics sweeps:
 monsters never collide with each other or with the player (classic bodies overlap), and their capsule exists for the
@@ -137,22 +150,34 @@ gravity and lands on ground within `fall_landing_tolerance_m` (5 cm) of its feet
 sea plane it returns to its spawn point.
 
 - **Jumpers** (Orange Mushroom, "Jumps between floors"): every `hop_interval_s` while walking, and instead of turning
-  at a ledge or a wall, it tries a ballistic hop one walk-speed airtime ahead. The landing must be walkable ground
-  from `hop_max_rise_apex_fraction` (0.9) of the apex above to `hop_max_drop_m` (2 m) below, inside the region, with
-  a clear path (two rays over the arc). Otherwise it turns. It really changes floors: the world test counts 50 hops in
-  60 s of simulated time.
-- **Hit.** When `DamageResult.knockback` (damage >= KB; every Maple Island monster has KB 1) it staggers for its hit
-  clip and slides 20 px away from the attacker, stopping at a ledge, wall or region edge (never knocked off a cliff).
-  Any hit provokes it: it turns to the attacker and, after the stagger, walks toward the attacker for
-  `provoked_chase_s` (a chase stops at an edge instead of turning away), then wanders again.
+  at a ledge, a wall or its floor's edge, it tries a ballistic hop one walk-speed airtime ahead. The landing must be
+  walkable ground from `hop_max_rise_apex_fraction` (0.9) of the apex above to `hop_max_drop_m` (2 m) below, inside
+  the region, with a clear path (two rays over the arc), **and on a floor it may use** (`monsters/9.json
+  hop_floor_rule` "spawn_floor_one_hop", `MonsterDef.hop_floor`): from its spawn floor (floor 0) it may hop onto a
+  floor above or below it (floor +1 / -1, walking within `floor_band_m` of the landing height there); from floor +1 or
+  -1 it may only hop along that floor or back to the spawn floor. So it never ends up two floors from its spawn point
+  (Iteration Two measured each hop from where it stood, so repeated hops could cross a hillside of terraces).
+  Otherwise it turns. It really changes floors: the world test counts 56 hops in 60 s of simulated time on five maps.
+- **Hit.** When `DamageResult.knockback` (damage >= KB; every Maple Island monster has KB 1) it staggers for its
+  stagger time (the canonical STAGGER, 0.6 s) and slides 20 px away from the attacker, stopping at a ledge, wall,
+  region edge or the edge of its floor (never knocked off a cliff). A knockback hit **in mid-hop** cancels the rest
+  of the hop (`combat.json monster_knockback.airborne_hit` "cancel_hop_then_push"): it keeps its vertical speed,
+  falls straight down from where it was hit, and the push runs during the fall (over ground on a floor it may use) and
+  after the landing, so it ends about 0.4 m away from the attacker like a monster hit on the ground (Iteration Two let
+  the hop carry it on, up to 1.4 m, often toward the attacker: test_b WARN #43). Any hit provokes it: it turns to the
+  attacker and, after the stagger, walks toward the attacker for `provoked_chase_s` (a chase stops at an edge instead
+  of turning away), then paces its line again.
 - **Death.** No more touches or hits; the owner announces it at once (MeowDB: "Loot drops as soon as the mob dies");
   the body fades over the canonical `die_fade_ms` (Snail 1.26 s), sinks a little and frees itself.
 
 ### Presentation (`MonsterVisual`)
 
-Iteration One's proxies from `_library.glb` (Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom). The Tutorial Jr.
-Sentinel has none, so it is a grey procedural body at its canonical sprite size (1.0 x 1.7 m) with a floating
-"Tutorial Jr. Sentinel (placeholder)" tag. All procedural motion goes on a pivot above the asset: a walk cycle with
+The proxies from `_library.glb` (Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom, and since Iteration Three the
+Tutorial Jr. Sentinel: `Mob_TutorialJrSentinel`, a small stone sentinel with one glowing eye, `src/misostory/kit/
+creatures.py`). Every proxy stands on its feet (its lowest vertex at y = 0: the Orange Mushroom floated 0.18 m and the
+Snail 5 cm) and, fitted to its canonical sprite height, its footprint along its facing is 1.0-1.2x its canonical
+touch-zone width (the Blue and Red Snails were 1.3x). If an export lacks a proxy, a stone fallback body at the
+canonical sprite size carries the monster's name. All procedural motion goes on a pivot above the asset: a walk cycle with
 one period per canonical `move` clip ("crawl" squash and stretch for snails, "bounce" for the rest), facing (720°/s),
 a backward flinch over the canonical `hit1` clip with a white flash, a scale-in over `spawns.fade_in_s` (0.3 s), and
 the death fade (`GeometryInstance3D.transparency`). A red HP bar (billboard, drawn over terrain, left-anchored in mesh
@@ -223,7 +248,14 @@ monster is hidden.
 A whiff still takes the attack's time. If the PlayerCombat node leaves the player mid-attack, it unlocks and hands
 the wrapped input source back, so the player is never left planted. Bare hands are combat.json's adaptation: W.ATK 0,
 so a landed punch deals the final-clamp minimum of 1. The swing arc, thrust spike or punch burst is built from the
-presentation's own box (its near and far reach and height), and the player's model (PlayerVisual's `Model` child,
+presentation's own box (its near and far reach and height). With it, AttackFx lays **the hit area itself** on the
+ground at the player's feet (`AttackFx.last_reach`): the canonical box from its near edge to its far edge along the
+facing (swingO2's starts 5 px behind the feet) and `attack_box_depth_px` (60 px, 1.5 m) across it, the isometric
+depth the hit test uses (MonsterSystem passes it to AttackFx). A pale fill with a brighter rim, it fades with the
+slash. A monster is hit when its touch zone overlaps that box, so a slash that reaches a Snail a metre beside the
+facing line is now seen to reach it (the Iteration Three audit: the band reached ±1.21 m for a Snail, ±1.54 m for an
+Orange Mushroom, and the FX drew only a line along the facing). The reach numbers are unchanged. The player's model
+(PlayerVisual's `Model` child,
 which PlayerVisual never moves) lunges `lunge_m` (0.14 m) forward and back over `lunge_s` (0.16 s). The body itself
 never moves.
 
@@ -333,20 +365,91 @@ tick 30 monsters again with no debug spawn among them.
 ## Natural HP recovery (`NaturalRecovery`)
 
 MeowDB documents natural regeneration only qualitatively ("When you're not in combat, just standing still will slowly
-restore your HP"; `formulas/recovery.json` natural_regeneration, documented_values false), so the numbers are a
-MisoStory adaptation in `data/misostory/combat.json` `natural_recovery` (verified false, reason in the file):
-10 HP every 10 s, after 5 s without combat, only while standing still. MP does not recover on its own (MeowDB names HP
-only).
+restore your HP"; `formulas/recovery.json` natural_regeneration, documented_values false). The rule is the project
+owner's (docs/ITERATION_THREE_BRIEF.md "Natural HP Regeneration", contract C4), recorded in
+`data/misostory/recovery.json` `natural_hp` with `provenance.natural_hp` authority "Project owner" and
+`verified: true` against the brief:
 
-- `scripts/core/character/natural_recovery_rule.gd` (`NaturalRecoveryRule`): the pure rule. A missing config key is a
-  data error (no invented default).
-- `scripts/actors/combat/natural_recovery.gd` (`NaturalRecovery`): added to the player by `MonsterSystem.attach_player`
-  after `PlayerCombat`. It reports "resting" (alive, grounded, horizontal speed under 0.05 m/s, not climbing, not in
-  hit-stun, MapSession idle), counts `PlayerCombat.attack_started`, `Events.player_damaged` and
-  `Events.player_missed_by` as combat, and heals through `Game.change_hp`, so the HUD sees every tick.
-- Tests: `test_natural_recovery.gd` (the rule, the shipped config is an unverified adaptation over a canonical gap) and
-  `test_playtest_regen.gd`, which runs the `regen` scenario in the real game: no recovery during 12 s of walking, then
-  +10 HP after 10 s standing still, +10 more 10 s later, capped at max HP.
+- **10 HP per 10 s of eligible time.** Eligible activities (`natural_hp.eligible_activities`, read against
+  `PlayerController.activity()`): `still` (grounded, no movement input, about zero speed) and `seated`.
+- **Pause, never reset.** Every other activity (walking, jumping, attacking or casting, climbing, hit-stun, dead, a
+  warp) leaves the clock where it is, so 6 s still + 5 s walking + 4 s still reach the tick. There is no
+  out-of-combat delay: a monster touch only matters through what it does to the activity (a knockback is hit-stun).
+- **Max HP.** HP never goes above Max HP, and while HP is full (or 0) the clock holds.
+- **Saved.** The clock is `CharacterState.natural_recovery.hp_rest_s` (contract C3): the node reads it from the live
+  character before each step and writes it back after, so a save keeps the paused time, Continue restores it, and a
+  new or replaced character uses its own.
+- **Chairs.** While seated on a chair, the chair's canonical bonus (`items/<id>.json` `setup.hp_recovery_bonus` every
+  `setup.interval_s`; The Green Relaxer: 30 HP every 10 s) runs on its own clock on top (contract C5): 10 s on The
+  Green Relaxer give 10 + 30 HP. When that clock starts and whether it holds at full HP are adaptations
+  (`recovery.json` `chair_bonus`, verified false): it starts again at 0 at each sit and holds while HP is full.
+- **MP.** No natural MP recovery: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
+  `unresolved_source_gap`). The brief forbids inferring one from the HP rule.
+
+This replaces Iteration Two's adaptation (`combat.json` `natural_recovery`: a 5 s out-of-combat delay and a rest that
+started over on every movement, attack or monster touch), which is gone.
+
+- `scripts/core/character/natural_recovery_rule.gd` (`NaturalRecoveryRule`): the pure rule (`step(dt, activity, hp,
+  max_hp, chair_hp, chair_interval_s)`, `rest_s`, `chair_rest_s`). A missing config key is a data error (no invented
+  default). Ticks are counted with a 1 µs tolerance, so 600 physics ticks of 1/60 s are exactly 10 s.
+- `scripts/actors/combat/natural_recovery.gd` (`NaturalRecovery`): added to the player by `MonsterSystem.attach_player`.
+  It runs after the player and PlayerCombat (`process_physics_priority` 20), reads `player.activity()` (`dead` while
+  `Game.is_character_dead()`, `other` while MapSession is not idle), adds the seated chair's bonus (`Chairs.bonus`)
+  and heals through `Game.change_hp`, so the HUD sees every tick.
+- Tests: `test_natural_recovery.gd` covers the brief's list: 10 continuous eligible seconds, 9.9 s, partial
+  accumulation (6 + 5 + 4), movement, jump and attack pauses, resume after a pause, sitting, full HP, save/load
+  (through a JSON round trip of `CharacterState` and a character swap). It also covers the chair clock, the MP gap,
+  and the node on a real `PlayerController` (walking, held jump, a stub PlayerCombat attacking, a dialogue, a warp).
+  `test_playtest_regen.gd` runs the `regen` scenario in the real game with real input; see
+  [PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) for the harness. Run on 2026-10-05: 29 checks PASS over 2 processes. The
+  checks: 6 s still bank 6.00 s; 5 s walking leave them at 6.00 s; 4.00 s more give one tick; 5 s of held jump move
+  the clock 2.25 → 2.27 s; 7 held swings move it 2.40 → 2.42 s; the clock then resumes to the next tick; X without a
+  chair says so; a double-click on The Green Relaxer in the Set-up tab sits; 10 s seated give 5 → 45 HP (+10 +30);
+  a move key and a warp stand up; Quit Game with 4.40 s banked; after Continue the player stands, 4.40 s are restored
+  and complete the next tick, and X sits again.
+
+## Breakables: the Wooden Box (Iteration Three, contract C8)
+
+The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placements on six maps (000001000: 5,
+000001010: 6, 000001011: 2, 000001012: 2, 000001013: 1, 000001014: 3). It is hit like a monster, but it is not one.
+
+| Path | Class | Role |
+|---|---|---|
+| `scripts/core/breakables/breakable_rules.gd` | `BreakableRules` | pure: the canonical record (`hits_to_break` 4), the map's `reactors[]` placements (index, id, `respawn_s`), the adaptation table, the drop roll |
+| `scripts/core/breakables/breakable_placement_planner.gd` | `BreakablePlacementPlanner` | pure: places each placement on walkable ground, seeded per map, the way `SpawnSlotPlanner` places spawn slots |
+| `scripts/core/breakables/breakable_placement.gd` | `BreakablePlacement` | one planned placement: key `<map_id>:<index>`, breakable id, position, respawn time |
+| `scripts/core/maps/map_instance_state.gd` | `MapInstanceState.breakables` | the live state: `{id, hits, respawn_at (-1 intact), respawn_s}` per placement; `hit_breakable`, `tick_breakables`; in the map's snapshot |
+| `scripts/actors/breakables/breakable_system.gd` | `BreakableSystem` | the current map's boxes in the scene (`scenes/systems/breakable_system.tscn`, installed after the loot system): realizes them from the live state, lands hits, rolls drops, brings boxes back; the `boxes` console command |
+| `scripts/actors/breakables/wooden_box.gd` | `WoodenBox` | presentation only: a procedural crate (lighter, faintly glowing planks), hit flash, wobble, break and respawn; group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()` |
+| `data/misostory/breakables.json` | | the box's body (`box.touch_px` 30 x 30), the hit rule, the respawn clock and the placement rules (all `verified: false`) |
+
+- **Placement.** MeowDB's `x_px` / `y_px` are 2D and not used (as for spawns). Candidates come from the map's spawn
+  areas clipped to its mob region, else (towns and interiors, which have no species-tagged regions) from its floor and
+  region extensions. A box keeps a clear capsule, stays out of portal triggers and keep-outs, 3.5 m from portals and
+  arrivals, 1.2 m from spawn slots, 2.5 m from other boxes and outside NPC talk zones, needs 5 of 8 standing points
+  around it, and must be in the gameplay camera's sight (checked against collision: a colliderless canopy can still
+  hang over one). A map always gets the same boxes.
+- **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
+  one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
+  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Three Snails counts
+  too: its cast picks the nearest target among the live monsters and the intact boxes in its canonical band, one
+  target per cast, and a box it picks takes one landed hit through `land_hit(box, "skill:0001000")` (a MisoStory
+  choice, `breakables.json hit_rule`, `verified: false`; the owner may rule that skills search monsters only).
+- **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
+  with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (every break, only while Pio's
+  quest 1012 is in progress), Apple and Egg (2% each, the owner's table, decision D3-11); the box drops no mesos. The loot goes
+  out through `Events.loot_dropped` at the box.
+- **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
+  monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the
+  breakable page's single 120 s). The box is not solid (classic reactors never block movement).
+- **Not saved.** Box state lives in the map instance (parked with the map in `MapStateCache`) and never in a save; a
+  reload rebuilds every box intact (`test_breakables_persistence.gd`).
+- **Tests:** `test_breakables_state.gd`, `test_breakables_placement.gd` (with the world: every box on real collision,
+  standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
+  the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
+  `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
+  real reload, a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken,
+  since the quest needs three of Amherst's six) and the every-quest set's 1012 chain.
 
 ## Damage numbers (`DamageNumbers`)
 
@@ -364,10 +467,13 @@ presentation constants in the script, not gameplay values.
 | Where | Value | Why |
 |---|---|---|
 | `monsters/<id>.json speed_model` | `walk_line_no_character_bonus` | MeowDB publishes the modifier, not a monster speed formula (checked: monster pages, glossary, /formulas, the speed guide) |
-| `monsters/<id>.json model`, `model_fit`, `placeholder_color`, `walk_style` | proxies fitted to the canonical sprite height; placeholder for monster 1 | MeowDB publishes stats, not art |
+| `monsters/<id>.json model`, `model_fit`, `placeholder_color`, `walk_style` | proxies fitted to the canonical sprite height (the Tutorial Jr. Sentinel's since Iteration Three); the fallback body's grey | MeowDB publishes stats, not art |
 | `monsters/<id>.json capsule_*` | inside the touch zone | physics body only (kill plane) |
 | `monsters/<id>.json idle_s`, `walk_s` | 0.8-3.0 s stands, 1.0-4.0 s walks | unpublished AI timings, per species |
-| `monsters/_shared.json new_heading_chance`, `turn_jitter_deg`, `provoked_chase_s` | 0.6, 50°, chase 4 s | unpublished AI rhythm, the same for every species |
+| `monsters/_shared.json floor_band_m` | 0.5 m around the spawn height (and the spawn region's tier) | 'Stays on its floor' in 3D: no ramp to another terrace |
+| `monsters/_shared.json pace_reverse_chance`, `pace_min_run_m`, `turn_jitter_deg`, `provoked_chase_s` | 0.35, 1 m, 50°, chase 4 s | 'Walks back and forth': unpublished pacing rhythm and chase, the same for every species |
+| `monsters/9.json hop_floor_rule` | `spawn_floor_one_hop` | 'Can hop to a floor above or below its spawn point', counted from the spawn floor |
+| `combat.json monster_knockback` (ours) | canonical stagger first, then the hit clip; 20 px push; `airborne_hit` cancel the hop | MeowDB publishes the STAGGER time, not the push or a mid-air rule |
 | `monsters/_shared.json probe_ahead_m`, `ledge_tolerance_m`, `wall_probe_height_m` | 0.6 / 0.45 / 0.3 m | MAP_ARCHITECTURE §4.7.4 |
 | `monsters/_shared.json model_fit` | `sprite_height` | the body you see is the body you hit |
 | `monsters/_shared.json hop_max_rise_apex_fraction` | 0.9 | a hop needs clearance under the top of its arc |
@@ -407,14 +513,19 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 | `test_monster_shared_data.gd` | the validator's shared-table exception: the shipped `_shared.json` has no finding and `misostory/monsters` no error; an injected `_zz_test_shared` in `monsters/` and `quests/` is not matched against canonical ids but still fails the reason convention, and is still swept for references; any other basename in a domain folder must still be a canonical id |
 | `test_monster_debug.gd` | `debug_kill()` takes no arguments and is the console's first choice; it runs the death path once (canonical EXP "monster:9", one `monster_killed(id, map)`, `loot_dropped` = `DropRoller.roll` with the same seed, `died` once), a second call does nothing, a bare monster is harmless; 40 debug kills drop only canonical Snail items; a slot index of -1 is no slot; INCLUDE_WORLD: on the real island with the real factory, `spawn 2 3` makes three slotless real Monsters and `kill all` gives EXP = the canonical sum of the kills, the seeded drops, every slot dead, only slot monsters released, and on the respawn tick exactly the slots come back |
 | `test_monster_game.gd` | INCLUDE_WORLD: runs `monster_game_checks.tscn` (36 checks) in a child process: `main.tscn`, the console's warp/spawn/kill end to end, the see-through silhouette as the shell's own frames run it (a Snail spawned next to the player gets it, fades in and its fills draw; every live monster inside 12 m has it and every one beyond 13 m draws none; `kill nearest` drops it in the same frame and it stays off), and real mouse and key events (HUD button click and sub-frame click never swing, a world click swings once, J swings; then, injected between frames as real input arrives: a sub-frame click on the pause menu's Resume never swings, a sub-frame world click swings once) |
-| `test_monster_ai.gd` | brain stand/walk timings, turning, stagger → chase → wander, sub-KB hits; region steps, discs and strays; region from a MapDefinition; on synthetic collision: turns at a ledge and never falls, turns at a wall, walks up a 0.2 m step, six monsters stay inside a region for 30 s, the Orange Mushroom hops onto a 0.6 m terrace and never off a 5 m cliff, ambient hops land, falling and landing, the push stops at a ledge |
+| `test_monster_ai.gd` | brain stand/walk timings, turning around exactly on its line (and a new line after two short runs), pacing one line and returning to it after a chase, stagger → chase → wander, sub-KB hits; region steps, discs and strays; region from a MapDefinition; on synthetic collision: turns at a ledge and never falls, turns at a wall, walks up a 0.2 m step, six monsters stay inside a region for 30 s, the Orange Mushroom hops onto a 0.6 m terrace and never off a 5 m cliff, ambient hops land, falling and landing, the push stops at a ledge |
+| `test_monster_floor.gd` | the spawn floor band (flat tier, hillside region, a slot off its region's tier), a jumper's floors (one above or below its spawn floor, never two), a slot monster takes its region's tier; on synthetic collision: a walker never climbs a ramp off its floor, a walker paces back and forth on its line, the Orange Mushroom on 0.7 m terraces reaches the floor above and below and never the second, a hit mid-hop is pushed the knockback distance away from the attacker |
+| `test_monster_hit_area.gd` | the swing/stab/punch footprint is the canonical box (near and far edge, swingO2 5 px behind) with the 60 px isometric depth, at the feet, for three facings; it is exactly what MeleeQuery hits; MonsterSystem gives AttackFx the depth; contact is the canonical touch zone and nothing more; INCLUDE_WORLD: every proxy (the Sentinel's included) stands on its feet, covers its touch zone along its facing and is within 1.25x of it |
 | `test_player_combat_attack.gd` | lockout = the weapon's ladder time (Wooden Club, Sword, bare hands), presses during it ignored; held attack repeats at the lockout rate; the input buffer; no attack while input-disabled, in hit-stun or dead; the ground root and the air attack; nearest-in-front, never 1 m behind, one target; selection rules in isolation (every Sword presentation and both punches, depth, height, ties); the depth tolerance; bare hands deal 1 and a weapon matches CombatFormula with the same seed; whiffs; monster_hit / monster_missed and their numbers; `setup(ctx)` wiring; the scenes; removing PlayerCombat mid-attack releases the lock; a source swapped and put back by its owner is the owner's again (the decorator it saved is never re-pointed), and a re-wrap mid-attack keeps the player planted; the target count comes from `combat.json player_attack` (1) and a raised count rolls each target |
 | `test_player_combat_mouse.gd` | real `Input` events routed through the viewport (a Button over the world, the keyboard player): a press on the button (held, then released) never swings; a click shorter than a tick on it neither (the old polling guard swung); a world click swings, holding repeats, a sub-tick world click swings once; J attacks with the pointer over the button and while the left button holds it; Ctrl attacks; no swing during a GUI drag; a bot-driven player ignores the mouse; `MouseAttackGate` alone: pass-through without the mouse, world presses only, drags, release ends the hold, other buttons ignored, and the frame-N+1 report of a press that arrives during a physics frame; a sub-frame click on a Resume button that unpauses the tree never swings |
 | `test_player_combat_feel.gd` | `combat.json player_attack` holds every feel value with its own reason and `verified: false`; PlayerCombat reads them; edited data changes the attack (no root: walks during it); with `input_buffer_s` 0 a tap whose key is already up at the tick still attacks at once and a press during the lockout is not kept, while the shipped buffer keeps one; a missing section or malformed values are errors and leave the features off |
 | `test_monster_combat.gd` | every species (Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom) dies to Sword hits with a stagger and its HP bar, awarding exactly its own canonical EXP, one `monster_killed(id, map)` and items only from its own drop table; a seeded Sword kill of a Snail in 3-6 hits grants exactly the canonical 2 EXP (`exp_gained` "monster:2"), one `monster_killed("2", map)`; `loot_dropped` = `DropRoller.roll` with the same seed, at the feet, items from the canonical table, none for an empty roll; the kill is recorded and the slot respawns exactly at the 7.56 s tick, not before; survivor HP through release/realize; an already-live map is re-realized as monsters; contact damage = `resolve_monster_touch(...).final` with the same seed, events, the canonical 1.5 s gate, a second touch only after it; a miss (no damage, no push, MISS); a guard; the Peace rule; HP 0 → `player_died` and a dead player; no touch during a warp; touch geometry edges |
 | `test_monster_see_through.gd` | the rule (inside, at and past the radius, the hysteresis, dead, zero radius); the values reach every species from `_shared.json` (radius at least the camera's nearby radius; a malformed colour is an error); the fill: one shared ShaderMaterial, `stencil_mode read, write, compare_greater, 36`, no depth test, both faces, priority below labels, numbers and the HP bar, and `STENCIL_REF` below `PlayerVisual.STENCIL_REF`; lit and ink surfaces write the stencil on copies shared between monsters while the originals stay untouched; the fill mesh is one surface holding every surface's triangles (merged once per source mesh, a one-surface mesh used as it is) and is never occlusion-culled; with the world export, every surface of the real Snail proxy (ink shells included) writes the stencil, each fill is one surface over the whole mesh, and the library stays untouched; the placeholder in place (no fill under its tag); a visual rebuilt from the placeholder to a library model never edits the library's shared material; the fade in and out (alpha follows, hidden when off) through `step_see_through` and `advance`; death drops it at once and ignores requests, and the flash and death fade never touch the fill; `MonsterSystem.update_see_through` by distance (near, edge, past, far), the player walking in and back (hysteresis), a killed monster, no player |
-| `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit and the labelled placeholder; the HP bar and the death fade over the canonical time |
+| `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit (the Tutorial Jr. Sentinel's too) and the named fallback body without a library (never called a placeholder); the HP bar and the death fade over the canonical time |
 | `test_monster_world.gd` | INCLUDE_WORLD: the island built synchronously, the factory installed on the world's view, maps 030/040/050/1002/1020 realized to capacity with real monsters (all six species), 12 s of stepping each: no falls, no recoveries, inside the mob region and the footprint, on walkable ground, every species wanders, Orange Mushrooms hop; no portal trigger of those maps reaches into the mob region and no monster ever stands in a trigger |
+| `test_spawn_placement.gd` | slots keep `slot_npc_clearance_m` from NPCs; a 16 m² region keeps 8 m² per slot and spills the rest, one species' overflow never displaces another species from its own region, a species shares its regions by weight; authored exclusions are no room and no slot lands in them; INCLUDE_WORLD: on the island every slot is clear of every NPC and exclusion, no region crowded past the map's own density; a respawn is held back while the player stands on its slot and appears once the player leaves (`respawn_waited` inside `monster_spawned`) |
+| `test_spawn_model.gd` | (spawns) the tick, cooldown and capacity rules; the mob rate is ignored by the shipped switch, and turned on (`presentation.json map_mob_rate.apply`) it multiplies capacity, capped at the spawn points, in `MapInstanceState` too |
+| `tools/sources/test/check_spawn_captures.test.mjs` | `node --test tools/sources/test/`: the 51 canonical spawn rows equal the dated captures; a changed count, mob rate or missing row is reported |
 
 ### Sandbox
 
@@ -441,11 +552,47 @@ Results (2026-10-04, Sword, STR 13):
 Screenshots (`_scratch/monster_shots/`): the numbers read clearly at the 19.5 m field zoom; a critical shows pink
 digits over the starburst; damage taken stacks above damage dealt when an Orange Mushroom overlaps the player; the
 swing crescent is visible around the player; the HP bar shows over a damaged monster, filled from the left; a killed
-Snail fades out; the Tutorial Jr. Sentinel placeholder carries its "(placeholder)" tag. A Snail's shell is a flat
+Snail fades out; the Tutorial Jr. Sentinel placeholder of that time carried a "(placeholder)" tag (Iteration Three
+replaced it with its stone proxy and dropped the word). A Snail's shell is a flat
 disc, so a snail facing the camera reads as a thin vertical stripe (proxy art). On 000000030 one Tutorial Jr. Sentinel
 slot sits against the mushroom house, its 1.7 m body partly inside the roof: the slot planner's clearance capsule is
 0.8 m tall (WORLD_RUNTIME, presentation.json spawns.clearance_height_m). The sandbox bot walks in straight lines and
 cannot path around buildings, so it made no attack on that map.
+
+## Verified in the real game (Iteration Three)
+
+`test_b_combat` (headless, seeds 1, 2 and 3 on the rebuilt export: 53 checks, 0 failed each) and the new
+`test_b_population` (79 checks, 0 failed):
+
+- **Reach probes.** Each probe is classified by the identity of what the attack hit, and every tap waits for a front
+  with no other monster in reach of any Sword presentation. The probe Snail 0.75-1.4 m behind and the one 3.2-3.9 m in
+  front were never hit (6 + 6 whiffs per seed). The Iteration Three baseline failure ("2 behind hits") was a bystander
+  Snail 2.1 m in front of the player, counted because the probe recorded "something was hit".
+- **Stagger** 0.600 s on every staggered monster (137-140 tracks per seed), the oracle reading the canonical STAGGER
+  field before the hit clip. **Mid-hop hits:** 1-6 per seed landed on an airborne Orange Mushroom; every one staggered
+  and was pushed away from the attacker, never toward it (now a check, was WARN #43).
+- **Visuals:** all six species show their proxy (the Tutorial Jr. Sentinel's included) on their feet, within 1.35x of
+  their touch zone in the model's own frame (now a check).
+- **Respawns** stay on the 7.56 s tick (49-56 refills per seed, none off-tick); a respawn the view held back because the
+  bot stood on its slot is listed apart (`MapInstanceView.respawn_waited`).
+- **Population, all 15 hunting maps:** one slot per MeowDB spawn point with the canonical species counts (577 in all),
+  the solo capacity live after the first fill (426 in all) and again after `kill all` on the respawn ticks; every
+  slot placed (strict, relaxed or pinned) clear of every arrival (4 m) and NPC (2.5 m; Sam is now 4.3 m from the
+  nearest 000000040 slot); after 8 s of wandering every grounded monster stands on its floor inside its mob region; no
+  respawn realized within 2 m of the player; and on 000000040 a respawn of the slot the player stood on waited
+  (`MapInstanceView.deferred_respawns` counts each held-back respawn once) and appeared once the player left.
+- Known in the harness: in seed 2 the bot, standing still among Orange Mushrooms for the scenario's final 14 s, dies at
+  the very end (pacing monsters keep walking over a player who stands on their line); its open knockback track now
+  counts as interrupted instead of lost.
+- **The bot after floor-bound walkers** (review). A monster on a terrace above or below the player no longer walks
+  down to it, so `test_b_combat` picks fight, touch-probe and reach-probe targets on the player's own tier (within
+  1.5 / 0.8 / 0.3 m of its feet) and walks to another tier over the routes only when none is left on its own; a reach
+  probe taps only on level ground and the check fails on one that does not (a seed-2 run had probed all 18 from 9 m
+  below a terrace and passed on height whiffs); an attack call or a walk that leaves the player where it was hops out
+  with move + jump (`wedges` in the samples) and replans over the grid. Before that, two runs failed on a wedge: the
+  bot stood still for 200-250 s at 000000040 local (8.0, 9.2, -37.4) (seed 2) and at the foot of a 0.83 m lip on
+  000000050 (54.2, 2.2, -17.3) (seed 3: walking into it moves 0.01 m, a jump clears it), and one seed-2 run left the
+  bot on the low ground under every live Snail. Seeds 1, 2 and 3 then passed (53 checks, 0 failed each; no wedge).
 
 ## Verified in the real game (wave-2 review)
 
@@ -555,9 +702,8 @@ box (two identical frames differ by 0 px, so nothing else moves).
   held J or Ctrl, so removing it is better for the keys too.
 - Ranged weapons always use their close-range branch (no projectiles, no ranged search bands); no crouched attack.
   No Maple Island creation weapon is ranged.
-- The Wooden Box breakable (`0000001`) is not built.
-- The death EXP penalty (`Progression.apply_death_penalty`) is not applied here; it belongs in
-  `MapSession.death_rules`.
+- The death EXP penalty (`Progression.apply_death_penalty`) is not applied here: the game shell applies it at the
+  moment of death through `MapSession.death_commit` (GAME_SHELL.md "Death and respawn (Phase 9)").
 - Monsters keep moving while a modal dialogue is open (as in classic); they stop only with the scene tree's pause.
 - Trees between the camera and a fight fade (OcclusionFader) but can still hide the player (camera system).
 - **See-through silhouette.** It is a flat tint: the hidden monster's shape, not its colours or its species. A cover
@@ -581,13 +727,10 @@ box (two identical frames differ by 0 px, so nothing else moves).
 - The mouse split polls the attack action's key bindings while the mouse is involved, so a key tap shorter than a
   physics tick in the same tick as a UI click is lost (both land between the same two ticks). Keys alone are read
   exactly as before.
-- **Requested (world runtime):** the Tutorial Jr. Sentinel slot by the mushroom house on 000000030 stands under the
-  house's cap, so the 1.7 m placeholder renders inside it (seen in the real game). The cap has no collision (a physics
-  probe of every monster body against blocking geometry on all 15 monster maps finds no overlap there), so neither
-  the monster's wall rays nor the slot planner's clearance test can see it. Both are needed: the cap needs a blocking
-  hull, and the planner's clearance capsule (0.8 m, `presentation.json spawns.clearance_height_m`) should be as tall
-  as the species (its canonical sprite height) so that hull keeps the slot out. This supersedes the sandbox note
-  above, which blamed only the capsule height.
+- **Resolved:** the Tutorial Jr. Sentinel slot under the 000000030 mushroom house's cap (Iteration Two's request to
+  the world runtime). `maps/000000030.json spawn_keepouts` keeps slots out of the cap's disc and the planner's
+  clearance capsule is as tall as the species (`SpawnSlotPlanner.clearance_height`); `test_spawn_slots.gd`
+  `test_no_sentinel_under_the_mushroom_house_cap` pins it.
 - The same probe found 22 of 426 monsters briefly overlapping blocking geometry in 20 s of wandering on the 15 maps
   (mostly Orange Mushroom hops and wide bodies brushing walls; the wall rays sit at the capsule radius, the proxies
   are wider), one Orange Mushroom spawned overlapping on 000001002 and one ended inside on 000001021. Small and

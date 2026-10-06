@@ -11,6 +11,9 @@ extends RefCounted
 ##                entity files, not an entity file (misostory/monsters/_shared.json: values every species shares), so
 ##                it is not matched against canonical ids; the convention, sweep and external checks still apply
 ##   external     `external` lists follow the canonical rule (field, source_url, reason, verified: false)
+##   provenance   a top-level `provenance` block {<property>: source object} follows the authority registry
+##                (ProvenanceChecks.check_source_object, contract C7), e.g. the project owner's natural-regen rule
+##                ({"authority": "Project owner", "decision": "..."}); every `capture` key names an existing capture
 ## plus its file-specific check from FILE_SCHEMAS. Required files are checked even when absent.
 ##
 ## Adding a new adaptation file needs no change here as long as it follows the convention. To add file-specific
@@ -23,7 +26,9 @@ extends RefCounted
 const FILE_SCHEMAS := {
 	"map_id_crosswalk": {"convention": false, "sweep": false, "check": "_check_crosswalk", "required": true},
 	"world_scale": {"check": "_check_world_scale"},
-	"drop_rates": {"check": "_check_drop_rates"},
+	"drop_rates": {"required": true},
+	"meso_rules": {"required": true},
+	"recovery": {"check": "_check_recovery", "required": true},
 	"new_character": {"check": "_check_new_character"},
 	"inventory": {"check": "_check_inventory"},
 	"combat": {"check": "_check_combat"},
@@ -43,11 +48,15 @@ const NPC_BEHAVIORS := ["quest", "shop", "transport", "talk"]
 const META_KEYS := ["id", "kind", "description", "title", "name", "label", "note", "notes", "comment", "comments",
 	"reason", "verified", "verification", "verified_by", "verified_against", "source", "sources", "source_url",
 	"source_urls", "retrieved_at", "schema", "schema_version", "version", "see", "doc", "docs", "external", "gaps",
-	"discrepancies", "match_basis", "reasons"]
-const META_SUFFIXES := ["_reason", "_note", "_notes", "_verified", "_source", "_source_url", "_description",
-	"_comment", "_doc", "_label"]
-## A verified: true value must say what it was verified against with one of these keys on the same object.
-const VERIFICATION_KEYS := ["source_url", "verification", "verified_by", "verified_against"]
+	"discrepancies", "match_basis", "reasons", "provenance"]
+const META_SUFFIXES := ["_reason", "_note", "_notes", "_verified", "_verified_against", "_source", "_source_url",
+	"_description", "_comment", "_doc", "_label"]
+## A verified: true value must say what it was verified against: a `verified_against` on the same object (for a
+## `<key>_verified: true` sibling flag, `<key>_verified_against` or `verified_against`), a non-empty string or a
+## non-empty list of them: a canonical record, a URL, or a decision or brief section (the project owner's natural-regen
+## rule is verified against "docs/ITERATION_THREE_BRIEF.md: Natural HP Regeneration"). Anything else is not accepted:
+## a value nobody can say was checked is verified: false with its reason.
+const VERIFIED_AGAINST := "verified_against"
 ## WorldScale (scripts/core/world_scale.gd) reads these factors; each must be a positive number.
 const WORLD_SCALE_FACTORS := ["horizontal_px_to_m", "vertical_px_to_m", "actor_px_to_m"]
 const DEFAULT_WORLD_DIR := "res://assets/world"
@@ -110,6 +119,8 @@ func _check_file(folder: String, key: String, data: Variant) -> void:
 		refs.sweep(label, key, data)
 	if data is Dictionary:
 		provenance.check_external(label, key, data.get("external", null))
+		provenance.check_provenance_block(label, key, data.get("provenance", null))
+	provenance.check_capture_paths(label, key, data)
 	if folder != "" and folder in ValidationUtil.canonical_domains(db) and not is_shared_table(key):
 		_check_domain_file(folder, label, key, data)
 	var method: String = schema.get("check", "")
@@ -147,7 +158,8 @@ func _check_domain_file(folder: String, label: String, key: String, data: Varian
 ## sibling "<key>_verified" (or "<prefix>_verified"), or its object or any enclosing object has "verified"; both
 ## must be bools. So one top-level reason + verified covers a whole file, and per-entry reasons refine it. Arrays
 ## are transparent.
-## A verified: true flag must say what it was checked against (VERIFICATION_KEYS on the same object).
+## A verified: true flag must say what it was checked against (VERIFIED_AGAINST on the same object), else it is an
+## error.
 func check_convention(label: String, id: String, data: Variant) -> void:
 	var missing_reason := {}
 	var missing_verified := {}
@@ -172,9 +184,9 @@ func _cover(label: String, id: String, node: Variant, path: String, has_reason: 
 		if dict.has("verified"):
 			if dict.verified is bool:
 				verified_here = true
-				if dict.verified and not _has_any(dict, VERIFICATION_KEYS):
-					report.warning("adaptation", label, id, "%s is true but nothing says what it was verified against (%s)" % [
-						_join(path, "verified"), ", ".join(PackedStringArray(VERIFICATION_KEYS))])
+				if dict.verified:
+					_check_verified_against(label, id, _join(path, "verified"), dict.get(VERIFIED_AGAINST, null),
+						_join(path, VERIFIED_AGAINST))
 			else:
 				report.error("adaptation", label, id, "%s must be true or false" % _join(path, "verified"))
 		var reasons: Dictionary = {}
@@ -190,6 +202,10 @@ func _cover(label: String, id: String, node: Variant, path: String, has_reason: 
 			var key := str(k)
 			if key.ends_with("_verified") and not (dict[k] is bool):
 				report.error("adaptation", label, id, "%s must be true or false" % _join(path, key))
+			elif key.ends_with("_verified") and dict[k]:
+				var own := key + "_against"
+				_check_verified_against(label, id, _join(path, key), dict.get(own, dict.get(VERIFIED_AGAINST, null)),
+					_join(path, own))
 			if key.ends_with("_reason") and not ValidationUtil.non_empty(dict[k]):
 				report.error("adaptation", label, id, "%s must be a non-empty string" % _join(path, key))
 			if is_meta_key(key):
@@ -231,11 +247,22 @@ static func _has_sibling(dict: Dictionary, key: String, suffix: String) -> bool:
 	return false
 
 
-static func _has_any(dict: Dictionary, keys: Array) -> bool:
-	for k in keys:
-		if dict.has(k):
-			return true
-	return false
+## A true verified flag at `flag_path` needs `against` (read from `against_path`): a non-empty string or a non-empty
+## list of non-empty strings (VERIFIED_AGAINST).
+func _check_verified_against(label: String, id: String, flag_path: String, against: Variant, against_path: String) -> void:
+	if against == null:
+		report.error("adaptation", label, id,
+			"%s is true but has no %s saying what it was verified against (a canonical record, a URL, or a decision or brief section); a value nobody can say was checked is verified: false with its reason" % [
+				flag_path, against_path])
+		return
+	var ok := ValidationUtil.non_empty(against)
+	if against is Array:
+		ok = not against.is_empty()
+		for v in against:
+			ok = ok and ValidationUtil.non_empty(v)
+	if not ok:
+		report.error("adaptation", label, id, "%s must be a non-empty string or a non-empty list of them, got %s" % [
+			against_path, var_to_str(against)])
 
 
 static func _join(path: String, key: String) -> String:
@@ -399,76 +426,51 @@ static func _sidecar(injected: Variant, world_dir: String, slug: String) -> Vari
 	return parsed if parsed != null else "unparsable"
 
 
-## drop_rates.json (placeholder drop chances): ids used as map keys resolve, every chance is a probability and
-## every quantity range is ordered. A dangling override key would silently never apply.
-func _check_drop_rates(label: String, id: String, data: Variant) -> void:
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read is there and of the kind they need
+## (natural_hp: hp_per_tick a whole number >= 0, tick_s > 0, eligible_activities a non-empty list of
+## PlayerController.activity() values; chair_bonus: two true/false switches; sitting.sit_key_chair a rule Chairs
+## implements), and natural_mp supplies no number while it is the unresolved source gap it says it is: MeowDB documents
+## no natural MP recovery, so an MP rate there would be an invented value.
+func _check_recovery(label: String, id: String, data: Variant) -> void:
 	if not (data is Dictionary):
 		report.error("adaptation", label, id, "must be an object")
 		return
-	var item_overrides: Variant = data.get("item_overrides", {})
-	if item_overrides is Dictionary:
-		for item_id in item_overrides:
-			_require_key_ref(label, id, "item_overrides", "items", str(item_id))
-	var owner_overrides: Variant = data.get("owner_item_overrides", {})
-	if owner_overrides is Dictionary:
-		for owner_id in owner_overrides:
-			var owner := str(owner_id)
-			if not _require_key_ref(label, id, "owner_item_overrides", "drops", owner):
-				continue
-			var per_item: Variant = owner_overrides[owner_id]
-			if not (per_item is Dictionary):
-				report.error("adaptation", label, id, "owner_item_overrides.%s must map item ids to rates" % owner)
-				continue
-			var listed := _drop_table_items(owner)
-			for item_id in per_item:
-				var item := str(item_id)
-				if _require_key_ref(label, id, "owner_item_overrides.%s" % owner, "items", item) and not listed.has(item):
-					report.warning("adaptation", label, id, "owner_item_overrides.%s.%s: drop table %s does not list item %s, so the override never applies" % [
-						owner, item, owner, item])
-	var mesos: Variant = data.get("mesos", {})
-	if mesos is Dictionary and mesos.get("by_owner", null) is Dictionary:
-		for owner_id in mesos.by_owner:
-			_require_key_ref(label, id, "mesos.by_owner", "drops", str(owner_id))
-	var types := {}
-	var subtypes := {}
-	for item_id in db.ids("items"):
-		var it: Dictionary = db.item(item_id)
-		types[str(it.get("type", ""))] = true
-		subtypes["%s/%s" % [str(it.get("type", "")), str(it.get("subtype", ""))]] = true
-	for section in [["type_rates", types], ["subtype_rates", subtypes]]:
-		var table: Variant = data.get(section[0], {})
-		if table is Dictionary:
-			for k in table:
-				if not section[1].has(str(k)):
-					report.warning("adaptation", label, id, "%s.%s matches no canonical item" % [section[0], str(k)])
-	_check_rates(label, id, data, "")
-
-
-func _check_rates(label: String, id: String, node: Variant, path: String) -> void:
-	if node is Dictionary:
-		var chance: Variant = node.get("chance", null)
-		if node.has("chance") and chance != null and (not ValidationUtil.is_number(chance) or float(chance) < 0.0 or float(chance) > 1.0):
-			report.error("adaptation", label, id, "%s must be a probability in [0, 1], got %s" % [_join(path, "chance"), var_to_str(chance)])
-		var lo: Variant = node.get("min_quantity", null)
-		var hi: Variant = node.get("max_quantity", null)
-		for q in [["min_quantity", lo], ["max_quantity", hi]]:
-			if q[1] != null and (not ValidationUtil.is_number(q[1]) or float(q[1]) < 0.0):
-				report.error("adaptation", label, id, "%s must be a non-negative number, got %s" % [_join(path, q[0]), var_to_str(q[1])])
-		if ValidationUtil.is_number(lo) and ValidationUtil.is_number(hi) and float(lo) > float(hi):
-			report.error("adaptation", label, id, "%s: min_quantity %s exceeds max_quantity %s" % [path, str(lo), str(hi)])
-		# Ranges spelled {min, max} (mesos.per_level).
-		var range_lo: Variant = node.get("min", null)
-		var range_hi: Variant = node.get("max", null)
-		for q in [["min", range_lo], ["max", range_hi]]:
-			if q[1] != null and (not ValidationUtil.is_number(q[1]) or float(q[1]) < 0.0):
-				report.error("adaptation", label, id, "%s must be a non-negative number, got %s" % [_join(path, q[0]), var_to_str(q[1])])
-		if ValidationUtil.is_number(range_lo) and ValidationUtil.is_number(range_hi) and float(range_lo) > float(range_hi):
-			report.error("adaptation", label, id, "%s: min %s exceeds max %s" % [path, str(range_lo), str(range_hi)])
-		for k in node:
-			_check_rates(label, id, node[k], _join(path, str(k)))
-	elif node is Array:
-		for e in node:
-			_check_rates(label, id, e, path + "[]")
+	var hp: Variant = (data as Dictionary).get("natural_hp", null)
+	if not (hp is Dictionary):
+		report.error("adaptation", label, id, "natural_hp must be an object (NaturalRecoveryRule reads it)")
+	else:
+		var per: Variant = hp.get("hp_per_tick", null)
+		if not ValidationUtil.is_number(per) or float(per) < 0.0 or float(per) != floorf(float(per)):
+			report.error("adaptation", label, id, "natural_hp.hp_per_tick must be a whole number >= 0, got %s" % var_to_str(per))
+		var tick: Variant = hp.get("tick_s", null)
+		if not ValidationUtil.is_number(tick) or float(tick) <= 0.0:
+			report.error("adaptation", label, id, "natural_hp.tick_s must be a positive number, got %s" % var_to_str(tick))
+		var acts: Variant = hp.get("eligible_activities", null)
+		if not (acts is Array) or (acts as Array).is_empty():
+			report.error("adaptation", label, id, "natural_hp.eligible_activities must be a non-empty list")
+		else:
+			for a in acts:
+				if not (str(a) in NaturalRecoveryRule.ACTIVITIES):
+					report.error("adaptation", label, id, "natural_hp.eligible_activities: '%s' is not a player activity (%s)" % [
+						str(a), ", ".join(NaturalRecoveryRule.ACTIVITIES)])
+	var mp: Variant = (data as Dictionary).get("natural_mp", null)
+	if mp is Dictionary and str(mp.get("status", "")) == "unresolved_source_gap":
+		for k in mp:
+			if ValidationUtil.is_number(mp[k]) and not (mp[k] is bool):
+				report.error("adaptation", label, id, "natural_mp.%s: an unresolved source gap supplies no number, got %s" % [
+					str(k), var_to_str(mp[k])])
+	var chair: Variant = (data as Dictionary).get("chair_bonus", null)
+	if not (chair is Dictionary):
+		report.error("adaptation", label, id, "chair_bonus must be an object (NaturalRecoveryRule reads it)")
+	else:
+		for k in ["stand_resets_clock", "full_hp_holds_clock"]:
+			if not (chair.get(k, null) is bool):
+				report.error("adaptation", label, id, "chair_bonus.%s must be true or false" % k)
+	var sitting: Variant = (data as Dictionary).get("sitting", null)
+	var rule := str(sitting.get("sit_key_chair", "")) if sitting is Dictionary else ""
+	if sitting is Dictionary and sitting.has("sit_key_chair") and not (rule in NaturalRecoveryRule.SIT_KEY_RULES):
+		report.error("adaptation", label, id, "sitting.sit_key_chair '%s' is not a rule Chairs implements (%s)" % [
+			str(sitting.get("sit_key_chair", "")), ", ".join(NaturalRecoveryRule.SIT_KEY_RULES)])
 
 
 ## portal_adaptations.json: every portal it names ("<map_id>.<portal>", link ids "T_<map>_<portal>__<map>[_<portal>]",
@@ -683,11 +685,7 @@ func _check_combat(label: String, id: String, data: Variant) -> void:
 	var skills: Variant = data.get("fixed_damage_skills", null) if data is Dictionary else null
 	if not (skills is Dictionary):
 		return
-	var known := {}
-	for formula_id in db.ids("formulas"):
-		for s in ValidationUtil.as_array(db.formula(formula_id).get("skills", [])):
-			if s is Dictionary and s.get("skill_id", null) is String:
-				known[s.skill_id] = true
+	var known := ReferenceChecks.skill_definitions(db)
 	for skill_id in skills:
 		if not known.has(str(skill_id)):
 			report.error("adaptation", label, id, "fixed_damage_skills.%s is not a canonical skill id (formulas skills[].skill_id)" % str(skill_id))
@@ -702,14 +700,6 @@ func _require_key_ref(label: String, id: String, where: String, target: String, 
 		return true
 	report.error("reference", label, id, "%s key '%s' is not a canonical %s id" % [where, ref, target])
 	return false
-
-
-func _drop_table_items(owner_id: String) -> Dictionary:
-	var out := {}
-	for e in ValidationUtil.as_array(db.drop_table(owner_id).get("entries", [])):
-		if e is Dictionary and e.get("item_id", null) is String:
-			out[e.item_id] = true
-	return out
 
 
 func _folders() -> PackedStringArray:

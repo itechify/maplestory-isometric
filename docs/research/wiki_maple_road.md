@@ -24,12 +24,6 @@ Maps covered: 0, 10000, 20000, 20001, 30000, 40000, 40001, 40002, 50000, 60000, 
 | S4 | maplestory.io mob API (stats) | https://maplestory.io/api/GMS/22/mob/<id> |
 | S5 | Official GMS site, Maple Island map page, Jan 2005 and May 2006 captures | https://web.archive.org/web/20050107004204/http://www.mapleglobal.com:80/library/map_maple.aspx and https://web.archive.org/web/20060528204733/http://www.mapleglobal.com:80/WZ.ASPX?PART=/Guide/GameLibrary/MapleWorldMap/MapMaple |
 | S6 | Official GMS site screenshot gallery, image 001 (map 0) | https://web.archive.org/web/20050720140333/http://www.mapleglobal.com/gallery/screen_shot/001.jpg (gallery page: https://web.archive.org/web/20050113054458/http://www.mapleglobal.com:80/gallery/screen_shot/001.html). Local copy: `ref_web/0_1.jpg` |
-| S7 | Hidden Street, Maple Island maps index, Oct 2005 | https://web.archive.org/web/20051026010039/http://www.hidden-street.net:80/maps/mapleis.php |
-| S8 | Hidden Street, "Mushroom Town / Southperry" map list, Nov 2005 | https://web.archive.org/web/20051126212258/http://www.hidden-street.net:80/maps/misouthperry.php |
-| S9 | Hidden Street, Southperry page, Feb 2006, plus its screenshot | https://web.archive.org/web/20060220061844/http://www.hidden-street.net:80/maps/southperry.php ; image https://web.archive.org/web/20060529110122/http://www.hidden-street.net:80/maps/images/southperry01.jpg. Local copy: `ref_web/60000_1.jpg` |
-| S10 | Hidden Street, Maple Island quests, Feb 2006 | https://web.archive.org/web/20060225085306/http://www.hidden-street.net:80/quests/mpislandquestall.php (and `mpislandquest_001.php` ... `_010.php`, same capture era) |
-| S11 | Hidden Street guide "Maple Story FAQ / Tips For Beginners" by fillet2, v1.20 Aug 2005 | https://web.archive.org/web/20051013071907/http://www.hidden-street.net:80/guides/beginner_001.php |
-| S12 | Hidden Street guide "D1Super Noob Guide" by DivineNoob, 9 Jul 2005 | https://web.archive.org/web/20051013063720/http://www.hidden-street.net:80/guides/beginner_003.php |
 | S13 | StrategyWiki, MapleStory/Towns, Nov 2006 | https://web.archive.org/web/20061108042857/http://strategywiki.org/wiki/MapleStory/Towns |
 | S14 | StrategyWiki, Mushroom Town & Mushroom Town Training Camp (page modified 2 May 2007) | https://web.archive.org/web/20070513072813/http://strategywiki.org:80/wiki/MapleStory/Towns/Mushroom_Town_&_Mushroom_Town_Training_Camp |
 | S15 | StrategyWiki, Southperry (armor store list; modified 14 Sep 2006) | https://web.archive.org/web/20070106061115/http://www.strategywiki.org:80/wiki/MapleStory/Towns/Southperry |
@@ -50,20 +44,15 @@ Maps covered: 0, 10000, 20000, 20001, 30000, 40000, 40001, 40002, 50000, 60000, 
 
 > "It is similar to <Victoria Island>, the main island, in that it has shops, houses, and monsters that appear in the real game for the beginners to adapt to the game. In this island, there are: the Mushroom Village, the first town of the game; Southperry, the harbor town; and Amherst, the town of quests. At this island, novice travelers learn various skills and techniques with the help of NPC. Once several quests are completed and a certain level is reached, the traveler can finally board on the ship <Victoria>, anchored at Southperry, to go to Victoria Island. <Maple Island>, an island floating somewhere in the sky of <Maple World>, is a mysterious island of no-return, once it is left behind for Victoria Island."
 
-Hidden Street paraphrased this in 2005 and 2006 [S7, S9].
-
 **One-way exit.**
-- The ship fare was 150 mesos, and you could not come back. Four independent era sources agree:
-  - S8 (Nov 2005): "Lith Harbor (pay 150 mesos)"
-  - S11 (Aug 2005): "You'll need 150 mesos for the ship ride from South Perry. When you leave you won't be able to come back."
+- The ship fare was 150 mesos, and you could not come back. Two independent era sources agree:
   - S13 (Nov 2006)
   - S18 (2007)
 - A later-era web summary quoted 500 mesos. I did not verify which version changed the fare.
 
 **Street name.**
 - All 11 maps have `streetName` "Maple Road" [S1]. "Maple Road" also appears on map 1020000 [S19].
-- Hidden Street's 2005 map list labels every Mushroom Town, Snail Hunting Ground and Split Road map "**Rainbow Street**: ..." [S8]. The Southperry entry has no prefix. That list was "translated from MapleStory Maps" by LanzeNL [S7].
-- [memory] "Rainbow Street" probably comes from the Korean street name. CMS calls the island 彩虹岛 "Rainbow Island" [S20].
+- [memory] "Rainbow Street", the `streetName` of the Amherst maps, probably comes from the Korean street name. CMS calls the island 彩虹岛 "Rainbow Island" [S20].
 
 **Map marks.** Maps 0 to 50000 use the map-mark icon `MushroomVillage`. Maps 60000 and 60001 use `SouthPerry` [S1, S2].
 
@@ -130,13 +119,12 @@ Two maps share the name "Mushroom Town" (10000 and 20000). 20001 is "Mushroom To
 
 Evidence for the identifications:
 
-- **Hidden Street (Nov 2005) labels.** It calls the middle two maps "Mushroom Town I" and "Mushroom Town II" [S8]. Its thumbnails are 98x54, 77x49, 82x51 and 122x116. These match the local v8 minimap sizes to within 1 px: 0 = 99x54, **10000 = 77x49**, **20000 = 82x51**, 30000 = 122x116 [S23]. Snail Hunting Ground I is also within 1 px: 207x104 there, 208x105 locally. So **Mushroom Town I = 10000 and Mushroom Town II = 20000**. Hidden Street chains them West Entrance, then Mushroom Town I, then Mushroom Town II, then East Entrance [S8].
+- **Portal order.** 0 `out00` leads to 10000, 10000 `out00` to 20000 `in00`, and 20000 `out00` to 30000 [S2]: the first Mushroom Town screen is 10000, the second 20000.
 - **Map 20001 is Sen's house.**
   - StrategyWiki 2007: "Nina can be found in the third map of Mushroom Town" and "Walk towards the right and press 'Up' on the portal to go into the house. Double click on Sen ..." [S16]. The third map counting from 0 is 20000.
-  - Hidden Street 2006: "Head into the house which is the same map and talk to Sen" [S10].
   - WZ: the door portal `in01` in 20000 sits at x=557, right on the house doors `door/grassySoil/door/8, /10` @555-565. Its target is 20001, where Sen (2001) stands among `insideGS/house1` interior objects [S2].
   - meowdb's modern "Classic" database lists Mushroom Town (Nina) connecting to "Mushroom Town Townstreet" (Sen), which is a dead end [S22]. Its IDs differ (000000020, 000000021).
-- **Roger is in the second screen.** S11 (2005): "In the 2nd screen, a creepy looking guy called Roger ...". This matches 10000.
+- **Roger is in the second screen.** The v8 life data puts Roger (2000) in 10000 [S2, S3].
 
 ---
 
@@ -161,7 +149,7 @@ Evidence for the identifications:
 
 | ID | Name | Position (v8) | Role and evidence |
 |---|---|---|---|
-| 2101 | Heena | -48,65 (above the spawn, on the floating clump) | Movement tutor. Dialogue: "Press left Alt key and you'll be able to jump." / "Press the arrow keys to move around here and there." / "Beautiful day today!" [S3]. Starts the mirror quest ("Sarah's Mirror" in S10, "Sera's Mirror" in S16): fetch Sera's mirror, 1 EXP. StrategyWiki: "Heena can be found right above your head when you first start the game" [S16]. |
+| 2101 | Heena | -48,65 (above the spawn, on the floating clump) | Movement tutor. Dialogue: "Press left Alt key and you'll be able to jump." / "Press the arrow keys to move around here and there." / "Beautiful day today!" [S3]. Starts the mirror quest ("Sera's Mirror" in S16): fetch Sera's mirror, 1 EXP. StrategyWiki: "Heena can be found right above your head when you first start the game" [S16]. |
 | 2100 | Sera | 833,125 (top of the right block) | Heena's sister, hanging laundry. Dialogue: "It's a neverending pile of laundry I'm hanging up here." / "Why isn't Heena helping me hang this load of laundry up?" / "Press↑ and you'll be able to climb up the ladder or a rope." [S3]. That last line fits the ladder at x=975 right next to her. |
 
 **Monsters:** none (town).
@@ -199,9 +187,6 @@ Evidence for the identifications:
 - Sera's laundry line up on the cliff.
 - [memory] Classic first-day memories: double-clicking Heena, fetching the mirror.
 
-**Player memory [S11, 2005]:**
-> "In the first screen, you will see two Non-Player Characters (NPCs). Talk to Heena, she will explain BASIC MOVEMENT ... don't press up at the portal (the place with the glowing light from the ground). Talk to Sera, she will give you a mirror. Then go talk to Heena, she will take you to the next screen/map."
-
 The later official "World Archive" retrospective says: "All new travelers were once greeted by Heena and Sera, but these two have settled down to lead a quiet life." [S20]. This is modern flavour text, not 2005 content.
 
 ---
@@ -222,7 +207,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
-| 2000 | Roger | 233,65 | Inventory and potion tutor. Dialogue covers the item inventory tabs, double-clicking items to use them, HotKeys, "You'll die once your HP reaches 0, so it's for your own good to take a potion or food before it's too late." [S3]. S11 (2005): "a creepy looking guy called Roger will take away some of your health! Press I to open your Inventory ... double-click the Apple. Talk to Roger again, he'll give you 3 Red Potions." meowdb lists the quest as "Roger's Apple" [S22]. Peter calls Roger his older brother [S3]. |
+| 2000 | Roger | 233,65 | Inventory and potion tutor. Dialogue covers the item inventory tabs, double-clicking items to use them, HotKeys, "You'll die once your HP reaches 0, so it's for your own good to take a potion or food before it's too late." [S3]. meowdb lists the quest as "Roger's Apple" [S22]. Peter calls Roger his older brother [S3]. |
 
 **Monsters:** none.
 
@@ -236,7 +221,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 **Atmosphere.** Same pastoral sky and hills as map 0. A smaller, cosier single-house screen.
 
 **What makes it recognizable.**
-- Roger: in the 2005 player's words, the "creepy" guy who hurts you so you learn to eat an apple [S11].
+- Roger, the inventory and potion tutor [S3].
 - The yellow, striped-cap house with a barrel chimney.
 
 ---
@@ -258,7 +243,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
-| 2102 | Nina | -59,95 | Dinner quest-giver. Dialogue: "What would be good for dinner?" / "I'm cute, right?" [S3]. Quest "Nina and Sen's Dinner Menu": ask Sen inside the house what he wants, then report back, 3 EXP [S10, S16]. |
+| 2102 | Nina | -59,95 | Dinner quest-giver. Dialogue: "What would be good for dinner?" / "I'm cute, right?" [S3]. Quest "Nina and Sen's Dinner Menu": ask Sen inside the house what he wants, then report back, 3 EXP [S16]. |
 
 **Monsters:** none.
 
@@ -291,7 +276,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
-| 2001 | Sen | 24,246 (ground floor) | Hungry little boy. Dialogue: "I'm... so ... hungry!" / "Can... I... eat this ...?" [S3]. Answers Nina's dinner question [S10, S16]. The later official retrospective: "Sen, who used to keep careful watch over his house, still loves to eat Nina's candy" [S20, modern flavour]. |
+| 2001 | Sen | 24,246 (ground floor) | Hungry little boy. Dialogue: "I'm... so ... hungry!" / "Can... I... eat this ...?" [S3]. Answers Nina's dinner question [S16]. The later official retrospective: "Sen, who used to keep careful watch over his house, still loves to eat Nina's candy" [S20, modern flavour]. |
 
 **Landmarks: interior props [S2; sprites read by me]:**
 - `insideGS/house1/basic/0` @32,7: a cutaway orange mushroom house with a stone-arched doorway (615x533).
@@ -333,8 +318,8 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
-| 2002 | Peter | 1314,-925 (beside the exit) | Gatekeeper and instructor. Dialogue: "This is the exit to the Mushroom Town." / "If you want to move on to the next stage, talk to me." / "Be careful...once you leave this place, you'll see monsters roaming around." / "We instructors are all related. Roger, my older brother, and Robin, my younger brother, all work together here." [S3]. S11 (2005): "In the 4th screen talk to Peter, he'll give you some experience." [reading] Whether Peter also warps the player is not established. A walkable exit portal sits next to him. |
-| 2004 | Todd | **v22 only**, -21,215 (at the entrance) | Hunting tutor, added after v8. Quest "Todd's How-To Hunt": kill 1 weakened Jr. Sentinel, bring the Shellpiece, 10 EXP [S10, S16]. The two sources disagree on who gives and who completes it: S16 says Todd gives it and Peter completes it; S10 says the reverse. Todd near the entrance and Peter at the exit in the v22 data favours S16. |
+| 2002 | Peter | 1314,-925 (beside the exit) | Gatekeeper and instructor. Dialogue: "This is the exit to the Mushroom Town." / "If you want to move on to the next stage, talk to me." / "Be careful...once you leave this place, you'll see monsters roaming around." / "We instructors are all related. Roger, my older brother, and Robin, my younger brother, all work together here." [S3]. [reading] Whether Peter also warps the player is not established. A walkable exit portal sits next to him. |
+| 2004 | Todd | **v22 only**, -21,215 (at the entrance) | Hunting tutor, added after v8. Quest "Todd's How-To Hunt": kill 1 weakened Jr. Sentinel, bring the Shellpiece, 10 EXP [S16]. S16 says Todd gives it and Peter completes it, which Todd near the entrance and Peter at the exit in the v22 data fits. |
 
 **Monsters:**
 - v8: none.
@@ -383,8 +368,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 | 100100 | Snail | 33 | Lv1, 8 HP, 3 EXP |
 | 100101 | Blue Snail | 16 | Lv2, 15 HP, 4 EXP |
 
-- Stats are from v22 data [S4]. S11 (2005) lists the same HP/EXP: "Green Snails 8 / 3", "Blue Snails 15 / 4".
-- Hidden Street 2005 also lists "Snail, Blue Snail" [S8].
+- Stats are from v22 data [S4].
 - The v22 data has **Snails only** here (33) [S1 v22].
 - Sprites [reading]: a small snail with a green spiral shell; a blue-shelled snail.
 
@@ -400,7 +384,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 - Behind it: pale misty mountains over a mirror lake, and rows of birch-like trees with olive, orange and teal crowns over golden grass.
 - The relaxed field theme Rest 'N Peace plays.
 
-**What makes it recognizable.** The first monsters: slow green and blue snails everywhere. S11: "Beginners that plan to become Magicians should hunt in the Snail Hunting Ground I or II ... full of Green and Blue Snails."
+**What makes it recognizable.** The first monsters: slow green and blue snails everywhere.
 
 ---
 
@@ -422,7 +406,6 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 **Monsters:**
 - v8: Snail ×43, Blue Snail ×24 [S2]. v22 API: Snail 44, Blue Snail 11 [S1 v22].
-- Hidden Street 2005: "Snail, Blue Snail" [S8].
 
 **Landmarks [S2]:**
 - **Birch-log picket fence** `midForest/artificiality/1` ×3 @-126,352; 895,359; 1056,357.
@@ -455,8 +438,6 @@ The later official "World Archive" retrospective says: "All new travelers were o
 **Monsters:**
 - v8: Snail ×36, Blue Snail ×26, **Red Snail ×13** (Lv4, 45 HP, 8 EXP [S4]; red-shelled snail sprite).
 - v22 API: Snail 25, Blue 15, Red 1.
-- Hidden Street 2005: "Snail, Blue Snail, Red Snail" [S8].
-- S11: "Red Snails 45 [HP] 8 [EXP] Beginner Magicians shouldn't waste time on these."
 
 **Landmarks [S2]:**
 - Plank-bridge-over-pit set `midForest/artificiality/7, 8, 9` @2089-2124, 377-427.
@@ -490,7 +471,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
-| 2103 | Maria | 159,65 | Letter quest. Dialogue: "Ahh...I need to get this letter sent..." / "Why isn't anyone passing by!!" / "Whoa, time's going fast...it may be too late..." [S3]. Quest: carry Maria's letter to Lucas in Amherst and bring his reply back. Reward: a random level-5 hat (skullcap or headband) and 10 EXP [S10, S16]. S11: "Soon you will see Maria ... she'll give you a hat (a bandana or skullcap)." |
+| 2103 | Maria | 159,65 | Letter quest. Dialogue: "Ahh...I need to get this letter sent..." / "Why isn't anyone passing by!!" / "Whoa, time's going fast...it may be too late..." [S3]. Quest: carry Maria's letter to Lucas in Amherst and bring his reply back. Reward: a random level-5 hat (skullcap or headband) and 10 EXP [S16]. |
 | 12100 | Mai | **v22 only**, 1891,-175 ("on a platform above the middle of the area" [S16]) | Training quest: kill 10 Snails, 10 Blue Snails and 10 Shrooms, then 10 Orange Mushrooms. Rewards 70 EXP, then 150 EXP + 300 mesos [S16]. Sprite [reading]: girl with brown pigtails in a red qipao, holding a curved sword. Dialogue: "Is there anyone that can satisfy my desire to fight...?" [S3 v22]. |
 
 **Monsters:**
@@ -502,7 +483,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
 | 120100 | Shroom | 18 | Lv2, 20 HP, 5 EXP |
 
 - The Shroom sprite is a small orange-capped walking mushroom [reading].
-- Hidden Street 2005 gives the same set [S8]. The v22 counts are identical.
+- The v22 counts are identical.
 
 **Landmarks [S2; sprites read by me]:**
 - **Red mailbox** with heart and envelope icons on a post, `acc1/grassySoil/artificiality/16` @105,36. It stands about 55 px from Maria, who is waiting to send her letter.
@@ -543,8 +524,8 @@ The later official "World Archive" retrospective says: "All new travelers were o
 | ID | Name | Position | Role and evidence |
 |---|---|---|---|
 | 22000 | **Shanks** | 3223,-13 (on the dock by the ship) | Ship captain to Victoria Island (150 mesos, one-way, see section 1). "I am the captain, dang it!! Don't be looking down on me!" / "I'll take you anywhere you want". Sprite [reading]: young blond captain in a big blue feathered tricorn and a gold-trimmed blue coat. |
-| 20002 | **Biggs** | 950,-193 (upper area) | Sailor who wants to captain the ship. "One of these days, I'll be the one operating that huge ship, and take off to a far bigger land..." / "Hmm...looks like I'm still the best looking man in this town." Quest "Bigg's Collection of Items": 30 Blue Snail Shells + 10 Orange Mushroom Caps, reward Razor or Fruit Knife + 30 EXP [S10, S16]. StrategyWiki: "found in Southperry, at the top of the port" [S16]. Sprite: grey-haired, scowling sailor in a sailor cap. |
-| 20001 | Bari | 1013,527 (lower street, by the Armor Store) | Sailor: "Working hard there~" / "Salute~". Visible in the era screenshot. |
+| 20002 | **Biggs** | 950,-193 (upper area) | Sailor who wants to captain the ship. "One of these days, I'll be the one operating that huge ship, and take off to a far bigger land..." / "Hmm...looks like I'm still the best looking man in this town." Quest "Bigg's Collection of Items": 30 Blue Snail Shells + 10 Orange Mushroom Caps, reward Razor or Fruit Knife + 30 EXP [S16]. StrategyWiki: "found in Southperry, at the top of the port" [S16]. Sprite: grey-haired, scowling sailor in a sailor cap. |
+| 20001 | Bari | 1013,527 (lower street, by the Armor Store) | Sailor: "Working hard there~" / "Salute~". |
 | 20100 | Yoona | -18,287 | "Whoa, what are you looking at?!?!" (bunny-girl sprite shared with Nina) |
 | 9000000 | Paul | 4,47 (west end, high) | "Where's my brother...?" / "I need to get to where the event takes place..." [memory] Paul is one of the GM-event guide NPCs. Sprite: boy in a yellow cap with a skateboard. |
 | 9010001 | Tia | -450,287 (west entrance) | "Hey all!" / "Hope you all have a wonderful day today". Replaced by Ria (9010003) in v22 [S1 v22]. Sprite: girl in pink with balloons. |
@@ -572,14 +553,6 @@ The later official "World Archive" retrospective says: "All new travelers were o
   - In the render the first looks like a statue. The sprite has an empty face circle.
 - Trees and bushes (`darkWood/nature/*`, `grassySoil/nature/13`).
 
-**Era screenshot.** `ref_web/60000_1.jpg`, from Hidden Street's Southperry page, archived 2006 [S9]. The file's EXIF date is 2004-12-13. That is file metadata, not proof of when or where it was captured. It shows:
-- The Armor Store: white plaster walls, a wavy blue-tiled roof, a chimney topped with wooden barrels, an arched pinkish wooden door with a soft glowing portal in front.
-- A barrel and bushes against the wall.
-- The hanging wooden sign with the green shield-cross emblem on a curled post.
-- Bari, a small sailor in white, saying "Working hard there~".
-- Cream flagstone ground under a blue sky with white clouds.
-- Its minimap shows the ship at the right.
-
 **Atmosphere.**
 - A sunny Mediterranean (Santorini) harbour, but in the sky: whitewashed walls, blue domes, flagstones, market goods, clouds drifting past.
 - Lighter, busier and more "civilised" than the Mushroom Town meadows.
@@ -588,7 +561,6 @@ The later official "World Archive" retrospective says: "All new travelers were o
 **What makes it recognizable.**
 - The big ship on the high dock and Shanks's one-way ticket off the island.
 - The lighthouse and blue domes.
-- Hidden Street 2006: "This is where beginners can finally can depart from Maple Island to Victoria Island by boarding on the ship. ... Only the armour store is available here." [S9]
 
 ---
 
@@ -625,10 +597,8 @@ The later official "World Archive" retrospective says: "All new travelers were o
 
 ## 4. "What players remember" (sourced first, memory marked)
 
-- **Order of the first screens** (S11, 2005): Heena → Sera's mirror → Roger (lose HP, eat the apple, get 3 Red Potions) → "another simple quest" → Peter gives EXP. Quoted: "the portal (the place with the glowing light from the ground)."
-- **Leaving is final.** "When you leave you won't be able to come back." [S11]. "Maple Island is a mysterious island of no-return" [S5, S9].
-- **Training advice of the day.** Snail Hunting Ground I/II for future magicians; Biggs's quest is "hard" for weak beginners; Orange Mushrooms are "to the right of Amherst" [S11, S16].
-- **Perma-beginners.** The 2005 "Super Noob" guide: "You don't have to stay on Maple Island. I guess that was supposedly the 'true' path of the Super Noob in the past" [S12]. This shows that staying on Maple Island as a beginner was already a known subculture in 2005. [memory] Later called "islanders".
+- **Leaving is final.** "Maple Island is a mysterious island of no-return" [S5].
+- [memory] **Perma-beginners**, later called "islanders", stayed on Maple Island as Beginners.
 - **Mushroom Town as a quiet tutorial town.** "Before the Training Camp was built, Mushroom Town was a quiet little town where NPCs teach new players the basic of MapleStory" [S14]. "Amherst is a small, peaceful town that holds true to Maple Island's scenery - grass and mushroom-shaped houses" [S18].
 - **Modern official nostalgia** (World Archive text, post-2020 flavour, not era content) [S20]: "Sen, who used to keep careful watch over his house, still loves to eat Nina's candy ... Todd and Peter, who used to teach combat lessons, have moved to Victoria Island with Robin and the others."
 
@@ -641,7 +611,6 @@ The later official "World Archive" retrospective says: "All new travelers were o
   - Todd (2004) and 3 Tutorial Jr. Sentinels (9300018) at 30000.
   - Sam (2005) at 40000.
   - Mai (12100) at 50000.
-  - Hidden Street lists the quests "Todd's How-to-Hunt", "Sam's Suggestion" and "Mai's Training" by **Feb 2006** [S10].
 - 40000 lost its Blue Snail spawns (Snails only) in v22.
 - **Map 0 was re-laid out.** Everything sits about 300 px lower in v22 (house y 104 → 408; Heena y 65 → 305; spawns y≈102 → 437-452), and the exit moved from x 1052 to 1116.
 - 20000 was extended east: exit x 795 → 1109, plus extra bushes and props.
@@ -695,7 +664,7 @@ The later official "World Archive" retrospective says: "All new travelers were o
    - From 40000 onward, portals are two-way (`west00`/`east00` pairs).
    - The topology team should confirm this before treating it as design intent.
 2. Southperry's hidden `h001` (type 1) at -1,43 has an unknown purpose. It sits next to Paul.
-3. Whether Peter (or Heena: "she will take you to the next screen/map" [S11]) actively warps the player, in addition to the walkable portal, is unverified.
-4. No archived era screenshots were found for 10000 through 50000. For those maps, the minimaps and WZ object lists stand in. Only 0 and 60000 have true era screenshots.
+3. Whether Peter (or Heena) actively warps the player, in addition to the walkable portal, is unverified.
+4. No archived era screenshots were found for 10000 through 60000. For those maps, the minimaps and WZ object lists stand in. Only 0 has a true era screenshot.
 5. The `seat` nodes in 40000-40002 and 60001 were not decoded (chair or seat spots).
-6. Who gives and who completes "Todd's How-To Hunt" is disputed. Hidden Street (2006) says Peter gives it and Todd completes it; StrategyWiki (2007) says Todd gives it and Peter completes it. NPC placement in v22 favours StrategyWiki.
+6. "Todd's How-To Hunt": StrategyWiki (2007) says Todd gives it and Peter completes it, as the NPC placement in v22 suggests.

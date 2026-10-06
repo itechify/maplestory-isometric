@@ -21,5 +21,10 @@
         }
       ]
     }
-  ]
+  ],
+  "reissue_lost_accept_items": {
+    "value": true,
+    "reason": "MeowDB has no \"If you lost the items\" branch for 1002, so an apple lost before it is eaten (Iteration Two: sold to a shop) left the quest uncompletable without the debug console. While 1002 is in progress and the player holds no Roger's Apple and has not eaten one, talking to Roger hands one over again, then shows his canonical missing-items line (\"Eat the Roger's Apple I gave you ...\"). No NPC speech is invented. The shop also refuses to buy it while 1002 needs it (misostory/quests/_quest_items.json).",
+    "verified": false
+  }
 }

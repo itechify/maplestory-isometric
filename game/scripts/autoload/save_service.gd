@@ -6,7 +6,8 @@ extends Node
 ##   save_game(slot: String) -> Error, load_game(slot: String) -> Error, has_save(slot) -> bool,
 ##   delete_save(slot) -> Error, list_saves() -> Array[Dictionary], SAVE_VERSION: int.
 ##
-## Files are JSON in user://saves/<slot>.json with one .bak generation (SaveStore). The document is built and
+## Files are JSON in user://saves/<slot>.json with one .bak generation and a one-time copy of the last save of each
+## older schema, <slot>.json.pre-v<N> (SaveStore, keep_pre_migration_copy()). The document is built and
 ## decoded by SaveDocument and migrated by SaveMigrations. The live character comes from the Game autoload and the
 ## map/session block from MapSession; both are injectable (game_node, map_session_node, can_save_override,
 ## world_provider) so tests never touch autoload state. See docs/runtime/SAVES.md.
@@ -95,11 +96,13 @@ func request_autosave(reason: String = "") -> bool:
 	return game != null and game.request_autosave(reason if reason != "" else "map_session")
 
 
-## Writes `character` + `world` to `slot` with no can_save() check (new-game initial save, tools, tests).
+## Writes `character` + `world` to `slot` with no can_save() check (new-game initial save, tools, tests). The first
+## write over a save of an older schema keeps that file first (keep_pre_migration_copy()).
 func save_character(slot: String, character: CharacterState, world: Dictionary = {}) -> Error:
 	if not SaveStore.is_valid_slot(slot):
 		return _fail(ERR_INVALID_PARAMETER, "invalid slot name '%s'" % slot)
 	var doc := SaveDocument.build(character, world, now_iso(), _db())
+	keep_pre_migration_copy(slot)
 	var err := store().write_document(slot, doc)
 	if err != OK:
 		var why := store().last_write_message
@@ -107,6 +110,30 @@ func save_character(slot: String, character: CharacterState, world: Dictionary =
 	last_error = OK
 	last_error_message = ""
 	return OK
+
+
+## Keeps a one-time copy of the slot's save written at an older schema version, as <slot>.json.pre-v<N>, before
+## this build writes over it, so a faulty migration can never destroy the only copy of a player's progress (the
+## single .bak generation would lose it on the second save). The save file is checked first, then the backup: a slot
+## loaded from its backup writes the save without rotating, and the next write would replace that backup. Existing
+## copies are never replaced; delete_save() removes them. Returns the versions copied. A copy that fails is logged
+## and does not block the save.
+func keep_pre_migration_copy(slot: String) -> PackedInt32Array:
+	var copied: PackedInt32Array = []
+	for from_backup: bool in [false, true]:
+		var read := store().read_document(slot, from_backup)
+		if int(read["error"]) != OK:
+			continue
+		var v := SaveMigrations.version_of(read["data"])
+		if v < 0 or v >= SaveMigrations.CURRENT_VERSION or store().has_pre_copy(slot, v):
+			continue
+		var err := store().keep_copy(slot, from_backup, v)
+		if err == OK:
+			copied.append(v)
+		elif log_failures:
+			push_warning("[Saves] %s: could not keep a copy of the save_version %d file (%s)" % [slot, v,
+				error_string(err)])
+	return copied
 
 
 ## Reads, migrates and validates a slot without touching the live game. Check result.error.
@@ -160,7 +187,8 @@ func has_save(slot: String) -> bool:
 	return store().has(slot)
 
 
-## Deletes the save, its backup and any temp file. ERR_FILE_NOT_FOUND if there was nothing to delete.
+## Deletes the save, its backup, its pre-migration copies and any temp file. ERR_FILE_NOT_FOUND if there was nothing
+## to delete.
 func delete_save(slot: String) -> Error:
 	return store().delete(slot)
 

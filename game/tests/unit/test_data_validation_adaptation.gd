@@ -4,6 +4,18 @@ extends DataValidationTestCase
 ## Test files are injected under names no real adaptation file uses ("zz_test_*"), so they cannot clash.
 
 
+## Every MisoStory adaptation is explained and flagged (brief: "no canonical value is silently guessed").
+func parity_keys() -> Dictionary:
+	var explained := ["canon:adaptations-explained"]
+	return {
+		"test_value_without_reason_or_verified": explained,
+		"test_every_accepted_reason_spelling": explained,
+		"test_verified_true_must_say_against_what": explained,
+		"test_sibling_verified_flag_needs_its_own_verified_against": explained,
+		"test_owner_natural_regen_rule_is_accepted": explained + ["canon:provenance-per-property"],
+	}
+
+
 func _with_file(c: ContentDB, name: String, data: Variant, folder: String = "") -> ContentDB:
 	if not c.miso.has(folder):
 		c.miso[folder] = {}
@@ -45,9 +57,77 @@ func test_reason_and_verified_must_be_well_typed() -> void:
 
 func test_verified_true_must_say_against_what() -> void:
 	var c := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1})
-	expect_new(run_validator(c), "warning", "adaptation", "misostory", "zz_test_verified", "nothing says what it was verified against")
-	c.miso[""]["zz_test_verified"]["verification"] = "test: checked against canonical data"
+	expect_new(run_validator(c), "error", "adaptation", "misostory", "zz_test_verified", "verified is true but has no verified_against")
+	# Only verified_against says what a value was checked against; the older free-form keys are not accepted.
+	for other in ["verification", "verified_by", "source_url"]:
+		var o := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1, other: "test: checked"})
+		expect_new(run_validator(o), "error", "adaptation", "misostory", "zz_test_verified", "verified is true but has no verified_against")
+	for bad in ["", "  ", [], [""], {"page": "x"}, 3]:
+		var b := _with_file(clone_db(), "zz_test_verified", {"reason": "why", "verified": true, "a": 1, "verified_against": bad})
+		expect_new(run_validator(b), "error", "adaptation", "misostory", "zz_test_verified", "verified_against must be a non-empty string")
+	c.miso[""]["zz_test_verified"]["verified_against"] = "test: game/data/canonical/maps/000000040.json"
 	expect_no_new(run_validator(c), "adaptation")
+	c.miso[""]["zz_test_verified"]["verified_against"] = ["a canonical record", "https://meowdb.com/msclassic/maps/000000040"]
+	expect_no_new(run_validator(c), "adaptation")
+
+
+func test_sibling_verified_flag_needs_its_own_verified_against() -> void:
+	var c := _with_file(clone_db(), "zz_test_sib", {"reason": "why", "verified": false, "walk_mps": 3.0, "walk_mps_verified": true})
+	expect_new(run_validator(c), "error", "adaptation", "misostory", "zz_test_sib", "walk_mps_verified is true but has no walk_mps_verified_against")
+	c.miso[""]["zz_test_sib"]["walk_mps_verified_against"] = "test: a canonical movement record"
+	expect_no_new(run_validator(c), "adaptation")
+
+
+## The shape the mechanics package writes for the project owner's natural-regen rule (game/data/misostory/recovery.json,
+## brief "Resolve Iteration Two Placeholder: Natural HP Regeneration", contract C4): a Project owner provenance block and
+## verified: true against the brief section.
+func test_owner_natural_regen_rule_is_accepted() -> void:
+	var recovery := {
+		"id": "recovery", "kind": "misostory_adaptation",
+		"natural_recovery": {
+			"hp": {"amount": 10, "interval_s": 10.0, "eligible_activities": ["still", "seated"]},
+			"mp": null,
+			"reason": "The project owner's rule: 10 HP per 10 s of eligible time; walking, jumping and attacking pause the clock. MP has no natural recovery because MeowDB documents none.",
+			"verified": true,
+			"verified_against": "docs/ITERATION_THREE_BRIEF.md: Resolve Iteration Two Placeholder: Natural HP Regeneration",
+		},
+		"provenance": {"natural_recovery": {"authority": ProvenanceAuthorities.PROJECT_OWNER,
+			"decision": "ITERATION_THREE_BRIEF: Natural HP Regeneration"}},
+	}
+	var c := _with_file(clone_db(), "zz_test_recovery", recovery)
+	var r := run_validator(c)
+	expect_no_new(r, "adaptation")
+	expect_no_new(r, "provenance")
+	# Without the brief citation the flag is not accepted, and a Project owner source still needs its decision.
+	c.miso[""]["zz_test_recovery"]["natural_recovery"].erase("verified_against")
+	c.miso[""]["zz_test_recovery"]["provenance"]["natural_recovery"].erase("decision")
+	r = run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "zz_test_recovery", "natural_recovery.verified is true but has no natural_recovery.verified_against")
+	expect_new(r, "error", "provenance", "misostory", "zz_test_recovery", "needs decision")
+
+
+## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read must be there and well-formed, and the
+## natural MP gap supplies no number (MeowDB documents no natural MP recovery: an MP rate would be invented).
+func test_recovery_file_is_what_the_runtime_reads() -> void:
+	assert_eq(baseline().matching("adaptation", "misostory", "recovery").size(), 0, "the shipped file passes")
+	var c := clone_db()
+	var rec: Dictionary = c.miso[""]["recovery"]
+	(rec["natural_hp"] as Dictionary)["tick_s"] = 0
+	(rec["natural_hp"] as Dictionary)["hp_per_tick"] = 2.5
+	(rec["natural_hp"] as Dictionary)["eligible_activities"] = ["still", "napping"]
+	(rec["natural_mp"] as Dictionary)["mp_per_tick"] = 3
+	(rec["chair_bonus"] as Dictionary)["full_hp_holds_clock"] = "yes"
+	(rec["sitting"] as Dictionary)["sit_key_chair"] = "best_owned"
+	var r := run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.tick_s must be a positive number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_hp.hp_per_tick must be a whole number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "'napping' is not a player activity")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "natural_mp.mp_per_tick: an unresolved source gap supplies no number")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "chair_bonus.full_hp_holds_clock must be true or false")
+	expect_new(r, "error", "adaptation", "misostory", "recovery", "sitting.sit_key_chair 'best_owned' is not a rule Chairs implements")
+	var gone := clone_db()
+	(gone.miso[""] as Dictionary).erase("recovery")
+	expect_new(run_validator(gone), "error", "adaptation", "misostory", "recovery", "required adaptation file")
 
 
 func test_typed_reference_inside_adaptation_file() -> void:
@@ -227,32 +307,25 @@ func test_world_scale_factors() -> void:
 	expect_new(r, "error", "adaptation", "misostory", "world_scale", "actor_px_to_m must be a positive number")
 
 
-func test_drop_rates_keys_and_ranges() -> void:
-	var c := clone_db()
-	var owner := first_id_where(c, "drops", func(r: Dictionary) -> bool: return not arr(r, "entries").is_empty(), "with entries")
-	var unlisted := ""
-	var listed := {}
-	for e in arr(c.drop_table(owner), "entries"):
-		listed[e.item_id] = true
-	for item_id in c.ids("items"):
-		if not listed.has(item_id):
-			unlisted = item_id
-			break
-	_with_file(c, "drop_rates", adapted({
-		"item_overrides": {BOGUS: {"chance": 0.5}},
-		"owner_item_overrides": {BOGUS + "-owner": {}, owner: {unlisted: {"chance": 1.5, "min_quantity": 3, "max_quantity": 1}}},
-		"mesos": {"by_owner": {BOGUS + "-meso": {"chance": 0}}, "per_level": {"min": 3, "max": 1}},
-		"type_rates": {"Imaginary": {"chance": 0.1}},
-	}))
-	var r := run_validator(c)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "item_overrides key '%s' is not a canonical items id" % BOGUS)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "owner_item_overrides key '%s-owner' is not a canonical drops id" % BOGUS)
-	expect_new(r, "error", "reference", "misostory", "drop_rates", "mesos.by_owner key '%s-meso'" % BOGUS)
-	expect_new(r, "warning", "adaptation", "misostory", "drop_rates", "does not list item %s" % unlisted)
-	expect_new(r, "warning", "adaptation", "misostory", "drop_rates", "type_rates.Imaginary matches no canonical item")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "chance must be a probability in [0, 1]")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "min_quantity 3 exceeds max_quantity 1")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "mesos.per_level: min 3 exceeds max 1")
+## drop_rates.json (the owner's chance table, D3-11) and meso_rules.json (the meso rule, D3-12) are required adaptation
+## files: the shipped files pass the convention (reason and verified on every value) and the drop policy; a missing
+## one, or a value without its reason or verified flag, is an error.
+func test_drop_rule_files_are_required_labelled_adaptations() -> void:
+	for name in ["drop_rates", "meso_rules"]:
+		assert_eq(baseline().matching("adaptation", "misostory", name).size(), 0, "the shipped %s.json passes" % name)
+		assert_eq(baseline().matching("drop_policy", "misostory", name).size(), 0, "the shipped %s.json is complete" % name)
+		var c := clone_db()
+		(c.miso[""] as Dictionary).erase(name)
+		var r := run_validator(c)
+		expect_new(r, "error", "adaptation", "misostory", name, "required adaptation file game/data/misostory/%s.json is missing" % name)
+		expect_new(r, "error", "drop_policy", "misostory", name, "data/misostory/%s.json is missing" % name)
+	var c2 := clone_db()
+	var rates: Dictionary = c2.miso[""]["drop_rates"]
+	rates.erase("reason")
+	rates.erase("verified")
+	var r2 := run_validator(c2)
+	expect_new(r2, "error", "adaptation", "misostory", "drop_rates", "adapted values without a reason")
+	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "must say verified: false")
 
 
 func test_new_character_start_spawn_index() -> void:

@@ -9,6 +9,9 @@ extends Node
 ##   bash scripts/validate_data.sh --strict             # warnings fail too
 ##   bash scripts/validate_data.sh --json <path>        # also write the report as JSON (absolute or res:// path)
 ##   bash scripts/validate_data.sh --world-dir <dir>    # Blender export to check the crosswalk slugs against
+##   bash scripts/validate_data.sh --report             # also write the provenance validation report
+##                                                      # (docs/provenance_report.json + docs/PROVENANCE_REPORT.md;
+##                                                      # the script passes --report-json <path> --report-md <path>)
 ##
 ## Prints VALIDATION_PASSED or VALIDATION_FAILED as the last line.
 ##
@@ -24,8 +27,9 @@ const EXIT_VALIDATOR_BROKEN := 2
 const CONTENT_DB_SCRIPT := "res://scripts/core/content_db.gd"
 const VALIDATOR_SCRIPT := "res://scripts/core/validation/data_validator.gd"
 const GUARD_SCRIPT := "res://scripts/core/validation/script_error_guard.gd"
+const REPORT_SCRIPT := "res://scripts/core/validation/provenance_report.gd"
 const FLAGS := ["--verbose", "--strict"]
-const VALUE_FLAGS := ["--json", "--world-dir"]
+const VALUE_FLAGS := ["--json", "--world-dir", "--report-json", "--report-md"]
 
 ## The process exit code. It starts as EXIT_VALIDATOR_BROKEN and is lowered only when run() reaches its end: a script
 ## error aborts a GDScript function, which then returns its default value (0 for an int), so returning the code from
@@ -68,10 +72,19 @@ func run(args: PackedStringArray) -> int:
 	var text := ""
 	var as_dict: Dictionary = {}
 	var failed := true
+	var provenance_doc: Dictionary = {}
+	var provenance_md := ""
+	var report_json := _arg_value(args, "--report-json")
+	var report_md := _arg_value(args, "--report-md")
 	if report != null:
 		text = report.call("format_text", args.has("--verbose"))
 		as_dict = report.call("to_dict")
 		failed = bool(report.call("has_errors")) or (args.has("--strict") and int(report.call("warning_count")) > 0)
+		if report_json != "" or report_md != "":
+			var report_script := _compiled(REPORT_SCRIPT)
+			if report_script != null:
+				provenance_doc = report_script.call("build", db, report)
+				provenance_md = report_script.call("to_markdown", provenance_doc)
 	guard.call("detach")
 	# This guard sees every script error DataValidator.validate() turns into a "validator" finding, plus any raised
 	# while loading or formatting; either way the report is incomplete.
@@ -87,6 +100,15 @@ func run(args: PackedStringArray) -> int:
 	var json_path := _arg_value(args, "--json")
 	if json_path != "" and not _write_json(json_path, as_dict):
 		_broken("cannot write %s (%s)" % [json_path, error_string(FileAccess.get_open_error())])
+		return exit_code
+	if (report_json != "" or report_md != "") and provenance_doc.is_empty():
+		_broken("the provenance report could not be built (see the lines above)")
+		return exit_code
+	if report_json != "" and not _write_json(report_json, provenance_doc):
+		_broken("cannot write %s (%s)" % [report_json, error_string(FileAccess.get_open_error())])
+		return exit_code
+	if report_md != "" and not _write_text(report_md, provenance_md):
+		_broken("cannot write %s (%s)" % [report_md, error_string(FileAccess.get_open_error())])
 		return exit_code
 	print("VALIDATION_FAILED" if failed else "VALIDATION_PASSED")
 	exit_code = EXIT_DATA_ERRORS if failed else EXIT_PASSED
@@ -104,10 +126,14 @@ static func _compiled(path: String) -> GDScript:
 
 
 static func _write_json(path: String, data: Variant) -> bool:
+	return _write_text(path, JSON.stringify(data, "  ") + "\n")
+
+
+static func _write_text(path: String, text: String) -> bool:
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		return false
-	f.store_string(JSON.stringify(data, "  ") + "\n")
+	f.store_string(text if text.ends_with("\n") else text + "\n")
 	f.close()
 	print("report written to %s" % path)
 	return true

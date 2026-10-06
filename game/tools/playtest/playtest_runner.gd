@@ -21,7 +21,7 @@ extends Node
 
 const SCENARIO_DIR := "res://tools/playtest/scenarios"
 const DEFAULT_SEED := 1
-const MAX_PHASES := 8
+const MAX_PHASES := 12
 ## Exit code when the process has to end itself after a reload request the game did not complete.
 const RELOAD_EXIT_CODE := 75
 ## The largest default wall-time budget (s): below scripts/playtest.sh's outer timeout (3600 s by default).
@@ -67,7 +67,22 @@ func _ready() -> void:
 	guard.attach()
 	engine_log = PlaytestEngineLog.new()
 	engine_log.attach()
+	pin_headless_screen(get_tree().root)
 	_run.call_deferred()
+
+
+## Headless, the display server's window is 64 x 64 px, which the project's canvas_items / "expand" stretch turns into
+## a 1600 x 1600 GUI area and a square camera view: a window that runs off the bottom of a windowed 1600 x 900 screen
+## still fits headless, and a click there passes (the acceptance review's Skills window "Set key" at y 948). A
+## headless run therefore lays the game out on exactly the windowed screen: the project's viewport size with the
+## aspect "ignore" (no window to keep it for). Windowed runs are left alone.
+static func pin_headless_screen(win: Window) -> void:
+	if DisplayServer.get_name() != "headless" or win == null:
+		return
+	win.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	win.content_scale_size = Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width", 1600)),
+		int(ProjectSettings.get_setting("display/window/size/viewport_height", 900)))
+	win.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
 
 func _run() -> void:
@@ -140,6 +155,9 @@ func _finish(end: String) -> void:
 	if driver != null and driver.input != null:
 		driver.input.release_all()
 		report.input_reasserts += driver.input.reasserts
+	if driver != null:
+		# Strict mode: this phase's developer commands and the event ledger, before the report is written.
+		driver.strict_finish()
 	for e in guard.errors():
 		report.add_error(phase, "script", e)
 	for e: Dictionary in engine_log.take():
@@ -159,9 +177,11 @@ func _finish(end: String) -> void:
 	if err != OK:
 		push_error("[playtest] cannot write the report into %s: %s" % [out_dir, error_string(err)])
 	var counts := report.step_counts()
-	print("PLAYTEST_RESULT %s %s phase %d: %d checks (%d failed), %d errors, steps play %d / console %d / api %d" % [
+	var st := report.strict_summary()
+	print("PLAYTEST_RESULT %s %s phase %d: %d checks (%d failed), %d errors, steps play %d / console %d / api %d, strict %s" % [
 		report.result_text(), scenario_name, phase, report.checks.size(), report.failed_checks().size(),
-		report.errors.size(), int(counts["play"]), int(counts["console"]), int(counts["api"])])
+		report.errors.size(), int(counts["play"]), int(counts["console"]), int(counts["api"]),
+		("ok" if bool(st["ok"]) else "VIOLATED") if bool(st.get("enabled", false)) else "off"])
 	for c: Dictionary in report.failed_checks():
 		print("PLAYTEST_FAILED_CHECK %s: %s" % [c["name"], c["details"]])
 	for e: Dictionary in report.errors:
@@ -192,6 +212,9 @@ func _open_report() -> PlaytestReport:
 			_finish_early(r)
 			return null
 		prev.reload_requested = false
+		# The report is written where this process was told (--out), never where an earlier phase wrote it: a run
+		# continued from a copy of its --out directory (playtest.sh --resume) must not write into the original.
+		prev.out_dir = out_dir
 		phase = prev.phases.size()
 		return prev
 	for f in ["report.json", "report.md"]:

@@ -363,6 +363,14 @@ def build(m):
               bottom=HUB - 0.4)
     # the barrel door bulges from the block face east of the out00 swirl, so the camera sees both
     m.place("Barrel_Door_Mound", 16.4, 3.35, rot=0, scale=0.7, z=HUB - 0.04)
+    # The bridge's stone abutment, from the dell up to just under the planks across the trail's mouth (the gap the
+    # containment ring leaves for out00 is open from the dell to the sky): without it a player in the front of the dell
+    # walked out under the bridge, outside every map region, onto the hill below the plinth and hopped down into a
+    # pocket of the Dangerous Forest's ground under the trail with no way out (Iteration Three review of the
+    # stuck-region scan, docs/runtime/STUCK_SCAN.md). Its top stays under the deck (planks 0.12 m thick).
+    m.terrace("Bridge_Abutment", [(11.8, -1.05), (16.2, -1.05), (16.2, -0.25), (11.8, -0.25)], top=HUB - 0.3,
+              bottom=-0.5, style="grass_stone", fringe=False, stones=False, wobble_amt=0.0, smooth_iters=1,
+              resample_step=1.0)
 
     # ================= west: lower island T21, the stair T15 -> T13 -> T11 -> T8, T10 + T9 =================
     small = dict(cap=1.1, tiers=((0.55, 1.1),), stalk=0.45)

@@ -1006,7 +1006,7 @@ midpoint estimate : `MidpointTaken × PhysicalHitChance × (1 - GuardChance)`. M
 10. **Beginner progression**: level 1, 4/4/4/4 + 9 creation AP (25 total), +5 AP per level, +1 SP per level up to 9 SP at level 10, HP 50 + 16 × (L - 1), MP 5 + 12 × (L - 1) (flat, no randomness), first job at level 10 with no stat requirement, AP never resets on advancement.
 11. **Death**: the character dies when HP reaches 0 (Roger, npc 3). Lose `floor(EXP to next level × (5 + 20 / baseLUK) / 100)` EXP, floored at 0 EXP (never de-levels). `baseLUK` is the character's own LUK including the starting 4 (before gear), not just the AP placed in LUK; a value of 0 would divide by zero. No town or Beginner exception is documented. Respawn at the map's Respawn Map (maps domain).
 12. **Chairs** add a bonus: "an additional 30 HP every 10 seconds" on top of the resting regeneration, whose base amount is undocumented. The Sky-blue Wooden Chair needs level 5. Do not treat 30 HP / 10 s as the whole sitting regen.
-13. **Beginner SP**: the calculator's "Beginner SP = 9" is the level-10 total. A Beginner starts with 0 SP and gains 1 SP per level-up from level 2 to 10.
+13. **Beginner SP**: the calculator's "Beginner SP = 9" is the level-10 total. The Beginner's guide gives only "9 SP by the time you hit level 10 (1 per level-up)"; 1 SP per level-up from level 2 to 10, and so 0 SP at level 1, is arithmetic from that sentence, not a value any page states (MisoStory starts at 0: `new_character.json` `starting_sp`, an adaptation).
 
 ## 5. Ambiguities (rounding order, truncation, floor placement)
 
@@ -1053,12 +1053,15 @@ Resolved by MeowDB's own calculator code (chunk `5253-8d210be12f2a3111.js`, exce
 - Stat caps (STR/DEX/INT/LUK, ACC, EVA, DEF); only Speed 140 / Jump 120 are documented.
 - Whether AP can go into Max HP / Max MP and how much it gives.
 - Level-up heal amount (only implied that levelling up heals).
-- Natural HP/MP regeneration amounts, interval, and what "not in combat" means; sitting on the ground; the base resting regen that a chair's "additional" 30 HP / 10 s is added to.
+- Natural HP/MP regeneration amounts, interval, and what "not in combat" means; sitting on the ground; the base resting regen that a chair's "additional" 30 HP / 10 s is added to. (MisoStory uses the project owner's rule for HP, 10 HP per 10 s still or seated, in `game/data/misostory/recovery.json`; MP stays without natural recovery.)
 - Which of Punch 1 / Punch 2 a bare-handed attack plays (the "equal odds" sentence exists only on weapon item pages).
 - Potion use cooldown / lock.
-- Drop expiry time, drop ownership duration, drop scatter, item drop chances, meso drop amount formula.
+- Drop expiry time, drop ownership duration, drop scatter, item drop chances, meso drop amount formula. (Iteration
+  Three: MeowDB's community lists give the drop members and its player reports the meso amount where one exists,
+  Henesys.gg gives each item's rarity, and the drop chance table and the meso rule are the project owner's adaptations,
+  `game/data/misostory/drop_rates.json` and `meso_rules.json`, decisions D3-11 and D3-12: [monsters.md](monsters.md).)
 - HP/MP after respawn, respawn delay, any item/meso loss on death; town or Beginner exceptions to the EXP loss (none listed).
-- Player knockback horizontal speed/distance and when it triggers; monster knockback distance and stagger time (only "a mob with 500 KB needs 500+ damage to stagger").
+- Player knockback horizontal speed/distance and when it triggers; monster knockback distance (only "a mob with 500 KB needs 500+ damage to stagger"). The monster stagger time was a gap here too; the live monster pages publish it since ("STAGGER 0.6 seconds", read 2026-10-05: `stagger_ms` in the monster records), though `formulas/movement.json` `monster_knockback.gaps` still lists it until the formulas extractor reads the captures.
 - Whether Three Snails uses the hit roll, level-gap scale and criticals: not stated explicitly (its page lists "Target hit eligibility" as a conditional factor, which suggests the shared hit check applies); its terrain interaction ("not confirmed").
 - Recovery's HP tick interval; Recovery / Nimble Feet cast animation ("Timing unavailable").
 - Party EXP split between members.

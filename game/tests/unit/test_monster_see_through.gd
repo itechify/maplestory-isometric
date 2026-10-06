@@ -224,7 +224,7 @@ func test_the_library_proxy_gets_it_on_every_surface() -> void:
 func test_the_placeholder_gets_it_in_place() -> void:
 	var sentinel := MonsterDef.from_id("1", db())
 	var v := _visual(sentinel)
-	assert_true(v.is_placeholder, "Tutorial Jr. Sentinel has no proxy")
+	assert_true(v.is_placeholder, "no library: the fallback body")
 	var meshes := _model_meshes(v)
 	assert_eq(meshes.size(), 3, "body, head, eye")
 	for mi in meshes:

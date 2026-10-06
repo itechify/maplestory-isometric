@@ -9,13 +9,24 @@ extends RefCounted
 ##                `external` entry declares it
 ##   external     every `external` entry (a value taken from outside MeowDB) has field, source_url, reason and
 ##                verified: false
+##   provenance (per property)  a record-level `provenance` block {<property>: source object} names a registered
+##                authority allowed to supply that property, with the URL, read_at, capture and decision rules of
+##                ProvenanceAuthorities.REGISTRY (check_source_object; contract C7). Records without the block are
+##                covered by their `source`. Schema 3 drop records' per-entry sources go through the same check
+##                (DropRecordChecks)
+##   capture      every `capture` key, at any depth, names an existing file under tools/<site>/captures/ (the dated,
+##                hand-read capture a value came from)
 ##   sources_index  canonical_sources.json lists every record exactly as tools/meowdb/build_sources_index.mjs would
-##                write it today (same files, URLs, external entries and counts), so "where did this value come from?"
-##                stays answerable
+##                write it today (same files, URLs, external entries, capture files, per-property authorities and
+##                counts), so "where did this value come from?" stays answerable
 ##   root files   game/data/canonical/ holds only domain folders plus canonical_sources.json: a loose JSON file there
 ##                has no domain, so no id, provenance or index check would ever see it
+##
+## Options (DataValidator passes its own): `capture_files` (Dictionary path -> true) replaces the disk lookup for
+## captures (tests); `repo_root` (String) is where tools/ lives (default: the folder above res://, as in the repository;
+## scripts/test.sh and scripts/validate_data.sh mirror tools/*/captures next to an ISOLATE copy).
 
-const AUTHORITY := "MeowDB MS Classic"
+const AUTHORITY := ProvenanceAuthorities.MEOWDB
 ## A record's own source must be one of these (prefix match on a path boundary).
 const SOURCE_URL_PREFIXES := ["https://meowdb.com/msclassic", "https://meowdb.com/_data/", "https://meowdb.com/api/"]
 ## Field-level sources may cite any meowdb.com page (the site's own JS chunks hold some formulas and labels).
@@ -42,13 +53,20 @@ const REQUIRED_FIELDS := {
 
 var db: ContentDB
 var report: ValidationReport
+var options: Dictionary
 var _iso := RegEx.new()
+var _capture_path := RegEx.new()
+var _decision_id := RegEx.new()
+var _capture_exists: Dictionary = {}  # path -> bool (disk lookups, cached per run)
 
 
-func _init(content: ContentDB, into: ValidationReport) -> void:
+func _init(content: ContentDB, into: ValidationReport, opts: Dictionary = {}) -> void:
 	db = content
 	report = into
+	options = opts
 	_iso.compile(ISO_8601)
+	_capture_path.compile(ProvenanceAuthorities.CAPTURE_PATH)
+	_decision_id.compile(ProvenanceAuthorities.DECISION_ID)
 
 
 ## Runs every identity and provenance check over the canonical data.
@@ -61,8 +79,142 @@ func run() -> void:
 			_check_required(domain_name, key, rec)
 			_check_source(domain_name, key, rec)
 			check_external(domain_name, key, rec.get("external", null))
+			check_provenance_block(domain_name, key, rec.get("provenance", null), drop_owner_kind(domain_name, rec))
+			check_capture_paths(domain_name, key, rec)
 	_check_root_files()
 	_check_sources_index()
+
+
+## The drop-owner kind of a drops record ("monster" / "breakable"), else "".
+static func drop_owner_kind(domain_name: String, rec: Dictionary) -> String:
+	if domain_name != "drops" or not (rec.get("owner", null) is Dictionary):
+		return ""
+	var kind: Variant = rec.owner.get("kind", null)
+	return kind if kind is String else ""
+
+
+# --- per-property provenance (contract C7) ------------------------------------------------------------------
+
+## Checks a record-level `provenance` block: {<property>: source object}. Absent (null) is fine: the record's `source`
+## then covers every value, as in v1. `owner_kind` is the drop-owner kind for drops records ("" elsewhere).
+func check_provenance_block(domain_label: String, id: String, block: Variant, owner_kind: String = "") -> void:
+	if block == null:
+		return
+	if not (block is Dictionary):
+		report.error("provenance", domain_label, id, "provenance must be an object {<property>: {authority, url, read_at, capture, ...}}")
+		return
+	for property in block:
+		check_source_object(domain_label, id, str(property), block[property], "provenance.%s" % str(property), owner_kind)
+
+
+## Checks one source object for `property` against ProvenanceAuthorities.REGISTRY and reports each problem as a
+## "provenance" error naming `where` (e.g. "provenance.membership", "entries[2] 'sword'.rarity.source").
+## A source object is {authority, url | urls, read_at (MeowDB: or retrieved_at), capture, decision, ...}; the rules
+## per authority are in the registry. The capture file's existence is checked by check_capture_paths (once per path).
+## Returns true when the object passed.
+func check_source_object(domain_label: String, id: String, property: String, src: Variant, where: String,
+		owner_kind: String = "") -> bool:
+	report.count("provenance_sources_checked")
+	var problems := source_object_problems(property, src, owner_kind)
+	for p in problems:
+		report.error("provenance", domain_label, id, "%s: %s" % [where, p])
+	return problems.is_empty()
+
+
+## The problems check_source_object would report (empty when the object is valid).
+func source_object_problems(property: String, src: Variant, owner_kind: String = "") -> PackedStringArray:
+	var out: PackedStringArray = []
+	if not (src is Dictionary):
+		out.append("must be an object {authority, url, read_at, capture, ...}, got %s" % var_to_str(src))
+		return out
+	var authority: Variant = src.get("authority", null)
+	if not ProvenanceAuthorities.has(authority):
+		out.append("authority %s is not registered (registered: %s)" % [var_to_str(authority), ProvenanceAuthorities.names_text()])
+		return out
+	var rule := ProvenanceAuthorities.rule(authority)
+	if not ProvenanceAuthorities.allows(authority, property):
+		out.append("%s may not supply '%s' (it may supply: %s)" % [authority, property, ProvenanceAuthorities.allowed_text(authority)])
+	var kinds: Array = rule.get("owner_kinds", [])
+	if owner_kind != "" and not kinds.is_empty() and not (owner_kind in kinds):
+		out.append("%s does not describe %s drop owners (only %s)" % [authority, owner_kind, ", ".join(PackedStringArray(kinds))])
+	# URLs: `url`, or a non-empty `urls` list (a value read from several pages of one site).
+	var urls: Array = []
+	if src.has("url") and src.url != null:
+		urls.append(src.url)
+	if src.has("urls"):
+		if src.urls is Array and not src.urls.is_empty():
+			urls.append_array(src.urls)
+		else:
+			out.append("urls must be a non-empty list of URLs")
+	var prefixes: Array = rule.get("url_prefixes", [])
+	if not prefixes.is_empty():
+		if urls.is_empty():
+			out.append("%s needs a url (%s)" % [authority, ", ".join(PackedStringArray(prefixes))])
+		for u in urls:
+			if not ProvenanceAuthorities.url_allowed(authority, u):
+				out.append("url %s is not a %s page (%s)" % [var_to_str(u), authority, ", ".join(PackedStringArray(prefixes))])
+	# read_at: when the value was read (MeowDB's cache stamp may be given as retrieved_at).
+	var read_at: Variant = src.get("read_at", null)
+	if read_at == null and authority == ProvenanceAuthorities.MEOWDB:
+		read_at = src.get("retrieved_at", null)
+	if (rule.get("read_at", false) or read_at != null) and not is_iso_timestamp(read_at):
+		out.append("needs read_at, an ISO 8601 timestamp with a zone (got %s)" % var_to_str(read_at))
+	if rule.get("capture", false) and not ValidationUtil.non_empty(src.get("capture", null)):
+		out.append("%s values need capture: the dated file under tools/<site>/captures/ they were read from" % authority)
+	var decision: Variant = src.get("decision", null)
+	if (rule.get("decision", false) or decision != null) and not is_decision_ref(decision):
+		out.append("needs decision: an owner decision id such as D3-11 (docs/ITERATION_LOG.md) or the Iteration Three brief (got %s)" % var_to_str(decision))
+	return out
+
+
+## True for a decision reference: a string naming an ITERATION_LOG decision id ("D3-11") or the Iteration Three brief.
+func is_decision_ref(v: Variant) -> bool:
+	return v is String and (_decision_id.search(v) != null or String(v).contains(ProvenanceAuthorities.BRIEF))
+
+
+## Every `capture` key at any depth of `node` must name an existing file under tools/<site>/captures/.
+func check_capture_paths(domain_label: String, id: String, node: Variant, path: String = "") -> void:
+	if node is Dictionary:
+		for k in node:
+			var key := str(k)
+			var child := key if path == "" else "%s.%s" % [path, key]
+			if key == "capture":
+				_check_capture_path(domain_label, id, node[k], child)
+			else:
+				check_capture_paths(domain_label, id, node[k], child)
+	elif node is Array:
+		for e in node:
+			check_capture_paths(domain_label, id, e, path + "[]")
+
+
+func _check_capture_path(domain_label: String, id: String, value: Variant, where: String) -> void:
+	report.count("capture_paths_checked")
+	if not (value is String) or _capture_path.search(value) == null or ".." in String(value).split("/") \
+			or "." in String(value).split("/"):
+		report.error("provenance", domain_label, id,
+			"%s %s is not a capture path (repo-relative, under tools/<site>/captures/, forward slashes)" % [where, var_to_str(value)])
+		return
+	if not capture_exists(value):
+		report.error("provenance", domain_label, id, "%s names %s, which does not exist (looked under %s)" % [
+			where, value, "the injected capture_files" if options.get("capture_files", null) is Dictionary else repo_root()])
+
+
+## True when the capture file exists (options.capture_files when given, else the disk under repo_root()).
+func capture_exists(capture: String) -> bool:
+	var injected: Variant = options.get("capture_files", null)
+	if injected is Dictionary:
+		return injected.has(capture)
+	if not _capture_exists.has(capture):
+		_capture_exists[capture] = FileAccess.file_exists(repo_root().path_join(capture))
+	return _capture_exists[capture]
+
+
+## The repository root that holds tools/ (options.repo_root, else the folder above res://).
+func repo_root() -> String:
+	var root: Variant = options.get("repo_root", null)
+	if root is String and root != "":
+		return root
+	return ProjectSettings.globalize_path("res://").path_join("..").simplify_path()
 
 
 ## True when `text` is an ISO 8601 date-time with an explicit zone ("2026-10-04T09:56:36.674Z") that names a real
@@ -254,19 +406,12 @@ func _check_sources_index() -> void:
 		if listed.has(k):
 			report.error("sources_index", SOURCES_INDEX, k, "listed twice; %s" % REBUILD_HINT)
 		listed[k] = row
-	var all_urls := {}
-	var record_count := 0
-	var external_count := 0
 	for domain_name in ValidationUtil.canonical_domains(db):
 		for key in db.ids(domain_name):
 			if "/" in key:
 				continue  # the index builder only reads top-level files; nested records are reported below
-			record_count += 1
 			var rec: Dictionary = db.get_entity(domain_name, key)
 			var expected := _expected_row(domain_name, key, rec)
-			external_count += int(expected.external_count)
-			for u in expected.urls:
-				all_urls[u] = true
 			var k := "%s/%s" % [domain_name, str(expected.id)]
 			if not listed.has(k):
 				report.error("sources_index", SOURCES_INDEX, k, "record is not in canonical_sources.json; %s" % REBUILD_HINT)
@@ -283,12 +428,128 @@ func _check_sources_index() -> void:
 	if not (totals is Dictionary):
 		report.error("sources_index", SOURCES_INDEX, SOURCES_INDEX, "canonical_sources.json has no totals; %s" % REBUILD_HINT)
 		return
-	_compare_total(totals, "records", record_count)
+	var expected_totals := index_totals()
+	_compare_total(totals, "records", int(expected_totals.records))
 	if ValidationUtil.is_number(totals.get("records", null)) and int(totals.records) != rows.size():
 		report.error("sources_index", SOURCES_INDEX, SOURCES_INDEX, "totals.records is %d but the records array lists %d; %s" % [
 			int(totals.records), rows.size(), REBUILD_HINT])
-	_compare_total(totals, "external_values", external_count)
-	_compare_total(totals, "distinct_source_urls", all_urls.size())
+	_compare_total(totals, "external_values", int(expected_totals.external_values))
+	_compare_total(totals, "distinct_source_urls", int(expected_totals.distinct_source_urls))
+	_compare_total(totals, "capture_files", int(expected_totals.capture_files))
+
+
+## The canonical_sources.json row tools/meowdb/build_sources_index.mjs would write for a record (tests use it to keep
+## the index of a mutated ContentDB current).
+func index_row(domain_name: String, key: String, rec: Dictionary) -> Dictionary:
+	var e := _expected_row(domain_name, key, rec)
+	var urls: Array = e.field_source_urls.duplicate()
+	urls.sort()
+	var row := {"domain": domain_name, "id": e.id, "name": e.name, "file": e.file, "authority": e.authority, "url": e.url,
+		"retrieved_at": e.retrieved_at, "field_source_urls": urls, "external": e.external, "gap_count": e.gap_count,
+		"discrepancy_count": e.discrepancy_count}
+	if not e.capture_files.is_empty():
+		row["capture_files"] = e.capture_files
+	if not e.property_sources.is_empty():
+		row["property_sources"] = e.property_sources
+	return row
+
+
+## The totals block build_sources_index.mjs would write for the loaded data:
+## {records, distinct_source_urls, external_values, capture_files}.
+func index_totals() -> Dictionary:
+	var all_urls := {}
+	var captures := {}
+	var record_count := 0
+	var external_count := 0
+	for domain_name in ValidationUtil.canonical_domains(db):
+		for key in db.ids(domain_name):
+			if "/" in key:
+				continue
+			record_count += 1
+			var expected := _expected_row(domain_name, key, db.get_entity(domain_name, key))
+			external_count += int(expected.external_count)
+			for u in expected.urls:
+				all_urls[u] = true
+			for c in expected.capture_files:
+				captures[c] = true
+	return {"records": record_count, "distinct_source_urls": all_urls.size(), "external_values": external_count,
+		"capture_files": captures.size()}
+
+
+## [[property, source object], ...] in a record: its `provenance` block, then (schema 3 drop records) each entry's
+## and the meso block's source paths (ProvenanceAuthorities.SOURCE_PROPERTIES). Mirrors build_sources_index.mjs.
+static func source_objects(domain_name: String, rec: Dictionary) -> Array:
+	var out: Array = []
+	var prov: Variant = rec.get("provenance", null)
+	if prov is Dictionary:
+		for p in prov:
+			out.append([str(p), prov[p]])
+	if domain_name == "drops" and ValidationUtil.same(rec.get("schema_version", null), DropRates.SCHEMA_VERSION):
+		var entry_keys: Dictionary = ProvenanceAuthorities.SOURCE_PROPERTIES.entries
+		for e in ValidationUtil.as_array(rec.get("entries", [])):
+			if e is Dictionary:
+				for k in entry_keys:
+					var src: Variant = ProvenanceAuthorities.at_path(e, k)
+					if src is Dictionary:
+						out.append([entry_keys[k], src])
+		var meso: Variant = rec.get("meso", null)
+		if meso is Dictionary:
+			var meso_keys: Dictionary = ProvenanceAuthorities.SOURCE_PROPERTIES.meso
+			for k in meso_keys:
+				var src: Variant = ProvenanceAuthorities.at_path(meso, k)
+				if src is Dictionary:
+					out.append([meso_keys[k], src])
+	return out
+
+
+## {property: {authorities: [sorted], urls: [sorted]}} over source_objects() (sorted keys), as the builder writes it.
+static func _property_sources(domain_name: String, rec: Dictionary) -> Dictionary:
+	var acc := {}
+	for pair in source_objects(domain_name, rec):
+		var s: Variant = pair[1]
+		if not (s is Dictionary):
+			continue
+		var p: String = pair[0]
+		if not acc.has(p):
+			acc[p] = {"authorities": {}, "urls": {}}
+		if ValidationUtil.non_empty(s.get("authority", null)):
+			acc[p].authorities[s.authority] = true
+		if s.get("url", null) is String and s.url != "":
+			acc[p].urls[s.url] = true
+		for u in ValidationUtil.as_array(s.get("urls", null)):
+			if u is String and u != "":
+				acc[p].urls[u] = true
+	var keys: Array = acc.keys()
+	keys.sort()
+	var out := {}
+	for p in keys:
+		var authorities: Array = acc[p].authorities.keys()
+		authorities.sort()
+		var urls: Array = acc[p].urls.keys()
+		urls.sort()
+		out[p] = {"authorities": authorities, "urls": urls}
+	return out
+
+
+## Every string under a "capture" key at any depth (sorted), as the builder collects them.
+static func _capture_files(node: Variant) -> Array:
+	var found := {}
+	_collect_captures(node, found)
+	var keys: Array = found.keys()
+	keys.sort()
+	return keys
+
+
+static func _collect_captures(node: Variant, out: Dictionary) -> void:
+	if node is Dictionary:
+		for k in node:
+			if str(k) == "capture" and node[k] is String:
+				out[node[k]] = true
+			else:
+				_collect_captures(node[k], out)
+	elif node is Array:
+		for e in node:
+			_collect_captures(e, out)
 
 
 func _expected_row(domain_name: String, key: String, rec: Dictionary) -> Dictionary:
@@ -297,14 +558,9 @@ func _expected_row(domain_name: String, key: String, rec: Dictionary) -> Diction
 	var fs: Variant = rec.get("field_sources", {})
 	if fs is Dictionary:
 		for f in fs:
-			var v: Variant = fs[f]
-			if v is Dictionary:
-				if v.get("url", null) is String and v.url != "":
-					extra[v.url] = true
-				if v.get("pages", null) is Array:
-					for p in v.pages:
-						if p is Dictionary and p.get("url", null) is String and p.url != "":
-							extra[p.url] = true
+			for u in _field_source_urls(fs[f]):
+				if u != "":
+					extra[u] = true
 	var urls := extra.duplicate()
 	if src.get("url", null) is String and src.url != "":
 		urls[src.url] = true
@@ -316,6 +572,10 @@ func _expected_row(domain_name: String, key: String, rec: Dictionary) -> Diction
 			var ed: Dictionary = e if e is Dictionary else {}
 			external_rows.append({"field": ed.get("field", null), "source_url": ed.get("source_url", null),
 				"verified": _js_truthy(ed.get("verified", null))})
+	var property_sources := _property_sources(domain_name, rec)
+	for p in property_sources:
+		for u in property_sources[p].urls:
+			urls[u] = true
 	var id_value: Variant = rec.get("id", null)
 	return {
 		"id": str(id_value) if id_value != null else key,
@@ -329,6 +589,8 @@ func _expected_row(domain_name: String, key: String, rec: Dictionary) -> Diction
 		"external": external_rows,
 		"gap_count": rec.get("gaps", []).size() if rec.get("gaps", null) is Array else 0,
 		"discrepancy_count": rec.get("discrepancies", []).size() if rec.get("discrepancies", null) is Array else 0,
+		"capture_files": _capture_files(rec),
+		"property_sources": property_sources,
 		"urls": urls.keys(),
 	}
 
@@ -353,8 +615,39 @@ func _compare_row(k: String, row: Dictionary, expected: Dictionary) -> void:
 		var have: Variant = row.get(field, null)
 		if not (have is float or have is int) or int(have) != int(expected[field]):
 			stale.append(field)
+	# Written only when non-empty, so an absent key means "none".
+	if not _same_string_set(row.get("capture_files", []), expected.capture_files):
+		stale.append("capture_files")
+	if not _same_property_sources(row.get("property_sources", {}), expected.property_sources):
+		stale.append("property_sources")
 	if not stale.is_empty():
 		report.error("sources_index", SOURCES_INDEX, k, "entry is stale (%s differ from the record); %s" % [", ".join(stale), REBUILD_HINT])
+
+
+## True when `listed` is an Array holding exactly the strings of `expected` (order ignored).
+static func _same_string_set(listed: Variant, expected: Array) -> bool:
+	if not (listed is Array) or listed.size() != expected.size():
+		return false
+	var have := {}
+	for v in listed:
+		if not (v is String):
+			return false
+		have[v] = true
+	return have.size() == expected.size() and have.has_all(expected)
+
+
+## The index row's property_sources equal the record's: same properties, authorities and URLs.
+static func _same_property_sources(listed: Variant, expected: Dictionary) -> bool:
+	if not (listed is Dictionary) or listed.size() != expected.size():
+		return false
+	for p in expected:
+		var row: Variant = listed.get(p, null)
+		if not (row is Dictionary):
+			return false
+		if not _same_string_set(row.get("authorities", null), expected[p].authorities) \
+				or not _same_string_set(row.get("urls", null), expected[p].urls):
+			return false
+	return true
 
 
 ## The index row's external list matches the record's, entry by entry (field, source_url, verified).

@@ -10,6 +10,14 @@ extends TestCase
 var rig: MonsterTestRig
 
 
+## Contract C6: the damage-taken number shows the HP actually lost, a miss shows MISS (Phase 12 damage feedback).
+func parity_keys() -> Dictionary:
+	return {
+		"test_contact_damage_uses_the_touch_formula_and_respects_invulnerability": ["ui:damage-feedback", "mechanic:monster-touch-damage"],
+		"test_a_missed_touch_grants_invincibility_without_damage_or_push": ["ui:damage-feedback"],
+	}
+
+
 func before_each() -> void:
 	rig = MonsterTestRig.create(db(), 2024)
 	rig.floor(60.0)
@@ -103,20 +111,18 @@ func test_every_species_dies_to_the_basic_attack_with_its_own_canonical_exp_and_
 		assert_eq(killed.size(), 1, "%s: one monster_killed" % rec["name"])
 		if killed.size() == 1:
 			assert_eq(killed[0].slice(1), [id, "000001020"], "%s: monster_killed(id, map)" % rec["name"])
-		var table := {}
-		for e in db().drop_table(id).get("entries", []):
-			table[String(e["item_id"])] = true
 		for l in r.events_named("loot_dropped"):
 			for d in l[1]:
 				if String(d["kind"]) == "item":
-					assert_true(table.has(String(d["item_id"])), "%s drops item %s from its own table" % [rec["name"], d["item_id"]])
+					assert_true(DropRates.rolls_item(id, String(d["item_id"]), db(), DropRoller.context_for(r.character())),
+						"%s drops item %s, a rolling member of its own record" % [rec["name"], d["item_id"]])
 		r.free_all()
 
 
 func test_drops_are_the_canonical_table_rolled_once_at_death() -> void:
 	var m := rig.spawn("2", Vector3(3, 0, 0))
 	m.map_id = "000000040"
-	# Find a seed whose roll drops something (rates are placeholders; the roll itself is DropRoller's).
+	# Find a seed whose roll drops something (the roll itself is DropRoller's, on the gameplay RNG).
 	var seed_value := -1
 	var expected: Array = []
 	for s in range(1, 200):
@@ -136,25 +142,38 @@ func test_drops_are_the_canonical_table_rolled_once_at_death() -> void:
 		assert_eq(loot[0][1], expected, "DropRoller.roll output, rolled at death with the gameplay RNG")
 		assert_true((loot[0][2] as Vector3).is_equal_approx(at), "at the monster's feet")
 		assert_eq(String(loot[0][3]), "000000040", "map id")
-		var table := {}
-		for e in db().drop_table("2")["entries"]:
-			table[String(e["item_id"])] = true
 		for d in loot[0][1]:
 			if String(d["kind"]) == "item":
-				assert_true(table.has(String(d["item_id"])), "item %s is in the canonical table" % d["item_id"])
-	# A death that drops nothing announces no loot.
-	var empty_seed := -1
-	for s in range(1, 400):
-		var probe := RandomNumberGenerator.new()
-		probe.seed = s
-		if DropRoller.roll("2", db(), probe).is_empty():
-			empty_seed = s
-			break
-	if empty_seed > 0:
-		var m2 := rig.spawn("2", Vector3(-3, 0, 0))
-		rig.rng.seed = empty_seed
-		m2.die()
-		assert_eq(rig.events_named("loot_dropped").size(), 1, "no loot_dropped for an empty roll")
+				assert_true(DropRates.rolls_item("2", String(d["item_id"]), db()),
+					"item %s is a rolling member of the canonical record" % d["item_id"])
+
+
+## A death whose roll is empty announces no loot. No canonical monster can roll empty (each record has a member at
+## chance 1: its shell or cap), so the Snail's record is made one where nothing rolls, on a private copy of the
+## content: every member left without a rarity (unresolved) and the Snail added to meso_rules.json no_mesos. The kill
+## still pays its EXP.
+func test_a_death_that_drops_nothing_announces_no_loot() -> void:
+	var c := ContentDB.new()
+	c.canonical = db().canonical.duplicate(true)
+	c.miso = db().miso.duplicate(true)
+	c.loaded = true
+	var table: Dictionary = c.canonical["drops"]["2"]
+	for e: Dictionary in table["entries"]:
+		e["rarity"] = null
+	c.miso[""]["meso_rules"]["no_mesos"]["2"] = {"name": "Snail", "reason": "test: no mesos"}
+	for k in 50:
+		assert_eq(DropRoller.roll("2", c, rig.rng), [], "nothing rolls on the edited record")
+	var r := MonsterTestRig.create(c, 7)
+	r.floor(20.0)
+	var m := r.spawn("2", Vector3(2, 0, 0))
+	m.map_id = "000000040"
+	var exp_before := r.character().exp
+	m.die()
+	assert_eq(r.events_named("monster_killed").size(), 1, "the death is announced")
+	assert_eq(r.events_named("loot_dropped").size(), 0, "no loot_dropped for an empty roll")
+	assert_eq(r.character().exp - exp_before, int(c.monster("2")["exp"]), "the kill still gives its EXP")
+	r.free_all()
+	assert_false(DropRoller.roll("2", db(), rig.rng).is_empty(), "the shared content is untouched: a Snail always drops")
 
 
 func _live_map(map_id: String) -> Dictionary:

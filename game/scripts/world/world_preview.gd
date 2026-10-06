@@ -7,6 +7,8 @@ extends Node3D
 ## Player_Proxy model) into MapSession's start map or --map, and frames each entered map with its Blender gameplay
 ## camera (cameras.gameplay). --shot saves a screenshot after the monsters have spawned; --quit exits afterwards.
 ## Keys while running: Up enters a portal (when inside one), F interacts, Space respawns at the next map in id order.
+## No game is started (no Game.new_game), so Game.clock stands still here: each map shows its first fill, but nothing
+## respawns on the spawn tick and no ground drop expires (docs/runtime/DEBUG_TOOLS.md "Known limits").
 
 var world: IslandWorld = null
 var player: WorldTestPlayer = null

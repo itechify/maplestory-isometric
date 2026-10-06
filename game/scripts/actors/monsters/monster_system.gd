@@ -117,7 +117,8 @@ func attach_player(p: Node3D) -> void:
 	else:
 		pc.load_feel()
 	player_combat = pc
-	# Natural HP recovery while resting (combat.json natural_recovery), after PlayerCombat so it hears its attacks.
+	# Natural HP recovery (data/misostory/recovery.json, the owner's rule). It reads the player's activity after
+	# PlayerCombat each tick through its own process_physics_priority (NaturalRecovery.PHYSICS_PRIORITY 20 > 10).
 	if p.get_node_or_null(^"NaturalRecovery") == null:
 		var nr := NaturalRecovery.new()
 		nr.name = "NaturalRecovery"
@@ -157,6 +158,13 @@ func spawn_monster(mob_id: String, xform: Transform3D, def: MapDefinition = null
 	m.settle()
 	_free.append(m)
 	return m
+
+
+## The player's feet, or null without a player (MapInstanceView.player_position: the respawn clearance).
+func player_feet() -> Variant:
+	if player == null or not is_instance_valid(player) or not player.is_inside_tree():
+		return null
+	return player.global_position
 
 
 ## Every live (not dying) monster: the view's slot monsters, debug spawns under the view, and free spawns.
@@ -199,7 +207,8 @@ func apply_player_hit(m: Monster, res: DamageResult, attacker: Node3D) -> void:
 
 
 ## Called by a Monster when it dies: the canonical EXP through Game.gain_exp, Events.monster_killed, and the
-## monster's canonical drop table rolled at once (DropRoller with the placeholder rates) and announced with
+## monster's canonical drop record rolled at once (DropRoller, with the character's quests in progress for quest-gated
+## drops, contract C2) and announced with
 ## Events.loot_dropped(drops, feet position, map_id) when anything dropped.
 func on_monster_died(m: Monster) -> void:
 	kills += 1
@@ -214,7 +223,7 @@ func on_monster_died(m: Monster) -> void:
 			Progression.gain_exp(_character(), amount, _db())
 		exp_awarded += amount
 	_emit(&"monster_killed", [id, map_id])
-	var drops := DropRoller.roll(id, _db(), _rng())
+	var drops := DropRoller.roll(id, _db(), _rng(), DropRoller.context_for(_character()))
 	if not drops.is_empty():
 		_emit(&"loot_dropped", [drops, m.global_position, map_id])
 	_free.erase(m)
@@ -253,6 +262,19 @@ func monster_touch(m: Monster) -> bool:
 	if res.landed() and c.hp <= 0:
 		ContactDamage.announce_death(player, _session(), _events(), m.map_id if m.map_id != "" else _current_map())
 	return true
+
+
+## The authored height band (Vector2(y_lo, y_hi)) of the spawn region slot `slot_index` of `def` was placed in
+## (SpawnSlotPlanner sets SpawnSlot.region to the area's name), or (NAN, NAN) when it has none: a monster's floor
+## covers its region's tier (MonsterDef.floor_range).
+static func region_band(def: MapDefinition, slot_index: int) -> Vector2:
+	if def == null or slot_index < 0 or slot_index >= def.monster_spawn_definitions.size():
+		return Vector2(NAN, NAN)
+	var name_ := def.monster_spawn_definitions[slot_index].region
+	for a in def.spawn_areas:
+		if String(a.get("name", "")) == name_:
+			return Vector2(float(a.get("y_lo", NAN)), float(a.get("y_hi", NAN)))
+	return Vector2(NAN, NAN)
 
 
 ## The mob region of `def` (cached per map).
@@ -323,6 +345,8 @@ func use_view(v: MapInstanceView) -> void:
 	view = v
 	view.monster_factory = make_monster
 	view.monster_releaser = release_monster
+	# No monster is realized while the player stands on its slot (presentation.json spawns.respawn_player_clearance_m).
+	view.player_position = player_feet
 	if view.state != null and view.def != null:
 		var st := view.state
 		var d := view.def
@@ -351,6 +375,9 @@ func _new_monster(mob_id: String, xform: Transform3D, def: MapDefinition, map_id
 		m.settle_down_m = t.num("grounding", "probe_down_m")
 	var seed_value := hash("%s:%d:%d" % [map_id, slot_index, _spawn_counter])
 	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp)
+	var band := region_band(def, slot_index)
+	if not is_nan(band.x):
+		m.set_region_band(band.x, band.y)
 	var fade := _tuning().num("spawns", "fade_in_s") if _tuning() != null else 0.0
 	m.visual.start_spawn(fade)
 	monster_spawned.emit(m)
@@ -375,6 +402,9 @@ func _ensure_fx() -> void:
 			attack_fx = AttackFx.new()
 			attack_fx.name = "AttackFx"
 			add_child(attack_fx)
+	# The swing FX lay the real hit area on the ground: the attack box as deep as the hit test makes it.
+	if _db() != null:
+		attack_fx.depth_px = CombatReach.attack_box_depth_px(_db())
 
 
 ## The player's body for contact: (radius, height) of its Hurtbox capsule (player.tscn), else the movement model.
@@ -476,3 +506,5 @@ func _exit_tree() -> void:
 			view.monster_factory = Callable(view, &"default_factory")
 		if view.monster_releaser == Callable(self, &"release_monster"):
 			view.monster_releaser = Callable()
+		if view.player_position == Callable(self, &"player_feet"):
+			view.player_position = Callable()

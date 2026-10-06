@@ -12,9 +12,16 @@ extends RefCounted
 ##
 ## The checks, in order (see docs/runtime/DATA_VALIDATION.md):
 ##   load            ContentDB load errors (unparsable JSON, a domain file whose top level is not an object)
-##   ids, schema, provenance, external, sources_index      ProvenanceChecks
-##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks
+##   ids, schema, provenance, external, sources_index      ProvenanceChecks (+ the ProvenanceAuthorities registry)
+##   drop_record (+ provenance)                            DropRecordChecks (schema 3 drop records, contract C1)
+##   drop_policy, drop_unresolved                          DropChecks (the drop policy over the shipped records, the
+##                                                         dated captures and the owner's drop rule files)
+##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks (+ skill references and
+##                                                                            the Phase 16 per-category counters)
+##   chair, name, duplicate                                                   IntegrityChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
+##   quest_data, npc_data, dialogue_data   GameplayDataChecks (QuestCatalog / NpcCatalog / NpcDialogueBuilder
+##                   validation, run only when everything above found no error)
 ##   validator       a script error inside any of the above (see validate())
 
 ## Check slug (and domain) of the findings that report a script error inside the validator itself.
@@ -23,6 +30,8 @@ const VALIDATOR_CHECK := "validator"
 ## Options:
 ##   world_dir: String          where the Blender export sidecars live (default "res://assets/world")
 ##   world_sidecars: Dictionary slug -> sidecar Dictionary; replaces the disk lookup (tests)
+##   repo_root: String          the folder holding tools/*/captures (default: the folder above res://)
+##   capture_files: Dictionary  capture path -> true; replaces the disk lookup of cited captures (tests)
 var options: Dictionary
 var db: ContentDB
 var report := ValidationReport.new()
@@ -61,12 +70,17 @@ func run() -> ValidationReport:
 	if ValidationUtil.canonical_domains(db).is_empty():
 		report.error("load", "load", "", "no canonical data loaded (is game/data/canonical present?)")
 		return report
-	var provenance := ProvenanceChecks.new(db, report)
+	var provenance := ProvenanceChecks.new(db, report, options)
 	provenance.run()
+	DropRecordChecks.new(db, report, provenance).run()
+	DropChecks.new(db, report, provenance).run()
 	var refs := ReferenceChecks.new(db, report)
 	refs.run()
+	IntegrityChecks.new(db, report).run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()
 	refs.flush()
+	# Last: the game's own quest / NPC / dialogue validation assumes the structurally valid data checked above.
+	GameplayDataChecks.new(db, report).run()
 	return report
 
 

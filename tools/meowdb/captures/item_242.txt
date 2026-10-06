@@ -1,0 +1,29 @@
+URL: https://meowdb.com/msclassic/item-db/242
+READ_AT: 2026-10-05T22:11:30.520Z
+METHOD: manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the record
+PURPOSE: the item page rows the API-preview capture (items_api.json) lacks: Max per Stack and the Tradeable tag
+---
+Item Database
+/
+Green Apple
+Green Apple
+Use · Food · No. 0242
+MP Recovery
++30
+NPC Sell-back (per unit)
+3 mesos
+Max per Stack
+100
+Tradeable
+A sour and crunchy green apple. Restores 30 MP.
+Dropped By
+Community sourced
+
+No drops reported yet.
+
+MSEA Reference Drops
+Read-only · 1 monster
+Mano
+Lv 20
+Change history
+updated in COT2

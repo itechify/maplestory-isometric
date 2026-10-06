@@ -5,6 +5,11 @@ extends TestCase
 ## the action-to-key lookup and PlaytestDriver.diff.
 
 
+## Contract C6: none of these tests proves a canonical value; they prove the harness that carries the parity keys.
+func parity_keys() -> Dictionary:
+	return {}
+
+
 func _report() -> PlaytestReport:
 	var r := PlaytestReport.new()
 	r.scenario = "unit"
@@ -80,6 +85,27 @@ func test_round_trip_keeps_carry_types_and_writes_markdown() -> void:
 	for f in ["report.json", "report.md"]:
 		DirAccess.remove_absolute(dir.path_join(f))
 	DirAccess.remove_absolute(dir)
+
+
+func test_checks_carry_parity_keys_through_the_round_trip() -> void:
+	var r := _report()
+	r.add_check(0, "1005 rewards", true, "", 0.0, -1, false, ["quest:1005", "quest:1005", "item:347"])
+	r.add_check(0, "1005 marker", false, "warned", 0.0, -1, true, ["quest:1005"])
+	r.add_check(0, "plain", true, "", 0.0, -1)
+	assert_eq(r.checks[0]["parity"], ["quest:1005", "item:347"], "keys are kept once, in order")
+	assert_false((r.checks[2] as Dictionary).has("parity"), "a check without keys carries none")
+	var sum := r.parity_summary()
+	assert_eq(int((sum["quest:1005"] as Dictionary)["checks"]), 2)
+	assert_eq(int((sum["quest:1005"] as Dictionary)["passed"]), 1)
+	assert_eq(int((sum["quest:1005"] as Dictionary)["warned"]), 1)
+	assert_eq(int((sum["item:347"] as Dictionary)["passed"]), 1)
+	var d := r.to_dict()
+	assert_eq(int((d["counts"] as Dictionary)["parity_keys"]), 2, "counts.parity_keys")
+	var back := PlaytestReport.from_dict(JSON.parse_string(JSON.stringify(PlaytestReport._plain(d))))
+	assert_eq(Array((back.checks[0] as Dictionary)["parity"]), ["quest:1005", "item:347"], "report.json keeps them")
+	var md := r.to_markdown()
+	assert_true(md.contains("## Parity keys"), "report.md lists the keys")
+	assert_true(md.contains("| quest:1005 | 2 | 1 | 0 | 1 |"), md)
 
 
 func test_screen_move_maps_back_onto_the_world_direction() -> void:

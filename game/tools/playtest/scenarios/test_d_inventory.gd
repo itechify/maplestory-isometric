@@ -32,7 +32,11 @@ const WEAPON := "585"
 ## Filler for the full Equip tab (Leather Sandals, sold by Pan: it can be sold back to him).
 const FILLER := "1305"
 const KEY := "1"
-## Game seconds spent hunting A Split Road for mesos at most (probe: ~2.7 mesos and ~7.5 s per kill).
+## Game seconds spent hunting A Split Road for mesos at most. The Snail drops MeowDB's reported 2 mesos at the owner's
+## 60% meso chance (decision D3-12, data/misostory/meso_rules.json). With the earlier 40% chance, seed 1 took 66 kills /
+## 548 s for 151 mesos in one run and 94 kills / 1011 s for 158 mesos in another (one death); at 60% the same mesos come
+## after about two thirds of the kills. Runs of one seed differ, so the hunt may stop at the budget short of its
+## 150-meso goal; the check needs only 2 x Pan's price (100).
 const HUNT_BUDGET_S := 1100.0
 const PICK_RADIUS_M := 10.0
 
@@ -124,6 +128,12 @@ func _phase0(d: PlaytestDriver) -> void:
 	var reward_mesos := int((qdef.get("rewards", {}) as Dictionary).get("mesos", 0))
 	var before_reward := c.inventory.count(reward_id)
 	var mai: Dictionary = await d.talk_to(MAI)
+	if not bool(mai["open"]) and d.game().is_character_dead():
+		# A death on the way to Mai (a seed's rolls can leave A Split Road's monsters in the way) is answered as the
+		# hunts answer one: the notice's OK, the walk back, then the talk once more.
+		d.note("died on the way to Mai: %s" % String(mai.get("why", "")))
+		await _respawn(d, acct, HUNT_MAP)
+		mai = await d.talk_to(MAI)
 	if d.check("Mai can be talked to on foot", bool(mai["open"]), String(mai.get("why", ""))):
 		await _converse(d, "complete")
 	d.check("1006 completed at Mai: the canonical %d x %s" % [reward_qty, _name(d, reward_id)],
@@ -196,13 +206,14 @@ func _phase0(d: PlaytestDriver) -> void:
 	await _equip_section(d, top, bottom)
 	await _dropped_equipment_section(d, [top, bottom])
 
-	# Observation (not Test D): standing still in town with HP below the maximum. recovery.json natural_regeneration
-	# states that HP slowly recovers out of combat (no values published).
+	# Observation (not Test D): standing still in town with HP below the maximum. Natural recovery is the project
+	# owner's rule (misostory/recovery.json natural_hp: 10 HP per 10 s of standing still or sitting; MeowDB publishes
+	# no rate), so 60 s still must heal.
 	var hp_a := d.character().hp
 	var max_a := StatCalculator.max_hp(d.character(), db)
 	if hp_a < max_a:
 		await d.wait(60.0)
-		d.soft_check("HP recovers while standing still out of combat (canonical statement, no published rate)",
+		d.soft_check("HP recovers while standing still (natural recovery, misostory/recovery.json natural_hp)",
 			d.character().hp > hp_a, "HP %d / %d before and %d / %d after 60 s standing in %s" % [hp_a, max_a, d.character().hp,
 				StatCalculator.max_hp(d.character(), db), d.current_map()])
 	else:
@@ -617,7 +628,7 @@ func _dropped_equipment_section(d: PlaytestDriver, bought: Array) -> void:
 				c.equipment.item_in(def.equip_slot) == id and int(_stat_texts(d).get("wdef", "-1")) == w0 + _wdef(d, id),
 				"%s '%s', W.DEF %s" % [def.equip_slot, c.equipment.item_in(def.equip_slot), _stat_texts(d).get("wdef", "?")])
 	if dropped.is_empty():
-		d.note("no equipment dropped in this run (placeholder Equip rate 0.005 per listed piece): Pan's pieces are the equipment")
+		d.note("no equipment dropped in this run (Maple Island equipment drops at the owner's table chance, 0.1% for a Common equip, decision D3-11): Pan's pieces are the equipment")
 	await d.close_window("equipment")
 	await d.close_window("inventory")
 	await d.close_window("stats")
@@ -882,17 +893,19 @@ func _check_pickups(d: PlaytestDriver, acct: Dictionary, start_mesos: int) -> vo
 			expect.erase(id)
 	d.check("every item held came from a Z pickup or the quest reward (less the ones used)", PlaytestDriver.diff(expect, holds) == "",
 		"held %s, picked %s + reward %s - used %s" % [holds, picked_items, reward, used])
-	# Canonical drop tables of the monsters killed.
+	# The rolling members of the killed monsters' canonical drop records (contract C1: chance and item resolved). A
+	# member the sources leave unresolved is on the record but must never drop.
 	var allowed := {}
 	for mob: String in (acct["killed_mobs"] as Dictionary):
-		for e: Variant in db.drop_table(mob).get("entries", []):
-			allowed[String((e as Dictionary).get("item_id", ""))] = true
+		for row: Dictionary in DropRates.effective_entries(mob, db):
+			if String(row.get("excluded", "")) == "":
+				allowed[String(row.item_id)] = true
 	var off_table := PackedStringArray()
 	for id: String in picked_items:
 		if not allowed.has(id):
 			off_table.append(id)
-	d.check("every picked item is on a killed monster's canonical drop table", off_table.is_empty(),
-		"killed %s; picked %s; off-table %s" % [acct["killed_mobs"], picked_items.keys(), off_table])
+	d.check("every picked item is a rolling member of a killed monster's canonical drop record", off_table.is_empty(),
+		"killed %s; picked %s; not rolling there %s; rolling %s" % [acct["killed_mobs"], picked_items.keys(), off_table, allowed.keys()])
 	# Stacking: each stackable id sits in as few slots as its max stack allows.
 	var bad := PackedStringArray()
 	var merged := PackedStringArray()
@@ -1011,57 +1024,15 @@ static func _center(c: Control) -> Vector2:
 	return c.get_global_transform_with_canvas() * (c.size * 0.5)
 
 
-## A real double-click: press, release, then the second press with double_click set (the flag the OS sets), and
-## release. `probe` is read right before and right after the second press (dispatch is synchronous).
+## A real double-click (PlaytestKit.double_click: refused, with a failed check, when a player cannot click the
+## control). `probe` is read right before and right after the second press (dispatch is synchronous).
 func _double_click(d: PlaytestDriver, c: Control, probe: Callable = Callable()) -> Dictionary:
-	var at := _center(c)
-	d.input.mouse_move(at)
-	await d.frames(1)
-	d.input.mouse_button(at, true)
-	await d.frames(1)
-	d.input.mouse_button(at, false)
-	await d.frames(1)
-	var before: Variant = probe.call() if probe.is_valid() else null
-	var ev := InputEventMouseButton.new()
-	ev.button_index = MOUSE_BUTTON_LEFT
-	ev.pressed = true
-	ev.double_click = true
-	ev.button_mask = MOUSE_BUTTON_MASK_LEFT
-	ev.position = d.input.to_window(at)
-	ev.global_position = ev.position
-	Input.parse_input_event(ev)
-	Input.flush_buffered_events()
-	var after: Variant = probe.call() if probe.is_valid() else null
-	await d.frames(1)
-	d.input.mouse_button(at, false)
-	await d.frames(1)
-	return {"before": before, "after": after}
+	return await PlaytestKit.new(d).double_click(c, probe)
 
 
-## A real GUI drag: press on `from`, move past the drag threshold, glide onto `to`, release.
+## A real GUI drag (PlaytestKit.drag: refused, with a failed check, when a player cannot point at either end).
 func _drag(d: PlaytestDriver, from: Control, to: Control) -> Dictionary:
-	var vp := d.get_viewport()
-	var a := _center(from)
-	var b := _center(to)
-	d.input.mouse_move(b)
-	await d.frames(1)
-	var hov := vp.gui_get_hovered_control()
-	var topmost := hov != null and (hov == to or to.is_ancestor_of(hov))
-	d.input.mouse_move(a)
-	await d.frames(1)
-	d.input.mouse_button(a, true)
-	await d.frames(1)
-	d.input.mouse_move(a + Vector2(12, 0))
-	await d.frames(1)
-	d.input.mouse_move(a + Vector2(24, 0))
-	await d.frames(1)
-	var dragging := vp.gui_is_dragging()
-	for k in range(1, 7):
-		d.input.mouse_move(a.lerp(b, k / 6.0))
-		await d.frames(1)
-	d.input.mouse_button(b, false)
-	await d.frames(2)
-	return {"dragging": dragging, "target_topmost": topmost}
+	return await PlaytestKit.new(d).drag(from, to)
 
 
 ## Hovers a slot and returns the tooltip's rows ([] when none shows).

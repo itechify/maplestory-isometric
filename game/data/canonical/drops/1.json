@@ -1,74 +1,136 @@
 {
   "id": "1",
   "name": "Tutorial Jr. Sentinel drop table",
+  "schema_version": 3,
   "owner": {
     "kind": "monster",
     "id": "1",
     "name": "Tutorial Jr. Sentinel"
   },
-  "rates_canonical": false,
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
   "entries": [
     {
+      "key": "jr-sentinel-shellpiece",
+      "name": "Jr. Sentinel Shellpiece",
       "item_id": "347",
-      "item_name": "Jr. Sentinel Shellpiece",
-      "category": "Etc",
-      "subcategory": "Monster Drop",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "347"
+        ],
+        "evidence": "game/data/canonical/items/347.json is the only local item named \"Jr. Sentinel Shellpiece\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=1, retrieved 2026-10-04T10:06:55.625Z; entry 87) carries item 347, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "87",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4000000"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/1",
+        "read_at": "2026-10-05T07:49:19.434Z",
+        "capture": "tools/meowdb/captures/monster_1.json",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Jr. Sentinel Shellpiece\nMonster Drop\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Jr. Sentinel Shellpiece | Monster Drop | A hard piece of rock that forms the body of a Jr. | Common  /  Jr. Sentinel Shellpiece | Monster Drop | A hard shellpiece that's a part of Jr. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Monster Drop",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/347.json"
+      },
+      "chance_category": "etc_own_leftover",
+      "quest_gate": null,
+      "notes": []
     }
   ],
+  "meowdb_reference": {
+    "note": "MeowDB's read-only \"MSEA reference drops\" list from the live page: reference only, never a member (decision D3-11). item_id is MeowDB's own id for the name on the cached page (null when it does not name it once or no local item exists).",
+    "source": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "read_at": "2026-10-05T07:49:19.434Z",
+      "capture": "tools/meowdb/captures/monster_1.json"
+    },
+    "msea_reference": []
+  },
   "meso": {
-    "status": "no_data",
-    "canonical": false,
-    "chance": null,
-    "report_count": 0,
-    "trusted_report_count": 0,
-    "median_min": null,
-    "median_max": null,
-    "reports": [],
-    "note": "Player-submitted totals seen from ONE kill. MeowDB's report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published."
+    "amount_state": "not_reported",
+    "min": null,
+    "max": null,
+    "amount_source": null,
+    "sources_compared": [
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/1",
+        "read_at": "2026-10-05T07:49:19.434Z",
+        "capture": "tools/meowdb/captures/monster_1.json",
+        "raw_value": "No meso reports yet."
+      },
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
+        "retrieved_at": "2026-10-04T10:06:56.822Z",
+        "raw_value": "summary: count 0, medianMin 0, medianMax 0"
+      }
+    ],
+    "gaps": [
+      "meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/1, 2026-10-05T07:49:19.434Z: \"No meso reports yet.\"); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)",
+      "meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)"
+    ]
+  },
+  "provenance": {
+    "membership": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/1",
+      "read_at": "2026-10-05T07:49:19.434Z",
+      "capture": "tools/meowdb/captures/monster_1.json",
+      "decision": "D3-11"
+    },
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
+    }
   },
   "source": {
     "authority": "MeowDB MS Classic",
-    "url": "https://meowdb.com/msclassic/api/drops?monsterId=1",
-    "retrieved_at": "2026-10-04T10:06:55.625Z"
+    "url": "https://meowdb.com/msclassic/monsters/1",
+    "retrieved_at": "2026-10-05T07:49:19.434Z",
+    "capture": "tools/meowdb/captures/monster_1.json"
   },
   "field_sources": {
-    "msea_reference_entries": {
-      "url": "https://meowdb.com/msclassic/monsters/1",
-      "retrieved_at": "2026-10-04T10:06:54.598Z",
-      "note": "\"MSEA reference drops\" (Read-only) section of the monster page"
-    },
-    "meso": {
-      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=1",
-      "retrieved_at": "2026-10-04T10:06:56.822Z"
+    "entries[].item_id": {
+      "url": "https://meowdb.com/msclassic/api/drops?monsterId=1",
+      "retrieved_at": "2026-10-04T10:06:55.625Z",
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
     }
   },
-  "notes": [
-    "classic_confirmed = listed in \"Drops (MS Classic) - Community sourced\": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.",
-    "disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted (\"haven't seen it\") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.",
-    "msea_reference = listed only in \"MSEA reference drops\": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.",
-    "An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).",
-    "chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.",
-    "meowdb_icon_key is MeowDB's icon asset key (looks like a WZ id); it is NOT the item id. Use item_id."
-  ],
   "gaps": [
-    "drop chance per item: not published by MeowDB",
-    "quantity per drop: not published by MeowDB",
-    "meso amount formula / meso drop chance: not published; only player reports (see meso)",
-    "MSEA reference drops: section absent on the page for this monster"
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
+  ],
+  "discrepancies": [],
+  "notes": [
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/monsters/1, read 2026-10-05T07:49:19.434Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: MeowDB's player report when there is one (meso.amount_source); the rest of the rule (the level formula where MeowDB has no report, the chance, the owners without mesos) is game/data/misostory/meso_rules.json (decision D3-12).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }

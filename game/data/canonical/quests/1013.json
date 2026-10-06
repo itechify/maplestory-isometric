@@ -47,6 +47,11 @@
   "repeatable": false,
   "repeat_type": null,
   "self_start": false,
+  "missable": true,
+  "tracker_tags": [
+    "COT2",
+    "Missable"
+  ],
   "objectives": {
     "monster_kills": [],
     "item_collection": [],
@@ -402,6 +407,28 @@
           ]
         }
       }
+    }
+  },
+  "provenance": {
+    "missable": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/quest-tracker?area=1",
+      "read_at": "2026-10-05T07:30Z",
+      "capture": "tools/meowdb/captures/quest_tracker_maple_island.txt",
+      "method": "manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the Maple Island rows",
+      "raw_value": "Rain's Maple Quiz 1 … 7      Level 5 · Rain · Maple Island · COT2 · Missable    Step 1 … 7 of 7",
+      "read_at_note": "normalized on 2026-10-05 from the hand-written \"2026-10-05T07:3x\" so tools can read it. The minute was not recorded: the page was read between 07:30 and 07:39, in the same browser session as the monster captures (07:44Z-07:49Z), so UTC is inferred from them; 07:30Z is the start of that window. The page's default sort is \"Quest chains\".",
+      "note": "The tracker shows this chain as one collapsed row (\"Rain's Maple Quiz 1 … 7\"); its tags apply to each quest of the chain."
+    },
+    "tracker_tags": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/quest-tracker?area=1",
+      "read_at": "2026-10-05T07:30Z",
+      "capture": "tools/meowdb/captures/quest_tracker_maple_island.txt",
+      "method": "manual page view in a normal browser (T3 preview tab); rendered page text, trimmed to the Maple Island rows",
+      "raw_value": "Rain's Maple Quiz 1 … 7      Level 5 · Rain · Maple Island · COT2 · Missable    Step 1 … 7 of 7",
+      "read_at_note": "normalized on 2026-10-05 from the hand-written \"2026-10-05T07:3x\" so tools can read it. The minute was not recorded: the page was read between 07:30 and 07:39, in the same browser session as the monster captures (07:44Z-07:49Z), so UTC is inferred from them; 07:30Z is the start of that window. The page's default sort is \"Quest chains\".",
+      "note": "The tracker shows this chain as one collapsed row (\"Rain's Maple Quiz 1 … 7\"); its tags apply to each quest of the chain."
     }
   },
   "source": {

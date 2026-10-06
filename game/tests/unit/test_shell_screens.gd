@@ -7,6 +7,13 @@ extends TestCase
 var holder: Node = null
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_controls_list_covers_every_working_binding": ["ui:key-bindings"],
+		"test_hidden_controls_have_no_handler_yet": ["ui:key-bindings"],
+	}
+
+
 func before_each() -> void:
 	holder = Control.new()
 	_parent().add_child(holder)
@@ -104,10 +111,15 @@ func test_controls_list_covers_every_working_binding() -> void:
 	var by_action := {}
 	for r in rows:
 		by_action[r["action"]] = r
+	# Iteration Three handles the three keys Iteration Two reserved: X sits, K opens the skills window, M folds the
+	# minimap. The panel lists them like every other working key.
 	for action: String in ["sit", "toggle_skills", "toggle_minimap"]:
-		assert_true(ControlsPanel.BINDINGS.has(action), "%s stays reserved in Controls.BINDINGS" % action)
-		assert_true(ControlsPanel.NOT_AVAILABLE.has(action), "%s is listed as not available yet" % action)
-		assert_false(by_action.has(action), "the panel does not advertise %s: nothing handles it yet" % action)
+		assert_true(ControlsPanel.BINDINGS.has(action), "%s stays in Controls.BINDINGS" % action)
+		assert_false(ControlsPanel.NOT_AVAILABLE.has(action), "%s is no longer hidden" % action)
+		assert_true(by_action.has(action), "the panel advertises %s" % action)
+	assert_eq(String(by_action["sit"]["keys"]), "X", "Sit on X")
+	assert_eq(String(by_action["toggle_skills"]["keys"]), "K", "Skills on K")
+	assert_eq(String(by_action["toggle_minimap"]["keys"]), "M", "Minimap on M")
 	for action: String in ControlsPanel.BINDINGS:
 		if not ControlsPanel.NOT_AVAILABLE.has(action):
 			assert_true(by_action.has(action), "%s has a row" % action)
@@ -120,21 +132,28 @@ func test_controls_list_covers_every_working_binding() -> void:
 	for l: Node in panel.find_children("*", "Label", true, false):
 		shown.append((l as Label).text)
 	for label: String in ["Sit", "Skills", "Minimap"]:
-		assert_false(shown.has(label), "no '%s' row on the panel: %s" % [label, ", ".join(shown)])
+		assert_true(shown.has(label), "a '%s' row on the panel: %s" % [label, ", ".join(shown)])
 	assert_true(shown.has("Jump"), "the working rows are drawn")
+	assert_true(shown.has("Sit"), "sitting works (PlayerController, X): its row is drawn")
 	assert_eq(by_action["jump"]["label"], ControlsPanel.LABELS["jump"], "labels from Controls.LABELS")
 	assert_true(String(by_action["jump"]["keys"]).contains("Space"), "Space jumps: %s" % by_action["jump"]["keys"])
 	assert_true(String(by_action["attack"]["keys"]).contains("Left click"), "mouse binding named")
 	assert_true(String(by_action["menu"]["keys"]).contains("Escape"), "Esc opens the menu")
 
 
-## Keeps NOT_AVAILABLE honest: a hidden action is one no script reads. When a feature starts handling one (a Minimap
-## reading "toggle_minimap"), this fails until it is taken off the list, so the panel never hides a working key.
+## Keeps NOT_AVAILABLE honest: a hidden action is one no script reads. When a feature starts handling one, this fails
+## until it is taken off the list, so the panel never hides a working key. (The list is empty since Iteration Three;
+## the check guards any action put back on it.) The other way round, every action the panel lists is read by some
+## script, so the panel never advertises a key nothing handles (with NOT_AVAILABLE empty, the first check alone could
+## not fail). The minimap's handler is checked by name: it reads "toggle_minimap".
 func test_hidden_controls_have_no_handler_yet() -> void:
+	assert_true(FileAccess.get_file_as_string("res://scripts/ui/minimap/minimap.gd").contains("\"toggle_minimap\""),
+		"the minimap handles toggle_minimap")
 	# The key map itself and the panel that lists it.
 	var skip := ["res://scripts/autoload/controls.gd", "res://scripts/ui/screens/controls_panel.gd"]
 	var files := _scripts_under("res://scripts")
 	assert_true(files.size() > 50, "the game's scripts were found (%d)" % files.size())
+	var handled := {}
 	for path: String in files:
 		if skip.has(path):
 			continue
@@ -142,6 +161,17 @@ func test_hidden_controls_have_no_handler_yet() -> void:
 		for action: String in ControlsPanel.NOT_AVAILABLE:
 			assert_false(text.contains("\"%s\"" % action) or text.contains("'%s'" % action),
 				"%s names the hidden action '%s': if it handles it now, take it off ControlsPanel.NOT_AVAILABLE" % [path, action])
+		for action: String in ControlsPanel.BINDINGS:
+			# A numbered family (quickslot_1 .. quickslot_8) is read through its prefix ("quickslot_" + n).
+			var family := action.rstrip("0123456789")
+			if text.contains("\"%s\"" % action) or text.contains("'%s'" % action) \
+					or (family != action and family.ends_with("_") and text.contains("\"%s\"" % family)):
+				handled[action] = true
+	var rows := ControlsPanel.rows()
+	assert_true(rows.size() > 10, "the panel lists the working keys (%d)" % rows.size())
+	for r: Dictionary in rows:
+		assert_true(handled.has(String(r["action"])), "the panel lists '%s' (%s), but no script reads that action" % [
+			r["action"], r["label"]])
 
 
 func _scripts_under(dir_path: String) -> PackedStringArray:

@@ -24,7 +24,8 @@ func test_reads_the_canonical_record() -> void:
 	assert_eq(m.wave_cooldown_s, float(rec.wave_point_cooldown_s), "wave cooldown")
 	assert_near(m.tick_s, 7.56, 1e-9, "MeowDB tick")
 	assert_near(m.wave_cooldown_s, 5.0, 1e-9, "MeowDB wave cooldown")
-	assert_false(m.uses_map_mob_rate, "MSC ignores mobRate")
+	assert_false(m.uses_map_mob_rate, "presentation.json map_mob_rate.apply is false: mobRate ignored (MisoStory decision)")
+	assert_eq(m.canonical_applied_by_msc, bool(rec.map_spawn_rate_multiplier.applied_by_msc), "MeowDB's guide statement kept as data")
 
 
 func test_player_scalar_table() -> void:
@@ -53,6 +54,40 @@ func test_mob_rate_is_ignored() -> void:
 	assert_near(float(rec.mob_rate), 1.5, 1e-9, "A Split Road's MeowDB mob rate")
 	assert_eq(m.capacity((rec.spawns as Array).size(), 1, float(rec.mob_rate)), 31, "42 points stay 31, not 47")
 	assert_eq(m.capacity(6, 1, 0.6), 4, "000000030 mob rate 0.6 ignored")
+	assert_eq(m.capacity_for_map("000000050", 42), 31, "the game's entry point: switch off")
+	assert_near(float(m.map_mob_rates["000000050"]), 1.5, 1e-9, "the map's canonical rate is at hand")
+	var defs := MapDefinitions.build(db())
+	for id in defs.ids():
+		var points := defs.get_def(id).spawn_point_count()
+		assert_eq(defs.capacity_of(id), m.capacity(points), "%s capacity_of ignores the mob rate" % id)
+
+
+## presentation.json map_mob_rate.apply is a real switch: turned on, capacity_for_map multiplies by the map's canonical
+## mob rate, capped at the spawn-point count (one monster per MeowDB spawn point), and MapInstanceState uses it.
+func test_the_mob_rate_switch_is_live() -> void:
+	var c := ContentDB.new()
+	c.canonical = db().canonical
+	c.miso = db().miso.duplicate(true)
+	c.loaded = true
+	c.miso[""]["presentation"]["map_mob_rate"]["apply"] = true
+	var on := SpawnModel.from_db(c)
+	assert_eq(on.errors.size(), 0, ", ".join(on.errors))
+	assert_true(on.uses_map_mob_rate, "switch on")
+	assert_eq(on.capacity_for_map("000000050", 42), 42, "31 x 1.5 = 46, capped at 42 spawn points")
+	assert_true(on.warnings.size() == 1 and on.warnings[0].contains("000000050"), "the cap is reported: %s" % on.warnings)
+	assert_eq(on.capacity_for_map("000000030", 6), 2, "4 x 0.6 = 2.4 -> 2")
+	assert_eq(on.capacity_for_map("000001000", 66), 63, "49 x 1.3 = 63.7 -> 63")
+	assert_eq(on.capacity_for_map("000000040", 40), 30, "1.0x unchanged")
+	var none: Array[float] = []
+	for i in 42:
+		none.append(0.0)
+	var r := RandomNumberGenerator.new()
+	r.seed = 3
+	var st := MapInstanceState.fresh_for("000000050", none, on, r, 0.0)
+	assert_eq(st.capacity, 42, "MapInstanceState asks capacity_for_map")
+	assert_eq(st.alive_count(), 42, "and fills to it")
+	var off := MapInstanceState.fresh_for("000000050", none, SpawnModel.from_db(db()), r, 0.0)
+	assert_eq(off.capacity, 31, "switch off: 31")
 
 
 func test_respawn_is_the_first_tick_at_or_after_death_plus_cooldown() -> void:
@@ -86,3 +121,21 @@ func test_capacity_table_equals_appendix_b_and_meowdb_estimates() -> void:
 		total_cap += d.capacity_of(id)
 	assert_eq(total_points, 577, "island spawn points")
 	assert_eq(total_cap, 426, "island solo capacity")
+
+
+func parity_keys() -> Dictionary:
+	# The capacity table test checks every map's spawn-point count and solo capacity against MeowDB's own estimate:
+	# the spawn rule (spawn-rule:<map>) of each map that has monsters.
+	var rules: Array = []
+	for id in db().ids("maps"):
+		if not (db().map(id).get("monsters", []) as Array).is_empty():
+			rules.append("spawn-rule:" + id)
+	return {
+		"test_reads_the_canonical_record": ["mechanic:spawn-respawn-tick"],
+		"test_player_scalar_table": ["mechanic:spawn-capacity"],
+		"test_worked_capacity_numbers": ["mechanic:spawn-capacity"],
+		"test_mob_rate_is_ignored": ["mechanic:spawn-mob-rate"],
+		"test_the_mob_rate_switch_is_live": ["mechanic:spawn-mob-rate"],
+		"test_respawn_is_the_first_tick_at_or_after_death_plus_cooldown": ["mechanic:spawn-respawn-tick"],
+		"test_capacity_table_equals_appendix_b_and_meowdb_estimates": ["mechanic:spawn-capacity"] + rules,
+	}

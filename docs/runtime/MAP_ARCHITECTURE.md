@@ -1,4 +1,4 @@
-# MisoStory runtime map architecture (Iteration Two)
+# MisoStory runtime map architecture (Iteration Two; as built through Iteration Three)
 
 Status: **decided**, 2026-10-04. This is the map/world contract that [`ARCHITECTURE.md`](ARCHITECTURE.md) points to. It
 covers map identity, portals, transitions, per-map gameplay state, saves, export chunking, the camera, performance
@@ -118,7 +118,16 @@ and [formulas/spawns](https://meowdb.com/msclassic/formulas/spawns):
 - **Cooldown:** 5 s for a wave point (the default). A timed point (`mobTime > 0`) uses its own timer instead.
 - **Capacity:** `floor(spawn_points × PlayerScalar)`, where `PlayerScalar = min(1, 0.75 + 0.05 × (players − 1))`.
   Solo play gives **75%**.
-- **MSC ignores the map `mobRate`.**
+- **The map `mobRate` is ignored: a MisoStory decision between MeowDB pages that disagree** (Iteration Three spawns
+  audit). The spawn-engine guide (2026-08-24), the glossary (2026-09-04) and `/formulas/spawns` say MSC ignores it
+  and capacity comes only from the spawn points and the player scalar. The map pages and the monster-page MOB RATE
+  tooltip say it multiplies capacity ("about 63 up at a time instead of 42" on 000000050), a reading they call their
+  best guess from closed-beta play, which contradicts the same pages' own player scalar and exceeds the spawn-point
+  count. No page says it changes respawn speed. The switch is `data/misostory/presentation.json`
+  `map_mob_rate.apply` (false); turned on, `SpawnModel.capacity_for_map` multiplies the capacity by the map's
+  canonical rate, capped at the spawn-point count (one monster per spawn point). Iteration Two stated "MSC ignores
+  the map mobRate" as a fact and read the switch from canonical data; `formulas/spawn_rate.json`
+  `applied_by_msc` now stays only as MeowDB's own statement.
 - **Unverified on MeowDB's own page:** the exact player-count curve, whether timed points sit outside the cap, and
   whether the tick slips under load. The values are stored as canonical, with MeowDB's verification notes copied
   into the record.
@@ -419,8 +428,14 @@ Every map is fully walled. Exits are only portals, and on `edge` links also the 
 - **Fall recovery.** `SafeGround` records the player's position every tick in which the player is on the floor,
   not in hit-stun, and standing on a `walkable` collider inside the current region. If the player is airborne
   below `kill_y` (per map, from markers: the lowest walkable y of the map and its trails minus 6 m), they return to
-  the last `SafeGround` point. There is no damage, matching classic's lack of fall damage. Each recovery logs one
-  line, and the traversal tour requires zero recoveries.
+  the last `SafeGround` point. There is no damage. Each recovery logs one line, and the traversal tour requires
+  zero recoveries.
+- **Fall damage.** MeowDB documents fall damage (canonical `formulas/movement.json` `fall_damage`: a landing after at
+  least 45 consecutive fast-falling movement updates deals base 24, rising to 36; "Maps can disable fall damage").
+  MisoStory applies none, on a landing or a recovery: a MisoStory adaptation (`presentation.json` `fall_recovery`,
+  `verified: false`), not a canonical rule. The canonical rule cannot be applied as published, because the length of
+  one movement update is not documented and MeowDB does not say which maps disable fall damage (a source-data gap,
+  parity row `mechanic:fall-damage`).
 - **Feel.** Wherever an invisible wall reads badly, dress the footprint edge in Blender (hedge, fence or cliff lip)
   rather than adding runtime hacks. These are tracked under the World Review.
 
@@ -444,11 +459,37 @@ Every map is fully walled. Exits are only portals, and on `edge` links also the 
    map's region inset of 2 m. `spawn_slot_overrides` in `maps/<id>.json` may pin a slot's transform, with a
    reason. The species and count can never be overridden.
 
+**As built (Iteration Three, `SpawnSlotPlanner`).** Step 2's tier projection of MeowDB's `x, y` was never built; the
+planner places by Blender's species-tagged regions instead (the v8-era `m.mobs` layout and 000000030's
+`m.spawn_region` tiers):
+
+- **Regions.** Each sidecar `spawn_regions` entry is clipped to the mob region; its authored exclusions
+  (`exclude_xz`: the `avoid` zones of `m.mobs`, such as A Split Road's junction plaza, Snail Garden's flower beds and
+  Dangerous Forest's glade) are taken out of its room (their union: overlapping beds count once) and no slot
+  samples inside them.
+- **Shares and density.** Two passes. First, slot by slot, a species' slot goes to its tagged region with the most
+  weight per slot of that species already there (a proportional share), as long as the region keeps at least
+  `spawns.min_area_per_slot_m2` (8 m²) of room per slot counting every slot placed so far; a slot no tagged region
+  can take waits. Then the waiting slots spill to the least crowded region of the map. Spilling only after every
+  species has its own regions keeps one species' overflow from taking another species' room (the first Iteration
+  Three planner spilled at once, in species order, and moved 83 slots, 25 of 45 on 000001006). On the shipped export
+  57 of 577 slots spill (test_spawn_slots, flat-ground planning), all on maps with under 18 m² of region room per slot;
+  Tomato Field's 25 slots have 5.1 m² each in all, so there the spill only evens the crowding out; 000001001's
+  BlueSnail_6 no longer holds 16 slots in 88 m² (11 now).
+- **Clearances.** A slot stands at least `slot_min_spacing_m` (1.2 m) from other slots, `slot_portal_clearance_m`
+  (4 m) from every arrival and player_spawns[0], and `slot_npc_clearance_m` (2.5 m: the 1.6 m talk sphere plus the
+  widest touch-zone half-width) from every NPC of the map (Sam stood inside 000000040's Snail_3 region). Sampling
+  tries the region's own tier first, then any walkable top surface; it never accepts a "forced" placement on the
+  shipped export (test_world_static, test_spawn_placement, the `test_b_population` playtest).
+- `SpawnSlotPlanner.arrival_points(def)` and `npc_points(def)` give these clearances to other placed things
+  (breakables).
+
 #### 4.7.2 MapInstanceState (pure, `game/scripts/core/maps/map_instance_state.gd`)
 
 - It holds `slots[i] = {alive: bool, hp: int, died_at: float}`, `drops[] = {item_id|mesos, amount, pos_local,
   expires_at, owner}` and `capacity`.
-- `capacity = SpawnModel.capacity(points, players = 1)`, which is `floor(points × 0.75)`.
+- `capacity = SpawnModel.capacity_for_map(map_id, points, players = 1)`, which is `floor(points × 0.75)` while
+  `presentation.json map_mob_rate.apply` is false (section 3.2).
 - `fresh(def, rng)` fills to capacity **immediately**, choosing random slots with a seeded RNG. Immediate fill is
   an adaptation, because classic maps are populated when you enter them (open question 6).
 - `tick(now)` runs on the global `SpawnClock` boundaries (period `tick_s`, anchored at game start on the pausable
@@ -457,6 +498,12 @@ Every map is fully walled. Exits are only portals, and on `edge` links also the 
 - `snapshot(now)` and `fast_forward(now)` replay the missed tick boundaries in closed form. On Maple Island this
   usually refills to capacity after about 13 s away.
 - Survivors restore **at their slot**, with their HP kept. Drops past `expires_at` are discarded.
+- **Breakables** (Iteration Three, contract C8): `breakables[i] = {id, hits, respawn_at, respawn_s}`, one per canonical
+  `reactors[i]` (the placement index). `hit_breakable(i, now, hits_to_break)` counts landed hits;
+  `tick_breakables(now)` brings a broken box back exactly `respawn_s` after the break on the game clock (not on the
+  spawn tick). They are in the snapshot, parked with the map in `MapStateCache`, and never saved. Their 3D positions
+  come from `BreakablePlacementPlanner`, the way spawn slots come from `SpawnSlotPlanner` (MeowDB's `x_px`/`y_px`
+  are not used).
 
 #### 4.7.3 MapStateCache
 
@@ -467,12 +514,21 @@ Monster and drop state is **never** written to save files (drops vanish on logou
 
 - **Pools.** Per-species `CharacterBody3D` pools are pre-warmed at world load. Each pool's size is the largest
   `min(points_of_species, capacity)` over all maps (Snail: 32, from 000000041).
-- **AI** is the classic simple loop, idle, wander and turn, done as a **platform walker** (B):
+- **AI** is the classic simple loop, idle, pace back and forth and turn, done as a **platform walker** (B):
   - before stepping, probe 0.6 m ahead for ground within ±0.45 m; a probe that finds none means a ledge, so turn;
   - probe for a wall at 0.3 m height;
   - clamp to the map's **mob region**, which is the footprint inset by 2 m, minus 4 m discs around portals and
-    gates.
+    gates;
+  - stay on its **floor** ('Stays on its floor'): the ground ahead must lie within `floor_band_m` (0.5 m) of the
+    spawn height, widened to the spawn region's authored tier, so a walker never climbs a ramp to another terrace.
+    The Orange Mushroom ('Jumps between floors') may hop from its spawn floor to one floor above or below it and
+    back, never two floors away (MONSTERS_AND_COMBAT_RUNTIME.md "Behaviour").
 - Monsters never enter trails, never cross gates and ignore the containment layer.
+- **No respawn on the player.** A slot the respawn tick brings back is not realized while the player's feet are
+  within `spawns.respawn_player_clearance_m` (2 m) of it; it waits at the back of the queue (alive in
+  `MapInstanceState`, so capacity and counts stay canonical) until the player has moved away. The same holds for the
+  arrival's own fill: a portal arrival is 4 m from every slot, but a game loaded at its saved resume point can stand
+  on one, and that slot's monster waits too.
 - **Contact damage, hits, knockback and death** belong to the monster and combat docs. On death,
   `Events.monster_killed(monster_id, map_id)` fires, and the slot records `died_at`.
 
@@ -558,9 +614,14 @@ every commit once `IDLE` is reached.
    - `region_of(world)` is the saved map;
    - a ray from 1 m above to 3 m below hits `walkable`;
    - a capsule shape cast at the hit point + 0.05 m is clear;
-   - the point is not inside any portal trigger.
+   - the point is not inside any portal trigger, except the trigger of the saved `entry` portal: the load arrives
+     through that portal and disarms it as a real arrival does, and crossing a trail's far gate leaves the player
+     inside it (G1; `IslandWorld.validate_resume`).
 
-   `map_content_hash` is diagnostic only; validation is the gate.
+   Before that validation, a saved `map_content_hash` that differs from the map's current one (the map chunk's
+   collision plus every shared world chunk overlapping its region, `MapDefinitions.resume_hash`) skips this step:
+   the point was vetted against geometry that changed (`ArrivalResolver.stale_resume`). Without both hashes only the
+   validation applies.
 2. **`entry`**: that portal's `spawn_transform`, or the spawn point.
 3. **`player_spawns[0]`** of `map_id`.
 4. **Unknown map id:** use 000000001 `player_spawns[0]` and log an error.
@@ -710,8 +771,11 @@ Every layer writes into `docs/runtime/traversal_report.json`, regenerated by the
 > with no warp override) and the L3 tour in edge mode and in warp mode (38 legs each, 0 fall recoveries, 0 stalls,
 > 0 invariant violations). The 000001012 ↔ 000001014 trail, kept warp until the Blender round-3 re-route, is walked
 > both ways; `portal_adaptations.json link_modes.overrides` is empty (WORLD_RUNTIME.md "Source world status").
-> Flood fill and result caching are not built. The press-Up, door, death, load, save and
-> containment checks run in `world_checks.tscn` (WORLD_RUNTIME.md "Testing").
+> Result caching is not built. The press-Up, door, death, load, save and containment checks run in
+> `world_checks.tscn` (WORLD_RUNTIME.md "Testing"). The flood fill became the **stuck-region scan** in Iteration
+> Three (L1 below, [`STUCK_SCAN.md`](STUCK_SCAN.md)): `game/tools/stuck_scan_tool.tscn` writes
+> `docs/runtime/stuck_report.json`, and `tests/unit/test_stuck_scan.gd` fails on any confirmed trap that
+> `data/misostory/stuck_allowlist.json` does not list.
 
 **L0 – data and graph checks** (pure GDScript in `game/tests/unit/test_map_graph.gd` and
 `game/tools/validate_data.gd`, no physics):
@@ -736,17 +800,35 @@ Every layer writes into `docs/runtime/traversal_report.json`, regenerated by the
 - The containment rings are closed except at the gate gaps. Every gap aligns with a gate plane at footprint + 1 m,
   no wall segment crosses an Iteration One route polyline (2D segment test), and the one-way ledge face lies on
   its arrival gate plane within ±0.1 m.
-- **Flood-fill coverage (B).** Sample walkable collision on a 0.5 m grid, one ray per column plus repeated rays
-  for stacked floors. The graph's edges are:
-  - 8-neighbour steps with a rise of at most `step_up_m`;
-  - drops of any height;
-  - jump edges within the controller's horizontal reach and `jump_apex_m_at_cap`.
+- **Stuck-region scan (B)** (built in Iteration Three as `StuckScan`, `game/tools/stuck_scan.gd`; the method, its
+  limits and the per-map results are in [`STUCK_SCAN.md`](STUCK_SCAN.md)). Per map, over its region and the zones
+  of its trails, it samples every surface the feet can stand on in 0.35 m columns (repeated rays on the player's
+  mask for stacked floors; floor angle, a clear body capsule, and not buried inside a closed solid). Its edges use
+  the controller's own numbers (`MovementModel`):
+  - walks to the first surface within `step_up_m` above and `snap_down_m` below the feet (8 neighbours);
+  - drops off an edge onto the first surface below, swept with the body capsule (longer drops, slides down a wall
+    and running jumps are kept for the forward search only, each as far as the walk speed over its air time carries
+    the body: a jump off a high ledge reaches several metres);
+  - ladders, ropes and vines along their whole grab band;
+  - running jumps along a capsule-swept arc, at most `jump_apex + step_up_m - 0.2 m` high (computed for flagged
+    nodes only).
 
-  Every edge is checked against `blocking`, `containment` and plugs with a capsule sweep. Flood from every
-  spawn point and arrival point, then assert:
-  - every reached sample lies in exactly one map region or trail zone (no reachable ground outside them);
-  - every map is reachable;
-  - no sample in 000000030's region is reachable from 000000040's region.
+  Forward reachability runs from every player spawn, portal arrival and authored route point; backward
+  reachability from the press-Up triggers and the far gates of the map's trails. A node reached but not able to
+  get back is flagged; flagged components are then verified with the real `PlayerController` on the same
+  collision (CLEARED, CONFIRMED or UNENTERABLE). `tests/unit/test_stuck_scan.gd` fails on a CONFIRMED one that
+  `data/misostory/stuck_allowlist.json` `entries` does not list, on an UNENTERABLE one its reviewed `unenterable`
+  list does not hold, and on escapable ground outside every map region and trail zone (the main traversal graph
+  must stay inside the regions; the Iteration Three review found 000001006's dell open under its out00 bridge).
+  Not built from the original plan: the assertion that no sample in 000000030's region is reachable from
+  000000040's (the L2 link runs still prove 40 → 30 blocked); the scan samples the ground inside the regions and
+  trail zones only.
+- **The band inside the ring** (Blender side, `scripts/validate.py` check `ring_band`): along every exterior
+  map's ring line inset by the body radius, the walkable ground lies within `step_up_m` of the map's base
+  (gate corridors and rim edges skipped). It guards the corner-slot class the scan found in Iteration Three
+  (the plinth's rounded top left 2.3-2.6 m deep slots inside the ring's square corners). It measures against the
+  base height only, so a slot inside the ring above the base (000001021's behind its west hedges, 1.2 m up) is the
+  scan's to find.
 
 **L2 – bot runs with the real player** (`game/tools/traversal_bot.gd`, run as
 `bash scripts/godot.sh --headless --fixed-fps 60 --path game res://tools/traversal_bot.tscn -- --map <id>`):
@@ -817,8 +899,11 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
 
 ### 4.15 Victoria Island and Iteration Three
 
-- **Iteration Three content** (all of Maple Island) needs only data: canonical maps, NPC and monster records, and
-  spawn regions. No system changes.
+- **Iteration Three content** (all of Maple Island) needed only data on the map side, as planned: canonical maps,
+  NPC and monster records, and spawn regions. As built, the map model gained the Wooden Box placements in
+  `MapInstanceState` (above), spawn exclusions and clearances (§4.7.1 "As built"), a ground query for the minimap
+  (`IslandWorld.ground_faces`), and the L1 flood fill as the stuck-region scan (§4.13); the rest of Iteration Three
+  (drops, skills, chairs, quests, the minimap) lives in other systems.
 - **Victoria** adds `world_space` values per continent. Links are `edge` only where a continuous geography is
   authored. Dungeons, towers, the subway and multi-portal pairs are `warp` links to pocket stages, like the
   interiors.
@@ -846,7 +931,7 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
 |---|---|---|
 | **M0 Pipeline** | `export_runtime.py`, `assemble_world.gd`, `build_runtime.sh`, crosswalk, canonical maps, L0 and L1 checks, perf flythrough | all 25 maps load in one scene; L0 and L1 green; perf gate measured. On failure, adopt `GraphRadius` before M1. |
 | **M1 Playable in warp mode** | `MapSession`, `PortalGraph`, `portal.tscn`, doors, `force_link_mode: warp`, closed containment, `SafeGround`, spawns and instances, death and respawn, save location, camera bounds | per-portal, door, death and save L2 tests green; the L3 tour green in warp mode. **This is Option A's playable result, and Test A is unblocked here.** |
-| **M2 Walkable island** | gates, `GateMonitor`, gate gaps and plugs, trail walls, `RegionIndex` invariant, Blender changes 1–2, flood fill, trail bot runs, equivalence tests, trail HUD line | full L1–L3 green in edge mode, including 40 → 30 failing; `force_link_mode: warp` still green. **Status 2026-10-04:** runtime done (gates, plugs, walls, invariant, `MapSession.trail_changed`); L1, L2 links and the L3 tour green in edge and warp mode with all 20 trails walkable (000001012 ↔ 000001014 since the Blender round-3 re-route, no `link_modes.overrides`); the trail HUD line shows: `MisoHud` listens to `trail_changed` and holds "-> <destination map name>" under the map name while the player is on a trail (WORLD_RUNTIME.md "Region index and the identity invariant", UI.md); flood fill not built |
+| **M2 Walkable island** | gates, `GateMonitor`, gate gaps and plugs, trail walls, `RegionIndex` invariant, Blender changes 1–2, flood fill, trail bot runs, equivalence tests, trail HUD line | full L1–L3 green in edge mode, including 40 → 30 failing; `force_link_mode: warp` still green. **Status 2026-10-04:** runtime done (gates, plugs, walls, invariant, `MapSession.trail_changed`); L1, L2 links and the L3 tour green in edge and warp mode with all 20 trails walkable (000001012 ↔ 000001014 since the Blender round-3 re-route, no `link_modes.overrides`); the trail HUD line shows: `MisoHud` listens to `trail_changed` and holds "-> <destination map name>" under the map name while the player is on a trail (WORLD_RUNTIME.md "Region index and the identity invariant", UI.md); flood fill not built (Iteration Three built it as the stuck-region scan, STUCK_SCAN.md) |
 | **M3 Feel** | ambient neighbours (flag), occluder dithering, environment presets, World Review changes (Blender 7) | the playthrough report signs off on movement, camera and the World Review |
 
 ## 7. Open questions
@@ -861,7 +946,8 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
    unverified. Solo play uses only the 75% point. Re-check the page at each milestone; it was last updated
    2026-08-24.
 5. **Hidden portal UX.** Type 1 gets no swirl and no prompt. Confirm in playtest that players find the Tomato Field
-   lane; the hedge lane is the in-world hint.
+   lane; the hedge lane is the in-world hint. The Iteration Three minimap leaves the portal off too (as classic
+   minimaps do); whether to show it is an open owner decision (DEFERRED.md).
 6. **First fill.** A fresh instance fills to capacity immediately, rather than waiting for the first 7.56 s tick.
    This matches classic feel but is not stated by MeowDB.
 7. **Walk-through gates** are an adaptation, since every MeowDB portal is press-Up. Keep them on by default and

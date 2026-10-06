@@ -14,6 +14,19 @@ const WATCHED: PackedStringArray = ["stats_changed", "hp_changed", "mp_changed",
 	"equipment_changed", "game_loaded", "game_saved", "exp_gained", "leveled_up", "notice"]
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_autosave_is_debounced": ["mechanic:autosave"],
+		"test_autosave_is_not_starved_by_a_stream_of_requests": ["mechanic:autosave"],
+		"test_autosave_waits_for_can_save": ["mechanic:autosave"],
+		"test_progress_milestones_on_the_bus_request_an_autosave": ["mechanic:autosave"],
+		"test_quest_progress_autosaves_debounced": ["mechanic:autosave", "persistence:quest-progress-kills"],
+		"test_missing_save_with_a_backup_loads_the_backup_instead_of_starting_over": ["mechanic:atomic-save-backup"],
+		"test_a_corrupt_save_is_not_silently_replaced_by_its_backup": ["mechanic:atomic-save-backup"],
+		"test_play_time_counts_unpaused_game_time": ["persistence:play-time-flags"],
+	}
+
+
 func before_each() -> void:
 	root = "user://_tests/game_state_%d_%d" % [Time.get_ticks_usec(), randi()]
 	allow_save = true
@@ -194,16 +207,39 @@ func test_progress_milestones_on_the_bus_request_an_autosave() -> void:
 	_tick(1.0)
 	assert_true(svc.has_save("auto"), "saved after the debounce")
 	assert_eq(_count("game_saved"), 1, "once")
-	for sig in ["leveled_up", "quest_started", "quest_completed", "quest_forfeited"]:
+	for sig in ["leveled_up", "quest_started", "quest_progressed", "quest_completed", "quest_forfeited"]:
 		bus.emit_signal(sig, 2 if sig == "leveled_up" else "1000")
 		assert_true(game.is_autosave_pending(), "%s requests an autosave" % sig)
 		_tick(1.0)
-	assert_eq(_count("game_saved"), 5, "one save per milestone burst")
+	assert_eq(_count("game_saved"), 6, "one save per milestone burst")
+	bus.emit_signal("skill_leveled", "0001001", 1)
+	assert_true(game.is_autosave_pending(), "spending SP on a skill requests an autosave")
+	_tick(1.0)
+	assert_eq(_count("game_saved"), 7, "saved")
 	# MapSession requests its post-transition autosave through the Saves autoload (no arguments).
 	assert_true(svc.request_autosave(), "Saves.request_autosave() forwards to the Game node")
 	assert_true(game.is_autosave_pending())
 	_tick(1.0)
-	assert_eq(_count("game_saved"), 6, "and it saves like any other request")
+	assert_eq(_count("game_saved"), 8, "and it saves like any other request")
+
+
+## Quest progress (C3 package, saves): a run of kills keeps pushing the debounce, but the burst still saves within
+## autosave_max_delay_s, and the saved file holds the progress made so far.
+func test_quest_progress_autosaves_debounced() -> void:
+	game.new_game({"slot": "auto", "save": false})
+	game.autosave_debounce_s = 2.0
+	game.autosave_max_delay_s = 5.0
+	game.connect_autosave_triggers(bus)
+	game.character.quests.start("1006", 0.0)
+	for k in 8:
+		game.character.quests.add_kills("1006", "2")
+		bus.emit_signal("quest_progressed", "1006")
+		_tick(1.0)
+	assert_eq(_count("game_saved"), 1, "a kill every second saves once, at the max delay, not eight times")
+	var saved := svc.read_save("auto")
+	assert_true(saved.ok(), saved.message)
+	if saved.ok():
+		assert_between(saved.character.quests.progress("1006")["kills"].get("2", 0), 5, 6, "the kills so far are in the file")
 
 
 func test_debug_console_commands() -> void:
@@ -232,8 +268,10 @@ func test_autosave_needs_a_game() -> void:
 
 
 func test_play_time_counts_unpaused_game_time() -> void:
+	var clock0 := game.clock
 	_tick(2.0)
 	assert_eq(game.character.play_time_s, 0.0, "no play time before a game starts")
+	assert_eq(game.clock, clock0, "no game time either: the title screen and the island load do not count")
 	game.new_game({"save": false})
 	_tick(3.0)
 	assert_near(game.character.play_time_s, 3.0, 1e-6, "3 s played")
@@ -250,6 +288,10 @@ func test_play_time_counts_unpaused_game_time() -> void:
 	var r := svc.read_save("pt")
 	assert_near(r.character.play_time_s, 4.0, 1e-6, "play time persists")
 	assert_near(float(r.meta["play_time_s"]), 4.0, 1e-6, "and is in the slot meta")
+	assert_near(game.clock, clock0 + 4.0, 1e-6, "the game clock ran exactly the unpaused active time")
+	game.close_game()
+	_tick(3.0)
+	assert_near(game.clock, clock0 + 4.0, 1e-6, "back at the title the clock stands still")
 	assert_eq(GameState.format_play_time(3725.9), "1:02:05")
 
 

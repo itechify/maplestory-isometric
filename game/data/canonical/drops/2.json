@@ -1,414 +1,734 @@
 {
   "id": "2",
   "name": "Snail drop table",
+  "schema_version": 3,
   "owner": {
     "kind": "monster",
     "id": "2",
     "name": "Snail"
   },
-  "rates_canonical": false,
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
   "entries": [
     {
-      "item_id": "209",
-      "item_name": "Arrows for Bows",
-      "category": "Use",
-      "subcategory": "Arrow",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 4,
-        "downvotes": 0,
-        "score": 4
-      },
-      "disputed": false,
-      "community_drop_entry_id": "247",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2060000"
-    },
-    {
-      "item_id": "213",
-      "item_name": "Arrows for Crossbows",
-      "category": "Use",
-      "subcategory": "Arrow",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 6,
-        "downvotes": 0,
-        "score": 6
-      },
-      "disputed": false,
-      "community_drop_entry_id": "248",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2061000"
-    },
-    {
-      "item_id": "270",
-      "item_name": "Red Potion",
-      "category": "Use",
-      "subcategory": "Potion",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 4,
-        "downvotes": 0,
-        "score": 4
-      },
-      "disputed": false,
-      "community_drop_entry_id": "249",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "2000000",
-      "msea_detail_text": "Potion"
-    },
-    {
-      "item_id": "320",
-      "item_name": "Garnet Ore",
-      "category": "Etc",
-      "subcategory": "Gem",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 7,
-        "downvotes": 0,
-        "score": 7
-      },
-      "disputed": false,
-      "community_drop_entry_id": "244",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4020000"
-    },
-    {
-      "item_id": "348",
-      "item_name": "Snail Shell",
-      "category": "Etc",
-      "subcategory": "Monster Drop",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 13,
-        "downvotes": 0,
-        "score": 13
-      },
-      "disputed": false,
-      "community_drop_entry_id": "1",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4000001",
-      "msea_detail_text": "Monster Drop"
-    },
-    {
+      "key": "bronze-ore",
+      "name": "Bronze Ore",
       "item_id": "413",
-      "item_name": "Bronze Ore",
-      "category": "Etc",
-      "subcategory": "Ore & Mineral",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 16,
-        "downvotes": 1,
-        "score": 15
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "413"
+        ],
+        "evidence": "game/data/canonical/items/413.json is the only local item named \"Bronze Ore\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 75) carries item 413, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "75",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "4010000"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Bronze Ore\nOre & Mineral\n▲\n16\n▼\n1",
+        "votes": {
+          "up": 16,
+          "down": 1,
+          "score": 15
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Bronze Ore | Ore | Used in equipment crafting. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Ore & Mineral",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/413.json"
+      },
+      "chance_category": "etc_other",
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "522",
-      "item_name": "The Green Relaxer",
-      "category": "Setup",
-      "subcategory": null,
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 1,
-        "score": 0
+      "key": "snail-shell",
+      "name": "Snail Shell",
+      "item_id": "348",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "348"
+        ],
+        "evidence": "game/data/canonical/items/348.json is the only local item named \"Snail Shell\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 1) carries item 348, the same id"
       },
-      "disputed": true,
-      "community_drop_entry_id": "1095",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "3010000"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Snail Shell\nMonster Drop\n▲\n13\n▼\n0",
+        "votes": {
+          "up": 13,
+          "down": 0,
+          "score": 13
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Snail Shell | Monster Drop | A shell removed from a snail. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Monster Drop",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/348.json"
+      },
+      "chance_category": "etc_own_leftover",
+      "quest_gate": null,
+      "notes": []
     },
     {
+      "key": "garnet-ore",
+      "name": "Garnet Ore",
+      "item_id": "320",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "320"
+        ],
+        "evidence": "game/data/canonical/items/320.json is the only local item named \"Garnet Ore\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 244) carries item 320, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Garnet Ore\nGem\n▲\n7\n▼\n0",
+        "votes": {
+          "up": 7,
+          "down": 0,
+          "score": 7
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Garnet Ore | Ore | Used in equipment crafting. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Gem",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/320.json"
+      },
+      "chance_category": "etc_other",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "arrows-for-crossbows",
+      "name": "Arrows for Crossbows",
+      "item_id": "213",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "213"
+        ],
+        "evidence": "game/data/canonical/items/213.json is the only local item named \"Arrows for Crossbows\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 248) carries item 213, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Arrows for Crossbows\nArrow\n▲\n6\n▼\n0",
+        "votes": {
+          "up": 6,
+          "down": 0,
+          "score": 6
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Arrows for Crossbows | Arrow | Ammunition for crossbow. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Arrow",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/213.json"
+      },
+      "chance_category": "use_consumable",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "arrows-for-bows",
+      "name": "Arrows for Bows",
+      "item_id": "209",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "209"
+        ],
+        "evidence": "game/data/canonical/items/209.json is the only local item named \"Arrows for Bows\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 247) carries item 209, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Arrows for Bows\nArrow\n▲\n4\n▼\n0",
+        "votes": {
+          "up": 4,
+          "down": 0,
+          "score": 4
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Arrows for Bows | Arrow | Ammunition for bow. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Arrow",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/209.json"
+      },
+      "chance_category": "use_consumable",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "red-potion",
+      "name": "Red Potion",
+      "item_id": "270",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "270"
+        ],
+        "evidence": "game/data/canonical/items/270.json is the only local item named \"Red Potion\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 249) carries item 270, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Red Potion\nPotion\n▲\n4\n▼\n0",
+        "votes": {
+          "up": 4,
+          "down": 0,
+          "score": 4
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Red Potion | Potion | Restores HP and/or MP. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Potion",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/270.json"
+      },
+      "chance_category": "use_consumable",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "sword",
+      "name": "Sword",
       "item_id": "541",
-      "item_name": "Sword",
-      "category": "Equip",
-      "subcategory": "One-Handed Sword",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 3,
-        "downvotes": 0,
-        "score": 3
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "541"
+        ],
+        "evidence": "game/data/canonical/items/541.json is the only local item named \"Sword\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 246) carries item 541, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "246",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1302000",
-      "msea_detail_text": "Any"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Sword\nAny\n▲\n3\n▼\n0",
+        "votes": {
+          "up": 3,
+          "down": 0,
+          "score": 3
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Sword | One-Handed Sword | ATK | +17 | Fast (4) | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "One-Handed Sword",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/541.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
+      "key": "green-skullcap",
+      "name": "Green Skullcap",
       "item_id": "709",
-      "item_name": "Green Skullcap",
-      "category": "Equip",
-      "subcategory": "Hat",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 2,
-        "downvotes": 0,
-        "score": 2
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "709"
+        ],
+        "evidence": "game/data/canonical/items/709.json is the only local item named \"Green Skullcap\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 416) carries item 709, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "416",
-      "item_level_req": 5,
-      "req_job": null,
-      "meowdb_icon_key": "1002001"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Green Skullcap\nLv 5 · Any\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Green Skullcap | Helmet | DEF | +6 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Hat",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/709.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
+      "key": "green-headband",
+      "name": "Green Headband",
       "item_id": "713",
-      "item_name": "Green Headband",
-      "category": "Equip",
-      "subcategory": "Hat",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "713"
+        ],
+        "evidence": "game/data/canonical/items/713.json is the only local item named \"Green Headband\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 415) carries item 713, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "415",
-      "item_level_req": 5,
-      "req_job": null,
-      "meowdb_icon_key": "1002005",
-      "msea_detail_text": "Lv 5 · Any"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Green Headband\nLv 5 · Any\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Green Headband | Helmet | DEF | +6 | ACC | +1 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Hat",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/713.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "933",
-      "item_name": "White Undershirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
-      },
-      "disputed": false,
-      "community_drop_entry_id": "418",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1040001",
-      "msea_detail_text": "Any"
-    },
-    {
+      "key": "green-t-shirt",
+      "name": "Green T-Shirt",
       "item_id": "939",
-      "item_name": "Green T-Shirt",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "939"
+        ],
+        "evidence": "game/data/canonical/items/939.json is the only local item named \"Green T-Shirt\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 417) carries item 939, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "417",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1041003"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Green T-Shirt\nAny\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Green T-Shirt | Top | DEF | +6 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Top",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/939.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
+      "key": "red-striped-top",
+      "name": "Red Striped Top",
       "item_id": "940",
-      "item_name": "Red Striped Top",
-      "category": "Equip",
-      "subcategory": "Top",
-      "status": "classic_confirmed",
-      "also_in_msea_reference": false,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": {
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "940"
+        ],
+        "evidence": "game/data/canonical/items/940.json is the only local item named \"Red Striped Top\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 170) carries item 940, the same id"
       },
-      "disputed": false,
-      "community_drop_entry_id": "170",
-      "item_level_req": 0,
-      "req_job": null,
-      "meowdb_icon_key": "1041004"
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "Red Striped Top\nAny\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Red Striped Top | Top | DEF | +6 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Top",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/940.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     },
     {
-      "item_id": "59",
-      "item_name": "Cape Magic Def. Scroll: Intermediate",
-      "category": "Use",
-      "subcategory": "Scroll",
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": null,
-      "req_job_text": null,
-      "msea_detail_text": "Scroll",
-      "meowdb_icon_key": "2041005"
-    },
-    {
-      "item_id": "61",
-      "item_name": "Cape Weapon Def. Scroll: Intermediate",
-      "category": "Use",
-      "subcategory": "Scroll",
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": null,
-      "req_job_text": null,
-      "msea_detail_text": "Scroll",
-      "meowdb_icon_key": "2041001"
-    },
-    {
-      "item_id": "1160",
-      "item_name": "Red Miniskirt",
-      "category": "Equip",
-      "subcategory": null,
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": null,
-      "req_job_text": "Any",
-      "msea_detail_text": "Any",
-      "meowdb_icon_key": "1061001"
-    },
-    {
-      "item_id": "1195",
-      "item_name": "Ice Jeans",
-      "category": "Equip",
-      "subcategory": null,
-      "status": "msea_reference",
-      "also_in_msea_reference": true,
-      "chance": null,
-      "min_quantity": null,
-      "max_quantity": null,
-      "votes": null,
-      "disputed": null,
-      "community_drop_entry_id": null,
-      "item_level_req": 17,
-      "req_job_text": "Any",
-      "msea_detail_text": "Lv 17 · Any",
-      "meowdb_icon_key": "1062001"
+      "key": "white-undershirt",
+      "name": "White Undershirt",
+      "item_id": "933",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "933"
+        ],
+        "evidence": "game/data/canonical/items/933.json is the only local item named \"White Undershirt\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/drops?monsterId=2, retrieved 2026-10-04T10:06:58.031Z; entry 418) carries item 933, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "EQUIPMENT",
+        "raw_value": "White Undershirt\nAny\n▲\n1\n▼\n0",
+        "votes": {
+          "up": 1,
+          "down": 0,
+          "score": 1
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "White Undershirt | Top | DEF | +6 | 7 slots | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Equip",
+        "item_subtype": "Top",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/933.json"
+      },
+      "chance_category": "equip",
+      "quest_gate": null,
+      "notes": []
     }
   ],
-  "meso": {
-    "status": "player_reports",
-    "canonical": false,
-    "chance": null,
-    "report_count": 1,
-    "trusted_report_count": 1,
-    "median_min": 2,
-    "median_max": 2,
-    "reports": [
+  "meowdb_reference": {
+    "note": "MeowDB's read-only \"MSEA reference drops\" list from the live page: reference only, never a member (decision D3-11). item_id is MeowDB's own id for the name on the cached page (null when it does not name it once or no local item exists).",
+    "source": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt"
+    },
+    "msea_reference": [
       {
-        "report_id": "4",
-        "min_mesos": 2,
-        "max_mesos": 2,
-        "drop_chance_pct_as_submitted": 100,
-        "upvotes": 1,
-        "downvotes": 0,
-        "score": 1,
-        "created_at": "2026-07-30 15:54:55",
-        "updated_at": "2026-07-30 15:54:55"
+        "name": "Snail Shell",
+        "category": "ETC",
+        "detail": "Monster Drop",
+        "item_id": "348"
+      },
+      {
+        "name": "Red Potion",
+        "category": "USE",
+        "detail": "Potion",
+        "item_id": "270"
+      },
+      {
+        "name": "Cape Magic Def. Scroll: Intermediate",
+        "category": "USE",
+        "detail": "Scroll",
+        "item_id": "59"
+      },
+      {
+        "name": "Cape Weapon Def. Scroll: Intermediate",
+        "category": "USE",
+        "detail": "Scroll",
+        "item_id": "61"
+      },
+      {
+        "name": "Ice Jeans",
+        "category": "EQUIPMENT",
+        "detail": "Lv 17 · Any",
+        "item_id": "1195"
+      },
+      {
+        "name": "Red Miniskirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "item_id": "1160"
+      },
+      {
+        "name": "Green Headband",
+        "category": "EQUIPMENT",
+        "detail": "Lv 5 · Any",
+        "item_id": "713"
+      },
+      {
+        "name": "Sword",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "item_id": "541"
+      },
+      {
+        "name": "White Undershirt",
+        "category": "EQUIPMENT",
+        "detail": "Any",
+        "item_id": "933"
+      }
+    ]
+  },
+  "meso": {
+    "amount_state": "reported",
+    "min": 2,
+    "max": 2,
+    "amount_source": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt",
+      "raw_value": "Mesos: 2 per kill | 1 report",
+      "report_count": 1,
+      "decision": "D3-12",
+      "interpretation": null
+    },
+    "sources_compared": [
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/monsters/2",
+        "read_at": "2026-10-05T07:47:01.065Z",
+        "capture": "tools/meowdb/captures/monster_2.txt",
+        "raw_value": "Mesos: 2 per kill | 1 report"
+      },
+      {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=2",
+        "retrieved_at": "2026-10-04T10:06:59.246Z",
+        "raw_value": "summary: count 1, medianMin 2, medianMax 2"
       }
     ],
-    "note": "Player-submitted totals seen from ONE kill. MeowDB's report form hard-codes dropChancePct=100 on submit, so drop_chance_pct_as_submitted / medianDropChancePct is NOT an observed meso drop rate. No canonical meso formula or meso drop chance is published."
+    "gaps": [
+      "meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)"
+    ]
+  },
+  "provenance": {
+    "membership": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt",
+      "decision": "D3-11"
+    },
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
+    },
+    "mesos.amount": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/monsters/2",
+      "read_at": "2026-10-05T07:47:01.065Z",
+      "capture": "tools/meowdb/captures/monster_2.txt",
+      "decision": "D3-12"
+    }
   },
   "source": {
     "authority": "MeowDB MS Classic",
-    "url": "https://meowdb.com/msclassic/api/drops?monsterId=2",
-    "retrieved_at": "2026-10-04T10:06:58.031Z"
+    "url": "https://meowdb.com/msclassic/monsters/2",
+    "retrieved_at": "2026-10-05T07:47:01.065Z",
+    "capture": "tools/meowdb/captures/monster_2.txt"
   },
   "field_sources": {
-    "msea_reference_entries": {
-      "url": "https://meowdb.com/msclassic/monsters/2",
-      "retrieved_at": "2026-10-04T09:57:41.529Z",
-      "note": "\"MSEA reference drops\" (Read-only) section of the monster page"
-    },
-    "meso": {
-      "url": "https://meowdb.com/msclassic/api/mesos-reports?monsterId=2",
-      "retrieved_at": "2026-10-04T10:06:59.246Z"
+    "entries[].item_id": {
+      "url": "https://meowdb.com/msclassic/api/drops?monsterId=2",
+      "retrieved_at": "2026-10-04T10:06:58.031Z",
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
     }
   },
-  "notes": [
-    "classic_confirmed = listed in \"Drops (MS Classic) - Community sourced\": players personally saw the item drop in Classic World; votes are up/down votes on that claim. No chance or quantity is published.",
-    "disputed (derived by the extractor) = votes.score <= 0, i.e. at least as many players downvoted (\"haven't seen it\") as upvoted. MeowDB still lists the entry; the API exposes no other confidence field.",
-    "msea_reference = listed only in \"MSEA reference drops\": what this monster dropped in old pre-Big-Bang MapleSEA; MeowDB marks it historical reference only, NOT confirmed for Classic World.",
-    "An item in both lists appears once (status classic_confirmed, also_in_msea_reference true).",
-    "chance/min_quantity/max_quantity are null because MeowDB publishes no values. Any rates used by the game must be an isolated, documented MisoStory placeholder outside data/canonical.",
-    "meowdb_icon_key is MeowDB's icon asset key (looks like a WZ id); it is NOT the item id. Use item_id."
-  ],
   "gaps": [
-    "drop chance per item: not published by MeowDB",
-    "quantity per drop: not published by MeowDB",
-    "meso amount formula / meso drop chance: not published; only player reports (see meso)"
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
+  ],
+  "discrepancies": [
+    {
+      "field": "entries (membership)",
+      "values": [
+        {
+          "value": {
+            "only_in_cache": [
+              "The Green Relaxer"
+            ]
+          },
+          "source": "https://meowdb.com/msclassic/api/drops?monsterId=2 (cache, retrieved 2026-10-04T10:06:58.031Z)"
+        },
+        {
+          "value": {
+            "only_on_live_page": []
+          },
+          "source": "https://meowdb.com/msclassic/monsters/2 (live page, read 2026-10-05T07:47:01.065Z; tools/meowdb/captures/monster_2.txt)"
+        }
+      ],
+      "chosen": "the live page (newest dated source, decision D3-11)",
+      "reason": "MeowDB's community list changed between the cache and the hand-read live page; the membership is the newest dated list."
+    }
+  ],
+  "notes": [
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/monsters/2, read 2026-10-05T07:47:01.065Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: MeowDB's player report when there is one (meso.amount_source); the rest of the rule (the level formula where MeowDB has no report, the chance, the owners without mesos) is game/data/misostory/meso_rules.json (decision D3-12).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }

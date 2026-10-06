@@ -91,6 +91,8 @@ var _building: bool = false
 var _player_mode: ProcessMode = PROCESS_MODE_INHERIT
 ## The GameContext given to set_context() (duck-typed: is_modal_active()).
 var _context: Object = null
+## map id -> PackedVector3Array: ground_faces() cache.
+var _ground_faces: Dictionary = {}
 
 
 func _ready() -> void:
@@ -645,8 +647,14 @@ func _on_link_mode_changed(link_id: String, _mode: String) -> void:
 			session.call("refresh_camera")
 
 
-## Load-chain validation of a saved resume point (MAP_ARCHITECTURE section 4.9 step 1).
-func validate_resume(map_id: String, pos: Vector3) -> bool:
+## Load-chain validation of a saved resume point (MAP_ARCHITECTURE section 4.9 step 1): in the map's region, on
+## walkable ground, capsule-clear and outside every portal trigger, except the trigger of `entry`, the portal the save
+## says the player arrived through (ArrivalResolver passes it). An accepted resume arrives through that same entry, so
+## activate_map disarms that portal exactly as on a real arrival: standing in its trigger after a Continue is the state
+## the arrival itself left (G1: a walk across a trail's far gate leaves the player just past the gate, inside the
+## trigger of the portal it arrived through and 0.7 m short of that portal's arrival spawn; a save made there used to
+## be refused, and the load fell back to that arrival spawn with a warning).
+func validate_resume(map_id: String, pos: Vector3, entry: ArrivalRef = null) -> bool:
 	var def := defs.get_def(map_id)
 	if def == null or ground_query == null:
 		return false
@@ -659,8 +667,10 @@ func validate_resume(map_id: String, pos: Vector3) -> bool:
 	if not ground_query.is_clear(feet + Vector3.UP * tuning.num("grounding", "capsule_lift_m"),
 			tuning.num("grounding", "capsule_radius_m"), tuning.num("grounding", "capsule_height_m")):
 		return false
+	var entered := entry.portal_id if entry != null and entry.is_portal() and entry.map_id == map_id else ""
 	for p in def.portals:
-		if p.has_anchor and p.portal_type != PortalDef.TYPE_ARRIVAL and p.trigger_contains(feet + Vector3.UP * 0.1):
+		if p.has_anchor and p.portal_type != PortalDef.TYPE_ARRIVAL and p.portal_id != entered \
+				and p.trigger_contains(feet + Vector3.UP * 0.1):
 			return false
 	return true
 
@@ -734,6 +744,43 @@ func nearest_interactable(pos: Vector3) -> Dictionary:
 			best_d = d
 			best = {"kind": "npc", "node": n, "id": n.npc_id(), "distance": d}
 	return best
+
+
+## The walkable ground of a map as triangles (three points each) in the island's coordinates (those of
+## MapDefinition): the faces of its collision chunk's Ground* bodies (meta "chunk" == the map's slug), each shape's
+## faces moved by its CollisionShape3D's transform (ConcavePolygonShape3D.get_faces() is shape-local). Cached per map
+## id; empty for an unknown map, a world not built yet, or a chunk without ground trimeshes. Raw: nothing is
+## filtered (the minimap, MinimapModel, keeps what it draws).
+func ground_faces(map_id: String) -> PackedVector3Array:
+	if _ground_faces.has(map_id):
+		return _ground_faces[map_id]
+	var out := PackedVector3Array()
+	var def := defs.get_def(map_id) if defs != null else null
+	if def == null or def.slug == "" or collision_root == null or not is_built:
+		return out
+	for body in collision_root.find_children("Ground*", "StaticBody3D", true, false):
+		if String(body.get_meta("chunk", "")) != def.slug:
+			continue
+		for cs in body.find_children("*", "CollisionShape3D", true, false):
+			var shape := (cs as CollisionShape3D).shape as ConcavePolygonShape3D
+			if shape == null:
+				continue
+			out.append_array(_relative_xform(cs as Node3D) * shape.get_faces())
+	_ground_faces[map_id] = out
+	return out
+
+
+## `n`'s transform in this world's space (its global transform when the world sits at the origin).
+func _relative_xform(n: Node3D) -> Transform3D:
+	if n.is_inside_tree() and is_inside_tree():
+		return global_transform.affine_inverse() * n.global_transform
+	var xf := Transform3D.IDENTITY
+	var cur: Node = n
+	while cur != null and cur != self:
+		if cur is Node3D:
+			xf = (cur as Node3D).transform * xf
+		cur = cur.get_parent()
+	return xf
 
 
 ## Overlay data: build state, counts, the player's region.

@@ -15,7 +15,7 @@ confidence high). No connection is inferred.
 - **[data]**: read directly from game data. Usually the raw GMS v8 WZ tree served by maplestory.io
   (`https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/<9-digit id>.img/...`). The team's compiled
   copies are `docs/research/portals_xml.json` and `docs/research/entities.json`.
-- **[wiki]**: an archived era web source (Hidden Street 2005-2006, StrategyWiki 2006-2007, MapleWiki
+- **[wiki]**: an archived era web source (StrategyWiki 2006-2007, MapleWiki
   2007-2008, the official MapleGlobal site 2005-2006). URLs are under [Sources](#sources). A year or
   month next to a source is the date the source gives itself (a version or last-modified line) where
   it has one, otherwise the archive capture date. Sources lists both where they differ.
@@ -217,10 +217,9 @@ Structural facts [data, computed by the build script]:
 Walkthrough [data unless marked]:
 1. **0 West Entrance.** Spawn on the west plateau, learn to move and jump with Heena, and climb to
    Sera's laundry bluff. Leave east through `out00`.
-2. **10000 Mushroom Town (I).** Roger's inventory and potion lesson [wiki: 2005 guide]. Leave east.
-3. **20000 Mushroom Town (II).** Optional: enter Sen's house (20001) for Nina's dinner errand [wiki:
-   named in Hidden Street Feb 2006; the Aug 2005 guide mentions an unnamed quest on this screen]. Leave
-   east past the stone oven tower.
+2. **10000 Mushroom Town (I).** Roger's inventory and potion lesson [v8 dialogue]. Leave east.
+3. **20000 Mushroom Town (II).** Optional: enter Sen's house (20001) for Nina's dinner errand [v22 data].
+   Leave east past the stone oven tower.
 4. **30000 East Entrance.** A 19-tier climb to Peter at the summit exit.
 5. **40000 -> 40001 -> 40002 Snail Hunting Grounds I-III.** First monsters: Snails and Blue Snails, then
    Red Snails in III. Robin at the start of I says to head northeast. The exit of III is at the top of
@@ -230,9 +229,8 @@ Walkthrough [data unless marked]:
 7. **60000 Southperry.** The Armor Store, then Shanks' ship off the island. [wiki] 150 mesos, one way,
    to Lith Harbor on Victoria Island.
 
-[wiki] Maria's hat quest is in the Aug 2005 Hidden Street guide. Hidden Street (Feb 2006) and
-StrategyWiki (2007) describe it as a letter errand that sends players from step 6 to Lucas in Amherst
-and back for the hat. That detour through 50000 is the main optional branch below.
+[wiki] StrategyWiki (2007) describes Maria's hat quest as a letter errand that sends players from step 6
+to Lucas in Amherst and back for the hat. That detour through 50000 is the main optional branch below.
 
 ---
 
@@ -245,7 +243,7 @@ and back for the hat. That detour through 50000 is the main optional branch belo
 - **From 1010000 Amherst** -> 1010002 Amherst Townstreet, 1010004 Snail Field of Flowers: Amherst Townstreet (door in01 in the orange-spotted house) is a through-route: its west garden path (west00) is the ONLY way to the Snail Field of Flowers.
 - **From 1020000 The Field East of Amherst** -> 1020001 Tomato Field: Tomato Field: dead-end pocket behind portal in00 (pt 1; [memory] an invisible portal type) on a high ledge of The Field East of Amherst, marked by a DANGER sign and tomato plants.
 - **From 60000 Southperry** -> 60001 Southperry Armor Store: Southperry Armor Store (door in00 in the sunken market street, Pan).
-- **From 60000 Southperry** -> (off-island, no map): Off-island exit: Shanks (NPC 22000) at the ship on the east quay sails one way to Lith Harbor, Victoria Island, for 150 mesos (Hidden Street 2005, StrategyWiki 2006, MapleWiki 2007). NPC-scripted, not a portal, outside the 25-map set. Maple Island is 'a mysterious island of no-return' (official GMS site 2005).
+- **From 60000 Southperry** -> (off-island, no map): Off-island exit: Shanks (NPC 22000) at the ship on the east quay sails one way to Lith Harbor, Victoria Island, for 150 mesos (StrategyWiki 2006, MapleWiki 2007). NPC-scripted, not a portal, outside the 25-map set. Maple Island is 'a mysterious island of no-return' (official GMS site 2005).
 
 ---
 
@@ -257,7 +255,7 @@ map draws all three on one spot, so it cannot tell them apart. The portal data c
 | | 10000 "Mushroom Town" | 20000 "Mushroom Town" | 20001 "Mushroom Town Townstreet" |
 |---|---|---|---|
 | Order [data] | 2nd screen: 0 -> **10000** -> 20000 | 3rd screen: 10000 -> **20000** -> 30000 | Interior entered from 20000 |
-| Hidden Street 2005 label [wiki] | "Mushroom Town I" | "Mushroom Town II" | (the house) |
+
 | NPC [data] | Roger (2000), inventory and potions tutor | Nina (2102), dinner errand | Sen (2001), her hungry brother |
 | House [data, object sets] | **Yellow** cap with brown streaks (`houseGS/house8`), barrel chimney with yellow lid | **Orange** cap (`houseGS/house6`, no spots in v8), stone oven/chimney tower | Cutaway **orange** two-storey house interior (`insideGS/house1`) |
 | Can you go inside? | No (plank door is decoration) | **Yes**: stone-arched door `in01` -> 20001 | It *is* the inside. Its door `out00` leads back to 20000 |
@@ -322,8 +320,8 @@ sections 6-7.
 ## 7. What makes each map recognizable
 
 - **0 West Entrance to Mushroom Town** (town): The very first screen of the game: new characters appear on the high west plateau beside a big orange mushroom house with yellow spots, while Heena hovers above the spawn point teaching how to move and jump. The lane drops by three grass steps toward a laundry bluff where her sister Sera hangs washing on a line, reached by the only ladder. Pastoral sky, a giant oak behind, no monsters, and the FloralLife town theme. The official 2005 gallery screenshot (docs/research/ref_web/0_1.jpg) shows exactly this scene.
-- **10000 Mushroom Town** (town): A short, calm single-house town screen: you arrive in a sunflower meadow, walk up a ramp onto the street and pass a yellow mushroom house with a barrel chimney. Roger stands above the street in a hedge-walled garden; in the words of a 2005 beginner guide he is the 'creepy looking guy' who takes away some of your HP so you learn to open the inventory and eat an apple. Hidden Street (2005) called this map 'Mushroom Town I'.
-- **20000 Mushroom Town** (town): The town map with a house you can actually walk into: an orange mushroom house whose stone-arched door leads to Sen's two-storey home (20001). Everything steps up from the low west lawn to a long raised town terrace, Nina waits on a floating flower islet, a ladder climbs to an empty sky islet, and the road leaves east past a stone oven tower. Hidden Street (2005) called this map 'Mushroom Town II'.
+- **10000 Mushroom Town** (town): A short, calm single-house town screen: you arrive in a sunflower meadow, walk up a ramp onto the street and pass a yellow mushroom house with a barrel chimney. Roger stands above the street in a hedge-walled garden.
+- **20000 Mushroom Town** (town): The town map with a house you can actually walk into: an orange mushroom house whose stone-arched door leads to Sen's two-storey home (20001). Everything steps up from the low west lawn to a long raised town terrace, Nina waits on a floating flower islet, a ladder climbs to an empty sky islet, and the road leaves east past a stone oven tower.
 - **20001 Mushroom Town Townstreet** (interior): Despite the name 'Townstreet', this is Sen's house: a doll-house cutaway of a two-storey mushroom home with a cupboard and the hungry boy Sen downstairs and a bedroom with a bed, chest and curtained window upstairs, joined by a ladder. Players come here for Nina's dinner errand and leave by the same door.
 - **30000 East Entrance to Mushroom Town** (town): The big climb out of Mushroom Town. A 19-tier switchback: east across the valley, up two ropes, back west along a middle terrace, up a ladder, then east over stepping stones to the summit, where Peter guards 'the exit to the Mushroom Town' and warns that monsters roam beyond. The yellow dormer house, the rainbow fountain and the pale stalk-mushrooms mark the way. For new players this was the first real platforming challenge.
 - **40000 Snail Hunting Ground I** (hunting): The first hunting field after leaving Mushroom Town, where new players kill their first Snails and Blue Snails. The pastoral town sky gives way to a light autumn woodland with misty mountains and a lake in the backdrop, and the calm 'Rest N Peace' field theme starts. Robin waits at the entrance with combat tips and tells you to head northeast.
@@ -339,9 +337,9 @@ sections 6-7.
 - **1000004 Snail Garden** (hunting): The safest of the six forest pockets (snails only, levels 1-4): a door in an earth mound opens onto a stepped garden bowl with a fenced basin full of snails, an arch of stepping stones over it, and real vegetable beds on the top islands.
 - **1000005 Hunting Ground Middle of the Forest I** (hunting): The 'climb the forest' map and the tallest pocket (1620 px): from a door on a central mound a zig-zag column of tiny stones rises through the forest, climbed purely by jumping, to a loop of ledges over the top. Shrooms hold the lower west shelves.
 - **1000006 Hunting Ground Middle of the Forest II** (hunting): You step out of a door on a floating island high above an autumn valley. Below, a smooth V-shaped valley with white stake fences and big orange and yellow birches; around you, a ring of grass islands with giant lilies of the valley. Orange Mushrooms (level 8) roam among the snails and Shrooms.
-- **1010000 Amherst** (town): The 'town of quests' (official GMS site 2006, Hidden Street 2006): a cobblestone hill town of colourful mushroom houses on three levels, with the island's only weapon shop up on the walled plateau and the potion shop on the middle square. Rain greets you at the west gate, Chief Lucas waits on the terrace for Maria's letter, and a giant tree house stands over the east exit. FloralLife plays.
-- **1010001 Amherst Weapon Store** (interior): A forge workshop rather than a plain store: Sid sells weapons from a booth beside a glowing domed furnace, with gears, pipes and armor on the walls. It is the only weapon shop on the island (Hidden Street 2006; MapleWiki 2008).
-- **1010002 Amherst Townstreet** (townstreet): Inside the orange mushroom house you just entered from Amherst: a doll-house cutaway on a short grass street. It is not a dead end: out the west side a garden path with a DANGER sign is the back way out of town to the Snail Field of Flowers. Hidden Street's Dec 2005 diagram captions it 'HOUSE IN TOWNSTREET'.
+- **1010000 Amherst** (town): The 'town of quests' (official GMS site 2006): a cobblestone hill town of colourful mushroom houses on three levels, with the island's only weapon shop up on the walled plateau and the potion shop on the middle square. Rain greets you at the west gate, Chief Lucas waits on the terrace for Maria's letter, and a giant tree house stands over the east exit. FloralLife plays.
+- **1010001 Amherst Weapon Store** (interior): A forge workshop rather than a plain store: Sid sells weapons from a booth beside a glowing domed furnace, with gears, pipes and armor on the walls. It is the only weapon shop on the island (MapleWiki 2008).
+- **1010002 Amherst Townstreet** (townstreet): Inside the orange mushroom house you just entered from Amherst: a doll-house cutaway on a short grass street. It is not a dead end: out the west side a garden path with a DANGER sign is the back way out of town to the Snail Field of Flowers.
 - **1010003 Amherst Department Store** (interior): The potion shop: Lucy behind an orange WELCOME booth, potion bottles on the wall ('You definitely need potions to travel'), jars and crates to hop across, and a 'Thank you' door on the way out. Same shell as the Weapon Store, so the two shops read as a pair.
 - **1010004 Snail Field of Flowers** (hunting): A flower meadow with butterflies seen from a fenced cliff-top lane: you arrive on the rim and drop down vines into a bowl of irises, clover and orange flowers full of snails. It keeps the FloralLife town music and is reached through the town, not from the fields.
 - **1020000 The Field East of Amherst** (field): The end of Rainbow Street: an orderly lattice of floating platforms stacked over a meadow, with 12 Orange Mushroom spawn points among the snails, under a sky with a giant tree in the background. A DANGER sign among tomato plants high on the east side hides the secret way to the Tomato Field. The town music still plays.
@@ -392,21 +390,21 @@ Where sources or team members disagreed, the synthesis lead decided as follows. 
 
 ### D7. Six Rainbow Street portals reported as unparsed
 
-- **Sources disagree:** wiki_rainbow_street.md: positions unknown for 1010000 in02, 1010001 out00, 1010002 out00/west00, 1020000 in00 and 1000003 out00 (destinations confirmed by the Hidden Street Dec 2005 diagram and MapleTip 2007). Raw v8 WZ gives all of them.
-- **Decision:** Use the WZ positions. 1010000 in02 = (1516,156), which matches the wiki's diagram-based estimate of x 1500-1600 on the middle terrace.
-- **Rationale:** WZ data is complete; the archived diagram independently corroborates the destinations and the Department Store door position.
+- **Sources disagree:** wiki_rainbow_street.md: positions unknown for 1010000 in02, 1010001 out00, 1010002 out00/west00, 1020000 in00 and 1000003 out00 (destinations confirmed by MapleTip 2007). Raw v8 WZ gives all of them.
+- **Decision:** Use the WZ positions. 1010000 in02 = (1516,156), on the middle terrace.
+- **Rationale:** WZ data is complete; MapleTip 2007 independently corroborates the destinations.
 
 ### D8. One-way Mushroom Town chain (0 -> 10000 -> 20000 -> 30000 -> 40000)
 
-- **Sources disagree:** Every team flagged it for confirmation. Data: the in00 arrival points in 10000/20000/30000/40000 are pt 1 with no target, and no portal leads back west in v8, v22 or v28-v39. A 2005 Hidden Street beginner guide says Heena 'will take you to the next screen/map', and Peter's v8 dialogue says 'If you want to move on to the next stage, talk to me': NPC-scripted warps may exist, and portal data cannot show them.
+- **Sources disagree:** Every team flagged it for confirmation. Data: the in00 arrival points in 10000/20000/30000/40000 are pt 1 with no target, and no portal leads back west in v8, v22 or v28-v39. Peter's v8 dialogue says 'If you want to move on to the next stage, talk to me': NPC-scripted warps may exist, and portal data cannot show them.
 - **Decision:** Recorded as four one-way connections (bidirectional false), source xml, confidence high. Whether MisoStory adds return paths is a design decision for the project owner, not a data question. NPC warps are not modelled.
 - **Rationale:** Consistent across every version checked; it matches the remembered and documented feel of a tutorial funnel.
 
 ### D9. Mai's position
 
-- **Sources disagree:** v8 data puts Mai (12100) at (628,-176) on the Amherst upper plateau; the Hidden Street Dec 2005 diagram independently labels her on the plateau next to the weapon store (text labels only, so no coordinates). v22 places her at A Split Road (1891,-175) with new training lines.
+- **Sources disagree:** v8 data puts Mai (12100) at (628,-176) on the Amherst upper plateau. v22 places her at A Split Road (1891,-175) with new training lines.
 - **Decision:** Mai stands in Amherst (v8 baseline). The A Split Road position is the v22 variant.
-- **Rationale:** Follows the baseline decision. The position comes from v8 data alone; the Dec 2005 diagram independently agrees on the plateau.
+- **Rationale:** Follows the baseline decision. The position comes from v8 data.
 
 ### D10. Field West of Amherst geometry (v8 vs v22)
 
@@ -416,21 +414,21 @@ Where sources or team members disagreed, the synthesis lead decided as follows. 
 
 ### D11. 20001 'Mushroom Town Townstreet' is Sen's house
 
-- **Sources disagree:** WZ name says Townstreet; the v8 content is a two-storey house interior (Hidden Street 2006 'head into the house', StrategyWiki 2007). The same template is reused for 1010002 Amherst Townstreet.
+- **Sources disagree:** WZ name says Townstreet; the v8 content is a two-storey house interior (StrategyWiki 2007). The same template is reused for 1010002 Amherst Townstreet.
 - **Decision:** Keep the canonical name and slug exactly. Classify 20001 as kind interior (dead end behind a door) and 1010002 as townstreet (through-route). [proposal] An in-game display alias such as "Sen's House" is a project decision.
 - **Rationale:** Slugs are fixed by the canonical list; kind follows function, and matches how src/misostory/layout.py already treats the two maps.
 
 ### D12. Street name of the Mushroom Town and Snail Hunting Ground maps
 
-- **Sources disagree:** Hidden Street's 2005 map list prefixes Mushroom Town, Snail Hunting Ground and Split Road maps with 'Rainbow Street'; the WZ streetName is 'Maple Road' for every map 0-60001 and 'Rainbow Street' for every 10xxxxx map.
+- **Sources disagree:** No remaining source disagrees: the WZ streetName is 'Maple Road' for every map 0-60001 and 'Rainbow Street' for every 10xxxxx map.
 - **Decision:** Use the WZ streetName.
-- **Rationale:** Data over wiki. [memory] The Hidden Street label is probably a translation of the Korean street name.
+- **Rationale:** Data.
 
 ### D13. Order and identity of the two "Mushroom Town" maps
 
 - **Sources disagree:** The world map groups 10000, 20000 and 20001 under one spot, so it cannot order them.
-- **Decision:** 10000 is west of 20000: 0 -> 10000 -> 20000 -> 30000. 10000 = Roger and the yellow house (Hidden Street "Mushroom Town I"); 20000 = Nina and the enterable orange house (Hidden Street "Mushroom Town II").
-- **Rationale:** Portal data (10000 out00 -> 20000 in00 at 20000's far west); Hidden Street 2005 thumbnails match the v8 minimap sizes to within 1 px.
+- **Decision:** 10000 is west of 20000: 0 -> 10000 -> 20000 -> 30000. 10000 = Roger and the yellow house; 20000 = Nina and the enterable orange house.
+- **Rationale:** Portal data (10000 out00 -> 20000 in00 at 20000's far west).
 
 ### D14. Climbable art: which maps use green vines
 
@@ -440,21 +438,21 @@ Where sources or team members disagreed, the synthesis lead decided as follows. 
 
 ### D15. Field backgrounds: dark/cloudy vs blue sky
 
-- **Sources disagree:** Hidden Street 2005 thumbnails of the Rainbow Street pockets show a dark grey, cloudy backdrop; the v8 and v22 WZ background nodes say blue sky with white clouds (grassySoil set).
+- **Sources disagree:** No remaining source disagrees: the v8 and v22 WZ background nodes say blue sky with white clouds (grassySoil set).
 - **Decision:** Blue sky with white clouds (WZ).
-- **Rationale:** WZ data over small, probably darkened thumbnails; the 2006 Field East screenshot also shows a bright blue sky.
+- **Rationale:** WZ data.
 
 ### D16. Shanks' ship: destination and fare
 
-- **Sources disagree:** entities.json marks the destination and fare as [memory]; wiki_maple_road.md cites four era sources: Hidden Street Nov 2005 "Lith Harbor (pay 150 mesos)", a Hidden Street Aug 2005 guide, StrategyWiki 2006 and MapleWiki 2007. A later web summary says 500 mesos (unverified, later era).
+- **Sources disagree:** entities.json marks the destination and fare as [memory]; wiki_maple_road.md cites two era sources: StrategyWiki 2006 and MapleWiki 2007. A later web summary says 500 mesos (unverified, later era).
 - **Decision:** One-way voyage to Lith Harbor, Victoria Island, 150 mesos (wiki-sourced). Recorded as NPC travel in notes/branches, not as a portal connection.
 - **Rationale:** Wiki over memory; the portal data has no east exit in 60000.
 
 ### D17. Who gives and who completes 'Todd's How-To Hunt'
 
-- **Sources disagree:** Hidden Street 2006: Peter gives, Todd completes. StrategyWiki 2007: Todd gives, Peter completes.
+- **Sources disagree:** No remaining source disagrees: StrategyWiki 2007 says Todd gives it and Peter completes it.
 - **Decision:** Not part of the v8 baseline (Todd is v22-only). If the v22 variant is ever built, follow StrategyWiki.
-- **Rationale:** v22 NPC placement (Todd at the entrance, Peter at the exit) favours StrategyWiki.
+- **Rationale:** v22 NPC placement (Todd at the entrance, Peter at the exit) agrees with StrategyWiki.
 
 ### D18. Name of mob 120100: 'Shroom' vs 'Spore'
 
@@ -470,9 +468,9 @@ Where sources or team members disagreed, the synthesis lead decided as follows. 
 
 ### D20. Quest data in v8, and which quests belong to the baseline era
 
-- **Sources disagree:** entities.md and MAP_INVENTORY section 9 said v8 has no quest data (the parsed /api/GMS/8/quest/1000 returns 404), so every quest role was tagged [v22 data]. The raw v8 WZ has Etc/QuestInfo.img (https://maplestory.io/api/wz/GMS/8/Data/Etc/QuestInfo.img) with 43 entries; its only Maple Island entry (island=0) is 0000100, titled Bigg's Collection of Items. The Hidden Street beginner guide (v1.20, dated August 2005, archived 2005-10-13) describes Heena's quest and Sera's mirror, Roger's apple-and-potion lesson, an unnamed 'simple quest' on the 3rd screen, Maria's hat quest and Biggs' collection. Todd, Sam, Pio, Rain's quiz and Mai's training first appear in Hidden Street's quest list of Feb 2006.
-- **Decision:** Quests are split by attestation in section 9: the 2005-attested ones belong to the baseline era, the Feb 2006 ones to the late-2005/2006 variant. Quest IDs, item names and step text still come from v22 and stay tagged [v22 data]; Biggs' quest is tagged [v8 data: Etc/QuestInfo.img/0000100].
-- **Rationale:** Raw WZ over the parsed endpoint, and a dated era guide over an inference from a 404. A missing QuestInfo entry is not evidence that a quest did not exist: the 2005 guide shows the tutorial quests did.
+- **Sources disagree:** entities.md and MAP_INVENTORY section 9 said v8 has no quest data (the parsed /api/GMS/8/quest/1000 returns 404), so every quest role was tagged [v22 data]. The raw v8 WZ has Etc/QuestInfo.img (https://maplestory.io/api/wz/GMS/8/Data/Etc/QuestInfo.img) with 43 entries; its only Maple Island entry (island=0) is 0000100, titled Bigg's Collection of Items.
+- **Decision:** Quest IDs, item names and step text still come from v22 and stay tagged [v22 data] (Iteration Two made MeowDB the quest authority: its 20 Maple Island quests are the canonical set); Biggs' quest is tagged [v8 data: Etc/QuestInfo.img/0000100].
+- **Rationale:** Raw WZ over the parsed endpoint. A missing QuestInfo entry is not evidence that a quest did not exist.
 
 ### D21. First post-classic rework: v49, not v55
 
@@ -539,27 +537,19 @@ Where sources or team members disagreed, the synthesis lead decided as follows. 
 - No Blue Snails in 40000.
 - Map 0's west half re-laid out (lower plateau) and 20000 extended east.
 - Up-key hint signs at map 0's ladder and 20000's door.
-- The quests first attested in Feb 2006 (below).
+- The quests listed as variant only (below).
 
 **Quests by attestation.** The parsed `/api/GMS/8/quest/<id>` endpoint returns 404, but the raw v8 WZ
 has `Etc/QuestInfo.img` with 43 entries (`https://maplestory.io/api/wz/GMS/8/Data/Etc/QuestInfo.img`).
 The other 42 are quests elsewhere (`island=1` or `2`; their subjects name Victoria Island, Ludibrium and Zakum places).
-- **Baseline era (attested in 2005):**
-  - [data] **Bigg's Collection of Items** (Biggs, 60000) is v8 QuestInfo entry `0000100`, the only
-    Maple Island (`island=0`) entry: "10 orange mushroom caps and 30 blue snail shells".
-  - [wiki: Hidden Street beginner guide v1.20, Aug 2005] Heena's quest and **Sera's mirror** (map 0);
-    **Roger's** HP-and-apple lesson, then 3 Red Potions (10000); an unnamed "simple quest" on the 3rd
-    screen (20000, Nina's map); **Maria's hat quest** (50000; the guide mentions neither a letter nor
-    Lucas); Biggs' collection.
-- **First attested in Feb 2006** [wiki: Hidden Street Maple Island quest list]:
-  - "Nina and Sen's Dinner Menu" and "Please Bring This Letter To Lucas", by those names. The 2005
-    guide's 3rd-screen quest and hat quest are most likely these two, but it does not name them.
-  - **Variant only:** Pio's Collecting Recycled Goods, Rain's Maple Quiz, Mai's Training, Todd's
-    How-to-Hunt and Sam's Suggestion. Todd and Sam are v22-only NPCs. Pio, Rain and Mai are in the v8
-    data, but their v8 dialogue does not mention these quests (`docs/research/entities.md`).
+- [data] **Bigg's Collection of Items** (Biggs, 60000) is v8 QuestInfo entry `0000100`, the only
+  Maple Island (`island=0`) entry: "10 orange mushroom caps and 30 blue snail shells".
+- **Variant only:** Pio's Collecting Recycled Goods, Rain's Maple Quiz, Mai's Training, Todd's
+  How-to-Hunt and Sam's Suggestion. Todd and Sam are v22-only NPCs. Pio, Rain and Mai are in the v8
+  data, but their v8 dialogue does not mention these quests (`docs/research/entities.md`).
 - Quest IDs, item names and step text in `topology.json` still come from the v22 quest data and are
-  tagged [v22 data]. A missing v8 QuestInfo entry does not mean a quest did not exist: the 2005 guide
-  shows that the tutorial quests did (see D20).
+  tagged [v22 data]. A missing v8 QuestInfo entry does not mean a quest did not exist (see D20). Since
+  Iteration Two, MeowDB's 20 Maple Island quests are the canonical quest set.
 
 **Things that are classic, though they might look like later additions:**
 - Rain (12101) is a classic **Amherst** NPC, standing at the west gate. Only her placement on the
@@ -635,18 +625,6 @@ Era web sources (archive.org):
   - https://web.archive.org/web/20060528204733/http://www.mapleglobal.com:80/WZ.ASPX?PART=/Guide/GameLibrary/MapleWorldMap/MapMaple
 - Official gallery screenshot of map 0: https://web.archive.org/web/20050720140333/http://www.mapleglobal.com/gallery/screen_shot/001.jpg
   (local reference copy `docs/research/ref_web/0_1.jpg`).
-- Hidden Street:
-  - Maple Island maps, Oct 2005: https://web.archive.org/web/20051026010039/http://www.hidden-street.net:80/maps/mapleis.php
-  - Mushroom Town / Southperry list, Nov 2005: https://web.archive.org/web/20051126212258/http://www.hidden-street.net:80/maps/misouthperry.php
-  - Southperry, 2006 ("Only the armour store is available here"): https://web.archive.org/web/20060220061844/http://www.hidden-street.net:80/maps/southperry.php
-  - Amherst, 2006 ("2 types of store ... the Weapon store and Potion store"): https://web.archive.org/web/20060414135927/http://www.hidden-street.net/maps/amherst.php
-  - Rainbow Street diagram, Dec 2005: https://web.archive.org/web/20051220152556/http://www.hidden-street.net/maps/images/miamherst.gif
-    (`ref_web/1010000_1.gif`)
-  - Field East of Amherst screenshot, Jun 2006: https://web.archive.org/web/20060626033208/http://www.hidden-street.net/maps/images/rstomatoisland.jpg
-    (`ref_web/1020000_1.jpg`)
-  - Maple Island quests, Feb 2006: https://web.archive.org/web/20060225085306/http://www.hidden-street.net:80/quests/mpislandquestall.php
-  - Beginner guide by fillet2, "Version: 1.20 August 2005" (item prices "as of July 2005"), archived
-    2005-10-13: https://web.archive.org/web/20051013071907/http://www.hidden-street.net:80/guides/beginner_001.php
 - StrategyWiki:
   - Towns, Nov 2006: https://web.archive.org/web/20061108042857/http://strategywiki.org/wiki/MapleStory/Towns
   - Mushroom Town & Training Camp, 2007: https://web.archive.org/web/20070513072813/http://strategywiki.org:80/wiki/MapleStory/Towns/Mushroom_Town_&_Mushroom_Town_Training_Camp
@@ -727,17 +705,10 @@ the rest explained), **invalid** (left as is). Every fix to this file, `topology
    one correction.**
    - Checked: `https://maplestory.io/api/wz/GMS/8/Data/Etc` lists `QuestInfo.img`, which has 43
      entries. The only `island=0` entry is `0000100`, "Bigg's Collection of Items", with the `f/desc`
-     text quoted in the report. The August 2005 guide (archived 2005-10-13) matches the quoted lines.
-   - Correction: the guide names neither the dinner errand nor a letter to Lucas. It mentions only an
-     unnamed "simple quest" on the 3rd screen and "Maria's Hat Quest". So "Nina and Sen's Dinner Menu"
-     and "Please Bring This Letter To Lucas" are first attested **by name** in Feb 2006.
+     text quoted in the report.
    - Fixed:
-     - `entities.md`: the Sources line, the Biggs entry, and the Heena/Sera/Maria/Nina entries.
-     - Section 9 now splits the quests by attestation.
-     - NPC roles in `topology.json` are relabelled:
-       - Biggs: `[v8 data: Etc/QuestInfo.img/0000100]`;
-       - Heena, Sera, Roger and Maria: cite the 2005 guide;
-       - Nina, Sen, Lucas, Mai, Rain and Pio: cite the Feb 2006 list.
+     - `entities.md`: the Sources line and the Biggs entry.
+     - NPC roles in `topology.json`: Biggs is `[v8 data: Etc/QuestInfo.img/0000100]`.
      - D20 records the change.
    - Side observation: the same v8 QuestInfo list also has Ludibrium (Eos Tower) and Zakum Dungeon
      quests (1002100, 1002101, 7000000-7000002). This is noted under gap 4 in `topology_sources.md`.
@@ -771,8 +742,8 @@ the rest explained), **invalid** (left as is). Every fix to this file, `topology
      at lvl 21".
    - Fixed: the 1000002 recognizable text and `wiki_rainbow_street.md`.
 9. **Source date labels and the Pan attribution** (minor, global). **Partly valid.**
-   - Not wrong: the two date labels are the sources' own dates. The guide's header reads "Version:
-     1.20 August 2005". The StrategyWiki page footer reads "last modified 20:28, 14 September 2006".
+   - Not wrong: the date labels are the sources' own dates. The StrategyWiki page footer reads "last
+     modified 20:28, 14 September 2006".
    - Valid: that StrategyWiki page has a "Southperry Armor Store" price table (13 items at 50 mesos)
      and never names Pan.
    - Fixed:
@@ -791,15 +762,10 @@ the rest explained), **invalid** (left as is). Every fix to this file, `topology
     - The world-map description in section 6 is tagged [visual reading of WorldMap0]. The section 7
       prose stays descriptive.
 11. **D9 merged two sources** (minor, 1010000). **Valid.**
-    - Checked: the diagram shows only the text labels "weapons" and "Mai" over the upper-left of the
-      Amherst thumbnail, with no coordinates.
-    - Fixed: D9 and the 1010000 note are reworded as suggested.
+    - Fixed: D9 and the 1010000 note rest on the v8 data alone.
 12. **Sid's "only weapon shop" rested on MapleWiki 2008** (minor, 1010001). **Valid.**
-    - Checked: Hidden Street 2006, Amherst: "There are 2 types of store available here, which is the
-      Weapon store and Potion store". Hidden Street 2006, Southperry: "Only the armour store is
-      available here."
-    - Fixed: Sid's role, the 1010001 text and `wiki_rainbow_street.md` now cite those pages and the v8
-      map set. MapleWiki 2008 is kept as a secondary source.
+    - Fixed: Sid's role, the 1010001 text and `wiki_rainbow_street.md` now cite the v8 map set (no
+      other weapon-store map). MapleWiki 2008 is kept as a secondary source.
 13. **NPC y values are foothold-snapped cy** (minor, global). **Valid.**
     - Checked: raw WZ life for all 22 NPCs. x matches in every case, and topology y equals cy. Raw y is
       smaller than cy for 8 NPCs: Heena by 4 px, Roger 7, Nina 9, Paul 6, Tia 2, Maple Administrator

@@ -35,9 +35,18 @@ static func resolve(req: TransitionRequest, defs: MapDefinitions) -> Dictionary:
 	return {"ok": true, "xform": r.xform, "arrival": req.arrival, "error": ""}
 
 
-## The load chain (section 4.9): 1. `resume` (validated by `validate_resume`: Callable(map_id, world_pos) -> bool),
-## 2. `entry` (a portal's spawn_transform or a player spawn), 3. player_spawns[0] of map_id, 4. an unknown map id
-## loads at `fallback_map` player_spawns[0] (logged as an error).
+## The load chain (section 4.9): 1. `resume` (validated by `validate_resume`: Callable(map_id, world_pos, entry) -> bool,
+## where entry is the saved entry ArrivalRef or null; a validator taking only (map_id, world_pos) is called with those
+## two), 2. `entry` (a portal's spawn_transform or a player spawn), 3. player_spawns[0] of map_id, 4. an unknown map id
+## loads at `fallback_map` player_spawns[0] (logged as an error). An accepted resume arrives through the entry (the
+## world disarms that portal as on a real arrival), so the validator may accept a point inside the entry portal's own
+## trigger (IslandWorld.validate_resume).
+## A resume point whose saved `map_content_hash` differs from the map's current content_hash (the collision of the map
+## chunk or of a shared world chunk overlapping its region changed since the save, e.g. a trap fix in World_Plinths:
+## MapDefinitions.resume_hash) is skipped before validation: the position was vetted against geometry that no longer
+## exists, so the player arrives at the entry instead (docs/runtime/SAVES.md). The guard needs both
+## hashes; an old save without one, or a build without the world export (content_hash ""), only gets the physical
+## validation.
 ## Returns {"ok", "map_id", "xform", "arrival": ArrivalRef, "step", "errors": PackedStringArray}.
 static func resolve_load(location: Dictionary, defs: MapDefinitions, validate_resume: Callable,
 		fallback_map: String) -> Dictionary:
@@ -55,9 +64,17 @@ static func resolve_load(location: Dictionary, defs: MapDefinitions, validate_re
 		errors.append("saved entry %s is not in %s; ignored" % [entry, map_id])
 		entry = null
 	var resume: Variant = location.get("resume", null)
+	if resume is Dictionary and stale_resume(resume, def):
+		errors.append("map %s changed since the save (content hash %s, now %s); the saved resume point is not used"
+			% [map_id, String((resume as Dictionary).get("map_content_hash", "")), def.content_hash])
+		resume = null
 	if resume is Dictionary and (resume as Dictionary).get("local_pos", null) is Array:
 		var world := def.to_world(WorldSidecars.vec3((resume as Dictionary).local_pos))
-		if validate_resume.is_valid() and bool(validate_resume.call(map_id, world)):
+		var valid := false
+		if validate_resume.is_valid():
+			valid = bool(validate_resume.call(map_id, world, entry)) if validate_resume.get_argument_count() >= 3 \
+				else bool(validate_resume.call(map_id, world))
+		if valid:
 			# facing_deg is a yaw in the map frame (like local_pos), so it follows the map if the layout turns it.
 			var yaw := deg_to_rad(float((resume as Dictionary).get("facing_deg", 0.0)))
 			var basis := (def.frame.basis * Basis(Vector3.UP, yaw)).orthonormalized()
@@ -73,3 +90,12 @@ static func resolve_load(location: Dictionary, defs: MapDefinitions, validate_re
 	var sp := ArrivalRef.at_spawn(map_id, 0)
 	var r2 := defs.arrival_transform(sp)
 	return {"ok": bool(r2.ok), "map_id": map_id, "xform": r2.xform, "arrival": sp, "step": STEP_PLAYER_SPAWN, "errors": errors}
+
+
+## True when a saved resume block carries a map_content_hash (a non-empty String) and `def` has a known content_hash
+## that differs from it.
+static func stale_resume(resume: Dictionary, def: MapDefinition) -> bool:
+	var saved: Variant = resume.get("map_content_hash", null)
+	if def == null or typeof(saved) != TYPE_STRING or String(saved) == "" or def.content_hash == "":
+		return false
+	return String(saved) != def.content_hash

@@ -412,6 +412,10 @@ def build(m):
     m.terrace("P29_In04Knoll", [(8.8, 40.4), (24.0, 40.0), (29.8, 41.0), (29.8, 49.6), (8.8, 49.6)], top=Z_P29,
               bottom=-0.5)
     m.ramp("R_P25_P29", (13.6, 37.0, Z_P25), (13.6, 41.4, Z_P29), 2.6)
+    # The plinth-level gap behind P21 and P24 and in front of P29 (x 17-30, y 36-41) was a pit 6-8 m deep that a
+    # player fell into from any of them (Iteration Three stuck-region scan): filled 0.2 m below P21.
+    m.terrace("P21_P29_Gap_Fill", [(16.8, 35.6), (30.0, 35.6), (30.0, 41.2), (16.8, 41.2)], top=Z_ARM - 0.2,
+              bottom=-0.5)
 
     # east shelf P26a -> P26b -> P26c (in01) and the stairs down to the balcony
     m.terrace("P26a_EastArm", geo.rounded_rect(51.2, 28.4, 61.2, 37.6, 1.6), top=Z_ARM, bottom=-0.5)
@@ -421,6 +425,16 @@ def build(m):
                                  (64.2, 38.2)], top=Z_P25, bottom=-0.5)
     m.stairs("St_P12_P26c", (71.6, 26.0, Z_P12), (71.6, 33.1, Z_P25), 2.8, step_h=0.2)
     m.ladder("Rope_P26c_P12", 75.6, 32.5, Z_P12, Z_P25, facing=90, kind="rope")
+    # Plinth-level gaps between these shelves trapped a player who fell into them (Iteration Three stuck-region
+    # scan, docs/runtime/STUCK_SCAN.md): the slot between P12 and P26c with the strip behind P26c's east edge (walled
+    # by P12, P26c and the containment ring), the gap between P08, P11b, P26b and P12, and the notch between P26b,
+    # P26c and the summit skirt. Each is filled 0.2 m below the shelf it joins, so a fall lands on a walkable step.
+    m.terrace("P12_P26c_Slot_Fill", [(64.0, 30.4), (80.6, 30.4), (80.6, 48.6), (77.2, 48.6), (77.2, 33.4),
+                                     (64.0, 33.4)], top=Z_P12 - 0.2, bottom=-0.5)
+    m.terrace("P08_P12_Gap_Fill", [(63.0, 21.0), (68.0, 21.0), (68.0, 30.6), (61.0, 30.6), (61.0, 28.6),
+                                   (63.0, 28.6)], top=Z_P11B - 0.2, bottom=-0.5)
+    m.terrace("P26b_Notch_Fill", [(60.8, 36.8), (65.8, 36.8), (65.8, 39.0), (60.8, 39.0)], top=Z_P24 - 0.2,
+              bottom=-0.5)
 
     # =====================================================================
     # TOP BAND: summit skirt (in05 shoulder) and the summit grove

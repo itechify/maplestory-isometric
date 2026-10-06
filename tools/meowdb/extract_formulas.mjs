@@ -1631,7 +1631,7 @@ const movement = {
   },
   monster_knockback: {
     definition: V('ggloss', 'Being pushed backward when hit. Also the knockback resistance stat on mobs: a mob with 500 KB needs 500+ damage to stagger.'),
-    gaps: ['Monster knockback distance/speed and stagger duration are not documented.'],
+    gaps: ['Monster knockback distance/speed is not documented. The stagger duration is published per monster, not as a formula: each live monster page shows STAGGER ("How long the mob is staggered for when knocked back."), carried by monsters/<id>.json stagger_ms with its capture (tools/meowdb/captures/monster_<id>.*).'],
   },
   fall_damage: {
     status: STATUS.plain,
@@ -1936,7 +1936,7 @@ const beginner = {
     sp_levels: [2, 10],
     note: V('gbeg', 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10). That\'s exactly enough to max all three Beginner skills (3 SP each, 9 total).'),
     after_level_10_as_beginner: 'Not documented. MeowDB\'s calculators return Beginner SP = 9 at every level (model, not confirmed).',
-    calculator_caveat: 'The /formulas/leveling "AP and SP" calculator prints "Beginner SP = 9" for every level, including level 1. It is the level-10 total, not a starting grant: per the Beginner\'s guide a Beginner has 0 SP at level 1 and gains 1 SP at each level-up from 2 to 10.',
+    calculator_caveat: 'The /formulas/leveling "AP and SP" calculator prints "Beginner SP = 9" for every level, including level 1. It is the level-10 total, not a starting grant. The Beginner\'s guide gives only "9 SP by the time you hit level 10 (1 per level-up)" (note); 1 SP at each level-up from 2 to 10, and so 0 SP at level 1, is arithmetic from that sentence, not a value any page states.',
   },
   hp_mp: {
     base_hp: 50,

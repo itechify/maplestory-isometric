@@ -18,10 +18,12 @@ extends Node
 ##   windows   open_window(name)  close_window(name)  window_text(name)
 ##   shop      shop_buy(item_id, qty)  shop_sell(item_id, qty)  close_shop()
 ##   setup     console(cmd)
-##   record    screenshot(name)  state()  check(name, cond, details)  soft_check(...)  note(text)  diff(a, b)
+##   strict    begin_strict(reason)  is_strict()   (no console, no api fallback, no unannounced state change after it)
+##   record    screenshot(name)  state()  check(name, cond, details, parity)  soft_check(...)  note(text)  diff(a, b)
 ##   time      frames(n)  wait(s)  wait_until(cond, max_s)  game_s()
 ##
 ## Times are game time: physics frames / Engine.physics_ticks_per_second (the runner uses --fixed-fps 60).
+## Composite play (multi-map travel, conversations, quizzes, item use, AP, shops, survival) is PlaytestKit's.
 ## Results and pitfalls are documented in docs/runtime/PLAYTEST_HARNESS.md.
 
 ## Emitted by reload_process() once the phase is over; the runner writes the report before the process quits.
@@ -36,7 +38,12 @@ const UI_TIMEOUT_S := 2.0
 ## Rings (m, horizontal from the NPC's feet) of the approach points around an NPC, walked front first. The game's talk
 ## rule (WorldNpc.in_range) is its talk Area3D (a sphere of interaction_radius_m, raised by half of it) overlapping
 ## the player's body capsule, so a player pressed against a counter about 1.9 m away can still talk: see talk_gap().
-const TALK_APPROACH_M: Array[float] = [1.0, 0.75, 1.3, 1.7, 2.1, 2.5]
+const TALK_APPROACH_M: Array[float] = [1.0, 1.3, 1.7, 2.1, 2.5]
+## A humanoid NPC proxy's body radius (m; the player's is MovementModel.body_radius, 0.3), and the air kept between the
+## two bodies: talk_to never brings the feet closer than the sum (NPCs are not solid, so a walk or a lean could carry
+## the player into the NPC: the acceptance review saw the player's body inside Rain's while they talked).
+const NPC_BODY_RADIUS_M := 0.35
+const TALK_BODY_AIR_M := 0.15
 ## An approach point counts when the body standing there is at most this far (m) outside the talk zone: the lean
 ## (TALK_LEAN_S of walking straight at the NPC, as a player presses into a counter) closes the rest.
 const TALK_LEAN_M := 0.7
@@ -45,6 +52,8 @@ const TALK_LEAN_S := 1.5
 ## but not walked), before talk_to gives up.
 const TALK_MAX_TRIES := 4
 const TALK_MAX_PLANS := 12
+## Mouse-wheel notches scroll_into_view() sends over one list before it gives up.
+const SCROLL_MAX_NOTCHES := 40
 ## Monsters farther than this (m) are not targets for face_and_attack_nearest by default.
 const FIGHT_MAX_DIST_M := 30.0
 ## Beyond this (m), or above / below by more than FIGHT_TIER_DY_M, the fight walks over the routes; closer it steers
@@ -73,9 +82,14 @@ var reloading: bool = false
 ## Record trace_digest() on every step ("trace0" when it begins, "trace" when it ends): the runner's --trace, or the
 ## PLAYTEST_TRACE environment variable. For diffing two runs of one seed (docs/runtime/PLAYTEST_HARNESS.md "Seeds").
 var trace_steps: bool = false
+## Why the last click (or find_control) refused its control: off the screen or covered ("" when it was not refused).
+var last_click_why: String = ""
 
 var _f0: int = 0
 var _open_steps: Array[int] = []
+## Strict mode: Debug.commands_run when this process started counting, and the event ledger of the live character.
+var _debug0: int = 0
+var _ledger: PlaytestLedger = PlaytestLedger.new()
 
 
 ## Indices (into report.steps) of the steps still running, outermost first.
@@ -108,6 +122,11 @@ func boot() -> bool:
 	main.use_command_line = false
 	add_child(main)
 	await frames(3)
+	# Where a player can click (off_screen_reason): the same 1600 x 900 headless and windowed.
+	print("PLAYTEST VIEWPORT visible rect %s, window %s (%s)" % [_rect_text(get_viewport().get_visible_rect()),
+		DisplayServer.window_get_size(), DisplayServer.get_name()])
+	# A strict run that continues in this process counts the developer commands from here.
+	_debug0 = _debug_commands()
 	return main.flow.is_in(ShellFlow.State.TITLE)
 
 
@@ -219,19 +238,96 @@ func game_s() -> float:
 	return (Engine.get_physics_frames() - _f0) / float(Engine.physics_ticks_per_second)
 
 
-## Records a PASS/FAIL check. Returns `cond`.
-func check(check_name: String, cond: bool, details: String = "") -> bool:
-	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1)
+## Records a PASS/FAIL check. `parity`: the parity keys it proves (contract C6: "quest:1005", "mechanic:..."), kept
+## in report.json. Returns `cond`.
+func check(check_name: String, cond: bool, details: String = "", parity: Array = []) -> bool:
+	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1,
+		false, parity)
 	print("PLAYTEST CHECK %s %s%s" % ["PASS" if cond else "FAIL", check_name, (": " + details) if details != "" else ""])
 	return cond
 
 
 ## A soft check: PASS, or a WARN line that never fails the run (a known issue to surface without blocking on it).
 ## Returns `cond`.
-func soft_check(check_name: String, cond: bool, details: String = "") -> bool:
-	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1, true)
+func soft_check(check_name: String, cond: bool, details: String = "", parity: Array = []) -> bool:
+	report.add_check(phase, check_name, cond, details, game_s(), _open_steps[-1] if not _open_steps.is_empty() else -1,
+		true, parity)
 	print("PLAYTEST CHECK %s %s%s" % ["PASS" if cond else "WARN", check_name, (": " + details) if details != "" else ""])
 	return cond
+
+
+# =================================================================================================================
+# Strict mode: no cheats from here on
+# =================================================================================================================
+
+## Turns strict mode on for the rest of the run (every later phase too): from this step on a console() command is
+## refused and fails the run, an api fallback fails it, every developer command that runs (DebugTools.commands_run,
+## whoever calls it) fails it, and the live character must only change in ways the event bus announced
+## (PlaytestLedger, reconciled at every phase end, Quit to Title and new game). `reason` says where the clean part
+## starts ("after character creation", "after the setup save"). report.json's "strict" block carries the proof.
+func begin_strict(reason: String) -> void:
+	if is_strict():
+		return
+	report.strict = {"enabled": true, "reason": reason,
+		"since": {"phase": phase, "step": report.steps.size(), "game_s": snappedf(game_s(), 0.001)},
+		"debug_commands": 0, "ledger": {"reconciled": 0, "heard": 0, "mismatches": []}, "violations": []}
+	_debug0 = _debug_commands()
+	_ledger_baseline()
+	note("strict mode on (%s): no console command, api fallback or unannounced state change from step %d" % [reason,
+		report.steps.size()])
+
+
+func is_strict() -> bool:
+	return bool(report.strict.get("enabled", false)) if report != null else false
+
+
+## Called by the runner when the phase ends (done, reload, timeout): counts the developer commands this phase ran
+## and reconciles the ledger. Adds one check per strict phase.
+func strict_finish() -> void:
+	if not is_strict():
+		return
+	var n := _debug_commands() - _debug0
+	_debug0 = _debug_commands()
+	if n > 0:
+		report.strict["debug_commands"] = int(report.strict.get("debug_commands", 0)) + n
+		report.add_violation(phase, "debug", "%d developer console command(s) ran in phase %d" % [n, phase])
+	_ledger_checkpoint("the end of phase %d" % phase)
+	var st := report.strict_summary()
+	check("strict: no console command, api fallback, developer command or unannounced state change (phase %d)" % phase,
+		bool(st.get("ok", false)), "%d console, %d api steps, %d debug commands, %d ledger mismatches, %d violations since %s"
+			% [int(st.get("console_steps", 0)), int(st.get("api_steps", 0)), int(st.get("debug_commands", 0)),
+			((st.get("ledger", {}) as Dictionary).get("mismatches", []) as Array).size(),
+			(st.get("violations", []) as Array).size(), String(st.get("reason", ""))])
+
+
+func _debug_commands() -> int:
+	var dbg := debug()
+	return int(dbg.get("commands_run")) if dbg != null and dbg.get("commands_run") != null else 0
+
+
+## The ledger starts on the live character (strict mode only).
+func _ledger_baseline() -> void:
+	var c := character()
+	var g := game()
+	if is_strict() and c != null and g != null and g.has_active_game():
+		_ledger.baseline(events(), c, db())
+
+
+## Reconciles the ledger against the live character, records the result and stops it (the character is about to be
+## replaced, or the phase ends).
+func _ledger_checkpoint(when: String) -> void:
+	if not is_strict() or not _ledger.armed:
+		return
+	var mm := _ledger.reconcile(character())
+	var led: Dictionary = report.strict.get("ledger", {})
+	led["reconciled"] = int(led.get("reconciled", 0)) + 1
+	led["heard"] = int(led.get("heard", 0)) + _ledger.heard
+	var list: Array = led.get("mismatches", [])
+	for m in mm:
+		list.append("phase %d, %s: %s" % [phase, when, m])
+	led["mismatches"] = list
+	report.strict["ledger"] = led
+	_ledger.disarm()
 
 
 ## "" when `a` and `b` hold the same values, else where they first differ ("$.inventory.slots.use[0].qty: 3 != 2").
@@ -331,13 +427,17 @@ func state() -> Dictionary:
 	return out
 
 
-## A compact fingerprint of everything that decides what happens next, for diffing two runs of one seed: the physics
-## frame (since boot), the RNG states (Game.rng and MapSession's instance RNG), the map and session state, the
-## player's position, vitals and EXP, and the live monsters (count, plus a hash of their positions and HP). Two runs
-## of one seed diverge at the first step whose digest differs. Never changes the game.
+## A compact fingerprint of everything that decides what happens next, for diffing two runs of one seed: the game
+## clock (Game.clock: it stands still on the title screen and while the island loads, so unlike the physics frame
+## since boot it does not carry the wall-clock-dependent load frames, which made every pair of runs differ at the
+## first step), the RNG states (Game.rng and MapSession's instance RNG), the map and session state, the player's
+## position, vitals and EXP, and the live monsters (count, plus a hash of their positions and HP). Two runs of one
+## seed diverge at the first step whose digest differs. Never changes the game.
 func trace_digest() -> Dictionary:
-	var out := {"frame": Engine.get_physics_frames() - _f0}
+	var out := {}
 	var g := game()
+	if g != null:
+		out["clock"] = "%.4f" % float(g.get("clock"))
 	if g != null and g.get("rng") is RandomNumberGenerator:
 		out["game_rng"] = str((g.get("rng") as RandomNumberGenerator).state)
 	var s := session()
@@ -457,15 +557,17 @@ func new_game(char_name: String = "Tester", gender: String = "female", weapon_id
 		out["why"] = "not on the title screen (%s)" % (ShellFlow.state_name(main.flow.state) if main != null else "no main")
 		_end(i, false, out["why"])
 		return out
+	# Strict mode: the previous character's ledger is settled before a new one is created.
+	_ledger_checkpoint("before a new game")
 	var why := ""
 	if not await _click_control(main.title.new_button):
-		why = "the title's New Game button did not respond"
+		why = _no_response("the title's New Game button")
 	elif not await wait_until(func() -> bool: return main.creation != null and is_instance_valid(main.creation), UI_TIMEOUT_S):
 		why = "New Game opened no creation screen"
 	else:
 		why = await _fill_creation(char_name, gender, weapon_id, ap)
 		if why == "" and not await _click_control(main.creation.start_button):
-			why = "the creation screen's Start button did not respond"
+			why = _no_response("the creation screen's Start button")
 	if why != "":
 		out["via"] = "api"
 		_fallback(i, why)
@@ -487,6 +589,8 @@ func new_game(char_name: String = "Tester", gender: String = "female", weapon_id
 	out["why"] = why if ok else (main.last_error_message if main.last_error_message != "" else "the game did not start")
 	out["slot"] = main.target_slot
 	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
 	_end(i, ok, "%s in %s via %s" % [out["slot"], out["map"], out["via"]])
 	return out
 
@@ -504,13 +608,16 @@ func continue_game() -> Dictionary:
 		clicked = await _click_control(main.title.continue_button)
 	if not clicked:
 		out["via"] = "api"
-		_fallback(i, "the title's Continue button is %s" % ("hidden (no loadable save)" if not main.title.continue_button.visible else "not responding"))
+		_fallback(i, "the title's Continue button is hidden (no loadable save)" if not main.title.continue_button.visible
+			else _no_response("the title's Continue button"))
 		var j := _begin(PlaytestReport.KIND_API, "MainShell.continue_game")
 		main.continue_game()
 		_end(j, true)
 	var ok := await _wait_playing(LOAD_TIMEOUT_S)
 	out["ok"] = ok
 	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
 	_end(i, ok, "%s in %s" % [out["slot"], out["map"]])
 	return out
 
@@ -523,12 +630,14 @@ func quit_to_title() -> Dictionary:
 	if main == null or not (main.flow.is_in(ShellFlow.State.PLAYING) or main.flow.is_in(ShellFlow.State.PAUSED)):
 		_end(i, false, "no game running")
 		return out
+	_ledger_checkpoint("Quit to Title")
 	var clicked := false
+	last_click_why = ""
 	if await _open_pause_menu():
 		clicked = await _click_control(_find_text(main.pause_menu, "Quit to Title"))
 	if not clicked:
 		out["via"] = "api"
-		_fallback(i, "the pause menu's Quit to Title could not be used")
+		_fallback(i, _no_response("the pause menu's Quit to Title"))
 		var j := _begin(PlaytestReport.KIND_API, "MainShell.quit_to_title")
 		main.quit_to_title()
 		_end(j, true)
@@ -547,14 +656,16 @@ func save_game() -> Dictionary:
 	var on_saved := func(slot: String) -> void: saved.append(slot)
 	events().connect(&"game_saved", on_saved)
 	var clicked := false
+	last_click_why = ""
 	if await _open_pause_menu():
 		clicked = await _click_control(main.pause_menu.save_button)
+	var refused := last_click_why
 	await frames(2)
 	if main.pause_menu.status_label != null:
 		out["status"] = main.pause_menu.status_label.text
 	if not clicked:
 		out["via"] = "api"
-		_fallback(i, "the pause menu's Save could not be used")
+		_fallback(i, "the pause menu's Save could not be used%s" % [": " + refused if refused != "" else ""])
 		var j := _begin(PlaytestReport.KIND_API, "MainShell.save_now")
 		var err := main.save_now()
 		_end(j, err == OK, error_string(err))
@@ -565,6 +676,42 @@ func save_game() -> Dictionary:
 	out["ok"] = not saved.is_empty()
 	out["slot"] = saved[0] if not saved.is_empty() else ""
 	_end(i, bool(out["ok"]), "%s %s" % [out["slot"], out["status"]])
+	return out
+
+
+## The pause menu's Load inside a running game: Esc (closing windows first) until the menu is open, its Load button,
+## then the Load button of `slot`'s row in the slot list (MainShell.load_in_game: the character is replaced and
+## MapSession enters the world where the save says). Waits until the game plays again. Returns {"ok", "via", "slot",
+## "map"}. Await it.
+func load_from_pause_menu(slot: String) -> Dictionary:
+	var i := _begin(PlaytestReport.KIND_PLAY, "load_from_pause_menu", slot)
+	var out := {"ok": false, "via": "screen", "slot": slot, "map": ""}
+	if main == null or not (main.flow.is_in(ShellFlow.State.PLAYING) or main.flow.is_in(ShellFlow.State.PAUSED)):
+		_end(i, false, "no game running")
+		return out
+	_ledger_checkpoint("a pause-menu Load")
+	var clicked := false
+	last_click_why = ""
+	var opened := await _open_pause_menu()
+	var listed := false
+	if opened:
+		listed = await _click_control(main.pause_menu.load_button)
+	if listed:
+		await frames(2)
+		clicked = await _click_control(main.pause_menu.slots.load_button(slot))
+	if not clicked:
+		out["via"] = "api"
+		_fallback(i, _no_response("the pause menu's Load or the slot's Load button"))
+		var j := _begin(PlaytestReport.KIND_API, "MainShell.load_in_game")
+		var paused := main.flow.is_in(ShellFlow.State.PAUSED) or main.pause()
+		var err: Error = main.load_in_game(slot) if paused else ERR_UNAVAILABLE
+		_end(j, err == OK, error_string(err))
+	var ok := await _wait_playing(LOAD_TIMEOUT_S)
+	out["ok"] = ok
+	out["map"] = current_map()
+	if ok:
+		_ledger_baseline()
+	_end(i, ok, "%s in %s" % [slot, out["map"]])
 	return out
 
 
@@ -637,38 +784,61 @@ func type_text(text: String) -> void:
 
 
 ## Clicks a Control with the mouse: a Control, a node path ("/root/...", or "./..." relative to the main scene) or a
-## text (the topmost visible control whose text is exactly it, else contains it, buttons first). Returns {"ok", "control"}.
-## Await it.
+## text (the topmost visible control whose text is exactly it, else contains it, buttons first). Only what a player
+## can see and reach is clicked: a control off the screen (its centre outside the viewport's visible rect) or covered
+## by another control (the GUI finds another control under the pointer) is refused, the step fails with the reason
+## and a failed check "a player can click ..." records it, headless and windowed alike (seen_reason,
+## covered_reason). A row a list clips is scrolled into view first (scroll_into_view). Returns {"ok", "control",
+## "why"}. Await it.
 func click(target: Variant) -> Dictionary:
 	var i := _begin(PlaytestReport.KIND_PLAY, "click", str(target))
 	var c := find_control(target)
 	if c == null:
-		_end(i, false, "no visible control matches")
-		return {"ok": false, "control": ""}
+		var why := last_click_why if last_click_why != "" else "no visible control matches"
+		_end(i, false, why)
+		if last_click_why != "":
+			check("a player can click %s" % (_control_text(target) if target is Control and is_instance_valid(target)
+				else str(target)), false, why)
+		return {"ok": false, "control": "", "why": why}
 	var path := str(c.get_path())
 	var ok := await _click_control(c)
-	_end(i, ok, path)
-	return {"ok": ok, "control": path}
+	if last_click_why != "":
+		_end(i, false, "%s: %s" % [path, last_click_why])
+		check("a player can click %s" % _control_text(c), false, last_click_why)
+		return {"ok": false, "control": path, "why": last_click_why}
+	_end(i, ok, "%s at %s" % [path, _rect_text(control_rect(c)) if is_instance_valid(c) else "(freed)"])
+	return {"ok": ok, "control": path, "why": "" if ok else "it did not react"}
 
 
-## The control `target` names (see click()), or null.
+## The control `target` names (see click()), or null. Null too when a player cannot reach it on the screen
+## (reach_reason: its centre outside the viewport's visible rect, unless a list on the screen can scroll it into view);
+## last_click_why then says why. A text search skips such controls and names them when nothing reachable matches.
 func find_control(target: Variant) -> Control:
+	last_click_why = ""
 	if target is Control:
-		return target if is_instance_valid(target) and (target as Control).is_visible_in_tree() else null
+		if not is_instance_valid(target) or not (target as Control).is_visible_in_tree():
+			return null
+		return _on_screen_or_why(target as Control)
 	var s := str(target)
 	if target is NodePath or s.begins_with("/root") or s.begins_with("./") or s.begins_with("%"):
 		var n := get_node_or_null(NodePath(s)) if s.begins_with("/") else (main.get_node_or_null(NodePath(s.trim_prefix("./"))) if main != null else null)
-		return n as Control if n is Control and (n as Control).is_visible_in_tree() else null
+		return _on_screen_or_why(n as Control) if n is Control and (n as Control).is_visible_in_tree() else null
 	var exact: Array[Control] = []
 	var partial: Array[Control] = []
+	var off_screen: PackedStringArray = []
 	for n in get_tree().root.find_children("*", "Control", true, false):
 		var c := n as Control
 		if not c.is_visible_in_tree() or not ("text" in c):
 			continue
 		var t := str(c.get("text"))
-		if t == s:
+		if t != s and not (s != "" and t.to_lower().contains(s.to_lower())):
+			continue
+		var why := reach_reason(c)
+		if why != "":
+			off_screen.append(why)
+		elif t == s:
 			exact.append(c)
-		elif s != "" and t.to_lower().contains(s.to_lower()):
+		else:
 			partial.append(c)
 	for group in [exact, partial]:
 		var best: Control = null
@@ -678,7 +848,86 @@ func find_control(target: Variant) -> Control:
 				best = c
 		if best != null:
 			return best
+	if not off_screen.is_empty():
+		last_click_why = "only off-screen controls match: " + "; ".join(off_screen)
 	return null
+
+
+## Why a player cannot reach `c` on the screen before any scrolling, or "": off_screen_reason(c), except that a
+## control a visible list (ScrollContainer) clips counts when that list's own centre is on the screen: a player
+## scrolls the row into view (a long Quest Log list runs past the bottom of the screen), and _click_control scrolls it
+## (scroll_into_view) and checks seen_reason before it presses.
+func reach_reason(c: Control) -> String:
+	var why := off_screen_reason(c)
+	if why == "":
+		return ""
+	var n: Node = c.get_parent()
+	while n != null:
+		if n is ScrollContainer and (n as ScrollContainer).is_visible_in_tree():
+			return "" if off_screen_reason(n as Control) == "" else why
+		n = n.get_parent()
+	return why
+
+
+## Why a player cannot see `c` on the screen, or "": its centre (where click() points) lies outside the viewport's
+## visible rect (get_viewport().get_visible_rect()). Headless runs dispatch GUI input at any coordinate, so without
+## this a click could press a button a windowed player cannot reach (the acceptance review's Skills window "Set key"
+## at y 948 of 900).
+func off_screen_reason(c: Control) -> String:
+	if c == null or not is_instance_valid(c):
+		return "the control is gone"
+	var vis := get_viewport().get_visible_rect()
+	var r := control_rect(c)
+	if vis.has_point(r.get_center()):
+		return ""
+	return "%s %s lies outside the visible screen %s (a player cannot see it)" % [_control_text(c), _rect_text(r), _rect_text(vis)]
+
+
+## Why a player cannot see `c` where it is now, or "": off the screen (off_screen_reason) or, inside a list, scrolled
+## out of the list's view (its centre outside a visible ScrollContainer it sits in; scroll_into_view runs first where
+## a player would scroll).
+func seen_reason(c: Control) -> String:
+	var why := off_screen_reason(c)
+	if why != "":
+		return why
+	var at := control_rect(c).get_center()
+	var n: Node = c.get_parent()
+	while n != null:
+		var sc := n as ScrollContainer
+		if sc != null and sc.is_visible_in_tree() and not control_rect(sc).has_point(at):
+			return "%s %s is scrolled out of sight in its list %s" % [_control_text(c), _rect_text(control_rect(c)),
+				_rect_text(control_rect(sc))]
+		n = n.get_parent()
+	return ""
+
+
+## Why a player cannot click `c` with the pointer at `at` where the GUI found `hovered` (PlaytestInput.hover), or "":
+## another control is the one under the pointer (a window, a panel or an overlay covers it).
+func covered_reason(c: Control, hovered: Control) -> String:
+	if hovered != null and is_instance_valid(hovered) and (hovered == c or c.is_ancestor_of(hovered)):
+		return ""
+	var by := "nothing (the pointer is over the world)" if hovered == null or not is_instance_valid(hovered) \
+		else "%s (%s)" % [_control_text(hovered), str(hovered.get_path())]
+	return "%s %s is covered: the control under the pointer is %s" % [_control_text(c), _rect_text(control_rect(c)), by]
+
+
+## The control's rect in viewport (canvas) coordinates, the space of get_viewport().get_visible_rect().
+static func control_rect(c: Control) -> Rect2:
+	return c.get_global_transform_with_canvas() * Rect2(Vector2.ZERO, c.size)
+
+
+func _on_screen_or_why(c: Control) -> Control:
+	last_click_why = reach_reason(c)
+	return c if last_click_why == "" else null
+
+
+static func _control_text(c: Control) -> String:
+	var t := str(c.get("text")) if "text" in c else ""
+	return "%s %s" % [c.get_class(), "'%s'" % t.left(40) if t != "" else String(c.name)]
+
+
+static func _rect_text(r: Rect2) -> String:
+	return "(%d, %d %dx%d)" % [roundi(r.position.x), roundi(r.position.y), roundi(r.size.x), roundi(r.size.y)]
 
 
 # =================================================================================================================
@@ -932,12 +1181,16 @@ func find_portal(portal_name: String) -> PortalDef:
 # =================================================================================================================
 
 ## The nearest live monster in the current map (horizontal distance), or null. opts: "mob_id", "max_dist_m"
-## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true).
+## (FIGHT_MAX_DIST_M), "exclude" (instance id -> true), "target" (a monster node: that one while it lives, e.g. the
+## one that just hit the player, never a namesake on another tier).
 func nearest_monster(opts: Dictionary = {}) -> Node3D:
 	var ms := monsters()
 	var p := player()
 	if ms == null or p == null:
 		return null
+	var forced: Variant = opts.get("target")
+	if forced is Node3D and is_instance_valid(forced) and bool((forced as Node3D).call("is_alive")):
+		return forced
 	var best: Node3D = null
 	var best_d := float(opts.get("max_dist_m", FIGHT_MAX_DIST_M))
 	var exclude: Dictionary = opts.get("exclude", {})
@@ -955,7 +1208,8 @@ func nearest_monster(opts: Dictionary = {}) -> Node3D:
 
 ## Picks the nearest live monster, walks up to it (over the routes when it is far or on another tier, straight at it
 ## when close), faces it and attacks with the attack key until it dies or `max_s` pass. Reach comes from the weapon's
-## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster.
+## canonical hit boxes and the monster's touch box (CombatReach, WorldScale.actor). opts: see nearest_monster, plus
+## "chase" (true; false: never walk over the routes after it, give up when it is far or on another tier).
 ## Returns {"ok" (killed), "target" (mob id), "attacks", "hits", "misses" (rolled MISS), "whiffs" (nothing in reach),
 ## "damage", "time_s", "why"}. Await it.
 func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dictionary:
@@ -1009,7 +1263,15 @@ func face_and_attack_nearest(max_s: float = 15.0, opts: Dictionary = {}) -> Dict
 			best_d = dist
 			best_t = game_s()
 		var stuck := game_s() - best_t > FIGHT_STUCK_S and dist > ideal
-		if dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
+		if not bool(opts.get("chase", true)) and (dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M):
+			# A fight back, not a hunt: no walk over the routes after a monster that is far or on another tier.
+			out["why"] = "out of reach without a chase (%.1f m away, %.1f m up/down)" % [dist, dy]
+			break
+		if stuck and not bool(opts.get("chase", true)):
+			# Close by and on this tier but not getting closer (a knockback, a prop): keep stepping straight at it.
+			best_d = INF
+			best_t = game_s()
+		elif dist > FIGHT_DIRECT_M or dy > FIGHT_TIER_DY_M or stuck:
 			if routed >= 3:
 				out["why"] = "could not reach the monster (%.1f m away, %.1f m up/down)" % [dist, dy]
 				break
@@ -1193,6 +1455,8 @@ func talk_to(npc_id: String) -> Dictionary:
 		_end(i, false, "a conversation is already open")
 		return read_dialogue()
 	var talks := func() -> bool: return _prompt_talks_to(npc_id)
+	# A walk ends where it may talk, or at the latest where the bodies would touch.
+	var talks_or_touching := func() -> bool: return _prompt_talks_to(npc_id) or npc_distance(npc) <= talk_min_gap()
 	var front := Vector3(npc.global_transform.basis.z.x, 0.0, npc.global_transform.basis.z.z)
 	front = front.normalized() if front.length() > 0.01 else Vector3.FORWARD
 	var candidates := 0
@@ -1225,7 +1489,7 @@ func talk_to(npc_id: String) -> Dictionary:
 					dead_heights.append(goal.y)
 					continue
 				tried += 1
-				var wr := await walk_to(goal, {"max_s": 25.0, "stop_when": talks})
+				var wr := await walk_to(goal, {"max_s": 25.0, "stop_when": talks_or_touching})
 				props = int(wr.get("props", 0))
 				best_gap = minf(best_gap, talk_gap(npc, player().global_position))
 				if not talks.call() and talk_gap(npc, player().global_position) <= TALK_LEAN_M:
@@ -1250,9 +1514,28 @@ func talk_to(npc_id: String) -> Dictionary:
 	var v := read_dialogue()
 	v["reached_over_props"] = props
 	v["leaned"] = leaned > 0
+	v["npc_distance_m"] = snappedf(npc_distance(npc), 0.01)
 	_end(i, ok, String(v.get("text", "")).left(80) + (" (reached over %d prop-top cells)" % props if props > 0 else "")
-		+ (" (after leaning in)" if leaned > 0 else ""))
+		+ (" (after leaning in)" if leaned > 0 else "") + " [%.2f m from the NPC]" % npc_distance(npc))
+	if npc_distance(npc) < talk_min_gap() - 0.05:
+		soft_check("talking to %s: the bodies stay apart" % String(npc.get("npc_name") if "npc_name" in npc else npc_id), false,
+			"%.2f m between the feet (at least %.2f m keeps the bodies apart)" % [npc_distance(npc), talk_min_gap()])
 	return v
+
+
+## Horizontal distance (m) from the player's feet to `npc`'s.
+func npc_distance(npc: Node3D) -> float:
+	var p := player()
+	if p == null or npc == null or not is_instance_valid(npc):
+		return INF
+	return Vector2(p.global_position.x - npc.global_position.x, p.global_position.z - npc.global_position.z).length()
+
+
+## The closest talk_to brings the feet to an NPC's: both body radii and TALK_BODY_AIR_M.
+func talk_min_gap() -> float:
+	var p := player()
+	var r := p.model.body_radius if p != null and p.model != null else 0.3
+	return r + NPC_BODY_RADIUS_M + TALK_BODY_AIR_M
 
 
 ## How far (m) the player's body standing at `feet` is from `npc`'s talk zone; <= 0 inside it. This is the game's rule
@@ -1282,19 +1565,20 @@ func talk_gap(npc: Node3D, feet: Vector3) -> float:
 
 
 ## Walks straight at `npc` with real movement input, as a player pressing into a counter: at most TALK_LEAN_S, and
-## only while the body keeps getting closer (0.5 s without a gain ends it) and until `talks` holds. Returns the
-## smallest talk_gap() reached.
+## only while the body keeps getting closer (0.5 s without a gain ends it), until `talks` holds, and never closer than
+## talk_min_gap() (the bodies do not overlap). Returns the smallest talk_gap() reached.
 func _lean_toward(npc: Node3D, talks: Callable) -> float:
 	var p := player()
 	var best := talk_gap(npc, p.global_position)
 	var tps := Engine.physics_ticks_per_second
 	var f0 := Engine.get_physics_frames()
 	var last_gain := f0
+	var min_gap := talk_min_gap()
 	while not bool(talks.call()) and Engine.get_physics_frames() - f0 < roundi(TALK_LEAN_S * tps) \
 			and Engine.get_physics_frames() - last_gain < tps / 2:
 		var to := npc.global_position - p.global_position
 		to.y = 0.0
-		if to.length() < 0.05 or p.is_dead() or not bool(session().call("is_idle")):
+		if to.length() <= min_gap or p.is_dead() or not bool(session().call("is_idle")):
 			break
 		input.set_move_world(to.normalized(), p.view_right, p.view_forward)
 		await get_tree().process_frame
@@ -1490,6 +1774,13 @@ func close_shop() -> bool:
 ## "console" step: setup, never play. Returns the console's answer. Await it.
 func console(cmd: String) -> String:
 	var i := _begin(PlaytestReport.KIND_CONSOLE, "console", cmd)
+	if is_strict():
+		# Strict mode: the command is refused (it never runs) and the run fails.
+		report.add_violation(phase, "console", cmd)
+		check("strict: no console command after %s" % String(report.strict.get("reason", "the strict step")), false,
+			"'%s' was refused" % cmd)
+		_end(i, false, "refused: strict mode")
+		return ""
 	var dbg := debug()
 	if dbg == null:
 		_end(i, false, "no Debug autoload")
@@ -1562,10 +1853,18 @@ func _fallback(i: int, why: String) -> void:
 	s["kind"] = PlaytestReport.KIND_API
 	s["fallback"] = why
 	print("PLAYTEST FALLBACK %s: %s" % [s["name"], why])
+	if is_strict():
+		report.add_violation(phase, "api", "%s: %s" % [s["name"], why])
+		check("strict: no api fallback after %s" % String(report.strict.get("reason", "the strict step")), false,
+			"%s: %s" % [s["name"], why])
 
 
-## Clicks a control with the mouse; true when it reacted (a button's `pressed`, else the pointer was over it).
+## Clicks a control with the mouse; true when it reacted (a button's `pressed`, else the pointer was over it). A
+## control a player cannot click is refused before any press, with the reason in last_click_why ("" otherwise): off
+## the screen or scrolled out of its list after scroll_into_view (seen_reason), or covered by another control once
+## the pointer is on it (covered_reason).
 func _click_control(c: Control) -> bool:
+	last_click_why = ""
 	if c == null or not is_instance_valid(c) or not c.is_visible_in_tree():
 		return false
 	# Decided before the click: a button often frees itself (and its screen) when pressed, and a freed object
@@ -1574,12 +1873,24 @@ func _click_control(c: Control) -> bool:
 	var button := c as BaseButton
 	if is_button and button.disabled:
 		return false
+	await scroll_into_view(c)
+	if not is_instance_valid(c):
+		return false
+	last_click_why = seen_reason(c)
+	if last_click_why != "":
+		return false
+	var at := c.get_global_transform_with_canvas() * (c.size * 0.5)
+	var hovered := await input.hover(at)
+	if not is_instance_valid(c):
+		return false
+	last_click_why = covered_reason(c, hovered)
+	if last_click_why != "":
+		return false
 	var fired := [false]
 	var cb := func() -> void: fired[0] = true
 	if is_button:
 		button.pressed.connect(cb)
-	var at := c.get_global_transform_with_canvas() * (c.size * 0.5)
-	var hovered := await input.click_at(at)
+	await input.press_release(at)
 	if is_button:
 		if is_instance_valid(button) and button.pressed.is_connected(cb):
 			button.pressed.disconnect(cb)
@@ -1587,11 +1898,59 @@ func _click_control(c: Control) -> bool:
 	return is_instance_valid(c) and is_instance_valid(hovered) and (hovered == c or c.is_ancestor_of(hovered))
 
 
+## Scrolls `c` into view the way a player does: while a ScrollContainer it sits in (a long Quest Log list) clips it,
+## mouse-wheel notches over that list toward it (at most SCROLL_MAX_NOTCHES each). Without it a row scrolled out of
+## sight would count as covered. Await it.
+func scroll_into_view(c: Control) -> void:
+	var n: Node = c.get_parent()
+	while n != null and is_instance_valid(c):
+		var sc := n as ScrollContainer
+		if sc != null and sc.is_visible_in_tree():
+			var last := INF
+			for _k in SCROLL_MAX_NOTCHES:
+				var box := control_rect(sc)
+				var r := control_rect(c)
+				var below := r.end.y - box.end.y
+				var above := box.position.y - r.position.y
+				if (below <= 0.5 and above <= 0.5) or not sc.get_v_scroll_bar().visible:
+					break
+				var gap := maxf(below, above)
+				if gap >= last:
+					break
+				last = gap
+				await input.wheel(box.get_center(), below > 0.5)
+		n = n.get_parent()
+
+
+## "<what> did not respond", with the reason when the last click refused its control (off the screen, covered).
+func _no_response(what: String) -> String:
+	return "%s did not respond%s" % [what, ": " + last_click_why if last_click_why != "" else ""]
+
+
+## Moves the pointer onto `c` (or `at`, a canvas point inside it) and returns "" when a player could click it there,
+## else why not (off the screen or scrolled out of its list: seen_reason; or another control under the pointer).
+## Without `at`, a row a list clips is scrolled into view first. The kit's double-click and drag use it before they
+## press. Await it.
+func pointer_onto(c: Control, at: Variant = null) -> String:
+	if c == null or not is_instance_valid(c) or not c.is_visible_in_tree():
+		return "the control is gone or hidden"
+	if not (at is Vector2):
+		await scroll_into_view(c)
+		if not is_instance_valid(c):
+			return "the control is gone"
+	var why := seen_reason(c)
+	if why != "":
+		return why
+	var p: Vector2 = at if at is Vector2 else control_rect(c).get_center()
+	var hovered := await input.hover(p)
+	return covered_reason(c, hovered) if is_instance_valid(c) else "the control is gone"
+
+
 func _fill_creation(char_name: String, gender: String, weapon_id: String, ap: Dictionary) -> String:
 	var cs := main.creation
 	var model := cs.model
 	if not await _click_control(cs.name_edit):
-		return "the name field did not take the click"
+		return _no_response("the name field")
 	if cs.name_edit.text != "":
 		await input.tap_key(KEY_END)
 		for _k in cs.name_edit.text.length():
@@ -1601,24 +1960,24 @@ func _fill_creation(char_name: String, gender: String, weapon_id: String, ap: Di
 		return "typing the name gave '%s'" % model.name
 	if ap.is_empty():
 		if not await _click_control(_find_text(cs, "Recommended")):
-			return "Recommended did not respond"
+			return _no_response("Recommended")
 	else:
 		if not await _click_control(_find_text(cs, "Clear")):
-			return "Clear did not respond"
+			return _no_response("Clear")
 		for stat: String in ap:
 			var plus := cs.find_child("Plus_%s" % stat, true, false) as Control
 			for _k in int(ap[stat]):
 				if not await _click_control(plus):
-					return "+ %s did not respond" % stat
+					return _no_response("+ %s" % stat)
 	if gender != "":
 		# The button that shows the gender's label (CreationScreen.GENDER_LABELS), as a player finds it.
 		var gb := _find_text(cs, String(CreationScreen.GENDER_LABELS.get(gender, gender.capitalize())))
 		var clicked := await _click_control(gb)
 		if not clicked:
-			return "the %s button did not respond" % gender
+			return _no_response("the %s button" % gender)
 	if weapon_id != "":
 		if not await _click_control(cs.find_child("Weapon_%s" % weapon_id, true, false) as Control):
-			return "the weapon %s button did not respond" % weapon_id
+			return _no_response("the weapon %s button" % weapon_id)
 	if gender != "" and model.gender != gender:
 		return "gender is %s" % model.gender
 	if weapon_id != "" and model.weapon_id != weapon_id:

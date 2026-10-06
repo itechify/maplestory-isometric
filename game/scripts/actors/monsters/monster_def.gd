@@ -28,6 +28,13 @@ const SPEED_MODEL := "walk_line_no_character_bonus"
 const HOP_APEX_CHARACTER := "character_base_jump"
 const WALK_CRAWL := "crawl"
 const WALK_BOUNCE := "bounce"
+## monsters/9.json hop_floor_rule: the spawn floor plus one hop above or below it ('Can hop to a floor above or below
+## its spawn point').
+const HOP_FLOOR_ONE_HOP := "spawn_floor_one_hop"
+## combat.json monster_knockback.airborne_hit: a knockback hit cancels the rest of a hop; the push runs while it falls.
+const AIRBORNE_CANCEL_HOP := "cancel_hop_then_push"
+## hop_floor(): the hop would take the jumper two floors from its spawn point.
+const NO_FLOOR := 1 << 30
 ## The shared adaptation table in data/misostory/monsters/ (a leading "_" marks a shared table, not a monster id).
 const SHARED_TABLE := "_shared"
 
@@ -56,9 +63,15 @@ var stand_s: float = 0.0
 var move_s: float = 0.0
 var hit_s: float = 0.0
 var die_fade_s: float = 0.0
-## Monster stagger (s) and push (m) when a hit reaches its KB threshold (CombatFormula + combat.json).
+## Monster stagger (s) and push (m) when a hit reaches its KB threshold. The stagger is the canonical record's own
+## stagger time when it has one (MeowDB's STAGGER field; combat.json monster_knockback.stagger_from_canonical_record),
+## else CombatFormula.monster_stagger_s (the canonical hit1 clip, then the fallback). stagger_source says which:
+## "canonical", "hit_animation" or "fallback".
 var stagger_s: float = 0.0
+var stagger_source: String = ""
 var knockback_m: float = 0.0
+## What a knockback hit does to a jumper in mid-hop (combat.json monster_knockback.airborne_hit).
+var airborne_hit: String = ""
 
 # --- adaptation (data/misostory/monsters/<id>.json) ---------------------------------------------------------------
 ## _library.glb asset ("" = procedural placeholder).
@@ -71,16 +84,23 @@ var capsule_radius_m: float = 0.0
 var capsule_height_m: float = 0.0
 var idle_s: Vector2 = Vector2.ZERO
 var walk_s: Vector2 = Vector2.ZERO
-var new_heading_chance: float = 0.0
+## Pacing ('Walks back and forth'): the chance to turn around on the pacing line after a stand, the run below which
+## two turns in a row turn the line itself, and the random offset (on top of 90 degrees) of that new line.
+var pace_reverse_chance: float = 0.0
+var pace_min_run_m: float = 0.0
 var turn_jitter_rad: float = 0.0
 var probe_ahead_m: float = 0.0
 var ledge_tolerance_m: float = 0.0
 var wall_probe_height_m: float = 0.0
+## Half-height of the spawn floor band ('Stays on its floor'; floor_range()). 0 = no floor limit.
+var floor_band_m: float = 0.0
 var provoked_chase_s: float = 0.0
 ## Jumpers only.
 var hop_interval_s: Vector2 = Vector2.ZERO
 var hop_apex_m: float = 0.0
 var hop_max_drop_m: float = 0.0
+## Which floors a jumper may use (HOP_FLOOR_ONE_HOP: its spawn floor and one hop above or below it).
+var hop_floor_rule: String = ""
 ## A hop may land at most this fraction of hop_apex_m above the feet.
 var hop_max_rise_apex_fraction: float = 0.0
 ## A falling monster lands on ground within this distance of its feet in one tick.
@@ -177,6 +197,30 @@ static func base_jump_px(movement: Dictionary) -> float:
 	return 0.0
 
 
+## The stagger time (s) a canonical monster record publishes (MeowDB's 'STAGGER 0.6 seconds', read from the live
+## pages into the record), or 0 when it has none. Accepted fields: `stagger_s` / `stagger_duration_s` (seconds),
+## `stagger_ms` / `stagger_duration_ms` (milliseconds), or `stagger` as seconds or {"seconds" | "s" | "ms" |
+## "duration_ms"}. Nothing is invented: a record without any of them returns 0 (the caller falls back to the clip).
+static func canonical_stagger_s(rec: Dictionary) -> float:
+	for k in ["stagger_s", "stagger_duration_s"]:
+		if typeof(rec.get(k, null)) in [TYPE_INT, TYPE_FLOAT]:
+			return maxf(float(rec[k]), 0.0)
+	for k in ["stagger_ms", "stagger_duration_ms"]:
+		if typeof(rec.get(k, null)) in [TYPE_INT, TYPE_FLOAT]:
+			return maxf(float(rec[k]) / 1000.0, 0.0)
+	var st: Variant = rec.get("stagger", null)
+	if typeof(st) in [TYPE_INT, TYPE_FLOAT]:
+		return maxf(float(st), 0.0)
+	if st is Dictionary:
+		for k in ["seconds", "s"]:
+			if typeof((st as Dictionary).get(k, null)) in [TYPE_INT, TYPE_FLOAT]:
+				return maxf(float(st[k]), 0.0)
+		for k in ["ms", "duration_ms"]:
+			if typeof((st as Dictionary).get(k, null)) in [TYPE_INT, TYPE_FLOAT]:
+				return maxf(float(st[k]) / 1000.0, 0.0)
+	return 0.0
+
+
 ## Duration in seconds of the canonical clip `clip` (0 when absent or a held pose).
 static func clip_s(rec: Dictionary, clip: String) -> float:
 	var anims: Variant = rec.get("animations", {})
@@ -189,6 +233,48 @@ static func clip_s(rec: Dictionary, clip: String) -> float:
 
 func is_jumper() -> bool:
 	return movement_kind == MOVEMENT_JUMP
+
+
+## The heights a monster that spawned with its feet at `spawn_y` may walk at on its spawn floor, as
+## Vector2(lowest, highest): the surface at spawn_y, widened to its spawn region's authored height band
+## [region_lo, region_hi] when spawn_y lies on that tier (within floor_band_m of it; a slot placed on another surface
+## keeps its own height only), plus floor_band_m either way. Unbounded (-INF, INF) when floor_band_m is 0. Pure: the
+## 'Stays on its floor' adaptation (monsters/_shared.json floor_band_m). A jumper's other floors: hop_floor().
+func floor_range(spawn_y: float, region_lo: float = NAN, region_hi: float = NAN) -> Vector2:
+	if floor_band_m <= 0.0:
+		return Vector2(-INF, INF)
+	var s_lo := spawn_y
+	var s_hi := spawn_y
+	if not is_nan(region_lo) and not is_nan(region_hi):
+		var rlo := minf(region_lo, region_hi)
+		var rhi := maxf(region_lo, region_hi)
+		if spawn_y >= rlo - floor_band_m and spawn_y <= rhi + floor_band_m:
+			s_lo = minf(s_lo, rlo)
+			s_hi = maxf(s_hi, rhi)
+	return Vector2(s_lo - floor_band_m, s_hi + floor_band_m)
+
+
+## The walking band of a floor whose surface is at height `y` (a jumper's floor above or below its spawn floor).
+func floor_band_at(y: float) -> Vector2:
+	if floor_band_m <= 0.0:
+		return Vector2(-INF, INF)
+	return Vector2(y - floor_band_m, y + floor_band_m)
+
+
+## Which floor a jumper standing on floor `index` (0 = its spawn floor, walking band `spawn_band`; +1 / -1 = a floor
+## one hop above / below it, walking band `band`) is on after a hop that lands at height `y1`: 0 when y1 is on its
+## spawn floor, `index` when y1 is on its current floor, +1 / -1 for a floor above / below its spawn floor reached
+## from the spawn floor itself, else NO_FLOOR (the hop would take it two floors from its spawn point). MeowDB 'Can
+## hop to a floor above or below its spawn point'; hop_floor_rule HOP_FLOOR_ONE_HOP (monsters/9.json). Without that
+## rule only the spawn floor and the current floor count.
+func hop_floor(index: int, band: Vector2, spawn_band: Vector2, y1: float) -> int:
+	if y1 >= spawn_band.x and y1 <= spawn_band.y:
+		return 0
+	if y1 >= band.x and y1 <= band.y:
+		return index
+	if hop_floor_rule == HOP_FLOOR_ONE_HOP and index == 0:
+		return 1 if y1 > spawn_band.y else -1
+	return NO_FLOOR
 
 
 func has_model() -> bool:
@@ -232,7 +318,16 @@ func _load_canonical(rec: Dictionary, db: ContentDB) -> void:
 	hit_s = clip_s(rec, "hit1")
 	var fade: Variant = rec.get("die_fade_ms", null)
 	die_fade_s = float(fade) / 1000.0 if fade != null else clip_s(rec, "die1")
-	stagger_s = CombatFormula.monster_stagger_s(stats, db)
+	var mk := CombatRules.of(db).adaptation("monster_knockback")
+	var canon_stagger := canonical_stagger_s(rec) if bool(mk.get("stagger_from_canonical_record", false)) else 0.0
+	if canon_stagger > 0.0:
+		stagger_s = canon_stagger
+		stagger_source = "canonical"
+	else:
+		stagger_s = CombatFormula.monster_stagger_s(stats, db)
+		stagger_source = "hit_animation" if String(mk.get("stagger_duration", "")) == "hit_animation" \
+			and stats.hit_animation_ms > 0 else "fallback"
+	airborne_hit = String(mk.get("airborne_hit", ""))
 	knockback_m = WorldScale.h(CombatFormula.monster_knockback_distance_px(db))
 	var movement := db.formula("movement")
 	gravity_mps2 = WorldScale.v(float((movement.get("knockback_airtime", {}) as Dictionary).get("gravity_px_per_s2", 0.0)))
@@ -267,11 +362,13 @@ func _load_adaptation(a: Dictionary, db: ContentDB) -> void:
 		errors.append("unknown movement_kind '%s'" % movement_kind)
 	idle_s = _range(a, "idle_s")
 	walk_s = _range(a, "walk_s")
-	new_heading_chance = _num(a, "new_heading_chance")
+	pace_reverse_chance = _num(a, "pace_reverse_chance")
+	pace_min_run_m = _num(a, "pace_min_run_m")
 	turn_jitter_rad = deg_to_rad(_num(a, "turn_jitter_deg"))
 	probe_ahead_m = _num(a, "probe_ahead_m")
 	ledge_tolerance_m = _num(a, "ledge_tolerance_m")
 	wall_probe_height_m = _num(a, "wall_probe_height_m")
+	floor_band_m = _num(a, "floor_band_m")
 	provoked_chase_s = _num(a, "provoked_chase_s")
 	fall_landing_tolerance_m = _num(a, "fall_landing_tolerance_m")
 	see_through_radius_m = _num(a, "see_through_radius_m")
@@ -299,6 +396,9 @@ func _load_adaptation(a: Dictionary, db: ContentDB) -> void:
 				errors.append("canonical jump_height_px_by_jump at base_jump missing")
 		else:
 			errors.append("unknown hop_apex '%s'" % apex)
+		hop_floor_rule = String(a.get("hop_floor_rule", ""))
+		if hop_floor_rule != HOP_FLOOR_ONE_HOP:
+			errors.append("unknown hop_floor_rule '%s'" % hop_floor_rule)
 
 
 func _num(a: Dictionary, key: String) -> float:

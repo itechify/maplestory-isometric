@@ -1042,7 +1042,7 @@
    "target": "1000000:in04",
    "inferred": false,
    "reverse": "1000000 in04 at (389,-688) -> 1000005:out00 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/7)",
-   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/portal/6 (raw v8 WZ: pn=out00 pt=2 tm=1000000 tn=in04). The parsed API JSON has portals[6]=null. Corroborated by /api/GMS/40/map/1000005 and by hidden-street 2005",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/portal/6 (raw v8 WZ: pn=out00 pt=2 tm=1000000 tn=in04). The parsed API JSON has portals[6]=null. Corroborated by /api/GMS/40/map/1000005",
    "tier": "T34"
   }
  ],
@@ -1608,7 +1608,7 @@
    "source": "raw v8 WZ object acc1/grassySoil/nature/13 in layer 0 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/0/obj/<n>); x,y = object origin; name = my identification from viewing the sprite"
   },
   {
-   "what": "background: one big leafy tree (back no.3) and a distant domed hill (back no.2); the hidden-street 2005 thumbnail shows the big tree at the east edge",
+   "what": "background: one big leafy tree (back no.3) and a distant domed hill (back no.2)",
    "x": -161,
    "y": -283,
    "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000005.img/back/3 (background-layer offset, not a world position)"

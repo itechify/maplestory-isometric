@@ -405,16 +405,49 @@ func test_rain_quiz_1018_inferred_answer() -> void:
 	assert_eq(character.quests.status("1018"), QuestLog.COMPLETED)
 
 
+## Rain's quiz 4 (1016) tells the player to sit on chairs and benches around the map; MisoStory has no map seats.
+## Its canonical wrong-answer and right-answer lines stay exactly as MeowDB has them, and each is followed by the
+## marked [MisoStory] system page about X and owned chairs (misostory/dialogue/19.json).
+func test_rain_quiz_1016_keeps_its_lines_and_adds_the_chair_hint() -> void:
+	character.level = 5
+	for q in ["1013", "1014", "1015"]:
+		character.quests.start(q, 0.0)
+		character.quests.complete(q, 0.0)
+	talk.talk("19")
+	talk.press("yes")
+	talk.close()
+	var quiz: Dictionary = db().quest("1016")["dialogue"]["on_completion"]["quiz"]
+	var v := talk.talk("19")
+	v = talk.choose(0)
+	assert_eq(v["text"], String(quiz["wrong_answer_responses"][0]["text"]), "the canonical wrong-answer line, unchanged")
+	v = talk.press("next")
+	assert_true(String(v.get("text", "")).begins_with("[MisoStory] Press X to sit on a chair you own"), "then the hint: %s"
+		% v.get("text", ""))
+	talk.close()
+	assert_true(character.quests.is_in_progress("1016"), "a wrong answer leaves the quiz in progress")
+	v = talk.talk("19")
+	v = talk.choose(int(quiz["correct_choice_index"]))
+	assert_eq(v["text"], String(quiz["correct_answer_response"]["text"]), "the canonical right-answer line, unchanged")
+	v = talk.press("next")
+	assert_true(String(v.get("text", "")).begins_with("[MisoStory] Press X"), "then the hint: %s" % v.get("text", ""))
+	assert_eq(character.quests.status("1016"), QuestLog.COMPLETED)
+	talk.close()
+
+
 # --- Heena / Sera chain with a lost mirror ---------------------------------------------------------------------
 
 func test_heena_sera_chain_with_lost_mirror() -> void:
 	var v := talk.talk("1")
 	assert_eq(v["title"], "Borrowing Sera's Mirror")
 	var pages := 1
+	var hints := 0
 	while v["type"] == "say":
 		v = talk.press("next")
 		pages += 1
-	assert_eq(pages, 4, "four On accept lines, the last is the Yes/No")
+		hints += 1 if String(v.get("text", "")).begins_with("[MisoStory]") else 0
+	assert_eq(pages, 5, "four On accept lines, the last is the Yes/No, and the MisoStory controls page after line 1 "
+		+ "(misostory/dialogue/1.json)")
+	assert_eq(hints, 1, "one marked [MisoStory] page")
 	v = talk.press("yes")
 	assert_true(_starts(v["text"], "Thank you. Sera is on the hill to the east"))
 	_read_to_end(v)
@@ -552,7 +585,22 @@ func test_townsfolk_pages_and_back() -> void:
 	assert_eq(talk.press("back")["text"], "Hello! I'm Robin.")
 
 
-func test_shanks_only_talks() -> void:
+## Shanks offers the voyage (Iteration Three departure boundary); the whole flow is in test_npc_shanks_departure.gd.
+func test_shanks_greets_with_his_voyage_line() -> void:
 	var v := talk.talk("15")
-	assert_eq(v["text"], "I'm the captain, dang it! Don't look down on me!")
-	assert_eq(v["buttons"], ["ok"])
+	assert_eq(v["text"], "I'll take you anywhere you want to go.", "canonical idle line 1, chosen by dialogue/15.json")
+	assert_eq(v["source"], "canonical/npcs/15.json#idle_chatter[1]")
+	assert_eq(v["buttons"], ["next"])
+
+
+## Contract C6: the canonical requirements these tests prove.
+func parity_keys() -> Dictionary:
+	return {
+		"test_sam_offer_accept_reminder_and_mai_turn_in": ["quest:1006", "npc:9", "npc:11"],
+		"test_roger_apple_full_conversation": ["quest:1002", "npc:3"],
+		"test_rain_quiz_1013_wrong_and_right": ["quest:1013", "npc:19"],
+		"test_rain_quiz_1018_inferred_answer": ["quest:1018"],
+		"test_heena_sera_chain_with_lost_mirror": ["quest:1000", "quest:1001", "npc:1", "npc:2"],
+		"test_pio_accept_line_shows_live_item_counts": ["quest:1012", "npc:18"],
+		"test_shop_greeting_then_open_shop": ["shop:maple-road-lucy", "shop:maple-road-pan"],
+	}

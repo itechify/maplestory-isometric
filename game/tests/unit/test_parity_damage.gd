@@ -3,6 +3,18 @@ extends ParityTestCase
 ## (game/tests/data/parity_vectors.json, docs/canonical/oracles.md).
 
 
+## Contract C6: every test replays MeowDB's own calculators (Definition of Done: MeowDB parity tests still pass).
+func parity_keys() -> Dictionary:
+	var out := {}
+	for t in ["test_physical_roll_explicit", "test_physical_roll_explicit_through_pipeline", "test_guide_lv30_warrior_damage_window",
+			"test_guide_lv30_warrior_window_through_stat_calculator", "test_defense_curve_and_final_clamp", "test_defense_ignore",
+			"test_magic_defense_curve", "test_final_clamp", "test_level_gap_scale", "test_crit_expectation"]:
+		out[t] = ["canon:meowdb-formula-parity"]
+	out["test_beginner_damage_vs_monster"] = ["canon:meowdb-formula-parity", "mechanic:player-damage-window"]
+	out["test_guide_beginner_starter_weapon_hits"] = ["canon:meowdb-formula-parity", "mechanic:player-damage-window"]
+	return out
+
+
 ## beginner_damage_vs_monster: basic attack vs the six Maple Island monsters, window (no crit) and default crit.
 func test_beginner_damage_vs_monster() -> void:
 	for v in vectors("beginner_damage_vs_monster"):

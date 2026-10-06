@@ -17,6 +17,18 @@ from . import materials as M
 from .scene_setup import ISO_PITCH
 
 STEP = 3.0  # plinth terrace step height
+# The plinth top's margin past the footprint on an edge that carries a trail: trails leave over a thin ring, not a
+# 4 m shelf, but the ring still reaches past the runtime's containment ring line (footprint + 1.0 m, MAP_ARCHITECTURE
+# 4.6). At 0.8 m with 6.4 m round corners it did not, and the Iteration Three stuck-region scan (docs/runtime/
+# STUCK_SCAN.md) found slots 2.3-2.6 m deep at the map corners beside those edges, between the plinth top and the ring
+# wall, that no jump climbs out of.
+# (1.2 m, with the cap's 0.28 m lip, stays inside every trail's flat junction exit, at least 1.5 m long.)
+THIN_MARGIN_M = 1.2
+# Every plinth corner covers the footprint corner pushed out this far on both axes: the farthest a body's centre gets
+# inside the ring (ring offset 1.0 m - body radius 0.3 m) plus 0.15 m, with CORNER_SLACK_M to spare for the outline's
+# resampling and smoothing (rounded_footprint(cover=...)).
+CORNER_COVER_M = 0.85
+CORNER_SLACK_M = 0.2
 
 
 # ---------------------------------------------------------------- helpers
@@ -55,9 +67,38 @@ def portal_sides(mid):
     return sides
 
 
-def rounded_footprint(mid, origins, margin, corner=6.0, seed=0, wobble_amt=1.2, front=None, sides=None):
+def corner_radius(m_a, m_b, r_default, cover=CORNER_COVER_M, slack=CORNER_SLACK_M):
+    """The radius of a rounded corner between two edges whose margins past the footprint are m_a and m_b: r_default,
+    or less where that arc would cut inside the footprint corner pushed out by `cover` on both axes (with `slack` to
+    spare). Measured from that cover point, the arc's centre lies (r - a, r - b) inward (a = m_a - cover,
+    b = m_b - cover), so the point is covered when (r - a)^2 + (r - b)^2 <= (r - slack)^2; the largest such r is the
+    quadratic's upper root (any smaller radius covers it too). A corner whose margin cannot reach the cover point (a
+    rim edge) keeps r_default."""
+    a, b = m_a - cover, m_b - cover
+    if a < slack or b < slack:
+        return r_default
+    p = a + b - slack
+    return min(r_default, p + math.sqrt(max(p * p - (a * a + b * b - slack * slack), 0.0)))
+
+
+def rounded_rect4(x0, y0, x1, y1, radii, seg=4):
+    """geo.rounded_rect with a radius per corner, in its corner order: (x1, y0), (x1, y1), (x0, y1), (x0, y0)."""
+    cap = min((x1 - x0) / 2, (y1 - y0) / 2) - 1e-3
+    pts = []
+    centres = [(x1, y0, -1, 1, -90), (x1, y1, -1, -1, 0), (x0, y1, 1, -1, 90), (x0, y0, 1, 1, 180)]
+    for (cx, cy, sx, sy, start), r in zip(centres, radii):
+        r = max(0.0, min(r, cap))
+        for k in range(seg + 1):
+            a = math.radians(start + 90 * k / seg)
+            pts.append((cx + sx * r + r * math.cos(a), cy + sy * r + r * math.sin(a)))
+    return pts
+
+
+def rounded_footprint(mid, origins, margin, corner=6.0, seed=0, wobble_amt=1.2, front=None, sides=None, cover=None):
     """front: margin on the local -y edge if different (e.g. a map whose front edge is the island cliff).
-    sides: {'left'|'right'|'front'|'back': margin} overrides per edge."""
+    sides: {'left'|'right'|'front'|'back': margin} overrides per edge.
+    cover: when set, no corner is rounder than lets it cover the footprint corner pushed out by `cover` on both axes
+    (corner_radius): plinth() passes CORNER_COVER_M, so no corner leaves a slot inside the containment ring."""
     m = LY.MAPS[mid]
     o = origins[mid]
     sm = dict(sides or {})
@@ -65,7 +106,13 @@ def rounded_footprint(mid, origins, margin, corner=6.0, seed=0, wobble_amt=1.2, 
         sm["front"] = front
     ml, mr = sm.get("left", margin), sm.get("right", margin)
     mf, mbk = sm.get("front", margin), sm.get("back", margin)
-    poly = geo.rounded_rect(-ml, -mf, m["L"] + mr, m["D"] + mbk, corner + min(ml, mr, mf, mbk) * 0.5, seg=4)
+    r = corner + min(ml, mr, mf, mbk) * 0.5
+    if cover is None:
+        poly = geo.rounded_rect(-ml, -mf, m["L"] + mr, m["D"] + mbk, r, seg=4)
+    else:
+        radii = [corner_radius(mr, mf, r, cover), corner_radius(mr, mbk, r, cover), corner_radius(ml, mbk, r, cover),
+                 corner_radius(ml, mf, r, cover)]
+        poly = rounded_rect4(-ml, -mf, m["L"] + mr, m["D"] + mbk, radii, seg=4)
     yaw = LY.world_yaw(mid)
     wp = geo.transform_poly(poly, (o[0], o[1]), yaw)
     wp = geo.resample(wp, 3.0)
@@ -156,9 +203,10 @@ class World:
         if mid == 60000:
             style = "grass_sand"
         front = 0.3 if LY.RIM_EDGE.get(mid) == "front" else None
-        thin = {s: 0.8 for s in portal_sides(mid)}  # trails leave over a thin ring, not a 4 m shelf
+        thin = {s: THIN_MARGIN_M for s in portal_sides(mid)}  # trails leave over a thin ring, not a 4 m shelf
+        # every corner reaches the containment ring's corner: no slot between the plinth top and the ring wall
         poly0 = rounded_footprint(mid, self.origins, 4.0, seed=mid % 997, wobble_amt=0.0 if (front or thin) else 1.0,
-                                  front=front, sides=thin)
+                                  front=front, sides=thin, cover=CORNER_COVER_M)
         bottom0 = top - 2.6 if top > 2.6 else -1.5
         objs = geo.terrace(f"Plinth_{m['slug']}_Top", poly0, top, bottom0, self.coll_plinth, style=style, seed=mid,
                            wobble_amt=0.0, ground_index=self.ground)

@@ -109,6 +109,17 @@ func _npc(id: String, npc_name: String, pos: Vector3) -> Node3D:
 	return n
 
 
+## Contract C6: the interact indicator (the prompt names what F / Up / Z will do) and the NPC quest markers.
+func parity_keys() -> Dictionary:
+	return {
+		"test_interact_talks_to_the_nearest_npc": ["ui:interact-indicator"],
+		"test_climb_down_prompt_at_the_top": ["ui:interact-indicator"],
+		"test_a_nearer_portal_takes_interact": ["ui:interact-indicator"],
+		"test_drop_prompt_comes_from_the_loot_system": ["ui:interact-indicator"],
+		"test_presenters_tag_mark_bob_and_face_the_player": ["ui:quest-indicators"],
+	}
+
+
 func _near_npc(n: Node3D) -> void:
 	world.near = {"kind": "npc", "node": n, "id": String(n.get_meta("npc_id")), "distance": 1.0}
 

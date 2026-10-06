@@ -58,7 +58,7 @@ Do not mix canonical values from:
 - MapleRoyals
 - modern MapleStory
 - old private-server databases
-- archived Hidden Street pages
+- archived fan-site pages
 - random wikis
 - forum posts
 - remembered pre-Big-Bang values

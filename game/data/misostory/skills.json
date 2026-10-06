@@ -1,0 +1,32 @@
+{
+  "id": "skills",
+  "kind": "misostory_adaptation",
+  "description": "MisoStory values for the Beginner skills (Three Snails 0001000, Recovery 0001001, Nimble Feet 0001002) that MeowDB MS Classic does not publish. Every canonical number (SP, max level, MP and shell costs, fixed damage, HP totals, durations, cooldowns, speed bonus, cast positions, the Three Snails search band and its 800 ms action) is read from game/data/canonical/formulas/beginner.json, attack_speed.json, attack_styles.json and movement.json; this file only fills their documented gaps. Read by scripts/core/skills/skill_def.gd (SkillRules). See docs/runtime/COMBAT.md \"Beginner skills\".",
+  "recovery_heal": {
+    "tick_s": 5.0,
+    "distribution": "equal_ticks",
+    "reason": "Canonical: Recovery restores a fixed HP total (24 / 48 / 72) across its 30 s duration (beginner.json skills[0001001] output_note); MeowDB does not say how that total is spread (beginner.json gaps: 'How Recovery distributes its HP total over 30 s (tick interval): not documented'). MisoStory heals in equal ticks every 5 s, the first 5 s after the cast and the last as the effect ends: 6 ticks, so every level heals a whole number per tick (4 / 8 / 12) and exactly the canonical total. If a total does not divide evenly, tick k heals floor(total x k / n) - floor(total x (k - 1) / n), which still sums to the total. The heal runs whatever the player does (the skill 'recovers HP constantly'), but never above Max HP and never while dead.",
+    "verified": false
+  },
+  "buff_cast": {
+    "lockout_s": 0.0,
+    "reason": "Recovery and Nimble Feet: MeowDB gives no cast animation time ('Timing unavailable' on both skill pages; beginner.json gaps, attack_speed.json gaps). MisoStory does not invent one: the cast is instant, so it neither plants the player nor blocks the next action. Both skills cast on the ground, in the air or on a rope, as canonical cast_position says. Zero is a choice too, recorded here so it can be replaced when a timing is published.",
+    "verified": false
+  },
+  "three_snails": {
+    "whiff_consumes_costs": true,
+    "terrain_check": false,
+    "projectile_speed_mps": 18.0,
+    "projectile_size_m": 0.22,
+    "whiff_consumes_costs_reason": "MeowDB does not say what a Three Snails cast with no monster in its search band does. MisoStory follows the classic attack-skill behaviour: the cast happens (the shell flies its full 300 px range and hits nothing), and the shell and MP are spent, as a basic attack swings at nothing.",
+    "terrain_check_reason": "Canonical: 'Wall and platform interactions are not confirmed for this skill' (beginner.json skills[0001000] terrain_note, attack_styles.json gaps). MisoStory does not test walls or platforms between the player and the target, the same as the basic attack. There is no such test to switch on, so SkillRules accepts only false here (true is reported as an error). The search band itself is canonical (attack_styles.json three_snails_targeting and ranged_search_bands); its depth across the facing is the shared isometric attack depth (misostory/combat.json isometric_reach.attack_box_depth_px), the same isometric adaptation the basic attack uses.",
+    "projectile_reason": "Presentation only. The hit is resolved when the shell is thrown (the damage number appears at once, as for a basic attack), because MeowDB publishes no projectile speed and a delayed hit would let the target move or die in flight. The shell model flies from the player to the target at 18 m/s (the 7.5 m reach in about 0.4 s) and is 0.22 m across, read on the gameplay camera.",
+    "verified": false
+  },
+  "effects_on_death": {
+    "end_effects": true,
+    "keep_cooldowns": true,
+    "reason": "MeowDB does not document what happens to an active buff or a skill cooldown when the character dies. MisoStory ends the active skill effects at death (Nimble Feet's speed and the rest of Recovery's heal are lost), as classic MapleStory cleared buffs at death, so a heal-over-time never runs while the death notice is up. Cooldowns keep counting down: dying does not reset them.",
+    "verified": false
+  }
+}

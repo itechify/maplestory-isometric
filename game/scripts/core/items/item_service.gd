@@ -6,13 +6,15 @@ extends RefCounted
 ##   var items := ItemService.new(Game.character, Data.db, Events)
 ##   items.gain("270", 5)          # pickups, quest rewards, debug grants
 ##   items.use_item("270")         # quickslots, inventory double-click
+##   items.use_item("522")         # a chair (Setup): sits down, or stands up when already seated on it (Chairs.use)
 ##   items.equip("541") / items.unequip("weapon")
 ##   items.gain_mesos(12) / items.spend_mesos(50)
 ##
 ## `bus` is any Object with the Events signals (the Events autoload in the game, a fresh events.gd instance in tests,
 ## or null to stay silent). The service never looks the bus up itself. The one autoload it may consult is Game, and only
 ## in use_item, to ask whether the live character is dead (Consumables.default_dead_check); set `dead_check` to keep
-## it off the scene tree entirely.
+## it off the scene tree entirely. Using a chair also needs the seated-state owner, the player: set `seat`, or leave it
+## null and Chairs.seat_for finds the live player, but only when `character` is Game.character.
 ##
 ## Signals emitted (all from scripts/autoload/events.gd):
 ##   item_gained(item_id, quantity)   after items enter the inventory (quantity actually added)
@@ -32,6 +34,9 @@ var bus: Object
 ## true while dead. Invalid (the default) = Consumables.default_dead_check: the Game autoload's is_character_dead()
 ## when `character` is Game.character, else the canonical HP trigger alone.
 var dead_check: Callable = Callable()
+## Injection seam for using a chair: the seated-state owner (duck-typed PlayerController, see Chairs). null = the live
+## player through Chairs.seat_for.
+var seat: Object = null
 
 
 func _init(c: CharacterState, content: ContentDB, events_bus: Object = null) -> void:
@@ -175,8 +180,13 @@ func pickup(drop: Dictionary) -> Dictionary:
 # --- consumables ----------------------------------------------------------------------------------------------
 
 ## Uses one consumable (see Consumables.use for the result and codes; `dead` follows dead_check). A refused use
-## changes and emits nothing.
+## changes and emits nothing. A chair (ItemDef.is_chair, a Setup item) is not consumed: using it sits the player down or
+## stands it up (Chairs.use: {"action": "sit" | "stand"}). It emits nothing here; the player announces
+## Events.player_sat_down / player_stood_up.
 func use_item(item_id: String) -> Dictionary:
+	var def := ItemDef.of(item_id, db)
+	if def != null and def.is_chair():
+		return Chairs.use(character, item_id, db, seat, dead_check)
 	var hp_before := character.hp
 	var mp_before := character.mp
 	var res := Consumables.use(character, item_id, db, dead_check)

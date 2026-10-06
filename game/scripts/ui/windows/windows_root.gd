@@ -1,8 +1,8 @@
 class_name MisoWindowsRoot
 extends Control
-## Root of res://scenes/ui/windows.tscn: the character windows (Inventory, Equipment, Character Stats, Quest Log),
-## their hotkeys (toggle_inventory / toggle_equipment / toggle_stats / toggle_quests from Controls) and the shared
-## item tooltip. Windows are non-modal: the player keeps control while they are open. Each window registers with
+## Root of res://scenes/ui/windows.tscn: the character windows (Inventory, Equipment, Character Stats, Quest Log,
+## Skills), their hotkeys (toggle_inventory / toggle_equipment / toggle_stats / toggle_quests / toggle_skills from
+## Controls) and the shared item tooltip. Windows are non-modal: the player keeps control while they are open. Each window registers with
 ## the GameContext window stack when it opens and closes, so the shell's Esc ("menu") closes the newest first.
 ##
 ## Integration: the shell instantiates this scene under ctx.ui_root and calls setup(ctx). Without setup() (a
@@ -19,14 +19,18 @@ const ACTIONS := {
 	"toggle_equipment": "equipment",
 	"toggle_stats": "stats",
 	"toggle_quests": "quests",
+	"toggle_skills": "skills",
 }
 ## Where each window first appears (presentation only): Character Stats and the Quest Log side by side from the left
 ## edge, the Item Inventory (classic: bags on the right) and Equipment side by side from the right edge, each placed
 ## from the windows' measured widths so the four never overlap on the 1600 x 900 base viewport (or anything wider).
-## A window not listed here opens at FALLBACK_X.
+## The five windows are wider together than the screen, so the Skills window opens under the Quest Log (BELOW: window
+## -> the window it sits under, left-aligned, WINDOW_GAP lower, pulled up to stay on screen). A window not listed
+## anywhere opens at FALLBACK_X.
 const LEFT_ROW: PackedStringArray = ["stats", "quests"]
 ## Listed from the right edge inward.
 const RIGHT_ROW: PackedStringArray = ["inventory", "equipment"]
+const BELOW := {"skills": "quests"}
 const EDGE_MARGIN := 16.0
 const WINDOW_GAP := 10.0
 ## Top edge of a newly placed window, as a fraction of the viewport height.
@@ -51,6 +55,7 @@ const BUS_HANDLERS := {
 	"quest_forfeited": "_on_quest_event",
 	"map_entered": "_on_map_entered",
 	"game_loaded": "_on_game_loaded",
+	"skill_leveled": "_on_skill_leveled",
 }
 
 var env: MisoUiEnv = null
@@ -60,6 +65,7 @@ var inventory: MisoInventoryWindow
 var equipment: MisoEquipmentWindow
 var stats: MisoStatsWindow
 var quests: MisoQuestWindow
+var skills: MisoSkillsWindow
 var tooltip: MisoItemTooltip
 var _placed: Dictionary = {}
 var _configured_by_setup := false
@@ -74,7 +80,8 @@ func _init() -> void:
 	equipment = MisoEquipmentWindow.new()
 	stats = MisoStatsWindow.new()
 	quests = MisoQuestWindow.new()
-	for w: MisoWindow in [stats, quests, equipment, inventory]:
+	skills = MisoSkillsWindow.new()
+	for w: MisoWindow in [stats, quests, skills, equipment, inventory]:
 		windows[w.window_name] = w
 		add_child(w)
 		w.opened.connect(_on_window_opened)
@@ -164,6 +171,8 @@ func refresh_open() -> void:
 func refresh_quickslots() -> void:
 	if inventory.visible:
 		inventory.refresh()
+	if skills.visible:
+		skills.refresh()
 
 
 # --- tooltip host -----------------------------------------------------------------------------------------------
@@ -237,11 +246,15 @@ func _on_equipment_changed(_slot: String) -> void:
 
 
 func _on_stats_changed() -> void:
-	_refresh_if_open(["stats", "equipment"])
+	_refresh_if_open(["stats", "equipment", "skills"])
 
 
 func _on_vitals_changed(_v: int, _max_v: int) -> void:
 	_refresh_if_open(["stats"])
+
+
+func _on_skill_leveled(_skill_id: String, _level: int) -> void:
+	_refresh_if_open(["skills", "stats"])
 
 
 func _on_exp_gained(_amount: int, _source: String) -> void:
@@ -249,7 +262,7 @@ func _on_exp_gained(_amount: int, _source: String) -> void:
 
 
 func _on_leveled_up(_level: int) -> void:
-	_refresh_if_open(["stats", "quests"])
+	_refresh_if_open(["stats", "quests", "skills"])
 
 
 func _on_mesos_changed(_mesos: int, _delta: int) -> void:
@@ -274,6 +287,7 @@ func _on_game_loaded(_slot: String) -> void:
 
 func _on_character_replaced(_reason: String) -> void:
 	hide_item_tooltip()
+	skills.selected = ""
 	refresh_open()
 
 
@@ -284,10 +298,24 @@ func _on_window_opened(w: MisoWindow) -> void:
 	w.position = default_position(w.window_name)
 
 
-## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW).
+## Pixels at the bottom of the screen taken by the HUD's status bar (MisoUiEnv.bottom_bar_inset: found by layout among
+## the other UI roots); 0 without a HUD. MisoWindow.screen_area() keeps every window above it.
+func bottom_inset() -> float:
+	return MisoUiEnv.bottom_bar_inset(self)
+
+
+## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW / BELOW). Every window opens
+## inside the screen above the HUD's status bar (bottom_inset()); MisoWindow keeps it there as it grows.
 func default_position(window_name: String) -> Vector2:
 	var area := get_viewport_rect().size if is_inside_tree() else Vector2(1600, 900)
 	var y := roundf(area.y * TOP_FRACTION)
+	if BELOW.has(window_name):
+		var anchor := String(BELOW[window_name])
+		var above := default_position(anchor)
+		var below_y := above.y + window_size(anchor).y + WINDOW_GAP
+		var h := window_size(window_name).y
+		var bottom := area.y - (bottom_inset() + MisoWindow.BAR_GAP if bottom_inset() > 0.0 else EDGE_MARGIN)
+		return Vector2(above.x, roundf(maxf(y, minf(below_y, bottom - h))))
 	if window_name in LEFT_ROW:
 		var x := EDGE_MARGIN
 		for n in LEFT_ROW:
@@ -308,9 +336,14 @@ func default_position(window_name: String) -> Vector2:
 
 ## A window's laid-out width: built and filled (so the slot grid and the doll count), never below its minimum.
 func window_width(window_name: String) -> float:
+	return window_size(window_name).x
+
+
+## A window's laid-out size: built and filled, never below its minimum.
+func window_size(window_name: String) -> Vector2:
 	var w := window_by_name(window_name)
 	if w == null:
-		return 0.0
+		return Vector2.ZERO
 	if not w.visible:
 		w.refresh()
-	return maxf(w.size.x, w.get_combined_minimum_size().x)
+	return w.size.max(w.get_combined_minimum_size())

@@ -26,7 +26,7 @@ extends Node
 
 const MAIN_SCENE := "res://scenes/main.tscn"
 const MAP := "000000040"
-const TIMEOUT_FRAMES := 2400
+const TIMEOUT_FRAMES := CheckWait.DEFAULT_FRAMES
 
 var main: MainShell = null
 var out_dir := ""
@@ -115,6 +115,9 @@ func _debug_commands() -> void:
 	var c := game.character
 	var total_before := Progression.total_exp_at(c.level, c.exp, db)
 	var kills_before := ms.kills
+	# The roll context the kills roll under (contract C2), taken before them: a quest that changed state during the
+	# kills must not decide which drops were legal.
+	var ctx := DropRoller.context_for(c)
 	out = String(dbg.call("run", "kill all"))
 	# Read the slots at once: the global spawn tick (7.56 s) may legitimately refill them during the frames awaited below
 	# (a flaky failure under full-suite load before this was taken here).
@@ -145,10 +148,10 @@ func _debug_commands() -> void:
 		canonical = canonical and String(e[1]) == MAP
 		for d in e[0]:
 			var item := String((d as Dictionary).get("item_id", ""))
-			if item != "" and not _in_table(db, _killed, item):
+			if item != "" and not _in_table(db, _killed, item, ctx):
 				canonical = false
 	_check("drops announced (loot_dropped)", _loot.size() > 0, "%d kills" % _killed.size())
-	_check("every dropped item is in a killed monster's canonical drop table, on %s" % MAP, canonical)
+	_check("every dropped item is a rolling member of a killed monster's canonical drop record, on %s" % MAP, canonical)
 	await _frames(3)
 	_check("the loot system put every drop on the ground", loot_system != null and _spawned_drops == records,
 		"%d records, %d ground drops" % [records, _spawned_drops])
@@ -179,11 +182,13 @@ func _debug_commands() -> void:
 		"%d alive / %d capacity, %d live, %d debug" % [inst.alive_count(), inst.capacity, view.live_count(), debug_back])
 
 
-static func _in_table(db: ContentDB, killed: Array, item: String) -> bool:
+## True when `item` can drop from one of the `killed` monsters ([monster id, map id] pairs) under the roll context
+## `ctx`: a rolling member of its canonical drop record (DropRates.rolls_item), not merely a member, since a member the
+## sources leave unresolved never rolls and a quest-gated one rolls only while its quest is in progress.
+static func _in_table(db: ContentDB, killed: Array, item: String, ctx: Dictionary = {}) -> bool:
 	for k in killed:
-		for e in db.drop_table(String(k[0])).get("entries", []):
-			if String((e as Dictionary).get("item_id", "")) == item:
-				return true
+		if DropRates.rolls_item(String(k[0]), item, db, ctx):
+			return true
 	return false
 
 
@@ -427,9 +432,12 @@ func _info(text: String) -> void:
 	print("MONSTER_INFO " + text)
 
 
+## Waits until `cond` holds: `max_frames` frames, and a default wait at least CheckWait.DEFAULT_MIN_MS of wall time
+## (a headless frame can take under a millisecond; CheckWait).
 func _until(cond: Callable, max_frames: int = TIMEOUT_FRAMES) -> bool:
 	var n := 0
-	while not bool(cond.call()) and n < max_frames:
+	var t0 := Time.get_ticks_msec()
+	while not bool(cond.call()) and CheckWait.keep_waiting(n, max_frames, Time.get_ticks_msec() - t0):
 		await get_tree().process_frame
 		n += 1
 	return bool(cond.call())

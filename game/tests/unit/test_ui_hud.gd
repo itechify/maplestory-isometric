@@ -19,6 +19,17 @@ var nodes: Array = []
 var counts: Dictionary = {}
 
 
+## Contract C6: the Phase 12 feedback each test checks.
+func parity_keys() -> Dictionary:
+	return {
+		"test_level_up_flourish_and_ap_badge": ["ui:level-up-feedback", "ui:ap-notification", "ui:sp-notification"],
+		"test_map_banner_shows_street_and_name": ["ui:map-name-display"],
+		"test_trail_line_shows_the_destination_while_on_a_trail": ["ui:portal-cue"],
+		"test_notice_log_logs_every_gain_and_drops_only_repeated_notices": ["ui:item-pickup-feedback", "mechanic:inventory-full-warning"],
+		"test_quickslot_bind_use_decrement_and_persist": ["persistence:quickslots"],
+	}
+
+
 func before_each() -> void:
 	bus = load("res://scripts/autoload/events.gd").new()
 	counts = {}
@@ -145,6 +156,17 @@ func test_level_up_flourish_and_ap_badge() -> void:
 	var stat_button: Button = h.status.menu_buttons["stats"]
 	assert_eq(String(stat_button.theme_type_variation), "MisoAccentButton", "Stat button highlighted")
 	assert_true(("+%d" % c.ap) in stat_button.text, "AP on the Stat button: " + stat_button.text)
+	# The SP of the level-up (canonical: 1 per level-up at levels 2-10) on the Skill button and in the log.
+	assert_eq(c.sp, int(db().formula("beginner")["sp"]["sp_per_level"]), "one SP at level 2")
+	assert_eq(h.status.sp_available, c.sp, "SP shown while unspent")
+	var skill_button: Button = h.status.menu_buttons["skills"]
+	assert_eq(String(skill_button.theme_type_variation), "MisoAccentButton", "Skill button highlighted")
+	assert_true(("+%d" % c.sp) in skill_button.text, "SP on the Skill button: " + skill_button.text)
+	assert_true(_has_line(h, "You have %d SP to spend (press K)." % c.sp), "SP line")
+	c.sp = 0
+	bus.emit_signal("stats_changed")
+	assert_eq(h.status.sp_available, 0, "spent: no badge")
+	assert_eq(String(skill_button.theme_type_variation), "", "Skill button plain again")
 	h.flourish.advance(MisoLevelUpFlourish.DURATION_S + 0.1)
 	assert_false(h.flourish.is_playing(), "flourish ends")
 
@@ -415,7 +437,7 @@ func test_quickslot_bind_use_decrement_and_persist() -> void:
 	c.hp = 10
 	var h := _hud(c)
 	assert_true(MisoQuickslots.bind(h.env, "1", "270"), "bind a consumable")
-	assert_eq(String(c.quickslots.get("1")), "270", "binding stored in CharacterState.quickslots")
+	assert_eq(c.quickslots.get("1"), {"kind": "item", "id": "270"}, "a typed binding in CharacterState.quickslots (C3)")
 	assert_eq(h.status.quickslots.count_text("1"), "5", "count shown")
 
 	var res := h.use_quickslot("1")
@@ -538,6 +560,49 @@ func test_reparenting_keeps_the_hud_listening() -> void:
 	assert_eq(h.status.hp_gauge.value_label.text, "9 / 50", "listening again after re-entering the tree")
 
 
+## Active timed effects are visible (a UI adaptation: a buff showed nowhere but its quickslot's cooldown): one icon per
+## effect at the top right with the time left, the name and level in the tooltip, a sweep that grows as it runs out;
+## it counts down without events, and an ended effect's icon goes on effects_changed.
+func test_active_effects_show_with_their_time_left() -> void:
+	var c := _character()
+	var h := _hud(c)
+	assert_eq(h.effects.snapshot(), [], "no effect, no icon")
+	var feet := SkillDef.of("0001002", db())
+	var recovery := SkillDef.of("0001001", db())
+	EffectBook.add(c, "skill:0001002", "skill:0001002", 75.0, {"skill_id": "0001002", "level": 3, "duration_s": 100.0})
+	EffectBook.add(c, "skill:0001001", "skill:0001001", 30.0, {"skill_id": "0001001", "level": 1, "duration_s": 30.0})
+	bus.emit_signal("effects_changed")
+	var shown := h.effects.snapshot()
+	assert_eq(shown.size(), 2, "two icons")
+	if shown.size() == 2:
+		assert_eq([shown[0].skill_id, shown[1].skill_id], ["0001002", "0001001"], "in the order they were cast")
+		assert_eq(String(shown[0].name), feet.name, "the canonical skill name")
+		assert_eq(String(shown[0].time), "1:15", "75 s left")
+		assert_eq(String(shown[1].time), "30s", "30 s left")
+		assert_true(String(shown[0].tooltip).contains("%s  Lv. 3" % feet.name), String(shown[0].tooltip))
+		assert_true(String(shown[1].tooltip).contains(recovery.name), String(shown[1].tooltip))
+		assert_near(float(shown[0].sweep), 0.25, 1e-4, "a quarter of Nimble Feet has run")
+		assert_near(float(shown[1].sweep), 0.0, 1e-4, "Recovery just cast")
+	for cell: Control in h.effects.cells.values():
+		assert_eq(cell.mouse_filter, Control.MOUSE_FILTER_STOP, "a click on a buff icon is handled, never a swing")
+	# Remaining time counts down every tick without an event: the row follows on its own.
+	(EffectBook.find(c, "skill:0001002") as Dictionary)["remaining_s"] = 9.2
+	h.effects._process(MisoEffectsBar.REDRAW_S)
+	assert_eq(String(h.effects.snapshot()[0].time), "10s", "rounded up")
+	EffectBook.remove(c, "skill:0001001")
+	bus.emit_signal("effects_changed")
+	assert_eq(h.effects.snapshot().size(), 1, "the ended effect's icon is gone")
+	# A loaded character brings its own effects (game_loaded redraws everything).
+	var other := _character()
+	EffectBook.add(other, "skill:0001001", "skill:0001001", 12.0, {"skill_id": "0001001", "level": 2, "duration_s": 30.0})
+	h.configure(MisoUiEnv.isolated(other, db(), bus))
+	assert_eq(h.effects.snapshot().size(), 1)
+	assert_eq(String(h.effects.snapshot()[0].skill_id), "0001001", "the loaded character's effect")
+	assert_eq(MisoEffectsBar.time_text(0.2), "1s")
+	assert_eq(MisoEffectsBar.time_text(60.0), "1:00")
+	assert_eq(MisoEffectsBar.time_text(0.0), "0s")
+
+
 func test_without_character_or_content_nothing_breaks() -> void:
 	var h := MisoHud.new()
 	h.configure(MisoUiEnv.isolated(null, null, bus))
@@ -549,6 +614,33 @@ func test_without_character_or_content_nothing_breaks() -> void:
 	bus.emit_signal("map_entered", "000000040", "")
 	assert_false(h.use_quickslot("1").get("ok", true), "no character: nothing used")
 	assert_eq(h.status.level_label.text, "0", "no character: blank identity")
+
+
+## Acceptance review: seated on The Green Relaxer (a green chair on green grass) nothing on screen said so. Sitting
+## shows the seated cue above the HP gauge with the natural rate and the chair's bonus, both read from data; standing,
+## a load or a replaced character clears it, and the bar keeps its height either way.
+func test_seated_cue_shows_what_sitting_recovers() -> void:
+	var c := _character()
+	var h := _hud(c)
+	h.status.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var bar_h := h.status.get_combined_minimum_size().y
+	assert_false(h.status.is_seated_shown(), "standing: no cue")
+	var rule := NaturalRecoveryRule.from_db(db())
+	var bonus := Chairs.bonus("522", db())
+	assert_true(rule != null and int(bonus.get("hp", 0)) > 0, "the rule and the chair's canonical bonus exist")
+	bus.emit_signal("player_sat_down", "522")
+	var text := h.status.seat_label.text
+	assert_true(h.status.is_seated_shown() and text.begins_with("Seated"), "sitting shows the cue: '%s'" % text)
+	assert_true(text.contains("+%d HP / %d s" % [rule.hp_per_tick, int(rule.tick_s)]), "the natural rate: '%s'" % text)
+	assert_true(text.contains("%s +%d HP / %d s" % [String(db().item("522").get("name", "")), int(bonus.hp),
+		int(bonus.interval_s)]), "the chair's bonus: '%s'" % text)
+	h.status.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	assert_eq(h.status.get_combined_minimum_size().y, bar_h, "the bar keeps its height")
+	bus.emit_signal("player_stood_up", "move")
+	assert_false(h.status.is_seated_shown(), "standing up clears it")
+	bus.emit_signal("player_sat_down", "522")
+	bus.emit_signal("game_loaded", "slot1")
+	assert_false(h.status.is_seated_shown(), "a load stands the player up (the seated state is not saved)")
 
 
 func _parent() -> Node:

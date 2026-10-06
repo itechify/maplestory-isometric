@@ -1,13 +1,21 @@
 // MeowDB MS Classic fetch/cache/extract helpers (development-time only; the game never talks to MeowDB).
 //
-// - Cache-first: a page is fetched once and stored under tools/meowdb/.cache/ (git-ignored) with its retrieval time, and
-//   later runs re-read it from there; uncached pages are fetched live. --refresh re-fetches cached pages.
-// - >= 1.2 s between network requests across ALL processes. MeowDB's reuse policy: docs/canonical/README.md.
+// - Cache-only by default (Iteration Three brief: no repeat of the automated collection; decision D3-1). fetchUrl reads
+//   tools/meowdb/.cache/ (git-ignored) first. On a cache miss it serves a MeowDB API body captured by hand in a normal
+//   browser, when one exists for exactly that URL (tools/meowdb/captures/items_api.json, read through
+//   tools/sources/captures.mjs apiCaptureFor): the result then has fromCapture: true, `capture` (file, pointer,
+//   read_at note) and retrieved_at = the capture's read_at. Rendered-text page captures (monster, breakable and quest
+//   pages) are never served as pages; tools/sources/captures.mjs parses them for the drop join and cross-checks.
+//   Anything else throws "not cached". Network access needs MEOWDB_ALLOW_NETWORK=1 and should stay off unless MeowDB
+//   grants permission (their Terms forbid automated collection without it; see docs/canonical/README.md).
+// - When enabled: >= 1.2 s between network requests across ALL processes; --refresh re-fetches cached pages (and skips
+//   the capture fallback).
 // - Pages are Next.js App Router pages; the data lives in the React Server Component ("flight") payload pushed via
 //   self.__next_f.push([1, "..."]). rsc() decodes it; jsonAt()/objectsWithKey() pull plain JSON values out of it.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { apiCaptureFor } from '../sources/captures.mjs';
 
 export const AUTHORITY = 'MeowDB MS Classic';
 export const BASE_URL = 'https://meowdb.com/msclassic'; // single constant: MeowDB is rebranding to NiaDB (old links keep working)
@@ -45,6 +53,27 @@ async function gate() {
   }
 }
 
+/** True when MEOWDB_ALLOW_NETWORK=1 (see the header: keep it off unless MeowDB grants permission). */
+export function networkAllowed() {
+  return process.env.MEOWDB_ALLOW_NETWORK === '1';
+}
+
+/** The cache files of a page path or absolute meowdb.com URL ({htmlFile, metaFile}; they may not exist). */
+function cacheFiles(pathOrUrl) {
+  const url = pathOrUrl.startsWith('http') ? pathOrUrl : BASE_URL + pathOrUrl;
+  const key = cacheKey(url.replace(BASE_URL, '').replace(/\?/g, '_q_'));
+  return {
+    htmlFile: path.join(CACHE_DIR, key + (key.endsWith('.js') || key.endsWith('.json') ? '' : '.html')),
+    metaFile: path.join(CACHE_DIR, key + '.meta.json'),
+  };
+}
+
+/** True when a page path or URL is in the local cache (no network, no capture fallback). */
+export function hasCached(pathOrUrl) {
+  const { htmlFile, metaFile } = cacheFiles(pathOrUrl);
+  return fs.existsSync(htmlFile) && fs.existsSync(metaFile);
+}
+
 /** Fetch BASE_URL + p (e.g. "/maps/000000010"), cache-first. Returns {html, url, retrieved_at, fromCache}. */
 export async function fetchPage(p, opts = {}) {
   return fetchUrl(p.startsWith('http') ? p : BASE_URL + p, opts);
@@ -56,13 +85,22 @@ export async function fetchPage(p, opts = {}) {
  */
 export async function fetchUrl(url, { refresh = process.argv.includes('--refresh'), accept = 'text/html,application/xhtml+xml,application/json,*/*' } = {}) {
   fs.mkdirSync(CACHE_DIR, { recursive: true });
-  const key = cacheKey(url.replace(BASE_URL, '').replace(/\?/g, '_q_'));
-  const htmlFile = path.join(CACHE_DIR, key + (key.endsWith('.js') || key.endsWith('.json') ? '' : '.html'));
-  const metaFile = path.join(CACHE_DIR, key + '.meta.json');
+  const { htmlFile, metaFile } = cacheFiles(url);
   if (!refresh && fs.existsSync(htmlFile) && fs.existsSync(metaFile)) {
     const meta = JSON.parse(fs.readFileSync(metaFile, 'utf8'));
     const body = fs.readFileSync(htmlFile, 'utf8');
     return { html: body, text: body, url: meta.url, retrieved_at: meta.retrieved_at, fromCache: true };
+  }
+  if (!refresh) {
+    const cap = apiCaptureFor(url);
+    if (cap) return { html: cap.text, text: cap.text, url: cap.url, retrieved_at: cap.read_at, fromCache: false, fromCapture: true, capture: cap };
+  }
+  if (!networkAllowed()) {
+    // MeowDB's Terms of Service forbid automated collection without permission, and its Content Reuse Policy
+    // (https://meowdb.com/reuse) asks that bulk collection be cleared with contact@meowdb.com first. The Iteration Three
+    // brief also forbids repeating the automated collection, so the extractors are cache-only; newer facts come in as
+    // manual captures (tools/meowdb/captures/). See docs/canonical/README.md before enabling network access.
+    throw new Error(`not cached: ${url} (network access is disabled; see docs/canonical/README.md)`);
   }
   for (let attempt = 1; attempt <= 4; attempt++) {
     await gate();

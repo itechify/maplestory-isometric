@@ -716,7 +716,7 @@
    "target": "1010002:west00",
    "inferred": false,
    "reverse": "1010002 west00 at (-492,275) -> 1010004:east00 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010002.img/portal/2)",
-   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010004.img/portal/11 (raw v8 WZ: pn=east00 pt=2 tm=1010002 tn=west00). The parsed API JSON has portals[3]=null because the API orders portals differently. Corroborated by /api/GMS/40/map/1010004 and by hidden-street 2005, which lists 'Small Field of Flowers' with a single connection, 'House in Townstreet'",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001010004.img/portal/11 (raw v8 WZ: pn=east00 pt=2 tm=1010002 tn=west00). The parsed API JSON has portals[3]=null because the API orders portals differently. Corroborated by /api/GMS/40/map/1010004",
    "tier": "T0"
   }
  ],
@@ -1216,7 +1216,6 @@
  "notes": [
   "No left/right edge exits: rim walls stop at x=-1029/849 and the basin walls run down to y=780; exactly one non-spawn portal (east00 on the rim). Dead-end side map reached from Amherst Townstreet.",
   "mobRate 1.2 (v8 JSON): faster respawn than the other three maps (1.0).",
-  "hidden-street 2005 calls this map 'Small Field of Flowers' and Amherst Townstreet 'House in Townstreet'.",
   "A modern 'MapleStory Classic' database (meowdb.com/msclassic/maps/000001014) lists 34 spawns including Orange Mushroom. That differs from v8 (43 spawns, no Orange Mushroom), so it is not used."
  ]
 }

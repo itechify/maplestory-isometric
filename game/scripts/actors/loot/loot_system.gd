@@ -210,7 +210,9 @@ func spawn_drops(drops: Array, world_position: Vector3, map_id: String = "") -> 
 		if origin_hit != INF:
 			landing = _landing(world_position, points[k], origin_ground)
 		_seq += 1
-		rec[LootPickupRules.UID_KEY] = "%s:%d:%d" % [st.map_id, Time.get_ticks_usec() % 1000000007, _seq]
+		# Unique within the session (the sequence never restarts while a parked map can hold older records; a load and
+		# a new session start every map fresh) and the same in every run of one seed: no wall-clock time in it.
+		rec[LootPickupRules.UID_KEY] = "%s:%d" % [st.map_id, _seq]
 		rec[LootPickupRules.POS_KEY] = LootPickupRules.encode_pos(_to_local(landing))
 		st.add_drop(rec)
 		_spawn_node(rec, landing, from, true)
@@ -431,13 +433,15 @@ func _register_debug_commands() -> void:
 	var dbg := WorldUiServices.autoload("Debug")
 	if dbg == null or not dbg.has_method("register_command"):
 		return
-	dbg.call("register_command", "loot", "loot <owner_id> [kills]: roll an owner's drop table at the player's feet", _cmd_loot)
+	dbg.call("register_command", "loot", "loot <owner_id> [kills]: roll an owner's drop record at the player's feet (quest-gated drops follow the character's quests)", _cmd_loot)
 	dbg.call("register_command", "drop_item", "drop_item <item_id> [qty]: put an item on the ground at the player's feet", _cmd_drop_item)
 	dbg.call("register_command", "drop_mesos", "drop_mesos <amount>: put mesos on the ground at the player's feet", _cmd_drop_mesos)
 
 
 func _feet_or_origin() -> Vector3:
-	return player.global_position if player != null and is_instance_valid(player) else global_position
+	if player != null and is_instance_valid(player) and player.is_inside_tree():
+		return player.global_position
+	return global_position if is_inside_tree() else position
 
 
 func _cmd_loot(args: PackedStringArray) -> String:
@@ -446,8 +450,9 @@ func _cmd_loot(args: PackedStringArray) -> String:
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	var total := 0
+	var ctx := DropRoller.context_for(_character())
 	for k in maxi(1, int(args[1]) if args.size() > 1 else 1):
-		total += spawn_drops(DropRoller.roll(args[0], db, rng), _feet_or_origin()).size()
+		total += spawn_drops(DropRoller.roll(args[0], db, rng, ctx), _feet_or_origin()).size()
 	return "%d drops on the ground" % total
 
 

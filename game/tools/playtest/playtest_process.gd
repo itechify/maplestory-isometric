@@ -15,7 +15,7 @@ extends RefCounted
 ## of being started again.
 
 const RUNNER_SCENE := "res://tools/playtest/playtest_runner.tscn"
-const MAX_PHASES := 8
+const MAX_PHASES := 12
 ## Game seconds a child may run when opts has no "max_s" (the hard --quit-after cap; it ends the process without a
 ## report, so it sits far above any scenario budget: the runner's own watchdog ends a run first, with a report).
 const DEFAULT_CAP_S := 14400.0

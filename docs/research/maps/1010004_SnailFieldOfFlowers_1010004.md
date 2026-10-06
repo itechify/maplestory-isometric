@@ -15,7 +15,6 @@ Machine-readable companion: `docs/research/maps/1010004.struct.json`. It uses th
 - Sprites were viewed at `.../Data/Map/Obj/acc1.img/grassySoil/...`, `.../Obj/connect.img/rope/3/...` and `.../Back/grassySoil.img/...` in a temp folder only. All object names are my identification from those sprites.
 - Mob names and levels: `https://maplestory.io/api/GMS/8/mob/100100`, `/100101` and `/130101`.
 - Reference images, viewed but not copied: `ref_renders/v8_1010004_render.png` (tiles plus most objects, no ropes) and `v8_1010004_minimap.png`.
-- Hidden Street 2005, archived at `https://web.archive.org/web/20051210065940/http://www.hidden-street.net:80/maps/miamherst.php`. It calls this map "Small Field of Flowers" and lists one connection, "House in Townstreet".
 
 ## 0. Map card
 
@@ -101,7 +100,7 @@ The long rim vines stop 27-29 px above the mid-row surface. [memory] In MapleSto
 - The parsed v8 JSON has 12 entries: 11 `sp` (listed above, all over T0) and 1 `null` at index 3.
 - Raw v8 WZ `.../001010004.img/portal/11` gives **`east00`, type 2, at (559, -623), going to 1010002 `west00`**. It stands on the rim T0, 290 px from the slab's east end.
 - The reverse link is Amherst Townstreet `west00` at (-492, 275) → `1010004:east00` (raw WZ `.../001010002.img/portal/2`).
-- v40 parses the same portal. The Hidden Street 2005 thumbnail shows the portal glow on the rim at the upper right.
+- v40 parses the same portal.
 - **No edge exits.** The rim slab ends in walls at x-1029 and x849, the basin walls run to y780, and there is no other non-spawn portal. *(Verification pass: `docs/topology.json` now classes this exit as **edge_east**. There, edge_* is positional: the exit stands on a tier that reaches the map's east (the full-width rim x -1029..849) foothold limit. It does not mean a walk-off edge, so this line still holds.)*
 - The portal is named `east00`, and its target `west00` is the westernmost portal in Amherst Townstreet: x-492, against that map's `sp` at x-329 and `out00` at x-167 (raw WZ `.../001010002.img/portal/0..2`). So the field lies west of the Townstreet house [inference].
 
@@ -109,7 +108,6 @@ The long rim vines stop 27-29 px above the mid-row surface. [memory] In MapleSto
 - **Snail** (lv 1): 10.
 - **Blue Snail** (lv 2): 16.
 - **Red Snail** (lv 4): 17.
-- That matches Hidden Street 2005: "Snail, Blue Snail, Red Snail".
 
 | tier | Snail | Blue | Red | total |
 |---|---|---|---|---|

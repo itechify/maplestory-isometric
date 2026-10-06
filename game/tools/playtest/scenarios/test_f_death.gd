@@ -8,6 +8,11 @@ extends PlaytestScenario
 ## the respawn at the canonical returnMap's spawn (misostory/death.json respawn_player_spawn_index), the respawn HP/MP
 ## (misostory/death.json respawn_vitals), the save written at the death (read from disk while dead), the penalty taken
 ## exactly once across a quit and a reload, and inventory, equipment, mesos and quest state diffed before and after.
+## Natural HP recovery runs on top (contract C4, the owner's rule): the death pauses its clock and nothing resets it,
+## so a clock banked near a full interval ticks within a second of standing in town. Each death checks that the clock
+## holds while dead and survives the quit, and every HP read after a respawn or a Continue expects death.json's HP plus
+## exactly the natural ticks the clock shows (_natural_ticks); the old exact "HP 50" failed (HP 60) whenever the banked
+## clock was above about 9 s.
 ##
 ## Setup (marked): console warps, level/EXP/AP, items, mesos and quests; HP lowered to 1 (and MP below max) through
 ## Game.change_hp/change_mp as an api step, because the console has no command that sets HP. The killing blow is
@@ -197,7 +202,7 @@ func _phase3(d: PlaytestDriver) -> void:
 	# The OK path's saves: quit normally (alive) and check the last state in a new process.
 	var c := d.character()
 	d.carry["final"] = {"map": d.current_map(), "position": d.player().global_position, "exp": c.exp, "level": c.level,
-		"hp": c.hp, "mp": c.mp, "char": _char_subset(c)}
+		"hp": c.hp, "mp": c.mp, "char": _char_subset(c), "rest": _rest(c), "play": c.play_time_s}
 	await d.reload_process()
 
 
@@ -213,11 +218,14 @@ func _phase4(d: PlaytestDriver) -> void:
 		"%s, saved %s" % [d.current_map(), fin.get("map", "")])
 	d.check("[final] the same place", (s["position"] as Vector3).distance_to(fin.get("position", Vector3.INF)) < 1.0,
 		"%.2f m" % (s["position"] as Vector3).distance_to(fin.get("position", Vector3.INF)))
+	# HP as saved, plus the natural ticks since: the player stands still through the Quit Game and after the Continue,
+	# and the saved clock carries on (C3, C4).
+	var nat := _natural_ticks(d, float(fin.get("rest", _rest(c))), float(fin.get("play", c.play_time_s)))
 	d.check("[final] EXP, level, HP and MP as saved after the last respawn",
-		c.exp == int(fin.get("exp", -1)) and c.level == int(fin.get("level", -1)) and c.hp == int(fin.get("hp", -1))
-			and c.mp == int(fin.get("mp", -1)),
-		"EXP %d/%d, Lv %d/%d, HP %d/%d, MP %d/%d" % [c.exp, int(fin.get("exp", -1)), c.level, int(fin.get("level", -1)),
-			c.hp, int(fin.get("hp", -1)), c.mp, int(fin.get("mp", -1))])
+		c.exp == int(fin.get("exp", -1)) and c.level == int(fin.get("level", -1))
+			and _hp_matches(c.hp, int(fin.get("hp", -1)), StatCalculator.max_hp(c, d.db()), nat) and c.mp == int(fin.get("mp", -1)),
+		"EXP %d/%d, Lv %d/%d, HP %d/%d, MP %d/%d; %s" % [c.exp, int(fin.get("exp", -1)), c.level, int(fin.get("level", -1)),
+			c.hp, int(fin.get("hp", -1)), c.mp, int(fin.get("mp", -1)), nat["text"]])
 	_diff_char(d, "[final]", fin.get("char", {}), _char_subset(c))
 	d.check("[final] alive with input", not bool(s["dead_state"]) and bool(s["input_enabled"]) and not bool(s["modal"]),
 		"dead %s, input %s, modal %s" % [s["dead_state"], s["input_enabled"], s["modal"]])
@@ -362,6 +370,10 @@ func _die(d: PlaytestDriver, label: String, opts: Dictionary) -> Dictionary:
 		"gauge %d/%d '%s'" % [exp_g.current, exp_g.maximum, exp_g.value_label.text])
 	d.check("[%s] the character holds death.json's respawn vitals while dead (HP %d, MP %d)" % [label, int(e["hp"]),
 		int(e["mp"])], c.hp == int(e["hp"]) and c.mp == int(e["mp"]), "HP %d, MP %d" % [c.hp, c.mp])
+	# The natural HP clock (contract C4) as the death left it: paused while dead, never reset, so it carries on after
+	# the respawn and a tick can land right after it (see _natural_ticks).
+	rec["rest_dead"] = _rest(c)
+	rec["play_dead"] = c.play_time_s
 
 	# --- the save written at the death ---
 	var save := _read_save(d, String(pre["slot"]))
@@ -494,6 +506,7 @@ func _respawn_ok(d: PlaytestDriver, rec: Dictionary, started: bool = false) -> b
 	if started:
 		how = "after the jump key"
 	else:
+		_check_clock_held(d, rec)
 		var r: Dictionary = await d.click(death.notice.ok_button)
 		d.check("[%s] OK on the death notice (mouse click)" % label, bool(r["ok"]), str(r))
 	var back := await d.wait_until(func() -> bool:
@@ -517,6 +530,7 @@ func _probe_jump_key(d: PlaytestDriver, rec: Dictionary) -> bool:
 	var pc := d.combat()
 	var atk0 := int(pc.get("attacks"))
 	var focus := d.get_viewport().gui_get_focus_owner()
+	_check_clock_held(d, rec)
 	await d.tap(&"attack")
 	await d.tap(&"jump")
 	var went := await d.wait_until(func() -> bool:
@@ -550,6 +564,7 @@ func _probe_jump_key(d: PlaytestDriver, rec: Dictionary) -> bool:
 ## Quit while dead (the window's close request: Esc cannot open the pause menu in DEAD), then a new process.
 func _quit_while_dead(d: PlaytestDriver, rec: Dictionary) -> void:
 	d.note("[%s] quitting while dead: the pause menu is refused in DEAD, so the window is closed as a player would (WM close request -> MainShell.commit_death_on_quit)" % rec["label"])
+	_check_clock_held(d, rec)
 	await d.wait(0.5)
 	d.carry["pending"] = rec
 	await d.reload_process()
@@ -572,6 +587,10 @@ func _verify_reload(d: PlaytestDriver, rec: Dictionary) -> bool:
 	var twice := maxi(0, int(pre["exp"]) - 2 * int(e["loss"]))
 	d.check("[%s] after the reload the penalty is taken exactly once" % label, c.exp == once and c.level == int(pre["level"]),
 		"EXP %d: once %d, never %d, twice %d (Lv %d)" % [c.exp, once, none, twice, c.level])
+	if rec.has("rest_dead"):
+		var nat := _natural_ticks(d, float(rec["rest_dead"]), float(rec["play_dead"]))
+		d.check("[%s] the natural HP clock survives the quit while dead (C3 natural_recovery.hp_rest_s)" % label,
+			not (nat["ticks"] as Array).is_empty(), String(nat["text"]), ["persistence:natural-regen-timer"])
 	_check_alive_in_town(d, rec, "after the reload")
 	await d.screenshot("%s_reloaded_%s" % [label, d.current_map()])
 	return true
@@ -591,9 +610,12 @@ func _check_alive_in_town(d: PlaytestDriver, rec: Dictionary, how: String) -> vo
 	var off := _flat((s["position"] as Vector3) - (spawn.get("position", Vector3.INF) as Vector3)) if bool(spawn.get("ok", false)) else INF
 	d.check("[%s] %s: at the respawn spawn %d" % [label, how, int(e["spawn_index"])], off <= SPAWN_TOLERANCE_M,
 		"%.2f m from it, local %s" % [off, str(s.get("local"))])
-	d.check("[%s] %s: HP %d and MP %d per death.json" % [label, how, int(e["hp"]), int(e["mp"])],
-		c.hp == int(e["hp"]) and c.mp == int(e["mp"]),
-		"HP %d/%d, MP %d/%d" % [c.hp, int(s["max_hp"]), c.mp, int(s["max_mp"])])
+	# death.json's respawn HP, plus the natural ticks that landed since: the clock the death paused carries on (C4), so
+	# when it was banked near a full interval a tick lands within a second of the respawn (HP 60, not 50).
+	var nat := _natural_ticks(d, float(rec.get("rest_dead", _rest(c))), float(rec.get("play_dead", c.play_time_s)))
+	d.check("[%s] %s: HP %d and MP %d per death.json, plus the natural ticks since (C4)" % [label, how, int(e["hp"]),
+		int(e["mp"])], _hp_matches(c.hp, int(e["hp"]), int(s["max_hp"]), nat) and c.mp == int(e["mp"]),
+		"HP %d/%d, MP %d/%d; %s" % [c.hp, int(s["max_hp"]), c.mp, int(s["max_mp"]), nat["text"]])
 	d.check("[%s] %s: EXP %d (the death's, nothing more)" % [label, how, int(e["exp_after"])],
 		c.exp == int(e["exp_after"]) and c.level == int(pre["level"]), "EXP %d, Lv %d" % [c.exp, c.level])
 	var death := d.main.game_session.death
@@ -671,6 +693,58 @@ static func _vital(rule: Dictionary, current: int, maximum: int) -> int:
 		"full":
 			return maximum
 	return current
+
+
+## The natural HP clock (contract C3 natural_recovery.hp_rest_s): eligible seconds banked toward the next tick.
+static func _rest(c: CharacterState) -> float:
+	return float(c.natural_recovery.get("hp_rest_s", 0.0))
+
+
+## While dead the natural clock holds (contract C4: "dead" pauses it and nothing resets it). Checked once per death,
+## just before the respawn or the quit, against the value read at the death.
+func _check_clock_held(d: PlaytestDriver, rec: Dictionary) -> void:
+	if not rec.has("rest_dead") or bool(rec.get("held_checked", false)):
+		return
+	rec["held_checked"] = true
+	var c := d.character()
+	var now := _rest(c)
+	d.check("[%s] the natural HP clock holds while dead (C4: paused, never reset)" % rec["label"],
+		absf(now - float(rec["rest_dead"])) < 1e-6,
+		"%.3f s banked at the death, %.3f s now, %.2f s of play later" % [float(rec["rest_dead"]), now,
+			c.play_time_s - float(rec["play_dead"])], ["mechanic:natural-hp-regen"])
+
+
+## The natural HP ticks (recovery.json natural_hp, read through NaturalRecoveryRule) that can have landed since the
+## clock read `rest_then` s at `play_then` (CharacterState.play_time_s, which runs whenever the game is active and
+## unpaused, so it bounds the eligible time from above; it is saved and restored, so it spans a quit and a Continue).
+## The clock only grows by eligible time and drops by tick_s per tick, so n ticks landed when
+## n * tick_s + rest_now - rest_then is the eligible time, in [0, bound]. With a bound under one interval there is
+## exactly one n: 0, or 1 when the clock wrapped. No n means the clock moved in a way the rule forbids (a reset).
+## Returns {"ticks": [n...], "hp_per_tick", "text"}.
+func _natural_ticks(d: PlaytestDriver, rest_then: float, play_then: float) -> Dictionary:
+	var rule := NaturalRecoveryRule.from_db(d.db())
+	var c := d.character()
+	var now := _rest(c)
+	var bound := maxf(0.0, c.play_time_s - play_then) + 1.0 / 30.0  # two frames: physics and process order
+	var ticks: Array = []
+	if rule == null:
+		return {"ticks": ticks, "hp_per_tick": 0, "text": "recovery.json natural_hp is missing"}
+	var n := 0
+	while n * rule.tick_s + now - rest_then <= bound:
+		if n * rule.tick_s + now - rest_then >= -1e-4:
+			ticks.append(n)
+		n += 1
+	return {"ticks": ticks, "hp_per_tick": rule.hp_per_tick, "text": "natural clock %.3f s then, %.3f s now, at most %.2f s of play between: %s" % [
+		rest_then, now, bound, ("%s tick(s) of %d HP" % [" or ".join(PackedStringArray(ticks.map(func(t: int) -> String: return str(t)))),
+			rule.hp_per_tick]) if not ticks.is_empty() else "no tick count fits (the clock was reset?)"]}
+
+
+## True when `hp` is `base` plus one of the tick counts `nat` allows, never above `max_hp`.
+static func _hp_matches(hp: int, base: int, max_hp: int, nat: Dictionary) -> bool:
+	for n: int in nat["ticks"]:
+		if hp == mini(base + n * int(nat["hp_per_tick"]), max_hp):
+			return true
+	return false
 
 
 # =================================================================================================================

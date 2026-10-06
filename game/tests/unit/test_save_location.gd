@@ -9,6 +9,14 @@ var bus: Node
 var _fake_session_script: GDScript
 
 
+func parity_keys() -> Dictionary:
+	return {
+		"test_save_game_writes_the_map_session_location": ["persistence:current-map"],
+		"test_map_session_save_world_is_used_verbatim": ["persistence:current-map"],
+		"test_resume_numbers_come_back_as_floats": ["persistence:current-map"],
+	}
+
+
 func before_each() -> void:
 	root = "user://_tests/save_loc_%d_%d" % [Time.get_ticks_usec(), randi()]
 	bus = load("res://scripts/autoload/events.gd").new()

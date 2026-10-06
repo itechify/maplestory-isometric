@@ -8,6 +8,13 @@ extends Node3D
 ##   spark(pos)                    a hit flash on a monster
 ## box_px is CombatReach.attack_box_px(weapon, presentation, true, level): facing +x, y down, px. Meters through
 ## WorldScale.actor, as for the hit test (MeleeQuery).
+##
+## The hit area itself: swing, stab and punch also lay the attack box's footprint on the ground at the attacker's
+## feet (`last_reach`): from the box's near edge to its far edge along the facing (swingO2's starts 5 px behind the
+## feet), and `depth_px` deep across it, centred on the facing line (combat.json isometric_reach.attack_box_depth_px,
+## the isometric depth the hit test uses; MonsterSystem sets it). A monster is hit when its touch zone overlaps that
+## box, so a slash that reaches a monster beside the facing line is seen to reach it. The footprint fades with the
+## effect; it never changes what is hit.
 
 ## Presentation constants: lifetimes (s), colours and shapes.
 const SWING_LIFE_S := 0.28
@@ -18,6 +25,11 @@ const SLASH_COLOR := Color(1.0, 0.97, 0.85, 0.9)
 const STAB_COLOR := Color(0.85, 0.95, 1.0, 0.9)
 const PUNCH_COLOR := Color(1.0, 0.9, 0.55, 0.9)
 const SPARK_COLOR := Color(1.0, 0.95, 0.7, 0.95)
+## The hit-area footprint: a pale fill with a brighter rim, a little above the feet so it never fights the ground.
+const REACH_FILL := Color(1.0, 0.96, 0.8, 0.16)
+const REACH_RIM := Color(1.0, 0.96, 0.8, 0.55)
+const REACH_RIM_M := 0.045
+const REACH_LIFT_M := 0.03
 ## The slash plane is tilted this far from vertical about the facing axis, so it reads from the isometric camera in
 ## every facing (a vertical arc is edge-on when the player faces toward or away from the camera).
 const SLASH_TILT_DEG := 55.0
@@ -25,6 +37,11 @@ const ARC_FROM_DEG := 85.0
 const ARC_TO_DEG := -45.0
 const ARC_SEGMENTS := 18
 
+## Total depth (px) of an attack box across the facing (combat.json isometric_reach.attack_box_depth_px; set by
+## MonsterSystem). 0 = no hit-area footprint.
+var depth_px: float = 0.0
+## The hit-area footprint the last swing, stab or punch laid down (null before the first, or without depth_px).
+var last_reach: MeshInstance3D = null
 var _live: Array[Dictionary] = []
 
 
@@ -33,12 +50,14 @@ func swing(feet: Vector3, facing: Vector3, box_px: Rect2) -> Node3D:
 	var mesh := arc_mesh(g.near, g.far, deg_to_rad(ARC_FROM_DEG), deg_to_rad(ARC_TO_DEG), ARC_SEGMENTS, SLASH_COLOR)
 	var n := _spawn(mesh, feet, facing, g.center_h, SWING_LIFE_S, &"swing")
 	n.rotate_object_local(Vector3.BACK, deg_to_rad(SLASH_TILT_DEG))
+	_reach(feet, facing, box_px, SWING_LIFE_S)
 	return n
 
 
 func stab(feet: Vector3, facing: Vector3, box_px: Rect2) -> Node3D:
 	var g := _geometry(box_px)
 	var mesh := spike_mesh(g.near, g.far, maxf(0.06, (g.top_h - g.bottom_h) * 0.5), STAB_COLOR)
+	_reach(feet, facing, box_px, STAB_LIFE_S)
 	return _spawn(mesh, feet, facing, g.center_h, STAB_LIFE_S, &"stab")
 
 
@@ -49,6 +68,28 @@ func punch(feet: Vector3, facing: Vector3, box_px: Rect2) -> Node3D:
 	add_child(mi)
 	mi.global_position = feet + f * g.far + Vector3.UP * g.center_h
 	_live.append({"node": mi, "t": 0.0, "life": PUNCH_LIFE_S, "kind": &"punch"})
+	_reach(feet, facing, box_px, PUNCH_LIFE_S)
+	return mi
+
+
+## The hit-area footprint of `box_px` at `feet` along `facing` (see the class doc); null without depth_px.
+func _reach(feet: Vector3, facing: Vector3, box_px: Rect2, life: float) -> MeshInstance3D:
+	if depth_px <= 0.0 or box_px.size == Vector2.ZERO:
+		return null
+	var mesh := reach_mesh(WorldScale.actor(box_px.position.x), WorldScale.actor(box_px.end.x),
+		WorldScale.actor(depth_px * 0.5), REACH_FILL, REACH_RIM, REACH_RIM_M)
+	var mi := MeshInstance3D.new()
+	mi.name = "Reach"
+	mi.mesh = mesh
+	var mat := fx_material(false, false)
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	var f := _flat(facing)
+	mi.global_transform = Transform3D(Basis.looking_at(-f, Vector3.UP), feet + Vector3.UP * REACH_LIFT_M)
+	_live.append({"node": mi, "t": 0.0, "life": life, "kind": &"reach"})
+	last_reach = mi
 	return mi
 
 
@@ -87,6 +128,9 @@ func advance(delta: float) -> void:
 				gi.transparency = k * k * k
 			&"stab":
 				n.scale = Vector3(1.0, 1.0, lerpf(0.45, 1.0, sqrt(clampf(k * 2.0, 0.0, 1.0))))
+				gi.transparency = k * k
+			&"reach":
+				# The true size all along (it shows what the attack reaches); it only fades.
 				gi.transparency = k * k
 			_:
 				n.scale = Vector3.ONE * lerpf(0.5, 1.2, sqrt(k))
@@ -161,6 +205,24 @@ static func arc_mesh(r_in: float, r_out: float, a0: float, a1: float, segments: 
 		st.set_color(ci0); st.add_vertex(o0 * inner)
 		st.set_color(c1); st.add_vertex(o1 * r_out)
 		st.set_color(ci1); st.add_vertex(o1 * inner)
+	return st.commit()
+
+
+## A flat rectangle in the ground plane (local XZ, +Z forward): from `near` to `far` along +Z and `half_depth` to
+## either side, filled with `fill` and edged by a `rim_w` wide border in `rim` (the attack box's footprint).
+static func reach_mesh(near: float, far: float, half_depth: float, fill: Color, rim: Color, rim_w: float) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var w := minf(rim_w, minf((far - near) * 0.25, half_depth * 0.5))
+	var quad := func(x0: float, z0: float, x1: float, z1: float, c: Color) -> void:
+		for p in [Vector3(x0, 0, z0), Vector3(x1, 0, z0), Vector3(x1, 0, z1), Vector3(x0, 0, z0), Vector3(x1, 0, z1), Vector3(x0, 0, z1)]:
+			st.set_color(c)
+			st.add_vertex(p)
+	quad.call(-half_depth + w, near + w, half_depth - w, far - w, fill)
+	quad.call(-half_depth, near, half_depth, near + w, rim)
+	quad.call(-half_depth, far - w, half_depth, far, rim)
+	quad.call(-half_depth, near + w, -half_depth + w, far - w, rim)
+	quad.call(half_depth - w, near + w, half_depth, far - w, rim)
 	return st.commit()
 
 

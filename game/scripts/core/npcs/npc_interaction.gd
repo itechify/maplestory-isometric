@@ -7,6 +7,7 @@ extends RefCounted
 ##   var talk := NpcInteraction.new(Game.quests)          # Game.quests: the QuestService
 ##   talk.view_changed.connect(dialogue_ui.show_view)     # or use the returned views
 ##   talk.shop_requested.connect(func(shop_id, npc_id): shop_ui.open(shop_id))
+##   talk.departure_requested.connect(func(npc_id, departure): ...)   # Shanks: the end-of-island screen
 ##   var view := talk.talk("9")                           # player pressed interact on Sam
 ##   view = talk.press("next") / talk.press("yes") / talk.choose(view.choices[0].index)
 ##
@@ -19,6 +20,10 @@ signal view_changed(view: Dictionary)
 signal shop_requested(shop_id: String, npc_id: String)
 ## The conversation with `npc_id` ended.
 signal conversation_closed(npc_id: String)
+## A transport NPC's boarding reached the departure boundary (NpcTransport.depart; Shanks): `departure` is the
+## "departure_requested" effect {npc_id, route_index, route, flag, at, fare_charged, region, unfinished_quests}. The
+## shell shows the end-of-island screen (DepartureScreen).
+signal departure_requested(npc_id: String, departure: Dictionary)
 
 var service: QuestService
 var npcs: NpcCatalog
@@ -100,8 +105,11 @@ func _sink(effects: Array) -> void:
 	service.dispatch(effects)
 	for fx: Variant in effects:
 		var e := QuestJson.dict(fx)
-		if QuestJson.s(e.get("type")) == "open_shop":
-			shop_requested.emit(QuestJson.s(e.get("shop_id")), QuestJson.s(e.get("npc_id")))
+		match QuestJson.s(e.get("type")):
+			"open_shop":
+				shop_requested.emit(QuestJson.s(e.get("shop_id")), QuestJson.s(e.get("npc_id")))
+			"departure_requested":
+				departure_requested.emit(QuestJson.s(e.get("npc_id")), e.duplicate(true))
 
 
 func _on_runner_closed() -> void:

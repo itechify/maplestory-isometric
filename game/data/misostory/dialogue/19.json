@@ -1,0 +1,25 @@
+{
+  "npc_id": "19",
+  "name": "Rain",
+  "reason": "Rain's canonical quiz 4 lines (quest 1016: the wrong-answer line paired with 'Sit on a chair', and the right-answer tip) say to press the sit key on chairs and benches around the map; MisoStory has no map seats, and X sits on a chair the character owns (the acceptance review: a bench prop stands right next to Rain). The canonical pages are unchanged; after each of them a system page (speaker system, _system.json misostory_hint_chairs, marked [MisoStory]) says how sitting works here.",
+  "verified": false,
+  "nodes": {
+    "q1016.misostory_hint_wrong": {
+      "type": "say",
+      "speaker": "system",
+      "back": false,
+      "line": {"system": "misostory_hint_chairs"},
+      "next": ""
+    },
+    "q1016.misostory_hint_right": {
+      "type": "say",
+      "speaker": "system",
+      "line": {"system": "misostory_hint_chairs"},
+      "next": ""
+    }
+  },
+  "patch_nodes": {
+    "q1016.quiz_wrong.0": {"next": "q1016.misostory_hint_wrong"},
+    "q1016.quiz_right": {"next": "q1016.misostory_hint_right"}
+  }
+}

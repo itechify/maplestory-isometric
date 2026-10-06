@@ -1,8 +1,12 @@
 class_name PlayerVisual
 extends Node3D
 ## Presentation of the player (child "Visual" of player.tscn): the model, a blob shadow, the X-ray fill and the
-## see-through outline, facing, step smoothing, walk bob, invulnerability blink, climbing and death poses. Reads the
-## parent PlayerController every frame and never changes gameplay state.
+## see-through outline, facing, step smoothing, walk bob, invulnerability blink, climbing, death and sit poses. Reads
+## the parent PlayerController every frame and never changes gameplay state.
+##
+## Sit pose (PlayerController.is_seated(), contract C5): the proxy has no skeleton, so sitting is a simple pose: the
+## body settles SIT_DROP_M lower and leans back SIT_LEAN_DEG over SIT_EASE_S, onto a small procedural chair (the
+## "ChairProp" child of the player, turned with the facing). Presentation constants, not gameplay values.
 ##
 ## Model: Iteration One's Player_Proxy from the exported library (res://assets/world/_library.glb, node
 ## "Player_Proxy_001": feet at y = 0, front +Z) when present, else a procedural chibi placeholder.
@@ -28,6 +32,14 @@ const FILL_PRIORITY := 120
 const MARK_PRIORITY := 121
 const OUTLINE_PRIORITY := 127
 const OUTLINE_NAME := "SeeThroughOutline"
+## Sit pose: how far the body settles (m), how far it leans back (degrees) and how long the change takes (s).
+const SIT_DROP_M := 0.2
+const SIT_LEAN_DEG := 8.0
+const SIT_EASE_S := 0.12
+const CHAIR_NAME := "ChairProp"
+const CHAIR_COLOR := Color("#5f9e4a")
+## The chair's dark wooden frame around the green cushions (presentation: contrast against grass).
+const CHAIR_FRAME_COLOR := Color("#4a2c17")
 
 ## Use the library proxy when available (tests and tools can turn the whole visual off by not adding it).
 @export var use_library_model: bool = true
@@ -56,6 +68,9 @@ var _yaw: float = 0.0
 var _bob_phase: float = 0.0
 var _tilt: float = 0.0
 var _death_t: float = 0.0
+## Sit pose amount (0 standing .. 1 seated) and the chair under the player (built on the first sit).
+var sit_amount: float = 0.0
+var chair_prop: Node3D = null
 
 
 func _ready() -> void:
@@ -96,13 +111,65 @@ func _process(delta: float) -> void:
 	_tilt = lerpf(_tilt, lean, 1.0 - exp(-12.0 * delta))
 	# Death: fall over backwards.
 	_death_t = clampf(_death_t + (delta if player.is_dead() else -delta * 4.0) / 0.35, 0.0, 1.0)
-	position = player.presentation_offset + Vector3.UP * bob
-	rotation = Vector3(_tilt - _death_t * deg_to_rad(80.0), _yaw, 0.0)
+	step_sit(delta)
+	position = player.presentation_offset + Vector3.UP * bob + Vector3.DOWN * SIT_DROP_M * sit_amount
+	rotation = Vector3(_tilt - _death_t * deg_to_rad(80.0) - sit_amount * deg_to_rad(SIT_LEAN_DEG), _yaw, 0.0)
 	# Classic post-hit blink while invulnerable.
 	if model != null:
 		model.visible = not player.is_invulnerable() or int(Time.get_ticks_msec() / 70) % 2 == 0
 	if shadow != null:
 		shadow.visible = not player.is_climbing()
+
+
+# =================================================================================================================
+# Sit pose
+# =================================================================================================================
+
+## Eases sit_amount toward the player's seated state and shows the chair under a seated player (called from _process;
+## tests call it directly).
+func step_sit(delta: float) -> void:
+	var seated := player != null and player.is_seated()
+	sit_amount = move_toward(sit_amount, 1.0 if seated else 0.0, delta / SIT_EASE_S)
+	if seated and chair_prop == null and player != null:
+		chair_prop = _build_chair()
+		player.add_child(chair_prop)
+	if chair_prop != null:
+		chair_prop.visible = seated
+		chair_prop.rotation = Vector3(0.0, _yaw, 0.0)
+
+
+## A small four-legged chair with a back, in the model frame (front +Z, feet at y = 0): the seat sits under the
+## settled body and the back behind it.
+func _build_chair() -> Node3D:
+	var root := Node3D.new()
+	root.name = CHAIR_NAME
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = CHAIR_COLOR
+	# Acceptance fixes (UI and play package): a dark wooden frame (legs, seat rim, back rails) around the green
+	# cushions, so the chair reads on green grass (the acceptance review could not see it under the seated player).
+	var frame := StandardMaterial3D.new()
+	frame.albedo_color = CHAIR_FRAME_COLOR
+	var parts := [
+		[Vector3(0.0, 0.3, -0.05), Vector3(0.56, 0.08, 0.5), mat],     # seat cushion
+		[Vector3(0.0, 0.62, -0.28), Vector3(0.56, 0.56, 0.07), mat],   # back cushion
+		[Vector3(0.0, 0.25, -0.05), Vector3(0.64, 0.05, 0.58), frame],  # seat rim, wider than the cushion
+		[Vector3(0.0, 0.93, -0.28), Vector3(0.64, 0.06, 0.1), frame],   # back top rail
+	]
+	for x in [-0.31, 0.31]:
+		parts.append([Vector3(x, 0.6, -0.28), Vector3(0.05, 0.66, 0.09), frame])  # back side rails
+	for x in [-0.23, 0.23]:
+		for z in [-0.26, 0.16]:
+			parts.append([Vector3(x, 0.12, z), Vector3(0.07, 0.25, 0.07), frame])  # legs
+	for p: Array in parts:
+		var mi := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = p[1]
+		mi.mesh = box
+		mi.material_override = p[2]
+		mi.position = p[0]
+		root.add_child(mi)
+	_tag_meshes(root)
+	return root
 
 
 # =================================================================================================================

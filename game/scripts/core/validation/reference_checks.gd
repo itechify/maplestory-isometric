@@ -19,6 +19,12 @@ extends RefCounted
 ## Then come the structural checks the sweep cannot express: portals (destination map and destination portal),
 ## drop tables (owner and file reference) and a few two-sided consistency checks (warnings).
 
+## The pseudo-domain of skill references: skills are not records of their own but entries of the formulas records'
+## `skills[]` lists (formulas/beginner.json: Three Snails, Recovery, Nimble Feet), keyed by `skill_id`.
+const SKILLS := "skills"
+## Where a skill is defined (the definition is not a reference): formulas records, `skills[].skill_id`.
+const SKILL_DEFINITIONS := "skills"
+
 ## key -> canonical domain it references. Applies at any depth in canonical and misostory records.
 const TYPED_KEYS := {
 	"item_id": "items", "item_ids": "items", "item_cost_id": "items", "required_ammunition_item_id": "items",
@@ -30,15 +36,25 @@ const TYPED_KEYS := {
 	"quest_id": "quests", "quest_ids": "quests",
 	"shop_id": "shops", "shop_ids": "shops",
 	"breakable_id": "breakables", "breakable_ids": "breakables",
+	"skill_id": SKILLS, "skill_ids": SKILLS,
 }
+
+## The Phase 16 cross-reference categories (brief "Content Cross-Reference Validation"): every reference the checks
+## resolve is counted in stats as "refs.<category>", so a category that silently drops to zero after a schema change
+## is visible (test_data_validation.gd asserts each is above zero on the shipped data). The parity manifest uses the
+## same names as "xref:<category>" keys.
+const PHASE16_CATEGORIES := ["quest-reward-item", "quest-objective-item", "quest-monster", "quest-npc", "monster-drop",
+	"shop-item", "map-monster", "map-npc", "portal-destination", "skill-reference", "chair-item", "breakable-drop"]
 
 ## A typed key whose value is an object {"value": <id>, "reason": ..., "verified": ...} (the adaptation files' way of
 ## attaching a reason to one value) resolves <id>.
 const VALUE_KEY := "value"
 
-## Subtrees never swept, at any depth: provenance and commentary, which cite pages and ids outside the dataset.
+## Subtrees never swept, at any depth: provenance and commentary, which cite pages and ids outside the dataset
+## (including the per-property source objects of contract C1/C7: `provenance` blocks and a schema 3 drop entry's
+## membership_source and rarity source and the meso amount_source and sources_compared, which cite pages, not links).
 const EXCLUDED_KEYS := ["source", "field_sources", "cross_checks", "discrepancies", "notes", "gaps",
-	"change_history", "external"]
+	"change_history", "external", "provenance", "membership_source", "amount_source", "sources_compared"]
 
 ## Per-domain subtrees never swept (path from the record root). Items list every place in the whole game an item
 ## comes from or goes to (Victoria Island shops, monsters and quests), which is reference material, not a link
@@ -46,6 +62,7 @@ const EXCLUDED_KEYS := ["source", "field_sources", "cross_checks", "discrepancie
 const EXCLUDED_PATHS := {
 	"items": ["sources", "used_in"],
 	"maps": ["portals[].to_map_id"],  # resolved by _check_portals, which names the broken exit
+	"formulas": [SKILL_DEFINITIONS + "[].skill_id"],  # the definitions the skill pseudo-domain is built from
 }
 
 ## scope values: "" = must resolve; "quest_region" = out of scope when the owning entry's area_label/region is
@@ -95,6 +112,7 @@ var _pending: Dictionary = {}  # dedup key -> {severity, domain, id, message, ch
 var _pending_order: Array[String] = []
 var _skipped: Dictionary = {}  # dedup of out-of-scope lines
 var _link_remaps: Dictionary = {}  # quest id -> {raw MeowDB link id -> corrected id}
+var _skills: Dictionary = {}  # skill id -> PackedStringArray of the formulas records defining it
 
 
 func _init(content: ContentDB, into: ValidationReport) -> void:
@@ -103,6 +121,24 @@ func _init(content: ContentDB, into: ValidationReport) -> void:
 	for rule in EXPLICIT_RULES:
 		_rules["%s|%s" % [rule.domain, rule.path]] = rule
 	_quest_regions = _collect_quest_regions()
+	_skills = skill_definitions(db)
+
+
+## {skill id: [formulas record ids defining it]} from every formulas record's skills[] (the skill pseudo-domain).
+static func skill_definitions(content: ContentDB) -> Dictionary:
+	var out := {}
+	for formula_id in content.ids("formulas"):
+		for s in ValidationUtil.as_array(content.formula(formula_id).get(SKILL_DEFINITIONS, [])):
+			if s is Dictionary and s.get("skill_id", null) is String:
+				if not out.has(s.skill_id):
+					out[s.skill_id] = PackedStringArray()
+				out[s.skill_id].append(formula_id)
+	return out
+
+
+## True when `ref` is a record of `target` (or, for the skill pseudo-domain, a defined skill).
+func has_ref(target: String, ref: String) -> bool:
+	return _skills.has(ref) if target == SKILLS else db.has(target, ref)
 
 
 ## Runs every reference check over the canonical data.
@@ -123,7 +159,8 @@ func run() -> void:
 ## `use_rules` marks a canonical record: it applies EXPLICIT_RULES for `domain_label`, and a dialogue link to an id
 ## outside the dataset is skipped as out of scope instead of being a warning (MeowDB linking off-island content).
 func sweep(domain_label: String, id: String, record: Variant, excluded: Array = [], use_rules: bool = false) -> void:
-	var ctx := {"domain": domain_label, "id": id, "excluded": excluded, "use_rules": use_rules, "canonical": use_rules}
+	var ctx := {"domain": domain_label, "id": id, "excluded": excluded, "use_rules": use_rules, "canonical": use_rules,
+		"record": record}
 	_visit(ctx, record, "", {})
 
 
@@ -205,13 +242,47 @@ func _resolve_one(ctx: Dictionary, target: String, value: Variant, path: String,
 			"%s must be a string id (ids are strings exactly as MeowDB writes them), got %s" % [path, var_to_str(value)])
 		return
 	var ref: String = value
-	if db.has(target, ref):
+	if has_ref(target, ref):
+		var category := phase16_category(ctx, path, target)
+		if category != "":
+			report.count("refs." + category)
 		return
 	if _out_of_scope(scope, owner):
-		_skip("%s/%s: %s -> %s/%s (%s)" % [ctx.domain, ctx.id, path, target, ref, _scope_reason(scope, owner)])
+		_skip("%s/%s: %s -> %s/%s (%s)" % [ctx.domain, ctx.id, path, target, ref, _scope_reason(scope, owner)],
+			"%s.%s -> %s (%s)" % [ctx.domain, path, target, _scope_rule(scope)])
 		return
 	_note(ValidationReport.ERROR, "reference", ctx.domain, ctx.id,
 		"%s references %s '%s', which does not exist" % [path, target, ref])
+
+
+## The Phase 16 category (PHASE16_CATEGORIES) of a resolved reference at `path` in the record of `ctx`, or "".
+func phase16_category(ctx: Dictionary, path: String, target: String) -> String:
+	if target == SKILLS:
+		return "skill-reference"
+	match str(ctx.domain):
+		"quests":
+			match target:
+				"items":
+					return "quest-reward-item" if path.begins_with("rewards") else "quest-objective-item"
+				"monsters":
+					return "quest-monster"
+				"npcs":
+					return "quest-npc"
+		"drops":
+			if target == "items":
+				var rec: Variant = ctx.get("record", null)
+				var owner: Variant = rec.get("owner", null) if rec is Dictionary else null
+				var breakable := owner is Dictionary and ValidationUtil.same(owner.get("kind", null), "breakable")
+				return "breakable-drop" if breakable else "monster-drop"
+		"shops":
+			if target == "items":
+				return "shop-item"
+		"maps":
+			if target == "monsters":
+				return "map-monster"
+			if target == "npcs" and path.begins_with("npcs"):
+				return "map-npc"
+	return ""
 
 
 func _check_link(ctx: Dictionary, link: Dictionary, path: String) -> void:
@@ -236,6 +307,7 @@ func _check_link(ctx: Dictionary, link: Dictionary, path: String) -> void:
 		if linked != ref:
 			why = "MeowDB link %s, corrected by the quest's NPC dialogue, is outside the dataset" % ref
 		_skip("%s/%s: %s -> %s/%s (%s)" % [ctx.domain, ctx.id, path, target, linked, why],
+			"%s dialogue link -> %s (MeowDB link to content outside the dataset)" % [ctx.domain, target],
 			"link|%s|%s|%s|%s" % [ctx.domain, ctx.id, target, linked])
 		return
 	_note(ValidationReport.WARNING, "dialogue_link", ctx.domain, ctx.id,
@@ -287,6 +359,18 @@ func _out_of_scope(scope: String, owner: Dictionary) -> bool:
 			var label: Variant = owner.get("area_label", owner.get("region", null))
 			return label is String and label != "" and not _quest_regions.has(label)
 	return false
+
+
+## The out-of-scope rule a skipped reference is grouped under in the summary (no per-entry detail).
+static func _scope_rule(scope: String) -> String:
+	match scope:
+		"may_leave_dataset":
+			return "destination outside the dataset"
+		"maple_island_flag":
+			return "maple_island: false"
+		"quest_region":
+			return "a quest of another region"
+	return scope
 
 
 func _scope_reason(scope: String, owner: Dictionary) -> String:
@@ -355,6 +439,7 @@ func _check_portal(map_id: String, p: Dictionary) -> void:
 	if not db.has("maps", dest):
 		report.error("portal", "maps", map_id, "%s leads to map '%s', which does not exist" % [label, dest])
 		return
+	report.count("refs.portal-destination")
 	var dest_map: Dictionary = db.map(dest)
 	var to_portal: Variant = p.get("to_portal", null)
 	var derivation: Variant = p.get("to_portal_derivation", null)
@@ -612,11 +697,11 @@ func _note(severity: String, check: String, domain_label: String, id: String, me
 	_pending_order.append(key)
 
 
-## Lists `line` as skipped (out of scope), once per `dedupe` key (default: the line itself).
-func _skip(line: String, dedupe: String = "") -> void:
+## Lists `line` as skipped (out of scope) under `rule`, once per `dedupe` key (default: the line itself).
+func _skip(line: String, rule: String, dedupe: String = "") -> void:
 	var key := line if dedupe == "" else dedupe
 	if _skipped.has(key):
 		return
 	_skipped[key] = true
-	report.out_of_scope.append(line)
+	report.skip(line, rule)
 

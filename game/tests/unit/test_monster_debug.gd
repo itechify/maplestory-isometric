@@ -91,7 +91,7 @@ func test_drops_over_many_debug_kills_come_from_the_canonical_table() -> void:
 	rig.floor(30.0)
 	var table := {}
 	for e in db().drop_table("2").get("entries", []):
-		table[String((e as Dictionary).get("item_id", ""))] = true
+		table[str((e as Dictionary).get("item_id", ""))] = true  # [drops package] null for an unresolved member
 	for i in 40:
 		var m := rig.spawn("2", Vector3(-10 + i * 0.5, 0, 3))
 		m.debug_kill()

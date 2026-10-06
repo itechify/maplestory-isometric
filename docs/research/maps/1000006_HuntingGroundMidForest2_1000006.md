@@ -14,7 +14,6 @@ Machine-readable companion: `docs/research/maps/1000006.struct.json`. It uses th
 - Sprites were viewed at `.../Data/Map/Obj/acc1.img/midForest/...`, `.../darkWood/...` and `.../Back/grassySoil.img/...` in a temp folder only. All object names are my identification from those sprites.
 - Mob names and levels: `https://maplestory.io/api/GMS/8/mob/100100`, `/100101`, `/120100`, `/130101` and `/1210102`.
 - Reference images, viewed but not copied: `ref_renders/v8_1000006_render.png` and `v8_1000006_minimap.png`. This render includes the objects (trees, fences, flowers, door, ropes).
-- Hidden Street 2005, archived at `https://web.archive.org/web/20051210065940/http://www.hidden-street.net:80/maps/miamherst.php`. It calls this map "Hunting Ground in the Middle of the Forest II".
 
 ## 0. Map card
 
@@ -118,7 +117,7 @@ The sprites are `connect/rope/0` (hemp rope with a wooden peg top, visible in th
 - The parsed v8 JSON has 8 entries and no nulls: 7 `sp` (listed above) and **`out00`, type 2, at (133, -1346), going to 1000000 `in05`**. This is one of the connections already known before this brief.
 - Raw WZ `/portal/7` confirms it. The door object `door/grassySoil/door/0` stands at (130, -1395) on the face of block T12, and the render shows a wooden banded door there.
 - On the other side, `in05` is in The Field West of Amherst at (757, -747), up on that map's upper level, and links back to `1000006:out00`. Source: raw v8 WZ `https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/8`, also recorded in `1000000.struct.json`.
-- **No edge exits.** Both perimeter walls run to the map bottom. This is a dead-end pocket; Hidden Street lists only "Field West of Amherst".
+- **No edge exits.** Both perimeter walls run to the map bottom. This is a dead-end pocket off The Field West of Amherst.
 
 ## 3. Spawns
 - **Snail** (lv 1): 13.
@@ -126,7 +125,6 @@ The sprites are `connect/rope/0` (hemp rope with a wooden peg top, visible in th
 - **Shroom** (lv 2): 9.
 - **Red Snail** (lv 4): 6.
 - **Orange Mushroom** (1210102, lv 8): 6. It is the only lv-8 mob in the four maps briefed here.
-- That matches Hidden Street 2005: "Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom".
 
 | tier | Snail | Blue | Shroom | Red | Orange Mush. |
 |---|---|---|---|---|---|
@@ -172,7 +170,6 @@ The sprites are `connect/rope/0` (hemp rope with a wooden peg top, visible in th
 
 ### 4.3 Missing from the render
 - This render shows objects. It lacks only the background layers.
-- Hidden Street's 2005 thumbnail shows a grey, cloudy backdrop. The WZ data says blue-sky `grassySoil`, so I treat the thumbnail as darkened [inference].
 
 ## 5. What makes this map recognizable
 - You arrive on a **floating island with a door in a grass block**, high above an **autumn valley**.

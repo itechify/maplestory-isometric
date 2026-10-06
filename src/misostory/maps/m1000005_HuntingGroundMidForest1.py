@@ -427,20 +427,27 @@ def build(m):
     m.terrace("Canopy_T6", [(26.6, 25.6), (29.5, 25.2), (32.5, 25.6), (35.5, 25.2), (38.8, 25.5), (38.8, 37.0),
                             (26.0, 37.0)], top=T6, bottom=-0.5)
     _climb(m, "Ladder_T8_T6", 28.4, 24.9, T8, T6)
+    # (the slot between the branch's back edge and the canopy, west of the ladder, was a body-wide shaft 9-11 m deep
+    # to the forest floor; Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md: filled 0.2 m below T8)
+    m.terrace("Branch_Canopy_Slot_Fill", [(25.6, 24.4), (27.9, 24.4), (27.9, 25.7), (25.6, 25.7)], top=T8 - 0.2,
+              bottom=-0.5)
     m.terrace("Ledge_T4", [(30.4, 32.6), (33.4, 32.4), (36.4, 32.6), (36.4, 36.8), (30.4, 36.8)], top=T4,
               bottom=T6 - 0.5, style="grass_stone")
     _climb(m, "Ladder_T6_T4", 33.4, 32.0, T6, T4)
 
     # ================= top row along the back rim (T5 <- T3 <- T2 <- T1 <- T0 summit) =================
-    m.terrace("Top_T5", [(-0.8, 30.6), (4.0, 30.2), (8.0, 30.5), (11.6, 30.8), (11.6, 41.8), (-0.8, 41.8)], top=T5,
+    # (each reaches the back edge + 0.8 m: ending at y 41.8 they left a 1.2 m plinth-level strip between them and the
+    # containment ring, 10-13 m below, that a player fell into off their back edges and could not leave;
+    # Iteration Three stuck-region scan, docs/runtime/STUCK_SCAN.md)
+    m.terrace("Top_T5", [(-0.8, 30.6), (4.0, 30.2), (8.0, 30.5), (11.6, 30.8), (11.6, 42.8), (-0.8, 42.8)], top=T5,
               bottom=-0.5)
     _climb(m, "Rope_T7_T5", 3.6, 30.1, T7, T5, kind="rope")
-    m.terrace("Top_T3", [(11.0, 34.4), (15.0, 34.1), (20.6, 34.5), (20.6, 41.8), (11.0, 41.8)], top=T3, bottom=-0.5)
-    m.terrace("Top_T2", [(20.0, 35.2), (23.6, 35.0), (23.6, 41.8), (20.0, 41.8)], top=T2, bottom=-0.5,
+    m.terrace("Top_T3", [(11.0, 34.4), (15.0, 34.1), (20.6, 34.5), (20.6, 42.8), (11.0, 42.8)], top=T3, bottom=-0.5)
+    m.terrace("Top_T2", [(20.0, 35.2), (23.6, 35.0), (23.6, 42.8), (20.0, 42.8)], top=T2, bottom=-0.5,
               style="grass_stone")
-    m.terrace("Top_T1", [(23.0, 36.0), (26.8, 35.8), (26.8, 41.8), (23.0, 41.8)], top=T1, bottom=-0.5,
+    m.terrace("Top_T1", [(23.0, 36.0), (26.8, 35.8), (26.8, 42.8), (23.0, 42.8)], top=T1, bottom=-0.5,
               style="grass_stone")
-    m.terrace("Summit_T0", [(26.2, 36.4), (30.0, 36.1), (34.0, 36.5), (38.8, 36.3), (38.8, 41.8), (26.2, 41.8)],
+    m.terrace("Summit_T0", [(26.2, 36.4), (30.0, 36.1), (34.0, 36.5), (38.8, 36.3), (38.8, 42.8), (26.2, 42.8)],
               top=T0, bottom=-0.5)
     _climb(m, "Rope_T4_T0", 33.4, 35.95, T4, T0, kind="rope")
 

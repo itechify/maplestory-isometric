@@ -26,11 +26,13 @@
   },
   "monster_knockback": {
     "stagger_rule": "damage_at_least_kb",
+    "stagger_from_canonical_record": true,
     "stagger_duration": "hit_animation",
     "hit_animation_clip": "hit1",
     "fallback_stagger_s": 0.6,
     "knockback_distance_px": 20,
-    "reason": "Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. MeowDB does not publish the knockback distance or the stagger time (movement.json monster_knockback.gaps). MisoStory staggers a monster for the length of its own canonical hit animation (monsters/*.json animations.hit1.duration_ms; Snail 600 ms). During that time it pushes the monster 20 px away from the attacker. A monster without a hit clip staggers for 0.6 s, the length of the Maple Island hit clips.",
+    "airborne_hit": "cancel_hop_then_push",
+    "reason": "Canonical: every monster carries a KB stat (monsters/*.json knockback_threshold_damage), and MeowDB's glossary defines it as 'a mob with 500 KB needs 500+ damage to stagger'. Every Maple Island monster has KB 1, so every landed hit staggers it. The stagger time is published too: the live MeowDB monster pages read on 2026-10-05 show 'STAGGER 0.6 seconds - How long the mob is staggered for when knocked back' for all six Maple Island species (tools/meowdb/captures/monster_*.json|txt). With stagger_from_canonical_record, MonsterDef staggers a monster for the stagger time its canonical record carries (monsters/<id>.json stagger_s, or stagger_ms); a record without one falls back to the length of its own canonical hit animation (stagger_duration 'hit_animation': animations.hit1.duration_ms, 600 ms on every Maple Island monster, the same 0.6 s), then to fallback_stagger_s. Only the push is unpublished (movement.json monster_knockback.gaps): MisoStory pushes a staggered monster 20 px (knockback_distance_px) away from the attacker over the stagger time, stopping at a ledge, a wall, its mob region or its floor. A hit that lands while a jumper is in the air (MeowDB says nothing about it) cancels the rest of the hop (airborne_hit 'cancel_hop_then_push'): the monster keeps its vertical speed and falls straight down from where it was hit, and the push runs during the fall and after the landing, over ground that stays on its floor, so a monster hit mid-hop is pushed away from the attacker like one hit on the ground instead of carrying on toward the attacker.",
     "verified": false
   },
   "fixed_damage_skills": {
@@ -55,14 +57,6 @@
   "beginner_sp_after_level_10": {
     "sp_per_level": 0,
     "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. MisoStory grants a Beginner no SP after level 10.",
-    "verified": false
-  },
-  "natural_recovery": {
-    "hp_per_tick": 10,
-    "tick_s": 10.0,
-    "delay_s": 5.0,
-    "requires_standing_still": true,
-    "reason": "Canonical, qualitative only: 'When you're not in combat, just standing still will slowly restore your HP' (formulas/recovery.json natural_regeneration.statements[0]; documented_values false, hp_per_tick, mp_per_tick and tick_interval_s all null). MeowDB publishes no amount, interval or combat timer, so all three are MisoStory choices. tick_s 10: the only resting interval MeowDB documents is the chairs' 'additional 30 HP every 10 seconds', which stacks with natural regeneration (recovery.json chairs tick_interval_s 10, stacks_with_natural_regen true), so natural recovery ticks on the same 10 s. hp_per_tick 10: slow, as the statement says, and well below a chair's extra 30, so sitting stays 'faster than when you're just standing' (the statement's second line; sitting and chairs are not built yet). A level-1 Beginner (50 HP) refills in under a minute, a level-8 one (162 HP) in a few minutes, so a death or a hard fight costs a rest instead of a death spiral (misostory/death.json respawn_vitals assumes 'a death costs a potion or a rest'). delay_s 5: 'not in combat' read as no attack made and no monster touch (hit, miss or guard) or damage taken for 5 s, longer than the canonical 1.5 s post-hit invincibility (accuracy.json after_hit). The rest time only counts while the character is alive, on the ground, not moving, not climbing, not knocked back and not warping, and with HP below Max HP; any of those failing starts the 10 s again. requires_standing_still true: the statement's 'just standing still'. HP only: the statement names HP, and MeowDB documents no natural MP recovery (mp_per_tick null), so MP does not recover on its own. Read by scripts/actors/combat/natural_recovery.gd (NaturalRecovery); see docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md.",
     "verified": false
   },
   "ap_allocation": {
