@@ -254,7 +254,8 @@ the same. Old Wooden Board and Rusty Screw are gated to 1012; the Jr. Sentinel S
 
 **Quest items are always obtainable.** `test_quest_items_are_obtainable` derives every item a Maple Island quest asks
 for from `quests/*.json` (minus items handed out on accept) and requires a rolling source while that quest is in
-progress, or a shop. The validator also treats an unresolved member that a quest needs as a progression blocker.
+progress, or a shop. The validator also treats an unresolved member that a quest needs as a progression blocker when
+no other drop record, shop or quest gives the item ([DATA_VALIDATION.md](DATA_VALIDATION.md#progression-blockers)).
 
 The debug console's `drops <monster|owner id> [kills] [seed]` simulates kills under the character's quests in progress
 and prints each member's observed and configured rate, its source and why a member never rolls.

@@ -54,7 +54,7 @@ DataValidator.validate(db, options)   scripts/core/validation/data_validator.gd 
    ├─ IntegrityChecks                 chair, name (placeholders), duplicate
    ├─ AdaptationChecks                adaptation (convention + per-file schemas), crosswalk (+ Blender sidecars, index.json)
    └─ GameplayDataChecks              quest_data, npc_data, dialogue_data: the game's own QuestCatalog, NpcCatalog and
-                                      NpcDialogueBuilder validation (only when everything above found no error)
+                                      NpcDialogueBuilder validation (over the records everything above found no error in)
    │
 ValidationReport                      findings + out_of_scope (+ per rule) + stats
    ├─ tools/validate_data.gd(.tscn)   prints the report, sets the exit code   ← scripts/validate_data.sh
@@ -101,7 +101,7 @@ on broken input cannot make a negative test pass for the wrong reason.
 | `schema` | error | a field consumers rely on is missing or mistyped (`REQUIRED_FIELDS` in `provenance_checks.gd`: e.g. maps need `portals`, `player_spawns`, `return_map_id`; monsters `level`, `hp`, `exp`) |
 | `provenance` | error | no `source`; `source.authority` ≠ `"MeowDB MS Classic"`; `source.url` not under `https://meowdb.com/msclassic`, `https://meowdb.com/_data/` or `https://meowdb.com/api/` (path-boundary match, so `meowdb.com.evil` or `/msclassicfake` fail); `source.retrieved_at` not an ISO 8601 date-time with a zone, or not a real date and time (month 13, Feb 30, hour 24 fail); a `field_sources` URL (`url`, `fallback_url`, `pages[].url`, `urls[]`) outside `https://meowdb.com/` without a matching `external` entry; a JSON file directly in `game/data/canonical/` other than `canonical_sources.json` (no domain, so no id, provenance or index check would see it). **Per property:** a source object (record-level `provenance.<property>`, a schema 3 drop entry's `membership_source` / `rarity.source`, the meso `amount_source`, an adaptation file's `provenance.<property>`) that breaks the [authority registry](#provenance-authorities): an unregistered authority, an authority that may not supply that property, a URL off the authority's site, a missing or non-ISO `read_at`, a missing `capture` or `decision`. **Captures:** any `capture` key (any depth, canonical or adaptation) that is not a repo path under `tools/<site>/captures/` or names a file that does not exist |
 | `drop_record` | error | a schema 3 drop record (contract C1) that breaks the [schema 3 rules](#drop-records-schema-3); a `schema_version` other than 3 or absent on a drop record |
-| `drop_policy` | error | `DropChecks` (`scripts/core/validation/drop_checks.gd`) holds the shipped records to the drop policy (decisions D3-9, D3-11, D3-12): `data/misostory/drop_rates.json` is the complete chance table (every category x rarity a chance in [0, 1], decision D3-11, `verified: false`, quantity 1) and `meso_rules.json` a valid meso rule (D3-12) (`DropRates.validate`); every drop record is schema 3 with MeowDB MS Classic as its membership authority; each record cites its owner's own page capture (`monster_<id>.*` or `breakable_<id>.txt` and its URL), the newest dated capture of that page; the membership equals MeowDB's community list "Drops (MS Classic)" on that capture exactly (names, order, each raw block and its votes), and no MSEA-only item is a member; every rarity is the Henesys.gg capture's label and row, and a member the capture has no row for has rarity null; a resolved item exists locally, its `category_inputs` are the item's MeowDB type and subtype, and its `chance_category` follows the rule; quest gates follow the D3-9 rule; a reported meso amount is MeowDB's, its raw value verbatim in its capture, and a player report the owner's page shows is in the record unless a newer source in `sources_compared` decides; an unresolved member whose item a Maple Island quest objective asks for is a progression blocker |
+| `drop_policy` | error | `DropChecks` (`scripts/core/validation/drop_checks.gd`) holds the shipped records to the drop policy (decisions D3-9, D3-11, D3-12): `data/misostory/drop_rates.json` is the complete chance table (every category x rarity a chance in [0, 1], decision D3-11, `verified: false`, quantity 1) and `meso_rules.json` a valid meso rule (D3-12) (`DropRates.validate`); every drop record is schema 3 with MeowDB MS Classic as its membership authority; each record cites its owner's own page capture (`monster_<id>.*` or `breakable_<id>.txt` and its URL), the newest dated capture of that page; the membership equals MeowDB's community list "Drops (MS Classic)" on that capture exactly (names, order, each raw block and its votes), and no MSEA-only item is a member; every rarity is the Henesys.gg capture's label and row, and a member the capture has no row for has rarity null; a resolved item exists locally, its `category_inputs` are the item's MeowDB type and subtype, and its `chance_category` follows the rule; quest gates follow the D3-9 rule; a reported meso amount is MeowDB's, its raw value verbatim in its capture, and a player report the owner's page shows is in the record unless a newer source in `sources_compared` decides; an unresolved member whose item a Maple Island quest objective asks for is a progression blocker when [no other source](#progression-blockers) gives the item |
 | `drop_unresolved` | warning | each drop member that never rolls because its item, its Henesys.gg rarity or its table category is unresolved, so missing values stay visible (none on the shipped data) |
 | `external` | error | an `external` entry (canonical or adaptation) without `field`, an http(s) `source_url`, a `reason`, or `verified: false` |
 | `sources_index` | error | `canonical_sources.json` missing; a record not listed; a listed record that no longer exists; a row whose `name`, `file`, `authority`, `url`, `retrieved_at`, `field_source_urls`, `external` entries (`field`, `source_url`, `verified`, in order), `gap_count`, `discrepancy_count`, `capture_files` or `property_sources` (`{property: {authorities, urls}}`; both written only when non-empty) differs from what `tools/meowdb/build_sources_index.mjs` would write now; `totals` off (`records`, `distinct_source_urls` (property source URLs included), `external_values`, `capture_files`); a nested canonical folder (the builder does not index them). Fix: rerun the builder |
@@ -123,9 +123,32 @@ on broken input cannot make a negative test pass for the wrong reason.
 
 The `quest_data`, `npc_data` and `dialogue_data` checks are the game's own data validation (the classes the quest
 engine, the NPC presenter and the dialogue window use), run headless. They read the data the way the game does, which
-assumes structurally valid data, so `GameplayDataChecks` runs them only when every check above found no error; the
-stat `gameplay_checks_run` (or `gameplay_checks_skipped`) says which happened. A parse error in one of those classes
-also makes the validator exit 2.
+assumes structurally valid data, so `GameplayDataChecks` hands them only the records that every check above found no
+error in. Each record with an error finding (canonical, `misostory/<folder>/<id>` or a `misostory` table), and each
+file that failed to load, is left out of a copy of the content; the three validations run on that copy, and every
+other record's findings are reported, so one structural error no longer hides the quest, NPC and dialogue findings
+of the rest. A finding is withheld when it falls on a left-out record (it would be read over broken data) or names one
+by its whole id (quest `1005`, also inside a dialogue node id such as `q1005.offer.1`): leaving the record out makes
+other records report it missing ("prerequisite quest 1005 does not exist", "quest 1005 not in canonical quests"), and
+the run already fails on its own error. Errors with no record behind them (the sources index, the crosswalk) leave
+nothing out. The stat `gameplay_checks_run` counts the run, and `gameplay_records_left_out` (only when some were) the
+records left out; on clean data the summary is unchanged. A parse error in one of those classes also makes the
+validator exit 2.
+
+### Progression blockers
+
+A drop member that never rolls (its item, Henesys.gg rarity or table category unresolved) is a `drop_unresolved`
+warning. When a Maple Island quest objective (`objectives.item_collection`) asks for its item, it is also a
+`drop_policy` error, a progression blocker, unless another source gives the item (`DropChecks.other_sources`):
+
+- another drop record, a monster's or a Wooden Box's, whose member with that item rolls (item, rarity and category
+  resolved and a chance above 0, as `DropRates.effective_entries` reads it);
+- a shop that stocks it (`items[].item_id`);
+- a quest that hands it out: `rewards.items`, `rewards.random[].items`, `rewards.selection[].items`,
+  `items_given_on_accept`, `next_quest_grants[].items`, or the adaptation's `accept_items`. The completion rewards of a
+  quest that asks for the item do not count, since they come only after its objective.
+
+No member is unresolved on the shipped data, so no blocker is reported either way.
 
 ### Phase 16 cross-references
 
@@ -417,7 +440,7 @@ are provenance rules, not game data.
 ## Tests
 
 ```bash
-ISOLATE=<name> bash scripts/test.sh data_                   # the files below (146 tests)
+ISOLATE=<name> bash scripts/test.sh data_                   # the files below (148 tests)
 ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh data_   # same, with the real export for the shipped-data test
 ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 ```
@@ -430,7 +453,7 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 | `tests/unit/test_data_validation_drops.gd` | schema 3 drop records: the shipped records pass with no finding; corrupted copies fail (a probability in a canonical record, Henesys.gg supplying anything but rarity, membership from another authority, an MSEA reference item as a member, a wrong rarity label or row, votes that do not match the raw block, a malformed meso block, an unknown `schema_version`, duplicate keys and items, a quest gate without its rule); an unresolved member is valid and listed |
 | `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, `verified: true` only with `verified_against` (the older keys and empty values rejected; the owner natural-regen shape accepted), adaptation references (plain and `{"value": ...}`-wrapped), domain folders and their shared tables, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
 | `tests/unit/test_data_validation_integrity.gd` | every Phase 16 category counts references on the shipped data; skill references resolve and a skill defined twice is an error; chairs are Setup items with valid setup data (and the shipped ones are); a setup block on another item type; placeholder names (patterns and injected cases) and none in the shipped data; duplicate list entries, while repeated reactor placements and shared names are not duplicates; breakable and monster drop categories; out-of-scope skips listed per rule without `--verbose` |
-| `tests/unit/test_data_validation_gameplay.gd` | the quest / NPC / dialogue validation runs on the shipped data and finds nothing; an unsupported objective, a dangling dialogue target and an NPC its map does not list are reported; it waits for structurally valid data; message prefixes name the record |
+| `tests/unit/test_data_validation_gameplay.gd` | the quest / NPC / dialogue validation runs on the shipped data and finds nothing; an unsupported objective, a dangling dialogue target and an NPC its map does not list are reported; a broken record's own findings are withheld, while a structural error in one quest (a mistyped field, or a file that no longer parses) leaves another quest's finding reported, and nothing else; message prefixes name the record; a left-out record is named by its whole id |
 | `tests/unit/test_data_validation_report.gd` | the provenance report: one entry per record with its own source first and every field and per-property source; schema 3 drop sources (MeowDB membership, Henesys.gg rarity, the meso report) and unresolved members; every gap listed; adaptations with flag, reason and `verified_against`; deterministic output; findings attached to their record |
 | `tests/unit/test_data_fixture.gd` | `DataValidationTestCase`: deep-copies the shipped ContentDB, injects sidecars, compares against the unbroken copy so each negative test asserts only the finding it caused, and fails a test whose validator run crashed |
 
