@@ -180,14 +180,14 @@ it is never refunded, because MeowDB documents no way back.
 **Search band** (`SkillTargeting`, canonical `attack_styles.json three_snails_targeting` and `ranged_search_bands`): 20
 px bands from 50 px ahead to the 300 px reach; the band that starts d px ahead is centred 28 px above the feet with a
 half-height of `floor(d / 4)`, so the last band (290-300 px) reaches 100 px up and 44 px down, as MeowDB states. A
-monster whose canonical touch box overlaps a band qualifies, and so does an intact Wooden Box
-(`BreakableSystem.attack_candidates()`, kind `breakable`); the nearest of them is hit, one target per cast (projectile
-skills: "nearest monsters first"; one shell is one target), so a box in front shields a monster behind it. Bands are
-placed in 3D like basic-attack boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the
-facing (`combat.json isometric_reach`). A box the cast picks takes one landed hit through `BreakableSystem.land_hit`
-(source `skill:0001000`: no damage, no MISS), exactly like a swing; MeowDB says only that boxes break after 4 "basic
-attacks", so counting the skill is a MisoStory choice (`breakables.json hit_rule`, `verified: false`). The 50 px start
-is the canonical choice over the targeting tab's 65 px (`attack_styles.json discrepancies`).
+monster whose canonical touch box overlaps a band qualifies; the nearest is hit, one target per cast (projectile
+skills: "nearest monsters first"; one shell is one target). Wooden Boxes are never searched: MeowDB says only that
+boxes break after 4 "basic attacks", and the owner ruled that skills do not count as hits (`breakables.json hit_rule`,
+#5, `verified: false`). A box nearer than a monster does not shield it, and a cast with only a box in its band is a
+cast with no target (the shell and the MP are spent; the box takes no hit). Bands are placed in 3D like basic-attack
+boxes (`MeleeQuery`, `WorldScale.actor`), with the shared isometric depth across the facing (`combat.json
+isometric_reach`). The 50 px start is the canonical choice over the targeting tab's 65 px (`attack_styles.json
+discrepancies`).
 
 **Runtime.** `PlayerSkills` (`scripts/actors/combat/player_skills.gd`) and `EffectTicker`
 (`actors/combat/effect_ticker.gd`) are children of the player, made by its `PlayerCombat` (`ensure_skill_nodes`).
@@ -196,8 +196,7 @@ progress), then `SkillBook.check_cast` from the current position ("rope" on a la
 stands a seated player up (contract C5), pays MP through `Game.change_mp` and the shell through `ItemService.lose` (so
 `Events.item_lost` reaches quest counts), applies the skill, starts the canonical cooldown and emits
 `Events.skill_used`. A Three Snails hit on a monster goes through `MonsterSystem.apply_player_hit`, the same path as a
-basic attack (damage numbers, stagger, EXP and drops on a kill); a hit on a Wooden Box goes through
-`BreakableSystem.land_hit` (`PlayerSkills._hit_box`), and `cast_resolved` then reports `(skill, box, null)`. Casts share
+basic attack (damage numbers, stagger, EXP and drops on a kill). Casts share
 `PlayerCombat`'s lockout (`begin_lockout`), so `PlayerCombat.is_attacking()` is true during a cast (contract C4) and a
 basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots.use_skill`; the console has `skills`
 and `cast <id|name>`.
@@ -291,7 +290,7 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_progression_exp.gd` | thresholds, single/multiple level-ups, the cap, AP/SP, HP/MP growth to level 11, allocation, death penalty |
 | `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
 | `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
-| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
+| `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only, never a Wooden Box (#5); Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits

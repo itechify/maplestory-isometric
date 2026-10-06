@@ -13,15 +13,14 @@ extends Node
 ##   3. a seated player stands up first (contract C5: a skill stands the player up).
 ##   4. the costs: MP through Game.change_mp, the shell through ItemService.lose (so Events.item_lost reaches quests).
 ##   5. the effect, from canonical data (SkillDef):
-##        Three Snails  the stepped search band (SkillTargeting) in front of the facing picks the nearest target among
-##                      the live monsters and the intact Wooden Boxes (BreakableSystem.attack_candidates, contract
-##                      C8), as many as the skill's canonical target count (one). A monster takes
+##        Three Snails  the stepped search band (SkillTargeting) in front of the facing picks the nearest live monster,
+##                      as many as the skill's canonical target count (one). Wooden Boxes are never a target
+##                      (breakables.json hit_rule, the owner's ruling in #5: only basic attacks break boxes), so a cast
+##                      with only a box in its band is a whiff. A monster takes
 ##                      CombatFormula.resolve_fixed_damage(level's fixed damage, "0001000") through
-##                      MonsterSystem.apply_player_hit, the same path as a basic attack (numbers, EXP, drops); a box
-##                      takes one landed hit through BreakableSystem.land_hit, like a swing (breakables.json
-##                      hit_rule: no damage, no MISS). The cast locks out for the canonical action time (800 ms base,
-##                      weapon-speed scaled: 810 ms at Normal 6) and plants the player like a ground attack. The
-##                      thrown shell is presentation.
+##                      MonsterSystem.apply_player_hit, the same path as a basic attack (numbers, EXP, drops). The cast
+##                      locks out for the canonical action time (800 ms base, weapon-speed scaled: 810 ms at Normal 6)
+##                      and plants the player like a ground attack. The thrown shell is presentation.
 ##        Recovery      a timed effect: the level's HP total over its 30 s in equal ticks (EffectTicker heals).
 ##        Nimble Feet   a timed effect: Speed + the level's bonus for its duration (StatCalculator counts it; the
 ##                      PlayerController re-reads its speed on Events.stats_changed).
@@ -33,8 +32,8 @@ extends Node
 ## tree); every one may be overridden here.
 
 signal cast_started(skill_id: String, level: int, lockout_s: float)
-## After a Three Snails cast, once per target hit: a monster with its DamageResult, a Wooden Box with result null (a
-## box takes a landed hit, not damage), or target and result both null on a whiff.
+## After a Three Snails cast, once per target hit: a monster with its DamageResult, or target and result both null on a
+## whiff.
 signal cast_resolved(skill_id: String, target: Node, result: DamageResult)
 signal cast_refused(skill_id: String, code: String)
 
@@ -54,9 +53,6 @@ var game: Node = null
 var character: CharacterState = null
 var rng: RandomNumberGenerator = null
 var bus: Object = null
-## The Wooden Boxes' system (duck-typed: attack_candidates(), land_hit(box, source)); null = the node in group
-## &"breakable_system" (BreakableSystem), when there is one.
-var breakables: Node = null
 
 ## Successful casts (tests, the sandbox report) and the last one.
 var casts: int = 0
@@ -180,16 +176,13 @@ static func _position_phrase(def: SkillDef) -> String:
 # --- the effects -------------------------------------------------------------------------------------------------
 
 ## The targets a Three Snails cast would hit from where the player stands now, nearest first (at most the skill's
-## canonical target count): live monsters and intact Wooden Boxes alike (a box candidate carries "kind": "breakable").
+## canonical target count): live monsters only. Wooden Boxes are never searched (breakables.json hit_rule, #5).
 func _search(def: SkillDef) -> Array:
 	var d := _db()
 	var sys := _system()
 	var candidates: Array = []
 	if sys != null and sys.has_method("attack_candidates"):
 		candidates.append_array(sys.call("attack_candidates"))
-	var boxes := _breakables()
-	if boxes != null and boxes.has_method("attack_candidates"):
-		candidates.append_array(boxes.call("attack_candidates"))
 	if candidates.is_empty() or def.band.is_empty():
 		return []
 	var facing: Vector3 = player.get("facing") if "facing" in player else Vector3.BACK
@@ -213,9 +206,6 @@ func _throw(def: SkillDef, level: int, hits: Array, out: Dictionary) -> void:
 	var r := _rng()
 	for h: Dictionary in hits:
 		var target: Node = h["node"]
-		if String(h.get("kind", "")) == "breakable":
-			_hit_box(def, level, target)
-			continue
 		var target_stats: MonsterCombatStats = target.get("def").stats if target != null and target.get("def") != null else null
 		if target_stats == null:
 			continue
@@ -235,19 +225,6 @@ func _throw(def: SkillDef, level: int, hits: Array, out: Dictionary) -> void:
 		cast_resolved.emit(def.id, null, null)
 	out["target"] = last_target
 	out["result"] = last_result
-
-
-## The shell reached a Wooden Box: one landed hit through the box's own system (BreakableSystem.land_hit, the swing's
-## path: the fourth hit breaks it and rolls its drops), never damage (breakables.json hit_rule).
-func _hit_box(def: SkillDef, level: int, box: Node) -> void:
-	var boxes := _breakables()
-	if box == null or boxes == null or not boxes.has_method("land_hit"):
-		return
-	if last_target == null:
-		last_target = box
-	_play_shell(def, level, box)
-	boxes.call("land_hit", box, "skill:" + def.id)
-	cast_resolved.emit(def.id, box, null)
 
 
 func _start_heal(c: CharacterState, def: SkillDef, level: int, rules: SkillRules) -> void:
@@ -374,12 +351,6 @@ func _stand_up() -> void:
 
 func _system() -> Node:
 	return combat.system if combat != null and is_instance_valid(combat) else null
-
-
-func _breakables() -> Node:
-	if breakables != null:
-		return breakables if is_instance_valid(breakables) else null
-	return get_tree().get_first_node_in_group(&"breakable_system") if is_inside_tree() else null
 
 
 func _db() -> ContentDB:

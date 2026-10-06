@@ -27,7 +27,7 @@ prove it works. Three rules hold throughout:
 | Maps | All 25 Maple Island maps, with every MeowDB portal, spawn, NPC and return map. Each has a minimap, and the stuck-region scan finds no trap on any of them. |
 | Monsters | All 6 Maple Island species, with canonical stats (the stagger time from the live pages), floor-bound pacing and fair hit areas. |
 | Drops | 7 schema 3 drop records (6 monsters and the Wooden Box): 86 members, MeowDB's community lists in full, every one resolved (item, Henesys.gg rarity, table category) and rolling at the owner's table cell (decision D3-11). Meso bags for 5 monsters at the owner's 60%: the Snail's 2 from MeowDB's report, the level formula [level, 2 x level] for the other four (D3-12). |
-| Breakables | The Wooden Box (0000001): its 19 placements on six maps (in the gameplay camera's sight, tree canopies included), 4 hits to break (basic attacks or Three Snails), per-placement respawn, its drops through the same roller, a reach rim and a quest marker. |
+| Breakables | The Wooden Box (0000001): its 19 placements on six maps (in the gameplay camera's sight, tree canopies included), 4 hits to break (basic attacks only), per-placement respawn, its drops through the same roller, a reach rim and a quest marker. |
 | NPCs | All 21 Maple Island NPCs, all reachable and talkable, with speech bubbles of their canonical idle lines. Shanks ends the island at the departure boundary. |
 | Quests | All 20 Maple Island quests (1000-1019), each played in the real game by the every-quest set, strict after its setup. |
 | Shops | Pan, Sid and Lucy, at canonical prices. A shop refuses to buy a quest item an in-progress quest still needs. |
@@ -212,13 +212,13 @@ Monsters spawn at slots the runtime plans on Blender's spawn regions; MeowDB's 2
    gameplay camera's sight). Interiors with no spawn regions sample the map's floor.
 3. **Runtime:** `BreakableSystem` reads hits and drops by each placement's breakable id, but the actor it shows is the
    Wooden Box (`WoodenBox`, size `breakables.json box.touch_px`); a breakable that looks or sizes differently needs its
-   own actor and size entry. The hit rule (one landed basic attack or Three Snails throw, nearest box) and the exact
+   own actor and size entry. The hit rule (one landed basic attack, nearest box; skills never count, #5) and the exact
    respawn clock are in `breakables.json`. Box state is never saved. The sight rule tests tree canopies too, from the
    canopy table in `breakables.json` `placement.canopies` (measured from the export; `test_breakables_canopies`
    checks it against the world, so rerun it after the Blender trees change).
 4. **Verify:** `test_breakables_placement.gd` checks every placement against the real collision (with the world),
-   `bash scripts/playtest.sh test_box` breaks boxes in the real game (Amherst's until Pio's quest is done, one with
-   Three Snails, then every box of the other five maps: 17 of the 19), and the `boxes` console command
+   `bash scripts/playtest.sh test_box` breaks boxes in the real game (Amherst's until Pio's quest is done, Three
+   Snails thrown at one that keeps all its hits, then every box of the other five maps: 16 of the 19), and the `boxes` console command
    shows the current map's boxes. A
    breakable on a new map needs that map added to `test_box`'s `OTHER_BOX_MAPS`.
 

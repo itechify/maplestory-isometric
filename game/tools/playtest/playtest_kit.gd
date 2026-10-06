@@ -1816,8 +1816,9 @@ func bind_skill(skill_id: String, key: String) -> Dictionary:
 ## Throws Three Snails (the skill's quickslot key) at `target` from inside its canonical band (THROW_FROM_PX), as
 ## test_skills does: walks to about 150 px from it, faces it and taps the key once per throw until opts "casts" (1)
 ## throws resolved on it, the target died, or opts "max_s" (40) passed. Every hit is heard on PlayerSkills.cast_resolved.
-## `target` may also be a Wooden Box (a node of breakables(), contract C8): a throw that picks it is heard as
-## cast_resolved(skill, box, null) and lands one hit (breakables.json hit_rule), and "killed" means it broke.
+## `target` may also be a Wooden Box (a node of breakables(), contract C8) to aim at: the cast searches monsters only
+## (breakables.json hit_rule, #5), so every throw at a box is a cast with no target, "hits" stays 0 and the box keeps
+## its hits ("killed" would mean it broke).
 ## Returns {"ok" (a throw hit it), "casts", "hits", "damage" [final; empty for a box], "killed", "mp0", "mp1",
 ## "shells0", "shells1", "why"}. Await it.
 func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
@@ -1847,9 +1848,7 @@ func throw_at(target: Node3D, opts: Dictionary = {}) -> Dictionary:
 	var on_cast := func(sid: String, t: Node, res: DamageResult) -> void:
 		if sid != snails or t != target:
 			return
-		if box and res == null:
-			hits[0] += 1
-		elif res != null and not res.missed:
+		if res != null and not res.missed:
 			hits[0] += 1
 			damage.append(res.final)
 	skills.connect(&"cast_resolved", on_cast)

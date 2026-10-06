@@ -431,10 +431,10 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   hang over one). A map always gets the same boxes.
 - **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
   one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
-  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Three Snails counts
-  too: its cast picks the nearest target among the live monsters and the intact boxes in its canonical band, one
-  target per cast, and a box it picks takes one landed hit through `land_hit(box, "skill:0001000")` (a MisoStory
-  choice, `breakables.json hit_rule`, `verified: false`; the owner may rule that skills search monsters only).
+  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Skills do not count
+  (`breakables.json hit_rule`, `verified: false`, the owner's ruling in #5): Three Snails searches the live monsters
+  only, so a box in its band neither takes a hit nor shields a monster behind it, and a cast with only a box in its
+  band is a cast with no target.
 - **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
   with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (every break, only while Pio's
   quest 1012 is in progress), Apple and Egg (2% each, the owner's table, decision D3-11); the box drops no mesos. The loot goes
@@ -448,7 +448,8 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
   the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
   `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
-  real reload, a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken,
+  real reload, Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of
+  the 19 broken,
   since the quest needs three of Amherst's six) and the every-quest set's 1012 chain.
 
 ## Damage numbers (`DamageNumbers`)

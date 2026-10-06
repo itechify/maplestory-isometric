@@ -88,10 +88,10 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
   Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
   naturally (MeowDB documents none).
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
-  landed hits, basic attacks or Three Snails throws (one target per cast: the nearest monster or box in its band;
-  whether skills may hit boxes is still an owner decision), and comes back after its canonical respawn time. Old
-  Wooden Board and Rusty Screw drop only while Pio's quest is in progress; a gold marker shows over the boxes while
-  the quest still wants them, and a warm rim while your swing can reach one.
+  landed basic attacks (skills never hit a box: Three Snails searches monsters only, the owner's ruling in #5), and
+  comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only while Pio's quest is in
+  progress; a gold marker shows over the boxes while the quest still wants them, and a warm rim while your swing can
+  reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
   the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
@@ -174,7 +174,7 @@ bash scripts/playtest_quests.sh                                   # every Maple 
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
   copy of `game/` under `_scratch/godot_runs/`.
 - Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
-  a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken),
+  Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
   hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `npc_shanks` (the
