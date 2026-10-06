@@ -3,8 +3,9 @@ extends PlaytestScenario
 ## A Sword Beginner (STR 4+9) fights every implemented species in a canonical map where it spawns: Tutorial Jr.
 ## Sentinel (000000030), Snail (000000040), Blue Snail, Shroom and Red Snail (000000050), Orange Mushroom
 ## (000001020). Console commands are setup only: the warps between hunting grounds and `heal` between fights (so a
-## Lv 1-5 body survives Orange Mushroom touches). Everything verified happens by real play: walking, facing with the
-## move keys, the attack key, standing in monsters.
+## Lv 1-5 body survives Orange Mushroom touches); a death is answered with the notice's OK. Everything verified happens
+## by real play: walking, facing with the move keys, the attack key, standing in monsters. The composite play comes from
+## PlaytestKit (`kit`): the monster on the player's tier, the walks into monsters, unstick, respawn, names and places.
 ##
 ## Recorders on PlayerCombat, MonsterSystem, the map view, the loot system and Events, plus a per-tick monitor, check
 ## every event against oracles computed in this file from canonical data (damage.json, accuracy.json,
@@ -47,6 +48,8 @@ const CLIMB_S := 15.0
 
 var d: PlaytestDriver = null
 var db: ContentDB = null
+## The shared composite play (names, map-local places, the monster pick, unstick, respawn, the walks into monsters).
+var kit: PlaytestKit = null
 var quick: bool = false
 var windowed: bool = false
 var hit_target: int = HITS_FULL
@@ -136,6 +139,7 @@ func run(driver: PlaytestDriver) -> void:
 	var ng: Dictionary = await d.new_game("FighterB", "male", WEAPON, AP)
 	if not d.check("new game through the creation screen (Sword 541, STR +9)", bool(ng["ok"]), String(ng["why"])):
 		return
+	kit = PlaytestKit.new(d)
 	_check_character_stats()
 	_connect_all()
 
@@ -161,7 +165,7 @@ func run(driver: PlaytestDriver) -> void:
 			await _touch_probe(mob, 2 if quick else 5, 45.0)
 		if windowed:
 			_measure_screen(mob)
-			await d.screenshot("after_%s_%s" % [mob, _mob_name(mob).replace(" ", "_")])
+			await d.screenshot("after_%s_%s" % [mob, kit.mob_name(mob).replace(" ", "_")])
 	# let pending respawns, fades and knockback tracks finish
 	await d.wait(14.0)
 	_disconnect_all()
@@ -186,10 +190,6 @@ func _load_tables() -> void:
 	for row: Dictionary in styles_f.get("beginner_weapons", []):
 		if String(row.get("item_id", "")) == WEAPON:
 			weapon_row = row
-
-
-func _mob_name(mob: String) -> String:
-	return String(db.monster(mob).get("name", mob))
 
 
 func _warp(map: String) -> void:
@@ -227,7 +227,7 @@ func _check_spawns_here(mob: String, map: String) -> void:
 	for m: Monster in d.monsters().live_monsters():
 		if m.def.id == mob:
 			live += 1
-	d.check("%s (%s) canonically spawns in %s, %d live here" % [_mob_name(mob), mob, map, live],
+	d.check("%s (%s) canonically spawns in %s, %d live here" % [kit.mob_name(mob), mob, map, live],
 		map in canon_maps and live > 0, "canonical Maple Island maps %s" % [canon_maps])
 
 
@@ -828,27 +828,28 @@ func _max_touch_here() -> int:
 	return hi
 
 
+## Setup, not the kit's survival policy on purpose: a console heal keeps a Lv 1-5 body standing among Orange
+## Mushrooms, where a potion or a rest would change the fights the oracles judge.
 func _heal_if_low() -> void:
 	var c := d.character()
 	var max_hp := StatCalculator.max_hp(c, db)
-	if c.hp <= mini(max_hp - 1, 3 * _max_touch_here() + 1) and not d.game().is_character_dead():
+	if c.hp <= mini(max_hp - 1, 3 * _max_touch_here() + 1) and not kit.is_dead():
 		heals += 1
 		await d.console("heal")
 
 
+## A death during the fights: the notice's OK (the kit's respawn), then the warp back to the hunting ground (setup).
 func _recover_if_dead(map: String) -> void:
-	if not d.game().is_character_dead() and not d.player().is_dead():
+	if not kit.is_dead():
 		return
 	deaths_of_player += 1
 	d.note("the player died at %.1f s in %s (HP %d)" % [d.game_s(), map, d.character().hp])
-	await d.wait(3.0)
-	await d.console("respawn")
-	await d.wait_idle(20.0)
+	await kit.respawn()
 	await _warp(map)
 
 
 func _fight_species(mob: String, map: String) -> void:
-	var i := d._begin(PlaytestReport.KIND_PLAY, "fight_species", "%s in %s until %d hits and 2 kills" % [_mob_name(mob), map, hit_target])
+	var i := d._begin(PlaytestReport.KIND_PLAY, "fight_species", "%s in %s until %d hits and 2 kills" % [kit.mob_name(mob), map, hit_target])
 	var t0 := d.game_s()
 	var excluded_at := {}
 	var zero_on := {}
@@ -864,12 +865,11 @@ func _fight_species(mob: String, map: String) -> void:
 		for k: int in excluded_at.keys():
 			if d.game_s() - float(excluded_at[k]) < 30.0:
 				exclude[k] = true
-		var pick := _nearest_on_tier(mob, 80.0, exclude, FIGHT_TIER_DY_M)
-		var target: Monster = pick["monster"]
+		var target := _pick(mob, 80.0, exclude, FIGHT_TIER_DY_M)
 		if target == null:
 			await d.wait(1.0)
 			continue
-		if not bool(pick["same_tier"]):
+		if not _on_tier(target, FIGHT_TIER_DY_M):
 			# Nothing of this species on the player's tier: climb toward the nearest one first (the attack call's
 			# 4 s approach cannot cover a route up or down a terrace).
 			await d.walk_to(target.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1})
@@ -885,7 +885,8 @@ func _fight_species(mob: String, map: String) -> void:
 		var tid := target.get_instance_id()
 		var a0 := attacks.size()
 		var at0 := d.player().global_position
-		var r: Dictionary = await d.face_and_attack_nearest(FIGHT_CALL_S, {"mob_id": mob, "exclude": pick["exclude"], "max_dist_m": 80.0})
+		# That monster, not the nearest namesake (one nearer on the plan view can pace a terrace above or below).
+		var r: Dictionary = await d.face_and_attack_nearest(FIGHT_CALL_S, {"target": target, "mob_id": mob, "max_dist_m": 80.0})
 		if attacks.size() > a0 or not is_instance_valid(target) or not bool(target.call("is_alive")):
 			zero_on.erase(tid)
 			continue
@@ -906,11 +907,11 @@ func _fight_species(mob: String, map: String) -> void:
 			var p := d.player()
 			var to := target.global_position - p.global_position
 			unreachable.append({"mob": mob, "map": map, "t": snappedf(d.game_s(), 0.01),
-				"monster_local": _local(target.global_position), "player_local": _local(p.global_position),
+				"monster_local": kit.map_local(target.global_position, "", 0.01), "player_local": kit.map_local(p.global_position, "", 0.01),
 				"flat_m": snappedf(Vector2(to.x, to.z).length(), 0.01), "dy_m": snappedf(to.y, 0.01), "why": String(r["why"])})
 	var ok := _hits_on(mob) >= hit_target and _kills_of(mob) >= 2
 	d._end(i, ok, "%d hits, %d kills in %.1f s" % [_hits_on(mob), _kills_of(mob), d.game_s() - t0])
-	d.check("%s: at least %d landed hits and 2 kills by real attacks" % [_mob_name(mob), hit_target], ok,
+	d.check("%s: at least %d landed hits and 2 kills by real attacks" % [kit.mob_name(mob), hit_target], ok,
 		"%d hits, %d kills in %.1f s game time" % [_hits_on(mob), _kills_of(mob), d.game_s() - t0])
 
 
@@ -943,110 +944,51 @@ func _edge_attack(m: Monster) -> int:
 	return n
 
 
-func _local(pos: Vector3) -> Vector3:
-	var w := d.world()
-	if w == null or w.defs == null or not w.defs.has_map(d.current_map()):
-		return pos
-	var l: Vector3 = w.defs.get_def(d.current_map()).to_local(pos)
-	return Vector3(snappedf(l.x, 0.01), snappedf(l.y, 0.01), snappedf(l.z, 0.01))
-
-
-## Stands in monsters of `mob` without attacking (walking into the nearest one again after each knockback) until `n`
-## touches from that species or `max_s`: contact-damage samples that do not depend on the fight's geometry. A monster
-## a finished walk could not bring within reach (it paces a terrace above or below the player and stays on its floor)
-## is skipped for the next nearest one; a walk that only ran out of time keeps the target. The skips are forgotten when
-## no other monster of the species is left.
+## Stands in monsters of `mob` without attacking until `n` touches from that species (a MISS included) or `max_s`:
+## contact-damage samples that do not depend on the fight's geometry. The kit's walk into monsters
+## (PlaytestKit.let_monsters_win with "until"): the nearest one on the player's tier (TOUCH_TIER_DY_M; walkers stay on
+## their spawn floor, so one on a terrace above never comes down), else one on another tier over the routes (CLIMB_S),
+## walked into again after each knockback; one an approach brought no touch from is passed over until none is left.
+## The console heal (setup) runs before each approach.
 func _touch_probe(mob: String, n: int, max_s: float) -> void:
-	var i := d._begin(PlaytestReport.KIND_PLAY, "touch_probe", "walk into %s without attacking until %d touches" % [_mob_name(mob), n])
-	var p := d.player()
+	var i := d._begin(PlaytestReport.KIND_PLAY, "touch_probe", "walk into %s without attacking until %d touches" % [kit.mob_name(mob), n])
 	var from_mob := func() -> int:
 		var c := 0
 		for t: Dictionary in touches:
 			if String(t["mob"]) == mob:
 				c += 1
 		return c
-	var out_of_reach := func(m: Monster) -> bool:
-		var v := m.global_position - p.global_position
-		return Vector2(v.x, v.z).length() > 4.0 or absf(v.y) > 0.8
 	var c0: int = from_mob.call()
 	var t0 := d.game_s()
-	var skip := {}
-	var skipped := 0
-	while (from_mob.call() as int) - c0 < n and d.game_s() - t0 < max_s:
-		await _heal_if_low()
-		var pick := _nearest_on_tier(mob, 40.0, skip, TOUCH_TIER_DY_M)
-		var m: Monster = pick["monster"]
-		if m == null:
-			skip.clear()
-			await d.wait(1.0)
-			continue
-		if out_of_reach.call(m):
-			var walk_s := 6.0 if bool(pick["same_tier"]) else CLIMB_S
-			var w0 := p.global_position
-			var w: Dictionary = await d.walk_to(m.global_position, {"within_m": 1.0, "max_s": walk_s, "retries": 0})
-			if String(w.get("result", "")) == "STALLED" and p.global_position.distance_to(w0) < 0.05 and is_instance_valid(m):
-				await _unwedge(m.global_position)
-			# Only a walk that ended (stopped next to it, stalled, fell) and still left it out of reach skips it; a walk
-			# that ran out of time on a long route made progress, and the next pass walks on toward the nearest one.
-			if is_instance_valid(m) and m.is_alive() and out_of_reach.call(m) and String(w.get("result", "")) != "TIMEOUT":
-				skip[m.get_instance_id()] = true
-				skipped += 1
-			continue
-		var t1 := d.game_s()
-		var k0: int = from_mob.call()
-		while is_instance_valid(m) and m.is_alive() and (from_mob.call() as int) == k0 and d.game_s() - t1 < 3.0:
-			await d.get_tree().process_frame
-			d.input.reassert()
-			var v := m.global_position - p.global_position
-			if Vector2(v.x, v.z).length() > 0.1 and not p.in_hitstun:
-				d.input.set_move_world(Vector3(v.x, 0.0, v.z).normalized(), p.view_right, p.view_forward)
-			else:
-				d.input.release_movement()
-		d.input.release_movement()
-		await d.wait_until(func() -> bool: return not p.in_hitstun, 1.0)
+	var r: Dictionary = await kit.let_monsters_win([mob], {"until": func() -> bool: return (from_mob.call() as int) - c0 >= n,
+		"between": _heal_if_low, "max_s": max_s, "max_dy_m": TOUCH_TIER_DY_M, "other_tiers": true, "climb_s": CLIMB_S})
 	var got: int = from_mob.call() - c0
-	d._end(i, got >= n, "%d touches in %.1f s; %d monsters out of reach skipped" % [got, d.game_s() - t0, skipped])
+	d._end(i, got >= n, "%d touches in %.1f s%s" % [got, d.game_s() - t0, (": " + String(r["why"])) if String(r["why"]) != "" else ""])
 
 
 ## The player stood still through a whole approach or walk: pressed into a wedge after a knockback (the capsule against
 ## a prop or a terrace lip; seen at 000000040 local (8.0, 9.2, -37.4) and 000000050 (54.2, 2.2, -17.3), where the
-## route and grid walkers then made no progress for minutes). Hops out with real input (move + jump), toward `toward`
-## first, then to either side and back, until it has moved 0.3 m. Returns whether it got out.
+## route and grid walkers then made no progress for minutes). The kit's unstick, as this scenario needs it: a hop with
+## every 0.6 s push, toward `toward` first, then to either side and back, until the feet have moved 0.3 m. Recorded in
+## `wedges`. Returns whether it got out.
 func _unwedge(toward: Vector3) -> bool:
-	var p := d.player()
-	var f := Vector3(toward.x - p.global_position.x, 0.0, toward.z - p.global_position.z)
-	f = f.normalized() if f.length_squared() > 1e-6 else Vector3.FORWARD
-	var start := p.global_position
-	var freed := false
-	for a: float in [0.0, PI * 0.5, -PI * 0.5, PI, PI * 0.25, -PI * 0.25, PI * 0.75, -PI * 0.75]:
-		var dir := f.rotated(Vector3.UP, a)
-		d.input.set_move_world(dir, p.view_right, p.view_forward)
-		await d.input.tap_action(&"jump")
-		await d.wait(0.6)
-		d.input.release_movement()
-		await d.wait(0.1)
-		if p.global_position.distance_to(start) >= 0.3:
-			freed = true
-			break
-	wedges.append({"t": snappedf(d.game_s(), 0.01), "map": d.current_map(), "local": _local(start), "freed": freed})
-	return freed
+	var u: Dictionary = await kit.unstick({"toward": toward, "jump": "always", "push_s": 0.6, "min_m": 0.3})
+	wedges.append({"t": snappedf(d.game_s(), 0.01), "map": d.current_map(), "local": String(u["from"]), "freed": bool(u["ok"])})
+	return bool(u["ok"])
 
 
-## The nearest live monster of `mob` within `max_dist_m` (flat), not in `exclude`, preferring one whose feet are
-## within `max_dy_m` of the player's (its own tier: walkers never leave their spawn floor, so one on another terrace
-## never comes to the player). {"monster": Monster or null, "same_tier": bool, "exclude": the exclusions the pick used
-## (`exclude` plus, when a same-tier monster exists, every other one of the species off the player's tier)}.
-func _nearest_on_tier(mob: String, max_dist_m: float, exclude: Dictionary, max_dy_m: float) -> Dictionary:
-	var p := d.player()
-	var off_tier := exclude.duplicate()
-	for o: Monster in d.monsters().live_monsters():
-		if o.def.id == mob and absf(o.global_position.y - p.global_position.y) > max_dy_m:
-			off_tier[o.get_instance_id()] = true
-	var near := d.nearest_monster({"mob_id": mob, "max_dist_m": max_dist_m, "exclude": off_tier}) as Monster
-	if near != null:
-		return {"monster": near, "same_tier": true, "exclude": off_tier}
-	return {"monster": d.nearest_monster({"mob_id": mob, "max_dist_m": max_dist_m, "exclude": exclude}) as Monster,
-		"same_tier": false, "exclude": exclude}
+## The nearest live monster of `mob` within `max_dist_m` (flat), not in `exclude`, on the player's tier (feet within
+## `max_dy_m`: walkers never leave their spawn floor, so one on another terrace never comes to the player), else the
+## nearest on another tier (PlaytestKit.same_tier_monster, "other_tiers"). null when none.
+func _pick(mob: String, max_dist_m: float, exclude: Dictionary, max_dy_m: float) -> Monster:
+	return kit.same_tier_monster([mob], exclude, {"max_dy_m": max_dy_m, "max_dist_m": max_dist_m, "other_tiers": true}) as Monster
+
+
+## Whether `m`'s feet are within `max_dy_m` of the player's.
+func _on_tier(m: Monster, max_dy_m: float) -> bool:
+	return absf(m.global_position.y - d.player().global_position.y) <= max_dy_m
+
+
 
 
 ## Walks within `lo..hi` m (flat) of `m`, by real walking, then faces `toward` (true) or away from it with a slow step.
@@ -1129,13 +1071,12 @@ func _reach_probes() -> void:
 		while got < want and tries < want * 6:
 			tries += 1
 			await _heal_if_low()
-			var pick := _nearest_on_tier("2", 40.0, skip, PROBE_TIER_DY_M)
-			var m: Monster = pick["monster"]
+			var m := _pick("2", 40.0, skip, PROBE_TIER_DY_M)
 			if m == null:
 				skip.clear()
 				await d.wait(1.0)
 				continue
-			if not bool(pick["same_tier"]):
+			if not _on_tier(m, PROBE_TIER_DY_M):
 				# No Snail on the player's level ground: go to the nearest one's tier first. A probe across a height
 				# difference whiffs on height and says nothing about reach.
 				await d.walk_to(m.global_position, {"within_m": 2.0, "max_s": CLIMB_S, "retries": 1})
@@ -1291,6 +1232,8 @@ func _peace_probe() -> void:
 	var touch0: int = t_from_1.call()
 	var peace0 := int(monitor["peace_ticks"])
 	var t0 := d.game_s()
+	# Not the kit's walk into monsters, on purpose: this probe holds the player inside the Sentinel's touch zone for
+	# the whole 4 s and counts the ticks (a walk into monsters stops at a touch, or passes over one that never touches).
 	while d.game_s() - t0 < 4.0 and is_instance_valid(m) and m.is_alive():
 		await d.get_tree().process_frame
 		d.input.reassert()
@@ -1339,22 +1282,10 @@ func _peace_probe() -> void:
 
 ## Windowed only: stand in an Orange Mushroom without attacking and capture the touch (violet number, knockback).
 func _touch_shot() -> void:
-	var m := d.nearest_monster({"mob_id": "9", "max_dist_m": 80.0}) as Monster
-	if m == null:
-		return
 	await _heal_if_low()
-	await d.walk_to(m.global_position, {"within_m": 1.5, "max_s": 15.0, "retries": 0})
 	var n0 := touches.size()
-	var t0 := d.game_s()
-	var p := d.player()
-	while touches.size() == n0 and d.game_s() - t0 < 6.0 and is_instance_valid(m) and m.is_alive():
-		await d.get_tree().process_frame
-		d.input.reassert()
-		var to := m.global_position - p.global_position
-		to.y = 0.0
-		if to.length() > 0.1:
-			d.input.set_move_world(to.normalized(), p.view_right, p.view_forward)
-	d.input.release_movement()
+	await kit.let_monsters_win(["9"], {"until": func() -> bool: return touches.size() > n0, "max_s": 21.0,
+		"max_dist_m": 80.0, "other_tiers": true, "climb_s": 15.0})
 	if touches.size() > n0:
 		await d.frames(6)
 		await d.screenshot("orange_mushroom_touch_knockback")
@@ -1510,7 +1441,7 @@ func _evaluate() -> void:
 			e["crit"] = int(e["crit"]) + 1
 	for s: String in species:
 		var e: Dictionary = per[s]
-		d.check("damage: %s, %d hits all inside the canonical per-hit window" % [_mob_name(s), int(e["n"])],
+		d.check("damage: %s, %d hits all inside the canonical per-hit window" % [kit.mob_name(s), int(e["n"])],
 			int(e["n"]) >= hit_target and _range_fails_of(s) == 0,
 			"observed %d-%d, windows (by level/action/crit) span %d-%d, %d criticals, %d outside" % [int(e["min"]),
 				int(e["max"]), int(e["lo"]), int(e["hi"]), int(e["crit"]), _range_fails_of(s)])

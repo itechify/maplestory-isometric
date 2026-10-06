@@ -2,8 +2,10 @@ extends PlaytestScenario
 ## kit: PlaytestKit's own check in the real game, for the helpers no other scenario exercises yet (the reference run,
 ## like `api` is for the driver). After a logged console setup (mesos, a level, a pair of sandals, a warp to Lucy's
 ## Amherst Department Store): AP spent through the stats window, Lucy's shop opened by talking, Red Potions bought
-## and one sold back at canonical prices, a potion bound to a quickslot by a mouse drag and used with its key, one
-## drunk through the Item window, the sandals equipped by a double-click, a checkpoint, and the contract helpers:
+## and one sold back at canonical prices (the talk that opened the shop in `last_talk`, the purchase in the HUD log and
+## the status bar's mesos), a potion bound to a quickslot by a mouse drag and used with its key, one by a double-click
+## that keeps the Item window open (its slot's tooltip read by hovering), one drunk through the Item window, the
+## player's map-local position, the sandals equipped by a double-click, a checkpoint, and the contract helpers:
 ## The Green Relaxer from the Set-up tab and with the X key (C4/C5), Recovery learned with the Skills window's "+"
 ## (learn_skill), put on key 2 (bind_skill) and cast with it (C3), and the store's Wooden Box (C8). The chair and box
 ## checks were WARNs until the mechanics and breakables packages were merged (wave 1); they are hard checks now.
@@ -55,6 +57,8 @@ func run(p_d: PlaytestDriver) -> void:
 	var opened := await k.open_shop(LUCY)
 	if not d.check("open_shop: talking to Lucy opens her shop", opened, ""):
 		return
+	d.check("last_talk: the talk that opened the shop (Lucy's greeting)", bool(k.last_talk.get("open", false))
+		and String(k.last_talk.get("npc_id", "")) == LUCY, str(k.last_talk).left(200))
 	var shop_id := String(d.shop().get("shop_id"))
 	var price := int(ShopService.row_for(shop_id, POTION, db).get("price", -1))
 	var buy: Dictionary = await k.buy(POTION, 3)
@@ -64,6 +68,13 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("sell: 1 back at the canonical sell price %d" % ShopService.sell_price(POTION, db), bool(sell["ok"])
 		and int(sell["count_delta"]) == -1 and int(sell["mesos_delta"]) == ShopService.sell_price(POTION, db), str(sell),
 		["shop:" + shop_id])
+	var more: Dictionary = await k.buy(POTION, 1)
+	d.check("buy: one more Red Potion (for use_item's keep_open)", bool(more["ok"]) and int(more["count_delta"]) == 1, str(more))
+	var lines := PlaytestKit.row_texts(k.log_history())
+	d.check("log_history: the HUD log holds the purchase's meso line", PlaytestKit.any_contains(lines, "You have spent"),
+		" / ".join(lines.slice(maxi(0, lines.size() - 4))))
+	d.check("hud_mesos: the status bar shows the character's mesos", k.hud_mesos().replace(",", "") == str(c.mesos),
+		"'%s', mesos %d" % [k.hud_mesos(), c.mesos])
 	d.check("close_shop", await k.close_shop(), "")
 
 	# --- items --------------------------------------------------------------------------------------------------------
@@ -72,6 +83,20 @@ func run(p_d: PlaytestDriver) -> void:
 	var n0 := c.inventory.count(POTION)
 	var q: Dictionary = await k.use_item(POTION, "quickslot")
 	d.check("use_item via the quickslot key uses one", bool(q["ok"]) and c.inventory.count(POTION) == n0 - 1, str(q))
+	var kept: Dictionary = await k.use_item(POTION, "double_click", {"keep_open": true})
+	var wr := d.windows() as MisoWindowsRoot
+	d.check("use_item by double-click with keep_open: one used, the Item window still open on its slot", bool(kept["ok"])
+		and int(kept["slot"]) == k.slot_index("use", POTION) and int(kept["slot"]) >= 0 and bool(wr.call("is_open", "inventory")),
+		"%s; open %s" % [kept, wr.call("is_open", "inventory")])
+	if int(kept["slot"]) >= 0:
+		var tip := await k.tooltip_rows(k.inventory_window().slots[int(kept["slot"])])
+		d.check("tooltip_rows: hovering the slot shows the potion's tooltip", PlaytestKit.row_contains(tip, k.item_name(POTION)),
+			" / ".join(PlaytestKit.row_texts(tip)))
+	await d.close_window("inventory")
+	var here: Vector3 = d.state().get("local", Vector3.INF)
+	d.check("map_local: the player's map-local position, as the driver's state reads it",
+		k.map_local(d.player().global_position, STORE, 0.01).distance_to(here) < 0.02,
+		"%s vs %s" % [k.map_local(d.player().global_position, STORE, 0.01), here])
 	var dr: Dictionary = await k.drink(POTION)
 	d.check("drink: one through the Item window's Use button, HP + the canonical restore (capped)", bool(dr["ok"])
 		and int(dr["hp1"]) == int(dr["want_hp"]), String(dr["row"]))

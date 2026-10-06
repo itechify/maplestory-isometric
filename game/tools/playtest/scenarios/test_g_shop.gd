@@ -3,7 +3,8 @@ extends PlaytestScenario
 ## three Maple Island shops: Pan (16, Southperry Armor Store 000000061), Sid (20, Amherst Weapon Store 000001011) and
 ## Lucy (21, Amherst Department Store 000001013). Each store is entered on foot through its door with Up (a console
 ## warp to the town is the setup for Pan and Sid; Lucy is reached by walking out of Sid's store and along Amherst),
-## the shopkeeper is talked to on foot (F) and the greeting's Enter opens the shop window. Everything after that is
+## the shopkeeper is talked to on foot (F) and the greeting's Enter opens the shop window (PlaytestKit.open_shop; the
+## kit also reads the HUD log and mesos and the item names). Everything after that is
 ## the shop's own keys (Tab, the tab digits, Up/Down, Left/Right with and without Shift, Enter) and the Max button.
 ##
 ## Expectations come from the canonical records, never from the code under test: the buy list, order and prices from
@@ -59,6 +60,8 @@ var sig := {"mesos": 0, "gained": 0, "lost": 0, "full": 0, "full_ids": [], "show
 ## Per shopkeeper: how the conversation was reached.
 var talk_log := {}
 var _shop_hooked := false
+## The shared composite play: the talk that opens a shop, Esc out of it, the HUD log and mesos, item names.
+var kit: PlaytestKit = null
 
 
 func description() -> String:
@@ -74,6 +77,7 @@ func run(d: PlaytestDriver) -> void:
 	var ng: Dictionary = await d.new_game("Shopper", "male", WEAPON, {"str": 9})
 	if not d.check("new game through the title and creation screens", bool(ng["ok"]), "%s via %s %s" % [ng["map"], ng["via"], ng["why"]]):
 		return
+	kit = PlaytestKit.new(d)
 	var c := d.character()
 	var rules := CharacterFactory.rules_table(d.db())
 	var start_mesos := int((rules.get("starting_mesos", {}) as Dictionary).get("value", -1))
@@ -107,7 +111,7 @@ func run(d: PlaytestDriver) -> void:
 
 	d.check("the final mesos equal the canonical ledger", d.character().mesos == ledger,
 		"have %d, ledger %d" % [d.character().mesos, ledger])
-	d.check("the HUD shows the final mesos", _hud_mesos(d) == _th(ledger), "HUD '%s', ledger %s" % [_hud_mesos(d), _th(ledger)])
+	d.check("the HUD shows the final mesos", kit.hud_mesos() == _th(ledger), "HUD '%s', ledger %s" % [kit.hud_mesos(), _th(ledger)])
 	# The inventory window (I) after the visits: the purse and the Use tab's goods.
 	if await d.open_window("inventory"):
 		var t := d.window_text("inventory")
@@ -132,7 +136,7 @@ func _pan(d: PlaytestDriver) -> void:
 	var g := String(d.db().item(TUBE_TOP).get("gender", ""))
 	var detail := _detail_text(d)
 	d.soft_check("Pan: the detail panel tells a %s character that the %s is for %s characters" % [d.character().gender,
-		_name(d, TUBE_TOP), g], detail.to_lower().contains(g), "detail: '%s'" % detail.replace("\n", " / "))
+		kit.item_name(TUBE_TOP), g], detail.to_lower().contains(g), "detail: '%s'" % detail.replace("\n", " / "))
 	await d.screenshot("pan_open")
 
 	# Insufficient mesos with the new character's empty purse (no setup): the picker stays at 1, Enter is refused.
@@ -217,7 +221,7 @@ func _sid(d: PlaytestDriver) -> void:
 			continue
 		await _select_sell(d, "equip", at)
 		var s := await _enter(d, item_id)
-		_check_sold(d, "Sid: sold Pan's %s at the canonical sell-back" % _name(d, item_id), item_id, 1, s)
+		_check_sold(d, "Sid: sold Pan's %s at the canonical sell-back" % kit.item_name(item_id), item_id, 1, s)
 	_check_sell_prices(d, "Sid")
 
 	# 499 mesos for a 500-meso Razor (setup sets the purse), then exactly 500.
@@ -365,7 +369,7 @@ func _lucy(d: PlaytestDriver) -> void:
 	for item_id in [APPLE, EGG]:
 		await _select_buy(d, item_id)
 		var f := await _enter(d, item_id)
-		_check_refused(d, "Lucy: %s with a full Use tab" % _name(d, item_id), f, ItemCodes.INVENTORY_FULL, ["inventory is full"])
+		_check_refused(d, "Lucy: %s with a full Use tab" % kit.item_name(item_id), f, ItemCodes.INVENTORY_FULL, ["inventory is full"])
 	await d.screenshot("lucy_full_tab")
 
 
@@ -389,7 +393,10 @@ func _visit(d: PlaytestDriver, label: String, town: String, store: String, npc_i
 	var npc := d.world().npc_nodes.get(npc_id) as Node3D
 	if not d.check("%s: the shopkeeper stands in %s" % [label, store], npc != null, ""):
 		return false
-	var v: Dictionary = await d.talk_to(npc_id)
+	# The kit's open_shop: the talk on foot (PlaytestKit.talk: approach points, the lean over a counter, another try from
+	# the arrival), then the greeting paged with Enter until the shop window opens. The talk is in last_talk.
+	var opened := await kit.open_shop(npc_id)
+	var v: Dictionary = kit.last_talk
 	var info := {"on_foot": bool(v["open"]), "goto": false, "door": walked}
 	var p := d.player()
 	if bool(v["open"]):
@@ -406,7 +413,8 @@ func _visit(d: PlaytestDriver, label: String, town: String, store: String, npc_i
 	if not bool(v["open"]):
 		info["goto"] = true
 		await d.console("goto npc " + npc_id)
-		v = await d.talk_to(npc_id)
+		opened = await kit.open_shop(npc_id)
+		v = kit.last_talk
 	talk_log[npc_id] = info
 	if not d.check("%s: the greeting opens" % label, bool(v["open"]), str(v).left(200)):
 		return false
@@ -417,8 +425,6 @@ func _visit(d: PlaytestDriver, label: String, town: String, store: String, npc_i
 		if said.contains(String((line as Dictionary).get("text", "")).strip_edges()):
 			canon_line = true
 	d.check("%s: the greeting is one of the NPC's canonical lines" % label, canon_line, said.left(100))
-	await d.next()
-	var opened := await d.wait_until(func() -> bool: return d.shop_open(), 2.0)
 	var sw := d.shop()
 	if not d.check("%s: Enter on the greeting opens the shop window" % label, opened and String(sw.get("shop_id")) == shop_id
 			and not d.dialogue_open(), "open %s, shop '%s', dialogue %s" % [opened, String(sw.get("shop_id")), d.dialogue_open()]):
@@ -439,7 +445,8 @@ func _visit(d: PlaytestDriver, label: String, town: String, store: String, npc_i
 func _leave_shop(d: PlaytestDriver, label: String) -> void:
 	d.check("%s: the shop's meso display matches the ledger" % label, _shop_mesos(d) == _th(ledger),
 		"'%s' vs %s" % [_shop_mesos(d), _th(ledger)])
-	d.check("%s: Esc leaves the shop" % label, await d.close_shop() and not bool(d.state().get("modal", true)),
+	var closed := await kit.close_shop()
+	d.check("%s: Esc leaves the shop" % label, closed and not bool(d.state().get("modal", true)),
 		"modal %s" % d.state().get("modal"))
 
 
@@ -451,10 +458,10 @@ func _leave_shop(d: PlaytestDriver, label: String) -> void:
 func _buy(d: PlaytestDriver, shop_id: String, label: String, item_id: String, qty: int) -> void:
 	await _select_buy(d, item_id)
 	var q := await _qty_to(d, qty)
-	if not d.check("%s: the picker reaches %d for %s" % [label, qty, _name(d, item_id)], q == qty, "quantity %d" % q):
+	if not d.check("%s: the picker reaches %d for %s" % [label, qty, kit.item_name(item_id)], q == qty, "quantity %d" % q):
 		return
 	var r := await _enter(d, item_id)
-	_check_bought(d, shop_id, "%s: bought %s x%d" % [label, _name(d, item_id), qty], item_id, qty, r)
+	_check_bought(d, shop_id, "%s: bought %s x%d" % [label, kit.item_name(item_id), qty], item_id, qty, r)
 
 
 func _check_bought(d: PlaytestDriver, shop_id: String, what: String, item_id: String, qty: int, r: Dictionary) -> void:
@@ -464,7 +471,7 @@ func _check_bought(d: PlaytestDriver, shop_id: String, what: String, item_id: St
 	var units := qty * per
 	var exp_stacks := _expected_stacks(r["slots_before"], item_id, units, _max_stack(d, item_id))
 	var new_slots := exp_stacks.size() - (r["stacks_before"] as Array).size()
-	var msg := "Bought %s for %s mesos." % [_name(d, item_id) if units <= 1 else "%s x%d" % [_name(d, item_id), units], _th(cost)]
+	var msg := "Bought %s for %s mesos." % [kit.item_name(item_id) if units <= 1 else "%s x%d" % [kit.item_name(item_id), units], _th(cost)]
 	var total_line := "Total: %s mesos" % _th(cost)
 	var ok: bool = bool(r["ok"]) and int(r["mesos_delta"]) == -cost and int(r["count_delta"]) == units \
 		and r["stacks_after"] == exp_stacks and int(r["used_delta"]) == new_slots and String(r["message"]) == msg \
@@ -477,13 +484,13 @@ func _check_bought(d: PlaytestDriver, shop_id: String, what: String, item_id: St
 		d.character().mesos, ledger, r["total_text"], r["hud_new"]])
 	if bool(r["ok"]):
 		_check_hud(d, what, r, PackedStringArray(["You have spent %s mesos." % _th(cost),
-			"You have gained an item (%s%s)" % [_name(d, item_id), (" x%d" % units) if units > 1 else ""]]))
+			"You have gained an item (%s%s)" % [kit.item_name(item_id), (" x%d" % units) if units > 1 else ""]]))
 
 
 func _check_sold(d: PlaytestDriver, what: String, item_id: String, qty: int, r: Dictionary) -> void:
 	var unit := int(d.db().item(item_id).get("sell_price_mesos", -1))
 	var total := unit * qty
-	var msg := "Sold %s for %s mesos." % [_name(d, item_id) if qty <= 1 else "%s x%d" % [_name(d, item_id), qty], _th(total)]
+	var msg := "Sold %s for %s mesos." % [kit.item_name(item_id) if qty <= 1 else "%s x%d" % [kit.item_name(item_id), qty], _th(total)]
 	var total_line := "Total: %s mesos" % _th(total)
 	var ok: bool = bool(r["ok"]) and int(r["quantity"]) == qty and int(r["mesos_delta"]) == total and int(r["count_delta"]) == -qty \
 		and String(r["message"]) == msg and String(r["total_text"]) == total_line and int(r["sig_lost"]) == 1
@@ -554,12 +561,12 @@ func _enter(d: PlaytestDriver, item_id: String) -> Dictionary:
 	var before := _snap(d, item_id)
 	var qty := int(sw.get("quantity"))
 	var total_text := String((sw.get("total_label") as Label).text)
-	var hist0: Array = _hud_log(d)
+	var hist0: Array = kit.log_history()
 	var last0: Variant = hist0.back() if not hist0.is_empty() else null
 	await d.tap_key(KEY_ENTER)
 	await d.frames(2)
 	var after := _snap(d, item_id)
-	var hist1: Array = _hud_log(d)
+	var hist1: Array = kit.log_history()
 	var start := 0
 	for k in range(hist1.size() - 1, -1, -1):
 		if last0 != null and is_same(hist1[k], last0):
@@ -578,7 +585,7 @@ func _enter(d: PlaytestDriver, item_id: String) -> Dictionary:
 		"sig_lost": int(after["sig_lost"]) - int(before["sig_lost"]), "sig_full": int(after["sig_full"]) - int(before["sig_full"]),
 		"shown": int(after["shown"]) - int(before["shown"]), "total_text": total_text, "hud_new": hud_new,
 		"hud_last": String((hist1.back() as Dictionary).get("text", "")) if not hist1.is_empty() else "",
-		"hud_hist": hist1.duplicate(true), "hud_clock": _hud_clock(d)}
+		"hud_hist": hist1.duplicate(true), "hud_clock": kit.log_clock()}
 
 
 func _snap(d: PlaytestDriver, item_id: String) -> Dictionary:
@@ -604,13 +611,16 @@ func _give_mesos(d: PlaytestDriver, n: int) -> void:
 func _give_item(d: PlaytestDriver, item_id: String) -> void:
 	var n0 := d.character().inventory.count(item_id)
 	await d.console("give %s" % item_id)
-	d.check("setup: give %s" % _name(d, item_id), d.character().inventory.count(item_id) == n0 + 1,
+	d.check("setup: give %s" % kit.item_name(item_id), d.character().inventory.count(item_id) == n0 + 1,
 		"%d -> %d" % [n0, d.character().inventory.count(item_id)])
 
 
 # =================================================================================================================
 # The shop's keys
 # =================================================================================================================
+# Not the kit's buy / sell (PlaytestDriver.shop_buy / shop_sell), on purpose: those make a whole trade in one call,
+# and these checks read the picker, the detail panel and the meso display between single keys (Max, Right past the
+# limit, Shift+Right, the - and + buttons, Space).
 
 func _select_buy(d: PlaytestDriver, item_id: String) -> bool:
 	var sw := d.shop()
@@ -732,7 +742,7 @@ func _check_stock(d: PlaytestDriver, shop_id: String, label: String) -> void:
 	var at := 0
 	var missing: Array = []
 	for cr: Dictionary in canon:
-		var nm := _name(d, String(cr.get("item_id")))
+		var nm := kit.item_name(String(cr.get("item_id")))
 		var price_line := "%s mesos" % _th(int(cr.get("price_mesos")))
 		var found := -1
 		for k in range(at, lines.size() - 1):
@@ -747,8 +757,8 @@ func _check_stock(d: PlaytestDriver, shop_id: String, label: String) -> void:
 		("missing %s" % [missing]) if not missing.is_empty() else "%d rows" % canon.size())
 	var names_differ: Array = []
 	for cr: Dictionary in canon:
-		if String(cr.get("shop_list_name", cr.get("name"))) != _name(d, String(cr.get("item_id"))):
-			names_differ.append("%s: shop '%s', item '%s'" % [cr.get("item_id"), cr.get("shop_list_name"), _name(d, String(cr.get("item_id")))])
+		if String(cr.get("shop_list_name", cr.get("name"))) != kit.item_name(String(cr.get("item_id"))):
+			names_differ.append("%s: shop '%s', item '%s'" % [cr.get("item_id"), cr.get("shop_list_name"), kit.item_name(String(cr.get("item_id")))])
 		var item_buy: Variant = d.db().item(String(cr.get("item_id"))).get("npc_buy_price_mesos")
 		if item_buy != null and int(item_buy) != int(cr.get("price_mesos")):
 			d.note("%s: canonical records disagree on %s's buy price: shops/%s.json price_mesos %d, items/%s.json npc_buy_price_mesos %d (the game charges the shop's)" % [
@@ -800,7 +810,7 @@ func _detail_text(d: PlaytestDriver) -> String:
 
 func _check_row_owned(d: PlaytestDriver, label: String, item_id: String) -> void:
 	var lines := d.texts_under(d.shop()).split("\n")
-	var nm := _name(d, item_id)
+	var nm := kit.item_name(item_id)
 	var owned := "Owned %d" % d.character().inventory.count(item_id)
 	var ok := false
 	for k in range(lines.size() - 2):
@@ -813,26 +823,6 @@ func _check_row_owned(d: PlaytestDriver, label: String, item_id: String) -> void
 func _shop_mesos(d: PlaytestDriver) -> String:
 	var l := d.shop().get("meso_label") as Label
 	return l.text if l != null else ""
-
-
-## The HUD message log's history ({text, tone, time}, oldest first); [] without a HUD.
-func _hud_log(d: PlaytestDriver) -> Array:
-	var h := d.hud()
-	var lp: Variant = h.get("log_panel") if h != null else null
-	return (lp as Node).get("history") if lp is Node else []
-
-
-func _hud_clock(d: PlaytestDriver) -> float:
-	var h := d.hud()
-	var lp: Variant = h.get("log_panel") if h != null else null
-	return float((lp as Node).get("_clock")) if lp is Node else 0.0
-
-
-func _hud_mesos(d: PlaytestDriver) -> String:
-	var h := d.hud()
-	var st: Variant = h.get("status") if h != null else null
-	var l: Variant = (st as Node).get("mesos_label") if st is Node else null
-	return (l as Label).text if l is Label else ""
 
 
 func _hook_events(d: PlaytestDriver) -> void:
@@ -865,10 +855,6 @@ func _canon_row(d: PlaytestDriver, shop_id: String, item_id: String) -> Dictiona
 
 func _price(d: PlaytestDriver, shop_id: String, item_id: String) -> int:
 	return int(_canon_row(d, shop_id, item_id).get("price_mesos", -1))
-
-
-func _name(d: PlaytestDriver, item_id: String) -> String:
-	return String(d.db().item(item_id).get("name", item_id))
 
 
 func _tab(d: PlaytestDriver, item_id: String) -> String:
