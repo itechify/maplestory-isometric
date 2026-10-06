@@ -12,6 +12,7 @@ Blender source (no teleport failsafes over bad terrain).
 | the report | `docs/runtime/stuck_report.json` (regenerated at milestones) |
 | reviewed results: intended dead ends (none) and reviewed UNENTERABLE components (9) | `game/data/misostory/stuck_allowlist.json` |
 | the guard in the suite | `game/tests/unit/test_stuck_scan.gd` |
+| the cache of the results (git-ignored) | `_scratch/stuck_scan_cache/` |
 | the former-trap regression | `game/tools/playtest/scenarios/trap_probe.gd`, `game/tests/unit/test_playtest_traps.gd` |
 | the Blender-side guard | `scripts/validate.py` check `ring_band` |
 
@@ -151,8 +152,10 @@ bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn --
 # path from an entry, the nearest escapable ground): the way to inspect a finding by hand
 bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- --map 000001004 --no-verify \
     --inspect "35.44,0,-27.75;30.65,0,-26.4"
-# the guard in the suite (all 25 maps, verified)
+# the guard in the suite (all 25 maps, verified; from the cache when nothing changed)
 ISOLATE=stuck INCLUDE_WORLD=1 bash scripts/test.sh stuck_scan
+# the same, scanning every map whatever the cache holds (the tool: --no-cache)
+STUCK_SCAN_CACHE=0 ISOLATE=stuck INCLUDE_WORLD=1 bash scripts/test.sh stuck_scan
 # a spot in the real game, with real input (escape = escapable ground by the live scan, a portal or a gate)
 TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap_probe
 # the Blender-side guard
@@ -161,6 +164,36 @@ TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap
 
 The tool exits 1 when a CONFIRMED component is not allowlisted, an UNENTERABLE one is not reviewed, or an escapable
 node lies outside every region.
+
+## The cache
+
+A full scan takes 80-110 s and gives the same result for the same collision, so `StuckScan.run()` keeps each map's
+result (the report's row and components, with their nodes' positions) and reads it back when nothing it depends on
+changed. A STUCK_CACHE line of the tool, and the island test's STUCK line, say how many maps came from the cache.
+
+- **The key** (`StuckScan.cache_key()`) is a SHA-256 over what a result depends on:
+  - the collision the player meets, as built (`collision_digest()`): every collision object on the player's mask
+    under the island, by path, with its layer, its transform and its shapes' stored properties (a trimesh's faces and
+    sidedness, a box's size). It covers the exported collision meshes and the rings, plugs and trail walls the island
+    builds at runtime, so it changes with one vertex of one map's collision. The exported glbs and sidecars are not
+    hashed as files: what they build is;
+  - every map's graph inputs (`map_graph()`): its region polygons, kill_y, entries, climbables, exit portals' triggers
+    and gates. Every map's, since another map's region decides what counts as outside every region;
+  - the movement model's numbers, the cell size and whether components are verified;
+  - the scanner's code (`StuckScan.SOURCES`): the scanner and the controller, model, input and definitions its
+    verification runs, as source text, so any edit to them (a comment too) scans again. An edit elsewhere that changes
+    how the controller moves (a stat formula, say) does not change the key: scan with the cache off after one.
+- **Not in the key: the allowlist.** Every run matches the components, stored or scanned, against
+  `stuck_allowlist.json` as it is then, so reviewing a component or removing an entry needs no new scan.
+- **Where:** `_scratch/stuck_scan_cache/` in the repository that holds the project (`_scratch/` is git-ignored). An
+  ISOLATE copy under `_scratch/godot_runs/<name>/` finds the same directory, so the copies share it and the mirror
+  never wipes it; one file per key (`stuck_scan_<key>.bin`, Godot's `store_var`, about 90 KB), the 4 newest kept.
+  `STUCK_SCAN_CACHE=<dir>` puts it elsewhere; outside a git checkout it is `user://stuck_scan_cache`.
+- **Off:** `STUCK_SCAN_CACHE=0` (or `off`), the tool's `--no-cache`, or `StuckScan.create(..., {"cache": ""})`. A run
+  with `--png` scans every map it draws (the pictures need the graph).
+- **Same results:** a run from the cache reports what a fresh scan does, but for the timings (`ms`, `sample_ms`,
+  `edges_ms`, `verify_ms`, which are the stored run's) and the report's `cache` field. `test_stuck_scan.gd` checks
+  this on two maps, and the full report of a fresh scan and one from the cache differed only there (2026-10-06).
 
 ## Results
 
@@ -226,7 +259,8 @@ ground at the spot's height, else on the first surface over the spot (a fill, a 
 landing from above alone stood on the terrace over a cavern that would reopen under it, and passed (it passed
 000001006's pocket from the bridge deck 10 m above). The 000001006 pocket is not in `KNOWN_TRAPS`: its fix makes it
 unreachable, not filled, so the scan guards it. With the world in the suite, `test_stuck_scan.gd` takes about
-80-100 s and `test_playtest_traps.gd` about 2 minutes.
+80-100 s (since issue #33, 114 s when it scans and 17 s when the cache holds the results, on 2026-10-06 beside other
+agents' runs) and `test_playtest_traps.gd` about 2 minutes.
 
 ### Issue #34: the ring top inside Southperry's quay wall (2026-10-06)
 

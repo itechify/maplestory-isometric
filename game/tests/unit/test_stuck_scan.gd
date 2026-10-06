@@ -5,11 +5,14 @@ extends TestCase
 ## CONFIRMED trap, a 1 m step is not, a ladder out of a pit makes it escapable, a descend-only rope does not, a walled
 ## yard reached only by a running jump off a tower is a CONFIRMED trap, and a surface inside a closed solid is never a
 ## node (nor one inside a double-sided solid whose top is level with another's: Southperry's quay front, issue #34).
+## The cache key of run() changes with the collision, the parameters, the graph inputs and the scanner (issue #33).
 ##
 ## The island test (INCLUDE_WORLD=1; a SKIP line without the export) scans all 25 maps, verifies every flagged
 ## component with the real PlayerController and fails on any CONFIRMED trap that game/data/misostory/
 ## stuck_allowlist.json does not list (the allowlist holds only reviewed, intended dead ends), on a map whose scan has
-## no entries, exits or reachable ground, and on escapable ground outside every map region and trail zone.
+## no entries, exits or reachable ground, and on escapable ground outside every map region and trail zone. Its results
+## come from StuckScan's cache when nothing they depend on changed (seconds instead of about 90 s; STUCK_SCAN_CACHE=0
+## scans anyway); a second island test checks that a run from the cache reports what a fresh scan does.
 ## STUCK_REPORT_OUT=<file> also writes the report document (docs/runtime/stuck_report.json is that document,
 ## regenerated at milestones).
 
@@ -34,6 +37,9 @@ func parity_keys() -> Dictionary:
 		"test_a_surface_inside_a_double_sided_solid_is_not_a_node": ["mechanic:stuck-region-scan"],
 		"test_a_yard_reached_only_by_a_running_jump_is_a_confirmed_trap": ["mechanic:stuck-region-scan"],
 		"test_ways_in_are_taken_in_turns_from_every_kind": ["mechanic:stuck-region-scan"],
+		"test_the_cache_key_follows_collision_parameters_and_scanner": ["mechanic:stuck-region-scan"],
+		"test_the_cache_can_be_turned_off_or_moved": ["mechanic:stuck-region-scan"],
+		"test_a_cached_scan_reports_what_a_fresh_scan_does": ["mechanic:stuck-region-scan"],
 	}
 
 
@@ -190,26 +196,83 @@ func test_ways_in_are_taken_in_turns_from_every_kind() -> void:
 	assert_ne(int(second_slide.from), int(out[1].from), "a new take-off node")
 
 
+## run()'s cache (issue #33) is keyed by everything a result depends on: changing one collision body or mesh (a box
+## moved, a trimesh vertex moved, a trimesh made double-sided), a parameter, a map's graph inputs or the scanner's code
+## gives another key, and nothing else does.
+func test_the_cache_key_follows_collision_parameters_and_scanner() -> void:
+	var w := _pit_world(2.4)
+	var faces := _box_faces(AABB(Vector3(4.0, 0.0, 4.0), Vector3(1.0, 1.0, 1.0)))
+	var mesh := _trimesh(w, faces, false)
+	var scan := StuckScan.create_in(w.host, db(), {"host": w.host})
+	var g := _graph()
+	var key := scan.cache_key([g], true)
+	assert_eq(key.length(), 64, "a SHA-256")
+	assert_eq(scan.cache_key([g], true), key, "the same world, graph and parameters: the same key")
+	assert_eq(StuckScan.create_in(w.host, db(), {"host": w.host}).cache_key([g], true), key, "the same from another scanner")
+	# Parameters.
+	assert_ne(scan.cache_key([g], false), key, "verified or not")
+	var coarse := StuckScan.create_in(w.host, db(), {"host": w.host, "cell": 0.5})
+	assert_ne(coarse.cache_key([g], true), key, "another cell size")
+	# The scanner: its own source and the controller's are hashed into code_version.
+	assert_true((scan.get_script() as Script).resource_path in StuckScan.SOURCES, "the scanner's source is in the key")
+	assert_true("res://scripts/actors/player/player_controller.gd" in StuckScan.SOURCES, "so is the controller's")
+	var edited := StuckScan.create_in(w.host, db(), {"host": w.host})
+	edited.code_version = StuckScan.source_digest() + "+edit"
+	assert_ne(edited.cache_key([g], true), key, "another scanner")
+	# The map's graph inputs.
+	g.entry_points[0] += Vector3(0.35, 0.0, 0.0)
+	assert_ne(scan.cache_key([g], true), key, "an entry moved")
+	g.entry_points[0] -= Vector3(0.35, 0.0, 0.0)
+	assert_eq(scan.cache_key([g], true), key, "the entry back: the key back")
+	# The collision: a box, a trimesh vertex, the trimesh's sidedness.
+	var box := w.host.get_child(0) as StaticBody3D
+	box.position += Vector3(0.01, 0.0, 0.0)
+	assert_ne(scan.cache_key([g], true), key, "a box moved 1 cm")
+	box.position -= Vector3(0.01, 0.0, 0.0)
+	assert_eq(scan.cache_key([g], true), key, "the box back: the key back")
+	faces[0] += Vector3(0.0, 0.01, 0.0)
+	mesh.set_faces(faces)
+	var moved := scan.cache_key([g], true)
+	assert_ne(moved, key, "one trimesh vertex moved 1 cm")
+	mesh.backface_collision = true
+	assert_ne(scan.cache_key([g], true), moved, "the trimesh made double-sided")
+	w.free_all()
+
+
+## The cache's directory: <repo>/_scratch/stuck_scan_cache by default (git-ignored, shared by the ISOLATE copies), another
+## with STUCK_SCAN_CACHE=<dir>, none with STUCK_SCAN_CACHE=0 or the option cache: "".
+func test_the_cache_can_be_turned_off_or_moved() -> void:
+	var before := OS.get_environment("STUCK_SCAN_CACHE")
+	OS.unset_environment("STUCK_SCAN_CACHE")
+	assert_true(StuckScan.default_cache_dir().ends_with("_scratch/stuck_scan_cache"),
+		"in the repository's _scratch: %s" % StuckScan.default_cache_dir())
+	assert_false(StuckScan.default_cache_dir().contains("godot_runs"), "not inside an ISOLATE copy")
+	OS.set_environment("STUCK_SCAN_CACHE", "0")
+	assert_eq(StuckScan.default_cache_dir(), "", "STUCK_SCAN_CACHE=0: no cache")
+	OS.set_environment("STUCK_SCAN_CACHE", "C:/elsewhere/cache")
+	assert_eq(StuckScan.default_cache_dir(), "C:/elsewhere/cache", "STUCK_SCAN_CACHE=<dir>")
+	if before == "":
+		OS.unset_environment("STUCK_SCAN_CACHE")
+	else:
+		OS.set_environment("STUCK_SCAN_CACHE", before)
+	var w := _pit_world(1.0)
+	assert_eq(StuckScan.create_in(w.host, db(), {"cache": ""}).cache_dir, "", "the option turns it off")
+	w.free_all()
+
+
 # --- the island -----------------------------------------------------------------------------------------------------
 
 func test_every_map_has_no_unlisted_trap() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_every_map_has_no_unlisted_trap: game/assets/world not present (run with INCLUDE_WORLD=1)")
 		return
-	var tree := Engine.get_main_loop() as SceneTree
-	var world := IslandWorld.new()
-	world.name = "StuckScanWorld"
-	world.build_on_ready = false
-	world.load_visuals = false
-	world.attach_to_session = false
-	tree.current_scene.add_child(world)
-	world.build_now(db())
+	var world := _island()
 	var scan := StuckScan.create(world, db())
 	var doc := scan.run()
 	var t: Dictionary = doc.totals
-	print("STUCK scan: %d maps, %d nodes, %d flagged in %d components: %d confirmed (%d allowlisted), %d cleared, %d unenterable (%d ms)" % [
+	print("STUCK scan: %d maps, %d nodes, %d flagged in %d components: %d confirmed (%d allowlisted), %d cleared, %d unenterable (%d ms; %d maps from the cache %s)" % [
 		int(t.maps), int(t.nodes), int(t.flagged), int(t.components), int(t.confirmed), int(t.allowlisted), int(t.cleared),
-		int(t.unenterable), int(t.ms)])
+		int(t.unenterable), int(t.ms), int(doc.cache.maps_from_cache), scan.cache_dir if scan.cache_dir != "" else "(off)"])
 	assert_eq(int(t.maps), 25, "every map scanned")
 	assert_eq(int(t.unverified), 0, "every flagged component verified")
 	# The scan only finds traps it can reach: a map with no entries, no exits or nothing reachable would pass vacuously.
@@ -243,7 +306,64 @@ func test_every_map_has_no_unlisted_trap() -> void:
 	world.free()
 
 
+## A run from the cache reports what a scan does (issue #33): two small maps scanned with the cache off, then with an
+## empty cache (scanned and stored), then again (read back) give the same document but for the timings. A trimesh
+## vertex moved in one map's collision gives another key, and the next run scans again.
+func test_a_cached_scan_reports_what_a_fresh_scan_does() -> void:
+	if not WorldSidecars.exists():
+		print("SKIP test_a_cached_scan_reports_what_a_fresh_scan_does: game/assets/world not present (run with INCLUDE_WORLD=1)")
+		return
+	var world := _island()
+	var dir := ProjectSettings.globalize_path("user://stuck_scan_cache_test")
+	for n in DirAccess.get_files_at(dir):
+		DirAccess.remove_absolute(dir.path_join(n))
+	var maps := PackedStringArray(["000000061", "000001013"])
+	var fresh := StuckScan.create(world, db(), {"cache": ""}).run(maps)
+	var stored := StuckScan.create(world, db(), {"cache": dir}).run(maps)
+	var read := StuckScan.create(world, db(), {"cache": dir}).run(maps)
+	assert_eq([int(fresh.cache.maps_scanned), String(fresh.cache.key)], [2, ""], "the cache off: both maps scanned")
+	assert_eq([int(stored.cache.maps_scanned), int(stored.cache.maps_from_cache)], [2, 0], "an empty cache: both scanned")
+	assert_eq([int(read.cache.maps_scanned), int(read.cache.maps_from_cache)], [0, 2], "then both read from the cache")
+	assert_eq(String(read.cache.key), String(stored.cache.key), "under the same key")
+	assert_true(int(fresh.totals.components) > 0, "the two maps have components to compare")
+	assert_true(_results(stored) == _results(fresh), "the stored run reports what the fresh one does")
+	assert_true(_results(read) == _results(fresh), "the run from the cache reports what the fresh one does")
+	# One vertex of one exported collision mesh moved: another key, so the maps are scanned again.
+	var chunk := world.collision_root.get_node_or_null(NodePath(world.defs.get_def("000000061").slug + "_collision"))
+	var shape: ConcavePolygonShape3D = null
+	if chunk != null:
+		for cs in chunk.find_children("*", "CollisionShape3D", true, false):
+			if (cs as CollisionShape3D).shape is ConcavePolygonShape3D:
+				shape = (cs as CollisionShape3D).shape
+				break
+	assert_true(shape != null, "a trimesh of 000000061's collision")
+	if shape != null:
+		var faces := shape.get_faces()
+		var moved := faces.duplicate()
+		moved[0] += Vector3(0.0, 0.001, 0.0)
+		shape.set_faces(moved)
+		var again := StuckScan.create(world, db(), {"cache": dir}).run(maps)
+		# The imported shape is shared by every build in the process: put it back.
+		shape.set_faces(faces)
+		assert_ne(String(again.cache.key), String(stored.cache.key), "a moved vertex: another key")
+		assert_eq(int(again.cache.maps_scanned), 2, "and both maps scanned again")
+	world.free()
+
+
 # --- helpers ----------------------------------------------------------------------------------------------------------
+
+## The island, collision only (IslandWorld.build_now()), in the running scene.
+func _island() -> IslandWorld:
+	var tree := Engine.get_main_loop() as SceneTree
+	var world := IslandWorld.new()
+	world.name = "StuckScanWorld"
+	world.build_on_ready = false
+	world.load_visuals = false
+	world.attach_to_session = false
+	tree.current_scene.add_child(world)
+	world.build_now(db())
+	return world
+
 
 ## A flat 16 x 16 m ground (top y = 0) with a 3 x 3 m pit in the middle, its floor `depth` below.
 func _pit_world(depth: float) -> PlayerTestWorld:
@@ -274,6 +394,14 @@ func _ladder(descend_only: bool) -> ClimbableDef:
 ## Scans the 16 x 16 m area with an entry and an exit (a press-Up box) at its north-west corner, and verifies.
 func _scan(w: PlayerTestWorld, climbables: Array[ClimbableDef]) -> Dictionary:
 	var scan := StuckScan.create_in(w.host, db(), {"host": w.host})
+	var g := _graph(climbables)
+	scan.scan(g)
+	scan.verify(g)
+	return {"scan": scan, "graph": g}
+
+
+## The unscanned graph of the 16 x 16 m area: its region, an entry and an exit (a press-Up box) at its north-west corner.
+func _graph(climbables: Array[ClimbableDef] = []) -> StuckScan.MapGraph:
 	var g := StuckScan.MapGraph.new()
 	g.map_id = "test"
 	g.name = "test"
@@ -284,9 +412,7 @@ func _scan(w: PlayerTestWorld, climbables: Array[ClimbableDef]) -> Dictionary:
 	g.entry_points.append(Vector3(-5.0, 0.0, -5.0))
 	g.exit_boxes.append(AABB(Vector3(-6.0, -0.5, -6.0), Vector3(2.0, 2.0, 2.0)))
 	g.climbables = climbables
-	scan.scan(g)
-	scan.verify(g)
-	return {"scan": scan, "graph": g}
+	return g
 
 
 ## The component holding a node near world point `p` (empty when that ground is not flagged).
@@ -328,7 +454,7 @@ func _box_faces(b: AABB, top: bool = true) -> PackedVector3Array:
 
 
 ## One static trimesh body of `faces` (double-sided: IslandWorld.double_sided_trimesh's backface_collision).
-func _trimesh(w: PlayerTestWorld, faces: PackedVector3Array, double_sided: bool) -> void:
+func _trimesh(w: PlayerTestWorld, faces: PackedVector3Array, double_sided: bool) -> ConcavePolygonShape3D:
 	var shape := ConcavePolygonShape3D.new()
 	shape.set_faces(faces)
 	shape.backface_collision = double_sided
@@ -337,6 +463,24 @@ func _trimesh(w: PlayerTestWorld, faces: PackedVector3Array, double_sided: bool)
 	cs.shape = shape
 	body.add_child(cs)
 	w.add_node(body)
+	return shape
+
+
+## A report document without what differs from run to run (timings) and the cache's own account.
+func _results(doc: Dictionary) -> String:
+	return JSON.stringify(_without_times(doc), "", true)
+
+
+func _without_times(v: Variant) -> Variant:
+	if v is Dictionary:
+		var o := {}
+		for k in v:
+			if not (String(k) in ["ms", "sample_ms", "edges_ms", "verify_ms", "cache"]):
+				o[k] = _without_times(v[k])
+		return o
+	if v is Array:
+		return (v as Array).map(_without_times)
+	return v
 
 
 ## The surfaces of the column at world point `p`: height (rounded to 0.01) -> node id (-1: not standable).
