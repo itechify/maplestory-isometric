@@ -787,8 +787,9 @@ func type_text(text: String) -> void:
 ## text (the topmost visible control whose text is exactly it, else contains it, buttons first). Only what a player
 ## can see and reach is clicked: a control off the screen (its centre outside the viewport's visible rect) or covered
 ## by another control (the GUI finds another control under the pointer) is refused, the step fails with the reason
-## and a failed check "a player can click ..." records it, headless and windowed alike (seen_reason()). Returns
-## {"ok", "control", "why"}. Await it.
+## and a failed check "a player can click ..." records it, headless and windowed alike (seen_reason,
+## covered_reason). A row a list clips is scrolled into view first (scroll_into_view). Returns {"ok", "control",
+## "why"}. Await it.
 func click(target: Variant) -> Dictionary:
 	var i := _begin(PlaytestReport.KIND_PLAY, "click", str(target))
 	var c := find_control(target)
@@ -809,9 +810,9 @@ func click(target: Variant) -> Dictionary:
 	return {"ok": ok, "control": path, "why": "" if ok else "it did not react"}
 
 
-## The control `target` names (see click()), or null. Null too when the control is off the screen (its centre outside
-## the viewport's visible rect: a player cannot see it); last_click_why then says why. A text search skips controls off
-## the screen and names them when nothing on the screen matches.
+## The control `target` names (see click()), or null. Null too when a player cannot reach it on the screen
+## (reach_reason: its centre outside the viewport's visible rect, unless a list on the screen can scroll it into view);
+## last_click_why then says why. A text search skips such controls and names them when nothing reachable matches.
 func find_control(target: Variant) -> Control:
 	last_click_why = ""
 	if target is Control:
@@ -832,7 +833,7 @@ func find_control(target: Variant) -> Control:
 		var t := str(c.get("text"))
 		if t != s and not (s != "" and t.to_lower().contains(s.to_lower())):
 			continue
-		var why := off_screen_reason(c)
+		var why := reach_reason(c)
 		if why != "":
 			off_screen.append(why)
 		elif t == s:
@@ -852,6 +853,22 @@ func find_control(target: Variant) -> Control:
 	return null
 
 
+## Why a player cannot reach `c` on the screen before any scrolling, or "": off_screen_reason(c), except that a
+## control a visible list (ScrollContainer) clips counts when that list's own centre is on the screen: a player
+## scrolls the row into view (a long Quest Log list runs past the bottom of the screen), and _click_control scrolls it
+## (scroll_into_view) and checks seen_reason before it presses.
+func reach_reason(c: Control) -> String:
+	var why := off_screen_reason(c)
+	if why == "":
+		return ""
+	var n: Node = c.get_parent()
+	while n != null:
+		if n is ScrollContainer and (n as ScrollContainer).is_visible_in_tree():
+			return "" if off_screen_reason(n as Control) == "" else why
+		n = n.get_parent()
+	return why
+
+
 ## Why a player cannot see `c` on the screen, or "": its centre (where click() points) lies outside the viewport's
 ## visible rect (get_viewport().get_visible_rect()). Headless runs dispatch GUI input at any coordinate, so without
 ## this a click could press a button a windowed player cannot reach (the acceptance review's Skills window "Set key"
@@ -864,6 +881,24 @@ func off_screen_reason(c: Control) -> String:
 	if vis.has_point(r.get_center()):
 		return ""
 	return "%s %s lies outside the visible screen %s (a player cannot see it)" % [_control_text(c), _rect_text(r), _rect_text(vis)]
+
+
+## Why a player cannot see `c` where it is now, or "": off the screen (off_screen_reason) or, inside a list, scrolled
+## out of the list's view (its centre outside a visible ScrollContainer it sits in; scroll_into_view runs first where
+## a player would scroll).
+func seen_reason(c: Control) -> String:
+	var why := off_screen_reason(c)
+	if why != "":
+		return why
+	var at := control_rect(c).get_center()
+	var n: Node = c.get_parent()
+	while n != null:
+		var sc := n as ScrollContainer
+		if sc != null and sc.is_visible_in_tree() and not control_rect(sc).has_point(at):
+			return "%s %s is scrolled out of sight in its list %s" % [_control_text(c), _rect_text(control_rect(c)),
+				_rect_text(control_rect(sc))]
+		n = n.get_parent()
+	return ""
 
 
 ## Why a player cannot click `c` with the pointer at `at` where the GUI found `hovered` (PlaytestInput.hover), or "":
@@ -882,7 +917,7 @@ static func control_rect(c: Control) -> Rect2:
 
 
 func _on_screen_or_why(c: Control) -> Control:
-	last_click_why = off_screen_reason(c)
+	last_click_why = reach_reason(c)
 	return c if last_click_why == "" else null
 
 
@@ -1826,7 +1861,8 @@ func _fallback(i: int, why: String) -> void:
 
 ## Clicks a control with the mouse; true when it reacted (a button's `pressed`, else the pointer was over it). A
 ## control a player cannot click is refused before any press, with the reason in last_click_why ("" otherwise): off
-## the screen (off_screen_reason) or covered by another control once the pointer is on it (covered_reason).
+## the screen or scrolled out of its list after scroll_into_view (seen_reason), or covered by another control once
+## the pointer is on it (covered_reason).
 func _click_control(c: Control) -> bool:
 	last_click_why = ""
 	if c == null or not is_instance_valid(c) or not c.is_visible_in_tree():
@@ -1840,7 +1876,7 @@ func _click_control(c: Control) -> bool:
 	await scroll_into_view(c)
 	if not is_instance_valid(c):
 		return false
-	last_click_why = off_screen_reason(c)
+	last_click_why = seen_reason(c)
 	if last_click_why != "":
 		return false
 	var at := c.get_global_transform_with_canvas() * (c.size * 0.5)
@@ -1892,8 +1928,9 @@ func _no_response(what: String) -> String:
 
 
 ## Moves the pointer onto `c` (or `at`, a canvas point inside it) and returns "" when a player could click it there,
-## else why not (off the screen, or another control under the pointer). The kit's double-click and drag use it before
-## they press. Await it.
+## else why not (off the screen or scrolled out of its list: seen_reason; or another control under the pointer).
+## Without `at`, a row a list clips is scrolled into view first. The kit's double-click and drag use it before they
+## press. Await it.
 func pointer_onto(c: Control, at: Variant = null) -> String:
 	if c == null or not is_instance_valid(c) or not c.is_visible_in_tree():
 		return "the control is gone or hidden"
@@ -1901,7 +1938,7 @@ func pointer_onto(c: Control, at: Variant = null) -> String:
 		await scroll_into_view(c)
 		if not is_instance_valid(c):
 			return "the control is gone"
-	var why := off_screen_reason(c)
+	var why := seen_reason(c)
 	if why != "":
 		return why
 	var p: Vector2 = at if at is Vector2 else control_rect(c).get_center()

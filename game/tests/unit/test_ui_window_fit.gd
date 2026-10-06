@@ -7,9 +7,9 @@ extends TestCase
 ##
 ## Content: the Skills window with all three Beginner skills learned, a row selected and the key picker open; a full
 ## Use tab with a slot selected and its key picker open; the Quest Log with every Maple Island quest in progress and
-## the longest detail selected; Character Stats and Equipment; the shop with the largest canonical stock; a dialogue
-## page with the longest canonical line. Also: a window that grows after it opens is pulled back inside, a drag
-## cannot push a window over the bar, and a smaller viewport re-clamps every open window.
+## Sam's quest (1006) selected; Character Stats and Equipment; the shop with the largest canonical stock. Also: a
+## window that grows after it opens is pulled back inside, a drag cannot push a window over the bar, and a smaller
+## viewport re-clamps an open window.
 
 const SCREEN := Rect2(0, 0, 1600, 900)
 

@@ -1179,15 +1179,20 @@ func double_click(c: Control, probe: Callable = Callable()) -> Dictionary:
 ## "why" says which end and a failed check records it. {"dragging", "target_topmost", "why"}.
 func drag(from: Control, to: Control) -> Dictionary:
 	var vp := d.get_viewport()
-	var a := center(from)
-	var b := center(to)
 	var why_to := await d.pointer_onto(to)
 	var why_from := await d.pointer_onto(from) if why_to == "" else ""
+	# Scrolling the source into view may move (or hide) the drop target in the same list: look at it again, without
+	# scrolling, where it now is.
+	if why_to == "" and why_from == "" and is_instance_valid(to):
+		why_to = await d.pointer_onto(to, center(to))
 	if why_to != "" or why_from != "":
 		var why := "drop target: " + why_to if why_to != "" else "drag source: " + why_from
 		d.check("a player can drag %s onto %s" % [String(from.name) if is_instance_valid(from) else "a control",
 			String(to.name) if is_instance_valid(to) else "a control"], false, why)
 		return {"dragging": false, "target_topmost": false, "why": why}
+	# Both ends where they are now, after any scrolling (pointer_onto scrolls a clipped list row into view).
+	var a := center(from)
+	var b := center(to)
 	d.input.mouse_move(b)
 	await d.frames(1)
 	var hov := vp.gui_get_hovered_control()
