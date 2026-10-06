@@ -5,108 +5,125 @@ git worktree, and the packages are merged afterwards, so each must produce and c
 a package must deviate, it records the deviation in its report. Source decisions are in
 [`../ITERATION_LOG.md`](../ITERATION_LOG.md) (Phase D3).
 
-## C1. Canonical drop record, schema v2 (`game/data/canonical/drops/<owner id>.json`)
+## C1. Canonical drop record, schema 3 (`game/data/canonical/drops/<owner id>.json`)
 
-The drops package writes these records with an offline join over the dated captures (`tools/*/captures/`). The data
-validators and the runtime drop roller read them. There is one file per owner: the 6 monsters (`1 2 3 4 5 9`) and the
-Wooden Box (`0000001`).
+`tools/meowdb/extract_monsters.mjs` is the only writer of these records. It builds them offline through
+`tools/sources/drops_merge.mjs` from the dated captures (`tools/meowdb/captures/`, `tools/henesys/captures/`) and the
+MeowDB cache. The data validators and the runtime drop roller read them. There is one file per owner: the 6 monsters
+(`1 2 3 4 5 9`) and the Wooden Box (`0000001`). A record holds only sourced facts: who drops what, which item it is,
+its rarity and the inputs of its chance category. It never holds a probability, a quantity or a made-up meso amount.
+Those come from the project owner's two rule files (below), which the runtime reads.
 
 ```jsonc
 {
-  "id": "2", "name": "Snail drop table", "schema_version": 2,
-  "owner": {"kind": "monster", "id": "2", "name": "Snail"},          // kind: "monster" | "breakable"
-  "membership_authority": "Hidden Street",                          // monsters; "MeowDB MS Classic" for the Wooden Box
+  "id": "5", "name": "Red Snail drop table", "schema_version": 3,
+  "owner": {"kind": "monster", "id": "5", "name": "Red Snail"},      // kind: "monster" | "breakable"
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",                           // MeowDB's community list, every entry
   "entries": [{
-    "key": "snail-shell",                    // stable slug of the membership name
-    "name": "Snail Shell",                   // as written by the membership source
-    "item_id": "348",                        // local MeowDB item id, or null when unresolved
-    "item_resolution": {"state": "resolved", // resolved | ambiguous | not_in_snapshot | not_in_classic
-                        "method": "exact",   // exact | normalized | alias_with_evidence | none
-                        "candidates": [],    // MeowDB ids considered (ambiguous cases)
-                        "note": ""},
-    "membership_source": {"authority": "Hidden Street", "url": "...", "read_at": "...",
-                          "raw_value": "Etc. drop: Snail Shell"},
-    "chance_source": {                      // null when no KuroDB row matches (an unresolved chance)
-      "authority": "KuroDB", "url": "...", "read_at": "...",
-      "kuro_item_id": "4000019", "kuro_name": "Snail Shell", "match_method": "exact",
-      "raw_value": "100% base | Qty 1",
-      "format": "percent_base",             // percent_base | reactor_chance_value
-      "normalized_probability": 1.0,
-      "conversion": "100 / 100",            // or "1 / 4 (interpretation, decision D3-7)"
-      "interpretation": null,               // text when the conversion is an interpretation (reactor values)
-      "kuro_quest_condition": null          // KuroDB's "| Quest N" flag (e.g. "1035" on Jr. Sentinel Shellpiece),
-                                            // or null; recorded as corroboration only, never the gate itself
+    "key": "red-cloth-pants",                // stable slug of the name
+    "name": "Red Cloth Pants",               // as MeowDB's list writes it
+    "item_id": "1168",                       // local MeowDB item id, or null when unresolved
+    "item_resolution": {
+      "state": "resolved",                   // resolved | ambiguous | not_in_snapshot
+      "method": "meowdb_drop_entry",         // exact_name (the one local item with the name) | meowdb_drop_entry
+                                             // (several local items share the name; MeowDB's own cached drop entry
+                                             // for this owner carries the id) | none
+      "candidates": ["1168", "1177"],
+      "evidence": "2 local items are named \"Red Cloth Pants\" (1168, 1177); MeowDB's own drop entry ... carries 1168"
     },
-    "chance_state": "resolved",              // resolved | unresolved
-    "probability": 1.0,                      // runtime chance in [0, 1]; null when unresolved
-    "quantity": {"min": 1, "max": 1, "source": "KuroDB 'Qty 1'"},   // null when unresolved
-    "quest_gate": null,                      // {"quest_id": "1012", "basis": "..."}: rolls only while that MeowDB quest
-                                             // is in progress (see the gate rule below)
+    "membership_source": {"authority": "MeowDB MS Classic", "url": "https://meowdb.com/msclassic/monsters/5",
+      "read_at": "...", "capture": "tools/meowdb/captures/monster_5.json", "list": "Drops (MS Classic)",
+      "list_group": "EQUIPMENT", "raw_value": "Red Cloth Pants\nLv 10 · Thief\n▲\n4\n▼\n0",
+      "votes": {"up": 4, "down": 0, "score": 4}},   // recorded only: nothing is excluded for votes
+    "rarity": {                              // null when Henesys.gg has no row: the entry stays, unresolved, and never drops
+      "label": "Common",                     // Common | Rare | Very Rare | Extremely Rare
+      "source": {"authority": "Henesys.gg", "url": "https://henesys.gg/loot", "read_at": "...",
+                 "capture": "tools/henesys/captures/item_rarity.json", "row": "Red Cloth Pants | Bottom · Thief | ... | Common"}
+    },
+    "category_inputs": {"item_type": "Equip", "item_subtype": "Bottom", "quest_gated": false,
+                        "item": "game/data/canonical/items/1168.json"},
+    "chance_category": "equip",              // the table row (rule below), or null when it cannot be derived
+    "quest_gate": null,                      // {"quest_id": "1012", "basis", "rule", "decision": "D3-9", "verified": false}
     "notes": []
   }],
-  "excluded_kuro_only": [{"kuro_item_id": "2380000", "name": "Snail Card", "raw_value": "26% base | Qty 1",
-                          "reason": "not on the membership list (KuroDB never adds members)"}],
-                                             // only rows no member matches (a candidate its item page did not
-                                             // confirm is one too, with what the page showed as its reason)
-  "pending_kuro_candidates": [{              // optional (absent = none): KuroDB rows that may be a member under
-    "kuro_item_id": "2040705",               // another name, waiting for a hand read of their item page (D3-8;
-                                             // this example is the state before 2040705 was read: every shipped
-                                             // record has none now)
-    "name": "Scroll for Shoes for Jump", "raw_value": "0.0300% base | Qty 1",
-    "member": "scroll-for-shoes-for-jump-10", // the entry key; that entry stays unresolved with no chance_source
-    "read": "KuroDB item page 2040705 (...); saved as tools/kurodb/captures/item_2040705.json",
-    "reason": "...", "decision": "D3-8"}],
-  "meowdb_reference": {"community_drops": [/* MeowDB entries with votes */], "msea_reference": [/* ... */]},
-  "meso": {                                  // null for owners that never drop mesos
-    "amount_state": "resolved",              // resolved | unresolved
-    "min": 2, "max": 2,                      // integers; null when unresolved
-    "amount_source": {"authority": "MeowDB MS Classic", "url": "...", "read_at": "...",
-                      "raw_value": "Mesos: 2 per kill | 1 report",
-                      "interpretation": null},  // e.g. "Hidden Street range 4-6 read as a uniform integer in [4, 6]"
-    "chance_state": "resolved", "probability": 0.4,
-    "chance_source": {"authority": "KuroDB", "url": "...", "read_at": "...", "raw_value": "40% base | Meso drop",
-                      "format": "percent_base", "normalized_probability": 0.4, "conversion": "40 / 100"},
-    "discrepancies": [{"authority": "Hidden Street", "raw_value": "Mesos: 1", "note": "MeowDB report kept (D3-5)"}]
+  "meowdb_reference": {                      // monsters: MeowDB's read-only MSEA list, never a member (null for the box)
+    "note": "...", "source": {/* the live page */},
+    "msea_reference": [{"name": "Overall Armor DEX Scroll: Greater", "category": "USE", "detail": "Scroll", "item_id": null}]
+  },
+  "meso": {                                  // monsters only; null for a breakable (MeowDB has no meso reports for them)
+    "amount_state": "not_reported",          // reported | not_reported
+    "min": null, "max": null,                // whole numbers when reported (MeowDB's player report), else null
+    "amount_source": null,                   // when reported: {authority: "MeowDB MS Classic", url, read_at | retrieved_at,
+                                             //  capture?, raw_value: "Mesos: 2 per kill | 1 report", report_count,
+                                             //  decision: "D3-12", interpretation}
+    "sources_compared": [/* the live page line and the cached report API summary, each with its date */],
+    "gaps": ["meso amount: MeowDB has no player meso report ...", "meso chance: MeowDB publishes none ..."]
   },
   "provenance": {                            // per-property authorities (see C7)
-    "membership": {"authority": "Hidden Street", "...": "..."},
-    "probability": {"authority": "KuroDB"},
-    "mesos.amount": {"authority": "MeowDB MS Classic"},
-    "mesos.probability": {"authority": "KuroDB"}
+    "membership": {"authority": "MeowDB MS Classic", "url": "...", "read_at": "...", "capture": "...", "decision": "D3-11"},
+    "rarity": {"authority": "Henesys.gg", "url": "https://henesys.gg/loot", "read_at": "...", "capture": "...", "decision": "D3-11"},
+    "mesos.amount": {"authority": "MeowDB MS Classic", "...": "..."}   // only when MeowDB has a report (the Snail)
   },
-  "source": {/* MeowDB URL of the owner page, as before */}, "field_sources": {}, "gaps": [], "discrepancies": []
+  "source": {/* MeowDB URL of the owner page */}, "field_sources": {}, "gaps": [], "discrepancies": [], "notes": []
 }
 ```
 
-Runtime rule (the drop roller):
+Build rules (`tools/sources/drops_merge.mjs`, decision D3-11):
 
-- An item entry rolls only when `chance_state == "resolved"`, `item_id != null`, and either `quest_gate == null` or
-  the gate quest is in progress.
-- The meso bag rolls only when both `amount_state` and `chance_state` are `resolved`. The amount is a uniform integer
-  in `[min, max]`.
-- An unresolved entry never rolls, and validation lists it.
-- **KuroDB candidate rows** (decision D3-8): a KuroDB row that may be a member under another name (the crosswalk's
-  `kurodb.candidate`, with the rule `confirm_with` its item page is judged by) is a `pending_kuro_candidates` row until
-  that page is captured (`tools/kurodb/captures/item_<kuro id>.json`, read by `tools/sources/captures.mjs`). Its member
-  stays unresolved, and the parity manifest counts the member as a pending source read, not a source-data gap. Once
-  the capture exists, the merge (`tools/sources/drops_merge.mjs` `judgeKuroCandidate`) makes the row the member's
-  chance source when the page shows the member's item (`match_method` `alias_with_evidence`, the page cited in
-  `chance_source.match_evidence`), and otherwise moves it to `excluded_kuro_only` with what the page showed. A row is
-  matched, excluded or pending, never two of them, and never anybody else's chance source. The rule (`meowdb_scroll`,
-  decision D3-10): the page's item name relates to the member's, its success rate equals the MeowDB scroll's, the
-  MeowDB scroll's bonus stats are among the page's bonuses, and its MONSTER DROPS row for the monster reads as the
-  monster page's; other bonus amounts or extra stats are kept as `match_evidence.version_difference` (item stats come
-  from MeowDB), never a rejection. KuroDB item 2040705 was read on 2026-10-06 and confirms the Orange Mushroom's
-  "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.0003.
-- **Quest-gate rule** (a MisoStory derivation, recorded with `verified: false`): an entry gets a `quest_gate` only when
-  two things hold. First, the membership source, or MeowDB's own item subtype, marks the item as a quest item (MeowDB
-  subtype "Quest Item"). Second, a Maple Island quest objective requires that item; the gate is that quest. KuroDB's
-  "| Quest N" flag is recorded only as corroboration. Under this rule Old Wooden Board and Rusty Screw (MeowDB "Quest
-  Item", required by 1012) are gated to 1012. Jr. Sentinel Shellpiece (MeowDB subtype "Monster Drop", a plain Etc.
-  drop on Hidden Street) is **not** gated, even though KuroDB flags it.
-- Nothing outside these records may supply a chance, quantity or meso amount. `game/data/misostory/drop_rates.json`
-  stops holding placeholder rates; only non-canonical ground rules (lifetime, ownership, scatter) remain, in
-  `game/data/misostory/drops.json`.
+- **Membership** is MeowDB's community list "Drops (MS Classic)" for the owner, every entry, in page order. The newest
+  dated source wins: the live page captures (`tools/meowdb/captures/monster_<id>.*`, read 2026-10-05; the Wooden Box's
+  `breakable_0000001.txt`) over the 2026-10-04 cache; a cache/live difference is a record `discrepancies` row. MeowDB's
+  "MSEA reference drops" list stays in `meowdb_reference` and never adds a member.
+- **Item**: the member's name resolves to the one local item with that name. Where several local items share it (Red
+  Cloth Pants: 1168 and 1177), the id MeowDB's own cached drop entry for that owner carries decides, and the record says
+  so. A member whose cached entry carries a different id than its one local item stops the build, and so does a list
+  group (ETC, USE, EQUIPMENT, SETUP) that is not the item's type.
+- **Rarity** is Henesys.gg's per-item label from `tools/henesys/captures/item_rarity.json`, matched by MeowDB's name
+  (today every name is the same on both sites; a differing name would need a small name map in the builder).
+- **Chance category**, from the local item's MeowDB type and subtype and the quest gate:
+  `etc_own_leftover` (Etc, subtype "Monster Drop"), `etc_quest_gated` (Etc, subtype "Quest Item", gated by the rule
+  below), `etc_other` (any other Etc: ores, gems, Monster Card), `use_consumable` (Use other than "Scroll"),
+  `use_scroll` (Use, "Scroll"), `equip` (any Equip), `setup` (any Setup). Another type gets null (never drops).
+- **Quest-gate rule** (decision D3-9, a MisoStory derivation recorded with `verified: false`): an entry is gated only
+  when its item's MeowDB subtype is "Quest Item" **and** a Maple Island quest objective requires that item; the gate
+  is that quest. Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype
+  "Monster Drop") is not gated.
+- **Mesos**: MeowDB's player report from the newest dated source (the live page's "Mesos: N per kill | K reports"
+  line, or the cached report API's summary). When a newer capture or cache gains a report for a monster, the next
+  extraction writes it here and the runtime uses it; otherwise `amount_state` is `not_reported`.
+
+The project owner's rule files (MisoStory adaptations, `verified: false`):
+
+- `game/data/misostory/drop_rates.json` (decision D3-11): `chance_table[category][rarity]`, a chance in [0, 1] for
+  every category x rarity; `quantity_per_drop` 1. The same table applies to the Wooden Box.
+
+  | Category | Common | Rare | Very Rare | Extremely Rare |
+  |---|---|---|---|---|
+  | `etc_own_leftover` | 100% | 50% | 20% | 5% |
+  | `etc_quest_gated` | 100% | 100% | 100% | 100% |
+  | `etc_other` | 3% | 1% | 0.3% | 0.1% |
+  | `use_consumable` | 2% | 0.5% | 0.1% | 0.02% |
+  | `use_scroll` | 0.1% | 0.03% | 0.01% | 0.003% |
+  | `equip` | 0.1% | 0.04% | 0.01% | 0.002% |
+  | `setup` | 0.05% | 0.02% | 0.005% | 0.001% |
+
+- `game/data/misostory/meso_rules.json` (decision D3-12): the amount is the record's MeowDB report when there is one,
+  otherwise a uniform integer in [level x `amount_level_multiplier_min`, level x `amount_level_multiplier_max`] = [level,
+  2 x level] of the monster's canonical level; the chance is `chance` (60%) for every monster that drops mesos, also
+  one with a MeowDB amount; `no_mesos` lists the owners that never drop mesos (the Tutorial Jr. Sentinel, the owner's
+  choice, and the Wooden Box).
+
+Runtime rule (`DropRates` / `DropRoller`):
+
+- An item entry rolls only when `item_id` names a local item, `rarity.label` is one of the four labels, the table has a
+  cell for `chance_category` x `rarity.label`, and either `quest_gate == null` or the gate quest is in progress. It rolls
+  at that cell's chance, one item per drop.
+- An unresolved entry (no item, no rarity or no category) never rolls, and validation lists it as a warning.
+- The meso bag rolls at `meso_rules.json` `chance` unless the owner is in `no_mesos`; the amount is a uniform integer in
+  [min, max] (the MeowDB report, else the level formula).
+- Nothing else supplies a chance, quantity or meso amount: the canonical records hold none, and the validators refuse
+  a probability key in them. `game/data/misostory/drops.json` keeps only the ground rules (lifetime, ownership, scatter).
 
 ## C2. Drop roll context (quest-gated drops)
 
@@ -176,15 +193,15 @@ skill, knockback, death or warp stands the player up. While seated: natural reco
 - The parity manifest reads that evidence: `node tools/parity/build_parity.mjs` writes `docs/maple_island_parity.json`
   (`format` 3) and `docs/MAPLE_ISLAND_PARITY.md`. Every entry has a `state` (`missing`, `partial`, `implemented`,
   `verified`; the rule is in `tools/parity/parity.mjs` and the markdown) and two labels that are never set together:
-  - `source_data_gap`: the sources were read and do not give a value the entry needs (no KuroDB chance for a member,
-    no meso amount, no MeowDB rule). The entry stays `partial` but is excused from the exit criterion.
+  - `source_data_gap`: the sources were read and do not give a value the entry needs (no Henesys.gg rarity for a
+    drop member, an item no local record has, no MeowDB rule). The entry stays `partial` but is excused from the exit
+    criterion.
   - `pending_source_read` (new in format 3): a source publishes the value on a page nobody has read yet. It is not a
     gap and not excused: the entry stays `partial` and open until the page is read and the data regenerated. Such
-    reads are declared in `tools/parity/rules.json` `pending_source_reads` (the read, what it resolves, and for a
-    record the fields its `gaps` name); a drop record's excluded KuroDB candidate row marks its member pending even
-    when undeclared. A declaration the data no longer supports fails the build as stale. Format 3 lists them apart
-    (`pending_source_reads`, the entries' `pending_reads`) and counts them per category (`totals.*.pending_source_read`)
-    beside `source_data_gaps`.
+    reads are declared in `tools/parity/rules.json` `pending_source_reads` (the read, what it resolves, and the record
+    fields its `gaps` name). A declaration the data no longer supports fails the build as stale. Format 3 lists them
+    apart (`pending_source_reads`, the entries' `pending_reads`) and counts them per category
+    (`totals.*.pending_source_read`) beside `source_data_gaps`.
 - Quests, objectives, rewards and chains are verified only by a playtest (real-game) check. The `playthrough:*` rows
   are verified only by checks of a clean-character run: a passing report in strict mode with no console or api step
   that reached the departure boundary (its final boundary check "ready to depart: the End of Maple Island screen
@@ -193,15 +210,21 @@ skill, knockback, death or warp stands the player up. While seated: natural reco
 
 ## C7. Provenance authorities
 
-The validators accept these authorities, each with URL and `read_at` rules:
+The validators accept these authorities, each with URL and `read_at` rules
+(`game/scripts/core/validation/provenance_authorities.gd`):
 
-- `MeowDB MS Classic`
-- `KuroDB` (`https://playkuro.com/database/#...`, drop and meso probabilities only)
-- `Hidden Street` (`https://bc.hidden-street.net/...`, monster drop membership and meso amounts only)
-- `Project owner` (the natural-regen rule; owner decisions D3-5 to D3-7)
+- `MeowDB MS Classic` (`https://meowdb.com/msclassic...`, any property): drop membership, item ids, meso reports and
+  every other canonical fact.
+- `Henesys.gg` (`https://henesys.gg/...`, the property `rarity` only; `read_at` and `capture` required): the rarity
+  label of a drop member, read by hand into `tools/henesys/captures/item_rarity.json` (decision D3-11). For this
+  private project only: the site prohibits reproduction and scraping, so ask Henesys.gg before publishing the labels.
+- `Project owner` (no URL; a `decision` required): the natural-regen rule, the drop chance table (D3-11) and the meso
+  rule (D3-12).
 
-A record may name a different authority per property, using `provenance.<property>` as in C1. A value from a dated
-capture cites the capture's file path under `tools/*/captures/` together with the page URL.
+A record may name a different authority per property, using `provenance.<property>` as in C1; in a drop record the
+per-entry sources are `entries[].membership_source` ("membership") and `entries[].rarity.source` ("rarity"), and the
+meso block's `amount_source` ("mesos.amount"). A value from a dated capture cites the capture's file path under
+`tools/*/captures/` together with the page URL.
 
 ## C8. Breakables
 
