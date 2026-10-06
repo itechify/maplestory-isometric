@@ -33,6 +33,7 @@ B=blender; PY=python3                                                 # Linux
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py   # contract tests
 "$PY" src/misostory/test_collision_tags.py                           # the passable-tag registry (no Blender)
+"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py   # validator and export fixtures
 cp _scratch/export_staging/*.glb _scratch/export_staging/*.json game/assets/world/   # only when both pass
 ```
 
@@ -75,8 +76,17 @@ portal, a one-way portal without its spawn index or arrival point, a ledge low e
 drop, a face off the gate plane, a gate plane not at footprint + 1 m or off the containment ring, a blocked or missing or out-of-footprint player
 spawn, a non-MeowDB spawn species, a hunting map without regions, a removed or retyped field, a listed file that does
 not exist, missing canonical data (a failure, never a silent pass), a blocked or ungrounded portal arrival (even one
-the shipped export already had), a blocked route end, a route sample under a real overhang, a door route that stops
-1.5 m further from its door (outside the trigger), and an emptied `climbables` or `routes` list.
+the shipped export already had), a blocked line from an anchor to its arrival point, a blocked route end, a route
+sample under a real overhang, a door route that stops 1.5 m further from its door (outside the trigger), and an
+emptied `climbables` or `routes` list.
+
+The export's own geometric checks and the validators have Blender fixture tests,
+`src/misostory/test_validator_fixtures.py` (`"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py`,
+under a minute): each builds a tiny map in an empty scene and proves a check reports its defect (an obstacle on the
+anchor-to-arrival line, at body height, from a prop prism or a thin wall; a post only a body's shoulder meets; an
+untagged or floating Architecture mesh, through the real `validate.py`; a climbable read at its stored position,
+not its mesh; an object tagged passable whatever its name). `src/misostory/test_collision_tags.py` (plain Python)
+tests the passable-tag registry.
 
 | Option | Default | Effect |
 |---|---|---|
@@ -717,12 +727,41 @@ fixed in data (`presentation.json npc.talk_zones`), not here. Value changes:
   tours 0 / 0 / 0 / 0, `test_world_static` 0 errors and 0 warnings, and `smoke` now talks to Roger on foot (0
   warnings, no `goto npc 3`).
 
+**2026-10-06: the Blender validator and the export gate** (#25, #26, #27, #28, #29)
+
+| Where | Added field(s) | Notes |
+|---|---|---|
+| `spawn_clearance.portal_arrivals[]` | `segment` {`clear`, `samples`, `blockers`} | the line from the anchor to the arrival point at body height (#25); all 47 clear (7-8 samples each). `sidecar_diff` fails a blocked one |
+| `collision.summary.route_check.overhead[]` | `ray` (`centre`, `left`, `right`) | which of a sample's three rays met the wall (#28) |
+
+`sidecar_diff` against the previous export: `SIDECAR_DIFF_OK True`, those added paths only; 32 contract tests pass on the
+staged export. Value changes:
+
+- **Climb positions are stored** (#26): `climbables[].bottom` / `top` come from `obj["climb_bottom"]` /
+  `obj["climb_top"]` (`MapCtx.climbable`), no longer from the bounding-box centre, and the two loose vertices that
+  kept a kit rope's centre at `(x, y)` are gone. 137 of the 146 climbables export the same position (within the
+  export's 0.0001 m rounding). The 9 climbable vines of 000001014 (`vine_climb`, built by the map module) moved
+  0.0498 m (Godot +z): their bounding box was offset by the leaves, and they are now climbed at their authored
+  `(x, y)`, the strand itself; their `foot_ground`, `top_exit` and `facing_xz` follow. No camera moved.
+- **Routes** (#28): 000001012 `Loft` starts its climb from y 8.6 (was 8.3, where a body's shoulder met the
+  cutaway house's knee wall) and 000001013 `PoleShelf` walks the chest shelf at y 11.05 (was 11.1, against the
+  timber frame). A placed `Bush_B` on 000000041 (to y 36.8) and the 000001003 `Mushroom_Giant_Blue` (to y 24.6)
+  moved clear of a body's shoulder on `East_Ropes` and `ToTop`.
+- **Collision tags** (#29): every Architecture mesh a map builds carries its tag (`wall`, as the group default gave
+  it), so `collision.mesh_class_source` moves 44 meshes from `group` to `tag` on 7 chunks; the mesh classes, prop
+  hulls and Ground / Walls triangles are unchanged (float-level decimation aside).
+- Route check with the side rays (#28): 15,782 samples, 1 prop-hull sample (`PoleShelf` beside the 0.45 m jar on
+  the chest shelf), 20 wall-overhead samples (16 `step`, 4 `climb_or_drop`, 0 `body`).
+
 ## Files
 
 - `scripts/export_runtime.py`: the exporter.
 - `src/misostory/sidecar_diff.py`: the staging check (schema additive, files, expected counts, the per-map MeowDB
   contract).
 - `src/misostory/test_sidecar_contract.py`: unit tests of that check on a real export plus mutated copies.
+- `src/misostory/test_validator_fixtures.py`: Blender fixture tests of the export's anchor-to-arrival line, the
+  traversal validator's blocking test and climb position, and `validate.py`'s `collision_tags` and `floating_props`
+  on Architecture meshes. `src/misostory/test_collision_tags.py`: the passable-tag registry (plain Python).
 - `src/misostory/ledge_rules.py`: the one-way ledge bounds (no bpy), shared by `traversal.py` / `validate.py` and
   `sidecar_diff.py`.
 - `src/misostory/collision_tags.py`: the collision-class registry (no bpy): classes (including `overhead_hull` for

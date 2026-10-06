@@ -18,6 +18,7 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=ble
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
 bash scripts/review_island.sh final 3                             # render every camera, validate, contact sheet
+"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py   # the validators' fixture tests (<1 min)
 ```
 
 `scripts/review_island.sh` is the one command for the three review steps (render, validation, contact sheet): one exit
@@ -44,6 +45,7 @@ and gate it before replacing the game's copy, as the Blender rounds do:
 PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging   # SIDECAR_DIFF_OK True
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py  # all OK
+"$PY" src/misostory/test_collision_tags.py                                                  # all OK
 ```
 
 Then replace `game/assets/world/` with the staging folder. Never keep a backup of it under `game/assets/`: everything
