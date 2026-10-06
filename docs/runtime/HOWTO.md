@@ -17,7 +17,12 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=ble
 "$B" -b --factory-startup --python scripts/build_island.py        # -> MapleIsland.blend (~1 min)
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
+bash scripts/review_island.sh final 3                             # render every camera, validate, contact sheet
 ```
+
+`scripts/review_island.sh` is the one command for the three review steps (render, validation, contact sheet): one exit
+code, and its last line names any step that failed ([`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) "Everyday
+workflow").
 
 The generator is `src/misostory/` (maps in `maps/m<id>_*.py`). Authoring rules: [`../AUTHORING.md`](../AUTHORING.md).
 The integrated Iteration Three island validates with 0 high, 0 medium and 21 low findings. `validate.py` now also runs
