@@ -1070,7 +1070,7 @@ func _finish(complete: bool) -> void:
 	d.check("every AP spent through the stats window (%d points over %d levels)" % [base1 - base0, c.level - 1], c.ap == 0
 		and base1 - base0 == per_level * (c.level - 1), "stats %s -> %s, AP %d" % [created.get("stats", {}), c.base_stats, c.ap],
 		["mechanic:ap-allocation"])
-	# Skills: learned, and really cast (a try that went off: at least one cast; a buff's effect started or its MP spent).
+	# Skills: learned and really cast (at least one cast that went off; a buff's effect started or its MP spent).
 	var cast: Dictionary = d.carry.get("skills_cast", {})
 	for sid: String in SKILL_ORDER:
 		var row: Dictionary = cast.get(sid, {})

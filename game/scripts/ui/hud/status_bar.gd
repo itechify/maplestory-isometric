@@ -1,9 +1,9 @@
 class_name MisoStatusBar
 extends PanelContainer
 ## The HUD's bottom bar: level (gold), name and job; HP and MP gauges with current / max, and above them, while the
-## player sits on a chair, the seated cue (what sitting recovers); the EXP gauge with its percent; mesos; buttons that open the character windows (with their keys, an AP badge on Stat and an SP badge on
-## Skill while points are unspent); and the quickslot bar on the right. It only displays values handed to it; MisoHud
-## decides when.
+## player sits on a chair, the seated cue (what sitting recovers); the EXP gauge with its percent; mesos; buttons that
+## open the character windows (with their keys, an AP badge on Stat and an SP badge on Skill while points are unspent);
+## and the quickslot bar on the right. It only displays values handed to it; MisoHud decides when.
 
 signal window_requested(window_name: String)
 

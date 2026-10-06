@@ -3,8 +3,9 @@ extends PanelContainer
 ## A non-modal MisoStory window: a rounded blue-grey panel with a gold title strip, a key hint and a close button.
 ## Draggable by its title strip, closable (button, its toggle key, or Esc through the shell's window stack), and
 ## clamped to the screen: its whole rect stays inside the viewport above the HUD's status bar whenever it opens, is
-## dragged, changes size or the viewport does (screen_area()). It registers with the GameContext window stack when it opens and when it closes, so the
-## "menu" action (Esc) closes the newest window first. It never takes the keyboard: the player can walk with it open.
+## dragged, changes size or the viewport does (screen_area()). It registers with the GameContext window stack when it
+## opens and when it closes, so the "menu" action (Esc) closes the newest window first. It never takes the keyboard:
+## the player can walk with it open.
 ##
 ## Subclasses build their content into `body` in _build() and redraw it in refresh(). The window's env (MisoUiEnv)
 ## is assigned by the owning root before the first open.
