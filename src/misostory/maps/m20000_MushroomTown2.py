@@ -102,9 +102,9 @@ def _stone_arch(coll):
 @asset("X20000_NinaStump", "Foliage", footprint=4.6, tags=("stump", "landmark"))
 def _nina_stump(coll):
     """Giant mossy tree stump that carries Nina's flower islet (top at ~1.85 m). The trunk only: it collides as a
-    prism of its own 2.25 m radius. The roots are a separate passable asset (X20000_NinaStumpRoots): in one asset
-    their tips widened the stump's collision prism to a 3.8 m circle, an invisible ledge 1.5 m outside the bark that
-    no stair to Nina could meet."""
+    prism of its own 2.25 m radius. The roots are a separate asset (X20000_NinaStumpRoots): in one asset their tips
+    widened the stump's collision prism to a 3.8 m circle, an invisible ledge 1.5 m outside the bark that no stair to
+    Nina could meet."""
     mb = MeshBuilder()
     mb.cyl(2.25, 1.9, mat="M_Bark", verts=20, r2=2.05)
     mb.build("X20000_NinaStump", coll, smooth=True, sharp_angle=45)
@@ -113,10 +113,14 @@ def _nina_stump(coll):
 NINA_ROOT_ANGLES = tuple(2 * math.pi * k / 6 + 0.4 for k in range(6))  # stump-local, radians
 
 
-@asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump",))
+@asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump", "collide_exact"))
 def _nina_stump_roots(coll):
-    """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump). Low and sloping into the
-    lawn, they are passable dressing like every stump and log."""
+    """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump), 1.1 m high at the bark
+    and sloping into the lawn. They collide with their exact mesh (collide_exact): the player walks over a root, up its
+    sloping side and along its ridge (about 0.65 m high mid-root), and is stopped by it only near the bark, where it
+    rises higher, so the body never passes through one. (Passable, as a plain Foliage stump is, the body walked
+    through them; as prisms, each root's flat top stood at the root's full 1.1 m over its low tip, and a player walking
+    off Nina's stair sideways crossed a root on that invisible top.)"""
     mb = MeshBuilder()
     for a in NINA_ROOT_ANGLES:
         mb.cyl(0.75, 2.2, loc=(math.cos(a) * 1.6, math.sin(a) * 1.6, 0.35), rot=(0, 100, math.degrees(a)),
