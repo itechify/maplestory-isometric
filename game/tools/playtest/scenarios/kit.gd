@@ -6,7 +6,8 @@ extends PlaytestScenario
 ## drunk through the Item window, the sandals equipped by a double-click, a checkpoint, and the contract helpers:
 ## The Green Relaxer from the Set-up tab and with the X key (C4/C5), Recovery learned with the Skills window's "+"
 ## (learn_skill), put on key 2 (bind_skill) and cast with it (C3), and the store's Wooden Box (C8). The chair and box
-## checks were WARNs until the mechanics and breakables packages were merged (wave 1); they are hard checks now.
+## checks were WARNs until the mechanics and breakables packages were merged (wave 1); they are hard checks now. Last,
+## rest() from a ladder in 000000001: it climbs off before it stands still, so natural recovery heals.
 
 const STORE := "000001013"
 const LUCY := "21"
@@ -25,7 +26,7 @@ func description() -> String:
 
 
 func max_seconds() -> float:
-	return 300.0
+	return 420.0
 
 
 func run(p_d: PlaytestDriver) -> void:
@@ -110,6 +111,40 @@ func run(p_d: PlaytestDriver) -> void:
 	d.check("cast_skill: Recovery from its quickslot key (contract C3)", bool(sk["ok"]), str(sk), ["skill:0001001"])
 	d.check("breakables: Wooden Boxes in %s (contract C8)" % STORE, not k.breakables(true).is_empty(),
 		"%d nodes in group miso_breakables" % k.breakables(true).size())
+	await _rest_off_a_ladder()
+
+
+## PlaytestKit.rest() from a ladder: it climbs off first (natural recovery pauses while climbing, contract C4), so the
+## rest heals. Test C's hunter once grabbed a rope chasing a Shroom on A Split Road and stood on it through 15 rests,
+## 2,250 s of game time, without one tick (the final evidence run of 2026-10-06).
+func _rest_off_a_ladder() -> void:
+	await _setup_console("warp 000000001")
+	var p := d.player()
+	# The nearest one (PlayerController.climbables lists every map's ladders, ropes and vines).
+	var ladder: ClimbableDef = null
+	for x: ClimbableDef in p.climbables:
+		if x.has_foot_ground and not x.descend_only and x.height() > 2.0 and (ladder == null
+				or x.line_distance_xz(p.global_position) < ladder.line_distance_xz(p.global_position)):
+			ladder = x
+	if not d.check("a ladder with ground at its foot in 000000001", ladder != null and ladder.line_distance_xz(p.global_position) < 60.0,
+			"%s" % (ladder.name if ladder != null else "none of %d climbables" % p.climbables.size())):
+		return
+	# Recovery (cast above) heals over 30 s: wait for it to end, so only natural recovery can heal below.
+	var t0 := d.game_s()
+	while not d.character().effects.is_empty() and d.game_s() - t0 < 40.0:
+		await d.wait(0.5)
+	var c := d.character()
+	var max_hp := StatCalculator.max_hp(c, d.db())
+	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp + PlayerController.grab_climbable",
+		"setup: HP to 40%% of Max HP, on %s near its top (no console command does either)" % ladder.name)
+	d.game().change_hp(int(max_hp * 0.4) - c.hp)
+	var grabbed := p.grab_climbable(ladder, true)
+	d._end(i, grabbed and p.is_climbing(), "HP %d / %d, climbing %s" % [c.hp, max_hp, p.is_climbing()])
+	var hp0 := c.hp
+	var rested: float = await k.rest(PlaytestKit.HP_RESUME, {"rest_max_s": 45.0})
+	d.check("rest: off the ladder first (natural recovery pauses while climbing, contract C4), then natural recovery heals",
+		grabbed and not p.is_climbing() and c.hp >= hp0 + 10,
+		"rested %.1f s, HP %d -> %d / %d, climbing %s, effects %s" % [rested, hp0, c.hp, max_hp, p.is_climbing(), c.effects])
 
 
 func _setup_console(cmd: String) -> void:

@@ -49,6 +49,8 @@ const HP_FLOOR := 0.4
 const HP_RESUME := 0.8
 ## Rest budget (game s) of one survive() call.
 const REST_MAX_S := 150.0
+## leave_climb(): the longest it holds Down (then Up) to get off a ladder, rope or vine (game s each way).
+const LEAVE_CLIMB_S := 12.0
 ## How far (m) from every live monster a resting spot should be, and the longest walk (m) to one.
 const REST_CLEAR_M := 9.0
 const REST_WALK_MAX_M := 25.0
@@ -384,13 +386,13 @@ func travel_to(to_map: String, opts: Dictionary = {}) -> bool:
 		var cur := d.current_map()
 		var hop := String(path[1])
 		var t0 := d.game_s()
-		var at0 := d.player().global_position
 		var r: Dictionary = await _trail_safely(cur, hop, opts)
+		var retry_at := d.player().global_position
 		if d.current_map() == cur and not is_dead():
 			r = await _trail_safely(cur, hop, opts)
-		if d.current_map() == cur and not is_dead() and _flat_m(d.player().global_position, at0) < UNSTICK_STALLED_M:
-			# Both walks stalled where they began (a ledge corner whose way off the planners do not take): step off it as a
-			# player would, then walk the trail once more.
+		if d.current_map() == cur and not is_dead() and retry_stalled(retry_at, d.player().global_position):
+			# The retry stalled where it began (a ledge corner whose way off the planners do not take; the first walk may
+			# have walked the player there): step off it as a player would, then walk the trail once more.
 			if bool((await unstick()).get("ok", false)):
 				r = await _trail_safely(cur, hop, opts)
 		var ok := d.current_map() == hop
@@ -541,6 +543,14 @@ static func _flat_m(a: Vector3, b: Vector3) -> float:
 	return Vector2(a.x - b.x, a.z - b.z).length()
 
 
+## Whether travel_to's retry of a hop "stalled where it began" (then unstick() runs): the retry ended within
+## UNSTICK_STALLED_M of where it started. Only the retry's start counts: the first walk of the hop may have carried the
+## player metres along the trail before it stalled at a ledge corner, where the retry then stalls at once (seed 2 of
+## the every-quest set on Snail Hunting Ground I, 1006: 10 m, then stuck at local (27.0, 1.0, -13.1)).
+static func retry_stalled(retry_start: Vector3, now: Vector3) -> bool:
+	return _flat_m(now, retry_start) < UNSTICK_STALLED_M
+
+
 ## The walk interrupt of the survival policy, as a stop_when Callable for any walk (scenarios that walk with the
 ## driver directly pass it too): HP below the floor, or (on_threat "fight") a monster the player can beat that
 ## touched it in the last TOUCH_MEMORY_S and is still next to it. A monster merely passing by never stops a walk (a
@@ -682,13 +692,16 @@ func hp_restore(item_id: String) -> int:
 	return int((cons as Dictionary).get("hp_restore", 0)) if cons is Dictionary and (cons as Dictionary).get("hp_restore") != null else 0
 
 
-## Rests: walks to the player spawn or portal arrival farthest from the live monsters (when one is closer than
+## Rests: first gets off a ladder, rope or vine (leave_climb(): natural recovery pauses while climbing, contract C4),
+## walks to the player spawn or portal arrival farthest from the live monsters (when one is closer than
 ## REST_CLEAR_M), then stands still (sits when C5's sitting exists and opts "sit" is set) until HP reaches `until`
 ## of Max HP or REST_MAX_S passes. A monster that comes close is walked away from (to the quietest spot, a few times);
 ## only a cornered player fights back, and only a monster it can beat. Returns the game seconds rested. Await it.
 func rest(until: float, opts: Dictionary = {}) -> float:
 	var t0 := d.game_s()
 	survival["rests"] = int(survival["rests"]) + 1
+	if d.player().is_climbing():
+		await leave_climb()
 	var spot := _rest_spot()
 	# A far spot means a long walk at low HP past the same monsters: rest where the player is instead. On the way, a
 	# new touch ends the walk (resting there beats walking on through the monsters).
@@ -718,10 +731,35 @@ func rest(until: float, opts: Dictionary = {}) -> float:
 				# Out of reach without a chase (a ledge just above): leave it be for this rest.
 				ignored[t.get_instance_id()] = true
 			continue
+		if d.player().is_climbing():
+			# A walk away from a monster ended on a ladder or rope: standing on it heals nothing.
+			await leave_climb()
+			continue
 		await d.wait(0.5)
 	var s := d.game_s() - t0
 	survival["rest_s"] = float(survival["rest_s"]) + s
 	return s
+
+
+## Gets the player off the ladder, rope or vine it hangs on, as a player does: holds Down to the foot (over a pit the
+## player lets go and drops), and if that does not end the climb within LEAVE_CLIMB_S, Up over the top. Natural
+## recovery pauses while climbing (contract C4), so a rest must not stand on one: Test C's hunter once grabbed a rope
+## chasing a Shroom on A Split Road and "rested" on it for 2,250 s without a tick (final evidence run, 2026-10-06).
+## Returns true when the player no longer climbs. Await it.
+func leave_climb() -> bool:
+	var p := d.player()
+	for action: StringName in [&"climb_down", &"portal_enter"]:
+		var t0 := d.game_s()
+		while p.is_climbing() and d.game_s() - t0 < LEAVE_CLIMB_S and not is_dead():
+			d.input.set_action_strength(action, 1.0)
+			await d.get_tree().process_frame
+			d.input.reassert()
+		d.input.set_action_strength(action, 0.0)
+		if not p.is_climbing():
+			break
+	await d.wait_idle(3.0)
+	survival["climb_exits"] = int(survival.get("climb_exits", 0)) + 1
+	return not p.is_climbing()
 
 
 ## A stop_when for a walk at low HP: the player died, or a monster touched it after the walk began.

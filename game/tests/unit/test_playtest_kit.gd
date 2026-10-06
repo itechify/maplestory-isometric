@@ -88,3 +88,16 @@ func test_node_quest_and_bag_bookkeeping() -> void:
 	assert_true(PlaytestKit.row_has([{"text": "Snail 3/10", "done": false}], "Snail 3/10", false))
 	assert_false(PlaytestKit.row_has([{"text": "Snail 3/10", "done": false}], "Snail 3/10", true), "not ticked")
 	assert_eq(PlaytestKit.rows_text([{"text": "a", "done": true}, {"text": "b"}]), "a [x]; b")
+
+
+## travel_to unsticks a hop whose retry stalled where it began, wherever the hop began: seed 2 of the every-quest set
+## (1006, Snail Hunting Ground I) walked 10 m of the trail, stalled at a ledge corner, and the retry stalled at once;
+## the old rule measured from the hop's start (9.3 m away), never unstuck, and failed the chain.
+func test_a_retry_that_stalled_where_it_began_is_unstuck() -> void:
+	var hop_start := Vector3(64.918, 11.0, 227.772)
+	var retry_start := Vector3(58.753, 12.0, 234.760)
+	var after_retry := Vector3(58.497, 12.0, 234.730)
+	assert_true(PlaytestKit.retry_stalled(retry_start, after_retry), "the retry moved 0.26 m: stalled where it began")
+	assert_false(PlaytestKit.retry_stalled(hop_start, after_retry), "measured from the hop's start it looks like progress")
+	assert_false(PlaytestKit.retry_stalled(retry_start, retry_start + Vector3(1.5, 0.0, 0.0)), "a retry that moved 1.5 m")
+	assert_true(PlaytestKit.retry_stalled(retry_start, retry_start + Vector3(0.0, 3.0, 0.0)), "only the flat distance counts")
