@@ -47,7 +47,10 @@ const REACH_RIM_M := 0.11
 ## sinking under the grass).
 const REACH_LIFT_M := 0.02
 const MARKER_COLOR := Color(1.0, 0.78, 0.18)
-const MARKER_LIFT_M := 0.42
+const MARKER_LIFT_M := 0.55
+## The marker cone's top radius and height (m): it sits clear of the rim's top edge and reads as a separate shape.
+const MARKER_RADIUS_M := 0.17
+const MARKER_HEIGHT_M := 0.34
 const MARKER_BOB_M := 0.07
 const MARKER_BOB_S := 1.3
 
@@ -372,9 +375,9 @@ func _build_cues(w: float, h: float, d: float) -> void:
 	gold.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	gold.albedo_color = MARKER_COLOR
 	var cone := CylinderMesh.new()
-	cone.top_radius = 0.13
+	cone.top_radius = MARKER_RADIUS_M
 	cone.bottom_radius = 0.0
-	cone.height = 0.26
+	cone.height = MARKER_HEIGHT_M
 	cone.radial_segments = 4
 	var point := MeshInstance3D.new()
 	point.mesh = cone
@@ -383,9 +386,9 @@ func _build_cues(w: float, h: float, d: float) -> void:
 	marker.add_child(point)
 	var hull := MeshInstance3D.new()
 	var hc := CylinderMesh.new()
-	hc.top_radius = 0.13 + OUTLINE_M * 1.5
+	hc.top_radius = MARKER_RADIUS_M + OUTLINE_M * 1.5
 	hc.bottom_radius = OUTLINE_M
-	hc.height = 0.26 + OUTLINE_M * 2.0
+	hc.height = MARKER_HEIGHT_M + OUTLINE_M * 2.0
 	hc.radial_segments = 4
 	hull.mesh = hc
 	hull.material_override = ink
