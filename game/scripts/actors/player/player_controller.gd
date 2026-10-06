@@ -28,7 +28,7 @@ extends CharacterBody3D
 ##   set_input_enabled(bool)                 UI windows, transitions
 ##   input_source                            read it to see the same presses the player sees (bot-friendly)
 ##   set_climbables(list) / add_climbables_from_sidecar(arr)   world runtime / sandbox
-##   follow_anchor()                         camera focus: feet x/z at ground height (no jump bob)
+##   follow_anchor()                         camera focus: feet x/z at ground height (no jump bob; a ladder-top exit glides)
 ##   activity()                              what the player is doing (contract C4): natural recovery, skills, HUD
 ##   sit(chair_id), stand_up(reason), is_seated(), seated_chair_id(), can_sit(), sit_key()   chairs (C5, Chairs)
 ##
@@ -129,6 +129,9 @@ var _wedge_ticks: int = 0
 ## capsule stays supported, so a wedged player does not flicker between GROUND and AIR.
 var _wedged: bool = false
 var _anchor_y: float = 0.0
+## Horizontal offset of the camera's follow point from the feet after a ladder-top exit (follow_anchor()); shrinks to
+## zero at walking speed.
+var _follow_glide: Vector3 = Vector3.ZERO
 var _fell_reported: bool = false
 var _settle_pending: bool = false
 var _floor_collider_id: int = 0
@@ -342,6 +345,7 @@ func teleport(xform: Transform3D) -> void:
 	_wedged = false
 	_fell_reported = false
 	presentation_offset = Vector3.ZERO
+	_follow_glide = Vector3.ZERO
 	state = State.AIR
 	# The feet rays query the space directly, so this works while MapSession has the body frozen (disabled).
 	if model != null and is_inside_tree():
@@ -480,9 +484,11 @@ func add_climbables_from_sidecar(entries: Array) -> void:
 
 
 ## The point the camera follows: feet x/z, and the ground height while airborne (jumps never bob the camera;
-## falling below the last ground height is followed immediately).
+## falling below the last ground height is followed immediately). After a ladder-top exit, which moves the body onto
+## top_exit in one tick, the x/z glide from the climbing spot to the feet at walking speed, so the camera follows the
+## exit as if the player had walked onto the top.
 func follow_anchor() -> Vector3:
-	return Vector3(global_position.x, _anchor_y, global_position.z)
+	return Vector3(global_position.x + _follow_glide.x, _anchor_y, global_position.z + _follow_glide.z)
 
 
 ## Grabs `c` directly (tests, scripted sequences). at_top starts at the top, as when pressing Down at a ladder top.
@@ -555,6 +561,7 @@ func _tick_timers(delta: float) -> void:
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 	_invuln = maxf(_invuln - delta, 0.0)
 	_regrab_cooldown = maxf(_regrab_cooldown - delta, 0.0)
+	_follow_glide = _follow_glide.move_toward(Vector3.ZERO, model.walk_speed * delta)
 	if in_hitstun:
 		_hitstun_t -= delta
 		if _hitstun_t <= 0.0:
@@ -961,6 +968,8 @@ func _step_climb(delta: float, intent: Intent) -> void:
 		state = State.AIR
 		_settle(0.6)
 		presentation_offset += before - global_position
+		# The camera glides over the same step (follow_anchor()); the body is already where it ends.
+		_follow_glide += Vector3(before.x - global_position.x, 0.0, before.z - global_position.z)
 		climb_ended.emit(c, &"top")
 		return
 	if axis < 0.0 and y <= c.bottom.y:
