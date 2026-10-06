@@ -141,7 +141,9 @@ with a huge number there can exhaust memory (reported to the items system).
 ### File format
 
 The save is written to `user://saves/<slot>.json` (on Windows, `%APPDATA%/Godot/app_userdata/MisoStory/saves/`).
-It is tab-indented with sorted keys and full float precision.
+It is tab-indented with sorted keys and full float precision. The same directory also holds `ui_prefs.cfg`, the
+player's UI preferences (the minimap's fold; `MisoUiPrefs`, UI.md). It belongs to no slot, and `SaveStore` lists only
+`.json` files, so it is never taken for one.
 
 ```json
 {

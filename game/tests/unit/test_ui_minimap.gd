@@ -156,11 +156,14 @@ func _session(map_id: String) -> Node:
 
 
 ## The minimap scene on `map_id`, configured like the shell does, with the stand-ins.
-func _minimap(map_id: String, c: CharacterState = null, ctx: GameContext = null, game: Object = null) -> Dictionary:
+## `prefs`: the UI preferences file (MisoUiPrefs); "" keeps nothing.
+func _minimap(map_id: String, c: CharacterState = null, ctx: GameContext = null, game: Object = null,
+		prefs: String = "") -> Dictionary:
 	var mm: MisoMinimap = load("res://scenes/ui/minimap.tscn").instantiate()
 	var ms := _session(map_id)
 	var env := MisoUiEnv.isolated(c if c != null else _character(), db(), bus, ctx, game)
 	env.map_session = ms
+	env.prefs_path = prefs
 	var dbg := FakeDebug.new()
 	var p := FakePlayer.new()
 	_parent().add_child(p)
@@ -267,6 +270,61 @@ func test_m_folds_the_map_to_the_title_and_is_quiet_under_a_modal() -> void:
 	other.pressed = true
 	mm._unhandled_input(other)
 	assert_false(mm.is_expanded(), "other keys leave it alone")
+
+
+## Issue #15: the fold is a UI preference kept beside the save slots (MisoUiPrefs), so folding the minimap, quitting
+## and starting again shows it folded. Here a private file in user:// stands for the save directory's, and a second
+## minimap on it for the next start. With no file it opens unfolded; an env with no preferences keeps nothing.
+func test_the_fold_survives_a_restart() -> void:
+	var dir := "user://test_ui_minimap_prefs"
+	var prefs := dir.path_join(MisoUiPrefs.FILE_NAME)
+	DirAccess.remove_absolute(prefs)
+	var first: MisoMinimap = _minimap(SAM_MAP, null, null, null, prefs)["minimap"]
+	assert_true(first.is_expanded(), "no saved preference: unfolded")
+	var press := InputEventAction.new()
+	press.action = MisoMinimap.ACTION
+	press.pressed = true
+	first._unhandled_input(press)
+	assert_false(first.is_expanded(), "M folds it")
+	assert_true(FileAccess.file_exists(prefs), "the fold is written to %s" % prefs)
+	assert_eq(MisoUiPrefs.read(prefs, MisoUiPrefs.MINIMAP, MisoUiPrefs.MINIMAP_EXPANDED, true), false, "as folded")
+	first.free()  # quit
+	var second: MisoMinimap = _minimap(MAI_MAP, null, null, null, prefs)["minimap"]
+	assert_false(second.is_expanded() or second.view.visible, "the next start shows it folded")
+	assert_true(second.name_label.is_visible_in_tree() and second.name_label.text == _name(MAI_MAP),
+		"with the map's name on the title strip")
+	second.fold_button.pressed.emit()
+	assert_true(second.is_expanded(), "unfolded again")
+	second.free()
+	var third: MisoMinimap = _minimap(SAM_MAP, null, null, null, prefs)["minimap"]
+	assert_true(third.is_expanded() and third.view.visible, "and the start after that shows it unfolded")
+	third.set_expanded(false)
+	var none: MisoMinimap = _minimap(SAM_MAP)["minimap"]
+	assert_true(none.is_expanded(), "an env with no preferences file reads none")
+	none.set_expanded(false)
+	assert_eq(MisoUiEnv.isolated(null, db(), bus).ui_prefs_path(), "", "an isolated env names no file")
+	DirAccess.remove_absolute(prefs)
+	DirAccess.remove_absolute(dir)
+
+
+## Issue #15: the status bar's "Map [M]" button shows the minimap's key and folds the map like M does.
+func test_the_status_bar_map_button_folds_the_minimap() -> void:
+	var c := _character()
+	var hud: MisoHud = load("res://scenes/ui/hud.tscn").instantiate()
+	hud.configure(MisoUiEnv.isolated(c, db(), bus))
+	_parent().add_child(hud)
+	nodes.append(hud)
+	var mm: MisoMinimap = _minimap(SAM_MAP, c)["minimap"]
+	var b := hud.status.map_button
+	var key := MisoUiEnv.key_label(MisoMinimap.ACTION)
+	assert_eq(key, "M", "the minimap's key is M (Controls)")
+	assert_eq(b.text, "Map [M]", "the button names the key")
+	assert_eq(hud.status.menu_buttons.get("map"), b, "in the status bar's button grid")
+	assert_true(mm.is_expanded(), "unfolded")
+	b.pressed.emit()
+	assert_false(mm.is_expanded() or mm.view.visible, "the button folds the map to the title strip")
+	b.pressed.emit()
+	assert_true(mm.is_expanded() and mm.view.visible, "and unfolds it")
 
 
 func test_npc_dots_follow_the_quests() -> void:

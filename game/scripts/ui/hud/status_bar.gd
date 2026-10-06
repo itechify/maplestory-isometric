@@ -2,10 +2,12 @@ class_name MisoStatusBar
 extends PanelContainer
 ## The HUD's bottom bar: level (gold), name and job; HP and MP gauges with current / max, and above them, while the
 ## player sits on a chair, the seated cue (what sitting recovers); the EXP gauge with its percent; mesos; buttons that
-## open the character windows (with their keys, an AP badge on Stat and an SP badge on Skill while points are unspent);
-## and the quickslot bar on the right. It only displays values handed to it; MisoHud decides when.
+## open the character windows (with their keys, an AP badge on Stat and an SP badge on Skill while points are unspent)
+## and fold the minimap ("Map [M]"); and the quickslot bar on the right. It only displays values handed to it; MisoHud decides when.
 
 signal window_requested(window_name: String)
+## The "Map [M]" button: fold or unfold the minimap.
+signal minimap_requested
 
 const GAUGE_WIDTH := 300.0
 const MENU_BUTTON_WIDTH := 112.0
@@ -25,7 +27,9 @@ var seat_label: Label
 var ap_available: int = 0
 ## Unspent SP shown on the Skill button (0 = none).
 var sp_available: int = 0
+## Window name -> its button, plus "map" -> map_button.
 var menu_buttons: Dictionary = {}
+var map_button: Button
 var quickslots: MisoQuickslotBar
 
 
@@ -107,7 +111,7 @@ func _init() -> void:
 	spacer.mouse_filter = MOUSE_FILTER_IGNORE
 	row.add_child(spacer)
 
-	# Window buttons (3 + 2).
+	# Window buttons (3 + 2) and the minimap's fold (Map [M]).
 	var menu := GridContainer.new()
 	menu.columns = 3
 	menu.add_theme_constant_override("h_separation", 5)
@@ -122,6 +126,15 @@ func _init() -> void:
 		b.pressed.connect(func() -> void: window_requested.emit(String(entry[0])))
 		menu.add_child(b)
 		menu_buttons[String(entry[0])] = b
+	# The sixth cell: folds the minimap like its key (M), so the bar shows that the key exists.
+	var mkey := MisoUiEnv.key_label(MisoMinimap.ACTION)
+	map_button = MisoWindow.make_button("Map%s" % (" [%s]" % mkey if mkey != "" else ""))
+	map_button.custom_minimum_size = Vector2(MENU_BUTTON_WIDTH, 30)
+	map_button.add_theme_font_size_override("font_size", 13)
+	map_button.tooltip_text = "Fold or unfold the minimap"
+	map_button.pressed.connect(func() -> void: minimap_requested.emit())
+	menu.add_child(map_button)
+	menu_buttons["map"] = map_button
 	row.add_child(menu)
 
 	# Quickslots.

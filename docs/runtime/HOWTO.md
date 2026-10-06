@@ -66,7 +66,7 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 | X | sit on your first chair, or stand up |
 | I / E / C / Q (or L) / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
 | 1 - 8 | quickslots: potions, food, a chair or a learned skill |
-| M | fold the minimap to its title strip (the map name stays) |
+| M | fold the minimap to its title strip (the map name stays); the status bar's Map [M] button does the same, and the fold is remembered across restarts |
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console / debug overlay (F3 also shows the canonical map id on the minimap) |
 

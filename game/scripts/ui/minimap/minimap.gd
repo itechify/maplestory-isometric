@@ -7,9 +7,10 @@ extends PanelContainer
 ##   - the map (MisoMinimapView): the map's walkable ground as the gameplay camera sees it (MinimapModel), its visible
 ##     portals with destination names, its NPCs with their quest-marker state and shop or transport icon, the
 ##     player's arrow and the trail stubs.
-## M (toggle_minimap) folds the map away to the title strip and back (the "-" / "+" button does the same); nothing
-## happens while a modal (dialogue, shop, console, menu) owns the keyboard. Folded or not survives map changes and
-## loads for the session. Normal play never needs the debug console for any of it.
+## M (toggle_minimap) folds the map away to the title strip and back (the "-" / "+" button and the status bar's
+## "Map [M]" button do the same); nothing happens on M while a modal (dialogue, shop, console, menu) owns the
+## keyboard. Folded or not survives map changes and loads, and is saved in the UI preferences (MisoUiPrefs), so it
+## also survives a restart. Normal play never needs the debug console for any of it.
 ##
 ## Integration: the shell instantiates this scene under ctx.ui_root after the HUD (so windows draw above it) and calls
 ## setup(ctx): the world (ctx.world: defs and ground_faces), the player (ctx.player: global_position, facing) and the
@@ -140,6 +141,7 @@ func configure(e: MisoUiEnv) -> void:
 	_unbind()
 	env = e
 	_bind()
+	_load_fold()
 	refresh_all()
 
 
@@ -184,12 +186,27 @@ func toggle() -> void:
 	set_expanded(not expanded)
 
 
+## Folds (false) or unfolds the picture and saves the choice in the UI preferences (MisoUiPrefs), so the next start
+## of the game shows the minimap the same way.
 func set_expanded(on: bool) -> void:
+	_apply_fold(on)
+	if env != null:
+		MisoUiPrefs.write(env.ui_prefs_path(), MisoUiPrefs.MINIMAP, MisoUiPrefs.MINIMAP_EXPANDED, on)
+
+
+func _apply_fold(on: bool) -> void:
 	expanded = on
 	_sync_fold()
 	if expanded:
 		refresh_player()
 	reset_size()
+
+
+## The fold the player last chose (MisoUiPrefs; unfolded when nothing is saved).
+func _load_fold() -> void:
+	var on: Variant = MisoUiPrefs.read(env.ui_prefs_path() if env != null else "", MisoUiPrefs.MINIMAP,
+		MisoUiPrefs.MINIMAP_EXPANDED, true)
+	_apply_fold(on if on is bool else true)
 
 
 func is_expanded() -> bool:

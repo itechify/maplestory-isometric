@@ -35,6 +35,8 @@ var map_id_provider: Callable = Callable()
 var map_session: Object = null
 ## false = never look up autoloads (tests).
 var use_autoloads: bool = true
+## The UI preferences file (MisoUiPrefs); "" = beside the save slots of the Saves autoload, or none without it.
+var prefs_path: String = ""
 
 var _local_engine: QuestEngine = null
 var _local_engine_db: ContentDB = null
@@ -95,6 +97,16 @@ func get_game() -> Object:
 	if game != null:
 		return game
 	return autoload("Game")
+
+
+## Where the UI preferences live (MisoUiPrefs): prefs_path when set, else ui_prefs.cfg in the Saves autoload's
+## save_dir (a playtest's private saves directory in a playtest), else "" (isolated tests: nothing is kept).
+func ui_prefs_path() -> String:
+	if prefs_path != "":
+		return prefs_path
+	var saves := autoload("Saves")
+	var dir: Variant = saves.get("save_dir") if saves != null else null
+	return String(dir).path_join(MisoUiPrefs.FILE_NAME) if dir is String and dir != "" else ""
 
 
 ## The live character, or null when none is available.

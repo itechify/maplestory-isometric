@@ -661,7 +661,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `resume_gate` | G1: a save just past a trail gate (inside the trigger of the portal the player arrived through: Amherst east00, Southperry west00) resumes there after Quit Game and Continue (load step `resume`, the portal disarmed as after an arrival, re-armed on leaving it) | harness |
 | `test_b_population` | the monster population of all 15 hunting maps | monsters |
 | `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
-| `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2 | UI |
+| `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2; the status bar's Map [M] button, and the fold kept across Quit Game and Continue (two phases) | UI |
 
 ## Findings (2026-10-05)
 

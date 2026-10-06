@@ -2,7 +2,7 @@ class_name MisoHud
 extends Control
 ## Root of res://scenes/ui/hud.tscn: the gameplay HUD.
 ##   - bottom bar (MisoStatusBar): level, job, name; HP / MP gauges with current / max; EXP gauge with percent;
-##     mesos; buttons that open the character windows; the quickslot bar;
+##     mesos; buttons that open the character windows and fold the minimap ("Map [M]"); the quickslot bar;
 ##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
 ##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
 ##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
@@ -85,6 +85,7 @@ func _init() -> void:
 	status.offset_right = -6
 	status.offset_bottom = -4
 	status.window_requested.connect(request_window)
+	status.minimap_requested.connect(request_minimap)
 	status.quickslots.use_requested.connect(use_quickslot)
 	status.quickslots.hover_changed.connect(_on_quickslot_hover)
 	add_child(status)
@@ -203,11 +204,25 @@ func request_window(window_name: String) -> void:
 		get_tree().call_group(MisoWindowsRoot.GROUP, &"toggle_window", window_name)
 		return
 	for action: String in MisoWindowsRoot.ACTIONS:
-		if MisoWindowsRoot.ACTIONS[action] == window_name and InputMap.has_action(action):
-			var ev := InputEventAction.new()
-			ev.action = action
-			ev.pressed = true
-			Input.parse_input_event(ev)
+		if MisoWindowsRoot.ACTIONS[action] == window_name:
+			_send_action(action)
+
+
+## Folds or unfolds the minimap (the status bar's "Map [M]" button), as M does: through the minimap root when one is
+## in the tree, else by sending its toggle action.
+func request_minimap() -> void:
+	if is_inside_tree() and get_tree().get_first_node_in_group(MisoMinimap.GROUP) != null:
+		get_tree().call_group(MisoMinimap.GROUP, &"toggle")
+		return
+	_send_action(MisoMinimap.ACTION)
+
+
+func _send_action(action: String) -> void:
+	if InputMap.has_action(action):
+		var ev := InputEventAction.new()
+		ev.action = action
+		ev.pressed = true
+		Input.parse_input_event(ev)
 
 
 func _unhandled_input(event: InputEvent) -> void:
