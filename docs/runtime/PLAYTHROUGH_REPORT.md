@@ -3,16 +3,17 @@
 Iteration Three's clean-character playthrough and every-quest set come first; the Iteration Two report (Tests A-G
 and the movement, camera, combat and world reviews) follows unchanged.
 
-# Iteration Three: the clean-character playthrough (2026-10-05)
+# Iteration Three: the clean-character playthrough (2026-10-06)
 
 One run of the real game from a brand-new character to Shanks' departure boundary in Southperry, strict from the step
 after character creation. The results below are the final evidence run on the final Iteration Three build (waves 1-4
-merged and the KuroDB 2040705 read applied; the game, harness and data at commit `9ddf137`, a clean tree, recorded in
-each report's `git` block; scenario `playthrough`). It answers the brief's Phase 15, the "Clean-Character Progression
-Audit" and the Definition of Done "Gameplay". The method is in
-[PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) ("The clean-character playthrough"); every quest of it is played by the
-same `PlaytestQuestRunner` as the every-quest set, whose own report is
-[QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md).
+merged, the project owner's drop and meso sources of 2026-10-06 applied (decisions D3-11 and D3-12) and the harness
+fixes of phase O3; the game, harness and data at commit `1f3120c`, a clean tree, recorded in each report's `git` block;
+scenario `playthrough`). It answers the brief's Phase 15, the "Clean-Character Progression Audit" and the Definition of
+Done "Gameplay". The method is in [PLAYTEST_HARNESS.md](PLAYTEST_HARNESS.md) ("The clean-character playthrough");
+every quest of it is played by the same `PlaytestQuestRunner` as the every-quest set, whose own report is
+[QUEST_PLAYTHROUGH_REPORT.md](QUEST_PLAYTHROUGH_REPORT.md). The reports are in `_scratch/final3/pt/` (git-ignored;
+archived outside the repository as `iteration-three/evidence-final3-1f3120c.zip`).
 
 ```bash
 PLAYTEST_TIMEOUT_S=7500 ISOLATE=pt bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out _scratch/pt/s1
@@ -32,27 +33,31 @@ Southperry") passed with no `PLAYTHROUGH_STOP` flag (`tools/parity/parity.mjs` `
 
 | Seed | Mode | Checks | Game time | Wall time | Level at the end | Mesos at the end | Quest hat (1008) | Quest knife (1011) | Deaths |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | headless | 625 | 2,590 s (43 min) | 411 s | 8 (the Fruit Knife needs 8) | 497 | 715 Blue Headband | 559 Fruit Knife | 1 |
-| 2 | headless | 623 | 2,329 s (39 min) | 312 s | 7 | 428 | 712 Black Headband | 558 Razor | 1 |
-| 3 | headless | 623 | 2,298 s (38 min) | 308 s | 7 | 383 | 715 Blue Headband | 558 Razor | 1 |
-| 1 | windowed | 695 | 2,573 s (43 min) | 696 s | 8 | 497 | 715 Blue Headband | 559 Fruit Knife | 1 |
+| 1 | headless | 625 | 2,585 s (43 min) | 351 s | 8 (the Fruit Knife needs 8) | 824 | 708 Brown Skullcap | 559 Fruit Knife | 1 |
+| 2 | headless | 623 | 2,534 s (42 min) | 333 s | 8 (the Fruit Knife needs 8) | 749 | 708 Brown Skullcap | 559 Fruit Knife | 1 |
+| 3 | headless | 622 | 2,267 s (38 min) | 299 s | 7 | 440 | 708 Brown Skullcap | 558 Razor | 1 |
+| 1 | windowed | 695 | 2,581 s (43 min) | 636 s | 8 | 826 | 708 Brown Skullcap | 559 Fruit Knife | 1 |
 
 The windowed run has 70 more checks: in a window the quest runner also checks that each quest marker over an NPC is
-drawn on screen (the "marker is drawn" rows; the visual chunks load only windowed). Its route, draws and checkpoints
-follow the headless seed-1 run's closely (one more Shroom kill: 1,309 EXP at the boundary against 1,303). It recorded
-0 input re-asserts (the window kept its focus) and 0 engine errors. The wall times were taken with up to two other
-Godot runs of the evidence run beside each. No run logged the G1 resume-point warning (fixed in wave 3; see
-"Findings").
+drawn on screen (the "marker is drawn" rows; the visual chunks load only windowed). Its route, draws and shop visits
+are the headless seed-1 run's; its kills differ a little (121 against 124: 1,273 EXP at the boundary against 1,293,
+and 826 mesos against 824). It recorded 0 input re-asserts (the window kept its focus) and 0 engine errors. The wall
+times were taken with up to two other Godot runs of the evidence run beside each. No run logged the G1 resume-point
+warning (fixed in wave 3; see "Findings"). All three seeds drew the Brown Skullcap for 1008; the every-quest set drew
+708, 709 and 711 on the same seeds, so the draw itself varies (it follows the game's random numbers up to the
+turn-in, which the two scenarios reach by different routes).
 
-**Earlier runs.** The previous final run (`c4e9ac5`, before wave 4) passed seeds 1, 2 and 3 headless with 620, 617
-and 617 checks, but on the old 1600x1600 headless GUI area and without the click gate; the acceptance review's windowed
-re-run of it failed 8 checks on the Skills window's Set key, which had grown off the bottom of the 900 px screen
-(fixed in wave 4: every window stays above the HUD's status bar, and the summary checks now need real casts). At the
-playthrough package's commits the scenario passed seeds 1, 2 and 3 with 619, 616 and 615 checks (`6ccc699`), and the
-review re-run at `5bf2687` with 616, 616 and 617. The first evidence run (`ee0a209`) failed 1 check on seed 1 and 3 on
-seed 2: harness defects in the Wooden Box approach and the Three Snails throw (findings H2 and H3 below), both fixed.
-Check counts differ by a few between runs because the draws and the physics differ (for example whether the Egg step
-finds HP low enough for an Egg's whole restore, or whether Pan's first visit can afford the sandals).
+**Earlier runs.** The final run before the drop-source switch (`9ddf137`) passed seeds 1, 2 and 3 headless with 625,
+623 and 623 checks and seed 1 windowed with 695, on drop records the owner has since replaced; it ended at levels 8,
+7 and 7 with 497, 428 and 383 mesos. The final run before wave 4 (`c4e9ac5`) passed with 620, 617 and 617 checks, but
+on the old 1600x1600 headless GUI area and without the click gate; the acceptance review's windowed re-run of it failed
+8 checks on the Skills window's Set key, which had grown off the bottom of the 900 px screen (fixed in wave 4: every
+window stays above the HUD's status bar, and the summary checks now need real casts). At the playthrough package's
+commits the scenario passed seeds 1, 2 and 3 with 619, 616 and 615 checks (`6ccc699`), and the review re-run at
+`5bf2687` with 616, 616 and 617. The first evidence run (`ee0a209`) failed 1 check on seed 1 and 3 on seed 2: harness
+defects in the Wooden Box approach and the Three Snails throw (findings H2 and H3 below), both fixed. Check counts
+differ by a few between runs because the draws and the physics differ (for example whether the Egg step finds HP low
+enough for an Egg's whole restore, or whether Pan's first visit can afford the sandals).
 
 ## Strict mode: the proof of a console-free run
 
@@ -60,9 +65,9 @@ finds HP low enough for an Egg's whole restore, or whether Pan's first visit can
 |---|---|---|---|---|
 | Strict since | phase 0, step 1 (right after `new_game`) | the same | the same | the same |
 | Console steps / api fallbacks / developer commands | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 |
-| Ledger: reconciliations, events heard, mismatches | 9, 423, 0 | 9, 336, 0 | 9, 314, 0 | 9, 425, 0 |
+| Ledger: reconciliations, events heard, mismatches | 9, 459, 0 | 9, 449, 0 | 9, 324, 0 | 9, 451, 0 |
 | Violations | 0 | 0 | 0 | 0 |
-| Play steps (top level) | 1,001 | 914 | 890 | 1,002 |
+| Play steps (top level) | 998 | 990 | 867 | 987 |
 
 - The character was created through the real title and creation screens: New Game, the name typed, the creation
   screen's **Recommended** button (STR 13, DEX 4, INT 4, LUK 4 and the Wooden Club, the guide's recommendation) and
@@ -79,60 +84,63 @@ finds HP low enough for an Egg's whole restore, or whether Pan's first visit can
 
 | Phase | Ends with | Game s | Wall s | Steps |
 |---|---|---|---|---|
-| 0 | Quit Game | 274 | 39 | character creation; Heena and Sera (1000, 1001); Roger (1002); Nina and Sen (1003, 1004); Todd and Peter (1005); Save, Quit to Title, Continue |
-| 1 | Quit Game | 534 | 85 | Robin; Sam (1006, 10 Snails); the first SP: Three Snails learned, bound to key 1, thrown at a Snail; Snail Hunting Grounds II and III to A Split Road; Mai (1006 done), Maria (1007), Mai (1009); Southperry: Yoona, Bari, Biggs (1011), Shanks refusing level 4; Pan's shop |
-| 2 | Quit Game in 1009 | 83 | 12 | Mai's training to 5/10 Blue Snails (the mid-quest restart) |
-| 3 | Quit Game in 1012 | 324 | 78 | 1009 done, 1010 accepted; Recovery and Nimble Feet learned and cast; The Field West of Amherst: 1010's Orange Mushroom and 1011's cap; Amherst: Lucas (1007 done, 1008 accepted); Pio (1012): a box broken before the accept, then Wooden Boxes to 1/3 Rusty Screw (the mid-quest restart) |
-| 4 | Quit Game | 345 | 51 | 1012 done (The Green Relaxer); the death in The Field West of Amherst and the respawn in Amherst; The Green Relaxer sat on; Rain (1013-1019); Sid; Lucy; Townstreet, Snail Field of Flowers, The Field East of Amherst, Tomato Field |
-| 5 | Quit Game | 897 | 130 | the six forest maps; A Split Road (1010, 1008 done); Southperry (1011 done); the hat, the knife refused below level 8; Pan again; the level-8 hunt at A Split Road; the knife equipped |
-| 6 | Quit Game | 115 | 11 | Shanks: the offer, Yes, the End of Maple Island screen; Save |
-| 7 | done | 18 | 4 | Continue: the departure flag survives; the summary checks |
+| 0 | Quit Game | 277 | 27 | character creation; Heena and Sera (1000, 1001); Roger (1002); Nina and Sen (1003, 1004); Todd and Peter (1005); Save, Quit to Title, Continue |
+| 1 | Quit Game | 500 | 69 | Robin; Sam (1006, 10 Snails); SP spent in the Skills window as it came (Three Snails first, bound to key 1 and thrown at a Snail, then Recovery and Nimble Feet); Snail Hunting Grounds II and III to A Split Road; Mai (1006 done), Maria (1007), Mai (1009); Southperry: Yoona, Bari, Biggs (1011), Shanks refusing level 4; Pan's shop (two ores sold, the Leather Sandals bought) |
+| 2 | Quit Game in 1009 | 84 | 11 | Mai's training to 5/10 Blue Snails (the mid-quest restart) |
+| 3 | Quit Game in 1012 | 380 | 55 | 1009 done, 1010 accepted; Recovery and Nimble Feet cast; The Field West of Amherst: 1010's Orange Mushroom and 1011's cap; Amherst: Lucas (1007 done, 1008 accepted); Pio (1012): a box broken before the accept, then Wooden Boxes to 1/3 Rusty Screw (the mid-quest restart) |
+| 4 | Quit Game | 355 | 47 | 1012 done (The Green Relaxer); the death in The Field West of Amherst and the respawn in Amherst; The Green Relaxer sat on; Rain (1013-1019); Sid; Lucy; Townstreet, Snail Field of Flowers, The Field East of Amherst, Tomato Field |
+| 5 | Quit Game | 915 | 133 | the six forest maps; A Split Road (1010, 1008 done); Southperry (1011 done); the hat, the knife refused below level 8; Pan again; the level-8 hunt at A Split Road (38 kills, 224 s); the knife equipped |
+| 6 | Quit Game | 55 | 6 | Shanks: the offer, Yes, the End of Maple Island screen; Save |
+| 7 | done | 19 | 4 | Continue: the departure flag survives; the summary checks |
 
 ## Checkpoints (the progression audit)
 
-Seed 1 headless, from `d.carry["checkpoints"]`. Play time is game time since the title (all phases). ETC items: 348
-Snail Shell, 349 Blue Snail Shell, 350 Mushroom Spore, 351 Red Snail Shell, 356 Orange Mushroom Cap, 439 Maria's
-Letter, 440 Lucas's Letter. Skills: Three Snails / Recovery / Nimble Feet levels.
+Seed 1 headless, from `d.carry["checkpoints"]`. Play time is game time since the title (all phases). ETC items: 320
+Garnet Ore, 321 Amethyst Ore, 324 Opal Ore, 348 Snail Shell, 349 Blue Snail Shell, 350 Mushroom Spore, 351 Red Snail
+Shell, 356 Orange Mushroom Cap, 413 Bronze Ore, 414 Iron Ore, 417 Silver Ore, 439 Maria's Letter, 440 Lucas's Letter,
+483 Monster Card. Skills: Three Snails / Recovery / Nimble Feet levels.
 
 | Checkpoint | Play s | Map | Level | EXP (total) | Mesos | Equipment | Important ETC | Skills | Quests done |
 |---|---|---|---|---|---|---|---|---|---|
-| a new character | 18 | 000000001 | 1 | 0 (0) | 0 | Wooden Club | | | 0 |
-| Mushroom Town's tutorial quests (1000-1005) | 259 | 000000030 | 2 | 3 (18) | 0 | Wooden Club | | | 6 |
-| Sam's Suggestion (1006) done | 598 | 000000050 | 3 | 51 (100) | 16 | Wooden Club | 348x14 349x3 | 1/1/0 | 7 |
-| Southperry, first visit | 781 | 000000060 | 4 | 38 (144) | 37 | Wooden Club | 348x14 349x5 350x2 351x3 439 | 1/1/0 | 7 |
-| Pan's shop, first visit (sandals refused at 37 mesos; loot sold) | 807 | 000000061 | 4 | 38 (144) | 55 | Wooden Club | 348x14 349x5 439 | 1/1/0 | 7 |
-| Mai's Training (1009) done | 1,047 | 000000050 | 6 | 25 (358) | 101 | Wooden Club | 348x14 349x16 350x10 351x5 439 | 2/2/1 | 8 |
-| 1010's Orange Mushroom and 1011's items | 1,098 | 000001000 | 6 | 40 (373) | 101 | Wooden Club | ... 349x16 356x1 439 | 2/2/1 | 8 |
-| Pio (1012) done: The Green Relaxer | 1,252 | 000001010 | 6 | 172 (505) | 270 | Wooden Club | ... 349x16 351x9 356x1 440 | 2/2/1 | 10 |
-| after the death (respawned in Amherst) | 1,283 | 000001010 | 6 | 135 (468) | 270 | Wooden Club | (unchanged) | 2/2/1 | 10 |
-| Rain's seven quizzes (1013-1019) done | 1,322 | 000001010 | 7 | 8 (713) | 270 | Wooden Club | (unchanged) | 2/2/2 | 17 |
-| Sid's shop (Sword bought) | 1,346 | 000001011 | 7 | 8 (713) | 255 | Sword | 348x14 349x16 350x5 351x4 356x1 440 | 2/2/2 | 17 |
-| Lucy's shop (2 Red Potions) | 1,375 | 000001013 | 7 | 8 (713) | 186 | Sword | 348x14 349x16 356x1 440 | 2/2/2 | 17 |
-| Amherst and its neighbours explored | 1,560 | 000001010 | 7 | 16 (721) | 198 | Sword | 348x14 349x16 351x1 356x1 440 | 2/2/2 | 17 |
-| 1010 and 1008 done (A Split Road) | 2,083 | 000000050 | 7 | 248 (953) | 398 | Sword | 348x15 349x25 350x2 351x5 356x1 | 2/2/2 | 19 |
-| Biggs (1011) done | 2,166 | 000000060 | 7 | 346 (1,051) | 429 | Sword | 348x15 349x15 350x4 351x7 | 2/2/2 | 20 |
-| the quest hat equipped (knife refused: level 8) | 2,166 | 000000060 | 7 | 346 (1,051) | 429 | Blue Headband, Sword | (unchanged) | 2/2/2 | 20 |
-| Pan's shop, last visit (Leather Sandals) | 2,188 | 000000061 | 7 | 346 (1,051) | 379 | Blue Headband, Leather Sandals, Sword | (unchanged) | 2/2/2 | 20 |
-| after the level-8 hunt | 2,415 | 000000050 | 8 | 0 (1,265) | 493 | Blue Headband, Leather Sandals, Sword | 348x15 349x32 350x11 351x20 | 3/2/2 | 20 |
-| at the departure boundary | 2,572 | 000000060 | 8 | 38 (1,303) | 497 | Blue Headband, Leather Sandals, Fruit Knife | 348x15 349x33 350x14 351x22 | 3/2/2 | 20 |
+| a new character | 19 | 000000001 | 1 | 0 (0) | 0 | Wooden Club | | | 0 |
+| Mushroom Town's tutorial quests (1000-1005) | 261 | 000000030 | 2 | 3 (18) | 0 | Wooden Club | | | 6 |
+| Sam's Suggestion (1006) done | 579 | 000000050 | 4 | 18 (124) | 42 | Wooden Club | 320 321 348x15 349x4 351x3 413x2 | 1/1/1 | 7 |
+| Southperry, first visit | 750 | 000000060 | 4 | 46 (152) | 64 | Wooden Club | 320 321 348x15 349x4 350x2 351x5 413x2 439 | 1/1/1 | 7 |
+| Pan's shop, first visit (Amethyst and Garnet Ore sold for 240; sandals bought) | 777 | 000000061 | 4 | 46 (152) | 254 | Leather Sandals, Wooden Club | 348x15 349x4 350x2 351x5 413x2 439 | 1/1/1 | 7 |
+| Mai's Training (1009) done | 1,060 | 000000050 | 6 | 37 (370) | 319 | Leather Sandals, Wooden Club | 348x15 349x16 350x12 351x10 413x2 417 439 | 2/2/1 | 8 |
+| 1010's Orange Mushroom and 1011's items | 1,104 | 000001000 | 6 | 52 (385) | 330 | Leather Sandals, Wooden Club | ... 349x16 356 417 439 | 2/2/1 | 8 |
+| Pio (1012) done: The Green Relaxer | 1,281 | 000001010 | 6 | 172 (505) | 493 | Leather Sandals, Wooden Club | ... 349x17 351x12 356 417 440 | 2/2/1 | 10 |
+| after the death (respawned in Amherst) | 1,316 | 000001010 | 6 | 135 (468) | 493 | Leather Sandals, Wooden Club | (unchanged) | 2/2/1 | 10 |
+| Rain's seven quizzes (1013-1019) done | 1,355 | 000001010 | 7 | 8 (713) | 493 | Leather Sandals, Wooden Club | (unchanged) | 2/2/2 | 17 |
+| Sid's shop (ores sold, Sword bought) | 1,378 | 000001011 | 7 | 8 (713) | 563 | Leather Sandals, Sword | 348x15 349x17 350x12 351x12 356 440 | 2/2/2 | 17 |
+| Lucy's shop (2 Red Potions) | 1,408 | 000001013 | 7 | 8 (713) | 498 | Leather Sandals, Sword | 348x15 349x17 350x7 351x7 356 440 | 2/2/2 | 17 |
+| Amherst and its neighbours explored | 1,596 | 000001010 | 7 | 20 (725) | 509 | Leather Sandals, Sword | 348x15 349x18 350x7 351x8 356 440 | 2/2/2 | 17 |
+| 1010 and 1008 done (A Split Road) | 2,121 | 000000050 | 7 | 254 (959) | 710 | Leather Sandals, Sword | 324 348x16 349x23 350x8 351x15 356 417 | 2/2/2 | 19 |
+| Biggs (1011) done | 2,190 | 000000060 | 7 | 324 (1,029) | 710 | Leather Sandals, Sword | 324 348x16 349x13 350x8 351x15 417 | 2/2/2 | 20 |
+| the quest hat equipped (knife refused: level 8) | 2,191 | 000000060 | 7 | 324 (1,029) | 710 | Brown Skullcap, Leather Sandals, Sword | (unchanged) | 2/2/2 | 20 |
+| Pan's shop, last visit (nothing left to buy) | 2,212 | 000000061 | 7 | 324 (1,029) | 710 | Brown Skullcap, Leather Sandals, Sword | (unchanged) | 2/2/2 | 20 |
+| after the level-8 hunt | 2,470 | 000000050 | 8 | 2 (1,267) | 809 | Brown Skullcap, Leather Sandals, Sword | 321 324x3 348x16 349x29 350x21 351x27 414x2 417x2 483 | 3/2/2 | 20 |
+| at the departure boundary | 2,566 | 000000060 | 8 | 28 (1,293) | 824 | Brown Skullcap, Leather Sandals, Fruit Knife | 321 324x3 348x16 349x30 350x22 351x29 414x2 417x2 483 | 3/2/2 | 20 |
 
 Seeds 2 and 3 at the same checkpoints:
 
 | Checkpoint | Seed 2: play s, level, total EXP, mesos | Seed 3: play s, level, total EXP, mesos |
 |---|---|---|
-| Mushroom Town's tutorial quests | 271, 2, 18, 0 | 236, 2, 18, 0 |
-| 1006 done | 614, 3, 104, 24 | 596, 4, 120, 31 |
-| Southperry, first visit | 785, 4, 132, 37 | 762, 4, 142, 48 |
-| 1009 done | 1,084, 6, 370, 143 | 1,074, 6, 362, 146 |
-| Pio (1012) done | 1,297, 6, 505, 314 | 1,304, 6, 497, 304 |
-| after the death | 1,333, 6, 468, 314 | 1,336, 6, 460, 304 |
-| Rain's quizzes done | 1,371, 7, 713, 314 | 1,375, 7, 705, 304 |
-| Biggs (1011) done | 2,242, 7, 1,100, 478 | 2,208, 7, 1,043, 433 |
-| at the departure boundary | 2,308, 7, 1,100, 428 | 2,278, 7, 1,043, 383 |
+| Mushroom Town's tutorial quests | 274, 2, 18, 0 | 237, 2, 18, 0 |
+| 1006 done | 563, 3, 98, 29 | 590, 4, 116, 23 |
+| Southperry, first visit | 748, 4, 146, 50 | 762, 4, 142, 39 |
+| Pan's shop, first visit | 775, 4, 146, 240 (Amethyst and Mithril Ore sold; sandals bought) | 789, 4, 142, 135 (sandals refused at 39 mesos; Silver Ore and shells sold) |
+| 1009 done | 1,049, 6, 348, 306 | 1,059, 6, 384, 210 |
+| Pio (1012) done | 1,240, 6, 471, 473 | 1,267, 6, 519, 363 |
+| after the death | 1,277, 6, 434, 473 | 1,304, 6, 482, 363 |
+| Rain's quizzes done | 1,315, 6, 679, 473 | 1,343, 7, 727, 363 |
+| Biggs (1011) done | 2,185, 7, 1,082, 656 | 2,178, 7, 1,045, 490 |
+| after the level-8 hunt | 2,426, 8, 1,268, 741 | (Razor drawn: no hunt) |
+| at the departure boundary | 2,515, 8, 1,276, 749 | 2,247, 7, 1,045, 440 |
 
-Level-ups (play s): seed 1: 2 at 258, 3 at 446, 4 at 605, 5 at 953, 6 at 1,045, 7 at 1,321, 8 at 2,413; seed 2: 2 at
-270, 3 at 457, 4 at 632, 5 at 964, 6 at 1,081, 7 at 1,370; seed 3: 2 at 235, 3 at 405, 4 at 593, 5 at 949, 6 at
-1,072, 7 at 1,374.
+Level-ups (play s): seed 1: 2 at 259, 3 at 448, 4 at 576, 5 at 913, 6 at 1,058, 7 at 1,353, 8 at 2,469; seed 2: 2 at
+273, 3 at 425, 4 at 586, 5 at 938, 6 at 1,046, 7 at 1,633, 8 at 2,424; seed 3: 2 at 236, 3 at 503, 4 at 588, 5 at 952,
+6 at 1,057, 7 at 1,342.
 
 Major quest rewards received (all three seeds, each checked exact against canonical data at the turn-in): 1006: 30
 EXP and 3 Eggs; 1009: 70 EXP and 5 Eggs; 1010: 100 EXP, 150 mesos and 10 Eggs; 1008: 50 EXP and one random hat;
@@ -149,17 +157,17 @@ windowed run.
 | create character | `new_game` through the title and creation screens (`via` "screen"), then "a new Beginner: level 1, 0 EXP, 0 mesos, no quest, in Maple Island's first map 000000001" |
 | begin Maple Island | strict mode from the next step; Heena's 1000 offered by her marker in 000000001 |
 | complete the opening/tutorial content | 1000-1005 played and completed (Heena, Sera, Roger, Nina, Sen, Todd, Peter), Robin talked to; every quest check of the runner passed |
-| fight every Maple Island monster type | "X fought and killed" for all 6 species (seed 1: 3 Tutorial Jr. Sentinels, 18 Snails, 43 Blue Snails, 27 Shrooms, 34 Red Snails, 1 Orange Mushroom) and "N kills gave the canonical EXP each" per species |
-| obtain normal monster drops | "monster drops picked up with Z": 134 / 99 / 91 items (the count is every item picked up with Z, so it also holds the few items of 1012's Wooden Boxes); the monster-only loot in the checkpoints (Snail Shell, Blue Snail Shell, Mushroom Spore, Red Snail Shell, Orange Mushroom Cap); quest drops (Jr. Sentinel Shellpiece, Blue Snail Shell, Orange Mushroom Cap) collected for 1005 and 1011 |
-| obtain mesos through actual monster drops | "mesos from monster meso bags picked up": 313 mesos in 55 bags / 249 in 43 / 202 in 34 (the Wooden Box drops no mesos, so every bag was a monster's) |
-| level naturally | "level 8 / 7 / 7 reached naturally: EXP only from kills, quest rewards and the death penalty"; every kill's EXP and every quest's EXP equal to canonical data (see the progression review) |
-| allocate AP | "every AP spent through the stats window (35 / 30 / 30 points over 7 / 6 / 6 levels)": each point a mouse click on the stats window's "+" |
-| use consumables | Roger's Apple used for 1002; an Egg (+60 HP) eaten with a double-click in Southperry on seeds 2 and 3 (the step waits for HP low enough for an Egg's whole restore, which seed 1's HP there was not); an Orange for MP in Amherst (+7 on every seed: its canonical 50 capped at Max MP 77); Eggs and Red Potions drunk by the survival policy whenever HP fell below 40% (7 / 4 / 6 per run) |
-| equip gear | the Sword bought from Sid, the Leather Sandals bought from Pan, the 1008 hat at level 7 (it needs 5), the 1011 knife: the Razor at once (seeds 2 and 3), or the Fruit Knife refused at level 7 with "You need to be level 8 to equip that." and equipped after the level-8 hunt (seed 1) |
-| use every Maple Island shop | Pan, Sid and Lucy each "bought and sold" at canonical prices and sell prices; on every seed Pan's first visit was short of mesos and the refusal ("You do not have enough mesos. (costs 50, you have 37)" on seeds 1 and 2, 48 on seed 3) was checked, the sandals bought on the last visit |
+| fight every Maple Island monster type | "X fought and killed" for all 6 species (seed 1: 3 Tutorial Jr. Sentinels, 19 Snails, 40 Blue Snails, 27 Shrooms, 34 Red Snails, 1 Orange Mushroom) and "N kills gave the canonical EXP each" per species |
+| obtain normal monster drops | "monster drops picked up with Z": 148 / 147 / 98 items (the count is every item picked up with Z, so it also holds the 3 Rusty Screws and 3 Old Wooden Boards of 1012's Wooden Boxes); each species' own leftover (Snail Shell, Blue Snail Shell, Mushroom Spore, Red Snail Shell, Orange Mushroom Cap), ores and gems (Garnet, Amethyst, Aquamarine, Opal, Bronze, Iron, Mithril and Silver Ore) and the Monster Card in the checkpoints; quest drops (Jr. Sentinel Shellpiece, Blue Snail Shell, Orange Mushroom Cap) collected for 1005 and 1011 |
+| obtain mesos through actual monster drops | "mesos from monster meso bags picked up": 329 mesos in 79 bags / 322 in 76 / 157 in 41 (the Wooden Box and the Tutorial Jr. Sentinel drop no mesos, so every bag was another monster's) |
+| level naturally | "level 8 / 8 / 7 reached naturally: EXP only from kills, quest rewards and the death penalty"; every kill's EXP and every quest's EXP equal to canonical data (see the progression review) |
+| allocate AP | "every AP spent through the stats window (35 / 35 / 30 points over 7 / 7 / 6 levels)": each point a mouse click on the stats window's "+" |
+| use consumables | Roger's Apple used for 1002; an Egg (+60 HP) eaten with a double-click in Southperry on seed 1, headless and windowed (the step waits for HP low enough for an Egg's whole restore, which seeds 2 and 3 did not reach there); an Orange for MP in Amherst (+7 on seeds 1 and 3, +14 on seed 2: its canonical 50 capped at Max MP 77 and 65); Eggs and Red Potions drunk by the survival policy whenever HP fell below 40% (6 / 6 / 5 per run) |
+| equip gear | the Sword bought from Sid, the Leather Sandals bought from Pan, the 1008 hat (the Brown Skullcap on every seed) at level 7 (it needs 5), the 1011 knife: the Razor at once (seed 3), or the Fruit Knife refused at level 7 with "You need to be level 8 to equip that." and equipped after the level-8 hunt (seeds 1 and 2) |
+| use every Maple Island shop | Pan, Sid and Lucy each "bought and sold" at canonical prices and sell prices; on seeds 1 and 2 Pan's first visit sold an Amethyst Ore (200) and bought the sandals at once; on seed 3 it was short of mesos and the refusal ("You do not have enough mesos. (costs 50, you have 39)") was checked, the sandals bought on the last visit |
 | complete every Maple Island quest | "every Maple Island quest completed through play (20 of 20)"; per quest the full runner checks (availability, accept, objectives, turn-in, exact rewards, follow-ups) |
 | complete every quiz | 1013-1019: one wrong answer each (its canonical line, the quest still in progress), then the canonical answer, all seven completed |
-| obtain and use a chair | The Green Relaxer from 1012; double-click in the Set-up tab seats the player, X seats again, a step stands up; seated at 50 of 130 HP right after the respawn, HP rose in 11 s by 50 on seeds 1 and 3 (the chair's 30 plus two natural ticks of 10) and by 40 on seed 2 (one tick), exactly the canonical amounts; the HUD's seated cue shows while seated |
+| obtain and use a chair | The Green Relaxer from 1012; double-click in the Set-up tab seats the player, X seats again, a step stands up; seated at 50 of 130 HP right after the respawn, HP rose in 11 s by 40 on every seed (the chair's 30 plus one natural tick of 10), exactly the canonical amounts; the HUD's seated cue shows while seated |
 | visit all 25 maps | "map ... visited on foot" for each of the 25 canonical maps (`visited_maps`, from `Events.map_entered`) |
 | die and respawn correctly | a death to Orange Mushroom contact in The Field West of Amherst; the notice; the canonical EXP penalty (37 at level 6, LUK 4: floor(372 x 10 / 100)); the notice's OK respawns at the map's canonical return map, Amherst |
 | save and reload during progression | 7 process restarts (5 planned, 2 in the middle of 1009 and 1012) and one Quit to Title, each compared with the saved character |
@@ -171,73 +179,121 @@ Also exercised: all 21 NPCs talked to on foot (each check tagged `npc:<id>`); th
 the Skills window's "+" and bound with Set key and a key 1-3 (Three Snails hit a Snail three times for the canonical
 fixed 15 and killed it; Recovery and Nimble Feet started their effects and cost their canonical MP; the end-of-run
 summary counts only real casts); no NPC speech bubble over an open shop; quest markers and the Quest Log at every quest
-step. Each run's checks carry 103-105 distinct parity keys (all 25 maps, 21 NPCs, 20 quests, 6 monsters, 3 shops, 3
-skills, the chair, the Wooden Box, quest items and `mechanic:*` keys; 107 distinct keys over the three seeds, 13 of them
+step. Each run's checks carry 105-107 distinct parity keys (all 25 maps, 21 NPCs, 20 quests, 6 monsters, 3 shops, 3
+skills, the chair, the Wooden Box, quest items and `mechanic:*` keys; 111 distinct keys over the three seeds, 13 of them
 `mechanic:*`), and none of them failed.
 
 ## Deaths
 
 One death per seed, deliberate because no natural death happened first: after Pio, the player walks into the Orange
 Mushrooms of The Field West of Amherst without attacking or drinking (`let_monsters_win`) and dies to their contact
-damage (8-11 touches, 89-118 damage, 19-24 s). The death notice shows, the EXP penalty is the canonical floor(EXP to
-next level x (5 + 20 / LUK) / 100) = 37 at level 6 with base LUK 4 (EXP 172 -> 135 on seeds 1 and 2, 164 -> 127 on
-seed 3), and the OK respawns the player at the field's canonical return map, Amherst, with 50 HP. In an earlier
-evidence run the death came before Pio, right after a level-up, and the penalty was capped at the EXP held (16 and
-26): "EXP stops at 0, so a death never takes away a level" (formulas/death.json).
+damage (11-12 touches, 120-129 damage, 23-25 s). The death notice shows, the EXP penalty is the canonical floor(EXP to
+next level x (5 + 20 / LUK) / 100) = 37 at level 6 with base LUK 4 (EXP 172 -> 135 on seed 1, 138 -> 101 on seed 2,
+186 -> 149 on seed 3), and the OK respawns the player at the field's canonical return map, Amherst, with 50 HP. In an
+earlier evidence run the death came before Pio, right after a level-up, and the penalty was capped at the EXP held (16
+and 26): "EXP stops at 0, so a death never takes away a level" (formulas/death.json).
 
 ## Progression review
 
 **Canonical expectations.** The 20 quests give 680 EXP and 300 mesos in all (`rewards.exp`, `rewards.mesos`). The
 kills the quest objectives require are 3 Tutorial Jr. Sentinels (1 EXP each), 10 Snails (2), 10 Blue Snails (4), 10
 Shrooms (6), 5 Red Snails (8) and 1 Orange Mushroom (15): 178 EXP. 1011's 10 Blue Snail Shells and Orange Mushroom
-Cap drop at probability 1.0 from those species, so they need no extra kill when 1009's Blue Snail Shells are kept.
-The minimum, 680 + 178 = 858 EXP, passes level 7 (705 EXP from level 1) and leaves 153 of the 560 to level 8. So a
-player who does every quest with no extra hunting reaches exactly Shanks' canonical level 7: the canonical numbers
-fit together.
+Cap drop at 100% from those species (each its species' own leftover: the owner's table, D3-11), so they need no extra
+kill when 1009's Blue Snail Shells are kept. The minimum, 680 + 178 = 858 EXP, passes level 7 (705 EXP from level 1)
+and leaves 153 of the 560 to level 8. So a player who does every quest with no extra hunting reaches exactly Shanks'
+canonical level 7: the canonical numbers fit together.
 
 **What the runs did.**
 
 | | Seed 1 | Seed 2 | Seed 3 |
 |---|---|---|---|
 | EXP from quests | 680 | 680 | 680 |
-| EXP from kills (kills) | 660 (126) | 457 (88) | 400 (81) |
-| of which the level-8 hunt for the Fruit Knife | 214 | - | - |
+| EXP from kills (kills) | 650 (124) | 633 (119) | 402 (79) |
+| of which the level-8 hunt for the Fruit Knife | 238 (38 kills) | 186 (34 kills) | - |
 | Death penalty | -37 | -37 | -37 |
-| Total EXP, level | 1,303, 8 | 1,100, 7 | 1,043, 7 |
-| Level 7 reached at | 1,321 s | 1,370 s | 1,374 s |
-| Mesos in: quests / meso bags / sales | 300 / 313 / 84 | 300 / 249 / 79 | 300 / 202 / 81 |
+| Total EXP, level | 1,293, 8 | 1,276, 8 | 1,045, 7 |
+| Level 7 reached at | 1,353 s | 1,633 s | 1,342 s |
+| Mesos in: quests / meso bags / sales | 300 / 329 / 395 | 300 / 322 / 327 | 300 / 157 / 183 |
 | Mesos out: Sandals, Sword, 2 Red Potions | 200 | 200 | 200 |
-| Mesos at the end | 497 | 428 | 383 |
+| Mesos at the end | 824 | 749 | 440 |
 
 - **EXP per kill and per quest are exact.** The end-of-run checks compare the event bus's EXP per source with
   canonical data: every kill of every species gave its monster's canonical EXP, and the 20 quests gave exactly 680.
   Nothing scales, rounds or double-counts EXP.
-- **Kills.** The runs killed 2.2-2.6 times the EXP the objectives require (400-457 EXP of kills before the Fruit Knife
+- **Kills.** The runs killed 2.3-2.5 times the EXP the objectives require (402-447 EXP of kills before the Fruit Knife
   hunt), because the hunts take what attacks the player and travel through hunting maps fights back. The quests are
-  52-65% of all EXP earned, so they, not grinding, carry the island.
-- **Time.** Level 7 came after 22-23 minutes of game time (at Rain's quizzes) and Shanks after 38-43 minutes (with a
-  4-minute level-8 hunt when the Fruit Knife is drawn). For comparison, Test C, which levels by killing only, reached
-  level 9 in about 1.3 hours of play in this evidence run (and needed about 2.2 hours to reach level 8 in the Phase B3
-  baseline, before the drop and spawn changes; [ITERATION_LOG.md](../ITERATION_LOG.md)). Nothing here points to an
-  implementation fault; the pace is the canonical rewards' pace.
-- **Mesos.** Expected meso-bag income per kill from the canonical drop tables is 0.8 (Snail), 1.6 (Blue Snail), 2.0
-  (Shroom), 4.0 (Red Snail) and 4.4 (Orange Mushroom); the runs' kills predict about 278, 188 and 163 mesos against
-  313, 249 and 202 picked up. In bags: 55, 43 and 34 against about 49, 34 and 31 expected from the 123, 85 and 78 kills
-  that can drop mesos at 40%: seeds 1 and 3 within one standard deviation, seed 2 about two above, and the three
-  together about two above. The roller itself draws one meso roll per kill (`MonsterSystem` calls `DropRoller.roll`
-  once per death) and its rates are checked by the unit suite's drop simulations; the meso totals reconcile exactly
-  with the ledger. The quests' 300 mesos equal Shanks' fare, which the boundary checks but does not take; after 200
-  mesos of shopping the runs ended with 383-497. A player who spends more has to hunt for the fare (the playthrough's
-  `ready_to_sail` step would have; it was not needed).
+  51-63% of all EXP earned, so they, not grinding, carry the island.
+- **Time.** Level 7 came after 22-27 minutes of game time (at Rain's quizzes on seeds 1 and 3; seed 2 was 26 EXP
+  short there and reached it at 1,633 s, in the forests) and Shanks after 37-43 minutes (with a 3-4 minute level-8
+  hunt when the Fruit Knife is drawn, on seeds 1 and 2). For comparison, Test C, which levels by killing only, reached
+  level 9 after 53 minutes and level 10 after 91 minutes of play in this evidence run, with no death (598 kills).
+  Nothing here points to an implementation fault; the pace is the canonical rewards' pace.
+- **Mesos and loot** (re-measured below, never re-tuned). The quests' 300 mesos equal Shanks' fare, which the boundary
+  checks but does not take. Meso bags brought 157-329 mesos, close to the owner's rule for the kills made, and sales
+  brought far more than before the drop-source switch (183-395 against 79-84): a kill can now drop an ore or gem (the
+  owner's "other Etc" cell, 3% at Common), and one Amethyst Ore sells for 200. After 200 mesos of shopping the runs
+  ended with 440-824 mesos; seeds 1 and 2 could buy the sandals at Pan's first visit, seed 3 could not. A player who
+  spends more has to hunt for the fare (the playthrough's `ready_to_sail` step would have; it was not needed).
 - **Level gates never stopped the route.** Each quest's canonical level (1007: 2, 1009 and 1011: 3, 1012 and the
   quizzes: 5) was already reached when the player met the NPC: the runner's level check and hunt were never needed.
-- **The Fruit Knife (1011's random reward, level 8) is above Shanks' level 7.** Seed 1 drew it (headless and
-  windowed); the player could only equip it after hunting one more level. That is canonical data (MeowDB item 559,
+- **The Fruit Knife (1011's random reward, level 8) is above Shanks' level 7.** Seeds 1 and 2 drew it (seed 1 headless
+  and windowed); the player could only equip it after hunting one more level. That is canonical data (MeowDB item 559,
   requirements.level 8), not a defect.
-- **Equipment.** The Wooden Club the guide recommends at creation, then the Sword (Sid, 50 mesos), the quest hat
-  (level 5, equipped at 7), Leather Sandals (Pan, 50 mesos) and the quest knife. Shops sold every listed item at its
-  canonical price; sales paid the canonical sell price (Red Snail Shell 4, Mushroom Spore 3, Blue Snail Shell 2, Snail
-  Shell 1, Orange Mushroom Cap 8).
+- **Equipment.** The Wooden Club the guide recommends at creation, then the Leather Sandals (Pan, 50 mesos), the Sword
+  (Sid, 50 mesos), the quest hat (level 5, equipped at 7) and the quest knife. Shops sold every listed item at its
+  canonical price; sales paid the canonical sell price (Amethyst Ore 200, Silver Ore 80, Garnet, Aquamarine and
+  Mithril Ore 40, Bronze Ore 20, Red Snail Shell 4, Mushroom Spore 3). No monster dropped a piece of equipment in the
+  three headless playthroughs (see below).
+
+### Loot and mesos on the owner's drop sources (measured, not tuned)
+
+The drop chances are the project owner's table (`drop_rates.json`, decision D3-11: item category x Henesys.gg rarity,
+one item per drop) and the meso bags the owner's rule (`meso_rules.json`, D3-12: 60% per kill; MeowDB's player report of
+2 for the Snail, otherwise a uniform [level, 2 x level]; none for the Tutorial Jr. Sentinel and the Wooden Box). The
+reports count pickups per run, not per monster, so per species there are three views: what the tables give on
+average (a calculation, not a measurement), what a run picked up against the tables' prediction for its own kills,
+and the items only one species drops. The script is `_scratch/final3/economy_species.mjs` (in the evidence archive).
+
+What the owner's tables give per kill (quest-gated entries excluded):
+
+| Species | Members | Meso amount | Bags / kill | Mesos / kill | Items / kill (own leftover + other) | Equip members | Equip / kill |
+|---|---|---|---|---|---|---|---|
+| Tutorial Jr. Sentinel | 1 | none | 0 | 0 | 1.00 (1.00 + 0) | 0 | 0 |
+| Snail | 12 | 2 (MeowDB report) | 0.6 | 1.2 | 1.13 (1.00 + 0.13) | 6 | 0.6% |
+| Blue Snail | 21 | 2-4 | 0.6 | 1.8 | 1.22 (1.00 + 0.22) | 12 | 1.2% |
+| Shroom | 14 | 3-6 | 0.6 | 2.7 | 1.13 (1.00 + 0.13) | 8 | 0.8% |
+| Red Snail | 20 | 4-8 | 0.6 | 3.6 | 1.16 (1.00 + 0.16) | 12 | 1.2% |
+| Orange Mushroom | 14 | 8-16 | 0.6 | 7.2 | 1.13 (1.00 + 0.13) | 8 | 0.8% |
+
+What the runs picked up, against the tables' prediction for the same kills (the standard deviation from the same
+model):
+
+| Run | Kills (Sentinel / Snail / Blue Snail / Shroom / Red Snail / Orange Mushroom) | Meso bags: picked / predicted | Mesos from bags: picked / predicted | Monster items picked / predicted | Per kill: bags, mesos, items |
+|---|---|---|---|---|---|
+| playthrough seed 1 | 124 (3 / 19 / 40 / 27 / 34 / 1) | 79 / 72.6 (+1.2 sd) | 329 / 297.3 (+1.2 sd) | 142 / 144.4 | 0.64, 2.65, 1.15 |
+| playthrough seed 2 | 119 (3 / 19 / 34 / 31 / 30 / 2) | 76 / 69.6 (+1.2 sd) | 322 / 290.1 (+1.2 sd) | 141 / 138.0 | 0.64, 2.71, 1.18 |
+| playthrough seed 3 | 79 (3 / 15 / 23 / 17 / 20 / 1) | 41 / 45.6 (-1.1 sd) | 157 / 184.5 (-1.4 sd) | 92 / 91.6 | 0.52, 1.99, 1.16 |
+| playthrough seed 1, windowed | 121 (3 / 19 / 41 / 23 / 34 / 1) | 77 / 70.8 (+1.2 sd) | 331 / 288.3 (+1.7 sd) | 140 / 141.1 | 0.64, 2.74, 1.16 |
+| Test C (killing only, to level 10, no shop) | 598 (0 / 81 / 176 / 151 / 182 / 8) | items and bags: 1,033 pickups / 1,056.0 predicted | 1,500 / 1,534.5 (-0.6 sd) | (counted with the bags) | 1.73 pickups, 2.51 mesos |
+| `test_d_inventory` (every drop counted) | 61 (0 / 10 / 19 / 17 / 15 / 0) | 40 / 36.6 (+0.9 sd) | 153 / 146.1 (+0.4 sd) | 75 / 71.1 | 0.66, 2.51, 1.23 |
+
+"Monster items" leave out 1012's Wooden Box items (3 Rusty Screws and 3 Old Wooden Boards per playthrough). Test C
+records its pickups as one count of items and bags; paired with the kill right before each pickup (its deliberate
+hunts; the fights on the trails are left out), they come to 1.71 per Snail kill (80 kills; the tables: 1.73), 1.87 per
+Blue Snail (172; 1.82), 1.79 per Shroom (149; 1.73), 1.80 per Red Snail (175; 1.76) and 1.86 per Orange Mushroom (7;
+1.73).
+
+Per species, where only one species drops the item (three headless playthroughs together): the own leftovers were
+picked once per kill (Jr. Sentinel Shellpiece 9 of 9 kills, Snail Shell 53 of 53, Blue Snail Shell 96 of 97, Mushroom
+Spore 75 of 75, Red Snail Shell 83 of 84, Orange Mushroom Cap 4 of 4: the 100% cell, and the harness picks up nearly
+everything), and the 3% ores at their rate (Garnet Ore 1 in 53 Snail kills; Iron Ore 3 and the Monster Card 3 in 97
+Blue Snail kills; Aquamarine Ore 1 and Mithril Ore 2 in 75 Shroom kills).
+
+**Equipment drops.** None in the three headless playthroughs or the windowed one: every piece of equipment gained was
+bought or a quest reward. For their kills the tables predict 1.23, 1.15 and 0.75 pieces, so three runs with none is a
+4% outcome if the tables hold; the unit suite's drop simulation (`test_drop_simulation.gd`) rolls every owner as
+configured. Test C's level-9 autosave (3,172 s of its 5,432 s) holds three dropped pieces: Brown Duo, Razor and Blue
+Jean Shorts (the tables predict about 4 for its kills by then).
 
 ## Findings
 
@@ -287,7 +343,7 @@ No game defect blocked the player in any run, and none was fixed in game code by
   `mechanic:quest-persistence` in the every-quest scenario, and drop tags built from the item id, `drop:9/356`); they
   are now `mechanic:random-quest-rewards`, `mechanic:save-load` and the drop entry's schema-v2 slug
   (`drop:9/orange-mushroom-cap`, `drop:3/blue-snail-shell`). Every evidence run since (the review re-runs at
-  `5bf2687` and both final runs) carries only the slugs, and `build_parity.mjs` over them lists no tagged key that
+  `5bf2687` and the final runs) carries only the slugs, and `build_parity.mjs` over them lists no tagged key that
   names no manifest entry. No check or verdict depends on a tag.
 
 **Harness (fixed in the final evidence run of 2026-10-06; PLAYTEST_HARNESS.md "Findings"):**
@@ -295,10 +351,12 @@ No game defect blocked the player in any run, and none was fixed in game code by
 - **H7: a trail hop whose retry stalled mid-trail was never unstuck.** The first run on the new drop sources failed
   seed 2 of the every-quest set's 1006,1009,1010: the hop out of Snail Hunting Ground I stalled at a ledge corner 10 m
   along, the retry stalled there at once, and `travel_to` measured the retry from the hop's start. The retry's own
-  start counts now (`PlaytestKit.retry_stalled`); the spot is escapable ground (`trap_probe`).
+  start counts now (`PlaytestKit.retry_stalled`); the spot is escapable ground (`trap_probe`). In the final run seed 2's
+  chain stalled at the same corner, unstuck once and passed.
 - **H8: a rest on a ladder heals nothing.** In the same run Test C rested 2,250 s on an A Split Road ladder without a
   natural-recovery tick: climbing pauses recovery (contract C4), so the game was right. `PlaytestKit.rest()` climbs off
-  first (`leave_climb`), checked by the `regen` scenario.
+  first (`leave_climb`), checked by the `regen` scenario. In the final run Test C rested 9 times (764 s in all), left a
+  climbable once before a rest, and reached level 10 with no death.
 
 ## The every-quest set and the other real-game scenarios of this package
 
