@@ -371,7 +371,8 @@ effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent S
 - Clicking a row selects it: the description shows the cast position, the description, the current level and the next
   level's effect.
 - A learned skill's icon drags onto a HUD quickslot; or select it, press `Set key` and pick 1-8.
-- It keeps one size whatever is learned or selected (573 px tall at 1600 x 900): every row reserves two lines for its
+- It keeps one size whatever is learned or selected (about 570 px tall at 1600 x 900: 565 px in the windowed
+  `test_skills` run, 573 px in `test_ui_window_fit`'s synchronous layout): every row reserves two lines for its
   effect text, the description scrolls inside five lines (`detail_scroll`), the status line keeps two lines and the
   1-8 picker's row is held while the picker is folded. The acceptance review saw it grow from 365 to 511 px after
   three "+" clicks, off the bottom of the windowed screen and over the HP gauge, with `Set key` at y 948 of 900.
