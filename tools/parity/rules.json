@@ -395,7 +395,7 @@
       "read": "KuroDB item page 2040705 (https://playkuro.com/database/#items/2040705), by hand in a browser",
       "resolves": "whether KuroDB's Orange Mushroom row 'Scroll for Shoes for Jump' (2040705, \"0.0300% base | Qty 1\") is Hidden Street's 'Scroll for Shoes for Jump 10%' (MeowDB 177), and so this member's chance",
       "decision": "D3-8",
-      "why": "Not a source-data gap: KuroDB's Orange Mushroom page has a candidate row with a chance; only its item page, which names the scroll's success rate, was never read (the Cloudflare check had returned). The crosswalk records it as a candidate (tools/sources/crosswalk/drop_items.json), and the member never rolls until the read."
+      "why": "Not a source-data gap: KuroDB's Orange Mushroom page has a candidate row with a chance; only its item page, which names the scroll's success rate, was never read (the Cloudflare check had returned). The crosswalk records it as a candidate (tools/sources/crosswalk/drop_items.json), drops/9.json lists it in pending_kuro_candidates, and the member never rolls until the read. The read goes in tools/kurodb/captures/item_2040705.json (the steps are in tools/kurodb/captures/README.md); the merge then confirms or excludes the row, and this declaration fails the build as stale until removed."
     }
   }
 }
