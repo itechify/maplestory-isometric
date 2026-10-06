@@ -498,7 +498,7 @@ def dress(m):
                           (yb, 22.4, 42.4, 240, 1.0), (rb, 4.6, 36.0, 30, 0.9)]:
         m.place(a, x, y, rot=r, scale=s)
     m.place("Bush_A", 49.6, 37.2, rot=20)
-    m.place("Bush_B", 53.0, 36.4, rot=60)
+    m.place("Bush_B", 53.0, 36.8, rot=60)  # clear of the shoulder of a body on East_Ropes (y 34.8)
     m.place("Bush_A", 58.6, 36.0, rot=10)
     m.place("Rock_Boulder", 58.4, 33.2, rot=200, scale=0.55)
     for x, y, z in [(20.0, 30.5, 6.8), (24.0, 30.0, 7.2), (9.0, 31.0, 6.6)]:

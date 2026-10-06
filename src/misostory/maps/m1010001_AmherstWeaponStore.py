@@ -23,6 +23,7 @@ import math
 
 from mathutils import Vector
 
+from misostory import collision_tags as CT
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
 from misostory.kit.architecture import shop_sign
@@ -348,7 +349,7 @@ def build(m):
     lbox(deck_frame, m, (2.25, 0.08, 0.08), (12.78, 9.25, DECK_Z + 0.95), 0, "M_Flat_roof_yellow")
     for px in (11.7, 12.8, 13.9):
         lbox(deck_frame, m, (0.08, 0.08, 0.95), (px, 9.25, DECK_Z + 0.47), 0, "M_Flat_roof_yellow")
-    deck_frame.build(f"{m.slug}_Scaffold_Frame", m.col_arch, smooth=False)
+    CT.tag(deck_frame.build(f"{m.slug}_Scaffold_Frame", m.col_arch, smooth=False), CT.WALL)
     m.stairs("Forge_Stair", (14.75, 3.3, 0.0), (14.75, 9.0, DECK_Z), 1.35, mat="M_Metal", side_mat="M_Wood_Dark")
     # perches on the deck: pipe hump then the glass tank lid (classic T09 / T10)
     m.collider("Pipe_Hump", [(13.35, 10.45, DECK_Z, 14.15, 11.4, DECK_Z + 0.42)])  # walkable top of the hump
@@ -356,7 +357,7 @@ def build(m):
     lcyl(hp, m, 0.44, 1.2, (13.75, 10.3, DECK_Z - 0.02), mat="M_Metal", verts=16, rot=(-90, 0, 0))
     for yy in (10.45, 11.3):
         lcyl(hp, m, 0.5, 0.12, (13.75, yy, DECK_Z - 0.02), mat="M_Gold", verts=16, rot=(-90, 0, 0))
-    hp.build(f"{m.slug}_Pipe_Hump_Vis", m.col_arch, smooth=True)
+    CT.tag(hp.build(f"{m.slug}_Pipe_Hump_Vis", m.col_arch, smooth=True), CT.WALL)
     m.collider("Tank_Lid", cylinders=[(14.85, 10.9, 0.5, DECK_Z, DECK_Z + 0.78)])  # walkable lid of the glass tank
     m.place("X1010001_GlassTank", 14.85, 10.9, z=DECK_Z)
     # round pipes with brass collars (dome shoulder -> along the back wall -> pipe hump; forge -> deck post)
@@ -374,7 +375,7 @@ def build(m):
             dn, yaw, pitch = dirs[min(k, len(dirs) - 1)]
             base = Vector(p) - dn * 0.07
             lcyl(pipes, m, 0.17, 0.14, tuple(base), mat="M_Gold", verts=10, rot=(0, 90 - pitch, yaw))
-    pipes.build(f"{m.slug}_Forge_Pipes", m.col_arch, smooth=True)
+    CT.tag(pipes.build(f"{m.slug}_Forge_Pipes", m.col_arch, smooth=True), CT.WALL)
 
     # ---------------- high beam + rope (classic ceiling beam, walkable) ----------------
     m.ladder("Rope_Beam", 11.95, 10.95, DECK_Z, BEAM_Z, facing=180, kind="rope")
@@ -397,7 +398,7 @@ def build(m):
     za, zb = rail_z(ys[0]), rail_z(ys[-1])
     lbox(rail, m, (0.09, math.hypot(ys[-1] - ys[0], zb - za), 0.09), (rx, (ys[0] + ys[-1]) / 2, (za + zb) / 2), 0,
          "M_Flat_roof_yellow", tilt=(math.degrees(math.atan2(zb - za, ys[-1] - ys[0])), 0))
-    rail.build(f"{m.slug}_Stair_Rail", m.col_arch, smooth=False)
+    CT.tag(rail.build(f"{m.slug}_Stair_Rail", m.col_arch, smooth=False), CT.WALL)
 
     # ---------------- workshop floor dressing ----------------
     m.place("Rug_Round", 6.9, 5.5, rot=10, scale=(1.0, 0.8, 1.0), z=RUG_Z)

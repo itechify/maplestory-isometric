@@ -23,6 +23,7 @@ stump's camera-facing side to her islet.
 
 import math
 
+from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -148,7 +149,7 @@ def _sky_mushroom(m, cx, cy, base_z, cap_z, cap_r):
     stalk.cyl(0.95, cap_z - 0.5 - base_z + 0.2, loc=m.w(cx, cy, base_z - 0.2), mat="M_MushStem", verts=16, r2=0.7)
     stalk.cyl(1.25, 0.4, loc=m.w(cx, cy, base_z - 0.15), mat="M_MushStem", verts=16, r2=0.95)
     stalk.cyl(0.95, 0.18, loc=m.w(cx, cy, cap_z - 1.5), mat="M_MushStem", verts=16, r2=1.1)
-    stalk.build(f"{m.slug}_SkyMushroom_Stalk", m.col_arch, smooth=True, sharp_angle=50)
+    CT.tag(stalk.build(f"{m.slug}_SkyMushroom_Stalk", m.col_arch, smooth=True, sharp_angle=50), CT.WALL)
     cap = MeshBuilder()
     cap.dome(cap_r, 0.75, loc=m.w(cx, cy, cap_z - 0.75), mat="M_Spot_mush_red__mush_spot", u=32, v=8, lip=0.45,
              profile=0.2)
