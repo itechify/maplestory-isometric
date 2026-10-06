@@ -73,7 +73,8 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Quests.** The Quest Log (Q) lists Available, In Progress and Completed quests, a chain's steps ("Mai's Training
   2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
   A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
-  buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
+  buy a quest item an in-progress quest still needs, no shop buys The Green Relaxer (it cannot be obtained again),
+  and Roger hands you another apple if yours is gone (quest 1002).
 - **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
   Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a

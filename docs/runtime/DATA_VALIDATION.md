@@ -355,7 +355,7 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 | `world_scale.json` | `horizontal_px_to_m`, `vertical_px_to_m`, `actor_px_to_m` are positive numbers (WorldScale reads them) |
 | `drop_rates.json`, `meso_rules.json` | required (an error when missing). Their content, the complete chance table (decision D3-11) and the meso rule (D3-12), is checked by `drop_policy` (`DropChecks` / `DropRates.validate`) |
 | `new_character.json` | `start_location.spawn_index` is one of the start map's player spawns (its `map_id` also seeds the portal-graph reachability check) |
-| `inventory.json` | every canonical weapon's subtype has a `weapon_subtypes` entry |
+| `inventory.json` | every canonical weapon's subtype has a `weapon_subtypes` entry; every `shop.protected_items` entry names a canonical item (an id that does not exist is an error here and in the typed-key sweep) |
 | `combat.json` | `fixed_damage_skills` keys are canonical skill ids (`formulas/*.json skills[].skill_id`) |
 | `portal_adaptations.json` | link ids `T_<map>_<portal>__<map>[_<portal>]`, `"<map>.<portal>"` refs, `destination_portal_id`, spawn indexes and arrival gates name real portals and spawns; each `one_way_allowlist` link exists and really has no way back (warning when stale); the portal-graph check requires the converse (every one-way link is listed) |
 | `dialogue/*` | named `<npc id>.json` (or `_<name>.json` for shared lines, the shared-table prefix) with a matching `npc_id`; `{npc, field, line}` line specs index an existing NPC line (0-based, as `DialogueText` reads them); `{quest, ...}` specs name a canonical quest |

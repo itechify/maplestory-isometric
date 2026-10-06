@@ -161,7 +161,8 @@ must emit `monster_killed(monster_id, map_id)`.
   `tradeable: false`, or handed over by that quest on accept). `ShopService.quote_sell` refuses a sale that would go
   below it with `ShopService.QUEST_ITEM_NEEDED` ({quest_id, quest_name, needed}); the shop window says
   "Roger's Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress."
-  The switch is `data/misostory/quests/_quest_items.json`.
+  The switch is `data/misostory/quests/_quest_items.json`. The Green Relaxer (1012's reward) is not a quest item once
+  1012 is done; it is held by the shops' own protected list instead (`protected_item`, ITEMS.md).
 - **Unfinished quests** (`unfinished_quests(region)`): the quests of a canonical region ("Maple Island", the record's
   `region`) not yet completed; Shanks' warning lists them (see Transport).
 - **Results.** Every mutating call returns `{ok, reason, quest_id, effects, ...}`. `effects` is the ordered list of
@@ -460,7 +461,5 @@ structural checks found no error.
 - `quest_progressed` requests a debounced autosave since the save package added it to `Game.AUTOSAVE_TRIGGERS`, so
   mid-quest kill and use counts survive a crash.
 - `flags.maple_island_departure_ready_at` is overwritten at every boarding, so it records the latest, not the first.
-- The Green Relaxer (522, untradeable, 1012's reward) can be sold: no in-progress quest needs it, so the sell guard
-  does not hold it. Whether to protect it is an owner decision.
 - Sera's "Did you give my mirror to Heena?" and Sen's "What did my sister say?" read as mid-quest lines but show
   after completion under the default-talk rule (an owner decision could change `_rules.json` or add an override).

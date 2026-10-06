@@ -649,7 +649,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `test_d_inventory` | Test D: pickups, use by double-click and quickslot, equipment, persistence across a process restart | drops |
 | `test_e_quest` | Test E: 1002, 1006 twice (one with a save, Quit to Title, Continue and a process restart at 5/10), 1007 -> 1008 (uses the kit) | harness |
 | `test_f_death` | Test F: real monster deaths, the death notice, the EXP penalty, quit while dead and reload; death.json's respawn HP plus exactly the natural ticks the banked clock allows (C4: the clock holds while dead, is never reset and survives the quit) | harness |
-| `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling | harness |
+| `test_g_shop` | Test G: Pan, Sid and Lucy on foot; canonical prices, buying, selling; The Green Relaxer (given in the setup) refused by Lucy as a protected item, its message on screen | harness |
 | `test_feel_*` | the movement, camera, ledge, gate and route feel reviews (`test_feel_common` is their library) | harness |
 | `playthrough` | the clean-character playthrough: creation to Shanks' departure boundary, strict from the step after character creation (see "The clean-character playthrough") | harness |
 | `npc_shanks` | Shanks' departure boundary: refused below level 7 and without the fare, the guide's sentence and the unfinished quests, Yes -> End of Maple Island (no voyage, no fare taken, the flag set), Space ignored, Enter and Esc close it, the flag survives a reload (setup: warp, level, mesos) | harness (from quests) |

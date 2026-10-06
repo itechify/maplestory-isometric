@@ -140,6 +140,7 @@ The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `ope
   - Success: "Bought Red Potion x5 for 250 mesos." / "Sold Snail Shell x4 for 4 mesos.".
   - Failure: `ItemCodes.message(result)`, for example "Your inventory is full.". Insufficient mesos adds the numbers: "(costs 50, you have 40)".
   - A quest item an in-progress quest still needs (`ShopService.QUEST_ITEM_NEEDED`, QUESTS_AND_DIALOGUE.md "Quest-critical items"): the check line and the status say `MisoUiText.result_message`'s "Roger's Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress." Extra copies sell normally.
+  - A protected item (`ShopService.PROTECTED_ITEM`, ITEMS.md; The Green Relaxer, owner ruling #7): the check line and the status say "The Green Relaxer cannot be obtained again. The shop will not buy it." in every shop.
   - The meso display and the owned counts refresh on `mesos_changed` and `inventory_changed`.
 - **Keys:**
   - Up/Down (W/S): choose a row;
@@ -293,6 +294,7 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 | Speech bubbles: canonical idle-chatter lines every 14-26 s (first after 2-10 s), 5 s each, in canonical order from a seeded line; never off screen or in a conversation | `data/misostory/npcs/_speech_bubbles.json` (`verified: false`); `NpcSpeechBubble` (look) | MeowDB feeds each NPC's idle chatter to its speech bubble but documents no interval, duration or order |
 | Shop window title "<NPC>'s Shop" | `data/misostory/dialogue/_rules.json` `shop_window_title` | MeowDB has no shop title |
 | The sell guard's refusal line names the item, the quest and how many to keep | `MisoUiText.result_message` | MisoStory UI text for the `quest_item_needed` adaptation |
+| A protected item's refusal line says why the shop will not buy it | `MisoUiText.result_message` | MisoStory UI text for the `protected_item` adaptation (owner ruling #7) |
 | "End of Maple Island" screen at Shanks' boat (no travel, no fare, one button back to Southperry) | `DepartureScreen`; `data/misostory/npcs/15.json` `departure` | Victoria Island is not in this build; the brief's departure boundary is the end of Iteration Three |
 
 ## Testing
@@ -316,6 +318,7 @@ ISOLATE=worldui bash scripts/validate_data.sh                             # loot
 | `test_npc_speech_bubbles.gd` | the timing comes from the adaptation file; seeded per NPC; intervals in range; sequential order shows every line; an off-screen turn is skipped, a conversation hides it; every bubble of all 21 NPCs is their canonical line with its source; a presenter shows bubbles on screen, never while talking, never for another map's NPC |
 | `test_npc_departure_screen.gd` | the scene builds the screen hidden; Yes at Shanks opens it (texts, level, mesos, 20 of 20, modal and window stack, the button closes it, no mesos taken); unfinished quests are named and Esc closes it; quit to title closes it |
 | `test_shop_quest_items.gd` | the shop window's check line and status for a quest item a quest still needs (with the sell guard and Roger's re-issue, QUESTS_AND_DIALOGUE.md) |
+| `test_shop_protected_items.gd` | the shop window's check line and status for The Green Relaxer, a protected item (with the shop rule, ITEMS.md) |
 
 **Sandbox and headless integration check.** This runs on the real island with the real player, camera, MapSession, the `Game.npc_talk` wiring and real key presses (`Input.parse_input_event`). It prints `CHECK` lines, and with `--quit` it exits non-zero on any failure:
 

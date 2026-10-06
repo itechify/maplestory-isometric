@@ -88,3 +88,15 @@ static func job_item_tags(job_slug: String, db: ContentDB = null) -> PackedStrin
 ## A key of the "shop" section.
 static func shop_rule(key: String, db: ContentDB = null) -> Variant:
 	return table(db).get("shop", {}).get(key, null)
+
+
+## The shop section's protected_items entry for `item_id` ({item_id, name, reason, ...}), or {} when no shop refuses
+## it. A protected item is never bought by any NPC shop (owner ruling #7: The Green Relaxer).
+static func protected_item(item_id: String, db: ContentDB = null) -> Dictionary:
+	var list: Variant = shop_rule("protected_items", db)
+	if not (list is Array):
+		return {}
+	for e: Variant in list:
+		if e is Dictionary and str((e as Dictionary).get("item_id", "")) == item_id:
+			return e
+	return {}

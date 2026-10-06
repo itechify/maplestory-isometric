@@ -344,6 +344,19 @@ func test_inventory_must_classify_every_canonical_weapon() -> void:
 	expect_new(run_validator(c), "error", "adaptation", "misostory", "inventory", "canonical weapon item %s" % weapon)
 
 
+## Owner ruling #7: a shop's protected item must exist, or the list protects nothing without anyone noticing.
+func test_inventory_protected_items_must_exist() -> void:
+	var c := clone_db()
+	var shop: Dictionary = c.miso[""]["inventory"]["shop"]
+	assert_false((shop.get("protected_items", []) as Array).is_empty(), "the shipped list protects The Green Relaxer")
+	expect_no_new(run_validator(c), "adaptation")
+	(shop["protected_items"] as Array).append({"item_id": BOGUS, "reason": "test", "verified": false})
+	var r := run_validator(c)
+	expect_new(r, "error", "adaptation", "misostory", "inventory",
+		"shop.protected_items names item \"%s\", which is not a canonical item" % BOGUS)
+	expect_new(r, "error", "reference", "misostory", "inventory", "references items '%s'" % BOGUS)
+
+
 func test_combat_skill_keys_are_canonical_skills() -> void:
 	var c := _with_file(clone_db(), "combat", adapted({"fixed_damage_skills": {BOGUS: {"hit_check": true}}}))
 	expect_new(run_validator(c), "error", "adaptation", "misostory", "combat", "fixed_damage_skills.%s is not a canonical skill id" % BOGUS)
