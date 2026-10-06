@@ -405,16 +405,49 @@ func test_rain_quiz_1018_inferred_answer() -> void:
 	assert_eq(character.quests.status("1018"), QuestLog.COMPLETED)
 
 
+## Rain's quiz 4 (1016) tells the player to sit on chairs and benches around the map; MisoStory has no map seats.
+## Its canonical wrong-answer and right-answer lines stay exactly as MeowDB has them, and each is followed by the
+## marked [MisoStory] system page about X and owned chairs (misostory/dialogue/19.json).
+func test_rain_quiz_1016_keeps_its_lines_and_adds_the_chair_hint() -> void:
+	character.level = 5
+	for q in ["1013", "1014", "1015"]:
+		character.quests.start(q, 0.0)
+		character.quests.complete(q, 0.0)
+	talk.talk("19")
+	talk.press("yes")
+	talk.close()
+	var quiz: Dictionary = db().quest("1016")["dialogue"]["on_completion"]["quiz"]
+	var v := talk.talk("19")
+	v = talk.choose(0)
+	assert_eq(v["text"], String(quiz["wrong_answer_responses"][0]["text"]), "the canonical wrong-answer line, unchanged")
+	v = talk.press("next")
+	assert_true(String(v.get("text", "")).begins_with("[MisoStory] Press X to sit on a chair you own"), "then the hint: %s"
+		% v.get("text", ""))
+	talk.close()
+	assert_true(character.quests.is_in_progress("1016"), "a wrong answer leaves the quiz in progress")
+	v = talk.talk("19")
+	v = talk.choose(int(quiz["correct_choice_index"]))
+	assert_eq(v["text"], String(quiz["correct_answer_response"]["text"]), "the canonical right-answer line, unchanged")
+	v = talk.press("next")
+	assert_true(String(v.get("text", "")).begins_with("[MisoStory] Press X"), "then the hint: %s" % v.get("text", ""))
+	assert_eq(character.quests.status("1016"), QuestLog.COMPLETED)
+	talk.close()
+
+
 # --- Heena / Sera chain with a lost mirror ---------------------------------------------------------------------
 
 func test_heena_sera_chain_with_lost_mirror() -> void:
 	var v := talk.talk("1")
 	assert_eq(v["title"], "Borrowing Sera's Mirror")
 	var pages := 1
+	var hints := 0
 	while v["type"] == "say":
 		v = talk.press("next")
 		pages += 1
-	assert_eq(pages, 4, "four On accept lines, the last is the Yes/No")
+		hints += 1 if String(v.get("text", "")).begins_with("[MisoStory]") else 0
+	assert_eq(pages, 5, "four On accept lines, the last is the Yes/No, and the MisoStory controls page after line 1 "
+		+ "(misostory/dialogue/1.json)")
+	assert_eq(hints, 1, "one marked [MisoStory] page")
 	v = talk.press("yes")
 	assert_true(_starts(v["text"], "Thank you. Sera is on the hill to the east"))
 	_read_to_end(v)
