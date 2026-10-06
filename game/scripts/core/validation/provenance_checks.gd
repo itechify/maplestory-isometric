@@ -108,7 +108,7 @@ func check_provenance_block(domain_label: String, id: String, block: Variant, ow
 
 
 ## Checks one source object for `property` against ProvenanceAuthorities.REGISTRY and reports each problem as a
-## "provenance" error naming `where` (e.g. "provenance.membership", "entries[2] 'wooden-buckler'.chance_source").
+## "provenance" error naming `where` (e.g. "provenance.membership", "entries[2] 'sword'.rarity.source").
 ## A source object is {authority, url | urls, read_at (MeowDB: or retrieved_at), capture, decision, ...}; the rules
 ## per authority are in the registry. The capture file's existence is checked by check_capture_paths (once per path).
 ## Returns true when the object passed.

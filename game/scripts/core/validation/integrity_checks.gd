@@ -24,8 +24,8 @@ const PLACEHOLDER_PATTERNS := ["(?i)placeholder", "\\b(TODO|TBD|FIXME)\\b", "(?i
 	"^\\s*\\?+\\s*$"]
 
 ## domain -> [{list: path of an array in the record, key: field (or fields) that identify an entry}]. Entries
-## without the key (null) are ignored. Map reactors[] are placements and may repeat; v2 drop tables are checked by
-## DropRecordChecks ("no two entries resolve to the same item").
+## without the key (null) are ignored. Map reactors[] are placements and may repeat; schema 3 drop tables are checked by
+## DropRecordChecks ("no two entries resolve to the same item"), so this sweep covers only a record without a schema.
 const DUPLICATE_LISTS := {
 	"maps": [{"list": "npcs", "key": ["id"]}, {"list": "monsters", "key": ["id"]}],
 	"shops": [{"list": "items", "key": ["item_id"]}],
@@ -156,7 +156,7 @@ func is_placeholder_name(value: String) -> bool:
 
 func _check_duplicate_entries(domain_name: String, id: String, rec: Dictionary) -> void:
 	for rule in DUPLICATE_LISTS.get(domain_name, []):
-		if rule.get("v1_only", false) and ValidationUtil.same(rec.get("schema_version", null), 2):
+		if rule.get("v1_only", false) and rec.get("schema_version", null) != null:
 			continue
 		var seen := {}
 		for e in ValidationUtil.as_array(_at(rec, rule.list)):
