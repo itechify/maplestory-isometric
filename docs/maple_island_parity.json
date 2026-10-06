@@ -1,6 +1,7 @@
 {
   "format": 3,
   "generated_by": "node tools/parity/build_parity.mjs",
+  "snapshot": "The record of v0.3, not kept current. This manifest describes the code at its evidence commit (see \"Evidence used\") and is not rebuilt as the code changes, so it is not a gate: the tests and the playtest scenarios guard against regressions. To make a fresh proof, rebuild it as docs/runtime/HOWTO.md \"Build the parity manifest\" describes.",
   "rule": {
     "missing": "The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).",
     "partial": "The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).",

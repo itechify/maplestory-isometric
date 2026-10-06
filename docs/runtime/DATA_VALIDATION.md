@@ -402,7 +402,8 @@ Phase 17 report through `ProvenanceReport` (`scripts/core/validation/provenance_
   adaptations verified and not.
 
 It records no clock time, so regenerating it over unchanged data gives the same files; regenerate it whenever the
-data changes (the parity manifest reads it).
+data changes. The parity manifest reads it when someone rebuilds the manifest, but the committed manifest is the record
+of v0.3 at its evidence commit and is not kept current (HOWTO "Build the parity manifest").
 
 ## Sources and adaptations
 
@@ -436,7 +437,8 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 
 Each file declares in `parity_keys()` (contract C6) which Phase 16 rows (`xref:<category>`, `xref:no-duplicate-ids`,
 `xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests prove;
-the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test evidence. Most
+the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md); the record of v0.3, not kept current
+and not a gate) reads them from the test evidence when it is rebuilt. Most
 `canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
 (`provenance-per-property`, `membership-rarity-separate`, `no-probability-in-canonical`) also need the shipped data
 in that state (`tools/parity/rules.json` `requires`: every drop record schema 3). The manifest (format 3) also

@@ -229,6 +229,17 @@ test('evidence collection and markdown are deterministic', () => {
   assert.equal(JSON.stringify(build()), JSON.stringify(build()));
 });
 
+test('the manifest says at its top that it is the v0.3 record, not kept current and not a gate (#38)', () => {
+  const doc = build();
+  assert.equal(Object.keys(doc).indexOf('snapshot'), Object.keys(doc).indexOf('generated_by') + 1, 'next to generated_by');
+  assert.match(doc.snapshot, /^The record of v0\.3, not kept current\./);
+  assert.match(doc.snapshot, /not a gate/);
+  assert.match(doc.snapshot, /Build the parity manifest/, 'names the rebuild instructions');
+  const lines = toMarkdown(doc).split('\n');
+  assert.equal(lines[0], '# Maple Island parity manifest');
+  assert.match(lines[2], /^\*\*The record of v0\.3, not kept current\.\*\* This manifest describes/);
+});
+
 test('v1 entries sharing a name get distinct keys; a duplicate key fails the build', () => {
   const c = canonical();
   // Red Snail's v1 table lists Red Cloth Pants twice (1168 male, 1177 female): one slug, two entries.

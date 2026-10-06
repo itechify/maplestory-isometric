@@ -261,8 +261,10 @@ byte, Green Apple's record (242) from its two hand-read captures included. To re
 
 `docs/MAPLE_ISLAND_PARITY.md` and `docs/maple_island_parity.json` give every in-scope entry (maps, portals, monsters,
 populations, drops, items, NPCs, shops, quests and their objectives and rewards, skills, breakables, chairs, mechanics)
-a state: missing, partial, implemented or verified. They are generated from the data, the provenance report and test
-evidence:
+a state: missing, partial, implemented or verified. The committed copy is the record of v0.3 at its evidence commit
+and is not kept current: it was Iteration Three's exit proof, it is not a gate, and nothing needs it rebuilt (the tests
+and the playtest scenarios guard against regressions; a rebuild costs a full evidence run). To make a fresh proof,
+generate it from the data, the provenance report and test evidence:
 
 ```bash
 ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/final3/unit_evidence.json" bash scripts/test.sh
@@ -285,10 +287,11 @@ the clean-character playthrough (`--playtest` with its report or directory). The
 in the manifest) when an input records no commit, a dirty tree or a commit whose `game/`, `tools/` or `scripts/` differs
 from HEAD, and when the inputs ran on different commits. In the final evidence run (commit `1f3120c`, 2026-10-06) every
 one of them passed: seed 1 headless, the every-quest set and the playthrough on seeds 1, 2 and 3, and the playthrough,
-`test_skills`, `test_box` and `kit` also windowed. The manifest has 652 entries: 646 verified, 3 partial (all
-source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD, it warns that `tools/` differs from the
-evidence commit: after the run only the wording of the drop rows in `tools/parity` changed, which no Godot test or
-scenario runs, and the text of `tools/henesys/captures/README.md`, which nothing loads.
+`test_skills`, `test_box` and `kit` also windowed. The committed manifest, the v0.3 record built from that run, has
+652 entries: 646 verified, 3 partial (all source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD,
+it warns that `tools/` differs from the evidence commit: after the run only the wording of the drop rows in
+`tools/parity` changed, which no Godot test or scenario runs, and the text of `tools/henesys/captures/README.md`,
+which nothing loads. Later commits change the data and the code without rebuilding it.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the

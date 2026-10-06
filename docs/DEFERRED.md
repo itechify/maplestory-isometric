@@ -84,7 +84,7 @@ raise them again.
   boxes are rectangles and every combat test and scenario is tuned on them.
 - **The map mob rate stays ignored** (`presentation.json map_mob_rate.apply` false): three MeowDB mechanics pages say
   the live game ignores it; the map pages that say otherwise call it their best reading. The switch stays in the data.
-- **The parity manifest is the record of v0.3 and is not rebuilt** (a ticket marks it as a snapshot). The tests and the
+- **The parity manifest is the record of v0.3 and is not rebuilt** (its top says so, #38). The tests and the
   playtest scenarios guard against regressions without it, and each rebuild costs a full evidence run. Its open review
   findings are therefore not pursued: stale evidence is only a warning, `--check` cannot run without the git-ignored
   evidence files, no evidence digest is committed, a unit test's need for the world is read from the text

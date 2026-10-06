@@ -34,7 +34,8 @@ prove it works. Three rules hold throughout:
 | Items | 96 canonical items: the Iteration Two subset and Green Apple (242). The Green Relaxer (522) works as a chair. |
 | Skills | The three Beginner skills (Three Snails, Recovery, Nimble Feet), with SP, the Skills window and quickslots. |
 
-Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Every unresolved source value:
+Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md) (the record of v0.3, not kept
+current). Every unresolved source value:
 [`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md).
 
 ## Canonical data from dated captures
@@ -58,8 +59,8 @@ Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Ever
    fails a stale index), `node --test tools/sources/test/`, `bash scripts/validate_data.sh`, and
    `bash scripts/check_canonical.sh` (it re-runs every extractor offline, in their documented order, and diffs the
    result byte for byte).
-4. **Reports:** `bash scripts/validate_data.sh --report` (the provenance report) and the parity manifest
-   (`node tools/parity/build_parity.mjs`, HOWTO "Build the parity manifest").
+4. **Reports:** `bash scripts/validate_data.sh --report` (the provenance report). The parity manifest is the record of
+   v0.3 and is not kept current; rebuild it only to make a fresh proof (HOWTO "Build the parity manifest").
 
 Every value from a capture cites the capture's path next to the page URL (`field_sources`, `provenance.<property>`,
 or a drop entry's `membership_source` / `rarity.source`). A value no source gives stays `null` and is listed in the

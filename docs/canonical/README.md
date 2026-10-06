@@ -99,7 +99,8 @@ for byte, the schema 3 drop records included.
 **Reports.** `bash scripts/validate_data.sh --report` writes the provenance validation report
 ([`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md): every record and property with its authority, URL, read time
 and capture; every unresolved value; every adaptation), and `node tools/parity/build_parity.mjs` the parity manifest
-([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) from the data, that report and the test evidence.
+([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) from the data, that report and the test evidence. The
+committed manifest is the record of v0.3 at its evidence commit and is not kept current.
 
 ## Rules for using it
 
