@@ -46,8 +46,17 @@ disc. The consequences:
   the foothold. Drops of up to `snap_down_m` (0.45 m) are stepped down; anything deeper is a fall.
 - Landing uses the same rays with the same 0.45 m band, so the highest ledge a jump reaches is apex + 0.45 m (1.35 m
   at Jump 100). MAP_ARCHITECTURE §4.4 already budgets `jump_apex_m_at_cap + step_up_m` for the one-way ledge.
-  Measured (review probe): a standing jump against the face lands on ledges up to 1.35 m; a running jump does too
-  from up to 1.2 m before the face.
+- In the air, a face the player pushes into (input toward it) stops the body, not the push: the horizontal velocity
+  into it is kept, each tick's motion is clipped against it, and the body moves over the lip as soon as it clears it
+  (#16). Rising, a steep face or a rounded lip is clipped as a vertical wall, so it never lifts the body above the
+  apex; coming down onto a steep slope, and with no input toward the face, the push is absorbed as before (no
+  climbing by sliding, no sticking). Before #16 every wall absorbed it; air control rebuilt only about 0.15 m of
+  creep by the apex, which reached a sharp box edge with 3 mm to spare and missed the rounded and overhanging lips of
+  the exported ledges (the feet need walkable ground, 0.10-0.15 m behind the outermost face). Measured
+  (`test_player_jump_ledge.gd`): a jump pressed into the face lands on box ledges up to 1.35 m from a standing start
+  to full walk at 0, 30 and 60 degrees off the face normal, and on rounded and overhanging lips up to 1.3 m (the route
+  ledges are 1.15-1.26 m). A rounded lip at 1.35 m from a standing start, direction and jump pressed on the same tick
+  at 60 degrees, is still missed: the feet need 0.3 m of travel within the 0.13 s the apex leaves, at about 0.5 m/s.
 - Only the feet land. A walkable contact on the capsule alone (its rounded bottom touching a ledge edge while no feet
   ray is over the ledge) is not a landing: the capsule slides off the edge, as classic drops you when your feet are
   past the foothold. (An earlier version counted that contact as ground, lifting the body ~0.5 m onto the ledge for
@@ -368,6 +377,7 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_movement_model.gd` | canonical speed, climb, jump, gravity and knockback conversions; caps; `jump_apex_m_at_cap` = derivation; every adaptation key has a reason |
 | `test_player_movement.gd` | 3.0 m/s per second; 3-tick start and 2-tick stop; W = camera forward; equal diagonal speed; facing; 0.90 m apex and 1.30 m at the cap; airtime; jump length; limited air control; coyote time and its expiry; jump buffer and its expiry; hold to re-jump; `landed` impact speed = √(2gh) and the terminal fall speed cap; total Speed from `StatCalculator` (a Speed effect walks faster) |
 | `test_player_step.gd` | steps up 0.4 m, stops at a 0.6 m wall (and jumps onto it); the step boundary (exactly `step_up_m` mounts, 5 cm more does not); stairs with no airborne ticks; steps down 0.4 m; 30° and 36° walkable, 41° and 45° not; no creep on slopes; down-slopes stay grounded; clutter without speed loss; trimesh seams; wall sliding; feet over a ledge land on it, a capsule-only edge contact slides off (regression); wedged in a V crevice is steady ground and can jump out (regression) |
+| `test_player_jump_ledge.gd` | a jump pressed into the face (#16): box ledges of 0.5, 0.9, 1.2, 1.3 and 1.35 m, and rounded (a 0.15 m 45° chamfer) and overhanging lips up to 1.3 m, each from a standing start (0, 1 and 2 ticks of input before the press) and walked in at full speed, at 0°, 30° and 60° off the face normal; the canonical apex against a face; a 1.5 m ledge is never landed on (the reach does not grow); a jump held into a 45° slope peaks at the apex and never stands on it |
 | `test_player_climb.gd` | sidecar parsing; a ladder end to end (Up grab, canonical climb time, exit to top_exit, Down grab from the top, climb down); interact and W/S; grab range; jump off sideways; descend-only; ropes without foot ground; mid-air catch; no re-grab after a jump-off with Up held (and Up held climbs, as on the keyboard); `grabbable_climbable()`/`grab_climbable()` and the exact top_exit |
 | `test_player_hit.gd` | knockback rise and airtime per MeowDB's model, push, hit-stun gating input, direction conventions, invulnerability timer and source, knocked off ladders, death and revive, teleport reset, SafeGround rules and both filter forms, kill_y |
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
