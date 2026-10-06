@@ -446,27 +446,32 @@ class MapCtx:
         if kind != "ladder":  # knotted rope tied to a stake on the cap (or a leafy vine), hung plumb down the face
             vine = kind == "vine" or bool(descend_only)
             outline = self._hanging_strand(mb, x, y, z0, z1, facing, vine, descend_only)
-            # traversal reads a climbable's position from its bounding-box centre: two loose (never rendered)
-            # vertices mirror the off-centre strand/stake so that centre stays exactly at (x, y)
-            w0 = self.w(x, y)
-            vs = [v.co for v in mb.bm.verts]
-            lo_x, hi_x = min(v.x for v in vs), max(v.x for v in vs)
-            lo_y, hi_y = min(v.y for v in vs), max(v.y for v in vs)
-            zm = (min(v.z for v in vs) + max(v.z for v in vs)) / 2
-            mb.bm.verts.new((2 * w0.x - hi_x, 2 * w0.y - hi_y, zm))
-            mb.bm.verts.new((2 * w0.x - lo_x, 2 * w0.y - lo_y, zm))
         if outline:
-            # ink line: an inverted hull (built as geometry, not a SOLIDIFY modifier, so the bounding box - the
-            # climb position - is the same evaluated or not): consistent normals first, then turn the shell inside out
+            # ink line: an inverted hull built as geometry, not a SOLIDIFY modifier: consistent normals first, then
+            # turn the shell inside out
             bmesh.ops.recalc_face_normals(mb.bm, faces=list(mb.bm.faces))
             for f in outline:
                 f.normal_flip()
         obj = mb.build(self._name(name), self.col_arch, smooth=kind != "ladder", sharp_angle=60,
                        recalc_normals=not outline)
+        # e.g. vines hanging into a pit are descend_only: no foot landing required
+        return self.climbable(obj, x, y, z0, z1, kind=kind, descend_only=descend_only)
+
+    def climbable(self, obj, x, y, z0, z1, kind="ladder", descend_only=False):
+        """Make obj a ladder, rope or vine climbed at local (x, y) from height z0 to z1 (local), and return it.
+
+        Stores the climb position on the object: obj["climb_bottom"] and obj["climb_top"], the world points of the
+        climb line's ends in the object's own space (the validator, traversal and the runtime export read them
+        through obj.matrix_world, never from the mesh), plus "climbable" (the kind), "climb_z0" / "climb_z1" (world
+        heights) and "descend_only". m.ladder calls it; a map that builds its own climbable mesh must too."""
+        bottom, top = self.w(x, y, z0), self.w(x, y, z1)
+        inv = core.GroundIndex.object_world_matrix(obj).inverted()
         obj["climbable"] = kind
-        obj["climb_z0"] = self.origin.z + z0
-        obj["climb_z1"] = self.origin.z + z1
-        obj["descend_only"] = bool(descend_only)  # e.g. vines hanging into a pit: no foot landing required
+        obj["climb_bottom"] = tuple(inv @ bottom)
+        obj["climb_top"] = tuple(inv @ top)
+        obj["climb_z0"] = bottom.z
+        obj["climb_z1"] = top.z
+        obj["descend_only"] = bool(descend_only)
         return obj
 
     def _climb_lip(self, x, y, z1, facing):
@@ -573,8 +578,8 @@ class MapCtx:
         Rope: a chunky plumb hemp strand with darker knot bands every ~0.4 m, hung within ~0.13 m of the cliff face
         below the upper cap's lip (found by horizontal probes toward the cap); it ends at the lip edge in a dark
         whipping knot (nothing curls up and over the lip) and a flat peg sits on the cap just behind the lip. Vine: a twisted green strand with leaf
-        clusters, hung the same way from a leafy clump on the cap. The climb position the validator reads is still
-        (x, y): ladder() mirrors the bounding box. Returns the ink-outline faces (ropes) for ladder() to flip."""
+        clusters, hung the same way from a leafy clump on the cap. The climb position stays (x, y): ladder() stores
+        it on the object (climbable()). Returns the ink-outline faces (ropes) for ladder() to flip."""
         fa = math.radians(facing)
         fl = (math.cos(fa), math.sin(fa))      # local direction toward the wall (when no cap is found)
         sl = (-fl[1], fl[0])                   # local sideways

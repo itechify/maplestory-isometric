@@ -768,12 +768,12 @@ def archway(ob, samples, asset):
 
 
 def climbable_points():
-    """(x, y) of every ladder / rope / vine (traversal uses the bounding-box centre as the climb position)."""
+    """(x, y) of every ladder / rope / vine: the bottom of the climb position stored on it (MapCtx.climbable)."""
     out = []
     for o in bpy.data.objects:
         if "climbable" in o.keys():
-            cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
-            out.append((sum(c.x for c in cs) / 8, sum(c.y for c in cs) / 8))
+            b = o.matrix_world @ Vector(o["climb_bottom"])
+            out.append((b.x, b.y))
     return out
 
 

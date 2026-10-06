@@ -650,12 +650,12 @@ def ground_at(bvh, x, y, z_from, z_max_drop=50.0):
 
 
 def climb_marker(o, bvh):
-    """Ladder / rope / vine: bottom and top points (the validator's climb position = bbox centre xy), plus the
-    standing point where the climber steps off at the top (probed on the ground mesh)."""
-    cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
-    cx = sum(c.x for c in cs) / 8
-    cy = sum(c.y for c in cs) / 8
-    z0, z1 = float(o["climb_z0"]), float(o["climb_z1"])
+    """Ladder / rope / vine: bottom and top points (the climb position stored on the object, obj["climb_bottom"] /
+    obj["climb_top"], set by MapCtx.climbable), plus the standing point where the climber steps off at the top
+    (probed on the ground mesh)."""
+    bot, top = o.matrix_world @ Vector(o["climb_bottom"]), o.matrix_world @ Vector(o["climb_top"])
+    cx, cy = bot.x, bot.y
+    z0, z1 = bot.z, top.z
     exit_pt, best = None, None
     for rad in (0.5, 0.8, 1.1, 1.5, 2.0):
         hits = []
@@ -677,7 +677,7 @@ def climb_marker(o, bvh):
             break
     foot = ground_at(bvh, cx, cy, z0 + 0.5, 1.5)
     return {"name": o.name, "kind": str(o["climbable"]), "descend_only": bool(o.get("descend_only", False)),
-            "bottom": gpos((cx, cy, z0)), "top": gpos((cx, cy, z1)),
+            "bottom": gpos(bot), "top": gpos(top),
             "foot_ground": None if foot is None else gpos((cx, cy, foot)),
             "top_exit": None if exit_pt is None else gpos(exit_pt),
             "facing_xz": None if best is None else [rnd(best[0] - cx), rnd(-(best[1] - cy))]}

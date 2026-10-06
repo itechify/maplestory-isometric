@@ -57,14 +57,20 @@ def ledge_bounds(root):
     return ledge_rules.ledge_bounds(root, max_drop=MAX_DROP, max_step=MAX_STEP)
 
 
+def climb_ends(o):
+    """World (bottom, top) Vectors of a climbable's climb line, as stored by MapCtx.climbable."""
+    mw = core.GroundIndex.object_world_matrix(o)
+    return mw @ Vector(o["climb_bottom"]), mw @ Vector(o["climb_top"])
+
+
 def climbables(ctx):
+    """(x, y, z0, z1, name, descend_only) in world space of every ladder / rope / vine of the map: the climb position
+    stored on the object (MapCtx.climbable), x and y at its bottom."""
     out = []
     for o in ctx.col_arch.objects:
         if "climbable" in o.keys():
-            cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
-            cx = sum(c.x for c in cs) / 8
-            cy = sum(c.y for c in cs) / 8
-            out.append((cx, cy, o["climb_z0"], o["climb_z1"], o.name, bool(o.get("descend_only"))))
+            b, t = climb_ends(o)
+            out.append((b.x, b.y, b.z, t.z, o.name, bool(o.get("descend_only"))))
     return out
 
 

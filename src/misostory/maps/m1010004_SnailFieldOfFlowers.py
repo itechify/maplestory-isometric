@@ -131,10 +131,7 @@ def vine_climb(m, name, x, y, z0, z1, seed=0):
         k += 1
     mb.sphere(0.26, loc=(p.x, p.y - 0.02, p.z + h + 0.25), scale=(1.4, 0.8, 0.7), mat="M_Flat_leaf_lt", subdiv=1)
     obj = mb.build(m._name(name), m.col_arch, smooth=True, sharp_angle=60)
-    obj["climbable"] = "rope"
-    obj["climb_z0"] = m.origin.z + z0
-    obj["climb_z1"] = m.origin.z + z1
-    return obj
+    return m.climbable(obj, x, y, z0, z1, kind="rope")
 
 
 def dark_strand(m, name, x, y, z_top, length, seed=0):
