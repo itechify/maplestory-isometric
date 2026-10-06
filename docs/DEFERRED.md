@@ -181,8 +181,9 @@ No source read is pending. What the sources do not give:
   at one gate quest; could be cached).
 - **Quests and NPCs:** `flags.maple_island_departure_ready_at` records the latest boarding, not the first.
 - **Harness:** `test_b_combat`, `test_d_inventory`, `test_f_death` and `test_g_shop` still carry their own copies of kit
-  helpers. `unstick()` is verified only on the talk path. Strict mode's ledger reconciles EXP, mesos, items and quests
-  only; AP, SP, stats, HP and position rest on a source scan, which now covers the strict scenarios, the kit, the quest
+  helpers. `unstick()` is verified on the talk path and on a trail hop (seed 2 of the every-quest set's 1006 chain,
+  since the 2026-10-06 fix); `leave_climb()` by the `regen` scenario. Strict mode's ledger reconciles EXP, mesos, items
+  and quests only; AP, SP, stats, HP and position rest on a source scan, which now covers the strict scenarios, the kit, the quest
   runner, the driver, the walker, the grid planner, the input and the runner, but not the scenario base, the process
   runner or the ledger. Two of the wave-4 playtest checks are weak (the unit tests behind them are not): the
   playthrough's "no speech bubble while a shop is open" depends on the bubble schedule, and `test_box`'s cue check reads
