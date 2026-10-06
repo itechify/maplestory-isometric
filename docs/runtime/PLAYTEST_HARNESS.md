@@ -73,7 +73,7 @@ watchdog normally stops the run first.
 |---|---|---|
 | `game/tools/playtest/playtest_driver.gd` | `PlaytestDriver` | the API scenarios call: boots main.tscn, plays, logs steps and checks, strict mode |
 | `game/tools/playtest/playtest_kit.gd` | `PlaytestKit` | the composite play every scenario shares: travel, talk, conversations and quizzes, markers, the Quest Log, item use, AP, shops, precise pickup, hunting with a survival policy, deaths, and the contract helpers for sitting, chairs, skills and Wooden Boxes (see "PlaytestKit") |
-| `game/tools/playtest/playtest_ledger.gd` | `PlaytestLedger` | strict mode's bookkeeping: every change to EXP, mesos, items and quests must be announced by the event bus |
+| `game/tools/playtest/playtest_ledger.gd` | `PlaytestLedger` | strict mode's bookkeeping: every change to EXP, mesos, items, quests, the level, AP, SP, base stats, skills, HP and MP must be explained by the event bus (see "Strict mode") |
 | `game/tools/playtest/playtest_quest_plan.gd` | `PlaytestQuestPlan` | how to play a quest, derived from canonical data only (see "Quest plans") |
 | `game/tools/playtest/playtest_quest_runner.gd` | `PlaytestQuestRunner` | plays one quest step by step with real input (offer, objectives, turn-in, rewards, follow-ups) and records its evidence; `quest` and `playthrough` both use it (see "The quest runner") |
 | `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json`; `--combine` merges several runs (seeds) into the per-quest evidence report |
@@ -318,7 +318,7 @@ still, and that time is not counted as a stall.
 | `totals` | `{game_s, wall_s}` over all phases |
 | `phases` | `[{phase, started_at, game_s, wall_s, end}]`; `end` is `done`, `reload`, `timeout` or `error` |
 | `counts` | `steps` `{play, console, api, observe}` (top level), `checks`, `checks_failed`, `warnings`, `errors`, `engine_errors`, `screenshots`, `input_reasserts`, `parity_keys` |
-| `strict` | `{"enabled": false}`, or `{enabled, reason, since {phase, step, game_s}, console_steps, api_steps, debug_commands, ledger {reconciled, heard, mismatches}, violations [{phase, kind, detail}], ok}`: the proof of a no-cheat run (see "Strict mode"). `strict_raw` is the same block without the counted steps (what the next phase reads back) |
+| `strict` | `{"enabled": false}`, or `{enabled, reason, since {phase, step, game_s}, console_steps, api_steps, debug_commands, ledger {reconciled, heard, mismatches, vital_steps}, violations [{phase, kind, detail}], ok}`: the proof of a no-cheat run (see "Strict mode"). `strict_raw` is the same block without the counted steps (what the next phase reads back) |
 | `parity` | per parity key: `{checks, passed, failed, warned}` |
 | `checks` | `[{i, phase, name, ok, details, at_game_s, step, soft, parity?}]` |
 | `steps` | `[{i, phase, depth, kind, name, detail, ok, result, at_game_s, game_s, wall_s, fallback?}]` |
@@ -421,30 +421,56 @@ scenario; "after character creation" for a clean playthrough). From that step on
 - `DebugTools.commands_run` counts every command the Debug autoload dispatches, whoever calls it (the console, `run`,
   `call_command`, a test). The driver takes it at boot and at `begin_strict`; any increase in a strict phase is a
   violation, so a command run behind the driver's back is caught too.
-- `PlaytestLedger` reconciles the character against the event bus at every phase end, before a new game and at Quit to
-  Title: total EXP against the sum of `exp_gained`, mesos against the `mesos_changed` deltas, every item's count in the
-  inventory plus the equipment against `item_gained - item_lost`, and every quest status change against its
-  `quest_started` / `quest_completed` / `quest_forfeited`. A change nobody announced (a scenario writing `c.mesos`,
-  adding to the inventory, completing a quest) is a mismatch.
+- `PlaytestLedger` reconciles the character against the event bus at every phase end, before a new game, at Quit to
+  Title and before a pause-menu Load. Against a baseline taken when strict mode starts and again after every Continue,
+  new game and Load:
+
+  | Value | Reconciled against |
+  |---|---|
+  | EXP | total EXP (every level below plus the bar) against the sum of `exp_gained` (kills, quest rewards, the death penalty's negative award) |
+  | mesos | the `mesos_changed` deltas |
+  | items | every item's count in the inventory plus the equipment against `item_gained - item_lost` |
+  | quests | every status change against its `quest_started` / `quest_completed` / `quest_forfeited` |
+  | level | one `leveled_up` per level gained, the last one announcing the live level |
+  | AP and base stats | AP plus the base stats grew by exactly the AP the announced level-ups grant (`Progression.level_up_gains`); no base stat fell, only `beginner.json`'s allocatable stats rose; AP and the stats are what they were at the last `stats_changed` (an AP spend through the stats window announces one) |
+  | SP and skills | SP changed by the level-ups' SP minus one per `skill_leveled`; each skill's level is the last one its `skill_leveled` announced, one event per level |
+  | base Max HP / MP | the level-ups' canonical gains |
+  | HP and MP | step by step: each `hp_changed` / `mp_changed` against the last one, explained by what was heard in between: `player_damaged` (down by the damage, never below 0), `item_used` (up by the item's canonical restore, never above the max), `leveled_up` (combat.json's level-up heal), `player_died` (death.json's respawn vitals, which the death sets silently until the respawn announces them), `equipment_changed` (down to a smaller max), or, for MP, the `skill_used` heard right after it (PlayerSkills pays the MP first) whose canonical MP cost it is. An HP rise with no cause must be one recovery tick: recovery.json's natural tick, the bonus of the chair a `player_sat_down` named (alone or with the natural tick: one NaturalRecovery step heals both), or a tick of a heal-over-time effect such as Recovery (`EffectBook.heal_for_tick`; the last tick comes after the effect has ended); a smaller one only when it fills HP. The live HP and MP must be the last announced (the respawn vitals while a death is pending) |
+
+  A change nobody announced (a scenario writing `c.mesos` or `c.ap`, adding to the inventory, completing a quest,
+  healing) is a mismatch, and so is an announced HP or MP step nothing explains. The `strict.ledger` block counts the
+  explained HP and MP steps by cause (`vital_steps`). The ledger does not follow the player's position: teleports are
+  the scan's.
 - The runner adds one check per strict phase and writes the `strict` block; `report.passed()` requires it to be ok.
-- `test_playtest_strict.gd` reads every scenario that calls `begin_strict`, the kit, the quest runner, the driver, the
-  walker, the grid planner, the input and the runner (their logged api and console paths are whitelisted by file,
-  function and call, allowed only after the function opened a logged step; a whitelist entry that matches nothing fails)
-  and fails on teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console
-  calls outside `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats,
-  skills, cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that
-  change it (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the
-  quest engine, `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
-  `report_monster_killed`) and writes to the save on disk. A synthetic scenario in the same test proves the scan flags
-  each kind.
+- `test_playtest_strict.gd` reads every scenario that calls `begin_strict` and every harness file
+  (`game/tools/playtest/*.gd`, listed from the directory, so a new file is scanned without being named): the driver,
+  the kit, the quest runner and plan, the walker, the grid planner, the input, the ledger, the report, the quest
+  summary, the runner, the process runner, the engine log and the scenario base class. It fails on
+  teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console calls outside
+  `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats, skills,
+  cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that change it
+  (`d.game().items.gain/lose/pickup/use_item/equip/spend_mesos...`, `quests.accept/complete/forfeit`, the quest engine,
+  `allocate_ap`, `change_hp`, `damage_player`), hits or kills no attack made (`receive_hit`, `land_hit`,
+  `report_monster_killed`) and file writes and saves (`FileAccess.WRITE`, `save_now`, `SaveService.`). Each exception
+  is named by file, function and call, and an entry that matches nothing any more fails:
+
+  | File | Function | Call | Why |
+  |---|---|---|---|
+  | `playtest_driver.gd` | `new_game` | `start_new_game(` | the api fallback when the creation screen does not respond, after its counted `api` step |
+  | `playtest_driver.gd` | `save_game` | `save_now(` | the api fallback when the pause menu's Save cannot be used, after its counted `api` step |
+  | `playtest_driver.gd` | `console` | `call("run"` | the console itself, after its counted `console` step (refused in strict mode) |
+  | `playtest_report.gd` | `_write_text` | `FileAccess.WRITE` | writes `report.json` and `report.md` into the run's `--out` |
+  | `playtest_quest_summary.gd` | `_write` | `FileAccess.WRITE` | writes `quests.md` and `quests.json` into its `--out` |
+
+  Synthetic sources in the same test prove the scan flags each kind.
 
 What it does not prove: that a scenario never reads state the UI does not show (reading is allowed), and that the
 setup before the strict step was minimal (the console steps before it are listed in the report and the every-quest
-table). The ledger reconciles only EXP, mesos, items (inventory plus equipment) and quest statuses; AP, SP, base
-stats, HP/MP, skills and the player's position rest on the static scan alone. And because the game's services
-announce what they change, the ledger cannot tell a service call from play: those calls are caught only by the scan,
-which reads source lines, so an indirection it cannot see (a method name built at run time, `call("gain", ...)`)
-would get through.
+table). The player's position rests on the static scan alone. Because the game's services announce what they change,
+the ledger cannot tell a service call from play: those calls are caught only by the scan, which reads source lines, so
+an indirection it cannot see (a method name built at run time, `call("gain", ...)`) would get through. And a write
+that follows the game's own rules and is then announced by an unrelated event (AP moved into a stat behind the bus,
+followed by a `stats_changed` from equipping) looks like play to the ledger; the scan refuses the write.
 
 ## Quest plans
 
@@ -767,7 +793,7 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 | File | Covers |
 |---|---|
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
-| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; the strict scenarios (quest, playthrough, npc_bubbles), the kit, the quest runner, the driver, the walker, the grid planner, the input and the runner make no cheat call outside their whitelisted logged steps, and the scan flags a synthetic scenario's (and a synthetic driver's) service calls, teleport, AP write and console call outside `_setup*` |
+| `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; it explains two level-ups, AP and SP spent, damage, a Red Potion, a natural tick, a chair's bonus, Recovery's MP and every one of its heal ticks, a death and its respawn, and flags a write to AP, a base stat (raised, lowered, or AP moved into it behind the bus), SP, a skill level, the level, base Max HP, HP and MP, an announced HP loss or gain nothing explains and an MP drop no skill paid; the strict scenarios (quest, playthrough, npc_bubbles) and every harness file (`game/tools/playtest/*.gd`) make no cheat call outside their counted logged steps and named exceptions, and the scan flags a synthetic scenario's (and a synthetic driver's) service calls, teleport, AP write, console call outside `_setup*` and unnamed file write |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
 | `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest); `combined_markdown` over two synthetic runs (verdicts and chains side by side, the per-quest evidence table); `PlaytestQuestRunner`'s mid-quest restart policy (`auto`, `listed`, `off`, never twice) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |

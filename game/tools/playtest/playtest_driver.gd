@@ -322,6 +322,11 @@ func _ledger_checkpoint(when: String) -> void:
 	var led: Dictionary = report.strict.get("ledger", {})
 	led["reconciled"] = int(led.get("reconciled", 0)) + 1
 	led["heard"] = int(led.get("heard", 0)) + _ledger.heard
+	# The HP and MP announcements the ledger explained, by cause (damage, item, level-up, respawn, recovery tick ...).
+	var steps: Dictionary = led.get("vital_steps", {})
+	for cause: String in _ledger.vital_steps:
+		steps[cause] = int(steps.get(cause, 0)) + int(_ledger.vital_steps[cause])
+	led["vital_steps"] = steps
 	var list: Array = led.get("mismatches", [])
 	for m in mm:
 		list.append("phase %d, %s: %s" % [phase, when, m])
