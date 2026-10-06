@@ -77,6 +77,7 @@ watchdog normally stops the run first.
 | `game/tools/playtest/playtest_quest_plan.gd` | `PlaytestQuestPlan` | how to play a quest, derived from canonical data only (see "Quest plans") |
 | `game/tools/playtest/playtest_quest_runner.gd` | `PlaytestQuestRunner` | plays one quest step by step with real input (offer, objectives, turn-in, rewards, follow-ups) and records its evidence; `quest` and `playthrough` both use it (see "The quest runner") |
 | `game/tools/playtest/playtest_quest_summary.gd` | `PlaytestQuestSummary` | the every-quest table: reads every chain's report, writes `quests.md` / `quests.json`; `--combine` merges several runs (seeds) into the per-quest evidence report |
+| `game/tools/playtest/playtest_bubble_watch.gd` | `PlaytestBubbleWatch` | NPC speech bubbles around an open window, by waiting only: reads each NPC's bubble schedule to wait until a bubble shows (`wait_shown`) or, while a window is open, until one falls due for an NPC that could show it, checking none does (`watch_quiet`) |
 | `game/tools/playtest/playtest_input.gd` | `PlaytestInput` | real input: keys, actions (analog movement), mouse, typing; held state and focus re-assert |
 | `game/tools/playtest/playtest_walker.gd` | `PlaytestWalker` | path planning and following with real input (RouteBot steering) |
 | `game/tools/playtest/playtest_grid_nav.gd` | `PlaytestGridNav` | A* on the real collision, for targets the route network does not reach |
@@ -445,7 +446,7 @@ scenario; "after character creation" for a clean playthrough). From that step on
 - `test_playtest_strict.gd` reads every scenario that calls `begin_strict` and every harness file
   (`game/tools/playtest/*.gd`, listed from the directory, so a new file is scanned without being named): the driver,
   the kit, the quest runner and plan, the walker, the grid planner, the input, the ledger, the report, the quest
-  summary, the runner, the process runner, the engine log and the scenario base class. It fails on
+  summary, the runner, the process runner, the engine log, the scenario base class and the bubble watch. It fails on
   teleports (`place_player`, `global_position =`, `debug_warp`, `request_portal`), `Debug.run`, console calls outside
   `_setup*` functions, direct writes to the character (EXP, level, mesos, HP, MP, AP, SP, base stats, skills,
   cooldowns, effects, quickslots, inventory, equipment, the quest log), calls into the game's services that change it
@@ -619,6 +620,16 @@ the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH
   notice's OK respawns the player at the map's canonical return map (Amherst), and the EXP lost is checked against
   `formulas/death.json`. The respawn leaves the player at low HP, so the chair that follows shows its own bonus on
   top of natural recovery (one interval seated: the bonus plus one or two natural ticks).
+- **Speech bubbles at the shops** (Pan, Sid, Lucy; `PlaytestBubbleWatch`): the run may only wait, never force a
+  bubble, so it reads each NPC's bubble schedule (`NpcBubbleSchedule.until_next`) and waits at most until the next
+  bubble is due, plus 1 s. Near the shopkeeper a bubble must show before the shop opens; while the shop is open, a
+  bubble must fall due for an NPC that could show it (its name tag on screen, not in a conversation: the shop's
+  greeting has ended) and no bubble may show on any frame of that wait; after the shop closes a bubble must show
+  again. A bubble showing before the shop opens cannot carry the proof, because the greeting dialogue (a modal window
+  too) hides it before the shop is open; the schedule skips a bubble that falls due while hidden, so the frame its
+  `until_next` jumps is the frame it would have shown. The earlier check read the bubbles once, 0.2 s after the shop
+  opened, and passed whether or not they were hidden (#40). `test_playtest_bubble_watch.gd` shows the watch fails when
+  the presenter ignores the open window.
 - **The audit** (`k.track()` plus checkpoints) is in `d.carry`: `checkpoints`, `exp_by_source`, `kills_by_mob`,
   `visited_maps`, `talked_to`, `level_at`, `deaths`, `respawns`, `mesos_flow`, `items_used`, `skills_cast`, `shops`,
   `equipped`, `chair`, `departure`, `quest_evidence`, `findings` and `totals`. The end of the run checks every
@@ -794,6 +805,7 @@ ISOLATE=harness INCLUDE_WORLD=1 bash scripts/test.sh test_playtest_     # the sc
 |---|---|
 | `test_playtest_report.gd` | the PASS rules: an unfinished report or one without checks never passes, a soft check only warns, a fatal error fails; top-level step counts by kind and step durations; the JSON round trip keeps `carry`'s ints and vectors and the reload request; `report.md` (WARN rows, escaped pipes); parity keys per check (kept once, summed per key, through report.json and report.md); `screen_move_for` maps back onto every direction for three camera bases and keeps a slow step's strength; actions press their first `Controls.BINDINGS` key; `diff` |
 | `test_playtest_strict.gd` | `DebugTools.commands_run` counts every dispatched command; a strict report fails on a console or api step after the strict step, a violation, a developer command or a ledger mismatch, and the verdict survives the phase round trip; `PlaytestLedger` explains pickups, spending and unequipping and flags direct writes to mesos, items, quests and EXP; it explains two level-ups, AP and SP spent, damage, a Red Potion, a natural tick, a chair's bonus, Recovery's MP and every one of its heal ticks, a death and its respawn, and flags a write to AP, a base stat (raised, lowered, or AP moved into it behind the bus), SP, a skill level, the level, base Max HP, HP and MP, an announced HP loss or gain nothing explains and an MP drop no skill paid; the strict scenarios (quest, playthrough, npc_bubbles) and every harness file (`game/tools/playtest/*.gd`) make no cheat call outside their counted logged steps and named exceptions, and the scan flags a synthetic scenario's (and a synthetic driver's) service calls, teleport, AP write, console call outside `_setup*` and unnamed file write |
+| `test_playtest_bubble_watch.gd` | `PlaytestBubbleWatch` on real `NpcPresenter`s with an injected modal check: with the window rule a bubble falls due within the schedule's bound and none shows; with the rule disabled the same watch fails; a bubble skipped during a conversation proves nothing; `wait_shown`'s bound finds the next bubble |
 | `test_playtest_kit.gd` | the quiz answer key of 1013-1019 from canonical data (index, text, basis, the wrong-answer pairing); travel over canonical portals and the one-way link; the node parser and the bag bookkeeping |
 | `test_playtest_quest_plan.gd` | 1005 (Tutorial Jr. Sentinels and their Shellpiece in 000000030), 1009 (three species at A Split Road; the setup completes 1006), 1012 (the Wooden Box), schema v2 (C1) source rows and the gate rule on a synthetic Wooden Box table, 1002 (the apple adaptation), 1011 (Blue Snails and Orange Mushrooms, its hand-ins), the quiz plan and 1016's setup; the chain list equals `playtest_quests.sh`'s; `PlaytestQuestSummary` over synthetic reports (a script error or an unattributed failure fails the chain's quests, a tagged failure only its quest); `combined_markdown` over two synthetic runs (verdicts and chains side by side, the per-quest evidence table); `PlaytestQuestRunner`'s mid-quest restart policy (`auto`, `listed`, `off`, never twice) |
 | `test_playtest_smoke.gd` | `smoke` headless through `PlaytestProcess`, as `playtest.sh` runs it: PASS, finished, no fatal or script error, at least 15 checks, one process, the screens driven without an `api` fallback, at most one console step, the key checks present, `report.md` and the private `saves/` written; `reload`: PASS across two processes (`reload` then `done`); `counter`: PASS, with `talk_to(16)` a successful play step (the regression test for the talk rule); `quest --quest 1002`: PASS in strict mode with every quest check tagged; `kit`: PASS without an api fallback |
