@@ -28,11 +28,9 @@ func test_obtain_use_equip_save_reload() -> void:
 	var c := CharacterState.new()
 	var s := ItemService.new(c, db())
 	var now := 100.0
-	# [drops package] Membership is Hidden Street's list (D3-6): Red Potion rolls; the Sword is on MeowDB's reference list.
+	# Membership is MeowDB's community list (D3-11): the Snail drops both Red Potion and the Sword.
 	var snail_items := {}
 	for e in db().drop_table("2").entries:
-		snail_items[str(e.item_id)] = true
-	for e in db().drop_table("2").meowdb_reference.community_drops:
 		snail_items[str(e.item_id)] = true
 	assert_true(snail_items.has(RED_POTION) and snail_items.has(SWORD), "precondition: Snail records name both")
 	# 1. Obtain: a meso bag from a Snail kill, plus a potion and a weapon as ground records (same shape a kill makes).

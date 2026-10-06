@@ -14,11 +14,11 @@ extends RefCounted
 ##   (record)      the record's own `source` (its MeowDB page): it covers every value no other row names
 ##   <field>       each `field_sources.<field>` (a value read from another MeowDB page or file); URLs off meowdb.com
 ##                 are declared in `external` and reported with that entry's authority "external"
-##   <property>    each `provenance.<property>` block (contract C7: KuroDB, Hidden Street, Project owner, captures)
-##   membership / probability / mesos.amount / mesos.probability   per entry and meso source of a schema v2 drop record
+##   <property>    each `provenance.<property>` block (contract C7: MeowDB, Henesys.gg, Project owner, captures)
+##   membership / rarity / mesos.amount   per entry and meso source of a schema 3 drop record
 ## Unresolved values: each record's `gaps` (what the source does not give: the value is null or absent) and, in drop
-## records, each entry whose chance is unresolved (v2) or null (v1: the runtime still rolls the placeholder rates of
-## misostory/drop_rates.json), each item that did not resolve and each unresolved meso amount or chance.
+## records, each entry whose item, rarity or table category did not resolve (it never drops), and each meso block's
+## gaps (no MeowDB report: the runtime's meso rule supplies the amount).
 
 const FORMAT := 1
 const COMMAND := "bash scripts/validate_data.sh --report"
@@ -163,35 +163,27 @@ static func unresolved_of(domain_name: String, key: String, rec: Dictionary) -> 
 		out.append({"record": label, "kind": "gap", "text": str(g)})
 	if domain_name != "drops":
 		return out
-	var v2 := ValidationUtil.same(rec.get("schema_version", null), 2)
 	for e in ValidationUtil.as_array(rec.get("entries", null)):
 		if not (e is Dictionary):
 			continue
 		var entry := str(e.get("key", e.get("item_id", "?")))
-		var item_name: Variant = e.get("name", e.get("item_name", null))
-		if v2:
-			var res: Variant = e.get("item_resolution", null)
-			var state: Variant = res.get("state", null) if res is Dictionary else null
-			if not ValidationUtil.same(state, "resolved"):
-				out.append({"record": label, "kind": "item", "entry": entry, "name": item_name, "state": state,
-					"candidates": res.get("candidates", []) if res is Dictionary else [],
-					"note": res.get("note", "") if res is Dictionary else ""})
-			if not ValidationUtil.same(e.get("chance_state", null), "resolved"):
-				out.append({"record": label, "kind": "probability", "entry": entry, "name": item_name,
-					"text": "no KuroDB chance for this member: it never drops"})
-		elif e.get("chance", null) == null:
-			out.append({"record": label, "kind": "probability", "entry": entry, "name": item_name,
-				"text": "schema v1: chance null; the runtime rolls the placeholder rate of misostory/drop_rates.json"})
+		var item_name: Variant = e.get("name", null)
+		var res: Variant = e.get("item_resolution", null)
+		var state: Variant = res.get("state", null) if res is Dictionary else null
+		if not ValidationUtil.same(state, "resolved"):
+			out.append({"record": label, "kind": "item", "entry": entry, "name": item_name, "state": state,
+				"candidates": res.get("candidates", []) if res is Dictionary else [],
+				"note": res.get("evidence", "") if res is Dictionary else ""})
+		if e.get("rarity", null) == null:
+			out.append({"record": label, "kind": "rarity", "entry": entry, "name": item_name,
+				"text": "no Henesys.gg rarity for this member: it never drops"})
+		elif e.get("chance_category", null) == null and ValidationUtil.same(state, "resolved"):
+			out.append({"record": label, "kind": "category", "entry": entry, "name": item_name,
+				"text": "the drop chance table has no row for this item type: it never drops"})
 	var meso: Variant = rec.get("meso", null)
-	if meso is Dictionary and v2:
-		for part in [["amount_state", "meso amount"], ["chance_state", "meso probability"]]:
-			if not ValidationUtil.same(meso.get(part[0], null), "resolved"):
-				out.append({"record": label, "kind": part[1], "text": "unresolved: the meso bag never drops"})
-	elif meso is Dictionary:
-		for part in [["chance", "meso probability"], ["min", "meso amount"]]:
-			if meso.get(part[0], null) == null:
-				out.append({"record": label, "kind": part[1],
-					"text": "schema v1: null; the runtime uses the placeholder of misostory/drop_rates.json"})
+	if meso is Dictionary:
+		for g in ValidationUtil.as_array(meso.get("gaps", null)):
+			out.append({"record": label, "kind": "meso", "text": str(g)})
 	return out
 
 

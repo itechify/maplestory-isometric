@@ -71,25 +71,29 @@ func test_1012_items_come_from_the_wooden_box() -> void:
 	assert_eq(String(p["start"]["npc"]), "18", "Pio")
 
 
-func test_schema_v2_drop_entries_give_chance_gate_and_obtainability() -> void:
-	# Contract C1 records (the drops package's schema v2; the base data is still v1, so the plan's v2 path is proved
-	# here on a synthetic Wooden Box table shaped like C1).
-	var table := {"schema_version": 2, "owner": {"kind": "breakable", "id": "0000001", "name": "Wooden Box"}, "entries": [
-		{"key": "rusty-screw", "item_id": "441", "chance_state": "resolved", "probability": 1.0,
-			"quest_gate": {"quest_id": "1012", "basis": "C1 quest-gate rule"}},
-		{"key": "apple", "item_id": "236", "chance_state": "resolved", "probability": 0.25, "quest_gate": null},
-		{"key": "egg", "item_id": "237", "chance_state": "unresolved", "probability": null, "quest_gate": null},
-		{"key": "unknown", "item_id": null, "chance_state": "unresolved", "probability": null, "quest_gate": null}]}
-	var screw := PlaytestQuestPlan._source_row("0000001", table, "441", db())
-	assert_eq(int(screw["schema"]), 2)
-	assert_near(float(screw["chance"]), 1.0, 1e-9, "the resolved probability")
+func test_schema_3_drop_entries_give_chance_gate_and_obtainability() -> void:
+	# Contract C1 records (schema 3) through the runtime's own chances: the Wooden Box with its Egg left without a
+	# rarity (unresolved), on a private copy of the content.
+	var c := ContentDB.new()
+	c.canonical = db().canonical.duplicate()
+	c.canonical["drops"] = (db().canonical["drops"] as Dictionary).duplicate()
+	var table: Dictionary = db().drop_table("0000001").duplicate(true)
+	for e: Dictionary in table["entries"]:
+		if String(e["key"]) == "egg":
+			e["rarity"] = null
+	c.canonical["drops"]["0000001"] = table
+	c.miso = db().miso
+	c.loaded = true
+	var screw := PlaytestQuestPlan._source_row("0000001", table, "441", c)
+	assert_eq(int(screw["schema"]), 3)
+	assert_near(float(screw["chance"]), 1.0, 1e-9, "etc_quest_gated x Common")
 	assert_eq(String(screw["quest_gate"]), "1012", "the C1 gate")
-	var apple := PlaytestQuestPlan._source_row("0000001", table, "236", db())
-	assert_near(float(apple["chance"]), 0.25, 1e-9)
+	var apple := PlaytestQuestPlan._source_row("0000001", table, "236", c)
+	assert_near(float(apple["chance"]), 0.02, 1e-9, "use_consumable x Common")
 	assert_eq(String(apple["quest_gate"]), "", "no gate")
-	var egg := PlaytestQuestPlan._source_row("0000001", table, "237", db())
-	assert_true(egg["chance"] == null and String(egg["chance_state"]) == "unresolved", "an unresolved chance never rolls: %s" % egg)
-	assert_eq(PlaytestQuestPlan._source_row("0000001", table, "999", db()), {}, "an item the table does not list")
+	var egg := PlaytestQuestPlan._source_row("0000001", table, "237", c)
+	assert_true(egg["chance"] == null and String(egg["chance_state"]) == "unresolved", "an unresolved member never rolls: %s" % egg)
+	assert_eq(PlaytestQuestPlan._source_row("0000001", table, "999", c), {}, "an item the table does not list")
 	var maps := PackedStringArray(["000001010"])
 	screw["maps"] = maps
 	apple["maps"] = PackedStringArray()

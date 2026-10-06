@@ -32,11 +32,11 @@ const WEAPON := "585"
 ## Filler for the full Equip tab (Leather Sandals, sold by Pan: it can be sold back to him).
 const FILLER := "1305"
 const KEY := "1"
-## Game seconds spent hunting A Split Road for mesos at most. Re-measured with the canonical drop records (KuroDB 40%
-## meso chance, MeowDB / Hidden Street amounts), seed 1: one run took 66 kills / 548 s for 151 mesos (29 bags), another
-## 94 kills / 1011 s for 158 mesos (30 bags; one death). Runs of one seed differ, so the hunt may stop at the budget short
-## of its 150-meso goal; the check needs only 2 x Pan's price (100), which at those rates comes after about 360 s and
-## 640 s of hunting.
+## Game seconds spent hunting A Split Road for mesos at most. The Snail drops MeowDB's reported 2 mesos at the owner's
+## 60% meso chance (decision D3-12, data/misostory/meso_rules.json). With the earlier 40% chance, seed 1 took 66 kills /
+## 548 s for 151 mesos in one run and 94 kills / 1011 s for 158 mesos in another (one death); at 60% the same mesos come
+## after about two thirds of the kills. Runs of one seed differ, so the hunt may stop at the budget short of its
+## 150-meso goal; the check needs only 2 x Pan's price (100).
 const HUNT_BUDGET_S := 1100.0
 const PICK_RADIUS_M := 10.0
 
@@ -622,7 +622,7 @@ func _dropped_equipment_section(d: PlaytestDriver, bought: Array) -> void:
 				c.equipment.item_in(def.equip_slot) == id and int(_stat_texts(d).get("wdef", "-1")) == w0 + _wdef(d, id),
 				"%s '%s', W.DEF %s" % [def.equip_slot, c.equipment.item_in(def.equip_slot), _stat_texts(d).get("wdef", "?")])
 	if dropped.is_empty():
-		d.note("no equipment dropped in this run (the only rolling equipment on Maple Island is three boots/sandals at KuroDB's 0.08%, Red Snail and Orange Mushroom): Pan's pieces are the equipment")
+		d.note("no equipment dropped in this run (Maple Island equipment drops at the owner's table chance, 0.1% for a Common equip, decision D3-11): Pan's pieces are the equipment")
 	await d.close_window("equipment")
 	await d.close_window("inventory")
 	await d.close_window("stats")

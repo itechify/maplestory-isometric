@@ -14,10 +14,10 @@ extends RefCounted
 ##   p.uses, p.talks, p.quiz (PlaytestKit.quiz_answer), p.rewards, p.blocked (why it cannot be played now)
 ##   p.hand_ins       [{item_id, count}]   items_removed_on_completion: what the turn-in takes from the bag
 ##
-## An objective that only an unresolved drop (no chance, no item id) could supply is reported in `blocked` as a
-## source-data gap; it is never faked. Drop tables are read in both shapes: schema v2 (contract C1: chance_state,
-## probability, quest_gate) and the Iteration Two v1 tables (membership in the table, chance from the placeholder
-## rates through DropRates, called by name at run time so this file compiles whatever DropRates becomes).
+## An objective that only an unresolved drop (no item id, rarity or table category) could supply is reported in
+## `blocked` as a source-data gap; it is never faked. Drop chances are the runtime's own (DropRates.effective_entries
+## over the schema 3 records and the owner's chance table, contract C1), called by name at run time so this file
+## compiles whatever DropRates becomes.
 
 const DROP_RATES_SCRIPT := "res://scripts/core/drops/drop_rates.gd"
 
@@ -311,33 +311,21 @@ static func best_source(sources: Array, near_map: String, db: ContentDB) -> Dict
 	return best
 
 
-## The entry of `item_id` in one drop table with the runtime's chance: {"chance", "chance_state", "quest_gate",
-## "schema", "key" (schema v2: the entry's stable slug, the parity key drop:<owner>/<key>)}; {} when the table does not
-## list the item.
+## The entry of `item_id` in one drop table with the runtime's chance (DropRates.effective_entries): {"chance" (null
+## when the entry never rolls), "chance_state" ("resolved" | "unresolved"), "quest_gate", "schema", "key" (the entry's
+## stable slug, the parity key drop:<owner>/<key>)}; {} when the table does not list the item.
 static func _source_row(owner: String, table: Dictionary, item_id: String, db: ContentDB) -> Dictionary:
-	if int(table.get("schema_version", 1)) >= 2:
-		for e: Variant in table.get("entries", []):
-			if not (e is Dictionary) or e.get("item_id") == null or String(e["item_id"]) != item_id:
-				continue
-			var resolved := String(e.get("chance_state", "")) == "resolved" and e.get("probability") != null
-			var gate: Variant = e.get("quest_gate")
-			return {"chance": float(e["probability"]) if resolved else null, "chance_state": String(e.get("chance_state", "")),
-				"quest_gate": String((gate as Dictionary).get("quest_id", "")) if gate is Dictionary else "", "schema": 2,
-				"key": String(e.get("key", ""))}
-		return {}
-	var listed := false
-	for e: Variant in table.get("entries", []):
-		if e is Dictionary and e.get("item_id") != null and String(e["item_id"]) == item_id:
-			listed = true
-	if not listed:
-		return {}
-	var chance: Variant = null
 	var rates: Variant = load(DROP_RATES_SCRIPT)
-	if rates is GDScript and _has_static(rates as GDScript, "effective_entries"):
-		for e: Variant in (rates as GDScript).call("effective_entries", owner, db):
-			if e is Dictionary and String((e as Dictionary).get("item_id", "")) == item_id:
-				chance = float((e as Dictionary).get("chance", 0.0))
-	return {"chance": chance, "chance_state": "placeholder" if chance != null else "unresolved", "quest_gate": "", "schema": 1}
+	if not (rates is GDScript and _has_static(rates as GDScript, "effective_entries")):
+		return {}
+	for e: Variant in (rates as GDScript).call("effective_entries", owner, db):
+		if not (e is Dictionary) or String((e as Dictionary).get("item_id", "")) != item_id:
+			continue
+		var row: Dictionary = e
+		var resolved := String(row.get("excluded", "")) == ""
+		return {"chance": float(row.get("chance", 0.0)) if resolved else null, "chance_state": "resolved" if resolved else "unresolved",
+			"quest_gate": String(row.get("quest_gate", "")), "schema": int(table.get("schema_version", 1)), "key": String(row.get("key", ""))}
+	return {}
 
 
 static func _has_static(script: GDScript, method: String) -> bool:

@@ -1,9 +1,9 @@
 // node --test tools/parity/test/   (no dependencies)
 // The parity generator's state rule on a small synthetic dataset: runtime declarations, evidence from unit tests and
-// playtests (and which of them count), v1 and v2 drop records, source-data gaps, chains, out-of-scope keys.
+// playtests (and which of them count), older and schema 3 drop records, source-data gaps, chains, out-of-scope keys.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence, cleanRun, cleanRunProblems, DEPARTURE_BOUNDARY_CHECK, KURO_ONLY_REASON } from '../parity.mjs';
+import { buildParity, toMarkdown, runtimeState, matchFiles, collectEvidence, cleanRun, cleanRunProblems, DEPARTURE_BOUNDARY_CHECK } from '../parity.mjs';
 
 const RUNTIME_FILES = ['game/scripts/core/quests/quest_engine.gd', 'game/scripts/core/drops/drop_roller.gd', 'game/scripts/core/maps/map_definition.gd',
   'game/scripts/old_regen.gd'];
@@ -43,10 +43,10 @@ function canonical() {
     items: { 237: { id: '237', name: 'Egg', type: 'Use' }, 348: { id: '348', name: 'Snail Shell', type: 'Etc' }, 525: { id: '525', name: 'Chair', type: 'Setup' } },
     quests: { 1006: quest('1006', "Sam's Suggestion", line), 1009: quest('1009', "Mai's Training", { ...line, position: 2 }) },
     drops: {
-      2: { id: '2', owner: { kind: 'monster', id: '2' }, schema_version: 2, entries: [
-        { key: 'snail-shell', name: 'Snail Shell', item_id: '348', item_resolution: { state: 'resolved' }, chance_state: 'resolved' },
-        { key: 'wooden-buckler', name: 'Wooden Buckler', item_id: null, item_resolution: { state: 'not_in_snapshot' }, chance_state: 'unresolved' },
-      ], meso: { amount_state: 'resolved', chance_state: 'resolved' } },
+      2: { id: '2', owner: { kind: 'monster', id: '2' }, schema_version: 3, entries: [
+        { key: 'snail-shell', name: 'Snail Shell', item_id: '348', item_resolution: { state: 'resolved' }, rarity: { label: 'Common' }, chance_category: 'etc_own_leftover' },
+        { key: 'wooden-buckler', name: 'Wooden Buckler', item_id: null, item_resolution: { state: 'not_in_snapshot' }, rarity: null, chance_category: null },
+      ], meso: { amount_state: 'reported', min: 2, max: 2, amount_source: { raw_value: 'Mesos: 2 per kill | 1 report' } } },
       9: { id: '9', owner: { kind: 'monster', id: '2' }, entries: [{ item_id: '348', item_name: 'Snail Shell' }], meso: { chance: null } },
     },
   };
@@ -87,10 +87,10 @@ test('without evidence entries are implemented, missing or partial', () => {
   assert.deepEqual(find(doc, 'quest:1006').source_gaps, ['no max level'], 'record gaps travel with the entry');
 });
 
-test('v1 drop records are partial; v2 unresolved members are source-data gaps; resolved ones can be verified', () => {
+test('older drop records are partial; schema 3 unresolved members are source-data gaps; resolved ones can be verified', () => {
   const doc = build({ tests: [unit([{ file: 'test_drops.gd', name: 'test_shell', ok: true, parity: ['drop:2/snail-shell', 'drop:2/wooden-buckler'] }])] });
-  assert.equal(find(doc, 'drop:9/snail-shell').state, 'partial', 'v1 entry keyed by the slug of its name');
-  assert.match(find(doc, 'drop:9/snail-shell').issues[0], /placeholder/);
+  assert.equal(find(doc, 'drop:9/snail-shell').state, 'partial', 'an older entry is keyed by the slug of its name');
+  assert.match(find(doc, 'drop:9/snail-shell').issues[0], /not the drop record schema the runtime reads/);
   assert.equal(find(doc, 'meso:9').state, 'partial');
   assert.equal(find(doc, 'drop:2/snail-shell').state, 'verified');
   assert.deepEqual(find(doc, 'drop:2/snail-shell').accepts, ['drop:2/348'], 'the item-id form a playtest check uses');
@@ -99,8 +99,14 @@ test('v1 drop records are partial; v2 unresolved members are source-data gaps; r
   assert.deepEqual(byId.inputs.unknown_evidence_keys, []);
   const buckler = find(doc, 'drop:2/wooden-buckler');
   assert.equal(buckler.source_data_gap, true);
-  assert.equal(buckler.state, 'partial', 'evidence cannot verify an unresolved probability');
+  assert.equal(buckler.state, 'partial', 'evidence cannot verify an unresolved member');
+  assert.deepEqual(buckler.source_gaps, ['item not_in_snapshot: never drops', 'no Henesys.gg rarity for this member: never drops']);
+  assert.ok(find(doc, 'drop:2/snail-shell').notes.includes('chance: drop_rates.json etc_own_leftover x Common (D3-11)'));
+  assert.ok(find(doc, 'drop:2/snail-shell').adaptations.includes('game/data/misostory/drop_rates.json'));
   assert.equal(find(doc, 'meso:2').state, 'implemented');
+  assert.match(find(doc, 'meso:2').notes[0], /MeowDB's player report "Mesos: 2 per kill \| 1 report"/);
+  const noMesos = build({ miso: { meso_rules: { no_mesos: { 2: { reason: 'owner choice' } } } } });
+  assert.deepEqual(find(noMesos, 'meso:2').notes, ['drops no mesos (meso_rules.json no_mesos: owner choice)']);
   assert.ok(doc.source_data_gaps.some((g) => g.key === 'drop:2/wooden-buckler'));
   const open = doc.categories.flatMap((c) => c.entries).filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap);
   assert.ok(!open.some((e) => e.key === 'drop:2/wooden-buckler'), 'a source-data gap is excused from the exit count');
@@ -333,106 +339,76 @@ test('a placement accepts the map-wide breakable-placement key; every map has a 
   assert.deepEqual(doc.inputs.unknown_evidence_keys, []);
 });
 
-test('a canonical-verification row about the drop data stays partial while any drop record is schema v1', () => {
+test('a canonical-verification row about the drop data stays partial while any drop record is not schema 3', () => {
   const rules = { ...RULES, canonical_verification: [
-    { key: 'canon:membership-chance-separate', name: 'separate sources', requires: { drops_schema_version: 2 } },
+    { key: 'canon:membership-rarity-separate', name: 'separate sources', requires: { drops_schema_version: 3 } },
     { key: 'canon:adaptations-explained', name: 'adaptations explained' },
   ] };
-  const evidence = [unit([{ file: 'test_v.gd', name: 'test_rule', ok: true, parity: ['canon:membership-chance-separate', 'canon:adaptations-explained'] }])];
+  const evidence = [unit([{ file: 'test_v.gd', name: 'test_rule', ok: true, parity: ['canon:membership-rarity-separate', 'canon:adaptations-explained'] }])];
   const mixed = build({ rules, tests: evidence });
-  const row = find(mixed, 'canon:membership-chance-separate');
-  assert.equal(row.state, 'partial', 'drop record 9 is still v1');
-  assert.match(row.issues.join(), /drop record\(s\) 9 are not schema v2/);
+  const row = find(mixed, 'canon:membership-rarity-separate');
+  assert.equal(row.state, 'partial', 'drop record 9 is an older schema');
+  assert.match(row.issues.join(), /drop record\(s\) 9 are not schema 3/);
   assert.equal(find(mixed, 'canon:adaptations-explained').state, 'verified', 'a row without a data requirement');
   const c = canonical();
   delete c.drops['9'];
-  assert.equal(find(build({ canonical: c, rules, tests: evidence }), 'canon:membership-chance-separate').state, 'verified', 'every drop record v2');
+  assert.equal(find(build({ canonical: c, rules, tests: evidence }), 'canon:membership-rarity-separate').state, 'verified', 'every drop record schema 3');
 });
 
 test('a pending source read is its own label: never excused, never verified, listed apart from the gaps; stale declarations fail', () => {
-  // A drop member whose chance is unresolved while the record holds a KuroDB row that may be it, waiting for a read of
-  // its item page (pending_kuro_candidates, decision D3-8), next to a member KuroDB truly has no row for (a gap).
-  const withCandidate = () => {
+  // A drop member and an item whose record gaps say a value is published on a page nobody has read yet.
+  const withGaps = () => {
     const c = canonical();
-    c.drops['2'].entries.push({ key: 'jump-scroll', name: 'Scroll for Shoes for Jump 10%', item_id: '348', item_resolution: { state: 'resolved' },
-      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), pending a read of its item page'] });
-    c.drops['2'].excluded_kuro_only = [
-      { kuro_item_id: '2380000', name: 'Snail Card', raw_value: '26% base | Qty 1', reason: KURO_ONLY_REASON },
-      // A candidate its item page did not confirm is excluded with what the page showed: KuroDB-only, never pending.
-      { kuro_item_id: '2040799', name: 'Scroll for Shoes for Speed', raw_value: '0.0300% base | Qty 1', reason: 'checked against its item page: another item' },
-    ];
-    c.drops['2'].pending_kuro_candidates = [
-      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', member: 'jump-scroll', read: 'KuroDB item page 2040705', reason: 'possible match, page not read', decision: 'D3-8' },
-    ];
+    c.drops['2'].gaps = ['rarity unresolved: Henesys.gg has no row read for "Snail Shell" yet', 'quantity: no source gives one'];
     c.items['237'].gaps = ['max_stack: shown only on the item page, which was not captured', 'sources.breakables: not captured'];
     return c;
   };
-  const evidence = [unit([{ file: 't.gd', name: 'test_all', ok: true, parity: ['drop:2/jump-scroll', 'item:237', 'item:348'] }])];
-  const undeclared = build({ canonical: withCandidate(), tests: evidence });
-  const scroll = find(undeclared, 'drop:2/jump-scroll');
-  assert.equal(scroll.source_data_gap, false, 'a published but unread chance is not a source-data gap');
-  assert.equal(scroll.pending_source_read, true, 'the record alone marks it, even undeclared');
-  assert.equal(scroll.state, 'partial', 'passing evidence cannot verify it');
-  assert.deepEqual(scroll.source_gaps, [], 'no gap text claims KuroDB has no chance');
-  assert.match(scroll.pending_reads[0].read, /KuroDB item 2040705/);
-  assert.deepEqual(undeclared.inputs.undeclared_pending_reads, ['drop:2/jump-scroll']);
-  assert.ok(!undeclared.source_data_gaps.some((g) => g.key === 'drop:2/jump-scroll'), 'not listed with the gaps');
-  assert.deepEqual(undeclared.pending_source_reads.map((p) => p.key), ['drop:2/jump-scroll']);
-  assert.equal(find(undeclared, 'drop:2/wooden-buckler').source_data_gap, true, 'a member KuroDB has no row for stays a gap');
-  const open = undeclared.categories.flatMap((c) => c.entries).filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap).map((e) => e.key);
-  assert.ok(open.includes('drop:2/jump-scroll'), 'counted open for the exit criterion');
-  assert.equal(undeclared.totals.open_for_exit, open.length);
-  assert.equal(undeclared.totals.all.pending_source_read, 1);
-  assert.equal(undeclared.totals.by_category['monster-drops'].pending_source_read, 1);
-  assert.equal(find(undeclared, 'item:237').state, 'verified', 'record gaps alone do not make an item pending');
-  // Declared: the drop keeps its pending label with the declared read; a record entry needs the fields its gaps name.
+  const evidence = [unit([{ file: 't.gd', name: 'test_all', ok: true, parity: ['drop:2/snail-shell', 'item:237', 'item:348'] }])];
+  const undeclared = build({ canonical: withGaps(), tests: evidence });
+  assert.equal(find(undeclared, 'item:237').state, 'verified', 'record gaps alone do not make an entry pending');
+  assert.equal(find(undeclared, 'drop:2/snail-shell').state, 'verified');
+  assert.deepEqual(undeclared.pending_source_reads, []);
   const rules = { ...RULES, pending_source_reads: {
-    'drop:2/jump-scroll': { read: 'KuroDB item page 2040705', resolves: 'the chance', decision: 'D3-8' },
+    'drop:2/snail-shell': { read: 'Henesys.gg loot page, Snail Shell', resolves: 'its rarity', decision: 'D3-11', fields: ['rarity unresolved'] },
     'item:237': { read: 'MeowDB item page 237', resolves: 'its max stack', fields: ['max_stack'] },
   } };
-  const declared = build({ canonical: withCandidate(), rules, tests: evidence });
-  assert.deepEqual(declared.inputs.undeclared_pending_reads, []);
-  assert.equal(find(declared, 'drop:2/jump-scroll').pending_reads[0].read, 'KuroDB item page 2040705');
+  const declared = build({ canonical: withGaps(), rules, tests: evidence });
+  const shell = find(declared, 'drop:2/snail-shell');
+  assert.equal(shell.source_data_gap, false, 'a published but unread value is not a source-data gap');
+  assert.equal(shell.pending_source_read, true);
+  assert.equal(shell.state, 'partial', 'passing evidence cannot verify it');
+  assert.equal(shell.pending_reads[0].read, 'Henesys.gg loot page, Snail Shell');
   const egg = find(declared, 'item:237');
   assert.equal(egg.pending_source_read, true);
   assert.equal(egg.state, 'partial', 'a passing item test cannot verify a value still to be read');
   assert.equal(find(declared, 'item:348').state, 'verified');
-  assert.deepEqual(declared.pending_source_reads.map((p) => p.key), ['drop:2/jump-scroll', 'item:237']);
+  assert.deepEqual(declared.pending_source_reads.map((p) => p.key), ['drop:2/snail-shell', 'item:237']);
+  assert.ok(!declared.source_data_gaps.some((g) => g.key === 'drop:2/snail-shell'), 'not listed with the gaps');
+  const open = declared.categories.flatMap((c) => c.entries).filter((e) => e.in_scope && e.state !== 'verified' && !e.source_data_gap).map((e) => e.key);
+  assert.ok(open.includes('drop:2/snail-shell') && open.includes('item:237'), 'counted open for the exit criterion');
+  assert.equal(declared.totals.open_for_exit, open.length);
+  assert.equal(declared.totals.all.pending_source_read, 2);
+  assert.equal(declared.totals.by_category['monster-drops'].pending_source_read, 1);
   const md = toMarkdown(declared);
   assert.ok(md.includes('\n## Pending source reads\n'));
   assert.match(md, /- `item:237` Egg \(Use\): read MeowDB item page 237 to settle its max stack\. max_stack: shown only on the item page/);
-  assert.match(md, /\| `drop:2\/jump-scroll` \| .* \| partial \(pending source read\) \|/);
-  assert.match(md, /partial: pending source read \(KuroDB item page 2040705\): `drop:2\/jump-scroll`/);
+  assert.match(md, /\| `drop:2\/snail-shell` \| .* \| partial \(pending source read\) \|/);
   // An entry with a real gap stays excused; its pending part is listed beside the gap.
-  const both = withCandidate();
-  both.drops['2'].entries.find((e) => e.key === 'jump-scroll').item_resolution = { state: 'ambiguous', candidates: ['1', '2'] };
-  both.drops['2'].entries.find((e) => e.key === 'jump-scroll').item_id = null;
-  const mixed = find(build({ canonical: both, rules, tests: evidence }), 'drop:2/jump-scroll');
+  const both = withGaps();
+  both.drops['2'].gaps.push('rarity unresolved: Henesys.gg has no row for "Wooden Buckler"');
+  const mixed = find(build({ canonical: both, rules: { ...RULES, pending_source_reads: { 'drop:2/wooden-buckler': { read: 'x', resolves: 'y', fields: ['rarity unresolved'] } } }, tests: evidence }), 'drop:2/wooden-buckler');
   assert.equal(mixed.source_data_gap, true);
   assert.equal(mixed.pending_source_read, false);
   assert.equal(mixed.pending_reads.length, 1);
-  // Stale declarations fail: the read was done (the chance resolved, the candidate gone; the gap removed), or no entry.
-  const read = withCandidate();
-  read.drops['2'].pending_kuro_candidates = [];
-  read.drops['2'].entries.find((e) => e.key === 'jump-scroll').chance_state = 'resolved';
-  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale: its drop record has no pending_kuro_candidates row/);
-  // The page was read and did not confirm the row: it is excluded with what the page showed, the member is a gap.
-  const rejected = withCandidate();
-  const row = rejected.drops['2'].pending_kuro_candidates.pop();
-  rejected.drops['2'].excluded_kuro_only.push({ kuro_item_id: row.kuro_item_id, name: row.name, raw_value: row.raw_value, reason: 'checked: 60%' });
-  const gap = find(build({ canonical: rejected }), 'drop:2/jump-scroll');
-  assert.deepEqual([gap.source_data_gap, gap.pending_source_read], [true, false], 'an excluded row is never pending, whatever its reason');
-  assert.throws(() => build({ canonical: rejected, rules }), /drop:2\/jump-scroll is stale/);
-  const pageRead = withCandidate();
+  // Stale declarations fail: the read was done (the gap removed), or no entry, or no fields.
+  const read = withGaps();
+  read.drops['2'].gaps = [];
+  assert.throws(() => build({ canonical: read, rules }), /drop:2\/snail-shell is stale: record drops\/2 has no gap for rarity unresolved/);
+  const pageRead = withGaps();
   pageRead.items['237'].gaps = [];
   assert.throws(() => build({ canonical: pageRead, rules }), /item:237 is stale: record items\/237 has no gap for max_stack/);
-  assert.throws(() => build({ canonical: withCandidate(), rules: { ...RULES, pending_source_reads: { 'item:999': { read: 'x', resolves: 'y', fields: ['a'] } } } }),
+  assert.throws(() => build({ canonical: withGaps(), rules: { ...RULES, pending_source_reads: { 'item:999': { read: 'x', resolves: 'y', fields: ['a'] } } } }),
     /item:999 names no entry/);
-  assert.throws(() => build({ canonical: withCandidate(), rules: { ...RULES, pending_source_reads: { 'item:237': { read: 'x', resolves: 'y' } } } }),
+  assert.throws(() => build({ canonical: withGaps(), rules: { ...RULES, pending_source_reads: { 'item:237': { read: 'x', resolves: 'y' } } } }),
     /item:237 needs "fields"/);
-  // A candidate row whose member cannot be found is reported.
-  const lost = withCandidate();
-  lost.drops['2'].pending_kuro_candidates[0].member = 'no-such-member';
-  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump (member no-such-member)']);
-  assert.equal(find(build({ canonical: lost }), 'drop:2/jump-scroll').pending_source_read, false);
 });

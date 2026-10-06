@@ -13,8 +13,9 @@ extends RefCounted
 ## The checks, in order (see docs/runtime/DATA_VALIDATION.md):
 ##   load            ContentDB load errors (unparsable JSON, a domain file whose top level is not an object)
 ##   ids, schema, provenance, external, sources_index      ProvenanceChecks (+ the ProvenanceAuthorities registry)
-##   drop_record (+ provenance)                            DropRecordChecks (schema v2 drop records, contract C1)
-##   drop_policy, drop_unresolved                          DropChecks (the drop policy over the shipped records)
+##   drop_record (+ provenance)                            DropRecordChecks (schema 3 drop records, contract C1)
+##   drop_policy, drop_unresolved                          DropChecks (the drop policy over the shipped records, the
+##                                                         dated captures and the owner's drop rule files)
 ##   reference, dialogue_link, portal, drop_owner, drop_table, consistency   ReferenceChecks (+ skill references and
 ##                                                                            the Phase 16 per-category counters)
 ##   chair, name, duplicate                                                   IntegrityChecks
@@ -72,7 +73,7 @@ func run() -> ValidationReport:
 	var provenance := ProvenanceChecks.new(db, report, options)
 	provenance.run()
 	DropRecordChecks.new(db, report, provenance).run()
-	DropChecks.new(db, report).run()
+	DropChecks.new(db, report, provenance).run()
 	var refs := ReferenceChecks.new(db, report)
 	refs.run()
 	IntegrityChecks.new(db, report).run()

@@ -8,37 +8,31 @@
 //   partial      the runtime is there, but the entry has an open issue: a validation error on its record, a value the
 //                runtime still takes from a placeholder, a referenced item without a definition, an unresolved value
 //                that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped
-//                data not yet in the state the row describes (rules.json requires, e.g. drop records still schema v1)
+//                data not yet in the state the row describes (rules.json requires, e.g. drop records not schema 3)
 //   implemented  the runtime is there, the data validates and every unresolved value is a documented source-data gap,
 //                but no passing check is tagged with the entry's key
 //   verified     as implemented, plus at least one passing check tagged with the entry's key (or a key it accepts, e.g.
 //                an objective accepts its quest's key) and no failing one. Quests, their objectives and rewards need
 //                that check from the real game: a playtest report.json check, not a unit test (brief "Full Quest
 //                Playthrough Requirement"). A chain is derived from its member quests and also needs a real-game
-//                check of one of its links (RULE_TEXT.chains). A drop probability can only be verified when its sources
-//                resolve (a KuroDB chance for a member of the membership list); an unresolved one is a source-data gap.
+//                check of one of its links (RULE_TEXT.chains). A drop can only be verified when its sources resolve
+//                (the member's local item and its Henesys.gg rarity); an unresolved one is a source-data gap.
 //   source_data_gap  (a flag next to the state) the entry cannot be completed because the sources were read and do not
-//                give a value (KuroDB's page for that monster has no row for the member; Hidden Street gives no meso
-//                amount): it is excused from the exit criterion "every in-scope entry verified".
+//                give a value (Henesys.gg has no rarity row for a member; MeowDB names an item no local record has):
+//                it is excused from the exit criterion "every in-scope entry verified".
 //   pending_source_read  (a flag next to the state, never set together with source_data_gap) a value the entry needs
 //                is published on a page nobody has read yet, so it is NOT a source-data gap and is NOT excused: the
-//                entry stays partial and counts as open until the page is read and the data updated. A drop record
-//                marks one itself: a pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a
-//                read of its item page; contract C1) makes the member it names pending, even when undeclared.
-//                Other entries are declared in rules.json pending_source_reads (the read that resolves
-//                it, and for a record the fields its gaps name). A declaration the data no longer supports fails the
-//                build (stale), so a finished read cannot stay labelled pending. An entry that also has a real gap
-//                (e.g. an item no source names) stays a source-data gap, with the pending part listed beside it.
+//                entry stays partial and counts as open until the page is read and the data updated. Such reads are
+//                declared in rules.json pending_source_reads (the read that resolves it, and the record fields its
+//                gaps name). A declaration the data no longer supports fails the build (stale), so a finished read
+//                cannot stay labelled pending. An entry that also has a real gap stays a source-data gap, with the
+//                pending part listed beside it.
 //   in_scope     false for content outside Iteration Three (rules.json out_of_scope, e.g. the Lith Harbor chair).
 import { entryKey } from '../sources/parse.mjs';
 
 export const FORMAT = 3;
-/**
- * The excluded_kuro_only reason tools/sources/drops_merge.mjs gives a KuroDB row that matches no member (a candidate
- * its item page did not confirm carries what the page showed instead). No excluded row is ever pending: a candidate
- * waiting for its item page is a pending_kuro_candidates row.
- */
-export const KURO_ONLY_REASON = 'not on the membership list (KuroDB never adds members)';
+/** The drop record schema the runtime reads (contract C1). */
+export const DROP_SCHEMA_VERSION = 3;
 /** How many passing checks an entry lists in the JSON (all are counted; failing ones are always all listed). */
 export const EVIDENCE_LISTED = 5;
 export const STATES = ['missing', 'partial', 'implemented', 'verified'];
@@ -96,9 +90,9 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
   const findings = recordFindings(provenance);
   const runtimeOf = (spec) => runtimeState(spec, runtime);
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
-  const ctx = { canonical, miso, rules, evidence, findings, categoryRuntime, runtimeOf, unmatchedCandidates: [] };
+  const ctx = { canonical, miso, rules, evidence, findings, categoryRuntime, runtimeOf };
   const entries = enumerate(ctx);
-  const undeclaredPending = applyPendingReads(entries, rules, canonical);
+  applyPendingReads(entries, rules, canonical);
   // A key names exactly one entry: evidence tagged with a shared key would silently count for every entry holding it.
   const seenKeys = new Set();
   const duplicateKeys = new Set();
@@ -147,10 +141,6 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
       unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k) && !accepted.has(k)).sort(),
-      // Entries a drop record marks pending (a pending_kuro_candidates row) that rules.json does not declare yet.
-      undeclared_pending_reads: undeclaredPending,
-      // pending_kuro_candidates rows whose member key names no entry of the record.
-      unmatched_kuro_candidates: ctx.unmatchedCandidates.sort(),
     },
     totals,
     source_data_gaps: sourceDataGaps(out),
@@ -163,10 +153,10 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop is verified only when its sources resolve (its item and its Henesys.gg rarity).',
   chains: 'A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner\'s "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.',
-  source_data_gap: 'The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
-  pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example a KuroDB item page that settles a candidate drop row, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; a drop record\'s pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a read of its item page) makes its member pending even when undeclared.',
+  source_data_gap: 'The sources were read and do not give a value the entry needs (Henesys.gg has no rarity for a drop member, MeowDB names an item no local record has, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
+  pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
   evidence: 'A unit test declares the keys it proves in its file\'s parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.',
 };
@@ -368,6 +358,9 @@ function recordGaps(rec) {
 }
 
 /** The adaptation every spawn-rule row lists: the switch that decides whether the canonical mob rate is applied. */
+/** The owner's drop chance table (decision D3-11) and meso rule (D3-12), adaptations every drop and meso entry uses. */
+const DROP_RATES_ADAPTATION = 'game/data/misostory/drop_rates.json';
+const MESO_RULES_ADAPTATION = 'game/data/misostory/meso_rules.json';
 export const MOB_RATE_ADAPTATION = 'game/data/misostory/presentation.json#map_mob_rate';
 
 /** presentation.json map_mob_rate as {apply, verified}, or null when the file or the section is absent. */
@@ -442,14 +435,15 @@ function enumerate(ctx) {
     out.push(entry('monster-stats', `monster-stats:${id}`, `${m.name}: level ${m.level}, HP ${m.hp}, EXP ${m.exp}`,
       { record: `monsters/${id}`, accepts: [`monster:${id}`] }));
   }
+  const mesoRules = miso.meso_rules ?? null;
   for (const id of sortedKeys(drops)) {
     const t = drops[id];
     const owner = t.owner || {};
     const breakable = owner.kind === 'breakable';
-    const v2 = t.schema_version === 2;
-    // An entry without its own key (schema v1) is keyed by the slug of its name (tools/sources/parse.mjs entryKey, as
-    // v2 keys are made). Two v1 entries may share a name (Red Snail: Red Cloth Pants 1168 and 1177), so every entry of
-    // a shared slug gets its item id appended ("red-cloth-pants-1168"): no entry silently owns the bare key.
+    const current = t.schema_version === DROP_SCHEMA_VERSION;
+    // An entry without its own key (an older schema) is keyed by the slug of its name (tools/sources/parse.mjs entryKey,
+    // as schema 3 keys are made). Two such entries may share a name, so every entry of a shared slug gets its item id
+    // appended: no entry silently owns the bare key.
     const slugOf = (e) => {
       try { return entryKey(e.name ?? e.item_name ?? e.item_id); } catch { return String(e.item_id); }
     };
@@ -458,14 +452,6 @@ function enumerate(ctx) {
     // An entry also accepts drop:<owner>/<item id> (the form playtest checks use) when that item id is its own alone.
     const idCount = new Map();
     for (const e of arr(t.entries)) if (e.item_id != null) idCount.set(String(e.item_id), (idCount.get(String(e.item_id)) ?? 0) + 1);
-    // KuroDB rows that may be a member under another name, waiting for a hand read of their item page (the record's
-    // pending_kuro_candidates, contract C1; each names its member's entry key): that member's chance is published but
-    // unread, a pending read and not a gap. An excluded_kuro_only row is never pending, whatever its reason.
-    const candidates = v2 ? arr(t.pending_kuro_candidates).filter((x) => x && typeof x === 'object') : [];
-    const candidateOf = (e) => candidates.filter((x) => x.member != null && String(x.member) === String(e.key));
-    for (const x of candidates) {
-      if (!arr(t.entries).some((e) => candidateOf(e).includes(x))) ctx.unmatchedCandidates.push(`drops/${id}: KuroDB ${x.kuro_item_id} ${x.name} (member ${x.member ?? '?'})`);
-    }
     for (const e of arr(t.entries)) {
       const label = e.name ?? e.item_name ?? e.item_id;
       let key = e.key;
@@ -475,40 +461,36 @@ function enumerate(ctx) {
       }
       const byId = e.item_id != null && idCount.get(String(e.item_id)) === 1 && String(e.item_id) !== key ? [`drop:${id}/${e.item_id}`] : [];
       const ent = entry(breakable ? 'breakables' : 'monster-drops', `drop:${id}/${key}`, `${name(breakable ? 'breakables' : 'monsters', owner.id)}: ${label}`,
-        { record: `drops/${id}`, item_id: e.item_id ?? null, accepts: byId });
-      if (!v2) {
-        ent.issues.push('schema v1: the chance is null and the runtime rolls a placeholder rate (misostory/drop_rates.json); membership is MeowDB community votes, not the decided source (D3-6)');
+        { record: `drops/${id}`, item_id: e.item_id ?? null, accepts: byId, adaptations: [DROP_RATES_ADAPTATION] });
+      if (!current) {
+        ent.issues.push(`schema ${t.schema_version ?? 1}: not the drop record schema the runtime reads (contract C1, schema ${DROP_SCHEMA_VERSION}); it rolls nothing`);
       } else {
-        if (e.item_resolution?.state !== 'resolved' || e.item_id == null) {
+        const itemResolved = e.item_resolution?.state === 'resolved' && e.item_id != null;
+        if (!itemResolved) {
           ent.source_data_gap = true;
           ent.source_gaps.push(`item ${e.item_resolution?.state ?? 'unresolved'}${arr(e.item_resolution?.candidates).length ? ` (candidates ${e.item_resolution.candidates.join(', ')})` : ''}: never drops`);
         }
-        if (e.chance_state !== 'resolved') {
-          const cand = candidateOf(e);
-          if (cand.length) {
-            for (const x of cand) {
-              ent.pending_reads.push({ read: `KuroDB item ${x.kuro_item_id} ("${x.name}", ${x.raw_value ?? '?'} on this monster's page)`,
-                resolves: 'whether that row is this member, and so its chance', decision: x.decision ?? null, detail: x.reason, declared: false });
-            }
-          } else {
-            ent.source_data_gap = true;
-            ent.source_gaps.push('no KuroDB chance for this member: never drops');
-          }
+        if (e.rarity == null) {
+          ent.source_data_gap = true;
+          ent.source_gaps.push('no Henesys.gg rarity for this member: never drops');
+        } else if (itemResolved && e.chance_category == null) {
+          ent.source_data_gap = true;
+          ent.source_gaps.push('the drop chance table has no row for this item type: never drops');
         }
+        if (e.rarity != null && e.chance_category != null) ent.notes.push(`chance: drop_rates.json ${e.chance_category} x ${e.rarity.label} (D3-11)`);
         if (e.quest_gate) ent.notes.push(`quest-gated to ${e.quest_gate.quest_id}`);
       }
       if (e.item_id != null && !items[e.item_id]) ent.issues.push(`item ${e.item_id} has no definition`);
       out.push(ent);
     }
     if (!breakable) {
-      const ent = entry('meso-drops', `meso:${id}`, `${name('monsters', owner.id)} mesos`, { record: `drops/${id}` });
+      const ent = entry('meso-drops', `meso:${id}`, `${name('monsters', owner.id)} mesos`, { record: `drops/${id}`, adaptations: [MESO_RULES_ADAPTATION] });
       const meso = t.meso;
-      if (!v2) ent.issues.push('schema v1: the meso amount and chance come from the placeholders of misostory/drop_rates.json');
-      else if (meso == null) ent.notes.push('drops no mesos');
-      else {
-        if (meso.amount_state !== 'resolved') { ent.source_data_gap = true; ent.source_gaps.push('meso amount unresolved: the meso bag never drops'); }
-        if (meso.chance_state !== 'resolved') { ent.source_data_gap = true; ent.source_gaps.push('meso chance unresolved: the meso bag never drops'); }
-      }
+      const none = mesoRules?.no_mesos?.[id];
+      if (!current) ent.issues.push(`schema ${t.schema_version ?? 1}: not the drop record schema the runtime reads (contract C1)`);
+      else if (none) ent.notes.push(`drops no mesos (meso_rules.json no_mesos: ${none.reason ?? 'listed'})`);
+      else if (meso?.amount_source) ent.notes.push(`amount: MeowDB's player report "${meso.amount_source.raw_value}"; chance: meso_rules.json (D3-12)`);
+      else ent.notes.push('amount: no MeowDB report, the level formula of meso_rules.json; chance: meso_rules.json (D3-12)');
       out.push(ent);
     }
   }
@@ -605,7 +587,7 @@ function enumerate(ctx) {
  * Why the shipped data does not yet meet a canonical-verification row's `requires` (rules.json), as issues. Such a row
  * states a property of the data ("drop membership and chance are recorded from separate sources"); its tagged tests
  * prove the validator rule on fixtures, so the row stays partial until the data itself is in the required state.
- *   {drops_schema_version: N}   every drop record is schema N (contract C1: schema v2)
+ *   {drops_schema_version: N}   every drop record is schema N (contract C1: schema 3)
  */
 export function dataRequirementIssues(requires, canonical) {
   const out = [];
@@ -615,7 +597,7 @@ export function dataRequirementIssues(requires, canonical) {
       const want = requires[k];
       const behind = sortedKeys(canonical.drops).filter((id) => canonical.drops[id]?.schema_version !== want);
       if (behind.length) {
-        out.push(`the shipped data is not there yet: drop record(s) ${behind.join(', ')} are not schema v${want} (contract C1); ` +
+        out.push(`the shipped data is not there yet: drop record(s) ${behind.join(', ')} are not schema ${want} (contract C1); ` +
           'the passing tests prove the validator rule, not the shipped data');
       }
     } else {
@@ -626,13 +608,12 @@ export function dataRequirementIssues(requires, canonical) {
 }
 
 /**
- * Applies rules.json pending_source_reads and sets every entry's pending_source_read flag; returns the keys a drop
- * record marks pending (a pending_kuro_candidates row) that are not declared. A declaration is
+ * Applies rules.json pending_source_reads and sets every entry's pending_source_read flag. A declaration is
  *   {read: the page whose read resolves it, resolves: what it settles, decision: the log row (optional),
- *    fields: [record fields] (an entry other than a drop: each must still be named by one of the record's gaps)}
- * and fails the build when the data no longer supports it: a drop entry without a pending_kuro_candidates row, or a
- * record whose gaps no longer name a declared field (the read was done: remove the declaration). An entry with a real
- * source-data gap stays excused as one; its pending reads are listed beside it, but it is not flagged pending.
+ *    fields: [record fields] (each must still be named by one of the record's gaps)}
+ * and fails the build when the data no longer supports it: a record whose gaps no longer name a declared field (the
+ * read was done: remove the declaration). An entry with a real source-data gap stays excused as one; its pending reads
+ * are listed beside it, but it is not flagged pending.
  */
 export function applyPendingReads(entries, rules, canonical) {
   const byKey = new Map(entries.map((e) => [e.key, e]));
@@ -642,16 +623,7 @@ export function applyPendingReads(entries, rules, canonical) {
     const e = byKey.get(key);
     if (!e) throw new Error(`rules.json pending_source_reads: ${key} names no entry`);
     if (!d.read || !d.resolves) throw new Error(`rules.json pending_source_reads: ${key} needs "read" and "resolves"`);
-    const detected = e.pending_reads.filter((r) => !r.declared);
     const base = { read: String(d.read), resolves: String(d.resolves), decision: d.decision ?? null, declared: true };
-    if (e.key.startsWith('drop:')) {
-      if (!detected.length) {
-        throw new Error(`rules.json pending_source_reads: ${key} is stale: its drop record has no pending_kuro_candidates row ` +
-          'for it any more (the read was done or the entry resolved): remove the declaration');
-      }
-      e.pending_reads = [{ ...base, detail: detected.map((r) => r.detail).join('; ') }];
-      continue;
-    }
     const fields = arr(d.fields).map(String);
     if (!fields.length) throw new Error(`rules.json pending_source_reads: ${key} needs "fields" (the record fields its gaps name)`);
     const [domain, id] = String(e.record ?? '').split('/');
@@ -663,12 +635,7 @@ export function applyPendingReads(entries, rules, canonical) {
     }
     e.pending_reads.push({ ...base, fields, detail: gaps.filter((g) => fields.some((f) => g.startsWith(f))).join('; ') });
   }
-  const undeclared = [];
-  for (const e of entries) {
-    if (e.pending_reads.some((r) => !r.declared)) undeclared.push(e.key);
-    e.pending_source_read = !e.source_data_gap && e.pending_reads.length > 0;
-  }
-  return undeclared.sort();
+  for (const e of entries) e.pending_source_read = !e.source_data_gap && e.pending_reads.length > 0;
 }
 
 // --- state ------------------------------------------------------------------------------------------------------
@@ -816,12 +783,6 @@ export function toMarkdown(doc) {
   if (doc.inputs.unknown_evidence_keys.length) L.push(`- Tagged keys that name no manifest entry: ${doc.inputs.unknown_evidence_keys.map((k) => `\`${k}\``).join(', ')}`);
   for (const u of arr(doc.inputs.playtest_tag_rules_unmatched)) {
     L.push(`- A playtest_tags rule matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')} (renamed checks?): \`${esc(u.rule)}\``);
-  }
-  if (arr(doc.inputs.undeclared_pending_reads).length) {
-    L.push(`- Pending source reads a drop record marks that \`tools/parity/rules.json\` \`pending_source_reads\` does not declare: ${doc.inputs.undeclared_pending_reads.map((k) => `\`${k}\``).join(', ')}`);
-  }
-  if (arr(doc.inputs.unmatched_kuro_candidates).length) {
-    L.push(`- pending_kuro_candidates rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.map((k) => esc(k)).join('; ')}`);
   }
   L.push('');
   L.push('How the evidence is made (each step writes git-ignored files under `_scratch/`):', '');

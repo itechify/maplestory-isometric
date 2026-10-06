@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadCaptures, apiCaptureFor, textCapture, AUTHORITIES, CAPTURE_DIRS, REPO_ROOT } from '../captures.mjs';
+import { loadCaptures, apiCaptureFor, textCapture, AUTHORITIES, CAPTURE_DIRS, REPO_ROOT, RARITY_LABELS } from '../captures.mjs';
 import { isIsoTimestamp } from '../parse.mjs';
 
 const c = loadCaptures();
@@ -23,75 +23,53 @@ test('every capture file is loaded, each with an authority and a sha256', () => 
 
 test('every capture value carries an ISO 8601 read_at', () => {
   const all = [
-    ...Object.values(c.kurodb.monsters), ...Object.values(c.kurodb.reactor_items.items), ...Object.values(c.hiddenstreet.monsters),
-    ...Object.values(c.meowdb.monsters), ...Object.values(c.meowdb.breakables), ...Object.values(c.meowdb.quests),
+    c.henesys.rarity, ...Object.values(c.meowdb.monsters), ...Object.values(c.meowdb.breakables), ...Object.values(c.meowdb.quests),
     c.meowdb.quest_tracker, ...Object.values(c.meowdb.items_api.items), ...Object.values(c.meowdb.item_pages),
   ];
-  assert.ok(all.length >= 25);
+  assert.ok(all.length >= 14);
   for (const x of all) assert.ok(isIsoTimestamp(x.read_at), `${x.file}: ${x.read_at}`);
   assert.equal(c.meowdb.quest_tracker.read_at, '2026-10-05T07:30Z', 'normalized from "07:3x" (header note)');
   assert.match(c.meowdb.quest_tracker.read_at_note, /07:3x/);
 });
 
-test('KuroDB monster rows: Snail', () => {
-  const snail = c.kurodb.monsters['100100'];
-  assert.equal(snail.name, 'Snail');
-  assert.equal(snail.url, 'https://playkuro.com/database/#monsters/100100');
-  assert.equal(snail.rows.length, 10, '11 drops on the page, one of them the meso row');
-  assert.deepEqual(snail.rows[0], {
-    kuro_item_id: '4000019', name: 'Snail Shell', raw: '100% base | Qty 1', pct: 100, probability: 1, qty: { min: 1, max: 1 },
-    quest: null, parsed: snail.rows[0].parsed,
-  });
-  const white = snail.rows.find((r) => r.name === 'White Undershirt');
-  assert.equal(white.probability, 0.0007);
-  assert.equal(white.raw, '0.0700% base | Qty 1');
-  assert.equal(snail.meso.raw, '40% base | Meso drop');
-  assert.equal(snail.meso.probability, 0.4);
-  assert.equal(snail.rows.find((r) => r.name === 'Green Apple').kuro_item_id, '2010009');
+test('Henesys.gg rarity capture: one label per drop-list item, read by hand', () => {
+  const r = c.henesys.rarity;
+  assert.equal(r.file, 'tools/henesys/captures/item_rarity.json');
+  assert.equal(r.authority, 'Henesys.gg');
+  assert.equal(r.url, 'https://henesys.gg/loot');
+  assert.equal(r.read_at, '2026-10-06T05:17:21.423Z');
+  assert.match(r.site_notice, /Unauthorized reproduction or scraping/);
+  assert.equal(Object.keys(r.items).length, 64);
+  for (const it of Object.values(r.items)) assert.ok(RARITY_LABELS.includes(it.rarity), it.name);
+  assert.deepEqual(Object.values(r.items).filter((it) => it.rarity !== 'Common').map((it) => [it.name, it.rarity]),
+    [['Overall Armor DEF Scroll: Intermediate', 'Rare']]);
+  assert.equal(r.items['Snail Shell'].row, 'Snail Shell | Monster Drop | A shell removed from a snail. | Common');
+  // Every name on a MeowDB community list has a row.
+  const names = new Set([...Object.values(c.meowdb.monsters), ...Object.values(c.meowdb.breakables)].flatMap((m) => m.community_drops.map((d) => d.name)));
+  assert.deepEqual([...names].filter((n) => !r.items[n]), []);
 });
 
-test('KuroDB: quest flags, the Tutorial Jr. Sentinel has no meso row', () => {
-  const tut = c.kurodb.monsters['9300018'];
-  assert.equal(tut.meso, null);
-  assert.equal(tut.rows.length, 1);
-  assert.equal(tut.rows[0].quest, '1035');
-  assert.equal(tut.rows[0].probability, 1);
-  const om = c.kurodb.monsters['1210102'];
-  assert.equal(om.rows.find((r) => r.name === 'Omok Piece : Mushroom').probability, 0.01);
-  assert.equal(om.rows.find((r) => r.name === 'Scroll for Shoes for Jump').probability, 0.0003);
-  const rs = c.kurodb.monsters['130101'];
-  assert.equal(rs.rows.filter((r) => r.name === 'Red Cloth Pants').length, 2, 'KuroDB lists two Red Cloth Pants rows');
-  for (const m of Object.values(c.kurodb.monsters)) {
-    for (const r of m.rows) assert.ok(r.probability > 0 && r.probability <= 1, `${m.name}/${r.name}`);
-    if (m.meso) assert.equal(m.meso.probability, 0.4, `${m.name} meso`);
-  }
-});
-
-test('KuroDB reactor 2001 values (Wooden Box, D3-7)', () => {
-  const items = c.kurodb.reactor_items.items;
-  const r2001 = (id) => items[id].reactor_drops.filter((d) => d.reactor_id === '2001');
-  assert.deepEqual(r2001('4031162').map((d) => [d.raw, d.probability, d.quest]), [['Chance value 1 | Quest 1008', 1, '1008']]);
-  assert.deepEqual(r2001('4031161').map((d) => [d.raw, d.probability, d.quest]), [['Chance value 1 | Quest 1008', 1, '1008']]);
-  assert.deepEqual(r2001('2010000').map((d) => [d.raw, d.raw_n, d.probability, d.interpretation]), [['Chance value 4', 4, 0.25, '1/N']]);
-  assert.deepEqual(r2001('2010002'), [], 'Egg: no reactor 2001 row (unresolved)');
-  assert.equal(items['2010002'].monster_drops.length, 0);
-  assert.equal(items['2010000'].monster_drops[1].probability, 0.02);
-});
-
-test('Hidden Street members and meso amounts', () => {
-  const hs = c.hiddenstreet.monsters;
-  assert.deepEqual(Object.keys(hs).sort(), ['blue-snail', 'orange-mushroom', 'red-snail', 'shroom', 'snail', 'tutorial-jr-sentinel']);
-  assert.equal(hs.snail.items.length, 11);
-  assert.deepEqual(hs.snail.mesos, { raw: 'Mesos: 1', state: 'resolved', min: 1, max: 1 });
-  assert.deepEqual([hs['blue-snail'].mesos.min, hs['blue-snail'].mesos.max], [4, 4]);
-  assert.deepEqual([hs.shroom.mesos.min, hs.shroom.mesos.max], [4, 6]);
-  assert.deepEqual([hs['red-snail'].mesos.min, hs['red-snail'].mesos.max], [8, 12]);
-  assert.deepEqual([hs['orange-mushroom'].mesos.min, hs['orange-mushroom'].mesos.max], [9, 13]);
-  assert.equal(hs['tutorial-jr-sentinel'].mesos.state, 'unresolved');
-  assert.deepEqual(hs['tutorial-jr-sentinel'].items.map((i) => i.name), ['Jr. Sentinel Shellpiece']);
-  assert.ok(hs.snail.items.some((i) => i.name === 'Wooden Buckler'));
-  assert.ok(!hs.snail.items.some((i) => i.name === 'Snail Card'), 'KuroDB-only rows are not members');
-  assert.equal(hs['orange-mushroom'].items.find((i) => i.name === 'Black Cloth Pants (F)').gender, 'F');
+test('a Henesys.gg rarity capture that does not read is an error', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'captures-henesys-'));
+  const f = path.join(root, 'tools/henesys/captures/item_rarity.json');
+  let n = 0;
+  const expectError = (mutate, re) => {
+    const r = path.join(root, `r${++n}`);
+    for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(REPO_ROOT, dir), path.join(r, dir), { recursive: true });
+    const p = path.join(r, 'tools/henesys/captures/item_rarity.json');
+    const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+    mutate(j);
+    fs.writeFileSync(p, JSON.stringify(j));
+    assert.throws(() => loadCaptures({ root: r }), re);
+  };
+  expectError((j) => { j.items['Snail Shell'].rarity = 'Legendary'; }, /Snail Shell: rarity "Legendary" is not one of/);
+  expectError((j) => { j.items['Snail Shell'].rarity = 'Rare'; }, /Snail Shell: a row reads "Common", the rarity is Rare/);
+  expectError((j) => { j.items['Snail Shell'].row = 'Blue Snail Shell | Monster Drop | x | Common'; }, /does not start with the item's name/);
+  expectError((j) => { j.url = 'https://henesys.gg/items'; }, /is not https:\/\/henesys\.gg\/loot/);
+  expectError((j) => { j.read_at = '2026-10-06'; }, /not an ISO 8601/);
+  expectError((j) => { delete j.site_notice; }, /site_notice/);
+  assert.ok(!fs.existsSync(f));
+  fs.rmSync(root, { recursive: true, force: true });
 });
 
 test('MeowDB live monster captures: stats, meso report, community drops, map rows', () => {
@@ -106,7 +84,7 @@ test('MeowDB live monster captures: stats, meso report, community drops, map row
   assert.equal(snail.map_rows.length, 13);
   assert.deepEqual(snail.map_rows[0].map_name, 'Snail Hunting Ground I');
   for (const id of ['1', '3', '4', '5', '9']) {
-    assert.equal(c.meowdb.monsters[id].meso.report.state, 'none', `monster ${id} has no meso report (D3-5)`);
+    assert.equal(c.meowdb.monsters[id].meso.report.state, 'none', `monster ${id} has no meso report (D3-12)`);
     assert.ok(c.meowdb.monsters[id].community_drops.length > 0);
   }
   assert.equal(c.meowdb.monsters['3'].community_drops.find((d) => d.name === 'Monster Card').downvotes, 1);
@@ -182,9 +160,9 @@ test('text capture headers; a bad read_at or an unknown file is an error', () =>
   assert.throws(() => textCapture('URL: x\nbody'));
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'captures-'));
   for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(REPO_ROOT, dir), path.join(root, dir), { recursive: true });
-  fs.writeFileSync(path.join(root, 'tools/kurodb/captures/stray.txt'), 'x');
+  fs.writeFileSync(path.join(root, 'tools/henesys/captures/stray.txt'), 'x');
   assert.throws(() => loadCaptures({ root }), /unrecognised capture file/);
-  fs.rmSync(path.join(root, 'tools/kurodb/captures/stray.txt'));
+  fs.rmSync(path.join(root, 'tools/henesys/captures/stray.txt'));
   const q = path.join(root, 'tools/meowdb/captures/quest_1008.txt');
   fs.writeFileSync(q, fs.readFileSync(q, 'utf8').replace(/READ_AT: \S+/, 'READ_AT: 2026-10-05T08:1x'));
   assert.throws(() => loadCaptures({ root }), /quest_1008\.txt.*not an ISO 8601/);

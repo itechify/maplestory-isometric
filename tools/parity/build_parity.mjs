@@ -202,13 +202,6 @@ function main() {
   for (const u of doc.inputs.playtest_tag_rules_unmatched) {
     console.warn(`playtest_tags rule ${u.rule} matched no check in ${u.reports} report(s) of ${u.scenarios.join(', ')}`);
   }
-  if (doc.inputs.undeclared_pending_reads.length) {
-    console.warn(`${doc.inputs.undeclared_pending_reads.length} entry(ies) a drop record marks as a pending source read are not declared in ` +
-      `tools/parity/rules.json pending_source_reads (they count as pending anyway): ${doc.inputs.undeclared_pending_reads.join(', ')}`);
-  }
-  if (doc.inputs.unmatched_kuro_candidates.length) {
-    console.warn(`pending_kuro_candidates rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.join('; ')}`);
-  }
   for (const t of doc.inputs.tests) {
     if (t.world_refused?.tests) {
       const keys = t.world_refused.keys;

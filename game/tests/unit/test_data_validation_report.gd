@@ -3,14 +3,11 @@ extends DataValidationTestCase
 ## canonical record and property with its authority, URL, read time and capture; every unresolved value; every
 ## adaptation with its verified flag and reason; counts that add up; and the same output for the same data.
 
-const FIXTURE := "res://tests/data/drops_v2/fixture_2.json"
-
-
 func parity_keys() -> Dictionary:
 	return {
 		"test_every_record_and_property_is_reported": ["canon:provenance-per-property"],
-		"test_v2_drop_sources_and_unresolved_members_are_reported": ["canon:provenance-per-property",
-			"canon:unresolved-visible", "canon:membership-chance-separate"],
+		"test_drop_sources_and_unresolved_members_are_reported": ["canon:provenance-per-property",
+			"canon:unresolved-visible", "canon:membership-rarity-separate"],
 		"test_gaps_are_reported_as_unresolved_values": ["canon:unresolved-visible"],
 		"test_adaptations_are_listed_with_flag_and_reason": ["canon:adaptations-explained"],
 	}
@@ -54,25 +51,37 @@ func test_every_record_and_property_is_reported() -> void:
 	assert_has(doc.capture_files, "tools/meowdb/captures/items_api.json", "captures cited")
 
 
-func test_v2_drop_sources_and_unresolved_members_are_reported() -> void:
+func test_drop_sources_and_unresolved_members_are_reported() -> void:
+	# The Snail's record with one member Henesys.gg has no row for (rarity null) and one with no local item.
 	var c := clone_db()
-	c.canonical.drops["2"] = load_fixture(FIXTURE)
+	var rec: Dictionary = c.canonical.drops["2"]
+	for e in rec.entries:
+		if e.key == "sword":
+			e.rarity = null
+		elif e.key == "white-undershirt":
+			e.item_id = null
+			e.item_resolution = {"state": "not_in_snapshot", "method": "none", "candidates": [], "evidence": "test: no local item"}
+			e.chance_category = null
+			e.category_inputs = {"item_type": null, "item_subtype": null, "quest_gated": false, "item": null}
 	reindex(c)
 	var doc := _doc(c)
 	var record: Dictionary = doc.records.filter(func(r: Dictionary) -> bool: return r.domain == "drops" and r.id == "2")[0]
-	assert_has(record.authorities, ProvenanceAuthorities.KURODB, "KuroDB chances")
-	assert_has(record.authorities, ProvenanceAuthorities.HIDDEN_STREET, "Hidden Street membership")
+	assert_has(record.authorities, ProvenanceAuthorities.MEOWDB, "MeowDB membership")
+	assert_has(record.authorities, ProvenanceAuthorities.HENESYS, "Henesys.gg rarity")
 	var kinds := {}
 	for p in record.properties:
 		kinds[p.property] = p.authority
-	assert_eq(kinds.get("membership", ""), ProvenanceAuthorities.HIDDEN_STREET, "membership authority")
-	assert_eq(kinds.get("probability", ""), ProvenanceAuthorities.KURODB, "probability authority")
-	assert_true(kinds.has("mesos.amount") and kinds.has("mesos.probability"), "meso sources: %s" % str(kinds.keys()))
-	var open: Array = doc.unresolved.drops.filter(func(u: Dictionary) -> bool: return u.record == "drops/2" and u.get("entry", "") == "wooden-buckler")
-	var open_kinds := open.map(func(u: Dictionary) -> String: return u.kind)
-	assert_has(open_kinds, "probability", "the member without a KuroDB chance is listed")
-	assert_has(open_kinds, "item", "and so is its unresolved item")
-	assert_eq(doc.unresolved.drops.filter(func(u: Dictionary) -> bool: return u.record == "drops/2" and u.get("entry", "") == "snail-shell").size(), 0, "a resolved entry is not listed")
+	assert_eq(kinds.get("membership", ""), ProvenanceAuthorities.MEOWDB, "membership authority")
+	assert_eq(kinds.get("rarity", ""), ProvenanceAuthorities.HENESYS, "rarity authority")
+	assert_eq(kinds.get("mesos.amount", ""), ProvenanceAuthorities.MEOWDB, "the Snail's meso report")
+	assert_false(kinds.has("probability"), "no chance is a sourced property: %s" % str(kinds.keys()))
+	var open_of := func(key: String) -> Array:
+		return doc.unresolved.drops.filter(func(u: Dictionary) -> bool: return u.record == "drops/2" and u.get("entry", "") == key).map(func(u: Dictionary) -> String: return u.kind)
+	assert_eq(open_of.call("sword"), ["rarity"], "the member without a Henesys.gg rarity is listed")
+	assert_eq(open_of.call("white-undershirt"), ["item"], "and the member without a local item")
+	assert_eq(open_of.call("snail-shell"), [], "a resolved entry is not listed")
+	var meso_gaps: Array = doc.unresolved.drops.filter(func(u: Dictionary) -> bool: return u.record == "drops/3" and u.kind == "meso")
+	assert_eq(meso_gaps.size(), 2, "the Blue Snail's meso gaps (no MeowDB report; no MeowDB chance) are listed: %s" % str(meso_gaps))
 
 
 func test_gaps_are_reported_as_unresolved_values() -> void:

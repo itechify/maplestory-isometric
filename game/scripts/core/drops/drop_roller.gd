@@ -1,9 +1,11 @@
 class_name DropRoller
 extends RefCounted
 ## Turns a monster kill (or a broken Wooden Box) into the list of things that land on the ground, from the owner's
-## canonical drop record (schema v2, contract C1) as DropRates reads it: membership from Hidden Street / MeowDB, chances
-## from KuroDB, meso amounts from MeowDB / Hidden Street. Pure: no scene tree, and every random number comes from the RNG
-## passed in, so the same seed, data and context always give the same drops.
+## canonical drop record (schema 3, contract C1) as DropRates reads it: membership from MeowDB's community list, each
+## member's chance from the owner-approved table (category x Henesys.gg rarity, data/misostory/drop_rates.json, decision
+## D3-11), the meso bag from MeowDB's player report or the level formula (data/misostory/meso_rules.json, D3-12). Pure:
+## no scene tree, and every random number comes from the RNG passed in, so the same seed, data and context always give
+## the same drops.
 ##
 ##   var drops := DropRoller.roll(monster_id, Data.db, Game.rng, DropRoller.context_for(Game.character))
 ##   # -> [{"kind": "mesos", "amount": 4}, {"kind": "item", "item_id": "349", "qty": 1}, ...]
@@ -14,10 +16,10 @@ extends RefCounted
 ## The caller (map instance / drop actors) places the records, drops them once expires_at passes, checks
 ## may_pick_up and DropRates.pickup_box_m, and hands a picked-up record to ItemService.pickup(rec).
 ##
-## Roll rule (C1): an entry rolls only when its chance is resolved, its item resolves to a local item, and it has no
-## quest gate or the gate quest is in progress (ctx.quests_in_progress, contract C2; no context = gated entries never
-## roll). Unresolved entries never roll. The meso bag rolls only when its amount and chance are both resolved, and the
-## amount is a uniform integer in [min, max].
+## Roll rule (C1): an entry rolls only when its item resolves to a local item, its rarity and table category are
+## resolved, and it has no quest gate or the gate quest is in progress (ctx.quests_in_progress, contract C2; no context =
+## gated entries never roll). Unresolved entries never roll. The meso bag rolls with meso_rules.json's chance unless the
+## owner never drops mesos (DropRates.meso_rule), and the amount is a uniform integer in [min, max].
 
 
 ## The roll context for a character (contract C2): {"quests_in_progress": its QuestLog.active_ids()}; {} without one.
@@ -29,9 +31,8 @@ static func context_for(character: CharacterState) -> Dictionary:
 
 ## Rolls one kill of `owner_id` (monster id or breakable id). Order: the meso bag first (if any), then the entries in
 ## the record's order. Every entry with a resolved chance and item costs one randf(), gated or not, and a drop costs a
-## randi_range only when its quantity is a range (every captured quantity is "Qty 1"), so a quest starting or ending
-## never shifts the rolls of the other entries. A meso drop costs one randi_range for its amount. Unknown owners drop
-## nothing.
+## randi_range only when its quantity is a range (quantity_per_drop is 1), so a quest starting or ending never shifts
+## the rolls of the other entries. A meso drop costs one randi_range for its amount. Unknown owners drop nothing.
 static func roll(owner_id: String, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary = {}) -> Array:
 	if not DropRates.has_table(owner_id, db):
 		return []

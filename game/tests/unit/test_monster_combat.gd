@@ -150,7 +150,8 @@ func test_drops_are_the_canonical_table_rolled_once_at_death() -> void:
 
 ## A death whose roll is empty announces no loot. No canonical monster can roll empty (each record has a member at
 ## chance 1: its shell or cap), so the Snail's record is made one where nothing rolls, on a private copy of the
-## content: its always-dropping member left unresolved and no meso block. The kill still pays its EXP.
+## content: every member left without a rarity (unresolved) and the Snail added to meso_rules.json no_mesos. The kill
+## still pays its EXP.
 func test_a_death_that_drops_nothing_announces_no_loot() -> void:
 	var c := ContentDB.new()
 	c.canonical = db().canonical.duplicate(true)
@@ -158,9 +159,8 @@ func test_a_death_that_drops_nothing_announces_no_loot() -> void:
 	c.loaded = true
 	var table: Dictionary = c.canonical["drops"]["2"]
 	for e: Dictionary in table["entries"]:
-		e["chance_state"] = "unresolved"
-		e["probability"] = null
-	table["meso"] = null
+		e["rarity"] = null
+	c.miso[""]["meso_rules"]["no_mesos"]["2"] = {"name": "Snail", "reason": "test: no mesos"}
 	for k in 50:
 		assert_eq(DropRoller.roll("2", c, rig.rng), [], "nothing rolls on the edited record")
 	var r := MonsterTestRig.create(c, 7)

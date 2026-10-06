@@ -9,10 +9,10 @@ extends RefCounted
 ##                `external` entry declares it
 ##   external     every `external` entry (a value taken from outside MeowDB) has field, source_url, reason and
 ##                verified: false
-##   provenance (v2, per property)  a record-level `provenance` block {<property>: source object} names a registered
+##   provenance (per property)  a record-level `provenance` block {<property>: source object} names a registered
 ##                authority allowed to supply that property, with the URL, read_at, capture and decision rules of
 ##                ProvenanceAuthorities.REGISTRY (check_source_object; contract C7). Records without the block are
-##                checked exactly as before (v1). Schema v2 drop records' per-entry sources go through the same check
+##                covered by their `source`. Schema 3 drop records' per-entry sources go through the same check
 ##                (DropRecordChecks)
 ##   capture      every `capture` key, at any depth, names an existing file under tools/<site>/captures/ (the dated,
 ##                hand-read capture a value came from)
@@ -163,11 +163,11 @@ func source_object_problems(property: String, src: Variant, owner_kind: String =
 		out.append("%s values need capture: the dated file under tools/<site>/captures/ they were read from" % authority)
 	var decision: Variant = src.get("decision", null)
 	if (rule.get("decision", false) or decision != null) and not is_decision_ref(decision):
-		out.append("needs decision: an owner decision id such as D3-5 (docs/ITERATION_LOG.md) or the Iteration Three brief (got %s)" % var_to_str(decision))
+		out.append("needs decision: an owner decision id such as D3-11 (docs/ITERATION_LOG.md) or the Iteration Three brief (got %s)" % var_to_str(decision))
 	return out
 
 
-## True for a decision reference: a string naming an ITERATION_LOG decision id ("D3-5") or the Iteration Three brief.
+## True for a decision reference: a string naming an ITERATION_LOG decision id ("D3-11") or the Iteration Three brief.
 func is_decision_ref(v: Variant) -> bool:
 	return v is String and (_decision_id.search(v) != null or String(v).contains(ProvenanceAuthorities.BRIEF))
 
@@ -476,27 +476,29 @@ func index_totals() -> Dictionary:
 		"capture_files": captures.size()}
 
 
-## [[property, source object], ...] in a record: its `provenance` block, then (schema v2 drop records) each entry's
-## and the meso block's source keys (ProvenanceAuthorities.SOURCE_PROPERTIES). Mirrors build_sources_index.mjs.
+## [[property, source object], ...] in a record: its `provenance` block, then (schema 3 drop records) each entry's
+## and the meso block's source paths (ProvenanceAuthorities.SOURCE_PROPERTIES). Mirrors build_sources_index.mjs.
 static func source_objects(domain_name: String, rec: Dictionary) -> Array:
 	var out: Array = []
 	var prov: Variant = rec.get("provenance", null)
 	if prov is Dictionary:
 		for p in prov:
 			out.append([str(p), prov[p]])
-	if domain_name == "drops" and ValidationUtil.same(rec.get("schema_version", null), 2):
+	if domain_name == "drops" and ValidationUtil.same(rec.get("schema_version", null), DropRates.SCHEMA_VERSION):
 		var entry_keys: Dictionary = ProvenanceAuthorities.SOURCE_PROPERTIES.entries
 		for e in ValidationUtil.as_array(rec.get("entries", [])):
 			if e is Dictionary:
 				for k in entry_keys:
-					if e.get(k, null) is Dictionary:
-						out.append([entry_keys[k], e[k]])
+					var src: Variant = ProvenanceAuthorities.at_path(e, k)
+					if src is Dictionary:
+						out.append([entry_keys[k], src])
 		var meso: Variant = rec.get("meso", null)
 		if meso is Dictionary:
 			var meso_keys: Dictionary = ProvenanceAuthorities.SOURCE_PROPERTIES.meso
 			for k in meso_keys:
-				if meso.get(k, null) is Dictionary:
-					out.append([meso_keys[k], meso[k]])
+				var src: Variant = ProvenanceAuthorities.at_path(meso, k)
+				if src is Dictionary:
+					out.append([meso_keys[k], src])
 	return out
 
 

@@ -26,7 +26,8 @@ extends RefCounted
 const FILE_SCHEMAS := {
 	"map_id_crosswalk": {"convention": false, "sweep": false, "check": "_check_crosswalk", "required": true},
 	"world_scale": {"check": "_check_world_scale"},
-	"drop_rates": {"check": "_check_drop_rates"},
+	"drop_rates": {"required": true},
+	"meso_rules": {"required": true},
 	"recovery": {"check": "_check_recovery", "required": true},
 	"new_character": {"check": "_check_new_character"},
 	"inventory": {"check": "_check_inventory"},
@@ -62,9 +63,6 @@ const DEFAULT_WORLD_DIR := "res://assets/world"
 ## The export's chunk list (<world_dir>/index.json: chunks.<slug>.{kind, map_id}).
 const WORLD_INDEX := "index"
 const MAX_LISTED_PATHS := 8
-## The interpretations data/misostory/drop_rates.json must hold (schema v2, contract C1): the drop runtime applies each
-## one, so each is an object whose "value" names the rule (reason and verified come from the convention check).
-const DROP_RATE_INTERPRETATIONS := ["meso_amount_distribution", "quest_gate_rule"]
 
 var db: ContentDB
 var report: ValidationReport
@@ -426,25 +424,6 @@ static func _sidecar(injected: Variant, world_dir: String, slug: String) -> Vari
 		return null
 	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(path))
 	return parsed if parsed != null else "unparsable"
-
-
-## drop_rates.json (schema v2): the file documents the MisoStory interpretations the drop runtime applies to the
-## canonical drop records, so it must be an object holding each of DROP_RATE_INTERPRETATIONS with a non-empty string
-## "value". That it supplies no chance, quantity or meso number, and that the meso distribution is the one DropRoller
-## implements, is DropRates.validate's rule (reported by DropChecks as drop_policy); Iteration Two's placeholder tables
-## (item_overrides, type_rates, mesos.per_level, ...) are refused there, never checked here as if they still applied.
-func _check_drop_rates(label: String, id: String, data: Variant) -> void:
-	if not (data is Dictionary):
-		report.error("adaptation", label, id, "must be an object")
-		return
-	for key: String in DROP_RATE_INTERPRETATIONS:
-		var rule: Variant = (data as Dictionary).get(key, null)
-		if not (rule is Dictionary):
-			report.error("adaptation", label, id, "%s must be an object: an interpretation the drop runtime applies (contract C1)" % key)
-			continue
-		var value: Variant = (rule as Dictionary).get("value", null)
-		if not (value is String) or String(value).strip_edges() == "":
-			report.error("adaptation", label, id, "%s.value must be a non-empty string naming the rule, got %s" % [key, var_to_str(value)])
 
 
 ## recovery.json (contracts C4, C5): what NaturalRecoveryRule and Chairs read is there and of the kind they need

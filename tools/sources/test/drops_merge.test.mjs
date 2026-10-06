@@ -1,266 +1,251 @@
 // node --test tools/sources/test/
-// The schema v2 drop records (game/data/canonical/drops/*.json, contract C1) against the dated captures and the
-// reviewed crosswalk (tools/sources/crosswalk/drop_items.json), and the merge's fail-hard rules
-// (tools/sources/drops_merge.mjs). Runs without the git-ignored MeowDB cache: the merge gets a minimal cache stand-in,
-// so the parts of a record that come from the cache (meowdb_reference ids, the cached meso report) are not compared.
+// The schema 3 drop records (game/data/canonical/drops/*.json, contract C1; decisions D3-9, D3-11, D3-12) against the
+// dated captures (tools/meowdb/captures, tools/henesys/captures) and the builder's rules (tools/sources/drops_merge.mjs).
+// With the git-ignored MeowDB cache present (tools/meowdb/.cache) a fresh build must reproduce the committed records;
+// without it the builder gets a stand-in made from the live captures, so the cache-only parts (item_resolution
+// evidence, the MSEA ids, the cached meso report) are not compared.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadCaptures, REPO_ROOT } from '../captures.mjs';
-import { parseKuroPercent, parseReactorChanceValue, parseHiddenStreetMesos, parseMeowdbMesoReport, entryKey, sameItemName } from '../parse.mjs';
+import { loadCaptures, REPO_ROOT, RARITY_LABELS } from '../captures.mjs';
+import { entryKey } from '../parse.mjs';
 import {
-  buildDropRecords, loadCrosswalk, loadLocalItems, loadLocalQuests, deriveQuestGate, resolveMeowdbItem, matchKuroRow,
-  DropMergeError, OWNER_IDS, REACTOR_QUANTITY,
+  buildDropRecords, buildMonsterMeso, loadLocalItems, loadLocalQuests, deriveQuestGate, deriveChanceCategory,
+  resolveMemberItem, DropMergeError, OWNER_IDS, OWNER_KINDS, CHANCE_CATEGORIES, SCHEMA_VERSION,
 } from '../drops_merge.mjs';
+import * as L from '../../meowdb/lib.mjs';
 
 const c = loadCaptures();
-const crosswalk = loadCrosswalk();
 const items = loadLocalItems();
 const quests = loadLocalQuests();
 const record = (id) => JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'game/data/canonical/drops', `${id}.json`), 'utf8'));
 const records = Object.fromEntries(OWNER_IDS.map((id) => [id, record(id)]));
-const monsters = OWNER_IDS.filter((id) => crosswalk.owners[id].kind === 'monster');
+const live = (id) => (OWNER_KINDS[id] === 'monster' ? c.meowdb.monsters[id] : c.meowdb.breakables[id]);
+const clone = (x) => structuredClone(x);
+const throwsMerge = (fn, pattern) => assert.throws(fn, (e) => e instanceof DropMergeError && pattern.test(e.message), `expected DropMergeError ${pattern}`);
 
-/** A stand-in for MeowDB's cached lists: empty lists, no cached meso reports. */
+/** The local item ids with a name. */
+const idsNamed = (name) => Object.values(items).filter((it) => it.name === name).map((it) => String(it.id));
+
+/**
+ * A stand-in for MeowDB's cached lists made from the live captures: each member with its one local item's id (the
+ * Red Snail's Red Cloth Pants with 1168, the id MeowDB's own entry carries), and no cached meso report, dated before
+ * the captures.
+ */
 function stubCache() {
   const out = {};
   for (const id of OWNER_IDS) {
-    out[id] = { community: { url: `https://meowdb.com/msclassic/api/drops?monsterId=${id}`, retrieved_at: '2026-10-04T00:00:00Z', drops: [] }, msea: [], msea_page: null, mesos: { url: 'https://meowdb.com/x', retrieved_at: '2026-10-04T00:00:00Z', json: { reports: [] } } };
+    let n = 0;
+    const drops = live(id).community_drops.map((d) => ({ id: ++n, itemId: Number(d.name === 'Red Cloth Pants' ? '1168' : idsNamed(d.name)[0]), itemName: d.name }));
+    out[id] = {
+      community: { url: `https://meowdb.com/msclassic/api/drops?monsterId=${id}`, retrieved_at: '2026-10-04T00:00:00Z', drops },
+      msea: [], msea_page: null,
+      mesos: OWNER_KINDS[id] === 'monster' ? { url: `https://meowdb.com/msclassic/api/mesos-reports?monsterId=${id}`, retrieved_at: '2026-10-04T00:00:00Z', json: { reports: [], summary: { count: 0 } } } : null,
+    };
   }
   return out;
 }
 
-const merge = (overrides = {}) => buildDropRecords({ captures: c, crosswalk, items, quests, meowdbCache: stubCache(), ...overrides });
-const clone = (x) => structuredClone(x);
-const throwsMerge = (fn, pattern) => assert.throws(fn, (e) => e instanceof DropMergeError && pattern.test(e.message), `expected DropMergeError ${pattern}`);
+/** MeowDB's cached lists as tools/meowdb/extract_monsters.mjs reads them (null when the cache is not here). */
+async function realCache() {
+  const urls = (id) => (OWNER_KINDS[id] === 'monster'
+    ? [`${L.BASE_URL}/api/drops?monsterId=${id}`, `${L.BASE_URL}/api/mesos-reports?monsterId=${id}`]
+    : [`${L.BASE_URL}/api/breakable-drops?breakableId=${id}`, null]);
+  if (!OWNER_IDS.every((id) => urls(id).every((u) => u == null || L.hasCached(u)))) return null;
+  const out = {};
+  for (const id of OWNER_IDS) {
+    const [du, mu] = urls(id);
+    const d = await L.fetchUrl(du, { refresh: false, accept: 'application/json' });
+    const m = mu ? await L.fetchUrl(mu, { refresh: false, accept: 'application/json' }) : null;
+    out[id] = {
+      community: { url: d.url, retrieved_at: d.retrieved_at, drops: JSON.parse(d.text).drops },
+      msea: [], msea_page: null,
+      mesos: m ? { url: m.url, retrieved_at: m.retrieved_at, json: JSON.parse(m.text) } : null,
+    };
+  }
+  return out;
+}
 
-test('a fresh merge reproduces the committed entries, KuroDB-only rows, meso and provenance', () => {
-  const { records: fresh } = merge();
+const build = (overrides = {}) => buildDropRecords({ captures: c, items, quests, meowdbCache: stubCache(), ...overrides });
+
+test('a fresh build reproduces the committed records (the real MeowDB cache when present)', async () => {
+  const cache = await realCache();
+  const { records: fresh } = buildDropRecords({ captures: c, items, quests, meowdbCache: cache ?? stubCache() });
   for (const id of OWNER_IDS) {
     const a = fresh[id];
     const b = records[id];
-    assert.deepEqual(a.entries, b.entries, `drops/${id} entries`);
-    assert.deepEqual(a.excluded_kuro_only, b.excluded_kuro_only, `drops/${id} excluded_kuro_only`);
-    assert.deepEqual(a.pending_kuro_candidates, b.pending_kuro_candidates, `drops/${id} pending_kuro_candidates`);
+    assert.equal(b.schema_version, SCHEMA_VERSION);
+    const entries = (r) => r.entries.map((e) => (cache ? e : { ...e, item_resolution: { ...e.item_resolution, evidence: '' } }));
+    assert.deepEqual(entries(a), entries(b), `drops/${id} entries`);
     assert.deepEqual(a.provenance, b.provenance, `drops/${id} provenance`);
     assert.deepEqual(a.gaps, b.gaps, `drops/${id} gaps`);
-    const strip = (m) => (m ? { ...m, discrepancies: (m.discrepancies ?? []).filter((d) => d.authority !== 'MeowDB MS Classic') } : m);
-    assert.deepEqual(strip(a.meso), strip(b.meso), `drops/${id} meso (cached-report discrepancy aside)`);
-    assert.equal(b.schema_version, 2);
+    assert.deepEqual(a.notes, b.notes, `drops/${id} notes`);
+    if (cache) {
+      assert.deepEqual(a.meso, b.meso, `drops/${id} meso`);
+      assert.deepEqual(a.discrepancies, b.discrepancies, `drops/${id} discrepancies`);
+      assert.deepEqual(a.field_sources, b.field_sources, `drops/${id} field_sources`);
+    } else {
+      assert.deepEqual([a.meso?.amount_state, a.meso?.min, a.meso?.max, a.meso?.amount_source], [b.meso?.amount_state, b.meso?.min, b.meso?.max, b.meso?.amount_source], `drops/${id} meso amount`);
+    }
   }
 });
 
-test('membership is authoritative: monster entries are exactly Hidden Street\'s lists, the box\'s exactly MeowDB\'s', () => {
-  for (const id of monsters) {
-    const hs = c.hiddenstreet.monsters[crosswalk.owners[id].hidden_street_slug];
+test('membership is exactly MeowDB\'s community list "Drops (MS Classic)" for all seven owners', () => {
+  for (const id of OWNER_IDS) {
     const r = records[id];
-    assert.equal(r.membership_authority, 'Hidden Street');
-    assert.deepEqual(r.entries.map((e) => e.name), hs.items.map((i) => i.name), `drops/${id}: every Hidden Street member, in page order`);
-    for (const e of r.entries) {
-      const m = hs.items.find((i) => i.name === e.name);
-      assert.equal(e.key, entryKey(e.name));
-      assert.equal(e.membership_source.raw_value, m.raw_lines.join('\n'), `${e.name}: verbatim Hidden Street lines`);
-      assert.deepEqual([e.membership_source.url, e.membership_source.read_at, e.membership_source.capture], [hs.url, hs.read_at, hs.file]);
+    const page = live(id);
+    assert.equal(r.membership_authority, 'MeowDB MS Classic');
+    assert.equal(r.membership_list, 'Drops (MS Classic)');
+    assert.deepEqual(r.entries.map((e) => e.name), page.community_drops.map((d) => d.name), `drops/${id}: every entry, in page order`);
+    for (const [i, e] of r.entries.entries()) {
+      const d = page.community_drops[i];
+      assert.equal(e.key, entryKey(d.name));
+      assert.deepEqual(e.membership_source.votes, { up: d.upvotes, down: d.downvotes, score: d.score }, `${e.name} votes recorded`);
+      assert.deepEqual([e.membership_source.url, e.membership_source.read_at, e.membership_source.capture, e.membership_source.list_group],
+        [page.url, page.read_at, page.file, d.category]);
     }
   }
-  const box = records['0000001'];
-  assert.equal(box.membership_authority, 'MeowDB MS Classic');
-  assert.deepEqual(box.entries.map((e) => e.name), c.meowdb.breakables['0000001'].community_drops.map((d) => d.name));
-  assert.deepEqual(monsters.map((id) => records[id].entries.length), [1, 11, 12, 15, 15, 17], 'members per monster: 1/11/12/15/15/17');
+  // Nothing is excluded for votes: members voted at 0 or below stay.
+  const low = OWNER_IDS.flatMap((id) => records[id].entries.filter((e) => e.membership_source.votes.score <= 0).map((e) => `${id}/${e.name}`));
+  assert.deepEqual(low.sort(), ['3/Monster Card', '3/Opal Ore', '3/Silver Ore', '5/Amethyst Ore']);
 });
 
-// The Orange Mushroom's jump-scroll candidate (KuroDB 2040705, D3-8) follows its item page capture: pending without
-// it, then confirmed or excluded by what the page shows (rule D3-10; the page read 2026-10-06 confirms it). Nothing
-// below pins either state by hand.
-const JUMP_KURO = '2040705';
-const jumpPage = c.kurodb.item_pages[JUMP_KURO] ?? null;
-const jumpEntry = () => records['9'].entries.find((e) => e.key === 'scroll-for-shoes-for-jump-10');
-
-test('KuroDB-only rows never enter a table; every KuroDB row is matched, excluded or pending, once', () => {
-  for (const id of monsters) {
-    const kuro = c.kurodb.monsters[crosswalk.owners[id].kuro_monster_id];
-    const r = records[id];
-    const matched = r.entries.filter((e) => e.chance_source).map((e) => `${e.chance_source.kuro_item_id}|${e.chance_source.kuro_name}`);
-    const excluded = r.excluded_kuro_only.map((x) => `${x.kuro_item_id}|${x.name}`);
-    const pending = r.pending_kuro_candidates.map((x) => `${x.kuro_item_id}|${x.name}`);
-    assert.deepEqual([...matched, ...excluded, ...pending].sort(), kuro.rows.map((k) => `${k.kuro_item_id}|${k.name}`).sort(), `drops/${id}: each KuroDB row once`);
-    for (const x of r.excluded_kuro_only) {
-      assert.ok(!r.entries.some((e) => sameItemName(e.name, x.name)), `${x.name} is not a member of ${id}`);
-      assert.equal(x.raw_value, kuro.rows.find((k) => k.kuro_item_id === x.kuro_item_id && k.name === x.name).raw);
+test('no MSEA-only item is a member', () => {
+  let mseaOnly = 0;
+  for (const id of OWNER_IDS) {
+    const page = live(id);
+    const community = new Set(page.community_drops.map((d) => d.name));
+    const names = new Set(records[id].entries.map((e) => e.name));
+    for (const m of page.msea_reference ?? []) {
+      if (community.has(m.name)) continue;
+      mseaOnly += 1;
+      assert.ok(!names.has(m.name), `drops/${id}: ${m.name} is MSEA reference only`);
     }
-    for (const x of r.pending_kuro_candidates) {
-      const e = r.entries.find((m) => m.key === x.member);
-      assert.ok(e, `drops/${id}: pending row ${x.name} names its member ${x.member}`);
-      assert.deepEqual([e.chance_state, e.probability, e.chance_source], ['unresolved', null, null], `drops/${id}: a pending member never rolls`);
-      assert.equal(x.raw_value, kuro.rows.find((k) => k.kuro_item_id === x.kuro_item_id && k.name === x.name).raw);
-      assert.match(x.read, new RegExp(`tools/kurodb/captures/item_${x.kuro_item_id}\\.json`), 'it says where the read goes');
-    }
+    if (OWNER_KINDS[id] === 'monster') assert.deepEqual(records[id].meowdb_reference.msea_reference.map((m) => m.name), page.msea_reference.map((m) => m.name));
   }
-  // Only the jump scroll's row can move between the buckets (the one candidate in the crosswalk).
-  const jumpExcluded = jumpPage != null && jumpEntry().chance_state !== 'resolved' ? 1 : 0;
-  assert.deepEqual(monsters.map((id) => records[id].excluded_kuro_only.length), [0, 7, 13, 10, 18, 14 + jumpExcluded]);
-  assert.deepEqual(monsters.map((id) => records[id].pending_kuro_candidates.length), [0, 0, 0, 0, 0, jumpPage ? 0 : 1]);
-  assert.deepEqual(records['0000001'].pending_kuro_candidates, []);
-  for (const name of ['Snail Card', 'Bronze Ore', 'Garnet Ore', 'Sword']) {
-    assert.ok(!records['2'].entries.some((e) => e.name === name), `Snail never drops the KuroDB-only ${name}`);
-  }
+  assert.ok(mseaOnly >= 10, `${mseaOnly} MSEA-only names checked`);
 });
 
-test('chances re-parse from the KuroDB raw values (p% -> p/100, reactor N -> 1/N)', () => {
+test('every rarity is Henesys.gg\'s label from the capture', () => {
+  const h = c.henesys.rarity;
   for (const id of OWNER_IDS) {
     for (const e of records[id].entries) {
-      if (e.chance_state !== 'resolved') {
-        assert.equal(e.probability, null);
-        assert.equal(e.chance_source, null);
-        continue;
-      }
-      const cs = e.chance_source;
-      const p = cs.format === 'percent_base' ? parseKuroPercent(cs.raw_value) : parseReactorChanceValue(cs.raw_value);
-      assert.equal(cs.normalized_probability, p.probability, `${id}/${e.key}`);
-      assert.equal(e.probability, p.probability);
-      assert.ok(e.probability > 0 && e.probability <= 1);
-      assert.equal(cs.kuro_quest_condition, p.quest ?? null);
-      if (cs.format === 'percent_base') assert.deepEqual({ min: e.quantity.min, max: e.quantity.max }, p.qty);
-      else assert.deepEqual(e.quantity, clone(REACTOR_QUANTITY), 'reactor quantity is the labelled adaptation');
+      const row = h.items[e.name];
+      assert.ok(row, `${e.name} has a Henesys.gg row`);
+      assert.deepEqual(e.rarity, { label: row.rarity, source: { authority: 'Henesys.gg', url: h.url, read_at: h.read_at, capture: h.file, row: row.row } });
+      assert.ok(RARITY_LABELS.includes(e.rarity.label));
     }
   }
-  const om = Object.fromEntries(records['9'].entries.map((e) => [e.key, e]));
-  assert.equal(om['brown-hard-leather-boots'].probability, 0.0008, '"0.0800% base" is 0.0008');
-  assert.equal(om['red-potion'].probability, 0.02, '"2.00% base" is 0.02, not 2 or 0.0002');
-  const box = Object.fromEntries(records['0000001'].entries.map((e) => [e.key, e]));
-  assert.equal(box.apple.probability, 0.25, '"Chance value 4" is 1/4');
-  assert.equal(box['old-wooden-board'].probability, 1);
 });
 
-test('never join by id across sites', () => {
-  const om = records['9'].entries.find((e) => e.key === 'orange-mushroom-cap');
-  assert.equal(om.chance_source.kuro_item_id, '4000001');
-  assert.equal(om.item_id, '356', 'KuroDB 4000001 is Orange Mushroom Cap; MeowDB game_item_id 4000001 is Snail Shell (348)');
-  assert.equal(items['348'].game_item_id, '4000001');
-  const bs = records['3'].entries.find((e) => e.key === 'blue-snail-shell');
-  assert.deepEqual([bs.chance_source.kuro_item_id, bs.item_id], ['4000000', '349']);
-  assert.equal(items['347'].game_item_id, '4000000', 'MeowDB game_item_id 4000000 is the Jr. Sentinel Shellpiece');
-  const apple = records['0000001'].entries.find((e) => e.key === 'apple');
-  assert.deepEqual([apple.chance_source.kuro_item_id, apple.item_id], ['2010000', '236']);
-  assert.equal(items['235'].game_item_id, '2010000', 'KuroDB Apple 2010000 is MeowDB Roger\'s Apple\'s game_item_id');
+test('an item Henesys.gg has no row for keeps rarity null: listed in gaps, never a guess', () => {
+  const captures = clone(c);
+  delete captures.henesys.rarity.items['Garnet Ore'];
+  const { records: r } = build({ captures });
+  const e = r['2'].entries.find((x) => x.name === 'Garnet Ore');
+  assert.equal(e.rarity, null);
+  assert.equal(e.chance_category, 'etc_other', 'its category is still derived');
+  assert.ok(r['2'].gaps.some((g) => g.startsWith('rarity unresolved: Henesys.gg has no row for "Garnet Ore"')), r['2'].gaps.join('\n'));
 });
 
-test('meso amount: MeowDB report for the Snail, Hidden Street otherwise; chance: KuroDB 40%; none for the Sentinel and the box', () => {
+test('every member\'s chance category follows the rule from its MeowDB type and subtype', () => {
+  const counts = Object.fromEntries(CHANCE_CATEGORIES.map((k) => [k, 0]));
+  for (const id of OWNER_IDS) {
+    for (const e of records[id].entries) {
+      const it = items[e.item_id];
+      const gate = deriveQuestGate(e.item_id, items, quests);
+      assert.deepEqual(e.quest_gate, gate, `${id}/${e.key} gate`);
+      assert.equal(e.chance_category, deriveChanceCategory(it, gate), `${id}/${e.key}`);
+      assert.deepEqual([e.category_inputs.item_type, e.category_inputs.item_subtype, e.category_inputs.quest_gated], [it.type, it.subtype ?? null, gate != null]);
+      counts[e.chance_category] += 1;
+    }
+  }
+  assert.deepEqual(counts, { etc_own_leftover: 6, etc_quest_gated: 2, etc_other: 14, use_consumable: 17, use_scroll: 1, equip: 46, setup: 0 });
+  // The rule itself, case by case.
+  const it = (type, subtype) => ({ type, subtype });
+  assert.equal(deriveChanceCategory(it('Etc', 'Monster Drop'), null), 'etc_own_leftover');
+  assert.equal(deriveChanceCategory(it('Etc', 'Quest Item'), { quest_id: '1012' }), 'etc_quest_gated');
+  assert.equal(deriveChanceCategory(it('Etc', 'Quest Item'), null), 'etc_other', 'a quest item no Maple Island quest asks for (Monster Card)');
+  assert.equal(deriveChanceCategory(it('Etc', 'Ore & Mineral'), null), 'etc_other');
+  assert.equal(deriveChanceCategory(it('Use', 'Potion'), null), 'use_consumable');
+  assert.equal(deriveChanceCategory(it('Use', 'Arrow'), null), 'use_consumable');
+  assert.equal(deriveChanceCategory(it('Use', 'Scroll'), null), 'use_scroll');
+  assert.equal(deriveChanceCategory(it('Equip', 'Bottom'), null), 'equip');
+  assert.equal(deriveChanceCategory(it('Setup', 'Chair'), null), 'setup');
+  assert.equal(deriveChanceCategory(it('Cash', 'Pet'), null), null, 'no row: unresolved');
+});
+
+test('quest gate (D3-9): Board and Screw to Pio\'s 1012; Monster Card and Jr. Sentinel Shellpiece not gated', () => {
+  for (const id of ['441', '442']) {
+    const g = deriveQuestGate(id, items, quests);
+    assert.deepEqual([g.quest_id, g.decision, g.verified], ['1012', 'D3-9', false]);
+  }
+  assert.equal(deriveQuestGate('483', items, quests), null, 'Monster Card: no Maple Island quest asks for it');
+  assert.equal(deriveQuestGate('347', items, quests), null, 'Jr. Sentinel Shellpiece is a Monster Drop');
+  assert.equal(deriveQuestGate(null, items, quests), null);
+});
+
+test('item ids: the one local item with the name; Red Cloth Pants by MeowDB\'s own drop entry', () => {
+  const ref = { url: 'https://meowdb.com/msclassic/api/drops?monsterId=5', retrieved_at: '2026-10-04T10:07:08.887Z' };
+  const pants = records['5'].entries.find((e) => e.name === 'Red Cloth Pants');
+  assert.deepEqual([pants.item_id, pants.item_resolution.method, pants.item_resolution.candidates], ['1168', 'meowdb_drop_entry', ['1168', '1177']]);
+  assert.deepEqual(resolveMemberItem('Red Cloth Pants', items, [{ id: 413, itemId: 1177 }], ref, 't').item_id, '1177', 'the entry decides');
+  const none = resolveMemberItem('Red Cloth Pants', items, [], ref, 't');
+  assert.deepEqual([none.item_id, none.item_resolution.state], [null, 'ambiguous'], 'two local items and no entry: unresolved, never guessed');
+  const sole = resolveMemberItem('Snail Shell', items, [], ref, 't');
+  assert.deepEqual([sole.item_id, sole.item_resolution.method, sole.item_resolution.candidates], ['348', 'exact_name', ['348']]);
+  const missing = resolveMemberItem('Wooden Buckler', items, [{ id: 1, itemId: 916 }], ref, 't');
+  assert.deepEqual([missing.item_id, missing.item_resolution.state, missing.item_resolution.candidates], [null, 'not_in_snapshot', ['916']]);
+  throwsMerge(() => resolveMemberItem('Snail Shell', items, [{ id: 1, itemId: 349 }], ref, 't'), /the one local item named "Snail Shell" is 348/);
+});
+
+test('a cached drop entry with another item id, or a list group that is not the item\'s type, stops the build', () => {
+  const cache = stubCache();
+  cache['2'].community.drops.find((d) => d.itemName === 'Snail Shell').itemId = 349;
+  throwsMerge(() => build({ meowdbCache: cache }), /the one local item named "Snail Shell" is 348/);
+  const captures = clone(c);
+  captures.meowdb.monsters['2'].community_drops.find((d) => d.name === 'Red Potion').category = 'ETC';
+  throwsMerge(() => build({ captures }), /MeowDB lists it under ETC, but local item 270 is type Use/);
+});
+
+test('meso: MeowDB\'s report from the newest dated source; none means null; a newer report replaces the formula', () => {
   const s = records['2'].meso;
-  assert.equal(s.amount_source.authority, 'MeowDB MS Classic');
-  assert.deepEqual([s.min, s.max], [parseMeowdbMesoReport(c.meowdb.monsters['2'].meso.report.raw).min, 2]);
-  assert.ok(s.discrepancies.some((d) => d.authority === 'Hidden Street' && d.raw_value === 'Mesos: 1'), 'Hidden Street "Mesos: 1" recorded');
-  for (const [id, slug] of [['3', 'blue-snail'], ['4', 'shroom'], ['5', 'red-snail'], ['9', 'orange-mushroom']]) {
+  assert.deepEqual([s.amount_state, s.min, s.max, s.amount_source.raw_value, s.amount_source.capture], ['reported', 2, 2, 'Mesos: 2 per kill | 1 report', 'tools/meowdb/captures/monster_2.txt']);
+  for (const id of ['1', '3', '4', '5', '9']) {
     const m = records[id].meso;
-    const hs = parseHiddenStreetMesos(c.hiddenstreet.monsters[slug].mesos.raw);
-    assert.equal(m.amount_source.authority, 'Hidden Street');
-    assert.deepEqual([m.min, m.max], [hs.min, hs.max], `drops/${id}`);
-    assert.equal(m.amount_source.interpretation == null, hs.min === hs.max, 'a range is labelled as an interpretation');
+    assert.deepEqual([m.amount_state, m.min, m.max, m.amount_source], ['not_reported', null, null, null], `drops/${id}`);
+    assert.ok(m.gaps.some((g) => g.startsWith('meso amount: MeowDB has no player meso report')));
   }
-  for (const id of ['2', '3', '4', '5', '9']) {
-    const m = records[id].meso;
-    assert.equal(m.chance_source.authority, 'KuroDB');
-    assert.equal(m.chance_source.raw_value, '40% base | Meso drop');
-    assert.equal(m.probability, 0.4);
-    assert.ok(!JSON.stringify(m.chance_source).includes('dropChancePct'), 'MeowDB\'s form constant is never a chance');
-  }
-  assert.deepEqual(['2', '3', '4', '5', '9'].map((id) => [records[id].meso.min, records[id].meso.max]), [[2, 2], [4, 4], [4, 6], [8, 12], [9, 13]]);
-  assert.equal(records['1'].meso, null, 'Tutorial Jr. Sentinel: no KuroDB meso row (D3-5)');
-  assert.equal(records['0000001'].meso, null);
+  assert.equal(records['0000001'].meso, null, 'a breakable has no meso block');
+  // A newer cache (after the 2026-10-05 page read) with a report for the Blue Snail: used automatically.
+  const blue = c.meowdb.monsters['3'];
+  const newerCache = { mesos: { url: 'https://meowdb.com/msclassic/api/mesos-reports?monsterId=3', retrieved_at: '2026-11-01T00:00:00Z',
+    json: { reports: [{ id: 9, minMesos: 3, maxMesos: 5 }], summary: { count: 2, medianMin: 3, medianMax: 5 } } } };
+  const m1 = buildMonsterMeso(blue, newerCache);
+  assert.deepEqual([m1.amount_state, m1.min, m1.max, m1.amount_source.url, m1.amount_source.report_count], ['reported', 3, 5, newerCache.mesos.url, 2]);
+  assert.match(m1.amount_source.interpretation, /uniform integer in \[3, 5\]/);
+  // A newer live page capture with a report line: used too.
+  const newerPage = { ...clone(blue), read_at: '2026-11-02T00:00:00Z' };
+  newerPage.meso = { report_text: 'Mesos: 4 per kill | 1 report', report: { raw: 'Mesos: 4 per kill | 1 report', state: 'resolved', min: 4, max: 4, reports: 1 } };
+  const m2 = buildMonsterMeso(newerPage, newerCache);
+  assert.deepEqual([m2.amount_state, m2.min, m2.max, m2.amount_source.read_at], ['reported', 4, 4, '2026-11-02T00:00:00Z']);
+  // An older cache report does not override a newer page that has none.
+  const olderCache = { mesos: { ...newerCache.mesos, retrieved_at: '2026-10-01T00:00:00Z' } };
+  assert.equal(buildMonsterMeso(blue, olderCache).amount_state, 'not_reported');
 });
 
-test('quest gates follow the C1 rule: Board and Screw gated to 1012, the Shellpiece not', () => {
-  const box = Object.fromEntries(records['0000001'].entries.map((e) => [e.key, e]));
-  assert.equal(box['old-wooden-board'].quest_gate.quest_id, '1012');
-  assert.equal(box['rusty-screw'].quest_gate.quest_id, '1012');
-  assert.equal(box.apple.quest_gate, null);
-  const shell = records['1'].entries[0];
-  assert.equal(shell.quest_gate, null);
-  assert.equal(shell.chance_source.kuro_quest_condition, '1035', 'KuroDB\'s flag recorded as corroboration only');
-  for (const id of OWNER_IDS) for (const e of records[id].entries) if (e.quest_gate) assert.equal(e.quest_gate.verified, false);
-  assert.equal(deriveQuestGate('441', false, items, quests).quest_id, '1012', 'MeowDB subtype Quest Item + quest 1012 objective');
-  assert.equal(deriveQuestGate('347', false, items, quests), null, '347 is subtype Monster Drop');
-  assert.equal(deriveQuestGate('236', false, items, quests), null);
-  const twice = clone(quests);
-  twice['1011'].objectives.item_collection.push({ item_id: '441', count: 1 });
-  assert.throws(() => deriveQuestGate('441', false, items, twice), DropMergeError, 'two quests asking for one quest item');
-});
-
-test('unresolved members stay visible: in entries, item_id or probability null, listed in gaps', () => {
-  for (const id of OWNER_IDS) {
-    const r = records[id];
-    for (const e of r.entries) {
-      const rolls = e.chance_state === 'resolved' && e.item_id != null;
-      if (!rolls) assert.ok(r.gaps.some((g) => g.includes(`"${e.name}"`)), `drops/${id}: "${e.name}" in gaps`);
+test('no probability, chance or quantity in a canonical drop record', () => {
+  const bad = new Set(['probability', 'chance', 'chance_source', 'chance_state', 'normalized_probability', 'quantity', 'rate', 'drop_chance']);
+  const walk = (node, where) => {
+    if (Array.isArray(node)) node.forEach((x, i) => walk(x, `${where}[${i}]`));
+    else if (node && typeof node === 'object') {
+      for (const [k, v] of Object.entries(node)) {
+        if (['notes', 'gaps', 'discrepancies'].includes(k)) continue;
+        assert.ok(!bad.has(k), `${where}.${k}`);
+        walk(v, `${where}.${k}`);
+      }
     }
-  }
-  const om = Object.fromEntries(records['9'].entries.map((e) => [e.key, e]));
-  assert.deepEqual([om['omok-piece-mushroom'].chance_state, om['omok-piece-mushroom'].item_id, om['omok-piece-mushroom'].item_resolution.state], ['resolved', null, 'ambiguous']);
-  assert.deepEqual(om['omok-piece-mushroom'].item_resolution.candidates, ['486', '495', '498']);
-  assert.equal(om['scroll-for-shoes-for-jump-10'].item_id, '177');
-  if (!jumpPage) {
-    assert.equal(om['scroll-for-shoes-for-jump-10'].chance_state, 'unresolved', 'its KuroDB item page is not read yet');
-    assert.ok(records['9'].pending_kuro_candidates.some((x) => x.kuro_item_id === JUMP_KURO && x.member === 'scroll-for-shoes-for-jump-10' && /D3-8/.test(x.reason)),
-      'the unconfirmed KuroDB scroll row waits as a pending candidate with its reason');
-    assert.ok(!records['9'].excluded_kuro_only.some((x) => x.kuro_item_id === JUMP_KURO), 'and is not filed as KuroDB-only');
-  } else if (om['scroll-for-shoes-for-jump-10'].chance_state === 'resolved') {
-    assert.equal(om['scroll-for-shoes-for-jump-10'].chance_source.match_evidence.capture, jumpPage.file, 'confirmed by the read page');
-  } else {
-    assert.ok(records['9'].excluded_kuro_only.some((x) => x.kuro_item_id === JUMP_KURO && x.reason.includes(jumpPage.file)), 'excluded with what the read page showed');
-  }
-  const egg = records['0000001'].entries.find((e) => e.key === 'egg');
-  assert.deepEqual([egg.item_id, egg.chance_state, egg.probability], ['237', 'unresolved', null]);
-});
-
-test('every resolved item id is a local MeowDB item', () => {
-  for (const id of OWNER_IDS) for (const e of records[id].entries) if (e.item_id != null) assert.ok(items[e.item_id], `drops/${id} ${e.item_id}`);
-});
-
-// --- the merge refuses what the sources do not support -------------------------------------------------------
-
-const mutate = (fn) => { const cw = clone(crosswalk); fn(cw); return cw; };
-const rowOf = (cw, owner, name) => cw.owners[owner].rows.find((r) => r.name === name);
-
-test('a Hidden Street member without a crosswalk row, or a row without a member, fails', () => {
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { cw.owners['2'].rows = cw.owners['2'].rows.filter((r) => r.name !== 'Blue Potion'); }) }), /"Blue Potion" has no crosswalk row/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { cw.owners['2'].rows.push({ ...clone(rowOf(cw, '2', 'Blue Potion')), name: 'Bronze Ore' }); }) }), /"Bronze Ore" is not on Hidden Street/);
-});
-
-test('a KuroDB claim must name a row on the page, by its own id and name; "none" must be true', () => {
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Snail Shell').kurodb.kuro_item_id = '4000001'; }) }), /expected exactly one/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Red Potion').kurodb = { state: 'none', evidence: 'x' }; }) }), /none but the KuroDB page lists Red Potion/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => {
-    rowOf(cw, '2', 'Blue Potion').kurodb = { state: 'matched', kuro_item_id: '2000000', kuro_name: 'Red Potion', method: 'alias_with_evidence', evidence: 'x' };
-  }) }), /also claimed/);
-});
-
-test('a resolved item must exist locally and match by name; an unresolved one whose candidate became local fails', () => {
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Wooden Buckler').meowdb = { state: 'resolved', item_id: '916', method: 'exact', candidates: [], evidence: 'x' }; }) }), /not a local item/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Blue Potion').meowdb.item_id = '271'; }) }), /"exact" but MeowDB 271/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Red Cloth Pants (M)').meowdb.item_id = '1177'; }) }), /needs gender male/);
-  const withBuckler = { ...items, 916: { id: '916', name: 'Wooden Buckler', gender: 'any' } };
-  throwsMerge(() => merge({ items: withBuckler }), /candidate 916 is now a local item/);
-});
-
-test('every crosswalk row carries a reviewer note, and the record entry keeps it', () => {
-  for (const id of OWNER_IDS) {
-    for (const row of crosswalk.owners[id].rows) {
-      assert.ok(typeof row.reviewer_note === 'string' && row.reviewer_note.trim() !== '', `${id} "${row.name}": reviewer_note`);
-      const e = records[id].entries.find((x) => x.name === row.name);
-      assert.equal(e.notes[0], row.reviewer_note, `drops/${id} "${row.name}": notes[0] is the reviewer note`);
-    }
-  }
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { rowOf(cw, '2', 'Blue Potion').reviewer_note = ''; }) }), /"Blue Potion": reviewer_note is required/);
-  throwsMerge(() => merge({ crosswalk: mutate((cw) => { delete rowOf(cw, '0000001', 'Egg').reviewer_note; }) }), /"Egg": reviewer_note is required/);
-  // A member whose possible KuroDB row was not accepted says so in its gap (not "no row").
-  const gap = records['9'].gaps.find((g) => g.includes('"Scroll for Shoes for Jump 10%"') && g.startsWith('chance unresolved'));
-  if (!jumpPage) assert.match(gap, /possible row Scroll for Shoes for Jump \(2040705, "0\.0300% base \| Qty 1"\) whose item page has not been read \(pending_kuro_candidates/);
-  else if (jumpEntry().chance_state !== 'resolved') assert.match(gap, /whose item page \(tools\/kurodb\/captures\/item_2040705\.json\)/);
-  else assert.equal(gap, undefined, 'a confirmed row leaves no chance gap');
-});
-
-test('crosswalk helpers', () => {
-  assert.throws(() => resolveMeowdbItem('Pan Lid', { state: 'resolved', item_id: null, method: 'none', candidates: [], evidence: 'x' }, items, 't'), DropMergeError);
-  assert.equal(matchKuroRow('Egg', { state: 'none', evidence: 'x' }, [{ kuro_item_id: '1', name: 'Apple' }], 't'), null);
+  };
+  for (const id of OWNER_IDS) walk(records[id], `drops/${id}`);
 });

@@ -1,48 +1,43 @@
 class_name DropChecks
 extends RefCounted
-## The drop policy over the shipped canonical drop records (Iteration Three brief "Drop Pass" and "Probability
-## Handling"; contracts C1 and C2; decisions D3-3 to D3-9). DropRecordChecks checks each schema v2 record's shape and
-## sources; these checks hold the records to the policy and re-read every raw value exactly (DropChance):
+## The drop policy over the shipped canonical drop records (Iteration Three brief "Drop Pass"; contracts C1 and C2;
+## decisions D3-9, D3-11 and D3-12). DropRecordChecks checks each schema 3 record's shape and sources; these checks
+## hold the records to the dated captures, the item data and the project owner's rule files:
 ##
 ##   drop_policy (errors)
-##     - data/misostory/drop_rates.json holds no chance, quantity or meso number and names the meso distribution the
-##       roller implements (DropRates.validate): nothing outside the records supplies those values (C1)
-##     - every drop record is schema v2: a v1 record (MeowDB community lists) supplies no chance, so it cannot ship
-##     - membership authority by owner kind: Hidden Street for monsters (D3-6), MeowDB MS Classic for breakables (D3-7)
-##     - every resolved item chance and every meso chance comes from KuroDB; a meso amount from MeowDB or Hidden Street
-##       (never MeowDB's report-form dropChancePct, which is not a chance)
-##     - raw re-parse: normalized_probability and probability equal DropChance's exact reading of raw_value (p% -> p/100
-##       from the digits as written, "Chance value N" -> 1/N), the conversion text matches, the quantity equals the
-##       raw "Qty" (a reactor row has none: its quantity must be a labelled adaptation with verified: false), KuroDB's
-##       "| Quest N" equals kuro_quest_condition, a meso row is a "Meso drop" row and an item row is not; meso min/max
-##       equal the amount_source raw value
-##     - bounds: every chance in [0, 1] (a resolved 0 is a warning: it never drops)
-##     - a resolved item exists in the local items
-##     - quest gates follow the C1 rule: an entry is gated exactly when its item is a quest item (MeowDB subtype "Quest
-##       Item", or the membership source lists it so) that a Maple Island quest objective asks for, and the gate is
-##       that quest; the gate says verified: false (a MisoStory derivation, D3-9)
-##     - no KuroDB-only row (excluded_kuro_only) and no pending candidate row (pending_kuro_candidates) is also an
-##       entry's chance source
-##     - an unresolved member whose item (or, while the item is unresolved, one of its MeowDB candidates) a Maple
-##       Island quest objective asks for is a progression blocker (brief "Missing KuroDB Probability")
-##   drop_unresolved (warnings): each member or meso value that never rolls because a source leaves it unresolved, so
-##     unknown probabilities stay visible (brief "Missing KuroDB Probability"); an unresolved member whose MeowDB
-##     candidate is now a local item asks for a crosswalk review
+##     - data/misostory/drop_rates.json is the complete chance table (every category x rarity a chance in [0, 1],
+##       decision D3-11, verified: false, quantity 1) and data/misostory/meso_rules.json a valid meso rule (D3-12)
+##       (DropRates.validate)
+##     - every drop record is schema 3 and its membership authority is MeowDB MS Classic
+##     - membership equals MeowDB's community list "Drops (MS Classic)" on the record's capture exactly: the same names
+##       in the same order, each entry's raw block and votes as the page shows them; no MSEA-only item is a member
+##     - every rarity is Henesys.gg's label from tools/henesys/captures/item_rarity.json (the same label and row), and
+##       a member the capture has no row for has rarity null
+##     - a resolved item exists in the local items; category_inputs are that item's MeowDB type and subtype, and the
+##       chance_category follows the rule (DropRates.CATEGORIES; tools/sources/drops_merge.mjs deriveChanceCategory)
+##     - quest gates follow the D3-9 rule: an entry is gated exactly when its item's MeowDB subtype is "Quest Item"
+##       and one Maple Island quest objective asks for it, and the gate is that quest
+##     - a monster's reported meso amount comes from MeowDB; meso_rules.json no_mesos names drop owners
+##     - an unresolved member whose item a Maple Island quest objective asks for is a progression blocker
+##   drop_unresolved (warnings): each member that never rolls because its item, rarity or category is unresolved, so
+##     unknown values stay visible
+## The capture comparisons need the capture files (DataValidator options repo_root; scripts/test.sh and
+## scripts/validate_data.sh mirror tools/*/captures). With injected capture_files (fixture tests) they are skipped.
 
-## Relative tolerance for "the stored number equals the exact reading" (JSON doubles vs an exact integer division).
-const EPSILON := 1e-12
-const MEMBERSHIP_BY_KIND := {"monster": ProvenanceAuthorities.HIDDEN_STREET, "breakable": ProvenanceAuthorities.MEOWDB}
-const MESO_AMOUNT_AUTHORITIES := [ProvenanceAuthorities.MEOWDB, ProvenanceAuthorities.HIDDEN_STREET]
 const QUEST_SUBTYPE := "Quest Item"
 
 var db: ContentDB
 var report: ValidationReport
+var provenance: ProvenanceChecks
 var _quest_items: Dictionary = {}  # item id -> [quest ids whose objectives.item_collection asks for it]
+var _rarity: Dictionary = {}  # DropSourceCaptures.rarity_capture result, read once
+var _lists: Dictionary = {}  # capture path -> DropSourceCaptures.community_list result
 
 
-func _init(content: ContentDB, into: ValidationReport) -> void:
+func _init(content: ContentDB, into: ValidationReport, provenance_checks: ProvenanceChecks = null) -> void:
 	db = content
 	report = into
+	provenance = provenance_checks if provenance_checks != null else ProvenanceChecks.new(content, ValidationReport.new())
 	for qid in db.ids("quests"):
 		var q: Dictionary = db.quest(qid)
 		var region: Variant = q.get("region", "Maple Island")
@@ -60,201 +55,214 @@ func _init(content: ContentDB, into: ValidationReport) -> void:
 					_quest_items[id].append(qid)
 
 
+## True when the capture comparisons can run (no injected capture list: the files are on disk under repo_root()).
+func reads_captures() -> bool:
+	return not (provenance.options.get("capture_files", null) is Dictionary)
+
+
 func run() -> void:
-	# data/misostory/drop_rates.json documents the runtime's interpretations and must supply no chance, quantity or
-	# meso number (C1). Checked here so the data validator (scripts/validate_data.sh) refuses one, not only a unit test.
-	if db.miso_table("drop_rates") is Dictionary:
-		for message in DropRates.validate(db):
-			report.error("drop_policy", "misostory", "drop_rates", message)
+	# The rule files the runtime applies: checked here so the data validator (scripts/validate_data.sh) refuses an
+	# incomplete table or a broken meso rule, not only a unit test.
+	for message in DropRates.validate(db):
+		report.error("drop_policy", "misostory", "drop_rates" if message.begins_with("drop_rates") or message.contains("drop_rates.json") else "meso_rules", message)
 	for id in db.ids("drops"):
 		var rec: Dictionary = db.drop_table(id)
-		if not DropRecordChecks.is_v2(rec):
-			_error(id, "not a schema v2 record (contract C1): a v1 record holds MeowDB's community lists and no chance, so it cannot supply drops")
+		if not DropRates.is_v3_record(rec):
+			_error(id, "not a schema 3 record (contract C1): the runtime reads only schema 3")
 			continue
 		report.count("drop_policy_records_checked")
 		check_record(id, rec)
 
 
 func check_record(id: String, rec: Dictionary) -> void:
-	var kind := ProvenanceChecks.drop_owner_kind("drops", rec)
-	var want: Variant = MEMBERSHIP_BY_KIND.get(kind, null)
-	if want != null and not ValidationUtil.same(rec.get("membership_authority", null), want):
-		_error(id, "membership_authority must be %s for a %s (decisions D3-6, D3-7), got %s" % [want, kind,
+	if not ValidationUtil.same(rec.get("membership_authority", null), ProvenanceAuthorities.MEOWDB):
+		_error(id, "membership_authority must be %s (MeowDB's community list, decision D3-11), got %s" % [ProvenanceAuthorities.MEOWDB,
 			var_to_str(rec.get("membership_authority", null))])
-	var claimed := {}
-	# Members whose possible KuroDB row waits for a read of its item page (pending_kuro_candidates, D3-8): entry key ->
-	# KuroDB item id, so the warning says the chance is a pending read, not that no source gives one.
-	var pending_members := {}
-	for x in ValidationUtil.as_array(rec.get("pending_kuro_candidates", [])):
-		if x is Dictionary and x.get("member", null) is String:
-			pending_members[x.member] = str(x.get("kuro_item_id", "?"))
-	for e in ValidationUtil.as_array(rec.get("entries", [])):
+	var entries: Array = ValidationUtil.as_array(rec.get("entries", []))
+	if reads_captures():
+		_check_membership(id, rec, entries)
+		_check_rarity(id, entries)
+	for e in entries:
 		if e is Dictionary:
 			report.count("drop_policy_entries_checked")
-			_check_entry(id, e, pending_members)
-			var cs: Variant = e.get("chance_source", null)
-			if cs is Dictionary:
-				claimed["%s|%s" % [str(cs.get("kuro_item_id", "")), str(cs.get("kuro_name", ""))]] = str(e.get("key", ""))
-	for x in ValidationUtil.as_array(rec.get("excluded_kuro_only", [])):
-		if x is Dictionary:
-			var key := "%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]
-			if claimed.has(key):
-				_error(id, "excluded_kuro_only row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
-					str(x.get("kuro_item_id", "")), claimed[key]])
-	# A pending candidate (decision D3-8) is a row nobody has accepted yet: it may not already be a chance source.
-	for x in ValidationUtil.as_array(rec.get("pending_kuro_candidates", [])):
-		if x is Dictionary:
-			var key := "%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]
-			if claimed.has(key):
-				_error(id, "pending_kuro_candidates row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
-					str(x.get("kuro_item_id", "")), claimed[key]])
+			_check_entry(id, e)
 	var meso: Variant = rec.get("meso", null)
 	if meso is Dictionary:
-		_check_meso(id, meso)
+		var src: Variant = meso.get("amount_source", null)
+		if src is Dictionary and not ValidationUtil.same(src.get("authority", null), ProvenanceAuthorities.MEOWDB):
+			_error(id, "meso.amount_source: a meso amount comes from MeowDB's player reports only (D3-12), got %s" % var_to_str(src.get("authority", null)))
+
+
+# --- membership and rarity against the captures --------------------------------------------------------------
+
+## The record's membership capture path: the one its entries' membership sources cite, else provenance.membership's.
+static func membership_capture(rec: Dictionary) -> String:
+	for e in ValidationUtil.as_array(rec.get("entries", [])):
+		if e is Dictionary and e.get("membership_source", null) is Dictionary and e.membership_source.get("capture", null) is String:
+			return e.membership_source.capture
+	var prov: Variant = rec.get("provenance", null)
+	var m: Variant = prov.get("membership", null) if prov is Dictionary else null
+	if m is Dictionary and m.get("capture", null) is String:
+		return m.capture
+	return ""
+
+
+func _list_for(capture: String) -> Dictionary:
+	if not _lists.has(capture):
+		_lists[capture] = DropSourceCaptures.community_list(provenance.repo_root().path_join(capture))
+	return _lists[capture]
+
+
+func _check_membership(id: String, rec: Dictionary, entries: Array) -> void:
+	var capture := membership_capture(rec)
+	if capture == "":
+		_error(id, "no membership capture (provenance.membership.capture): the membership cannot be checked against MeowDB's list")
+		return
+	var list := _list_for(capture)
+	if not bool(list.ok):
+		_error(id, "membership capture %s: %s" % [capture, list.error])
+		return
+	report.count("drop_membership_lists_checked")
+	var want := PackedStringArray()
+	for x in list.entries:
+		want.append(str(x.name))
+	var have := PackedStringArray()
+	for e in entries:
+		have.append(str(e.get("name", "")) if e is Dictionary else "")
+	if have != want:
+		var missing := PackedStringArray()
+		for n in want:
+			if not have.has(n):
+				missing.append(n)
+		var extra := PackedStringArray()
+		for n in have:
+			if not want.has(n):
+				extra.append(n)
+		_error(id, "membership is not MeowDB's community list on %s exactly (decision D3-11): missing %s, not on the list %s%s" % [capture,
+			str(missing), str(extra), "" if not missing.is_empty() or not extra.is_empty() else ", order differs"])
+	for e in entries:
+		if not (e is Dictionary):
+			continue
+		var name := str(e.get("name", ""))
+		var on_list := want.has(name)
+		if not on_list and (list.msea as PackedStringArray).has(name):
+			_error(id, "'%s' is only on MeowDB's MSEA reference list, which is never membership (decision D3-11)" % name)
+		if on_list:
+			var x: Dictionary = list.entries[want.find(name)]
+			var ms: Variant = e.get("membership_source", null)
+			if ms is Dictionary and (str(ms.get("raw_value", "")) != str(x.raw) or not ValidationUtil.same(ms.get("list_group", null), x.group)):
+				_error(id, "'%s': membership_source.raw_value / list_group differ from %s (%s, %s)" % [name, capture, var_to_str(x.raw), str(x.group)])
+
+
+func _rarity_capture() -> Dictionary:
+	if _rarity.is_empty():
+		_rarity = DropSourceCaptures.rarity_capture(provenance.repo_root().path_join(DropSourceCaptures.RARITY_CAPTURE))
+	return _rarity
+
+
+func _check_rarity(id: String, entries: Array) -> void:
+	var cap := _rarity_capture()
+	if not bool(cap.ok):
+		_error(id, "rarity capture: %s" % cap.error)
+		return
+	for e in entries:
+		if not (e is Dictionary):
+			continue
+		var name := str(e.get("name", ""))
+		var rarity: Variant = e.get("rarity", null)
+		var row: Variant = cap.items.get(name, null)
+		if row == null:
+			if rarity != null:
+				_error(id, "'%s': rarity %s, but %s has no row for it (it must stay null: unresolved)" % [name, var_to_str(rarity), DropSourceCaptures.RARITY_CAPTURE])
+			continue
+		report.count("drop_rarities_checked")
+		var label := str(rarity.get("label", "")) if rarity is Dictionary else ""
+		var src: Variant = rarity.get("source", null) if rarity is Dictionary else null
+		if label != str(row.rarity):
+			_error(id, "'%s': rarity %s, Henesys.gg's capture says %s (decision D3-11)" % [name, var_to_str(label), str(row.rarity)])
+		elif not (src is Dictionary) or str(src.get("row", "")) != str(row.row) or str(src.get("read_at", "")) != str(cap.read_at) \
+				or str(src.get("url", "")) != str(cap.url) or str(src.get("capture", "")) != DropSourceCaptures.RARITY_CAPTURE:
+			_error(id, "'%s': rarity.source must quote %s (url, read_at, row)" % [name, DropSourceCaptures.RARITY_CAPTURE])
 
 
 # --- entries ------------------------------------------------------------------------------------------------
 
-func _check_entry(id: String, e: Dictionary, pending_members: Dictionary = {}) -> void:
+func _check_entry(id: String, e: Dictionary) -> void:
 	var where := "entry '%s'" % str(e.get("key", e.get("name", "?")))
 	var item_id: Variant = e.get("item_id", null)
-	var res: Variant = e.get("item_resolution", {})
-	var state: String = str(res.get("state", "")) if res is Dictionary else ""
-	if item_id != null and not db.has("items", str(item_id)):
-		_error(id, "%s: item %s is not a local MeowDB item" % [where, str(item_id)])
-	var resolved := str(e.get("chance_state", "")) == "resolved"
-	var cs: Variant = e.get("chance_source", null)
-	var p: Variant = e.get("probability", null)
-	if resolved and cs is Dictionary:
-		if not ValidationUtil.same(cs.get("authority", null), ProvenanceAuthorities.KURODB):
-			_error(id, "%s: a drop chance comes from KuroDB only (MeowDB publishes none), got %s" % [where, var_to_str(cs.get("authority", null))])
-		_check_raw(id, where, cs, p, e.get("quantity", null), false)
-		if ValidationUtil.is_number(p) and float(p) == 0.0:
-			report.warning("drop_policy", "drops", id, "%s: resolved chance 0 (never drops)" % where)
-	_check_gate(id, where, e, item_id)
-	# Visible unresolved members (warnings; the candidates are in the record's item_resolution).
+	var item := {}
+	if item_id != null:
+		if not db.has("items", str(item_id)):
+			_error(id, "%s: item %s is not a local MeowDB item" % [where, str(item_id)])
+		else:
+			item = db.item(str(item_id))
+	var expected_gate := _check_gate(id, where, e, item_id, item)
+	# Category: the item's MeowDB type and subtype, and the rule.
+	var inputs: Variant = e.get("category_inputs", null)
+	var cat: Variant = e.get("chance_category", null)
+	if not item.is_empty():
+		if inputs is Dictionary and (not ValidationUtil.same(inputs.get("item_type", null), item.get("type", null))
+				or not ValidationUtil.same(inputs.get("item_subtype", null), item.get("subtype", null))
+				or not ValidationUtil.same(inputs.get("quest_gated", null), expected_gate != "")):
+			_error(id, "%s: category_inputs must be item %s's MeowDB type %s, subtype %s and quest_gated %s" % [where, str(item_id),
+				var_to_str(item.get("type", null)), var_to_str(item.get("subtype", null)), str(expected_gate != "")])
+		var want := expected_category(item, expected_gate != "")
+		if not ValidationUtil.same(cat, want if want != "" else null):
+			_error(id, "%s: chance_category %s, the rule gives %s (item %s: %s / %s)" % [where, var_to_str(cat),
+				var_to_str(want if want != "" else null), str(item_id), str(item.get("type", "")), str(item.get("subtype", ""))])
+	elif cat != null:
+		_error(id, "%s: chance_category must be null while the item is unresolved" % where)
+	# Visible unresolved members (warnings), and a blocker when a quest needs the item.
 	var never: PackedStringArray = []
-	# The items this member may be: its item, or (while the item is unresolved) its MeowDB candidates.
-	var maybe: PackedStringArray = []
-	if not resolved and pending_members.has(str(e.get("key", ""))):
-		never.append("chance pending: KuroDB item page %s is not read yet (pending_kuro_candidates, D3-8; a pending source read)" % pending_members[str(e.get("key", ""))])
-	elif not resolved:
-		never.append("chance unresolved (no accepted KuroDB value for this member; see the record's gaps)")
 	if item_id == null:
-		never.append("item unresolved (%s)" % state)
-		var cands: Array = ValidationUtil.as_array(res.get("candidates", [])) if res is Dictionary else []
-		for c in cands:
-			maybe.append(str(c))
-			if db.has("items", str(c)) and state == "not_in_snapshot":
-				report.warning("drop_unresolved", "drops", id, "%s: MeowDB candidate %s is now a local item; review its row in tools/sources/crosswalk/drop_items.json" % [where, str(c)])
-	else:
-		maybe.append(str(item_id))
+		var res: Variant = e.get("item_resolution", {})
+		never.append("item unresolved (%s)" % (str(res.get("state", "")) if res is Dictionary else "?"))
+	if e.get("rarity", null) == null:
+		never.append("rarity unresolved (no Henesys.gg row)")
+	if item_id != null and cat == null:
+		never.append("category unresolved (the drop chance table has no row for this item type)")
 	if not never.is_empty():
 		report.count("drop_entries_unresolved")
 		report.warning("drop_unresolved", "drops", id, "'%s' never rolls: %s" % [str(e.get("name", "?")), "; ".join(never)])
-		# Brief: an unresolved drop that Maple Island progression needs is a blocker. An unresolved item counts through
-		# its candidates: a member that may be a quest item but cannot roll is the same hole.
-		for want in maybe:
-			if _quest_items.has(want):
-				_error(id, "%s: item %s%s is needed by quest %s but never rolls here (%s): a progression blocker unless another source gives it" % [
-					where, want, "" if item_id != null else " (a candidate of the unresolved item)", str(_quest_items[want]), "; ".join(never)])
+		if item_id != null and _quest_items.has(str(item_id)):
+			_error(id, "%s: item %s is needed by quest %s but never rolls here (%s): a progression blocker unless another source gives it" % [
+				where, str(item_id), str(_quest_items[str(item_id)]), "; ".join(never)])
 
 
-## Re-reads a chance source's raw_value exactly and compares every stored number with the reading.
-func _check_raw(id: String, where: String, cs: Dictionary, p: Variant, qty: Variant, meso: bool) -> void:
-	var raw: Variant = cs.get("raw_value", null)
-	var parsed := DropChance.parse_by_format(cs.get("format", null), raw)
-	if not bool(parsed.ok):
-		_error(id, "%s.chance_source: raw_value does not read as %s: %s" % [where, str(cs.get("format", "")), parsed.error])
-		return
-	var exact := float(parsed.probability)
-	for pair in [["normalized_probability", cs.get("normalized_probability", null)], ["probability", p]]:
-		var v: Variant = pair[1]
-		if not ValidationUtil.is_number(v) or is_nan(float(v)) or float(v) < 0.0 or float(v) > 1.0:
-			_error(id, "%s: %s %s is not a probability in [0, 1]" % [where, pair[0], var_to_str(v)])
-		elif absf(float(v) - exact) > EPSILON * maxf(1.0, exact):
-			_error(id, "%s: %s %s is not the exact reading of %s (%s)" % [where, pair[0], str(v), var_to_str(raw), str(exact)])
-	if str(cs.get("conversion", "")) != str(parsed.conversion):
-		_error(id, "%s.chance_source: conversion %s should be %s" % [where, var_to_str(cs.get("conversion", null)), var_to_str(parsed.conversion)])
-	var quest := str(parsed.get("quest", ""))
-	var stored: Variant = cs.get("kuro_quest_condition", null)
-	if not meso and quest != (str(stored) if stored != null else ""):
-		_error(id, "%s.chance_source: kuro_quest_condition %s differs from the raw value's quest flag %s" % [where, var_to_str(stored), var_to_str(quest)])
-	if parsed.format == "percent_base":
-		if bool(parsed.meso) != meso:
-			_error(id, "%s.chance_source: raw_value %s is %s" % [where, var_to_str(raw), "an item row, not a \"Meso drop\" row" if meso else "a meso row, not an item row"])
-		if not meso:
-			if not (qty is Dictionary) or not bool(parsed.has_qty) or int(qty.get("min", -1)) != int(parsed.qty_min) \
-					or int(qty.get("max", -1)) != int(parsed.qty_max):
-				_error(id, "%s: quantity %s differs from the raw value's %s" % [where, var_to_str(qty), var_to_str(raw)])
-	elif not meso:
-		# A reactor row carries no quantity: the one in the record is a labelled MisoStory adaptation.
-		var adaptation: Variant = qty.get("adaptation", null) if qty is Dictionary else null
-		if not (adaptation is Dictionary) or not ValidationUtil.same(adaptation.get("verified", null), false) \
-				or not ValidationUtil.non_empty(adaptation.get("reason", null)):
-			_error(id, "%s: KuroDB reactor rows give no quantity, so quantity must carry adaptation {reason, verified: false}" % where)
+## The table category the rule gives an item (DropRates.CATEGORIES), or "" for a type the table has no row for.
+static func expected_category(item: Dictionary, gated: bool) -> String:
+	match str(item.get("type", "")):
+		"Etc":
+			if gated:
+				return "etc_quest_gated"
+			return "etc_own_leftover" if str(item.get("subtype", "")) == "Monster Drop" else "etc_other"
+		"Use":
+			return "use_scroll" if str(item.get("subtype", "")) == "Scroll" else "use_consumable"
+		"Equip":
+			return "equip"
+		"Setup":
+			return "setup"
+	return ""
 
 
-## The C1 quest-gate rule: gated exactly when the item is a quest item a Maple Island quest objective asks for.
-func _check_gate(id: String, where: String, e: Dictionary, item_id: Variant) -> void:
+## The D3-9 quest-gate rule: gated exactly when the item's MeowDB subtype is "Quest Item" and one Maple Island quest
+## objective asks for it. Returns the expected gate quest ("" for none).
+func _check_gate(id: String, where: String, e: Dictionary, item_id: Variant, item: Dictionary) -> String:
 	var gate: Variant = e.get("quest_gate", null)
 	var expected := ""
-	if item_id != null:
-		var is_quest_item := str(db.item(str(item_id)).get("subtype", "")) == QUEST_SUBTYPE or _membership_marks_quest(e)
+	if item_id != null and not item.is_empty():
+		var is_quest_item := str(item.get("subtype", "")) == QUEST_SUBTYPE
 		var asking: Array = _quest_items.get(str(item_id), [])
 		if is_quest_item and asking.size() > 1:
-			_error(id, "%s: quest item %s is asked for by quests %s; the C1 gate rule needs exactly one" % [where, str(item_id), str(asking)])
+			_error(id, "%s: quest item %s is asked for by quests %s; the gate rule (D3-9) needs exactly one" % [where, str(item_id), str(asking)])
 		elif is_quest_item and asking.size() == 1:
 			expected = str(asking[0])
 	var actual := str(gate.get("quest_id", "")) if gate is Dictionary else ""
 	if actual != expected:
-		_error(id, "%s: the C1 quest-gate rule gives %s, the record says %s" % [where,
+		_error(id, "%s: the quest-gate rule (D3-9) gives %s, the record says %s" % [where,
 			"quest %s" % expected if expected != "" else "no gate", "quest %s" % actual if actual != "" else "no gate"])
-	if gate is Dictionary and not ValidationUtil.same(gate.get("verified", null), false):
-		_error(id, "%s: quest_gate is a MisoStory derivation (decision D3-9) and must say verified: false" % where)
-
-
-## True when the membership source itself lists the member as a quest item (MeowDB's breakable list: the line after
-## the name is its subtype).
-func _membership_marks_quest(e: Dictionary) -> bool:
-	var ms: Variant = e.get("membership_source", null)
-	if not (ms is Dictionary) or not ValidationUtil.same(ms.get("authority", null), ProvenanceAuthorities.MEOWDB):
-		return false
-	var lines := str(ms.get("raw_value", "")).split("\n")
-	return lines.size() > 1 and lines[1].strip_edges() == QUEST_SUBTYPE
-
-
-# --- meso ---------------------------------------------------------------------------------------------------
-
-func _check_meso(id: String, meso: Dictionary) -> void:
-	var a: Variant = meso.get("amount_source", null)
-	if str(meso.get("amount_state", "")) == "resolved" and a is Dictionary:
-		if not (a.get("authority", null) in MESO_AMOUNT_AUTHORITIES):
-			_error(id, "meso.amount_source: a meso amount comes from MeowDB or Hidden Street (D3-5), got %s" % var_to_str(a.get("authority", null)))
-		var parsed := DropChance.parse_meso_amount(a.get("raw_value", null))
-		if not bool(parsed.ok) or parsed.state != "resolved":
-			_error(id, "meso.amount_source: raw_value %s does not read as a meso amount%s" % [var_to_str(a.get("raw_value", null)),
-				": " + str(parsed.error) if not bool(parsed.ok) else ""])
-		elif int(parsed.min) != int(meso.get("min", -1)) or int(parsed.max) != int(meso.get("max", -1)):
-			_error(id, "meso: min %s, max %s are not the amount_source's %d-%d" % [_num(meso.get("min", null)), _num(meso.get("max", null)),
-				int(parsed.min), int(parsed.max)])
-	elif str(meso.get("amount_state", "")) != "resolved":
-		report.warning("drop_unresolved", "drops", id, "meso amount unresolved: the meso bag never rolls")
-	var cs: Variant = meso.get("chance_source", null)
-	if str(meso.get("chance_state", "")) == "resolved" and cs is Dictionary:
-		if not ValidationUtil.same(cs.get("authority", null), ProvenanceAuthorities.KURODB):
-			_error(id, "meso.chance_source: the meso chance comes from KuroDB only; MeowDB's report form value dropChancePct is not a chance (D3-5), got %s" % var_to_str(cs.get("authority", null)))
-		_check_raw(id, "meso", cs, meso.get("probability", null), null, true)
-	elif str(meso.get("chance_state", "")) != "resolved":
-		report.warning("drop_unresolved", "drops", id, "meso chance unresolved: the meso bag never rolls")
+	return expected
 
 
 func _error(id: String, message: String) -> void:
 	report.error("drop_policy", "drops", id, message)
-
-
-## A JSON number for a message: whole numbers without ".0".
-static func _num(v: Variant) -> String:
-	if ValidationUtil.is_number(v) and float(v) == floorf(float(v)):
-		return str(int(v))
-	return var_to_str(v)

@@ -1038,7 +1038,7 @@
       }
     ],
     "gaps": [
-      "meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/5, 2026-10-05T07:48:29.502Z: \"No meso reports yet.\"); the runtime uses the owner's level formula (decision D3-12, game/data/misostory/meso_rules.json)",
+      "meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/5, 2026-10-05T07:48:29.502Z: \"No meso reports yet.\"); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)",
       "meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)"
     ]
   },
@@ -1080,7 +1080,7 @@
     "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/monsters/5, read 2026-10-05T07:48:29.502Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
     "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
     "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
-    "Mesos: MeowDB's player report when there is one (meso.amount_source), else the owner's level formula; chance and exceptions in game/data/misostory/meso_rules.json (decision D3-12).",
+    "Mesos: MeowDB's player report when there is one (meso.amount_source); the rest of the rule (the level formula where MeowDB has no report, the chance, the owners without mesos) is game/data/misostory/meso_rules.json (decision D3-12).",
     "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
   ]
 }

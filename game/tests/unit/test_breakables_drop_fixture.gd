@@ -1,29 +1,26 @@
 extends DataValidationTestCase
-## The Wooden Box drop table the box tests roll (game/tests/data/breakables/drops_0000001_v2.json) is valid schema v2
-## data (contract C1): swapped in as drops/0000001 of a cloned ContentDB, the validator finds nothing. Its values follow
-## decision D3-7 (Board and Screw 1/1 gated to 1012, Apple 1/4, Egg unresolved, no mesos) and cite the dated captures.
+## The Wooden Box drop table the box tests roll (game/tests/data/breakables/drops_0000001.json) is valid schema 3 data
+## (contract C1): swapped in as drops/0000001 of a cloned ContentDB, the validator finds nothing new. It follows
+## decision D3-11 (MeowDB's community list: Old Wooden Board and Rusty Screw gated to Pio's 1012 by D3-9, Apple and
+## Egg; every rarity Common from Henesys.gg) and holds no meso block (a breakable never drops mesos, D3-12).
 
-const FIXTURE := "res://tests/data/breakables/drops_0000001_v2.json"
+const FIXTURE := "res://tests/data/breakables/drops_0000001.json"
 
 
-func test_the_box_fixture_is_valid_v2_data() -> void:
+func test_the_box_fixture_is_valid_schema_3_data() -> void:
 	var f := load_fixture(FIXTURE)
 	var c := clone_db()
 	c.canonical.drops["0000001"] = f
 	reindex(c)
 	var r := run_validator(c)
 	expect_no_new(r)
-	# Counted against the unbroken copy, so this holds before and after the drops package rewrites the shipped
-	# records as v2: the fixture replaces drops/0000001 (one more v2 record unless the shipped one already is v2).
-	var shipped: Dictionary = db().canonical.get("drops", {}).get("0000001", {})
-	var shipped_v2 := int(shipped.get("schema_version", 1)) == 2
-	var base := baseline()
-	assert_eq(int(r.stats.get("drop_records_v2_checked", 0)), int(base.stats.get("drop_records_v2_checked", 0)) + (0 if shipped_v2 else 1),
-		"the fixture is checked as a v2 record")
-	assert_eq(int(r.stats.get("drop_entries_v2_checked", 0)), int(base.stats.get("drop_entries_v2_checked", 0))
-		- ((shipped.get("entries", []) as Array).size() if shipped_v2 else 0) + 4, "its four entries checked")
+	assert_eq(int(f.get("schema_version", 0)), DropRates.SCHEMA_VERSION, "schema 3")
 	var gates := {}
+	var cats := {}
 	for e: Dictionary in f.entries:
 		gates[String(e.key)] = e.quest_gate.quest_id if e.quest_gate is Dictionary else null
+		cats[String(e.key)] = "%s/%s" % [e.chance_category, e.rarity.label]
 	assert_eq(gates, {"apple": null, "egg": null, "rusty-screw": "1012", "old-wooden-board": "1012"}, "gates (D3-9)")
+	assert_eq(cats, {"apple": "use_consumable/Common", "egg": "use_consumable/Common",
+		"rusty-screw": "etc_quest_gated/Common", "old-wooden-board": "etc_quest_gated/Common"}, "categories and rarity")
 	assert_eq(f.meso, null, "a Wooden Box never drops mesos")

@@ -1,11 +1,12 @@
 extends TestCase
 ## The large offline simulation (Iteration Three brief, "Drop Testing"): 120,000 seeded kills of every drop owner,
-## and each observed rate must sit within a statistical bound of the rate the record configures. It only checks that
-## the roller behaves as configured; it is never a source of a probability (nothing is read back into the data).
+## and each observed rate must sit within a statistical bound of the chance the owner's table configures for the
+## member's category and rarity (data/misostory/drop_rates.json, decision D3-11). It only checks that the roller behaves
+## as configured; it is never a source of a probability (nothing is read back into the data).
 ##
 ## Bound: |observed - p| <= Z * sqrt(p (1 - p) / n) with Z = 5 (a false alarm about once in 1.7 million checks), plus
-## exact checks where p is 0 or 1. Meso bags: the bag rate against the KuroDB chance, and each integer amount in
-## [min, max] against the uniform share 1 / (max - min + 1) of the bags.
+## exact checks where p is 0 or 1. Meso bags: the bag rate against meso_rules.json's chance (D3-12), and each integer
+## amount in [min, max] against the uniform share 1 / (max - min + 1) of the bags.
 
 const KILLS := 120000
 const Z := 5.0
@@ -13,8 +14,9 @@ const Z := 5.0
 
 func parity_keys() -> Dictionary:
 	return {
-		"test_every_owner_rolls_as_configured": ["mechanic:drop-simulation", "drop:2/snail-shell", "drop:3/blue-snail-shell",
-			"drop:4/mushroom-spore", "drop:5/red-snail-shell", "drop:9/orange-mushroom-cap", "drop:1/jr-sentinel-shellpiece"],
+		"test_every_owner_rolls_as_configured": ["mechanic:drop-simulation", "mechanic:drop-chance-table", "drop:2/snail-shell",
+			"drop:3/blue-snail-shell", "drop:4/mushroom-spore", "drop:5/red-snail-shell", "drop:9/orange-mushroom-cap",
+			"drop:1/jr-sentinel-shellpiece"],
 		"test_wooden_box_with_and_without_pios_quest": ["breakable:0000001", "quest:1012", "mechanic:quest-gated-drops"],
 		"test_meso_bags_rate_and_uniform_amounts": ["mechanic:meso-chance-source", "mechanic:meso-amount-source"],
 	}
@@ -34,9 +36,11 @@ func _bound(p: float, n: int) -> float:
 func _check_items(owner_id: String, sim: Dictionary, quests: PackedStringArray) -> void:
 	var n := int(sim.kills)
 	var expected := {}
+	var table: Dictionary = db().miso_table("drop_rates").chance_table
 	for row in DropRates.effective_entries(owner_id, db()):
 		if DropRates.may_roll(row, quests):
 			expected[row.item_id] = float(row.chance)
+			assert_eq(float(row.chance), float(table[row.category][row.rarity]), "drops/%s %s: the table cell" % [owner_id, row.key])
 	for item_id in sim.item_drops:
 		assert_true(expected.has(item_id), "drops/%s: %s dropped but may not roll here" % [owner_id, item_id])
 	for item_id in expected:
@@ -69,7 +73,7 @@ func test_wooden_box_with_and_without_pios_quest() -> void:
 	var with_pio := DropRoller.simulate("0000001", KILLS, db(), _rng(78), {"quests_in_progress": quests})
 	_check_items("0000001", with_pio, quests)
 	assert_eq(int(with_pio.meso_drops) + int(without.meso_drops), 0, "a box never drops mesos")
-	assert_false((with_pio.items as Dictionary).has("237"), "Egg (unresolved) never drops")
+	assert_true((with_pio.items as Dictionary).has("236") and (with_pio.items as Dictionary).has("237"), "Apple and Egg drop at 2%")
 
 
 func test_meso_bags_rate_and_uniform_amounts() -> void:
@@ -80,12 +84,13 @@ func test_meso_bags_rate_and_uniform_amounts() -> void:
 		var sim := DropRoller.simulate(owner_id, KILLS, db(), _rng(seed_value))
 		var p := float(rule.chance)
 		var bags := int(sim.meso_drops)
-		assert_near(float(bags) / float(KILLS), p, _bound(p, KILLS), "drops/%s meso bag rate vs KuroDB %s" % [owner_id, str(p)])
+		assert_near(p, 0.6, 1e-15, "drops/%s: the meso rule's chance (D3-12)" % owner_id)
+		assert_near(float(bags) / float(KILLS), p, _bound(p, KILLS), "drops/%s meso bag rate vs the rule's %s" % [owner_id, str(p)])
 		var span := int(rule.max) - int(rule.min) + 1
 		var share := 1.0 / float(span)
 		var total := 0
 		for amount in sim.meso_amounts:
-			assert_between(float(amount), float(rule.min), float(rule.max), "drops/%s amount %s inside the record's range" % [owner_id, str(amount)])
+			assert_between(float(amount), float(rule.min), float(rule.max), "drops/%s amount %s inside the rule's range" % [owner_id, str(amount)])
 			total += int(sim.meso_amounts[amount]) * int(amount)
 		for amount in range(int(rule.min), int(rule.max) + 1):
 			var got := float((sim.meso_amounts as Dictionary).get(amount, 0)) / float(bags)

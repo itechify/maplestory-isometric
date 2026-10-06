@@ -51,10 +51,10 @@ const PHASE16_CATEGORIES := ["quest-reward-item", "quest-objective-item", "quest
 const VALUE_KEY := "value"
 
 ## Subtrees never swept, at any depth: provenance and commentary, which cite pages and ids outside the dataset
-## (including the per-property source objects of contract C1/C7: `provenance` blocks and a v2 drop entry's
-## membership_source / chance_source and the meso amount_source, which hold KuroDB and Hidden Street ids).
+## (including the per-property source objects of contract C1/C7: `provenance` blocks and a schema 3 drop entry's
+## membership_source and rarity source and the meso amount_source and sources_compared, which cite pages, not links).
 const EXCLUDED_KEYS := ["source", "field_sources", "cross_checks", "discrepancies", "notes", "gaps",
-	"change_history", "external", "provenance", "membership_source", "chance_source", "amount_source"]
+	"change_history", "external", "provenance", "membership_source", "amount_source", "sources_compared"]
 
 ## Per-domain subtrees never swept (path from the record root). Items list every place in the whole game an item
 ## comes from or goes to (Victoria Island shops, monsters and quests), which is reference material, not a link

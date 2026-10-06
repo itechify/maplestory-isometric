@@ -1,0 +1,254 @@
+{
+  "id": "0000001",
+  "name": "Wooden Box drop table",
+  "schema_version": 3,
+  "owner": {
+    "kind": "breakable",
+    "id": "0000001",
+    "name": "Wooden Box"
+  },
+  "membership_authority": "MeowDB MS Classic",
+  "membership_list": "Drops (MS Classic)",
+  "entries": [
+    {
+      "key": "old-wooden-board",
+      "name": "Old Wooden Board",
+      "item_id": "442",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "442"
+        ],
+        "evidence": "game/data/canonical/items/442.json is the only local item named \"Old Wooden Board\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 1) carries item 442, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z",
+        "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Old Wooden Board\nQuest Item\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Old Wooden Board | Quest Item | An old wooden board from an old, unusable box that was broken down. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Quest Item",
+        "quest_gated": true,
+        "item": "game/data/canonical/items/442.json"
+      },
+      "chance_category": "etc_quest_gated",
+      "quest_gate": {
+        "quest_id": "1012",
+        "basis": "MeowDB item subtype \"Quest Item\" (items/442.json); quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress.",
+        "rule": "quest-gate rule (contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
+        "decision": "D3-9",
+        "verified": false
+      },
+      "notes": []
+    },
+    {
+      "key": "rusty-screw",
+      "name": "Rusty Screw",
+      "item_id": "441",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "441"
+        ],
+        "evidence": "game/data/canonical/items/441.json is the only local item named \"Rusty Screw\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 6) carries item 441, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z",
+        "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "ETC",
+        "raw_value": "Rusty Screw\nQuest Item\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Rusty Screw | Quest Item | A rusty screw from an old, unusable box that was broken down. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Etc",
+        "item_subtype": "Quest Item",
+        "quest_gated": true,
+        "item": "game/data/canonical/items/441.json"
+      },
+      "chance_category": "etc_quest_gated",
+      "quest_gate": {
+        "quest_id": "1012",
+        "basis": "MeowDB item subtype \"Quest Item\" (items/441.json); quest 1012 (Pio's Collecting Recycled Goods) asks for 3 in objectives.item_collection, so the entry rolls only while 1012 is in progress.",
+        "rule": "quest-gate rule (contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md): a MisoStory derivation",
+        "decision": "D3-9",
+        "verified": false
+      },
+      "notes": []
+    },
+    {
+      "key": "apple",
+      "name": "Apple",
+      "item_id": "236",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "236"
+        ],
+        "evidence": "game/data/canonical/items/236.json is the only local item named \"Apple\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 7) carries item 236, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z",
+        "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Apple\nFood\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Apple | Food | A red, ripe, and tasty apple. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Food",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/236.json"
+      },
+      "chance_category": "use_consumable",
+      "quest_gate": null,
+      "notes": []
+    },
+    {
+      "key": "egg",
+      "name": "Egg",
+      "item_id": "237",
+      "item_resolution": {
+        "state": "resolved",
+        "method": "exact_name",
+        "candidates": [
+          "237"
+        ],
+        "evidence": "game/data/canonical/items/237.json is the only local item named \"Egg\"; MeowDB's own drop entry for this owner (https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001, retrieved 2026-10-04T10:07:46.821Z; entry 8) carries item 237, the same id"
+      },
+      "membership_source": {
+        "authority": "MeowDB MS Classic",
+        "url": "https://meowdb.com/msclassic/breakables/0000001",
+        "read_at": "2026-10-05T07:49:44.592Z",
+        "capture": "tools/meowdb/captures/breakable_0000001.txt",
+        "list": "Drops (MS Classic)",
+        "list_group": "USE",
+        "raw_value": "Egg\nFood\n▲\n2\n▼\n0",
+        "votes": {
+          "up": 2,
+          "down": 0,
+          "score": 2
+        }
+      },
+      "rarity": {
+        "label": "Common",
+        "source": {
+          "authority": "Henesys.gg",
+          "url": "https://henesys.gg/loot",
+          "read_at": "2026-10-06T05:17:21.423Z",
+          "capture": "tools/henesys/captures/item_rarity.json",
+          "row": "Egg | Food | A nutritious egg. | Common"
+        }
+      },
+      "category_inputs": {
+        "item_type": "Use",
+        "item_subtype": "Food",
+        "quest_gated": false,
+        "item": "game/data/canonical/items/237.json"
+      },
+      "chance_category": "use_consumable",
+      "quest_gate": null,
+      "notes": []
+    }
+  ],
+  "meowdb_reference": null,
+  "meso": null,
+  "provenance": {
+    "membership": {
+      "authority": "MeowDB MS Classic",
+      "url": "https://meowdb.com/msclassic/breakables/0000001",
+      "read_at": "2026-10-05T07:49:44.592Z",
+      "capture": "tools/meowdb/captures/breakable_0000001.txt",
+      "decision": "D3-11"
+    },
+    "rarity": {
+      "authority": "Henesys.gg",
+      "url": "https://henesys.gg/loot",
+      "read_at": "2026-10-06T05:17:21.423Z",
+      "capture": "tools/henesys/captures/item_rarity.json",
+      "decision": "D3-11"
+    }
+  },
+  "source": {
+    "authority": "MeowDB MS Classic",
+    "url": "https://meowdb.com/msclassic/breakables/0000001",
+    "retrieved_at": "2026-10-05T07:49:44.592Z",
+    "capture": "tools/meowdb/captures/breakable_0000001.txt"
+  },
+  "field_sources": {
+    "entries[].item_id": {
+      "url": "https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001",
+      "retrieved_at": "2026-10-04T10:07:46.821Z",
+      "note": "MeowDB's own cached drop entries for this owner: each member's item id is checked against them, and they decide between local items that share a name"
+    }
+  },
+  "gaps": [
+    "mesos: MeowDB has no meso reports for breakables; the Wooden Box drops no mesos (decision D3-12)",
+    "drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime",
+    "quantity: no source gives one; one item per drop (decision D3-11)"
+  ],
+  "discrepancies": [],
+  "notes": [
+    "Membership: MeowDB's community list \"Drops (MS Classic)\" on the live page (https://meowdb.com/msclassic/breakables/0000001, read 2026-10-05T07:49:44.592Z), every entry with its votes; nothing is excluded for votes (decision D3-11).",
+    "Rarity: Henesys.gg's label per item (https://henesys.gg/loot, read 2026-10-06T05:17:21.423Z; tools/henesys/captures/item_rarity.json). For this private project only: ask Henesys.gg before publishing it.",
+    "Chance: the drop chance table game/data/misostory/drop_rates.json by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).",
+    "Mesos: none (decision D3-12, game/data/misostory/meso_rules.json).",
+    "Runtime (contract C1): an entry rolls only when item_id, rarity and chance_category are all resolved and quest_gate is null or its quest is in progress."
+  ]
+}

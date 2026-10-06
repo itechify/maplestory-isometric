@@ -63,7 +63,7 @@ func install() -> void:
 	# Monsters.
 	d.register_command("spawn", "spawn <monster> [n]: n debug monsters around the player (non-canonical, never in a slot)", _cmd_spawn)
 	d.register_command("kill", "kill [nearest|all]: kill live monsters (their own death path when they have one)", _cmd_kill)
-	d.register_command("drops", "drops <monster|owner id> [kills] [seed]: simulate kills with DropRoller (canonical records: Hidden Street/MeowDB membership, KuroDB chances; the character's quests gate quest drops); lists unresolved members", _cmd_drops)
+	d.register_command("drops", "drops <monster|owner id> [kills] [seed]: simulate kills with DropRoller (canonical records: MeowDB membership and Henesys.gg rarity; chances from the owner's table drop_rates.json, mesos from meso_rules.json; the character's quests gate quest drops); lists unresolved members", _cmd_drops)
 	d.register_command("monsters", "monsters [name]: search monster ids", _cmd_search.bind("monsters"))
 	# Character.
 	d.register_command("exp", "exp <n>: gain n EXP through Game.gain_exp (level-ups, AP, SP, HP/MP as in play)", _cmd_exp)

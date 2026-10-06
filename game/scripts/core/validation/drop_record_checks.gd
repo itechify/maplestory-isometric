@@ -1,49 +1,51 @@
 class_name DropRecordChecks
 extends RefCounted
-## Schema v2 canonical drop records (Iteration Three contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md): drop
-## membership from one authority, chances from another, each value with its own source. Records without
-## schema_version (v1: MeowDB community lists, chance null) are left to the v1 checks exactly as before.
+## Schema 3 canonical drop records (Iteration Three contract C1, docs/runtime/ITERATION_THREE_CONTRACTS.md; decisions
+## D3-9, D3-11, D3-12): who drops what (MeowDB's community list), each member's item, rarity (Henesys.gg) and table
+## category, its quest gate, and MeowDB's meso reports. Only sourced facts: a record holds no probability, quantity or
+## made-up meso amount (those are the project owner's rules in game/data/misostory, read at runtime by DropRates).
 ##
-##   drop_record  the C1 shape and the probability rules below
+##   drop_record  the C1 shape below
 ##   provenance   every per-entry and meso source object, through ProvenanceChecks.check_source_object and the authority
-##                registry (ProvenanceAuthorities): KuroDB only for probabilities, Hidden Street only for membership
-##                and meso amounts, every non-MeowDB value with url + read_at + capture
+##                registry (ProvenanceAuthorities): MeowDB for membership and meso amounts, Henesys.gg only for rarity,
+##                every non-MeowDB value with url + read_at + capture
 ## Item and quest references (entries[].item_id, quest_gate.quest_id) are resolved by the ReferenceChecks sweep, which
-## skips a null item_id (an unresolved member).
+## skips a null item_id (an unresolved member). The policy against the captures, the item data and the rule files is
+## DropChecks.
 ##
+## Per record: schema_version 3; owner {kind: monster | breakable, id: the record id, name}; membership_authority is a
+## registered authority allowed to supply "membership"; membership_list "Drops (MS Classic)"; no key anywhere in the
+## record names a chance or quantity (NO_PROBABILITY_KEYS).
 ## Per entry:
-##   - key (unique) and name are non-empty strings; item_resolution.state is one of RESOLUTION_STATES and its method
-##     one of RESOLUTION_METHODS; item_id is a string exactly when the state is "resolved" (and the method is not
-##     "none"); no two entries resolve to the same item
-##   - membership_source is a source object for "membership" whose authority is the record's membership_authority and
-##     whose raw_value names the entry; an entry may not also be an excluded_kuro_only row (KuroDB never adds members)
-##   - chance_state "resolved": probability is a number in [0, 1]; chance_source is a source object for "probability"
-##     whose normalized_probability equals the probability and re-derives from its raw_value: format "percent_base"
-##     ("<p>% base", p / 100, never a meso row) or "reactor_chance_value" ("Chance value N", 1 / N, with a non-empty
-##     interpretation); quantity is {min, max} whole numbers with 1 <= min <= max
-##   - chance_state "unresolved": probability is null (the entry never rolls); a chance_source or quantity, if given,
-##     is still checked
-##   - quest_gate is null or {quest_id, basis}
-## pending_kuro_candidates (optional): {kuro_item_id, name, raw_value, member, read, reason}; the member is an entry key
-## whose chance stays unresolved with no chance_source; never also an excluded_kuro_only row (_check_pending_candidates).
-## Meso (null = the owner never drops mesos):
-##   - amount_state "resolved": min/max whole numbers, 1 <= min <= max, an amount_source for "mesos.amount" whose
-##     "Mesos: a[-b]" raw_value (when it has that form) gives the same numbers; "unresolved": min and max null
-##   - chance_state as for entries, with chance_source for "mesos.probability" whose raw_value is a "Meso drop" row
+##   - key (unique, the slug of the name) and name are non-empty strings
+##   - item_resolution {state, method, candidates, evidence}: item_id is a string exactly when the state is "resolved";
+##     "exact_name" lists only the item, "meowdb_drop_entry" lists two or more local items including the one chosen;
+##     no two entries resolve to the same item
+##   - membership_source: a source object for "membership" with the record's membership_authority, list, raw_value
+##     "<name>\n<subtype>\n▲\n<up>\n▼\n<down>" naming the entry, and votes {up, down, score = up - down} matching it
+##   - rarity: null (unresolved: the entry never drops) or {label: one of DropRates.RARITIES, source: a source object
+##     for "rarity" whose row ends with the label}
+##   - category_inputs {item_type, item_subtype, quest_gated, item}; chance_category null or one of DropRates.CATEGORIES
+##   - quest_gate null or {quest_id, basis, decision: "D3-9", verified: false}
+## Meso: a monster record's meso is {amount_state: "reported" | "not_reported", min, max, amount_source, gaps}; reported
+## needs whole numbers 1 <= min <= max and an amount_source for "mesos.amount" whose "Mesos: a[-b] per kill" raw value
+## (when it has that form) gives them; not_reported needs min, max and amount_source null. A breakable's meso is null.
 
-const SCHEMA_VERSION := 2
-const RESOLUTION_STATES := ["resolved", "ambiguous", "not_in_snapshot", "not_in_classic"]
-const RESOLUTION_METHODS := ["exact", "normalized", "alias_with_evidence", "none"]
-const CHANCE_STATES := ["resolved", "unresolved"]
-const CHANCE_FORMATS := ["percent_base", "reactor_chance_value"]
-## |normalized - parsed| above this is a conversion error (a truncation, a 1/N vs N% mix-up, a /100 missed).
-const PROBABILITY_EPSILON := 1e-12
+const SCHEMA_VERSION := DropRates.SCHEMA_VERSION
+const RESOLUTION_STATES := ["resolved", "ambiguous", "not_in_snapshot"]
+const RESOLUTION_METHODS := ["exact_name", "meowdb_drop_entry", "none"]
+const MESO_STATES := ["reported", "not_reported"]
+const MEMBERSHIP_LIST := "Drops (MS Classic)"
+const GATE_DECISION := "D3-9"
+## Keys that would put a chance or quantity into canonical data (contract C1: the records hold sourced facts only).
+const NO_PROBABILITY_KEYS := ["probability", "chance", "chance_source", "chance_state", "normalized_probability",
+	"quantity", "rate", "drop_chance"]
+## Subtrees whose text may mention chances (commentary).
+const COMMENT_KEYS := ["notes", "gaps", "discrepancies", "reason", "note", "basis", "evidence"]
 
 var db: ContentDB
 var report: ValidationReport
 var provenance: ProvenanceChecks
-var _percent := RegEx.new()
-var _reactor := RegEx.new()
 var _meso_amount := RegEx.new()
 
 
@@ -51,31 +53,48 @@ func _init(content: ContentDB, into: ValidationReport, provenance_checks: Proven
 	db = content
 	report = into
 	provenance = provenance_checks
-	_percent.compile("^\\s*(\\d+(?:\\.\\d+)?)\\s*%\\s*base\\b")
-	_reactor.compile("^\\s*Chance value\\s+(\\d+)\\s*(?:\\||$)")
-	_meso_amount.compile("^\\s*Mesos:\\s*(\\d+)(?:\\s*-\\s*(\\d+))?(?:\\s|$)")
+	_meso_amount.compile("^\\s*Mesos:\\s*(\\d+)(?:\\s*-\\s*(\\d+))?\\s+per kill")
 
 
-## v2 when schema_version is 2; v1 when it is absent (or 1).
-static func is_v2(rec: Dictionary) -> bool:
-	return ValidationUtil.same(rec.get("schema_version", null), SCHEMA_VERSION)
+## True when the record is schema 3.
+static func is_v3(rec: Dictionary) -> bool:
+	return DropRates.is_v3_record(rec)
+
+
+## The entry key the builder gives a name (tools/sources/parse.mjs entryKey): lower case, apostrophes dropped, every
+## other run of non-alphanumerics one "-", trimmed.
+static func entry_key(name: String) -> String:
+	var s := name.to_lower().replace("'", "").replace("’", "")
+	var out := ""
+	var dash := false
+	for ch in s:
+		var c := ch.unicode_at(0)
+		if (c >= 97 and c <= 122) or (c >= 48 and c <= 57):
+			out += ch
+			dash = false
+		elif not dash:
+			out += "-"
+			dash = true
+	return out.trim_prefix("-").trim_suffix("-")
 
 
 func run() -> void:
 	for id in db.ids("drops"):
 		var rec: Dictionary = db.drop_table(id)
-		var version: Variant = rec.get("schema_version", null)
-		if version == null or ValidationUtil.same(version, 1):
+		if not is_v3(rec):
+			report.error("drop_record", "drops", id, "schema_version must be %d (contract C1), got %s" % [SCHEMA_VERSION,
+				var_to_str(rec.get("schema_version", null))])
 			continue
-		if not is_v2(rec):
-			report.error("drop_record", "drops", id, "schema_version must be %d (contract C1) or absent (v1), got %s" % [SCHEMA_VERSION, var_to_str(version)])
-			continue
-		report.count("drop_records_v2_checked")
+		report.count("drop_records_checked")
 		check_record(id, rec)
 
 
 func check_record(id: String, rec: Dictionary) -> void:
 	var owner_kind := ProvenanceChecks.drop_owner_kind("drops", rec)
+	var owner: Variant = rec.get("owner", null)
+	if not (owner is Dictionary) or not (owner_kind in ["monster", "breakable"]) or not ValidationUtil.same(owner.get("id", null), id) \
+			or not ValidationUtil.non_empty(owner.get("name", null)):
+		_error(id, "owner must be {kind: monster | breakable, id: \"%s\", name}" % id)
 	var membership: Variant = rec.get("membership_authority", null)
 	if not ProvenanceAuthorities.has(membership):
 		report.error("provenance", "drops", id, "membership_authority %s is not a registered authority (%s)" % [
@@ -84,177 +103,141 @@ func check_record(id: String, rec: Dictionary) -> void:
 	elif not ProvenanceAuthorities.allows(membership, "membership"):
 		report.error("provenance", "drops", id, "membership_authority %s may not supply 'membership' (it may supply: %s)" % [
 			membership, ProvenanceAuthorities.allowed_text(membership)])
-	var excluded := _excluded_names(id, rec.get("excluded_kuro_only", null))
+	if not ValidationUtil.same(rec.get("membership_list", null), MEMBERSHIP_LIST):
+		_error(id, "membership_list must be \"%s\" (MeowDB's community list, decision D3-11), got %s" % [MEMBERSHIP_LIST,
+			var_to_str(rec.get("membership_list", null))])
+	_check_no_probability(id, rec, "")
 	var keys := {}
 	var item_ids := {}
-	var by_key := {}
 	var entries: Array = ValidationUtil.as_array(rec.get("entries", null))
+	if not (rec.get("entries", null) is Array):
+		_error(id, "entries must be a list")
 	for i in entries.size():
 		var e: Variant = entries[i]
 		if not (e is Dictionary):
-			report.error("drop_record", "drops", id, "entries[%d] is not an object" % i)
+			_error(id, "entries[%d] is not an object" % i)
 			continue
-		report.count("drop_entries_v2_checked")
+		report.count("drop_entries_checked")
 		var where := "entries[%d] '%s'" % [i, str(e.get("key", e.get("name", "?")))]
-		_check_entry(id, e, where, membership, owner_kind, excluded)
+		_check_entry(id, e, where, membership, owner_kind)
 		var key: Variant = e.get("key", null)
 		if key is String:
 			if keys.has(key):
-				report.error("drop_record", "drops", id, "%s: key '%s' is used twice" % [where, key])
+				_error(id, "%s: key '%s' is used twice" % [where, key])
 			keys[key] = true
-			by_key[key] = e
 		var item_id: Variant = e.get("item_id", null)
 		if item_id is String:
 			if item_ids.has(item_id):
-				report.error("drop_record", "drops", id, "%s: item %s is also entry %s (one item, one roll)" % [where, item_id, item_ids[item_id]])
+				_error(id, "%s: item %s is also entry %s (one item, one roll)" % [where, item_id, item_ids[item_id]])
 			else:
 				item_ids[item_id] = where
-	_check_pending_candidates(id, rec.get("pending_kuro_candidates", null), by_key, rec.get("excluded_kuro_only", null))
 	var meso: Variant = rec.get("meso", null)
-	if meso != null:
-		if meso is Dictionary:
-			_check_meso(id, meso, owner_kind)
-		else:
-			report.error("drop_record", "drops", id, "meso must be an object or null (null = the owner never drops mesos)")
+	if owner_kind == "breakable":
+		if meso != null:
+			_error(id, "meso must be null for a breakable (MeowDB has no meso reports for breakables)")
+	elif meso is Dictionary:
+		_check_meso(id, meso, owner_kind)
+	else:
+		_error(id, "meso must be an object {amount_state, min, max, amount_source, gaps} for a monster")
 
 
 # --- entries ------------------------------------------------------------------------------------------------
 
-func _check_entry(id: String, e: Dictionary, where: String, membership: Variant, owner_kind: String, excluded: Dictionary) -> void:
+func _check_entry(id: String, e: Dictionary, where: String, membership: Variant, owner_kind: String) -> void:
 	for field in ["key", "name"]:
 		if not ValidationUtil.non_empty(e.get(field, null)):
-			report.error("drop_record", "drops", id, "%s: %s must be a non-empty string" % [where, field])
+			_error(id, "%s: %s must be a non-empty string" % [where, field])
 	var entry_name: String = e.name if e.get("name", null) is String else ""
+	if entry_name != "" and e.get("key", null) is String and e.key != entry_key(entry_name):
+		_error(id, "%s: key must be the slug of the name, '%s'" % [where, entry_key(entry_name)])
 	_check_resolution(id, e, where)
-	# Membership: who says this item drops at all.
+	# Membership: MeowDB's community list says this item drops.
 	var ms: Variant = e.get("membership_source", null)
 	if not (ms is Dictionary):
-		report.error("drop_record", "drops", id, "%s: membership_source is missing (every member names the source that lists it)" % where)
+		_error(id, "%s: membership_source is missing (every member names the list that has it)" % where)
 	else:
 		provenance.check_source_object("drops", id, "membership", ms, where + ".membership_source", owner_kind)
 		if membership is String and ProvenanceAuthorities.has(ms.get("authority", null)) and ms.authority != membership:
-			report.error("drop_record", "drops", id, "%s: membership_source.authority %s differs from the record's membership_authority %s" % [
-				where, ms.authority, membership])
+			_error(id, "%s: membership_source.authority %s differs from the record's membership_authority %s" % [where, ms.authority, membership])
+		if not ValidationUtil.same(ms.get("list", null), MEMBERSHIP_LIST):
+			_error(id, "%s: membership_source.list must be \"%s\"" % [where, MEMBERSHIP_LIST])
 		var raw: Variant = ms.get("raw_value", null)
-		if not ValidationUtil.non_empty(raw):
-			report.error("drop_record", "drops", id, "%s: membership_source.raw_value must be the membership source's text" % where)
-		elif entry_name != "" and not String(raw).contains(entry_name):
-			report.error("drop_record", "drops", id, "%s: membership_source.raw_value %s does not name '%s' (a member is read from its membership source)" % [
-				where, var_to_str(raw), entry_name])
-	if entry_name != "" and excluded.has(_name_key(entry_name)):
-		report.error("drop_record", "drops", id, "%s: '%s' is also an excluded_kuro_only row; KuroDB never adds a member (decision D3-6)" % [where, entry_name])
-	# Chance.
-	var state: Variant = e.get("chance_state", null)
-	var p: Variant = e.get("probability", null)
-	var cs: Variant = e.get("chance_source", null)
-	if not (state is String) or not (state in CHANCE_STATES):
-		report.error("drop_record", "drops", id, "%s: chance_state must be one of %s, got %s" % [where, str(CHANCE_STATES), var_to_str(state)])
-	elif state == "resolved":
-		_check_probability(id, where + ".probability", p)
-		if not (cs is Dictionary):
-			report.error("drop_record", "drops", id, "%s: chance_state is resolved but there is no chance_source (every resolved chance names its source)" % where)
+		var lines := String(raw).split("\n") if raw is String else PackedStringArray()
+		if lines.size() != 6 or lines[2] != "▲" or lines[4] != "▼":
+			_error(id, "%s: membership_source.raw_value must be the list's block \"name, subtype, ▲, up, ▼, down\", got %s" % [where, var_to_str(raw)])
 		else:
-			_check_chance_source(id, where + ".chance_source", cs, p, "probability", owner_kind, false)
-		_check_quantity(id, where, e.get("quantity", null), true)
-	else:
-		if p != null:
-			report.error("drop_record", "drops", id, "%s: probability must be null while chance_state is unresolved (an unresolved entry never rolls), got %s" % [where, var_to_str(p)])
-		if cs is Dictionary:
-			provenance.check_source_object("drops", id, "probability", cs, where + ".chance_source", owner_kind)
-		elif cs != null:
-			report.error("drop_record", "drops", id, "%s: chance_source must be an object or null" % where)
-		if e.get("quantity", null) != null:
-			_check_quantity(id, where, e.quantity, false)
+			if entry_name != "" and lines[0] != entry_name:
+				_error(id, "%s: membership_source.raw_value names %s, not '%s'" % [where, var_to_str(lines[0]), entry_name])
+			var votes: Variant = ms.get("votes", null)
+			if not (votes is Dictionary) or not _whole(votes.get("up", null)) or not _whole(votes.get("down", null)) \
+					or not ValidationUtil.same(votes.get("score", null), float(votes.get("up", 0)) - float(votes.get("down", 0))) \
+					or str(int(votes.get("up", -1))) != lines[3] or str(int(votes.get("down", -1))) != lines[5]:
+				_error(id, "%s: membership_source.votes must be {up, down, score = up - down} as the raw value shows (%s up, %s down)" % [
+					where, lines[3], lines[5]])
+	# Rarity: Henesys.gg's label, or null (unresolved: never drops).
+	var rarity: Variant = e.get("rarity", null)
+	if rarity != null:
+		if not (rarity is Dictionary) or not (str(rarity.get("label", "")) in DropRates.RARITIES):
+			_error(id, "%s: rarity must be null or {label: one of %s, source}" % [where, str(DropRates.RARITIES)])
+		else:
+			var src: Variant = rarity.get("source", null)
+			if not (src is Dictionary):
+				_error(id, "%s: rarity.source is missing (the capture row the label was read from)" % where)
+			else:
+				provenance.check_source_object("drops", id, "rarity", src, where + ".rarity.source", owner_kind)
+				var row := str(src.get("row", ""))
+				var parts := row.split("  /  ")
+				if row == "" or not String(parts[0]).strip_edges().ends_with("| " + str(rarity.label)):
+					_error(id, "%s: rarity.source.row %s does not end with the label '%s'" % [where, var_to_str(src.get("row", null)), str(rarity.label)])
+	# Category.
+	var inputs: Variant = e.get("category_inputs", null)
+	if not (inputs is Dictionary) or not inputs.has("item_type") or not inputs.has("item_subtype") or not (inputs.get("quest_gated", null) is bool):
+		_error(id, "%s: category_inputs must be {item_type, item_subtype, quest_gated, item}" % where)
+	var cat: Variant = e.get("chance_category", null)
+	if cat != null and not (str(cat) in DropRates.CATEGORIES):
+		_error(id, "%s: chance_category must be null or one of %s, got %s" % [where, str(DropRates.CATEGORIES), var_to_str(cat)])
 	var gate: Variant = e.get("quest_gate", null)
 	if gate != null:
 		if not (gate is Dictionary) or not (gate.get("quest_id", null) is String) or not ValidationUtil.non_empty(gate.get("basis", null)):
-			report.error("drop_record", "drops", id, "%s: quest_gate must be null or {quest_id, basis}" % where)
+			_error(id, "%s: quest_gate must be null or {quest_id, basis, decision, verified}" % where)
+		else:
+			if not ValidationUtil.same(gate.get("decision", null), GATE_DECISION):
+				_error(id, "%s: quest_gate.decision must be \"%s\" (the quest-gate rule)" % [where, GATE_DECISION])
+			if not ValidationUtil.same(gate.get("verified", null), false):
+				_error(id, "%s: quest_gate is a MisoStory derivation (decision %s) and must say verified: false" % [where, GATE_DECISION])
 	if e.has("notes") and not (e.notes is Array):
-		report.error("drop_record", "drops", id, "%s: notes must be a list" % where)
+		_error(id, "%s: notes must be a list" % where)
 
 
 func _check_resolution(id: String, e: Dictionary, where: String) -> void:
 	var res: Variant = e.get("item_resolution", null)
 	var item_id: Variant = e.get("item_id", null)
 	if not (res is Dictionary):
-		report.error("drop_record", "drops", id, "%s: item_resolution {state, method, candidates, note} is missing" % where)
+		_error(id, "%s: item_resolution {state, method, candidates, evidence} is missing" % where)
 		return
 	var state: Variant = res.get("state", null)
 	var method: Variant = res.get("method", null)
+	var cands: Variant = res.get("candidates", null)
 	if not (state is String) or not (state in RESOLUTION_STATES):
-		report.error("drop_record", "drops", id, "%s: item_resolution.state must be one of %s, got %s" % [where, str(RESOLUTION_STATES), var_to_str(state)])
+		_error(id, "%s: item_resolution.state must be one of %s, got %s" % [where, str(RESOLUTION_STATES), var_to_str(state)])
 	if not (method is String) or not (method in RESOLUTION_METHODS):
-		report.error("drop_record", "drops", id, "%s: item_resolution.method must be one of %s, got %s" % [where, str(RESOLUTION_METHODS), var_to_str(method)])
-	if res.has("candidates") and not (res.candidates is Array):
-		report.error("drop_record", "drops", id, "%s: item_resolution.candidates must be a list of MeowDB ids" % where)
+		_error(id, "%s: item_resolution.method must be one of %s, got %s" % [where, str(RESOLUTION_METHODS), var_to_str(method)])
+	if not (cands is Array):
+		_error(id, "%s: item_resolution.candidates must be a list of MeowDB ids" % where)
+		cands = []
+	if not ValidationUtil.non_empty(res.get("evidence", null)):
+		_error(id, "%s: item_resolution.evidence must say how the item was found" % where)
 	if ValidationUtil.same(state, "resolved"):
-		if item_id == null:
-			report.error("drop_record", "drops", id, "%s: item_resolution.state is resolved but item_id is null" % where)
-		if ValidationUtil.same(method, "none"):
-			report.error("drop_record", "drops", id, "%s: a resolved item needs a match method other than none" % where)
+		if not (item_id is String):
+			_error(id, "%s: item_resolution.state is resolved but item_id is not an id" % where)
+		elif ValidationUtil.same(method, "exact_name") and not ValidationUtil.same(cands, [item_id]):
+			_error(id, "%s: exact_name means the one local item with the name, so candidates must be [\"%s\"]" % [where, item_id])
+		elif ValidationUtil.same(method, "meowdb_drop_entry") and ((cands as Array).size() < 2 or not (item_id in cands)):
+			_error(id, "%s: meowdb_drop_entry decides between two or more local items with the name; candidates must list them, %s among them" % [where, item_id])
+		elif ValidationUtil.same(method, "none"):
+			_error(id, "%s: a resolved item needs the method that found it" % where)
 	elif state is String and item_id != null:
-		report.error("drop_record", "drops", id, "%s: item_id must be null while item_resolution.state is %s, got %s" % [where, state, var_to_str(item_id)])
-
-
-## The chance source of a resolved entry or meso chance: a registered source object, normalized_probability ==
-## probability, and the normalized value re-derived from raw_value by its format.
-func _check_chance_source(id: String, where: String, cs: Dictionary, p: Variant, property: String, owner_kind: String,
-		meso: bool) -> void:
-	provenance.check_source_object("drops", id, property, cs, where, owner_kind)
-	var normalized: Variant = cs.get("normalized_probability", null)
-	if not ValidationUtil.is_number(normalized):
-		report.error("drop_record", "drops", id, "%s: normalized_probability must be a number, got %s" % [where, var_to_str(normalized)])
-		return
-	if ValidationUtil.is_number(p) and absf(float(normalized) - float(p)) > PROBABILITY_EPSILON:
-		report.error("drop_record", "drops", id, "%s: normalized_probability %s differs from the probability %s" % [where, str(normalized), str(p)])
-	var raw: Variant = cs.get("raw_value", null)
-	var format: Variant = cs.get("format", null)
-	if not ValidationUtil.non_empty(raw):
-		report.error("drop_record", "drops", id, "%s: raw_value must keep the source's text verbatim" % where)
-		return
-	var parsed: Variant = null
-	var fmt: String = format if format is String else ""
-	match fmt:
-		"percent_base":
-			var m := _percent.search(raw)
-			if m == null:
-				report.error("drop_record", "drops", id, "%s: raw_value %s is not a \"<p>%% base\" value (format percent_base)" % [where, var_to_str(raw)])
-				return
-			parsed = m.get_string(1).to_float() / 100.0
-			var is_meso_row := String(raw).contains("Meso drop")
-			if meso and not is_meso_row:
-				report.error("drop_record", "drops", id, "%s: raw_value %s is an item row, not a \"Meso drop\" row" % [where, var_to_str(raw)])
-			elif not meso and is_meso_row:
-				report.error("drop_record", "drops", id, "%s: raw_value %s is a meso row, not an item row" % [where, var_to_str(raw)])
-		"reactor_chance_value":
-			var m := _reactor.search(raw)
-			if m == null or m.get_string(1).to_int() < 1:
-				report.error("drop_record", "drops", id, "%s: raw_value %s is not a \"Chance value N\" value with N >= 1 (format reactor_chance_value)" % [where, var_to_str(raw)])
-				return
-			parsed = 1.0 / float(m.get_string(1).to_int())
-			if not ValidationUtil.non_empty(cs.get("interpretation", null)):
-				report.error("drop_record", "drops", id, "%s: a reactor \"Chance value N\" read as 1/N is an interpretation; say so in interpretation (decision D3-7)" % where)
-		_:
-			report.error("drop_record", "drops", id, "%s: format must be one of %s, got %s" % [where, str(CHANCE_FORMATS), var_to_str(format)])
-			return
-	if absf(float(normalized) - float(parsed)) > PROBABILITY_EPSILON:
-		report.error("drop_record", "drops", id, "%s: normalized_probability %s does not follow from raw_value %s (%s gives %s)" % [
-			where, str(normalized), var_to_str(raw), format, str(parsed)])
-
-
-func _check_probability(id: String, where: String, p: Variant) -> void:
-	if not ValidationUtil.is_number(p) or is_nan(float(p)) or float(p) < 0.0 or float(p) > 1.0:
-		report.error("drop_record", "drops", id, "%s must be a number in [0, 1] when the chance is resolved, got %s" % [where, var_to_str(p)])
-
-
-func _check_quantity(id: String, where: String, q: Variant, required: bool) -> void:
-	if q == null:
-		if required:
-			report.error("drop_record", "drops", id, "%s: a resolved entry needs quantity {min, max}" % where)
-		return
-	if not (q is Dictionary) or not _whole(q.get("min", null)) or not _whole(q.get("max", null)) \
-			or float(q.min) < 1.0 or float(q.min) > float(q.max):
-		report.error("drop_record", "drops", id, "%s: quantity must be {min, max} with whole numbers 1 <= min <= max, got %s" % [where, var_to_str(q)])
+		_error(id, "%s: item_id must be null while item_resolution.state is %s, got %s" % [where, state, var_to_str(item_id)])
 
 
 # --- meso ---------------------------------------------------------------------------------------------------
@@ -262,15 +245,15 @@ func _check_quantity(id: String, where: String, q: Variant, required: bool) -> v
 func _check_meso(id: String, meso: Dictionary, owner_kind: String) -> void:
 	var state: Variant = meso.get("amount_state", null)
 	var src: Variant = meso.get("amount_source", null)
-	if not (state is String) or not (state in CHANCE_STATES):
-		report.error("drop_record", "drops", id, "meso.amount_state must be one of %s, got %s" % [str(CHANCE_STATES), var_to_str(state)])
-	elif state == "resolved":
-		var lo: Variant = meso.get("min", null)
-		var hi: Variant = meso.get("max", null)
+	var lo: Variant = meso.get("min", null)
+	var hi: Variant = meso.get("max", null)
+	if not (state is String) or not (state in MESO_STATES):
+		_error(id, "meso.amount_state must be one of %s, got %s" % [str(MESO_STATES), var_to_str(state)])
+	elif state == "reported":
 		if not _whole(lo) or not _whole(hi) or float(lo) < 1.0 or float(lo) > float(hi):
-			report.error("drop_record", "drops", id, "meso: a resolved amount needs whole numbers 1 <= min <= max, got min %s, max %s" % [var_to_str(lo), var_to_str(hi)])
+			_error(id, "meso: a reported amount needs whole numbers 1 <= min <= max, got min %s, max %s" % [var_to_str(lo), var_to_str(hi)])
 		if not (src is Dictionary):
-			report.error("drop_record", "drops", id, "meso: amount_state is resolved but there is no amount_source")
+			_error(id, "meso: amount_state is reported but there is no amount_source (MeowDB's player report)")
 		else:
 			provenance.check_source_object("drops", id, "mesos.amount", src, "meso.amount_source", owner_kind)
 			var m := _meso_amount.search(str(src.get("raw_value", "")))
@@ -278,94 +261,36 @@ func _check_meso(id: String, meso: Dictionary, owner_kind: String) -> void:
 				var raw_lo := m.get_string(1).to_int()
 				var raw_hi := m.get_string(2).to_int() if m.get_string(2) != "" else raw_lo
 				if raw_lo != int(lo) or raw_hi != int(hi):
-					report.error("drop_record", "drops", id, "meso: min %d, max %d differ from amount_source.raw_value %s" % [
-						int(lo), int(hi), var_to_str(src.raw_value)])
+					_error(id, "meso: min %d, max %d differ from amount_source.raw_value %s" % [int(lo), int(hi), var_to_str(src.raw_value)])
 	else:
-		if meso.get("min", null) != null or meso.get("max", null) != null:
-			report.error("drop_record", "drops", id, "meso: min and max must be null while amount_state is unresolved")
-		if src is Dictionary:
-			provenance.check_source_object("drops", id, "mesos.amount", src, "meso.amount_source", owner_kind)
-	var cstate: Variant = meso.get("chance_state", null)
-	var p: Variant = meso.get("probability", null)
-	var cs: Variant = meso.get("chance_source", null)
-	if not (cstate is String) or not (cstate in CHANCE_STATES):
-		report.error("drop_record", "drops", id, "meso.chance_state must be one of %s, got %s" % [str(CHANCE_STATES), var_to_str(cstate)])
-	elif cstate == "resolved":
-		_check_probability(id, "meso.probability", p)
-		if not (cs is Dictionary):
-			report.error("drop_record", "drops", id, "meso: chance_state is resolved but there is no chance_source")
-		else:
-			_check_chance_source(id, "meso.chance_source", cs, p, "mesos.probability", owner_kind, true)
-	else:
-		if p != null:
-			report.error("drop_record", "drops", id, "meso: probability must be null while chance_state is unresolved, got %s" % var_to_str(p))
-		if cs is Dictionary:
-			provenance.check_source_object("drops", id, "mesos.probability", cs, "meso.chance_source", owner_kind)
+		if lo != null or hi != null or src != null:
+			_error(id, "meso: min, max and amount_source must be null while amount_state is not_reported (the meso rule supplies the amount at runtime)")
+	if not (meso.get("gaps", null) is Array):
+		_error(id, "meso.gaps must be a list")
 
 
 # --- helpers ------------------------------------------------------------------------------------------------
 
-## pending_kuro_candidates (optional; absent = none): KuroDB rows that may be a member under another name, waiting for
-## a hand read of their item page (decision D3-8). Each is {kuro_item_id, name, raw_value, member, read, reason} with
-## non-empty strings; `member` is the key of an entry whose chance is unresolved and that has no chance_source (a
-## pending row never rolls); the row is not also an excluded_kuro_only row, and no two pending rows are the same row.
-func _check_pending_candidates(id: String, rows: Variant, by_key: Dictionary, excluded_rows: Variant) -> void:
-	if rows == null:
-		return
-	if not (rows is Array):
-		report.error("drop_record", "drops", id, "pending_kuro_candidates must be a list")
-		return
-	var excluded := {}
-	for x in ValidationUtil.as_array(excluded_rows):
-		if x is Dictionary:
-			excluded["%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]] = true
-	var seen := {}
-	for i in rows.size():
-		var r: Variant = rows[i]
-		var ok: bool = r is Dictionary
-		for field in ["kuro_item_id", "name", "raw_value", "member", "read", "reason"]:
-			ok = ok and ValidationUtil.non_empty(r.get(field, null))
-		if not ok:
-			report.error("drop_record", "drops", id, "pending_kuro_candidates[%d] must be {kuro_item_id, name, raw_value, member, read, reason}" % i)
-			continue
-		var where := "pending_kuro_candidates[%d] %s (%s)" % [i, r.name, r.kuro_item_id]
-		var key := "%s|%s" % [r.kuro_item_id, r.name]
-		if seen.has(key):
-			report.error("drop_record", "drops", id, "%s is listed twice" % where)
-		seen[key] = true
-		if excluded.has(key):
-			report.error("drop_record", "drops", id, "%s is also an excluded_kuro_only row: a row is pending or KuroDB-only, not both" % where)
-		var e: Variant = by_key.get(r.member, null)
-		if not (e is Dictionary):
-			report.error("drop_record", "drops", id, "%s names member '%s', which is no entry key" % [where, r.member])
-		elif str(e.get("chance_state", "")) != "unresolved" or e.get("chance_source", null) != null:
-			report.error("drop_record", "drops", id, "%s: its member '%s' must stay unresolved with no chance_source while the row is pending (decision D3-8)" % [where, r.member])
+## Any key at any depth that would hold a chance or quantity (outside commentary) is an error: the chance table and the
+## meso rule live in game/data/misostory, never in a canonical record.
+func _check_no_probability(id: String, node: Variant, path: String) -> void:
+	if node is Dictionary:
+		for k in node:
+			var key := str(k)
+			if key in COMMENT_KEYS:
+				continue
+			var child := key if path == "" else "%s.%s" % [path, key]
+			if key in NO_PROBABILITY_KEYS:
+				_error(id, "%s: a canonical drop record holds no probability or quantity (contract C1; the chance table is data/misostory/drop_rates.json)" % child)
+			_check_no_probability(id, node[k], child)
+	elif node is Array:
+		for i in node.size():
+			_check_no_probability(id, node[i], "%s[%d]" % [path, i])
 
 
-## Name keys of the excluded_kuro_only rows; checks their shape.
-func _excluded_names(id: String, rows: Variant) -> Dictionary:
-	var out := {}
-	if rows == null:
-		return out
-	if not (rows is Array):
-		report.error("drop_record", "drops", id, "excluded_kuro_only must be a list")
-		return out
-	for i in rows.size():
-		var r: Variant = rows[i]
-		var ok: bool = r is Dictionary
-		for field in ["kuro_item_id", "name", "raw_value", "reason"]:
-			ok = ok and ValidationUtil.non_empty(r.get(field, null))
-		if not ok:
-			report.error("drop_record", "drops", id, "excluded_kuro_only[%d] must be {kuro_item_id, name, raw_value, reason}" % i)
-			continue
-		out[_name_key(r.name)] = true
-	return out
-
-
-## Case and spacing-insensitive name key (enough to catch a KuroDB-only row re-added as a member).
-static func _name_key(name: String) -> String:
-	return " ".join(name.to_lower().replace(" : ", ": ").split(" ", false))
+func _error(id: String, message: String) -> void:
+	report.error("drop_record", "drops", id, message)
 
 
 static func _whole(v: Variant) -> bool:
-	return ValidationUtil.is_number(v) and float(v) == floorf(float(v))
+	return ValidationUtil.is_number(v) and not (v is bool) and float(v) == floorf(float(v))

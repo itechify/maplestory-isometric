@@ -307,30 +307,25 @@ func test_world_scale_factors() -> void:
 	expect_new(r, "error", "adaptation", "misostory", "world_scale", "actor_px_to_m must be a positive number")
 
 
-## drop_rates.json is the v2 interpretations file (contract C1): the shipped file passes; each interpretation the drop
-## runtime applies must be there with a string value; Iteration Two's placeholder tables are refused by the drop policy
-## (DropRates.validate through DropChecks), not checked as if they still supplied rates.
-func test_drop_rates_is_the_v2_interpretations_file() -> void:
-	assert_eq(baseline().matching("adaptation", "misostory", "drop_rates").size(), 0, "the shipped file passes")
-	var c := clone_db()
-	var rates: Dictionary = (c.miso[""]["drop_rates"] as Dictionary)
-	rates.erase("meso_amount_distribution")
-	(rates["quest_gate_rule"] as Dictionary)["value"] = 5
-	var r := run_validator(c)
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "meso_amount_distribution must be an object")
-	expect_new(r, "error", "adaptation", "misostory", "drop_rates", "quest_gate_rule.value must be a non-empty string")
-	var old := _with_file(clone_db(), "drop_rates", adapted({
-		"meso_amount_distribution": {"value": DropRates.MESO_DISTRIBUTION, "reason": "test", "verified": false},
-		"quest_gate_rule": {"value": "test rule", "reason": "test", "verified": false},
-		"item_overrides": {BOGUS: {"chance": 0.5}},
-		"mesos": {"per_level": {"min": 3, "max": 1}},
-	}))
-	var r2 := run_validator(old)
-	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "item_overrides: a chance, quantity or meso value outside the canonical drop records")
-	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "mesos.per_level")
-	for f in new_findings(r2):
-		assert_ne(String(f.check), "reference", "a placeholder table is not resolved as if it still applied: %s" % f.message)
-	assert_eq(r2.matching("adaptation", "misostory", "drop_rates").size(), 0, "both interpretations present")
+## drop_rates.json (the owner's chance table, D3-11) and meso_rules.json (the meso rule, D3-12) are required adaptation
+## files: the shipped files pass the convention (reason and verified on every value) and the drop policy; a missing
+## one, or a value without its reason or verified flag, is an error.
+func test_drop_rule_files_are_required_labelled_adaptations() -> void:
+	for name in ["drop_rates", "meso_rules"]:
+		assert_eq(baseline().matching("adaptation", "misostory", name).size(), 0, "the shipped %s.json passes" % name)
+		assert_eq(baseline().matching("drop_policy", "misostory", name).size(), 0, "the shipped %s.json is complete" % name)
+		var c := clone_db()
+		(c.miso[""] as Dictionary).erase(name)
+		var r := run_validator(c)
+		expect_new(r, "error", "adaptation", "misostory", name, "required adaptation file game/data/misostory/%s.json is missing" % name)
+		expect_new(r, "error", "drop_policy", "misostory", name, "data/misostory/%s.json is missing" % name)
+	var c2 := clone_db()
+	var rates: Dictionary = c2.miso[""]["drop_rates"]
+	rates.erase("reason")
+	rates.erase("verified")
+	var r2 := run_validator(c2)
+	expect_new(r2, "error", "adaptation", "misostory", "drop_rates", "adapted values without a reason")
+	expect_new(r2, "error", "drop_policy", "misostory", "drop_rates", "must say verified: false")
 
 
 func test_new_character_start_spawn_index() -> void:

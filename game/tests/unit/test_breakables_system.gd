@@ -5,10 +5,10 @@ extends TestCase
 ## canonical hit box reaches (and none behind the player), the fourth landed hit breaks the box and rolls its drops
 ## with the quest context of contract C2 at the box's position, the box comes back after its placement's respawn_s,
 ## and a new instance (map change, reload_map) re-realizes the boxes. The gated table itself is checked through the
-## real DropRoller with a C1-shaped fixture once the roller takes the C2 context (SKIP before the drops package lands).
+## real DropRoller with a C1-shaped (schema 3) fixture and the C2 context.
 
 const BOX := "0000001"
-const FIXTURE := "res://tests/data/breakables/drops_0000001_v2.json"
+const FIXTURE := "res://tests/data/breakables/drops_0000001.json"
 
 
 func parity_keys() -> Dictionary:
@@ -342,9 +342,10 @@ func test_gated_drops_through_the_real_roller() -> void:
 	assert_eq(int(on.get("441", 0)), n, "Rusty Screw every break while 1012 is in progress")
 	assert_eq(int(on.get("442", 0)), n, "Old Wooden Board every break while 1012 is in progress")
 	assert_eq(int(off.get("441", 0)) + int(off.get("442", 0)), 0, "gated to 1012: none without it")
-	assert_eq(int(on.get("237", 0)) + int(off.get("237", 0)), 0, "Egg (unresolved) never drops")
 	var apples := float(int(on.get("236", 0)) + int(off.get("236", 0))) / float(2 * n)
-	assert_between(apples, 0.18, 0.32, "Apple near its 0.25 (seeded sanity check, not the source)")
+	var eggs := float(int(on.get("237", 0)) + int(off.get("237", 0))) / float(2 * n)
+	assert_between(apples, 0.002, 0.05, "Apple near its table chance 0.02 (seeded sanity check, not the source)")
+	assert_between(eggs, 0.002, 0.05, "Egg near its table chance 0.02")
 
 
 ## Acceptance review: a Wooden Box looked like the decorative crates. The rim shows on an intact box the player's
