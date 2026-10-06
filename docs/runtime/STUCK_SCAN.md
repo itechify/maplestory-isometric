@@ -272,13 +272,16 @@ and the `Walls` planks on it (6.50 m), then going up the two planks' undersides 
 two bottoms. The allowlist blamed the double-sided trimesh; switching it back to one-sided gives the same
 count. The back-face test of section 1 now takes these 16 surfaces out of the graph, and their four `unenterable`
 entries are gone. The full scan before and after differs only in 000000060: 16 nodes, these four components and the
-edges and fall-outs of their nodes; every other map's result is unchanged.
+edges and fall-outs of their nodes; every other map's result is unchanged. (The regenerated report also differs from
+the one before it in the edge counts of 000000041, 000000060 and 000001012 and in Southperry's reachable count, by up
+to 117 edges and 2 nodes: the scan before the change already gave those on the current export.)
 
 ### The final scan, per map
 
 `docs/runtime/stuck_report.json` is this run: 491,614 nodes, 3.63 M certain and 2.90 M into edges, 4,881 fall-outs
 (walk-offs onto nothing above kill_y: FallRecovery's case), 160 reachable nodes outside every region (the two
-UNENTERABLE pockets under the 000001000 / 000001006 trail; none escapable), 97 s.
+UNENTERABLE pockets under the 000001000 / 000001006 trail; none escapable), 74 s with the cache off (regenerated
+for issue #34 on 2026-10-06).
 
 | Map | Name | Nodes | Reachable | Flagged | CLEARED | UNENTERABLE | CONFIRMED |
 |---|---|---|---|---|---|---|---|
