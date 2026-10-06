@@ -394,6 +394,38 @@ playthrough and the every-quest report; the parity manifest; documentation.
 | W3-11 | Green Apple (242), a 2% drop of four monsters, had no published stack size or tradeable tag: only its API preview had been captured, so the game held one apple per slot. | Its MeowDB item page was read by hand (`tools/meowdb/captures/item_242.txt`, 2026-10-05). The extractor's API-only path now takes Max per Stack 100, Tradeable and the per-unit sell-back from that text capture, each value citing the capture. `check_canonical.sh` still reproduces every file. |
 | W3-12 | A playthrough report stopped early (`PLAYTHROUGH_STOP`) still counted as a clean run, so the parity manifest could mark the playthrough rows verified from half a run. | A report counts as clean only if its final "ready to depart" boundary check passed and it has no stop flag (a node test covers each case). |
 
+## Phase A4: final acceptance check (four independent critics)
+
+Four read-only critics tested the completion claim on 37073b8, each through a different lens:
+
+- **Definition of Done audit:** re-ran the key checks, including a playthrough on a seed never used before (seed 4:
+  619 checks, strict, pass) and one quest chain on seed 7.
+- **Canonical fidelity spot check:** traced about 700 values from source page to canonical record to the value the
+  game uses, and found 0 mismatches. A 200,000-kill drop simulation stayed within about 1σ of every configured chance.
+- **Play-as-a-game critic:** ran the game windowed and judged it from screenshots.
+- **Deliverables and docs critic:** ran the documented commands and checked the docs against the code and data.
+
+Their verdict: the claim holds in substance but was overstated in the places below.
+
+| # | Problem found | Correction |
+|---|---|---|
+| A4-1 | The parity exit criterion was not met: KuroDB item 2040705 (the Orange Mushroom's jump scroll) had never been read, and the pipeline could not take the page even once someone read it. | A KuroDB item-page reader and a `pending_kuro_candidates` bucket (W4-6). The project owner passed the Cloudflare check in their own Chrome on this machine. The orchestrator then navigated that one tab to the item and read its rendered text through Windows UI Automation (read-only), and saved it as `tools/kurodb/captures/item_2040705.json` (D3-10). |
+| A4-2 | The Skills window grew off the bottom of a 1600×900 screen once skills were learned: its Set key could not be reached, and it covered the HUD status bar. Every headless run had passed anyway: headless, the display reports a 64×64 window, which the project's `canvas_items/expand` stretch turned into a 1600×1600 GUI, and the driver clicked controls a player cannot see. | W4-1 and W4-2. |
+| A4-3 | Canonical fall damage (MeowDB's damage-taken formula: 24, capped at 36 in COT2) contradicted the adaptation text "matching classic's lack of fall damage". Neither fall damage nor crouch/down-jump appeared in the parity inventory or DEFERRED. | W4-5. |
+| A4-4 | Smaller overclaims and gaps: the playthrough's skill checks passed with zero casts; the strict-mode source scan skipped five harness files; the starting SP of 0 was labelled `verified: true` although the guide only gives "9 SP by level 10"; the spawn-rule rows claimed a mob rate the runtime ignores; evidence recorded no commit; the chair, the Wooden Boxes and two canonical tutorial lines were hard to read or misleading in play. | W4-3, W4-4, W4-6 and W4-7. |
+
+## Phase W4: acceptance fixes (wave 4: two packages, each reviewed)
+
+| # | Problem found | Correction |
+|---|---|---|
+| W4-1 | A4-2: windows clamped only once, when they opened. | Every `MisoWindow` re-clamps its whole rect into the screen above the HUD status bar on open, drag, resize and a viewport resize. The Skills window keeps one size and opens where it fits. `test_ui_window_fit` opens every window with its largest realistic content at exactly 1600×900. |
+| W4-2 | A4-2: headless runs did not see the real screen. | Headless runs are pinned to 1600×900. `click`, `find_control` and the kit's double-click and drag refuse any control whose centre is off screen or that another control covers, and the refusal is a failed check. With the new gate and the old UI, headless `test_skills` fails on the Set key at y 948, exactly where the windowed run failed; after the UI fix it passes in both modes. |
+| W4-3 | The playthrough's skill summary could pass with no casts. | It requires real casts, plus the effect or the MP spent for each buff. |
+| W4-4 | Readability. | A HUD seated cue ("Seated · +10 HP / 10 s · The Green Relaxer +30 HP / 10 s") and a dark frame on the chair. Wooden Boxes get a warm rim within swing reach and a gold marker while 1012 still needs their items. Box placement now also tests tree canopies (Amherst boxes :2, :4 and :5 moved). The Quest Log's [ready] tag comes first. Speech bubbles hide under modals. The player keeps a 0.8 m gap when talking to an NPC. Marked "[MisoStory]" hint pages follow Heena's mouse-click line and Rain's chair answers; the canonical lines are unchanged. |
+| W4-5 | A4-3. | The text now says MeowDB documents fall damage and MisoStory applies none (an adaptation). `mechanic:fall-damage` is a source-data gap, because the movement-update tick and the maps that disable it are unpublished. `mechanic:crouch-down-jump` is excluded as an isometric adaptation. |
+| W4-6 | The pending KuroDB read could not be applied, and the excluded bucket mixed "no member" with "not yet read". | A KuroDB item-page reader and the `pending_kuro_candidates` bucket. The judge's first rule compared stat-bonus amounts; it now follows D3-10. |
+| W4-7 | Proof and honesty. | `starting_sp` is now `verified: false`. The spawn-rule rows name the mob-rate adaptation. `test_monster_def` compares M.DMG, P.DEF, M.DEF and EVA. Playtest reports and unit evidence record the commit, a dirty flag and whether the world was present, and `build_parity` warns on stale evidence. The strict scan covers the driver, walker, grid navigation, input and runner. The natural-recovery clock is clamped into [0, tick) on load. |
+
 ## Final evidence run
 
 All runs were on code `9ddf137` (2026-10-05; waves 1-4 merged and the KuroDB 2040705 read applied, D3-10), a clean
