@@ -739,10 +739,10 @@ staged export. Value changes:
 
 - **Climb positions are stored** (#26): `climbables[].bottom` / `top` come from `obj["climb_bottom"]` /
   `obj["climb_top"]` (`MapCtx.climbable`), no longer from the bounding-box centre, and the two loose vertices that
-  kept a kit rope's centre at `(x, y)` are gone. 137 of the 146 climbables export the same position (within the
-  export's 0.0001 m rounding). The 9 climbable vines of 000001014 (`vine_climb`, built by the map module) moved
-  0.0498 m (Godot +z): their bounding box was offset by the leaves, and they are now climbed at their authored
-  `(x, y)`, the strand itself; their `foot_ground`, `top_exit` and `facing_xz` follow. No camera moved.
+  kept a kit rope's centre at `(x, y)` are gone. All 146 climbables export the same `bottom`, `top`, `foot_ground`,
+  `top_exit` and `facing_xz` as before (within the export's 0.0001 m rounding): 000001014's own `vine_climb` stores
+  the centre of its foliage, 0.05 m to the camera side of its strand, where its bounding box had put it. No camera
+  moved.
 - **Routes** (#28): 000001012 `Loft` starts its climb from y 8.6 (was 8.3, where a body's shoulder met the
   cutaway house's knee wall) and 000001013 `PoleShelf` walks the chest shelf at y 11.05 (was 11.1, against the
   timber frame). A placed `Bush_B` on 000000041 (to y 36.8) and the 000001003 `Mushroom_Giant_Blue` (to y 24.6)

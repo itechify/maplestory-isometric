@@ -15,6 +15,7 @@ point blocks it at body height. The validate.py tests save the scene and run the
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -176,6 +177,10 @@ class IslandValidator(unittest.TestCase):
                         os.path.join(cls.tmp, "no_build_report.json")], check=True, capture_output=True, timeout=600)
         with open(os.path.join(out, "validation_report.json"), encoding="utf-8") as f:
             cls.rep = json.load(f)
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def messages(self, check):
         return " | ".join(i["msg"] for i in self.rep["issues"] if i["check"] == check)
