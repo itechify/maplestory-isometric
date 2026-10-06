@@ -206,6 +206,41 @@ func test_holes_and_cut_mirror_the_shader() -> void:
 	assert_near(OcclusionMath.hole_cut(nearer, PackedVector4Array(), 0.35), 0.0, 1e-6, "no holes, no cut")
 
 
+## #18: under any canopy the bodies of the player and of a monster touching them show with no dither dots over them.
+## The rule is general (every hole of every occluder, from camera.json): a hole's core removes
+## occluder_hole_core_strength (all) of the occluder's fragments, its soft rim eases from occluder_dither_strength, so
+## the tree still reads as present around them. The fader hands both to every stand-in.
+func test_a_hole_core_removes_every_fragment() -> void:
+	var cfg: Dictionary = db().miso_table("camera")
+	var strength := float(cfg["occluder_dither_strength"])
+	var core := float(cfg["occluder_hole_core_strength"])
+	var edge := float(cfg["occluder_hole_edge"])
+	assert_near(core, 1.0, 1e-6, "the core is cut completely")
+	assert_true(strength < core, "the rim keeps some dots")
+	var cam_xf := Transform3D(_cam(), Vector3(-80, 100, 80))
+	var targets := [[Vector3(0, 0.8, 0), float(cfg["occluder_hole_radius_m"])], [Vector3(0.6, 0.5, 0.2), 0.9]]
+	for t: Array in targets:
+		var c: Vector3 = t[0]
+		var r: float = t[1]
+		var holes := PackedVector4Array([OcclusionMath.hole(c, r, 0.8, cam_xf)])
+		var v := cam_xf.affine_inverse() * c + Vector3(0, 0, 3.0)
+		for k in 8:
+			var at := v + Vector3(cos(k * TAU / 8.0), sin(k * TAU / 8.0), 0) * r * (1.0 - edge) * 0.99 * float(k) / 7.0
+			var cut := OcclusionMath.hole_cut(at, holes, edge)
+			assert_near(OcclusionMath.removed_share(cut, 1.0, strength, core), 1.0, 1e-4, "inside the core: every fragment goes (%d)" % k)
+		var rim := OcclusionMath.hole_cut(v + Vector3(r * (1.0 - edge * 0.5), 0, 0), holes, edge)
+		var share := OcclusionMath.removed_share(rim, 1.0, strength, core)
+		assert_true(share > 0.0 and share < strength, "across the rim the dots come back (%.2f)" % share)
+		assert_near(OcclusionMath.removed_share(1.0, 0.5, strength, core), 0.5, 1e-6, "scaled by the mesh's fade")
+	var fader := OcclusionFader.new()
+	fader.configure(cfg)
+	assert_near(fader.dither.core_strength, core, 1e-6, "the fader reads the core strength")
+	var stand_in := fader.dither.clone_for(_plain())
+	assert_near(float(stand_in.get_shader_parameter(&"core_strength")), core, 1e-6, "and hands it to every stand-in")
+	assert_true(stand_in.shader.code.contains("mix(strength, core_strength, cut * cut)"), "the shader cuts as removed_share does")
+	fader.free()
+
+
 func test_hole_floor_keeps_what_the_target_stands_on() -> void:
 	# Regression (review): a dithered mesh that also carries the floor (the Southperry gazebo's deck and posts are
 	# one mesh) got a hole in the deck in front of the player. A hole now cuts nothing below its target's feet.

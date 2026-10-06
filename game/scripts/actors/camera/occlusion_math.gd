@@ -169,8 +169,8 @@ static func hole_floor(feet: Vector3, margin: float) -> float:
 
 ## CPU mirror of the occluder shader's cut for a fragment at view-space position `v` and world height `world_y`:
 ## 1 inside a hole's inner radius (1 - edge), easing to 0 at its rim, 0 outside every hole, behind its depth or
-## below its floor (`floors[i]`, hole_floor; holes without one have no floor). The shader multiplies it by the
-## mesh's fade and the strength, and discards the fragment when that exceeds the dither threshold.
+## below its floor (`floors[i]`, hole_floor; holes without one have no floor). The shader turns it into the share it
+## removes (removed_share) and discards the fragment when that exceeds the dither threshold.
 static func hole_cut(v: Vector3, holes: PackedVector4Array, edge: float, world_y: float = INF,
 		floors: PackedFloat32Array = PackedFloat32Array()) -> float:
 	var cut := 0.0
@@ -181,6 +181,14 @@ static func hole_cut(v: Vector3, holes: PackedVector4Array, edge: float, world_y
 		var d := Vector2(v.x - h.x, v.y - h.y).length() / h.z
 		cut = maxf(cut, 1.0 - smoothstep(1.0 - edge, 1.0, d))
 	return cut
+
+
+## The share of an occluder's fragments the shader removes at a hole cut of `cut` (hole_cut) and a mesh fade of
+## `fade`: `strength` across the soft rim, easing to `core_strength` where the cut is full (the hole's core), so the
+## bodies of the player and of a monster touching them show with no dither dots over them under any canopy, while the
+## rim's dots keep the tree present (#18). The shader computes the same.
+static func removed_share(cut: float, fade: float, strength: float, core_strength: float) -> float:
+	return cut * fade * lerpf(strength, core_strength, cut * cut)
 
 
 ## Moves a fade value toward `goal` at full range per `fade_s` seconds.

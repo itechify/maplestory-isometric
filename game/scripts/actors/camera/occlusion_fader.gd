@@ -92,6 +92,7 @@ func configure(cfg: Dictionary) -> void:
 	faded_transparency = float(cfg.get("occluder_transparency", faded_transparency))
 	fade_time = float(cfg.get("occluder_fade_s", fade_time))
 	dither.strength = float(cfg.get("occluder_dither_strength", dither.strength))
+	dither.core_strength = float(cfg.get("occluder_hole_core_strength", dither.core_strength))
 	dither.edge = float(cfg.get("occluder_hole_edge", dither.edge))
 
 
