@@ -36,11 +36,21 @@ const LID_LIFT_DEG := 7.0
 const PLANK_GLOW := 0.25
 ## Cues that tell a breakable box from the island's decorative crates (BreakableSystem.update_cues decides when):
 ## a warm rim around the body while the player's basic attack can reach it, and a bobbing gold marker above it while
-## a quest that needs its drops is in progress.
-const REACH_COLOR := Color(1.0, 0.86, 0.32)
-const REACH_RIM_M := 0.06
+## a quest that needs its drops is in progress. The rim is a hot orange band (about 5 px at the widest 19.5 m view,
+## 8 px at 13.5 m) between the box's ink and an outer ink line, pulsing between two oranges, so it reads on grass,
+## sand and the grey road and never looks like the gold marker (#11: the first rim was 6 cm of pale gold, about 2 px).
+const REACH_COLOR := Color(1.0, 0.42, 0.06)
+const REACH_PULSE_COLOR := Color(1.0, 0.56, 0.2)
+const REACH_PULSE_S := 0.9
+const REACH_RIM_M := 0.11
+## The rim's band stops this far above the feet (it shows as a band on the ground around the base instead of
+## sinking under the grass).
+const REACH_LIFT_M := 0.02
 const MARKER_COLOR := Color(1.0, 0.78, 0.18)
-const MARKER_LIFT_M := 0.42
+const MARKER_LIFT_M := 0.8
+## The marker cone's top radius and height (m): it sits clear of the rim's top edge and reads as a separate shape.
+const MARKER_RADIUS_M := 0.17
+const MARKER_HEIGHT_M := 0.34
 const MARKER_BOB_M := 0.07
 const MARKER_BOB_S := 1.3
 
@@ -55,10 +65,14 @@ var model: Node3D = null
 var lid: Node3D = null
 ## The reach rim and the quest marker (set_cues).
 var reach_rim: MeshInstance3D = null
+## The ink line outside the rim (shown with it).
+var reach_ink: MeshInstance3D = null
 var marker: Node3D = null
 var in_reach: bool = false
 var wanted: bool = false
 var _marker_t: float = 0.0
+var _rim_mat: StandardMaterial3D = null
+var _rim_t: float = 0.0
 
 var _hits_left: int = 0
 var _broken: bool = false
@@ -167,8 +181,27 @@ func set_cues(p_in_reach: bool, p_wanted: bool) -> void:
 func _show_cues() -> void:
 	if reach_rim != null:
 		reach_rim.visible = in_reach and not _broken
+	if reach_ink != null:
+		reach_ink.visible = in_reach and not _broken
 	if marker != null:
 		marker.visible = wanted and not _broken
+
+
+## What the cues draw right now (#11: the box scenario reads this, not the in_reach / wanted flags): {"rim": bool,
+## "marker": bool}, each true when a mesh of the cue is visible in the tree with a mesh, on a render layer and with an
+## opaque material, i.e. the renderer draws it. A broken box, a hidden box or a box outside the tree draws neither.
+func cues_drawn() -> Dictionary:
+	return {"rim": _drawn(reach_rim), "marker": marker != null and marker.get_children().any(_drawn)}
+
+
+static func _drawn(n: Variant) -> bool:
+	var mi := n as MeshInstance3D
+	if mi == null or not mi.is_inside_tree() or not mi.is_visible_in_tree() or mi.mesh == null or mi.layers == 0:
+		return false
+	if mi.transparency >= 1.0 or mi.cast_shadow == GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY:
+		return false
+	var mat := mi.material_override as BaseMaterial3D
+	return mat != null and mat.albedo_color.a > 0.0
 
 
 ## A landed hit that did not break it: a white flash, a wobble and a few chips.
@@ -224,6 +257,9 @@ func advance(delta: float) -> void:
 		_marker_t = fmod(_marker_t + delta, MARKER_BOB_S)
 		marker.position.y = size_m.y + MARKER_LIFT_M + MARKER_BOB_M * sin(_marker_t / MARKER_BOB_S * TAU)
 		marker.rotation.y = _marker_t / MARKER_BOB_S * TAU * 0.5
+	if reach_rim != null and reach_rim.visible and _rim_mat != null:
+		_rim_t = fmod(_rim_t + delta, REACH_PULSE_S)
+		_rim_mat.albedo_color = REACH_COLOR.lerp(REACH_PULSE_COLOR, 0.5 - 0.5 * cos(_rim_t / REACH_PULSE_S * TAU))
 	if _flash_t > 0.0:
 		_flash_t -= delta
 		_apply_flash(_flash_t > 0.0)
@@ -316,23 +352,20 @@ func _build() -> void:
 	_build_cues(w, h, d)
 
 
-## The reach rim (a warm inverted hull, wider than the ink) and the quest marker (a gold point-down cone with an ink
-## rim), both hidden until set_cues shows them. Not in _meshes: the hit flash leaves them alone.
+## The reach rim (a hot orange inverted hull REACH_RIM_M wider than the body, its bottom just above the feet, inside
+## an ink hull OUTLINE_M wider still) and the quest marker (a gold point-down cone with an ink rim), all hidden until
+## set_cues shows them. Not in _meshes: the hit flash leaves them alone.
 func _build_cues(w: float, h: float, d: float) -> void:
-	var rim := StandardMaterial3D.new()
-	rim.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	rim.albedo_color = REACH_COLOR
-	rim.cull_mode = BaseMaterial3D.CULL_FRONT
-	reach_rim = MeshInstance3D.new()
-	reach_rim.name = "ReachRim"
-	var rm := BoxMesh.new()
-	rm.size = Vector3(w, h, d) + Vector3.ONE * REACH_RIM_M * 2.0
-	reach_rim.mesh = rm
-	reach_rim.material_override = rim
-	reach_rim.position = Vector3(0, h * 0.5, 0)
-	reach_rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	reach_rim.visible = false
-	model.add_child(reach_rim)
+	_rim_mat = StandardMaterial3D.new()
+	_rim_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_rim_mat.albedo_color = REACH_COLOR
+	_rim_mat.cull_mode = BaseMaterial3D.CULL_FRONT
+	reach_rim = _hull("ReachRim", Vector3(w, h, d), REACH_RIM_M, REACH_LIFT_M, _rim_mat)
+	var ink := StandardMaterial3D.new()
+	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ink.albedo_color = OUTLINE_COLOR
+	ink.cull_mode = BaseMaterial3D.CULL_FRONT
+	reach_ink = _hull("ReachInk", Vector3(w, h, d), REACH_RIM_M + OUTLINE_M, REACH_LIFT_M * 0.5, ink)
 	marker = Node3D.new()
 	marker.name = "QuestMarker"
 	marker.position = Vector3(0, h + MARKER_LIFT_M, 0)
@@ -342,29 +375,41 @@ func _build_cues(w: float, h: float, d: float) -> void:
 	gold.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	gold.albedo_color = MARKER_COLOR
 	var cone := CylinderMesh.new()
-	cone.top_radius = 0.13
+	cone.top_radius = MARKER_RADIUS_M
 	cone.bottom_radius = 0.0
-	cone.height = 0.26
+	cone.height = MARKER_HEIGHT_M
 	cone.radial_segments = 4
 	var point := MeshInstance3D.new()
 	point.mesh = cone
 	point.material_override = gold
 	point.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	marker.add_child(point)
-	var ink := StandardMaterial3D.new()
-	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ink.albedo_color = OUTLINE_COLOR
-	ink.cull_mode = BaseMaterial3D.CULL_FRONT
 	var hull := MeshInstance3D.new()
 	var hc := CylinderMesh.new()
-	hc.top_radius = 0.13 + OUTLINE_M * 1.5
+	hc.top_radius = MARKER_RADIUS_M + OUTLINE_M * 1.5
 	hc.bottom_radius = OUTLINE_M
-	hc.height = 0.26 + OUTLINE_M * 2.0
+	hc.height = MARKER_HEIGHT_M + OUTLINE_M * 2.0
 	hc.radial_segments = 4
 	hull.mesh = hc
 	hull.material_override = ink
 	hull.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	marker.add_child(hull)
+
+
+## A hidden inverted hull around a body of `size`: `grow` wider on every side and on top, its bottom `lift` above the
+## feet (so its rim shows as a band on the ground around the base).
+func _hull(node_name: String, size: Vector3, grow: float, lift: float, mat: Material) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	mi.name = node_name
+	var bm := BoxMesh.new()
+	bm.size = Vector3(size.x + grow * 2.0, size.y + grow - lift, size.z + grow * 2.0)
+	mi.mesh = bm
+	mi.material_override = mat
+	mi.position = Vector3(0, lift + bm.size.y * 0.5, 0)
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.visible = false
+	model.add_child(mi)
+	return mi
 
 
 ## Frees the crate (setup() builds it again at a new size).
@@ -375,6 +420,8 @@ func _clear_model() -> void:
 	model = null
 	lid = null
 	reach_rim = null
+	reach_ink = null
+	_rim_mat = null
 	marker = null
 	_meshes.clear()
 

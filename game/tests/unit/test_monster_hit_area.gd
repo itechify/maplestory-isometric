@@ -61,6 +61,34 @@ func test_the_swing_shows_the_canonical_box_with_its_isometric_depth() -> void:
 	assert_eq(fx.live_count(), 0, "short-lived")
 
 
+## #13: the footprint was a flat quad 3 cm above the feet, so a slope rising ahead, a step or a ledge hid part of it.
+## It is drawn with the depth test off (the ground never hides it) and skips the player's visible pixels (the
+## player's stencil), at the canonical box's size: the hit itself does not change.
+func test_the_footprint_is_never_hidden_by_the_ground() -> void:
+	var fx := AttackFx.new()
+	host.add_child(fx)
+	var depth := CombatReach.attack_box_depth_px(db())
+	fx.depth_px = depth
+	var sword := WeaponProfile.for_weapon_id("541", db())
+	var feet := Vector3(0, 2, 0)
+	var box := CombatReach.attack_box_px(sword, "swingO1", true, 1)
+	fx.swing(feet, Vector3.BACK, box)
+	var mat := fx.last_reach.material_override as StandardMaterial3D
+	assert_true(mat != null and mat.no_depth_test, "no depth test: a slope or a step in front does not hide it")
+	assert_true(mat.render_priority > 0 and mat.render_priority < PlayerVisual.FILL_PRIORITY,
+		"drawn after the world, before the player's X-ray fill")
+	assert_eq(mat.stencil_mode, BaseMaterial3D.STENCIL_MODE_CUSTOM, "reads the stencil")
+	assert_eq(mat.stencil_flags, BaseMaterial3D.STENCIL_FLAG_READ, "reads, never writes")
+	assert_eq(mat.stencil_compare, BaseMaterial3D.STENCIL_COMPARE_NOT_EQUAL, "everywhere but ...")
+	assert_eq(mat.stencil_reference, PlayerVisual.STENCIL_REF, "... the player's visible pixels")
+	# Still the canonical box (width along the facing, the isometric depth across it) at the feet.
+	var e := _extent(fx, feet, Vector3.BACK)
+	assert_near(float(e.near), WorldScale.actor(box.position.x), 1e-3, "near edge")
+	assert_near(float(e.far), WorldScale.actor(box.end.x), 1e-3, "far edge")
+	assert_near(float(e.lat_hi) - float(e.lat_lo), WorldScale.actor(depth), 1e-3, "the isometric attack depth")
+	assert_true(float(e.y) > 0.0 and float(e.y) < 0.1, "at the feet")
+
+
 func test_the_footprint_is_what_the_hit_test_hits() -> void:
 	var fx := AttackFx.new()
 	host.add_child(fx)

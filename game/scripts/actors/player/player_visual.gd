@@ -20,6 +20,12 @@ extends Node3D
 ##     depth test, stencil != STENCIL_REF, drawn last) rings the silhouette in `silhouette_color` on top of
 ##     everything. It shows while set_see_through(true) (CameraRig: something hides the player) and fades out
 ##     otherwise, so an unoccluded player has no extra line.
+##
+## Post-hit blink: while the player is invulnerable the body is hidden on every other BLINK_MS slice. In the open
+## nothing is drawn then (the classic blink). While something hides the player (see-through on: a canopy, a building,
+## terrain), the blink-off slices still draw the silhouette as a translucent ghost in the X-ray colour (#18: under the
+## autumn canopies of 000001020 the player vanished at the moment a monster touched them). The outline meshes live
+## under their own root (`OUTLINE_ROOT`, which follows the model's transform), so hiding the body leaves them.
 
 const LIBRARY := "res://assets/world/_library.glb"
 const PROXY_NODE := "Player_Proxy"
@@ -32,6 +38,9 @@ const FILL_PRIORITY := 120
 const MARK_PRIORITY := 121
 const OUTLINE_PRIORITY := 127
 const OUTLINE_NAME := "SeeThroughOutline"
+const OUTLINE_ROOT := "SeeThroughOutlines"
+## Post-hit blink: the body shows and hides in slices of this many milliseconds (presentation).
+const BLINK_MS := 70
 ## Sit pose: how far the body settles (m), how far it leans back (degrees) and how long the change takes (s).
 const SIT_DROP_M := 0.2
 const SIT_LEAN_DEG := 8.0
@@ -40,6 +49,9 @@ const CHAIR_NAME := "ChairProp"
 const CHAIR_COLOR := Color("#5f9e4a")
 ## The chair's dark wooden frame around the green cushions (presentation: contrast against grass).
 const CHAIR_FRAME_COLOR := Color("#4a2c17")
+## The chair's ink outline (inverted hulls, as on the island's assets) and its thickness (m).
+const CHAIR_INK_COLOR := Color(0.16, 0.09, 0.04)
+const CHAIR_INK_M := 0.022
 
 ## Use the library proxy when available (tests and tools can turn the whole visual off by not adding it).
 @export var use_library_model: bool = true
@@ -63,6 +75,10 @@ var _fill_mat: StandardMaterial3D = null
 var _mark_mat: StandardMaterial3D = null
 var _outline_mat: StandardMaterial3D = null
 var _outlines: Array[MeshInstance3D] = []
+## Parent of the outline meshes (a child of this node, following the model; see the class doc).
+var _outline_root: Node3D = null
+## True on a blink-off slice: the body is hidden (apply_blink).
+var _blink_off: bool = false
 var _config_loaded: bool = false
 var _yaw: float = 0.0
 var _bob_phase: float = 0.0
@@ -82,6 +98,8 @@ func _ready() -> void:
 	if xray:
 		_apply_silhouette(model)
 	_tag_meshes(model)
+	if _outline_root != null:
+		_tag_meshes(_outline_root)
 	if blob_shadow and player != null:
 		shadow = _build_shadow()
 		player.add_child.call_deferred(shadow)
@@ -116,7 +134,7 @@ func _process(delta: float) -> void:
 	rotation = Vector3(_tilt - _death_t * deg_to_rad(80.0) - sit_amount * deg_to_rad(SIT_LEAN_DEG), _yaw, 0.0)
 	# Classic post-hit blink while invulnerable.
 	if model != null:
-		model.visible = not player.is_invulnerable() or int(Time.get_ticks_msec() / 70) % 2 == 0
+		apply_blink(player.is_invulnerable() and blink_off_at(Time.get_ticks_msec()))
 	if shadow != null:
 		shadow.visible = not player.is_climbing()
 
@@ -138,8 +156,12 @@ func step_sit(delta: float) -> void:
 		chair_prop.rotation = Vector3(0.0, _yaw, 0.0)
 
 
-## A small four-legged chair with a back, in the model frame (front +Z, feet at y = 0): the seat sits under the
-## settled body and the back behind it.
+## A four-legged armchair with a high back, in the model frame (front +Z, feet at y = 0): the seat sits under the
+## settled body and the back behind it. #11: the first chair (0.64 m across) hid under the seated body (0.89 m across
+## with its arms) on every facing, on grass and on Amherst's grey road alike. This one is wider than the body (the
+## armrests and the back's side rails show on both sides of it), its back rises past the shoulders behind the head,
+## its seat reaches out in front of the knees, and every part is inked like the island's assets, so the frame reads
+## on grass, sand and the road.
 func _build_chair() -> Node3D:
 	var root := Node3D.new()
 	root.name = CHAIR_NAME
@@ -149,17 +171,30 @@ func _build_chair() -> Node3D:
 	# cushions, so the chair reads on green grass (the acceptance review could not see it under the seated player).
 	var frame := StandardMaterial3D.new()
 	frame.albedo_color = CHAIR_FRAME_COLOR
+	var ink := StandardMaterial3D.new()
+	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	ink.albedo_color = CHAIR_INK_COLOR
+	ink.cull_mode = BaseMaterial3D.CULL_FRONT
+	# The chair counts as the player's own pixels (STENCIL_REF): the X-ray fill must not paint the body blue over a
+	# back rail in front of it (facing away from the camera).
+	for m: BaseMaterial3D in [mat, frame, ink]:
+		m.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+		m.stencil_flags = BaseMaterial3D.STENCIL_FLAG_WRITE
+		m.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_ALWAYS
+		m.stencil_reference = STENCIL_REF
 	var parts := [
-		[Vector3(0.0, 0.3, -0.05), Vector3(0.56, 0.08, 0.5), mat],     # seat cushion
-		[Vector3(0.0, 0.62, -0.28), Vector3(0.56, 0.56, 0.07), mat],   # back cushion
-		[Vector3(0.0, 0.25, -0.05), Vector3(0.64, 0.05, 0.58), frame],  # seat rim, wider than the cushion
-		[Vector3(0.0, 0.93, -0.28), Vector3(0.64, 0.06, 0.1), frame],   # back top rail
+		[Vector3(0.0, 0.3, 0.0), Vector3(0.84, 0.09, 0.72), mat],       # seat cushion
+		[Vector3(0.0, 0.76, -0.38), Vector3(0.84, 0.82, 0.08), mat],    # back cushion
+		[Vector3(0.0, 0.24, 0.0), Vector3(0.96, 0.06, 0.8), frame],     # seat rim, wider than the cushion
+		[Vector3(0.0, 1.22, -0.39), Vector3(1.0, 0.08, 0.13), frame],   # back top rail, above the shoulders
 	]
-	for x in [-0.31, 0.31]:
-		parts.append([Vector3(x, 0.6, -0.28), Vector3(0.05, 0.66, 0.09), frame])  # back side rails
-	for x in [-0.23, 0.23]:
-		for z in [-0.26, 0.16]:
-			parts.append([Vector3(x, 0.12, z), Vector3(0.07, 0.25, 0.07), frame])  # legs
+	for x in [-0.47, 0.47]:
+		parts.append([Vector3(x, 0.74, -0.39), Vector3(0.07, 0.98, 0.11), frame])  # back side rails
+		parts.append([Vector3(x, 0.56, -0.02), Vector3(0.09, 0.07, 0.76), frame])  # armrests
+		parts.append([Vector3(x, 0.42, 0.3), Vector3(0.07, 0.24, 0.07), frame])    # armrest posts
+	for x in [-0.42, 0.42]:
+		for z in [-0.34, 0.32]:
+			parts.append([Vector3(x, 0.11, z), Vector3(0.08, 0.23, 0.08), frame])  # legs
 	for p: Array in parts:
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
@@ -168,6 +203,15 @@ func _build_chair() -> Node3D:
 		mi.material_override = p[2]
 		mi.position = p[0]
 		root.add_child(mi)
+		# The ink: an inverted hull CHAIR_INK_M wider, as the island's assets and the Wooden Box are inked.
+		var hull := MeshInstance3D.new()
+		var hm := BoxMesh.new()
+		hm.size = (p[1] as Vector3) + Vector3.ONE * CHAIR_INK_M * 2.0
+		hull.mesh = hm
+		hull.material_override = ink
+		hull.position = p[0]
+		hull.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(hull)
 	_tag_meshes(root)
 	return root
 
@@ -193,8 +237,12 @@ func step_see_through(delta: float) -> void:
 	see_through_amount = move_toward(see_through_amount, goal, delta / maxf(see_through_fade_s, 0.001))
 	if _outline_mat == null:
 		return
+	if _outline_root != null and model != null:
+		_outline_root.transform = model.transform
 	var c := silhouette_color
-	c.a *= see_through_amount
+	# A blink-off slice while hidden: the body is gone, so the outline hull draws the whole silhouette; at the X-ray
+	# fill's opacity it reads as the hidden player, not as a solid blob.
+	c.a = (xray_color.a if _blink_off else c.a) * see_through_amount
 	_outline_mat.albedo_color = c
 	var on := see_through_amount > 0.001
 	for o in _outlines:
@@ -202,6 +250,24 @@ func step_see_through(delta: float) -> void:
 			o.visible = on
 	if on:
 		_outline_mat.grow_amount = outline_grow()
+
+
+## True on the blink-off slices of the post-hit blink at `msec` (Time.get_ticks_msec()).
+static func blink_off_at(msec: int) -> bool:
+	return int(msec / BLINK_MS) % 2 == 1
+
+
+## Shows the body (false) or hides it for a blink-off slice (true). The outline meshes are not under the body, so
+## while the see-through outline is on they still draw the silhouette (step_see_through gives it the ghost opacity).
+func apply_blink(off: bool) -> void:
+	_blink_off = off
+	if model != null:
+		model.visible = not off
+
+
+## True on a blink-off slice (apply_blink).
+func is_blinked_off() -> bool:
+	return _blink_off
 
 
 ## The outline meshes (one per model mesh with lit surfaces).
@@ -291,6 +357,9 @@ func _apply_silhouette(root: Node) -> void:
 	_outline_mat.stencil_flags = BaseMaterial3D.STENCIL_FLAG_READ
 	_outline_mat.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_NOT_EQUAL
 	_outline_mat.stencil_reference = STENCIL_REF
+	_outline_root = Node3D.new()
+	_outline_root.name = OUTLINE_ROOT
+	add_child(_outline_root)
 	var meshes: Array[MeshInstance3D] = []
 	var stack: Array[Node] = [root]
 	while not stack.is_empty():
@@ -334,7 +403,15 @@ func _apply_silhouette(root: Node) -> void:
 		o.material_override = _outline_mat
 		o.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		o.visible = false
-		mi.add_child(o)
+		# Under the outline root, at the mesh's place in the model: hiding the body for the blink leaves it.
+		var rel := Transform3D.IDENTITY
+		var n: Node = mi
+		while n != null and n != root:
+			if n is Node3D:
+				rel = (n as Node3D).transform * rel
+			n = n.get_parent()
+		o.transform = rel
+		_outline_root.add_child(o)
 		_outlines.append(o)
 
 

@@ -369,11 +369,16 @@ func _break_box(box: Node, stop_after: int = 0, walk_s: float = 25.0) -> Diction
 		var swings := int(pc.get("attacks"))
 		if d.phase == 0 and broken_rows.size() < 3 and int(out["swings"]) == 0 and stop_after == 0:
 			# The cues that set a Wooden Box apart from the decorative crates (BreakableSystem.update_cues): the rim
-			# while the swing can reach it, the marker while Pio's quest still needs its drops.
+			# while the swing can reach it, the marker while Pio's quest still needs its drops. Read from what is
+			# drawn (#11): the cue meshes visible in the tree with a material (WoodenBox.cues_drawn), and the box
+			# inside the gameplay camera's view.
 			await d.wait(0.15)
-			d.check("box %s before the first swing: the reach rim and Pio's quest marker show" % key,
-				bool(box.get("in_reach")) and bool(box.get("wanted")), "in_reach %s, wanted %s" % [box.get("in_reach"),
-				box.get("wanted")], ["breakable:0000001"])
+			var drawn: Dictionary = box.call("cues_drawn")
+			var cam := d.get_viewport().get_camera_3d()
+			var seen := cam != null and cam.is_position_in_frustum(box.call("center"))
+			d.check("box %s before the first swing: the reach rim and Pio's quest marker are drawn, on screen" % key,
+				bool(drawn.get("rim")) and bool(drawn.get("marker")) and seen, "drawn %s, in the camera's view %s" % [
+				str(drawn), seen], ["breakable:0000001"])
 			await d.screenshot("box_%d_before_hit" % (broken_rows.size() + 1))
 		await d.input.tap_action(&"attack")
 		if int(pc.get("attacks")) == swings:
