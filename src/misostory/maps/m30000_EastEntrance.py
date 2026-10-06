@@ -186,7 +186,7 @@ def _giant_mushroom(m, tag, cx, cy, base_z, top_z, cap_r, cap_mat):
     stalk.cyl(0.85, h, loc=m.w(cx, cy, base_z - 0.25), mat="M_MushStem", verts=16, r2=0.62)
     stalk.cyl(1.2, 0.5, loc=m.w(cx, cy, base_z - 0.2), mat="M_MushStem", verts=16, r2=0.85)
     stalk.cyl(0.7, 0.16, loc=m.w(cx, cy, top_z - cap_h - 1.0), mat="M_MushStem", verts=16, r2=1.0)
-    stalk.build(f"{m.slug}_Mushroom_{tag}_Stalk", m.col_arch, smooth=True, sharp_angle=50)
+    CT.tag(stalk.build(f"{m.slug}_Mushroom_{tag}_Stalk", m.col_arch, smooth=True, sharp_angle=50), CT.WALL)
     cap = MeshBuilder()
     cap.dome(cap_r, cap_h, loc=m.w(cx, cy, top_z - cap_h), mat=cap_mat, u=32, v=8, lip=0.4, profile=0.2)
     obj = cap.build(f"{m.slug}_Mushroom_{tag}_Cap", m.col_terrain, smooth=True, sharp_angle=70)

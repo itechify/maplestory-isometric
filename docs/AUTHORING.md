@@ -297,10 +297,12 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   builders tag their meshes (`geo.terrace`: body and cap `wall`, fringe `none`; path ribbons, foam, fringes and sign
   lettering `none`; interior floorboard and flagstone overlays (`interior.plank_floor`, 60001 `flag_floor`) `none`;
   `m.rail`, the ledge face and bridge rails `wall`; water surfaces `water`). A mesh you build yourself into a
-  map's Terrain collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)` with
-  `from misostory import collision_tags as CT`; `validate.py` (`collision_tags`) fails untagged ones. In an
-  Architecture collection an untagged mesh is a wall, so tag a visual-only layer laid over a walkable surface
-  (boards, tiles, decals) `none`: as a wall it is a solid slab a few mm above the floor. Kit assets use
+  map's Terrain or Architecture collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)`
+  with `from misostory import collision_tags as CT` (room walls, frames, parapets, stalks); `validate.py`
+  (`collision_tags`) fails untagged ones. Tag a visual-only layer laid over a walkable surface (boards, tiles,
+  decals) `none`: as a wall it is a solid slab a few mm above the floor. An Architecture mesh must also rest on or
+  touch something (`floating_props` checks the meshes a map builds like the instances, by bounding box within
+  0.15 m of another surface). Kit assets use
   registry tags: any of `collision_tags.PASSABLE_TAGS` (`passable`, `cloud`, `vine`, `flower`, `grass`, ...) makes an
   asset passable, and `collide_exact` makes it collide with its exact mesh instead of a prism (thin overhead
   dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams).

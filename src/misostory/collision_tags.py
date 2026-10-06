@@ -8,7 +8,7 @@ name:
   ``none``; ``m.rail`` is ``wall``; ...). ``tag(obj, cls)`` sets it. Objects that never get a tag fall back to their
   collection group (Architecture: wall, Props: hull, Vegetation: trunk hull, Terrain / Plinth / WORLD: none); the
   exporter reports how many did (``collision.mesh_class_source``) and ``validate.py`` checks that every Terrain,
-  Plinth and WORLD mesh is tagged, so a new builder cannot silently rely on the fallback.
+  Architecture, Plinth and WORLD mesh is tagged, so a new builder cannot silently rely on the fallback.
 * **Instanced kit assets** are classified by their registry category and tags (``kit.REGISTRY``): any tag in
   ``PASSABLE_TAGS`` makes the asset passable; a tag in ``EXACT_TAGS`` makes it collide with its exact mesh (joined
   to the chunk's Walls trimesh) instead of a convex prism of its body-height slice.

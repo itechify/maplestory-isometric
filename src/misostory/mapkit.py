@@ -808,7 +808,7 @@ class MapCtx:
                 bx = x0 + (x1 - x0) * k / 4
                 w = self.w(bx, (y0 + y1) / 2 + (y1 - y0) * 0.25, floor_z + wall_h - 0.2)
                 mb.box((0.3, (y1 - y0) * 0.5, 0.3), loc=w, rot=(0, 0, self.wyaw(0)), mat=trim_mat)
-        mb.build(self._name("Room_Walls"), self.col_arch, smooth=False)
+        CT.tag(mb.build(self._name("Room_Walls"), self.col_arch, smooth=False), CT.WALL)
         return fobj
 
     # ------------------------------------------------------------------

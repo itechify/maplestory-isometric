@@ -314,7 +314,7 @@ collection-group defaults. Non-instanced meshes, in order:
 | `obj["collision"]`, set by the builder: `geo.terrace` body and cap `wall` (a walkable cap is ground by the rule above), fringe `none`; `geo.ramp_lip`, `geo.grass_fringe`, `geo.foam_ring`, `geo.path_ribbon` (`Main_Road`, paths, blends, trail aprons) and `interior.sign_text` lettering `none`; `m.rail`, a one-way trail's `LedgeFace_Body` and trail `BridgeRails` `wall`; `geo.flat_poly` on `M_Water` `water`, on sea / falls / foam `none`; the island underside, lily pads and the waterfall sheets `none` | that class (`exact` counts as wall: a mesh's exact mesh is its wall geometry) |
 | Only `M_Water` (untagged) | water (sidecar `water`: outline, surface height, AABB; no solid) |
 | Only waterfall / sea / foam materials (untagged) | none |
-| Otherwise the collection group: `_Architecture` (room walls, parapets, frames) | **wall** |
+| Otherwise the collection group: `_Architecture` | **wall** (since #29 every mesh a map builds there is tagged, and `validate.py`'s `collision_tags` check fails an untagged one; room walls, parapets, frames and stalks carry `wall` by tag) |
 | `_Props` | prop hull |
 | `_Vegetation` (giant stems; vines and strands drop out under the size rule) | prop hull, trunk band, only if ≥ 1 m tall and ≥ 0.3 m² |
 | `_Terrain`, a plinth or a WORLD collection | none (and `validate.py`'s `collision_tags` check fails any untagged mesh there, so nothing relies on this) |

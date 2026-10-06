@@ -23,6 +23,7 @@ The "Thank you" door is in the back wall at the right end. Walkable pieces never
 
 import math
 
+from misostory import collision_tags as CT
 from misostory.geo import MeshBuilder
 from misostory.kit import add_outline, asset
 from misostory.kit.interior import (BAND, ROOM, RUG_Z, SHOP_H, WALL_T, banded_beam, cut_room, lbox, lcyl, point_light,
@@ -259,7 +260,7 @@ def timber_frame(m, height=SHOP_H):
         L = math.hypot(xb - xa, 1.8)
         ang = math.degrees(math.atan2(1.8, xb - xa))
         lbox(mb, m, (L, 0.06, 0.18), ((xa + xb) / 2, fb, 5.4), 0, "M_Wood", tilt=(0, -ang, 0))
-    obj = mb.build(f"{m.slug}_Timber_Frame", m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_Timber_Frame", m.col_arch, smooth=False), CT.WALL)
     obj.visible_shadow = False
     return obj
 
@@ -353,7 +354,7 @@ def spiral_rail(m, a_from, a_to, r=1.62, h=0.85):
         lbox(mb, m, (0.07, 0.07, top - z0 + 0.1), (cx + r * math.cos(ar), cy + r * math.sin(ar), (z0 - 0.1 + top) / 2),
              a, TREAD_BODY)
         a -= 25.0
-    obj = mb.build(f"{m.slug}_PoleShelf_Rail", m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_PoleShelf_Rail", m.col_arch, smooth=False), CT.WALL)
     obj.visible_shadow = True
     return obj
 
@@ -443,7 +444,7 @@ def build(m):
     m.door_portal("out00", DOOR_X, 10.75, rot=0)
     plaque = MeshBuilder()   # dark board above the arch, cream lettering (readable at gameplay zoom)
     lbox(plaque, m, (2.0, 0.1, 0.56), (DOOR_X, y1 - WALL_T / 2 - 0.06, 3.8), 0, "M_Wood_Dark", bevel=0.04)
-    plaque.build(f"{m.slug}_ThankYou_Plaque", m.col_arch, smooth=False)
+    CT.tag(plaque.build(f"{m.slug}_ThankYou_Plaque", m.col_arch, smooth=False), CT.WALL)
     sign_text(m, "Thank you", DOOR_X, y1 - WALL_T / 2 - 0.13, 3.8, rot=0, size=0.36, mat="M_Flat_cloth_white",
               name="ThankYou")
 
@@ -455,7 +456,7 @@ def build(m):
     for (lx, ly) in ((7.32, 9.52), (8.68, 9.52), (7.32, 10.48), (8.68, 10.48)):
         lbox(legs, m, (0.12, 0.12, 1.12), (lx, ly, 0.56), 0, "M_Wood_Dark")
     lbox(legs, m, (1.5, 1.1, 0.06), (8.0, 10.0, 0.35), 0, "M_Wood")
-    legs.build(f"{m.slug}_Book_Table_Legs", m.col_arch, smooth=False)
+    CT.tag(legs.build(f"{m.slug}_Book_Table_Legs", m.col_arch, smooth=False), CT.WALL)
     m.place("X1010003_BookStacks", 8.05, 10.45, z=1.26, rot=0, scale=0.75)   # back lip, clear of LeftStack
     m.place("X1010003_BookStacks", 8.0, 10.0, z=0.41, rot=180, scale=0.9)
     solid(m, "Cabinet", [(8.8, 9.6, 10.0, 10.6, 0.0, 1.68, "M_Wood"), (8.75, 9.55, 10.05, 10.65, 1.58, 1.68, "M_Plank")])
@@ -463,7 +464,7 @@ def build(m):
     for k in range(3):
         lbox(fronts, m, (1.0, 0.05, 0.42), (9.4, 9.57, 0.3 + k * 0.5), 0, "M_Plank", bevel=0.02)
         lbox(fronts, m, (0.16, 0.06, 0.06), (9.4, 9.53, 0.38 + k * 0.5), 0, "M_Gold")
-    fronts.build(f"{m.slug}_Cabinet_Fronts", m.col_arch, smooth=False)
+    CT.tag(fronts.build(f"{m.slug}_Cabinet_Fronts", m.col_arch, smooth=False), CT.WALL)
     boards = [(8.7, 10.1, 2.1), (7.5, 8.7, 2.5), (6.3, 7.5, 2.9)]
     for i, (bx0, bx1, bz) in enumerate(boards):
         solid(m, f"Potion_Board_{i}", [(bx0, 10.65, bx1, 11.45, bz - 0.12, bz)], mat="M_Plank")
@@ -474,7 +475,7 @@ def build(m):
         for bx in (bx0 + 0.15, bx1 - 0.15):
             lbox(brackets, m, (0.08, 0.6, 0.08), (bx, 11.1, bz - 0.4), 0, "M_Wood_Dark", tilt=(-40, 0, 0))
     lbox(brackets, m, (3.7, 0.08, 0.52), (8.2, 11.42, 3.65), 0, "M_Wood_Dark", bevel=0.03)   # "POTIONS" header
-    brackets.build(f"{m.slug}_Potion_Brackets", m.col_arch, smooth=False)
+    CT.tag(brackets.build(f"{m.slug}_Potion_Brackets", m.col_arch, smooth=False), CT.WALL)
     sign_text(m, "POTIONS", 8.2, 11.33, 3.65, rot=0, size=0.36, mat="M_Flat_cloth_white", name="Potions")
     m.place("Shelf_Goods", 5.6, 11.1, rot=0, z=0.0, scale=(0.55, 0.9, 0.85))   # against the back wall, west of the boards
 
@@ -493,7 +494,7 @@ def build(m):
     lcyl(post, m, 0.34, 0.3, (POLE[0], POLE[1], 0.0), mat="M_Flat_stone_wall", verts=12)
     lcyl(post, m, 0.3, 0.25, (POLE[0], POLE[1], 4.6), mat="M_Flat_stone_wall", verts=12)
     lcyl(post, m, 0.14, 0.25, (POLE[0], POLE[1], 4.85), mat="M_Gold", verts=10, r2=0.02)
-    post.build(f"{m.slug}_Pole_Post", m.col_arch, smooth=True)
+    CT.tag(post.build(f"{m.slug}_Pole_Post", m.col_arch, smooth=True), CT.WALL)
 
     # ---------------- chest shelf, chest lid, crossbeam ----------------
     # (y0 10.45 keeps the top spiral board's corner out from under it; x1 13.3 clears the door frame)
@@ -508,7 +509,7 @@ def build(m):
         lbox(cb, m, (0.12, 0.05, 0.5), (bx, 11.42, BEAM_Z + 0.22), 0, BAND)
         lbox(cb, m, (0.12, 0.84, 0.04), (bx, 11.04, BEAM_Z + 0.015), 0, BAND)
         lbox(cb, m, (0.12, 0.04, 0.47), (bx, 10.63, BEAM_Z - 0.22), 0, BAND)
-    cb.build(f"{m.slug}_Chest_Shelf_Brackets", m.col_arch, smooth=False)
+    CT.tag(cb.build(f"{m.slug}_Chest_Shelf_Brackets", m.col_arch, smooth=False), CT.WALL)
     treasure_chest(m, 12.25, 11.02, CHEST_SHELF_Z)   # walkable lid (real geometry, no hidden proxy)
     m.place("X1010003_Jar", 12.95, 11.3, z=CHEST_SHELF_Z, scale=0.75)
     banded_beam(m, "Crossbeam", (10.1, 11.05), (11.8, 11.05), 0.8, 0.45, BEAM_Z, walkable=True)

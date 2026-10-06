@@ -9,7 +9,8 @@ Checks: collection hierarchy, naming, hidden objects (colliders exempt), missing
 instances, polygon budget (per map, plus the WORLD layer as its own line, plus the assets with the
 largest instanced triangle totals), portal topology + reciprocity + grounding (and the MeowDB portal set; the
 one-way 30000 out00 -> 40000 link is a portal plus an arrival marker), floating props (geometric:
-resting on walkable ground or touching a surface; map dressing, mobs, NPCs and World_Trails instances),
+resting on walkable ground or touching a surface; map dressing, mobs, NPCs and World_Trails instances, and the
+Architecture meshes a map builds itself), collision tags (every Terrain, Architecture, Plinth and WORLD mesh),
 m.place props crowding route centrelines (graded by body clearance), map completeness vs. MeowDB MS Classic
 (fidelity: NPCs by MeowDB id and name, monster species; game/data/canonical/maps via the crosswalk), placeholders,
 authored player_spawns[0] and spawn regions, and the results recorded at build time in docs/build_report.json:
@@ -526,7 +527,8 @@ def to_local(mc, v):
 # box comes within ATTACH_TOL of any terrain/architecture surface: a plain map/world mesh (library sources at the
 # origin are excluded) or another solid instance of the same map (walls, houses, posts, crates, trees), or (3) it
 # is tagged wall_mounted / vine, embedded on purpose (Rock_Cliff_Stone), or a deliberate hoverer (butterflies).
-# Checked: map dressing (_Vegetation/_Props/_Architecture), mobs, NPCs and the trail dressing in World_Trails.
+# Checked: map dressing (_Vegetation/_Props/_Architecture), mobs, NPCs and the trail dressing in World_Trails; and
+# rule (2) for the non-instance meshes of a map's _Architecture (climbables and colliders excepted).
 FLOAT_COLLS = ("_Vegetation", "_Props", "_Architecture")
 
 
@@ -539,12 +541,15 @@ def sec_floating():
         _mesh_into(gv, gp, o.data, o.matrix_world)
     bvh = BVHTree.FromPolygons(gv, gp) if gp else None
     av, ap = [], []
+    faces_of = {}  # mesh object name -> its (first, end) face indices in attach_bvh (a mesh never rests on itself)
     for o in bpy.data.objects:
         if o.type != "MESH" or not o.users_collection or "asset" in o.keys():
             continue  # library sources all sit at the origin
         if in_debug(o):
             continue
+        n0 = len(ap)
         _mesh_into(av, ap, o.data, o.matrix_world)
+        faces_of[o.name] = (n0, len(ap))
     attach_bvh = BVHTree.FromPolygons(av, ap) if ap else None
     solid_by_group = {}  # map id (or TRAIL_COLL) -> solid instances that props may rest against
     for o in bpy.data.objects:
@@ -567,18 +572,27 @@ def sec_floating():
         return (name in EMBEDDED_ASSETS or "vine" in tags or "wall_mounted" in tags or bool(o.get("wall_mounted"))
                 or bool(o.instance_collection.get("wall_mounted")))
 
-    def attached(o, grp):
-        lo, hi = cached_bbox(o)
+    def attached(o, grp, lo=None, hi=None):
+        """What o's bounding box (lo, hi; an instance's own by default) comes within ATTACH_TOL of, or None. A mesh
+        object's own faces in attach_bvh do not count."""
+        if lo is None:
+            lo, hi = cached_bbox(o)
+        own = faces_of.get(o.name, (0, 0))
         t = Vector((ATTACH_TOL,) * 3)
         elo, ehi = lo - t, hi + t
         box = box_bvh(elo, ehi)
         if attach_bvh is not None:
-            if attach_bvh.overlap(box):
+            if any(not own[0] <= i < own[1] for i, _j in attach_bvh.overlap(box)):
                 return "surface"
             centre = (lo + hi) * 0.5
-            hit = attach_bvh.find_nearest(centre, (hi - lo).length * 0.5 + ATTACH_TOL)
-            if hit[0] is not None and aabb_inside(elo, ehi, hit[0], hit[0]):
-                return "surface"
+            if own[1] > own[0]:
+                near = attach_bvh.find_nearest_range(centre, (hi - lo).length * 0.5 + ATTACH_TOL)
+                if any(not own[0] <= h[2] < own[1] and aabb_inside(elo, ehi, h[0], h[0]) for h in near):
+                    return "surface"
+            else:
+                hit = attach_bvh.find_nearest(centre, (hi - lo).length * 0.5 + ATTACH_TOL)
+                if hit[0] is not None and aabb_inside(elo, ehi, hit[0], hit[0]):
+                    return "surface"
         for other in solid_by_group.get(grp, ()):
             if other is o:
                 continue
@@ -623,12 +637,34 @@ def sec_floating():
             gap = None if hit[0] is None else round(p.z - hit[0].z, 2)
             where = TRAIL_COLL if on_trail else map_of(o)
             floating.append({"object": o.name, "asset": name, "map": where, "gap": gap})
+    # the architecture meshes a map builds itself (not instances: room walls, parapets, frames, ropes): the same
+    # attachment rule, by the mesh's bounding box, against every surface but its own; climbables hang by design
+    n_mesh = 0
+    for mid, mc in map_colls.items():
+        for sub in [mc] + list(mc.children_recursive):
+            if not sub.name.endswith("_Architecture"):
+                continue
+            for o in sub.objects:
+                if o.type != "MESH" or o.hide_render or in_debug(o) or "climbable" in o.keys() or o.get("collider"):
+                    continue
+                n_mesh += 1
+                cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
+                lo = Vector((min(c.x for c in cs), min(c.y for c in cs), min(c.z for c in cs)))
+                hi = Vector((max(c.x for c in cs), max(c.y for c in cs), max(c.z for c in cs)))
+                if attached(o, mid, lo, hi):
+                    n_attached += 1
+                    continue
+                c = (lo + hi) * 0.5
+                hit = bvh.ray_cast(Vector((c.x, c.y, lo.z + 0.6)), Vector((0, 0, -1)), 50.0) if bvh else (None,)
+                floating.append({"object": o.name, "asset": None, "map": mid,
+                                 "gap": None if hit[0] is None else round(lo.z - hit[0].z, 2)})
     check("floating_props", len(floating) == 0,
-          f"{len(floating)} of {n_checked} instances ({n_trail} trail dressing) neither on walkable ground nor "
-          f"within {ATTACH_TOL} m of a surface ({n_attached} rest against walls/props)")
+          f"{len(floating)} of {n_checked} instances ({n_trail} trail dressing) and {n_mesh} architecture meshes "
+          f"neither on walkable ground nor within {ATTACH_TOL} m of a surface ({n_attached} rest against walls/props)")
     for f in floating[:80]:
         where = "trail" if f["map"] == TRAIL_COLL else f"map {f['map']}"
-        issue("floating", "medium", f"{where}: {f['object']} ({f['asset']}) floats (gap {f['gap']})")
+        issue("floating", "medium", f"{where}: {f['object']} ({f['asset'] or 'architecture mesh'}) floats "
+              f"(gap {f['gap']})")
     report["stats"]["floating"] = floating
 
 
@@ -1630,11 +1666,13 @@ def _find_exceptions(node, path, out):
 
 
 def sec_collision_tags():
-    """Every mesh of a map's Terrain, the plinths and the WORLD layer must say how it collides, by data: a walkable,
-    collider, climbable or passable flag, or a collision tag (misostory.collision_tags, set by the builder that made
-    it). The runtime export never reads object names; an untagged mesh there would fall back to "none" and could
-    silently lose its collision (a terrace body, a rail)."""
-    colls = [c for mc in map_colls.values() for c in mc.children if c.name.endswith("_Terrain")]
+    """Every mesh of a map's Terrain and Architecture (the meshes a map builds itself; instances are classified by
+    their kit asset's tags), the plinths and the WORLD layer must say how it collides, by data: a walkable, collider,
+    climbable or passable flag, or a collision tag (misostory.collision_tags, set by the builder that made it). The
+    runtime export never reads object names; an untagged mesh there would fall back to its collection group (Terrain:
+    "none", silently losing its collision, such as a terrace body or a rail; Architecture: "wall", a solid slab even
+    where it is a visual layer over a walkable floor)."""
+    colls = [c for mc in map_colls.values() for c in mc.children if c.name.endswith(("_Terrain", "_Architecture"))]
     for name in ("World_Plinths",):
         if bpy.data.collections.get(name) is not None:
             colls.append(bpy.data.collections[name])
@@ -1660,7 +1698,8 @@ def sec_collision_tags():
     for n in bad[:40]:
         issue("collision_tags", "medium", f"{n}: unknown collision class (expected one of {CT.CLASSES})")
     check("collision_tags", not untagged and not bad,
-          f"{len(seen)} Terrain / Plinth / WORLD meshes: {tagged} tagged, the rest walkable / collider / climbable / "
+          f"{len(seen)} Terrain / Architecture / Plinth / WORLD meshes: {tagged} tagged, the rest walkable / collider / "
+          f"climbable / "
           f"passable; untagged: {len(untagged)} {untagged[:6]}; unknown class: {bad[:6]}")
 
 

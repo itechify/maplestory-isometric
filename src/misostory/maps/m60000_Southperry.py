@@ -28,6 +28,7 @@ import math
 
 from mathutils import Vector
 
+from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -979,7 +980,7 @@ def parapet(m, name, pts, z, h=0.5, w=0.32, gaps=()):
             mb.box((seg / n + 0.03, w, h), loc=m.w(cx, cy, z + h / 2 - 0.05), rot=(0, 0, yaw), mat=WALL,
                    bevel=0.05, segs=1)
     if mb.bm.verts:
-        mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+        CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def face_y(m, x, y_top, y_dir=-1.0):
@@ -1001,7 +1002,7 @@ def plaster_band(m, name, xs, y_top, z0, z1, t=0.2):
         ey = face_y(m, cx, y_top)
         mb.box(((x1 - x0) / n + 0.04, t, z1 - z0), loc=m.w(cx, ey + 0.06, (z0 + z1) / 2), rot=(0, 0, m.yaw),
                mat=WALL, bevel=0.04, segs=1)
-    mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+    CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def mooring_rope(m, name, p, q, sag=0.4, r=0.05):
@@ -1014,7 +1015,7 @@ def mooring_rope(m, name, p, q, sag=0.4, r=0.05):
                        p[2] + (q[2] - p[2]) * t - math.sin(math.pi * t) * sag))
     for a, b in zip(pts, pts[1:]):
         _line(mb, a, b, r, "M_Rope")
-    mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+    CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def planter(m, name, outline, base, h=0.5):
