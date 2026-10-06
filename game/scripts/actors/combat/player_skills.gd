@@ -204,15 +204,15 @@ func _search(def: SkillDef) -> Array:
 		return []
 	var facing: Vector3 = player.get("facing") if "facing" in player else Vector3.BACK
 	var bands := SkillTargeting.bands_px(def.band)
+	var depth := CombatReach.attack_box_depth_px(d)
 	var cap := maxi(1, def.targets)
 	var rules := SkillRules.of(d)
 	var space := _space()
 	if not rules.terrain_check or space == null:
-		return SkillTargeting.pick(player.global_position, facing, bands, CombatReach.attack_box_depth_px(d), candidates, cap)
+		return SkillTargeting.pick(player.global_position, facing, bands, depth, candidates, cap)
 	var out: Array = []
 	var from := _aim_from(def)
-	for h: Dictionary in SkillTargeting.pick(player.global_position, facing, bands, CombatReach.attack_box_depth_px(d),
-			candidates, candidates.size()):
+	for h: Dictionary in SkillTargeting.pick(player.global_position, facing, bands, depth, candidates, candidates.size()):
 		if out.size() >= cap:
 			break
 		if SkillSight.clear(space, from, _aim_at(def, h["node"]), rules.sight_blocking_hulls):
