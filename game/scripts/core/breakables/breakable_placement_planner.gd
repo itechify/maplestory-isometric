@@ -50,7 +50,7 @@ static func plan(def: MapDefinition, q: GroundQuery, tuning: WorldTuning, db: Co
 	if specs.is_empty():
 		return {"placements": placements, "warnings": warnings}
 	var cfg := config(db, warnings)
-	var ctx := _context(def, tuning, cfg, warnings) if not cfg.is_empty() else {}
+	var ctx := _context(def, tuning, cfg, warnings, canopy_table(db)) if not cfg.is_empty() else {}
 	var placed: Array[Vector3] = []
 	for spec in specs:
 		var b := BreakablePlacement.new()
@@ -109,8 +109,16 @@ static func config(db: ContentDB, problems: PackedStringArray = PackedStringArra
 	return out
 
 
+## breakables.json placement.canopies: prop shape -> {"min": [x, y, z], "max": [x, y, z]}, the canopy box in the
+## asset's frame ({} when absent: no canopy is checked).
+static func canopy_table(db: ContentDB) -> Dictionary:
+	var t: Variant = BreakableRules.section(db, "placement").get("canopies", {})
+	return t if t is Dictionary else {}
+
+
 ## Everything a candidate is checked against, gathered once per map.
-static func _context(def: MapDefinition, tuning: WorldTuning, cfg: Dictionary, warnings: PackedStringArray) -> Dictionary:
+static func _context(def: MapDefinition, tuning: WorldTuning, cfg: Dictionary, warnings: PackedStringArray,
+		canopy_boxes: Dictionary = {}) -> Dictionary:
 	var problems: Array = []
 	var keepouts := SpawnSlotPlanner.keepouts_of(def, tuning, problems)
 	for p in problems:
@@ -144,6 +152,7 @@ static func _context(def: MapDefinition, tuning: WorldTuning, cfg: Dictionary, w
 		"body_radius": tuning.num("grounding", "capsule_radius_m"), "body_height": tuning.num("grounding", "capsule_height_m"),
 		"areas": _areas(def, tuning, cfg), "floor": _floor(def, tuning, cfg),
 		"camera_forward": _camera_forward(def), "need_sight": true,
+		"canopies": canopies_of(def, canopy_boxes),
 	}
 	return ctx
 
@@ -274,27 +283,70 @@ static func violation(p: Vector3, q: GroundQuery, ctx: Dictionary, placed: Array
 	return ""
 
 
-## True when the lines from a box's clearance capsule at `p` toward the map's camera are all free for camera_sight_m
-## (SIGHT_MASK): from its top and its middle, each at the centre and clearance_radius_m out along x and z. True when
-## there is no camera direction or the query has no physics `space` (the flat L0 world).
+## True when the lines from a box's clearance capsule at `p` toward the map's camera are all free for camera_sight_m:
+## from its top and its middle, each at the centre and clearance_radius_m out along x and z. Free means no walkable,
+## blocking or scenery collision (SIGHT_MASK, when the query has a physics `space`) and no tree canopy (ctx
+## "canopies", canopies_of: the canopies have no collision, so the physics lines pass through them; the acceptance
+## review found Amherst's box 4 behind an orange tree's leaves). True when there is no camera direction; the flat L0
+## world (no space, no sidecar) checks nothing.
 static func in_camera_sight(p: Vector3, q: GroundQuery, ctx: Dictionary) -> bool:
 	var fwd: Vector3 = ctx.get("camera_forward", Vector3.ZERO)
-	var space: Variant = q.get("space") if q != null else null
-	if fwd == Vector3.ZERO or not (space is PhysicsDirectSpaceState3D):
+	if fwd == Vector3.ZERO:
 		return true
+	var space: Variant = q.get("space") if q != null else null
+	var canopies: Array = ctx.get("canopies", [])
 	var cfg: Dictionary = ctx.cfg
 	var r := float(cfg.clearance_radius_m)
-	var ex: Variant = q.get("exclude")
+	var ex: Variant = q.get("exclude") if q != null else null
 	for h: float in [1.0, 0.5]:
 		var at: Vector3 = p + Vector3.UP * (float(ctx.lift) + float(cfg.clearance_height_m) * h)
 		for off in [Vector3.ZERO, Vector3(r, 0, 0), Vector3(-r, 0, 0), Vector3(0, 0, r), Vector3(0, 0, -r)]:
 			var from: Vector3 = at + off
-			var rq := PhysicsRayQueryParameters3D.create(from, from - fwd * float(cfg.camera_sight_m), SIGHT_MASK)
-			if ex is Array:
-				rq.exclude = ex
-			if not (space as PhysicsDirectSpaceState3D).intersect_ray(rq).is_empty():
-				return false
+			var to: Vector3 = from - fwd * float(cfg.camera_sight_m)
+			for c: Dictionary in canopies:
+				if segment_hits_canopy(from, to, c):
+					return false
+			if space is PhysicsDirectSpaceState3D:
+				var rq := PhysicsRayQueryParameters3D.create(from, to, SIGHT_MASK)
+				if ex is Array:
+					rq.exclude = ex
+				if not (space as PhysicsDirectSpaceState3D).intersect_ray(rq).is_empty():
+					return false
 	return true
+
+
+## The tree canopies of `def` (breakables.json placement.canopies, an adaptation): for every sidecar
+## collision.prop_instances entry whose shape the table lists, that asset's canopy box (asset frame, measured from the
+## visual export: test_breakables_canopies keeps the table in step) placed by the instance's xform (position,
+## rotation and scale): a turned box around the leaves, generous where a round crown leaves its corners empty.
+## [{"what", "to_local" (world -> asset frame), "box" (AABB, asset frame)}].
+static func canopies_of(def: MapDefinition, table: Dictionary) -> Array:
+	var out: Array = []
+	if table.is_empty() or not (def.sidecar.get("collision", null) is Dictionary):
+		return out
+	for inst in (def.sidecar.collision as Dictionary).get("prop_instances", []):
+		if not (inst is Dictionary) or not (inst.get("xform", null) is Array) or (inst.xform as Array).size() < 12:
+			continue
+		var shape := String(inst.get("shape", ""))
+		var box: Variant = table.get(shape, null)
+		if not (box is Dictionary) or not (box.get("min", null) is Array) or not (box.get("max", null) is Array):
+			continue
+		var x: Array = inst.xform
+		var xf := Transform3D(Basis(Vector3(x[0], x[1], x[2]), Vector3(x[3], x[4], x[5]), Vector3(x[6], x[7], x[8])),
+			Vector3(x[9], x[10], x[11]))
+		var lo := Vector3(float(box.min[0]), float(box.min[1]), float(box.min[2]))
+		var hi := Vector3(float(box.max[0]), float(box.max[1]), float(box.max[2]))
+		out.append({"what": shape, "to_local": xf.affine_inverse(), "box": AABB(lo, hi - lo)})
+	return out
+
+
+## True when the segment from -> to (world) passes through the canopy box `c` (canopies_of).
+static func segment_hits_canopy(from: Vector3, to: Vector3, c: Dictionary) -> bool:
+	var inv: Transform3D = c.to_local
+	var box: AABB = c.box
+	var a := inv * from
+	var b := inv * to
+	return box.has_point(a) or box.intersects_segment(a, b) != null
 
 
 ## How many of the approach_directions points approach_m around `p` a player can stand on: grounded within
@@ -328,7 +380,7 @@ static func approach_points(p: Vector3, q: GroundQuery, ctx: Dictionary) -> int:
 static func rules_for(def: MapDefinition, tuning: WorldTuning, db: ContentDB) -> Dictionary:
 	var warnings: PackedStringArray = []
 	var cfg := config(db, warnings)
-	return _context(def, tuning, cfg, warnings) if not cfg.is_empty() else {}
+	return _context(def, tuning, cfg, warnings, canopy_table(db)) if not cfg.is_empty() else {}
 
 
 ## True when height y belongs to the area's own tier: inside its authored y band (spawn_regions), else within `tol`

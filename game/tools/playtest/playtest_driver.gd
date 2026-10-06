@@ -38,7 +38,12 @@ const UI_TIMEOUT_S := 2.0
 ## Rings (m, horizontal from the NPC's feet) of the approach points around an NPC, walked front first. The game's talk
 ## rule (WorldNpc.in_range) is its talk Area3D (a sphere of interaction_radius_m, raised by half of it) overlapping
 ## the player's body capsule, so a player pressed against a counter about 1.9 m away can still talk: see talk_gap().
-const TALK_APPROACH_M: Array[float] = [1.0, 0.75, 1.3, 1.7, 2.1, 2.5]
+const TALK_APPROACH_M: Array[float] = [1.0, 1.3, 1.7, 2.1, 2.5]
+## A humanoid NPC proxy's body radius (m; the player's is MovementModel.body_radius, 0.3), and the air kept between the
+## two bodies: talk_to never brings the feet closer than the sum (NPCs are not solid, so a walk or a lean could carry
+## the player into the NPC: the acceptance review saw the player's body inside Rain's while they talked).
+const NPC_BODY_RADIUS_M := 0.35
+const TALK_BODY_AIR_M := 0.15
 ## An approach point counts when the body standing there is at most this far (m) outside the talk zone: the lean
 ## (TALK_LEAN_S of walking straight at the NPC, as a player presses into a counter) closes the rest.
 const TALK_LEAN_M := 0.7
@@ -1415,6 +1420,8 @@ func talk_to(npc_id: String) -> Dictionary:
 		_end(i, false, "a conversation is already open")
 		return read_dialogue()
 	var talks := func() -> bool: return _prompt_talks_to(npc_id)
+	# A walk ends where it may talk, or at the latest where the bodies would touch.
+	var talks_or_touching := func() -> bool: return _prompt_talks_to(npc_id) or npc_distance(npc) <= talk_min_gap()
 	var front := Vector3(npc.global_transform.basis.z.x, 0.0, npc.global_transform.basis.z.z)
 	front = front.normalized() if front.length() > 0.01 else Vector3.FORWARD
 	var candidates := 0
@@ -1447,7 +1454,7 @@ func talk_to(npc_id: String) -> Dictionary:
 					dead_heights.append(goal.y)
 					continue
 				tried += 1
-				var wr := await walk_to(goal, {"max_s": 25.0, "stop_when": talks})
+				var wr := await walk_to(goal, {"max_s": 25.0, "stop_when": talks_or_touching})
 				props = int(wr.get("props", 0))
 				best_gap = minf(best_gap, talk_gap(npc, player().global_position))
 				if not talks.call() and talk_gap(npc, player().global_position) <= TALK_LEAN_M:
@@ -1472,9 +1479,25 @@ func talk_to(npc_id: String) -> Dictionary:
 	var v := read_dialogue()
 	v["reached_over_props"] = props
 	v["leaned"] = leaned > 0
+	v["npc_distance_m"] = snappedf(npc_distance(npc), 0.01)
 	_end(i, ok, String(v.get("text", "")).left(80) + (" (reached over %d prop-top cells)" % props if props > 0 else "")
-		+ (" (after leaning in)" if leaned > 0 else ""))
+		+ (" (after leaning in)" if leaned > 0 else "") + " [%.2f m from the NPC]" % npc_distance(npc))
 	return v
+
+
+## Horizontal distance (m) from the player's feet to `npc`'s.
+func npc_distance(npc: Node3D) -> float:
+	var p := player()
+	if p == null or npc == null or not is_instance_valid(npc):
+		return INF
+	return Vector2(p.global_position.x - npc.global_position.x, p.global_position.z - npc.global_position.z).length()
+
+
+## The closest talk_to brings the feet to an NPC's: both body radii and TALK_BODY_AIR_M.
+func talk_min_gap() -> float:
+	var p := player()
+	var r := p.model.body_radius if p != null and p.model != null else 0.3
+	return r + NPC_BODY_RADIUS_M + TALK_BODY_AIR_M
 
 
 ## How far (m) the player's body standing at `feet` is from `npc`'s talk zone; <= 0 inside it. This is the game's rule
@@ -1504,19 +1527,20 @@ func talk_gap(npc: Node3D, feet: Vector3) -> float:
 
 
 ## Walks straight at `npc` with real movement input, as a player pressing into a counter: at most TALK_LEAN_S, and
-## only while the body keeps getting closer (0.5 s without a gain ends it) and until `talks` holds. Returns the
-## smallest talk_gap() reached.
+## only while the body keeps getting closer (0.5 s without a gain ends it), until `talks` holds, and never closer than
+## talk_min_gap() (the bodies do not overlap). Returns the smallest talk_gap() reached.
 func _lean_toward(npc: Node3D, talks: Callable) -> float:
 	var p := player()
 	var best := talk_gap(npc, p.global_position)
 	var tps := Engine.physics_ticks_per_second
 	var f0 := Engine.get_physics_frames()
 	var last_gain := f0
+	var min_gap := talk_min_gap()
 	while not bool(talks.call()) and Engine.get_physics_frames() - f0 < roundi(TALK_LEAN_S * tps) \
 			and Engine.get_physics_frames() - last_gain < tps / 2:
 		var to := npc.global_position - p.global_position
 		to.y = 0.0
-		if to.length() < 0.05 or p.is_dead() or not bool(session().call("is_idle")):
+		if to.length() <= min_gap or p.is_dead() or not bool(session().call("is_idle")):
 			break
 		input.set_move_world(to.normalized(), p.view_right, p.view_forward)
 		await get_tree().process_frame

@@ -616,6 +616,33 @@ func test_without_character_or_content_nothing_breaks() -> void:
 	assert_eq(h.status.level_label.text, "0", "no character: blank identity")
 
 
+## Acceptance review: seated on The Green Relaxer (a green chair on green grass) nothing on screen said so. Sitting
+## shows the seated cue above the HP gauge with the natural rate and the chair's bonus, both read from data; standing,
+## a load or a replaced character clears it, and the bar keeps its height either way.
+func test_seated_cue_shows_what_sitting_recovers() -> void:
+	var c := _character()
+	var h := _hud(c)
+	h.status.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var bar_h := h.status.get_combined_minimum_size().y
+	assert_false(h.status.is_seated_shown(), "standing: no cue")
+	var rule := NaturalRecoveryRule.from_db(db())
+	var bonus := Chairs.bonus("522", db())
+	assert_true(rule != null and int(bonus.get("hp", 0)) > 0, "the rule and the chair's canonical bonus exist")
+	bus.emit_signal("player_sat_down", "522")
+	var text := h.status.seat_label.text
+	assert_true(h.status.is_seated_shown() and text.begins_with("Seated"), "sitting shows the cue: '%s'" % text)
+	assert_true(text.contains("+%d HP / %d s" % [rule.hp_per_tick, int(rule.tick_s)]), "the natural rate: '%s'" % text)
+	assert_true(text.contains("%s +%d HP / %d s" % [String(db().item("522").get("name", "")), int(bonus.hp),
+		int(bonus.interval_s)]), "the chair's bonus: '%s'" % text)
+	h.status.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	assert_eq(h.status.get_combined_minimum_size().y, bar_h, "the bar keeps its height")
+	bus.emit_signal("player_stood_up", "move")
+	assert_false(h.status.is_seated_shown(), "standing up clears it")
+	bus.emit_signal("player_sat_down", "522")
+	bus.emit_signal("game_loaded", "slot1")
+	assert_false(h.status.is_seated_shown(), "a load stands the player up (the seated state is not saved)")
+
+
 func _parent() -> Node:
 	var tree := Engine.get_main_loop() as SceneTree
 	return tree.current_scene if tree.current_scene != null else tree.root

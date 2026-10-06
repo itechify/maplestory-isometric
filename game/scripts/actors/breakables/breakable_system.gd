@@ -31,6 +31,10 @@ signal box_respawned(box: WoodenBox)
 signal boxes_realized(map_id: String, count: int)
 
 const GROUP := WoodenBox.GROUP
+## How often the boxes' cues are refreshed (s), and how far above or below the player's feet a box still counts as
+## within reach (m: the attack boxes are about a body tall). Presentation.
+const CUE_REFRESH_S := 0.1
+const CUE_TIER_DY_M := 0.6
 
 var ctx: GameContext = null
 ## The player (duck-typed: global_position, facing, a "PlayerCombat" child with attack_started and last_box_px).
@@ -68,6 +72,9 @@ var boxes_broken: int = 0
 
 var _combat_link: Callable = Callable()
 var _connected_bus: Object = null
+var _cue_t: float = 0.0
+var _reach_key: String = ""
+var _reach_cache: float = 0.0
 
 
 func _ready() -> void:
@@ -99,16 +106,84 @@ func _process(delta: float) -> void:
 	tick(delta)
 
 
-## One frame: follow the live state (realize on a new instance), bring boxes back whose time has come, and make sure
-## the player's attack is heard.
-func tick(_delta: float) -> void:
+## One frame: follow the live state (realize on a new instance), bring boxes back whose time has come, make sure
+## the player's attack is heard, and refresh the boxes' cues a few times a second.
+func tick(delta: float) -> void:
 	_connect_combat()
 	var st := current_state()
 	if st != state:
 		realize(st)
+		_cue_t = 0.0
 	if state == null:
 		return
 	_bring_back(state.tick_breakables(_now()))
+	_cue_t -= delta
+	if _cue_t <= 0.0:
+		_cue_t = CUE_REFRESH_S
+		update_cues()
+
+
+# --- cues -----------------------------------------------------------------------------------------------------------
+
+## Tells the breakable boxes from the decorative crates (presentation; the acceptance review could not): every intact
+## box whose body the player's basic attack can reach from where the player stands shows its rim (within reach_m()
+## horizontally, on the player's tier), and while a quest that needs one of the box's quest-gated drops is in progress
+## and still short of it (wanted()), every intact box shows its marker.
+func update_cues() -> void:
+	var feet: Variant = player.global_position if player != null and is_instance_valid(player) else null
+	var reach := reach_m()
+	var want := wanted()
+	for box in live_boxes():
+		var intact := state != null and state.is_breakable_intact(box.index())
+		var near := false
+		if feet is Vector3 and reach > 0.0:
+			var f: Vector3 = feet
+			near = Vector2(box.global_position.x - f.x, box.global_position.z - f.z).length() <= reach \
+				and absf(box.global_position.y - f.y) <= CUE_TIER_DY_M
+		box.set_cues(near and intact, want and intact)
+
+
+## How far (m, horizontal, feet to feet) every basic attack of the character's weapon reaches a box: the shortest
+## far edge of its canonical attack boxes (CombatReach.attack_box_px) plus half the box's body (touch_px). 0 without
+## a character.
+func reach_m() -> float:
+	var c := _character()
+	if c == null:
+		return 0.0
+	var stats := PlayerCombatStats.from_character(c, _db())
+	var weapon := stats.weapon if stats.weapon != null else WeaponProfile.bare_hands(_db())
+	var key := "%s:%d" % [weapon.item_id, c.level]
+	if key == _reach_key:
+		return _reach_cache
+	var far := INF
+	for action: Variant in weapon.ordinary_actions().keys():
+		for pres in weapon.presentations_for(String(action)):
+			far = minf(far, CombatReach.attack_box_px(weapon, pres, true, c.level).end.x)
+	_reach_key = key
+	_reach_cache = 0.0 if far == INF else WorldScale.actor(far + BreakableRules.touch_px(_db()).x * 0.5)
+	return _reach_cache
+
+
+## True while a quest gating one of this box's drops (contract C1 quest_gate: Pio's quest for the Old Wooden Board
+## and the Rusty Screw) is in progress and the character holds fewer of that item than the quest asks for.
+func wanted(owner_id: String = BreakableRules.WOODEN_BOX) -> bool:
+	var c := _character()
+	if c == null or c.quests == null:
+		return false
+	var active := c.quests.active_ids()
+	for row: Dictionary in DropRates.effective_entries(owner_id, _db()):
+		var qid := String(row.get("quest_gate", ""))
+		var item := String(row.get("item_id", ""))
+		if qid == "" or item == "" or String(row.get("excluded", "")) != "" or not (qid in active):
+			continue
+		var need := 0
+		var q := QuestDef.from_records(_db().quest(qid), _db().miso_entity("quests", qid))
+		for o: Dictionary in q.objectives_of("item_collection"):
+			if String(o.get("id", "")) == item:
+				need = int(o.get("count", 0))
+		if c.inventory.count(item) < maxi(need, 1):
+			return true
+	return false
 
 
 ## Shows the placements `indices` came back (MapInstanceState.tick_breakables) on their boxes and announces them. Every
