@@ -73,8 +73,11 @@ Build rules (`tools/sources/drops_merge.mjs`, decision D3-11):
 
 - **Membership** is MeowDB's community list "Drops (MS Classic)" for the owner, every entry, in page order. The newest
   dated source wins: the live page captures (`tools/meowdb/captures/monster_<id>.*`, read 2026-10-05; the Wooden Box's
-  `breakable_0000001.txt`) over the 2026-10-04 cache; a cache/live difference is a record `discrepancies` row. MeowDB's
-  "MSEA reference drops" list stays in `meowdb_reference` and never adds a member.
+  `breakable_0000001.txt`) over the 2026-10-04 cache; a cache/live difference is a record `discrepancies` row. Of two
+  captures of one page the one with the later `read_at` is the page (a tie is an error), and a cache read after the
+  capture that names other members stops the build until the page is captured again. The validator holds each record
+  to its owner's own page capture, the newest one. MeowDB's "MSEA reference drops" list stays in `meowdb_reference`
+  and never adds a member.
 - **Item**: the member's name resolves to the one local item with that name. Where several local items share it (Red
   Cloth Pants: 1168 and 1177), the id MeowDB's own cached drop entry for that owner carries decides, and the record says
   so. A member whose cached entry carries a different id than its one local item stops the build, and so does a list
@@ -91,7 +94,8 @@ Build rules (`tools/sources/drops_merge.mjs`, decision D3-11):
   "Monster Drop") is not gated.
 - **Mesos**: MeowDB's player report from the newest dated source (the live page's "Mesos: N per kill | K reports"
   line, or the cached report API's summary). When a newer capture or cache gains a report for a monster, the next
-  extraction writes it here and the runtime uses it; otherwise `amount_state` is `not_reported`.
+  extraction writes it here and the runtime uses it; otherwise `amount_state` is `not_reported`. The validator refuses a
+  record that leaves out a report its page capture shows (unless a newer source in `sources_compared` decides).
 
 The project owner's rule files (MisoStory adaptations, `verified: false`):
 

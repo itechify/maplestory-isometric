@@ -42,6 +42,42 @@ static func page_text(path: String) -> String:
 	return "\n".join(lines.slice(sep + 1))
 
 
+## The read time a MeowDB page capture records: "read_at" of a .json capture, the "READ_AT:" header line of a .txt
+## capture. "" when the file cannot be read or records none.
+static func read_at(path: String) -> String:
+	var text := FileAccess.get_file_as_string(path).replace("\r\n", "\n")
+	if text == "":
+		return ""
+	if path.ends_with(".json"):
+		var j: Variant = JSON.parse_string(text)
+		return str(j.get("read_at", "")) if j is Dictionary and j.get("read_at", null) is String else ""
+	for line in text.split("\n"):
+		if line == "---":
+			break
+		if line.begins_with("READ_AT:"):
+			return line.trim_prefix("READ_AT:").strip_edges()
+	return ""
+
+
+## Seconds since the Unix epoch of an ISO 8601 date-time with a zone ("2026-10-05T07:47:01.065Z",
+## "2026-10-05T07:30+02:00"), for ordering captures by read time; NAN when the text is not one.
+static func iso_seconds(text: String) -> float:
+	var re := RegEx.new()
+	re.compile("^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2})(?::(\\d{2})(\\.\\d+)?)?(Z|([+-])(\\d{2}):(\\d{2}))$")
+	var m := re.search(text)
+	if m == null:
+		return NAN
+	var t := float(Time.get_unix_time_from_datetime_dict({"year": m.get_string(1).to_int(), "month": m.get_string(2).to_int(),
+		"day": m.get_string(3).to_int(), "hour": m.get_string(4).to_int(), "minute": m.get_string(5).to_int(),
+		"second": m.get_string(6).to_int()}))
+	if m.get_string(7) != "":
+		t += m.get_string(7).to_float()
+	if m.get_string(8) != "Z":
+		var offset := m.get_string(10).to_int() * 3600 + m.get_string(11).to_int() * 60
+		t -= offset if m.get_string(9) == "+" else -offset
+	return t
+
+
 ## The trimmed, non-empty lines of a text.
 static func _lines(text: String) -> PackedStringArray:
 	var out := PackedStringArray()

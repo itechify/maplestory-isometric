@@ -4,8 +4,10 @@
 //
 //   what can drop    MeowDB's community list "Drops (MS Classic)" for the owner, ALL entries, in page order (D3-11).
 //                    The newest dated source wins: the live page captures (tools/meowdb/captures/monster_<id>.*, the
-//                    Wooden Box's breakable_0000001.txt) over the 2026-10-04 cache. Votes are recorded, never used to
-//                    exclude. MeowDB's "MSEA reference drops" list is kept in meowdb_reference, never a member.
+//                    Wooden Box's breakable_0000001.txt; of two captures of one page the newer, captures.mjs) over the
+//                    2026-10-04 cache. A cache read after the capture that names other members stops the build
+//                    (re-capture the page). Votes are recorded, never used to exclude. MeowDB's "MSEA reference
+//                    drops" list is kept in meowdb_reference, never a member.
 //   which item       the member's name -> the one local item (game/data/canonical/items) with that name. Where several
 //                    local items share the name, the item id MeowDB's own cached drop entry for this owner carries
 //                    (/api/drops?monsterId=<id>, /api/breakable-drops?breakableId=<id>) decides, and the record says so.
@@ -350,6 +352,14 @@ function buildRecord(ownerId, ctx) {
     ?? fail(`${where}: no live MeowDB capture (tools/meowdb/captures/${kind === 'monster' ? `monster_${ownerId}.*` : `breakable_${ownerId}.txt`})`);
   const cache = meowdbCache?.[ownerId] ?? fail(`${where}: no MeowDB cache data passed in`);
   if (!live.community_drops.length) fail(`${where}: ${live.file} has no "${MEMBERSHIP_LIST}" list`);
+  // The newest dated source wins (D3-11). The membership is read from the page capture; a cache read after it that
+  // names other members is the newer list, which the build cannot quote verbatim: re-capture the page.
+  const listDiff = communityListDiscrepancy(live, cache);
+  if (listDiff && Date.parse(cache.community.retrieved_at) > Date.parse(live.read_at)) {
+    fail(`${where}: MeowDB's cached community list (${cache.community.url}, retrieved ${cache.community.retrieved_at}) is newer than `
+      + `the page capture ${live.file} (read ${live.read_at}) and names other members (${JSON.stringify(listDiff.values.map((v) => v.value))}): `
+      + 're-capture the page (the newest dated source wins, decision D3-11)');
+  }
   const henesys = captures.henesys.rarity ?? fail('no Henesys.gg rarity capture (tools/henesys/captures/item_rarity.json)');
   const gaps = [];
   const ectx = { ...ctx, henesys, cachedByName: cachedEntriesByName(cache), cacheRef: cache.community };
@@ -395,7 +405,7 @@ function buildRecord(ownerId, ctx) {
       `drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table ${DROP_RATES_FILE} (category x rarity, decision D3-11), applied at runtime`,
       'quantity: no source gives one; one item per drop (decision D3-11)',
     ],
-    discrepancies: [communityListDiscrepancy(live, cache)].filter(Boolean),
+    discrepancies: [listDiff].filter(Boolean),
     notes: [
       `Membership: MeowDB's community list "${MEMBERSHIP_LIST}" on the live page (${live.url}, read ${live.read_at}), every entry with its votes; nothing is excluded for votes (decision D3-11).`,
       `Rarity: Henesys.gg's label per item (${henesys.url}, read ${henesys.read_at}; ${henesys.file}). For this private project only: ask Henesys.gg before publishing it.`,

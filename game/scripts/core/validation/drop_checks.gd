@@ -9,6 +9,8 @@ extends RefCounted
 ##       decision D3-11, verified: false, quantity 1) and data/misostory/meso_rules.json a valid meso rule (D3-12)
 ##       (DropRates.validate)
 ##     - every drop record is schema 3 and its membership authority is MeowDB MS Classic
+##     - the membership is read from the owner's own page capture (monster_<id>.* / breakable_<id>.txt, its URL), the
+##       newest dated capture of that page
 ##     - membership equals MeowDB's community list "Drops (MS Classic)" on the record's capture exactly: the same names
 ##       in the same order, each entry's raw block and votes as the page shows them; no MSEA-only item is a member
 ##     - every rarity is Henesys.gg's label from tools/henesys/captures/item_rarity.json (the same label and row), and
@@ -17,7 +19,9 @@ extends RefCounted
 ##       chance_category follows the rule (DropRates.CATEGORIES; tools/sources/drops_merge.mjs deriveChanceCategory)
 ##     - quest gates follow the D3-9 rule: an entry is gated exactly when its item's MeowDB subtype is "Quest Item"
 ##       and one Maple Island quest objective asks for it, and the gate is that quest
-##     - a monster's reported meso amount comes from MeowDB; meso_rules.json no_mesos names drop owners
+##     - a monster's reported meso amount comes from MeowDB (quoted verbatim from its capture), and a player report
+##       the owner's page capture shows is in the record unless a newer source says otherwise; meso_rules.json
+##       no_mesos names drop owners
 ##     - an unresolved member whose item a Maple Island quest objective asks for is a progression blocker
 ##   drop_unresolved (warnings): each member that never rolls because its item, rarity or category is unresolved, so
 ##     unknown values stay visible
@@ -79,6 +83,7 @@ func check_record(id: String, rec: Dictionary) -> void:
 		_error(id, "membership_authority must be %s (MeowDB's community list, decision D3-11), got %s" % [ProvenanceAuthorities.MEOWDB,
 			var_to_str(rec.get("membership_authority", null))])
 	var entries: Array = ValidationUtil.as_array(rec.get("entries", []))
+	_check_owner_page(id, rec, entries)
 	if reads_captures():
 		_check_membership(id, rec, entries)
 		_check_rarity(id, entries)
@@ -91,6 +96,40 @@ func check_record(id: String, rec: Dictionary) -> void:
 		var src: Variant = meso.get("amount_source", null)
 		if src is Dictionary and not ValidationUtil.same(src.get("authority", null), ProvenanceAuthorities.MEOWDB):
 			_error(id, "meso.amount_source: a meso amount comes from MeowDB's player reports only (D3-12), got %s" % var_to_str(src.get("authority", null)))
+		if reads_captures():
+			_check_meso_report(id, rec, meso)
+
+
+## MeowDB's amount wins (D3-12): a reported amount quoted from a capture is verbatim there, and when the owner's page
+## capture shows a player report ("Mesos: N per kill | K report(s)"), the record holds it unless a newer dated source
+## in meso.sources_compared (a later cache read) says otherwise. Otherwise the runtime would quietly fall back to the
+## level formula for a monster MeowDB has an amount for.
+func _check_meso_report(id: String, rec: Dictionary, meso: Dictionary) -> void:
+	var root := provenance.repo_root()
+	var src: Variant = meso.get("amount_source", null)
+	if src is Dictionary and src.get("capture", null) is String:
+		var quoted := DropSourceCaptures.page_text(root.path_join(src.capture))
+		if quoted == "" or not quoted.contains(str(src.get("raw_value", ""))):
+			_error(id, "meso.amount_source.raw_value %s is not in %s" % [var_to_str(src.get("raw_value", null)), src.capture])
+	var capture := membership_capture(rec)
+	if capture == "":
+		return
+	var report := ""
+	for line in DropSourceCaptures.page_text(root.path_join(capture)).split("\n"):
+		if String(line).strip_edges().begins_with("Mesos: ") and String(line).contains(" per kill"):
+			report = String(line).strip_edges()
+			break
+	if report == "" or ValidationUtil.same(meso.get("amount_state", null), "reported"):
+		return
+	var page_t := DropSourceCaptures.iso_seconds(DropSourceCaptures.read_at(root.path_join(capture)))
+	for s in ValidationUtil.as_array(meso.get("sources_compared", [])):
+		if not (s is Dictionary):
+			continue
+		var at: Variant = s.get("read_at", s.get("retrieved_at", null))
+		if at is String and DropSourceCaptures.iso_seconds(at) > page_t:
+			return  # a newer source decides (tools/sources/drops_merge.mjs buildMonsterMeso)
+	_error(id, "meso: %s shows MeowDB's player report '%s', but amount_state is %s (D3-12: MeowDB's amount wins over the level formula)" % [
+		capture, report, var_to_str(meso.get("amount_state", null))])
 
 
 # --- membership and rarity against the captures --------------------------------------------------------------
@@ -105,6 +144,48 @@ static func membership_capture(rec: Dictionary) -> String:
 	if m is Dictionary and m.get("capture", null) is String:
 		return m.capture
 	return ""
+
+
+## The owner's own MeowDB page (decision D3-11): a monster record's membership is read from
+## tools/meowdb/captures/monster_<id>.json | .txt (https://meowdb.com/msclassic/monsters/<id>), a breakable's from
+## breakable_<id>.txt (.../breakables/<id>). Every entry's membership_source and provenance.membership cite that one
+## capture and URL, and (with the capture files on disk) it is the newest dated capture of the page, as
+## tools/sources/captures.mjs keeps it. Without this, a record could quote another owner's list and still "equal" it.
+func _check_owner_page(id: String, rec: Dictionary, entries: Array) -> void:
+	var owner: Variant = rec.get("owner", null)
+	var kind := str(owner.get("kind", "")) if owner is Dictionary else ""
+	if not (kind in ["monster", "breakable"]):
+		return  # DropRecordChecks reports the owner block
+	var stem := "tools/meowdb/captures/%s_%s" % ["monster" if kind == "monster" else "breakable", id]
+	var allowed: Array = [stem + ".json", stem + ".txt"] if kind == "monster" else [stem + ".txt"]
+	var url := "https://meowdb.com/msclassic/%s/%s" % ["monsters" if kind == "monster" else "breakables", id]
+	var capture := membership_capture(rec)
+	if not (capture in allowed):
+		_error(id, "membership capture %s is not the %s's own MeowDB page capture (%s)" % [var_to_str(capture), kind, " or ".join(allowed)])
+		return
+	var citing: Array = []
+	for e in entries:
+		if e is Dictionary and e.get("membership_source", null) is Dictionary:
+			citing.append(["entry '%s'.membership_source" % str(e.get("key", "?")), e.membership_source])
+	var prov: Variant = rec.get("provenance", null)
+	if prov is Dictionary and prov.get("membership", null) is Dictionary:
+		citing.append(["provenance.membership", prov.membership])
+	for c in citing:
+		var src: Dictionary = c[1]
+		if not ValidationUtil.same(src.get("capture", null), capture) or not ValidationUtil.same(src.get("url", null), url):
+			_error(id, "%s must cite the owner's page %s (%s), got %s (%s)" % [c[0], url, capture, var_to_str(src.get("url", null)),
+				var_to_str(src.get("capture", null))])
+	if not reads_captures():
+		return
+	var root := provenance.repo_root()
+	var cited := DropSourceCaptures.iso_seconds(DropSourceCaptures.read_at(root.path_join(capture)))
+	for other: String in allowed:
+		if other == capture or not FileAccess.file_exists(root.path_join(other)):
+			continue
+		var t := DropSourceCaptures.iso_seconds(DropSourceCaptures.read_at(root.path_join(other)))
+		if is_nan(cited) or is_nan(t) or t >= cited:
+			_error(id, "membership capture %s is not the newest dated capture of %s: %s is %s (the newest dated source wins, D3-11)" % [
+				capture, url, other, "as new or newer" if not (is_nan(cited) or is_nan(t)) else "not ordered by read time"])
 
 
 func _list_for(capture: String) -> Dictionary:

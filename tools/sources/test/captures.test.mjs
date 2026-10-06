@@ -90,6 +90,33 @@ test('MeowDB live monster captures: stats, meso report, community drops, map row
   assert.equal(c.meowdb.monsters['3'].community_drops.find((d) => d.name === 'Monster Card').downvotes, 1);
 });
 
+test('two captures of one page: the newest dated one is the page, whatever the file names; a tie is an error', () => {
+  // The Blue Snail's page captured again as monster_3.txt (sorts after monster_3.json): the read time decides.
+  const blue = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tools/meowdb/captures/monster_3.json'), 'utf8'));
+  const asText = (readAt, extraMember) => [`URL: ${blue.url}`, `READ_AT: ${readAt}`, 'METHOD: test copy', '---',
+    blue.head, blue.drops.replace('Blue Snail Shell\nMonster Drop\n', `${extraMember ? `${extraMember}\n` : ''}Blue Snail Shell\nMonster Drop\n`)
+      .replace('ETC\n6\n', extraMember ? 'ETC\n7\n' : 'ETC\n6\n')].join('\n');
+  const rootWith = (readAt, extraMember = null) => {
+    const r = fs.mkdtempSync(path.join(os.tmpdir(), 'captures-dup-'));
+    for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(REPO_ROOT, dir), path.join(r, dir), { recursive: true });
+    fs.writeFileSync(path.join(r, 'tools/meowdb/captures/monster_3.txt'), asText(readAt, extraMember));
+    return r;
+  };
+  const newer = rootWith('2026-10-07T00:00:00Z', 'Red Potion\nPotion\n▲\n1\n▼\n0');
+  const n = loadCaptures({ root: newer }).meowdb.monsters['3'];
+  assert.equal(n.file, 'tools/meowdb/captures/monster_3.txt', 'the newer capture wins');
+  assert.deepEqual(n.superseded, ['tools/meowdb/captures/monster_3.json']);
+  assert.equal(n.community_drops[0].name, 'Red Potion', 'its list is the membership list');
+  const older = rootWith('2026-10-01T00:00:00Z', 'Red Potion\nPotion\n▲\n1\n▼\n0');
+  const o = loadCaptures({ root: older }).meowdb.monsters['3'];
+  assert.equal(o.file, 'tools/meowdb/captures/monster_3.json', 'an older capture never replaces the newer one, whatever its name');
+  assert.deepEqual(o.superseded, ['tools/meowdb/captures/monster_3.txt']);
+  const tie = rootWith(blue.read_at);
+  assert.throws(() => loadCaptures({ root: tie }), /monster_3\.txt: a second capture of https:\/\/meowdb\.com\/msclassic\/monsters\/3 with the same read_at/);
+  for (const r of [newer, older, tie]) fs.rmSync(r, { recursive: true, force: true });
+  assert.equal(c.meowdb.monsters['3'].superseded, undefined, 'the shipped captures hold one page each');
+});
+
 test('MeowDB breakable, quest and items_api captures', () => {
   const box = c.meowdb.breakables['0000001'];
   assert.equal(box.hits_to_break, 4);

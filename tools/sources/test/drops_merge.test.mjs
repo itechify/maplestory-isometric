@@ -209,6 +209,21 @@ test('a cached drop entry with another item id, or a list group that is not the 
   throwsMerge(() => build({ captures }), /MeowDB lists it under ETC, but local item 270 is type Use/);
 });
 
+test('membership: a cache read after the page capture that names other members stops the build (newest wins)', () => {
+  const later = '2026-11-01T00:00:00Z';
+  const cache = stubCache();
+  cache['3'].community.retrieved_at = later;
+  const { records: same } = build({ meowdbCache: cache });
+  assert.deepEqual(same['3'].entries.map((e) => e.name), live('3').community_drops.map((d) => d.name), 'a newer cache with the same names: the page list stands');
+  cache['3'].community.drops.push({ id: 999, itemId: 270, itemName: 'Blue Potion' });
+  throwsMerge(() => build({ meowdbCache: cache }), /drops\/3: MeowDB's cached community list .* is newer than the page capture tools\/meowdb\/captures\/monster_3\.json .*re-capture the page/);
+  // An older cache that differs is only a discrepancy row (the page is the newest list).
+  const older = stubCache();
+  older['3'].community.drops.push({ id: 999, itemId: 270, itemName: 'Blue Potion' });
+  const { records: r } = build({ meowdbCache: older });
+  assert.deepEqual(r['3'].discrepancies[0].values[0].value, { only_in_cache: ['Blue Potion'] });
+});
+
 test('meso: MeowDB\'s report from the newest dated source; none means null; a newer report replaces the formula', () => {
   const s = records['2'].meso;
   assert.deepEqual([s.amount_state, s.min, s.max, s.amount_source.raw_value, s.amount_source.capture], ['reported', 2, 2, 'Mesos: 2 per kill | 1 report', 'tools/meowdb/captures/monster_2.txt']);

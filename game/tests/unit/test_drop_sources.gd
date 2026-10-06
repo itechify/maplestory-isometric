@@ -28,6 +28,9 @@ func parity_keys() -> Dictionary:
 		"test_every_member_category_follows_the_rule": ["mechanic:drop-category-derivation"] + monster_drops + box_drops,
 		"test_red_cloth_pants_is_meowdbs_own_item": ["mechanic:drop-item-ids-resolve"],
 		"test_member_removed_or_added_fails": ["mechanic:drop-membership-authoritative"],
+		"test_a_record_quoting_another_owners_page_fails": ["mechanic:drop-membership-authoritative"],
+		"test_membership_must_be_the_newest_capture_of_the_page": ["mechanic:drop-membership-authoritative"],
+		"test_a_dropped_meowdb_meso_report_fails": ["mechanic:meso-amount-source", "meso:2"],
 		"test_msea_item_added_as_member_fails": ["mechanic:msea-reference-excluded"],
 		"test_wrong_rarity_fails": ["mechanic:drop-rarity-from-henesys"],
 		"test_wrong_category_fails": ["mechanic:drop-category-derivation"],
@@ -258,6 +261,96 @@ func test_progression_item_that_never_rolls_is_a_blocker() -> void:
 	# Blue Snail Shell (349) is what Biggs's quest 1011 collects; without a rarity it never rolls.
 	var r := run_validator(_with_entries("3", func(rec: Dictionary) -> void: rec.entries[0].rarity = null))
 	expect_new(r, "error", "drop_policy", "drops", "3", "item 349 is needed by quest [\"1011\"] but never rolls here")
+
+
+func test_a_record_quoting_another_owners_page_fails() -> void:
+	# The Blue Snail's record carrying the Snail's members, cited from the Snail's own capture: the list "equals" the
+	# capture it cites, but it is not the Blue Snail's page.
+	var c := clone_db()
+	var snail: Dictionary = (c.canonical.drops["2"] as Dictionary).duplicate(true)
+	var rec: Dictionary = c.canonical.drops["3"]
+	rec.entries = snail.entries
+	rec.provenance.membership = snail.provenance.membership
+	reindex(c)
+	var r := run_validator(c)
+	expect_new(r, "error", "drop_policy", "drops", "3",
+		"membership capture \"tools/meowdb/captures/monster_2.txt\" is not the monster's own MeowDB page capture")
+	# One entry citing another page than the rest of its record.
+	var r2 := run_validator(_with_entries("3", func(rec3: Dictionary) -> void:
+		rec3.entries[2].membership_source.url = "https://meowdb.com/msclassic/monsters/2"))
+	expect_new(r2, "error", "drop_policy", "drops", "3",
+		"entry 'amethyst-ore'.membership_source must cite the owner's page https://meowdb.com/msclassic/monsters/3")
+	var r3 := run_validator(_with_entries("0000001", func(box: Dictionary) -> void:
+		box.provenance.membership.capture = "tools/meowdb/captures/monster_2.txt"))
+	expect_new(r3, "error", "drop_policy", "drops", "0000001", "provenance.membership must cite the owner's page https://meowdb.com/msclassic/breakables/0000001")
+
+
+func test_a_dropped_meowdb_meso_report_fails() -> void:
+	# The Snail's page shows "Mesos: 2 per kill | 1 report": a record without it would roll the level formula instead.
+	var r := run_validator(_with_entries("2", func(rec: Dictionary) -> void:
+		rec.meso.amount_state = "not_reported"
+		rec.meso.min = null
+		rec.meso.max = null
+		rec.meso.amount_source = null
+		rec.provenance.erase("mesos.amount")))
+	expect_new(r, "error", "drop_policy", "drops", "2",
+		"meso: tools/meowdb/captures/monster_2.txt shows MeowDB's player report 'Mesos: 2 per kill | 1 report', but amount_state is \"not_reported\"")
+	# A newer source in sources_compared (a later cache read with no report) decides instead: no error.
+	var r2 := run_validator(_with_entries("2", func(rec: Dictionary) -> void:
+		rec.meso.amount_state = "not_reported"
+		rec.meso.min = null
+		rec.meso.max = null
+		rec.meso.amount_source = null
+		rec.provenance.erase("mesos.amount")
+		rec.meso.sources_compared[1].retrieved_at = "2026-11-01T00:00:00Z"))
+	assert_eq(r2.matching("drop_policy", "drops", "2", "error").size(), 0, str(r2.matching("drop_policy", "drops", "2", "error")))
+	var r3 := run_validator(_with_entries("2", func(rec: Dictionary) -> void:
+		rec.meso.amount_source.raw_value = "Mesos: 3 per kill | 1 report"
+		rec.meso.min = 3
+		rec.meso.max = 3))
+	expect_new(r3, "error", "drop_policy", "drops", "2", "meso.amount_source.raw_value \"Mesos: 3 per kill | 1 report\" is not in tools/meowdb/captures/monster_2.txt")
+
+
+## A copy of every tools/<site>/captures folder under a private root (the validator's repo_root option).
+func _captures_copy() -> String:
+	var root := ProjectSettings.globalize_path("user://_tests/drop_captures_%d_%d" % [Time.get_ticks_usec(), randi()])
+	for site in DirAccess.get_directories_at(_root().path_join("tools")):
+		var src := _root().path_join("tools").path_join(site).path_join("captures")
+		if not DirAccess.dir_exists_absolute(src):
+			continue
+		var dst := root.path_join("tools").path_join(site).path_join("captures")
+		DirAccess.make_dir_recursive_absolute(dst)
+		for f in DirAccess.get_files_at(src):
+			DirAccess.copy_absolute(src.path_join(f), dst.path_join(f))
+	return root
+
+
+func _remove_tree(dir: String) -> void:
+	for d in DirAccess.get_directories_at(dir):
+		_remove_tree(dir.path_join(d))
+	for f in DirAccess.get_files_at(dir):
+		DirAccess.remove_absolute(dir.path_join(f))
+	DirAccess.remove_absolute(dir)
+
+
+func test_membership_must_be_the_newest_capture_of_the_page() -> void:
+	# A second capture of the Blue Snail's page (monster_3.txt beside the cited monster_3.json): newer, the record must
+	# be rebuilt from it (tools/sources/captures.mjs keeps the newest); older, nothing changes.
+	var json: Dictionary = JSON.parse_string(_capture("tools/meowdb/captures/monster_3.json"))
+	for case in [["2026-11-01T00:00:00Z", true], ["2026-10-01T00:00:00.000+02:00", false]]:
+		var root := _captures_copy()
+		var f := FileAccess.open(root.path_join("tools/meowdb/captures/monster_3.txt"), FileAccess.WRITE)
+		f.store_string("URL: %s\nREAD_AT: %s\nMETHOD: test copy\n---\n%s\n%s" % [json.url, case[0], json.head, json.drops])
+		f.close()
+		var r := run_validator(clone_db(), {"repo_root": root})
+		if case[1]:
+			expect_new(r, "error", "drop_policy", "drops", "3",
+				"membership capture tools/meowdb/captures/monster_3.json is not the newest dated capture of https://meowdb.com/msclassic/monsters/3")
+		else:
+			assert_eq(r.matching("drop_policy", "drops", "3", "error").size(), 0, "an older second capture changes nothing: %s" % str(r.matching("drop_policy", "drops", "3", "error")))
+		_remove_tree(root)
+	assert_true(is_nan(DropSourceCaptures.iso_seconds("2026-10-05")), "a date without a time is not ordered")
+	assert_eq(DropSourceCaptures.iso_seconds("2026-10-05T09:30:00+02:00"), DropSourceCaptures.iso_seconds("2026-10-05T07:30:00Z"), "zones")
 
 
 func test_an_incomplete_chance_table_fails_the_data_validator() -> void:

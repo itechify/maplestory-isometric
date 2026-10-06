@@ -94,6 +94,25 @@ function load(root) {
   return out;
 }
 
+/**
+ * Two captures of one page (monster_2.json and monster_2.txt): the newest dated one is the page (decision D3-11, "the
+ * newest dated source wins"), never the one the file name sorts last. The same read time twice cannot be ordered and
+ * is an error. The older capture stays a loaded file (`files`); `superseded` lists it.
+ */
+function keepNewest(map, id, cap) {
+  const prev = map[id];
+  if (!prev) {
+    map[id] = cap;
+    return;
+  }
+  const a = Date.parse(prev.read_at);
+  const b = Date.parse(cap.read_at);
+  if (a === b) throw new Error(`${cap.file}: a second capture of ${cap.url} with the same read_at as ${prev.file}; keep one`);
+  const [newer, older] = b > a ? [cap, prev] : [prev, cap];
+  map[id] = newer;
+  newer.superseded = [...(newer.superseded ?? []), ...(older.superseded ?? []), older.file].sort();
+}
+
 function requireReadAt(obj, where) {
   if (!isIsoTimestamp(obj.read_at)) throw new Error(`${where}: read_at ${JSON.stringify(obj.read_at)} is not an ISO 8601 timestamp with a zone`);
 }
@@ -107,11 +126,11 @@ function loadOne(out, site, name, text, meta) {
   } else if (site === 'meowdb') {
     let m;
     if ((m = /^monster_(\d+)\.(json|txt)$/.exec(name))) {
-      out.meowdb.monsters[m[1]] = meowdbMonster(m[1], m[2] === 'json' ? JSON.parse(text) : textCapture(text), meta);
+      keepNewest(out.meowdb.monsters, m[1], meowdbMonster(m[1], m[2] === 'json' ? JSON.parse(text) : textCapture(text), meta));
       return;
     }
     if ((m = /^breakable_(\d+)\.txt$/.exec(name))) {
-      out.meowdb.breakables[m[1]] = meowdbBreakable(m[1], textCapture(text), meta);
+      keepNewest(out.meowdb.breakables, m[1], meowdbBreakable(m[1], textCapture(text), meta));
       return;
     }
     if ((m = /^quest_(\d+)\.txt$/.exec(name))) {
