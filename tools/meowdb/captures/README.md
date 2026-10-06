@@ -1,11 +1,11 @@
 # MeowDB captures (live pages read by hand)
 
 MeowDB MS Classic (<https://meowdb.com/msclassic>) stays MisoStory's primary authority. Its bulk data comes from the
-extractors' local cache (`tools/meowdb/.cache`, git-ignored, read 2026-10-04). Since Iteration Three the extractors
-read that cache (decision D3-1 in `docs/ITERATION_LOG.md`): `tools/meowdb/lib.mjs` touches the network only with
-`MEOWDB_ALLOW_NETWORK=1`. Facts that are newer than the cache, or missing from it, have come in as these dated
-captures: pages read one at a time by a person in a normal
-browser on 2026-10-05 and saved here.
+extractors' local cache (`tools/meowdb/.cache`, git-ignored, read 2026-10-04). The extractors read that cache first
+and fetch a page only when it is missing (`tools/meowdb/lib.mjs`). During Iteration Three (decision D3-1 in
+`docs/ITERATION_LOG.md`) facts that were newer than the cache, or missing from it, came in as these dated captures:
+pages read one at a time by a person in a normal browser on 2026-10-05 and saved here. The extractors still read
+them; no tool fetches a capture.
 
 | File | Page | What it gives |
 |---|---|---|

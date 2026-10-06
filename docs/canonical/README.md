@@ -28,10 +28,11 @@ Ids are MeowDB's own (maps `"000000010"`, monsters `"2"`, items `"541"`, quests 
 The extractors in `tools/meowdb/` made 524 requests once (2026-10-04, one per 1.2 s, into a git-ignored local cache):
 about 230 pages, 210 `/msclassic/api/` calls and 84 JavaScript bundles. Since then:
 
-- The extractors read that cache (Iteration Three decision D3-1, `docs/ITERATION_LOG.md`): `tools/meowdb/lib.mjs`
-  touches the network only when `MEOWDB_ALLOW_NETWORK=1` is set. Newer MeowDB facts have come in as dated captures of
-  pages read by hand in a normal browser (`tools/meowdb/captures/`, next to the Henesys.gg rarity capture; see
-  "Sources" below).
+- The extractors read that cache first (`tools/meowdb/lib.mjs`). A page missing from it is fetched once, still one
+  request per 1.2 s, and written to the cache, so the next run makes no request; `--refresh` fetches every page again.
+  With `--offline` a missing page stops the extractor with "not cached" instead.
+- During Iteration Three, newer MeowDB facts came in as dated captures of pages read by hand in a normal browser
+  (`tools/meowdb/captures/`, next to the Henesys.gg rarity capture; see "Sources" below).
 - Verbatim MeowDB site code (`docs/canonical/oracles/*.js.txt`) and the raw page cache stay out of git.
 
 ## Sources
@@ -62,7 +63,8 @@ values into numbers exactly (MeowDB `"Mesos: 2 per kill | 1 report"` is 2 to 2),
 Every file is reproducible offline from the local cache (`tools/meowdb/.cache`, git-ignored) and the dated captures
 (`tools/*/captures/`, in git). `tools/meowdb/lib.mjs` reads the cache first; on a miss it serves a MeowDB API body
 captured by hand for exactly that URL (`tools/meowdb/captures/items_api.json`, through
-`tools/sources/captures.mjs`), and otherwise stops with "not cached":
+`tools/sources/captures.mjs`), and otherwise fetches the page and caches it (with `--offline`: stops with "not
+cached"):
 
 ```bash
 node tools/meowdb/extract_maps.mjs        # also writes game/data/misostory/map_id_crosswalk.json + topology_diff.md
@@ -83,10 +85,11 @@ extractor twice when you change one: the output must be byte-identical.
 
 **Reproducibility.** `bash scripts/check_canonical.sh` proves the snapshot is regenerable: it copies what the
 extractors read (the tools with the cache and the captures, the data, the Iteration One docs, `src/misostory/layout.py`)
-into a temporary folder, empties every output folder there, runs the extractors in order with network access off
-(`MEOWDB_ALLOW_NETWORK` cleared), then diffs `game/data/canonical` and `game/data/misostory/map_id_crosswalk.json` byte
-for byte against the repository (`CANONICAL_CHECK_PASSED`; exit 1 on a difference, 2 when an extractor fails or the
-cache is missing; `--keep` keeps the copy). A file no extractor writes any more shows up as "only in the repository".
+into a temporary folder, empties every output folder there, runs the extractors in order with `--offline` (no request;
+a page missing from the cache fails the extractor with "not cached"), then diffs `game/data/canonical` and
+`game/data/misostory/map_id_crosswalk.json` byte for byte against the repository (`CANONICAL_CHECK_PASSED`; exit 1 on
+a difference, 2 when an extractor fails or the cache is missing; `--keep` keeps the copy). A file no extractor writes
+any more shows up as "only in the repository".
 `docs/canonical/topology_diff.md` is compared too but only reported, because it also reads Blender-side files that
 change with each world build; refresh it with `node tools/meowdb/extract_maps.mjs`. `extract_maps.mjs` checks its
 parse of `layout.py` against `docs/topology.json` (`LINKS` and `DOOR_LINKS` join exactly its 24 map pairs; every

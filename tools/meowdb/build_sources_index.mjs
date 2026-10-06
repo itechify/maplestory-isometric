@@ -89,13 +89,13 @@ for (const domain of fs.readdirSync(CANON).sort()) {
   if (!fs.statSync(dir).isDirectory()) continue;
   for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.json')).sort()) {
     const rec = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
-    // Every URL a field source cites: url, fallback_url, pages[] and urls[] (strings or {url}), as ProvenanceChecks
-    // (_field_source_urls) validates them.
+    // Every URL a field source cites: url, fallback_url, pages[], fallback_pages[] and urls[] (strings or {url}), as
+    // ProvenanceChecks (_field_source_urls) validates them.
     const extra = new Set();
     for (const v of Object.values(rec.field_sources || {})) {
       if (!v || typeof v !== 'object') continue;
       for (const k of ['url', 'fallback_url']) if (typeof v[k] === 'string' && v[k]) extra.add(v[k]);
-      for (const list of [v.pages, v.urls]) {
+      for (const list of [v.pages, v.fallback_pages, v.urls]) {
         for (const p of Array.isArray(list) ? list : []) {
           const u = typeof p === 'string' ? p : p && p.url;
           if (typeof u === 'string' && u) extra.add(u);

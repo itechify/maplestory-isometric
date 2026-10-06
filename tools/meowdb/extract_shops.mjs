@@ -30,14 +30,9 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
 const OUT_DIR = path.join(ROOT, 'game', 'data', 'canonical', 'shops');
 const MAPLE_ISLAND_REGION = 'MapleIsland'; // region value used by the /npcs index
-// Item-page fields come from one page per item; the exact url/retrieved_at of each is in items[].item_page.
-const ITEM_URL_TEMPLATE = BASE_URL + '/item-db/{item_id}';
-const ITEM_RETRIEVED = 'per item: items[].item_page.retrieved_at';
 // MeowDB's per-item JSON endpoint (the site's item hover-preview fetch in the msclassic layout chunk:
 // fetch(`/msclassic/api/items/${id}?locale=${locale}&preview=1`)). Its stats.price is the NPC sell-back value.
 const itemApiUrl = (id) => BASE_URL + '/api/items/' + id + '?locale=en&preview=1';
-const ITEM_API_URL_TEMPLATE = itemApiUrl('{item_id}');
-const ITEM_API_RETRIEVED = 'per item: items[].item_api.retrieved_at';
 
 const freshFetches = [];
 async function page(p) {
@@ -530,6 +525,10 @@ async function main() {
     if (items.some((x) => x.item_type === 'Equip')) notes.push('Equipment item pages note: "NPC shop copies always roll clean." Equipment bought here has the item\'s clean (base) stats.');
     notes.push('icon_key is MeowDB\'s icon key for the item. It is not the MeowDB item id; use item_id to join with items data.');
 
+    // Item-page fields come from one page per row: each field source lists every row's page ({url, retrieved_at}, in
+    // display order, as in items[].item_page), so it cites real URLs, never a URL template.
+    const itemPages = items.map((x) => x.item_page);
+    const fromItemPages = (note) => ({ pages: itemPages, note });
     const out = {
       id: s.slug,
       name: s.npcName,
@@ -549,23 +548,27 @@ async function main() {
       items,
       source: source(pageUrl('/npc-shops') + '#' + s.slug, shopsPage.retrieved_at),
       field_sources: {
-        'items[].name': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "item detail page heading" },
-        'items[].item_type': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "item page breadcrumb (category link)" },
-        'items[].item_subtype': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "item page breadcrumb (?subtype= link)" },
-        'items[].max_per_stack': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "\"Max per Stack\" row" },
+        'items[].name': fromItemPages("item detail page heading"),
+        'items[].item_type': fromItemPages("item page breadcrumb (category link)"),
+        'items[].item_subtype': fromItemPages("item page breadcrumb (?subtype= link)"),
+        'items[].max_per_stack': fromItemPages("\"Max per Stack\" row"),
         'items[].quantity_per_purchase': {
           url: consumablesTab.page.url, retrieved_at: consumablesTab.page.retrieved_at,
           also: effPages.filter((e) => e !== consumablesTab).map((e) => at(e.page)),
           note: `1 = price_mesos buys one unit. MeowDB's Shop Item Efficiency guide divides one item's stat by the listed price (e.g. Red Potion: 100 HP / 50 mesos = "HP / meso" 2.000) and says "${ARROW_SENTENCE}". Re-checked on ${perUnitEvidence.filter((e) => e.consistent).length}/${perUnitEvidence.length} guide rows for these shops; see cross_checks.shop_item_efficiency_guide.per_unit_ratio_rows.`,
         },
-        'items[].sell_price_mesos': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, fallback_url: ITEM_API_URL_TEMPLATE, fallback_retrieved_at: ITEM_API_RETRIEVED, note: "item page \"NPC Sell-back (per unit)\" or \"NPC Sell-back\" row; when the page has no such row, the item API's stats.price (the page omits the row when the value is 0). sell_price_source says which one was used." },
-        'items[].sell_price_basis': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "per_unit when the row label is \"NPC Sell-back (per unit)\", per_item when it is \"NPC Sell-back\". For rows taken from the item API (no label), per_unit if the item page has a \"Max per Stack\" row, else per_item; this rule reproduces the label on every labelled row (cross_checks.item_api.basis_rule_holds)." },
-        'items[].sell_price_source': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "\"item_page\" or \"item_api\" (null if neither has a value)" },
-        'items[].rechargeable': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "true only when the item page has a \"Recharge Cost\" row" },
-        'items[].recharge_cost_mesos_per_unit': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "\"Recharge Cost\" row" },
-        'items[].sell_price_history': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "Change history table, \"Sell-back price\" row (COT1 -> COT2)" },
-        'items[].other_change_history': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "Change history table, other rows" },
-        'items[].change_notes': { url: ITEM_URL_TEMPLATE, retrieved_at: ITEM_RETRIEVED, note: "Change history notes" },
+        'items[].sell_price_mesos': {
+          pages: itemPages,
+          fallback_pages: items.filter((x) => x.sell_price_source === 'item_api').map((x) => x.item_api),
+          note: "item page \"NPC Sell-back (per unit)\" or \"NPC Sell-back\" row; when the page has no such row, the item API's stats.price (the page omits the row when the value is 0). sell_price_source says which one was used; fallback_pages lists the item API responses of the rows that took it.",
+        },
+        'items[].sell_price_basis': fromItemPages("per_unit when the row label is \"NPC Sell-back (per unit)\", per_item when it is \"NPC Sell-back\". For rows taken from the item API (no label), per_unit if the item page has a \"Max per Stack\" row, else per_item; this rule reproduces the label on every labelled row (cross_checks.item_api.basis_rule_holds)."),
+        'items[].sell_price_source': fromItemPages("\"item_page\" or \"item_api\" (null if neither has a value)"),
+        'items[].rechargeable': fromItemPages("true only when the item page has a \"Recharge Cost\" row"),
+        'items[].recharge_cost_mesos_per_unit': fromItemPages("\"Recharge Cost\" row"),
+        'items[].sell_price_history': fromItemPages("Change history table, \"Sell-back price\" row (COT1 -> COT2)"),
+        'items[].other_change_history': fromItemPages("Change history table, other rows"),
+        'items[].change_notes': fromItemPages("Change history notes"),
       },
       cross_checks: {
         npc_index: { ...at(npcsPage), roles: npcIdx.roles, map_ids: npcIndexMapIds, maple_island: true },
@@ -573,7 +576,7 @@ async function main() {
         map_page: { ...at(mapPage), npc_listed_on_map: !!npcOnMap },
         item_pages_where_to_buy: crossItemPages,
         item_api: {
-          url_template: ITEM_API_URL_TEMPLATE, ...crossApi,
+          ...crossApi,
           zero_is_recorded_value: ZERO_IS_RECORDED,
           no_price_reference: noPriceReference,
           reference_item_294: subiCheck,
