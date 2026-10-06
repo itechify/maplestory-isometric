@@ -7,6 +7,14 @@ extends TestCase
 const SPECIES := ["1", "2", "3", "4", "5", "9"]
 
 
+## Contract C6: the stat comparison proves each species' monster-stats row (every stat the runtime reads, plus MP).
+func parity_keys() -> Dictionary:
+	var stats: Array = []
+	for id in SPECIES:
+		stats.append("monster-stats:%s" % id)
+	return {"test_gameplay_stats_are_canonical": stats, "test_monster_mp_is_the_canonical_record_value": stats}
+
+
 func test_every_maple_island_species_builds_without_errors() -> void:
 	for id in SPECIES:
 		var d := MonsterDef.build(id, db())
@@ -31,6 +39,13 @@ func test_gameplay_stats_are_canonical() -> void:
 		assert_eq(d.exp_reward, int(rec["exp"]), "%s exp" % id)
 		assert_eq(d.level, int(rec["level"]), "%s level" % id)
 		assert_eq(d.stats.pdmg, int(rec["physical_damage"]), "%s P.DMG" % id)
+		assert_eq(d.stats.mdmg, int(rec["magic_damage"]), "%s M.DMG" % id)
+		assert_eq(d.stats.pdef, int(rec["physical_defense"]), "%s P.DEF" % id)
+		assert_eq(d.stats.mdef, int(rec["magic_defense"]), "%s M.DEF" % id)
+		assert_eq(d.stats.avoid, int(rec["avoidability"]), "%s EVA (avoidability)" % id)
+		assert_eq(d.stats.level, int(rec["level"]), "%s combat level" % id)
+		assert_eq(d.stats.hp, int(rec["hp"]), "%s combat HP" % id)
+		assert_eq(d.stats.exp, int(rec["exp"]), "%s combat EXP" % id)
 		assert_eq(d.stats.acc, int(rec["accuracy"]), "%s ACC" % id)
 		assert_eq(d.stats.kb, int(rec["knockback_threshold_damage"]), "%s KB" % id)
 		assert_eq(d.speed_modifier, int(rec["speed"]), "%s speed modifier" % id)
@@ -39,6 +54,26 @@ func test_gameplay_stats_are_canonical() -> void:
 		var tz: Array = rec["touch_zone_px"]
 		assert_near(d.touch_size_m.x, WorldScale.actor(float(tz[0])), 1e-5, "%s touch width" % id)
 		assert_near(d.touch_size_m.y, WorldScale.actor(float(tz[1])), 1e-5, "%s touch height" % id)
+
+
+## MeowDB shows a monster's MP only in its "Other Attributes" list ("MP 30"), which the extractor reads (the record's
+## field_sources.mp). No Maple Island monster has a skill to spend MP on, so no runtime system holds monster MP:
+## MonsterDef and MonsterCombatStats carry none, and the game can show no MP other than the record's.
+func test_monster_mp_is_the_canonical_record_value() -> void:
+	for id in SPECIES:
+		var rec := db().monster(id)
+		var mp: Variant = rec.get("mp", null)
+		assert_true(mp is int or mp is float, "%s MP is a published number: %s" % [id, mp])
+		var labels: Array = (rec.get("other_attributes", []) as Array).map(
+			func(a: Variant) -> String: return String((a as Dictionary).get("label", "")) if a is Dictionary else "")
+		assert_true(labels.has("MP %d" % int(mp)), "%s MP %s is the page's 'MP n' attribute %s" % [id, mp, labels])
+		assert_true(String((rec.get("field_sources", {}) as Dictionary).get("mp", {}).get("url", "")).ends_with("/monsters/%s" % id),
+			"%s MP cites its MeowDB monster page" % id)
+		var skills: Variant = rec.get("skills", [])
+		assert_true(not (skills is Array) or (skills as Array).is_empty(), "%s has no monster skill to spend MP on" % id)
+		var d := MonsterDef.build(id, db())
+		assert_false("mp" in d, "%s: MonsterDef holds no MP of its own" % id)
+		assert_false("mp" in d.stats, "%s: MonsterCombatStats holds no MP of its own" % id)
 
 
 func test_movement_kind_follows_the_canonical_label() -> void:

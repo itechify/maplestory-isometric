@@ -24,6 +24,8 @@ extends RefCounted
 ##   - chance_state "unresolved": probability is null (the entry never rolls); a chance_source or quantity, if given,
 ##     is still checked
 ##   - quest_gate is null or {quest_id, basis}
+## pending_kuro_candidates (optional): {kuro_item_id, name, raw_value, member, read, reason}; the member is an entry key
+## whose chance stays unresolved with no chance_source; never also an excluded_kuro_only row (_check_pending_candidates).
 ## Meso (null = the owner never drops mesos):
 ##   - amount_state "resolved": min/max whole numbers, 1 <= min <= max, an amount_source for "mesos.amount" whose
 ##     "Mesos: a[-b]" raw_value (when it has that form) gives the same numbers; "unresolved": min and max null
@@ -85,6 +87,7 @@ func check_record(id: String, rec: Dictionary) -> void:
 	var excluded := _excluded_names(id, rec.get("excluded_kuro_only", null))
 	var keys := {}
 	var item_ids := {}
+	var by_key := {}
 	var entries: Array = ValidationUtil.as_array(rec.get("entries", null))
 	for i in entries.size():
 		var e: Variant = entries[i]
@@ -99,12 +102,14 @@ func check_record(id: String, rec: Dictionary) -> void:
 			if keys.has(key):
 				report.error("drop_record", "drops", id, "%s: key '%s' is used twice" % [where, key])
 			keys[key] = true
+			by_key[key] = e
 		var item_id: Variant = e.get("item_id", null)
 		if item_id is String:
 			if item_ids.has(item_id):
 				report.error("drop_record", "drops", id, "%s: item %s is also entry %s (one item, one roll)" % [where, item_id, item_ids[item_id]])
 			else:
 				item_ids[item_id] = where
+	_check_pending_candidates(id, rec.get("pending_kuro_candidates", null), by_key, rec.get("excluded_kuro_only", null))
 	var meso: Variant = rec.get("meso", null)
 	if meso != null:
 		if meso is Dictionary:
@@ -299,6 +304,43 @@ func _check_meso(id: String, meso: Dictionary, owner_kind: String) -> void:
 
 
 # --- helpers ------------------------------------------------------------------------------------------------
+
+## pending_kuro_candidates (optional; absent = none): KuroDB rows that may be a member under another name, waiting for
+## a hand read of their item page (decision D3-8). Each is {kuro_item_id, name, raw_value, member, read, reason} with
+## non-empty strings; `member` is the key of an entry whose chance is unresolved and that has no chance_source (a
+## pending row never rolls); the row is not also an excluded_kuro_only row, and no two pending rows are the same row.
+func _check_pending_candidates(id: String, rows: Variant, by_key: Dictionary, excluded_rows: Variant) -> void:
+	if rows == null:
+		return
+	if not (rows is Array):
+		report.error("drop_record", "drops", id, "pending_kuro_candidates must be a list")
+		return
+	var excluded := {}
+	for x in ValidationUtil.as_array(excluded_rows):
+		if x is Dictionary:
+			excluded["%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]] = true
+	var seen := {}
+	for i in rows.size():
+		var r: Variant = rows[i]
+		var ok: bool = r is Dictionary
+		for field in ["kuro_item_id", "name", "raw_value", "member", "read", "reason"]:
+			ok = ok and ValidationUtil.non_empty(r.get(field, null))
+		if not ok:
+			report.error("drop_record", "drops", id, "pending_kuro_candidates[%d] must be {kuro_item_id, name, raw_value, member, read, reason}" % i)
+			continue
+		var where := "pending_kuro_candidates[%d] %s (%s)" % [i, r.name, r.kuro_item_id]
+		var key := "%s|%s" % [r.kuro_item_id, r.name]
+		if seen.has(key):
+			report.error("drop_record", "drops", id, "%s is listed twice" % where)
+		seen[key] = true
+		if excluded.has(key):
+			report.error("drop_record", "drops", id, "%s is also an excluded_kuro_only row: a row is pending or KuroDB-only, not both" % where)
+		var e: Variant = by_key.get(r.member, null)
+		if not (e is Dictionary):
+			report.error("drop_record", "drops", id, "%s names member '%s', which is no entry key" % [where, r.member])
+		elif str(e.get("chance_state", "")) != "unresolved" or e.get("chance_source", null) != null:
+			report.error("drop_record", "drops", id, "%s: its member '%s' must stay unresolved with no chance_source while the row is pending (decision D3-8)" % [where, r.member])
+
 
 ## Name keys of the excluded_kuro_only rows; checks their shape.
 func _excluded_names(id: String, rows: Variant) -> Dictionary:

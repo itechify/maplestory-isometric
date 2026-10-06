@@ -12,9 +12,10 @@
 //   implemented  the runtime is there, the data validates and every unresolved value is a documented source-data gap,
 //                but no passing check is tagged with the entry's key
 //   verified     as implemented, plus at least one passing check tagged with the entry's key (or a key it accepts, e.g.
-//                an objective accepts its quest's key) and no failing one. Quests, their objectives and rewards (and so
-//                their chains) need that check from the real game: a playtest report.json check, not a unit test (brief
-//                "Full Quest Playthrough Requirement"). A drop probability can only be verified when its sources
+//                an objective accepts its quest's key) and no failing one. Quests, their objectives and rewards need
+//                that check from the real game: a playtest report.json check, not a unit test (brief "Full Quest
+//                Playthrough Requirement"). A chain is derived from its member quests and also needs a real-game
+//                check of one of its links (RULE_TEXT.chains). A drop probability can only be verified when its sources
 //                resolve (a KuroDB chance for a member of the membership list); an unresolved one is a source-data gap.
 //   source_data_gap  (a flag next to the state) the entry cannot be completed because the sources were read and do not
 //                give a value (KuroDB's page for that monster has no row for the member; Hidden Street gives no meso
@@ -22,9 +23,9 @@
 //   pending_source_read  (a flag next to the state, never set together with source_data_gap) a value the entry needs
 //                is published on a page nobody has read yet, so it is NOT a source-data gap and is NOT excused: the
 //                entry stays partial and counts as open until the page is read and the data updated. A drop record
-//                marks one itself: a KuroDB row drops_merge.mjs excluded as a possible match for a member (any
-//                excluded_kuro_only reason but the KuroDB-only one) makes that member's unresolved chance pending, even
-//                when undeclared. Other entries are declared in rules.json pending_source_reads (the read that resolves
+//                marks one itself: a pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a
+//                read of its item page; contract C1) makes the member it names pending, even when undeclared.
+//                Other entries are declared in rules.json pending_source_reads (the read that resolves
 //                it, and for a record the fields its gaps name). A declaration the data no longer supports fails the
 //                build (stale), so a finished read cannot stay labelled pending. An entry that also has a real gap
 //                (e.g. an item no source names) stays a source-data gap, with the pending part listed beside it.
@@ -33,8 +34,9 @@ import { entryKey } from '../sources/parse.mjs';
 
 export const FORMAT = 3;
 /**
- * The excluded_kuro_only reason tools/sources/drops_merge.mjs gives a KuroDB row that matches no member. Any other
- * reason is a crosswalk "candidate": a row that may be a member but was not accepted (decision D3-8).
+ * The excluded_kuro_only reason tools/sources/drops_merge.mjs gives a KuroDB row that matches no member (a candidate
+ * its item page did not confirm carries what the page showed instead). No excluded row is ever pending: a candidate
+ * waiting for its item page is a pending_kuro_candidates row.
  */
 export const KURO_ONLY_REASON = 'not on the membership list (KuroDB never adds members)';
 /** How many passing checks an entry lists in the JSON (all are counted; failing ones are always all listed). */
@@ -85,7 +87,12 @@ const arr = (v) => (Array.isArray(v) ? v : []);
  */
 export function buildParity({ canonical, miso, rules, runtime, provenance = null, tests = [], playtests = [] }) {
   const tagStats = [];
-  const evidence = collectEvidence(tests, playtests, arr(rules.playtest_tags), tagStats);
+  const refused = [];
+  const worldTest = (file) => {
+    const p = `game/tests/unit/${file}`;
+    return !!runtime?.files?.has(p) && needsWorld(runtime.read(p));
+  };
+  const evidence = collectEvidence(tests, playtests, arr(rules.playtest_tags), tagStats, { worldTest, refused });
   const findings = recordFindings(provenance);
   const runtimeOf = (spec) => runtimeState(spec, runtime);
   const categoryRuntime = Object.fromEntries(CATEGORIES.map(([id]) => [id, runtimeOf(rules.categories?.[id]?.runtime)]));
@@ -123,8 +130,14 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
     generated_by: 'node tools/parity/build_parity.mjs',
     rule: RULE_TEXT,
     inputs: {
-      tests: tests.map((t) => ({ file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, totals: t.doc.totals ?? null })),
+      tests: tests.map((t) => {
+        const mine = refused.filter((x) => x.evidence === t.file);
+        return { file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, dirty: t.doc.dirty ?? null,
+          world_present: typeof t.doc.world_present === 'boolean' ? t.doc.world_present : null, totals: t.doc.totals ?? null,
+          world_refused: { tests: mine.length, keys: [...new Set(mine.flatMap((x) => x.keys))].sort() } };
+      }),
       playtests: playtests.map((p) => ({ file: p.file, scenario: p.doc.scenario ?? null, result: p.doc.result ?? null, seed: p.doc.seed ?? null,
+        ...gitOf(p.doc),
         checks: arr(p.doc.checks).length, tagged_checks: arr(p.doc.checks).filter((c) => arr(c.parity).length).length,
         rule_tagged_checks: tagStats.filter((s) => s.file === p.file).reduce((n, s) => n + s.matched, 0),
         failed_checks: arr(p.doc.checks).filter((c) => !c.soft && !c.ok).map((c) => `#${c.i ?? '?'} ${c.name}`),
@@ -134,9 +147,9 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
       provenance: provenance ? { errors: provenance.validation?.errors ?? null, warnings: provenance.validation?.warnings ?? null,
         records: provenance.counts?.records ?? null } : null,
       unknown_evidence_keys: [...evidence.keys()].filter((k) => !byKeyMap.has(k) && !accepted.has(k)).sort(),
-      // Entries a drop record marks pending (an excluded KuroDB candidate row) that rules.json does not declare yet.
+      // Entries a drop record marks pending (a pending_kuro_candidates row) that rules.json does not declare yet.
       undeclared_pending_reads: undeclaredPending,
-      // Excluded KuroDB candidate rows whose member could not be found in the record's entries (their notes).
+      // pending_kuro_candidates rows whose member key names no entry of the record.
       unmatched_kuro_candidates: ctx.unmatchedCandidates.sort(),
     },
     totals,
@@ -150,9 +163,10 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.',
+  chains: 'A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner\'s "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.',
   source_data_gap: 'The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
-  pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.',
+  pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; a drop record\'s pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a read of its item page) makes its member pending even when undeclared.',
   in_scope: 'false for content outside Iteration Three (rules.json out_of_scope).',
   evidence: 'A unit test declares the keys it proves in its file\'s parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.',
 };
@@ -178,7 +192,7 @@ export function tagKeysFor(rule, scenario, name) {
  * tagStats (optional, filled in) receives one {file, rule, matched} per report and rule of its scenario; a rule that
  * matches no check in any report of its scenario is what playtest_tag_rules_unmatched lists (unmatchedTagRules).
  */
-export function collectEvidence(tests, playtests, tagRules = [], tagStats = null) {
+export function collectEvidence(tests, playtests, tagRules = [], tagStats = null, { worldTest = null, refused = null } = {}) {
   const ev = new Map();
   const add = (key, ok, item) => {
     if (!ev.has(key)) ev.set(key, { passed: [], failed: [] });
@@ -186,6 +200,13 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
   };
   for (const t of tests) {
     for (const r of arr(t.doc.tests)) {
+      // A test that needs the exported world passes with a SKIP line without it: its keys count only from a run that
+      // recorded the world present (contract C6 world_present; older evidence records nothing, so it does not count).
+      const needs = typeof r.needs_world === 'boolean' ? r.needs_world : !!worldTest?.(String(r.file));
+      if (needs && t.doc.world_present !== true) {
+        if (arr(r.parity).length) refused?.push({ evidence: t.file, test: `${String(r.file).replace(/\.gd$/, '')}::${r.name}`, keys: arr(r.parity) });
+        continue;
+      }
       for (const k of arr(r.parity)) add(k, !!r.ok, { kind: 'unit', id: `${String(r.file).replace(/\.gd$/, '')}::${r.name}` });
     }
   }
@@ -208,6 +229,20 @@ export function collectEvidence(tests, playtests, tagRules = [], tagStats = null
     if (tagStats) for (const r of rules) tagStats.push({ file: p.file, scenario, rule: `${r.i}: ${r.rule.match}`, matched: r.matched });
   }
   return ev;
+}
+
+/**
+ * What marks a unit test file as needing the exported world (game/tests/test_runner.gd WORLD_MARKER): its SKIP line
+ * says "run with INCLUDE_WORLD=1". Evidence entries carry needs_world (format 2); for older evidence the generator reads
+ * the test file itself.
+ */
+export const WORLD_MARKER = 'INCLUDE_WORLD';
+export const needsWorld = (source) => String(source ?? '').includes(WORLD_MARKER);
+
+/** A playtest report's provenance (report.json "git", contract C6): {commit, dirty, mixed, reused_copy}, nulls when absent. */
+export function gitOf(report) {
+  const g = report?.git && typeof report.git === 'object' ? report.git : {};
+  return { commit: g.commit ?? null, dirty: typeof g.dirty === 'boolean' ? g.dirty : null, mixed: g.mixed === true, reused_copy: g.reused_copy === true };
 }
 
 /**
@@ -332,6 +367,30 @@ function recordGaps(rec) {
   return arr(rec?.gaps).map(String);
 }
 
+/** The adaptation every spawn-rule row lists: the switch that decides whether the canonical mob rate is applied. */
+export const MOB_RATE_ADAPTATION = 'game/data/misostory/presentation.json#map_mob_rate';
+
+/** presentation.json map_mob_rate as {apply, verified}, or null when the file or the section is absent. */
+function mobRateAdaptation(miso) {
+  const m = miso?.presentation?.map_mob_rate;
+  return m && typeof m === 'object' ? { apply: m.apply === true, verified: m.verified ?? null } : null;
+}
+
+/**
+ * A rules.json adaptation reference: "game/data/misostory/<file>.json", or "<file>.json#<key>" for one top-level
+ * section of it. Returns the reference when the file exists, null when it does not (the row lists no adaptation), and
+ * throws when the file exists without the named section (a stale reference).
+ */
+export function adaptationRef(ref, miso) {
+  const [file, section] = String(ref).split('#');
+  const data = miso[file.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')];
+  if (!data) return null;
+  if (section !== undefined && !(typeof data === 'object' && Object.hasOwn(data, section))) {
+    throw new Error(`rules.json: adaptation ${ref}: ${file} has no section ${JSON.stringify(section)}`);
+  }
+  return ref;
+}
+
 function enumerate(ctx) {
   const { canonical: C, miso, rules } = ctx;
   const out = [];
@@ -353,8 +412,17 @@ function enumerate(ctx) {
     const species = new Map();
     for (const s of arr(m.monsters)) species.set(String(s.id), s);
     if (species.size) {
-      out.push(entry('monster-spawn-rules', `spawn-rule:${id}`, `${m.name}: mob rate ${m.mob_rate ?? '?'}, ${arr(m.spawns).length} spawn points`,
-        { record: `maps/${id}` }));
+      // The canonical rule names the map's MeowDB mob rate; whether the runtime applies it is the MisoStory switch
+      // presentation.json map_mob_rate (an owner decision between MeowDB pages), so the row says which and lists it.
+      const mobRate = mobRateAdaptation(miso);
+      const rateText = `MeowDB mob rate ${m.mob_rate ?? '?'}${mobRate ? ` (${mobRate.apply ? 'applied' : 'not applied'}: presentation.json map_mob_rate)` : ''}`;
+      const sr = entry('monster-spawn-rules', `spawn-rule:${id}`, `${m.name}: ${arr(m.spawns).length} spawn points, ${rateText}`,
+        { record: `maps/${id}`, adaptations: mobRate ? [MOB_RATE_ADAPTATION] : [] });
+      if (mobRate) {
+        sr.notes.push(`mob rate ${m.mob_rate ?? '?'} ${mobRate.apply ? 'applied' : 'deliberately not applied'} (presentation.json map_mob_rate.apply ` +
+          `${mobRate.apply}, verified: ${mobRate.verified}; capacity = floor(spawn points x player scalar)${mobRate.apply ? ' x mob rate, capped at the spawn points' : ''})`);
+      }
+      out.push(sr);
     }
     for (const [mob, s] of species) {
       out.push(entry('monster-populations', `population:${id}/${mob}`, `${m.name}: ${s.name} x${s.count ?? '?'}`,
@@ -390,12 +458,13 @@ function enumerate(ctx) {
     // An entry also accepts drop:<owner>/<item id> (the form playtest checks use) when that item id is its own alone.
     const idCount = new Map();
     for (const e of arr(t.entries)) if (e.item_id != null) idCount.set(String(e.item_id), (idCount.get(String(e.item_id)) ?? 0) + 1);
-    // KuroDB rows excluded as a possible match for a member (drops_merge.mjs writes the member's note "KuroDB candidate
-    // row <name> (<kuro id>, ..."): that member's chance is published but unread, a pending read and not a gap.
-    const candidates = v2 ? arr(t.excluded_kuro_only).filter((x) => x?.reason && x.reason !== KURO_ONLY_REASON) : [];
-    const candidateOf = (e) => candidates.filter((x) => arr(e.notes).some((n) => String(n).startsWith(`KuroDB candidate row ${x.name} (${x.kuro_item_id},`)));
+    // KuroDB rows that may be a member under another name, waiting for a hand read of their item page (the record's
+    // pending_kuro_candidates, contract C1; each names its member's entry key): that member's chance is published but
+    // unread, a pending read and not a gap. An excluded_kuro_only row is never pending, whatever its reason.
+    const candidates = v2 ? arr(t.pending_kuro_candidates).filter((x) => x && typeof x === 'object') : [];
+    const candidateOf = (e) => candidates.filter((x) => x.member != null && String(x.member) === String(e.key));
     for (const x of candidates) {
-      if (!arr(t.entries).some((e) => candidateOf(e).includes(x))) ctx.unmatchedCandidates.push(`drops/${id}: KuroDB ${x.kuro_item_id} ${x.name}`);
+      if (!arr(t.entries).some((e) => candidateOf(e).includes(x))) ctx.unmatchedCandidates.push(`drops/${id}: KuroDB ${x.kuro_item_id} ${x.name} (member ${x.member ?? '?'})`);
     }
     for (const e of arr(t.entries)) {
       const label = e.name ?? e.item_name ?? e.item_id;
@@ -419,7 +488,7 @@ function enumerate(ctx) {
           if (cand.length) {
             for (const x of cand) {
               ent.pending_reads.push({ read: `KuroDB item ${x.kuro_item_id} ("${x.name}", ${x.raw_value ?? '?'} on this monster's page)`,
-                resolves: 'whether that row is this member, and so its chance', decision: null, detail: x.reason, declared: false });
+                resolves: 'whether that row is this member, and so its chance', decision: x.decision ?? null, detail: x.reason, declared: false });
             }
           } else {
             ent.source_data_gap = true;
@@ -512,7 +581,7 @@ function enumerate(ctx) {
     const category = m.category ?? 'map-mechanics';
     if (!RULE_ROW_CATEGORIES.has(category)) throw new Error(`rules.json: ${m.key} names an unknown category ${category}`);
     const ent = entry(category, m.key, m.name, { brief: m.brief ?? null, accepts: [...arr(m.accepts)], rule_accepts: arr(m.accepts),
-      ...(typeof m.real_game === 'boolean' ? { real_game: m.real_game } : {}), adaptations: arr(m.adaptations).filter((a) => miso[a.replace(/^game\/data\/misostory\//, '').replace(/\.json$/, '')]) });
+      ...(typeof m.real_game === 'boolean' ? { real_game: m.real_game } : {}), adaptations: arr(m.adaptations).map((a) => adaptationRef(a, miso)).filter(Boolean) });
     if (m.runtime !== undefined || category === 'map-mechanics') ent.runtime_spec = m.runtime ?? null;
     if (arr(m.source_gaps).length) {
       ent.source_data_gap = true;
@@ -558,10 +627,10 @@ export function dataRequirementIssues(requires, canonical) {
 
 /**
  * Applies rules.json pending_source_reads and sets every entry's pending_source_read flag; returns the keys a drop
- * record marks pending (an excluded KuroDB candidate row) that are not declared. A declaration is
+ * record marks pending (a pending_kuro_candidates row) that are not declared. A declaration is
  *   {read: the page whose read resolves it, resolves: what it settles, decision: the log row (optional),
  *    fields: [record fields] (an entry other than a drop: each must still be named by one of the record's gaps)}
- * and fails the build when the data no longer supports it: a drop entry without an unread KuroDB candidate row, or a
+ * and fails the build when the data no longer supports it: a drop entry without a pending_kuro_candidates row, or a
  * record whose gaps no longer name a declared field (the read was done: remove the declaration). An entry with a real
  * source-data gap stays excused as one; its pending reads are listed beside it, but it is not flagged pending.
  */
@@ -577,7 +646,7 @@ export function applyPendingReads(entries, rules, canonical) {
     const base = { read: String(d.read), resolves: String(d.resolves), decision: d.decision ?? null, declared: true };
     if (e.key.startsWith('drop:')) {
       if (!detected.length) {
-        throw new Error(`rules.json pending_source_reads: ${key} is stale: its drop record has no unread KuroDB candidate row ` +
+        throw new Error(`rules.json pending_source_reads: ${key} is stale: its drop record has no pending_kuro_candidates row ` +
           'for it any more (the read was done or the entry resolved): remove the declaration');
       }
       e.pending_reads = [{ ...base, detail: detected.map((r) => r.detail).join('; ') }];
@@ -628,13 +697,19 @@ function finish(e, ctx, all) {
   const shown = [...passed.filter((p) => p.kind === 'playtest'), ...passed.filter((p) => p.kind !== 'playtest')].slice(0, EVIDENCE_LISTED);
   e.evidence = { passed_count: passed.length, failed_count: failed.length, passed: shown, failed };
   if (e.category === 'quest-chains') {
+    // RULE_TEXT.chains: derived from the member quests, plus the chain's own real-game link checks.
     const members = e.members.map((m) => all.get(`quest:${m}`)).filter(Boolean);
     const states = members.map((m) => m.state);
+    const links = passed.filter((p) => p.kind === 'playtest');
+    if (failed.length) e.issues.push(`${failed.length} tagged check(s) failed`);
     if (rt.state === 'absent' || states.includes('missing')) e.state = 'missing';
-    else if (states.length !== e.members.length || states.includes('partial')) e.state = 'partial';
-    else if (states.every((s) => s === 'verified')) e.state = 'verified';
+    else if (states.length !== e.members.length || states.includes('partial') || failed.length) e.state = 'partial';
+    else if (states.every((s) => s === 'verified') && links.length) e.state = 'verified';
     else e.state = 'implemented';
     e.notes.push(`members: ${e.members.map((m, i) => `${m} ${states[i] ?? 'absent'}`).join(', ')}`);
+    if (e.state === 'implemented' && states.every((s) => s === 'verified')) {
+      e.notes.push('needs a passing real-game check tagged with this key (a link of the chain: a follow-up available right after its predecessor was completed)');
+    }
     return;
   }
   if (rt.state === 'absent') {
@@ -717,15 +792,23 @@ export function toMarkdown(doc) {
   L.push('`report.json` files. Do not edit: change the data, the code, the tests or `tools/parity/rules.json` and regenerate.');
   L.push('Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).', '');
   L.push('## States', '');
-  for (const s of [...STATES, 'source_data_gap', 'pending_source_read', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
+  for (const s of [...STATES, 'chains', 'source_data_gap', 'pending_source_read', 'in_scope', 'evidence']) L.push(`- **${s}**: ${doc.rule[s]}`);
   L.push('- Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries');
   L.push('  `parity`. "Implemented" is a declaration (`tools/parity/rules.json`: the runtime files or code markers per category');
   L.push('  and mechanic); only evidence makes an entry verified.', '');
   L.push('## Evidence used', '');
   if (!doc.inputs.tests.length && !doc.inputs.playtests.length) L.push('No evidence files were given.');
-  for (const t of doc.inputs.tests) L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed`);
+  const tree = (dirty) => (dirty === true ? 'dirty tree' : dirty === false ? 'clean tree' : 'tree state not recorded');
+  for (const t of doc.inputs.tests) {
+    const wr = t.world_refused ?? { tests: 0, keys: [] };
+    L.push(`- Unit tests \`${t.file}\`: run ${t.run_at ?? '?'}, commit ${t.commit ?? '?'} (${tree(t.dirty)}), ` +
+      `world ${t.world_present === true ? 'present' : t.world_present === false ? 'absent' : 'not recorded'}, ${t.totals?.tests ?? '?'} tests, ${t.totals?.failed ?? '?'} failed` +
+      `${wr.tests ? `; ${wr.tests} world-dependent test(s) refused (the run did not record the world present): ${wr.keys.map((k) => `\`${k}\``).join(', ')}` : ''}`);
+  }
   for (const p of doc.inputs.playtests) {
-    L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
+    L.push(`- Playtest \`${p.file}\`: ${p.scenario ?? '?'} seed ${p.seed ?? '?'}, ${p.result ?? '?'}, ` +
+      `${p.commit ? `commit ${p.commit} (${tree(p.dirty)}${p.mixed ? ', several commits' : ''}${p.reused_copy ? ', reused copy' : ''})` : 'commit not recorded'}, ` +
+      `${p.checks} checks (${p.tagged_checks} tagged by the scenario, ${p.rule_tagged_checks ?? 0} by rules.json playtest_tags)` +
       `${arr(p.failed_checks).length ? `; failed: ${p.failed_checks.map((f) => esc(f)).join('; ')}` : ''}` +
       `${p.clean_run === true ? '; a clean run (counts for the playthrough rows)' : p.clean_run === false ? `; not a clean run: ${esc(arr(p.not_clean_because).join('; '))}` : ''}`);
   }
@@ -738,21 +821,27 @@ export function toMarkdown(doc) {
     L.push(`- Pending source reads a drop record marks that \`tools/parity/rules.json\` \`pending_source_reads\` does not declare: ${doc.inputs.undeclared_pending_reads.map((k) => `\`${k}\``).join(', ')}`);
   }
   if (arr(doc.inputs.unmatched_kuro_candidates).length) {
-    L.push(`- Excluded KuroDB candidate rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.map((k) => esc(k)).join('; ')}`);
+    L.push(`- pending_kuro_candidates rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.map((k) => esc(k)).join('; ')}`);
   }
   L.push('');
   L.push('How the evidence is made (each step writes git-ignored files under `_scratch/`):', '');
   L.push('1. `TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh`: the full unit suite.');
   L.push('   `INCLUDE_WORLD=1` is required: without the exported world the world tests (test_world_transitions,');
-  L.push('   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass, and their keys would count.');
+  L.push('   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass. The evidence records');
+  L.push('   `world_present`, its commit and a `dirty` flag; the keys of a test that needs the world (its file names');
+  L.push('   `INCLUDE_WORLD`) are refused from a run that did not record the world present.');
   L.push('2. `bash scripts/validate_data.sh --report`: `provenance_report.json` (validation findings per record).');
   L.push('3. `ISOLATE=<name> bash scripts/playtest.sh <scenario> --out _scratch/pt/<scenario>` for every scenario listed above, and');
-  L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.');
+  L.push('   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set. Each report.json records the');
+  L.push('   commit it played and a dirty flag (`git`).');
   L.push('4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the');
   L.push('   `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run');
   L.push('   (a passing report, strict mode ok, no console or api step, and the departure boundary reached: its final check');
   L.push(`   "${DEPARTURE_BOUNDARY_CHECK}" passed and no PLAYTHROUGH_STOP flag).`);
-  L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).', '');
+  L.push('5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).');
+  L.push('   It warns on the console (not in this file, which must not depend on the checkout) when evidence records no commit');
+  L.push('   or a dirty tree, when the evidence commits differ from each other, and when an evidence commit\'s `game/`, `tools/`');
+  L.push('   or `scripts/` tree differs from HEAD\'s: the states above hold for the code the evidence ran on.', '');
   L.push('```bash', regenerateCommand(doc.inputs), '```', '');
   L.push('## Totals', '');
   const t = doc.totals;

@@ -5,6 +5,14 @@ extends TestCase
 var host: Node3D
 
 
+## Contract C6: the damage numbers' own texts, styles, stacking and lifetime (Phase 12 damage feedback).
+func parity_keys() -> Dictionary:
+	return {
+		"test_damage_numbers_styles_stack_and_expire": ["ui:damage-feedback"],
+		"test_numbers_of_nearby_targets_do_not_overlap": ["ui:damage-feedback"],
+	}
+
+
 func before_each() -> void:
 	host = Node3D.new()
 	(Engine.get_main_loop() as SceneTree).current_scene.add_child(host)

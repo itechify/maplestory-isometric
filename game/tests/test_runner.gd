@@ -9,21 +9,29 @@ extends Node
 ## Exit code 0 = all passed, 1 = failures. Output: one line per failing assertion plus a summary.
 ##
 ## Test evidence (docs/runtime/ITERATION_THREE_CONTRACTS.md C6). With TEST_EVIDENCE_OUT set to a file path the runner
-## also writes {format, run_at, commit, filters, totals, tests: [{file, name, ok, failures, parity}]}: one entry per
-## test (a file that does not compile is one entry named "(load)"). A test file declares the parity keys its tests
-## prove with an optional
+## also writes {format, run_at, commit, dirty, world_present, filters, totals, tests: [{file, name, ok, failures,
+## parity, needs_world}]}: one entry per test (a file that does not compile is one entry named "(load)"). world_present
+## says whether the run saw the Blender export (WorldSidecars.exists(): INCLUDE_WORLD=1 in an ISOLATE run); a test
+## needs_world when its file names INCLUDE_WORLD (WORLD_MARKER: the convention of every test that prints SKIP and
+## passes without the export), so tools/parity/build_parity.mjs refuses its keys from a run without the world. A test
+## file declares the parity keys its tests prove with an optional
 ##
 ##   func parity_keys() -> Dictionary:
 ##       return {"test_sam_to_mai_full_flow": ["quest:1006", "npc:9"]}
 ##
 ## mapping test method names to "<category>:<id>" keys (tools/parity/build_parity.mjs reads them). A parity_keys()
 ## that names a method the file does not have, or a malformed key, is a failure ("<file>::parity_keys"), so evidence
-## cannot silently go missing. TEST_EVIDENCE_COMMIT (scripts/test.sh sets it to the checked-out commit) is recorded.
+## cannot silently go missing. TEST_EVIDENCE_COMMIT (scripts/test.sh sets it to the checked-out commit) and
+## TEST_EVIDENCE_DIRTY ("1" when game/, tools/ or scripts/ differ from it, "0" when not, "" unknown) are recorded.
 
 const UNIT_DIR := "res://tests/unit"
 const EVIDENCE_ENV := "TEST_EVIDENCE_OUT"
 const COMMIT_ENV := "TEST_EVIDENCE_COMMIT"
-const EVIDENCE_FORMAT := 1
+const DIRTY_ENV := "TEST_EVIDENCE_DIRTY"
+## Format 2 adds dirty, world_present and the entries' needs_world.
+const EVIDENCE_FORMAT := 2
+## A test file whose source names this needs the exported world (its SKIP line says "run with INCLUDE_WORLD=1").
+const WORLD_MARKER := "INCLUDE_WORLD"
 ## The optional per-file method that maps test names to parity keys.
 const PARITY_METHOD := "parity_keys"
 ## A parity key: "<category>:<id>" with a lowercase category (contract C6: "quest:1005", "drop:2/snail-shell").
@@ -50,7 +58,8 @@ func run(filters: PackedStringArray) -> int:
 	print("\n%d tests, %d failed, %d files (%d ms)" % [total, failed, files.size(), ms])
 	var evidence_path := OS.get_environment(EVIDENCE_ENV)
 	if evidence_path != "":
-		var doc := evidence_document(result.entries, filters, files.size(), ms, OS.get_environment(COMMIT_ENV))
+		var doc := evidence_document(result.entries, filters, files.size(), ms, OS.get_environment(COMMIT_ENV),
+			OS.get_environment(DIRTY_ENV), WorldSidecars.exists())
 		if write_evidence(evidence_path, doc):
 			print("test evidence written to %s" % evidence_path)
 		else:
@@ -82,6 +91,7 @@ func run_files(files: PackedStringArray, quiet: bool = false) -> Dictionary:
 			total += 1
 			entries.append(_entry(file, LOAD_ENTRY, false, [msg.trim_prefix("FAIL ")], []))
 			continue
+		var world := needs_world(script.source_code)
 		var methods: Array = []
 		var has_parity := false
 		for m in script.get_script_method_list():
@@ -109,7 +119,7 @@ func run_files(files: PackedStringArray, quiet: bool = false) -> Dictionary:
 						print("FAIL %s: %s" % [label, p])
 				failed += 1
 				total += 1
-				entries.append(_entry(file, PARITY_METHOD, false, lines, []))
+				entries.append(_entry(file, PARITY_METHOD, false, lines, [], world))
 		for m in methods:
 			var tc: TestCase = script.new()
 			tc.current_test = "%s::%s" % [file.get_basename(), m]
@@ -121,7 +131,7 @@ func run_files(files: PackedStringArray, quiet: bool = false) -> Dictionary:
 			for e in guard.errors():
 				tc.fail("script error: " + e)
 			var keys: Array = Array(parity.get(String(m), []))
-			entries.append(_entry(file, String(m), tc.failures.is_empty(), Array(tc.failures), keys))
+			entries.append(_entry(file, String(m), tc.failures.is_empty(), Array(tc.failures), keys, world))
 			if tc.failures.is_empty():
 				continue
 			failed += 1
@@ -157,8 +167,10 @@ static func parity_problems(declared: Variant, methods: Array) -> PackedStringAr
 	return out
 
 
-## The evidence document written to TEST_EVIDENCE_OUT. `commit` "" is recorded as null.
-static func evidence_document(entries: Array, filters: PackedStringArray, file_count: int, ms: int, commit: String) -> Dictionary:
+## The evidence document written to TEST_EVIDENCE_OUT. `commit` "" is recorded as null; `dirty` "1" / "0" as true /
+## false and anything else as null (unknown); `world_present` is whether the run saw the exported world.
+static func evidence_document(entries: Array, filters: PackedStringArray, file_count: int, ms: int, commit: String,
+		dirty: String = "", world_present: bool = false) -> Dictionary:
 	var failed := 0
 	for e in entries:
 		if not bool(e.ok):
@@ -167,10 +179,18 @@ static func evidence_document(entries: Array, filters: PackedStringArray, file_c
 		"format": EVIDENCE_FORMAT,
 		"run_at": Time.get_datetime_string_from_system(true) + "Z",
 		"commit": commit if commit != "" else null,
+		"dirty": true if dirty == "1" else (false if dirty == "0" else null),
+		"world_present": world_present,
 		"filters": Array(filters),
 		"totals": {"tests": entries.size(), "failed": failed, "files": file_count, "ms": ms},
 		"tests": entries,
 	}
+
+
+## True when a test file's source names WORLD_MARKER: it needs the exported world and passes with a SKIP line
+## without it, so its keys prove nothing from a run without the world.
+static func needs_world(source: String) -> bool:
+	return source.contains(WORLD_MARKER)
 
 
 static func write_evidence(path: String, doc: Dictionary) -> bool:
@@ -182,8 +202,9 @@ static func write_evidence(path: String, doc: Dictionary) -> bool:
 	return true
 
 
-static func _entry(file: String, test_name: String, ok: bool, failures: Array, parity: Array) -> Dictionary:
-	return {"file": file, "name": test_name, "ok": ok, "failures": failures, "parity": parity}
+static func _entry(file: String, test_name: String, ok: bool, failures: Array, parity: Array,
+		world: bool = false) -> Dictionary:
+	return {"file": file, "name": test_name, "ok": ok, "failures": failures, "parity": parity, "needs_world": world}
 
 
 func _discover(filters: PackedStringArray) -> PackedStringArray:

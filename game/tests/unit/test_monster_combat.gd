@@ -10,6 +10,14 @@ extends TestCase
 var rig: MonsterTestRig
 
 
+## Contract C6: the damage-taken number shows the HP actually lost, a miss shows MISS (Phase 12 damage feedback).
+func parity_keys() -> Dictionary:
+	return {
+		"test_contact_damage_uses_the_touch_formula_and_respects_invulnerability": ["ui:damage-feedback", "mechanic:monster-touch-damage"],
+		"test_a_missed_touch_grants_invincibility_without_damage_or_push": ["ui:damage-feedback"],
+	}
+
+
 func before_each() -> void:
 	rig = MonsterTestRig.create(db(), 2024)
 	rig.floor(60.0)

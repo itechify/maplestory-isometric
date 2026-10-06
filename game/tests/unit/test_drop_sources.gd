@@ -124,11 +124,16 @@ func test_kurodb_only_rows_never_enter() -> void:
 			excluded["%s|%s" % [x.kuro_item_id, x.name]] = true
 			for e in table.entries:
 				assert_ne(DropRecordChecks._name_key(e.name), DropRecordChecks._name_key(x.name), "drops/%s: KuroDB-only %s is not a member" % [owner_id, x.name])
+		# A row that may be a member under another name, waiting for its item page (decision D3-8): never rolls.
+		var pending := {}
+		for x in table.get("pending_kuro_candidates", []):
+			pending["%s|%s" % [x.kuro_item_id, x.name]] = true
 		for row in kuro.rows:
 			if row.link_id == null:
 				continue  # the meso row
 			var key := "%s|%s" % [row.link_id, row.name]
-			assert_true(matched.has(key) != excluded.has(key), "drops/%s: KuroDB row %s is matched or excluded, once" % [owner_id, key])
+			var buckets := int(matched.has(key)) + int(excluded.has(key)) + int(pending.has(key))
+			assert_eq(buckets, 1, "drops/%s: KuroDB row %s is matched, excluded or pending, once" % [owner_id, key])
 	var snail := PackedStringArray(db().drop_table("2").entries.map(func(e: Dictionary) -> String: return e.name))
 	for name in ["Snail Card", "Bronze Ore", "Garnet Ore", "Sword", "Green Headband"]:
 		assert_false(snail.has(name), "the Snail never drops the KuroDB-only %s" % name)
@@ -202,8 +207,64 @@ func test_unknown_probabilities_stay_visible() -> void:
 		for u in DropRates.unresolved(owner_id, db()):
 			count += 1
 			assert_true(listed.has("%s|%s" % [owner_id, u.name]), "validation lists the unresolved %s/%s" % [owner_id, u.name])
-	assert_eq(count, 54, "54 members never roll (21 do)")
+	# 53 members never roll whatever happens, plus the Orange Mushroom's jump scroll until the hand read of its KuroDB
+	# item page confirms its row (decision D3-8; test_the_jump_scroll_candidate_follows_its_item_page ties that state
+	# to the capture).
+	var jump := 0 if jump_scroll_confirmed(db()) else 1
+	assert_eq(count, 53 + jump, "%d members never roll (%d do)" % [53 + jump, 22 - jump])
 	assert_true(str(db().drop_table("0000001").gaps).contains("Egg"), "the Egg's unresolved chance is in the record's gaps")
+
+
+## The Orange Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) and its possible KuroDB row 2040705 (decision
+## D3-8, contract C1 pending_kuro_candidates). The row is settled only by the hand read of KuroDB item page 2040705.
+const JUMP_KEY := "scroll-for-shoes-for-jump-10"
+const JUMP_KURO := "2040705"
+const JUMP_CAPTURE := "tools/kurodb/captures/item_2040705.json"
+
+
+## True once the merge confirmed the jump scroll's KuroDB row from its item page (the member then rolls at that row's
+## chance; tools/sources/drops_merge.mjs judgeKuroCandidate). The other drop tests follow this instead of pinning
+## the pending state; the test below ties it to the capture.
+static func jump_scroll_confirmed(content: ContentDB) -> bool:
+	for e in content.drop_table("9").entries:
+		if e.key == JUMP_KEY:
+			return e.chance_state == "resolved" and e.chance_source is Dictionary and (e.chance_source as Dictionary).has("match_evidence")
+	return false
+
+
+## No capture of the item page: the row is pending and the member never rolls. A capture: the row is no longer pending;
+## either the member's chance cites that capture (confirmed) or the row is KuroDB-only (the page showed another item or
+## did not settle it). Never two of them.
+func test_the_jump_scroll_candidate_follows_its_item_page() -> void:
+	var root := ProvenanceChecks.new(db(), ValidationReport.new()).repo_root()
+	assert_true(DirAccess.dir_exists_absolute(root.path_join("tools/kurodb/captures")), "the KuroDB captures are next to the project (%s)" % root)
+	var captured := FileAccess.file_exists(root.path_join(JUMP_CAPTURE))
+	var rec := db().drop_table("9")
+	var e: Dictionary = {}
+	for x in rec.entries:
+		if x.key == JUMP_KEY:
+			e = x
+	assert_eq(String(e.get("item_id", "")), "177", "the member is MeowDB 177")
+	var pending := (rec.get("pending_kuro_candidates", []) as Array).filter(func(x: Dictionary) -> bool: return String(x.kuro_item_id) == JUMP_KURO)
+	var excluded := (rec.excluded_kuro_only as Array).filter(func(x: Dictionary) -> bool: return String(x.kuro_item_id) == JUMP_KURO)
+	var cs: Variant = e.get("chance_source", null)
+	if not captured:
+		assert_eq(pending.size(), 1, "no %s: the KuroDB row waits as a pending candidate" % JUMP_CAPTURE)
+		assert_eq(String(pending[0].member) if pending.size() == 1 else "", JUMP_KEY, "and names its member")
+		assert_eq([e.get("chance_state", ""), cs], ["unresolved", null], "the member never rolls while the read is pending")
+		assert_eq(excluded.size(), 0, "a pending row is not KuroDB-only")
+		assert_false(jump_scroll_confirmed(db()))
+		return
+	assert_eq(pending.size(), 0, "%s exists: the row is no longer pending (regenerate the drop records)" % JUMP_CAPTURE)
+	if jump_scroll_confirmed(db()):
+		assert_eq(String(((cs as Dictionary).get("match_evidence", {}) as Dictionary).get("capture", "")), JUMP_CAPTURE, "confirmed by that page")
+		assert_eq([String((cs as Dictionary).kuro_item_id), String((cs as Dictionary).match_method)], [JUMP_KURO, "alias_with_evidence"])
+		assert_near(float(e.probability), 0.0003, 1e-15, "the Orange Mushroom page's 0.0300% base")
+		assert_eq(excluded.size(), 0, "a confirmed row is not KuroDB-only")
+	else:
+		assert_eq(String(e.get("chance_state", "")), "unresolved", "not confirmed: the member never rolls")
+		assert_eq(excluded.size(), 1, "not confirmed: the row is KuroDB-only")
+		assert_true(String(excluded[0].reason).contains(JUMP_CAPTURE) if excluded.size() == 1 else false, "with what the page showed")
 
 
 func test_all_drop_item_ids_exist() -> void:

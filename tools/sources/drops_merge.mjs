@@ -18,13 +18,17 @@
 // KuroDB page does list the member, a resolved item that does not exist locally or whose name does not match, an
 // unresolved item whose candidate is now local (review the row), an unparsable raw value, a quest item two quests ask
 // for, a row without a reviewer_note. A KuroDB row no member claims becomes an excluded_kuro_only row (KuroDB never adds
-// a member).
+// a member). A crosswalk "candidate" row (a KuroDB row that may be the member under another name, D3-8) is settled by
+// its KuroDB item page capture (tools/kurodb/captures/item_<kuro id>.json, judgeKuroCandidate): confirmed, it is the
+// member's chance (alias_with_evidence, the page cited in chance_source.match_evidence); rejected or not settled by the
+// page, it is excluded_kuro_only with what the page showed; with no capture yet, it is a pending_kuro_candidates row and
+// the member's chance a pending source read.
 //
 //   import { buildDropRecords } from '../sources/drops_merge.mjs';
 //   const { records } = buildDropRecords({ meowdbCache });   // {"1": {...}, ..., "0000001": {...}}
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadCaptures, REPO_ROOT, AUTHORITIES } from './captures.mjs';
+import { loadCaptures, REPO_ROOT, AUTHORITIES, SCROLL_STAT_KEYS } from './captures.mjs';
 import { normalizeItemName, sameItemName, entryKey, parseMeowdbMesoReport } from './parse.mjs';
 
 export const SCHEMA_VERSION = 2;
@@ -50,6 +54,9 @@ export const REACTOR_QUANTITY = Object.freeze({
     verified: false,
   },
 });
+
+/** The excluded_kuro_only reason of a KuroDB row no member claims (tools/parity/parity.mjs KURO_ONLY_REASON). */
+export const KURO_ONLY_REASON = 'not on the membership list (KuroDB never adds members)';
 
 /** Read as "<a>-<b> uniform integer" when a Hidden Street meso amount is a range (D3-5). */
 const RANGE_INTERPRETATION = (a, b) => `Hidden Street range ${a}-${b} read as a uniform integer in [${a}, ${b}] (MisoStory interpretation, verified: false)`;
@@ -182,6 +189,61 @@ export function deriveQuestGate(itemId, marksQuest, items, quests, kuroQuest = n
   };
 }
 
+// --- KuroDB candidate rows (decision D3-8) --------------------------------------------------------------------
+
+/** The rules a crosswalk candidate may name to be settled by its KuroDB item page (kurodb.candidate.confirm_with). */
+export const CANDIDATE_RULES = ['meowdb_scroll'];
+
+/**
+ * What a KuroDB item page capture (tools/kurodb/captures/item_<id>.json, captures.mjs kuroItemPage) says about a
+ * crosswalk candidate: a KuroDB monster-page row that may be a member under another name. Returns
+ *   {outcome: "pending"}                       no capture of the item page yet: the member's chance stays a pending read
+ *   {outcome: "confirmed", shows}              the page shows the member's item: the row becomes its chance source
+ *                                              (match_method alias_with_evidence, the page cited)
+ *   {outcome: "rejected" | "inconclusive", reasons}   the page shows another item, or does not show enough: the row
+ *                                              is KuroDB-only (excluded_kuro_only) and the member's chance a real gap
+ * Rule "meowdb_scroll": the member's local MeowDB item is a scroll; the page must show the same success rate
+ * (scroll.success_rate_pct) and exactly the same "+N" stat bonuses (scroll.stat_bonus_on_success). A shown value that
+ * differs rejects; a value the page does not show leaves it inconclusive; a bonus name the reader cannot map to a
+ * MeowDB stat key (captures.mjs SCROLL_STAT_KEYS) stops the merge. When the page lists this monster among its
+ * MONSTER DROPS, that row must read as the monster page's row (else inconclusive: KuroDB disagrees with itself). Never
+ * guesses: only what the page text shows is compared.
+ */
+export function judgeKuroCandidate({ cand, page, memberItem, monsterRow, monsterName, where }) {
+  if (!page) return { outcome: 'pending' };
+  if (!CANDIDATE_RULES.includes(cand.confirm_with)) fail(`${where}: candidate ${cand.kuro_item_id} needs confirm_with (one of ${CANDIDATE_RULES.join(', ')}) to be settled by its item page ${page.file}`);
+  if (page.name !== cand.kuro_name) fail(`${where}: KuroDB item page ${page.file} is "${page.name}", the candidate row is "${cand.kuro_name}"`);
+  if (!memberItem) return { outcome: 'inconclusive', reasons: ['the member has no local MeowDB item to compare the page with'] };
+  const reasons = [];
+  const differs = [];
+  const scroll = memberItem.scroll;
+  if (!scroll) fail(`${where}: confirm_with meowdb_scroll but the member's MeowDB item ${memberItem.id} has no scroll block`);
+  // A bonus name the reader could not map to a MeowDB stat key is not "another stat": the page is not understood, so
+  // the merge stops instead of judging it (extend captures.mjs STAT_ALIASES / WZ_STAT_CODES after reading the page).
+  const unknown = Object.keys(page.stat_bonuses ?? {}).filter((k) => !SCROLL_STAT_KEYS.includes(k));
+  if (unknown.length) {
+    fail(`${where}: KuroDB item page ${page.file} gives stat bonus name(s) ${unknown.map((k) => JSON.stringify(k)).join(', ')} that map to no MeowDB scroll stat (${SCROLL_STAT_KEYS.join(', ')}); `
+      + 'extend tools/sources/captures.mjs STAT_ALIASES rather than judge a page the reader does not understand');
+  }
+  const wantRate = scroll.success_rate_pct;
+  const wantStats = Object.fromEntries(Object.entries(scroll.stat_bonus_on_success ?? {}).sort(([a], [b]) => (a < b ? -1 : 1)));
+  if (page.success_rate == null) reasons.push('the page shows no success rate');
+  else if (page.success_rate.pct !== wantRate) differs.push(`its success rate is ${page.success_rate.pct}% ("${page.success_rate.raw}"), MeowDB ${memberItem.id}'s is ${wantRate}%`);
+  if (!Object.keys(page.stat_bonuses).length) reasons.push('the page shows no stat bonus');
+  else if (JSON.stringify(page.stat_bonuses) !== JSON.stringify(wantStats)) differs.push(`its stat bonuses are ${JSON.stringify(page.stat_bonuses)}, MeowDB ${memberItem.id}'s are ${JSON.stringify(wantStats)}`);
+  const own = page.monster_drops.filter((d) => d.monster_name === monsterName);
+  if (own.length && !own.some((d) => d.raw === monsterRow.raw)) {
+    reasons.push(`its MONSTER DROPS row for ${monsterName} reads ${own.map((d) => `"${d.raw}"`).join(', ')}, the monster page "${monsterRow.raw}"`);
+  }
+  if (differs.length) return { outcome: 'rejected', reasons: [...differs, ...reasons] };
+  if (reasons.length) return { outcome: 'inconclusive', reasons };
+  const shows = `${page.success_rate.raw} (${page.success_rate.source}), bonuses ${JSON.stringify(page.stat_bonuses)} (${page.stat_bonuses_source})`;
+  return { outcome: 'confirmed', shows };
+}
+
+/** Where a pending candidate's item page goes once read. */
+const itemPageCapture = (kuroId) => `tools/kurodb/captures/item_${kuroId}.json`;
+
 // --- builders ------------------------------------------------------------------------------------------------
 
 function kuroChanceSource(page, row, side) {
@@ -296,7 +358,10 @@ function buildMonsterRecord(ownerId, cw, ctx) {
   for (const name of rowsByName.keys()) if (!members.some((m) => m.name === name)) fail(`${where}: crosswalk row "${name}" is not on Hidden Street's ${cw.name} lists`);
 
   const claimed = new Map(); // "<kuro id>|<name>" -> member
-  const candidates = new Map(); // same key -> reason
+  const candidates = new Map(); // same key -> the member whose candidate it is
+  const pending = []; // pending_kuro_candidates rows
+  const pendingKeys = new Set();
+  const checked = new Map(); // key -> excluded_kuro_only reason of a candidate its item page did not confirm
   const entries = [];
   const gaps = [];
   const itemSeen = new Map();
@@ -306,46 +371,80 @@ function buildMonsterRecord(ownerId, cw, ctx) {
     const { item_id, item_resolution } = resolveMeowdbItem(m.name, row.meowdb, items, rw);
     if (item_id && itemSeen.has(item_id)) fail(`${rw}: item ${item_id} is also "${itemSeen.get(item_id)}"`);
     if (item_id) itemSeen.set(item_id, m.name);
-    const k = matchKuroRow(m.name, row.kurodb, kuro.rows, rw);
+    let k = matchKuroRow(m.name, row.kurodb, kuro.rows, rw);
+    let side = row.kurodb;
+    let matchEvidence = null;
+    const extraNotes = [];
+    const cand = row.kurodb.candidate;
+    if (cand) {
+      if (k) fail(`${rw}: a matched KuroDB row and a candidate row on one member`);
+      const hit = kuro.rows.filter((r) => r.kuro_item_id === String(cand.kuro_item_id) && r.name === cand.kuro_name);
+      if (hit.length !== 1) fail(`${rw}: candidate KuroDB row ${cand.kuro_name} (${cand.kuro_item_id}) is not on the page`);
+      if (!cand.reason) fail(`${rw}: a candidate KuroDB row needs a reason`);
+      const ckey = `${cand.kuro_item_id}|${cand.kuro_name}`;
+      candidates.set(ckey, m.name);
+      const page = captures.kurodb.item_pages?.[String(cand.kuro_item_id)] ?? null;
+      const judged = judgeKuroCandidate({ cand, page, memberItem: item_id ? items[item_id] : null, monsterRow: hit[0], monsterName: kuro.name, where: rw });
+      const label = `KuroDB candidate row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit[0].raw}")`;
+      if (judged.outcome === 'confirmed') {
+        k = hit[0];
+        side = { method: 'alias_with_evidence' };
+        matchEvidence = { capture: page.file, url: page.url, read_at: page.read_at, shows: judged.shows, decision: 'D3-8' };
+        extraNotes.push(`${label} confirmed by its item page (${page.file}, read ${page.read_at}): it shows ${judged.shows}, as MeowDB ${item_id}'s scroll does (decision D3-8)`);
+      } else if (judged.outcome === 'pending') {
+        pending.push({
+          kuro_item_id: String(cand.kuro_item_id), name: cand.kuro_name, raw_value: hit[0].raw, member: entryKey(m.name),
+          read: `KuroDB item page ${cand.kuro_item_id} (https://playkuro.com/database/#items/${cand.kuro_item_id}), by hand in a browser; saved as ${itemPageCapture(cand.kuro_item_id)}`,
+          reason: cand.reason, decision: 'D3-8',
+        });
+        pendingKeys.add(ckey);
+        extraNotes.push(`${label}, pending a read of its item page (pending_kuro_candidates): ${cand.reason}`);
+      } else {
+        const why = `${judged.outcome === 'rejected' ? 'it shows another item' : 'it does not settle it'}: ${judged.reasons.join('; ')}`;
+        checked.set(ckey, `possible match for the member '${m.name}', checked against its KuroDB item page (${page.file}, read ${page.read_at}): ${why}. Not accepted (decision D3-8); KuroDB never adds a member`);
+        extraNotes.push(`${label} checked against its item page (${page.file}): ${why}; excluded`);
+        gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit[0].raw}") whose item page (${page.file}) ${why}, so it never rolls (D3-8)`);
+      }
+    }
     if (k && !k.qty) fail(`${rw}: KuroDB row ${k.raw} has no quantity`);
     if (k) {
       const key = `${k.kuro_item_id}|${k.name}`;
       if (claimed.has(key)) fail(`${rw}: KuroDB row ${k.name} (${k.kuro_item_id}) is also claimed by "${claimed.get(key)}"`);
       claimed.set(key, m.name);
     }
-    const cand = row.kurodb.candidate;
-    if (cand) {
-      const hit = kuro.rows.filter((r) => r.kuro_item_id === String(cand.kuro_item_id) && r.name === cand.kuro_name);
-      if (hit.length !== 1) fail(`${rw}: candidate KuroDB row ${cand.kuro_name} (${cand.kuro_item_id}) is not on the page`);
-      if (!cand.reason) fail(`${rw}: a candidate KuroDB row needs a reason`);
-      candidates.set(`${cand.kuro_item_id}|${cand.kuro_name}`, cand.reason);
-    }
-    const notes = entryNotes(row, rw, cand ? [`KuroDB candidate row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}"), excluded: ${cand.reason}`] : []);
+    const notes = entryNotes(row, rw, extraNotes);
+    const chanceSource = k ? kuroChanceSource(kuro, k, side) : null;
+    if (chanceSource && matchEvidence) chanceSource.match_evidence = matchEvidence;
     const entry = {
       key: entryKey(m.name),
       name: m.name,
       item_id,
       item_resolution,
       membership_source: hsMembershipSource(hs, m),
-      chance_source: k ? kuroChanceSource(kuro, k, row.kurodb) : null,
+      chance_source: chanceSource,
       chance_state: k ? 'resolved' : 'unresolved',
       probability: k ? k.probability : null,
       quantity: k ? { min: k.qty.min, max: k.qty.max, source: `KuroDB '${k.qty.min === k.qty.max ? `Qty ${k.qty.min}` : `Qty ${k.qty.min}-${k.qty.max}`}'` } : null,
       quest_gate: deriveQuestGate(item_id, false, items, quests, k?.quest ?? null),
       notes,
     };
-    if (!k && cand) gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls`);
-    else if (!k) gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list but KuroDB's ${cw.name} page (${kuro.file}) has no row for it, so it never rolls (D3-6)`);
+    if (!k && cand && pendingKeys.has(`${cand.kuro_item_id}|${cand.kuro_name}`)) {
+      gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list; KuroDB's ${cw.name} page (${kuro.file}) has a possible row ${cand.kuro_name} (${cand.kuro_item_id}, "${hit0(kuro, cand).raw}") whose item page has not been read (pending_kuro_candidates; a pending source read, not a source-data gap), so it never rolls`);
+    } else if (!k && !cand) {
+      gaps.push(`chance unresolved: "${m.name}" is on Hidden Street's list but KuroDB's ${cw.name} page (${kuro.file}) has no row for it, so it never rolls (D3-6)`);
+    }
     if (!item_id) gaps.push(`item unresolved: "${m.name}" (${item_resolution.state}${item_resolution.candidates.length ? `, MeowDB candidates ${item_resolution.candidates.join(', ')}` : ''}), so it never rolls; see its item_resolution.note`);
     entries.push(entry);
   }
+  for (const [key, member] of candidates) {
+    if (claimed.has(key) && claimed.get(key) !== member) fail(`${where}: candidate KuroDB row ${key} of "${member}" is also claimed by "${claimed.get(key)}"`);
+  }
   const excluded = kuro.rows
-    .filter((r) => !claimed.has(`${r.kuro_item_id}|${r.name}`))
+    .filter((r) => !claimed.has(`${r.kuro_item_id}|${r.name}`) && !pendingKeys.has(`${r.kuro_item_id}|${r.name}`))
     .map((r) => ({
       kuro_item_id: r.kuro_item_id, name: r.name, raw_value: r.raw,
-      reason: candidates.get(`${r.kuro_item_id}|${r.name}`) ?? 'not on the membership list (KuroDB never adds members)',
+      reason: checked.get(`${r.kuro_item_id}|${r.name}`) ?? KURO_ONLY_REASON,
     }));
-  for (const key of candidates.keys()) if (claimed.has(key)) fail(`${where}: candidate KuroDB row ${key} is also claimed by a member`);
 
   const meso = buildMonsterMeso(ownerId, cw, hs, kuro, live, cache, gaps);
   const provenance = {
@@ -366,6 +465,7 @@ function buildMonsterRecord(ownerId, cw, ctx) {
     membership_authority: AUTHORITIES.hiddenstreet,
     entries,
     excluded_kuro_only: excluded,
+    pending_kuro_candidates: pending,
     meowdb_reference: meowdbReference(live, cache, items,
       'MeowDB\'s community-voted Classic drop list (with votes) and its read-only MSEA list, from the live page. Reference only: monster drop membership comes from Hidden Street (D3-6). item_id is MeowDB\'s own id for the name in its cached lists (null when the cache does not name it or no local item exists).'),
     meso,
@@ -380,6 +480,7 @@ function buildMonsterRecord(ownerId, cw, ctx) {
       `Membership: Hidden Street's "Before Chaos" drop lists (${hs.url}, read ${hs.read_at}): post-Big-Bang GMS v0.96, a different game version from MapleStory Classic, used by the project owner's decision D3-6. Every member stays in entries; one without a KuroDB chance or a local item never rolls.`,
       `Chance: KuroDB (${kuro.url}, read ${kuro.read_at}, "${kuro.site_updated_label}"), only for members its page also lists, joined by name through ${CROSSWALK_FILE} (D3-4). ${KURO_BASE_NOTE}`,
       'excluded_kuro_only: KuroDB rows for this monster that no member matches. They never drop (KuroDB never adds a member, D3-6).',
+      'pending_kuro_candidates: KuroDB rows that may be a member under another name, waiting for a hand read of their item page (decision D3-8; tools/kurodb/captures/item_<kuro id>.json). They never drop, and their member\'s chance is a pending source read, not a source-data gap. Once the page is read, the merge confirms the row as the member\'s chance (alias_with_evidence) or moves it to excluded_kuro_only with what the page showed.',
       'Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress. The meso bag rolls only when its amount and chance are both resolved; the amount is a uniform integer in [min, max].',
     ],
   };
@@ -524,6 +625,7 @@ function buildBreakableRecord(ownerId, cw, ctx) {
     membership_authority: AUTHORITIES.meowdb,
     entries,
     excluded_kuro_only: [],
+    pending_kuro_candidates: [],
     meowdb_reference: meowdbReference(live, cache, items,
       'MeowDB\'s community-voted Classic drop list for this breakable (with votes), from the live page. For the Wooden Box this list IS the membership: Hidden Street has no breakables (D3-7).'),
     meso: null,
@@ -569,7 +671,8 @@ export function buildDropRecords({ root = REPO_ROOT, captures = loadCaptures({ r
     records[id] = rec;
     const rolls = rec.entries.filter((e) => e.chance_state === 'resolved' && e.item_id != null);
     summary.push(`${id} ${cw.name}: ${rec.entries.length} members, ${rolls.length} roll (${rolls.map((e) => `${e.item_id}@${e.probability}${e.quest_gate ? `[gate ${e.quest_gate.quest_id}]` : ''}`).join(' ')}), `
-      + `${rec.entries.length - rolls.length} unresolved, ${rec.excluded_kuro_only.length} KuroDB-only excluded; meso ${rec.meso ? `${rec.meso.min}-${rec.meso.max} @${rec.meso.probability}` : 'none'}`);
+      + `${rec.entries.length - rolls.length} unresolved, ${rec.excluded_kuro_only.length} KuroDB-only excluded, ${rec.pending_kuro_candidates.length} pending item-page read(s); `
+      + `meso ${rec.meso ? `${rec.meso.min}-${rec.meso.max} @${rec.meso.probability}` : 'none'}`);
   }
   return { records, summary };
 }

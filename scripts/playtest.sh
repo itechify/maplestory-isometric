@@ -94,6 +94,17 @@ else
   "${GODOT_CMD[@]}" --headless --path "$PROJECT" --import >/dev/null 2>&1 || true
 fi
 
+# --- Evidence provenance (contract C6, added by the acceptance data/parity/proof package): the commit this run plays
+# and whether game/, tools/ or scripts/ differ from it ("1" changes or untracked files, "0" clean, "" unknown).
+# PlaytestReport.write() records them in report.json "git"; tools/parity/build_parity.mjs compares them with HEAD. A
+# reused copy (PLAYTEST_REUSE_COPY=1) plays whatever the copy holds, so the report says it was one.
+if [[ -z "${PLAYTEST_GIT_COMMIT:-}" ]]; then PLAYTEST_GIT_COMMIT="$(git -C "$REPO" rev-parse HEAD 2>/dev/null || true)"; fi
+if [[ -z "${PLAYTEST_GIT_DIRTY:-}" ]] && st="$(git -C "$REPO" status --porcelain -- game tools scripts 2>/dev/null)"; then
+  if [[ -n "$st" ]]; then PLAYTEST_GIT_DIRTY=1; else PLAYTEST_GIT_DIRTY=0; fi
+fi
+export PLAYTEST_GIT_COMMIT PLAYTEST_GIT_DIRTY="${PLAYTEST_GIT_DIRTY:-}" PLAYTEST_REUSED_COPY="${PLAYTEST_REUSE_COPY:-0}"
+# --- end evidence provenance
+
 if [[ "$WINDOWED" == "1" ]]; then
   MODE=(--resolution 1600x900 --disable-vsync)
   [[ "$REALTIME" == "1" ]] || MODE+=(--fixed-fps 60)

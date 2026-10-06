@@ -116,7 +116,42 @@ test('quests need real-game evidence; objectives and rewards accept their quest 
   assert.equal(find(one, 'reward:1006/exp').state, 'verified');
   assert.equal(find(one, 'chain:1006').state, 'implemented', 'one member still implemented');
   const both = build({ playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }])] });
-  assert.equal(find(both, 'chain:1006').state, 'verified');
+  assert.equal(find(both, 'chain:1006').state, 'implemented', 'every member verified, but no check of a link of the chain');
+  assert.ok(find(both, 'chain:1006').notes.some((n) => /needs a passing real-game check tagged with this key/.test(n)));
+  const link = { i: 2, name: '1006: its follow-up 1009 (Mai\'s Training) is available at level 3', ok: true, parity: ['quest:1006', 'quest:1009'] };
+  const tagRule = { scenario: 'quest_run', match: '^1006: its follow-up 1009 \\(.+\\) is available at level \\d+$', keys: ['chain:1006'], why: 't' };
+  const linked = buildParity({ canonical: canonical(), miso: {}, rules: { ...RULES, playtest_tags: [tagRule] }, runtime: runtime(), tests: [],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }, link])] });
+  assert.equal(find(linked, 'chain:1006').state, 'verified', 'members verified and a passing real-game link check');
+  assert.equal(find(linked, 'chain:1006').evidence.passed_count, 1);
+  const unitLink = build({ tests: [unit([{ file: 't.gd', name: 'test_chain', ok: true, parity: ['chain:1006'] }])],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }])] });
+  assert.equal(find(unitLink, 'chain:1006').state, 'implemented', 'a unit test is not a real-game link check');
+  const brokenLink = buildParity({ canonical: canonical(), miso: {}, rules: { ...RULES, playtest_tags: [tagRule] }, runtime: runtime(), tests: [],
+    playtests: [play([{ i: 0, name: 'a', ok: true, parity: ['quest:1006'] }, { i: 1, name: 'b', ok: true, parity: ['quest:1009'] }, { ...link, ok: false }])] });
+  assert.equal(find(brokenLink, 'chain:1006').state, 'partial', 'a failing link check');
+  assert.match(find(brokenLink, 'chain:1006').issues.join(), /1 tagged check\(s\) failed/);
+  assert.match(toMarkdown(linked), /\*\*chains\*\*: A quest chain/, 'the States section states the chain rule');
+});
+
+test('spawn-rule rows list the mob-rate switch and say whether the rate is applied; adaptation sections must exist', () => {
+  const miso = { presentation: { map_mob_rate: { apply: false, reason: 'r', verified: false }, fall_recovery: { reason: 'r', verified: false } } };
+  const doc = buildParity({ canonical: canonical(), miso, rules: RULES, runtime: runtime(), tests: [], playtests: [] });
+  const sr = find(doc, 'spawn-rule:000000040');
+  assert.deepEqual(sr.adaptations, ['game/data/misostory/presentation.json#map_mob_rate']);
+  assert.match(sr.name, /MeowDB mob rate 1 \(not applied: presentation\.json map_mob_rate\)/);
+  assert.ok(sr.notes.some((n) => /deliberately not applied/.test(n)));
+  const on = buildParity({ canonical: canonical(), miso: { presentation: { map_mob_rate: { apply: true, verified: false } } }, rules: RULES, runtime: runtime(), tests: [], playtests: [] });
+  assert.match(find(on, 'spawn-rule:000000040').name, /\(applied: /);
+  const bare = build();
+  assert.deepEqual(find(bare, 'spawn-rule:000000040').adaptations, [], 'no presentation.json: nothing listed');
+  const withRow = (adaptations) => ({ ...RULES, mechanics: [...RULES.mechanics, { key: 'mechanic:fall-damage', name: 'f', source_gaps: ['g'], adaptations }] });
+  const ok = buildParity({ canonical: canonical(), miso, rules: withRow(['game/data/misostory/presentation.json#fall_recovery', 'game/data/misostory/none.json']), runtime: runtime() });
+  assert.deepEqual(find(ok, 'mechanic:fall-damage').adaptations, ['game/data/misostory/presentation.json#fall_recovery'], 'a missing file is not listed');
+  assert.equal(find(ok, 'mechanic:fall-damage').source_data_gap, true);
+  assert.match(toMarkdown(ok), /adaptation: presentation\.json#fall_recovery/);
+  assert.throws(() => buildParity({ canonical: canonical(), miso, rules: withRow(['game/data/misostory/presentation.json#no_such_section']), runtime: runtime() }),
+    /has no section "no_such_section"/, 'a stale section fails the build');
 });
 
 test('a failing tagged check, a soft check and a validation error', () => {
@@ -315,15 +350,19 @@ test('a canonical-verification row about the drop data stays partial while any d
 });
 
 test('a pending source read is its own label: never excused, never verified, listed apart from the gaps; stale declarations fail', () => {
-  // A drop member whose chance is unresolved while the record excludes a KuroDB row as a possible match for it (a
-  // crosswalk candidate, decision D3-8), next to a member KuroDB truly has no row for (a source-data gap).
+  // A drop member whose chance is unresolved while the record holds a KuroDB row that may be it, waiting for a read of
+  // its item page (pending_kuro_candidates, decision D3-8), next to a member KuroDB truly has no row for (a gap).
   const withCandidate = () => {
     const c = canonical();
     c.drops['2'].entries.push({ key: 'jump-scroll', name: 'Scroll for Shoes for Jump 10%', item_id: '348', item_resolution: { state: 'resolved' },
-      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), excluded: possible match, page not read'] });
+      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), pending a read of its item page'] });
     c.drops['2'].excluded_kuro_only = [
       { kuro_item_id: '2380000', name: 'Snail Card', raw_value: '26% base | Qty 1', reason: KURO_ONLY_REASON },
-      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', reason: 'possible match, page not read' },
+      // A candidate its item page did not confirm is excluded with what the page showed: KuroDB-only, never pending.
+      { kuro_item_id: '2040799', name: 'Scroll for Shoes for Speed', raw_value: '0.0300% base | Qty 1', reason: 'checked against its item page: another item' },
+    ];
+    c.drops['2'].pending_kuro_candidates = [
+      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', member: 'jump-scroll', read: 'KuroDB item page 2040705', reason: 'possible match, page not read', decision: 'D3-8' },
     ];
     c.items['237'].gaps = ['max_stack: shown only on the item page, which was not captured', 'sources.breakables: not captured'];
     return c;
@@ -374,9 +413,16 @@ test('a pending source read is its own label: never excused, never verified, lis
   assert.equal(mixed.pending_reads.length, 1);
   // Stale declarations fail: the read was done (the chance resolved, the candidate gone; the gap removed), or no entry.
   const read = withCandidate();
-  read.drops['2'].excluded_kuro_only = read.drops['2'].excluded_kuro_only.slice(0, 1);
+  read.drops['2'].pending_kuro_candidates = [];
   read.drops['2'].entries.find((e) => e.key === 'jump-scroll').chance_state = 'resolved';
-  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale/);
+  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale: its drop record has no pending_kuro_candidates row/);
+  // The page was read and did not confirm the row: it is excluded with what the page showed, the member is a gap.
+  const rejected = withCandidate();
+  const row = rejected.drops['2'].pending_kuro_candidates.pop();
+  rejected.drops['2'].excluded_kuro_only.push({ kuro_item_id: row.kuro_item_id, name: row.name, raw_value: row.raw_value, reason: 'checked: 60%' });
+  const gap = find(build({ canonical: rejected }), 'drop:2/jump-scroll');
+  assert.deepEqual([gap.source_data_gap, gap.pending_source_read], [true, false], 'an excluded row is never pending, whatever its reason');
+  assert.throws(() => build({ canonical: rejected, rules }), /drop:2\/jump-scroll is stale/);
   const pageRead = withCandidate();
   pageRead.items['237'].gaps = [];
   assert.throws(() => build({ canonical: pageRead, rules }), /item:237 is stale: record items\/237 has no gap for max_stack/);
@@ -386,6 +432,7 @@ test('a pending source read is its own label: never excused, never verified, lis
     /item:237 needs "fields"/);
   // A candidate row whose member cannot be found is reported.
   const lost = withCandidate();
-  lost.drops['2'].entries.find((e) => e.key === 'jump-scroll').notes = [];
-  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump']);
+  lost.drops['2'].pending_kuro_candidates[0].member = 'no-such-member';
+  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump (member no-such-member)']);
+  assert.equal(find(build({ canonical: lost }), 'drop:2/jump-scroll').pending_source_read, false);
 });

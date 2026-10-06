@@ -1,0 +1,8 @@
+{
+  "kuro_item_id": "2040705",
+  "url": "https://playkuro.com/database/#items/2040705",
+  "read_at": "2000-01-01T00:00:00Z",
+  "method": "SYNTHETIC TEST FIXTURE for tools/sources/test/kuro_item_page.test.mjs: NOT a reading of KuroDB. Nobody has read KuroDB item page 2040705; this text only has the layout of the reactor item pages in tools/kurodb/captures/reactor_2001_items.json, with values chosen by the test. Never copy it into tools/kurodb/captures/.",
+  "site_updated_label": "synthetic",
+  "text": "ITEM · 2040705\n\nScroll for Shoes for Jump\nCopy ID\nPNG\nCATEGORY\nUse\nSOURCE\nItem.wz\nDROPPED BY\n1\nSOLD BY\n0\nDESCRIPTION\n\nImproves Jump on shoes.\nSuccess rate: 10%, Jump +3\n\nITEM STATS\nPRICE\n1 mesos\nMONSTER DROPS\nOrange Mushroom\n0.0300% base | Qty 1\nREACTOR DROPS (0)\nNPC SHOPS\n\nNot sold by a recorded NPC shop."
+}

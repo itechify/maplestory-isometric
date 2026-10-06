@@ -74,7 +74,12 @@ func test_unresolved_members_never_drop() -> void:
 			if e.excluded != "" and e.item_id != "":
 				never["%s/%s" % [owner_id, e.item_id]] = true
 	assert_true(never.has("0000001/237"), "Egg: no KuroDB value for reactor 2001")
-	assert_true(never.has("9/177"), "Shoes Jump scroll: KuroDB row not confirmed (D3-8)")
+	# The Shoes Jump scroll never drops until the hand read of KuroDB item page 2040705 confirms its KuroDB row (D3-8;
+	# test_drop_sources.gd ties that state to the capture).
+	if load("res://tests/unit/test_drop_sources.gd").jump_scroll_confirmed(db()):
+		assert_false(never.has("9/177"), "Shoes Jump scroll: its KuroDB row was confirmed by its item page (D3-8)")
+	else:
+		assert_true(never.has("9/177"), "Shoes Jump scroll: KuroDB row not confirmed (D3-8)")
 	assert_true(never.has("2/273"), "Blue Potion: no KuroDB row on the Snail page")
 	var rng := _rng(8)
 	for owner_id in db().ids("drops"):

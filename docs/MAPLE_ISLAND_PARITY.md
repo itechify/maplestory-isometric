@@ -10,9 +10,10 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - **missing**: The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).
 - **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).
 - **implemented**: Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.
-- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives, rewards and chains need a passing playtest (real-game) check; the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.
+- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.
+- **chains**: A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner's "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.
 - **source_data_gap**: The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.
-- **pending_source_read**: A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; an excluded KuroDB candidate row in a drop record makes its member pending even when undeclared.
+- **pending_source_read**: A source publishes a value the entry needs on a page that has not been read yet (for example KuroDB item 2040705, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; a drop record's pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a read of its item page) makes its member pending even when undeclared.
 - **in_scope**: false for content outside Iteration Three (rules.json out_of_scope).
 - **evidence**: A unit test declares the keys it proves in its file's parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.
 - Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries
@@ -21,57 +22,57 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/final/unit_evidence.json`: run 2026-10-05T22:44:28Z, commit c4e9ac5fca94ac9033c2c932042791fea4c3a980, 1555 tests, 0 failed
-- Playtest `_scratch/final/pt/kit/report.json`: kit seed 1, PASS, 19 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/npc_bubbles/report.json`: npc_bubbles seed 1, PASS, 7 checks (5 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/npcs/report.json`: npcs seed 1, PASS, 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/pause_load/report.json`: pause_load seed 1, PASS, 12 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/playthrough_s1/report.json`: playthrough seed 1, PASS, 620 checks (603 tagged by the scenario, 88 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final/pt/playthrough_s2/report.json`: playthrough seed 2, PASS, 617 checks (600 tagged by the scenario, 87 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final/pt/playthrough_s3/report.json`: playthrough seed 3, PASS, 617 checks (600 tagged by the scenario, 87 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final/pt/quests_s1/1000-1001/report.json`: quest seed 1, PASS, 56 checks (44 tagged by the scenario, 7 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1002/report.json`: quest seed 1, PASS, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1003-1004/report.json`: quest seed 1, PASS, 54 checks (43 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1005/report.json`: quest seed 1, PASS, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1006_1009_1010/report.json`: quest seed 1, PASS, 112 checks (92 tagged by the scenario, 16 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1007-1008/report.json`: quest seed 1, PASS, 58 checks (47 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1011/report.json`: quest seed 1, PASS, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1012/report.json`: quest seed 1, PASS, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s1/1013-1019/report.json`: quest seed 1, PASS, 190 checks (176 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1000-1001/report.json`: quest seed 2, PASS, 56 checks (44 tagged by the scenario, 7 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1002/report.json`: quest seed 2, PASS, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1003-1004/report.json`: quest seed 2, PASS, 54 checks (43 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1005/report.json`: quest seed 2, PASS, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1006_1009_1010/report.json`: quest seed 2, PASS, 115 checks (95 tagged by the scenario, 16 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1007-1008/report.json`: quest seed 2, PASS, 58 checks (47 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1011/report.json`: quest seed 2, PASS, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1012/report.json`: quest seed 2, PASS, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s2/1013-1019/report.json`: quest seed 2, PASS, 190 checks (176 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1000-1001/report.json`: quest seed 3, PASS, 56 checks (44 tagged by the scenario, 7 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1002/report.json`: quest seed 3, PASS, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1003-1004/report.json`: quest seed 3, PASS, 54 checks (43 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1005/report.json`: quest seed 3, PASS, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1006_1009_1010/report.json`: quest seed 3, PASS, 115 checks (95 tagged by the scenario, 16 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1007-1008/report.json`: quest seed 3, PASS, 58 checks (47 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1011/report.json`: quest seed 3, PASS, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1012/report.json`: quest seed 3, PASS, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/quests_s3/1013-1019/report.json`: quest seed 3, PASS, 190 checks (176 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/regen/report.json`: regen seed 1, PASS, 29 checks (0 tagged by the scenario, 27 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/resume_gate/report.json`: resume_gate seed 1, PASS, 23 checks (4 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/save_it2_continue/report.json`: save_it2_continue seed 1, PASS, 55 checks (0 tagged by the scenario, 45 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_a_traversal/report.json`: test_a_traversal seed 1, PASS, 476 checks (0 tagged by the scenario, 163 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_b_combat/report.json`: test_b_combat seed 1, PASS, 53 checks (0 tagged by the scenario, 38 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_b_population/report.json`: test_b_population seed 1, PASS, 79 checks (0 tagged by the scenario, 77 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_box/report.json`: test_box seed 1, PASS, 37 checks (2 tagged by the scenario, 24 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_c_progression/report.json`: test_c_progression seed 1, PASS, 76 checks (0 tagged by the scenario, 40 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_d_inventory/report.json`: test_d_inventory seed 1, PASS, 90 checks (0 tagged by the scenario, 35 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_e_quest/report.json`: test_e_quest seed 1, PASS, 103 checks (67 tagged by the scenario, 2 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_f_death/report.json`: test_f_death seed 1, PASS, 237 checks (11 tagged by the scenario, 116 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_g_shop/report.json`: test_g_shop seed 1, PASS, 184 checks (0 tagged by the scenario, 167 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/test_skills/report.json`: test_skills seed 1, PASS, 50 checks (0 tagged by the scenario, 41 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/trap_probe/report.json`: trap_probe seed 1, PASS, 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
-- Playtest `_scratch/final/pt/ui_minimap/report.json`: ui_minimap seed 1, PASS, 230 checks (0 tagged by the scenario, 216 by rules.json playtest_tags)
+- Unit tests `_scratch/ev/full.json`: run 2026-10-06T01:13:32Z, commit f78c320ec792116b3e7705bfc41e028b12d9d7e0 (clean tree), world present, 1573 tests, 0 failed
+- Playtest `_scratch/final/pt/npc_bubbles/report.json`: npc_bubbles seed 1, PASS, commit not recorded, 7 checks (5 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, commit not recorded, 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/npcs/report.json`: npcs seed 1, PASS, commit not recorded, 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/pause_load/report.json`: pause_load seed 1, PASS, commit not recorded, 12 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/playthrough_s1/report.json`: playthrough seed 1, PASS, commit not recorded, 620 checks (603 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final/pt/playthrough_s2/report.json`: playthrough seed 2, PASS, commit not recorded, 617 checks (600 tagged by the scenario, 98 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final/pt/playthrough_s3/report.json`: playthrough seed 3, PASS, commit not recorded, 617 checks (600 tagged by the scenario, 98 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final/pt/quests_s1/1000-1001/report.json`: quest seed 1, PASS, commit not recorded, 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1002/report.json`: quest seed 1, PASS, commit not recorded, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1003-1004/report.json`: quest seed 1, PASS, commit not recorded, 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1005/report.json`: quest seed 1, PASS, commit not recorded, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1006_1009_1010/report.json`: quest seed 1, PASS, commit not recorded, 112 checks (92 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1007-1008/report.json`: quest seed 1, PASS, commit not recorded, 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1011/report.json`: quest seed 1, PASS, commit not recorded, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1012/report.json`: quest seed 1, PASS, commit not recorded, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s1/1013-1019/report.json`: quest seed 1, PASS, commit not recorded, 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1000-1001/report.json`: quest seed 2, PASS, commit not recorded, 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1002/report.json`: quest seed 2, PASS, commit not recorded, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1003-1004/report.json`: quest seed 2, PASS, commit not recorded, 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1005/report.json`: quest seed 2, PASS, commit not recorded, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1006_1009_1010/report.json`: quest seed 2, PASS, commit not recorded, 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1007-1008/report.json`: quest seed 2, PASS, commit not recorded, 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1011/report.json`: quest seed 2, PASS, commit not recorded, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1012/report.json`: quest seed 2, PASS, commit not recorded, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s2/1013-1019/report.json`: quest seed 2, PASS, commit not recorded, 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1000-1001/report.json`: quest seed 3, PASS, commit not recorded, 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1002/report.json`: quest seed 3, PASS, commit not recorded, 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1003-1004/report.json`: quest seed 3, PASS, commit not recorded, 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1005/report.json`: quest seed 3, PASS, commit not recorded, 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1006_1009_1010/report.json`: quest seed 3, PASS, commit not recorded, 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1007-1008/report.json`: quest seed 3, PASS, commit not recorded, 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1011/report.json`: quest seed 3, PASS, commit not recorded, 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1012/report.json`: quest seed 3, PASS, commit not recorded, 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/quests_s3/1013-1019/report.json`: quest seed 3, PASS, commit not recorded, 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/regen/report.json`: regen seed 1, PASS, commit not recorded, 29 checks (0 tagged by the scenario, 27 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/resume_gate/report.json`: resume_gate seed 1, PASS, commit not recorded, 23 checks (4 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/save_it2_continue/report.json`: save_it2_continue seed 1, PASS, commit not recorded, 55 checks (0 tagged by the scenario, 45 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_a_traversal/report.json`: test_a_traversal seed 1, PASS, commit not recorded, 476 checks (0 tagged by the scenario, 163 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_b_combat/report.json`: test_b_combat seed 1, PASS, commit not recorded, 53 checks (0 tagged by the scenario, 38 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_b_population/report.json`: test_b_population seed 1, PASS, commit not recorded, 79 checks (0 tagged by the scenario, 77 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_box/report.json`: test_box seed 1, PASS, commit not recorded, 37 checks (2 tagged by the scenario, 24 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_c_progression/report.json`: test_c_progression seed 1, PASS, commit not recorded, 76 checks (0 tagged by the scenario, 40 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_d_inventory/report.json`: test_d_inventory seed 1, PASS, commit not recorded, 90 checks (0 tagged by the scenario, 35 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_e_quest/report.json`: test_e_quest seed 1, PASS, commit not recorded, 103 checks (67 tagged by the scenario, 2 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_f_death/report.json`: test_f_death seed 1, PASS, commit not recorded, 237 checks (11 tagged by the scenario, 116 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_g_shop/report.json`: test_g_shop seed 1, PASS, commit not recorded, 184 checks (0 tagged by the scenario, 167 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/test_skills/report.json`: test_skills seed 1, PASS, commit not recorded, 50 checks (0 tagged by the scenario, 41 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/trap_probe/report.json`: trap_probe seed 1, PASS, commit not recorded, 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
+- Playtest `_scratch/final/pt/ui_minimap/report.json`: ui_minimap seed 1, PASS, commit not recorded, 230 checks (0 tagged by the scenario, 216 by rules.json playtest_tags)
+- Playtest `_scratch/pt/kit/report.json`: kit seed 1, PASS, commit f78c320ec792116b3e7705bfc41e028b12d9d7e0 (clean tree), 19 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
 - Provenance report: 192 records, 0 errors, 54 warnings
 - A playtest_tags rule matched no check in 1 report(s) of test_c_progression (renamed checks?): `97: ^phase \d+: each death took the canonical EXP penalty$`
 - A playtest_tags rule matched no check in 1 report(s) of ui_minimap (renamed checks?): `129: ^every pickup is announced in the HUD log$`
@@ -80,20 +81,25 @@ How the evidence is made (each step writes git-ignored files under `_scratch/`):
 
 1. `TEST_EVIDENCE_OUT=_scratch/ev/full.json ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh`: the full unit suite.
    `INCLUDE_WORLD=1` is required: without the exported world the world tests (test_world_transitions,
-   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass, and their keys would count.
+   test_death_flow, test_death_quit_reload, the placed spawn tests) print SKIP and pass. The evidence records
+   `world_present`, its commit and a `dirty` flag; the keys of a test that needs the world (its file names
+   `INCLUDE_WORLD`) are refused from a run that did not record the world present.
 2. `bash scripts/validate_data.sh --report`: `provenance_report.json` (validation findings per record).
 3. `ISOLATE=<name> bash scripts/playtest.sh <scenario> --out _scratch/pt/<scenario>` for every scenario listed above, and
-   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set.
+   `bash scripts/playtest_quests.sh --out _scratch/pt/quests` for the every-quest set. Each report.json records the
+   commit it played and a dirty flag (`git`).
 4. The clean-character playthrough: one more `--playtest <its report.json or directory>`. Its checks verify the
    `playthrough:*` rows when they carry those keys (or a `playtest_tags` rule gives them) and the report is a clean run
    (a passing report, strict mode ok, no console or api step, and the departure boundary reached: its final check
    "ready to depart: the End of Maple Island screen reached in Southperry" passed and no PLAYTHROUGH_STOP flag).
 5. `node tools/parity/build_parity.mjs` with every input, as below (`--check` instead of writing compares the committed files).
+   It warns on the console (not in this file, which must not depend on the checkout) when evidence records no commit
+   or a dirty tree, when the evidence commits differ from each other, and when an evidence commit's `game/`, `tools/`
+   or `scripts/` tree differs from HEAD's: the states above hold for the code the evidence ran on.
 
 ```bash
 node tools/parity/build_parity.mjs \
-  --tests _scratch/final/unit_evidence.json \
-  --playtest _scratch/final/pt/kit/report.json \
+  --tests _scratch/ev/full.json \
   --playtest _scratch/final/pt/npc_bubbles/report.json \
   --playtest _scratch/final/pt/npc_shanks/report.json \
   --playtest _scratch/final/pt/npcs/report.json \
@@ -142,12 +148,13 @@ node tools/parity/build_parity.mjs \
   --playtest _scratch/final/pt/test_g_shop/report.json \
   --playtest _scratch/final/pt/test_skills/report.json \
   --playtest _scratch/final/pt/trap_probe/report.json \
-  --playtest _scratch/final/pt/ui_minimap/report.json
+  --playtest _scratch/final/pt/ui_minimap/report.json \
+  --playtest _scratch/pt/kit/report.json
 ```
 
 ## Totals
 
-638 entries: 580 verified, 0 implemented, 56 partial, 0 missing; 55 source-data gaps, 1 pending source reads (not excused), 2 out of scope. **1** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
+640 entries: 580 verified, 0 implemented, 57 partial, 0 missing; 56 source-data gaps, 1 pending source reads (not excused), 3 out of scope. **1** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
 
 | Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Pending source reads | Out of scope |
 |---|---|---|---|---|---|---|---|---|
@@ -171,7 +178,7 @@ node tools/parity/build_parity.mjs \
 | [Beginner skills and mechanics](#beginner-skills-and-mechanics) | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Breakables](#breakables) | 25 | 24 | 0 | 1 | 0 | 1 | 0 | 0 |
 | [Chairs](#chairs) | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
-| [Map mechanics](#map-mechanics) | 19 | 17 | 0 | 2 | 0 | 2 | 0 | 0 |
+| [Map mechanics](#map-mechanics) | 21 | 17 | 0 | 3 | 0 | 3 | 0 | 1 |
 | [Monster behaviour, hit areas and spawning (Phases 5-6)](#monster-behaviour-hit-areas-and-spawning-phases-5-6) | 15 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Drop rules (Drop Testing, placeholder removal)](#drop-rules-drop-testing-placeholder-removal) | 15 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Persistence (Phase 14)](#persistence-phase-14) | 29 | 29 | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -237,6 +244,7 @@ Values the sources were read for and do not give. These entries are excused from
 - `drop:9/yellow-avelin-f` Orange Mushroom: Yellow Avelin (F): item not_in_snapshot (candidates 956): never drops; no KuroDB chance for this member: never drops
 - `drop:9/yellow-bandana` Orange Mushroom: Yellow Bandana: item not_in_snapshot (candidates 722): never drops; no KuroDB chance for this member: never drops
 - `drop:0000001/egg` Wooden Box: Egg: no KuroDB chance for this member: never drops
+- `mechanic:fall-damage` Fall damage: MeowDB documents a formula (a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36; maps can disable it); MisoStory applies none (adaptation): The canonical rule cannot be applied as published: the length of one movement update, the unit of its N counter, is not documented (formulas/movement.json fall_damage.gaps), and MeowDB says 'Maps can disable fall damage' without naming the maps that do, so whether Maple Island's maps have fall damage is unknown. MisoStory applies no fall damage (presentation.json fall_recovery, verified: false): a MisoStory adaptation, not a canonical statement
 - `mechanic:map-seats` Sitting without a chair (ground sit) and map benches: MeowDB documents sitting on chairs only: no ground sit and no Maple Island bench placements (misostory/recovery.json sitting); X sits on the first owned chair instead (adaptation)
 - `mechanic:natural-mp-regen` Natural MP recovery: none, because MeowDB documents none (not inferred from the HP rule): MeowDB documents no natural MP recovery (formulas/recovery.json natural_regeneration.mp_per_tick is null; misostory/recovery.json natural_mp status unresolved_source_gap): the game has none until a source or the owner gives a rule
 
@@ -249,7 +257,7 @@ Values a source publishes on a page nobody has read yet. They are not source-dat
 stays partial and counts as open for the exit criterion until the page is read and the data regenerated (its declaration
 in `tools/parity/rules.json` `pending_source_reads` then fails the build as stale and is removed).
 
-- `drop:9/scroll-for-shoes-for-jump-10` Orange Mushroom: Scroll for Shoes for Jump 10%: read KuroDB item page 2040705 (https://playkuro.com/database/#items/2040705), by hand in a browser (decision D3-8) to settle whether KuroDB's Orange Mushroom row 'Scroll for Shoes for Jump' (2040705, "0.0300% base \| Qty 1") is Hidden Street's 'Scroll for Shoes for Jump 10%' (MeowDB 177), and so this member's chance. possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Excluded until a hand read confirms it.
+- `drop:9/scroll-for-shoes-for-jump-10` Orange Mushroom: Scroll for Shoes for Jump 10%: read KuroDB item page 2040705 (https://playkuro.com/database/#items/2040705), by hand in a browser (decision D3-8) to settle whether KuroDB's Orange Mushroom row 'Scroll for Shoes for Jump' (2040705, "0.0300% base \| Qty 1") is Hidden Street's 'Scroll for Shoes for Jump 10%' (MeowDB 177), and so this member's chance. possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted yet: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Pending until a hand read (tools/kurodb/captures/item_2040705.json) shows the success rate and stat bonus of MeowDB 177's scroll (confirmed) or another (excluded).
 
 ## Open entries
 
@@ -421,21 +429,21 @@ Runtime: present (`game/scripts/core/maps/spawn_model.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `spawn-rule:000000030` | East Entrance to Mushroom Town: mob rate 0.6, 6 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000000040` | Snail Hunting Ground I: mob rate 1, 40 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000000041` | Snail Hunting Ground II: mob rate 1, 45 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000000042` | Snail Hunting Ground III: mob rate 1, 42 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000000050` | A Split Road: mob rate 1.5, 42 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001000` | The Field West of Amherst: mob rate 1.3, 66 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001001` | In a Small Forest: mob rate 1.3, 40 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001002` | Dangerous Forest: mob rate 1, 34 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001003` | Mushroom Garden: mob rate 1, 35 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001004` | Snail Garden: mob rate 1, 41 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001005` | Hunting Ground Middle of the Forest I: mob rate 1, 44 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001006` | Hunting Ground Middle of the Forest II: mob rate 1, 45 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001014` | Snail Field of Flowers: mob rate 1.2, 34 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001020` | The Field East of Amherst: mob rate 1, 38 spawn points | verified | 6 pass |  |  |
-| `spawn-rule:000001021` | Tomato Field: mob rate 1, 25 spawn points | verified | 6 pass |  |  |
+| `spawn-rule:000000030` | East Entrance to Mushroom Town: 6 spawn points, MeowDB mob rate 0.6 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 0.6 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000000040` | Snail Hunting Ground I: 40 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000000041` | Snail Hunting Ground II: 45 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000000042` | Snail Hunting Ground III: 42 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000000050` | A Split Road: 42 spawn points, MeowDB mob rate 1.5 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1.5 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001000` | The Field West of Amherst: 66 spawn points, MeowDB mob rate 1.3 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1.3 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001001` | In a Small Forest: 40 spawn points, MeowDB mob rate 1.3 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1.3 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001002` | Dangerous Forest: 34 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001003` | Mushroom Garden: 35 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001004` | Snail Garden: 41 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001005` | Hunting Ground Middle of the Forest I: 44 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001006` | Hunting Ground Middle of the Forest II: 45 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001014` | Snail Field of Flowers: 34 spawn points, MeowDB mob rate 1.2 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1.2 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001020` | The Field East of Amherst: 38 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
+| `spawn-rule:000001021` | Tomato Field: 25 spawn points, MeowDB mob rate 1 (not applied: presentation.json map_mob_rate) | verified | 6 pass |  | mob rate 1 deliberately not applied (presentation.json map_mob_rate.apply false, verified: false; capacity = floor(spawn points x player scalar)); adaptation: presentation.json#map_mob_rate |
 
 ## Monster stats
 
@@ -443,12 +451,12 @@ Runtime: present (`game/scripts/core/combat/monster_combat_stats.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | verified | 21 pass |  |  |
-| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | verified | 23 pass |  |  |
-| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | verified | 19 pass |  |  |
-| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | verified | 20 pass |  |  |
-| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | verified | 18 pass |  |  |
-| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | verified | 21 pass |  |  |
+| `monster-stats:1` | Tutorial Jr. Sentinel: level 1, HP 30, EXP 1 | verified | 23 pass |  |  |
+| `monster-stats:2` | Snail: level 1, HP 45, EXP 2 | verified | 25 pass |  |  |
+| `monster-stats:3` | Blue Snail: level 2, HP 51, EXP 4 | verified | 21 pass |  |  |
+| `monster-stats:4` | Shroom: level 3, HP 62, EXP 6 | verified | 22 pass |  |  |
+| `monster-stats:5` | Red Snail: level 4, HP 68, EXP 8 | verified | 20 pass |  |  |
+| `monster-stats:9` | Orange Mushroom: level 8, HP 142, EXP 15 | verified | 23 pass |  |  |
 
 ## Monster drops
 
@@ -729,11 +737,11 @@ Runtime: present (`game/scripts/core/quests/quest_engine.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `chain:1000` | Borrowing Sera's Mirror -> Bringing a Mirror to Heena | verified | 0 pass |  | members: 1000 verified, 1001 verified |
-| `chain:1003` | What Sen wants to eat -> Returning to Nina | verified | 0 pass |  | members: 1003 verified, 1004 verified |
-| `chain:1006` | Sam's Suggestion -> Mai's Training -> Mai's Final Training | verified | 0 pass |  | members: 1006 verified, 1009 verified, 1010 verified |
-| `chain:1007` | Letter for Lucas -> Lucas's Reply | verified | 0 pass |  | members: 1007 verified, 1008 verified |
-| `chain:1013` | Rain's Maple Quiz 1 -> Rain's Maple Quiz 2 -> Rain's Maple Quiz 3 -> Rain's Maple Quiz 4 -> Rain's Maple Quiz 5 -> Rain's Maple Quiz 6 -> Rain's Maple Quiz 7 | verified | 0 pass |  | members: 1013 verified, 1014 verified, 1015 verified, 1016 verified, 1017 verified, 1018 verified, 1019 verified |
+| `chain:1000` | Borrowing Sera's Mirror -> Bringing a Mirror to Heena | verified | 6 pass |  | members: 1000 verified, 1001 verified |
+| `chain:1003` | What Sen wants to eat -> Returning to Nina | verified | 6 pass |  | members: 1003 verified, 1004 verified |
+| `chain:1006` | Sam's Suggestion -> Mai's Training -> Mai's Final Training | verified | 12 pass |  | members: 1006 verified, 1009 verified, 1010 verified |
+| `chain:1007` | Letter for Lucas -> Lucas's Reply | verified | 6 pass |  | members: 1007 verified, 1008 verified |
+| `chain:1013` | Rain's Maple Quiz 1 -> Rain's Maple Quiz 2 -> Rain's Maple Quiz 3 -> Rain's Maple Quiz 4 -> Rain's Maple Quiz 5 -> Rain's Maple Quiz 6 -> Rain's Maple Quiz 7 | verified | 36 pass |  | members: 1013 verified, 1014 verified, 1015 verified, 1016 verified, 1017 verified, 1018 verified, 1019 verified |
 
 ## Quest objectives
 
@@ -878,10 +886,12 @@ Runtime: present (`game/scripts/actors/player/player_controller.gd ("&\"seated\"
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `mechanic:chair-hp-bonus` | A chair's own HP bonus per interval while seated (The Green Relaxer: 30 HP per 10 s), on its own clock | verified | 9 pass |  |  |
+| `mechanic:crouch-down-jump` | Crouch (down) and a crouching jump that drops to a lower platform (Rain's quiz 1013; formulas/movement.json controls_statements) | implemented (out of scope) | 0 pass |  | out of scope: Excluded as an isometric adaptation (a MisoStory decision, verified: false): in MisoStory's isometric 3D maps the down key (move_down, S) walks toward the camera, so there is no crouch stance, and the terrain has no pass-through floors (the player stands on the highest walkable collision under its feet; no one-way platform layer exists), so a crouching jump has nothing to drop through. The player reaches a lower floor by walking off its edge (PLAYER_AND_CAMERA.md: the player drops once its centre is 0.15 m past an edge, as in classic) or by a rope or ladder. No input reaches the crouched (prone) attack that combat_formula.gd can resolve either. Listed for DEFERRED |
 | `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | verified | 137 pass |  |  |
+| `mechanic:fall-damage` | Fall damage: MeowDB documents a formula (a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36; maps can disable it); MisoStory applies none (adaptation) | partial (source-data gap) | 0 pass | 1 | adaptation: presentation.json#fall_recovery |
 | `mechanic:map-seats` | Sitting without a chair (ground sit) and map benches | partial (source-data gap) | 0 pass | 1 |  |
 | `mechanic:minimap` | Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode); M folds it | verified | 201 pass |  |  |
-| `mechanic:natural-hp-regen` | Natural HP regeneration: 10 HP per 10 s of eligible (standing still or sitting) time; the clock pauses, never resets; never above Max HP | verified | 23 pass |  | adaptation: recovery.json |
+| `mechanic:natural-hp-regen` | Natural HP regeneration: 10 HP per 10 s of eligible (standing still or sitting) time; the clock pauses, never resets; never above Max HP | verified | 24 pass |  | adaptation: recovery.json |
 | `mechanic:natural-hp-regen-pause-attacking` | Attacking pauses the natural HP clock | verified | 6 pass |  |  |
 | `mechanic:natural-hp-regen-pause-jumping` | Jumping pauses the natural HP clock | verified | 6 pass |  |  |
 | `mechanic:natural-hp-regen-pause-walking` | Walking pauses the natural HP clock (Definition of Done: Movement pauses natural HP regeneration) | verified | 7 pass |  |  |
@@ -910,11 +920,11 @@ Runtime: present (`game/scripts/actors/monsters/monster_brain.gd`, `game/scripts
 | `mechanic:monster-movement-floor-walker` | Walking monsters pace back and forth and stay on their floor | verified | 19 pass |  | adaptation: monsters/_shared.json |
 | `mechanic:monster-movement-jumper` | Jumping monsters (Orange Mushroom) hop to a floor above or below their spawn floor | verified | 2 pass |  | adaptation: monsters/9.json |
 | `mechanic:monster-respawn` | Monster respawn on the canonical spawn tick after the canonical cooldown | verified | 19 pass |  |  |
-| `mechanic:monster-touch-damage` | Contact damage: the canonical touch window through the canonical touch zone, no oversized bubbles | verified | 20 pass |  |  |
+| `mechanic:monster-touch-damage` | Contact damage: the canonical touch window through the canonical touch zone, no oversized bubbles | verified | 21 pass |  |  |
 | `mechanic:player-damage-window` | The player's damage per hit stays inside the canonical damage window | verified | 15 pass |  |  |
 | `mechanic:spawn-capacity` | Map capacity from the canonical spawn-point count (solo capacity) | verified | 20 pass |  |  |
 | `mechanic:spawn-density` | Spawn density cap per region (no clumps; counts unchanged) | verified | 5 pass |  | adaptation: presentation.json |
-| `mechanic:spawn-mob-rate` | Map mob rate handling (the MisoStory decision between MeowDB pages) | verified | 2 pass |  | adaptation: presentation.json |
+| `mechanic:spawn-mob-rate` | Map mob rate handling (the MisoStory decision between MeowDB pages) | verified | 2 pass |  | adaptation: presentation.json#map_mob_rate |
 | `mechanic:spawn-placement-exclusions` | Spawn slots avoid portals, arrivals, walls and authored exclusions | verified | 20 pass |  |  |
 | `mechanic:spawn-placement-npc-clearance` | Spawn slots keep clear of NPC interaction spaces | verified | 17 pass |  | adaptation: presentation.json |
 | `mechanic:spawn-placement-player-overlap` | No monster spawns inside or right next to the player | verified | 18 pass |  | adaptation: presentation.json |
@@ -962,10 +972,10 @@ Runtime: present (`game/scripts/core/character/character_state.gd`, `game/script
 | `persistence:inventory` | Inventory persists | verified | 48 pass |  |  |
 | `persistence:level-exp` | Level and EXP persist | verified | 48 pass |  |  |
 | `persistence:mesos` | Mesos persist | verified | 46 pass |  |  |
-| `persistence:natural-regen-timer` | The natural HP clock persists | verified | 8 pass |  |  |
+| `persistence:natural-regen-timer` | The natural HP clock persists | verified | 10 pass |  |  |
 | `persistence:orphan-item-ids` | Unknown item ids in a save are kept losslessly and reported | verified | 5 pass |  |  |
 | `persistence:play-time-flags` | Play time and flags persist | verified | 3 pass |  |  |
-| `persistence:quest-availability` | Quest availability persists | verified | 1 pass |  |  |
+| `persistence:quest-availability` | Quest availability persists | verified | 3 pass |  |  |
 | `persistence:quest-completion` | Quest completion persists | verified | 4 pass |  |  |
 | `persistence:quest-progress-kills` | Quest progress (kill and use counts) persists | verified | 37 pass |  |  |
 | `persistence:quickslots` | Quickslot bindings persist (typed item and skill bindings) | verified | 13 pass |  |  |
@@ -1011,7 +1021,7 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 | `minimap:000001020` | Minimap of The Field East of Amherst (000001020): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
 | `minimap:000001021` | Minimap of Tomato Field (000001021): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
 | `ui:ap-notification` | AP-available notification | verified | 5 pass |  |  |
-| `ui:damage-feedback` | Damage feedback (damage numbers) | verified | 1 pass |  |  |
+| `ui:damage-feedback` | Damage feedback (damage numbers) | verified | 6 pass |  |  |
 | `ui:interact-indicator` | Interact indicator near NPCs and doors | verified | 4 pass |  |  |
 | `ui:item-pickup-feedback` | Item and meso pickup feedback in the HUD log | verified | 5 pass |  |  |
 | `ui:key-bindings` | The Controls panel lists every key and each listed key works | verified | 3 pass |  |  |
@@ -1032,7 +1042,7 @@ Runtime: present; no runtime of its own.
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:no-console-playthrough` | Strict mode: after setup, any console or API cheat or unannounced state change fails the run (the guard the playthrough rows rely on) | verified | 74 pass |  |  |
+| `mechanic:no-console-playthrough` | Strict mode: after setup, any console or API cheat or unannounced state change fails the run (the guard the playthrough rows rely on) | verified | 76 pass |  |  |
 | `playthrough:allocate-ap` | Allocate AP | verified | 16 pass |  |  |
 | `playthrough:begin-maple-island` | Begin Maple Island at the canonical start map | verified | 3 pass |  |  |
 | `playthrough:complete-every-quest` | Complete every Maple Island quest | verified | 3 pass |  |  |
@@ -1083,10 +1093,10 @@ Runtime: present (`game/scripts/core/validation/provenance_authorities.gd`, `gam
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `canon:adaptations-explained` | Every MisoStory adaptation carries a reason and a verified flag (verified only against something named) | verified | 6 pass |  |  |
-| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | verified | 4 pass |  |  |
+| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | verified | 6 pass |  |  |
 | `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | verified | 6 pass |  |  |
 | `canon:meowdb-formula-parity` | The MeowDB formula parity vectors (MeowDB's own calculators: damage, accuracy, EXP, stats) still pass and every mechanic is replayed | verified | 38 pass |  |  |
 | `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | verified | 7 pass |  |  |
 | `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | verified | 12 pass |  |  |
-| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 6 pass |  |  |
+| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 8 pass |  |  |
 

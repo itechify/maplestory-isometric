@@ -57,6 +57,14 @@ var finished: bool = false
 ## game_s}, "debug_commands" (Debug.commands_run deltas summed over the strict phases), "ledger" {"reconciled",
 ## "mismatches"}, "violations" [{phase, kind, detail}]}. strict_summary() adds the counted steps and "ok".
 var strict: Dictionary = {}
+# --- Evidence provenance (contract C6, added by the acceptance data/parity/proof package) ---------------------------
+## The code the run played: {"commit", "dirty", "reused_copy", "mixed"} from PLAYTEST_GIT_COMMIT, PLAYTEST_GIT_DIRTY
+## ("1" / "0" / "" unknown) and PLAYTEST_REUSED_COPY, which scripts/playtest.sh sets. write() stamps it in every phase:
+## "commit" is the first phase's, "mixed" turns true when a later phase ran another commit, "dirty" is true when any
+## phase's game/, tools/ or scripts/ differed from its commit (null when unknown). {} for a run started without
+## playtest.sh. tools/parity/build_parity.mjs compares it with HEAD.
+var git: Dictionary = {}
+# --- end evidence provenance
 
 
 ## Starts a step; returns its index (finish it with end_step).
@@ -210,7 +218,7 @@ func to_dict() -> Dictionary:
 			"warnings": warnings().size(),
 			"errors": errors.size(), "engine_errors": engine_errors.size(), "screenshots": screenshots.size(),
 			"input_reasserts": input_reasserts, "parity_keys": parity.size()},
-		"strict": strict_summary(), "strict_raw": strict, "parity": parity,
+		"strict": strict_summary(), "strict_raw": strict, "parity": parity, "git": git,
 		"checks": checks, "steps": steps, "screenshots": screenshots, "errors": errors, "engine_errors": engine_errors,
 		"notes": notes, "carry": carry, "carry_var": var_to_str(carry),
 	}
@@ -237,6 +245,7 @@ static func from_dict(d: Dictionary) -> PlaytestReport:
 	r.reload_requested = bool(d.get("reload_requested", false))
 	r.finished = bool(d.get("finished", false))
 	r.strict = (d.get("strict_raw") as Dictionary).duplicate(true) if d.get("strict_raw") is Dictionary else {}
+	r.git = (d.get("git") as Dictionary).duplicate(true) if d.get("git") is Dictionary else {}
 	return r
 
 
@@ -251,10 +260,27 @@ static func from_file(dir: String) -> PlaytestReport:
 
 ## Writes report.json and report.md into out_dir. Returns the first error.
 func write() -> Error:
+	stamp_git(OS.get_environment("PLAYTEST_GIT_COMMIT"), OS.get_environment("PLAYTEST_GIT_DIRTY"),
+		OS.get_environment("PLAYTEST_REUSED_COPY") == "1")
 	DirAccess.make_dir_recursive_absolute(out_dir)
 	var err := _write_text(out_dir.path_join("report.json"), JSON.stringify(_plain(to_dict()), "  ", false) + "\n")
 	var err2 := _write_text(out_dir.path_join("report.md"), to_markdown())
 	return err if err != OK else err2
+
+
+## Folds one phase's provenance into `git` (see the field): `commit` "" (not started through playtest.sh) changes
+## nothing; `dirty` "1" / "0" / anything else = dirty / clean / unknown.
+func stamp_git(commit: String, dirty: String, reused_copy: bool) -> void:
+	if commit == "":
+		return
+	var now: Variant = true if dirty == "1" else (false if dirty == "0" else null)
+	if git.is_empty():
+		git = {"commit": commit, "dirty": now, "reused_copy": reused_copy, "mixed": false}
+		return
+	var was: Variant = git.get("dirty", null)
+	git["dirty"] = true if (was == true or now == true) else (null if (was == null or now == null) else false)
+	git["mixed"] = bool(git.get("mixed", false)) or String(git.get("commit", "")) != commit
+	git["reused_copy"] = bool(git.get("reused_copy", false)) or reused_copy
 
 
 func to_markdown() -> String:
@@ -272,6 +298,12 @@ func to_markdown() -> String:
 		int(counts["console"]), int(counts["api"]), int(counts["observe"])])
 	lines.append("- Errors: %d fatal, %d engine (not fatal); input re-asserted %d times" % [errors.size(),
 		engine_errors.size(), input_reasserts])
+	if not git.is_empty():
+		var dirty: Variant = git.get("dirty", null)
+		lines.append("- Code: commit %s, %s%s%s" % [String(git.get("commit", "?")),
+			"dirty tree" if dirty == true else ("clean tree" if dirty == false else "tree state unknown"),
+			", several commits across phases" if bool(git.get("mixed", false)) else "",
+			", a reused copy (PLAYTEST_REUSE_COPY=1)" if bool(git.get("reused_copy", false)) else ""])
 	var st := strict_summary()
 	if bool(st.get("enabled", false)):
 		var since: Dictionary = st.get("since", {})

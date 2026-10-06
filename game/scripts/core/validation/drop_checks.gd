@@ -21,7 +21,8 @@ extends RefCounted
 ##     - quest gates follow the C1 rule: an entry is gated exactly when its item is a quest item (MeowDB subtype "Quest
 ##       Item", or the membership source lists it so) that a Maple Island quest objective asks for, and the gate is
 ##       that quest; the gate says verified: false (a MisoStory derivation, D3-9)
-##     - no KuroDB-only row (excluded_kuro_only) is also an entry's chance source
+##     - no KuroDB-only row (excluded_kuro_only) and no pending candidate row (pending_kuro_candidates) is also an
+##       entry's chance source
 ##     - an unresolved member whose item (or, while the item is unresolved, one of its MeowDB candidates) a Maple
 ##       Island quest objective asks for is a progression blocker (brief "Missing KuroDB Probability")
 ##   drop_unresolved (warnings): each member or meso value that never rolls because a source leaves it unresolved, so
@@ -81,10 +82,16 @@ func check_record(id: String, rec: Dictionary) -> void:
 		_error(id, "membership_authority must be %s for a %s (decisions D3-6, D3-7), got %s" % [want, kind,
 			var_to_str(rec.get("membership_authority", null))])
 	var claimed := {}
+	# Members whose possible KuroDB row waits for a read of its item page (pending_kuro_candidates, D3-8): entry key ->
+	# KuroDB item id, so the warning says the chance is a pending read, not that no source gives one.
+	var pending_members := {}
+	for x in ValidationUtil.as_array(rec.get("pending_kuro_candidates", [])):
+		if x is Dictionary and x.get("member", null) is String:
+			pending_members[x.member] = str(x.get("kuro_item_id", "?"))
 	for e in ValidationUtil.as_array(rec.get("entries", [])):
 		if e is Dictionary:
 			report.count("drop_policy_entries_checked")
-			_check_entry(id, e)
+			_check_entry(id, e, pending_members)
 			var cs: Variant = e.get("chance_source", null)
 			if cs is Dictionary:
 				claimed["%s|%s" % [str(cs.get("kuro_item_id", "")), str(cs.get("kuro_name", ""))]] = str(e.get("key", ""))
@@ -94,6 +101,13 @@ func check_record(id: String, rec: Dictionary) -> void:
 			if claimed.has(key):
 				_error(id, "excluded_kuro_only row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
 					str(x.get("kuro_item_id", "")), claimed[key]])
+	# A pending candidate (decision D3-8) is a row nobody has accepted yet: it may not already be a chance source.
+	for x in ValidationUtil.as_array(rec.get("pending_kuro_candidates", [])):
+		if x is Dictionary:
+			var key := "%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]
+			if claimed.has(key):
+				_error(id, "pending_kuro_candidates row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
+					str(x.get("kuro_item_id", "")), claimed[key]])
 	var meso: Variant = rec.get("meso", null)
 	if meso is Dictionary:
 		_check_meso(id, meso)
@@ -101,7 +115,7 @@ func check_record(id: String, rec: Dictionary) -> void:
 
 # --- entries ------------------------------------------------------------------------------------------------
 
-func _check_entry(id: String, e: Dictionary) -> void:
+func _check_entry(id: String, e: Dictionary, pending_members: Dictionary = {}) -> void:
 	var where := "entry '%s'" % str(e.get("key", e.get("name", "?")))
 	var item_id: Variant = e.get("item_id", null)
 	var res: Variant = e.get("item_resolution", {})
@@ -122,7 +136,9 @@ func _check_entry(id: String, e: Dictionary) -> void:
 	var never: PackedStringArray = []
 	# The items this member may be: its item, or (while the item is unresolved) its MeowDB candidates.
 	var maybe: PackedStringArray = []
-	if not resolved:
+	if not resolved and pending_members.has(str(e.get("key", ""))):
+		never.append("chance pending: KuroDB item page %s is not read yet (pending_kuro_candidates, D3-8; a pending source read)" % pending_members[str(e.get("key", ""))])
+	elif not resolved:
 		never.append("chance unresolved (no accepted KuroDB value for this member; see the record's gaps)")
 	if item_id == null:
 		never.append("item unresolved (%s)" % state)

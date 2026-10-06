@@ -104,5 +104,25 @@ func test_evidence_document_round_trips_through_json() -> void:
 		assert_eq(back.tests.size(), 4, "every entry written")
 		var fields: Array = back.tests[0].keys()
 		fields.sort()
-		assert_eq(fields, ["failures", "file", "name", "ok", "parity"], "entry fields")
+		assert_eq(fields, ["failures", "file", "name", "needs_world", "ok", "parity"], "entry fields")
 		assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc").commit, "abc", "commit kept")
+
+
+func test_evidence_records_the_dirty_flag_and_whether_the_world_was_present() -> void:
+	var r := _run(["fixture_untagged.gd"])
+	var unknown := TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc")
+	assert_eq(unknown.get("dirty", 0), null, "no TEST_EVIDENCE_DIRTY: unknown")
+	assert_eq(unknown.get("world_present", null), false, "no world unless the run saw it")
+	assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc", "1", true).dirty, true, "dirty")
+	assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc", "0", true).dirty, false, "clean")
+	assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc", "0", true).world_present, true, "world")
+	assert_eq(TestRunner.EVIDENCE_FORMAT, 2, "format 2: dirty, world_present, needs_world")
+
+
+func test_a_test_file_that_names_the_world_switch_needs_the_world() -> void:
+	var r := _run(["fixture_world.gd", "fixture_untagged.gd"])
+	assert_eq(_entry(r, "test_on_the_world").get("needs_world", null), true, "a file naming %s needs the world" % TestRunner.WORLD_MARKER)
+	assert_eq(_entry(r, "test_on_the_world").get("parity", []), ["map:000000040"], "its keys are still recorded (build_parity decides)")
+	assert_eq(_entry(r, "test_ok").get("needs_world", null), false, "a logic-only file does not")
+	assert_true(TestRunner.needs_world("print(\"SKIP x: run with %s=1\")" % TestRunner.WORLD_MARKER))
+	assert_false(TestRunner.needs_world("func test_x() -> void:\n\tpass"))
