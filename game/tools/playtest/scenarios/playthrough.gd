@@ -521,7 +521,8 @@ func _throw_three_snails(mobs: Array) -> bool:
 func _more_skills() -> bool:
 	var c := d.character()
 	await _learn_skills()
-	if SkillBook.level_of(c, THREE_SNAILS) > 0 and not (d.carry.get("skills_cast", {}) as Dictionary).has(THREE_SNAILS):
+	# A first throw that never left the hand (no target in its band) gets a second chance here.
+	if SkillBook.level_of(c, THREE_SNAILS) > 0 and _casts(THREE_SNAILS) == 0:
 		await _throw_three_snails(["3", "4", "5"])
 	for sid: String in [RECOVERY, NIMBLE_FEET]:
 		if SkillBook.level_of(c, sid) == 0:
@@ -534,8 +535,13 @@ func _more_skills() -> bool:
 		d.check("key %s casts %s (level %d): its effect starts and it costs %d MP" % [SKILL_KEYS[sid], _skill_name(sid), lv,
 			def.mp_cost(lv)], bool(r["ok"]) and eff and c.mp == mp0 - def.mp_cost(lv), "%s; MP %d -> %d; effects %s" % [r, mp0,
 			c.mp, c.effects], ["skill:" + sid])
-		_cast_row(sid, {"casts": 1, "effect": eff, "mp": mp0 - c.mp})
+		_cast_row(sid, {"casts": 1 if bool(r["ok"]) else 0, "effect": eff, "mp": mp0 - c.mp})
 	return true
+
+
+## The real casts recorded for a skill (0 when it was tried and nothing went off).
+func _casts(sid: String) -> int:
+	return int(((d.carry.get("skills_cast", {}) as Dictionary).get(sid, {}) as Dictionary).get("casts", 0))
 
 
 func _cast_row(sid: String, row: Dictionary) -> void:
@@ -664,6 +670,18 @@ func _shop(npc: String, map_id: String, buys: Array, visit: String) -> bool:
 	if not d.check("talking to %s opens the shop" % k.npc_name(npc), await k.open_shop(npc), "", ["npc:" + npc]):
 		_finding("shop", "%s's shop did not open" % k.npc_name(npc), "talking to a shopkeeper opens the shop")
 		return false
+	# No NPC speech bubble over (or under) the open shop window (the acceptance review saw Lucy's cut off by it).
+	await d.wait(0.2)
+	var talking := PackedStringArray()
+	var presenters: Variant = d.interaction().get("presenters") if d.interaction() != null else null
+	if presenters is Dictionary:
+		for id: String in presenters:
+			var p: Variant = presenters[id]
+			if p is NpcPresenter and is_instance_valid(p) and (p as NpcPresenter).bubble != null \
+					and (p as NpcPresenter).bubble.visible:
+				talking.append(k.npc_name(id))
+	d.check("no NPC speech bubble shows while %s's shop is open" % k.npc_name(npc), talking.is_empty(), ", ".join(talking))
+	await k.shot("shop_" + k.npc_name(npc).to_lower())
 	var c := d.character()
 	var shop_id := String(d.shop().get("shop_id"))
 	var row: Dictionary = (d.carry.get("shops", {}) as Dictionary).get(npc, {"bought": [], "sold": [], "refused": []})
@@ -765,6 +783,12 @@ func _chair() -> bool:
 	var still := k.activity() == &"seated"
 	d.check("seated for %.0f s: still seated, HP %d -> %d of %d" % [seated_s, hp0, c.hp, mx], still,
 		"activity %s" % k.activity(), ["chair:" + CHAIR, "mechanic:sitting"])
+	# What a player sees: the HUD's seated cue above the HP gauge names the chair's bonus (the chair itself, green on
+	# grass, is easy to miss).
+	var cue := String((d.hud() as MisoHud).status.seat_label.text)
+	d.check("while seated the HUD's cue shows the chair's +%d HP" % bonus, cue.begins_with("Seated") and cue.contains("+%d HP" % bonus),
+		cue, ["chair:" + CHAIR, "mechanic:sitting"])
+	await k.shot("seated_on_the_green_relaxer")
 	# One interval seated: the chair's own clock starts at the sit (one bonus tick), natural recovery's clock is the
 	# saved one (one or two ticks of misostory/recovery.json natural_hp in 11 s). With room for all of it, HP rises by
 	# the bonus plus one or two natural ticks; otherwise it reaches Max HP.
@@ -783,6 +807,8 @@ func _chair() -> bool:
 		d.note("HP was full (%d) when the player sat down: the chair's bonus had nothing to heal" % hp0)
 	var up: Dictionary = await k.stand()
 	d.check("a step stands the player up from the chair", bool(up["ok"]), str(up), ["mechanic:sitting"])
+	d.check("standing up clears the HUD's seated cue", not (d.hud() as MisoHud).status.is_seated_shown(),
+		String((d.hud() as MisoHud).status.seat_label.text), ["mechanic:sitting"])
 	var x: Dictionary = await k.sit()
 	d.check("X sits on the first chair the character owns", bool(x["ok"]), str(x), ["chair:" + CHAIR, "mechanic:sitting"])
 	var up2: Dictionary = await k.stand()
@@ -1044,11 +1070,13 @@ func _finish(complete: bool) -> void:
 	d.check("every AP spent through the stats window (%d points over %d levels)" % [base1 - base0, c.level - 1], c.ap == 0
 		and base1 - base0 == per_level * (c.level - 1), "stats %s -> %s, AP %d" % [created.get("stats", {}), c.base_stats, c.ap],
 		["mechanic:ap-allocation"])
-	# Skills.
+	# Skills: learned and really cast (at least one cast that went off; a buff's effect started or its MP spent).
 	var cast: Dictionary = d.carry.get("skills_cast", {})
 	for sid: String in SKILL_ORDER:
-		d.check("%s learned and cast" % _skill_name(sid), SkillBook.level_of(c, sid) > 0 and cast.has(sid), str(cast.get(sid, {})),
-			["skill:" + sid])
+		var row: Dictionary = cast.get(sid, {})
+		var went_off := _casts(sid) > 0 and (sid == THREE_SNAILS or bool(row.get("effect", false)) or int(row.get("mp", 0)) > 0)
+		d.check("%s learned and cast (%d casts)" % [_skill_name(sid), _casts(sid)], SkillBook.level_of(c, sid) > 0 and went_off,
+			str(row), ["skill:" + sid])
 	# Shops.
 	var shops: Dictionary = d.carry.get("shops", {})
 	for npc: String in [PAN, SID, LUCY]:

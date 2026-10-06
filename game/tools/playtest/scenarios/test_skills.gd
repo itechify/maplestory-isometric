@@ -79,6 +79,16 @@ func _phase_play(d: PlaytestDriver) -> void:
 	for sid: String in [SNAILS, RECOVERY, NIMBLE]:
 		await d.click(w.get("rows")[sid]["panel"])
 		await d.click(w.get("key_button"))
+		if sid == SNAILS:
+			# The largest the window gets (three skills learned, a row selected, the 1-8 picker open): on the screen and
+			# above the HUD's status bar (the acceptance review's windowed run had Set key at y 948 of 900).
+			await d.frames(2)
+			var wr: Rect2 = PlaytestDriver.control_rect(w as Control)
+			var bar: Rect2 = (hud.get("status") as Control).get_global_rect()
+			d.check("the Skills window with every skill learned and the key picker open lies on the screen, above the status bar",
+				d.get_viewport().get_visible_rect().encloses(wr) and wr.end.y <= bar.position.y, "window %s, bar top %.0f, screen %s"
+				% [wr, bar.position.y, d.get_viewport().get_visible_rect()], ["mechanic:skill-window"])
+			await d.screenshot("skills_window_learned_picker_open")
 		var kr: Dictionary = await d.click(w.get("key_buttons")[KEYS[sid]])
 		d.check("%s set to key %s in the window" % [_name(d, sid), KEYS[sid]], bool(kr["ok"])
 			and MisoQuickslots.skill_for(c, KEYS[sid]) == sid, str(c.quickslots.get(KEYS[sid])))

@@ -1143,10 +1143,15 @@ static func center(c: Control) -> Vector2:
 
 
 ## A real double-click: press, release, then the second press with double_click set (the flag the OS sets), release.
-## `probe` is read right before and right after the second press (dispatch is synchronous): {"before", "after"}.
+## `probe` is read right before and right after the second press (dispatch is synchronous): {"before", "after",
+## "why"}. A control a player cannot click (off the screen or covered: PlaytestDriver.pointer_onto) is not pressed:
+## "why" says so and a failed check records it.
 func double_click(c: Control, probe: Callable = Callable()) -> Dictionary:
+	var why := await d.pointer_onto(c)
+	if why != "":
+		d.check("a player can double-click %s" % (String(c.name) if is_instance_valid(c) else "a control"), false, why)
+		return {"before": null, "after": null, "why": why}
 	var at := center(c)
-	d.input.mouse_move(at)
 	await d.frames(1)
 	d.input.mouse_button(at, true)
 	await d.frames(1)
@@ -1166,12 +1171,26 @@ func double_click(c: Control, probe: Callable = Callable()) -> Dictionary:
 	await d.frames(1)
 	d.input.mouse_button(at, false)
 	await d.frames(1)
-	return {"before": before, "after": after}
+	return {"before": before, "after": after, "why": ""}
 
 
-## A real GUI drag: press on `from`, move past the drag threshold, glide onto `to`, release.
+## A real GUI drag: press on `from`, move past the drag threshold, glide onto `to`, release. Both ends must be where a
+## player can point at them (PlaytestDriver.pointer_onto: on the screen, not covered); otherwise nothing is pressed,
+## "why" says which end and a failed check records it. {"dragging", "target_topmost", "why"}.
 func drag(from: Control, to: Control) -> Dictionary:
 	var vp := d.get_viewport()
+	var why_to := await d.pointer_onto(to)
+	var why_from := await d.pointer_onto(from) if why_to == "" else ""
+	# Scrolling the source into view may move (or hide) the drop target in the same list: look at it again, without
+	# scrolling, where it now is.
+	if why_to == "" and why_from == "" and is_instance_valid(to):
+		why_to = await d.pointer_onto(to, center(to))
+	if why_to != "" or why_from != "":
+		var why := "drop target: " + why_to if why_to != "" else "drag source: " + why_from
+		d.check("a player can drag %s onto %s" % [String(from.name) if is_instance_valid(from) else "a control",
+			String(to.name) if is_instance_valid(to) else "a control"], false, why)
+		return {"dragging": false, "target_topmost": false, "why": why}
+	# Both ends where they are now, after any scrolling (pointer_onto scrolls a clipped list row into view).
 	var a := center(from)
 	var b := center(to)
 	d.input.mouse_move(b)
@@ -1192,7 +1211,7 @@ func drag(from: Control, to: Control) -> Dictionary:
 		await d.frames(1)
 	d.input.mouse_button(b, false)
 	await d.frames(2)
-	return {"dragging": dragging, "target_topmost": topmost}
+	return {"dragging": dragging, "target_topmost": topmost, "why": ""}
 
 
 func inventory_window() -> MisoInventoryWindow:

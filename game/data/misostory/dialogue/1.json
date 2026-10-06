@@ -1,0 +1,17 @@
+{
+  "npc_id": "1",
+  "name": "Heena",
+  "reason": "Heena's canonical tutorial lines (quest 1000 On accept, lines 0 and 1: 'click that person with your mouse', 'The left and right arrows allow you to move') misdirect under MisoStory's controls, where a click attacks and F talks (the acceptance review). The canonical pages are unchanged; after line 1 a system page (speaker system, _system.json misostory_hint_controls, marked [MisoStory]) gives MisoStory's keys, then her offer continues with line 2.",
+  "verified": false,
+  "nodes": {
+    "q1000.misostory_hint": {
+      "type": "say",
+      "speaker": "system",
+      "line": {"system": "misostory_hint_controls"},
+      "next": "q1000.offer.2"
+    }
+  },
+  "patch_nodes": {
+    "q1000.offer.1": {"next": "q1000.misostory_hint"}
+  }
+}

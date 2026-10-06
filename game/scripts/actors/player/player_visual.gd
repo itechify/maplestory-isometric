@@ -38,6 +38,8 @@ const SIT_LEAN_DEG := 8.0
 const SIT_EASE_S := 0.12
 const CHAIR_NAME := "ChairProp"
 const CHAIR_COLOR := Color("#5f9e4a")
+## The chair's dark wooden frame around the green cushions (presentation: contrast against grass).
+const CHAIR_FRAME_COLOR := Color("#4a2c17")
 
 ## Use the library proxy when available (tests and tools can turn the whole visual off by not adding it).
 @export var use_library_model: bool = true
@@ -143,19 +145,27 @@ func _build_chair() -> Node3D:
 	root.name = CHAIR_NAME
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = CHAIR_COLOR
+	# Acceptance fixes (UI and play package): a dark wooden frame (legs, seat rim, back rails) around the green
+	# cushions, so the chair reads on green grass (the acceptance review could not see it under the seated player).
+	var frame := StandardMaterial3D.new()
+	frame.albedo_color = CHAIR_FRAME_COLOR
 	var parts := [
-		[Vector3(0.0, 0.3, -0.05), Vector3(0.56, 0.08, 0.5)],   # seat
-		[Vector3(0.0, 0.62, -0.28), Vector3(0.56, 0.56, 0.07)],  # back
+		[Vector3(0.0, 0.3, -0.05), Vector3(0.56, 0.08, 0.5), mat],     # seat cushion
+		[Vector3(0.0, 0.62, -0.28), Vector3(0.56, 0.56, 0.07), mat],   # back cushion
+		[Vector3(0.0, 0.25, -0.05), Vector3(0.64, 0.05, 0.58), frame],  # seat rim, wider than the cushion
+		[Vector3(0.0, 0.93, -0.28), Vector3(0.64, 0.06, 0.1), frame],   # back top rail
 	]
+	for x in [-0.31, 0.31]:
+		parts.append([Vector3(x, 0.6, -0.28), Vector3(0.05, 0.66, 0.09), frame])  # back side rails
 	for x in [-0.23, 0.23]:
 		for z in [-0.26, 0.16]:
-			parts.append([Vector3(x, 0.13, z), Vector3(0.06, 0.26, 0.06)])  # legs
+			parts.append([Vector3(x, 0.12, z), Vector3(0.07, 0.25, 0.07), frame])  # legs
 	for p: Array in parts:
 		var mi := MeshInstance3D.new()
 		var box := BoxMesh.new()
 		box.size = p[1]
 		mi.mesh = box
-		mi.material_override = mat
+		mi.material_override = p[2]
 		mi.position = p[0]
 		root.add_child(mi)
 	_tag_meshes(root)

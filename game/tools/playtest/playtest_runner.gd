@@ -67,7 +67,22 @@ func _ready() -> void:
 	guard.attach()
 	engine_log = PlaytestEngineLog.new()
 	engine_log.attach()
+	pin_headless_screen(get_tree().root)
 	_run.call_deferred()
+
+
+## Headless, the display server's window is 64 x 64 px, which the project's canvas_items / "expand" stretch turns into
+## a 1600 x 1600 GUI area and a square camera view: a window that runs off the bottom of a windowed 1600 x 900 screen
+## still fits headless, and a click there passes (the acceptance review's Skills window "Set key" at y 948). A
+## headless run therefore lays the game out on exactly the windowed screen: the project's viewport size with the
+## aspect "ignore" (no window to keep it for). Windowed runs are left alone.
+static func pin_headless_screen(win: Window) -> void:
+	if DisplayServer.get_name() != "headless" or win == null:
+		return
+	win.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	win.content_scale_size = Vector2i(int(ProjectSettings.get_setting("display/window/size/viewport_width", 1600)),
+		int(ProjectSettings.get_setting("display/window/size/viewport_height", 900)))
+	win.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 
 
 func _run() -> void:

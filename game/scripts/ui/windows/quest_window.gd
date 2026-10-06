@@ -210,12 +210,14 @@ func _fill_list() -> void:
 		b.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		b.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		b.custom_minimum_size = Vector2(LIST_WIDTH - 18, 0)
+		# The tag leads the row, so a long name is the part the ellipsis trims (a trailing tag was clipped away:
+		# "Borrowing Sera's Mirror ..." hid its [ready]).
 		var mark := ""
 		if current_tab == TAB_IN_PROGRESS and bool(e.get("can_complete", false)):
-			mark = "  [ready]"
+			mark = "[ready] "
 		elif current_tab == TAB_AVAILABLE and bool(e.get("nearby", false)):
-			mark = "  [nearby]"
-		b.text = String(e.get("name", qid)) + mark
+			mark = "[nearby] "
+		b.text = mark + String(e.get("name", qid))
 		var chain := chain_text(e.get("chain", {}))
 		b.tooltip_text = String(e.get("name", qid)) + ("\n" + chain if chain != "" else "")
 		b.set_meta("quest_id", qid)

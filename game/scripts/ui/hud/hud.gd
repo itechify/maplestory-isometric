@@ -9,7 +9,9 @@ extends Control
 ##     level-up the unspent AP and SP;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots);
-##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left.
+##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left;
+##   - while the player sits on a chair (Events.player_sat_down / player_stood_up), the seated cue above the HP
+##     gauge with what sitting recovers (seated_text: the natural rate and the chair's bonus, from data).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
 ## inventory_changed, equipment_changed, game_loaded (plus Game.character_replaced); values are read from the live
 ## character (re-resolved every time, never cached). Between Events.player_died and Events.player_respawned the HP
@@ -45,6 +47,8 @@ const BUS_HANDLERS := {
 	"notice": "_on_notice",
 	"game_loaded": "_on_game_loaded",
 	"effects_changed": "_on_effects_changed",
+	"player_sat_down": "_on_player_sat_down",
+	"player_stood_up": "_on_player_stood_up",
 }
 const LOG_WIDTH := 560.0
 ## Inset of the effects row from the top-right corner (presentation).
@@ -365,7 +369,37 @@ func _on_notice(text: String) -> void:
 
 func _on_game_loaded(_slot: String) -> void:
 	_snapshot_quests()
+	status.set_seated("")  # the seated state is not saved: a load stands the player up (contract C3)
 	refresh_all()
+
+
+## Events.player_sat_down (contract C5): the seated cue above the HP gauge says what sitting recovers, from data:
+## the natural rate while seated (recovery.json natural_hp, the owner's rule) and the chair's canonical bonus
+## (items/<id>.json setup, Chairs.bonus). A green chair on green grass is hard to see; the cue is not.
+func _on_player_sat_down(chair_id: String) -> void:
+	status.set_seated(seated_text(chair_id, env.get_db() if env != null else null), "Seated: natural recovery keeps "
+		+ "running and the chair adds its bonus. Any move, jump, attack or skill stands you up.")
+
+
+func _on_player_stood_up(_reason: String) -> void:
+	status.set_seated("")
+
+
+## "Seated  +10 HP / 10 s  ·  The Green Relaxer +30 HP / 10 s" (numbers from data; a part with no data is left out).
+static func seated_text(chair_id: String, db: ContentDB) -> String:
+	var parts: PackedStringArray = ["Seated"]
+	var rule := NaturalRecoveryRule.from_db(db) if db != null else null
+	if rule != null and rule.hp_per_tick > 0 and NaturalRecoveryRule.SEATED in rule.eligible:
+		parts.append("+%d HP / %s s" % [rule.hp_per_tick, _num(rule.tick_s)])
+	var bonus := Chairs.bonus(chair_id, db) if db != null and chair_id != "" else {}
+	if int(bonus.get("hp", 0)) > 0:
+		var chair_name := String(db.item(chair_id).get("name", chair_id))
+		parts.append("%s +%d HP / %s s" % [chair_name, int(bonus.hp), _num(float(bonus.interval_s))])
+	return "  ·  ".join(parts) if parts.size() > 1 else "Seated"
+
+
+static func _num(v: float) -> String:
+	return str(int(v)) if is_equal_approx(v, roundf(v)) else "%.1f" % v
 
 
 ## A replaced character is not the one that died, so the dead reading is re-taken from Game.is_character_dead(). A
@@ -375,6 +409,7 @@ func _on_game_loaded(_slot: String) -> void:
 ## behind a warp the player died in runs from IDLE, and no player_respawned would ever clear it.
 func _on_character_replaced(_reason: String) -> void:
 	tooltip.visible = false
+	status.set_seated("")
 	dead = env.is_character_dead(dead) if env != null else false
 	_snapshot_quests()
 	refresh_all()

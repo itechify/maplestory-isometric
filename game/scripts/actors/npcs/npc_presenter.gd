@@ -8,7 +8,7 @@ extends Node3D
 ##   - facing the player while the player talks to this NPC, then turning back;
 ##   - now and then a speech bubble with one of the NPC's canonical idle-chatter lines (NpcSpeechBubble), timed by
 ##     NpcBubbleSchedule from data/misostory/npcs/_speech_bubbles.json (MeowDB gives the lines, not the timing), only
-##     while the NPC is on the current map, on screen and not in a conversation.
+##     while the NPC is on the current map, on screen, not in a conversation and no modal window is open.
 ## The marker state comes from NpcInteraction.marker(npc_id), refreshed a few times a second (cheap: only current-map
 ## NPCs ask). Presentation constants (bob, turn rate, refresh period) are cosmetic and live here.
 
@@ -39,6 +39,9 @@ var talk_provider: Callable = Callable()
 var player_provider: Callable = Callable()
 ## () -> Camera3D (null allowed: no tags).
 var camera_provider: Callable = Callable()
+## () -> bool: true while a modal is open (a dialogue, a shop, the pause menu, the console). Empty = the
+## GameContext of the interaction system (InteractionSystem.GROUP), else never.
+var modal_provider: Callable = Callable()
 ## Height of the model's top above the NPC origin (from its meshes).
 var height: float = DEFAULT_HEIGHT_M
 
@@ -148,17 +151,18 @@ func update(delta: float) -> void:
 
 
 ## Ticks the bubble schedule; shows a new canonical line when one falls due and keeps the bubble above the head (and
-## above the quest marker when it shows). A conversation with this NPC hides it at once.
+## above the quest marker when it shows). A conversation with this NPC hides it at once, and so does any modal
+## window (a shop or another NPC's dialogue, the pause menu): a bubble never peeks over or under an open window.
 func _update_bubble(delta: float, on_screen: bool, cam: Camera3D) -> void:
 	if bubble == null or not is_instance_valid(bubble) or bubbles == null or def == null:
 		return
-	var talking := is_talking()
-	if talking:
+	var quiet := is_talking() or is_modal_open()
+	if quiet:
 		bubbles.hide_now()
-	var line := bubbles.tick(delta, on_screen and not talking)
+	var line := bubbles.tick(delta, on_screen and not quiet)
 	if line >= 0:
 		bubble.set_line(def.idle_line(line), line)
-	bubble.visible = on_screen and not talking and bubbles.is_showing() and bubble.text != ""
+	bubble.visible = on_screen and not quiet and bubbles.is_showing() and bubble.text != ""
 	if bubble.visible and cam != null:
 		var lift := height + MARKER_GAP_M
 		var head := cam.unproject_position(npc.global_position + Vector3.UP * lift)
@@ -187,6 +191,17 @@ func refresh_marker() -> void:
 func is_talking() -> bool:
 	var talk := _talk()
 	return talk != null and talk.is_open() and talk.npc_id == npc_id
+
+
+## True while a modal window is open (modal_provider, else the interaction system's GameContext).
+func is_modal_open() -> bool:
+	if modal_provider.is_valid():
+		return bool(modal_provider.call())
+	if not is_inside_tree():
+		return false
+	var sys := get_tree().get_first_node_in_group(InteractionSystem.GROUP)
+	var c: Variant = sys.get("ctx") if sys != null else null
+	return c is GameContext and (c as GameContext).is_modal_active()
 
 
 func _animate_model(delta: float, active: bool) -> void:

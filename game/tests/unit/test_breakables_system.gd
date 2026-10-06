@@ -345,3 +345,40 @@ func test_gated_drops_through_the_real_roller() -> void:
 	assert_eq(int(on.get("237", 0)) + int(off.get("237", 0)), 0, "Egg (unresolved) never drops")
 	var apples := float(int(on.get("236", 0)) + int(off.get("236", 0))) / float(2 * n)
 	assert_between(apples, 0.18, 0.32, "Apple near its 0.25 (seeded sanity check, not the source)")
+
+
+## Acceptance review: a Wooden Box looked like the decorative crates. The rim shows on an intact box the player's
+## basic attack can reach from where the player stands (on the player's tier), and the marker on every intact box
+## while a quest gating one of its drops (C1: Pio's 1012 for 441 / 442) is in progress and still short of the item.
+func test_cues_show_the_box_in_reach_and_the_quest_that_wants_its_drops() -> void:
+	var p := FakePlayer.new()
+	(Engine.get_main_loop() as SceneTree).current_scene.add_child(p)
+	sys.attach_player(p)
+	var boxes := sys.live_boxes()
+	var b0: WoodenBox = boxes[0]
+	var reach := sys.reach_m()
+	assert_true(reach > 0.3 and reach < 3.0, "the bare-handed reach to a box: %.2f m" % reach)
+	p.global_position = b0.global_position + Vector3(reach * 0.5, 0, 0)
+	sys.update_cues()
+	assert_true(b0.in_reach and b0.reach_rim.visible, "within reach: the rim shows")
+	p.global_position = b0.global_position + Vector3(0, BreakableSystem.CUE_TIER_DY_M + 0.5, 0)
+	sys.update_cues()
+	assert_false(b0.in_reach, "a box on another tier is not in reach")
+	p.global_position = b0.global_position + Vector3(100, 0, 0)
+	sys.update_cues()
+	for b: WoodenBox in boxes:
+		assert_false(b.reach_rim.visible or b.marker.visible, "far away and no quest: no cue on %s" % b.placement_key())
+	# Pio's quest in progress: every intact box is marked; a broken one is not.
+	character.quests.start("1012", now)
+	for i in hits():
+		sys.land_hit(boxes[2], "attack")
+	sys.update_cues()
+	assert_true(b0.marker.visible and boxes[1].marker.visible, "1012 in progress: the intact boxes are marked")
+	assert_false(boxes[2].marker.visible, "a broken box shows no marker")
+	# Once the bag holds what the quest asks for, the marker goes.
+	var q := QuestDef.from_records(db().quest("1012"), db().miso_entity("quests", "1012"))
+	for o: Dictionary in q.objectives_of("item_collection"):
+		character.inventory.add(String(o.id), int(o.count), db())
+	sys.update_cues()
+	assert_false(b0.marker.visible, "nothing more to collect: no marker")
+	p.free()

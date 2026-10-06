@@ -148,23 +148,7 @@ func model_for(npc_id: String) -> Node3D:
 ## direct child of a sibling UI root (the other subsystems under ctx.ui_root) that is anchored across the bottom edge.
 ## 0 standalone.
 func bottom_inset() -> float:
-	var root: Node = get_parent()
-	if root == null or not is_inside_tree():
-		return 0.0
-	var area_bottom := get_global_rect().end.y
-	var top := area_bottom
-	for sibling in root.get_children():
-		if sibling == self or not (sibling is Control) or not (sibling as Control).is_visible_in_tree():
-			continue
-		for c in sibling.get_children():
-			if c is Control and (c as Control).visible and NpcUi._is_bottom_bar(c as Control):
-				top = minf(top, (c as Control).get_global_rect().position.y)
-	return maxf(0.0, area_bottom - top)
-
-
-static func _is_bottom_bar(c: Control) -> bool:
-	return c.anchor_top >= 0.99 and c.anchor_bottom >= 0.99 and c.anchor_left <= 0.01 and c.anchor_right >= 0.99 \
-		and not c.top_level
+	return MisoUiEnv.bottom_bar_inset(self)
 
 
 func _process(_delta: float) -> void:

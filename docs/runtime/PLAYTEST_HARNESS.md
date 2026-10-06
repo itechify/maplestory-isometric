@@ -38,8 +38,8 @@ per phase. The output directory defaults to `_scratch/playtest/<scenario>-<time>
 
 | Option | Effect |
 |---|---|
-| (default) | `--headless --fixed-fps 60`: deterministic game time. Screenshots are skipped (logged, never a failure) |
-| `--windowed` | `--resolution 1600x900 --disable-vsync`, still `--fixed-fps 60`, so it gives the same results as headless, with pictures |
+| (default) | `--headless --fixed-fps 60`: deterministic game time. The runner lays the game out on the windowed 1600x900 screen (see "Headless and windowed"). Screenshots are skipped (logged, never a failure) |
+| `--windowed` | `--resolution 1600x900 --disable-vsync`, still `--fixed-fps 60`, with pictures. The GUI area and the click rules are the same as headless, but the two are not the same run: the visual chunks are loaded only windowed, and OS focus and timing can differ. A UI check is evidence for a windowed player only from a windowed run or from a headless run on the pinned screen (see "Headless and windowed") |
 | `--realtime` | with `--windowed`, drops `--fixed-fps`: game time follows the wall clock (for feel checks only; results may vary) |
 | `--seed <n>` | seeds `Game.rng` (combat rolls, drops, quest rewards) and MapSession's instance RNG. The default is 1. Since `Game.clock` stands still on the title and during the load (wave 2), three seed-1 runs of `test_skills` matched step for step; longer runs have not been shown to repeat exactly (see "Findings"), so treat a long run as one sample |
 | `--trace` | records `PlaytestDriver.trace_digest()` on every step (`trace0` when it begins, `trace` when it ends): `Game.clock`, both RNG states, map and session state, position, vitals and a hash of the live monsters. Two runs of one seed diverge at the first step whose digest differs |
@@ -183,7 +183,8 @@ Step kinds:
 | `press(action, seconds)` / `tap(action)` | holds or taps an action through its first keyboard key in the InputMap (`Controls.BINDINGS`), for example `jump` is Space and `attack` is J |
 | `press_key(key, seconds)` / `tap_key(key)` | raw keys the windows read that are not actions: Enter, Y, N, Tab, digits, Esc |
 | `type_text(text)` | types into the focused control (one key event with its unicode per character) |
-| `click(target)` | moves the mouse onto the control, presses and releases. `target` is a `Control`, a path (`"/root/..."` or `"./..."` from the main scene), or a text: the topmost visible control whose text is exactly it, else one that contains it, buttons first. Returns `{ok, control}`; for a button, ok means its `pressed` signal fired |
+| `click(target)` | moves the mouse onto the control, presses and releases. `target` is a `Control`, a path (`"/root/..."` or `"./..."` from the main scene), or a text: the topmost visible control whose text is exactly it, else one that contains it, buttons first (`find_control`, and a text search, skip a control off the screen unless it sits in a list whose centre is on the screen: `reach_reason`, since a player scrolls a long list). Only what a player can click is pressed: a row a list (ScrollContainer) clips is first scrolled into view with mouse-wheel notches (`scroll_into_view`); a control whose centre then lies outside `get_viewport().get_visible_rect()` or outside the list it sits in (`seen_reason`), or that another control covers once the pointer is on it (`covered_reason`: the GUI's hovered control is not it or inside it), is refused before any press. A refused click fails its step and adds a failed check "a player can click ..." with the control's rect and the screen, or the covering control. Returns `{ok, control, why}`; for a button, ok means its `pressed` signal fired. The step's result names the control's rect |
+| `pointer_onto(control, at)` | the same refusal rules without a click: moves the pointer onto the control and returns "" or why a player could not click it there (the kit's `double_click` and `drag` use it; `drag` reads both ends' positions after any scrolling and looks at the drop target again once the source is scrolled into view). `last_click_why` holds the reason of the last refused click |
 
 ### World
 
@@ -209,7 +210,7 @@ Step kinds:
 
 | Call | Does | Returns |
 |---|---|---|
-| `talk_to(npc_id)` | walks to approach points around the NPC until the prompt offers "[F] Talk to ...", then presses F. The points lie on rings 0.75 to 2.5 m out (the front first) where the body can stand within 0.7 m of the NPC's talk zone (`talk_gap`). When a walk ends short of the zone (a counter in between), the player leans in: up to 1.5 s of walking straight at the NPC, as a player presses into a counter. At most 4 points are walked and 12 planned. A point with no path from where the player stands (no route, no grid path, on another tier) is skipped, and so is every later point at its ground height (the same perch, terrace or pocket) | `read_dialogue()` plus `reached_over_props` and `leaned`; on failure `{open: false, talk_gap, why}`, where `talk_gap` is the closest the body came to the talk zone (m) |
+| `talk_to(npc_id)` | walks to approach points around the NPC until the prompt offers "[F] Talk to ...", then presses F. The points lie on rings 1.0 to 2.5 m out (the front first) where the body can stand within 0.7 m of the NPC's talk zone (`talk_gap`). When a walk ends short of the zone (a counter in between), the player leans in: up to 1.5 s of walking straight at the NPC, as a player presses into a counter. NPCs are not solid, so neither a walk nor the lean brings the feet closer than `talk_min_gap()` to the NPC's (the player's body radius, `NPC_BODY_RADIUS_M` 0.35 and 0.15 m of air: 0.8 m; the acceptance review saw the player's body inside Rain's). At most 4 points are walked and 12 planned. A point with no path from where the player stands (no route, no grid path, on another tier) is skipped, and so is every later point at its ground height (the same perch, terrace or pocket) | `read_dialogue()` plus `reached_over_props`, `leaned` and `npc_distance_m`; on failure `{open: false, talk_gap, why}`, where `talk_gap` is the closest the body came to the talk zone (m) |
 | `talk_gap(npc, feet)` | the game's talk rule (`WorldNpc.in_range`) as a distance: how far the body standing at `feet` is from the NPC's talk zone, `<= 0` inside it. The zone is the NPC's talk Area3D, a sphere of `interaction_radius_m` (1.6 m) centred 0.8 m above the NPC's feet, and it must overlap the body capsule (0.3 m radius, 0.45 to 1.5 m above the feet). Feet within 1.6 m of the NPC's feet also count, as the fallback | m |
 | `read_dialogue()` | the conversation on screen | `{open, type, npc_id, text, buttons, choices, selected, banner, view}` |
 | `choose(choice)` | answers with the window's keys. A menu choice (its position, or text it contains) uses digit 1-9, else Up/Down + Enter. On a Yes/No, `"yes"` / `"no"` use Y / N. The buttons: `"next"` / `"ok"` (Enter), `"back"` (Backspace), `"end"` (the End Chat button) | `read_dialogue()` after |
@@ -244,9 +245,33 @@ The player keeps its `KeyboardInput`; the harness never swaps the input source. 
   `PlaytestInput.screen_move_for` inverts `world_move` (`right * x + forward * y`) with the player's `view_right` and
   `view_forward`. Probe, 2026-10-04: a world direction comes out at exactly `walk_speed` (3.000 m/s).
 - **The mouse** sends `InputEventMouseMotion` and `InputEventMouseButton` at `viewport.get_final_transform() *` the
-  control's centre (`get_global_transform_with_canvas`). Headless runs dispatch GUI clicks too.
+  control's centre (`get_global_transform_with_canvas`). Headless runs dispatch GUI clicks too, at any coordinate:
+  a press at y 948 of a 900 px screen still reaches a button there. So every click, double-click and drag first checks
+  that a player could make it (on the screen, not covered; see `click`) and fails with the reason when not.
+- **Mouse wheel**: `PlaytestInput.wheel(at, down)` sends one notch (a press and a release of the wheel button);
+  `scroll_into_view` uses it on a list that clips the control a click wants.
 - **Timing.** An action press is reported to the physics tick that starts after the event. A tap is down, one physics
   tick, up. `wait()` and the walker count physics frames, not wall time.
+
+## Headless and windowed
+
+The headless display server reports a 64 x 64 window, which the project's `canvas_items` / `expand` stretch turned
+into a 1600 x 1600 GUI area and a square camera view. A window that grew off the bottom of a windowed 1600 x 900
+screen therefore still fitted headless, and the harness, which then did not check the screen, clicked its button: the
+acceptance review's windowed runs failed `test_skills` (22 checks), `test_box` (1), `kit` (2) and the clean-character
+playthrough (8) on the Skills window's Set key at y 948, while all 50 headless evidence reports had passed. Two
+changes make the modes agree on what a player can click:
+
+- `pin_headless_screen` (`playtest_runner.gd`): headless, the root window's content scale is the project's 1600 x 900 with
+  the aspect "ignore", so the GUI area and the camera's 16:9 view are the windowed ones. Every run prints `PLAYTEST
+  VIEWPORT visible rect ...` at boot.
+- The click rules of `click`, `pointer_onto`, the kit's `double_click` and `drag` (above): a control off the visible
+  rect or covered by another control is refused, with a failed check, in both modes.
+
+With the code before the Skills window fix, a headless `test_skills` on the pinned screen fails exactly as the review's
+windowed run did ("Button 'Set key' (338, 948 342x30) lies outside the visible screen (0, 0 1600x900)"); after it, it
+passes in both modes. What still differs: windowed runs load the visual chunks (headless, collision only), so a
+check about what is drawn (a canopy hiding a box, a colour) needs `--windowed` and a look at its screenshots.
 
 ## Walking
 
@@ -373,7 +398,7 @@ and reads the live game; nothing writes game state, so every kit call is legal i
 | NPCs | `approach(npc)` (to 3.5 m, so the marker is on screen), `talk(npc)` (talk_to; a death on the way is a WARN and a retry; an NPC that cannot be planned to from where the player stands is tried again from the map's arrival; the result carries `pre`, the reward baseline taken right before the chat opened), `marker(npc)` (the presenter's state and the engine's), `quest_window(qid, tab)`, `row_has`, `rows_text` |
 | conversations | `converse(goals, opts)`: goals `quest id -> "accept" \| "decline" \| "complete" \| "quiz_wrong[:rank]"`. A menu picks the entry of a goal not met yet (else End Chat), a Yes/No answers Y only for an "accept" of a quest not started, lines are paged with Enter, and a quiz menu (node `q<id>.quiz`) is answered with the canonical correct choice or the requested wrong one. Returns the pages, the banners and the quiz answers with the line shown after each |
 | quizzes | `PlaytestKit.quiz_answer(db, qid)` (static): the correct choice by the canonical `correct_choice_index` (1018's is inferred and says so in `basis`), the question, the choices, and each wrong choice with the wrong-answer line MeowDB lists for it (in choice order, as the game pairs them) |
-| items | `use_item(id, via)` (`double_click`, `button` or `quickslot`), `drink(id)` (the canonical restore it should give, as `want_hp`), `equip(id)`, `bind_quickslot(id, key)` (a mouse drag onto the HUD slot), `double_click(control)`, `drag(a, b)`, `hp_restore(id)` |
+| items | `use_item(id, via)` (`double_click`, `button` or `quickslot`), `drink(id)` (the canonical restore it should give, as `want_hp`), `equip(id)`, `bind_quickslot(id, key)` (a mouse drag onto the HUD slot), `double_click(control)`, `drag(a, b)` (both refuse, with `why` and a failed check, a control a player cannot point at: `PlaytestDriver.pointer_onto`; `test_d_inventory` and `regen` use the same rule), `hp_restore(id)` |
 | AP | `stats_window()`, `click_plus(stat)`, `allocate_ap(["str", "dex"])` (the stats window's "+" with the mouse) |
 | shops | `open_shop(npc)` (talk, page the greeting), `buy(id, qty)`, `sell(id, qty)`, `close_shop()` |
 | loot | `pickup(radius, max_s)`: like `pickup_all_nearby`, but RouteBot stops about 0.75 m short of a drop, outside the canonical pickup box (25 px = 0.625 m), so the kit then steps straight onto the landing point at half speed until the drop is inside the box (`step_onto`) and presses Z. A logged `kit.pickup` step whose result names the map-local spot it started and ended at (a walk onto a drop below a ledge can end in a pocket) |
@@ -561,7 +586,10 @@ the Definition of Done "Gameplay"). Results: [PLAYTHROUGH_REPORT.md](PLAYTHROUGH
   `equipped`, `chair`, `departure`, `quest_evidence`, `findings` and `totals`. The end of the run checks every
   Definition of Done "Gameplay" item from them (every quest, map, NPC and monster type, monster drops and meso bags,
   natural levelling, every AP spent, the skills, the three shops bought from and sold to, consumables, gear, the
-  chair, the death, the departure, the restarts).
+  chair, the death, the departure, the restarts). A skill counts only when it went off: `skills_cast` records the
+  real casts (a try that never threw or was refused records 0), and the end check needs at least one cast, and for
+  Recovery and Nimble Feet their effect started or their MP spent (the acceptance review saw "learned and cast" pass
+  with 0 casts). A first Three Snails throw that found no target is tried again after Mai's training.
 - **Findings:** a step that cannot be completed stops the run with a failed check and a row in `d.carry["findings"]`
   (the step, map, map-local position, level, what happened and what was expected).
 
@@ -622,6 +650,13 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2 | UI |
 
 ## Findings (2026-10-05)
+
+- **Acceptance review: headless passed what a windowed player could not do.** See "Headless and windowed": the
+  Skills window's Set key was off the bottom of the windowed screen and the harness clicked it anyway headless (a
+  1600 x 1600 GUI area, no screen check). Fixed in the harness (the pinned screen, the click rules) and in the game
+  (every window stays above the HUD's status bar; the Skills window keeps one size: UI.md). The same review saw the
+  playthrough's skill summary pass with 0 casts and the player's body inside Rain's while they talked; both fixed
+  (above and `talk_to`).
 
 - **Iteration Three playthrough package (the harness defects its runs found, all fixed):** the survival guard spun
   on a monster it could not reach (seed 2 of 1006: 24 interrupts in 2 s; `shun()`); `break_box` walked up to a box

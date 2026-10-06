@@ -47,6 +47,16 @@
       "text": "Accept this quest?",
       "reason": "Generic MisoStory system framing, not NPC speech. A quest whose MeowDB record has no \"On accept\" dialogue (Maple Island: only 1002 Roger's Apple) is offered as a quest card (speaker \"journal\": the quest title, the canonical journal summary, the NPC's portrait). The summary is a description (\"Talk to Roger.\"), not a question, so the card adds this line under it as the Yes/No prompt. It names no NPC, item or quest, so it never invents dialogue.",
       "verified": false
+    },
+    "misostory_hint_controls": {
+      "text": "[MisoStory] Here you talk to someone by walking up to them and pressing F; a mouse click attacks. W, A, S and D walk, and Space or Alt jumps.",
+      "reason": "Heena's canonical tutorial lines (quest 1000 On accept, lines 0 and 1) teach classic MapleStory's controls: click a person to talk, the left and right arrows to move. Under MisoStory's controls (game/scripts/autoload/controls.gd BINDINGS: interact F, attack J / Ctrl / left mouse, move W A S D, jump Space / Alt; the arrows enter portals and climb) a click swings the weapon and the arrows do not walk. The canonical lines stay as they are; this system page follows them (misostory/dialogue/1.json), marked [MisoStory] so it is never read as Heena's speech. Its key names must follow controls.gd.",
+      "verified": false
+    },
+    "misostory_hint_chairs": {
+      "text": "[MisoStory] Press X to sit on a chair you own, such as The Green Relaxer from Pio. Maple Island has no benches or map seats to sit on.",
+      "reason": "Rain's canonical quiz 4 lines (quest 1016: the wrong-answer line for 'Sit on a chair' and the right-answer tip) tell the player to press the sit key near a chair or bench around the map. MisoStory has no map seats (recovery.json sitting: no ground sit, no benches, a source gap) and the sit key (X, controls.gd) sits on the first chair the character owns (contract C5); The Green Relaxer is Pio's reward (quest 1012). The canonical lines stay as they are; this system page follows each of them (misostory/dialogue/19.json), marked [MisoStory].",
+      "verified": false
     }
   }
 }
