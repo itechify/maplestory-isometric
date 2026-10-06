@@ -39,7 +39,10 @@ The row's name carries no success rate, so until its item page is read it is a `
    rendered page text, verbatim, starting 'ITEM · 2040705'>"}`. Do not edit the text: the loader reads the name,
    category, description, the `ITEM STATS` label/value lines, `MONSTER DROPS` and `REACTOR DROPS (N)` from it, and
    the success rate (an `ITEM STATS` row whose label names `SUCCESS`, else "Success rate: N%" in the description) and
-   the `+N` stat bonuses (`ITEM STATS` rows valued `+N`, else the description).
+   the `+N` stat bonuses (`ITEM STATS` rows valued `+N`, else the description). The page's item name must be the
+   monster page row's name exactly ("Scroll for Shoes for Jump"): both come from one site's item data, so a different
+   name means the page changed since the monster page was read, and the merge stops with an error rather than judge
+   it (read the monster page again too). The validator then also checks that the capture the record cites exists.
 3. `node tools/meowdb/extract_monsters.mjs` (twice: byte-identical). The merge (`tools/sources/drops_merge.mjs`
    `judgeKuroCandidate`, crosswalk rule `confirm_with: meowdb_scroll`) then decides from the page alone: the same success
    rate and exactly the same stat bonuses as MeowDB 177 make the row the member's chance (`alias_with_evidence`, the page

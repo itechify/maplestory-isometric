@@ -86,6 +86,43 @@ func test_a_pending_member_must_stay_unresolved() -> void:
 	expect_new(run_validator(c4), "error", "drop_record", "drops", p4.id, "pending_kuro_candidates must be a list")
 
 
+## What tools/sources/drops_merge.mjs writes once the item page confirms the row (its synthetic-page node test shows the
+## same shape): the row leaves the pending bucket and becomes the member's chance source, match_method
+## alias_with_evidence, the page cited in match_evidence. The validators accept that record; the only thing they ask is
+## that the cited item page capture exists (here it does not: nobody has read KuroDB item 2040705).
+func test_a_confirmed_candidate_is_valid_data_that_cites_its_item_page() -> void:
+	var c := clone_db()
+	var p := _with_pending(c)
+	var e := _member(p.rec, p.row.member)
+	var template: Dictionary = ValidationUtil.as_array(p.rec.entries).filter(
+		func(x: Dictionary) -> bool: return x.chance_source is Dictionary and str(x.chance_source.get("format", "")) == "percent_base")[0]
+	var parsed := DropChance.parse_by_format("percent_base", p.row.raw_value)
+	assert_true(bool(parsed.ok), "the pending row's raw value reads: %s" % parsed)
+	var cs: Dictionary = (template.chance_source as Dictionary).duplicate(true)
+	cs["kuro_item_id"] = p.row.kuro_item_id
+	cs["kuro_name"] = p.row.name
+	cs["match_method"] = "alias_with_evidence"
+	cs["raw_value"] = p.row.raw_value
+	cs["normalized_probability"] = parsed.probability
+	cs["conversion"] = parsed.conversion
+	cs["kuro_quest_condition"] = null
+	var capture := "tools/kurodb/captures/item_%s.json" % p.row.kuro_item_id
+	cs["match_evidence"] = {"capture": capture, "url": "https://playkuro.com/database/#items/%s" % p.row.kuro_item_id,
+		"read_at": "2026-10-06T00:00:00Z", "shows": "Success rate: 10% (description), bonuses {\"jump\":3} (description)", "decision": "D3-8"}
+	e["chance_source"] = cs
+	e["chance_state"] = "resolved"
+	e["probability"] = parsed.probability
+	e["quantity"] = {"min": 1, "max": 1, "source": "KuroDB 'Qty 1'"}
+	p.rec["pending_kuro_candidates"] = []
+	reindex(c)
+	var r := run_validator(c)
+	var fresh := new_findings(r).filter(func(f: Dictionary) -> bool: return f.severity == "error")
+	assert_eq(fresh.size(), 1, "one new error, the missing capture: %s" % [fresh])
+	if fresh.size() == 1:
+		assert_eq([fresh[0].check, fresh[0].domain, fresh[0].id], ["provenance", "drops", p.id])
+		assert_true(String(fresh[0].message).contains("names %s, which does not exist" % capture), fresh[0].message)
+
+
 func test_a_pending_row_is_not_also_kuro_only_or_a_chance_source() -> void:
 	var c := clone_db()
 	var p := _with_pending(c)
