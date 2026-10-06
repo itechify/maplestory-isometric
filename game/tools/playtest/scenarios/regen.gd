@@ -6,8 +6,9 @@ extends PlaytestScenario
 ## still reach exactly one tick (the brief's example). Holding jump (hopping) and holding attack pause the clock, and
 ## it resumes to the next tick. Sitting: X with no chair says so; The Green Relaxer (522) is granted with the console
 ## (setup, counted) and double-clicked in the Set-up tab; 10 s seated give the natural tick plus the chair's own +30; a
-## move key stands up; X sits on the first chair owned; a warp stands the player up. Finally time is banked on the
-## clock, the player sits down, and Quit Game saves.
+## move key stands up; X sits on the first chair owned; a warp stands the player up, and so does Up at a real portal
+## while seated (Mushroom Town's first press-Up portal, which it then uses). Finally time is banked on the clock, the
+## player sits down, and Quit Game saves.
 ## Phase 1: Continue. The player arrives standing (the seat is not saved), the chair is still owned, and the banked
 ## clock is restored and completes the next tick. Last, on 000000001's ladder near its top at 40% HP (an api setup
 ## step: no console command lowers HP or grabs a ladder): climbing pauses the clock, and PlaytestKit.rest() climbs off
@@ -138,6 +139,7 @@ func _play(d: PlaytestDriver) -> void:
 	d.check("a warp stands the player up first (map-transition safety)", d.current_map() == WARP_MAP
 		and not p.is_seated() and stood.has("warp"), "map %s, seated %s, stood: %s" % [d.current_map(), p.is_seated(),
 		str(stood)])
+	await _seated_portal(d, p)
 
 	# --- Bank time on the clock, sit down, Quit Game (the shell saves). -------------------------------------------
 	_set_hp(d, 10)
@@ -182,6 +184,41 @@ func _after_reload(d: PlaytestDriver) -> void:
 	d.check("the chair still works after the reload (X)", p.is_seated() and p.seated_chair_id() == CHAIR,
 		"seated %s" % p.is_seated())
 	await _ladder(d)
+
+
+## Up at a real portal while seated (contract C5): the press is the portal's, so its transition starts and stands the
+## player up (`warp`) and the player arrives at the destination. Real input only: a walk into the trigger of the
+## current map's first press-Up portal, X, then Up.
+func _seated_portal(d: PlaytestDriver, p: PlayerController) -> void:
+	var w := d.world()
+	var src: PortalDef = null
+	for q: PortalDef in w.defs.get_def(d.current_map()).canonical_portals():
+		if src == null and q.accepts_press() and not q.hidden:
+			src = q
+	if not d.check("a press-Up portal in %s" % d.current_map(), src != null, ""):
+		return
+	var node := w.portal_node(src.source_map_id, src.portal_id)
+	await d.walk_to(src.anchor_ground, {"within_m": 0.5, "max_s": 60.0})
+	var inside: bool = await d.walker.nudge_until(src.anchor_ground, func() -> bool: return w.portal_under_player() == node)
+	if not d.check("standing in %s's trigger" % src.key(), inside, "at %s" % str(p.global_position)):
+		return
+	await d.wait(0.5)
+	await d.tap(&"sit")
+	await d.frames(2)
+	if not d.check("X sits down inside %s's trigger" % src.key(), p.is_seated(), "activity %s" % p.activity()):
+		return
+	var heard := stood.size()
+	var from := d.current_map()
+	await d.tap(&"portal_enter")
+	var started := await d.wait_until(func() -> bool: return not bool(d.session().call("is_idle")) or d.current_map() != from, 0.5)
+	var arrived := false
+	if started:
+		arrived = await d.wait_idle()
+	var reasons := stood.slice(heard)
+	d.check("Up at %s while seated: the player stands up (warp) and uses the portal to %s" % [src.key(), src.destination_map_id],
+		arrived and d.current_map() == src.destination_map_id and not p.is_seated() and reasons == PackedStringArray(["warp"]),
+		"started %s, map %s, seated %s, stood: %s, last block '%s'" % [started, d.current_map(), p.is_seated(), str(reasons),
+		w.interactor.last_block])
 
 
 ## On a ladder: climbing is not resting time (contract C4: only still and seated count), and PlaytestKit.rest() gets

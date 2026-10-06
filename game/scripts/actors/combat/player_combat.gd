@@ -213,6 +213,10 @@ func can_attack() -> bool:
 
 ## Performs one basic attack now (no input checks; step() calls it when allowed). Returns the monster hit or null.
 func attack() -> Node:
+	# A seated player stands up before the swing (C5: PlayerController.stand_up with the reason "attack", as a cast does
+	# with "skill"), so on the swing's first tick the player is attacking, not seated.
+	if player.has_method("is_seated") and bool(player.call("is_seated")):
+		player.call("stand_up", &"attack")
 	var d := _db()
 	var c := _character()
 	var stats := PlayerCombatStats.from_character(c, d)

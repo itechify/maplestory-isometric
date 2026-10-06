@@ -1,8 +1,8 @@
 extends TestCase
 ## Natural HP recovery and sitting in the real game: the "regen" playtest scenario (recovery.json natural_hp: 6 s still
 ## + 5 s walking + 4 s still reach one tick, jumping and attacking pause the clock, The Green Relaxer sits the player
-## down and adds its own +30 per 10 s, move keys and warps stand up, the clock survives Quit Game + Continue and the
-## seat does not) runs headless through PlaytestProcess and must PASS. Needs the Blender export (INCLUDE_WORLD=1);
+## down and adds its own +30 per 10 s, move keys and warps stand up, Up at a real portal while seated stands up and
+## uses the portal, the clock survives Quit Game + Continue and the seat does not) runs headless through PlaytestProcess and must PASS. Needs the Blender export (INCLUDE_WORLD=1);
 ## prints a SKIP line without it.
 
 

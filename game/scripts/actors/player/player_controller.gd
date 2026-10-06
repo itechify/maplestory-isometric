@@ -34,9 +34,10 @@ extends CharacterBody3D
 ##
 ## Sitting (contract C5): seated is a flag on GROUND, not a state of its own. The player sits only when grounded,
 ## still, alive and with input enabled (no modal window); while seated it cannot walk, jump or climb. A move or jump
-## press stands it up (that press does not also move or jump), and so do an attack or skill (PlayerCombat attacking),
+## press stands it up (that press does not also move or jump), and so do an attack or skill (before it starts),
 ## the sit key, knockback, death, teleport (warps, respawns, loads), a MapSession transition starting, the character
-## being replaced, losing the chair item, and leaving the ground. The seated state is never saved.
+## being replaced, losing the chair item, and leaving the ground (for two ticks: one is a flicker of the ground state).
+## The seated state is never saved.
 
 signal jumped
 ## Emitted on touching walkable ground after being airborne; fall_speed is the downward speed at impact (m/s).
@@ -73,6 +74,10 @@ const WEDGE_SUPPORT_PROBE := 0.03
 const RAY_HEADROOM := 0.05
 ## Radius of the sphere used only to sync CharacterBody3D.is_on_floor().
 const FLOOR_SENSOR_RADIUS := 0.02
+## Consecutive ticks off the ground after which a seated player stands up (&"fall"). One tick off the ground is a
+## flicker of the ground state (a ray that misses the floor for a tick), not a fall: an engineering debounce, not a
+## gameplay value. A real fall stands the player up on its second tick.
+const SEAT_FALL_TICKS := 2
 
 ## Movement numbers. Built from Data.db in _ready() when not injected before entering the tree.
 var model: MovementModel = null
@@ -132,6 +137,8 @@ var _anchor_y: float = 0.0
 ## Horizontal offset of the camera's follow point from the feet after a ladder-top exit (follow_anchor()); shrinks to
 ## zero at walking speed.
 var _follow_glide: Vector3 = Vector3.ZERO
+## Consecutive ticks a seated player has been off the ground (SEAT_FALL_TICKS).
+var _seat_air_ticks: int = 0
 var _fell_reported: bool = false
 var _settle_pending: bool = false
 var _floor_collider_id: int = 0
@@ -206,9 +213,14 @@ func step(delta: float) -> void:
 		_step_climb(delta, intent)
 	else:
 		_step_move(delta, intent)
-	# Seated is a flag on GROUND: a seat never leaves the ground (the floor gone under it, a push off a ledge).
+	# Seated is a flag on GROUND: a seat never leaves the ground (the floor gone under it, a push off a ledge). A seated
+	# player is still, so one tick off the ground is a flicker of the ground state; the second tick is a fall.
 	if is_seated() and state != State.GROUND:
-		stand_up(&"fall")
+		_seat_air_ticks += 1
+		if _seat_air_ticks >= SEAT_FALL_TICKS:
+			stand_up(&"fall")
+	else:
+		_seat_air_ticks = 0
 	_post_step(delta, start_pos)
 
 
@@ -230,13 +242,12 @@ func is_input_enabled() -> bool:
 
 
 ## What the player is doing now (contract C4), one of:
-##   &"dead"; &"seated" (&"attacking" on the tick an attack starts from the chair); &"hitstun" (a knockback in
-##   flight); &"climbing"; &"attacking" (PlayerCombat.is_attacking(): a basic attack's or a skill cast's lockout);
-##   &"jumping" (any airborne state: a jump, a fall; also the landing
-##   ticks between the hops of a held jump); &"walking" (movement input, or still moving faster than STILL_SPEED, also
-##   input pushing into a wall); &"still" (grounded, no movement input, horizontal speed about zero; input disabled by
-##   a dialogue counts as no input); &"other" (no movement model, not in the tree, or not processing: frozen for a
-##   warp, the game paused).
+##   &"dead"; &"seated" (exactly while is_seated(): an attack or cast from the chair stands up first); &"hitstun" (a
+##   knockback in flight); &"climbing"; &"attacking" (PlayerCombat.is_attacking(): a basic attack's or a skill cast's
+##   lockout); &"jumping" (any airborne state: a jump, a fall; also the landing ticks between the hops of a held jump);
+##   &"walking" (movement input, or still moving faster than STILL_SPEED, also input pushing into a wall); &"still"
+##   (grounded, no movement input, horizontal speed about zero; input disabled by a dialogue counts as no input);
+##   &"other" (no movement model, not in the tree, or not processing: frozen for a warp, the game paused).
 ## Natural HP recovery runs only while &"still" or &"seated" (data/misostory/recovery.json natural_hp).
 func activity() -> StringName:
 	if model == null or not is_inside_tree() or not can_process():
@@ -244,9 +255,9 @@ func activity() -> StringName:
 	if _dead:
 		return &"dead"
 	if is_seated():
-		# An attack or a skill cast started from the chair (PlayerCombat runs after this body) stands the player up on the
-		# next tick (_step_seated); the swing itself is never resting time.
-		return &"attacking" if _combat_attacking() else &"seated"
+		# Always is_seated()'s answer: an attack or a skill cast from the chair stands the player up before it starts
+		# (PlayerCombat.attack, PlayerSkills.cast), so its first tick reads "attacking" with is_seated() false.
+		return &"seated"
 	if in_hitstun:
 		return &"hitstun"
 	if state == State.CLIMB:
@@ -544,7 +555,8 @@ func _read_intent() -> Intent:
 
 ## One seated tick: what stands the player up. A move, jump or sit press does nothing else this tick. An attack is
 ## PlayerCombat's (it runs after this body and filters the mouse: a click on a window, such as the double-click on the
-## chair, is never an attack): once it attacks, or a skill casts, PlayerCombat is attacking and the player stands up.
+## chair, is never an attack): PlayerCombat.attack and PlayerSkills.cast stand the player up before they start. Any
+## other attack lockout found here (a system that does not) stands the player up on this tick.
 func _step_seated(intent: Intent) -> void:
 	if intent.sit:
 		stand_up(&"sit_key")

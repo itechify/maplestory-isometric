@@ -137,7 +137,7 @@ this order:
 |---|---|
 | `&"other"` | no movement model, not in the tree, or not processing (frozen for a warp, the tree paused) |
 | `&"dead"` | after `die()` until `revive()` |
-| `&"seated"` | sitting on a chair (below). On the one tick an attack or cast starts from the chair (before the player stands up), `&"attacking"` |
+| `&"seated"` | sitting on a chair (below), exactly while `is_seated()`. An attack or a cast from the chair stands the player up before it starts, so its first tick reads `&"attacking"` with `is_seated()` false |
 | `&"hitstun"` | a knockback in flight |
 | `&"climbing"` | on a ladder, rope or vine |
 | `&"attacking"` | `PlayerCombat.is_attacking()`: a basic attack's lockout, or a skill cast's (the skills package makes it true while casting). A planted ground attack has speed 0 but is not standing still |
@@ -172,12 +172,14 @@ SafeGround and the floor sync are unchanged.
 - **Standing up** (`stood_up(reason)`, also `Events.player_stood_up`): a move press (`move`) or a jump press (`jump`):
   that press does nothing else on that tick, and a held key walks from the next tick on (a held jump needs a new
   press); X again (`sit_key`); using the chair again (`chair`); PlayerCombat attacking (`attack`: the attack key
-  swings and stands the player up; PlayerCombat filters the mouse, so a click on a window never counts; a skill cast
-  stands up the same way); `apply_knockback` (`knockback`); `die` (`death`); `grab_climbable` (`climb`); `teleport`
-  (`teleport`: warps, respawns, loads, fall recovery); `MapSession.transition_started` (`warp`, before the fade);
-  `Game.character_replaced` (`character`); `Events.item_lost` when the last copy of the chair leaves the bag
-  (`chair_lost`); and leaving the ground, e.g. the floor gone from under the chair (`fall`). Opening a dialogue or a
-  window does not stand the player up.
+  swings and `PlayerCombat.attack` stands the player up before the swing; PlayerCombat filters the mouse, so a click
+  on a window never counts; a skill cast stands up the same way before the cast, reason `skill`); `apply_knockback`
+  (`knockback`); `die` (`death`); `grab_climbable` (`climb`); `teleport` (`teleport`: warps, respawns, loads, fall
+  recovery); `MapSession.transition_started` (`warp`, before the fade; pressing Up at a portal while seated warps the
+  same way); `Game.character_replaced` (`character`); `Events.item_lost` when the last copy of the chair leaves the bag
+  (`chair_lost`); and leaving the ground, e.g. the floor gone from under the chair (`fall`), on the second tick off
+  it: a seated player is still, so one tick off the ground is a flicker of the ground state (`SEAT_FALL_TICKS`), not a
+  fall. Opening a dialogue or a window does not stand the player up.
 - **Not saved.** The seated state is never written to the save (contract C3): a loaded game arrives standing, and the
   chair itself stays in the Set-up tab.
 - **Pose.** `PlayerVisual` settles the body 0.2 m and leans it back 8° over 0.12 s onto a small procedural chair
@@ -369,7 +371,7 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_climb.gd` | sidecar parsing; a ladder end to end (Up grab, canonical climb time, exit to top_exit, Down grab from the top, climb down); interact and W/S; grab range; jump off sideways; descend-only; ropes without foot ground; mid-air catch; no re-grab after a jump-off with Up held (and Up held climbs, as on the keyboard); `grabbable_climbable()`/`grab_climbable()` and the exact top_exit |
 | `test_player_hit.gd` | knockback rise and airtime per MeowDB's model, push, hit-stun gating input, direction conventions, invulnerability timer and source, knocked off ladders, death and revive, teleport reset, SafeGround rules and both filter forms, kill_y |
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
-| `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat; its first tick is "attacking", not seated) and a cast stand up; knockback, death, teleport, a climb and leaving the ground stand up; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
+| `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat) and a real cast (PlayerSkills) stand up before they start, so on their first tick the activity is "attacking" and `is_seated()` is false (activity and the seated query agree); knockback, death, teleport, a climb and leaving the ground (on its second tick) stand up, while a one-tick flicker of the ground state leaves a still, seated player seated; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
 | `test_chairs_use.gd` | chairs are the Setup items with setup data (522, 525); the canonical bonus; the first chair in slot order; refusals (unknown, not a chair, not owned, level, dead, walking); use sits and stands without consuming or emitting item events; moving to another chair; a fixture ItemService never moves the live player; a quickslot-bound chair sits the live player; the inventory window's double-click and Sit / Stand button |
 | `test_player_route_bot.gd` | the bot on real exported collision (INCLUDE_WORLD=1); route geometry helpers; on synthetic collision (no world needed): jumps a 0.8 m rise, climbs a ladder up and down, reports a stall at a wall |
 | `test_player_scene.gd` | the authored `player.tscn` (player layer and mask, capsule over the step band, full-height Hurtbox, walks at the canonical speed) and every method/property the world runtime, MapSession, combat and the camera call; `camera_rig.tscn` (orthographic, KEEP_HEIGHT, camera.json near plane, MapSession duck type); bounds set before the first snap keep their size; a freed target does not crash the rig |
