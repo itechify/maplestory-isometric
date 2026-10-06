@@ -103,9 +103,14 @@ test('older drop records are partial; schema 3 unresolved members are source-dat
   assert.equal(buckler.source_data_gap, true);
   assert.equal(buckler.state, 'partial', 'evidence cannot verify an unresolved member');
   assert.deepEqual(buckler.source_gaps, ['item not_in_snapshot: never drops', 'no Henesys.gg rarity for this member: never drops']);
-  // The row says what is sourced and checked (membership, rarity) and that the chance is the owner's adaptation.
+  // The row says what is sourced and checked (membership, rarity) and that the chance is the owner's adaptation; a
+  // verified row says plainly that its membership and rarity are what its checks verified, an unverified one does not.
   const shell = find(doc, 'drop:2/snail-shell');
-  assert.deepEqual(shell.notes.slice(0, 2), ['membership: MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt)', 'rarity: Henesys.gg Common (item_rarity.json)']);
+  assert.deepEqual(shell.notes.slice(0, 2), ['membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt)',
+    'rarity: Common, verified against Henesys.gg (item_rarity.json)']);
+  assert.deepEqual(find(build(), 'drop:2/snail-shell').notes.slice(0, 2), ['membership: MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt)',
+    'rarity: Henesys.gg Common (item_rarity.json)'], 'no evidence: implemented, nothing claimed verified');
+  assert.equal(find(build(), 'drop:2/snail-shell').state, 'implemented');
   assert.equal(shell.notes[2], 'chance: no cell = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap',
     'without the owner table the row says so instead of inventing a value');
   assert.equal(shell.source_data_gap, false, 'an adaptation is not a source-data gap');

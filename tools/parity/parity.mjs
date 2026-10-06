@@ -386,11 +386,20 @@ function dropSources(e, miso) {
   };
 }
 
-function dropSourceNotes(s) {
+/**
+ * The notes on a drop entry's sources. With `verified` (the row is verified, finish()) they say plainly which facts its
+ * checks verified: the membership against its owner's MeowDB capture and the rarity against the Henesys.gg capture.
+ */
+function dropSourceNotes(s, verified = false) {
   const out = [];
   const m = s.membership;
-  if (m.authority) out.push(`membership: ${m.authority} "${m.list ?? '?'}"${m.capture ? ` (${fileOf(m.capture)})` : ''}`);
-  if (s.rarity) out.push(`rarity: ${s.rarity.authority ?? '?'} ${s.rarity.label}${s.rarity.capture ? ` (${fileOf(s.rarity.capture)})` : ''}`);
+  const r = s.rarity;
+  const capture = (c) => (c ? ` (${fileOf(c)})` : '');
+  if (m.authority) out.push(`membership: ${verified ? 'verified against ' : ''}${m.authority} "${m.list ?? '?'}"${capture(m.capture)}`);
+  if (r) {
+    out.push(verified ? `rarity: ${r.label}, verified against ${r.authority ?? '?'}${capture(r.capture)}`
+      : `rarity: ${r.authority ?? '?'} ${r.label}${capture(r.capture)}`);
+  }
   if (s.chance) {
     out.push(`chance: ${s.chance.value == null ? 'no cell' : pct(s.chance.value)} = drop_rates.json ${s.chance.category} x ${s.chance.rarity}, ` +
       'an owner-approved adaptation (D3-11, verified: false), not a source-data gap');
@@ -751,6 +760,12 @@ function finish(e, ctx, all) {
     e.state = 'implemented';
     if (needsClean) e.notes.push('needs a passing check tagged with this key in a clean-character playthrough report that is a clean run (passing, strict, no console or api step, the departure boundary reached, not stopped early)');
     else if (passed.length && needsRealGame) e.notes.push('unit-tested only: needs a real-game (playtest) check');
+  }
+  if (e.state === 'verified' && e.drop_sources) {
+    // RULE_TEXT.verified: a verified drop row's checks verified its membership and its rarity; the row says so.
+    const plain = dropSourceNotes(e.drop_sources);
+    const checked = dropSourceNotes(e.drop_sources, true);
+    e.notes = e.notes.map((n) => (plain.includes(n) ? checked[plain.indexOf(n)] : n));
   }
 }
 
