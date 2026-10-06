@@ -24,37 +24,30 @@ items were left on purpose or found along the way.
   crouch stance, and the maps have no pass-through floors to drop through. A player reaches a lower floor by walking
   off its edge or by a rope or ladder, and no input reaches the crouched attack.
 - Ask MeowDB for permission before extracting more pages or publishing the dataset
-  ([canonical/README.md](canonical/README.md)). KuroDB and Hidden Street were read by hand only, after the project
-  owner passed their Cloudflare checks; the same caution applies to them.
+  ([canonical/README.md](canonical/README.md)).
+- **Ask Henesys.gg before publishing its rarity labels.** Its site says "Unauthorized reproduction or scraping of this
+  content is prohibited"; the 64 labels in `tools/henesys/captures/item_rarity.json` were read by hand for this private
+  project only (decision D3-11). A public repository, a release or a screenshot of the data needs its permission
+  first, and the labels must never be collected automatically.
 
 ## Unresolved source data (never guessed; each stays visible in validation)
 
-No source read is pending: the last one, KuroDB's item page 2040705, was read on 2026-10-06 and confirms the Orange
-Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10 in
-[`ITERATION_LOG.md`](ITERATION_LOG.md)). What the sources do not give:
+No source read is pending. What the sources do not give:
 
-- **53 of the 75 drop members never roll** (`bash scripts/validate_data.sh` lists each as a `drop_unresolved` warning).
-  23 have a local item but no KuroDB chance (Blue Potion, Orange Potion, Arrow for Bow and the like); 30 have no
-  unambiguous local item. Named cases ([`../tools/sources/crosswalk/README.md`](../tools/sources/crosswalk/README.md)):
-  - **Omok Piece : Mushroom** (Orange Mushroom, KuroDB 1%): Hidden Street and KuroDB name the drop, but MeowDB has
-    three items of that name (486, 495, 498; their item API bodies are in `tools/meowdb/captures/items_api.json`), all
-    quest items with no drop source, so no source says which one it is and none is chosen (D3-8). The member never
-    drops; only an owner pick (an adaptation) would settle it.
-  - **Egg on the Wooden Box**: KuroDB lists no reactor-2001 value for it.
-  - **Gender-suffixed names with two MeowDB items each:** Blue Cloth Vest (M) (949/958), Black Cloth Pants (M)/(F)
-    (1170/1179), Blue Cloth Pants (M) (1169/1178). The genders of 944, 949/958, 1169/1178 and 1170/1179 cannot be
-    checked offline.
-  - **No MeowDB item in the local cache:** Pan Lid, Wooden Samurai Sword, Pistol (whether MeowDB has them was not
-    checked).
-  - **20 MeowDB ids without a local item** (`not_in_snapshot`: 944, 916, 625, 727, 721, 720, 650, 722, 1319, 717,
-    1435, 943, 951, 735, 617, 1318, 718, 672, 956, 680). None has a KuroDB chance, so none would drop even with an
-    item file; adding one makes `extract_monsters.mjs` stop until its crosswalk row is reviewed.
+- **Drop chances, drop quantities and the meso drop chance.** MeowDB publishes the drop members (its community lists,
+  with votes) and player meso reports only; Henesys.gg gives a rarity label per item, not a chance. The project
+  owner's table (`misostory/drop_rates.json`, category x rarity, decision D3-11) and meso rule (`meso_rules.json`,
+  D3-12) supply them as adaptations (`verified: false`). Every one of the 86 drop members resolves (item, rarity and
+  category), so none is left unresolved.
+- **Meso amounts of four monsters:** MeowDB has no player report for the Blue Snail, Shroom, Red Snail or Orange
+  Mushroom ("No meso reports yet", also on the live pages), so the owner's level formula [level, 2 x level] fills
+  them. A report a newer capture or cache shows replaces the formula at the next extraction.
 - **Fall damage** (`mechanic:fall-damage`, a source-data gap): MeowDB documents it (canonical `formulas/movement.json`
   `fall_damage`: a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36;
   "Maps can disable fall damage"), but the length of one movement update is not published and neither is which maps
   disable it, so the rule cannot be applied. MisoStory applies none, on a landing or on a fall recovery
   (`presentation.json` `fall_recovery`, an adaptation; MAP_ARCHITECTURE §4.6).
-- **The Tutorial Jr. Sentinel's mesos:** Hidden Street says "?" and KuroDB has no meso row, so it drops none.
+- **The Tutorial Jr. Sentinel's mesos:** MeowDB has no report; by the owner's choice it drops none (D3-12).
 - **Natural MP recovery:** MeowDB documents none, so MP does not recover naturally (`recovery.json` `natural_mp`).
 - **Ground sitting and map benches:** MeowDB documents neither on Maple Island; only chairs sit
   (`recovery.json` `sitting`). Rain's quiz 1016 mentions chairs and benches, so a marked "[MisoStory]" page after
@@ -77,8 +70,17 @@ Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10
   the hedge lane; the playthrough reaches it because the harness reads the canonical portal list).
 - Protect **The Green Relaxer** (522, untradeable, cannot be obtained again) from being **sold**: no in-progress
   quest needs it, so the quest-item sell guard does not hold it.
-- **The Snail's meso amount:** MeowDB's one player report (2) is kept over Hidden Street's 1. This is the
-  orchestrator's reading of the brief ("do not replace MeowDB values"), not an owner decision (D3-5).
+- **The owner's search for the removed sources still matches MeowDB data.** The case-insensitive search the owner
+  gave on 2026-10-06 finds no mention of the two removed websites any more, but it does match
+  MeowDB's own in-game street name of some Victoria Island maps (the region the game calls by those two words): 15
+  `street_name` values in `game/data/canonical/monsters/2.json` (1), `3.json` (3), `4.json` (2), `5.json` (4) and
+  `9.json` (5), all on out-of-scope spawn rows (`maple_island: false`, which the validator skips), and the verbatim
+  page text "An Empty House" + that street name in `tools/meowdb/captures/monster_9.json`. Changing them would falsify
+  MeowDB data, and captured page text is never edited. Decide: accept them as MeowDB data, or drop the out-of-scope
+  spawn rows from the monster records (an extractor change; the capture line stays either way).
+- **Tune the drop table and the meso rule** if play shows a need: every cell of `misostory/drop_rates.json` and the
+  meso rule in `meso_rules.json` are the owner's to change (no record or test pins a number). The measured economy of
+  the final evidence run is in [`ITERATION_LOG.md`](ITERATION_LOG.md) ("Final evidence run").
 - **Square or disc touch zones:** a monster's touch zone is a square prism whose corners reach √2 times further on
   the diagonals (a disc instead?), and the 60 px isometric attack depth reaches monsters up to ±1.21 m (Snail) and
   ±1.54 m (Orange Mushroom) to the side, drawn with every swing.
@@ -88,17 +90,14 @@ Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10
 - **Whether Three Snails may hit Wooden Boxes:** MeowDB says boxes break after 4 "basic attacks" and nothing about
   skills. Three Snails counts as one hit today (one target per cast, the nearest of the monsters and boxes in its
   band; `breakables.json` `hit_rule`, `verified: false`). Confirm, or have skills search monsters only.
-- **Which Omok Piece : Mushroom** (486, 495 or 498) the Orange Mushroom drops, if any: the sources leave it a gap
-  (above), so only an owner pick would make it drop.
+
 - **Sera's and Sen's mid-quest lines** ("Did you give my mirror to Heena?", "What did my sister say?") show after
   completion under the default-talk rule; `dialogue/_rules.json` or an override could move them.
 - A **player-facing quest forfeit** in the Quest Log (today only the console forfeits; Roger re-issues a lost apple
   instead).
 - The **map mob rate** is ignored (`presentation.json map_mob_rate.apply` false), a choice between MeowDB pages that
   disagree; the switch exists, and every spawn-rule row of the parity manifest names this adaptation.
-- The **Wooden Box's quantity** of 1 per roll is an adaptation stored inside a canonical record
-  (`drops/0000001.json quantity.adaptation`), because C1 lets nothing outside the record supply one. Confirm, or
-  move it.
+
 - **The Wooden Box's reach rim:** the warm rim that shows while a swing can reach a box is faint (0.06 m); the gold
   marker shown while a quest wants a box's drops reads clearly. Make the rim stronger if wanted (`wooden_box.gd`
   `REACH_RIM_M`, `REACH_COLOR`).
@@ -156,11 +155,13 @@ Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10
   did not; its key, `ui:item-pickup-feedback`, is verified by other checks.
 - **Validation code:** `GameplayDataChecks` is all-or-nothing: any structural error hides the quest, NPC and dialogue
   findings. The progression-blocker check is conservative (it ignores other sources of an item).
-- **Crosswalk notes:** the crosswalk reviewer notes were written by script from checked facts; an owner pass may be
-  wanted.
-- **The KuroDB item page reader** knows the layouts of the reactor item pages and of item 2040705. An unexpected label
-  or format stops the merge or the loader with an error instead of a silent verdict, so another item page may need a
-  reader tweak first.
+- **Research notes edited by hand:** `docs/MAP_INVENTORY.md`, `docs/topology.json` and `docs/topology.mmd` are
+  generated by Iteration One's `docs/research/raw/synthesis/build_topology.js` (git-ignored, in the main checkout,
+  not in this worktree). On 2026-10-06 the first two were edited by hand to remove the citations of the removed
+  sources; the generator's template and research inputs still carry them, so edit them before regenerating.
+- **Green Apple (242)** stays in the item subset (`extract_items.mjs` `ITEM_IDS`), although no drop record, quest or
+  shop references it since the owner's 2026-10-06 decision. Harmless; remove it if the subset should hold only
+  referenced items.
 - **The stuck-region scan's limits** ([`runtime/STUCK_SCAN.md`](runtime/STUCK_SCAN.md)): verification replays only the
   last edge into a component; hops are swept as an L at apex height; a body wedged on two rims over a narrow gap is not
   modelled; Southperry's double-sided trimesh defeats the buried-surface test (4 ring-top components are listed
@@ -213,7 +214,7 @@ Mushroom's "Scroll for Shoes for Jump 10%" (MeowDB 177) at 0.03% (decision D3-10
 | Breakables (19 Wooden Box placements) | Done: placement, hits, respawn and quest-gated drops; all 19 stand on real collision (`test_breakables_placement`), and `test_box` breaks 17 of them in the real game (Pio's quest needs three of Amherst's six, Three Snails breaks one more, two are only shown) |
 | Beginner skills and the skills window | Done: SP, the Skills window (K), typed quickslots, the three skills |
 | Sitting and chairs | Done: X, The Green Relaxer, the chair's own bonus clock, a seated cue on the HUD |
-| Drop chances and meso amounts as placeholders | Done: KuroDB chances on Hidden Street (monsters) and MeowDB (Wooden Box) membership, meso amounts from MeowDB and Hidden Street; what no source gives is unresolved and never rolls |
+| Drop chances and meso amounts as placeholders | Done: MeowDB community-list membership, Henesys.gg rarity and the owner's chance table by category x rarity (D3-11); MeowDB's meso report or the owner's level formula at 60% (D3-12) |
 | Natural regeneration as an adaptation | Done: the project owner's rule (10 HP per 10 s still or seated; pause, never reset) |
 | Proxy monsters wider than their touch boxes; the grey Tutorial Jr. Sentinel | Done: footprints within 1.25x of the touch zones, a Sentinel proxy |
 | A flood-fill trap survey | Done: the stuck-region scan (0 confirmed traps; 54 former trap spots replayed) |

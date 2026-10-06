@@ -3,7 +3,7 @@
 Every command runs from the repo root in **Git Bash** on Windows. Blender 5.2 must be installed (set `BLENDER=...` if
 it is not at `C:\Program Files\Blender Foundation\Blender 5.2\`). Godot 4.7.2 is downloaded on first use to
 `%LOCALAPPDATA%\MisoStory\godot\4.7.2\` (override with `GODOT=...`; `bash scripts/godot.sh --version` fetches it).
-Node is needed for the source tools: the MeowDB extractors, the capture loader and crosswalk (`tools/sources/`), the
+Node is needed for the source tools: the MeowDB extractors, the capture loader and drop record builder (`tools/sources/`), the
 parity manifest (`tools/parity/`) and their tests.
 
 On **Linux** the same commands run in bash: the scripts use `blender` from `PATH` (or `BLENDER=...`), and `godot` from
@@ -145,7 +145,7 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
 Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
-node --test tools/sources/test/     # capture loader, exact raw-value parsers, crosswalk merge, KuroDB item pages (69 tests)
+node --test tools/sources/test/     # capture loader, exact raw-value parsers, the drop record builder (31 tests)
 node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (18 tests)
 ```
 
@@ -234,12 +234,13 @@ ISOLATE=me bash scripts/validate_data.sh   # in a private copy
 ```
 
 It runs the game's own loader over `game/data/canonical` and `game/data/misostory`
-([DATA_VALIDATION.md](DATA_VALIDATION.md)): references, provenance per authority (MeowDB, KuroDB, Hidden Street,
-Project owner) with capture files that must exist, the schema v2 drop records and the drop policy, adaptations
-(`verified: true` needs `verified_against`), and the quest, NPC and dialogue validation. On the integrated build it
-passes with 0 errors and 53 warnings: the 53 drop members that never roll (`drop_unresolved`, listed by design). So
-`--strict` (warnings fail too) exits 1 until those source gaps are resolved. The provenance report is deterministic:
-regenerating it over unchanged data gives the same files.
+([DATA_VALIDATION.md](DATA_VALIDATION.md)): references, provenance per authority (MeowDB, Henesys.gg for rarity only,
+Project owner) with capture files that must exist, the schema 3 drop records and the drop policy (membership against
+the owner's own MeowDB page capture, rarity against the Henesys.gg capture, the owner's chance table and meso rule
+complete), adaptations (`verified: true` needs `verified_against`), and the quest, NPC and dialogue validation. On the
+final build it passes with 0 errors and 0 warnings (every drop member resolves), so `--strict` (warnings fail too)
+passes as well when the Blender export is present. The provenance report is deterministic: regenerating it over
+unchanged data gives the same files.
 
 Two more source checks, both offline:
 
@@ -263,14 +264,14 @@ a state: missing, partial, implemented or verified. They are generated from the 
 evidence:
 
 ```bash
-ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/final2/unit_evidence.json" bash scripts/test.sh
+ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/final3/unit_evidence.json" bash scripts/test.sh
 bash scripts/validate_data.sh --report
-ISOLATE=ev bash scripts/playtest.sh test_box --out "$PWD/_scratch/final2/pt/test_box"     # each scenario, its own --out
-bash scripts/playtest_quests.sh --seed 1 --out "$PWD/_scratch/final2/pt/quests_s1"           # seeds 1, 2 and 3
-PLAYTEST_TIMEOUT_S=7500 bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out "$PWD/_scratch/final2/pt/playthrough_s1"
-bash scripts/playtest.sh test_skills --windowed --out "$PWD/_scratch/final2/pt/win_test_skills"  # windowed runs count too
-node tools/parity/build_parity.mjs --tests _scratch/final2/unit_evidence.json --playtest _scratch/final2/pt
-node tools/parity/build_parity.mjs --check --tests _scratch/final2/unit_evidence.json --playtest _scratch/final2/pt
+ISOLATE=ev bash scripts/playtest.sh test_box --out "$PWD/_scratch/final3/pt/test_box"     # each scenario, its own --out
+bash scripts/playtest_quests.sh --seed 1 --out "$PWD/_scratch/final3/pt/quests_s1"           # seeds 1, 2 and 3
+PLAYTEST_TIMEOUT_S=7500 bash scripts/playtest.sh playthrough --seed 1 --max-wall-s 7000 --out "$PWD/_scratch/final3/pt/playthrough_s1"
+bash scripts/playtest.sh test_skills --windowed --out "$PWD/_scratch/final3/pt/win_test_skills"  # windowed runs count too
+node tools/parity/build_parity.mjs --tests _scratch/final3/unit_evidence.json --playtest _scratch/final3/pt
+node tools/parity/build_parity.mjs --check --tests _scratch/final3/unit_evidence.json --playtest _scratch/final3/pt
 ```
 
 `--playtest` takes a report.json or a folder searched for them; repeat `--tests` and `--playtest` as needed.
@@ -290,20 +291,22 @@ The JSON is format 3 (contract C6). Besides the state, an entry may carry one of
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the
 value on a page nobody has read yet: not excused, the entry stays partial and open). `tools/parity/rules.json`
 `pending_source_reads` declares each read; when the page is read and the data regenerated, remove the declaration
-(the generator fails a stale one). None is declared since KuroDB item 2040705 was read (D3-10). The clean-character
+(the generator fails a stale one). None is declared. A drop row's chance is neither label: it is the project owner's
+table (`drop_rates.json`, decision D3-11), an adaptation the row names, and a meso row's chance and formula amount the
+owner's meso rule (D3-12); the manifest's "Adaptations" section counts the entries resting on each. The clean-character
 playthrough rows (`playthrough:*`) count only checks of a clean run: a passing, strict report with no console or api
 step whose final boundary check passed and that no `PLAYTHROUGH_STOP` ended early.
 
 ## Capture a source page by hand
 
-Newer MeowDB facts, KuroDB chances and Hidden Street drop lists come into the project only as dated captures of pages
-read by a person in a normal browser (decisions D3-1, D3-3 and D3-6 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)).
-No tool fetches them: MeowDB's terms forbid automated collection, and KuroDB and Hidden Street sit behind a Cloudflare
-check.
+Newer MeowDB facts and Henesys.gg rarity labels come into the project only as dated captures of pages read by a person
+in a normal browser (decisions D3-1 and D3-11 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)). No tool fetches them:
+MeowDB's terms forbid automated collection, and Henesys.gg prohibits unauthorized reproduction or scraping (its labels
+are for this private project only; ask Henesys.gg before publishing them).
 
 1. Open the page in a browser and read it. Copy the rendered text, trimmed to the record.
 2. Save it under the authority's folder with a name the loader knows (`tools/meowdb/captures/README.md`,
-   `tools/kurodb/captures/README.md`, `tools/hiddenstreet/captures/README.md`). A MeowDB `.txt` capture starts with a
+   `tools/henesys/captures/README.md`). A MeowDB `.txt` capture starts with a
    header, then a `---` line, then the page text:
 
    ```
@@ -318,12 +321,10 @@ check.
    `READ_AT` must be an ISO 8601 time with a zone. A header value may continue on indented lines. JSON captures carry
    `url`, `read_at` and `method` fields instead. To update a value, read the page again and replace the capture with
    the new reading and its own read time; never edit a captured text by hand.
-3. Check it loads: `tools/sources/captures.mjs` reads every file in the three folders (README.md is skipped) and stops
+3. Check it loads: `tools/sources/captures.mjs` reads every file in the two folders (README.md is skipped) and stops
    on an unknown file name, a missing or non-ISO read time, or rows that are not in the captured text. A new kind of page
-   needs a reader there first. KuroDB has two: a monster page is `<kuro monster id>.json` and an item page
-   `item_<kuro item id>.json` (an item page saved under a bare number is refused). An item page settles a crosswalk
-   candidate row, a KuroDB row that may be a drop member under another name: `tools/kurodb/captures/README.md` gives
-   the steps and the rule (D3-10), as applied to item 2040705.
+   needs a reader there first. Of two captures of one page the one with the later read time wins (a tie is an error),
+   and the drop records always follow the newest dated capture of each owner's page.
 
    ```bash
    node -e "import('./tools/sources/captures.mjs').then(m => console.log(m.loadCaptures().files.length, 'capture files'))"
@@ -378,8 +379,8 @@ cast recovery             # cast a learned skill now (by id or name)
 ## Drops and Wooden Boxes
 
 ```
-drops 2 1000              # simulate 1000 Snail kills: observed vs configured rates, each chance's KuroDB source,
-                          # and why a member never rolls (unresolved chance or item); quest gates follow your quests
+drops 2 1000              # simulate 1000 Snail kills: observed vs configured rates, each chance's table cell,
+                          # and why a member never rolls (unresolved item, rarity or category); quest gates follow your quests
 drops 0000001 500         # the same for the Wooden Box
 loot 2 5                  # roll five Snail kills' loot at your feet (quest-gated drops follow your quests)
 boxes                     # the current map's Wooden Boxes: placement, hits taken, respawn countdown

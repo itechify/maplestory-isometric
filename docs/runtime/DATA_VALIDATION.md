@@ -47,7 +47,7 @@ DataValidator.validate(db, options)   scripts/core/validation/data_validator.gd 
    ├─ ScriptErrorGuard                attached for the whole run; a script error becomes a "validator" error finding
    ├─ ProvenanceChecks                ids, schema, provenance (v1 source + per-property sources + captures), external,
    │                                  sources_index; the rules per authority come from ProvenanceAuthorities.REGISTRY
-   ├─ DropRecordChecks                drop_record (+ provenance): schema v2 drop records (contract C1)
+   ├─ DropRecordChecks                drop_record (+ provenance): schema 3 drop records (contract C1)
    ├─ DropChecks                      drop_policy, drop_unresolved: the drop policy over the shipped records
    ├─ ReferenceChecks                 reference (+ skill references), dialogue_link, portal (+ portal graph), drop_owner,
    │                                  drop_table, consistency; counts refs.<Phase 16 category>
@@ -99,10 +99,10 @@ on broken input cannot make a negative test pass for the wrong reason.
 | `load` | error | `ContentDB.load_errors` (unparsable JSON; a domain file whose top level is not an object); no canonical data at all |
 | `ids` | error | a record without a string `id`; `id` ≠ file basename; the same `id` in two files of one domain |
 | `schema` | error | a field consumers rely on is missing or mistyped (`REQUIRED_FIELDS` in `provenance_checks.gd`: e.g. maps need `portals`, `player_spawns`, `return_map_id`; monsters `level`, `hp`, `exp`) |
-| `provenance` | error | no `source`; `source.authority` ≠ `"MeowDB MS Classic"`; `source.url` not under `https://meowdb.com/msclassic`, `https://meowdb.com/_data/` or `https://meowdb.com/api/` (path-boundary match, so `meowdb.com.evil` or `/msclassicfake` fail); `source.retrieved_at` not an ISO 8601 date-time with a zone, or not a real date and time (month 13, Feb 30, hour 24 fail); a `field_sources` URL (`url`, `fallback_url`, `pages[].url`, `urls[]`) outside `https://meowdb.com/` without a matching `external` entry; a JSON file directly in `game/data/canonical/` other than `canonical_sources.json` (no domain, so no id, provenance or index check would see it). **v2, per property:** a source object (record-level `provenance.<property>`, a v2 drop entry's `membership_source` / `chance_source`, the meso `amount_source` / `chance_source`, an adaptation file's `provenance.<property>`) that breaks the [authority registry](#provenance-authorities): an unregistered authority, an authority that may not supply that property, a URL off the authority's site, a missing or non-ISO `read_at`, a missing `capture` or `decision`. **Captures:** any `capture` key (any depth, canonical or adaptation) that is not a repo path under `tools/<site>/captures/` or names a file that does not exist |
-| `drop_record` | error | a schema v2 drop record (contract C1) that breaks the [v2 rules](#drop-records-schema-v2); a `schema_version` other than 2 or absent on a drop record |
-| `drop_policy` | error (one warning) | `DropChecks` (`scripts/core/validation/drop_checks.gd`) holds the shipped records to the drop policy: `data/misostory/drop_rates.json` supplies no chance, quantity or meso number and names the meso distribution the roller implements (`DropRates.validate`); every drop record is schema v2; membership comes from Hidden Street for monsters and MeowDB for breakables; every resolved chance comes from KuroDB and every meso amount from MeowDB or Hidden Street; `normalized_probability`, `probability`, the conversion text, the quantity (`Qty`), KuroDB's quest flag and the meso range equal an exact re-reading of the raw value (`DropChance`); a reactor row's quantity is a labelled adaptation with `verified: false`; a resolved item exists locally; quest gates follow the C1 rule (D3-9) and say `verified: false`; no `excluded_kuro_only` or `pending_kuro_candidates` row is an entry's chance source; an unresolved member whose item, or one of its MeowDB candidates, a Maple Island quest objective asks for is a progression blocker. A resolved chance of 0 is a warning (it never drops) |
-| `drop_unresolved` | warning | each drop member or meso value that never rolls because a source leaves its chance or its item unresolved, so missing probabilities stay visible (54 on the shipped data); an unresolved member whose MeowDB candidate has become a local item asks for a crosswalk review |
+| `provenance` | error | no `source`; `source.authority` ≠ `"MeowDB MS Classic"`; `source.url` not under `https://meowdb.com/msclassic`, `https://meowdb.com/_data/` or `https://meowdb.com/api/` (path-boundary match, so `meowdb.com.evil` or `/msclassicfake` fail); `source.retrieved_at` not an ISO 8601 date-time with a zone, or not a real date and time (month 13, Feb 30, hour 24 fail); a `field_sources` URL (`url`, `fallback_url`, `pages[].url`, `urls[]`) outside `https://meowdb.com/` without a matching `external` entry; a JSON file directly in `game/data/canonical/` other than `canonical_sources.json` (no domain, so no id, provenance or index check would see it). **Per property:** a source object (record-level `provenance.<property>`, a schema 3 drop entry's `membership_source` / `rarity.source`, the meso `amount_source`, an adaptation file's `provenance.<property>`) that breaks the [authority registry](#provenance-authorities): an unregistered authority, an authority that may not supply that property, a URL off the authority's site, a missing or non-ISO `read_at`, a missing `capture` or `decision`. **Captures:** any `capture` key (any depth, canonical or adaptation) that is not a repo path under `tools/<site>/captures/` or names a file that does not exist |
+| `drop_record` | error | a schema 3 drop record (contract C1) that breaks the [schema 3 rules](#drop-records-schema-3); a `schema_version` other than 3 or absent on a drop record |
+| `drop_policy` | error | `DropChecks` (`scripts/core/validation/drop_checks.gd`) holds the shipped records to the drop policy (decisions D3-9, D3-11, D3-12): `data/misostory/drop_rates.json` is the complete chance table (every category x rarity a chance in [0, 1], decision D3-11, `verified: false`, quantity 1) and `meso_rules.json` a valid meso rule (D3-12) (`DropRates.validate`); every drop record is schema 3 with MeowDB MS Classic as its membership authority; each record cites its owner's own page capture (`monster_<id>.*` or `breakable_<id>.txt` and its URL), the newest dated capture of that page; the membership equals MeowDB's community list "Drops (MS Classic)" on that capture exactly (names, order, each raw block and its votes), and no MSEA-only item is a member; every rarity is the Henesys.gg capture's label and row, and a member the capture has no row for has rarity null; a resolved item exists locally, its `category_inputs` are the item's MeowDB type and subtype, and its `chance_category` follows the rule; quest gates follow the D3-9 rule; a reported meso amount is MeowDB's, its raw value verbatim in its capture, and a player report the owner's page shows is in the record unless a newer source in `sources_compared` decides; an unresolved member whose item a Maple Island quest objective asks for is a progression blocker |
+| `drop_unresolved` | warning | each drop member that never rolls because its item, its Henesys.gg rarity or its table category is unresolved, so missing values stay visible (none on the shipped data) |
 | `external` | error | an `external` entry (canonical or adaptation) without `field`, an http(s) `source_url`, a `reason`, or `verified: false` |
 | `sources_index` | error | `canonical_sources.json` missing; a record not listed; a listed record that no longer exists; a row whose `name`, `file`, `authority`, `url`, `retrieved_at`, `field_source_urls`, `external` entries (`field`, `source_url`, `verified`, in order), `gap_count`, `discrepancy_count`, `capture_files` or `property_sources` (`{property: {authorities, urls}}`; both written only when non-empty) differs from what `tools/meowdb/build_sources_index.mjs` would write now; `totals` off (`records`, `distinct_source_urls` (property source URLs included), `external_values`, `capture_files`); a nested canonical folder (the builder does not index them). Fix: rerun the builder |
 | `reference` | error | an id that does not resolve (rules below), or an id that is not a string |
@@ -176,10 +176,10 @@ and `quests.started_here/completed_here[]` → quests; `formulas` `map_page_disp
 
 **Not swept:** commentary and provenance (`source`, `field_sources`, `cross_checks`, `discrepancies`, `notes`,
 `gaps`, `change_history`, `external`, and the per-property source objects `provenance`, `membership_source`,
-`chance_source`, `amount_source`, which hold KuroDB and Hidden Street ids), items' `sources` and `used_in` (every
-place in the whole game an item comes from or goes to, mostly Victoria Island), and maps' `portals[].to_map_id` (the
-portal check reports it). A v2 drop entry's `item_id` and `quest_gate.quest_id` are swept (a null `item_id`, an
-unresolved member, is skipped like any unset reference).
+`rarity`, `amount_source`, `sources_compared`), items' `sources` and `used_in` (every place in the whole game an item
+comes from or goes to, mostly Victoria Island), and maps' `portals[].to_map_id` (the portal check reports it). A
+schema 3 drop entry's `item_id` and `quest_gate.quest_id` are swept (a null `item_id`, an unresolved member, is
+skipped like any unset reference).
 
 **Out of scope, skipped (not findings; every report lists the count per rule, `--verbose` each reference):**
 
@@ -227,75 +227,65 @@ In the real game, Todd's quest 1005 offer shows
 ### Provenance authorities
 
 Iteration Three lets a record take different properties from different authorities (contract C7 in
-[ITERATION_THREE_CONTRACTS.md](ITERATION_THREE_CONTRACTS.md); decisions D3-1 to D3-9 in
+[ITERATION_THREE_CONTRACTS.md](ITERATION_THREE_CONTRACTS.md); decisions D3-1, D3-11 and D3-12 in
 [ITERATION_LOG.md](../ITERATION_LOG.md)). One registry holds the rules:
 `ProvenanceAuthorities.REGISTRY` in `scripts/core/validation/provenance_authorities.gd`.
 
 | Authority | URLs | May supply | Must carry |
 |---|---|---|---|
 | `MeowDB MS Classic` | `https://meowdb.com/msclassic`, `/_data/`, `/api/` (path boundary) | any property | `url`, `read_at` (or its cache stamp `retrieved_at`); `capture` optional |
-| `KuroDB` | `https://playkuro.com/database/#...` | `probability`, `mesos.probability` | `url`, `read_at`, `capture` |
-| `Hidden Street` | `https://bc.hidden-street.net/...` | `membership`, `mesos.amount` (monster owners only, `owner_kinds`) | `url`, `read_at`, `capture` |
-| `Project owner` | none needed | any property | `decision`: a decision id such as `D3-5`, or the Iteration Three brief (`ITERATION_THREE_BRIEF`) |
+| `Henesys.gg` | `https://henesys.gg/` | `rarity` only (the label of a drop member; for this private project only: the site prohibits reproduction and scraping) | `url`, `read_at`, `capture` |
+| `Project owner` | none needed | any property | `decision`: a decision id such as `D3-11`, or the Iteration Three brief (`ITERATION_THREE_BRIEF`) |
 
 A **source object** is `{authority, url | urls, read_at, capture, decision?, raw_value?, ...}`: `urls` (a non-empty
-list) replaces `url` when one value was read from several pages of a site (the Wooden Box chances come from four
-KuroDB item pages). `capture` is the repo-relative path of the dated capture the value was read from
-(`tools/kurodb/captures/100100.json`); every `capture` key anywhere in a record must name an existing file under
-`tools/<site>/captures/`. A `decision` given to any authority must be a valid reference. Where source objects appear:
+list) replaces `url` when one value was read from several pages of a site. `capture` is the repo-relative path of the
+dated capture the value was read from (`tools/henesys/captures/item_rarity.json`); every `capture` key anywhere in a
+record must name an existing file under `tools/<site>/captures/`. A `decision` given to any authority must be a valid
+reference. Where source objects appear:
 
 - `provenance.<property>` at the top of any canonical record or adaptation file (a record without the block keeps the
   v1 rules exactly: `source` is MeowDB and covers everything);
-- in a schema v2 drop record, `entries[].membership_source` (property `membership`), `entries[].chance_source`
-  (`probability`), `meso.amount_source` (`mesos.amount`) and `meso.chance_source` (`mesos.probability`)
-  (`ProvenanceAuthorities.SOURCE_PROPERTIES`).
+- in a schema 3 drop record, `entries[].membership_source` (property `membership`), `entries[].rarity.source`
+  (`rarity`) and `meso.amount_source` (`mesos.amount`) (`ProvenanceAuthorities.SOURCE_PROPERTIES`). A drop chance or
+  a meso chance has no source object: it is the project owner's rule file, never canonical data.
 
 To let an authority supply another property, add the name to its `properties`; to add an authority, add a row. The
 record's own `source` stays a MeowDB page (v1 rule), and `field_sources` URLs off meowdb.com still need an
 `external` entry: the registry does not loosen v1. `canonical_sources.json` lists each record's `capture_files` and
 `property_sources` (authorities and URLs per property).
 
-### Drop records (schema v2)
+### Drop records (schema 3)
 
-`DropRecordChecks` (`scripts/core/validation/drop_record_checks.gd`) validates drop records with
-`"schema_version": 2` (contract C1); records without it are v1 and checked as before. Rules (check `drop_record`
-unless noted):
+`DropRecordChecks` (`scripts/core/validation/drop_record_checks.gd`) validates the drop records (contract C1, schema
+3); a record with another or no `schema_version` is an error. Rules (check `drop_record` unless noted):
 
-- **Entries.** `key` (unique) and `name` are non-empty strings. `item_resolution.state` is `resolved`, `ambiguous`,
-  `not_in_snapshot` or `not_in_classic`, and `method` is `exact`, `normalized`, `alias_with_evidence` or `none`;
-  `item_id` is a string exactly when the state is `resolved` (with a method other than `none`), else null. No two
-  entries resolve to the same item. A resolved `item_id` must exist and a `quest_gate` is `null` or
-  `{quest_id, basis}` whose quest exists (both through the reference sweep, check `reference`).
-- **Membership.** `membership_source` is a source object for `membership` (check `provenance`) whose authority is the
-  record's `membership_authority` (registered and allowed to supply membership), and whose `raw_value` names the
-  entry. An entry may not also be an `excluded_kuro_only` row (`{kuro_item_id, name, raw_value, reason}`): KuroDB
-  never adds a member (D3-6).
-- **Pending candidates** (optional, absent = none). Each `pending_kuro_candidates` row (a KuroDB row that may be a
-  member under another name, waiting for a hand read of its item page, D3-8) is `{kuro_item_id, name, raw_value,
-  member, read, reason}` with non-empty strings. `member` is an entry key whose `chance_state` is `unresolved` with no
-  `chance_source` (a pending row never rolls); the row is listed once and is not also an `excluded_kuro_only` row.
-  `DropChecks` (check `drop_policy`) also refuses a pending row that is some entry's chance source. No shipped record
-  holds one since KuroDB item 2040705 was read (D3-10); `test_data_validation_pending_candidates.gd` gives a copy of a
-  record a synthetic row (item 9999999) instead. A candidate its item page confirmed is an ordinary resolved entry
-  whose `chance_source.match_evidence` cites the item page capture, which must exist (check `provenance`).
-- **Chance.** `chance_state` is `resolved` or `unresolved`. Resolved: `probability` is a number in [0, 1];
-  `chance_source` is present (a source object for `probability`); its `normalized_probability` equals `probability`
-  and re-derives from `raw_value` by `format` within 1e-12: `percent_base` (`"<p>% base | ..."`, p / 100; an item
-  row, not a `Meso drop` row) or `reactor_chance_value` (`"Chance value N"`, 1 / N, with a non-empty
-  `interpretation`, D3-7). This catches a 1/N read as N% (or the reverse), a missed or doubled /100, and integer
-  truncation. `quantity` is `{min, max}`, whole numbers, 1 ≤ min ≤ max. Unresolved: `probability` is null (the entry
-  never rolls); a `chance_source` or `quantity` that is given is still checked.
-- **Meso** (`null` = the owner never drops mesos). `amount_state` resolved: whole `min`/`max` with 1 ≤ min ≤ max and an
-  `amount_source` for `mesos.amount` whose `"Mesos: a[-b]"` raw value (when it has that form) gives the same numbers;
-  unresolved: `min`/`max` null. `chance_state` as for entries, with a `chance_source` for `mesos.probability` whose
-  raw value is a `Meso drop` row.
+- **Record.** `owner` is `{kind: monster | breakable, id: the record id, name}`; `membership_authority` is a registered
+  authority allowed to supply `membership` (check `provenance`); `membership_list` is `"Drops (MS Classic)"`. No key
+  anywhere outside the commentary names a chance or quantity (`probability`, `chance`, `chance_source`,
+  `chance_state`, `normalized_probability`, `quantity`, `rate`, `drop_chance`): the records hold sourced facts only.
+- **Entries.** `key` (unique, the slug of the name) and `name` are non-empty strings. `item_resolution` is `{state:
+  resolved | ambiguous | not_in_snapshot, method: exact_name | meowdb_drop_entry | none, candidates, evidence}`;
+  `item_id` is a string exactly when the state is `resolved`; `exact_name` lists only the item, `meowdb_drop_entry`
+  two or more local items including the one chosen. No two entries resolve to the same item. A resolved `item_id`
+  must exist and a `quest_gate` is `null` or `{quest_id, basis, decision: "D3-9", verified: false}` whose quest
+  exists (through the reference sweep, check `reference`).
+- **Membership.** `membership_source` is a source object for `membership` (check `provenance`) with the record's
+  membership authority and list, a `raw_value` block `"<name>\n<subtype>\n▲\n<up>\n▼\n<down>"` that names the entry,
+  and `votes {up, down, score = up - down}` that match it.
+- **Rarity.** `null` (unresolved: the entry never drops) or `{label: Common | Rare | Very Rare | Extremely Rare,
+  source}`, the source a source object for `rarity` (check `provenance`) whose `row` ends with the label.
+- **Category.** `category_inputs {item_type, item_subtype, quest_gated, item}`; `chance_category` is null or one of
+  the table's categories.
+- **Meso.** A monster record's `meso` is `{amount_state: reported | not_reported, min, max, amount_source, gaps}`:
+  reported needs whole numbers 1 ≤ min ≤ max and an `amount_source` for `mesos.amount` whose `"Mesos: a[-b] per
+  kill"` raw value gives them; not_reported needs `min`, `max` and `amount_source` null. A breakable's `meso` is
+  `null`.
 
-`quantity.source` (`"KuroDB 'Qty 1'"` in C1) is free text, not a source object, so the registry does not apply to it;
-a `provenance.quantity` naming KuroDB would be rejected (KuroDB supplies probabilities only). Every shipped drop record
-is schema v2 (written by `tools/meowdb/extract_monsters.mjs` through `tools/sources/drops_merge.mjs`), and the runtime
-reads only v2 records: an entry rolls only with a resolved chance and item and, if gated, its quest in progress
-([ITEMS.md](ITEMS.md)). The fixture `tests/data/drops_v2/fixture_2.json` is a valid v2 Snail record built from the
-captures.
+`DropChecks` (check `drop_policy`, above) then holds the records to the captures, the item data and the owner's two
+rule files. Every shipped drop record is schema 3 (written by `tools/meowdb/extract_monsters.mjs` through
+`tools/sources/drops_merge.mjs`), and the runtime reads only schema 3: an entry rolls only with a resolved item,
+rarity and category and, if gated, its quest in progress, at the table cell's chance ([ITEMS.md](ITEMS.md)). The
+fixture `tests/data/breakables/drops_0000001.json` is a valid Wooden Box record.
 
 ### The adaptation convention (game/data/misostory)
 
@@ -363,7 +353,7 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 |---|---|
 | `map_id_crosswalk.json` (required; convention and sweep off) | rows `{meowdb_id\|map_id, iteration_one_slug\|blender_slug, gms_v8_id, match_basis}`; one row per canonical map (count = canonical map count), no duplicate MeowDB id, slug or GMS id; each row has a `match_basis`. Each slug has `game/assets/world/<slug>.json` with a numeric `map_id` equal to `gms_v8_id`, and a chunk in the export's `index.json`; every map chunk in `index.json` has a row (warning); no export at all is a single warning |
 | `world_scale.json` | `horizontal_px_to_m`, `vertical_px_to_m`, `actor_px_to_m` are positive numbers (WorldScale reads them) |
-| `drop_rates.json` | Iteration Two's placeholder structure (`item_overrides`, `owner_item_overrides`, `mesos.by_owner`, `type_rates`): keys resolve and chances lie in [0, 1]. The shipped file has none of these keys any more (it holds only `meso_amount_distribution` and `quest_gate_rule`), so this check finds nothing; the rule that the file supplies no number is `drop_policy` (`DropChecks` / `DropRates.validate`) |
+| `drop_rates.json`, `meso_rules.json` | required (an error when missing). Their content, the complete chance table (decision D3-11) and the meso rule (D3-12), is checked by `drop_policy` (`DropChecks` / `DropRates.validate`) |
 | `new_character.json` | `start_location.spawn_index` is one of the start map's player spawns (its `map_id` also seeds the portal-graph reachability check) |
 | `inventory.json` | every canonical weapon's subtype has a `weapon_subtypes` entry |
 | `combat.json` | `fixed_damage_skills` keys are canonical skill ids (`formulas/*.json skills[].skill_id`) |
@@ -373,12 +363,11 @@ see (ids used as map keys, index ranges, vocabularies), as a method of `Adaptati
 
 ## Current warnings on the shipped data
 
-54 `drop_unresolved` warnings, one per drop member that never rolls (the Wooden Box's Egg; 53 members of the six
-monsters' lists): 24 have a local item but no KuroDB chance, and 30 have no unambiguous local item (ambiguous names,
-items missing from the local snapshot). They are the brief's "missing probability stays visible" rule, not defects;
-each is in the record's `gaps` and in [`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md), and
-[`../DEFERRED.md`](../DEFERRED.md) names the open cases. `--strict` therefore exits 1 on the shipped data. Runs
-without the Blender export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning.
+None. All 86 drop members of the schema 3 records resolve (item, Henesys.gg rarity and table category), so there is no
+`drop_unresolved` warning, and `--strict` exits 0 on the shipped data with the Blender export present. Runs without
+the export (plain `ISOLATE=` test runs) add one `crosswalk/world_assets` warning. A member that ever stops resolving
+(a new MeowDB list entry with no Henesys.gg row, say) shows up as a `drop_unresolved` warning, listed in the record's
+`gaps` and in [`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md), and never rolls.
 
 The last data warning was `misostory/new_character` `starting_sp`, `verified: true` with nothing saying against what.
 No MeowDB page states a starting SP number: the Beginner's guide says only "You earn 9 SP by the time you hit level 10
@@ -399,14 +388,14 @@ Phase 17 report through `ProvenanceReport` (`scripts/core/validation/provenance_
 
 - **records**: every canonical record with its property rows. Row `(record)` is the record's own `source` (it covers
   every value no other row names); then each `field_sources.<field>` (MeowDB, or `external` when its URL is declared in
-  `external`); then each per-property source: `provenance.<property>` (contract C7) and, in schema v2 drop records,
-  each entry's `membership_source` / `chance_source` and the meso `amount_source` / `chance_source`. Each row has the
+  `external`); then each per-property source: `provenance.<property>` (contract C7) and, in schema 3 drop records,
+  each entry's `membership_source` / `rarity.source` and the meso `amount_source`. Each row has the
   authority, URLs, `read_at` (or the cache's `retrieved_at`), capture, decision and raw value. The record also carries
   its validation findings, which the parity generator reads.
 - **unresolved**, by domain: every record's `gaps` (a value the source does not give: null or absent, never guessed),
-  and in drop records every member without a chance (unresolved, never drops; a v1 record would also list its
-  placeholder rates, and none ships), every unresolved item and every unresolved meso value. On the integrated
-  Iteration Three data: 519 unresolved values, and 117 adaptation objects, 3 of them verified.
+  and in drop records every member whose item, rarity or table category did not resolve (it never drops) and each
+  meso block's gaps (no MeowDB report or chance: the owner's meso rule supplies them). The current counts are in the
+  report's summary.
 - **adaptations**: every object in `game/data/misostory` that carries a verified flag, with `verified_against` and its
   reason (its own, its `<key>_reason`s or reasons map, or the nearest enclosing one).
 - **counts**: records per domain, property rows per authority, capture files, unresolved values per domain,
@@ -421,14 +410,14 @@ The validator holds no gameplay values, so it neither uses nor adds canonical nu
 from the schema docs in `docs/canonical/*.md` (maps.md "Destination portals", monsters.md "Drop table file", npcs.md,
 quests.md, shops.md), `tools/meowdb/build_sources_index.mjs` (the index it re-derives), MAP_ARCHITECTURE.md §4.2,
 §4.10 and §4.13 (crosswalk, sidecars, the L0 graph checks) and `scripts/core/npcs/npc_def.gd` (the NPC behaviour
-names), and from the Iteration Three source decisions (`docs/ITERATION_LOG.md` D3-1 to D3-9, contracts C1 and C7).
-Its policy constants (the authority registry, the allowed URL prefixes, the derivation names, the v2 drop vocabularies)
+names), and from the Iteration Three source decisions (`docs/ITERATION_LOG.md` D3-1, D3-9, D3-11 and D3-12, contracts C1 and C7).
+Its policy constants (the authority registry, the allowed URL prefixes, the derivation names, the schema 3 drop vocabularies)
 are provenance rules, not game data.
 
 ## Tests
 
 ```bash
-ISOLATE=<name> bash scripts/test.sh data_                   # the 9 files below (160 tests)
+ISOLATE=<name> bash scripts/test.sh data_                   # the files below (146 tests)
 ISOLATE=<name> INCLUDE_WORLD=1 bash scripts/test.sh data_   # same, with the real export for the shipped-data test
 ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 ```
@@ -437,29 +426,27 @@ ISOLATE=<name> bash scripts/validate_data.sh                # the tool itself
 |---|---|
 | `tests/unit/test_data_validation.gd` | the shipped data has no errors and did not crash the validator (each error is printed); every record, portal and adaptation file was checked; finding shape; quest dialogue links the NPC files correct are neither warned nor skipped, and the validator's link remap equals `DialogueText._remap_for` for every quest; `ScriptErrorGuard` (records only script errors, attach/detach); the tool's exit code starts at 2 and its command-line parsing |
 | `tests/unit/test_data_validation_references.gd` | injected broken references in every domain, portals (destination, to_portal, reverse lookup, unknown/stale/ambiguous derivations, arrival spawns, duplicate names), the portal graph (unreachable map, unlisted one-way link), drop tables, starter weapons, recovery examples; dialogue links (a canonical link outside the dataset is skipped, an adaptation one warns, a malformed one warns, a quest link is checked as its NPC correction, a correction's null or numeric ids are read as `DialogueText` reads them); out-of-scope rules |
-| `tests/unit/test_data_validation_provenance.gd` | the quest tracker tags (`missable`, `tracker_tags`) cite their capture; ids, duplicates, source blocks, URL prefixes and look-alikes, real ISO dates, external entries, the sources index (missing, stale, deleted, external contents, capture files and property sources), loose root files, required fields, loader errors; provenance v2: per-property KuroDB / Hidden Street / MeowDB sources accepted, each misuse rejected (KuroDB as membership, Hidden Street as a probability, a missing or non-ISO `read_at`, a missing `capture`, a capture file that does not exist or a path outside `tools/*/captures/`, an unknown authority, a URL off the authority's site, a Project owner citation without a decision, in canonical and adaptation files), v1 rules unchanged, the capture lookup live on the shipped data (item 242), the registry rules |
-| `tests/unit/test_data_validation_drops_v2.gd` | schema v2 drop records: the C1 fixture `tests/data/drops_v2/fixture_2.json` passes with no new finding; corrupted copies fail (probability 1.5 or negative, a KuroDB-only item added as a member with a KuroDB or a copied Hidden Street source, a resolved entry without `chance_source`, an unknown item or gate quest, 1/N read as N% and the reverse, truncation, a reactor value without an interpretation, mismatched or unordered quantities and meso amounts, a meso chance that is an item row, Hidden Street on a breakable, an unknown `schema_version`, duplicate keys and items); `DropRates` survives a v2 table |
+| `tests/unit/test_data_validation_provenance.gd` | the quest tracker tags (`missable`, `tracker_tags`) cite their capture; ids, duplicates, source blocks, URL prefixes and look-alikes, real ISO dates, external entries, the sources index (missing, stale, deleted, external contents, capture files and property sources), loose root files, required fields, loader errors; per-property provenance: MeowDB, Henesys.gg and Project owner sources accepted, each misuse rejected (Henesys.gg as membership, a chance or a meso amount, a missing or non-ISO `read_at`, a missing `capture`, a capture file that does not exist or a path outside `tools/*/captures/`, an unknown authority, a URL off the authority's site, a Project owner citation without a decision, in canonical and adaptation files), v1 rules unchanged, the capture lookup live on the shipped data (item 242), the registry rules |
+| `tests/unit/test_data_validation_drops.gd` | schema 3 drop records: the shipped records pass with no finding; corrupted copies fail (a probability in a canonical record, Henesys.gg supplying anything but rarity, membership from another authority, an MSEA reference item as a member, a wrong rarity label or row, votes that do not match the raw block, a malformed meso block, an unknown `schema_version`, duplicate keys and items, a quest gate without its rule); an unresolved member is valid and listed |
 | `tests/unit/test_data_validation_adaptation.gd` | every accepted reason spelling, convention failures, `verified: true` only with `verified_against` (the older keys and empty values rejected; the owner natural-regen shape accepted), adaptation references (plain and `{"value": ...}`-wrapped), domain folders and their shared tables, the crosswalk, injected sidecars and an on-disk export (sidecars, index.json, unlisted chunks), each per-file schema |
 | `tests/unit/test_data_validation_integrity.gd` | every Phase 16 category counts references on the shipped data; skill references resolve and a skill defined twice is an error; chairs are Setup items with valid setup data (and the shipped ones are); a setup block on another item type; placeholder names (patterns and injected cases) and none in the shipped data; duplicate list entries, while repeated reactor placements and shared names are not duplicates; breakable and monster drop categories; out-of-scope skips listed per rule without `--verbose` |
 | `tests/unit/test_data_validation_gameplay.gd` | the quest / NPC / dialogue validation runs on the shipped data and finds nothing; an unsupported objective, a dangling dialogue target and an NPC its map does not list are reported; it waits for structurally valid data; message prefixes name the record |
-| `tests/unit/test_data_validation_report.gd` | the provenance report: one entry per record with its own source first and every field and per-property source; v2 drop sources (Hidden Street membership, KuroDB chances, meso) and unresolved members; every gap listed; adaptations with flag, reason and `verified_against`; deterministic output; findings attached to their record |
+| `tests/unit/test_data_validation_report.gd` | the provenance report: one entry per record with its own source first and every field and per-property source; schema 3 drop sources (MeowDB membership, Henesys.gg rarity, the meso report) and unresolved members; every gap listed; adaptations with flag, reason and `verified_against`; deterministic output; findings attached to their record |
 | `tests/unit/test_data_fixture.gd` | `DataValidationTestCase`: deep-copies the shipped ContentDB, injects sidecars, compares against the unbroken copy so each negative test asserts only the finding it caused, and fails a test whose validator run crashed |
 
 Each file declares in `parity_keys()` (contract C6) which Phase 16 rows (`xref:<category>`, `xref:no-duplicate-ids`,
 `xref:no-placeholder-names`, `xref:no-silent-missing-refs`) and canonical-verification rows (`canon:*`) its tests prove;
 the parity manifest ([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) reads them from the test evidence. Most
 `canon:*` tests check the validator rule on fixtures, so the rows that describe the drop data
-(`provenance-per-property`, `membership-chance-separate`, `probability-conversion`, `kuro-only-excluded`,
-`unresolved-visible`) also need the shipped data in that state (`tools/parity/rules.json` `requires`: every drop record
-schema v2). Since the drops package's records landed they are verified by the tests alone; before, the manifest kept
-them `partial`. The manifest (format 3) also separates two kinds of open value it finds in the records and rules: a
-`source_data_gap` (the sources were read and give nothing: a `drop_unresolved` member with no KuroDB chance, an item no
-source names; excused) and a `pending_source_read` (the value is published on a page nobody has read yet:
-`tools/parity/rules.json` `pending_source_reads`, or a drop record's `pending_kuro_candidates` row; never excused;
-none is left since KuroDB item 2040705 was read, D3-10). The validator itself treats both the same way (an
-unresolved value stays visible in `gaps` or as `drop_unresolved`); the label is the manifest's. The drop policy's
-own tests are `test_drop_sources.gd`, `test_drop_chance.gd`, `test_drops_data.gd`, `test_drops_roller.gd` and
-`test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
+(`provenance-per-property`, `membership-rarity-separate`, `no-probability-in-canonical`) also need the shipped data
+in that state (`tools/parity/rules.json` `requires`: every drop record schema 3). The manifest (format 3) also
+separates two kinds of open value it finds in the records and rules: a `source_data_gap` (the sources were read and
+give nothing: a `drop_unresolved` member with no Henesys.gg rarity, an item no local record has; excused) and a
+`pending_source_read` (the value is published on a page nobody has read yet, declared in `tools/parity/rules.json`
+`pending_source_reads`; never excused; none is declared). The validator itself treats both the same way (an
+unresolved value stays visible in `gaps` or as `drop_unresolved`); the label is the manifest's. A drop row's chance is
+neither: it is the owner's table, an adaptation the row names. The drop policy's own tests are `test_drop_sources.gd`,
+`test_drops_data.gd`, `test_drops_roller.gd` and `test_drop_simulation.gd` ([ITEMS.md](ITEMS.md)).
 
 The negative tests pick their victims from the data (the first quest with a kill objective, ...) and inject only
 made-up ids, so they hold when the content grows. Script-error handling in the tool was verified by hand in an

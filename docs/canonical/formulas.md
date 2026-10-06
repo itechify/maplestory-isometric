@@ -1057,8 +1057,9 @@ Resolved by MeowDB's own calculator code (chunk `5253-8d210be12f2a3111.js`, exce
 - Which of Punch 1 / Punch 2 a bare-handed attack plays (the "equal odds" sentence exists only on weapon item pages).
 - Potion use cooldown / lock.
 - Drop expiry time, drop ownership duration, drop scatter, item drop chances, meso drop amount formula. (Iteration
-  Three takes drop and meso chances from KuroDB and meso amounts from MeowDB's player report or Hidden Street, per
-  monster, in the drop records: [monsters.md](monsters.md).)
+  Three: MeowDB's community lists give the drop members and its player reports the meso amount where one exists,
+  Henesys.gg gives each item's rarity, and the drop chance table and the meso rule are the project owner's adaptations,
+  `game/data/misostory/drop_rates.json` and `meso_rules.json`, decisions D3-11 and D3-12: [monsters.md](monsters.md).)
 - HP/MP after respawn, respawn delay, any item/meso loss on death; town or Beginner exceptions to the EXP loss (none listed).
 - Player knockback horizontal speed/distance and when it triggers; monster knockback distance (only "a mob with 500 KB needs 500+ damage to stagger"). The monster stagger time was a gap here too; the live monster pages publish it since ("STAGGER 0.6 seconds", read 2026-10-05: `stagger_ms` in the monster records), though `formulas/movement.json` `monster_knockback.gaps` still lists it until the formulas extractor reads the captures.
 - Whether Three Snails uses the hit roll, level-gap scale and criticals: not stated explicitly (its page lists "Target hit eligibility" as a conditional factor, which suggests the shared hit check applies); its terrain interaction ("not confirmed").

@@ -18,9 +18,9 @@ MisoStory systems (game/scripts/*)                   player, camera, monsters, c
     │  ContentDB (Data autoload)
     ▼
 game/data/canonical/**   sourced facts (MeowDB MS Classic;     game/data/misostory/**   isometric adaptation data
-                         KuroDB chances, Hidden Street drop lists)
+                         Henesys.gg rarity labels)                                  (and the owner's drop chance table and meso rule)
     ▲
-tools/meowdb (cache-only extractors) + tools/*/captures (dated pages read by hand) + tools/sources (loader, crosswalk)
+tools/meowdb (cache-only extractors) + tools/*/captures (dated pages read by hand) + tools/sources (loader, drop records)
 ```
 
 ## Engine and conventions
@@ -44,7 +44,7 @@ tools/meowdb (cache-only extractors) + tools/*/captures (dated pages read by han
 | Path | Contents |
 |---|---|
 | `game/project.godot` | project settings and autoload registration |
-| `game/data/canonical/<domain>/<id>.json` | sourced facts, one entity per file, each with `source{authority,url,retrieved_at}` (MeowDB) and, where a property comes from another authority, `provenance.<property>` (KuroDB chances, Hidden Street drop membership and meso amounts; schema v2 drop records cite a source per entry) |
+| `game/data/canonical/<domain>/<id>.json` | sourced facts, one entity per file, each with `source{authority,url,retrieved_at}` (MeowDB) and, where a property comes from another authority, `provenance.<property>` (Henesys.gg rarity labels; schema 3 drop records cite MeowDB membership and Henesys.gg rarity per entry, and hold no probability) |
 | `game/data/canonical/canonical_sources.json` | generated provenance index: every record → its URLs, capture files and per-property authorities |
 | `game/data/misostory/**` | adaptation: crosswalk, world scale, movement/camera feel, spawn rules, dialogue scripts and rules, recovery, skills, breakables, drop interpretations (no rates), the stuck-scan allowlist |
 | `game/assets/world/` | generated Blender export (glTF chunks + sidecar JSON); git-ignored, rebuilt by the pipeline |
@@ -57,8 +57,8 @@ tools/meowdb (cache-only extractors) + tools/*/captures (dated pages read by han
 | `game/tests/` | `test_runner.tscn`, `test_case.gd`, `unit/test_*.gd`; `data/` fixtures (parity vectors, drop records, Iteration Two saves) |
 | `game/tools/` | headless tools: `validate_data.gd`, the playtest harness (`playtest/`), the stuck-region scan (`stuck_scan*.gd`), traversal bot, screenshot capture |
 | `tools/meowdb/` | development-time MeowDB extractors (Node, cache-only); cache in `tools/meowdb/.cache` (git-ignored); hand-read captures in `captures/` |
-| `tools/kurodb/captures/`, `tools/hiddenstreet/captures/` | dated KuroDB and Hidden Street pages read by hand (no extractor) |
-| `tools/sources/` | the offline capture loader, exact raw-value parsers, the drop item crosswalk and its merge, the spawn-capture check (`node --test tools/sources/test/`) |
+| `tools/henesys/captures/` | Henesys.gg item rarity labels read by hand (no extractor; private use only, see its README) |
+| `tools/sources/` | the offline capture loader, exact raw-value parsers, the drop record builder (`drops_merge.mjs`), the spawn-capture check (`node --test tools/sources/test/`) |
 | `tools/parity/` | the parity manifest generator (`build_parity.mjs`, `rules.json`) |
 
 ## Autoloads
@@ -129,7 +129,7 @@ naming the emitter; Iteration Three added only additive ones (`player_sat_down` 
 | Map model, portals, transitions, spawns and spawn placement | [MAP_ARCHITECTURE.md](MAP_ARCHITECTURE.md), [WORLD_RUNTIME.md](WORLD_RUNTIME.md) |
 | Blender → runtime export | [blender_export.md](blender_export.md) |
 | Combat mathematics, stats, progression, the Beginner skills | [COMBAT.md](COMBAT.md) |
-| Items, inventory, equipment, consumables, chairs, shops, drops (schema v2 records, the roller) | [ITEMS.md](ITEMS.md) |
+| Items, inventory, equipment, consumables, chairs, shops, drops (schema 3 records, the owner's rule files, the roller) | [ITEMS.md](ITEMS.md) |
 | Quests, dialogue, NPC definitions, the departure boundary | [QUESTS_AND_DIALOGUE.md](QUESTS_AND_DIALOGUE.md) |
 | Character creation, game state, saves (v2) and migrations | [SAVES.md](SAVES.md) |
 | Player controller (activity, sitting) and camera | [PLAYER_AND_CAMERA.md](PLAYER_AND_CAMERA.md) |

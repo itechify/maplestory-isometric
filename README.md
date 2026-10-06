@@ -59,12 +59,13 @@ of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 
 ### What Iteration Three adds
 
-- **Canonical drops with their sources kept apart.** Monster drop membership comes from Hidden Street's per-monster
-  lists and the Wooden Box's from MeowDB; drop and meso-drop chances from KuroDB, only for items on both lists; meso
-  amounts from MeowDB (the Snail) or Hidden Street. Every value keeps its raw source text, URL and dated capture, and
-  a member no source gives a chance for never drops and stays visible in validation (decisions D3-3 to D3-10 in the
-  iteration log; the Snail's meso amount, the quest-gate rule and the KuroDB item-page rule are the orchestrator's
-  readings of the brief, not owner decisions).
+- **Canonical drops with their sources kept apart** (the project owner's decision of 2026-10-06: MeowDB MS Classic and
+  Henesys.gg are the only sources). What a monster or the Wooden Box drops is MeowDB's community list "Drops (MS
+  Classic)", every entry; each item's rarity is Henesys.gg's label (read by hand, for this private project only); how
+  often it drops is the owner's table by item category x rarity, a labelled MisoStory adaptation. Mesos are MeowDB's
+  player report where one exists (the Snail), else the owner's level formula, at a 60% chance. Every sourced value
+  keeps its raw text, URL and dated capture (decisions D3-11 and D3-12 in the iteration log; the quest-gate rule D3-9
+  is the orchestrator's reading of the brief, not an owner decision).
 - **Beginner mechanics:** natural HP recovery by the project owner's rule (10 HP per 10 s standing still or sitting,
   paused by moving, jumping or attacking), sitting and The Green Relaxer (with a seated cue on the HUD), the three
   Beginner skills with SP, a Skills window, skill quickslots and an effects bar for the timed buffs.
@@ -184,12 +185,12 @@ images, and how to cut a release.
 | `docs/ITERATION_LOG.md` | Major problems found and corrected, and the source decisions, per iteration and phase |
 | `docs/DEFERRED.md` | What is left open: unresolved source data, owner decisions, art, open review findings |
 | `docs/VALIDATION.md` | Latest Blender validation results |
-| `docs/canonical/`, `game/data/canonical/` | The canonical data (MeowDB MS Classic, with KuroDB chances and Hidden Street drop lists), how it was collected and its gaps |
-| `tools/meowdb/captures/`, `tools/kurodb/captures/`, `tools/hiddenstreet/captures/` | Dated source pages read by hand in a browser (Iteration Three) |
+| `docs/canonical/`, `game/data/canonical/` | The canonical data (MeowDB MS Classic, with Henesys.gg rarity labels on the drop records), how it was collected and its gaps |
+| `tools/meowdb/captures/`, `tools/henesys/captures/` | Dated source pages read by hand in a browser (Iteration Three); the Henesys.gg labels are for private use only (ask Henesys.gg before publishing) |
 | `docs/PROVENANCE_REPORT.md`, `docs/provenance_report.json` | Every canonical value's authority, URL, read time and capture; every unresolved value; every adaptation (`bash scripts/validate_data.sh --report`) |
 | `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence (`node tools/parity/build_parity.mjs`) |
 | `docs/runtime/` | The game's architecture, systems, how-to, content authoring, playtest harness, stuck scan and reports |
-| `docs/review/` | Island reviews 1 and 2 (raw critiques and triage), the final acceptance check, and the Iteration Three audit (`it3_audit.json`) |
+| `docs/review/` | Island reviews 1 and 2 (raw critiques and triage) and the final acceptance check. The raw Iteration Three audit (`it3_audit.json`) is in git history at commit f9b2bc5 |
 | `docs/images/` | Small README images (refresh with `scripts/readme_images.py`) |
 | `renders/final/` | Final validation renders for every camera, plus debug variants. Generated and not in git: run `scripts/render_all.sh final 3 --debug`, or get `renders-final.zip` from a release |
 | `CONTRIBUTING.md` | What goes in git, the everyday build/validate workflow, README images and releases |
@@ -232,19 +233,20 @@ Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
   lunge and a simple sit pose); skill icons and effects are procedural. There is no audio.
 - **Maple Island only.** One Beginner, from character creation to Southperry: no job advancement, no Victoria Island
   (Shanks' boat ends at an "End of Maple Island" screen; nobody travels and no fare is taken), no multiplayer.
-- **Some drops never happen, on purpose.** 53 of the 75 canonical drop members never roll, because no source gives
-  their chance (KuroDB has no row) or their item (an ambiguous or missing MeowDB item); none of them is guessed, and
-  validation lists each one. Monster drop membership comes from Hidden Street's archive, which describes post-Big-Bang
-  GMS v0.96, a different game version, by the project owner's decision; MeowDB's own community lists are kept as
-  reference. Details: [`docs/DEFERRED.md`](docs/DEFERRED.md).
+- **Drop chances are the owner's, not MapleStory's.** No source publishes drop chances: MeowDB lists who drops what
+  (with votes) and Henesys.gg gives a rarity per item. The chance of each of the 86 members is the project owner's
+  table by item category x rarity (`game/data/misostory/drop_rates.json`), and four of five meso amounts come from the
+  owner's level formula (`meso_rules.json`); both are labelled adaptations the owner can tune. Details:
+  [`docs/DEFERRED.md`](docs/DEFERRED.md).
 - **MisoStory choices are labelled.** Where no source gives a value the game needs (the chair clock, skill tick and
   cast times, box placement, spawn spacing, knockback push, ground lifetime of drops), the value is an adaptation in
   `game/data/misostory/` with its reason, marked unverified. Two canonical mechanics are not applied: fall damage
   (MeowDB's rule needs a movement-update length and a per-map switch it does not publish) and crouch with the
   down-jump (the isometric maps have no pass-through floors).
 - **Owner decisions are pending** (`docs/DEFERRED.md`): showing the hidden Tomato Field portal on the minimap,
-  protecting The Green Relaxer from being sold, the Snail's meso amount (MeowDB 2 or Hidden Street 1), square or disc
-  touch zones, the Skills window overlapping the Quest Log, and whether Three Snails may hit Wooden Boxes.
+  protecting The Green Relaxer from being sold, square or disc touch zones, the Skills window overlapping the Quest
+  Log, whether Three Snails may hit Wooden Boxes, and MeowDB's in-game street name that the owner's search for the
+  removed sources still matches.
 - **Playthroughs are automated.** Every quest, Tests A-G and the Iteration Three scenarios run as scripted real-input
   playthroughs of the real game ([`docs/runtime/PLAYTEST_HARNESS.md`](docs/runtime/PLAYTEST_HARNESS.md)), headless and
   (the clean-character playthrough, the skills, the boxes and the kit) windowed; a human playthrough is still to come.

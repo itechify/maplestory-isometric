@@ -796,7 +796,7 @@
    "target": "1000000:in03",
    "inferred": false,
    "reverse": "1000000 in03 at (1908,456) -> 1000004:out00 (https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000000.img/portal/6)",
-   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000004.img/portal/6 (raw v8 WZ: pn=out00 pt=2 tm=1000000 tn=in03). The parsed API JSON has portals[6]=null. Corroborated by /api/GMS/40/map/1000004 and by hidden-street 2005 (only connection: Field West of Amherst)",
+   "source": "https://maplestory.io/api/wz/GMS/8/Data/Map/Map/Map0/001000004.img/portal/6 (raw v8 WZ: pn=out00 pt=2 tm=1000000 tn=in03). The parsed API JSON has portals[6]=null. Corroborated by /api/GMS/40/map/1000004",
    "tier": "T21"
   }
  ],
@@ -1211,6 +1211,6 @@
   }
  ],
  "notes": [
-  "No left/right edge exits: perimeter walls x=771 and x=2919 run down to y=720; the map has exactly one non-spawn portal (out00). Dead-end side map off The Field West of Amherst (hidden-street 2005 confirms the single connection)."
+  "No left/right edge exits: perimeter walls x=771 and x=2919 run down to y=720; the map has exactly one non-spawn portal (out00). Dead-end side map off The Field West of Amherst."
  ]
 }

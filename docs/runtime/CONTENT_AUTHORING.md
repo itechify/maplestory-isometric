@@ -5,10 +5,10 @@ Iterations Two and Three built the systems so that the rest of MapleStory (Victo
 prove it works. Three rules hold throughout:
 
 - **Canonical facts come from their sources** and live in `game/data/canonical/` with provenance. MeowDB MS Classic is
-  the authority for everything, except that KuroDB supplies drop and meso-drop probabilities and Hidden Street
-  supplies monster drop membership and meso amounts (decisions D3-3 to D3-10 in
-  [`../ITERATION_LOG.md`](../ITERATION_LOG.md); contract C7). The extractors in `tools/meowdb/` write these files from
-  the local cache and the dated captures; they are never edited by hand ([`../canonical/README.md`](../canonical/README.md)).
+  the authority for everything, drop membership and meso reports included; Henesys.gg supplies one property, the
+  rarity label of a drop member (decision D3-11 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md); contract C7). The
+  extractors in `tools/meowdb/` write these files from the local cache and the dated captures; they are never edited
+  by hand ([`../canonical/README.md`](../canonical/README.md)).
 - **Everything the sources do not publish is a MisoStory adaptation** in `game/data/misostory/`, with a `reason` and
   `"verified": false`. A value marked `"verified": true` must say what it was checked against in `verified_against`
   (the project owner's natural-regen rule is the one case today). Never invent a canonical value, and never change
@@ -18,8 +18,9 @@ prove it works. Three rules hold throughout:
 > **Source access.** The extractors are cache-only (decision D3-1): `tools/meowdb/lib.mjs` touches the network only
 > with `MEOWDB_ALLOW_NETWORK=1`, which stays off unless MeowDB grants permission (its terms forbid automated
 > collection; ask contact@meowdb.com before publishing the dataset). Newer or missing facts come in as **dated
-> captures** of pages read by hand in a normal browser ([HOWTO.md](HOWTO.md) "Capture a source page by hand"). KuroDB
-> and Hidden Street have no extractor at all: they sit behind a Cloudflare check, and only their captures are read.
+> captures** of pages read by hand in a normal browser ([HOWTO.md](HOWTO.md) "Capture a source page by hand").
+> Henesys.gg has no extractor at all: its site prohibits unauthorized reproduction or scraping, so its rarity labels
+> are read by hand, kept for this private project only, and must not be published without asking Henesys.gg.
 
 ## What is already in
 
@@ -27,7 +28,7 @@ prove it works. Three rules hold throughout:
 |---|---|
 | Maps | All 25 Maple Island maps, with every MeowDB portal, spawn, NPC and return map. Each has a minimap, and the stuck-region scan finds no trap on any of them. |
 | Monsters | All 6 Maple Island species, with canonical stats (the stagger time from the live pages), floor-bound pacing and fair hit areas. |
-| Drops | 7 schema v2 drop records (6 monsters and the Wooden Box): 75 members, 22 of which roll with a KuroDB chance; 53 never roll because a source leaves the chance or the item unresolved (each listed by the validator). No KuroDB read is pending: the Orange Mushroom's jump scroll was settled by its item page (D3-10). Meso amounts for 5 monsters (MeowDB for the Snail, Hidden Street for the rest) at KuroDB's 40% chance. |
+| Drops | 7 schema 3 drop records (6 monsters and the Wooden Box): 86 members, MeowDB's community lists in full, every one resolved (item, Henesys.gg rarity, table category) and rolling at the owner's table cell (decision D3-11). Meso bags for 5 monsters at the owner's 60%: the Snail's 2 from MeowDB's report, the level formula [level, 2 x level] for the other four (D3-12). |
 | Breakables | The Wooden Box (0000001): its 19 placements on six maps (in the gameplay camera's sight, tree canopies included), 4 hits to break (basic attacks or Three Snails), per-placement respawn, its drops through the same roller, a reach rim and a quest marker. |
 | NPCs | All 21 Maple Island NPCs, all reachable and talkable, with speech bubbles of their canonical idle lines. Shanks ends the island at the departure boundary. |
 | Quests | All 20 Maple Island quests (1000-1019), each played in the real game by the every-quest set, strict after its setup. |
@@ -40,12 +41,12 @@ Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Ever
 
 ## Canonical data from dated captures
 
-1. **Capture** the page (HOWTO "Capture a source page by hand"): `tools/meowdb/captures/`, `tools/kurodb/captures/`
-   or `tools/hiddenstreet/captures/`, with a URL and an ISO read time. `tools/sources/captures.mjs` loads every capture
-   and refuses a file it does not know.
+1. **Capture** the page (HOWTO "Capture a source page by hand"): `tools/meowdb/captures/` or
+   `tools/henesys/captures/`, with a URL and an ISO read time. `tools/sources/captures.mjs` loads every capture and
+   refuses a file it does not know.
 2. **Regenerate** with the extractor that reads it:
-   - a monster or breakable page, a KuroDB page or a Hidden Street drop list: `node tools/meowdb/extract_monsters.mjs`
-     (monsters, breakables, and the drop records through `tools/sources/drops_merge.mjs` and the crosswalk below);
+   - a monster or breakable page, or the Henesys.gg rarity capture: `node tools/meowdb/extract_monsters.mjs`
+     (monsters, breakables, and the drop records through `tools/sources/drops_merge.mjs`, below);
    - the quest tracker: `node tools/meowdb/extract_quests.mjs` (`missable` and `tracker_tags` of every quest; a quest
      with no tracker row fails the run, so a new region needs its own tracker capture);
    - an item API body (`tools/meowdb/captures/items_api.json`): `node tools/meowdb/extract_items.mjs` builds an item
@@ -63,66 +64,45 @@ Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md). Ever
    (`node tools/parity/build_parity.mjs`, HOWTO "Build the parity manifest").
 
 Every value from a capture cites the capture's path next to the page URL (`field_sources`, `provenance.<property>`,
-or a drop entry's `membership_source` / `chance_source`). A value no source gives stays `null` and is listed in the
+or a drop entry's `membership_source` / `rarity.source`). A value no source gives stays `null` and is listed in the
 record's `gaps`; two sources that disagree are recorded in `discrepancies` with the choice and why.
 
-## The drop item crosswalk
-
-KuroDB, MeowDB and Hidden Street use unrelated item ids (Snail Shell is 4000019 on KuroDB and 348 locally), so drops
-are joined **by name** through `tools/sources/crosswalk/drop_items.json`, never by id. Each member of a membership
-list has a row: its local MeowDB item (`resolved`, `ambiguous` or `not_in_snapshot`, with the match method `exact`,
-`normalized`, `alias_with_evidence` or `none`, and the evidence), its KuroDB row (`matched` or `none`), and a reviewer
-note. `drops_merge.mjs` refuses a member without a row, a KuroDB claim that is not on the captured page, a resolved
-item that is not local, or a row without a reviewer note ([`../../tools/sources/crosswalk/README.md`](../../tools/sources/crosswalk/README.md)).
-
-To change a drop: read the capture again, edit the row (evidence and reviewer note), run
-`node tools/meowdb/extract_monsters.mjs` twice, then `node tools/meowdb/build_sources_index.mjs`,
-`node --test tools/sources/test/` and `bash scripts/validate_data.sh`. Do not resolve an ambiguous name by guessing:
-leave it `ambiguous` and say why. When an item file is added for an id a row lists as a candidate,
-`extract_monsters.mjs` stops ("candidate N is now a local item; review the crosswalk row") until the row is reviewed.
-The drop tests follow the data (no test pins a member's state by hand), so a changed drop needs no test edit; a
-`pending_source_reads` declaration in `tools/parity/rules.json` that the data no longer supports fails the parity
-build until it is removed.
-
-**A KuroDB row under another name (a candidate).** When the owner's KuroDB page has a row that may be a member under
-another name (its name lacks the member's success rate, say), the crosswalk row stays `none` and records it as a
-`candidate` with `confirm_with` (decision D3-8). Until its KuroDB **item page** is read, the merge writes it to the
-record's `pending_kuro_candidates` and the member's chance is a pending source read (never excused in the parity
-manifest). The hand read goes in `tools/kurodb/captures/item_<kuro id>.json` (`tools/kurodb/captures/README.md` has
-the shape and the steps); re-running `extract_monsters.mjs` then settles the row by rule D3-10 (`meowdb_scroll`):
-confirmed as the member's chance (`alias_with_evidence`, the item page cited in `chance_source.match_evidence`, any
-other bonus amounts recorded as `version_difference` and never used) when the page's name relates to the member's, its
-success rate is the MeowDB scroll's, its bonuses include the scroll's stat and its MONSTER DROPS list the monster at the
-monster page's value; otherwise moved to `excluded_kuro_only` with what the page showed. The one candidate so far,
-KuroDB 2040705 on the Orange Mushroom, was read on 2026-10-06 and confirmed: "Scroll for Shoes for Jump 10%" (MeowDB
-177) rolls at 0.0003.
-
-## Drop records (schema v2)
+## Drop records (schema 3)
 
 `game/data/canonical/drops/<owner id>.json` is one record per owner (contract C1 in
-[ITERATION_THREE_CONTRACTS.md](ITERATION_THREE_CONTRACTS.md); fields in [`../canonical/monsters.md`](../canonical/monsters.md)):
+[ITERATION_THREE_CONTRACTS.md](ITERATION_THREE_CONTRACTS.md); fields in
+[`../canonical/monsters.md`](../canonical/monsters.md#drops-schema-3-records)). `extract_monsters.mjs` writes it
+through `tools/sources/drops_merge.mjs`, offline, from:
 
-- `owner {kind: monster | breakable, id}` and `membership_authority` (Hidden Street for monsters, MeowDB for
-  breakables).
-- `entries[]`: `key`, `name`, `item_id` (null when unresolved) with `item_resolution`, the `membership_source`, the
-  `chance_source` (KuroDB, with its raw value, `format` `percent_base` or `reactor_chance_value`, the exact
-  conversion and the normalised probability; null when KuroDB has no row), `chance_state`, `probability`, `quantity`,
-  `quest_gate` and notes.
-- `excluded_kuro_only[]`: KuroDB rows no membership source lists, or a candidate its item page did not confirm (the
-  reason says which). KuroDB never adds a member.
-- `pending_kuro_candidates[]` (empty today): candidate rows waiting for a hand read of their KuroDB item page; they
-  never drop, and their member's chance is a pending source read.
-- `meso`: amount (MeowDB report, else Hidden Street) and chance (KuroDB), each with its state and source; `null` for
-  an owner that never drops mesos.
+- **membership**: MeowDB's community list "Drops (MS Classic)" on the owner's newest dated page capture
+  (`tools/meowdb/captures/monster_<id>.*`, `breakable_<id>.txt`), every entry with its raw block and votes; the
+  "MSEA reference drops" list goes to `meowdb_reference`, never into `entries`. A cache read after the capture that
+  names other members stops the build until the page is captured again.
+- **item**: the one local item with the member's name; where several share it (Red Cloth Pants: 1168 and 1177), the id
+  MeowDB's own cached drop entry for that owner carries (`item_resolution.method` `meowdb_drop_entry`). A member with no
+  local item stays `item_id: null` and never rolls. Do not resolve a name by guessing.
+- **rarity**: the member's Henesys.gg label from `tools/henesys/captures/item_rarity.json`, matched by MeowDB's name
+  (`null` when the capture has no row: the member never rolls).
+- **chance category and quest gate**: from the item's MeowDB type and subtype; an entry is gated only when its item's
+  subtype is "Quest Item" and a Maple Island quest objective asks for it (decision D3-9: Old Wooden Board and Rusty
+  Screw, gated to 1012).
+- **meso**: MeowDB's player report from the newest dated source, else `not_reported`; `null` for a breakable.
 
-The roller (`DropRoller.roll(owner, db, rng, ctx)`) rolls an entry only when its chance is resolved, its item is
-resolved and its quest gate (if any) is in progress in `ctx`; the meso bag only when amount and chance are both
-resolved. An entry is gated only when its item is a quest item that a Maple Island quest objective asks for (decision
-D3-9: Old Wooden Board and Rusty Screw, gated to 1012). Nothing outside the records supplies a chance, quantity or
-meso amount: `game/data/misostory/drop_rates.json` holds only the meso-amount distribution and the gate rule, and
-the validator refuses any number put there. Ground lifetime, ownership and scatter stay in
-`game/data/misostory/drops.json`. The one adaptation inside a canonical record is the Wooden Box's quantity of 1 per
-roll (`quantity.adaptation`, `verified: false`): KuroDB's reactor rows publish none.
+A record holds no probability. The chance is `game/data/misostory/drop_rates.json` `chance_table[category][rarity]`,
+the project owner's table (decision D3-11, `verified: false`), and the meso rule is `meso_rules.json` (MeowDB's report,
+else [level, 2 x level]; 60%; none for the Tutorial Jr. Sentinel and the Wooden Box; D3-12). To tune a drop, edit a
+cell of `drop_rates.json` (or the meso rule): no record and no test pins a number, and `test_drops_data.gd`
+(`test_an_edited_table_cell_reaches_the_runtime_unchanged`) proves an edited cell reaches the runtime. The validator
+requires every category x rarity cell, each in [0, 1]. Ground lifetime, ownership and scatter stay in
+`game/data/misostory/drops.json`.
+
+The roller (`DropRoller.roll(owner, db, rng, ctx)`) rolls an entry only when its item, rarity and category are
+resolved and its quest gate (if any) is in progress in `ctx`, at the table cell's chance, one item per drop; the meso
+bag at `meso_rules.json` `chance` unless the owner is in `no_mesos`. To change a drop's membership or rarity: capture
+the page again (a newer MeowDB page, or a new reading of the Henesys.gg loot page), run
+`node tools/meowdb/extract_monsters.mjs` twice, then `node tools/meowdb/build_sources_index.mjs`,
+`node --test tools/sources/test/` and `bash scripts/validate_data.sh`. The drop tests follow the data, so a changed
+list needs no test edit.
 
 Check a record with the console (`drops <owner id> 1000` prints observed against configured rates, each chance's
 source and why a member never rolls) and with `bash scripts/test.sh drop`.
@@ -182,8 +162,8 @@ source and why a member never rolls) and with `bash scripts/test.sh drop`.
 ## Add a monster
 
 1. **Canonical record:** `extract_monsters.mjs` writes `monsters/<id>.json` (with the stagger time when a live capture
-   shows it) and `drops/<id>.json`. A drop record needs the monster's Hidden Street drop list and KuroDB page captured
-   and a crosswalk row per member. Spawns need nothing extra: map pages list `spawns[]`, and the spawn system places
+   shows it) and `drops/<id>.json`. A drop record needs the monster's MeowDB page captured (its community list) and a
+   Henesys.gg rarity row per member. Spawns need nothing extra: map pages list `spawns[]`, and the spawn system places
    exactly MeowDB's species and counts.
 2. **Adaptation:** `game/data/misostory/monsters/<id>.json`: the model (an Iteration One proxy in `_library.glb`, or a
    new kit asset), scale, collision capsule, AI timings and walk style. Shared defaults are in `_shared.json`,
@@ -220,8 +200,8 @@ Monsters spawn at slots the runtime plans on Blender's spawn regions; MeowDB's 2
 ## Add a breakable
 
 1. **Canonical:** `breakables/<id>.json` (`hits_to_break`), each map's `reactors[]` (`id`, `respawn_s` per placement;
-   the index is the placement) and a schema v2 `drops/<id>.json` whose owner kind is `breakable` (membership from
-   MeowDB's live breakable page, chances from KuroDB's reactor rows, read as 1/N by decision D3-7).
+   the index is the placement) and a schema 3 `drops/<id>.json` whose owner kind is `breakable` (membership from
+   MeowDB's live breakable page, rarity from Henesys.gg, chances from the owner's table, decision D3-11).
 2. **Positions:** none are authored in Blender. `BreakablePlacementPlanner` places each placement on walkable ground
    of its map, seeded per map, with the clearances and rules in `game/data/misostory/breakables.json` `placement`
    (away from portals, arrivals, NPC talk spaces, spawn slots and other boxes; standing room around it; in the
@@ -332,14 +312,17 @@ an entry in `IT2_STEPS` and the reshape checks in `test_save_it2_fixtures.gd`; n
 
 - a reference that does not resolve (maps, portals and the portal graph, monsters, NPCs, items, quests, shops, skills,
   drop owners and gate quests, chairs, dialogue links), an id defined twice, or a placeholder name;
-- provenance: a record without its MeowDB source, a property from an authority that may not supply it (KuroDB:
-  probabilities only; Hidden Street: monster membership and meso amounts only; Project owner: a cited decision), a
-  missing or non-ISO read time, a cited capture file that does not exist, a stale `canonical_sources.json`;
-- a drop record that is not schema v2, a probability outside [0, 1] or one that does not re-derive exactly from its
-  raw value (N% against 1/N, a missed /100, truncation), a KuroDB-only member, a gate that breaks the D3-9 rule, an
-  unresolved member a quest needs (a progression blocker), or any number in `drop_rates.json`;
+- provenance: a record without its MeowDB source, a property from an authority that may not supply it (Henesys.gg:
+  rarity only; Project owner: a cited decision), a missing or non-ISO read time, a cited capture file that does not
+  exist, a stale `canonical_sources.json`;
+- a drop record that is not schema 3 or holds a probability; a membership that is not MeowDB's community list on the
+  owner's own, newest page capture (a member added, removed or reordered, an MSEA-only item, a raw block or votes that
+  differ); a rarity that is not the Henesys.gg capture's; a category that breaks the rule; a gate that breaks the D3-9
+  rule; a MeowDB meso report the page shows but the record leaves out; an unresolved member a quest needs (a
+  progression blocker); an incomplete `drop_rates.json` table (a missing cell or one outside [0, 1]) or an invalid
+  `meso_rules.json`;
 - an adaptation value without a reason and verified flag, or `verified: true` without `verified_against`;
 - the game's own quest, NPC and dialogue validation (unsupported objectives, unplaceable NPCs, dangling nodes).
 
-It warns, by design, about every drop member or meso value that never rolls because a source leaves it unresolved, so
-missing probabilities stay visible (53 on the final Iteration Three data).
+It warns, by design, about every drop member that never rolls because its item, rarity or category is unresolved, so
+missing values stay visible (none on the final Iteration Three data).

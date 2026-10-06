@@ -22,10 +22,6 @@ Units: MapleStory pixels and tier counts only (y increases **downward**, so a sm
   v28, v32, v34, v37, v38, v39 and v40-v55 (all pre-revamp, same IDs and names).
 - **Local partial renders and minimaps**: `docs/research/ref_renders/v8_<id>_render.png` and `v8_<id>_minimap.png`. I viewed all 14 renders and the 11 minimaps that exist; the 3 interior maps (1010001-1010003) have no minimap. To read the 6-14 px house sprites, I made 6x nearest-neighbour enlargements of the minimaps in a temp folder outside the repo; no copies are in the project.
 - **NiaMeowDB / meowdb "MapleStory Classic" database**: `https://meowdb.com/msclassic/maps/0000010xx`. It describes *MapleStory Classic World*, a modern Nexon re-creation of early GMS, so it is a **secondary** source. Its quest text is a modern re-localisation, and its spawn counts differ from v8, so I use it only for NPC roles, quest names and breakables. Its ID scheme is its own (Amherst = `000001010`), so do not mix it with WZ IDs.
-- **Hidden Street (2005-2006, via archive.org)**: these are the best classic-era sources found.
-  - The Amherst page: https://web.archive.org/web/20060414135927/http://www.hidden-street.net/maps/amherst.php
-  - An **annotated Rainbow Street connection diagram** captured in Dec 2005, saved as `ref_web/1010000_1.gif`: https://web.archive.org/web/20051220152556/http://www.hidden-street.net/maps/images/miamherst.gif
-  - An **in-game screenshot of The Field East of Amherst** captured in Jun 2006, saved as `ref_web/1020000_1.jpg`: https://web.archive.org/web/20060626033208/http://www.hidden-street.net/maps/images/rstomatoisland.jpg
 - **Official MapleGlobal (GMS) site, 2006**: the Maple Island map blurb at https://web.archive.org/web/20060528204733/http://www.mapleglobal.com/WZ.ASPX?PART=/Guide/GameLibrary/MapleWorldMap/MapMaple
 - **MapleTip location library (Nov 2007 snapshot)**: https://web.archive.org/web/20071112044538/http://www.mapletip.com/locations_view.php?town=Amherst. It independently confirms the portal links and mob stats.
 - **MapleWiki / Wikia (May 2008 snapshot)**: https://web.archive.org/web/20080515183439/http://maplestory.wikia.com/wiki/Amherst
@@ -36,10 +32,6 @@ Units: MapleStory pixels and tier counts only (y increases **downward**, so a sm
 - **Official GMS text (MapleGlobal, 2006)**, verbatim:
 
   > "In this island, there are: the Mushroom Village, the first town of the game; Southperry, the harbor town; and **Amherst, the town of quests**. At this island, novice travelers learn various skills and techniques with the help of NPC. ... <Maple Island>, an island floating somewhere in the sky of <Maple World>, is a mysterious island of no-return, once it is left behind for Victoria Island."
-
-- **Hidden Street (2006)**, verbatim:
-
-  > "The town of quests. Most of the beginner's quests can be found in this town. There are 2 types of store available here, which is the Weapon store and Potion store."
 
 - **MapleWiki (2008)**, verbatim with the original spelling:
 
@@ -91,8 +83,7 @@ All **[viewed]** in the v8 renders.
 
 ### Sky and background atmosphere
 
-- **Sourced**, for Field East only: the Jun 2006 screenshot (`ref_web/1020000_1.jpg`) shows a **bright blue sky with puffy white clouds**, **soft out-of-focus green hills and round trees** in the distance, and a **giant tree trunk** in the mid-background.
-- **[inference]** The other Rainbow Street field maps probably share this daytime "meadow under a huge tree" backdrop. The maplestory.io JSON has no background data, and the renders omit backgrounds, so this is not verified per map.
+- **[inference]** The Rainbow Street field maps probably share a daytime meadow backdrop. The maplestory.io JSON has no background data, and the renders omit backgrounds, so this is not verified per map.
 - **[memory]** Maple Island fields are always sunny daytime; there is no night or dusk variant in the classic era.
 
 ### Recurring props (what to build once and reuse)
@@ -111,8 +102,7 @@ All **[viewed]** in renders and minimaps.
   - knotted **hemp ropes** hanging from a wooden peg (Hunting Ground II, Mushroom Garden);
   - **rope-and-plank ladders** (Mushroom Garden, Hunting Ground II).
 - **Butterflies** (pink and orange; Snail Field of Flowers).
-- **Tomato plants**: bushy green plants with red tomatoes. Seen close up in the Field East screenshot, and as a ground row in the Tomato Field minimap.
-- **Small white-capped mushrooms** growing on island tops (Field East screenshot).
+- **Tomato plants**: bushy green plants with red tomatoes, seen as a ground row in the Tomato Field minimap.
 - **Mushroom houses** (Amherst, Field East's far-east ground, Townstreet): mushroom-cap roofs in yellow, red and orange.
 
 ---
@@ -155,10 +145,6 @@ Where I inferred a portal name, the count of `null` entries left in that map's p
 
 **Independent classic-era confirmation of the graph**:
 
-- **Hidden Street's Dec 2005 diagram** (`ref_web/1010000_1.gif`) draws every one of these links on top of minimap captures:
-  - Field West of Amherst to all six pockets, to Amherst, and to "Split Road to Mushroom Town and Southperry";
-  - Amherst to Field East, and Field East to Tomato Field;
-  - Amherst to "House in Townstreet", and that house to "Small Field of Flowers".
 - **MapleTip (2007)** lists Townstreet's portals as exactly "Amherst" and "Snail Field of Flowers", and the Department Store's as "Amherst".
 - So all five inferred portals are confirmed in their destination, though not in name or position.
 
@@ -464,10 +450,6 @@ Names and dialogue from `https://maplestory.io/api/GMS/8/npc/<id>`.
 - **Rain's Maple Quiz 1-7** (Lv 5+). Controls, ladders, job advancement trivia. https://meowdb.com/msclassic/quest-tracker/1013
 - **Breakables**: meowdb lists **6 Wooden Box spawn points** in Amherst (2 more in the Weapon Store, 2 in Townstreet, 1 in the Department Store). These boxes are the Pio-quest props.
 
-**Classic-era fansite description** (Hidden Street, 2006 archive, https://web.archive.org/web/20060414135927/http://www.hidden-street.net/maps/amherst.php), verbatim:
-
-> "The town of quests — Most of the beginner's quests can be found in this town. There are 2 types of store available here, which is the Weapon store and Potion store."
-
 ### Visual identity
 
 All **[viewed]** in the render and minimap: the v8 render shows only tiles and the post box, and the minimap shows the house art.
@@ -479,35 +461,22 @@ All **[viewed]** in the render and minimap: the v8 render shows only tiles and t
   - a **red-capped mushroom house with a chimney** (orange/white stripes);
   - green shrubs and an autumn tree;
   - a **red post box** at the far west end (rendered at about x -190). **[memory]** In other classic towns this red box is a mail/notice box prop.
-- **Middle terrace** (town square, x 862..2018): a long low **lime-yellow-capped mushroom house with a chimney** and a thin autumn tree. This is the **Department Store** (`in02`, the potion shop). Evidence:
-  - Hidden Street's Dec 2005 diagram labels this house "potions", with "Lucas" just to its right.
-  - The Classic text says Lucas walks "in front of the general store".
+- **Middle terrace** (town square, x 862..2018): a long low **lime-yellow-capped mushroom house with a chimney** and a thin autumn tree. This is the **Department Store** (`in02`, the potion shop). Evidence: the Classic text says Lucas walks "in front of the general store".
 
-  The x position of `in02` itself is still unparsed. **[derived]** From the diagram it is roughly x 1500-1600.
+  The x position of `in02` itself is still unparsed.
 - **Two small stacked floating ledges plus a rope** at x≈2032-2198. In the minimap they read like a two-board signpost; the render shows they are tiled ledges.
 - **East ground**:
   - an **orange-capped mushroom house with a stone chimney** at about x 2276; its door (`in01`) leads to **Townstreet**;
   - a small **red-and-white** and a small **yellow** mushroom hut together, at about x 2550-2800;
   - at the far east, around the exit to the Field East (`east00` at x 3055), a **big leafy tree with a house built into its trunk** (orange roofs, round windows, dark doorway at the base). This "big tree" is the town's most striking landmark. **[proposal]** Make the east exit pass by or through the tree-house.
 
-**Classic-era annotation (Hidden Street diagram, Dec 2005, `ref_web/1010000_1.gif`).** The diagram overlays labels on the Amherst minimap:
-
-- "**weapons**" and "**Mai**" on the upper-left plateau;
-- "**Rain & Pio**" at the lower left;
-- "**potions**" under the middle-terrace house;
-- "**Lucas**" to its right.
-
-An arrow runs from the east-ground orange mushroom house to a picture captioned "**HOUSE IN TOWNSTREET**", and on to "Small Field of Flowers". So in late-2005 GMS, Mai was still in Amherst, and every shop and NPC sits where the v8 coordinates put them.
-
 ### Landmarks from the brief that were not found
 
 - **Clock or tower**: I looked for one and found none. Sources checked:
   - the v8, v62 and v83 Amherst minimaps;
-  - the v8 render;
-  - Hidden Street's Dec 2005 diagram;
-  - the 2006 Field East screenshot.
+  - the v8 render.
 
-  None shows a clock or tower in Amherst or on Rainbow Street. **[memory]** The Maple Island "tower" is Southperry's lighthouse; the classic world map, Hidden Street `map001.jpg`, shows it at Southperry, not Amherst.
+  None shows a clock or tower in Amherst or on Rainbow Street. **[memory]** The Maple Island "tower" is Southperry's lighthouse, not a building in Amherst.
 - **Signs**: the only sign I could confirm is the orange **"WELCOME" board** inside the Department Store (1010003 render). The two-board shape that reads like a **signpost** in the Amherst minimap (x≈2032-2198) turns out, in the v8 render and footholds, to be **two small stacked cobblestone ledges plus the rope at x 2072**. It is not a signpost object.
   - **[proposal]** A directional signpost at the west and east gates would still fit the town and help navigation.
 
@@ -522,7 +491,7 @@ An arrow runs from the east-ground orange mushroom house to a picture captioned 
 
 ### Era notes
 
-- **Mai (12100)** stands on the upper plateau in **v8**. Hidden Street's **Dec 2005** diagram still labels "Mai" there. By v22 she has moved to **A Split Road (50000)** at (1891, -175) with new training lines: "You can be much stronger, if you get to be trained by me..." (`raw/gms_v22/50000.json`; https://maplestory.io/api/GMS/22/npc/12100). v22, v40, v55 and v62 Amherst have only Lucas, Rain and Pio.
+- **Mai (12100)** stands on the upper plateau in **v8**. By v22 she has moved to **A Split Road (50000)** at (1891, -175) with new training lines: "You can be much stronger, if you get to be trained by me..." (`raw/gms_v22/50000.json`; https://maplestory.io/api/GMS/22/npc/12100). v22, v40, v55 and v62 Amherst have only Lucas, Rain and Pio.
   - **[proposal]** Choose one placement for MisoStory: v8 Amherst, or the v22 Split Road position.
 - **Maria in Amherst** is a **post-revamp** state: in v83 Amherst (re-IDed to `1000000`) she stands at (1101, 154) next to Lucas, Rain and Pio (https://maplestory.io/api/GMS/83/map/1000000). Classic Maria belongs at A Split Road.
 - **v83 re-ID** (Maple Island revamp):
@@ -548,7 +517,6 @@ An arrow runs from the east-ground orange mushroom house to a picture captioned 
 **Secondary**
 
 - meowdb: Sid, "Weapon Seller"; a 4-item shop (Sword, Hand Axe, Wooden Club, Razor; Classic-World prices); 2 Wooden Box spawns. https://meowdb.com/msclassic/npcs/20
-- Hidden Street 2006 calls it the "Weapon store".
 
 **Visual identity**
 
@@ -577,7 +545,6 @@ All **[viewed]**, partial render: only the frame is rendered.
 **Visual identity**
 
 - **[viewed]** The render shows only a **grassy-soil ground strip** (field tiles, not cobblestone) with an embedded boulder. The central structure is object art and is not rendered.
-- **Hidden Street's Dec 2005 diagram** captions this map "**HOUSE IN TOWNSTREET**". Its thumbnail shows a large **orange-capped mushroom house with windows**, seen from outside on grass (`ref_web/1010000_1.gif`).
 - **Analog (not this map)**: the official 2005 MapleGlobal screenshot of *Mushroom Town Townstreet* (map 20001) shows the same "Townstreet" concept: a **giant mushroom house cut away to show two wooden floors**, joined by a wooden ladder, furnished with a bed, chest, shelves and hanging flower lamps, and standing on a grass strip under blue sky. https://web.archive.org/web/20051216083528/http://image.mapleglobal.com/download/screen_shot/003.jpg
   - **[inference]** Amherst Townstreet's footholds fit that template: two floors at y 69/47 over a ground at 275, a roof line at -117, and a ladder at x 77 from the ground to the first floor.
 
@@ -601,7 +568,6 @@ All **[viewed]**, partial render: only the frame is rendered.
 **Secondary**
 
 - meowdb: Lucy, "Grocer"; 6-item shop (Red Potion, Orange Potion, Apple, Egg, Orange, Pet Food; Classic-World stock, so pet food may not be 2005-accurate); 1 Wooden Box spawn. https://meowdb.com/msclassic/npcs/21
-- Hidden Street 2006 calls it the "Potion store" / "Item Store".
 
 **Visual identity**: **[viewed]**
 
@@ -677,22 +643,11 @@ All **[viewed]**.
 - **Clover-blossom** bushes grow on a mid island.
 - The minimap shows **autumn birch groves** (orange and mustard) on the ground and an **orange mushroom-cap house at the far east ground**. **[inference]** This house is probably the door to Tomato Field. In Amherst, doors to sub-maps are houses, and the portal list has only one sub-map door here.
 
-**Classic in-game screenshot** (Hidden Street, captured Jun 2006; `ref_web/1020000_1.jpg`; https://web.archive.org/web/20060626033208/http://www.hidden-street.net/maps/images/rstomatoisland.jpg). The minimap window title reads "Rainbow Street / The Field East of Amherst". **[viewed]** The screenshot shows:
-
-- **Background**: a bright blue sky with white cumulus clouds; soft, painterly distant green hills with round blurred trees; and, in the mid-background, a **gigantic tree** whose wide trunk fills the screen centre, with an orange mushroom-cap shape at its foot.
-- **Foreground**: grassy-soil islands with mossy boulders, and **knotted hemp ropes hanging from wooden pegs**.
-- **Tomato plants**: bushy green plants hung with **red tomatoes** on the ground platform.
-- **Small white-capped mushrooms** growing on the top island.
-- **Red Snails** around a beginner character.
-
-So the tomato-plant prop is not exclusive to Tomato Field.
-
 **What makes it recognizable**
 
 - The east-side field with the lattice of floating platforms.
 - The town music still playing.
 - Orange Mushrooms everywhere (12 entries).
-- The giant tree looming in the background.
 
 **Era notes**: in v83, `1020000` is "Split Road of Destiny" (Maple Road). Do not use it.
 
@@ -719,7 +674,7 @@ All **[viewed]**.
 
 - A long, low, gently rolling ground: a raised hump at the left, a central hump, and a high bank at the right, with sloped transitions.
 - A **single row of about 17 small floating tufts** runs along the sky in two staggered lines.
-- The minimap shows a **continuous row of small dark-green plants with red dots along the whole ground**. These are almost certainly the **tomato plants** that give the field its name. The same prop (bushy plants with red tomatoes) is visible close up in the 2006 Field East screenshot (`ref_web/1020000_1.jpg`). **[inference]** The individual plant sprites are too small to identify in the minimap itself.
+- The minimap shows a **continuous row of small dark-green plants with red dots along the whole ground**. These are almost certainly the **tomato plants** that give the field its name. **[inference]** The individual plant sprites are too small to identify in the minimap itself.
 - Autumn birches stand at the left end; mustard-yellow birches stand in the centre and at the right.
 
 **What makes it recognizable**: a flat "farm strip" with a tomato-plant row along the ground and a sky row of stepping stones. It is the quietest, simplest map in the set.
@@ -747,8 +702,8 @@ All **[viewed]**.
 
 **Sourced**:
 
-- **"The town of quests"**: the official 2006 GMS site and Hidden Street 2006 both use the phrase.
-- **The only weapon shop on the island.** In-era support: Hidden Street 2006 Amherst, "There are 2 types of store available here, which is the Weapon store and Potion store" (https://web.archive.org/web/20060414135927/http://www.hidden-street.net/maps/amherst.php); Hidden Street 2006 Southperry, "Only the armour store is available here"; and the v8 map set has no other weapon-store map. MapleWiki 2008 says the same (secondary, after the era).
+- **"The town of quests"**: the official 2006 GMS site uses the phrase.
+- **The only weapon shop on the island.** The v8 map set has no other weapon-store map, and MapleWiki 2008 says the same (secondary, after the era).
 - Maple Island's **strongest monsters live right outside the town** (MapleWiki 2008). In the data this means Orange Mushroom, Lv 8, in the Field East and Dangerous Forest.
 - A 2007 Basilmarket poster advised training in **Dangerous Forest** "till 20ish" before leaving the island (the poster left at level 21, so this is not an islander's account).
 - Islanders hunting for hard-to-reach "pillar" ledges, such as the one **above the Mushroom Garden door** in The Field West of Amherst (Basilmarket 2007).
@@ -768,17 +723,10 @@ All **[viewed]**.
 
 ## Reference images
 
-All are classic-era and **reference only**: proprietary, and must not be shipped or traced into assets.
-
-| File | What | Source |
-|---|---|---|
-| `docs/research/ref_web/1010000_1.gif` | Hidden Street's annotated Rainbow Street connection diagram (Dec 2005). It shows minimap captures of all 11 outdoor maps plus a picture of the "House in Townstreet", with portal arrows and NPC/shop labels for Amherst. | https://web.archive.org/web/20051220152556/http://www.hidden-street.net/maps/images/miamherst.gif |
-| `docs/research/ref_web/1020000_1.jpg` | In-game screenshot of The Field East of Amherst (Jun 2006): background tree, tomato plants, ropes on pegs, Red Snails. | https://web.archive.org/web/20060626033208/http://www.hidden-street.net/maps/images/rstomatoisland.jpg |
-
-Viewed but **not copied**:
+Viewed but **not copied** (classic-era and **reference only**: proprietary, and must not be shipped or traced into assets):
 
 - The local partial renders and minimaps `ref_renders/v8_<id>_render.png` / `_minimap.png` for all 14 maps (the 3 interiors have no minimap).
-- The classic Maple Island world map, Hidden Street `map001.jpg` (Dec 2005). Amherst is the cluster of colourful mushroom houses on the island's right-middle edge. A teammate already keeps a world map in `ref_web/worldmap_1.png`.
+- A teammate's world map, `ref_web/worldmap_1.png`.
 - Official 2005 MapleGlobal screenshots `003.jpg` (Mushroom Town Townstreet, the Townstreet analog) and `004.jpg` (Lith Harbor Department Store, the shop-interior analog). URLs are given in the 1010002 and 1010003 sections.
 
 ---
@@ -791,11 +739,6 @@ Viewed but **not copied**:
   - NPCs: https://maplestory.io/api/GMS/8/npc/12000, /12100, /12101, /10000, /11000, /11100, /2103; /api/GMS/22/npc/12100; /api/GMS/62/npc/20100;
   - minimaps: /api/GMS/62/map/1010000/minimap and /api/GMS/83/map/1000000/minimap.
 - Local data: `docs/research/raw/gms_v8/*.json`, `docs/research/raw/gms_v22/*.json`, `docs/research/ref_renders/v8_*`.
-- Hidden Street (archive.org):
-  - https://web.archive.org/web/20060414135927/http://www.hidden-street.net/maps/amherst.php
-  - https://web.archive.org/web/20070125111743/http://www.hidden-street.net/maps/amherst.php
-  - the two images above;
-  - https://web.archive.org/web/20051226120239/http://www.hidden-street.net/maps/images/map001.jpg
 - MapleGlobal official (archive.org):
   - https://web.archive.org/web/20060528204733/http://www.mapleglobal.com/WZ.ASPX?PART=/Guide/GameLibrary/MapleWorldMap/MapMaple
   - screenshot gallery: https://web.archive.org/web/20051227021232/http://www.mapleglobal.com/WZ.ASPX?PART=/Downloads/ScreenShot
@@ -810,13 +753,12 @@ Viewed but **not copied**:
   - quests: https://meowdb.com/msclassic/quest-tracker/1007, /1008, /1012, /1013.
 - Not reachable this session:
   - maplestory.fandom.com (HTTP 402/403 to both WebFetch and curl);
-  - strategywiki.org (403; its archived Maple Island pages are post-2010 or empty);
-  - bbb.hidden-street.net (403).
+  - strategywiki.org (403; its archived Maple Island pages are post-2010 or empty).
 
 ## Open questions
 
-1. **Unparsed portal positions**: 1010000 `in02` (Department Store door; estimated from the diagram at x≈1500-1600 on the middle terrace), 1010001 `out00`, 1010002 `out00`/`west00`, 1020000 `in00`, and 1000003 `out00`. Destinations are confirmed; exact coordinates are not. A raw WZ dump (for example HaRepacker on a v0.08-v0.22 `Map.wz`) would settle them.
+1. **Unparsed portal positions**: 1010000 `in02` (Department Store door, on the middle terrace), 1010001 `out00`, 1010002 `out00`/`west00`, 1020000 `in00`, and 1000003 `out00`. Destinations are confirmed; exact coordinates are not. A raw WZ dump (for example HaRepacker on a v0.08-v0.22 `Map.wz`) would settle them.
 2. **Field West of Amherst geometry**: v8 has 493 footholds and v22 has 396. Which is canonical for MisoStory?
-3. **Mai's placement**: on the Amherst upper plateau (v8, Dec 2005) or at A Split Road (v22)?
+3. **Mai's placement**: on the Amherst upper plateau (v8) or at A Split Road (v22)?
 4. **Backgrounds**: only Field East has a sourced background (sky, hills, giant tree). The other field maps' backdrops are unverified.
 5. **Unidentified props**: the tall pale stalk cluster on an east-side island and the orange object by the east exit in 1000000; the bench/crate-like props in 1000005.

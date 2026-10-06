@@ -13,7 +13,7 @@ property of Nexon Co., Ltd.
 | Domain | Files | Doc |
 |---|---|---|
 | maps | 25 Maple Island maps (MeowDB 9-digit ids), portals, spawns, NPC placements, return maps | [maps.md](maps.md), [topology_diff.md](topology_diff.md) |
-| monsters, drops, breakables | Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom; schema v2 drop records (Hidden Street or MeowDB membership, KuroDB chances, meso amounts and chances); the Wooden Box | [monsters.md](monsters.md) |
+| monsters, drops, breakables | Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom; schema 3 drop records (MeowDB community-list membership, Henesys.gg rarity, MeowDB meso reports; no probability); the Wooden Box | [monsters.md](monsters.md) |
 | npcs | the 21 Maple Island NPCs with dialogue | [npcs.md](npcs.md) |
 | quests | the 20 Maple Island quests (1000–1019), with the live tracker's tags (all "Missable", "COT2") | [quests.md](quests.md) |
 | shops | Pan, Sid, Lucy | [shops.md](shops.md) |
@@ -36,33 +36,33 @@ before those terms were reviewed: about 230 pages, 210 `/msclassic/api/` calls a
 - The extractors are cache-only (Iteration Three decision D3-1, `docs/ITERATION_LOG.md`): `tools/meowdb/lib.mjs`
   never touches the network unless `MEOWDB_ALLOW_NETWORK=1` is set, and that stays off unless MeowDB grants
   permission. Newer MeowDB facts come in as dated captures of pages read by hand in a normal browser
-  (`tools/meowdb/captures/`, next to the KuroDB and Hidden Street captures; see "Sources" below).
+  (`tools/meowdb/captures/`, next to the Henesys.gg rarity capture; see "Sources" below).
 - Verbatim MeowDB site code (`docs/canonical/oracles/*.js.txt`) and the raw page cache stay out of git.
 - Before MisoStory is published or the dataset redistributed, ask MeowDB for permission (their policy says they
   grant most good-faith requests), and keep the attribution line above in credits.
 
 ## Sources
 
-MeowDB MS Classic stays the authority for everything except what the project owner moved elsewhere (Iteration Three,
-decisions D3-1 to D3-9 in `docs/ITERATION_LOG.md`, contract C7 in `docs/runtime/ITERATION_THREE_CONTRACTS.md`):
+The project owner's only sources of truth are MeowDB MS Classic and Henesys.gg (decision of 2026-10-06; Iteration
+Three decisions D3-11 and D3-12 in `docs/ITERATION_LOG.md`, contract C7 in
+`docs/runtime/ITERATION_THREE_CONTRACTS.md`):
 
 | Authority | May supply | Read from |
 |---|---|---|
-| MeowDB MS Classic | everything | the local cache, plus hand-read captures in `tools/meowdb/captures/` |
-| KuroDB (`https://playkuro.com/database/#...`) | drop and meso-drop probabilities only | `tools/kurodb/captures/` |
-| Hidden Street, Before Chaos archive (`https://bc.hidden-street.net/...`) | monster drop membership and meso amounts only | `tools/hiddenstreet/captures/` |
-| Project owner | a decision (cites its id, e.g. D3-5, or the Iteration Three brief) | `docs/ITERATION_LOG.md` |
+| MeowDB MS Classic | everything, drop membership and meso reports included | the local cache, plus hand-read captures in `tools/meowdb/captures/` |
+| Henesys.gg (`https://henesys.gg/loot`, MapleStory Classic World) | the rarity label of a drop member only. For this private project only: the site prohibits unauthorized reproduction or scraping, so ask Henesys.gg before publishing the labels | `tools/henesys/captures/item_rarity.json` |
+| Project owner | a decision (cites its id, e.g. D3-11, or the Iteration Three brief): the natural-regen rule, the drop chance table, the meso rule | `docs/ITERATION_LOG.md`, `game/data/misostory/` |
 
-A record names a different authority per property with `provenance.<property>` (schema v2 drop records also cite one
+A record names a different authority per property with `provenance.<property>` (schema 3 drop records also cite one
 per entry); every non-MeowDB value carries its URL, `read_at` and the capture file it was read from. The validator
 enforces these rules from one registry (`game/scripts/core/validation/provenance_authorities.gd`; see
 [DATA_VALIDATION.md](../runtime/DATA_VALIDATION.md)).
 
 The captures are never fetched by a tool. `tools/sources/captures.mjs` loads every capture file offline into
-structured objects (KuroDB drop and meso rows, reactor values, Hidden Street drop lists and meso amounts, MeowDB live
-monster, breakable and quest pages, item API bodies), and `tools/sources/parse.mjs` turns raw values into numbers
-exactly (KuroDB `"0.0700% base"` is 0.0007; `"Chance value 4"` is 1/4, an interpretation by decision D3-7; Hidden
-Street `"Mesos: 4-6"`), keeping every raw string. Tests: `node --test tools/sources/test/`.
+structured objects (MeowDB live monster, breakable, quest and item pages, item API bodies, the quest tracker, and the
+Henesys.gg rarity labels; of two captures of one page the later read wins), and `tools/sources/parse.mjs` turns raw
+values into numbers exactly (MeowDB `"Mesos: 2 per kill | 1 report"` is 2 to 2), keeping every raw string. Tests:
+`node --test tools/sources/test/`.
 
 ## Regenerating
 
@@ -84,8 +84,8 @@ node tools/meowdb/build_sources_index.mjs # canonical_sources.json (capture file
 ```
 
 Validate the result against the game's own loader with `bash scripts/validate_data.sh`. The order matters from an
-empty tree: `extract_monsters.mjs` resolves drop members against the local items and quests (the crosswalk,
-`tools/sources/crosswalk/drop_items.json`), so it runs after `extract_quests.mjs` and `extract_items.mjs`. Run each
+empty tree: `extract_monsters.mjs` resolves drop members against the local items and quests (by name, through
+`tools/sources/drops_merge.mjs`), so it runs after `extract_quests.mjs` and `extract_items.mjs`. Run each
 extractor twice when you change one: the output must be byte-identical.
 
 **Reproducibility.** `bash scripts/check_canonical.sh` proves the snapshot is regenerable: it copies what the
@@ -101,7 +101,7 @@ parse of `layout.py` against `docs/topology.json` (`LINKS` and `DOOR_LINKS` join
 `ONE_WAY` still equals the landing anchors of MeowDB's one-way links. The cache is git-ignored, so the check runs
 locally; run it before each milestone. It runs the extractors in the order above (items and quests before monsters,
 which resolve drop members against them), and on the final Iteration Three build every canonical file reproduces byte
-for byte, the KuroDB item page read on 2026-10-06 (decision D3-10) included.
+for byte, the schema 3 drop records included.
 
 **Reports.** `bash scripts/validate_data.sh --report` writes the provenance validation report
 ([`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md): every record and property with its authority, URL, read time
@@ -119,7 +119,8 @@ and capture; every unresolved value; every adaptation), and `node tools/parity/b
 
 | Gap | Where the value or adaptation lives |
 |---|---|
-| Item drop chances, meso drop chances, most meso amounts (MeowDB lists drops and votes only) | Not adaptations: KuroDB chances and Hidden Street membership and amounts, by the owner's decisions D3-3 to D3-7 (and D3-8 to D3-10 for which item a KuroDB row is), in the schema v2 drop records (contract C1); every shipped record is v2. A value neither source gives stays unresolved and never drops (53 of 75 members; the provenance report lists each). The roller's own readings (a meso amount is a uniform integer in [min, max]; the D3-9 quest-gate rule) are in `game/data/misostory/drop_rates.json`, which holds no number; the Wooden Box's quantity of 1 per roll is a labelled adaptation inside `drops/0000001.json` |
+| Item drop chances and quantities (MeowDB lists drops and votes only; Henesys.gg gives a rarity per item, no chance) | Adaptations by the project owner: the chance table by item category x Henesys.gg rarity and one item per drop, `game/data/misostory/drop_rates.json` (decision D3-11, `verified: false`). The schema 3 drop records hold only the sourced facts (membership, item, rarity, category inputs). The D3-9 quest-gate rule is there too |
+| Meso drop chances, most meso amounts (MeowDB has one player report: the Snail's 2 per kill) | Adaptations by the project owner: MeowDB's report where there is one, else a uniform integer in [level, 2 x level]; 60% chance; none for the Tutorial Jr. Sentinel and the Wooden Box, `game/data/misostory/meso_rules.json` (decision D3-12, `verified: false`). A MeowDB report a newer capture or cache gains replaces the formula at the next extraction |
 | Drop ground lifetime and ownership time | `game/data/misostory/drops.json` |
 | Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` `natural_hp` (Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery: MeowDB documents none (`natural_mp`, an unresolved source gap) |
 | When a chair's bonus clock starts and whether it holds at full HP; the sit key; ground sitting and map benches (none documented) | `game/data/misostory/recovery.json` `chair_bonus`, `sitting` |

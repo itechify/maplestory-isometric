@@ -436,8 +436,8 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   target per cast, and a box it picks takes one landed hit through `land_hit(box, "skill:0001000")` (a MisoStory
   choice, `breakables.json hit_rule`, `verified: false`; the owner may rule that skills search monsters only).
 - **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
-  with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (1/1, only while Pio's quest
-  1012 is in progress), Apple (1/4); the Egg never rolls (no KuroDB value) and the box drops no mesos. The loot goes
+  with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (every break, only while Pio's
+  quest 1012 is in progress), Apple and Egg (2% each, the owner's table, decision D3-11); the box drops no mesos. The loot goes
   out through `Events.loot_dropped` at the box.
 - **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
   monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the

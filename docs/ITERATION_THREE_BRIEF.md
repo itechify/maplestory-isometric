@@ -1,5 +1,21 @@
 # MisoStory Iteration Three
 
+> **Owner amendment (2026-10-06).** The project owner replaced this brief's drop and meso sources. The only sources of
+> truth are **MeowDB MS Classic** and **Henesys.gg** (https://henesys.gg/loot, MapleStory Classic World):
+>
+> - **Drop membership** (monsters and the Wooden Box) is MeowDB's community list "Drops (MS Classic)" for that monster,
+>   every entry; MeowDB's "MSEA reference drops" list is reference only.
+> - **Rarity** is Henesys.gg's label for each item: Common, Rare, Very Rare or Extremely Rare.
+> - **Drop chance** is the owner-approved MisoStory table by item category x rarity
+>   (`game/data/misostory/drop_rates.json`): an adaptation (decision D3-11), not a MapleStory fact.
+> - **Mesos**: MeowDB's player report where there is one; otherwise a uniform integer in [level, 2 x level] of the
+>   monster's canonical level. Mesos drop with chance 60%. The Tutorial Jr. Sentinel and the Wooden Box drop none
+>   (`game/data/misostory/meso_rules.json`: an adaptation, decision D3-12).
+>
+> Henesys.gg prohibits unauthorized reproduction or scraping of its content, so its labels are read by hand and kept
+> for this private project only. The passages below that named other drop sources now state this rule. The rest of the
+> brief is unchanged.
+
 ## Complete Canonical Maple Island
 
 Iteration One built all 25 Maple Island maps as a cohesive isometric 3D world.
@@ -107,25 +123,37 @@ Do not replace MeowDB values with values from another MapleStory version when Me
 
 ---
 
-# Narrow Secondary Authority: KuroDB Drop Probabilities
+# Narrow Secondary Authority: Henesys.gg Rarity (Owner amendment, 2026-10-06)
 
-Use KuroDB:
+Use Henesys.gg:
 
-https://playkuro.com/database/
+https://henesys.gg/loot
 
-specifically for **drop probability information that MeowDB does not provide**.
+(MapleStory Classic World) specifically for the **rarity label of each drop item**: Common, Rare, Very Rare or
+Extremely Rare. Henesys.gg gives a rarity per item, not per monster, and no drop chance.
 
-Example monster route:
-
-https://playkuro.com/database/#monsters/100100
-
-The use of KuroDB is intentionally narrow.
+The use of Henesys.gg is intentionally narrow.
 
 ## Item drop rule
 
-The set of items a monster is allowed to drop comes from **MeowDB**.
+The set of items a monster is allowed to drop comes from **MeowDB**: its community list "Drops (MS Classic)" for that
+monster (or breakable), every entry.
 
-The probability of those drops may come from **KuroDB**.
+The probability of those drops comes from the **project owner's drop chance table**, by item category and Henesys.gg
+rarity. The table is a MisoStory adaptation (decision D3-11), kept in one file the owner can tune
+(`game/data/misostory/drop_rates.json`):
+
+| Category | Common | Rare | Very Rare | Extremely Rare |
+|---|---|---|---|---|
+| Etc, the monster's own leftover (MeowDB subtype "Monster Drop") | 100% | 50% | 20% | 5% |
+| Etc, quest-gated (MeowDB subtype "Quest Item" and required by a Maple Island quest; drops only while that quest is in progress) | 100% | 100% | 100% | 100% |
+| Other Etc (ores, gems, Monster Card...) | 3% | 1% | 0.3% | 0.1% |
+| Use: potions, food, arrows | 2% | 0.5% | 0.1% | 0.02% |
+| Use: scrolls | 0.1% | 0.03% | 0.01% | 0.003% |
+| Equip | 0.1% | 0.04% | 0.01% | 0.002% |
+| Set-up (chairs) | 0.05% | 0.02% | 0.005% | 0.001% |
+
+The same table applies to the Wooden Box. One item drops per successful roll.
 
 In set terminology:
 
@@ -138,20 +166,19 @@ Then:
 
 ```text
 drop_chance(item) =
-    KuroDB chance
+    owner_table[category(item)][Henesys.gg rarity(item)]
 ```
-
-only when that same item is present in both sources.
 
 ### Critical rule
 
-If KuroDB lists an item that MeowDB does NOT list for that monster:
+If an item is not on MeowDB's community list for that monster (for example an item only on MeowDB's "MSEA reference
+drops" list):
 
 **do not add it.**
 
-KuroDB does not expand the canonical drop table.
+Henesys.gg does not expand the canonical drop table.
 
-It supplies probability information for the overlapping entries.
+It supplies the rarity label for the MeowDB entries.
 
 ---
 
@@ -171,10 +198,16 @@ For example:
     "url": "..."
   },
 
-  "chance_source": {
-    "authority": "KuroDB",
-    "url": "...",
-    "raw_value": "...",
+  "rarity_source": {
+    "authority": "Henesys.gg",
+    "url": "https://henesys.gg/loot",
+    "raw_value": "Common"
+  },
+
+  "chance": {
+    "authority": "Project owner",
+    "decision": "D3-11",
+    "verified": false,
     "normalized_probability": ...
   }
 }
@@ -198,12 +231,12 @@ into one ambiguous source.
 
 ---
 
-# Missing KuroDB Probability
+# Missing Henesys.gg Rarity
 
 If:
 
 - MeowDB confirms that an item drops
-- but KuroDB contains no matching probability
+- but Henesys.gg contains no rarity for it
 
 then:
 
@@ -235,15 +268,22 @@ For example, the Snail MeowDB entry reports the appropriate canonical meso value
 
 Do not invent a custom meso range if MeowDB provides the value.
 
+Where MeowDB has no meso report, use the project owner's level formula (an adaptation, decision D3-12): a uniform
+integer in [level, 2 x level] of the monster's canonical level. When MeowDB gains a report for a monster, that report
+replaces the formula for it.
+
+The Tutorial Jr. Sentinel and the Wooden Box drop no mesos (the owner's choice).
+
 ## Meso probability
 
-Use the **meso drop probability from KuroDB**, alongside its monster drop data.
+MeowDB publishes no meso drop chance. Use the **project owner's meso drop chance: 60%** for every monster that drops
+mesos, also one with a MeowDB amount (an adaptation, decision D3-12).
 
 Therefore:
 
 ```text
-meso_amount = MeowDB
-meso_drop_probability = KuroDB
+meso_amount = MeowDB (else the owner's level formula)
+meso_drop_probability = project owner (60%)
 ```
 
 Keep both source records in provenance.
@@ -256,7 +296,7 @@ Do not interpret "meso amount" and "meso drop chance" as the same concept.
 
 Be extremely careful when importing probabilities.
 
-For each KuroDB probability:
+For each probability (each cell of the owner's drop chance table, and the meso chance):
 
 - preserve the raw source value
 - store a normalized runtime probability
@@ -311,11 +351,11 @@ Use:
 
 Do not create another unauthorized scraper.
 
-Apply the same caution to KuroDB. Do not assume automated collection is permitted merely because the site is publicly accessible.
+Apply the same caution to Henesys.gg. Its site prohibits unauthorized reproduction or scraping: read it by hand in a normal browser, keep its labels for this private project only, and ask Henesys.gg before publishing them. Do not assume automated collection is permitted merely because the site is publicly accessible.
 
 The game must continue to use its own local canonical-data snapshot at runtime.
 
-Neither MeowDB nor KuroDB should be required while actually playing MisoStory.
+Neither MeowDB nor Henesys.gg should be required while actually playing MisoStory.
 
 ---
 
@@ -848,15 +888,16 @@ Build the permitted drop table from MeowDB.
 
 ## Step 2
 
-Match those items against the same monster in KuroDB.
+Look up each item's rarity on Henesys.gg.
 
 ## Step 3
 
-For every overlap:
+For every item:
 
 ```text
 item membership = MeowDB
-drop probability = KuroDB
+rarity = Henesys.gg
+drop probability = owner table[item category][rarity]
 ```
 
 ## Step 4
@@ -874,8 +915,8 @@ Validate all item IDs resolve to real local item definitions.
 For every Maple Island monster:
 
 ```text
-meso amount = MeowDB
-meso probability = KuroDB
+meso amount = MeowDB (else the owner's level formula)
+meso probability = project owner (60%)
 ```
 
 Remove all Iteration Two placeholder meso values.
@@ -893,12 +934,12 @@ Ensure mesos:
 
 Add tests proving that:
 
-- Kuro-only items cannot enter canonical drop tables
+- items outside MeowDB's community list (for example MSEA reference drops) cannot enter canonical drop tables
 - MeowDB membership is authoritative
 - drop probabilities are parsed correctly
 - probability normalization is correct
 - meso amount comes from MeowDB
-- meso probability comes from KuroDB
+- meso probability comes from the owner's meso rule
 - unknown probabilities remain visible
 - all drop item IDs exist
 
@@ -1307,14 +1348,17 @@ monster:snail:
     drops.membership:
         authority: MeowDB
 
+    drops.rarity:
+        authority: Henesys.gg
+
     drops.probability:
-        authority: KuroDB
+        authority: Project owner (D3-11)
 
     mesos.amount:
         authority: MeowDB
 
     mesos.probability:
-        authority: KuroDB
+        authority: Project owner (D3-12)
 ```
 
 This is preferable to claiming that the entire monster definition came from one source.
@@ -1427,12 +1471,12 @@ Iteration Three is complete only when all of the following are true.
 
 ## Placeholder Removal
 
-- [ ] No placeholder monster item-drop chances remain where KuroDB overlap data exists
+- [ ] No placeholder monster item-drop chances remain: every chance is the owner's table cell for the item's category and Henesys.gg rarity
 - [ ] Drop membership comes from MeowDB
-- [ ] Drop probability comes from KuroDB
-- [ ] Kuro-only drops are excluded
-- [ ] Meso amount comes from MeowDB
-- [ ] Meso chance comes from KuroDB
+- [ ] Drop rarity comes from Henesys.gg and drop probability from the owner's table
+- [ ] Items outside MeowDB's community list are excluded
+- [ ] Meso amount comes from MeowDB (else the owner's level formula)
+- [ ] Meso chance comes from the owner's meso rule
 - [ ] HP regeneration is 10 HP per 10 eligible seconds
 - [ ] Movement pauses natural HP regeneration
 - [ ] Jumping pauses natural HP regeneration
@@ -1536,7 +1580,7 @@ Iteration Three is complete only when all of the following are true.
 ## Canonical Verification
 
 - [ ] MeowDB parity tests still pass
-- [ ] KuroDB probability provenance exists
+- [ ] Henesys.gg rarity provenance exists
 - [ ] probability conversions are tested
 - [ ] drop membership/chance sources are separately recorded
 - [ ] no canonical value is silently guessed
@@ -1581,7 +1625,7 @@ Leave behind:
 6. Complete Maple Island item subset
 7. Complete Maple Island NPC/shop dataset
 8. Complete drop tables
-9. MeowDB/KuroDB provenance data
+9. MeowDB/Henesys.gg provenance data
 10. Updated save schema/migrations
 11. Full automated test suite
 12. Full stuck-region validation
