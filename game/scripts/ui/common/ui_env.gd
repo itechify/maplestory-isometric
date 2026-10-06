@@ -306,6 +306,31 @@ func autoload(autoload_name: String) -> Node:
 
 # --- display helpers shared by the HUD and the windows ---------------------------------------------------------
 
+## Pixels at the bottom of `ui`'s area taken by another UI root's bottom-wide bar (the HUD's status bar), so a window
+## or a chat sits above the gauges instead of covering them. Found by layout, not by name: any visible direct child
+## of a sibling UI root (the other subsystems under ctx.ui_root) that is anchored across the bottom edge. 0 without
+## one (standalone, tests without a HUD). NpcUi (dialogue, shop) and MisoWindowsRoot (the character windows) use it.
+static func bottom_bar_inset(ui: Control) -> float:
+	var root: Node = ui.get_parent() if ui != null else null
+	if root == null or not ui.is_inside_tree():
+		return 0.0
+	var area_bottom := ui.get_global_rect().end.y
+	var top := area_bottom
+	for sibling in root.get_children():
+		if sibling == ui or not (sibling is Control) or not (sibling as Control).is_visible_in_tree():
+			continue
+		for c in sibling.get_children():
+			if c is Control and (c as Control).visible and is_bottom_bar(c as Control):
+				top = minf(top, (c as Control).get_global_rect().position.y)
+	return maxf(0.0, area_bottom - top)
+
+
+## True for a control anchored across the whole bottom edge (a bottom-wide bar such as the HUD's status bar).
+static func is_bottom_bar(c: Control) -> bool:
+	return c.anchor_top >= 0.99 and c.anchor_bottom >= 0.99 and c.anchor_left <= 0.01 and c.anchor_right >= 0.99 \
+		and not c.top_level
+
+
 ## The first keyboard key bound to an input action ("I", "1"), read from the InputMap (Controls registers it), or
 ## "" when the action does not exist.
 static func key_label(action: String) -> String:

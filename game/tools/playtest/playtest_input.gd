@@ -247,6 +247,23 @@ func hover(at: Vector2) -> Control:
 	return viewport().gui_get_hovered_control()
 
 
+## One notch of the mouse wheel at `at` (down: toward the end of a list), as a wheel sends it: a press and a release
+## of the wheel button. Await it.
+func wheel(at: Vector2, down: bool) -> void:
+	mouse_move(at)
+	var b := MOUSE_BUTTON_WHEEL_DOWN if down else MOUSE_BUTTON_WHEEL_UP
+	for pressed: bool in [true, false]:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = b
+		ev.pressed = pressed
+		ev.factor = 1.0
+		ev.button_mask = _mouse_buttons
+		ev.position = to_window(at)
+		ev.global_position = ev.position
+		_send(ev)
+	await tree().process_frame
+
+
 ## Presses and releases the button at `at`, one frame apart (the pointer is already there: hover()). Await it.
 func press_release(at: Vector2, button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
 	mouse_button(at, true, button)

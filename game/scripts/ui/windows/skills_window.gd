@@ -5,7 +5,9 @@ extends MisoWindow
 ## effect line; the unspent SP; a "+" per skill while SP is left and the skill is below its max level (SkillBook.learn:
 ## one SP per level, no refunds); the selected skill's description with its current and next level; and two ways to
 ## put a learned skill on a quickslot: drag its icon onto a HUD quickslot, or select it, press "Set key" and pick a
-## key 1-8 (MisoQuickslots.bind_skill).
+## key 1-8 (MisoQuickslots.bind_skill). The window keeps one size whatever is learned or selected (reserved lines,
+## a scrolling description, the key picker's row held while folded), so it fits the 1600 x 900 screen above the HUD's
+## status bar with all three skills learned and never grows under the pointer.
 ##
 ## Spending SP announces Events.skill_leveled(skill_id, level) and Events.stats_changed (the HUD's SP badge and the
 ## stat window follow) and asks for an autosave.
@@ -14,6 +16,13 @@ extends MisoWindow
 const PLUS_SIZE := Vector2(34, 26)
 const ICON_SIZE := 40.0
 const ROW_WIDTH := 330.0
+## Text lines reserved for a row's effect line, the selected skill's description (it scrolls past that) and the status
+## line, and the key picker's row (held even while it is folded): the window keeps one size whatever is learned or
+## selected, so it never grows under the pointer or off the screen (presentation; MisoWindow keeps it on screen).
+const EFFECT_LINES := 2
+const DETAIL_LINES := 5
+const STATUS_LINES := 2
+const KEY_ROW_HEIGHT := 26.0
 
 
 ## A skill's icon in its row: a drag source for learned skills ({"kind": SKILL_DRAG_KIND, "source": "skills",
@@ -56,6 +65,9 @@ var key_buttons: Dictionary = {}
 var sp_label: Label
 var job_label: Label
 var detail_label: Label
+## The selected skill's description scrolls inside DETAIL_LINES lines.
+var detail_scroll: ScrollContainer
+var _status_label: Label = null
 var key_button: Button
 var key_picker: HBoxContainer
 var rows_box: VBoxContainer
@@ -94,11 +106,16 @@ func _build() -> void:
 	var detail := PanelContainer.new()
 	detail.theme_type_variation = &"MisoInset"
 	detail.mouse_filter = MOUSE_FILTER_IGNORE
+	detail_scroll = ScrollContainer.new()
+	detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	detail_scroll.custom_minimum_size = Vector2(ROW_WIDTH, 0)
+	detail.add_child(detail_scroll)
 	detail_label = Label.new()
 	detail_label.theme_type_variation = &"MisoSmall"
 	detail_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	detail_label.custom_minimum_size = Vector2(ROW_WIDTH, 0)
-	detail.add_child(detail_label)
+	detail_label.custom_minimum_size = Vector2(ROW_WIDTH - 14.0, 0)
+	detail_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	detail_scroll.add_child(detail_label)
 	body.add_child(detail)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 6)
@@ -109,18 +126,48 @@ func _build() -> void:
 	key_button.pressed.connect(func() -> void: key_picker.visible = not key_picker.visible)
 	actions.add_child(key_button)
 	body.add_child(actions)
+	# The key picker's row is held while the picker is folded, so "Set key" does not grow the window.
+	var key_row := Control.new()
+	key_row.mouse_filter = MOUSE_FILTER_IGNORE
+	key_row.custom_minimum_size = Vector2(0, KEY_ROW_HEIGHT)
 	key_picker = HBoxContainer.new()
 	key_picker.add_theme_constant_override("separation", 3)
+	key_picker.set_anchors_preset(Control.PRESET_FULL_RECT)
 	key_picker.visible = false
 	for key in MisoQuickslots.keys():
 		var kb := MisoWindow.make_button(MisoQuickslots.key_text(key))
-		kb.custom_minimum_size = Vector2(28, 26)
+		kb.custom_minimum_size = Vector2(28, KEY_ROW_HEIGHT)
 		kb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		kb.pressed.connect(func() -> void: assign_quickslot(key))
 		key_picker.add_child(kb)
 		key_buttons[key] = kb
-	body.add_child(key_picker)
-	add_status_line("Spend SP with \"+\"; drag a learned skill to a quickslot.")
+	key_row.add_child(key_picker)
+	body.add_child(key_row)
+	_status_label = add_status_line("Spend SP with \"+\"; drag a learned skill to a quickslot.")
+
+
+## The height `n` lines of `l`'s text take (its own theme font, size, line spacing and style), so a reserved block is
+## exactly as tall as the label would be with that many lines.
+static func lines_height(l: Label, n: int) -> float:
+	var font := l.get_theme_font(&"font")
+	var fs := l.get_theme_font_size(&"font_size")
+	var line := font.get_height(fs) if font != null else 16.0
+	var style := l.get_theme_stylebox(&"normal")
+	var pad := style.get_minimum_size().y if style != null else 0.0
+	return ceilf(n * line + (n - 1) * float(l.get_theme_constant(&"line_spacing")) + pad)
+
+
+## Reserves the lines of the effect texts, the description and the status line (see EFFECT_LINES), measured on the
+## labels themselves once the window has its theme (in the tree).
+func _reserve_lines() -> void:
+	if not is_inside_tree():
+		return
+	for sid in rows:
+		var effect: Label = rows[sid]["effect"]
+		effect.custom_minimum_size.y = lines_height(effect, EFFECT_LINES)
+	detail_scroll.custom_minimum_size.y = lines_height(detail_label, DETAIL_LINES)
+	if _status_label != null:
+		_status_label.custom_minimum_size.y = lines_height(_status_label, STATUS_LINES)
 
 
 ## One row per skill the character's job can learn (built once content is available).
@@ -191,6 +238,7 @@ func refresh() -> void:
 	var c := env.character() if env != null else null
 	var db := env.get_db() if env != null else null
 	_build_rows()
+	_reserve_lines()
 	if c == null or db == null:
 		sp_label.text = "-"
 		job_label.text = ""
@@ -252,6 +300,7 @@ func select_skill(skill_id: String) -> void:
 	if selected == "":
 		key_picker.visible = false
 	refresh()
+	detail_scroll.scroll_vertical = 0
 
 
 ## Binds the selected (or given) skill to a quickslot key ("1".."8"). Returns false when it is not learned.

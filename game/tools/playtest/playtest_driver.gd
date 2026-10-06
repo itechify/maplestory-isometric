@@ -47,6 +47,8 @@ const TALK_LEAN_S := 1.5
 ## but not walked), before talk_to gives up.
 const TALK_MAX_TRIES := 4
 const TALK_MAX_PLANS := 12
+## Mouse-wheel notches scroll_into_view() sends over one list before it gives up.
+const SCROLL_MAX_NOTCHES := 40
 ## Monsters farther than this (m) are not targets for face_and_attack_nearest by default.
 const FIGHT_MAX_DIST_M := 30.0
 ## Beyond this (m), or above / below by more than FIGHT_TIER_DY_M, the fight walks over the routes; closer it steers
@@ -1808,6 +1810,9 @@ func _click_control(c: Control) -> bool:
 	var button := c as BaseButton
 	if is_button and button.disabled:
 		return false
+	await scroll_into_view(c)
+	if not is_instance_valid(c):
+		return false
 	last_click_why = off_screen_reason(c)
 	if last_click_why != "":
 		return false
@@ -1830,6 +1835,30 @@ func _click_control(c: Control) -> bool:
 	return is_instance_valid(c) and is_instance_valid(hovered) and (hovered == c or c.is_ancestor_of(hovered))
 
 
+## Scrolls `c` into view the way a player does: while a ScrollContainer it sits in (a long Quest Log list) clips it,
+## mouse-wheel notches over that list toward it (at most SCROLL_MAX_NOTCHES each). Without it a row scrolled out of
+## sight would count as covered. Await it.
+func scroll_into_view(c: Control) -> void:
+	var n: Node = c.get_parent()
+	while n != null and is_instance_valid(c):
+		var sc := n as ScrollContainer
+		if sc != null and sc.is_visible_in_tree():
+			var last := INF
+			for _k in SCROLL_MAX_NOTCHES:
+				var box := control_rect(sc)
+				var r := control_rect(c)
+				var below := r.end.y - box.end.y
+				var above := box.position.y - r.position.y
+				if (below <= 0.5 and above <= 0.5) or not sc.get_v_scroll_bar().visible:
+					break
+				var gap := maxf(below, above)
+				if gap >= last:
+					break
+				last = gap
+				await input.wheel(box.get_center(), below > 0.5)
+		n = n.get_parent()
+
+
 ## "<what> did not respond", with the reason when the last click refused its control (off the screen, covered).
 func _no_response(what: String) -> String:
 	return "%s did not respond%s" % [what, ": " + last_click_why if last_click_why != "" else ""]
@@ -1841,6 +1870,10 @@ func _no_response(what: String) -> String:
 func pointer_onto(c: Control, at: Variant = null) -> String:
 	if c == null or not is_instance_valid(c) or not c.is_visible_in_tree():
 		return "the control is gone or hidden"
+	if not (at is Vector2):
+		await scroll_into_view(c)
+		if not is_instance_valid(c):
+			return "the control is gone"
 	var why := off_screen_reason(c)
 	if why != "":
 		return why

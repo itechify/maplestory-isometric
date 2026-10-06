@@ -2,7 +2,8 @@ class_name MisoWindow
 extends PanelContainer
 ## A non-modal MisoStory window: a rounded blue-grey panel with a gold title strip, a key hint and a close button.
 ## Draggable by its title strip, closable (button, its toggle key, or Esc through the shell's window stack), and
-## clamped to the screen. It registers with the GameContext window stack when it opens and when it closes, so the
+## clamped to the screen: its whole rect stays inside the viewport above the HUD's status bar whenever it opens, is
+## dragged, changes size or the viewport does (screen_area()). It registers with the GameContext window stack when it opens and when it closes, so the
 ## "menu" action (Esc) closes the newest window first. It never takes the keyboard: the player can walk with it open.
 ##
 ## Subclasses build their content into `body` in _build() and redraw it in refresh(). The window's env (MisoUiEnv)
@@ -10,6 +11,9 @@ extends PanelContainer
 
 signal opened(window: MisoWindow)
 signal closed(window: MisoWindow)
+
+## Pixels kept free between a window and the HUD's status bar (presentation).
+const BAR_GAP := 6.0
 
 ## Stable name ("inventory", "equipment", "stats", "quests").
 var window_name: String = ""
@@ -38,6 +42,7 @@ func _init(p_name: String = "", p_title: String = "", p_action: String = "", min
 	focus_mode = FOCUS_NONE
 	custom_minimum_size = min_size
 	visible = false
+	resized.connect(_on_resized)
 	var outer := VBoxContainer.new()
 	outer.add_theme_constant_override("separation", 6)
 	outer.mouse_filter = MOUSE_FILTER_IGNORE
@@ -222,16 +227,48 @@ func _on_title_input(event: InputEvent) -> void:
 		_title_bar.accept_event()
 
 
-## Keeps the whole title strip on screen (the window may hang off the bottom edge, never above or sideways).
+## The rect a window stays inside, in its parent's coordinates (the windows root fills the screen): the viewport
+## above the bar another UI root keeps at the bottom (the HUD's status bar: the parent's bottom_inset(),
+## MisoWindowsRoot) and BAR_GAP over it. The whole viewport when the parent reserves nothing (standalone, tests).
+func screen_area() -> Rect2:
+	var vp := get_viewport_rect()
+	var p := get_parent()
+	var inset := float(p.call("bottom_inset")) if p != null and p.has_method("bottom_inset") else 0.0
+	if inset > 0.0:
+		inset += BAR_GAP
+	return Rect2(vp.position, Vector2(vp.size.x, maxf(0.0, vp.size.y - inset)))
+
+
+## Keeps the whole window inside screen_area(): nothing hangs off an edge or covers the HUD's gauges. Called when the
+## window opens, while it is dragged, whenever its size changes (a skill learned, a page longer than the last) and
+## when the viewport changes size. A window taller than the area keeps its title strip at the top.
 func _clamp_to_screen() -> void:
 	if not is_inside_tree():
 		return
-	var area := get_viewport_rect().size
-	var sz := size if size != Vector2.ZERO else get_combined_minimum_size()
+	var area := screen_area()
+	var sz := size.max(get_combined_minimum_size())
 	var p := position
-	p.x = clampf(p.x, 0.0, maxf(0.0, area.x - sz.x))
-	p.y = clampf(p.y, 0.0, maxf(0.0, area.y - 40.0))
-	position = p
+	p.x = clampf(p.x, area.position.x, maxf(area.position.x, area.end.x - sz.x))
+	p.y = clampf(p.y, area.position.y, maxf(area.position.y, area.end.y - sz.y))
+	if p != position:
+		position = p
+
+
+func _on_resized() -> void:
+	if visible:
+		_clamp_to_screen()
+
+
+func _enter_tree() -> void:
+	var vp := get_viewport()
+	if vp != null and not vp.size_changed.is_connected(_on_resized):
+		vp.size_changed.connect(_on_resized)
+
+
+func _exit_tree() -> void:
+	var vp := get_viewport()
+	if vp != null and vp.size_changed.is_connected(_on_resized):
+		vp.size_changed.disconnect(_on_resized)
 
 
 ## Adds a status line (a dark pill so short messages stay readable on the light frame) to the bottom of `body`.

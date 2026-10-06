@@ -298,7 +298,14 @@ func _on_window_opened(w: MisoWindow) -> void:
 	w.position = default_position(w.window_name)
 
 
-## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW / BELOW).
+## Pixels at the bottom of the screen taken by the HUD's status bar (MisoUiEnv.bottom_bar_inset: found by layout among
+## the other UI roots); 0 without a HUD. MisoWindow.screen_area() keeps every window above it.
+func bottom_inset() -> float:
+	return MisoUiEnv.bottom_bar_inset(self)
+
+
+## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW / BELOW). Every window opens
+## inside the screen above the HUD's status bar (bottom_inset()); MisoWindow keeps it there as it grows.
 func default_position(window_name: String) -> Vector2:
 	var area := get_viewport_rect().size if is_inside_tree() else Vector2(1600, 900)
 	var y := roundf(area.y * TOP_FRACTION)
@@ -307,7 +314,8 @@ func default_position(window_name: String) -> Vector2:
 		var above := default_position(anchor)
 		var below_y := above.y + window_size(anchor).y + WINDOW_GAP
 		var h := window_size(window_name).y
-		return Vector2(above.x, roundf(maxf(y, minf(below_y, area.y - h - EDGE_MARGIN))))
+		var bottom := area.y - (bottom_inset() + MisoWindow.BAR_GAP if bottom_inset() > 0.0 else EDGE_MARGIN)
+		return Vector2(above.x, roundf(maxf(y, minf(below_y, bottom - h))))
 	if window_name in LEFT_ROW:
 		var x := EDGE_MARGIN
 		for n in LEFT_ROW:

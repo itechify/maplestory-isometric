@@ -167,6 +167,42 @@ func test_presenter_shows_bubbles_on_screen_and_never_while_talking() -> void:
 		assert_false(p.bubble.visible, "an NPC of another map stays quiet")
 
 
+## Acceptance review: Lucy's bubble showed over (and under) the open shop window. While any modal is open (a shop, a
+## chat with another NPC, the pause menu) no NPC shows a bubble; once it closes they chatter again.
+func test_no_bubble_while_a_modal_window_is_open() -> void:
+	var overlay := Control.new()
+	_parent().add_child(overlay)
+	nodes.append(overlay)
+	var root := Node3D.new()
+	_parent().add_child(root)
+	nodes.append(root)
+	var cam := Camera3D.new()
+	root.add_child(cam)
+	cam.position = Vector3(0, 2, 7)
+	cam.look_at(Vector3(0, 1, 0))
+	var npc := Node3D.new()
+	npc.set_meta("npc_id", "21")
+	npc.set_meta("npc_name", "Lucy")
+	root.add_child(npc)
+	var p := NpcPresenter.attach(npc, overlay, db())
+	p.camera_provider = func() -> Camera3D: return cam
+	p.talk_provider = func() -> NpcInteraction: return talk
+	var modal := [true]
+	p.modal_provider = func() -> bool: return modal[0]
+	for k in 600:
+		p.update(0.1)
+		assert_false(p.bubble.visible, "no bubble while a modal window is open")
+	modal[0] = false
+	var seen := 0
+	for k in 600:
+		p.update(0.1)
+		seen += 1 if p.bubble.visible else 0
+	assert_true(seen > 0, "Lucy chatters again once the window closes")
+	# Without a provider the presenter asks the interaction system's GameContext (none here: never a modal).
+	p.modal_provider = Callable()
+	assert_false(p.is_modal_open(), "no interaction system, no modal")
+
+
 ## A stand-in WorldNpc whose interaction_enabled is false (another map's NPC).
 func _off_map_npc(root: Node3D) -> Node3D:
 	var script := GDScript.new()
