@@ -9,8 +9,9 @@
 // map's total spawn points as denominator, the rounded percentage), the number of species on the map ("TYPES"), the
 // map mob rate ("1.5x") and the respawn column ("~7.5s", within 0.1 s of formulas/spawn_rate.json's global tick).
 // Every canonical row must have its capture row and every captured Maple Island row a canonical row. A species with
-// spawns but no capture is reported too. The spawns audit found the 51 rows equal (docs/review/it3_audit.json
-// "spawns"); this script keeps it so for future re-extractions and captures.
+// spawns but no capture is reported too. The spawns audit found the 51 rows equal (its "spawns" result is in git
+// history: docs/review/it3_audit.json of commit f9b2bc5); this script keeps it so for future re-extractions and
+// captures.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

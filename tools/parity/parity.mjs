@@ -145,6 +145,7 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
     totals,
     source_data_gaps: sourceDataGaps(out),
     pending_source_reads: pendingSourceReads(out),
+    adaptations: adaptationUse(out),
     categories: out,
   };
 }
@@ -153,7 +154,7 @@ export const RULE_TEXT = {
   missing: 'The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).',
   partial: 'The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).',
   implemented: 'Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.',
-  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop is verified only when its sources resolve (its item and its Henesys.gg rarity).',
+  verified: 'As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop is verified only when its sources resolve (its item and its Henesys.gg rarity), and what is verified is its membership, checked against its owner\'s MeowDB page capture, and its rarity, checked against the Henesys.gg capture. Its chance is the project owner\'s table (game/data/misostory/drop_rates.json, decision D3-11) and a meso row\'s chance and formula amount are the owner\'s meso rule (meso_rules.json, D3-12): owner-approved adaptations (verified: false), stated in the row, never verified against a source and never a source-data gap.',
   chains: 'A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner\'s "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.',
   source_data_gap: 'The sources were read and do not give a value the entry needs (Henesys.gg has no rarity for a drop member, MeowDB names an item no local record has, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.',
   pending_source_read: 'A source publishes a value the entry needs on a page that has not been read yet (for example a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each.',
@@ -363,6 +364,57 @@ const DROP_RATES_ADAPTATION = 'game/data/misostory/drop_rates.json';
 const MESO_RULES_ADAPTATION = 'game/data/misostory/meso_rules.json';
 export const MOB_RATE_ADAPTATION = 'game/data/misostory/presentation.json#map_mob_rate';
 
+/** A probability as a percentage without float noise: 0.001 -> "0.1%", 1 -> "100%". */
+export const pct = (p) => `${Number((p * 100).toPrecision(6))}%`;
+const fileOf = (p) => (p ? String(p).split('/').pop() : null);
+
+/**
+ * Where each part of a schema 3 drop entry comes from (contract C1, decision D3-11): membership and rarity are sourced
+ * facts the tagged tests check against the dated captures; the chance is the owner's table, a MisoStory adaptation
+ * (verified: false) and never a source-data gap.
+ */
+function dropSources(e, miso) {
+  const ms = e.membership_source ?? {};
+  const label = e.rarity?.label ?? null;
+  const table = miso.drop_rates?.chance_table;
+  const value = label && e.chance_category ? table?.[e.chance_category]?.[label] : undefined;
+  return {
+    membership: { authority: ms.authority ?? null, list: ms.list ?? null, capture: ms.capture ?? null, votes: ms.votes ?? null },
+    rarity: label ? { authority: e.rarity.source?.authority ?? null, label, capture: e.rarity.source?.capture ?? null } : null,
+    chance: label && e.chance_category ? { adaptation: DROP_RATES_ADAPTATION, decision: 'D3-11', verified: false,
+      category: e.chance_category, rarity: label, value: typeof value === 'number' ? value : null } : null,
+  };
+}
+
+function dropSourceNotes(s) {
+  const out = [];
+  const m = s.membership;
+  if (m.authority) out.push(`membership: ${m.authority} "${m.list ?? '?'}"${m.capture ? ` (${fileOf(m.capture)})` : ''}`);
+  if (s.rarity) out.push(`rarity: ${s.rarity.authority ?? '?'} ${s.rarity.label}${s.rarity.capture ? ` (${fileOf(s.rarity.capture)})` : ''}`);
+  if (s.chance) {
+    out.push(`chance: ${s.chance.value == null ? 'no cell' : pct(s.chance.value)} = drop_rates.json ${s.chance.category} x ${s.chance.rarity}, ` +
+      'an owner-approved adaptation (D3-11, verified: false), not a source-data gap');
+  }
+  return out;
+}
+
+/** The meso row's notes: MeowDB's player report or the owner's level formula, and the owner's chance (D3-12). */
+function mesoNotes(meso, monster, rules) {
+  const chance = typeof rules?.chance === 'number' ? pct(rules.chance) : 'meso_rules.json chance';
+  if (meso?.amount_source) {
+    const chanceNote = `chance: ${chance} (meso_rules.json), an owner-approved adaptation (D3-12, verified: false), not a source-data gap`;
+    const a = meso.amount_source;
+    const amount = meso.min === meso.max ? `${meso.min}` : `${meso.min}-${meso.max}`;
+    return [`amount: ${amount} per kill, ${a.authority ?? 'MeowDB MS Classic'}'s player report "${a.raw_value}"${a.capture ? ` (${fileOf(a.capture)})` : ''}`, chanceNote];
+  }
+  const lv = monster?.level;
+  const lo = rules?.amount_level_multiplier_min;
+  const hi = rules?.amount_level_multiplier_max;
+  const range = typeof lv === 'number' && typeof lo === 'number' && typeof hi === 'number' ? ` [${lv * lo}, ${lv * hi}] at level ${lv}` : '';
+  return [`amount:${range} by meso_rules.json's level formula (MeowDB has no player report)`,
+    `chance: ${chance} (meso_rules.json); the formula and the chance are owner-approved adaptations (D3-12, verified: false), not a source-data gap`];
+}
+
 /** presentation.json map_mob_rate as {apply, verified}, or null when the file or the section is absent. */
 function mobRateAdaptation(miso) {
   const m = miso?.presentation?.map_mob_rate;
@@ -477,7 +529,8 @@ function enumerate(ctx) {
           ent.source_data_gap = true;
           ent.source_gaps.push('the drop chance table has no row for this item type: never drops');
         }
-        if (e.rarity != null && e.chance_category != null) ent.notes.push(`chance: drop_rates.json ${e.chance_category} x ${e.rarity.label} (D3-11)`);
+        ent.drop_sources = dropSources(e, miso);
+        ent.notes.push(...dropSourceNotes(ent.drop_sources));
         if (e.quest_gate) ent.notes.push(`quest-gated to ${e.quest_gate.quest_id}`);
       }
       if (e.item_id != null && !items[e.item_id]) ent.issues.push(`item ${e.item_id} has no definition`);
@@ -489,8 +542,7 @@ function enumerate(ctx) {
       const none = mesoRules?.no_mesos?.[id];
       if (!current) ent.issues.push(`schema ${t.schema_version ?? 1}: not the drop record schema the runtime reads (contract C1)`);
       else if (none) ent.notes.push(`drops no mesos (meso_rules.json no_mesos: ${none.reason ?? 'listed'})`);
-      else if (meso?.amount_source) ent.notes.push(`amount: MeowDB's player report "${meso.amount_source.raw_value}"; chance: meso_rules.json (D3-12)`);
-      else ent.notes.push('amount: no MeowDB report, the level formula of meso_rules.json; chance: meso_rules.json (D3-12)');
+      else ent.notes.push(...mesoNotes(meso, monsters[owner.id], mesoRules));
       out.push(ent);
     }
   }
@@ -734,6 +786,22 @@ function sourceDataGaps(categories) {
   return out;
 }
 
+/**
+ * The MisoStory adaptations the in-scope entries rest on: [{adaptation, entries}], most used first. An adaptation (a
+ * game/data/misostory file or section, such as the owner's drop chance table) is neither a source-data gap nor an open
+ * issue: it is listed so a reader sees which states rest on a MisoStory choice.
+ */
+function adaptationUse(categories) {
+  const count = new Map();
+  for (const c of categories) {
+    for (const e of c.entries) {
+      if (!e.in_scope) continue;
+      for (const a of new Set(e.adaptations)) count.set(a, (count.get(a) ?? 0) + 1);
+    }
+  }
+  return [...count.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([adaptation, entries]) => ({ adaptation, entries }));
+}
+
 /** The pending source reads (in scope or not), listed apart from the source-data gaps: [{key, category, name, reads}]. */
 function pendingSourceReads(categories) {
   const out = [];
@@ -827,6 +895,14 @@ export function toMarkdown(doc) {
   }
   L.push('', 'Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in');
   L.push('[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").', '');
+  L.push('## Adaptations', '');
+  L.push('MisoStory choices in `game/data/misostory/` (each with its reason; the full list with verified flags is in');
+  L.push('[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Adaptations") that in-scope entries rest on, with the number of entries');
+  L.push('that list each. An adaptation is neither a source-data gap nor an open issue: a drop row is verified on its sourced');
+  L.push('facts (MeowDB membership, Henesys.gg rarity) while its chance stays the project owner\'s table.', '');
+  if (!arr(doc.adaptations).length) L.push('None listed.');
+  for (const a of arr(doc.adaptations)) L.push(`- \`${a.adaptation.replace('game/data/misostory/', '')}\`: ${a.entries} ${a.entries === 1 ? 'entry' : 'entries'}`);
+  L.push('');
   L.push('## Pending source reads', '');
   L.push('Values a source publishes on a page nobody has read yet. They are not source-data gaps and are not excused: each entry');
   L.push('stays partial and counts as open for the exit criterion until the page is read and the data regenerated (its declaration');

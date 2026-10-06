@@ -44,7 +44,9 @@ function canonical() {
     quests: { 1006: quest('1006', "Sam's Suggestion", line), 1009: quest('1009', "Mai's Training", { ...line, position: 2 }) },
     drops: {
       2: { id: '2', owner: { kind: 'monster', id: '2' }, schema_version: 3, entries: [
-        { key: 'snail-shell', name: 'Snail Shell', item_id: '348', item_resolution: { state: 'resolved' }, rarity: { label: 'Common' }, chance_category: 'etc_own_leftover' },
+        { key: 'snail-shell', name: 'Snail Shell', item_id: '348', item_resolution: { state: 'resolved' }, chance_category: 'etc_own_leftover',
+          membership_source: { authority: 'MeowDB MS Classic', list: 'Drops (MS Classic)', capture: 'tools/meowdb/captures/monster_2.txt', votes: { up: 9, down: 0, score: 9 } },
+          rarity: { label: 'Common', source: { authority: 'Henesys.gg', capture: 'tools/henesys/captures/item_rarity.json' } } },
         { key: 'wooden-buckler', name: 'Wooden Buckler', item_id: null, item_resolution: { state: 'not_in_snapshot' }, rarity: null, chance_category: null },
       ], meso: { amount_state: 'reported', min: 2, max: 2, amount_source: { raw_value: 'Mesos: 2 per kill | 1 report' } } },
       9: { id: '9', owner: { kind: 'monster', id: '2' }, entries: [{ item_id: '348', item_name: 'Snail Shell' }], meso: { chance: null } },
@@ -101,10 +103,37 @@ test('older drop records are partial; schema 3 unresolved members are source-dat
   assert.equal(buckler.source_data_gap, true);
   assert.equal(buckler.state, 'partial', 'evidence cannot verify an unresolved member');
   assert.deepEqual(buckler.source_gaps, ['item not_in_snapshot: never drops', 'no Henesys.gg rarity for this member: never drops']);
-  assert.ok(find(doc, 'drop:2/snail-shell').notes.includes('chance: drop_rates.json etc_own_leftover x Common (D3-11)'));
-  assert.ok(find(doc, 'drop:2/snail-shell').adaptations.includes('game/data/misostory/drop_rates.json'));
+  // The row says what is sourced and checked (membership, rarity) and that the chance is the owner's adaptation.
+  const shell = find(doc, 'drop:2/snail-shell');
+  assert.deepEqual(shell.notes.slice(0, 2), ['membership: MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt)', 'rarity: Henesys.gg Common (item_rarity.json)']);
+  assert.equal(shell.notes[2], 'chance: no cell = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap',
+    'without the owner table the row says so instead of inventing a value');
+  assert.equal(shell.source_data_gap, false, 'an adaptation is not a source-data gap');
+  assert.ok(shell.adaptations.includes('game/data/misostory/drop_rates.json'));
+  const table = { drop_rates: { chance_table: { etc_own_leftover: { Common: 1 }, equip: { Common: 0.001 } } },
+    meso_rules: { chance: 0.6, amount_level_multiplier_min: 1, amount_level_multiplier_max: 2, no_mesos: {} } };
+  const withTable = build({ miso: table, tests: [unit([{ file: 'test_drops.gd', name: 'test_shell', ok: true, parity: ['drop:2/snail-shell'] }])] });
+  const tabled = find(withTable, 'drop:2/snail-shell');
+  assert.equal(tabled.state, 'verified');
+  assert.equal(tabled.notes[2], 'chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap');
+  assert.deepEqual(tabled.drop_sources.chance, { adaptation: 'game/data/misostory/drop_rates.json', decision: 'D3-11', verified: false,
+    category: 'etc_own_leftover', rarity: 'Common', value: 1 });
+  assert.equal(tabled.drop_sources.membership.capture, 'tools/meowdb/captures/monster_2.txt');
+  assert.equal(tabled.drop_sources.rarity.capture, 'tools/henesys/captures/item_rarity.json');
+  assert.equal(buckler.drop_sources.chance, null, 'no rarity: no chance');
+  assert.ok(withTable.adaptations.some((x) => x.adaptation === 'game/data/misostory/drop_rates.json' && x.entries === 3),
+    'two drop rows of drops/2 and the older drops/9 row list the table');
+  assert.ok(toMarkdown(withTable).includes('\n## Adaptations\n'));
+  assert.ok(toMarkdown(withTable).includes('- \x60drop_rates.json\x60: 3 entries'));
   assert.equal(find(doc, 'meso:2').state, 'implemented');
-  assert.match(find(doc, 'meso:2').notes[0], /MeowDB's player report "Mesos: 2 per kill \| 1 report"/);
+  assert.deepEqual(find(withTable, 'meso:2').notes, ['amount: 2 per kill, MeowDB MS Classic\'s player report "Mesos: 2 per kill | 1 report"',
+    'chance: 60% (meso_rules.json), an owner-approved adaptation (D3-12, verified: false), not a source-data gap']);
+  const formula = structuredClone(canonical());
+  delete formula.drops['2'].meso.amount_source;
+  formula.monsters['2'].level = 3;
+  assert.equal(find(build({ canonical: formula, miso: table }), 'meso:2').notes[0],
+    'amount: [3, 6] at level 3 by meso_rules.json\'s level formula (MeowDB has no player report)');
+  assert.match(find(build({ canonical: formula, miso: table }), 'meso:2').notes[1], /^chance: 60% \(meso_rules\.json\); the formula and the chance are owner-approved adaptations \(D3-12, verified: false\), not a source-data gap$/);
   const noMesos = build({ miso: { meso_rules: { no_mesos: { 2: { reason: 'owner choice' } } } } });
   assert.deepEqual(find(noMesos, 'meso:2').notes, ['drops no mesos (meso_rules.json no_mesos: owner choice)']);
   assert.ok(doc.source_data_gaps.some((g) => g.key === 'drop:2/wooden-buckler'));
