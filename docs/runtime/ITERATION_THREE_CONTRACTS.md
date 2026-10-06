@@ -46,6 +46,14 @@ Wooden Box (`0000001`).
   }],
   "excluded_kuro_only": [{"kuro_item_id": "2380000", "name": "Snail Card", "raw_value": "26% base | Qty 1",
                           "reason": "not on the membership list (KuroDB never adds members)"}],
+                                             // only rows no member matches (a candidate its item page did not
+                                             // confirm is one too, with what the page showed as its reason)
+  "pending_kuro_candidates": [{              // optional (absent = none): KuroDB rows that may be a member under
+    "kuro_item_id": "2040705",               // another name, waiting for a hand read of their item page (D3-8)
+    "name": "Scroll for Shoes for Jump", "raw_value": "0.0300% base | Qty 1",
+    "member": "scroll-for-shoes-for-jump-10", // the entry key; that entry stays unresolved with no chance_source
+    "read": "KuroDB item page 2040705 (...); saved as tools/kurodb/captures/item_2040705.json",
+    "reason": "...", "decision": "D3-8"}],
   "meowdb_reference": {"community_drops": [/* MeowDB entries with votes */], "msea_reference": [/* ... */]},
   "meso": {                                  // null for owners that never drop mesos
     "amount_state": "resolved",              // resolved | unresolved
@@ -75,6 +83,14 @@ Runtime rule (the drop roller):
 - The meso bag rolls only when both `amount_state` and `chance_state` are `resolved`. The amount is a uniform integer
   in `[min, max]`.
 - An unresolved entry never rolls, and validation lists it.
+- **KuroDB candidate rows** (decision D3-8): a KuroDB row that may be a member under another name (the crosswalk's
+  `kurodb.candidate`, with the rule `confirm_with` its item page is judged by) is a `pending_kuro_candidates` row until
+  that page is captured (`tools/kurodb/captures/item_<kuro id>.json`, read by `tools/sources/captures.mjs`). Its member
+  stays unresolved, and the parity manifest counts the member as a pending source read, not a source-data gap. Once
+  the capture exists, the merge (`tools/sources/drops_merge.mjs` `judgeKuroCandidate`) makes the row the member's
+  chance source when the page shows the member's item (`match_method` `alias_with_evidence`, the page cited in
+  `chance_source.match_evidence`), and otherwise moves it to `excluded_kuro_only` with what the page showed. A row is
+  matched, excluded or pending, never two of them, and never anybody else's chance source.
 - **Quest-gate rule** (a MisoStory derivation, recorded with `verified: false`): an entry gets a `quest_gate` only when
   two things hold. First, the membership source, or MeowDB's own item subtype, marks the item as a quest item (MeowDB
   subtype "Quest Item"). Second, a Maple Island quest objective requires that item; the gate is that quest. KuroDB's

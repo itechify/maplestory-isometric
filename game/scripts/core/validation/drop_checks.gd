@@ -21,7 +21,8 @@ extends RefCounted
 ##     - quest gates follow the C1 rule: an entry is gated exactly when its item is a quest item (MeowDB subtype "Quest
 ##       Item", or the membership source lists it so) that a Maple Island quest objective asks for, and the gate is
 ##       that quest; the gate says verified: false (a MisoStory derivation, D3-9)
-##     - no KuroDB-only row (excluded_kuro_only) is also an entry's chance source
+##     - no KuroDB-only row (excluded_kuro_only) and no pending candidate row (pending_kuro_candidates) is also an
+##       entry's chance source
 ##     - an unresolved member whose item (or, while the item is unresolved, one of its MeowDB candidates) a Maple
 ##       Island quest objective asks for is a progression blocker (brief "Missing KuroDB Probability")
 ##   drop_unresolved (warnings): each member or meso value that never rolls because a source leaves it unresolved, so
@@ -93,6 +94,13 @@ func check_record(id: String, rec: Dictionary) -> void:
 			var key := "%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]
 			if claimed.has(key):
 				_error(id, "excluded_kuro_only row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
+					str(x.get("kuro_item_id", "")), claimed[key]])
+	# A pending candidate (decision D3-8) is a row nobody has accepted yet: it may not already be a chance source.
+	for x in ValidationUtil.as_array(rec.get("pending_kuro_candidates", [])):
+		if x is Dictionary:
+			var key := "%s|%s" % [str(x.get("kuro_item_id", "")), str(x.get("name", ""))]
+			if claimed.has(key):
+				_error(id, "pending_kuro_candidates row %s (%s) is also the chance source of entry '%s'" % [str(x.get("name", "")),
 					str(x.get("kuro_item_id", "")), claimed[key]])
 	var meso: Variant = rec.get("meso", null)
 	if meso is Dictionary:

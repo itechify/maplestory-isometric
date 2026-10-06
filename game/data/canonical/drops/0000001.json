@@ -211,6 +211,7 @@
     }
   ],
   "excluded_kuro_only": [],
+  "pending_kuro_candidates": [],
   "meowdb_reference": {
     "note": "MeowDB's community-voted Classic drop list for this breakable (with votes), from the live page. For the Wooden Box this list IS the membership: Hidden Street has no breakables (D3-7).",
     "source": {

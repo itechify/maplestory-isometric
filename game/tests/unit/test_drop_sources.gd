@@ -124,11 +124,16 @@ func test_kurodb_only_rows_never_enter() -> void:
 			excluded["%s|%s" % [x.kuro_item_id, x.name]] = true
 			for e in table.entries:
 				assert_ne(DropRecordChecks._name_key(e.name), DropRecordChecks._name_key(x.name), "drops/%s: KuroDB-only %s is not a member" % [owner_id, x.name])
+		# A row that may be a member under another name, waiting for its item page (decision D3-8): never rolls.
+		var pending := {}
+		for x in table.get("pending_kuro_candidates", []):
+			pending["%s|%s" % [x.kuro_item_id, x.name]] = true
 		for row in kuro.rows:
 			if row.link_id == null:
 				continue  # the meso row
 			var key := "%s|%s" % [row.link_id, row.name]
-			assert_true(matched.has(key) != excluded.has(key), "drops/%s: KuroDB row %s is matched or excluded, once" % [owner_id, key])
+			var buckets := int(matched.has(key)) + int(excluded.has(key)) + int(pending.has(key))
+			assert_eq(buckets, 1, "drops/%s: KuroDB row %s is matched, excluded or pending, once" % [owner_id, key])
 	var snail := PackedStringArray(db().drop_table("2").entries.map(func(e: Dictionary) -> String: return e.name))
 	for name in ["Snail Card", "Bronze Ore", "Garnet Ore", "Sword", "Green Headband"]:
 		assert_false(snail.has(name), "the Snail never drops the KuroDB-only %s" % name)

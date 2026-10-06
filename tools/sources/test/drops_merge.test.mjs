@@ -42,6 +42,7 @@ test('a fresh merge reproduces the committed entries, KuroDB-only rows, meso and
     const b = records[id];
     assert.deepEqual(a.entries, b.entries, `drops/${id} entries`);
     assert.deepEqual(a.excluded_kuro_only, b.excluded_kuro_only, `drops/${id} excluded_kuro_only`);
+    assert.deepEqual(a.pending_kuro_candidates, b.pending_kuro_candidates, `drops/${id} pending_kuro_candidates`);
     assert.deepEqual(a.provenance, b.provenance, `drops/${id} provenance`);
     assert.deepEqual(a.gaps, b.gaps, `drops/${id} gaps`);
     const strip = (m) => (m ? { ...m, discrepancies: (m.discrepancies ?? []).filter((d) => d.authority !== 'MeowDB MS Classic') } : m);
@@ -69,19 +70,37 @@ test('membership is authoritative: monster entries are exactly Hidden Street\'s 
   assert.deepEqual(monsters.map((id) => records[id].entries.length), [1, 11, 12, 15, 15, 17], 'members per monster: 1/11/12/15/15/17');
 });
 
-test('KuroDB-only rows never enter a table; every KuroDB row is matched or excluded', () => {
+// The Orange Mushroom's jump-scroll candidate (KuroDB 2040705, D3-8) follows its item page capture: pending without
+// it, then confirmed or excluded by what the page shows. Nothing below pins the pending state by hand.
+const JUMP_KURO = '2040705';
+const jumpPage = c.kurodb.item_pages[JUMP_KURO] ?? null;
+const jumpEntry = () => records['9'].entries.find((e) => e.key === 'scroll-for-shoes-for-jump-10');
+
+test('KuroDB-only rows never enter a table; every KuroDB row is matched, excluded or pending, once', () => {
   for (const id of monsters) {
     const kuro = c.kurodb.monsters[crosswalk.owners[id].kuro_monster_id];
     const r = records[id];
     const matched = r.entries.filter((e) => e.chance_source).map((e) => `${e.chance_source.kuro_item_id}|${e.chance_source.kuro_name}`);
     const excluded = r.excluded_kuro_only.map((x) => `${x.kuro_item_id}|${x.name}`);
-    assert.deepEqual([...matched, ...excluded].sort(), kuro.rows.map((k) => `${k.kuro_item_id}|${k.name}`).sort(), `drops/${id}: each KuroDB row once`);
+    const pending = r.pending_kuro_candidates.map((x) => `${x.kuro_item_id}|${x.name}`);
+    assert.deepEqual([...matched, ...excluded, ...pending].sort(), kuro.rows.map((k) => `${k.kuro_item_id}|${k.name}`).sort(), `drops/${id}: each KuroDB row once`);
     for (const x of r.excluded_kuro_only) {
       assert.ok(!r.entries.some((e) => sameItemName(e.name, x.name)), `${x.name} is not a member of ${id}`);
       assert.equal(x.raw_value, kuro.rows.find((k) => k.kuro_item_id === x.kuro_item_id && k.name === x.name).raw);
     }
+    for (const x of r.pending_kuro_candidates) {
+      const e = r.entries.find((m) => m.key === x.member);
+      assert.ok(e, `drops/${id}: pending row ${x.name} names its member ${x.member}`);
+      assert.deepEqual([e.chance_state, e.probability, e.chance_source], ['unresolved', null, null], `drops/${id}: a pending member never rolls`);
+      assert.equal(x.raw_value, kuro.rows.find((k) => k.kuro_item_id === x.kuro_item_id && k.name === x.name).raw);
+      assert.match(x.read, new RegExp(`tools/kurodb/captures/item_${x.kuro_item_id}\\.json`), 'it says where the read goes');
+    }
   }
-  assert.deepEqual(monsters.map((id) => records[id].excluded_kuro_only.length), [0, 7, 13, 10, 18, 15]);
+  // Only the jump scroll's row can move between the buckets (the one candidate in the crosswalk).
+  const jumpExcluded = jumpPage != null && jumpEntry().chance_state !== 'resolved' ? 1 : 0;
+  assert.deepEqual(monsters.map((id) => records[id].excluded_kuro_only.length), [0, 7, 13, 10, 18, 14 + jumpExcluded]);
+  assert.deepEqual(monsters.map((id) => records[id].pending_kuro_candidates.length), [0, 0, 0, 0, 0, jumpPage ? 0 : 1]);
+  assert.deepEqual(records['0000001'].pending_kuro_candidates, []);
   for (const name of ['Snail Card', 'Bronze Ore', 'Garnet Ore', 'Sword']) {
     assert.ok(!records['2'].entries.some((e) => e.name === name), `Snail never drops the KuroDB-only ${name}`);
   }
@@ -178,8 +197,17 @@ test('unresolved members stay visible: in entries, item_id or probability null, 
   const om = Object.fromEntries(records['9'].entries.map((e) => [e.key, e]));
   assert.deepEqual([om['omok-piece-mushroom'].chance_state, om['omok-piece-mushroom'].item_id, om['omok-piece-mushroom'].item_resolution.state], ['resolved', null, 'ambiguous']);
   assert.deepEqual(om['omok-piece-mushroom'].item_resolution.candidates, ['486', '495', '498']);
-  assert.deepEqual([om['scroll-for-shoes-for-jump-10'].item_id, om['scroll-for-shoes-for-jump-10'].chance_state], ['177', 'unresolved']);
-  assert.ok(records['9'].excluded_kuro_only.some((x) => x.kuro_item_id === '2040705' && /D3-8/.test(x.reason)), 'the unconfirmed KuroDB scroll row is excluded with its reason');
+  assert.equal(om['scroll-for-shoes-for-jump-10'].item_id, '177');
+  if (!jumpPage) {
+    assert.equal(om['scroll-for-shoes-for-jump-10'].chance_state, 'unresolved', 'its KuroDB item page is not read yet');
+    assert.ok(records['9'].pending_kuro_candidates.some((x) => x.kuro_item_id === JUMP_KURO && x.member === 'scroll-for-shoes-for-jump-10' && /D3-8/.test(x.reason)),
+      'the unconfirmed KuroDB scroll row waits as a pending candidate with its reason');
+    assert.ok(!records['9'].excluded_kuro_only.some((x) => x.kuro_item_id === JUMP_KURO), 'and is not filed as KuroDB-only');
+  } else if (om['scroll-for-shoes-for-jump-10'].chance_state === 'resolved') {
+    assert.equal(om['scroll-for-shoes-for-jump-10'].chance_source.match_evidence.capture, jumpPage.file, 'confirmed by the read page');
+  } else {
+    assert.ok(records['9'].excluded_kuro_only.some((x) => x.kuro_item_id === JUMP_KURO && x.reason.includes(jumpPage.file)), 'excluded with what the read page showed');
+  }
   const egg = records['0000001'].entries.find((e) => e.key === 'egg');
   assert.deepEqual([egg.item_id, egg.chance_state, egg.probability], ['237', 'unresolved', null]);
 });
@@ -226,7 +254,9 @@ test('every crosswalk row carries a reviewer note, and the record entry keeps it
   throwsMerge(() => merge({ crosswalk: mutate((cw) => { delete rowOf(cw, '0000001', 'Egg').reviewer_note; }) }), /"Egg": reviewer_note is required/);
   // A member whose possible KuroDB row was not accepted says so in its gap (not "no row").
   const gap = records['9'].gaps.find((g) => g.includes('"Scroll for Shoes for Jump 10%"') && g.startsWith('chance unresolved'));
-  assert.match(gap, /possible row Scroll for Shoes for Jump \(2040705, "0\.0300% base \| Qty 1"\) that is not accepted/);
+  if (!jumpPage) assert.match(gap, /possible row Scroll for Shoes for Jump \(2040705, "0\.0300% base \| Qty 1"\) whose item page has not been read \(pending_kuro_candidates/);
+  else if (jumpEntry().chance_state !== 'resolved') assert.match(gap, /whose item page \(tools\/kurodb\/captures\/item_2040705\.json\)/);
+  else assert.equal(gap, undefined, 'a confirmed row leaves no chance gap');
 });
 
 test('crosswalk helpers', () => {

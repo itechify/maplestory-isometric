@@ -610,7 +610,7 @@
       "quest_gate": null,
       "notes": [
         "Item resolved, chance unresolved: never rolls until KuroDB item 2040705 is read by hand.",
-        "KuroDB candidate row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\"), excluded: possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Excluded until a hand read confirms it."
+        "KuroDB candidate row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\"), pending a read of its item page (pending_kuro_candidates): possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted yet: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Pending until a hand read (tools/kurodb/captures/item_2040705.json) shows the success rate and stat bonus of MeowDB 177's scroll (confirmed) or another (excluded)."
       ]
     }
   ],
@@ -698,12 +698,17 @@
       "name": "Bullet",
       "raw_value": "0.0500% base | Qty 1",
       "reason": "not on the membership list (KuroDB never adds members)"
-    },
+    }
+  ],
+  "pending_kuro_candidates": [
     {
       "kuro_item_id": "2040705",
       "name": "Scroll for Shoes for Jump",
       "raw_value": "0.0300% base | Qty 1",
-      "reason": "possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Excluded until a hand read confirms it."
+      "member": "scroll-for-shoes-for-jump-10",
+      "read": "KuroDB item page 2040705 (https://playkuro.com/database/#items/2040705), by hand in a browser; saved as tools/kurodb/captures/item_2040705.json",
+      "reason": "possible match for the Hidden Street member 'Scroll for Shoes for Jump 10%', not accepted yet: KuroDB's name carries no success rate and its item page 2040705 was not read (decision D3-8). Pending until a hand read (tools/kurodb/captures/item_2040705.json) shows the success rate and stat bonus of MeowDB 177's scroll (confirmed) or another (excluded).",
+      "decision": "D3-8"
     }
   ],
   "meowdb_reference": {
@@ -1024,13 +1029,14 @@
     "chance unresolved: \"Orange Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
     "chance unresolved: \"Blue Potion\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
     "chance unresolved: \"Arrow for Bow\" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)",
-    "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") that is not accepted (the reason is on its excluded_kuro_only row), so it never rolls"
+    "chance unresolved: \"Scroll for Shoes for Jump 10%\" is on Hidden Street's list; KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has a possible row Scroll for Shoes for Jump (2040705, \"0.0300% base | Qty 1\") whose item page has not been read (pending_kuro_candidates; a pending source read, not a source-data gap), so it never rolls"
   ],
   "discrepancies": [],
   "notes": [
     "Membership: Hidden Street's \"Before Chaos\" drop lists (https://bc.hidden-street.net/monster/orange-mushroom, read 2026-10-05T08:04:12.549Z): post-Big-Bang GMS v0.96, a different game version from MapleStory Classic, used by the project owner's decision D3-6. Every member stays in entries; one without a KuroDB chance or a local item never rolls.",
     "Chance: KuroDB (https://playkuro.com/database/#monsters/1210102, read 2026-10-05T07:45:49.813Z, \"Updated 10/2/2026\"), only for members its page also lists, joined by name through tools/sources/crosswalk/drop_items.json (D3-4). KuroDB \"<p>% base\" is the chance before any server-wide drop-rate multiplier; MisoStory applies none (multiplier 1).",
     "excluded_kuro_only: KuroDB rows for this monster that no member matches. They never drop (KuroDB never adds a member, D3-6).",
+    "pending_kuro_candidates: KuroDB rows that may be a member under another name, waiting for a hand read of their item page (decision D3-8; tools/kurodb/captures/item_<kuro id>.json). They never drop, and their member's chance is a pending source read, not a source-data gap. Once the page is read, the merge confirms the row as the member's chance (alias_with_evidence) or moves it to excluded_kuro_only with what the page showed.",
     "Runtime (contract C1): an entry rolls only when chance_state is resolved, item_id is not null and quest_gate is null or its quest is in progress. The meso bag rolls only when its amount and chance are both resolved; the amount is a uniform integer in [min, max]."
   ]
 }

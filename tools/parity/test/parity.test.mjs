@@ -350,15 +350,19 @@ test('a canonical-verification row about the drop data stays partial while any d
 });
 
 test('a pending source read is its own label: never excused, never verified, listed apart from the gaps; stale declarations fail', () => {
-  // A drop member whose chance is unresolved while the record excludes a KuroDB row as a possible match for it (a
-  // crosswalk candidate, decision D3-8), next to a member KuroDB truly has no row for (a source-data gap).
+  // A drop member whose chance is unresolved while the record holds a KuroDB row that may be it, waiting for a read of
+  // its item page (pending_kuro_candidates, decision D3-8), next to a member KuroDB truly has no row for (a gap).
   const withCandidate = () => {
     const c = canonical();
     c.drops['2'].entries.push({ key: 'jump-scroll', name: 'Scroll for Shoes for Jump 10%', item_id: '348', item_resolution: { state: 'resolved' },
-      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), excluded: possible match, page not read'] });
+      chance_state: 'unresolved', notes: ['KuroDB candidate row Scroll for Shoes for Jump (2040705, "0.0300% base | Qty 1"), pending a read of its item page'] });
     c.drops['2'].excluded_kuro_only = [
       { kuro_item_id: '2380000', name: 'Snail Card', raw_value: '26% base | Qty 1', reason: KURO_ONLY_REASON },
-      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', reason: 'possible match, page not read' },
+      // A candidate its item page did not confirm is excluded with what the page showed: KuroDB-only, never pending.
+      { kuro_item_id: '2040799', name: 'Scroll for Shoes for Speed', raw_value: '0.0300% base | Qty 1', reason: 'checked against its item page: another item' },
+    ];
+    c.drops['2'].pending_kuro_candidates = [
+      { kuro_item_id: '2040705', name: 'Scroll for Shoes for Jump', raw_value: '0.0300% base | Qty 1', member: 'jump-scroll', read: 'KuroDB item page 2040705', reason: 'possible match, page not read', decision: 'D3-8' },
     ];
     c.items['237'].gaps = ['max_stack: shown only on the item page, which was not captured', 'sources.breakables: not captured'];
     return c;
@@ -409,9 +413,16 @@ test('a pending source read is its own label: never excused, never verified, lis
   assert.equal(mixed.pending_reads.length, 1);
   // Stale declarations fail: the read was done (the chance resolved, the candidate gone; the gap removed), or no entry.
   const read = withCandidate();
-  read.drops['2'].excluded_kuro_only = read.drops['2'].excluded_kuro_only.slice(0, 1);
+  read.drops['2'].pending_kuro_candidates = [];
   read.drops['2'].entries.find((e) => e.key === 'jump-scroll').chance_state = 'resolved';
-  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale/);
+  assert.throws(() => build({ canonical: read, rules }), /drop:2\/jump-scroll is stale: its drop record has no pending_kuro_candidates row/);
+  // The page was read and did not confirm the row: it is excluded with what the page showed, the member is a gap.
+  const rejected = withCandidate();
+  const row = rejected.drops['2'].pending_kuro_candidates.pop();
+  rejected.drops['2'].excluded_kuro_only.push({ kuro_item_id: row.kuro_item_id, name: row.name, raw_value: row.raw_value, reason: 'checked: 60%' });
+  const gap = find(build({ canonical: rejected }), 'drop:2/jump-scroll');
+  assert.deepEqual([gap.source_data_gap, gap.pending_source_read], [true, false], 'an excluded row is never pending, whatever its reason');
+  assert.throws(() => build({ canonical: rejected, rules }), /drop:2\/jump-scroll is stale/);
   const pageRead = withCandidate();
   pageRead.items['237'].gaps = [];
   assert.throws(() => build({ canonical: pageRead, rules }), /item:237 is stale: record items\/237 has no gap for max_stack/);
@@ -421,6 +432,7 @@ test('a pending source read is its own label: never excused, never verified, lis
     /item:237 needs "fields"/);
   // A candidate row whose member cannot be found is reported.
   const lost = withCandidate();
-  lost.drops['2'].entries.find((e) => e.key === 'jump-scroll').notes = [];
-  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump']);
+  lost.drops['2'].pending_kuro_candidates[0].member = 'no-such-member';
+  assert.deepEqual(build({ canonical: lost }).inputs.unmatched_kuro_candidates, ['drops/2: KuroDB 2040705 Scroll for Shoes for Jump (member no-such-member)']);
+  assert.equal(find(build({ canonical: lost }), 'drop:2/jump-scroll').pending_source_read, false);
 });

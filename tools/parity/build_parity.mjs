@@ -207,7 +207,7 @@ function main() {
       `tools/parity/rules.json pending_source_reads (they count as pending anyway): ${doc.inputs.undeclared_pending_reads.join(', ')}`);
   }
   if (doc.inputs.unmatched_kuro_candidates.length) {
-    console.warn(`excluded KuroDB candidate rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.join('; ')}`);
+    console.warn(`pending_kuro_candidates rows whose member was not found: ${doc.inputs.unmatched_kuro_candidates.join('; ')}`);
   }
   for (const t of doc.inputs.tests) {
     if (t.world_refused?.tests) {
