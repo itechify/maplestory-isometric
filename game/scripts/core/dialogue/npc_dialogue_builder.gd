@@ -14,6 +14,8 @@ extends RefCounted
 ##   talk                  default talk: quest NPCs say their first "What X Says" line until all their quests are
 ##                         done, then the last one; other NPCs say all their lines in order; NPCs without quoted
 ##                         lines say their first idle-chatter line; shopkeepers -> shop.greeting -> open_shop.
+##                         A line of rules default_talk.in_progress_lines (Sera's and Sen's mid-quest lines) shows
+##                         only while its quest is in progress (talk.during.<k>); the rule runs over the other lines.
 ##   q<id>.offer.<i>       on_accept lines; the last one is a Yes/No (accept). A quest with no "On accept" text
 ##                         (MeowDB gap, e.g. 1002) is offered as one quest card instead (speaker "journal"): its
 ##                         journal summary (line 0; the quest name without a journal) and the system prompt
@@ -80,6 +82,24 @@ func rule(path: String, fallback: String) -> String:
 	for p in parts:
 		node = QuestJson.dict(node).get(p)
 	return QuestJson.s(node, fallback) if node is String else fallback
+
+
+## The rows of rules default_talk.in_progress_lines ({npc_id, line, quest_id, reason, ...}), in file order: a "What X
+## Says" line that shows only while its quest is in progress (owner ruling #9: Sera's and Sen's mid-quest lines).
+func in_progress_lines() -> Array:
+	var out: Array = []
+	for row: Variant in QuestJson.arr(QuestJson.dict(rules.get("default_talk")).get("in_progress_lines")):
+		out.append(QuestJson.dict(row))
+	return out
+
+
+## This NPC's in-progress lines: [{"line": int, "quest": String}], in file order.
+func _in_progress_lines_of(npc_id: String) -> Array:
+	var out: Array = []
+	for r: Dictionary in in_progress_lines():
+		if QuestJson.s(r.get("npc_id")) == npc_id:
+			out.append({"line": QuestJson.i(r.get("line"), -1), "quest": QuestJson.s(r.get("quest_id"))})
+	return out
 
 
 ## The NPC's conversation: generated, then overridden. Empty graph (no nodes) for an unknown NPC.
@@ -155,6 +175,37 @@ func validate_rules() -> PackedStringArray:
 			errs.append("%s: %s '%s' is not implemented (the code does '%s')" % [at, path, v, FIXED_RULES[path]])
 	if not rule("shop_window_title.format", "{npc}'s Shop").contains("{npc}"):
 		errs.append("%s: shop_window_title.format must contain {npc}" % at)
+	errs.append_array(_validate_in_progress_lines(at))
+	return errs
+
+
+## default_talk.in_progress_lines: each row names a canonical NPC, one of its "What X Says" lines (0-based) and a
+## canonical quest; an NPC keeps at least one line the general rule can show, and a line is overridden only once.
+func _validate_in_progress_lines(at: String) -> PackedStringArray:
+	var errs := PackedStringArray()
+	var seen := {}
+	var rows := in_progress_lines()
+	for i in rows.size():
+		var r: Dictionary = rows[i]
+		var where := "%s: default_talk.in_progress_lines[%d]" % [at, i]
+		var npc_id := QuestJson.s(r.get("npc_id"))
+		var quest_id := QuestJson.s(r.get("quest_id"))
+		var n := npcs.get_def(npc_id)
+		if n == null:
+			errs.append("%s: npc_id '%s' is not a canonical NPC" % [where, npc_id])
+		elif not (r.get("line") is float or r.get("line") is int) or QuestJson.i(r.get("line"), -1) < 0 \
+				or QuestJson.i(r.get("line"), -1) >= n.dialogue_lines.size():
+			errs.append("%s: NPC %s (%s) has %d \"What X Says\" lines, so line %s does not exist (0-based)" % [where, npc_id,
+				n.name, n.dialogue_lines.size(), var_to_str(r.get("line"))])
+		else:
+			var key := "%s:%d" % [npc_id, QuestJson.i(r.get("line"))]
+			if seen.has(key):
+				errs.append("%s: NPC %s line %d is already overridden" % [where, npc_id, QuestJson.i(r.get("line"))])
+			seen[key] = true
+			if _in_progress_lines_of(npc_id).size() >= n.dialogue_lines.size():
+				errs.append("%s: NPC %s has no line left for the general rule" % [where, npc_id])
+		if not quests.has(quest_id):
+			errs.append("%s: quest_id '%s' is not a canonical quest" % [where, quest_id])
 	return errs
 
 
@@ -394,9 +445,27 @@ func _add_talk(g: DialogueGraph, n: NpcDef) -> void:
 	if own == 0:
 		g.set_node("talk", {"type": "say", "line": _own_line(n), "next": ""})
 		return
+	# Lines that show only while a quest is in progress (rules default_talk.in_progress_lines, owner ruling #9) come
+	# first and leave the pool; the general rule below runs over the lines left.
+	var cases: Array = []
+	var held := {}
+	var during := _in_progress_lines_of(n.id)
+	for k in during.size():
+		var o: Dictionary = during[k]
+		if int(o["line"]) < 0 or int(o["line"]) >= own:
+			continue  # validate_rules() reports it
+		_chain(g, "talk.during.%d" % k, [{"npc": n.id, "field": "dialogue", "line": int(o["line"])}], "", "")
+		cases.append({"condition": _status(String(o["quest"]), QuestLog.IN_PROGRESS), "next": "talk.during.%d.0" % k})
+		held[int(o["line"])] = true
+	var pool: Array = []
+	for i in own:
+		if not held.has(i):
+			pool.append(i)
+	if pool.is_empty():
+		pool = range(own)  # validate_rules() reports an NPC with no line left
 	var mine := n.all_quests()
 	var quest_rule := rule("default_talk.quest_npc", QUEST_NPC_TALK_RULES[0])
-	if n.has_behavior("quest") and own >= 2 and not mine.is_empty() and quest_rule == QUEST_NPC_TALK_RULES[0]:
+	if n.has_behavior("quest") and pool.size() >= 2 and not mine.is_empty() and quest_rule == QUEST_NPC_TALK_RULES[0]:
 		# MeowDB does not label when each "What X Says" line is shown; the last one reads as the after-quest line
 		# (Heena, Roger, Maria, Rain, Mai), so MisoStory shows it once all of the NPC's quests are completed
 		# (rules default_talk.quest_npc, data/misostory/dialogue/_rules.json).
@@ -404,18 +473,18 @@ func _add_talk(g: DialogueGraph, n: NpcDef) -> void:
 		for q in mine:
 			done_all.append(_status(q, QuestLog.COMPLETED))
 		var before: Array = []
-		for i in own - 1:
-			before.append({"npc": n.id, "field": "dialogue", "line": i})
+		for i in pool.size() - 1:
+			before.append({"npc": n.id, "field": "dialogue", "line": pool[i]})
 		_chain(g, "talk.before", before, "", "")
-		_chain(g, "talk.after", [{"npc": n.id, "field": "dialogue", "line": own - 1}], "", "")
-		g.set_node("talk", {"type": "branch", "cases": [{"condition": {"type": "all", "of": done_all},
-			"next": "talk.after.0"}], "default": "talk.before.0"})
+		_chain(g, "talk.after", [{"npc": n.id, "field": "dialogue", "line": pool[pool.size() - 1]}], "", "")
+		cases.append({"condition": {"type": "all", "of": done_all}, "next": "talk.after.0"})
+		g.set_node("talk", {"type": "branch", "cases": cases, "default": "talk.before.0"})
 		return
 	var all_lines: Array = []
-	for i in own:
+	for i in pool:
 		all_lines.append({"npc": n.id, "field": "dialogue", "line": i})
 	_chain(g, "talk.lines", all_lines, "", "")
-	g.set_node("talk", {"type": "branch", "cases": [], "default": "talk.lines.0"})
+	g.set_node("talk", {"type": "branch", "cases": cases, "default": "talk.lines.0"})
 
 
 ## Transport (canonical transport.routes, e.g. Shanks). Per route i, nodes "transport.<i>.*":

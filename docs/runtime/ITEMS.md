@@ -159,8 +159,12 @@ No canonical number appears in code. Tests read expected values from the same re
   from any shop. MeowDB documents no sell restrictions; MisoStory adds one: a shop refuses to buy a quest-critical
   item (a quest item, an untradeable item, or one handed out on accept) below the quantity an in-progress quest still
   needs (`quest_item_needed`, `QuestItemGuard`, `misostory/quests/_quest_items.json`), because selling Roger's Apple
-  during 1002 made the quest uncompletable. Tradeable drops stay sellable. Shop equipment is clean (empty instance
-  data).
+  during 1002 made the quest uncompletable. Tradeable drops stay sellable. Every shop also refuses a **protected
+  item**, whatever the quests (`protected_item`, `ItemsConfig.protected_item`, `inventory.json`
+  `shop.protected_items`): the list has one entry, The Green Relaxer (522), untradeable and given once by Pio's 1012,
+  an adaptation (owner ruling #7). The check comes before the quest guard and the price rules, so the refusal carries
+  its own reason; the shop window says "The Green Relaxer cannot be obtained again. The shop will not buy it." and the
+  inventory and mesos do not change. Shop equipment is clean (empty instance data).
 - **Drops.** `DropRoller.roll(owner, db, rng, ctx)` first rolls one meso bag (when the record's meso amount and chance
   are both resolved; the amount is a uniform integer in `[min, max]`), then each rolling entry in the record's order.
   An entry rolls when its chance is resolved and its item is a local item, and, if it has a `quest_gate`, only while
@@ -197,6 +201,7 @@ Every value below is marked `"verified": false` with a reason in its file. The v
 | `inventory.json:job_item_tags` | beginner [], warrior Warrior, magician Mage, bowman Bowman, thief Thief (+ pirate guess) | Transcribed from MeowDB's character-builder code in `beginner.json` |
 | `inventory.json:shop.sell_zero_value_items` | true | MeowDB does not say whether NPCs refuse 0-value items; MisoStory takes them for 0 |
 | `inventory.json:shop.max_bundles_per_purchase` | null (no limit) | MeowDB documents no per-purchase cap |
+| `inventory.json:shop.protected_items` | The Green Relaxer (522) | Owner ruling #7: untradeable and given once (1012), so a sold chair could never come back; MeowDB documents no sell restriction (it lists a 1-meso sell-back) |
 | `drop_rates.json:chance_table` | the owner's table, category x rarity (below) | MeowDB publishes no drop chance; Henesys.gg gives only a rarity label per item (decision D3-11) |
 | `drop_rates.json:quantity_per_drop` | 1 | No source gives a drop quantity (D3-11) |
 | `drop_rates.json:quest_gate_rule` | the C1 gate rule (D3-9) | MeowDB does not say who may loot a quest item |
@@ -269,7 +274,7 @@ English line. The codes are:
 | `ok`, `unknown_item`, `invalid_quantity` | all |
 | `inventory_full`, `not_enough_items` | inventory |
 | `insufficient_mesos`, `meso_cap` | mesos |
-| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused`, `quest_item_needed` | shops |
+| `unknown_shop`, `not_sold_here`, `citizenship_required`, `no_sell_price`, `zero_value_refused`, `quest_item_needed`, `protected_item` | shops |
 | `not_equipment`, `unknown_slot`, `slot_empty`, `level_too_low`, `job_mismatch`, `stat_too_low`, `fame_too_low`, `gender_mismatch` | equipment |
 | `not_usable`, `dead` | consumables |
 | `cannot_sit`, `no_chair` (and `not_enough_items`, `level_too_low`, `dead`) | chairs |
@@ -297,6 +302,7 @@ node --test tools/sources/test/                                                 
 | `test_mesos_wallet.gd` | add/spend validation, never negative, cap, `mesos_changed`, persistence |
 | `test_shop_buy_sell.gd` | stock equals canonical rows, price x quantity, exact affordability, insufficient mesos, full inventory, clean equipment, bad requests, sell-back, 0-value sales, meso cap, `sell_slot`, signals, no 64-bit cost wrap |
 | `test_shop_quest_items.gd` | the sell guard (a quest item an in-progress quest still needs is refused, and says why; the rest sells) and Roger's re-issue of a lost apple during 1002 |
+| `test_shop_protected_items.gd` | the protected list (owner ruling #7): The Green Relaxer is an unverified adaptation citing #7; all three shops refuse it (`sell` and `sell_slot`) with `protected_item` and its message, no Events, inventory and mesos unchanged; other items sell; the quest-item guard still holds Roger's Apple during 1002; without the entry it sells at its canonical 1 meso; the shop window's check line and status |
 | `test_chairs_use.gd` | chairs are the Setup items with setup data; the canonical bonus; the first chair in slot order; the refusals; use sits and stands; a quickslot-bound chair sits the live player (PLAYER_AND_CAMERA.md) |
 | `test_drops_data.gd` | every monster has its record, every record schema 3 and through the drop policy, every member's item exists or is unresolved, both rule files complete labelled adaptations, every rolling chance the table cell, the rolling members per owner, an edited table cell reaches the runtime unchanged, quest items (under their quest) and Three Snails shells obtainable, the meso rule (MeowDB's report, else the formula) |
 | `test_drops_roller.gd` | same seed gives the same drops (with and without a quest context), only rolling entries drop, unresolved members never do, Board and Screw only during 1012 (and the gate costs its roll), tutorial shellpiece every kill, meso amounts from MeowDB or the formula over [min, max], a newer MeowDB report replaces the formula, box never drops mesos, an older schema supplies nothing, rolled drops picked up, ground records (lifetime, owner window, scatter in px and m), canonical pickup box through `WorldScale.actor` |
@@ -311,8 +317,6 @@ node --test tools/sources/test/                                                 
   Re-check against MeowDB when possible.
 - **Not built yet.** Scroll application (failure, slot use), equipment stat variance on drops, recharging, pets and
   pet food. MeowDB documents none of these. Chairs work (above).
-- **The Green Relaxer can be sold.** The sell guard holds only what an in-progress quest needs, and no quest needs
-  the chair after 1012; whether to protect it (untradeable, not obtainable again) is an owner decision.
 - **A chair refused for level** reads "You need to be level N to equip that." (`MisoUiText.result_message` words
   `level_too_low` for equipment); only 525, an off-island chair, has a level requirement.
 - **Unresolved drops.** None today: all 86 drop members resolve. A member that stops resolving never rolls until a

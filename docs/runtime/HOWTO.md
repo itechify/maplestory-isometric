@@ -72,8 +72,10 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 
 - **Quests.** The Quest Log (Q) lists Available, In Progress and Completed quests, a chain's steps ("Mai's Training
   2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
-  A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
-  buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
+  A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". Forfeit (or Delete)
+  on an in-progress quest gives it up after a confirmation; its NPC offers it again. A shop refuses to buy a quest
+  item an in-progress quest still needs, no shop buys The Green Relaxer (it cannot be obtained again), and Roger
+  hands you another apple if yours is gone (quest 1002).
 - **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
   Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
@@ -181,7 +183,8 @@ bash scripts/playtest_quests.sh                                   # every Maple 
   departure boundary and the fare refusal), `npc_bubbles` (the NPC speech bubbles), `pause_load` (a Load through the
   pause menu), `resume_gate` (a save just past a trail gate resumes where it was), `kit` (PlaytestKit's reference
   run), `playthrough` (the clean-character playthrough, creation to Shanks), `trap_probe` and `walk_probe` (single
-  spots). Tests A-G are as in Iteration Two.
+  spots). Tests A-G are as in Iteration Two. Since then: `quest_forfeit` (a quest forfeited from the Quest Log by
+  clicking, then accepted again).
 - **The every-quest set.** `scripts/playtest_quests.sh [--jobs N] [--seed N] [--out DIR] [--isolate PREFIX]
   [chains...]` runs the `quest` scenario once per chain (`--list` prints the 9 chains), `--jobs` at a time (default 3)
   in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one

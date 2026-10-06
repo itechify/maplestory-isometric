@@ -678,6 +678,19 @@ func _check_inventory(label: String, id: String, data: Variant) -> void:
 		var it: Dictionary = db.item(item_id)
 		if it.get("weapon", null) is Dictionary and not subtypes.has(str(it.get("subtype", ""))):
 			report.error("adaptation", label, id, "weapon_subtypes has no entry for '%s' (canonical weapon item %s)" % [str(it.get("subtype", "")), item_id])
+	# shop.protected_items (ItemsConfig.protected_item): every entry names a canonical item. A dangling id would
+	# protect nothing and hide the mistake.
+	var shop: Variant = data.get("shop", null)
+	var protected: Variant = (shop as Dictionary).get("protected_items", null) if shop is Dictionary else null
+	if protected == null:
+		return
+	if not (protected is Array):
+		report.error("adaptation", label, id, "shop.protected_items must be a list of {item_id, reason, verified}")
+		return
+	for e: Variant in protected:
+		var pid: Variant = (e as Dictionary).get("item_id", null) if e is Dictionary else null
+		if not (pid is String) or not db.has("items", pid):
+			report.error("adaptation", label, id, "shop.protected_items names item %s, which is not a canonical item" % var_to_str(pid))
 
 
 ## combat.json: fixed_damage_skills is keyed by canonical skill ids (formulas skills[].skill_id).

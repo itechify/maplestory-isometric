@@ -16,7 +16,8 @@ extends PlaytestScenario
 ## new character's empty purse and at 499 for a 500-meso Razor (the message, nothing changes); a full Equip tab and a
 ## full Use tab, both filled by buying with the Max button (refused with a message, nothing changes; a partial stack
 ## still accepts its item); the quantity picker's limits (room-limited, meso-limited, the sell slot's quantity, at
-## least 1). `mesos` console commands are setup only (the report marks them).
+## least 1); The Green Relaxer, a protected item (owner ruling #7), refused by Lucy with its message and nothing
+## changed. `mesos` and `give` console commands are setup only (the report marks them).
 
 const PAN_TOWN := "000000060"
 const PAN_STORE := "000000061"
@@ -47,6 +48,8 @@ const APPLE := "236"
 const EGG := "237"
 const ORANGE := "239"
 const PET_FOOD := "269"
+## The Green Relaxer, a protected item (owner ruling #7): given by the console as setup, then offered to Lucy.
+const RELAXER := "522"
 
 ## Expected mesos, from the canonical prices of every trade and the console's setup amounts.
 var ledger: int = 0
@@ -322,6 +325,15 @@ func _lucy(d: PlaytestDriver) -> void:
 		"%d -> %d used" % [used0, _used(d, "use")])
 	await d.screenshot("lucy_sell")
 
+	# The Green Relaxer is a protected item (owner ruling #7, inventory.json shop.protected_items): no shop buys it.
+	await _give_item(d, RELAXER)
+	if await _select_sell(d, "setup", _first_slot(d, RELAXER)):
+		_check_live_warning(d, "Lucy: the detail panel says The Green Relaxer cannot be sold, before Enter", "cannot be obtained again")
+		var gr := await _enter(d, RELAXER)
+		_check_refused(d, "Lucy: The Green Relaxer (protected item)", gr, ShopService.PROTECTED_ITEM,
+			["The Green Relaxer cannot be obtained again", "The shop will not buy it"])
+		await d.screenshot("lucy_protected")
+
 	# Fill the Use tab by buying Apples with Max (room-limited: the open Apple stack plus every free slot).
 	await _select_buy(d, APPLE)
 	var exp_max := _expected_max_buy(d, LUCY_SHOP, APPLE)
@@ -586,6 +598,14 @@ func _give_mesos(d: PlaytestDriver, n: int) -> void:
 	ledger += n
 	d.check("setup: mesos %+d" % n, d.character().mesos == m0 + n and d.character().mesos == ledger,
 		"%d -> %d" % [m0, d.character().mesos])
+
+
+## Setup: `give <item>` through the console (one unit).
+func _give_item(d: PlaytestDriver, item_id: String) -> void:
+	var n0 := d.character().inventory.count(item_id)
+	await d.console("give %s" % item_id)
+	d.check("setup: give %s" % _name(d, item_id), d.character().inventory.count(item_id) == n0 + 1,
+		"%d -> %d" % [n0, d.character().inventory.count(item_id)])
 
 
 # =================================================================================================================

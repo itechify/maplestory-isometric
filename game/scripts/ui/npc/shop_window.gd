@@ -297,9 +297,10 @@ func sell_selected() -> Dictionary:
 
 
 ## The message for a sale result: ItemCodes' words, or MisoUiText's for a quest item a quest still needs ("Roger's
-## Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress.").
+## Apple is needed for Roger's Apple (keep 1). The shop will not buy it while the quest is in progress.") and for a
+## protected item ("The Green Relaxer cannot be obtained again. The shop will not buy it.").
 func _sell_message(res: Dictionary) -> String:
-	if String(res.get("code", "")) == ShopService.QUEST_ITEM_NEEDED:
+	if String(res.get("code", "")) in [ShopService.QUEST_ITEM_NEEDED, ShopService.PROTECTED_ITEM]:
 		return MisoUiText.result_message(res, db)
 	return ItemCodes.message(res)
 

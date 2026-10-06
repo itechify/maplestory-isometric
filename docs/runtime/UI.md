@@ -41,6 +41,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/windows/equipment_window.gd` + `doll_backdrop.gd` | `MisoEquipmentWindow`, `MisoDollBackdrop` | Equipment (E) |
 | `scripts/ui/windows/stats_window.gd` | `MisoStatsWindow` | Character Stats (C) |
 | `scripts/ui/windows/quest_window.gd` | `MisoQuestWindow` | Quest Log (Q / L) |
+| `scripts/ui/windows/forfeit_prompt.gd` | `MisoForfeitPrompt` | The Quest Log's "Forfeit quest?" confirmation (modal, Forfeit / Cancel) |
 | `scripts/ui/windows/skills_window.gd` | `MisoSkillsWindow` | Skills (K): levels, SP, "+", description, Set key, drag to a quickslot |
 | `scripts/ui/common/ui_env.gd` | `MisoUiEnv` | Resolves character / content / bus / game / map session / quest engine / ctx / UI preferences file for in-game, standalone and tests |
 | `scripts/ui/common/ui_prefs.gd` | `MisoUiPrefs` | The player's UI preferences on this machine (the minimap's fold), a ConfigFile beside the save slots |
@@ -84,7 +85,8 @@ re-entering the tree (a reparent) reconnects and redraws.
 - **Esc.** The shell's `menu` handler calls `ctx.close_top_window()`. Every window registers with
   `ctx.window_opened(w)` when it opens or is clicked, and with `ctx.window_closed(w)` when it closes. Each window has
   `close()`, so Esc closes the newest window first.
-- **No modal.** No window calls `push_modal`, so the player can walk with windows open, as in classic. While any
+- **No modal.** No window calls `push_modal`, so the player can walk with windows open, as in classic. The one
+  exception is the Quest Log's forfeit question (`MisoForfeitPrompt`), modal only while it asks. While any
   modal is active (dialogue, shop, console, pause menu), the HUD's quickslot keys and the windows' `toggle_*` keys do
   nothing.
 - **Standalone.** Without `setup()`, a root configures itself in `_ready` with `MisoUiEnv.standalone()`: the
@@ -249,7 +251,12 @@ character on each event. No character object is cached.
   `level`, `effect`, `plus`), `plus_buttons`, `key_buttons`, `key_button`, `sp_label`. Rows come from
   `SkillDef.catalog(job, db)`.
 - **`MisoQuestWindow`**: `select_tab("in_progress" | "available" | "completed")`, `select_quest(id)`,
-  `objective_rows()` and `detail_texts()`.
+  `objective_rows()`, `detail_texts()`, `request_forfeit() -> bool` (opens the confirmation for the selected
+  in-progress quest), `forfeit(id) -> result` (`env.quest_service().forfeit`), `forfeit_button` (null unless the
+  detail shows an in-progress quest) and `forfeit_prompt`.
+- **`MisoForfeitPrompt`** (a child of `MisoWindowsRoot`, `forfeit_prompt`): `open(quest_id, quest_name, npc_name)`,
+  `confirm()`, `cancel()` (also `close()`, the window stack's hook), `is_open()`, signals `confirmed(quest_id)` and
+  `cancelled(quest_id)`, and the parts `message_label`, `confirm_button`, `cancel_button`.
 
 ## What the player sees and does
 
@@ -424,6 +431,19 @@ that each lies on screen and off the status bar.
   - the journal text (`QuestEngine.journal_text`);
   - objectives with ticks and counts ("Snail 7/10", "Return to Mai", "Use Roger's Apple 0/1", "Answer the quiz");
   - canonical rewards: EXP, mesos, fame, items with icons, "One of these at random" and "Choose one" groups.
+- **Forfeit** (owner ruling #10). An in-progress quest's detail has a Forfeit button under the NPC line; completed
+  and available quests have none. A click, or Delete while the log is open and no dialogue or shop owns the keyboard,
+  asks first: "Forfeit quest?" over a dimmed screen, "Forfeit Borrowing Sera's Mirror? Its progress is lost, and items
+  the quest gave you are taken back. You can accept it again from Heena.", with Forfeit and Cancel.
+  - The question is modal (the player stands still, window hotkeys are quiet) and registered on the window stack, so
+    Esc cancels it before it closes any window. Closing the log, a new game or a load cancels it too.
+  - Keyboard: Cancel holds the focus; Left/Right move between the buttons and Enter presses the focused one; Y
+    forfeits, N or Esc cancels. Space and Alt (the jump keys) and key repeat never press a button
+    (`DeathNotice.ignores_key`). The log's own buttons keep `FOCUS_NONE`; only the question takes the keyboard, and
+    hands it back when it closes.
+  - Cancel changes nothing. Forfeit calls `Game.quests.forfeit` (`QuestService`, the debug console's path):
+    `quest_forfeited` is announced (the HUD logs "Quest forfeited: ..." and an autosave follows), accept items still
+    held are taken back, the log moves the quest back under Available, and its start NPC offers it again.
 
 **Tooltip.** Hovering an inventory slot, an equipped piece or a quickslot shows a card. For inventory and Equipment
 slots the card sits beside the slot and never covers it (`MisoItemTooltip.place_beside`). It goes to the slot's right
@@ -464,6 +484,7 @@ doc comment.
 | Binding changes notify the group `miso_quickslot_listeners` (`refresh_quickslots()`) instead of an `Events` signal | `events.gd` is a fixed contract and has no quickslot signal; HUD and inventory are separate scenes |
 | Requirement colouring uses total stats | The same basis as `Equipment.equip_check` (ITEMS.md "Requirement basis") |
 | "Shops will not buy this" when `sell_price_mesos` is null | `ShopService` refuses those (`no_sell_price`) |
+| Forfeit asks first, in a modal question whose Cancel holds the focus; Delete is its key | Owner ruling #10. A forfeit drops progress and takes accept items back, so one stray click must not do it; Enter already uses the selected inventory slot, and the windows never take the keyboard, so the question (not the button) does, as `DepartureScreen` and `DeathNotice` do |
 | "Nearby" means one of the quest's start NPC's canonical locations (`npcs/<id>.json locations[].map_id`) is `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map, in `locations[]` only (no top-level `map_id`; reading one left every quest un-tagged until the Test E playtest caught it) |
 | The message log drops a repeated line only for notices and warnings, never for gains, spends, EXP or quest lines | The repeat filter exists for a full inventory announced again while pickup is held, and for loot pickup notices that word the HUD's own gain line again. Applied to every line, it also swallowed a second, separate sale (Test G) |
 | Log wording ("You have gained an item (...)") is MapleStory-inspired | MeowDB publishes no client messages. The wording is presentation, not canonical text |
@@ -496,6 +517,7 @@ ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 | `test_ui_theme.gd` | The theme builds and caches; every type variation is registered with the right base; the vendored Nunito loads (not the fallback) with its OFL text; weights differ; helpers (`thousands`, labels, gauges, check textures, panel and button styles) |
 | `test_ui_hud.gd` | `hud.tscn` root has `setup`; initial values from the character (level, name, canonical job name, HP/MP, mesos separators, EXP percent, 8 quickslots); values follow `hp_changed`, `mp_changed`, `mesos_changed` (no line for delta 0), `exp_gained`, `item_gained`, `inventory_full`, `notice`, `equipment_changed`; `exp_gained` amounts <= 0 (the death penalty's -N, and 0) redraw the bar with no line; level-up flourish and the AP highlight; map banner (canonical street and name, fade timeline, no trail line); the trail line on a private `map_session.gd` (`set_trail`): "-> " + the destination's canonical name under the current map's, held past the arrival banner's time, a refresh does not restart it, cleared by "" (fades out), back on mid-fade fades in from there, shown at once for a HUD set up on a trail, a gate commit (clear, then `map_entered`) leaves the new map's banner with no line, the way back after turning round, an unknown id shows the id, re-entering the tree re-syncs and keeps listening, `reset()` clears it; a held banner stays centred when the HUD resizes (wider and narrower than 1600 px) and the next banner is centred for the new width; the HP gauge at 0 from `player_died` to `player_respawned` through `stats_changed`, `hp_changed`, `equipment_changed`, `leveled_up` and `game_loaded` (the character holding its respawn HP), the HP back at the respawn, an announced death (HP above 0) also 0; `character_replaced` re-reads `is_character_dead()` (a stand-in game: still dead = 0, alive = its HP), a HUD configured during a death starts at 0; log cap, history, dedupe, fade; quickslot bind → use → count decrements → HP restored → `item_used` → the key path → JSON save round trip keeps the binding → empty stack greys out with a notice; non-consumables refused; drop, move, unbind; quest progress lines through a real `QuestService`; leaving and re-entering the tree keeps listening and redraws; no character or content: nothing breaks |
 | `test_ui_windows.gd` | `windows.tscn` root has `setup` and four closed windows; inventory tabs and slots from the live inventory, counts, mesos, live refresh on pickup; use and equip through `ItemService` (`item_used`, `equipment_changed`, previous weapon back in the bag), a level-requirement refusal with message and notice, Etc not usable; quickslot assignment and drag-move (`ItemService.move`); equipment doll covers every slot, W.ATK contribution, unequip with a full Equip tab refused gracefully, then unequip and re-equip by drop; stats window: "+" only with AP, every derived value equals `StatCalculator.snapshot`, `Game.allocate_ap` (a real `GameState` on a private bus) spends AP and moves the damage range, "+" hidden at 0 AP; quest log: Sam's Suggestion available, then "Snail 7/10" after 7 `monster_killed` events through an attached `QuestService`, the turn-in row, the canonical EXP and item rewards, capped and ticked at 10/10; the ctx window stack (newest closes first, re-focus, close button, `window_changed`); hotkeys toggle and stay quiet under a modal; HUD buttons open windows through the group; standalone Esc; the four default window rects are disjoint and on screen whatever the opening order; a real mouse press on a slot of a back window (`Viewport.push_input`) makes it the newest, so Esc closes it first; dragging a window by its title follows the pointer, clamps at the edges and leaves the attack action alone; tooltip rows (unmet requirement red, met plain, effect, price, description) and hover in the window; every canonical item has an icon shape |
+| `test_quest_forfeit_ui.gd` | The Quest Log's Forfeit (owner ruling #10): the button only on an in-progress quest (not on available or completed ones); real clicks through `Viewport.push_input`: Forfeit asks (modal, the message names the quest and Sera), Cancel changes nothing, the question's Forfeit forfeits through `Game.quests` (one `quest_forfeited`, the mirror taken back), the log updates and Sera offers 1001 again; real keys: Delete asks, Cancel has the focus, Left/Right move it, Enter presses it, Space and key repeat do not, Y forfeits, N and Esc cancel, the window stack's Esc reaches the question first; quiet under another modal; closing the log cancels; without a quest service nothing changes and the HUD says so |
 | `test_ui_minimap_projection.gd` | No world: `project()` equals a real orthographic `Camera3D`'s `unproject_position` up to one scale and offset (20 points); further and higher points sit higher; `for_map` prefers the live basis; `fit` keeps the aspect and the margin; `clamp_to_rect` keeps the direction |
 | `test_ui_minimap_world.gd` | With the world (SKIP without), one island build for the file (a test process survives about ten builds; the suite makes nine): `IslandWorld.ground_faces` on all 25 maps (non-empty, in the footprint, in the chunk's height range, cached); `MinimapModel` on all 25 maps against the canonical records: name and street, upward ground by tier, portal markers = the type-2 portals with their canonical destination names, NPC dots = the canonical NPCs, shop badges exactly on the doors to Pan, Sid and Lucy, role icons, interior floors, `player_spawns[0]` inside the bounds; the destination names inside the picture, never over another name or a portal glyph, and every exit named on each map with up to five exits; the hidden portal, its lane and arrival gates never shown; trail stubs only where the map's own canonical portals lead (no stub back up the one-way 30 → 40 on 000000040); every sidecar camera is the rig's default view; the footprint fallback |
 | `test_ui_minimap.gd` | No world (stand-in maps from the canonical records): the scene installs after the HUD; the title and the debug id following the overlay; M and the fold button, quiet under a modal, folded across a map change; the fold saved in a private preferences file and read back by the next minimap (a restart), none kept without one; the status bar's `Map [M]` button names the key and folds and unfolds the map; Sam "!" → "..." after accepting 1006 and Mai "?" after the kills, through a real `QuestService`; the arrow follows the player, clamps off the map, the trail tag; portals, shop badges, role icons, hover text, labels inside the picture; every canonical NPC's name tag through the real `NpcPresenter` (coin, boat, "Transport"); the tag's "Transport" line follows the role in any call order; the places tried for a destination name clear the glyph and slide inside the picture |
@@ -603,7 +625,6 @@ staying disconnected after a reparent.
   through `ItemService.use_item`.
 - **Skill slots poll.** The bar redraws its skill slots every 0.1 s while any is bound (every frame during a
   cooldown) instead of listening to MP and cooldown events.
-- **Not built.** Dropping or discarding items, item sorting, a split-stack dialog and a forfeit button in the quest
-  log. `QuestService.forfeit` exists, but the brief does not ask for this.
+- **Not built.** Dropping or discarding items, item sorting and a split-stack dialog.
 - **Sandbox location.** The sandbox scenes live under `scripts/ui/common/sandbox/`, because this system owns no path
   under `scenes/sandbox/`.

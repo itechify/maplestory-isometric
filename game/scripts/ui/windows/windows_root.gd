@@ -70,6 +70,8 @@ var stats: MisoStatsWindow
 var quests: MisoQuestWindow
 var skills: MisoSkillsWindow
 var tooltip: MisoItemTooltip
+## The Quest Log's "Forfeit quest?" confirmation (MisoForfeitPrompt).
+var forfeit_prompt: MisoForfeitPrompt
 var _placed: Dictionary = {}
 var _configured_by_setup := false
 
@@ -90,6 +92,10 @@ func _init() -> void:
 		w.opened.connect(_on_window_opened)
 	inventory.tooltip_host = self
 	equipment.tooltip_host = self
+	# The Quest Log's forfeit confirmation, above every window (it dims the screen while it asks).
+	forfeit_prompt = MisoForfeitPrompt.new()
+	add_child(forfeit_prompt)
+	quests.forfeit_prompt = forfeit_prompt
 	tooltip = MisoItemTooltip.new()
 	tooltip.top_level = true
 	add_child(tooltip)
@@ -126,6 +132,8 @@ func configure(e: MisoUiEnv) -> void:
 	env = e
 	for w: MisoWindow in windows.values():
 		w.env = e
+	forfeit_prompt.cancel()
+	forfeit_prompt.env = e
 	_bind()
 	refresh_open()
 
@@ -290,6 +298,7 @@ func _on_game_loaded(_slot: String) -> void:
 
 func _on_character_replaced(_reason: String) -> void:
 	hide_item_tooltip()
+	forfeit_prompt.cancel()
 	skills.selected = ""
 	refresh_open()
 
