@@ -36,7 +36,17 @@ B=blender                                                         # Linux: Blend
 
 # every camera -> renders/final/ (3 parallel Blender processes, debug variants included)
 bash scripts/render_all.sh final 3 --debug
+
+# the three review steps in one: render every camera, validate, tile renders/final/contact_sheet.png
+bash scripts/review_island.sh final 3 --debug
 ```
+
+`scripts/review_island.sh` runs `render_all.sh`, `validate.py` and `tools/contact_sheet.js` in that order on the
+existing `MapleIsland.blend` and returns one exit code: 0 when all three pass, 1 when any fails. A step fails when a
+camera did not render, when validation reports a high or medium finding or a check that is not ok (or Blender fails),
+or when the sheet cannot be built; the last line names the failed steps (`REVIEW_FAILED: validate`). Validation runs
+even after a failed render; the sheet needs the renders and `npm ci` in `tools/` once. `VALIDATE_OUT=<dir>` writes the
+validation report there instead of `docs/`.
 
 Commit the source change together with the regenerated text docs it affects (validation report, manifest,
 asset catalog), so the docs in each commit describe that commit's island. Open work is tracked as GitHub

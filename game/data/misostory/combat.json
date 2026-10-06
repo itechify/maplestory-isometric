@@ -56,7 +56,8 @@
   },
   "beginner_sp_after_level_10": {
     "sp_per_level": 0,
-    "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. MisoStory grants a Beginner no SP after level 10.",
+    "decision": "#4 (owner ruling, 2026-10-06)",
+    "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. The project owner's ruling (#4, 2026-10-06) is 1 SP per level-up up to and including level 10, 9 in all, so MisoStory grants a Beginner no SP after level 10.",
     "verified": false
   },
   "ap_allocation": {

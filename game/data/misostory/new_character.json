@@ -15,7 +15,8 @@
   },
   "starting_sp": {
     "value": 0,
-    "reason": "No MeowDB page states a starting SP number. The cached Beginner's guide (https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world, formulas/beginner.json sp.note) says only 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10)', and the /formulas/leveling calculator prints the level-10 total 'Beginner SP = 9' at every level (sp.calculator_caveat). 0 at level 1 is the arithmetic that sentence leaves (9 SP, all from the 9 level-ups), a derivation and not a published value, so it is an adaptation here and not canonical data.",
+    "decision": "#4 (owner ruling, 2026-10-06)",
+    "reason": "The project owner's ruling (#4, 2026-10-06): 0 SP at level 1, then 1 SP per level-up up to and including level 10, 9 in all. No MeowDB page states a starting SP number. The cached Beginner's guide (https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world, formulas/beginner.json sp.note) says only 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10)', and the /formulas/leveling calculator prints the level-10 total 'Beginner SP = 9' at every level (sp.calculator_caveat). 0 at level 1 is also the arithmetic that sentence leaves (9 SP, all from the 9 level-ups), a derivation and not a published value, so it is an adaptation here and not canonical data.",
     "verified": false
   },
   "starting_mesos": {

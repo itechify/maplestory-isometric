@@ -44,14 +44,15 @@ is an adaptation (`verified: false`) and is replaced when a source publishes the
 - **Fall damage:** MeowDB documents it (canonical `formulas/movement.json` `fall_damage`: a landing after at least 45
   consecutive fast-falling movement updates deals base 24, rising to 36; "Maps can disable fall damage"), but not the
   length of one movement update or which maps disable it, so the rule cannot be applied as published. The owner's
-  rule (2026-10-06): MisoStory has no fall damage.
-- **Natural MP recovery:** MeowDB documents none. The owner's rule (2026-10-06): none (see "Jobs" above for the future
-  Magician skill).
+  ruling (#4, 2026-10-06): MisoStory has no fall damage (`presentation.json` `fall_recovery`).
+- **Natural MP recovery:** MeowDB documents none. The owner's ruling (#4, 2026-10-06): none (`recovery.json`
+  `natural_mp`; see "Jobs" above for the future Magician skill).
 - **Ground sitting and map benches:** MeowDB documents neither on Maple Island; only chairs sit
   (`recovery.json` `sitting`). Rain's quiz 1016 mentions chairs and benches, so a marked "[MisoStory]" page after
   its answers says the sit key works on chairs the player owns.
-- **Starting SP:** no page states it. The owner's rule (2026-10-06): 0 at level 1 and 1 per level-up up to and
-  including level 10, 9 in all, which is also what the Beginner's guide's "9 SP by level 10" leaves.
+- **Starting SP:** no page states it. The owner's ruling (#4, 2026-10-06): 0 at level 1 and 1 per level-up up to and
+  including level 10, 9 in all, which is also what the Beginner's guide's "9 SP by level 10" leaves
+  (`new_character.json` `starting_sp`; none after level 10, `combat.json` `beginner_sp_after_level_10`).
 - **Beginner skill timing:** Recovery and Nimble Feet show "Timing unavailable" (cast instantly, lockout 0), and how
   Recovery's heal is spread over its 30 s is not published (5 s equal ticks). All in `skills.json`,
   `verified: false`.
@@ -83,7 +84,7 @@ raise them again.
   boxes are rectangles and every combat test and scenario is tuned on them.
 - **The map mob rate stays ignored** (`presentation.json map_mob_rate.apply` false): three MeowDB mechanics pages say
   the live game ignores it; the map pages that say otherwise call it their best reading. The switch stays in the data.
-- **The parity manifest is the record of v0.3 and is not rebuilt** (a ticket marks it as a snapshot). The tests and the
+- **The parity manifest is the record of v0.3 and is not rebuilt** (its top says so, #38). The tests and the
   playtest scenarios guard against regressions without it, and each rebuild costs a full evidence run. Its open review
   findings are therefore not pursued: stale evidence is only a warning, `--check` cannot run without the git-ignored
   evidence files, no evidence digest is committed, a unit test's need for the world is read from the text

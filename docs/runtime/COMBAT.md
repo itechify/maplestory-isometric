@@ -249,7 +249,7 @@ fails if the published text changes. Every constant that exists as a data field 
 | `monster_knockback` | stagger when `damage >= KB`; stagger time: the canonical record's `stagger_ms` first (`stagger_from_canonical_record`, read by `MonsterDef`; 600 ms for all six), else `CombatFormula.monster_stagger_s` (the monster's `hit1` clip, fallback 0.6 s); a hit in mid-hop cancels the hop, then pushes (`airborne_hit`); 20 px push | the KB stat is canonical (all Maple Island monsters: KB 1), and so is the stagger time since the live pages publish it (Iteration Three); the push distance and the mid-hop rule are not |
 | `fixed_damage_skills.0001000` | Three Snails: hit check yes, defense/level gap/crit no | MeowDB only says stats, weapon and defense don't scale it |
 | `level_up` | full heal; excess EXP carries; several levels per award; EXP discarded at the cap | MeowDB implies a heal but not its amount; overflow is undocumented |
-| `beginner_sp_after_level_10` | 0 | undocumented |
+| `beginner_sp_after_level_10` | 0 | undocumented; the owner's ruling (#4): 1 SP per level-up up to and including level 10, 9 in all |
 | `ap_allocation` | AP never goes into HP/MP | follows the canonical discrepancy decision |
 | `isometric_reach` | attack boxes 60 px deep; touch zones as deep as they are wide | MeowDB is 2D |
 

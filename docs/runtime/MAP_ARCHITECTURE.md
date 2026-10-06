@@ -432,8 +432,8 @@ Every map is fully walled. Exits are only portals, and on `edge` links also the 
   zero recoveries.
 - **Fall damage.** MeowDB documents fall damage (canonical `formulas/movement.json` `fall_damage`: a landing after at
   least 45 consecutive fast-falling movement updates deals base 24, rising to 36; "Maps can disable fall damage").
-  MisoStory applies none, on a landing or a recovery: a MisoStory adaptation (`presentation.json` `fall_recovery`,
-  `verified: false`), not a canonical rule. The canonical rule cannot be applied as published, because the length of
+  MisoStory applies none, on a landing or a recovery, by the owner's ruling (#4, 2026-10-06): a MisoStory adaptation
+  (`presentation.json` `fall_recovery`, `verified: false`, `decision` #4), not a canonical rule. The canonical rule cannot be applied as published, because the length of
   one movement update is not documented and MeowDB does not say which maps disable fall damage (a source-data gap,
   parity row `mechanic:fall-damage`).
 - **Feel.** Wherever an invisible wall reads badly, dress the footprint edge in Blender (hedge, fence or cliff lip)

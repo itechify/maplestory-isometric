@@ -492,9 +492,10 @@ show instead:
   isometric adaptation (parity row `mechanic:crouch-down-jump`, `tools/parity/rules.json` `out_of_scope`): the down key
   walks toward the camera, the maps have no pass-through floors, and a lower floor is reached by walking off an edge or
   by a rope or ladder.
-- Fall damage is not applied. MeowDB documents it (canonical `formulas/movement.json` `fall_damage`), but the length of
-  one movement update and the maps that disable it are unpublished, so MisoStory applies none, an adaptation
-  (`presentation.json` `fall_recovery`, MAP_ARCHITECTURE §4.6; parity row `mechanic:fall-damage`, a source-data gap).
+- Fall damage is not applied: MisoStory has none, by the owner's ruling (#4, 2026-10-06). MeowDB documents it
+  (canonical `formulas/movement.json` `fall_damage`), but the length of one movement update and the maps that disable
+  it are unpublished, so no fall damage is an adaptation (`presentation.json` `fall_recovery`, MAP_ARCHITECTURE §4.6;
+  parity row `mechanic:fall-damage`, a source-data gap).
 - `IslandWorld` with `load_visuals = true` segfaults in headless runs (threaded visual load in the dummy renderer), so
   the sandbox's `--world` mode loads collision only when headless.
 - `set_input_enabled(false)` (dialogue, transitions) gates only the controller. Systems that read

@@ -680,7 +680,7 @@
         "name": "Shoes Jump Scroll: Greater",
         "category": "USE",
         "detail": "Scroll",
-        "item_id": "177"
+        "item_id": null
       },
       {
         "name": "Hunter's Bow",

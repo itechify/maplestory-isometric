@@ -55,9 +55,10 @@ Iteration Three is complete by its own exit criterion. In the final evidence run
 owner's drop and meso sources of decisions D3-11 and D3-12) the full test suite with the exported world passes (1564
 tests), canonical data validation passes (0 errors, 0 warnings), and every real-game scenario passes: all 20 quests on
 three seeds, and one clean character played from the creation screen to Shanks with no developer help on three seeds
-headless and once in a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)) has
-652 entries: 646 verified and 3 source-data gaps (values the sources were read for and do not give), with none left
-open; every drop row is verified on its MeowDB membership and Henesys.gg rarity, its chance the owner's table. Maple
+headless and once in a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)), the
+record of v0.3 at that evidence commit and not kept current, has 652 entries: 646 verified and 3 source-data gaps
+(values the sources were read for and do not give), with none left open; every drop row is verified on its MeowDB
+membership and Henesys.gg rarity, its chance the owner's table. Maple
 Island holds 20 quests, 6 monster species and the Wooden Box, 21 NPCs and 3 shops. Open work is tracked as GitHub
 issues; what has no ticket (out of scope, source-data gaps, decisions against) is in
 [`docs/DEFERRED.md`](docs/DEFERRED.md); the final report is the last section
@@ -90,7 +91,7 @@ of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 - **Provenance and parity reports:** [`docs/PROVENANCE_REPORT.md`](docs/PROVENANCE_REPORT.md) (every record and
   property with its authority, URL, read time and capture; every unresolved value; every adaptation) and
   [`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md) (every canonical entry's state, from test and playtest
-  evidence), each with a machine-readable JSON copy.
+  evidence: the record of v0.3, not kept current), each with a machine-readable JSON copy.
 
 ## Quick start
 
@@ -194,7 +195,7 @@ images, and how to cut a release.
 | `docs/canonical/`, `game/data/canonical/` | The canonical data (MeowDB MS Classic, with Henesys.gg rarity labels on the drop records), how it was collected and its gaps |
 | `tools/meowdb/captures/`, `tools/henesys/captures/` | Dated source pages read by hand in a browser (Iteration Three) |
 | `docs/PROVENANCE_REPORT.md`, `docs/provenance_report.json` | Every canonical value's authority, URL, read time and capture; every unresolved value; every adaptation (`bash scripts/validate_data.sh --report`) |
-| `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence (`node tools/parity/build_parity.mjs`) |
+| `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence: the record of v0.3 at its evidence commit, not kept current (rebuild: `docs/runtime/HOWTO.md` "Build the parity manifest") |
 | `docs/runtime/` | The game's architecture, systems, how-to, content authoring, playtest harness, stuck scan and reports |
 | `docs/review/` | Island reviews 1 and 2 (raw critiques and triage) and the final acceptance check. The raw Iteration Three audit (`it3_audit.json`) is in git history at commit f9b2bc5 |
 | `docs/images/` | Small README images (refresh with `scripts/readme_images.py`) |
@@ -248,8 +249,8 @@ Open work: the GitHub issues. Out of scope, unsourced or decided against: `docs/
 - **MisoStory choices are labelled.** Where no source gives a value the game needs (the chair clock, skill tick and
   cast times, box placement, spawn spacing, knockback push, ground lifetime of drops), the value is an adaptation in
   `game/data/misostory/` with its reason, marked unverified. Two canonical mechanics are not applied: fall damage
-  (MeowDB's rule needs a movement-update length and a per-map switch it does not publish) and crouch with the
-  down-jump (the isometric maps have no pass-through floors).
+  (MeowDB's rule needs a movement-update length and a per-map switch it does not publish; the owner ruled it out,
+  #4) and crouch with the down-jump (the isometric maps have no pass-through floors).
 - **The decisions left pending by Iteration Three were made on 2026-10-06.** Those that change the game have tickets
   (protecting The Green Relaxer from being sold, the Skills window overlapping the Quest Log, Three Snails no longer
   hitting Wooden Boxes); the others are listed with their reasons in `docs/DEFERRED.md` ("Decided, not doing").

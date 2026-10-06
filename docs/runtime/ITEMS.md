@@ -193,7 +193,7 @@ Every value below is marked `"verified": false` with a reason in its file. The v
 |---|---|---|
 | `inventory.json:tab_slots` | 24 per tab | No inventory size on MeowDB; commonly remembered pre-Big-Bang start size |
 | `inventory.json:equipment_max_stack` | 1 | MeowDB has no "Max per Stack" for equipment; unstackable so each piece can carry instance data |
-| `inventory.json:unpublished_max_stack` | 1 | Fallback for a non-equip item with null `max_stack`: none today (Green Apple, 242, used it until its item page was read: `tools/meowdb/captures/item_242.txt`, Max per Stack 100) |
+| `inventory.json:unpublished_max_stack` | 1 | Fallback for a non-equip item with null `max_stack`: none today |
 | `inventory.json:meso_cap` | 2,147,483,647 | No cap documented; signed 32-bit counter limit so mesos cannot overflow |
 | `inventory.json:equipment_slots` | 10 brief slots + face/eye accessory, pendant, ring 1-4 | Remaining classic slots, so future content is data only |
 | `inventory.json:slot_conflicts` | overall <-> top/bottom, two-handed <-> shield | Classic rules; item pages do not state them |
