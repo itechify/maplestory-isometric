@@ -87,12 +87,12 @@ func test_the_rule_files_are_complete_labelled_adaptations() -> void:
 		["drop_rates", func(t: Dictionary) -> void: t.chance_table.etc_other.Common = -0.1, "chance_table.etc_other.Common must be a chance"],
 		["drop_rates", func(t: Dictionary) -> void: t.chance_table["gems"] = {}, "chance_table.gems is not a category"],
 		["drop_rates", func(t: Dictionary) -> void: t.verified = true, "must say verified: false"],
-		["drop_rates", func(t: Dictionary) -> void: t.decision = "D3-3", "decision must be \"D3-11\""],
+		["drop_rates", func(t: Dictionary) -> void: t.decision = "D3-1", "decision must be \"D3-11\""],
 		["drop_rates", func(t: Dictionary) -> void: t.quantity_per_drop = 2, "quantity_per_drop must be 1"],
 		["meso_rules", func(t: Dictionary) -> void: t.chance = 1.5, "chance must be a number in [0, 1]"],
 		["meso_rules", func(t: Dictionary) -> void: t.amount_level_multiplier_max = 0, "amount_level_multiplier_min / _max"],
 		["meso_rules", func(t: Dictionary) -> void: t.no_mesos["zz"] = {"name": "x", "reason": "y"}, "no_mesos.zz names no drop owner"],
-		["meso_rules", func(t: Dictionary) -> void: t.decision = "D3-5", "decision must be \"D3-12\""],
+		["meso_rules", func(t: Dictionary) -> void: t.decision = "D3-2", "decision must be \"D3-12\""],
 	]
 	for case in cases:
 		var c := ContentDB.new()

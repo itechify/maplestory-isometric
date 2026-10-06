@@ -128,6 +128,12 @@ func _phase0(d: PlaytestDriver) -> void:
 	var reward_mesos := int((qdef.get("rewards", {}) as Dictionary).get("mesos", 0))
 	var before_reward := c.inventory.count(reward_id)
 	var mai: Dictionary = await d.talk_to(MAI)
+	if not bool(mai["open"]) and d.game().is_character_dead():
+		# A death on the way to Mai (a seed's rolls can leave A Split Road's monsters in the way) is answered as the
+		# hunts answer one: the notice's OK, the walk back, then the talk once more.
+		d.note("died on the way to Mai: %s" % String(mai.get("why", "")))
+		await _respawn(d, acct, HUNT_MAP)
+		mai = await d.talk_to(MAI)
 	if d.check("Mai can be talked to on foot", bool(mai["open"]), String(mai.get("why", ""))):
 		await _converse(d, "complete")
 	d.check("1006 completed at Mai: the canonical %d x %s" % [reward_qty, _name(d, reward_id)],
