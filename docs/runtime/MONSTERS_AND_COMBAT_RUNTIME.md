@@ -452,7 +452,7 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   reload rebuilds every box intact (`test_breakables_persistence.gd`).
 - **Tests:** `test_breakables_state.gd`, `test_breakables_placement.gd` (with the world: every box on real collision,
   standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
-  the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
+  the real roller, respawn, the reach rim and quest marker as drawn: `WoodenBox.cues_drawn`), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
   `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
   real reload, Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of
   the 19 broken,

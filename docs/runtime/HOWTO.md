@@ -103,8 +103,8 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
   landed basic attacks (skills never hit a box: Three Snails searches monsters only, the owner's ruling in #5), and
   comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only while Pio's quest is in
-  progress; a gold marker shows over the boxes while the quest still wants them, and a warm rim while your swing can
-  reach one.
+  progress; a gold marker shows over the boxes while the quest still wants them, and a hot orange rim while your
+  swing can reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
   the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
