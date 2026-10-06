@@ -152,7 +152,7 @@ Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
 node --test tools/sources/test/     # capture loader, exact raw-value parsers, the drop record builder (31 tests)
-node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (18 tests)
+node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (19 tests)
 ```
 
 ## Run real-game playtests
