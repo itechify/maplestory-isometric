@@ -668,6 +668,12 @@ func _push_at_ring(def: MapDefinition, ext_name: String, start: Vector3, at: Vec
 		await _frames(1)
 	bot.world_dir = Vector3.ZERO
 	await _frames(10)
+	# A push that jumped onto a deck structure or the rail (pressed jumps reach every ledge within 1.35 m, #16) walks
+	# back off it: let that drop land before measuring.
+	for _f in 60:
+		if player.is_on_floor():
+			break
+		await _frames(1)
 	var back := player.global_position
 	_ok(Vector2(back.x - start.x, back.z - start.z).length() <= 0.75 and absf(back.y - start.y) <= 0.6,
 		"%s: pushed to %s, cannot walk back (ended at %s)" % [label, pushed, back])
