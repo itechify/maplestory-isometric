@@ -290,6 +290,16 @@ No game defect blocked the player in any run, and none was fixed in game code by
   `5bf2687` and both final runs) carries only the slugs, and `build_parity.mjs` over them lists no tagged key that
   names no manifest entry. No check or verdict depends on a tag.
 
+**Harness (fixed in the final evidence run of 2026-10-06; PLAYTEST_HARNESS.md "Findings"):**
+
+- **H7: a trail hop whose retry stalled mid-trail was never unstuck.** The first run on the new drop sources failed
+  seed 2 of the every-quest set's 1006,1009,1010: the hop out of Snail Hunting Ground I stalled at a ledge corner 10 m
+  along, the retry stalled there at once, and `travel_to` measured the retry from the hop's start. The retry's own
+  start counts now (`PlaytestKit.retry_stalled`); the spot is escapable ground (`trap_probe`).
+- **H8: a rest on a ladder heals nothing.** In the same run Test C rested 2,250 s on an A Split Road ladder without a
+  natural-recovery tick: climbing pauses recovery (contract C4), so the game was right. `PlaytestKit.rest()` climbs off
+  first (`leave_climb`), checked by the `regen` scenario.
+
 ## The every-quest set and the other real-game scenarios of this package
 
 - **Every quest:** 20 of 20 PASS on seeds 1, 2 and 3 (520 / 523 / 523 quest checks in the final evidence run, headless
