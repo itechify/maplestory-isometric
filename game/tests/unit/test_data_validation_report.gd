@@ -48,7 +48,8 @@ func test_every_record_and_property_is_reported() -> void:
 	if missable.size() == 1:
 		assert_eq(missable[0].capture, "tools/meowdb/captures/quest_tracker_maple_island.txt", "capture")
 		assert_eq(missable[0].via, "provenance", "via the provenance block")
-	assert_has(doc.capture_files, "tools/meowdb/captures/items_api.json", "captures cited")
+	assert_has(doc.capture_files, "tools/meowdb/captures/quest_tracker_maple_island.txt", "captures cited")
+	assert_has(doc.capture_files, "tools/henesys/captures/item_rarity.json", "captures cited")
 
 
 func test_drop_sources_and_unresolved_members_are_reported() -> void:

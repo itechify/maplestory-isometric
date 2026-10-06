@@ -258,8 +258,8 @@ bash scripts/check_canonical.sh               # every extractor re-run cache-onl
 `check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
 extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
 a missing cache. It runs the extractors in their documented order (items and quests before monsters, which resolve
-drop members against them) and passes on the final Iteration Three build: every canonical file is reproduced byte for
-byte, Green Apple's record (242) from its two hand-read captures included. To regenerate canonical data, see
+drop members against them) and passes: every canonical file is reproduced byte for byte, the 94 items included (177
+and 242 left the item subset with #32). To regenerate canonical data, see
 [`../canonical/README.md`](../canonical/README.md).
 
 ## Build the parity manifest

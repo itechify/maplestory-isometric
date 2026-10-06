@@ -31,7 +31,7 @@ prove it works. Three rules hold throughout:
 | NPCs | All 21 Maple Island NPCs, all reachable and talkable, with speech bubbles of their canonical idle lines. Shanks ends the island at the departure boundary. |
 | Quests | All 20 Maple Island quests (1000-1019), each played in the real game by the every-quest set, strict after its setup. |
 | Shops | Pan, Sid and Lucy, at canonical prices. A shop refuses to buy a quest item an in-progress quest still needs. |
-| Items | 96 canonical items: the Iteration Two subset and Green Apple (242). The Green Relaxer (522) works as a chair. |
+| Items | 94 canonical items: the Iteration Two subset without the two items the game cannot give (177 and 242, #32). The Green Relaxer (522) works as a chair. |
 | Skills | The three Beginner skills (Three Snails, Recovery, Nimble Feet), with SP, the Skills window and quickslots. |
 
 Per-entry status: [`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md) (the record of v0.3, not kept
@@ -49,7 +49,8 @@ current). Every unresolved source value:
    - the quest tracker: `node tools/meowdb/extract_quests.mjs` (`missable` and `tracker_tags` of every quest; a quest
      with no tracker row fails the run, so a new region needs its own tracker capture);
    - an item API body (`tools/meowdb/captures/items_api.json`): `node tools/meowdb/extract_items.mjs` builds an item
-     with no cached page from the API body alone (Green Apple, 242); a text capture of that item's page
+     of the subset with no cached page from the API body alone (none today: Green Apple, 242, was the one until #32
+     removed it from the subset); a text capture of that item's page
      (`tools/meowdb/captures/item_<id>.txt`) then supplies the rows it shows (Max per Stack, the Tradeable tag, the
      NPC Sell-back row and basis, the MSEA reference drops), each cited to the capture.
 

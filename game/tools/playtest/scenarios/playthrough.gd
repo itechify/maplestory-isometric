@@ -582,7 +582,7 @@ func _allocate_ap() -> void:
 func _eat_hp_item() -> void:
 	var c := d.character()
 	var mx := StatCalculator.max_hp(c, db)
-	for id: String in ["237", "236", "270", "242"]:
+	for id: String in ["237", "236", "270"]:
 		var restore := k.hp_restore(id)
 		if c.inventory.count(id) > 0 and restore > 0 and c.hp + restore <= mx:
 			var r: Dictionary = await k.use_item(id)

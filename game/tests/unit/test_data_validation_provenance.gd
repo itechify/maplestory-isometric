@@ -284,7 +284,7 @@ func test_missing_capture_file() -> void:
 
 
 func test_capture_path_must_be_a_repo_path_under_tools_captures() -> void:
-	for bad in ["../tools/henesys/captures/item_rarity.json", "game/data/canonical/items/242.json",
+	for bad in ["../tools/henesys/captures/item_rarity.json", "game/data/canonical/items/270.json",
 			"tools/henesys/captures/../../../README.md", "C:/repo/tools/henesys/captures/item_rarity.json",
 			"tools\\henesys\\captures\\item_rarity.json", "tools/henesys/item_rarity.json"]:
 		var cid := _with_drop_provenance({"rarity": _src(HENESYS_SRC, {"capture": bad})})
@@ -345,17 +345,20 @@ func test_records_without_a_provenance_block_keep_their_source_rules() -> void:
 
 
 func test_capture_lookup_is_live_on_the_shipped_data() -> void:
-	# Item 242 (Green Apple) is built from the item API capture; with an empty injected capture list its citations fail.
+	# A drop record cites its owner's MeowDB page capture in its source block; with an empty injected capture list that
+	# citation fails.
 	var c := clone_db()
-	var id := first_id_where(c, "items", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "built from a capture")
+	var id := first_id_where(c, "drops", func(r: Dictionary) -> bool: return r.get("source", {}).has("capture"), "citing a capture")
+	var page := str(c.get_entity("drops", id).source.capture)
 	var r := run_validator(c, {"capture_files": {}})
-	expect_new(r, "error", "provenance", "items", id, "source.capture names tools/meowdb/captures/items_api.json, which does not exist (looked under the injected capture_files)")
-	var cited := {}  # every capture the shipped data cites (items_api.json, the quest tracker, the rarity capture, ...)
+	expect_new(r, "error", "provenance", "drops", id, "source.capture names %s, which does not exist (looked under the injected capture_files)" % page)
+	var cited := {}  # every capture the shipped data cites (the monster pages, the quest tracker, the rarity capture, ...)
 	for domain_name in ValidationUtil.canonical_domains(c):
 		for key in c.ids(domain_name):
 			for f in ProvenanceChecks._capture_files(c.get_entity(domain_name, key)):
 				cited[f] = true
-	assert_has(cited, "tools/meowdb/captures/items_api.json", "the shipped data cites the item API capture")
+	assert_has(cited, page, "the shipped data cites the owner's page capture")
+	assert_has(cited, "tools/meowdb/captures/quest_tracker_maple_island.txt", "the quests cite the quest tracker capture")
 	assert_has(cited, "tools/henesys/captures/item_rarity.json", "the drop records cite the rarity capture")
 	expect_no_new(run_validator(c, {"capture_files": cited}))
 
@@ -367,11 +370,13 @@ func test_sources_index_lists_capture_files_and_property_sources() -> void:
 	var r := run_validator(cid[0])
 	expect_new(r, "error", "sources_index", INDEX, "drops/%s" % cid[1], "capture_files")
 	expect_new(r, "error", "sources_index", INDEX, INDEX, "totals.capture_files")
-	var row := _index_row(db(), "items", first_id_where(db(), "items",
-		func(rec: Dictionary) -> bool: return rec.get("source", {}).has("capture"), "built from a capture"))
-	# Green Apple (242) cites its item API capture and the text capture of its item page (sorted, as the index lists them).
-	assert_eq(row.get("capture_files", []), ["tools/meowdb/captures/item_242.txt", "tools/meowdb/captures/items_api.json"],
-		"the shipped index lists both captures")
+	var drop_id := first_id_where(db(), "drops",
+		func(rec: Dictionary) -> bool: return rec.get("source", {}).has("capture"), "citing a capture")
+	var row := _index_row(db(), "drops", drop_id)
+	# A drop record cites the Henesys.gg rarity capture and its owner's MeowDB page capture (sorted, as the index lists
+	# them).
+	assert_eq(row.get("capture_files", []), ["tools/henesys/captures/item_rarity.json",
+		str(db().get_entity("drops", drop_id).source.capture)], "the shipped index lists both captures")
 	var p := ProvenanceChecks.new(cid[0], ValidationReport.new())
 	var expected := p.index_row("drops", cid[1], cid[0].drop_table(cid[1]))
 	# Every entry's rarity source and the block cite the one Henesys.gg page.
