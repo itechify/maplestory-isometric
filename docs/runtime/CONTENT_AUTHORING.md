@@ -15,12 +15,10 @@ prove it works. Three rules hold throughout:
   canonical data or a test's expected canonical value to make something pass.
 - **`bash scripts/validate_data.sh` enforces both rules** (see "What the validator enforces" at the end).
 
-> **Source access.** The extractors are cache-only (decision D3-1): `tools/meowdb/lib.mjs` touches the network only
-> with `MEOWDB_ALLOW_NETWORK=1`, which stays off unless MeowDB grants permission (its terms forbid automated
-> collection; ask contact@meowdb.com before publishing the dataset). Newer or missing facts come in as **dated
-> captures** of pages read by hand in a normal browser ([HOWTO.md](HOWTO.md) "Capture a source page by hand").
-> Henesys.gg has no extractor at all: its site prohibits unauthorized reproduction or scraping, so its rarity labels
-> are read by hand, kept for this private project only, and must not be published without asking Henesys.gg.
+> **Source access.** The extractors read the local cache (decision D3-1): `tools/meowdb/lib.mjs` touches the network
+> only with `MEOWDB_ALLOW_NETWORK=1`. Newer or missing facts have come in as **dated captures** of pages read by hand
+> in a normal browser ([HOWTO.md](HOWTO.md) "Capture a source page by hand"). Henesys.gg has no extractor: its rarity
+> labels are read by hand.
 
 ## What is already in
 

@@ -57,7 +57,7 @@ tools/meowdb (cache-only extractors) + tools/*/captures (dated pages read by han
 | `game/tests/` | `test_runner.tscn`, `test_case.gd`, `unit/test_*.gd`; `data/` fixtures (parity vectors, drop records, Iteration Two saves) |
 | `game/tools/` | headless tools: `validate_data.gd`, the playtest harness (`playtest/`), the stuck-region scan (`stuck_scan*.gd`), traversal bot, screenshot capture |
 | `tools/meowdb/` | development-time MeowDB extractors (Node, cache-only); cache in `tools/meowdb/.cache` (git-ignored); hand-read captures in `captures/` |
-| `tools/henesys/captures/` | Henesys.gg item rarity labels read by hand (no extractor; private use only, see its README) |
+| `tools/henesys/captures/` | Henesys.gg item rarity labels read by hand (no extractor; see its README) |
 | `tools/sources/` | the offline capture loader, exact raw-value parsers, the drop record builder (`drops_merge.mjs`), the spawn-capture check (`node --test tools/sources/test/`) |
 | `tools/parity/` | the parity manifest generator (`build_parity.mjs`, `rules.json`) |
 

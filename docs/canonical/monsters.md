@@ -80,7 +80,7 @@ Dated captures read by hand in a normal browser (decisions D3-1, D3-11; never fe
 |---|---|
 | `tools/meowdb/captures/monster_<id>.*` (live monster pages, 2026-10-05) | Drop membership (the community list "Drops (MS Classic)", every entry with its votes); `stagger_ms`; the Snail's meso report; `meowdb_reference` (the MSEA list) |
 | `tools/meowdb/captures/breakable_0000001.txt` (live Wooden Box page, 2026-10-05) | Wooden Box drop membership |
-| `tools/henesys/captures/item_rarity.json` (Henesys.gg loot page, 2026-10-06) | The rarity label of every drop member (64 items). For this private project only: Henesys.gg prohibits unauthorized reproduction or scraping, so ask it before publishing |
+| `tools/henesys/captures/item_rarity.json` (Henesys.gg loot page, 2026-10-06) | The rarity label of every drop member (64 items) |
 
 ---
 

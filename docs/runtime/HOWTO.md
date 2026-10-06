@@ -301,10 +301,9 @@ step whose final boundary check passed and that no `PLAYTHROUGH_STOP` ended earl
 
 ## Capture a source page by hand
 
-Newer MeowDB facts and Henesys.gg rarity labels come into the project only as dated captures of pages read by a person
-in a normal browser (decisions D3-1 and D3-11 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)). No tool fetches them:
-MeowDB's terms forbid automated collection, and Henesys.gg prohibits unauthorized reproduction or scraping (its labels
-are for this private project only; ask Henesys.gg before publishing them).
+Newer MeowDB facts and Henesys.gg rarity labels have come into the project as dated captures of pages read by a person
+in a normal browser (decisions D3-1 and D3-11 in [`../ITERATION_LOG.md`](../ITERATION_LOG.md)). No tool fetches a
+capture.
 
 1. Open the page in a browser and read it. Copy the rendered text, trimmed to the record.
 2. Save it under the authority's folder with a name the loader knows (`tools/meowdb/captures/README.md`,

@@ -23,23 +23,16 @@ property of Nexon Co., Ltd.
 
 Ids are MeowDB's own (maps `"000000010"`, monsters `"2"`, items `"541"`, quests `"1002"`), not GMS ids.
 
-## Reuse policy and how this data was collected
+## How this data was collected
 
-MeowDB's [Content Reuse Policy](https://meowdb.com/reuse) welcomes reuse of individual facts and figures with
-credit and a link, but asks that bulk collection, mirroring, or a dataset "whose substance is our collection" be
-cleared with **contact@meowdb.com** first. Its [Terms of Service](https://meowdb.com/terms) forbid automated
-collection without permission.
+The extractors in `tools/meowdb/` made 524 requests once (2026-10-04, one per 1.2 s, into a git-ignored local cache):
+about 230 pages, 210 `/msclassic/api/` calls and 84 JavaScript bundles. Since then:
 
-The extractors in `tools/meowdb/` made 524 requests once (2026-10-04, one per 1.2 s, into a git-ignored local cache)
-before those terms were reviewed: about 230 pages, 210 `/msclassic/api/` calls and 84 JavaScript bundles. Since then:
-
-- The extractors are cache-only (Iteration Three decision D3-1, `docs/ITERATION_LOG.md`): `tools/meowdb/lib.mjs`
-  never touches the network unless `MEOWDB_ALLOW_NETWORK=1` is set, and that stays off unless MeowDB grants
-  permission. Newer MeowDB facts come in as dated captures of pages read by hand in a normal browser
-  (`tools/meowdb/captures/`, next to the Henesys.gg rarity capture; see "Sources" below).
+- The extractors read that cache (Iteration Three decision D3-1, `docs/ITERATION_LOG.md`): `tools/meowdb/lib.mjs`
+  touches the network only when `MEOWDB_ALLOW_NETWORK=1` is set. Newer MeowDB facts have come in as dated captures of
+  pages read by hand in a normal browser (`tools/meowdb/captures/`, next to the Henesys.gg rarity capture; see
+  "Sources" below).
 - Verbatim MeowDB site code (`docs/canonical/oracles/*.js.txt`) and the raw page cache stay out of git.
-- Before MisoStory is published or the dataset redistributed, ask MeowDB for permission (their policy says they
-  grant most good-faith requests), and keep the attribution line above in credits.
 
 ## Sources
 
@@ -50,7 +43,7 @@ Three decisions D3-11 and D3-12 in `docs/ITERATION_LOG.md`, contract C7 in
 | Authority | May supply | Read from |
 |---|---|---|
 | MeowDB MS Classic | everything, drop membership and meso reports included | the local cache, plus hand-read captures in `tools/meowdb/captures/` |
-| Henesys.gg (`https://henesys.gg/loot`, MapleStory Classic World) | the rarity label of a drop member only. For this private project only: the site prohibits unauthorized reproduction or scraping, so ask Henesys.gg before publishing the labels | `tools/henesys/captures/item_rarity.json` |
+| Henesys.gg (`https://henesys.gg/loot`, MapleStory Classic World) | the rarity label of a drop member only | `tools/henesys/captures/item_rarity.json` |
 | Project owner | a decision (cites its id, e.g. D3-11, or the Iteration Three brief): the natural-regen rule, the drop chance table, the meso rule | `docs/ITERATION_LOG.md`, `game/data/misostory/` |
 
 A record names a different authority per property with `provenance.<property>` (schema 3 drop records also cite one

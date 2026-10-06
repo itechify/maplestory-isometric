@@ -39,8 +39,10 @@ bash scripts/render_all.sh final 3 --debug
 ```
 
 Commit the source change together with the regenerated text docs it affects (validation report, manifest,
-asset catalog), so the docs in each commit describe that commit's island. Keep `docs/ITERATION_LOG.md` and
-`docs/DEFERRED.md` current when you fix or defer something notable. The authoring rules for map modules are in
+asset catalog), so the docs in each commit describe that commit's island. Open work is tracked as GitHub
+issues (`AGENTS.md`, `docs/agents/`). `docs/DEFERRED.md` lists only what has no ticket (out of scope, source-data
+gaps, decisions against), so update it when one of those changes; `docs/ITERATION_LOG.md` is the record of the three
+iterations. The authoring rules for map modules are in
 `docs/AUTHORING.md`.
 
 ## README images
