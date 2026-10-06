@@ -26,7 +26,7 @@ extends Node
 
 const MAIN_SCENE := "res://scenes/main.tscn"
 const MAP := "000000040"
-const TIMEOUT_FRAMES := 2400
+const TIMEOUT_FRAMES := CheckWait.DEFAULT_FRAMES
 
 var main: MainShell = null
 var out_dir := ""
@@ -432,9 +432,12 @@ func _info(text: String) -> void:
 	print("MONSTER_INFO " + text)
 
 
+## Waits until `cond` holds: `max_frames` frames, and a default wait at least CheckWait.DEFAULT_MIN_MS of wall time
+## (a headless frame can take under a millisecond; CheckWait).
 func _until(cond: Callable, max_frames: int = TIMEOUT_FRAMES) -> bool:
 	var n := 0
-	while not bool(cond.call()) and n < max_frames:
+	var t0 := Time.get_ticks_msec()
+	while not bool(cond.call()) and CheckWait.keep_waiting(n, max_frames, Time.get_ticks_msec() - t0):
 		await get_tree().process_frame
 		n += 1
 	return bool(cond.call())
