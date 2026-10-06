@@ -28,7 +28,7 @@
 //   const { records } = buildDropRecords({ meowdbCache });   // {"1": {...}, ..., "0000001": {...}}
 import fs from 'node:fs';
 import path from 'node:path';
-import { loadCaptures, REPO_ROOT, AUTHORITIES } from './captures.mjs';
+import { loadCaptures, REPO_ROOT, AUTHORITIES, SCROLL_STAT_KEYS } from './captures.mjs';
 import { normalizeItemName, sameItemName, entryKey, parseMeowdbMesoReport } from './parse.mjs';
 
 export const SCHEMA_VERSION = 2;
@@ -204,7 +204,8 @@ export const CANDIDATE_RULES = ['meowdb_scroll'];
  *                                              is KuroDB-only (excluded_kuro_only) and the member's chance a real gap
  * Rule "meowdb_scroll": the member's local MeowDB item is a scroll; the page must show the same success rate
  * (scroll.success_rate_pct) and exactly the same "+N" stat bonuses (scroll.stat_bonus_on_success). A shown value that
- * differs rejects; a value the page does not show leaves it inconclusive. When the page lists this monster among its
+ * differs rejects; a value the page does not show leaves it inconclusive; a bonus name the reader cannot map to a
+ * MeowDB stat key (captures.mjs SCROLL_STAT_KEYS) stops the merge. When the page lists this monster among its
  * MONSTER DROPS, that row must read as the monster page's row (else inconclusive: KuroDB disagrees with itself). Never
  * guesses: only what the page text shows is compared.
  */
@@ -217,6 +218,13 @@ export function judgeKuroCandidate({ cand, page, memberItem, monsterRow, monster
   const differs = [];
   const scroll = memberItem.scroll;
   if (!scroll) fail(`${where}: confirm_with meowdb_scroll but the member's MeowDB item ${memberItem.id} has no scroll block`);
+  // A bonus name the reader could not map to a MeowDB stat key is not "another stat": the page is not understood, so
+  // the merge stops instead of judging it (extend captures.mjs STAT_ALIASES / WZ_STAT_CODES after reading the page).
+  const unknown = Object.keys(page.stat_bonuses ?? {}).filter((k) => !SCROLL_STAT_KEYS.includes(k));
+  if (unknown.length) {
+    fail(`${where}: KuroDB item page ${page.file} gives stat bonus name(s) ${unknown.map((k) => JSON.stringify(k)).join(', ')} that map to no MeowDB scroll stat (${SCROLL_STAT_KEYS.join(', ')}); `
+      + 'extend tools/sources/captures.mjs STAT_ALIASES rather than judge a page the reader does not understand');
+  }
   const wantRate = scroll.success_rate_pct;
   const wantStats = Object.fromEntries(Object.entries(scroll.stat_bonus_on_success ?? {}).sort(([a], [b]) => (a < b ? -1 : 1)));
   if (page.success_rate == null) reasons.push('the page shows no success rate');

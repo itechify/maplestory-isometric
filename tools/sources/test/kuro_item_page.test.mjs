@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadCaptures, CAPTURE_DIRS, REPO_ROOT, statBonusesIn, successRateIn, statKey } from '../captures.mjs';
+import { loadCaptures, CAPTURE_DIRS, REPO_ROOT, statBonusesIn, successRateIn, statKey, SCROLL_STAT_KEYS } from '../captures.mjs';
 import { buildDropRecords, loadCrosswalk, loadLocalItems, loadLocalQuests, judgeKuroCandidate, DropMergeError, OWNER_IDS, KURO_ONLY_REASON } from '../drops_merge.mjs';
 
 const FIXTURE = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, 'tools/sources/test/fixtures/kurodb_item_page.synthetic.json'), 'utf8'));
@@ -19,10 +19,16 @@ const quests = loadLocalQuests();
 const CAPTURE = 'tools/kurodb/captures/item_2040705.json';
 const MEMBER = 'scroll-for-shoes-for-jump-10';
 
-/** A temp copy of every capture folder plus extra files {name in tools/kurodb/captures: content}. */
+/**
+ * A temp copy of every capture folder plus extra files {name in tools/kurodb/captures: content}. The real KuroDB item
+ * page captures (item_<id>.json) are left out of the copy, so each case holds exactly the item pages it names: once
+ * the real page of 2040705 is read, "without the capture" still means without it.
+ */
 function rootWith(extra = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'kuro-item-'));
-  for (const dir of Object.values(CAPTURE_DIRS)) fs.cpSync(path.join(REPO_ROOT, dir), path.join(root, dir), { recursive: true });
+  for (const dir of Object.values(CAPTURE_DIRS)) {
+    fs.cpSync(path.join(REPO_ROOT, dir), path.join(root, dir), { recursive: true, filter: (src) => !/^item_\d+\.json$/.test(path.basename(src)) || !src.replace(/\\/g, '/').includes('/kurodb/captures/') });
+  }
   for (const [name, body] of Object.entries(extra)) fs.writeFileSync(path.join(root, 'tools/kurodb/captures', name), typeof body === 'string' ? body : JSON.stringify(body));
   return root;
 }
@@ -117,6 +123,10 @@ test('stat names and rates in free text', () => {
   assert.equal(successRateIn('Improves Jump on shoes.'), null);
   assert.equal(statKey('Weapon Def.'), 'wdef');
   assert.equal(statKey('Speed'), 'speed');
+  // Item.wz property names, as a database page may print them.
+  assert.deepEqual(['incJump', 'INC PAD', 'incPDD', 'incEVA', 'incMHP', 'incINT'].map(statKey), ['jump', 'watk', 'wdef', 'avoid', 'hp', 'int']);
+  assert.equal(statKey('Improves jump on shoes'), 'improvesjumponshoes', 'an unknown name keeps its letters');
+  assert.ok(!SCROLL_STAT_KEYS.includes(statKey('Improves jump on shoes')) && !SCROLL_STAT_KEYS.includes(statKey('incSlots')));
   // The shipped MeowDB scroll descriptions read back as their own stat blocks (the rule's other side).
   for (const id of ['139', '143', '177', '59', '61']) {
     assert.deepEqual(statBonusesIn(items[id].description), items[id].scroll.stat_bonus_on_success, `MeowDB ${id}`);
@@ -175,6 +185,26 @@ test('a page that shows no rate or stat does not settle it: excluded as not sett
   // The page lists the Orange Mushroom at another chance than its monster page: KuroDB disagrees with itself.
   const off = om({ 'item_2040705.json': withText('Orange Mushroom\n0.0300% base | Qty 1', 'Orange Mushroom\n0.0500% base | Qty 1') });
   assert.match(off.excluded_kuro_only.find((r) => r.kuro_item_id === '2040705').reason, /MONSTER DROPS row for Orange Mushroom reads "0\.0500% base \| Qty 1", the monster page "0\.0300% base \| Qty 1"/);
+});
+
+test('a page whose bonus the reader cannot name stops the merge: never judged as "another item"', () => {
+  // ITEM STATS in Item.wz names: understood, and the same scroll.
+  const wz = om({ 'item_2040705.json': withText('PRICE\n1 mesos', 'PRICE\n1 mesos\nSUCCESS\n10%\nINCJUMP\n+3') });
+  assert.equal(wz.entries.find((x) => x.key === MEMBER).chance_state, 'resolved');
+  // A bonus name nothing maps ("Improves jump on shoes +3"): the merge fails instead of rejecting the row.
+  assert.throws(() => om({ 'item_2040705.json': withText('Success rate: 10%, Jump +3', 'Success rate: 10%\nImproves jump on shoes +3') }),
+    (err) => err instanceof DropMergeError && /stat bonus name\(s\) "improvesjumponshoes" that map to no MeowDB scroll stat/.test(err.message));
+});
+
+test('the copied capture folders hold only the item pages a case names', () => {
+  const root = rootWith({});
+  try {
+    const names = fs.readdirSync(path.join(root, 'tools/kurodb/captures'));
+    assert.deepEqual(names.filter((n) => /^item_\d+\.json$/.test(n)), [], 'no real item page leaks into a case');
+    assert.ok(names.includes('1210102.json'), 'the monster pages are copied');
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
 });
 
 test('the merge refuses a capture that is not the candidate\'s page, and a candidate without a rule', () => {

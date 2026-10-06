@@ -277,14 +277,28 @@ const KURO_STAT_LABEL = /^[A-Z][A-Z0-9 .%/&()'-]*$/;
 const STAT_ALIASES = { weapondef: 'wdef', weapondefense: 'wdef', magicdef: 'mdef', magicdefense: 'mdef', weaponatt: 'watk',
   weaponattack: 'watk', magicatt: 'matk', magicattack: 'matk', accuracy: 'acc', avoidability: 'avoid', maxhp: 'hp', maxmp: 'mp' };
 
+/** Item.wz property names a page may show for a scroll bonus ("incJump", "INC PAD") without their "inc" -> MeowDB keys. */
+const WZ_STAT_CODES = { str: 'str', dex: 'dex', int: 'int', luk: 'luk', pad: 'watk', mad: 'matk', pdd: 'wdef', mdd: 'mdef',
+  acc: 'acc', eva: 'avoid', speed: 'speed', jump: 'jump', mhp: 'hp', mmp: 'mp' };
+
 /**
- * A stat name as written on a page ("Jump", "jump", "DEX", "Weapon Def.") -> the key MeowDB's scroll records use
- * ("jump", "dex", "wdef"): lower case, letters only, spelled-out names mapped (STAT_ALIASES). An unknown name keeps its
- * letters, so it can never equal a MeowDB key by accident.
+ * The stat keys MeowDB's scroll records use (tools/meowdb/extract_items.mjs STAT_KEYS, items/<id>.json
+ * scroll.stat_bonus_on_success). A key a page gives outside this list is a name the reader does not understand.
+ */
+export const SCROLL_STAT_KEYS = Object.freeze(['str', 'dex', 'int', 'luk', 'watk', 'matk', 'wdef', 'mdef', 'acc', 'avoid',
+  'speed', 'jump', 'hp', 'mp']);
+
+/**
+ * A stat name as written on a page ("Jump", "jump", "DEX", "Weapon Def.", "incJump") -> the key MeowDB's scroll records
+ * use ("jump", "dex", "wdef"): lower case, letters only, spelled-out names (STAT_ALIASES) and Item.wz "inc" names
+ * (WZ_STAT_CODES) mapped. An unknown name keeps its letters, so it can never equal a MeowDB key by accident (and is
+ * not in SCROLL_STAT_KEYS: drops_merge.mjs refuses to judge a candidate on it).
  */
 export const statKey = (name) => {
   const k = String(name).toLowerCase().replace(/[^a-z]/g, '');
-  return STAT_ALIASES[k] ?? k;
+  if (STAT_ALIASES[k]) return STAT_ALIASES[k];
+  const inc = /^inc([a-z]+)$/.exec(k);
+  return inc && WZ_STAT_CODES[inc[1]] ? WZ_STAT_CODES[inc[1]] : k;
 };
 
 /** "+3" bonuses named in free text: "Success rate: 10%, Jump +3" / "jump+2, DEX +1" -> {jump: 3} / {jump: 2, dex: 1}. */

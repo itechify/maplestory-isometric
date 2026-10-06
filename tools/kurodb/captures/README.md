@@ -51,7 +51,11 @@ The row's name carries no success rate, so until its item page is read it is a `
 4. Remove the `drop:9/scroll-for-shoes-for-jump-10` declaration from `tools/parity/rules.json` `pending_source_reads`
    (the parity build fails on it as stale), update the crosswalk row's `reviewer_note`, then run
    `node tools/meowdb/build_sources_index.mjs`, `node --test tools/sources/test/` (the drop tests follow the capture:
-   no test pins the pending state), `bash scripts/validate_data.sh --report`, the unit suite and the parity build.
+   no test pins the pending state; `kuro_item_page.test.mjs` copies no real item page into its cases, and
+   `test_drop_sources.gd` `test_the_jump_scroll_candidate_follows_its_item_page` checks the record against whether
+   this file exists), `bash scripts/validate_data.sh --report`, the unit suite and the parity build. A bonus name the
+   loader cannot map to a MeowDB stat key stops the merge with an error rather than reject the row: extend
+   `tools/sources/captures.mjs` `STAT_ALIASES` after reading the page.
 
 ## Reading the raw values
 
