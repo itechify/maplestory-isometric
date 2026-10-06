@@ -303,7 +303,9 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   (boards, tiles, decals) `none`: as a wall it is a solid slab a few mm above the floor. Kit assets use
   registry tags: any of `collision_tags.PASSABLE_TAGS` (`passable`, `cloud`, `vine`, `flower`, `grass`, ...) makes an
   asset passable, and `collide_exact` makes it collide with its exact mesh instead of a prism (thin overhead
-  dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams).
+  dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams; and low
+  sloping shapes whose prism would stand at their full height over a low end, such as 000000020's
+  `X20000_NinaStumpRoots`: the player steps onto a root's tip and walks round its high part).
 - **Overhangs above a walking body get their own prism.** A prop's prism covers only its 0.15–1.6 m slice, so a
   cap or roof that overhangs its walls has no collision, and a monster or prop can stand inside it. Tag such parts
   of an asset `CT.tag(part, CT.OVERHEAD_HULL)` in the asset's builder: the export then gives the asset one more
