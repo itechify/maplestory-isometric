@@ -234,7 +234,7 @@ Iteration Three lets a record take different properties from different authoriti
 | Authority | URLs | May supply | Must carry |
 |---|---|---|---|
 | `MeowDB MS Classic` | `https://meowdb.com/msclassic`, `/_data/`, `/api/` (path boundary) | any property | `url`, `read_at` (or its cache stamp `retrieved_at`); `capture` optional |
-| `Henesys.gg` | `https://henesys.gg/` | `rarity` only (the label of a drop member; for this private project only: the site prohibits reproduction and scraping) | `url`, `read_at`, `capture` |
+| `Henesys.gg` | `https://henesys.gg/` | `rarity` only (the label of a drop member) | `url`, `read_at`, `capture` |
 | `Project owner` | none needed | any property | `decision`: a decision id such as `D3-11`, or the Iteration Three brief (`ITERATION_THREE_BRIEF`) |
 
 A **source object** is `{authority, url | urls, read_at, capture, decision?, raw_value?, ...}`: `urls` (a non-empty

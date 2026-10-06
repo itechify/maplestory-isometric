@@ -338,6 +338,10 @@ Add validation for impossible probabilities such as:
 
 # Source Access Rules
 
+> **Owner amendment, 2026-10-06 (after Iteration Three):** the restrictions in this section no longer apply. MeowDB
+> and Henesys.gg data may be used, read automatically and published. The section is kept as the brief that Iteration
+> Three ran under.
+
 Do not repeat the prohibited automated MeowDB collection performed during Iteration Two.
 
 Respect source terms and access restrictions.

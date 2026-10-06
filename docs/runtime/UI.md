@@ -452,7 +452,7 @@ doc comment.
 | The HP gauge reads 0 between `player_died` and `player_respawned` | Classic shows the dead character at 0; the shell takes the death's loss (and sets the respawn HP) at the moment of death, so the gauge must not follow the character's HP then |
 | The minimap is drawn from the 3D world through the gameplay camera's projection, never from MeowDB's minimap block | The canonical block is a 2D size and centre in px (0 x 0 for the three shops) with Nexon art; its frame does not match the isometric layout. The brief asks to adapt the isometric map. The basis is the live rig's `view_basis`, else the sidecar's `cameras.gameplay.xform` (the same on all 25 maps, and equal to camera.json's default; `test_ui_minimap_world` checks it) |
 | The ground comes from the collision Ground trimeshes at runtime, upward faces only | No re-export is needed and it is the walkable truth. The Ground trimeshes are closed volumes (as many faces point down as up, down to 13 m below the base), and their steep faces are cliff sides; neither is seen from the camera. Faces whose centroid is more than 2 m outside the footprint are left out |
-| Hidden portals (MeowDB type 1: 000001020 in00 to Tomato Field) and their hedge lane are not shown; arrival gates are not shown | Classic minimaps hide hidden portals; the type-1 portal has no swirl and no prompt in the world either. Arrival gates are adaptation geometry, not exits. Whether a player should be led to Tomato Field is an open owner question (see "Known gaps") |
+| Hidden portals (MeowDB type 1: 000001020 in00 to Tomato Field) and their hedge lane are not shown; arrival gates are not shown | Classic minimaps hide hidden portals; the type-1 portal has no swirl and no prompt in the world either. Arrival gates are adaptation geometry, not exits. The owner decided on 2026-10-06 that the portal is never shown (see "Known gaps") |
 | M folds the picture to the title strip instead of hiding everything | The title strip is the persistent map name (Phase 12); a hidden minimap would take the name with it |
 | "Debug mode" for the map id is the debug overlay (F3, `Debug.overlay_enabled` / `overlay_toggled`) | It is the existing developer switch, available in every build; the id must not need the console |
 | Placed top left, under the windows | The classic place. The Stats and Quest windows open over it (they are installed later, so they draw above); the debug overlay is top right and the banner top centre, so neither covers it |
@@ -546,7 +546,7 @@ staying disconnected after a reparent.
 
 - **Tomato Field is not on any minimap.** The hidden portal 000001020 in00 (MeowDB type 1) and its hedge lane stay
   off the minimap, as on a classic minimap, and the world shows no swirl or prompt there either. A player has to find
-  the lane. Showing it (always, faintly, or once Tomato Field has been visited) is an owner decision.
+  the lane. The owner decided on 2026-10-06 never to show it.
 - **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
   them. The fold state is not saved (it lasts the session).
 - **The Skills window overlaps the Quest Log** when both are open: the five windows are wider together than the

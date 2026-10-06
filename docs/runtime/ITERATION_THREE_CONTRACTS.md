@@ -220,8 +220,7 @@ The validators accept these authorities, each with URL and `read_at` rules
 - `MeowDB MS Classic` (`https://meowdb.com/msclassic...`, any property): drop membership, item ids, meso reports and
   every other canonical fact.
 - `Henesys.gg` (`https://henesys.gg/...`, the property `rarity` only; `read_at` and `capture` required): the rarity
-  label of a drop member, read by hand into `tools/henesys/captures/item_rarity.json` (decision D3-11). For this
-  private project only: the site prohibits reproduction and scraping, so ask Henesys.gg before publishing the labels.
+  label of a drop member, read by hand into `tools/henesys/captures/item_rarity.json` (decision D3-11).
 - `Project owner` (no URL; a `decision` required): the natural-regen rule, the drop chance table (D3-11) and the meso
   rule (D3-12).
 

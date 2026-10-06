@@ -11,13 +11,10 @@ Classic.
 |---|---|---|
 | `item_rarity.json` | the loot page, read 2026-10-06 | the rarity label of every item on the MeowDB community drop lists of the six Maple Island monsters and the Wooden Box (64 items). All are Common except "Overall Armor DEF Scroll: Intermediate" (Rare). `row` keeps the row as the page showed it |
 
-## Terms: private use only
+## How the labels were read
 
-The site's footer reads: "Data Source: Henesys.gg - Protected by Copyright 2026. Unauthorized reproduction or scraping
-of this content is prohibited." The labels here were read by a person in a normal browser, through the page's own
-search box over the list it loads once (no scraping, no automated requests). They are kept for this private project
-only. **Ask Henesys.gg for permission before publishing them** (a public repository, a release, a screenshot of the
-data). Never collect them automatically.
+The labels here were read by a person in a normal browser, through the page's own search box over the list it loads
+once.
 
 ## Format
 

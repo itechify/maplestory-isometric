@@ -675,7 +675,7 @@ Rules:
   - **`blocking__`:** architecture hulls or boxes, fences (one box per segment), large rocks, and tree trunks (as
     cylinders in `instances.json`).
   - **None:** grass, flowers, small stones, mushrooms, canopies and clutter, decided by a **passable-tag
-    registry**, not by name words (DEFERRED.md code debt).
+    registry**, not by name words (the traversal validator still matches name words; tracked as a GitHub issue).
 - **`markers.json` is authoritative for gameplay** (A). The glTF files carry geometry only. Markers hold:
   - `content_hash`, `frame`, `footprint`, `base_y`, `kill_y`;
   - `camera {ortho_size from GAMEPLAY_SCALE, focus_local}`;
@@ -947,7 +947,7 @@ The Blender gates stay in force: `traversal.py`, `trail_walk` (it gains a one-wa
    2026-08-24.
 5. **Hidden portal UX.** Type 1 gets no swirl and no prompt. Confirm in playtest that players find the Tomato Field
    lane; the hedge lane is the in-world hint. The Iteration Three minimap leaves the portal off too (as classic
-   minimaps do); whether to show it is an open owner decision (DEFERRED.md).
+   minimaps do); the owner decided on 2026-10-06 never to show it (DEFERRED.md).
 6. **First fill.** A fresh instance fills to capacity immediately, rather than waiting for the first 7.56 s tick.
    This matches classic feel but is not stated by MeowDB.
 7. **Walk-through gates** are an adaptation, since every MeowDB portal is press-Up. Keep them on by default and

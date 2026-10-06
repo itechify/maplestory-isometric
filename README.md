@@ -54,15 +54,16 @@ three seeds, and one clean character played from the creation screen to Shanks w
 headless and once in a window. The parity manifest ([`docs/MAPLE_ISLAND_PARITY.md`](docs/MAPLE_ISLAND_PARITY.md)) has
 652 entries: 646 verified and 3 source-data gaps (values the sources were read for and do not give), with none left
 open; every drop row is verified on its MeowDB membership and Henesys.gg rarity, its chance the owner's table. Maple
-Island holds 20 quests, 6 monster species and the Wooden Box, 21 NPCs and 3 shops. What is still open (owner
-decisions, art, the limits below) is in [`docs/DEFERRED.md`](docs/DEFERRED.md); the final report is the last section
+Island holds 20 quests, 6 monster species and the Wooden Box, 21 NPCs and 3 shops. Open work is tracked as GitHub
+issues; what has no ticket (out of scope, source-data gaps, decisions against) is in
+[`docs/DEFERRED.md`](docs/DEFERRED.md); the final report is the last section
 of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 
 ### What Iteration Three adds
 
 - **Canonical drops with their sources kept apart** (the project owner's decision of 2026-10-06: MeowDB MS Classic and
   Henesys.gg are the only sources). What a monster or the Wooden Box drops is MeowDB's community list "Drops (MS
-  Classic)", every entry; each item's rarity is Henesys.gg's label (read by hand, for this private project only); how
+  Classic)", every entry; each item's rarity is Henesys.gg's label (read by hand); how
   often it drops is the owner's table by item category x rarity, a labelled MisoStory adaptation. Mesos are MeowDB's
   player report where one exists (the Snail), else the owner's level formula, at a 60% chance. Every sourced value
   keeps its raw text, URL and dated capture (decisions D3-11 and D3-12 in the iteration log; the quest-gate rule D3-9
@@ -184,10 +185,10 @@ images, and how to cut a release.
 | `docs/research/maps/<id>_*.md` | Per-map structural analysis and 3D translation briefs |
 | `docs/research/*.md` | Wiki and landmark notes, geography (classic world map), entities (NPCs and mobs) |
 | `docs/ITERATION_LOG.md` | Major problems found and corrected, and the source decisions, per iteration and phase |
-| `docs/DEFERRED.md` | What is left open: unresolved source data, owner decisions, art, open review findings |
+| `docs/DEFERRED.md` | What has no ticket: out of scope, source-data gaps, decisions against, the art reference list (open work is in the GitHub issues) |
 | `docs/VALIDATION.md` | Latest Blender validation results |
 | `docs/canonical/`, `game/data/canonical/` | The canonical data (MeowDB MS Classic, with Henesys.gg rarity labels on the drop records), how it was collected and its gaps |
-| `tools/meowdb/captures/`, `tools/henesys/captures/` | Dated source pages read by hand in a browser (Iteration Three); the Henesys.gg labels are for private use only (ask Henesys.gg before publishing) |
+| `tools/meowdb/captures/`, `tools/henesys/captures/` | Dated source pages read by hand in a browser (Iteration Three) |
 | `docs/PROVENANCE_REPORT.md`, `docs/provenance_report.json` | Every canonical value's authority, URL, read time and capture; every unresolved value; every adaptation (`bash scripts/validate_data.sh --report`) |
 | `docs/MAPLE_ISLAND_PARITY.md`, `docs/maple_island_parity.json` | Every canonical Maple Island entry with its state (missing, partial, implemented, verified) and evidence (`node tools/parity/build_parity.mjs`) |
 | `docs/runtime/` | The game's architecture, systems, how-to, content authoring, playtest harness, stuck scan and reports |
@@ -228,7 +229,8 @@ geometry and materials are original. Do not redistribute those folders.
 
 ## Known limitations
 
-Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
+Open work: the GitHub issues. Out of scope, unsourced or decided against: `docs/DEFERRED.md`. Current validator state:
+`docs/VALIDATION.md`.
 
 - **Placeholder art.** Characters and monsters are static chibi proxies (no rigs or animation beyond procedural bob,
   lunge and a simple sit pose); skill icons and effects are procedural. There is no audio.
@@ -244,10 +246,9 @@ Full list: `docs/DEFERRED.md`. Current validator state: `docs/VALIDATION.md`.
   `game/data/misostory/` with its reason, marked unverified. Two canonical mechanics are not applied: fall damage
   (MeowDB's rule needs a movement-update length and a per-map switch it does not publish) and crouch with the
   down-jump (the isometric maps have no pass-through floors).
-- **Owner decisions are pending** (`docs/DEFERRED.md`): showing the hidden Tomato Field portal on the minimap,
-  protecting The Green Relaxer from being sold, square or disc touch zones, the Skills window overlapping the Quest
-  Log, whether Three Snails may hit Wooden Boxes, and MeowDB's in-game street name that the owner's search for the
-  removed sources still matches.
+- **The decisions left pending by Iteration Three were made on 2026-10-06.** Those that change the game have tickets
+  (protecting The Green Relaxer from being sold, the Skills window overlapping the Quest Log, Three Snails no longer
+  hitting Wooden Boxes); the others are listed with their reasons in `docs/DEFERRED.md` ("Decided, not doing").
 - **Playthroughs are automated.** Every quest, Tests A-G and the Iteration Three scenarios run as scripted real-input
   playthroughs of the real game ([`docs/runtime/PLAYTEST_HARNESS.md`](docs/runtime/PLAYTEST_HARNESS.md)), headless and
   (the clean-character playthrough, the skills, the boxes and the kit) windowed; a human playthrough is still to come.
