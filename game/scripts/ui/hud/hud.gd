@@ -2,14 +2,15 @@ class_name MisoHud
 extends Control
 ## Root of res://scenes/ui/hud.tscn: the gameplay HUD.
 ##   - bottom bar (MisoStatusBar): level, job, name; HP / MP gauges with current / max; EXP gauge with percent;
-##     mesos; buttons that open the character windows; the quickslot bar;
+##     mesos; buttons that open the character windows and fold the minimap ("Map [M]"); the quickslot bar;
 ##   - map name banner on Events.map_entered (street + map name, fades); on a trail (MapSession.trail_changed) the
 ##     current map's name with "-> <destination map name>" under it, held while the player is on the trail;
 ##   - message log: "You have gained ..." lines for items, mesos and EXP, quest updates, warnings, notices; on a
 ##     level-up the unspent AP and SP;
 ##   - level-up flourish;
 ##   - quickslots 1-8: keys use the bound consumable through ItemService (MisoQuickslots);
-##   - active timed effects (MisoEffectsBar, top right): Nimble Feet, Recovery, with the time left;
+##   - active timed effects (MisoEffectsBar, right on top of the status bar over the quickslots): Nimble Feet,
+##     Recovery, with the time left;
 ##   - while the player sits on a chair (Events.player_sat_down / player_stood_up), the seated cue above the HP
 ##     gauge with what sitting recovers (seated_text: the natural rate and the chair's bonus, from data).
 ## Everything is event-driven: hp_changed, mp_changed, exp_gained, leveled_up, mesos_changed, stats_changed,
@@ -51,8 +52,10 @@ const BUS_HANDLERS := {
 	"player_stood_up": "_on_player_stood_up",
 }
 const LOG_WIDTH := 560.0
-## Inset of the effects row from the top-right corner (presentation).
-const EFFECTS_MARGIN := 12.0
+## The effects row sits on the status bar's top edge, right-aligned over the quickslots: EFFECTS_GAP above the bar and
+## EFFECTS_INSET in from its right end (presentation).
+const EFFECTS_GAP := 6.0
+const EFFECTS_INSET := 10.0
 
 var env: MisoUiEnv = null
 var status: MisoStatusBar
@@ -82,6 +85,7 @@ func _init() -> void:
 	status.offset_right = -6
 	status.offset_bottom = -4
 	status.window_requested.connect(request_window)
+	status.minimap_requested.connect(request_minimap)
 	status.quickslots.use_requested.connect(use_quickslot)
 	status.quickslots.hover_changed.connect(_on_quickslot_hover)
 	add_child(status)
@@ -97,12 +101,12 @@ func _init() -> void:
 	banner = MisoMapBanner.new()
 	add_child(banner)
 	effects = MisoEffectsBar.new()
-	effects.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	effects.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 	effects.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	effects.offset_left = -EFFECTS_MARGIN
-	effects.offset_right = -EFFECTS_MARGIN
-	effects.offset_top = EFFECTS_MARGIN
+	effects.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	add_child(effects)
+	status.resized.connect(_place_effects)
+	_place_effects()
 	flourish = MisoLevelUpFlourish.new()
 	add_child(flourish)
 	tooltip = MisoItemTooltip.new()
@@ -172,6 +176,15 @@ func refresh_all() -> void:
 	effects.refresh()
 
 
+## Keeps the effects row right on top of the status bar, over its right end (the quickslots), whatever height the bar
+## lays out to: the row grows left and up from that corner, so it covers no gauge, button or quickslot.
+func _place_effects() -> void:
+	effects.offset_right = status.offset_right - EFFECTS_INSET
+	effects.offset_left = effects.offset_right
+	effects.offset_bottom = status.offset_bottom - status.size.y - EFFECTS_GAP
+	effects.offset_top = effects.offset_bottom
+
+
 ## MisoQuickslots group hook.
 func refresh_quickslots() -> void:
 	status.quickslots.refresh()
@@ -191,11 +204,25 @@ func request_window(window_name: String) -> void:
 		get_tree().call_group(MisoWindowsRoot.GROUP, &"toggle_window", window_name)
 		return
 	for action: String in MisoWindowsRoot.ACTIONS:
-		if MisoWindowsRoot.ACTIONS[action] == window_name and InputMap.has_action(action):
-			var ev := InputEventAction.new()
-			ev.action = action
-			ev.pressed = true
-			Input.parse_input_event(ev)
+		if MisoWindowsRoot.ACTIONS[action] == window_name:
+			_send_action(action)
+
+
+## Folds or unfolds the minimap (the status bar's "Map [M]" button), as M does: through the minimap root when one is
+## in the tree, else by sending its toggle action.
+func request_minimap() -> void:
+	if is_inside_tree() and get_tree().get_first_node_in_group(MisoMinimap.GROUP) != null:
+		get_tree().call_group(MisoMinimap.GROUP, &"toggle")
+		return
+	_send_action(MisoMinimap.ACTION)
+
+
+func _send_action(action: String) -> void:
+	if InputMap.has_action(action):
+		var ev := InputEventAction.new()
+		ev.action = action
+		ev.pressed = true
+		Input.parse_input_event(ev)
 
 
 func _unhandled_input(event: InputEvent) -> void:

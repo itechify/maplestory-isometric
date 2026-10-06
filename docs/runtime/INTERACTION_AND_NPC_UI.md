@@ -166,6 +166,12 @@ The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `ope
   - ready to complete: a green badge with "?" and a pulsing ring.
 
   Colour, glyph and motion all differ.
+
+  The markers sit in the overlay's `MarkerClip` (`InteractionSystem.marker_clip`, `clip_contents`), sized every frame
+  to the screen above the HUD's status bar (`MisoUiEnv.bottom_bar_top` over `ctx.ui_root`). A marker over an NPC low
+  on the screen is cut at the bar's top edge, so no part of it is drawn over the bar (issue #14: the overlay is under
+  the HUD, but the bar is translucent, so the marker showed through it). Anywhere else a marker is placed and drawn
+  as before. Name tags and speech bubbles are not clipped.
 - **Idle bob** of the model: 2.5 cm, a 2.6 s period, with a phase per NPC.
 - **Facing.** While the player talks to this NPC, the model turns toward the player (`lerp_angle`, rate 8), then turns back.
 - **Speech bubbles** (Iteration Three). Now and then a light balloon with a tail shows one of the NPC's canonical
@@ -242,9 +248,9 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 - `InteractionSystem`:
   - `setup(ctx)`, `snapshot()`, `update_prompt() -> Dictionary`;
   - `handle_interact() -> bool`, `talk_to(npc_id) -> view`;
-  - `attach_presenters()`, `attach_presenter(npc)`, `refresh_markers()`;
+  - `attach_presenters()`, `attach_presenter(npc)`, `refresh_markers()`, `update_marker_clip()`;
   - signals `prompt_changed(prompt)` and `talk_started(npc_id)`;
-  - fields `prompt` and `presenters`.
+  - fields `prompt`, `presenters` and `marker_clip` (the markers' parent, `MARKER_LAYER`).
 - `InteractionResolver`: `resolve(snapshot, key_label := Callable()) -> {kind, action, key, verb, target_id, detail, text}`, `interact_talks(snapshot)`.
 - `LootSystem`:
   - `setup(ctx)`, `spawn_drops(drops, world_pos, map_id := "") -> records`, `tick(delta)`;
@@ -307,7 +313,7 @@ ISOLATE=worldui bash scripts/validate_data.sh                             # loot
 | File | Covers |
 |---|---|
 | `test_interaction_resolver.gd` | prompt texts and keys (F, Up, Down, Z); precedence climb > NPC > portal > drop; nothing while blocked or climbing; hidden portals; `interact_talks` only for NPCs |
-| `test_interaction_system.gd` | with a duck-typed world and player: F talks to the nearest NPC through the shared `NpcInteraction`; no talk after the controller grabbed a ladder, on a nearer portal, or under a modal; the climb-down prompt; the drop prompt from `LootSystem`; presenters (tag, height from the model, markers available → in progress → completable through Sam/Mai, facing and turning back, bob); off-map NPCs stay quiet; presenters survive a freed overlay; a modal leaves the world's `PortalInteractor` to its own rule (no prompt, no talk, the interactor keeps running) |
+| `test_interaction_system.gd` | with a duck-typed world and player: F talks to the nearest NPC through the shared `NpcInteraction`; no talk after the controller grabbed a ladder, on a nearer portal, or under a modal; the climb-down prompt; the drop prompt from `LootSystem`; presenters (tag, height from the model, markers available → in progress → completable through Sam/Mai, facing and turning back, bob); off-map NPCs stay quiet; presenters survive a freed overlay; a marker that projects into the HUD's status bar (an orthographic camera, the HUD under `ctx.ui_root`) is cut at the bar's top edge and one higher up is placed and drawn whole as before; a modal leaves the world's `PortalInteractor` to its own rule (no prompt, no talk, the interactor keeps running) |
 | `test_npc_ui_dialogue.gd` | Roger's Apple and Sam's Suggestion end to end through the window's keys (offer rewards, accept summary to the notice log, item references, completion summary, Enter/Space/Esc); decline + Back + Left/Right; Rain's quiz with 1-9 and arrows; the system line on a full inventory; every VIEW shape (say/yes_no/menu/journal/system/empty/unknown, escaped brackets, ref colours); the runner index (not the position) is passed; closing mid-chat announces `dialogue_closed` once and accepts nothing; modal + window stack with a `GameContext` (Esc left to the shell); a walk through all 21 NPCs' conversations; BBCode rules; portrait badge vs model; a key that ends the chat holds the modal through the physics step (and a new chat, a non-key close or leaving the tree release it); both windows sit above another layer's bottom-wide bar; one NPC window at a time (a shop request ends the chat, a chat closes the shop, Lucy's greeting still hands over to her shop) and a map change (`transition_started`, `map_left`) closes both |
 | `test_shop_ui_window.gd` | canonical stock in order with prices; buy with quantity (mesos, inventory, Events, status, meso display, owned count); insufficient mesos with the numbers; full inventory; the picker's limits; sell from tabs at the canonical sell-back price; selling an equipment slot; every shop renders; unknown shops refused; keys; Space never buys or sells and Enter waits for `confirm_arm_s` (the Buy button never does); modal + window stack; `NpcUi` opens the shop from Lucy's greeting and from `Events.shop_open_requested` |
 | `test_loot_system.gd` | `loot_dropped` → records (uid, pos_local, expires_at, owner) + nodes, scatter in m, toss; another map's loot ignored; pos_local in the map frame; pickup into the inventory with notices (single, stack, mesos); inventory full leaves the drop; the canonical box through `WorldScale.actor` and the nearest drop first; the owner window; Z through the player's input source (not under a modal, not on a ladder) and hold-to-repeat; holding Z with a full inventory announces the refusal once and still takes the meso bag next to it; the pickup notices are word for word the HUD's lines (thousands separators); blink then expiry; records expired by the map instance lose their node; leaving and returning keeps drops with their remaining lifetime; expired after a long absence; 20 seeded Snail kills picked up exactly |

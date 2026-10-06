@@ -3,7 +3,8 @@ extends Node3D
 ## Presentation for one world NPC (a WorldNpc from the world runtime), attached as a child at setup time so
 ## world_npc.gd stays untouched:
 ##   - a MapleStory-style name tag under the feet and the quest marker above the head (screen-space Controls in the
-##     interaction system's overlay layer), shown only for NPCs of the current map that are on screen;
+##     interaction system's overlay layer; the marker in its MarkerClip, which cuts it at the HUD's status bar), shown
+##     only for NPCs of the current map that are on screen;
 ##   - a subtle idle bob of the NPC's model;
 ##   - facing the player while the player talks to this NPC, then turning back;
 ##   - now and then a speech bubble with one of the NPC's canonical idle-chatter lines (NpcSpeechBubble), timed by
@@ -110,7 +111,9 @@ func _make_overlay_controls(overlay: Control) -> void:
 	bubble.name = "Bubble_%s" % npc_id
 	if overlay != null:
 		overlay.add_child(tag)
-		overlay.add_child(marker)
+		# The interaction system's overlay clips markers to the screen above the HUD's status bar (MARKER_LAYER).
+		var clip := overlay.get_node_or_null(InteractionSystem.MARKER_LAYER)
+		(clip if clip is Control else overlay).add_child(marker)
 		overlay.add_child(bubble)
 
 

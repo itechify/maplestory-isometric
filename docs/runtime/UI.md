@@ -32,6 +32,7 @@ So every change it makes fires the usual `Events`.
 | `scenes/ui/hud.tscn` → `scripts/ui/hud/hud.gd` | `MisoHud` | HUD root, `setup(ctx)` |
 | `scripts/ui/hud/status_bar.gd` | `MisoStatusBar` | Bottom bar: level, name, job, HP/MP/EXP gauges, mesos, window buttons, quickslots |
 | `scripts/ui/hud/quickslot_bar.gd` | `MisoQuickslotBar` | The 8 quickslots (bind by drop, use, move, clear); item slots and skill slots (icon, MP greying, cooldown sweep) |
+| `scripts/ui/hud/effects_bar.gd` | `MisoEffectsBar` | Active timed effects (Nimble Feet, Recovery) on top of the status bar: icon, time left, run-out sweep |
 | `scripts/ui/hud/notice_log.gd` | `MisoNoticeLog` | Message log (fading lines + history) |
 | `scripts/ui/hud/map_banner.gd` | `MisoMapBanner` | Street + map name on arrival; on a trail, the "-> destination" line under the map name |
 | `scripts/ui/hud/level_up_flourish.gd` | `MisoLevelUpFlourish` | "LEVEL UP!" pop with procedural stars |
@@ -41,7 +42,8 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/windows/stats_window.gd` | `MisoStatsWindow` | Character Stats (C) |
 | `scripts/ui/windows/quest_window.gd` | `MisoQuestWindow` | Quest Log (Q / L) |
 | `scripts/ui/windows/skills_window.gd` | `MisoSkillsWindow` | Skills (K): levels, SP, "+", description, Set key, drag to a quickslot |
-| `scripts/ui/common/ui_env.gd` | `MisoUiEnv` | Resolves character / content / bus / game / map session / quest engine / ctx for in-game, standalone and tests |
+| `scripts/ui/common/ui_env.gd` | `MisoUiEnv` | Resolves character / content / bus / game / map session / quest engine / ctx / UI preferences file for in-game, standalone and tests |
+| `scripts/ui/common/ui_prefs.gd` | `MisoUiPrefs` | The player's UI preferences on this machine (the minimap's fold), a ConfigFile beside the save slots |
 | `scripts/ui/common/miso_window.gd` | `MisoWindow` | Base window: title strip, key hint, close, drag, clamp, ctx registration, status line |
 | `scripts/ui/common/item_slot.gd` | `MisoItemSlot` | One item square: icon, count, caption, key label, click/double-click/right-click/hover, drag-and-drop hooks |
 | `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Procedural item icon (shape per category/item, tint from the name) |
@@ -60,7 +62,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, the five window positions (7 tests) |
-| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size; a window that grows, a drag and a smaller viewport are clamped back (6 tests) |
+| `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); the effects row on top of the bar, 40 px icons, covering no gauge, button or quickslot; a window that grows, a drag and a smaller viewport are clamped back (8 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
 ## Integration (game shell)
@@ -160,14 +162,17 @@ character on each event. No character object is cached.
 
 - Constructors: `from_ctx(ctx)`, `standalone()` and `isolated(character, db, bus, ctx := null, game := null)`. The
   last one is for tests and never looks up autoloads.
-- Injection: `map_session` (null = the `MapSession` autoload; tests set a private `map_session.gd` instance).
+- Injection: `map_session` (null = the `MapSession` autoload; tests set a private `map_session.gd` instance) and
+  `prefs_path` (the UI preferences file; "" = `ui_prefs_path()`'s default).
 - Accessors:
   - `character()`, `get_db()`, `get_bus()`, `get_game()`, `get_map_session()`;
   - `items()`, which returns a fresh `ItemService` on the live character;
   - `quest_service()` (`Game.quests`);
   - `quest_engine()`, a read-only engine on the live character that shares `Game.quests`' catalog;
   - `current_map_id()` and `trail_destination()` (`MapSession.trail_destination`, "" off trails);
-  - `is_character_dead(fallback := false)`: `Game.is_character_dead()`, or `fallback` without a game that can tell.
+  - `is_character_dead(fallback := false)`: `Game.is_character_dead()`, or `fallback` without a game that can tell;
+  - `ui_prefs_path()`: `prefs_path`, else `ui_prefs.cfg` in the `Saves` autoload's `save_dir`, else "" (an isolated
+    env keeps nothing).
 - Actions: `allocate_ap(stat, n)`, `request_autosave(reason)`, `notice(text)`, `emit(sig, args)`.
 - Signals: `connect_bus` / `disconnect_bus` (Events), `connect_session` / `disconnect_session` (the map session's
   `trail_changed`), `connect_character_replaced` / `disconnect_character_replaced`. All idempotent and null-safe.
@@ -179,7 +184,8 @@ character on each event. No character object is cached.
 - **`MisoHud`**:
   - `setup(ctx)`, `configure(env)`, `refresh_all()` (also re-syncs the trail line, without restarting the banner);
   - `use_quickslot(key) -> Dictionary`;
-  - `request_window(name)`;
+  - `request_window(name)`, and `request_minimap()` (the "Map [M]" button: the `miso_minimap` group's `toggle`, else
+    the `toggle_minimap` action);
   - `dead`: true between `player_died` and `player_respawned` (the HP gauge reads 0), or until a
     `character_replaced` after which `Game.is_character_dead()` is false;
   - parts: `status`, `log_panel`, `banner`, `flourish`, `tooltip`.
@@ -193,7 +199,7 @@ character on each event. No character object is cached.
   - `setup(ctx)`, `configure(env)` (tests set the stand-ins `world`, `player`, `camera_rig` and `debug` first);
   - `refresh_all()`, `show_map(map_id)`, `model_for(map_id)` (built once per map id; not kept while the world is still
     loading);
-  - `toggle()`, `set_expanded(on)`, `is_expanded()`; `title_text()` ("street · name", plus " [id]" in debug mode),
+  - `toggle()`, `set_expanded(on)` (also saved in the UI preferences), `is_expanded()`; `title_text()` ("street · name", plus " [id]" in debug mode),
     `debug_mode()`;
   - `refresh_markers()`, `refresh_player()`, `advance(delta)` (tests);
   - `snapshot()` for playtests and tests: `{map_id, title, expanded, debug_id, portals, portal_dests, shop_doors,
@@ -218,8 +224,8 @@ character on each event. No character object is cached.
   - `setup(ctx)`, `configure(env)`;
   - `window_by_name(name)`, `open_window`, `close_window`, `toggle_window`, `is_open`, `close_all`, `refresh_open`;
   - `default_position(name)`, `window_width(name)` and `window_size(name)` (the first-open placement: `LEFT_ROW`,
-    `RIGHT_ROW`, and `BELOW` for the Skills window, which opens under the Quest Log because the five windows are
-    wider together than the screen);
+    `RIGHT_ROW`, and `BELOW` for the Skills window, which opens by the Quest Log because the five windows are wider
+    together than the screen: under it when its whole height fits there, else beside it);
   - `show_item_tooltip(item_id, opts, anchor)` and `hide_item_tooltip()`;
   - the windows: `inventory`, `equipment`, `stats`, `quests`, `skills`.
 
@@ -251,9 +257,11 @@ character on each event. No character object is cached.
 - **Status bar.** Lv. (gold), name, job (canonical `formulas/<job>.json name`); HP and MP gauges with "cur / max"; the
   EXP gauge with "cur / needed [12.34%]" ("MAX" at the cap); mesos with a coin. From the death to the end of the
   respawn the HP gauge reads "0 / max"; the EXP bar drops at the death (the penalty's `exp_gained(-lost, "death")`).
-- **Window buttons.** `Item [I]`, `Equip [E]`, `Quest [Q]` / `Stat [C]`, `Skill [K]` (3 + 2). Each key label comes from the
-  InputMap. While AP is unspent, the Stat button turns orange and reads `Stat [C] +5`; while SP is unspent, the
-  Skill button does the same (`Skill [K] +1`; `MisoStatusBar.set_sp`, called by `MisoHud.refresh_all`).
+- **Window buttons.** `Item [I]`, `Equip [E]`, `Quest [Q]` / `Stat [C]`, `Skill [K]`, `Map [M]` (3 + 3). Each key
+  label comes from the InputMap. While AP is unspent, the Stat button turns orange and reads `Stat [C] +5`; while SP
+  is unspent, the Skill button does the same (`Skill [K] +1`; `MisoStatusBar.set_sp`, called by
+  `MisoHud.refresh_all`). `Map [M]` folds or unfolds the minimap as M does (`MisoHud.request_minimap`); it fills the
+  grid's sixth cell, so the bar keeps its size.
 - **Quickslots.** Eight slots, 1-8. A binding is typed, `{"kind": "item" | "skill", "id"}` (contract C3); a bare item
   id from an older save still reads as an item:
   - an item slot shows the key, the icon, and the inventory count (0 = greyed). A consumable is used through
@@ -266,6 +274,12 @@ character on each event. No character object is cached.
   - press the key or double-click the slot to use it;
   - drop a consumable or a chair from the inventory, or a learned skill from the Skills window, on a slot to bind it;
   - drag between slots to move a binding; right-click to clear it.
+- **Effects.** While Nimble Feet or Recovery runs (`CharacterState.effects`), its icon sits right on top of the status
+  bar over the quickslots, newest last (`MisoEffectsBar`, placed by `MisoHud` from the bar's laid-out height). Each
+  icon is a quickslot's size (40 px) with the time left under it in bold outlined text ("1:15", "30s"); a dark sweep
+  grows over it as it runs out, and its hover gives the name, level and time left. The row grows left from the bar's
+  right end and covers no gauge, button or quickslot (`test_ui_window_fit`); until issue #12 it sat at the top right
+  with 30 px icons, far from the bar.
 
 **Message log.** Fading lines above the bar:
 
@@ -295,10 +309,17 @@ N" and a star burst.
 **Minimap (M).** Top left (12, 12), on by default, never needing the debug console:
 
 - **Title strip**, always shown: the canonical `street_name` (gold) above the canonical `name`. While the debug
-  overlay is on (F3, `Debug.overlay_enabled`) the canonical map id is added under them. The "-" / "+" button and M
-  fold the picture away to this strip and back; the strip stays, so the map's name is on screen at all times. The
-  fold survives map changes and loads for the session. Nothing happens on M while a modal (dialogue, shop, console,
-  menu) owns the keyboard.
+  overlay is on (F3, `Debug.overlay_enabled`) the canonical map id is added under them. The "-" / "+" button, M and
+  the status bar's `Map [M]` button fold the picture away to this strip and back; the strip stays, so the map's name
+  is on screen at all times. The fold survives map changes and loads, and a restart: it is saved in the UI
+  preferences (`MisoUiPrefs`, below). Nothing happens on M while a modal (dialogue, shop, console, menu) owns the
+  keyboard.
+- **UI preferences.** The fold is the player's display choice on this machine, not character progress, so it is kept
+  in no save slot (a load or another character does not change it). `MisoUiPrefs` writes it to `ui_prefs.cfg` (a
+  ConfigFile, section `minimap`, key `expanded`) beside the slots in `SaveService.save_dir`: `user://saves/` in the
+  game, `<out>/saves/` in a playtest, so a run never reads the player's own file and a fresh run starts unfolded.
+  `SaveStore` lists only `.json` slots, so the file is never taken for one. Nothing in the project kept user
+  settings before (the Controls panel only shows the keys); this file is where the next one goes.
 - **The picture** is the map seen through the gameplay camera, scaled down (`MinimapProjection`: u = p · right,
   v = −(p · up) with the camera basis): what is up on screen is up on the minimap, and raised terraces sit higher, as
   in the game view. It fits the map's bounds into at most 330 x 215 px (at most 9 px per metre, at least 230 px wide).
@@ -376,8 +397,12 @@ effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent S
   effect text, the description scrolls inside five lines (`detail_scroll`), the status line keeps two lines and the
   1-8 picker's row is held while the picker is folded. The acceptance review saw it grow from 365 to 511 px after
   three "+" clicks, off the bottom of the windowed screen and over the HP gauge, with `Set key` at y 948 of 900.
-- It opens under the Quest Log (`MisoWindowsRoot.BELOW`), pulled up so its whole height sits above the HUD's status
-  bar (it then overlaps the Quest Log's lower part when both are open).
+- It opens by the Quest Log (`MisoWindowsRoot.BELOW`) and never over it: under it when its whole height fits above
+  the HUD's status bar there (a tall screen), else beside it, 10 px to its right and as low as the bar allows. On
+  1600 x 900 that is (896, 217): clear of the Quest Log, Character Stats and the Item Inventory, over the lower left
+  corner of the Equipment window (226 x 228 px of it, below its title strip). No place on that screen is clear of all
+  four: no two windows fit one above the other, and the five side by side are 1764 px wide. Until the owner's
+  decision of 2026-10-06 (issue #8) it opened under the Quest Log, pulled up over its lower part (366 x 283 px).
 
 **Every window stays on screen.** `MisoWindow` clamps its whole rect (not only the title strip) into
 `screen_area()`: the viewport above the HUD's status bar (`MisoUiEnv.bottom_bar_inset`, found by layout as NpcUi
@@ -442,7 +467,7 @@ doc comment.
 | "Nearby" means one of the quest's start NPC's canonical locations (`npcs/<id>.json locations[].map_id`) is `MapSession.current_map` | The brief asks for nearby available quests; MeowDB places NPCs by map, in `locations[]` only (no top-level `map_id`; reading one left every quest un-tagged until the Test E playtest caught it) |
 | The message log drops a repeated line only for notices and warnings, never for gains, spends, EXP or quest lines | The repeat filter exists for a full inventory announced again while pickup is held, and for loot pickup notices that word the HUD's own gain line again. Applied to every line, it also swallowed a second, separate sale (Test G) |
 | Log wording ("You have gained an item (...)") is MapleStory-inspired | MeowDB publishes no client messages. The wording is presentation, not canonical text |
-| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider. They are draggable by the title strip, and the whole window is clamped above the HUD's status bar (on open, drag, resize and a viewport change) | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text). The clamp kept only the title strip on screen, once, at the first open, so a window that grew afterwards (the Skills window after a "+") ran off the screen and over the gauges (acceptance review) |
+| Windows first open side by side, placed from their measured widths: Character Stats then the Quest Log from the left edge, the Item Inventory then Equipment from the right edge (classic: bags on the right). The four never overlap on the 1600 x 900 base viewport or anything wider; the Skills window opens by the Quest Log, never over it (see "Skills (K)"). They are draggable by the title strip, and the whole window is clamped above the HUD's status bar (on open, drag, resize and a viewport change) | Presentation. The first version used screen fractions, and the Equipment window then covered the Quest Log's right edge (its key hint, close button and journal text). The clamp kept only the title strip on screen, once, at the first open, so a window that grew afterwards (the Skills window after a "+") ran off the screen and over the gauges (acceptance review) |
 | The Skills window keeps one size (reserved lines, a scrolling description, the picker's row held) | A window that grows under the pointer moves the button the player is clicking; a fixed size also lets it open where its whole height fits above the status bar |
 | While the player sits, the status bar shows a green cue above the HP gauge: "Seated  ·  +10 HP / 10 s  ·  The Green Relaxer +30 HP / 10 s" (`MisoHud.seated_text`: the natural rate from `recovery.json` natural_hp and the chair's canonical bonus, `Chairs.bonus`); standing, a load or a replaced character clears it. Its line is held empty while standing, so the gauges never move | The acceptance review could not see the green chair on green grass and had no seated cue. Presentation; every number is read from data |
 | A press anywhere inside a window (its slots and buttons included) brings it to the front and makes it "newest" for Esc | Classic focus behaviour; Esc closes what the player touched last. Slots and buttons stop the mouse event, so this is done in `MisoWindow._input` from the frontmost control under the pointer |
@@ -462,7 +487,7 @@ doc comment.
 ## Testing
 
 ```bash
-ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system: 63 tests (20 of them the minimap's: test_ui_minimap)
+ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh test_ui_   # this system's test_ui_* files (the minimap's: test_ui_minimap*)
 ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 ```
 
@@ -473,7 +498,7 @@ ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 | `test_ui_windows.gd` | `windows.tscn` root has `setup` and four closed windows; inventory tabs and slots from the live inventory, counts, mesos, live refresh on pickup; use and equip through `ItemService` (`item_used`, `equipment_changed`, previous weapon back in the bag), a level-requirement refusal with message and notice, Etc not usable; quickslot assignment and drag-move (`ItemService.move`); equipment doll covers every slot, W.ATK contribution, unequip with a full Equip tab refused gracefully, then unequip and re-equip by drop; stats window: "+" only with AP, every derived value equals `StatCalculator.snapshot`, `Game.allocate_ap` (a real `GameState` on a private bus) spends AP and moves the damage range, "+" hidden at 0 AP; quest log: Sam's Suggestion available, then "Snail 7/10" after 7 `monster_killed` events through an attached `QuestService`, the turn-in row, the canonical EXP and item rewards, capped and ticked at 10/10; the ctx window stack (newest closes first, re-focus, close button, `window_changed`); hotkeys toggle and stay quiet under a modal; HUD buttons open windows through the group; standalone Esc; the four default window rects are disjoint and on screen whatever the opening order; a real mouse press on a slot of a back window (`Viewport.push_input`) makes it the newest, so Esc closes it first; dragging a window by its title follows the pointer, clamps at the edges and leaves the attack action alone; tooltip rows (unmet requirement red, met plain, effect, price, description) and hover in the window; every canonical item has an icon shape |
 | `test_ui_minimap_projection.gd` | No world: `project()` equals a real orthographic `Camera3D`'s `unproject_position` up to one scale and offset (20 points); further and higher points sit higher; `for_map` prefers the live basis; `fit` keeps the aspect and the margin; `clamp_to_rect` keeps the direction |
 | `test_ui_minimap_world.gd` | With the world (SKIP without), one island build for the file (a test process survives about ten builds; the suite makes nine): `IslandWorld.ground_faces` on all 25 maps (non-empty, in the footprint, in the chunk's height range, cached); `MinimapModel` on all 25 maps against the canonical records: name and street, upward ground by tier, portal markers = the type-2 portals with their canonical destination names, NPC dots = the canonical NPCs, shop badges exactly on the doors to Pan, Sid and Lucy, role icons, interior floors, `player_spawns[0]` inside the bounds; the destination names inside the picture, never over another name or a portal glyph, and every exit named on each map with up to five exits; the hidden portal, its lane and arrival gates never shown; trail stubs only where the map's own canonical portals lead (no stub back up the one-way 30 → 40 on 000000040); every sidecar camera is the rig's default view; the footprint fallback |
-| `test_ui_minimap.gd` | No world (stand-in maps from the canonical records): the scene installs after the HUD; the title and the debug id following the overlay; M and the fold button, quiet under a modal, folded across a map change; Sam "!" → "..." after accepting 1006 and Mai "?" after the kills, through a real `QuestService`; the arrow follows the player, clamps off the map, the trail tag; portals, shop badges, role icons, hover text, labels inside the picture; every canonical NPC's name tag through the real `NpcPresenter` (coin, boat, "Transport"); the tag's "Transport" line follows the role in any call order; the places tried for a destination name clear the glyph and slide inside the picture |
+| `test_ui_minimap.gd` | No world (stand-in maps from the canonical records): the scene installs after the HUD; the title and the debug id following the overlay; M and the fold button, quiet under a modal, folded across a map change; the fold saved in a private preferences file and read back by the next minimap (a restart), none kept without one; the status bar's `Map [M]` button names the key and folds and unfolds the map; Sam "!" → "..." after accepting 1006 and Mai "?" after the kills, through a real `QuestService`; the arrow follows the player, clamps off the map, the trail tag; portals, shop badges, role icons, hover text, labels inside the picture; every canonical NPC's name tag through the real `NpcPresenter` (coin, boat, "Transport"); the tag's "Transport" line follows the role in any call order; the places tried for a destination name clear the glyph and slide inside the picture |
 | `test_ui_minimap_feedback.gd` | The level-up SP line (and none without SP); the map name stays on the minimap after the banner fades, also folded |
 | `test_ui_drag_attack.gd` | UI drags against the real `PlayerCombat` (a `MonsterTestRig` world with a keyboard player) and the real windows scene, through `Input.parse_input_event`: a potion dragged out of the inventory over the world (a real GUI drag: `_get_drag_data` runs) never swings, pressed, held or released there, the attack action stays pressed, the drop changes nothing, and a later world click attacks; J held through that drag keeps repeating at the lockout rate (during and after it); a window dragged by its title across the world and clamped at the edge never swings, and J held next to it repeats |
 
@@ -516,7 +541,8 @@ to 000000010, "-> Mushroom Town").
 **The minimap in the real game.** `ISOLATE=<name> bash scripts/playtest.sh ui_minimap [--windowed]` (scenario
 `game/tools/playtest/scenarios/ui_minimap.gd`, PLAYTEST_HARNESS.md) starts a new game through the screens and checks,
 with real keys, that the minimap is installed and unfolded with the canonical title and the player's arrow on the
-picture; M folds it to the title strip (the name stays) and back; F3 adds the map id and takes it away; M is quiet
+picture; M folds it to the title strip (the name stays) and back; a mouse click on the status bar's `Map [M]` button
+does the same, and each fold is written to `ui_prefs.cfg` in the run's save directory; F3 adds the map id and takes it away; M is quiet
 while Heena's conversation is open; the arrow is tagged with the destination on a trail. It then warps (console,
 setup only) through all 25 maps and checks on each: the title, the collision ground drawn, the picture on screen
 with its ground meshes, every exit named on the picture (maps with up to five exits), portal markers equal to
@@ -529,7 +555,9 @@ checks passed headless and windowed; the windowed run writes one screenshot per 
 HUD's "You have 1 SP to spend (press K)." (wave 3; it had expected the old "SP to distribute" and failed 1 of 231
 on the integrated build), and it passes in the final Iteration Three evidence run (headless, seed 1, on the pinned
 1600x900 screen: 230 checks, 0 failed, 1 warning: nothing had dropped near the player, so the pickup-announcement check
-was not reached).
+was not reached). Since issue #15 it ends by folding the minimap with `Map [M]` and quitting the game (Quit Game);
+phase 1, a new process on the same saves, presses Continue and checks the minimap is still folded with the map's name
+on its strip, then unfolds it with M (headless, seed 1, 2026-10-06: 242 checks, 0 failed, no warning).
 
 **Review (iteration 2).** An adversarial review drove the real `main.tscn` (quick start) with real input events
 (`Input.parse_input_event`: keys, mouse moves, clicks, double-clicks, right-clicks and drags) through 63 checks: the
@@ -548,9 +576,10 @@ staying disconnected after a reparent.
   off the minimap, as on a classic minimap, and the world shows no swirl or prompt there either. A player has to find
   the lane. The owner decided on 2026-10-06 never to show it.
 - **Windows cover the minimap.** The Stats and Quest windows open over its top-left corner; drag them away or close
-  them. The fold state is not saved (it lasts the session).
-- **The Skills window overlaps the Quest Log** when both are open: the five windows are wider together than the
-  screen, and the Skills window's full height fits only above the Quest Log's bottom edge. Either can be dragged.
+  them, or fold the minimap with M or the status bar's `Map [M]` button (the fold is saved across restarts).
+- **The Skills window covers a corner of the Equipment window** when both are open at their first places on
+  1600 x 900 (226 x 228 px, below its title strip; see "Skills (K)"): no place on that screen is clear of all four
+  other windows. Either can be dragged.
 - **NPC speech bubbles hide while any modal is open** (a shop, a chat, the pause menu: `NpcPresenter.is_modal_open`,
   the interaction system's GameContext), so a bubble never shows over or under an open window (the acceptance review
   saw Lucy's cut off behind her shop). Name tags and quest markers stay.

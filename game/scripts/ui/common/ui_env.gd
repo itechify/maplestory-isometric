@@ -35,6 +35,8 @@ var map_id_provider: Callable = Callable()
 var map_session: Object = null
 ## false = never look up autoloads (tests).
 var use_autoloads: bool = true
+## The UI preferences file (MisoUiPrefs); "" = beside the save slots of the Saves autoload, or none without it.
+var prefs_path: String = ""
 
 var _local_engine: QuestEngine = null
 var _local_engine_db: ContentDB = null
@@ -95,6 +97,16 @@ func get_game() -> Object:
 	if game != null:
 		return game
 	return autoload("Game")
+
+
+## Where the UI preferences live (MisoUiPrefs): prefs_path when set, else ui_prefs.cfg in the Saves autoload's
+## save_dir (a playtest's private saves directory in a playtest), else "" (isolated tests: nothing is kept).
+func ui_prefs_path() -> String:
+	if prefs_path != "":
+		return prefs_path
+	var saves := autoload("Saves")
+	var dir: Variant = saves.get("save_dir") if saves != null else null
+	return String(dir).path_join(MisoUiPrefs.FILE_NAME) if dir is String and dir != "" else ""
 
 
 ## The live character, or null when none is available.
@@ -315,14 +327,23 @@ static func bottom_bar_inset(ui: Control) -> float:
 	if root == null or not ui.is_inside_tree():
 		return 0.0
 	var area_bottom := ui.get_global_rect().end.y
-	var top := area_bottom
+	return maxf(0.0, area_bottom - minf(area_bottom, bottom_bar_top(root, ui)))
+
+
+## The top edge (in the canvas coordinates of `root`'s layer) of the highest bottom-wide bar among the visible direct
+## children of `root`'s UI roots (the HUD's status bar under ctx.ui_root), skipping `exclude`; INF when there is none.
+## The world overlay (InteractionSystem) uses it to keep quest markers off the bar.
+static func bottom_bar_top(root: Node, exclude: Node = null) -> float:
+	var top := INF
+	if root == null:
+		return top
 	for sibling in root.get_children():
-		if sibling == ui or not (sibling is Control) or not (sibling as Control).is_visible_in_tree():
+		if sibling == exclude or not (sibling is Control) or not (sibling as Control).is_visible_in_tree():
 			continue
 		for c in sibling.get_children():
 			if c is Control and (c as Control).visible and is_bottom_bar(c as Control):
 				top = minf(top, (c as Control).get_global_rect().position.y)
-	return maxf(0.0, area_bottom - top)
+	return top
 
 
 ## True for a control anchored across the whole bottom edge (a bottom-wide bar such as the HUD's status bar).
