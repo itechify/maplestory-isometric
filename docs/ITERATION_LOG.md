@@ -446,36 +446,68 @@ Henesys.gg are the only sources of truth. The data and runtime switch, its revie
 | O3-9 | In the same run Test C's hunter chased a Shroom up a ladder on A Split Road and rested on it: 15 rests of the 150 s budget, 2,250 s of game time, without one natural-recovery tick. A logged diagnostic showed `activity()` "climbing" in all 226 samples: natural recovery pauses while climbing (contract C4), so the game was right and the harness wrong. | `PlaytestKit.rest()` first gets off the climbable (`leave_climb()`: Down to the foot, else Up over the top). The `regen` scenario checks it on 000000001's ladder (HP 40% of 50: 3 s on the ladder change neither the clock nor HP, then the rest climbs down and heals to 40); without the fix the player stays on the ladder and heals nothing (08df2a7; the check moved from `kit` to `regen` in the next commit, because `kit` must stay free of api steps). The evidence set was then run again. |
 | O3-10 | The next run (on 7f24d8e) failed `test_death_flow`: the death check scene's new game had not left LOADING after its 2400-frame wait, about 2.5 s with the boot, while three Godot runs shared the machine. A headless frame with nothing to draw can take well under a millisecond, and a threaded island load takes about 2 s on a quiet machine, so the frame budget alone left almost no margin: a latent flake of the three in-game check scenes. | `CheckWait.keep_waiting`: a default-budget wait (a load, a warp, a respawn) lasts its 2400 frames and at least 60 s of wall time; short settle waits keep their frame budget. Nothing a check asserts changes. `test_check_wait.gd` (7ac55c2). The whole evidence set was run again on the final commit. |
 
+## Phase S3: the drop-source switch, stage by stage (2026-10-06)
+
+Phase O3 above holds each problem and its correction. This table follows the switch as one stage: what changed, the
+data review, the evidence runs, and how the stage was finished after its documentation agent stopped.
+
+| # | Stage | What happened |
+|---|---|---|
+| S3-1 | What changed | The owner's decisions D3-11 and D3-12 made MeowDB MS Classic and Henesys.gg the only sources. Drop membership is MeowDB's community list on the owner's newest dated capture, every entry (86 members on 7 owners, all resolved to local items); rarity is Henesys.gg's per-item label (64 items read by hand, 314e990); the chance is the owner's category x rarity table and the mesos the owner's rule. Schema 3 drop records hold no probability (d14a860); the runtime, validators and tests read them (0f5b768); contracts C1 and C7 (462bab0); the earlier captures, their readers and parsers and the cross-site name crosswalk were deleted (O3-1 to O3-3). |
+| S3-2 | The data review: 6 defects, all fixed with a test (1fab2b2, f4a8231; O3-5) | 1. `DropChecks` compared membership with whatever capture a record cited, so another owner's list passed: each record must now cite its owner's own page capture, the newest. 2. `captures.mjs` chose between two captures of one page by file name: the later `read_at` wins and a tie is an error. 3. `drops_merge.mjs` could record an older list as the newest: a newer cache that names other members stops the build. 4. A record could leave out MeowDB's meso report unnoticed: the validator refuses a dropped meso report and a raw value not verbatim in its capture. 5. Schema leftovers stayed in the validation code: removed. 6. An unnamed mention of a removed source stayed in `src/`: removed. |
+| S3-3 | Fallout in play, parity and docs | `test_d_inventory`'s death on the way to Mai under the new rolls (O3-4, 044b1a6); drop and meso parity rows that say what is sourced and what is the owner's (O3-6, 0fc524a); the removed websites gone from the docs, the briefs, the research notes and the raw audit (O3-7, 64fe2eb). |
+| S3-4 | Evidence runs | On 0fc524a: seed 2 of the every-quest set failed a trail hop and Test C rested on a ladder (O3-8, O3-9; fixed in 08df2a7 and 72a9205). On 7f24d8e: `test_death_flow` timed out on a load (O3-10; 7ac55c2). On 1f3120c: every run passed (below). |
+| S3-5 | The interruption | The documentation and evidence agent stopped on an API error. Its evidence run on 1f3120c had completed (`_scratch/final3/summary.txt`: every run passed on a clean tree), and its commits up to 1f3120c (the docs, the harness findings H7 and H8, phase O3's rows) were in. Left undone: a two-line uncommitted edit of `DEFERRED.md`, the provenance report, the parity manifest, both playthrough reports, the economy re-measure and this log's final evidence section. |
+| S3-6 | How the stage was completed | Nothing under `game/`, `tools/` or `scripts/` had changed after 1f3120c, so the completed run was used as it stood and nothing was re-run. The `DEFERRED.md` edit was checked against the run (seed 2's 1006 chain unstuck once; `regen`'s ladder checks pass) and committed (cb22ca2). A verified drop row now says plainly that its membership and rarity are what its checks verified (a wording change in `tools/parity`, which no Godot test or scenario runs; its node tests pass; 6cfaa72). The provenance report and the manifest were regenerated (35da973), the per-quest tables were regenerated with `PlaytestQuestSummary --combine`, both playthrough reports were rewritten to the run and the economy was re-measured, not re-tuned (d20b979). This section was then rewritten, the zero-reference check run and the evidence archived (`iteration-three/evidence-final3-1f3120c.zip`, outside the repository). |
+
 ## Final evidence run
 
-All runs were on code `9ddf137` (2026-10-05; waves 1-4 merged and the KuroDB 2040705 read applied, D3-10), a clean
-tree: the unit evidence and every one of the 54 playtest reports record that commit with `dirty: false`. The world
-export matches the source (nothing under `src/` or `scripts/export_runtime.py` changed after 4b61650). Wave 4 pinned
-headless runs to the windowed 1600x900 screen and made a click on a control a player cannot see or reach fail, so
-every earlier headless result was run again.
+All runs were on code `1f3120c` (2026-10-06; waves 1-4 merged, the owner's drop and meso sources of decisions D3-11
+and D3-12 applied, and the harness fixes of phase O3), a clean tree: the unit evidence and every one of the 54 playtest
+reports record that commit with `dirty: false`. The world export matches the source (since 4b61650 only a docstring
+line under `src/` changed). Wave 4 pinned headless runs to the windowed 1600x900 screen and made a click on a control
+a player cannot see or reach fail, so every headless result below is from that harness. The evidence is in
+`_scratch/final3/` (git-ignored) and archived as `iteration-three/evidence-final3-1f3120c.zip` outside the repository.
 
-- **Unit suite with the world:** 1587 tests in 175 files, 0 failed, no SKIP line (`TEST_TIMEOUT_S=3000`, 13 minutes).
-  The Node tests pass: 87 (69 for sources, 18 for parity). `scripts/check_canonical.sh` reproduces every canonical file
+- **Unit suite with the world:** 1564 tests in 174 files, 0 failed, no SKIP line (`TEST_TIMEOUT_S=3000`, 12 minutes).
+  The Node tests pass: 49 (31 for sources, 18 for parity). `scripts/check_canonical.sh` reproduces every canonical file
   byte for byte.
-- **Canonical data validation:** 0 errors and 53 warnings (the drop members no source resolves).
-- **Real-game scenarios on seed 1, headless:** all pass: Test A (476 checks, 3 warnings: one death on leg 30, retried),
-  B (53), B population (79), C (75, 1 warning: level 9 by killing only, one death), D (90), E (103), F (237), G (184),
-  `regen` (29), `test_skills` (51), `test_box` (40: 17 of the 19 boxes broken), `trap_probe` (55), `npcs` (66),
-  `npc_shanks` (26), `npc_bubbles` (7), `ui_minimap` (230), `save_it2_continue` (55), `pause_load` (12), `resume_gate`
-  (23) and `kit` (21).
+- **Canonical data validation:** 0 errors and 0 warnings (192 records; every one of the 86 drop members resolves).
+- **Real-game scenarios on seed 1, headless:** all pass: Test A (475 checks, 3 warnings: legs 11, 30 and 50 were not
+  walked cleanly, a stretch blocked by props or a stalled route retried, but every leg arrived; no death), B (53, 1
+  warning: one Blue Snail skipped after two 4 s approaches), B population (79), C (76, 0 warnings: level 10 by killing
+  only in 5,432 s of play, no death), D (90), E (103, 1 warning: its walk from Snail Hunting Ground I to II stalled, and
+  the scenario, which is not a strict one, warped on with the console), F (237, 1 warning: no death whose killing
+  touch landed mid-jump in 3 tries), G (184), `regen` (32), `test_skills` (51), `test_box` (40: 17 of the 19 boxes
+  broken), `trap_probe` (55), `npcs` (66), `npc_shanks` (26), `npc_bubbles` (7), `ui_minimap` (231),
+  `save_it2_continue` (55), `pause_load` (12), `resume_gate` (23) and `kit` (21).
 - **Windowed (one at a time):** the clean-character playthrough on seed 1 (695 checks, strict), `test_skills` (51),
-  `test_box` (40) and `kit` (21): all pass, 0 failed, 0 warnings. The Skills window, with every skill learned and the
-  key picker open, sits on screen above the status bar.
-- **Every-quest set:** 20 of 20 on seeds 1, 2 and 3 (520, 523 and 523 quest checks), every chain strict after its setup.
-- **Clean-character playthrough:** passes strict on seeds 1, 2 and 3 headless: 625, 623 and 623 checks, 0 failed, 0
-  console or api steps, 8 processes each. It ends at level 8, 7 and 7 with 497, 428 and 383 mesos, after 2,590, 2,329
-  and 2,298 s of game time.
-- **Parity manifest** (`docs/MAPLE_ISLAND_PARITY.md`, built from that evidence): 640 entries, 581 verified, 0
-  implemented, 56 partial and 0 missing (plus 3 out of scope: item and chair 525, which belong to Victoria Island, and
-  `mechanic:crouch-down-jump`, excluded as an isometric adaptation). All 56 partial entries are source-data gaps: 52
-  Hidden Street drop members that no source gives a chance or an item for, the Wooden Box's Egg, fall damage (the
-  movement-update length and the maps that disable it are unpublished), no map seats, and no natural MP recovery. No
-  source read is pending, so **0 entries are open for the exit criterion**.
+  `test_box` (40) and `kit` (21): all pass, 0 failed, 0 warnings.
+- **Every-quest set:** 20 of 20 on seeds 1, 2 and 3 (520, 523 and 523 quest checks), every chain strict after its
+  setup; seed 2's 1006 chain unstuck once at the corner of finding H7.
+- **Clean-character playthrough:** passes strict on seeds 1, 2 and 3 headless: 625, 623 and 622 checks, 0 failed, 0
+  console or api steps, 8 processes each. It ends at level 8, 8 and 7 with 824, 749 and 440 mesos, after 2,585, 2,534
+  and 2,267 s of game time.
+- **Economy, re-measured on the owner's tables (nothing re-tuned;
+  [`runtime/PLAYTHROUGH_REPORT.md`](runtime/PLAYTHROUGH_REPORT.md) "Loot and mesos").** Per kill the tables give 0.6
+  meso bags (none for the Tutorial Jr. Sentinel) worth 1.2 (Snail, MeowDB's 2), 1.8 (Blue Snail), 2.7 (Shroom), 3.6
+  (Red Snail) and 7.2 mesos (Orange Mushroom), and 1.13-1.22 items (1.00 of them the species' own leftover;
+  equipment 0.6-1.2%; the Tutorial Jr. Sentinel only its Shellpiece). The headless playthroughs picked up 0.52-0.64
+  bags, 1.99-2.71 mesos and 1.15-1.18 monster items per kill (329, 322 and 157 mesos in 79, 76 and 41 bags; 142, 141
+  and 92 items), each run (the windowed one too) within 1.7 standard deviations of the tables' prediction for its own
+  kills; Test C 2.51 mesos per kill (1,500 from 598 kills, predicted 1,535) and `test_d_inventory` 2.51 (153 from 61
+  kills, every drop counted). Each species' own leftover was picked once per kill (Snail Shell 53 of
+  53 Snail kills, Blue Snail Shell 96 of 97, Mushroom Spore 75 of 75, Red Snail Shell 83 of 84). No equipment dropped
+  in the playthroughs (the tables predict 1.23, 1.15 and 0.75 pieces for their kills: a 4% outcome); Test C's bag at
+  level 9 holds three dropped pieces (Brown Duo, Razor, Blue Jean Shorts; about 4 predicted). Ores and gems now drop, so
+  sales brought 183-395 mesos per playthrough instead of 79-84, and the runs end with 440-824 mesos.
+- **Parity manifest** (`docs/MAPLE_ISLAND_PARITY.md`, built from that evidence): 652 entries, 646 verified, 0
+  implemented, 3 partial and 0 missing (plus 3 out of scope: item and chair 525, which belong to Victoria Island, and
+  `mechanic:crouch-down-jump`, excluded as an isometric adaptation). The 3 partial entries are source-data gaps: fall
+  damage (the movement-update length and the maps that disable it are unpublished), no map seats, and no natural MP
+  recovery. All 86 drop rows are verified on their MeowDB membership and Henesys.gg rarity, their chance the owner's
+  table (an adaptation, D3-11, not a source-data gap); the 6 meso rows on MeowDB's report or the owner's level formula
+  and 60% chance (D3-12). No source read is pending, so **0 entries are open for the exit criterion**.
 
 **Final report** (the brief's "Final Deliverables" list):
 
@@ -485,15 +517,17 @@ every earlier headless result was run again.
 | Monsters | 6 species (Tutorial Jr. Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom), plus 1 breakable (the Wooden Box, 19 placements) |
 | NPCs | 21 |
 | Shops | 3 (Pan, Sid, Lucy) |
-| Unresolved source-data fields | 517 values ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values": record gaps plus unresolved drop and meso values); in the parity manifest they leave 56 entries partial, all source-data gaps (above) |
-| Deliberate MisoStory adaptations | 122 objects with a verified flag ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Adaptations"): 2 verified (the owner's natural-regen rule, checked against the brief, and the one-way portal allowlist, checked against the canonical maps), 120 not |
+| Unresolved source-data fields | 375 values ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values": the gaps each record lists, among them the drop chance, quantity and meso values no source publishes, which the owner's rules fill); in the parity manifest they leave 3 entries partial, all source-data gaps (above) |
+| Deliberate MisoStory adaptations | 122 objects with a verified flag ([`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Adaptations"): 2 verified (the owner's natural-regen rule, checked against the brief, and the one-way portal allowlist, checked against the canonical maps), 120 not, among them the owner's drop chance table (D3-11) and meso rule (D3-12) |
 
-The deliberate choices. Source decisions: Hidden Street drop membership and meso amounts (D3-5, D3-6), KuroDB reactor
-values read as 1/N (D3-7), the quest-gate rule (D3-9), the KuroDB item-page rule (D3-10), the Snail's meso amount kept
-at MeowDB's 2. MisoStory adaptations: recovery's tick and the buff cast timing, the chair clock and the sit key (W1-D1,
-W1-D2); how a Wooden Box is hit, placed (in the camera's sight, canopies included) and how much it drops (W1-D3, W1-D4);
-monster floors, pacing and spawn spacing, the mob rate not applied (W1-D5); quest wording, the sell guard and Shanks'
-boundary (W1-D6); the minimap drawn from the runtime collision (W1-D7); no fall damage, no crouch or down-jump, starting
-SP 0, and the marked "[MisoStory]" hint pages after Heena's control lines and Rain's chair answers. Every one has its
-reason in `game/data/misostory/` and is listed in the provenance report. What stays open is in
-[`DEFERRED.md`](DEFERRED.md).
+The deliberate choices. Source decisions: MeowDB cache-only with dated captures read by hand (D3-1); MeowDB's community
+drop list on the owner's newest capture as drop membership, every entry, and Henesys.gg's per-item rarity (D3-11; its
+labels are for this private project only: Henesys.gg prohibits unauthorized reproduction or scraping, so ask it before
+publishing them); the owner's chance table by item category x rarity (D3-11) and meso rule, MeowDB's report or [level,
+2 x level] at 60%, none for the Tutorial Jr. Sentinel and the Wooden Box (D3-12); the quest-gate rule (D3-9). MisoStory
+adaptations: recovery's tick and the buff cast timing, the chair clock and the sit key (W1-D1, W1-D2); how a Wooden Box
+is hit, placed (in the camera's sight, canopies included) and how its drops roll (W1-D3, W1-D4); monster floors,
+pacing and spawn spacing, the mob rate not applied (W1-D5); quest wording, the sell guard and Shanks' boundary (W1-D6);
+the minimap drawn from the runtime collision (W1-D7); no fall damage, no crouch or down-jump, starting SP 0, and the
+marked "[MisoStory]" hint pages after Heena's control lines and Rain's chair answers. Every one has its reason in
+`game/data/misostory/` and is listed in the provenance report. What stays open is in [`DEFERRED.md`](DEFERRED.md).
