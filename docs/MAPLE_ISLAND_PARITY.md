@@ -10,10 +10,10 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 - **missing**: The runtime the category or mechanic needs is absent (tools/parity/rules.json declares the files or code markers).
 - **partial**: The runtime exists but the entry has an open issue: a validation error on its record, a placeholder value, a missing item definition, an unresolved value that is not a source-data gap, a failing tagged check, or (a canonical-verification row) shipped data not yet in the state the row describes (tools/parity/rules.json requires: the tests prove the validator rule, not the data).
 - **implemented**: Runtime present, data valid, every unresolved value a documented source-data gap, but no passing check tagged with the key.
-- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop probability is verified only when its sources resolve.
+- **verified**: As implemented, plus at least one passing check tagged with the key (or an accepted parent key or alias) and no failing one, in the evidence given. Quests, objectives and rewards need a passing playtest (real-game) check; quest chains follow their own rule (chains, below); the clean-character playthrough rows need one from a clean run (a passing report, strict mode ok, no console or api step in the report, and the departure boundary reached: its final boundary check passed and no PLAYTHROUGH_STOP flag); a drop is verified only when its sources resolve (its item and its Henesys.gg rarity), and what is verified is its membership, checked against its owner's MeowDB page capture, and its rarity, checked against the Henesys.gg capture. Its chance is the project owner's table (game/data/misostory/drop_rates.json, decision D3-11) and a meso row's chance and formula amount are the owner's meso rule (meso_rules.json, D3-12): owner-approved adaptations (verified: false), stated in the row, never verified against a source and never a source-data gap.
 - **chains**: A quest chain (chain:<first quest>) is derived from its member quests: missing when a member is missing, partial when a member is partial or a check tagged with the chain key fails, verified only when every member quest is verified (each by its own real-game checks) and at least one passing real-game check is tagged with the chain key: a link of the chain, the quest runner's "<quest>: its follow-up <next> (...) is available" check made right after the predecessor was completed through play (tools/parity/rules.json playtest_tags give the chain key); otherwise implemented.
-- **source_data_gap**: The sources were read and do not give a value the entry needs (the KuroDB page has no chance for a member, no meso amount, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.
-- **pending_source_read**: A source publishes a value the entry needs on a page that has not been read yet (for example a KuroDB item page that settles a candidate drop row, or a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each; a drop record's pending_kuro_candidates row (a KuroDB row that may be the member, waiting for a read of its item page) makes its member pending even when undeclared.
+- **source_data_gap**: The sources were read and do not give a value the entry needs (Henesys.gg has no rarity for a drop member, MeowDB names an item no local record has, no MeowDB rule for a mechanic): the entry is excused from the exit criterion.
+- **pending_source_read**: A source publishes a value the entry needs on a page that has not been read yet (for example a MeowDB item page only the item API of which was captured). Unlike a source-data gap it is not excused: the entry stays partial and counts as open for the exit criterion until the page is read and the data updated. tools/parity/rules.json pending_source_reads names the read for each.
 - **in_scope**: false for content outside Iteration Three (rules.json out_of_scope).
 - **evidence**: A unit test declares the keys it proves in its file's parity_keys(); a playtest check carries them in report.json (checks[].parity), or tools/parity/rules.json playtest_tags gives them to the checks of a scenario whose names match a pattern (hand-reviewed: only checks that prove the key). A soft check is never evidence.
 - Parity keys are `<category>:<id>` (contract C6). A test file declares them in `parity_keys()`; a playtest check carries
@@ -22,63 +22,63 @@ Machine-readable copy: [`maple_island_parity.json`](maple_island_parity.json).
 
 ## Evidence used
 
-- Unit tests `_scratch/final2/unit_evidence.json`: run 2026-10-06T04:13:11Z, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), world present, 1587 tests, 0 failed
-- Playtest `_scratch/final2/pt/kit/report.json`: kit seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 21 checks (11 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/npc_bubbles/report.json`: npc_bubbles seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 7 checks (5 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/npcs/report.json`: npcs seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/pause_load/report.json`: pause_load seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 12 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/playthrough_s1/report.json`: playthrough seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 625 checks (604 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final2/pt/playthrough_s2/report.json`: playthrough seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 623 checks (602 tagged by the scenario, 98 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final2/pt/playthrough_s3/report.json`: playthrough seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 623 checks (602 tagged by the scenario, 98 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final2/pt/quests_s1/1000-1001/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1002/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1003-1004/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1005/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1006_1009_1010/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 112 checks (92 tagged by the scenario, 18 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1007-1008/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1011/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1012/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s1/1013-1019/report.json`: quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1000-1001/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1002/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1003-1004/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1005/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1006_1009_1010/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1007-1008/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1011/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1012/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s2/1013-1019/report.json`: quest seed 2, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1000-1001/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1002/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1003-1004/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1005/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1006_1009_1010/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1007-1008/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1011/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1012/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/quests_s3/1013-1019/report.json`: quest seed 3, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/regen/report.json`: regen seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 29 checks (0 tagged by the scenario, 27 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/resume_gate/report.json`: resume_gate seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 23 checks (4 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/save_it2_continue/report.json`: save_it2_continue seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 55 checks (0 tagged by the scenario, 45 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_a_traversal/report.json`: test_a_traversal seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 476 checks (0 tagged by the scenario, 163 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_b_combat/report.json`: test_b_combat seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 53 checks (0 tagged by the scenario, 38 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_b_population/report.json`: test_b_population seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 79 checks (0 tagged by the scenario, 77 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_box/report.json`: test_box seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 40 checks (5 tagged by the scenario, 24 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_c_progression/report.json`: test_c_progression seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 75 checks (0 tagged by the scenario, 39 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_d_inventory/report.json`: test_d_inventory seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 90 checks (0 tagged by the scenario, 35 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_e_quest/report.json`: test_e_quest seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 103 checks (67 tagged by the scenario, 2 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_f_death/report.json`: test_f_death seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 237 checks (11 tagged by the scenario, 116 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_g_shop/report.json`: test_g_shop seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 184 checks (0 tagged by the scenario, 167 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/test_skills/report.json`: test_skills seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 51 checks (1 tagged by the scenario, 41 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/trap_probe/report.json`: trap_probe seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/ui_minimap/report.json`: ui_minimap seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 230 checks (0 tagged by the scenario, 216 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/win_kit/report.json`: kit seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 21 checks (11 tagged by the scenario, 0 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/win_playthrough_s1/report.json`: playthrough seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree), 695 checks (604 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
-- Playtest `_scratch/final2/pt/win_test_box/report.json`: test_box seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 40 checks (5 tagged by the scenario, 24 by rules.json playtest_tags)
-- Playtest `_scratch/final2/pt/win_test_skills/report.json`: test_skills seed 1, PASS, commit 9ddf137a035e820d120f4c8eed466f69f1508c9e (clean tree, reused copy), 51 checks (1 tagged by the scenario, 41 by rules.json playtest_tags)
-- Provenance report: 192 records, 0 errors, 53 warnings
-- A playtest_tags rule matched no check in 1 report(s) of ui_minimap (renamed checks?): `129: ^every pickup is announced in the HUD log$`
+- Unit tests `_scratch/final3/unit_evidence.json`: run 2026-10-06T08:54:44Z, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), world present, 1564 tests, 0 failed
+- Playtest `_scratch/final3/pt/kit/report.json`: kit seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 21 checks (11 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/npc_bubbles/report.json`: npc_bubbles seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 7 checks (5 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/npc_shanks/report.json`: npc_shanks seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 26 checks (18 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/npcs/report.json`: npcs seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 66 checks (0 tagged by the scenario, 42 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/pause_load/report.json`: pause_load seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 12 checks (9 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/playthrough_s1/report.json`: playthrough seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 625 checks (604 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final3/pt/playthrough_s2/report.json`: playthrough seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 623 checks (602 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final3/pt/playthrough_s3/report.json`: playthrough seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 622 checks (601 tagged by the scenario, 98 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final3/pt/quests_s1/1000-1001/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1002/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1003-1004/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1005/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1006_1009_1010/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 112 checks (92 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1007-1008/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1011/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1012/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s1/1013-1019/report.json`: quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1000-1001/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1002/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1003-1004/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1005/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1006_1009_1010/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1007-1008/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1011/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1012/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s2/1013-1019/report.json`: quest seed 2, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1000-1001/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 56 checks (44 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1002/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 36 checks (25 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1003-1004/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 54 checks (43 tagged by the scenario, 6 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1005/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 38 checks (27 tagged by the scenario, 5 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1006_1009_1010/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 115 checks (95 tagged by the scenario, 18 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1007-1008/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 58 checks (47 tagged by the scenario, 9 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1011/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 41 checks (30 tagged by the scenario, 8 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1012/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 44 checks (33 tagged by the scenario, 10 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/quests_s3/1013-1019/report.json`: quest seed 3, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 190 checks (176 tagged by the scenario, 14 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/regen/report.json`: regen seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 32 checks (0 tagged by the scenario, 27 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/resume_gate/report.json`: resume_gate seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 23 checks (4 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/save_it2_continue/report.json`: save_it2_continue seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 55 checks (0 tagged by the scenario, 45 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_a_traversal/report.json`: test_a_traversal seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 475 checks (0 tagged by the scenario, 163 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_b_combat/report.json`: test_b_combat seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 53 checks (0 tagged by the scenario, 38 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_b_population/report.json`: test_b_population seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 79 checks (0 tagged by the scenario, 77 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_box/report.json`: test_box seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 40 checks (5 tagged by the scenario, 24 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_c_progression/report.json`: test_c_progression seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 76 checks (0 tagged by the scenario, 40 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_d_inventory/report.json`: test_d_inventory seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 90 checks (0 tagged by the scenario, 35 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_e_quest/report.json`: test_e_quest seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 103 checks (67 tagged by the scenario, 2 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_f_death/report.json`: test_f_death seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 237 checks (11 tagged by the scenario, 116 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_g_shop/report.json`: test_g_shop seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 184 checks (0 tagged by the scenario, 167 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/test_skills/report.json`: test_skills seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 51 checks (1 tagged by the scenario, 41 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/trap_probe/report.json`: trap_probe seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 55 checks (0 tagged by the scenario, 54 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/ui_minimap/report.json`: ui_minimap seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 231 checks (0 tagged by the scenario, 217 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/win_kit/report.json`: kit seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 21 checks (11 tagged by the scenario, 0 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/win_playthrough_s1/report.json`: playthrough seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree), 695 checks (604 tagged by the scenario, 99 by rules.json playtest_tags); a clean run (counts for the playthrough rows)
+- Playtest `_scratch/final3/pt/win_test_box/report.json`: test_box seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 40 checks (5 tagged by the scenario, 24 by rules.json playtest_tags)
+- Playtest `_scratch/final3/pt/win_test_skills/report.json`: test_skills seed 1, PASS, commit 1f3120c62e04ae5029c15709e5ce85cf1ebbdfbe (clean tree, reused copy), 51 checks (1 tagged by the scenario, 41 by rules.json playtest_tags)
+- Provenance report: 192 records, 0 errors, 0 warnings
+- A playtest_tags rule matched no check in 1 report(s) of test_c_progression (renamed checks?): `97: ^phase \d+: each death took the canonical EXP penalty$`
 
 How the evidence is made (each step writes git-ignored files under `_scratch/`):
 
@@ -102,66 +102,66 @@ How the evidence is made (each step writes git-ignored files under `_scratch/`):
 
 ```bash
 node tools/parity/build_parity.mjs \
-  --tests _scratch/final2/unit_evidence.json \
-  --playtest _scratch/final2/pt/kit/report.json \
-  --playtest _scratch/final2/pt/npc_bubbles/report.json \
-  --playtest _scratch/final2/pt/npc_shanks/report.json \
-  --playtest _scratch/final2/pt/npcs/report.json \
-  --playtest _scratch/final2/pt/pause_load/report.json \
-  --playtest _scratch/final2/pt/playthrough_s1/report.json \
-  --playtest _scratch/final2/pt/playthrough_s2/report.json \
-  --playtest _scratch/final2/pt/playthrough_s3/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1000-1001/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1002/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1003-1004/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1005/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1006_1009_1010/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1007-1008/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1011/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1012/report.json \
-  --playtest _scratch/final2/pt/quests_s1/1013-1019/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1000-1001/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1002/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1003-1004/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1005/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1006_1009_1010/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1007-1008/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1011/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1012/report.json \
-  --playtest _scratch/final2/pt/quests_s2/1013-1019/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1000-1001/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1002/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1003-1004/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1005/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1006_1009_1010/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1007-1008/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1011/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1012/report.json \
-  --playtest _scratch/final2/pt/quests_s3/1013-1019/report.json \
-  --playtest _scratch/final2/pt/regen/report.json \
-  --playtest _scratch/final2/pt/resume_gate/report.json \
-  --playtest _scratch/final2/pt/save_it2_continue/report.json \
-  --playtest _scratch/final2/pt/test_a_traversal/report.json \
-  --playtest _scratch/final2/pt/test_b_combat/report.json \
-  --playtest _scratch/final2/pt/test_b_population/report.json \
-  --playtest _scratch/final2/pt/test_box/report.json \
-  --playtest _scratch/final2/pt/test_c_progression/report.json \
-  --playtest _scratch/final2/pt/test_d_inventory/report.json \
-  --playtest _scratch/final2/pt/test_e_quest/report.json \
-  --playtest _scratch/final2/pt/test_f_death/report.json \
-  --playtest _scratch/final2/pt/test_g_shop/report.json \
-  --playtest _scratch/final2/pt/test_skills/report.json \
-  --playtest _scratch/final2/pt/trap_probe/report.json \
-  --playtest _scratch/final2/pt/ui_minimap/report.json \
-  --playtest _scratch/final2/pt/win_kit/report.json \
-  --playtest _scratch/final2/pt/win_playthrough_s1/report.json \
-  --playtest _scratch/final2/pt/win_test_box/report.json \
-  --playtest _scratch/final2/pt/win_test_skills/report.json
+  --tests _scratch/final3/unit_evidence.json \
+  --playtest _scratch/final3/pt/kit/report.json \
+  --playtest _scratch/final3/pt/npc_bubbles/report.json \
+  --playtest _scratch/final3/pt/npc_shanks/report.json \
+  --playtest _scratch/final3/pt/npcs/report.json \
+  --playtest _scratch/final3/pt/pause_load/report.json \
+  --playtest _scratch/final3/pt/playthrough_s1/report.json \
+  --playtest _scratch/final3/pt/playthrough_s2/report.json \
+  --playtest _scratch/final3/pt/playthrough_s3/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1000-1001/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1002/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1003-1004/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1005/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1006_1009_1010/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1007-1008/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1011/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1012/report.json \
+  --playtest _scratch/final3/pt/quests_s1/1013-1019/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1000-1001/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1002/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1003-1004/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1005/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1006_1009_1010/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1007-1008/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1011/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1012/report.json \
+  --playtest _scratch/final3/pt/quests_s2/1013-1019/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1000-1001/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1002/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1003-1004/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1005/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1006_1009_1010/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1007-1008/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1011/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1012/report.json \
+  --playtest _scratch/final3/pt/quests_s3/1013-1019/report.json \
+  --playtest _scratch/final3/pt/regen/report.json \
+  --playtest _scratch/final3/pt/resume_gate/report.json \
+  --playtest _scratch/final3/pt/save_it2_continue/report.json \
+  --playtest _scratch/final3/pt/test_a_traversal/report.json \
+  --playtest _scratch/final3/pt/test_b_combat/report.json \
+  --playtest _scratch/final3/pt/test_b_population/report.json \
+  --playtest _scratch/final3/pt/test_box/report.json \
+  --playtest _scratch/final3/pt/test_c_progression/report.json \
+  --playtest _scratch/final3/pt/test_d_inventory/report.json \
+  --playtest _scratch/final3/pt/test_e_quest/report.json \
+  --playtest _scratch/final3/pt/test_f_death/report.json \
+  --playtest _scratch/final3/pt/test_g_shop/report.json \
+  --playtest _scratch/final3/pt/test_skills/report.json \
+  --playtest _scratch/final3/pt/trap_probe/report.json \
+  --playtest _scratch/final3/pt/ui_minimap/report.json \
+  --playtest _scratch/final3/pt/win_kit/report.json \
+  --playtest _scratch/final3/pt/win_playthrough_s1/report.json \
+  --playtest _scratch/final3/pt/win_test_box/report.json \
+  --playtest _scratch/final3/pt/win_test_skills/report.json
 ```
 
 ## Totals
 
-640 entries: 581 verified, 0 implemented, 56 partial, 0 missing; 56 source-data gaps, 0 pending source reads (not excused), 3 out of scope. **0** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
+652 entries: 646 verified, 0 implemented, 3 partial, 0 missing; 3 source-data gaps, 0 pending source reads (not excused), 3 out of scope. **0** in-scope entries are neither verified nor a source-data gap (the exit criterion needs 0).
 
 | Category | Entries | Verified | Implemented | Partial | Missing | Source-data gaps | Pending source reads | Out of scope |
 |---|---|---|---|---|---|---|---|---|
@@ -171,7 +171,7 @@ node tools/parity/build_parity.mjs \
 | [Monster populations](#monster-populations) | 51 | 51 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Monster spawn rules](#monster-spawn-rules) | 15 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Monster stats](#monster-stats) | 6 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [Monster drops](#monster-drops) | 71 | 19 | 0 | 52 | 0 | 52 | 0 | 0 |
+| [Monster drops](#monster-drops) | 82 | 82 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Meso drops](#meso-drops) | 6 | 6 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Items (Etc and Set-up)](#items-etc-and-set-up) | 23 | 22 | 0 | 0 | 0 | 0 | 0 | 1 |
 | [Equipment](#equipment) | 55 | 55 | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -183,11 +183,11 @@ node tools/parity/build_parity.mjs \
 | [Quest objectives](#quest-objectives) | 42 | 42 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Quest rewards](#quest-rewards) | 25 | 25 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Beginner skills and mechanics](#beginner-skills-and-mechanics) | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [Breakables](#breakables) | 25 | 24 | 0 | 1 | 0 | 1 | 0 | 0 |
+| [Breakables](#breakables) | 25 | 25 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Chairs](#chairs) | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 1 |
 | [Map mechanics](#map-mechanics) | 21 | 17 | 0 | 3 | 0 | 3 | 0 | 1 |
 | [Monster behaviour, hit areas and spawning (Phases 5-6)](#monster-behaviour-hit-areas-and-spawning-phases-5-6) | 15 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
-| [Drop rules (Drop Testing, placeholder removal)](#drop-rules-drop-testing-placeholder-removal) | 15 | 15 | 0 | 0 | 0 | 0 | 0 | 0 |
+| [Drop rules (Drop Testing, placeholder removal)](#drop-rules-drop-testing-placeholder-removal) | 16 | 16 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Persistence (Phase 14)](#persistence-phase-14) | 29 | 29 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [UI and world feedback (Phases 11-12, quest log, skill UI)](#ui-and-world-feedback-phases-11-12-quest-log-skill-ui) | 42 | 42 | 0 | 0 | 0 | 0 | 0 | 0 |
 | [Clean-character playthrough (Definition of Done: Gameplay)](#clean-character-playthrough-definition-of-done-gameplay) | 21 | 21 | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -198,65 +198,50 @@ node tools/parity/build_parity.mjs \
 
 Values the sources were read for and do not give. These entries are excused from the exit criterion.
 
-- `drop:2/arrow-for-bow` Snail: Arrow for Bow: no KuroDB chance for this member: never drops
-- `drop:2/arrow-for-crossbow` Snail: Arrow for Crossbow: no KuroDB chance for this member: never drops
-- `drop:2/blue-potion` Snail: Blue Potion: no KuroDB chance for this member: never drops
-- `drop:2/blue-training-shirt-m` Snail: Blue Training Shirt (M): item not_in_snapshot (candidates 944): never drops; no KuroDB chance for this member: never drops
-- `drop:2/brown-apprentice-hat` Snail: Brown Apprentice Hat: item not_in_snapshot (candidates 727): never drops; no KuroDB chance for this member: never drops
-- `drop:2/red-cloth-pants-m` Snail: Red Cloth Pants (M): no KuroDB chance for this member: never drops
-- `drop:2/wooden-buckler` Snail: Wooden Buckler: item not_in_snapshot (candidates 916): never drops; no KuroDB chance for this member: never drops
-- `drop:2/wooden-mallet` Snail: Wooden Mallet: item not_in_snapshot (candidates 625): never drops; no KuroDB chance for this member: never drops
-- `drop:3/arrow-for-bow` Blue Snail: Arrow for Bow: no KuroDB chance for this member: never drops
-- `drop:3/blue-bandana` Blue Snail: Blue Bandana: item not_in_snapshot (candidates 721): never drops; no KuroDB chance for this member: never drops
-- `drop:3/blue-cloth-vest-m` Blue Snail: Blue Cloth Vest (M): item ambiguous (candidates 949, 958): never drops; no KuroDB chance for this member: never drops
-- `drop:3/blue-headband` Blue Snail: Blue Headband: no KuroDB chance for this member: never drops
-- `drop:3/blue-potion` Blue Snail: Blue Potion: no KuroDB chance for this member: never drops
-- `drop:3/hardwood-wand` Blue Snail: Hardwood Wand: item not_in_snapshot (candidates 650): never drops; no KuroDB chance for this member: never drops
-- `drop:3/orange-potion` Blue Snail: Orange Potion: no KuroDB chance for this member: never drops
-- `drop:3/pan-lid` Blue Snail: Pan Lid: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
-- `drop:3/red-bandana` Blue Snail: Red Bandana: item not_in_snapshot (candidates 720): never drops; no KuroDB chance for this member: never drops
-- `drop:4/arrow-for-bow` Shroom: Arrow for Bow: no KuroDB chance for this member: never drops
-- `drop:4/arrow-for-crossbow` Shroom: Arrow for Crossbow: no KuroDB chance for this member: never drops
-- `drop:4/black-ghetto-beanie` Shroom: Black Ghetto Beanie: item not_in_snapshot (candidates 735): never drops; no KuroDB chance for this member: never drops
-- `drop:4/blue-lolico-armor-m` Shroom: Blue Lolico Armor (M): item not_in_snapshot (candidates 943): never drops; no KuroDB chance for this member: never drops
-- `drop:4/blue-swimming-cap` Shroom: Blue Swimming Cap: item not_in_snapshot (candidates 717): never drops; no KuroDB chance for this member: never drops
-- `drop:4/double-axe` Shroom: Double Axe: no KuroDB chance for this member: never drops
-- `drop:4/orange-lolica-armor-f` Shroom: Orange Lolica Armor (F): item not_in_snapshot (candidates 951): never drops; no KuroDB chance for this member: never drops
-- `drop:4/smelly-gomushin` Shroom: Smelly Gomushin: item not_in_snapshot (candidates 1319): never drops; no KuroDB chance for this member: never drops
-- `drop:4/wooden-samurai-sword` Shroom: Wooden Samurai Sword: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
-- `drop:4/wooden-sword` Shroom: Wooden Sword: no KuroDB chance for this member: never drops
-- `drop:4/work-gloves` Shroom: Work Gloves: item not_in_snapshot (candidates 1435): never drops; no KuroDB chance for this member: never drops
-- `drop:4/yellow-bandana` Shroom: Yellow Bandana: item not_in_snapshot (candidates 722): never drops; no KuroDB chance for this member: never drops
-- `drop:5/arrow-for-bow` Red Snail: Arrow for Bow: no KuroDB chance for this member: never drops
-- `drop:5/black-cloth-pants-m` Red Snail: Black Cloth Pants (M): item ambiguous (candidates 1170, 1179): never drops; no KuroDB chance for this member: never drops
-- `drop:5/black-gomushin` Red Snail: Black Gomushin: item not_in_snapshot (candidates 1318): never drops; no KuroDB chance for this member: never drops
-- `drop:5/blue-headband` Red Snail: Blue Headband: no KuroDB chance for this member: never drops
-- `drop:5/blue-potion` Red Snail: Blue Potion: no KuroDB chance for this member: never drops
-- `drop:5/brown-skullcap` Red Snail: Brown Skullcap: no KuroDB chance for this member: never drops
-- `drop:5/grey-thick-sweat-pants-m` Red Snail: Grey Thick Sweat Pants (M): no KuroDB chance for this member: never drops
-- `drop:5/metal-axe` Red Snail: Metal Axe: item not_in_snapshot (candidates 617): never drops; no KuroDB chance for this member: never drops
-- `drop:5/orange-potion` Red Snail: Orange Potion: no KuroDB chance for this member: never drops
-- `drop:5/pistol` Red Snail: Pistol: item not_in_snapshot: never drops; no KuroDB chance for this member: never drops
-- `drop:5/red-bandana` Red Snail: Red Bandana: item not_in_snapshot (candidates 720): never drops; no KuroDB chance for this member: never drops
-- `drop:9/arrow-for-bow` Orange Mushroom: Arrow for Bow: no KuroDB chance for this member: never drops
-- `drop:9/black-cloth-pants-f` Orange Mushroom: Black Cloth Pants (F): item ambiguous (candidates 1170, 1179): never drops; no KuroDB chance for this member: never drops
-- `drop:9/blue-cloth-pants-m` Orange Mushroom: Blue Cloth Pants (M): item ambiguous (candidates 1169, 1178): never drops; no KuroDB chance for this member: never drops
-- `drop:9/blue-potion` Orange Mushroom: Blue Potion: no KuroDB chance for this member: never drops
-- `drop:9/crossbow` Orange Mushroom: Crossbow: item not_in_snapshot (candidates 672): never drops; no KuroDB chance for this member: never drops
-- `drop:9/garnier` Orange Mushroom: Garnier: item not_in_snapshot (candidates 680): never drops; no KuroDB chance for this member: never drops
-- `drop:9/omok-piece-mushroom` Orange Mushroom: Omok Piece : Mushroom: item ambiguous (candidates 486, 495, 498): never drops
-- `drop:9/orange-potion` Orange Mushroom: Orange Potion: no KuroDB chance for this member: never drops
-- `drop:9/red-headband` Orange Mushroom: Red Headband: no KuroDB chance for this member: never drops
-- `drop:9/red-swimming-cap` Orange Mushroom: Red Swimming Cap: item not_in_snapshot (candidates 718): never drops; no KuroDB chance for this member: never drops
-- `drop:9/yellow-avelin-f` Orange Mushroom: Yellow Avelin (F): item not_in_snapshot (candidates 956): never drops; no KuroDB chance for this member: never drops
-- `drop:9/yellow-bandana` Orange Mushroom: Yellow Bandana: item not_in_snapshot (candidates 722): never drops; no KuroDB chance for this member: never drops
-- `drop:0000001/egg` Wooden Box: Egg: no KuroDB chance for this member: never drops
 - `mechanic:fall-damage` Fall damage: MeowDB documents a formula (a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36; maps can disable it); MisoStory applies none (adaptation): The canonical rule cannot be applied as published: the length of one movement update, the unit of its N counter, is not documented (formulas/movement.json fall_damage.gaps), and MeowDB says 'Maps can disable fall damage' without naming the maps that do, so whether Maple Island's maps have fall damage is unknown. MisoStory applies no fall damage (presentation.json fall_recovery, verified: false): a MisoStory adaptation, not a canonical statement
 - `mechanic:map-seats` Sitting without a chair (ground sit) and map benches: MeowDB documents sitting on chairs only: no ground sit and no Maple Island bench placements (misostory/recovery.json sitting); X sits on the first owned chair instead (adaptation)
 - `mechanic:natural-mp-regen` Natural MP recovery: none, because MeowDB documents none (not inferred from the HP rule): MeowDB documents no natural MP recovery (formulas/recovery.json natural_regeneration.mp_per_tick is null; misostory/recovery.json natural_mp status unresolved_source_gap): the game has none until a source or the owner gives a rule
 
 Every canonical record also lists what MeowDB does not publish under `gaps` (counted per entry below; the texts are in
 [`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Unresolved values").
+
+## Adaptations
+
+MisoStory choices in `game/data/misostory/` (each with its reason; the full list with verified flags is in
+[`PROVENANCE_REPORT.md`](PROVENANCE_REPORT.md) "Adaptations") that in-scope entries rest on, with the number of entries
+that list each. An adaptation is neither a source-data gap nor an open issue: a drop row is verified on its sourced
+facts (MeowDB membership, Henesys.gg rarity) while its chance stays the project owner's table.
+
+- `drop_rates.json`: 89 entries
+- `presentation.json#map_mob_rate`: 16 entries
+- `meso_rules.json`: 9 entries
+- `presentation.json`: 3 entries
+- `recovery.json`: 3 entries
+- `combat.json`: 2 entries
+- `monsters/9.json`: 2 entries
+- `npcs/15.json`: 2 entries
+- `breakables.json`: 1 entry
+- `dialogue/_rules.json`: 1 entry
+- `dialogue/1.json`: 1 entry
+- `dialogue/15.json`: 1 entry
+- `dialogue/16.json`: 1 entry
+- `dialogue/18.json`: 1 entry
+- `dialogue/19.json`: 1 entry
+- `dialogue/20.json`: 1 entry
+- `dialogue/21.json`: 1 entry
+- `maps/000000030.json`: 1 entry
+- `maps/000000060.json`: 1 entry
+- `monsters/_shared.json`: 1 entry
+- `monsters/1.json`: 1 entry
+- `monsters/2.json`: 1 entry
+- `monsters/3.json`: 1 entry
+- `monsters/4.json`: 1 entry
+- `monsters/5.json`: 1 entry
+- `new_character.json`: 1 entry
+- `npcs/_speech_bubbles.json`: 1 entry
+- `presentation.json#fall_recovery`: 1 entry
+- `quests/1002.json`: 1 entry
+- `skills.json`: 1 entry
 
 ## Pending source reads
 
@@ -470,77 +455,88 @@ Runtime: present (`game/scripts/core/drops/drop_roller.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `drop:1/jr-sentinel-shellpiece` | Tutorial Jr. Sentinel: Jr. Sentinel Shellpiece | verified | 5 pass |  |  |
-| `drop:2/arrow-for-bow` | Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:2/arrow-for-crossbow` | Snail: Arrow for Crossbow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:2/blue-potion` | Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:2/blue-training-shirt-m` | Snail: Blue Training Shirt (M) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:2/brown-apprentice-hat` | Snail: Brown Apprentice Hat | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:2/green-apple` | Snail: Green Apple | verified | 2 pass |  |  |
-| `drop:2/red-cloth-pants-m` | Snail: Red Cloth Pants (M) | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:2/red-potion` | Snail: Red Potion | verified | 2 pass |  |  |
-| `drop:2/snail-shell` | Snail: Snail Shell | verified | 4 pass |  |  |
-| `drop:2/wooden-buckler` | Snail: Wooden Buckler | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:2/wooden-mallet` | Snail: Wooden Mallet | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/arrow-for-bow` | Blue Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:3/blue-bandana` | Blue Snail: Blue Bandana | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/blue-cloth-vest-m` | Blue Snail: Blue Cloth Vest (M) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/blue-headband` | Blue Snail: Blue Headband | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:3/blue-potion` | Blue Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:3/blue-snail-shell` | Blue Snail: Blue Snail Shell | verified | 7 pass |  |  |
-| `drop:3/green-apple` | Blue Snail: Green Apple | verified | 2 pass |  |  |
-| `drop:3/hardwood-wand` | Blue Snail: Hardwood Wand | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/orange-potion` | Blue Snail: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:3/pan-lid` | Blue Snail: Pan Lid | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/red-bandana` | Blue Snail: Red Bandana | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:3/red-potion` | Blue Snail: Red Potion | verified | 2 pass |  |  |
-| `drop:4/arrow-for-bow` | Shroom: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:4/arrow-for-crossbow` | Shroom: Arrow for Crossbow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:4/black-ghetto-beanie` | Shroom: Black Ghetto Beanie | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/blue-lolico-armor-m` | Shroom: Blue Lolico Armor (M) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/blue-swimming-cap` | Shroom: Blue Swimming Cap | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/double-axe` | Shroom: Double Axe | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:4/green-apple` | Shroom: Green Apple | verified | 2 pass |  |  |
-| `drop:4/mushroom-spore` | Shroom: Mushroom Spore | verified | 4 pass |  |  |
-| `drop:4/orange-lolica-armor-f` | Shroom: Orange Lolica Armor (F) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/red-potion` | Shroom: Red Potion | verified | 2 pass |  |  |
-| `drop:4/smelly-gomushin` | Shroom: Smelly Gomushin | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/wooden-samurai-sword` | Shroom: Wooden Samurai Sword | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/wooden-sword` | Shroom: Wooden Sword | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:4/work-gloves` | Shroom: Work Gloves | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:4/yellow-bandana` | Shroom: Yellow Bandana | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/arrow-for-bow` | Red Snail: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/black-cloth-pants-m` | Red Snail: Black Cloth Pants (M) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/black-gomushin` | Red Snail: Black Gomushin | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/blue-headband` | Red Snail: Blue Headband | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/blue-potion` | Red Snail: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/brown-skullcap` | Red Snail: Brown Skullcap | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/brown-woodsman-boots` | Red Snail: Brown Woodsman Boots | verified | 2 pass |  |  |
-| `drop:5/green-apple` | Red Snail: Green Apple | verified | 2 pass |  |  |
-| `drop:5/grey-thick-sweat-pants-m` | Red Snail: Grey Thick Sweat Pants (M) | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/metal-axe` | Red Snail: Metal Axe | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/orange-potion` | Red Snail: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:5/pistol` | Red Snail: Pistol | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/red-bandana` | Red Snail: Red Bandana | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:5/red-potion` | Red Snail: Red Potion | verified | 2 pass |  |  |
-| `drop:5/red-snail-shell` | Red Snail: Red Snail Shell | verified | 4 pass |  |  |
-| `drop:9/arrow-for-bow` | Orange Mushroom: Arrow for Bow | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:9/black-cloth-pants-f` | Orange Mushroom: Black Cloth Pants (F) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/blue-cloth-pants-m` | Orange Mushroom: Blue Cloth Pants (M) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/blue-potion` | Orange Mushroom: Blue Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:9/brown-hard-leather-boots` | Orange Mushroom: Brown Hard Leather Boots | verified | 2 pass |  |  |
-| `drop:9/crossbow` | Orange Mushroom: Crossbow | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/garnier` | Orange Mushroom: Garnier | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/omok-piece-mushroom` | Orange Mushroom: Omok Piece : Mushroom | partial (source-data gap) | 3 pass | 1 |  |
-| `drop:9/orange-mushroom-cap` | Orange Mushroom: Orange Mushroom Cap | verified | 7 pass |  |  |
-| `drop:9/orange-potion` | Orange Mushroom: Orange Potion | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:9/red-headband` | Orange Mushroom: Red Headband | partial (source-data gap) | 2 pass | 1 |  |
-| `drop:9/red-ninja-sandals` | Orange Mushroom: Red Ninja Sandals | verified | 2 pass |  |  |
-| `drop:9/red-potion` | Orange Mushroom: Red Potion | verified | 2 pass |  |  |
-| `drop:9/red-swimming-cap` | Orange Mushroom: Red Swimming Cap | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/scroll-for-shoes-for-jump-10` | Orange Mushroom: Scroll for Shoes for Jump 10% | verified | 2 pass |  |  |
-| `drop:9/yellow-avelin-f` | Orange Mushroom: Yellow Avelin (F) | partial (source-data gap) | 2 pass | 2 |  |
-| `drop:9/yellow-bandana` | Orange Mushroom: Yellow Bandana | partial (source-data gap) | 2 pass | 2 |  |
+| `drop:1/jr-sentinel-shellpiece` | Tutorial Jr. Sentinel: Jr. Sentinel Shellpiece | verified | 6 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_1.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/arrows-for-bows` | Snail: Arrows for Bows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/arrows-for-crossbows` | Snail: Arrows for Crossbows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/bronze-ore` | Snail: Bronze Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/garnet-ore` | Snail: Garnet Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/green-headband` | Snail: Green Headband | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/green-skullcap` | Snail: Green Skullcap | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/green-t-shirt` | Snail: Green T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/red-potion` | Snail: Red Potion | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/red-striped-top` | Snail: Red Striped Top | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/snail-shell` | Snail: Snail Shell | verified | 5 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/sword` | Snail: Sword | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:2/white-undershirt` | Snail: White Undershirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_2.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/amethyst-ore` | Blue Snail: Amethyst Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/arrows-for-bows` | Blue Snail: Arrows for Bows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/arrows-for-crossbows` | Blue Snail: Arrows for Crossbows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/blue-headband` | Blue Snail: Blue Headband | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/blue-jean-shorts` | Blue Snail: Blue Jean Shorts | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/blue-one-lined-t-shirt` | Blue Snail: Blue One-lined T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/blue-snail-shell` | Blue Snail: Blue Snail Shell | verified | 8 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/brown-duo` | Blue Snail: Brown Duo | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/brown-training-shirt` | Blue Snail: Brown Training Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/green-t-shirt` | Blue Snail: Green T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/grey-t-shirt` | Blue Snail: Grey T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/grey-thick-sweat-pants` | Blue Snail: Grey Thick Sweat Pants | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/iron-ore` | Blue Snail: Iron Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/monster-card` | Blue Snail: Monster Card | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/opal-ore` | Blue Snail: Opal Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/razor` | Blue Snail: Razor | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/red-potion` | Blue Snail: Red Potion | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/red-striped-t-shirt` | Blue Snail: Red Striped T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/silver-ore` | Blue Snail: Silver Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/undershirt` | Blue Snail: Undershirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:3/white-tube-top` | Blue Snail: White Tube Top | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_3.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/aquamarine-ore` | Shroom: Aquamarine Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/arrows-for-bows` | Shroom: Arrows for Bows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/arrows-for-crossbows` | Shroom: Arrows for Crossbows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/blue-jean-shorts` | Shroom: Blue Jean Shorts | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/blue-rubber-boots` | Shroom: Blue Rubber Boots | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/green-avelin-skirt` | Shroom: Green Avelin Skirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/grey-t-shirt` | Shroom: Grey T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/hand-axe` | Shroom: Hand Axe | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/ice-jeans` | Shroom: Ice Jeans | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/jean-capris` | Shroom: Jean Capris | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/mithril-ore` | Shroom: Mithril Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/mushroom-spore` | Shroom: Mushroom Spore | verified | 5 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/red-potion` | Shroom: Red Potion | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:4/yellow-headband` | Shroom: Yellow Headband | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_4.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/amethyst-ore` | Red Snail: Amethyst Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/arrows-for-bows` | Red Snail: Arrows for Bows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/arrows-for-crossbows` | Red Snail: Arrows for Crossbows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/brown-duo` | Red Snail: Brown Duo | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/brown-woodsman-boots` | Red Snail: Brown Woodsman Boots | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/leather-purse` | Red Snail: Leather Purse | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/leather-sandals` | Red Snail: Leather Sandals | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/metal-wand` | Red Snail: Metal Wand | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/opal-ore` | Red Snail: Opal Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/overall-armor-def-scroll-intermediate` | Red Snail: Overall Armor DEF Scroll: Intermediate | verified | 4 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Rare, verified against Henesys.gg (item_rarity.json); chance: 0.03% = drop_rates.json use_scroll x Rare, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-cloth-pants` | Red Snail: Red Cloth Pants | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-headband` | Red Snail: Red Headband | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-potion` | Red Snail: Red Potion | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-skullcap` | Red Snail: Red Skullcap | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-snail-shell` | Red Snail: Red Snail Shell | verified | 5 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/red-striped-top` | Red Snail: Red Striped Top | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/silver-ore` | Red Snail: Silver Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/sword` | Red Snail: Sword | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/wooden-sword` | Red Snail: Wooden Sword | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:5/yellow-t-shirt` | Red Snail: Yellow T-Shirt | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_5.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/arrows-for-bows` | Orange Mushroom: Arrows for Bows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/arrows-for-crossbows` | Orange Mushroom: Arrows for Crossbows | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/bronze-koif` | Orange Mushroom: Bronze Koif | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/bronze-ore` | Orange Mushroom: Bronze Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/brown-hard-leather-boots` | Orange Mushroom: Brown Hard Leather Boots | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/diamond-ore` | Orange Mushroom: Diamond Ore | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 3% = drop_rates.json etc_other x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/double-axe` | Orange Mushroom: Double Axe | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/green-winter-hat` | Orange Mushroom: Green Winter Hat | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/long-sword` | Orange Mushroom: Long Sword | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/orange-mushroom-cap` | Orange Mushroom: Orange Mushroom Cap | verified | 8 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_own_leftover x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/red-ninja-sandals` | Orange Mushroom: Red Ninja Sandals | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/red-potion` | Orange Mushroom: Red Potion | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/spear` | Orange Mushroom: Spear | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:9/white-gomushin` | Orange Mushroom: White Gomushin | verified | 3 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (monster_9.json); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 0.1% = drop_rates.json equip x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
 
 ## Meso drops
 
@@ -548,12 +544,12 @@ Runtime: present (`game/scripts/core/drops/drop_rates.gd`, `game/scripts/core/it
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `meso:1` | Tutorial Jr. Sentinel mesos | verified | 2 pass |  | drops no mesos |
-| `meso:2` | Snail mesos | verified | 3 pass |  |  |
-| `meso:3` | Blue Snail mesos | verified | 3 pass |  |  |
-| `meso:4` | Shroom mesos | verified | 3 pass |  |  |
-| `meso:5` | Red Snail mesos | verified | 3 pass |  |  |
-| `meso:9` | Orange Mushroom mesos | verified | 3 pass |  |  |
+| `meso:1` | Tutorial Jr. Sentinel mesos | verified | 2 pass |  | drops no mesos (meso_rules.json no_mesos: The project owner's choice: the tutorial monster drops no mesos (decision D3-12).); adaptation: meso_rules.json |
+| `meso:2` | Snail mesos | verified | 3 pass |  | amount: 2 per kill, MeowDB MS Classic's player report "Mesos: 2 per kill \| 1 report" (monster_2.txt); chance: 60% (meso_rules.json), an owner-approved adaptation (D3-12, verified: false), not a source-data gap; adaptation: meso_rules.json |
+| `meso:3` | Blue Snail mesos | verified | 2 pass |  | amount: [2, 4] at level 2 by meso_rules.json's level formula (MeowDB has no player report); chance: 60% (meso_rules.json); the formula and the chance are owner-approved adaptations (D3-12, verified: false), not a source-data gap; adaptation: meso_rules.json |
+| `meso:4` | Shroom mesos | verified | 2 pass |  | amount: [3, 6] at level 3 by meso_rules.json's level formula (MeowDB has no player report); chance: 60% (meso_rules.json); the formula and the chance are owner-approved adaptations (D3-12, verified: false), not a source-data gap; adaptation: meso_rules.json |
+| `meso:5` | Red Snail mesos | verified | 2 pass |  | amount: [4, 8] at level 4 by meso_rules.json's level formula (MeowDB has no player report); chance: 60% (meso_rules.json); the formula and the chance are owner-approved adaptations (D3-12, verified: false), not a source-data gap; adaptation: meso_rules.json |
+| `meso:9` | Orange Mushroom mesos | verified | 2 pass |  | amount: [8, 16] at level 8 by meso_rules.json's level formula (MeowDB has no player report); chance: 60% (meso_rules.json); the formula and the chance are owner-approved adaptations (D3-12, verified: false), not a source-data gap; adaptation: meso_rules.json |
 
 ## Items (Etc and Set-up)
 
@@ -561,21 +557,21 @@ Runtime: present (`game/scripts/core/items/item_def.gd`, `game/scripts/core/item
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `item:320` | Garnet Ore (Etc / Gem) | verified | 10 pass |  |  |
-| `item:321` | Amethyst Ore (Etc / Gem) | verified | 10 pass |  |  |
-| `item:322` | Aquamarine Ore (Etc / Gem) | verified | 10 pass |  |  |
+| `item:320` | Garnet Ore (Etc / Gem) | verified | 12 pass |  |  |
+| `item:321` | Amethyst Ore (Etc / Gem) | verified | 13 pass |  |  |
+| `item:322` | Aquamarine Ore (Etc / Gem) | verified | 11 pass |  |  |
 | `item:324` | Opal Ore (Etc / Gem) | verified | 10 pass |  |  |
 | `item:327` | Diamond Ore (Etc / Gem) | verified | 10 pass |  |  |
 | `item:347` | Jr. Sentinel Shellpiece (Etc / Monster Drop) | verified | 11 pass |  |  |
 | `item:348` | Snail Shell (Etc / Monster Drop) | verified | 10 pass |  |  |
-| `item:349` | Blue Snail Shell (Etc / Monster Drop) | verified | 15 pass |  |  |
-| `item:350` | Mushroom Spore (Etc / Monster Drop) | verified | 22 pass |  |  |
-| `item:351` | Red Snail Shell (Etc / Monster Drop) | verified | 21 pass |  |  |
+| `item:349` | Blue Snail Shell (Etc / Monster Drop) | verified | 14 pass |  |  |
+| `item:350` | Mushroom Spore (Etc / Monster Drop) | verified | 14 pass |  |  |
+| `item:351` | Red Snail Shell (Etc / Monster Drop) | verified | 17 pass |  |  |
 | `item:356` | Orange Mushroom Cap (Etc / Monster Drop) | verified | 14 pass |  |  |
-| `item:413` | Bronze Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
+| `item:413` | Bronze Ore (Etc / Ore & Mineral) | verified | 12 pass |  |  |
 | `item:414` | Iron Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
-| `item:415` | Mithril Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
-| `item:417` | Silver Ore (Etc / Ore & Mineral) | verified | 10 pass |  |  |
+| `item:415` | Mithril Ore (Etc / Ore & Mineral) | verified | 12 pass |  |  |
+| `item:417` | Silver Ore (Etc / Ore & Mineral) | verified | 13 pass |  |  |
 | `item:438` | Sera's Mirror (Etc / Quest Item) | verified | 13 pass |  |  |
 | `item:439` | Maria's Letter (Etc / Quest Item) | verified | 13 pass |  |  |
 | `item:440` | Lucas's Letter (Etc / Quest Item) | verified | 13 pass |  |  |
@@ -613,8 +609,8 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:541` | Sword (Equip / One-Handed Sword) | verified | 18 pass | 1 |  |
 | `item:543` | Long Sword (Equip / One-Handed Sword) | verified | 10 pass | 1 |  |
 | `item:551` | Gladius (Equip / One-Handed Sword) | verified | 10 pass | 1 |  |
-| `item:558` | Razor (Equip / Dagger) | verified | 12 pass | 1 |  |
-| `item:559` | Fruit Knife (Equip / Dagger) | verified | 14 pass | 1 |  |
+| `item:558` | Razor (Equip / Dagger) | verified | 11 pass | 1 |  |
+| `item:559` | Fruit Knife (Equip / Dagger) | verified | 16 pass | 1 |  |
 | `item:562` | Field Dagger (Equip / Dagger) | verified | 10 pass | 1 |  |
 | `item:576` | Hand Axe (Equip / One-Handed Axe) | verified | 10 pass | 1 |  |
 | `item:577` | Double Axe (Equip / One-Handed Axe) | verified | 10 pass | 1 |  |
@@ -625,14 +621,14 @@ Runtime: present (`game/scripts/core/items/equipment.gd`).
 | `item:633` | Spear (Equip / Spear) | verified | 10 pass | 1 |  |
 | `item:651` | Metal Wand (Equip / Wand) | verified | 10 pass | 1 |  |
 | `item:666` | Hunter's Bow (Equip / Bow) | verified | 10 pass | 1 |  |
-| `item:708` | Brown Skullcap (Equip / Hat) | verified | 10 pass | 1 |  |
+| `item:708` | Brown Skullcap (Equip / Hat) | verified | 14 pass | 1 |  |
 | `item:709` | Green Skullcap (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:710` | Red Skullcap (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:711` | Red Headband (Equip / Hat) | verified | 11 pass | 1 |  |
-| `item:712` | Black Headband (Equip / Hat) | verified | 11 pass | 1 |  |
+| `item:712` | Black Headband (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:713` | Green Headband (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:714` | Yellow Headband (Equip / Hat) | verified | 10 pass | 1 |  |
-| `item:715` | Blue Headband (Equip / Hat) | verified | 13 pass | 1 |  |
+| `item:715` | Blue Headband (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:724` | Bronze Koif (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:731` | Green Winter Hat (Equip / Hat) | verified | 10 pass | 1 |  |
 | `item:900` | Amethyst Earrings (Equip / Earring) | verified | 10 pass | 1 |  |
@@ -707,7 +703,7 @@ Runtime: present (`game/scripts/core/shop/shop_service.gd`, `game/scripts/ui/npc
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `shop:maple-road-lucy` | Lucy (Lucy), 6 items | verified | 96 pass | 5 |  |
-| `shop:maple-road-pan` | Pan (Pan), 13 items | verified | 74 pass | 6 |  |
+| `shop:maple-road-pan` | Pan (Pan), 13 items | verified | 71 pass | 6 |  |
 | `shop:maple-road-sid` | Sid (Sid), 4 items | verified | 69 pass | 6 |  |
 
 ## Quests
@@ -836,15 +832,15 @@ Runtime: present (`game/scripts/actors/combat/player_skills.gd`, `game/scripts/c
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:ap-allocation` | AP allocation (AP behaviour remains correct) | verified | 34 pass |  |  |
+| `mechanic:ap-allocation` | AP allocation (AP behaviour remains correct) | verified | 36 pass |  |  |
 | `mechanic:beginner-sp-gain` | SP gained per level as a Beginner (canonical) | verified | 6 pass |  |  |
 | `mechanic:level-up-gains` | EXP and level-ups follow the canonical EXP table and give the canonical AP, SP and HP/MP | verified | 14 pass |  |  |
 | `mechanic:new-character` | A new character is a canonical Beginner: level 1, starting stats, creation AP, starter weapon and clothes | verified | 8 pass |  | adaptation: new_character.json |
 | `mechanic:sp-allocation` | Spending SP on Beginner skills (canonical max levels and prerequisites) | verified | 24 pass |  |  |
 | `mechanic:timed-effects` | Timed skill effects and cooldowns count down (remaining seconds) | verified | 19 pass |  | adaptation: skills.json |
-| `skill:0001000` | Three Snails (max level 3) | verified | 52 pass |  |  |
+| `skill:0001000` | Three Snails (max level 3) | verified | 53 pass |  |  |
 | `skill:0001001` | Recovery (max level 3) | verified | 44 pass |  |  |
-| `skill:0001002` | Nimble Feet (max level 3) | verified | 43 pass |  |  |
+| `skill:0001002` | Nimble Feet (max level 3) | verified | 42 pass |  |  |
 
 ## Breakables
 
@@ -853,10 +849,10 @@ Runtime: present (`game/scripts/actors/breakables/breakable_system.gd`, `game/sc
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `breakable:0000001` | Wooden Box (breaks in 4 hits) | verified | 68 pass | 3 |  |
-| `drop:0000001/apple` | Wooden Box: Apple | verified | 3 pass |  |  |
-| `drop:0000001/egg` | Wooden Box: Egg | partial (source-data gap) | 3 pass | 1 |  |
-| `drop:0000001/old-wooden-board` | Wooden Box: Old Wooden Board | verified | 4 pass |  | quest-gated to 1012 |
-| `drop:0000001/rusty-screw` | Wooden Box: Rusty Screw | verified | 4 pass |  | quest-gated to 1012 |
+| `drop:0000001/apple` | Wooden Box: Apple | verified | 4 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (breakable_0000001.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:0000001/egg` | Wooden Box: Egg | verified | 4 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (breakable_0000001.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 2% = drop_rates.json use_consumable x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; adaptation: drop_rates.json |
+| `drop:0000001/old-wooden-board` | Wooden Box: Old Wooden Board | verified | 5 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (breakable_0000001.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_quest_gated x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; quest-gated to 1012; adaptation: drop_rates.json |
+| `drop:0000001/rusty-screw` | Wooden Box: Rusty Screw | verified | 5 pass |  | membership: verified against MeowDB MS Classic "Drops (MS Classic)" (breakable_0000001.txt); rarity: Common, verified against Henesys.gg (item_rarity.json); chance: 100% = drop_rates.json etc_quest_gated x Common, an owner-approved adaptation (D3-11, verified: false), not a source-data gap; quest-gated to 1012; adaptation: drop_rates.json |
 | `mechanic:breakable-hit-break-respawn` | A Wooden Box breaks after the canonical landed hits and respawns after its placement's canonical time | verified | 32 pass |  | adaptation: breakables.json |
 | `placement:000001000/0` | Wooden Box placement 0 on The Field West of Amherst (respawn 120 s) | verified | 75 pass |  |  |
 | `placement:000001000/1` | Wooden Box placement 1 on The Field West of Amherst (respawn 120 s) | verified | 75 pass |  |  |
@@ -893,7 +889,7 @@ Runtime: present (`game/scripts/actors/player/player_controller.gd ("&\"seated\"
 |---|---|---|---|---|---|
 | `mechanic:chair-hp-bonus` | A chair's own HP bonus per interval while seated (The Green Relaxer: 30 HP per 10 s), on its own clock | verified | 10 pass |  |  |
 | `mechanic:crouch-down-jump` | Crouch (down) and a crouching jump that drops to a lower platform (Rain's quiz 1013; formulas/movement.json controls_statements) | implemented (out of scope) | 0 pass |  | out of scope: Excluded as an isometric adaptation (a MisoStory decision, verified: false): in MisoStory's isometric 3D maps the down key (move_down, S) walks toward the camera, so there is no crouch stance, and the terrain has no pass-through floors (the player stands on the highest walkable collision under its feet; no one-way platform layer exists), so a crouching jump has nothing to drop through. The player reaches a lower floor by walking off its edge (PLAYER_AND_CAMERA.md: the player drops once its centre is 0.15 m past an edge, as in classic) or by a rope or ladder. No input reaches the crouched (prone) attack that combat_formula.gd can resolve either. Listed for DEFERRED |
-| `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | verified | 143 pass |  |  |
+| `mechanic:death-respawn` | Death (canonical EXP penalty) and respawn at the return map with the canonical vitals | verified | 142 pass |  |  |
 | `mechanic:fall-damage` | Fall damage: MeowDB documents a formula (a landing after at least 45 consecutive fast-falling movement updates deals base 24, rising to 36; maps can disable it); MisoStory applies none (adaptation) | partial (source-data gap) | 0 pass | 1 | adaptation: presentation.json#fall_recovery |
 | `mechanic:map-seats` | Sitting without a chair (ground sit) and map benches | partial (source-data gap) | 0 pass | 1 |  |
 | `mechanic:minimap` | Minimap on every playable map (player, map shape, portals, NPCs, map name; map id in debug mode); M folds it | verified | 201 pass |  |  |
@@ -926,7 +922,7 @@ Runtime: present (`game/scripts/actors/monsters/monster_brain.gd`, `game/scripts
 | `mechanic:monster-movement-floor-walker` | Walking monsters pace back and forth and stay on their floor | verified | 19 pass |  | adaptation: monsters/_shared.json |
 | `mechanic:monster-movement-jumper` | Jumping monsters (Orange Mushroom) hop to a floor above or below their spawn floor | verified | 2 pass |  | adaptation: monsters/9.json |
 | `mechanic:monster-respawn` | Monster respawn on the canonical spawn tick after the canonical cooldown | verified | 19 pass |  |  |
-| `mechanic:monster-touch-damage` | Contact damage: the canonical touch window through the canonical touch zone, no oversized bubbles | verified | 20 pass |  |  |
+| `mechanic:monster-touch-damage` | Contact damage: the canonical touch window through the canonical touch zone, no oversized bubbles | verified | 21 pass |  |  |
 | `mechanic:player-damage-window` | The player's damage per hit stays inside the canonical damage window | verified | 15 pass |  |  |
 | `mechanic:spawn-capacity` | Map capacity from the canonical spawn-point count (solo capacity) | verified | 20 pass |  |  |
 | `mechanic:spawn-density` | Spawn density cap per region (no clumps; counts unchanged) | verified | 5 pass |  | adaptation: presentation.json |
@@ -937,25 +933,26 @@ Runtime: present (`game/scripts/actors/monsters/monster_brain.gd`, `game/scripts
 
 ## Drop rules (Drop Testing, placeholder removal)
 
-Runtime: present (`game/scripts/core/drops/drop_roller.gd`, `game/scripts/core/drops/drop_chance.gd`, `game/scripts/core/drops/drop_rates.gd`).
+Runtime: present (`game/scripts/core/drops/drop_roller.gd`, `game/scripts/core/drops/drop_rates.gd`).
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `mechanic:breakable-drop-roll` | A broken Wooden Box drops through the canonical drop roller with the quest context | verified | 9 pass |  |  |
-| `mechanic:drop-chance-bounds` | Impossible probabilities are rejected (negative, above 100%, wrong normalisation, truncation) | verified | 1 pass |  |  |
-| `mechanic:drop-chance-from-kurodb` | Drop probabilities quote KuroDB for members of the list | verified | 2 pass |  |  |
-| `mechanic:drop-chance-parsing` | KuroDB probabilities are parsed correctly (percent and reactor chance values) | verified | 4 pass |  |  |
-| `mechanic:drop-item-ids-resolve` | Every drop item id resolves to a local item definition | verified | 2 pass |  |  |
-| `mechanic:drop-membership-authoritative` | Drop membership is the membership source's list, nothing else (MeowDB for the Wooden Box, Hidden Street for monsters: D3-6) | verified | 4 pass |  |  |
+| `mechanic:drop-category-derivation` | Each member's table category follows the rule from its MeowDB item type and subtype and the quest gate | verified | 2 pass |  |  |
+| `mechanic:drop-chance-bounds` | The chance table is complete (every category x rarity) and every cell is a chance in [0, 1]; an incomplete or out-of-range table fails validation | verified | 2 pass |  |  |
+| `mechanic:drop-chance-table` | Each member's drop chance is the owner-approved table cell for its category and rarity, read unchanged by the runtime (D3-11) | verified | 2 pass |  | adaptation: drop_rates.json |
+| `mechanic:drop-item-ids-resolve` | Every drop item id resolves to a local item definition | verified | 3 pass |  |  |
+| `mechanic:drop-membership-authoritative` | Drop membership is MeowDB's community list "Drops (MS Classic)" for each monster and the Wooden Box, every entry, nothing else (D3-11) | verified | 6 pass |  |  |
+| `mechanic:drop-rarity-from-henesys` | Each member's rarity is Henesys.gg's label from the dated capture (Common, Rare, Very Rare, Extremely Rare) | verified | 2 pass |  |  |
 | `mechanic:drop-roll-seeded` | Drop rolls are deterministic under a seeded RNG | verified | 1 pass |  |  |
 | `mechanic:drop-simulation` | A large offline simulation matches the configured rates (a sanity check, not a source) | verified | 1 pass |  |  |
 | `mechanic:loot-pickup` | Item drops land in the world and can be picked up (stacks merge, full inventory leaves the drop) | verified | 18 pass |  |  |
-| `mechanic:meso-amount-source` | Meso amount comes from MeowDB (Hidden Street only where MeowDB has no report) | verified | 5 pass |  |  |
-| `mechanic:meso-chance-source` | Meso drop probability comes from KuroDB | verified | 5 pass |  |  |
+| `mechanic:meso-amount-source` | Meso amount is MeowDB's player report where there is one, otherwise a uniform integer in [level, 2 x level] (D3-12) | verified | 5 pass |  | adaptation: meso_rules.json |
+| `mechanic:meso-chance-source` | Meso drop chance is the owner's 60% (MeowDB publishes none); none for the Tutorial Jr. Sentinel and the Wooden Box (D3-12) | verified | 2 pass |  | adaptation: meso_rules.json |
 | `mechanic:meso-pickup` | Meso bags drop into the world, show their amount, are collected and saved | verified | 7 pass |  |  |
-| `mechanic:no-placeholder-drop-rates` | No placeholder drop chance, quantity or meso amount anywhere (Definition of Done: Placeholder Removal) | verified | 2 pass |  |  |
+| `mechanic:no-placeholder-drop-rates` | No placeholder drop chance, quantity or meso amount anywhere: every chance is the owner-approved table (D3-11), every meso rule the owner's (D3-12), both labelled adaptations (Definition of Done: Placeholder Removal) | verified | 2 pass |  | adaptation: drop_rates.json; adaptation: meso_rules.json |
 | `mechanic:quest-gated-drops` | Quest-gated drops roll only while their quest is in progress (contract C1 gate rule) | verified | 6 pass |  | adaptation: drop_rates.json |
-| `mechanic:unresolved-drops-never-roll` | An unresolved member (no chance or no item) never rolls | verified | 2 pass |  |  |
+| `mechanic:unresolved-drops-never-roll` | An unresolved member (no item, no rarity or no table category) never rolls | verified | 2 pass |  |  |
 
 ## Persistence (Phase 14)
 
@@ -999,7 +996,7 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
-| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | verified | 10 pass |  |  |
+| `mechanic:insufficient-mesos-warning` | Insufficient-mesos warning in shops | verified | 7 pass |  |  |
 | `mechanic:inventory-full-warning` | Inventory-full warning | verified | 7 pass |  |  |
 | `minimap:000000001` | Minimap of Mushroom Town - West Entrance (000000001): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
 | `minimap:000000010` | Minimap of Mushroom Town (000000010): player, map shape, exits, NPCs, name | verified | 9 pass |  |  |
@@ -1029,7 +1026,7 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 | `ui:ap-notification` | AP-available notification | verified | 5 pass |  |  |
 | `ui:damage-feedback` | Damage feedback (damage numbers) | verified | 6 pass |  |  |
 | `ui:interact-indicator` | Interact indicator near NPCs and doors | verified | 4 pass |  |  |
-| `ui:item-pickup-feedback` | Item and meso pickup feedback in the HUD log | verified | 5 pass |  |  |
+| `ui:item-pickup-feedback` | Item and meso pickup feedback in the HUD log | verified | 6 pass |  |  |
 | `ui:key-bindings` | The Controls panel lists every key and each listed key works | verified | 3 pass |  |  |
 | `ui:level-up-feedback` | Level-up feedback (flourish and log) | verified | 7 pass |  |  |
 | `ui:map-name-display` | The canonical map name (and street) on screen: banner and minimap title | verified | 61 pass |  |  |
@@ -1039,7 +1036,7 @@ Runtime: present (`game/scripts/ui/minimap/minimap.gd`, `game/scripts/ui/minimap
 | `ui:quest-indicators` | NPC quest markers (available, in progress, ready to turn in) | verified | 518 pass |  |  |
 | `ui:quest-log` | Quest log with objectives, quantities, NPC, state and chain progress | verified | 517 pass |  |  |
 | `ui:shop-indication` | Shop indication: shopkeeper tags and shop badges on doors | verified | 10 pass |  |  |
-| `ui:skill-window` | Skill window: levels, SP allocation, binding, persistence | verified | 69 pass |  |  |
+| `ui:skill-window` | Skill window: levels, SP allocation, binding, persistence | verified | 70 pass |  |  |
 | `ui:sp-notification` | SP-available notification | verified | 7 pass |  |  |
 
 ## Clean-character playthrough (Definition of Done: Gameplay)
@@ -1049,7 +1046,7 @@ Runtime: present; no runtime of its own.
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `mechanic:no-console-playthrough` | Strict mode: after setup, any console or API cheat or unannounced state change fails the run (the guard the playthrough rows rely on) | verified | 76 pass |  |  |
-| `playthrough:allocate-ap` | Allocate AP | verified | 22 pass |  |  |
+| `playthrough:allocate-ap` | Allocate AP | verified | 23 pass |  |  |
 | `playthrough:begin-maple-island` | Begin Maple Island at the canonical start map | verified | 4 pass |  |  |
 | `playthrough:complete-every-quest` | Complete every Maple Island quest | verified | 4 pass |  |  |
 | `playthrough:complete-every-quiz` | Complete every quiz | verified | 28 pass |  |  |
@@ -1099,10 +1096,10 @@ Runtime: present (`game/scripts/core/validation/provenance_authorities.gd`, `gam
 | Key | Name | State | Evidence | Gaps | Notes |
 |---|---|---|---|---|---|
 | `canon:adaptations-explained` | Every MisoStory adaptation carries a reason and a verified flag (verified only against something named) | verified | 6 pass |  |  |
-| `canon:kuro-only-excluded` | KuroDB-only items never enter a drop table | verified | 6 pass |  |  |
-| `canon:membership-chance-separate` | Drop membership and drop chance are recorded from separate sources | verified | 6 pass |  |  |
-| `canon:meowdb-formula-parity` | The MeowDB formula parity vectors (MeowDB's own calculators: damage, accuracy, EXP, stats) still pass and every mechanic is replayed | verified | 36 pass |  |  |
-| `canon:probability-conversion` | Probability conversions are re-derived from the raw values (no 1/N vs N% mix-up, no truncation, range [0, 1]) | verified | 7 pass |  |  |
-| `canon:provenance-per-property` | Each property names its own authority (MeowDB, KuroDB, Hidden Street, Project owner), with URL, read time and capture | verified | 12 pass |  |  |
-| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 8 pass |  |  |
+| `canon:membership-rarity-separate` | Drop membership (MeowDB) and rarity (Henesys.gg) are recorded from separate sources, each source limited to its property | verified | 8 pass |  |  |
+| `canon:meowdb-formula-parity` | The MeowDB formula parity vectors (MeowDB's own calculators: damage, accuracy, EXP, stats) still pass and every mechanic is replayed | verified | 38 pass |  |  |
+| `canon:msea-reference-excluded` | Items only on MeowDB's MSEA reference list never enter a drop table | verified | 3 pass |  |  |
+| `canon:no-probability-in-canonical` | Canonical drop records hold only sourced facts: no probability, chance or quantity (those are the owner's rule files) | verified | 2 pass |  |  |
+| `canon:provenance-per-property` | Each property names its own authority (MeowDB MS Classic, Henesys.gg for rarity only, Project owner), with URL, read time and capture | verified | 14 pass |  |  |
+| `canon:unresolved-visible` | Unresolved values stay null and are reported, never guessed | verified | 5 pass |  |  |
 

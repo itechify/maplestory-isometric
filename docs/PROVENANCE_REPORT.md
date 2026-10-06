@@ -10,69 +10,13 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 
 | What | Count |
 |---|---|
-| Validation errors / warnings | 0 / 53 |
+| Validation errors / warnings | 0 / 0 |
 | Canonical records | 192 (breakables 1, drops 7, formulas 13, items 96, maps 25, monsters 6, npcs 21, quests 20, shops 3) |
-| Property rows (record source, field sources, per-property sources) | 1265 |
-| Property rows by authority | Hidden Street 85, KuroDB 40, MeowDB MS Classic 1140 |
-| Dated capture files cited | 19 |
-| Unresolved values | 517 (breakables 3, drops 168, formulas 40, items 60, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
+| Property rows (record source, field sources, per-property sources) | 1321 |
+| Property rows by authority | Henesys.gg 93, MeowDB MS Classic 1228 |
+| Dated capture files cited | 11 |
+| Unresolved values | 375 (breakables 3, drops 26, formulas 40, items 60, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
 | Adaptations (objects with a verified flag) | 122: 2 verified, 120 not verified |
-
-Findings of the validation run:
-
-- warning [drop_unresolved] drops/0000001: 'Egg' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/2: 'Blue Training Shirt (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/2: 'Wooden Buckler' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/2: 'Wooden Mallet' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/2: 'Brown Apprentice Hat' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/2: 'Red Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/2: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/2: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/2: 'Arrow for Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/3: 'Blue Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/3: 'Red Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/3: 'Blue Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/3: 'Pan Lid' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/3: 'Hardwood Wand' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/3: 'Blue Cloth Vest (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
-- warning [drop_unresolved] drops/3: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/3: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/3: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/4: 'Yellow Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Double Axe' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/4: 'Smelly Gomushin' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Blue Swimming Cap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Work Gloves' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Blue Lolico Armor (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Orange Lolica Armor (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Wooden Samurai Sword' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Wooden Sword' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/4: 'Black Ghetto Beanie' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/4: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/4: 'Arrow for Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Brown Skullcap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Metal Axe' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/5: 'Blue Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Red Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/5: 'Black Gomushin' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/5: 'Grey Thick Sweat Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Black Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
-- warning [drop_unresolved] drops/5: 'Pistol' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/5: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/5: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/9: 'Omok Piece : Mushroom' never rolls: item unresolved (ambiguous)
-- warning [drop_unresolved] drops/9: 'Red Swimming Cap' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/9: 'Yellow Bandana' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/9: 'Red Headband' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/9: 'Crossbow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/9: 'Yellow Avelin (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/9: 'Blue Cloth Pants (M)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
-- warning [drop_unresolved] drops/9: 'Black Cloth Pants (F)' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (ambiguous)
-- warning [drop_unresolved] drops/9: 'Garnier' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps); item unresolved (not_in_snapshot)
-- warning [drop_unresolved] drops/9: 'Orange Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/9: 'Blue Potion' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
-- warning [drop_unresolved] drops/9: 'Arrow for Bow' never rolls: chance unresolved (no accepted KuroDB value for this member; see the record's gaps)
 
 References skipped as out of scope (not findings):
 
@@ -83,7 +27,7 @@ References skipped as out of scope (not findings):
 - 1 x npcs.transport.routes[].to_map_id -> maps (destination outside the dataset)
 - 1 x quests dialogue link -> npcs (MeowDB link to content outside the dataset)
 
-Captures cited: `tools/hiddenstreet/captures/monsters.json`, `tools/kurodb/captures/100100.json`, `tools/kurodb/captures/100101.json`, `tools/kurodb/captures/120100.json`, `tools/kurodb/captures/1210102.json`, `tools/kurodb/captures/130101.json`, `tools/kurodb/captures/9300018.json`, `tools/kurodb/captures/item_2040705.json`, `tools/kurodb/captures/reactor_2001_items.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/item_242.txt`, `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
+Captures cited: `tools/henesys/captures/item_rarity.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/item_242.txt`, `tools/meowdb/captures/items_api.json`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
 
 ## Records
 
@@ -93,13 +37,13 @@ authorities its properties cite, the number of property rows and of unresolved v
 | Record | Name | Source | Read at | Authorities | Properties | Unresolved |
 |---|---|---|---|---|---|---|
 | breakables/0000001 | Wooden Box | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-04T10:07:17.340Z | MeowDB MS Classic | 8 | 3 |
-| drops/0000001 | Wooden Box drop table | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | KuroDB, MeowDB MS Classic | 11 | 5 |
-| drops/1 | Tutorial Jr. Sentinel drop table | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | Hidden Street, KuroDB, MeowDB MS Classic | 6 | 1 |
-| drops/2 | Snail drop table | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | Hidden Street, KuroDB, MeowDB MS Classic | 22 | 24 |
-| drops/3 | Blue Snail drop table | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | Hidden Street, KuroDB, MeowDB MS Classic | 23 | 28 |
-| drops/4 | Shroom drop table | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | Hidden Street, KuroDB, MeowDB MS Classic | 26 | 40 |
-| drops/5 | Red Snail drop table | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | Hidden Street, KuroDB, MeowDB MS Classic | 27 | 32 |
-| drops/9 | Orange Mushroom drop table | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | Hidden Street, KuroDB, MeowDB MS Classic | 31 | 38 |
+| drops/0000001 | Wooden Box drop table | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | Henesys.gg, MeowDB MS Classic | 12 | 3 |
+| drops/1 | Tutorial Jr. Sentinel drop table | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | Henesys.gg, MeowDB MS Classic | 6 | 4 |
+| drops/2 | Snail drop table | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | Henesys.gg, MeowDB MS Classic | 30 | 3 |
+| drops/3 | Blue Snail drop table | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | Henesys.gg, MeowDB MS Classic | 46 | 4 |
+| drops/4 | Shroom drop table | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | Henesys.gg, MeowDB MS Classic | 32 | 4 |
+| drops/5 | Red Snail drop table | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | Henesys.gg, MeowDB MS Classic | 44 | 4 |
+| drops/9 | Orange Mushroom drop table | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | Henesys.gg, MeowDB MS Classic | 32 | 4 |
 | formulas/accuracy | Accuracy, avoidability, hit chance, guards and incoming damage | https://meowdb.com/msclassic/formulas | 2026-10-04T09:57:48.010Z | MeowDB MS Classic | 15 | 2 |
 | formulas/attack_speed | Attack speed tiers and animation timing | https://meowdb.com/msclassic/formulas/attack-speed | 2026-10-04T10:04:43.693Z | MeowDB MS Classic | 10 | 3 |
 | formulas/attack_styles | Attack hit rectangles, reach and target selection | https://meowdb.com/msclassic/guides/weapon-reach | 2026-10-04T10:06:08.439Z | MeowDB MS Classic | 20 | 2 |
@@ -308,151 +252,207 @@ from another page) or per-property `provenance` sources (contract C7).
 | Record | Property | Authority | URL | Read at | Capture | Decision |
 |---|---|---|---|---|---|---|
 | 0000001 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
-| 0000001 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001 | 2026-10-04T10:07:46.821Z |  |  |
-| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` | D3-7 |
-| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/2010000<br>https://playkuro.com/database/#items/2010002<br>https://playkuro.com/database/#items/4031161<br>https://playkuro.com/database/#items/4031162 | 2026-10-05T07:50:30.002Z | `tools/kurodb/captures/reactor_2001_items.json` | D3-7 |
+| 0000001 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/breakable-drops?breakableId=0000001 | 2026-10-04T10:07:46.821Z |  |  |
+| 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` | D3-11 |
+| 0000001 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
 | 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
-| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/4031162 | 2026-10-05T07:50:30.002Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
-| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/4031161 | 2026-10-05T07:50:48.209Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
-| 0000001 | probability | KuroDB | https://playkuro.com/database/#items/2010000 | 2026-10-05T07:50:58.092Z | `tools/kurodb/captures/reactor_2001_items.json` |  |
+| 0000001 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 0000001 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/breakables/0000001 | 2026-10-05T07:49:44.592Z | `tools/meowdb/captures/breakable_0000001.txt` |  |
+| 0000001 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 1 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | `tools/meowdb/captures/monster_1.json` |  |
-| 1 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=1 | 2026-10-04T10:06:55.625Z |  |  |
-| 1 | membership | Hidden Street | https://bc.hidden-street.net/monster/tutorial-jr-sentinel | 2026-10-05T08:09:54.751Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 1 | probability | KuroDB | https://playkuro.com/database/#monsters/9300018 | 2026-10-05T07:46:08.420Z | `tools/kurodb/captures/9300018.json` | D3-3 |
-| 1 | membership | Hidden Street | https://bc.hidden-street.net/monster/tutorial-jr-sentinel | 2026-10-05T08:09:54.751Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 1 | probability | KuroDB | https://playkuro.com/database/#monsters/9300018 | 2026-10-05T07:46:08.420Z | `tools/kurodb/captures/9300018.json` |  |
+| 1 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=1 | 2026-10-04T10:06:55.625Z |  |  |
+| 1 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | `tools/meowdb/captures/monster_1.json` | D3-11 |
+| 1 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 1 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/1 | 2026-10-05T07:49:19.434Z | `tools/meowdb/captures/monster_1.json` |  |
+| 1 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 2 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
-| 2 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=2 | 2026-10-04T10:06:58.031Z |  |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` | D3-3 |
-| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-5 |
-| 2 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` | D3-5 |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | membership | Hidden Street | https://bc.hidden-street.net/monster/snail | 2026-10-05T08:03:43.486Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-5 |
-| 2 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100100 | 2026-10-05T07:46:19.383Z | `tools/kurodb/captures/100100.json` |  |
+| 2 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=2 | 2026-10-04T10:06:58.031Z |  |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-11 |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-12 |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` |  |
+| 2 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 2 | mesos.amount | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/2 | 2026-10-05T07:47:01.065Z | `tools/meowdb/captures/monster_2.txt` | D3-12 |
 | 3 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
-| 3 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=3 | 2026-10-04T10:07:01.651Z |  |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` | D3-3 |
-| 3 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 3 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` | D3-5 |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
-| 3 | membership | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 3 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/blue-snail | 2026-10-05T08:03:36.825Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 3 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/100101 | 2026-10-05T07:44:50.614Z | `tools/kurodb/captures/100101.json` |  |
+| 3 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=3 | 2026-10-04T10:07:01.651Z |  |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` | D3-11 |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 3 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/3 | 2026-10-05T07:47:34.120Z | `tools/meowdb/captures/monster_3.json` |  |
+| 3 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 4 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
-| 4 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=4 | 2026-10-04T10:07:05.261Z |  |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` | D3-3 |
-| 4 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 4 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` | D3-5 |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | membership | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 4 | probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
-| 4 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/shroom | 2026-10-05T08:03:56.940Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 4 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/120100 | 2026-10-05T07:45:12.897Z | `tools/kurodb/captures/120100.json` |  |
+| 4 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=4 | 2026-10-04T10:07:05.261Z |  |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` | D3-11 |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 4 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/4 | 2026-10-05T07:48:07.614Z | `tools/meowdb/captures/monster_4.json` |  |
+| 4 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 5 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
-| 5 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=5 | 2026-10-04T10:07:08.887Z |  |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` | D3-3 |
-| 5 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 5 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` | D3-5 |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
-| 5 | membership | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 5 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/red-snail | 2026-10-05T08:04:05.081Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 5 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/130101 | 2026-10-05T07:45:28.130Z | `tools/kurodb/captures/130101.json` |  |
+| 5 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=5 | 2026-10-04T10:07:08.887Z |  |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` | D3-11 |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 5 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/5 | 2026-10-05T07:48:29.502Z | `tools/meowdb/captures/monster_5.json` |  |
+| 5 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 | 9 | (record) | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
-| 9 | meowdb_reference.item_ids | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=9 | 2026-10-04T10:07:14.912Z |  |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-6 |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` | D3-3 |
-| 9 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 9 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` | D3-5 |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | membership | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` |  |
-| 9 | probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
-| 9 | mesos.amount | Hidden Street | https://bc.hidden-street.net/monster/orange-mushroom | 2026-10-05T08:04:12.549Z | `tools/hiddenstreet/captures/monsters.json` | D3-5 |
-| 9 | mesos.probability | KuroDB | https://playkuro.com/database/#monsters/1210102 | 2026-10-05T07:45:49.813Z | `tools/kurodb/captures/1210102.json` |  |
+| 9 | entries[].item_id | MeowDB MS Classic | https://meowdb.com/msclassic/api/drops?monsterId=9 | 2026-10-04T10:07:14.912Z |  |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` | D3-11 |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` | D3-11 |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
+| 9 | membership | MeowDB MS Classic | https://meowdb.com/msclassic/monsters/9 | 2026-10-05T07:48:54.363Z | `tools/meowdb/captures/monster_9.json` |  |
+| 9 | rarity | Henesys.gg | https://henesys.gg/loot | 2026-10-06T05:17:21.423Z | `tools/henesys/captures/item_rarity.json` |  |
 
 ### formulas
 
@@ -1611,176 +1611,34 @@ and, in drop records, every member without a chance, every unresolved item and m
 - breakables/0000001, gap: drop chances / quantities: not published
 - breakables/0000001, gap: whether skills or damage amount affect hits: not published
 
-### drops (168)
+### drops (26)
 
-- drops/0000001, gap: chance unresolved: "Egg" is on MeowDB's Wooden Box list but no read KuroDB page gives reactor 2001 a value for it, so it never drops (D3-7)
-- drops/0000001, gap: quantity per roll: KuroDB reactor rows give none; 1 per roll is a MisoStory adaptation (each entry's quantity.adaptation, verified: false)
-- drops/0000001, gap: KuroDB-only drops: KuroDB has no page listing every drop of reactor 2001; only the item pages of MeowDB's members were read, so no KuroDB-only row is known (excluded_kuro_only is empty for that reason)
-- drops/0000001, gap: mesos: none. MeowDB has no meso reports for breakables and KuroDB lists no meso drop for reactors; meso is null (the box never drops mesos)
-- drops/0000001, probability `egg` (Egg): no KuroDB chance for this member: it never drops
-- drops/1, gap: mesos: KuroDB's Tutorial Jr. Sentinel page (tools/kurodb/captures/9300018.json) has no "Meso drop" row, so the monster drops no mesos (D3-5); MeowDB has no meso report and Hidden Street says "Mesos: ?"
-- drops/2, gap: chance unresolved: "Blue Training Shirt (M)" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: item unresolved: "Blue Training Shirt (M)" (not_in_snapshot, MeowDB candidates 944), so it never rolls; see its item_resolution.note
-- drops/2, gap: chance unresolved: "Wooden Buckler" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: item unresolved: "Wooden Buckler" (not_in_snapshot, MeowDB candidates 916), so it never rolls; see its item_resolution.note
-- drops/2, gap: chance unresolved: "Wooden Mallet" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: item unresolved: "Wooden Mallet" (not_in_snapshot, MeowDB candidates 625), so it never rolls; see its item_resolution.note
-- drops/2, gap: chance unresolved: "Brown Apprentice Hat" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: item unresolved: "Brown Apprentice Hat" (not_in_snapshot, MeowDB candidates 727), so it never rolls; see its item_resolution.note
-- drops/2, gap: chance unresolved: "Red Cloth Pants (M)" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, gap: chance unresolved: "Arrow for Crossbow" is on Hidden Street's list but KuroDB's Snail page (tools/kurodb/captures/100100.json) has no row for it, so it never rolls (D3-6)
-- drops/2, item `blue-training-shirt-m` (Blue Training Shirt (M)): item not_in_snapshot: candidates 944
-- drops/2, probability `blue-training-shirt-m` (Blue Training Shirt (M)): no KuroDB chance for this member: it never drops
-- drops/2, item `wooden-buckler` (Wooden Buckler): item not_in_snapshot: candidates 916
-- drops/2, probability `wooden-buckler` (Wooden Buckler): no KuroDB chance for this member: it never drops
-- drops/2, item `wooden-mallet` (Wooden Mallet): item not_in_snapshot: candidates 625
-- drops/2, probability `wooden-mallet` (Wooden Mallet): no KuroDB chance for this member: it never drops
-- drops/2, item `brown-apprentice-hat` (Brown Apprentice Hat): item not_in_snapshot: candidates 727
-- drops/2, probability `brown-apprentice-hat` (Brown Apprentice Hat): no KuroDB chance for this member: it never drops
-- drops/2, probability `red-cloth-pants-m` (Red Cloth Pants (M)): no KuroDB chance for this member: it never drops
-- drops/2, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
-- drops/2, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
-- drops/2, probability `arrow-for-crossbow` (Arrow for Crossbow): no KuroDB chance for this member: it never drops
-- drops/3, gap: chance unresolved: "Blue Bandana" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: item unresolved: "Blue Bandana" (not_in_snapshot, MeowDB candidates 721), so it never rolls; see its item_resolution.note
-- drops/3, gap: chance unresolved: "Red Bandana" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: item unresolved: "Red Bandana" (not_in_snapshot, MeowDB candidates 720), so it never rolls; see its item_resolution.note
-- drops/3, gap: chance unresolved: "Blue Headband" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: chance unresolved: "Pan Lid" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: item unresolved: "Pan Lid" (not_in_snapshot), so it never rolls; see its item_resolution.note
-- drops/3, gap: chance unresolved: "Hardwood Wand" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: item unresolved: "Hardwood Wand" (not_in_snapshot, MeowDB candidates 650), so it never rolls; see its item_resolution.note
-- drops/3, gap: chance unresolved: "Blue Cloth Vest (M)" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: item unresolved: "Blue Cloth Vest (M)" (ambiguous, MeowDB candidates 949, 958), so it never rolls; see its item_resolution.note
-- drops/3, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Blue Snail page (tools/kurodb/captures/100101.json) has no row for it, so it never rolls (D3-6)
-- drops/3, item `blue-bandana` (Blue Bandana): item not_in_snapshot: candidates 721
-- drops/3, probability `blue-bandana` (Blue Bandana): no KuroDB chance for this member: it never drops
-- drops/3, item `red-bandana` (Red Bandana): item not_in_snapshot: candidates 720
-- drops/3, probability `red-bandana` (Red Bandana): no KuroDB chance for this member: it never drops
-- drops/3, probability `blue-headband` (Blue Headband): no KuroDB chance for this member: it never drops
-- drops/3, item `pan-lid` (Pan Lid): item not_in_snapshot
-- drops/3, probability `pan-lid` (Pan Lid): no KuroDB chance for this member: it never drops
-- drops/3, item `hardwood-wand` (Hardwood Wand): item not_in_snapshot: candidates 650
-- drops/3, probability `hardwood-wand` (Hardwood Wand): no KuroDB chance for this member: it never drops
-- drops/3, item `blue-cloth-vest-m` (Blue Cloth Vest (M)): item ambiguous: candidates 949, 958
-- drops/3, probability `blue-cloth-vest-m` (Blue Cloth Vest (M)): no KuroDB chance for this member: it never drops
-- drops/3, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
-- drops/3, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
-- drops/3, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
-- drops/4, gap: chance unresolved: "Yellow Bandana" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Yellow Bandana" (not_in_snapshot, MeowDB candidates 722), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Double Axe" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: chance unresolved: "Smelly Gomushin" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Smelly Gomushin" (not_in_snapshot, MeowDB candidates 1319), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Blue Swimming Cap" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Blue Swimming Cap" (not_in_snapshot, MeowDB candidates 717), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Work Gloves" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Work Gloves" (not_in_snapshot, MeowDB candidates 1435), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Blue Lolico Armor (M)" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Blue Lolico Armor (M)" (not_in_snapshot, MeowDB candidates 943), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Orange Lolica Armor (F)" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Orange Lolica Armor (F)" (not_in_snapshot, MeowDB candidates 951), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Wooden Samurai Sword" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Wooden Samurai Sword" (not_in_snapshot), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Wooden Sword" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: chance unresolved: "Black Ghetto Beanie" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: item unresolved: "Black Ghetto Beanie" (not_in_snapshot, MeowDB candidates 735), so it never rolls; see its item_resolution.note
-- drops/4, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, gap: chance unresolved: "Arrow for Crossbow" is on Hidden Street's list but KuroDB's Shroom page (tools/kurodb/captures/120100.json) has no row for it, so it never rolls (D3-6)
-- drops/4, item `yellow-bandana` (Yellow Bandana): item not_in_snapshot: candidates 722
-- drops/4, probability `yellow-bandana` (Yellow Bandana): no KuroDB chance for this member: it never drops
-- drops/4, probability `double-axe` (Double Axe): no KuroDB chance for this member: it never drops
-- drops/4, item `smelly-gomushin` (Smelly Gomushin): item not_in_snapshot: candidates 1319
-- drops/4, probability `smelly-gomushin` (Smelly Gomushin): no KuroDB chance for this member: it never drops
-- drops/4, item `blue-swimming-cap` (Blue Swimming Cap): item not_in_snapshot: candidates 717
-- drops/4, probability `blue-swimming-cap` (Blue Swimming Cap): no KuroDB chance for this member: it never drops
-- drops/4, item `work-gloves` (Work Gloves): item not_in_snapshot: candidates 1435
-- drops/4, probability `work-gloves` (Work Gloves): no KuroDB chance for this member: it never drops
-- drops/4, item `blue-lolico-armor-m` (Blue Lolico Armor (M)): item not_in_snapshot: candidates 943
-- drops/4, probability `blue-lolico-armor-m` (Blue Lolico Armor (M)): no KuroDB chance for this member: it never drops
-- drops/4, item `orange-lolica-armor-f` (Orange Lolica Armor (F)): item not_in_snapshot: candidates 951
-- drops/4, probability `orange-lolica-armor-f` (Orange Lolica Armor (F)): no KuroDB chance for this member: it never drops
-- drops/4, item `wooden-samurai-sword` (Wooden Samurai Sword): item not_in_snapshot
-- drops/4, probability `wooden-samurai-sword` (Wooden Samurai Sword): no KuroDB chance for this member: it never drops
-- drops/4, probability `wooden-sword` (Wooden Sword): no KuroDB chance for this member: it never drops
-- drops/4, item `black-ghetto-beanie` (Black Ghetto Beanie): item not_in_snapshot: candidates 735
-- drops/4, probability `black-ghetto-beanie` (Black Ghetto Beanie): no KuroDB chance for this member: it never drops
-- drops/4, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
-- drops/4, probability `arrow-for-crossbow` (Arrow for Crossbow): no KuroDB chance for this member: it never drops
-- drops/5, gap: chance unresolved: "Brown Skullcap" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: chance unresolved: "Metal Axe" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: item unresolved: "Metal Axe" (not_in_snapshot, MeowDB candidates 617), so it never rolls; see its item_resolution.note
-- drops/5, gap: chance unresolved: "Blue Headband" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: chance unresolved: "Red Bandana" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: item unresolved: "Red Bandana" (not_in_snapshot, MeowDB candidates 720), so it never rolls; see its item_resolution.note
-- drops/5, gap: chance unresolved: "Black Gomushin" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: item unresolved: "Black Gomushin" (not_in_snapshot, MeowDB candidates 1318), so it never rolls; see its item_resolution.note
-- drops/5, gap: chance unresolved: "Grey Thick Sweat Pants (M)" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: chance unresolved: "Black Cloth Pants (M)" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: item unresolved: "Black Cloth Pants (M)" (ambiguous, MeowDB candidates 1170, 1179), so it never rolls; see its item_resolution.note
-- drops/5, gap: chance unresolved: "Pistol" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: item unresolved: "Pistol" (not_in_snapshot), so it never rolls; see its item_resolution.note
-- drops/5, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Red Snail page (tools/kurodb/captures/130101.json) has no row for it, so it never rolls (D3-6)
-- drops/5, probability `brown-skullcap` (Brown Skullcap): no KuroDB chance for this member: it never drops
-- drops/5, item `metal-axe` (Metal Axe): item not_in_snapshot: candidates 617
-- drops/5, probability `metal-axe` (Metal Axe): no KuroDB chance for this member: it never drops
-- drops/5, probability `blue-headband` (Blue Headband): no KuroDB chance for this member: it never drops
-- drops/5, item `red-bandana` (Red Bandana): item not_in_snapshot: candidates 720
-- drops/5, probability `red-bandana` (Red Bandana): no KuroDB chance for this member: it never drops
-- drops/5, item `black-gomushin` (Black Gomushin): item not_in_snapshot: candidates 1318
-- drops/5, probability `black-gomushin` (Black Gomushin): no KuroDB chance for this member: it never drops
-- drops/5, probability `grey-thick-sweat-pants-m` (Grey Thick Sweat Pants (M)): no KuroDB chance for this member: it never drops
-- drops/5, item `black-cloth-pants-m` (Black Cloth Pants (M)): item ambiguous: candidates 1170, 1179
-- drops/5, probability `black-cloth-pants-m` (Black Cloth Pants (M)): no KuroDB chance for this member: it never drops
-- drops/5, item `pistol` (Pistol): item not_in_snapshot
-- drops/5, probability `pistol` (Pistol): no KuroDB chance for this member: it never drops
-- drops/5, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
-- drops/5, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
-- drops/5, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
-- drops/9, gap: item unresolved: "Omok Piece : Mushroom" (ambiguous, MeowDB candidates 486, 495, 498), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Red Swimming Cap" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Red Swimming Cap" (not_in_snapshot, MeowDB candidates 718), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Yellow Bandana" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Yellow Bandana" (not_in_snapshot, MeowDB candidates 722), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Red Headband" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: chance unresolved: "Crossbow" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Crossbow" (not_in_snapshot, MeowDB candidates 672), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Yellow Avelin (F)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Yellow Avelin (F)" (not_in_snapshot, MeowDB candidates 956), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Blue Cloth Pants (M)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Blue Cloth Pants (M)" (ambiguous, MeowDB candidates 1169, 1178), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Black Cloth Pants (F)" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Black Cloth Pants (F)" (ambiguous, MeowDB candidates 1170, 1179), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Garnier" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: item unresolved: "Garnier" (not_in_snapshot, MeowDB candidates 680), so it never rolls; see its item_resolution.note
-- drops/9, gap: chance unresolved: "Orange Potion" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: chance unresolved: "Blue Potion" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, gap: chance unresolved: "Arrow for Bow" is on Hidden Street's list but KuroDB's Orange Mushroom page (tools/kurodb/captures/1210102.json) has no row for it, so it never rolls (D3-6)
-- drops/9, item `omok-piece-mushroom` (Omok Piece : Mushroom): item ambiguous: candidates 486, 495, 498
-- drops/9, item `red-swimming-cap` (Red Swimming Cap): item not_in_snapshot: candidates 718
-- drops/9, probability `red-swimming-cap` (Red Swimming Cap): no KuroDB chance for this member: it never drops
-- drops/9, item `yellow-bandana` (Yellow Bandana): item not_in_snapshot: candidates 722
-- drops/9, probability `yellow-bandana` (Yellow Bandana): no KuroDB chance for this member: it never drops
-- drops/9, probability `red-headband` (Red Headband): no KuroDB chance for this member: it never drops
-- drops/9, item `crossbow` (Crossbow): item not_in_snapshot: candidates 672
-- drops/9, probability `crossbow` (Crossbow): no KuroDB chance for this member: it never drops
-- drops/9, item `yellow-avelin-f` (Yellow Avelin (F)): item not_in_snapshot: candidates 956
-- drops/9, probability `yellow-avelin-f` (Yellow Avelin (F)): no KuroDB chance for this member: it never drops
-- drops/9, item `blue-cloth-pants-m` (Blue Cloth Pants (M)): item ambiguous: candidates 1169, 1178
-- drops/9, probability `blue-cloth-pants-m` (Blue Cloth Pants (M)): no KuroDB chance for this member: it never drops
-- drops/9, item `black-cloth-pants-f` (Black Cloth Pants (F)): item ambiguous: candidates 1170, 1179
-- drops/9, probability `black-cloth-pants-f` (Black Cloth Pants (F)): no KuroDB chance for this member: it never drops
-- drops/9, item `garnier` (Garnier): item not_in_snapshot: candidates 680
-- drops/9, probability `garnier` (Garnier): no KuroDB chance for this member: it never drops
-- drops/9, probability `orange-potion` (Orange Potion): no KuroDB chance for this member: it never drops
-- drops/9, probability `blue-potion` (Blue Potion): no KuroDB chance for this member: it never drops
-- drops/9, probability `arrow-for-bow` (Arrow for Bow): no KuroDB chance for this member: it never drops
+- drops/0000001, gap: mesos: MeowDB has no meso reports for breakables; the Wooden Box drops no mesos (decision D3-12)
+- drops/0000001, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/0000001, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/1, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/1, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/1, meso: meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/1, 2026-10-05T07:49:19.434Z: "No meso reports yet."); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)
+- drops/1, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
+- drops/2, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/2, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/2, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
+- drops/3, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/3, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/3, meso: meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/3, 2026-10-05T07:47:34.120Z: "No meso reports yet."); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)
+- drops/3, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
+- drops/4, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/4, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/4, meso: meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/4, 2026-10-05T07:48:07.614Z: "No meso reports yet."); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)
+- drops/4, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
+- drops/5, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/5, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/5, meso: meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/5, 2026-10-05T07:48:29.502Z: "No meso reports yet."); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)
+- drops/5, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
+- drops/9, gap: drop chance: MeowDB and Henesys.gg publish none; the chance is the owner-approved table game/data/misostory/drop_rates.json (category x rarity, decision D3-11), applied at runtime
+- drops/9, gap: quantity: no source gives one; one item per drop (decision D3-11)
+- drops/9, meso: meso amount: MeowDB has no player meso report for this monster (newest source https://meowdb.com/msclassic/monsters/9, 2026-10-05T07:48:54.363Z: "No meso reports yet."); the runtime applies the meso rule of decision D3-12 (game/data/misostory/meso_rules.json: the level formula, or no mesos for an owner the rule exempts)
+- drops/9, meso: meso chance: MeowDB publishes none (its report form's dropChancePct is a constant the form fills in, not an observed chance); the runtime uses game/data/misostory/meso_rules.json (decision D3-12)
 
 ### formulas (40)
 
@@ -2006,34 +1864,34 @@ and, in drop records, every member without a chance, every unresolved item and m
 
 ### monsters (32)
 
-- monsters/1, gap: mesos per kill: no player reports on MeowDB (see drops/1.json)
-- monsters/1, gap: drop chances and quantities: MeowDB gives none; drops/1.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/1, gap: mesos per kill: no player reports on MeowDB (see drops/1.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/1, gap: drop chances and quantities: MeowDB gives none; drops/1.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/1, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/1, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/1, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
 - monsters/1, gap: Peace vs touch damage: this page marks the monster "Peace" ("Non-aggressive, won't attack unless provoked") and its analysis says "Non-aggressive (PEACE), won't attack unless you hit it first. Safe to walk past.", yet the same page shows a 21 x 36 px touch zone, Touch DMG 1-1 (Base 1) and the generic Combat Details text "The touch zone deals contact damage when you walk into it. Attack power is a percent of the monster's own damage stat: physical attacks use P.DMG, magic attacks use M.DMG.". MeowDB does not say whether walking into a Peace monster's touch zone damages the player
-- monsters/2, gap: mesos per kill: 1 player report(s) only; MeowDB publishes no meso formula or meso drop chance (drops/2.json takes the meso chance from KuroDB, decision D3-5)
-- monsters/2, gap: drop chances and quantities: MeowDB gives none; drops/2.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/2, gap: mesos per kill: 1 player report(s) only; MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/2, gap: drop chances and quantities: MeowDB gives none; drops/2.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/2, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/2, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/2, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
-- monsters/3, gap: mesos per kill: no player reports on MeowDB (see drops/3.json)
-- monsters/3, gap: drop chances and quantities: MeowDB gives none; drops/3.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/3, gap: mesos per kill: no player reports on MeowDB (see drops/3.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/3, gap: drop chances and quantities: MeowDB gives none; drops/3.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/3, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/3, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/3, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
-- monsters/4, gap: mesos per kill: no player reports on MeowDB (see drops/4.json)
-- monsters/4, gap: drop chances and quantities: MeowDB gives none; drops/4.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/4, gap: mesos per kill: no player reports on MeowDB (see drops/4.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/4, gap: drop chances and quantities: MeowDB gives none; drops/4.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/4, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/4, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/4, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
-- monsters/5, gap: mesos per kill: no player reports on MeowDB (see drops/5.json)
-- monsters/5, gap: drop chances and quantities: MeowDB gives none; drops/5.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/5, gap: mesos per kill: no player reports on MeowDB (see drops/5.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/5, gap: drop chances and quantities: MeowDB gives none; drops/5.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/5, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/5, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/5, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
-- monsters/9, gap: mesos per kill: no player reports on MeowDB (see drops/9.json)
-- monsters/9, gap: drop chances and quantities: MeowDB gives none; drops/9.json takes them from the dated KuroDB captures (decisions D3-3, D3-6)
+- monsters/9, gap: mesos per kill: no player reports on MeowDB (see drops/9.json); MeowDB publishes no meso formula or meso drop chance (the runtime applies the meso rule of decision D3-12)
+- monsters/9, gap: drop chances and quantities: MeowDB gives none; drops/9.json records membership and rarity, and the runtime applies the owner-approved chance table (decision D3-11)
 - monsters/9, gap: kb (knockback threshold), boss/undead tags, hp/mp recovery and revive data are not shown on the detail page; taken from MeowDB's simulator data chunk (field_sources)
 - monsters/9, gap: attacks: the page lists no attack entries (skills, ranged or magic attacks) for this monster, only the touch zone; touch-damage rules live in the formulas domain (/formulas/damage-taken)
 - monsters/9, gap: monster knockback: MeowDB publishes the KB threshold (knockback_threshold_damage) and, on the live page, how long the monster is staggered (stagger_ms). How far or how high a monster is pushed when hit is not published; the "Knockback Airtime" model on https://meowdb.com/msclassic/formulas/damage-taken sits under "After You Get Hit" and describes the PLAYER being knocked back, not monsters
@@ -2176,9 +2034,8 @@ and its reason (the nearest one when the object inherits it).
 | death.json | respawn_player_spawn_index | no |  | MeowDB names each map's respawn map (canonical maps/<id>.json return_map_id; formulas/death.json respawn_location) but not which of that map's playerSpawns a respawn uses (MAP_ARCHITECTURE.md section 4.8 and open question 1; docs/canonical/README.md known gaps). Index 0 until a MeowDB page settles it. Read by the world runtime (WorldTuning.respawn_spawn_index(), MapDefinition.respawn_location): MapSession.respawn() arrives at returnMap player_spawns[value], and a save made while dead stores the same point. Moved here from presentation.json respawn.player_spawn_index (docs/canonical/README.md names this file as its home). |
 | death.json | respawn_vitals | no |  | formulas/death.json gaps: 'HP/MP after respawning is not documented.' Set on the character when the death is committed, so the save made while dead already holds them and a reload is never dead on arrival. Classic-feel choice: the player comes back in town with 50 HP (never above Max HP, so a level-1 Beginner is full) and MP as it was at death, so a death costs a potion or a rest instead of leaving the player helpless. A MisoStory feel decision, not a MeowDB value; replace it when MeowDB documents the rule. Modes: fixed (value, capped at Max HP), fraction_of_max (value 0..1), full, keep. HP is always at least 1 after a respawn. |
 | death.json | rules | no |  | The penalties applied, in this order, at the moment of death, as classic MapleStory takes them: MapSession runs them once per death through its death_commit hook (DeathController.commit_rules) when it enters DEAD, sets the character's location to the respawn point and the game is saved at once, so quitting while dead cannot dodge them and the death notice's OK only travels (docs/runtime/GAME_SHELL.md; MAP_ARCHITECTURE.md section 4.8). exp_penalty is MeowDB's own model (formulas/death.json exp_penalty, applied by Progression.apply_death_penalty). MeowDB documents no item, meso or buff loss (formulas/death.json gaps), so no such rule is listed. A later penalty is a new rule registered in DeathRules and named here. |
-| drop_rates.json | (file) | no |  | Iteration Two kept placeholder drop chances, quantities and meso amounts here because MeowDB publishes none. Iteration Three replaced all of them with sourced values in the canonical records (decisions D3-3 to D3-9, docs/ITERATION_LOG.md). What remains are the interpretations the runtime needs to turn those sourced values into rolls; each is a MisoStory reading, not a MapleStory fact. |
-| drop_rates.json | meso_amount_distribution | no |  | Hidden Street gives a meso amount as a range ('Mesos: 4-6') and MeowDB's player report as one value per kill; neither says how an amount is chosen within a range. MisoStory draws a uniform integer in [min, max] (both ends included), the reading recorded in each record's meso.amount_source.interpretation. DropRoller implements exactly this; DropRates.validate fails if this value names anything else. |
-| drop_rates.json | quest_gate_rule | no |  | MeowDB does not say who can loot a quest item; KuroDB flags some rows '\| Quest N' with its own quest ids, but the brief limits KuroDB to probabilities. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not. |
+| drop_rates.json | (file) | no |  | MeowDB MS Classic publishes no drop chances and Henesys.gg publishes only a rarity label per item, so the project owner approved this table on 2026-10-06 as a MisoStory adaptation (decision D3-11): a chance per item category and rarity. It is not a MapleStory fact and is not verified against anything. |
+| drop_rates.json | quest_gate_rule | no |  | MeowDB does not say who can loot a quest item. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not. |
 | drops.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | (file) | no |  | (per value: its <key>_reason entries) |
 | loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. |
@@ -2190,6 +2047,7 @@ and its reason (the nearest one when the object inherits it).
 | loot_visuals.json | placement | no |  | A scattered drop must land on the kill's own tier, as classic drops stay on the monster's foothold: a scatter point whose ground is more than 0.6 m (the spawn tier tolerance in presentation.json) above or below the kill point's ground is pulled back toward the kill point (half the offset, then none). The toss starts 0.5 m above the monster's feet, about its body centre. |
 | loot_visuals.json | shapes | no |  | One shape per item family, as the brief asks: equipment drops as a small chest, potions as bottles, food as a round fruit, scrolls as rolled paper, arrows as a bundle, ores and gems as faceted stones, other Etc items as a tied pouch. Type and subtype are read from the canonical item record. |
 | loot_visuals.json | sizes | no |  | Sizes relative to the 1.5 m player proxy and the gameplay camera (12-19.5 m tall views, about 50-75 px per meter at 900p): an item about 0.58 m (30-40 px, close to a classic 32 px item icon next to a ~70 px character), coins about half that. Drops from one kill land 25 px = 0.5 m apart (drops.json), so neighbours just touch. |
+| meso_rules.json | (file) | no |  | MeowDB MS Classic has a player meso report for only one Maple Island monster and publishes no meso drop chance, so the project owner approved this rule on 2026-10-06 as a MisoStory adaptation (decision D3-12). It is not a MapleStory fact and is not verified against anything. |
 | movement.json | (file) | no |  | (per value: its reasons map) |
 | new_character.json | name_rules | no |  | MeowDB documents no character-name rules. 4 to 12 ASCII letters and digits follows the classic creation screen and keeps names safe for save-slot listings and the UI fonts. |
 | new_character.json | quick_start | no |  | Parameters Game.new_game() uses when called with none (boot without a creation screen, debug 'reset_save', tests). They follow the Beginner's guide's advice: 'Safe split for new players: all of it in your primary until level 10', 'STR gives a Beginner stronger basic attacks than INT does', and 'Choose the Wooden Club at character creation' (item 585). |
@@ -2218,7 +2076,7 @@ and its reason (the nearest one when the object inherits it).
 | presentation.json | environment | no |  | Blender's sun strength (index.json environment, W/m^2) has no exact Godot equivalent; the Phase 1 probe matched the Blender look with energy = strength / pi (docs/runtime/blender_export.md, known issue 9). Per-map presets come from data/misostory/maps/<id>.json environment_preset; none differ yet. |
 | presentation.json | fall_recovery | no |  | MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage. A sea-level kill plane catches anything that leaves every map. MeowDB documents fall damage (canonical formulas/movement.json fall_damage, from https://meowdb.com/msclassic/formulas/damage-taken: a landing after at least 45 consecutive fast-falling movement updates (downward speed at least 500 px/s) deals base 24, rising to 36; 'Maps can disable fall damage'); MisoStory applies none, neither on a landing nor on a recovery. The canonical rule cannot be applied as published: the length of one movement update is not documented (fall_damage.gaps) and MeowDB does not say which maps disable fall damage, so whether Maple Island's maps have it is unknown. No damage is the adaptation, not a canonical statement. |
 | presentation.json | grounding | no |  | MAP_ARCHITECTURE sections 4.9 and 4.13 (L1): a point counts as grounded when a ray from 1 m above to 3 m below hits walkable collision first, and the grounded point is within 0.3 m of that surface; a 0.3 x 1.5 m capsule lifted 0.05 m must be clear of blocking and containment collision. The capsule approximates the player body for static checks; the controller owns the real one (data/misostory/movement.json). A blocking surface lying within 0.05 m above walkable ground counts as that ground (interior floors carry a coplanar Walls slab 3 mm above Ground; Heena stands in her bush hull). When an arrival point or player spawn is not grounded or its capsule is blocked (a door mound, a hedge, a gate hull), the nearest grounded, clear point inside the map and outside every trigger is searched on rings up to 5 m around it in 0.5 m steps, inward first, and the move is logged as a warning (a Blender fix is the real cure). |
-| presentation.json | map_mob_rate | no |  | MisoStory decision on a MeowDB conflict (Iteration Three spawns audit, docs/review/it3_audit.json 'spawns'). Every Maple Island map carries a MeowDB mob rate (0.6x on 000000030, 1.5x on 000000050, 1.3x on 000001000 and 000001001, 1.2x on 000001014, 1.0x elsewhere). MeowDB's mechanics pages say it is ignored: the spawn-engine guide (updated 2026-08-24) 'Other MapleStory servers multiplied map capacity by it. MSC does not. The live game ignores it; capacity comes only from spawn-point count and the player scalar', the glossary (2026-09-04) 'There is no separate map-wide multiplier', and /formulas/spawns 'Capacity = floor(SpawnPoints x PlayerScalar)'. MeowDB's map pages and the monster-page MOB RATE tooltip say it multiplies capacity ('expect about 63 monsters up at a time instead of 42', self-labelled 'our best reading from closed-beta play'), which also contradicts the same page's own player scalar and exceeds the spawn-point count. Neither reading touches respawn speed (every row shows ~7.5s at every rate). apply false keeps the mechanics pages' reading: capacity = floor(points x PlayerScalar). apply true multiplies that capacity by the map's canonical mob_rate, capped at the spawn-point count because the runtime keeps one monster per MeowDB spawn point (SpawnModel.capacity_for_map). The canonical formulas/spawn_rate.json keeps MeowDB's own statement (map_spawn_rate_multiplier.applied_by_msc) as data, not as this switch. |
+| presentation.json | map_mob_rate | no |  | MisoStory decision on a MeowDB conflict (Iteration Three spawns audit: 'spawns' in docs/review/it3_audit.json of commit f9b2bc5, in git history). Every Maple Island map carries a MeowDB mob rate (0.6x on 000000030, 1.5x on 000000050, 1.3x on 000001000 and 000001001, 1.2x on 000001014, 1.0x elsewhere). MeowDB's mechanics pages say it is ignored: the spawn-engine guide (updated 2026-08-24) 'Other MapleStory servers multiplied map capacity by it. MSC does not. The live game ignores it; capacity comes only from spawn-point count and the player scalar', the glossary (2026-09-04) 'There is no separate map-wide multiplier', and /formulas/spawns 'Capacity = floor(SpawnPoints x PlayerScalar)'. MeowDB's map pages and the monster-page MOB RATE tooltip say it multiplies capacity ('expect about 63 monsters up at a time instead of 42', self-labelled 'our best reading from closed-beta play'), which also contradicts the same page's own player scalar and exceeds the spawn-point count. Neither reading touches respawn speed (every row shows ~7.5s at every rate). apply false keeps the mechanics pages' reading: capacity = floor(points x PlayerScalar). apply true multiplies that capacity by the map's canonical mob_rate, capped at the spawn-point count because the runtime keeps one monster per MeowDB spawn point (SpawnModel.capacity_for_map). The canonical formulas/spawn_rate.json keeps MeowDB's own statement (map_spawn_rate_multiplier.applied_by_msc) as data, not as this switch. |
 | presentation.json | npc | no |  | MeowDB documents no talk range (classic NPCs are clicked). The interact key talks to a current-map NPC whose talk zone overlaps the player's body: a sphere of 1.6 m (a little more than the 1.5 m body height) centred 0.8 m above the NPC's feet, so the player has to walk up to the NPC. talk_zones lists NPCs whose zone differs, each profile with its own reason (WorldTuning.talk_zone). NPCs placed where a player cannot stand are fixed in the source world, not with a larger zone (docs/runtime/blender_export.md, round 4). Until the Blender export had markers for every MeowDB NPC (MAP_ARCHITECTURE section 3.3: Todd, Sam, Mai), a missing one stood next to player_spawns[0], 2.5 m apart along the map frame, with a warning; the runtime keeps that fallback for future content. |
 | presentation.json | npc.talk_zones.across_counter | no |  | Shopkeepers serve across their counter, as in classic (Test G: buy and sell). Pan (16), Sid (20) and Lucy (21), the three MeowDB shop NPCs of Maple Island (canonical shops/*.json npc_id), stand behind counters: a player pressed against the counter front stands 1.90, 2.10 and 1.90 m from them horizontally, and they stand 0.45, 0.45 and 0.8 m above the shop floor. With the default 1.6 m sphere that body was 0.00, 0.20 and 0.04 m outside the zone (playtest probe 2026-10-04), so Sid and Lucy could not be talked to on foot and Pan only with no margin. A 2.4 m sphere, still centred 0.8 m above the NPC's feet, takes in a player standing anywhere along the middle of the counter front, and one pressed against it in front of the keeper is 0.83 (Pan), 0.61 (Sid) and 0.79 m (Lucy) inside (the npcs playtest scenario checks at least 0.4 m, 2026-10-04). Each keeper is the only NPC of his or her shop, so the larger zone cannot take the prompt from another NPC. |
 | presentation.json | region_invariant | no |  | MAP_ARCHITECTURE section 4.3: ten times a second the player's last ground point must lie in current_map, a trail touching it, or the map of an armed gate. Five failing samples in a row push_error the position (dev and test builds fail on it; the traversal bot counts it); release builds also recover to SafeGround. |
