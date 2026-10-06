@@ -636,7 +636,7 @@ func _step_move(delta: float, intent: Intent) -> void:
 	if grounded:
 		_ground_move(delta)
 	else:
-		_air_move(delta)
+		_air_move(delta, intent.wish)
 
 
 func _post_step(delta: float, start_pos: Vector3) -> void:
@@ -742,7 +742,9 @@ func _clip(v: Vector3, plane: Vector3, planes: Array[Vector3]) -> Vector3:
 
 # --- airborne movement -------------------------------------------------------------------------------------------
 
-func _air_move(delta: float) -> void:
+## One airborne tick. `wish` is this tick's movement intent: a face the player pushes into stops the body, not the
+## push, so a jump pressed against a ledge moves over the lip as soon as the body clears it (#16).
+func _air_move(delta: float, wish: Vector3 = Vector3.ZERO) -> void:
 	var v0 := vertical_speed
 	vertical_speed = maxf(vertical_speed - model.gravity * delta, -model.max_fall_speed)
 	# Exact for constant acceleration: samples the true parabola, so the apex is hit within a millimetre.
@@ -765,16 +767,25 @@ func _air_move(delta: float) -> void:
 			# A walkable contact on the capsule alone is not a landing: only the feet stand (classic: you land when
 			# your feet are over the foothold). A capsule resting on a ledge edge outside the feet disc slides off
 			# along the contact; one that truly rests (wedged) becomes ground through the wedge rule below.
+			var plane := n
 			var nh := Vector3(n.x, 0.0, n.z)
 			if nh.length_squared() > 0.0001 and not _is_floor(n):
 				# Walls and steep slopes absorb the horizontal velocity pushing into them (no climbing them by
-				# sliding, no sticking); walkable surfaces under the capsule keep it.
+				# sliding, no sticking); walkable surfaces under the capsule keep it. A face the player pushes into
+				# keeps it instead (#16): absorbed, the push was rebuilt only by air_accel, about 0.15 m of creep by
+				# the apex, so the feet missed lips that are rounded or reached late. Kept, each tick's motion is still
+				# clipped: against the face flattened to vertical while rising, so a steep face or lip never lifts
+				# the body above the canonical apex; absorbed as before when coming down onto a steep slope, where
+				# a kept push would hold the body on it.
 				nh = nh.normalized()
+				var pushed := wish.dot(nh) < 0.0
+				if pushed and n.y > 0.0 and dy > 0.0:
+					plane = nh
 				var into := move_velocity.dot(nh)
-				if into < 0.0:
+				if into < 0.0 and (not pushed or (n.y > 0.0 and dy <= 0.0)):
 					move_velocity -= nh * into
-			remaining = _clip(remaining, n, planes)
-			planes.append(n)
+			remaining = _clip(remaining, plane, planes)
+			planes.append(plane)
 	if vertical_speed > 0.0:
 		return
 	var feet := global_position.y
