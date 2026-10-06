@@ -7,8 +7,8 @@ extends PlaytestScenario
 ## (Recovery) heals exactly its canonical total over 30 s while the player walks (walking pauses natural recovery) and
 ## starts its 2 min cooldown, and key 3 (Nimble Feet) raises the walk speed by the canonical Speed bonus. Quit Game and
 ## Continue: the skill levels, the quickslot bindings and the running cooldowns come back, and the restored cooldown
-## still refuses key 2; once it runs out key 2 casts Recovery again, and a death (an api setup step) ends that heal while
-## the cooldowns keep counting. Every number is read from canonical data (SkillDef), never written here.
+## still refuses key 2; once it runs out key 2 casts Recovery again, and a death (setup: the console's "hp 0") ends
+## that heal while the cooldowns keep counting. Every number is read from canonical data (SkillDef), never written here.
 
 const FIELD := "000000040"
 const TOWN := "000000010"
@@ -206,9 +206,7 @@ func _recovery(d: PlaytestDriver) -> void:
 	var db := d.db()
 	var def := SkillDef.of(RECOVERY, db)
 	var ticker: EffectTicker = d.player().get_node(^"EffectTicker")
-	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp", "setup: HP %d -> 20 (no console HP setter)" % c.hp)
-	d.game().change_hp(20 - c.hp)
-	d._end(i, true, "HP %d / %d" % [c.hp, StatCalculator.max_hp(c, db)])
+	await d.console("hp 20")
 	var mp0 := c.mp
 	var hp0 := c.hp
 	var healed0 := ticker.healed
@@ -316,9 +314,8 @@ func _death_ends_effects(d: PlaytestDriver) -> void:
 	d.check("key 2 casts Recovery again once its cooldown is over", EffectBook.has(c, PlayerSkills.effect_id(RECOVERY))
 		and c.mp == mp0 - def.mp_cost(1), "MP %d -> %d, %s" % [mp0, c.mp, str(c.effects)])
 	var nimble_left := EffectBook.cooldown_left(c, NIMBLE)
-	var i := d._begin(PlaytestReport.KIND_API, "Game.damage_player", "setup: a death with Recovery running (no console command kills the player)")
-	d.game().damage_player(c.hp)
-	d._end(i, true, "HP %d" % c.hp)
+	# Setup: a death with Recovery running, by the console's hp command (HP 0 is a death, as a lethal hit).
+	await d.console("hp 0")
 	await d.wait(1.0)
 	d.check("the player died", bool(d.game().is_character_dead()), "HP %d" % c.hp)
 	d.check("the death ended Recovery's heal", not EffectBook.has(c, PlayerSkills.effect_id(RECOVERY)), str(c.effects))

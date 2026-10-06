@@ -727,7 +727,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
   `regen` scenario checks both sides at the end of its phase 1 (HP 40% on 000000001's ladder near its top: 3 s on
   the ladder leave the clock and HP as they were, then the rest climbs down and heals 20 -> 40 of 50; without the
   fix the player stays on the ladder and heals nothing). The check lives in `regen`, not in `kit`, because its
-  setup needs an api step (no console command lowers HP or grabs a ladder) and `kit` is the api-free reference run
+  setup needs an api step (no console command grabs a ladder) and `kit` is the api-free reference run
   (`test_playtest_smoke.gd`).
 - **Runs of one seed: repeatable since the clock fix, as far as measured.** Before wave 2's integration fix, two
   headless seed-1 runs of the same chain (the engineer's and the review's) diverged in phase 2: the same trail walk

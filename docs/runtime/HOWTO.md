@@ -377,6 +377,7 @@ level 8                   # set the level consistently (AP/SP/HP/MP)
 quest complete 1006       # quest accept|complete|forfeit|reset <id> [force], quests
 skills                    # skill levels, SP, cooldowns and active effects
 cast recovery             # cast a learned skill now (by id or name)
+hp 10                     # set HP (clamped to 0..Max HP; 0 is a death); mp 3 sets MP; "max" fills either
 ```
 
 ## Drops and Wooden Boxes
