@@ -137,7 +137,7 @@ this order:
 |---|---|
 | `&"other"` | no movement model, not in the tree, or not processing (frozen for a warp, the tree paused) |
 | `&"dead"` | after `die()` until `revive()` |
-| `&"seated"` | sitting on a chair (below). On the one tick an attack or cast starts from the chair (before the player stands up), `&"attacking"` |
+| `&"seated"` | sitting on a chair (below), exactly while `is_seated()`. An attack or a cast from the chair stands the player up before it starts, so its first tick reads `&"attacking"` with `is_seated()` false |
 | `&"hitstun"` | a knockback in flight |
 | `&"climbing"` | on a ladder, rope or vine |
 | `&"attacking"` | `PlayerCombat.is_attacking()`: a basic attack's lockout, or a skill cast's (the skills package makes it true while casting). A planted ground attack has speed 0 but is not standing still |
@@ -172,12 +172,14 @@ SafeGround and the floor sync are unchanged.
 - **Standing up** (`stood_up(reason)`, also `Events.player_stood_up`): a move press (`move`) or a jump press (`jump`):
   that press does nothing else on that tick, and a held key walks from the next tick on (a held jump needs a new
   press); X again (`sit_key`); using the chair again (`chair`); PlayerCombat attacking (`attack`: the attack key
-  swings and stands the player up; PlayerCombat filters the mouse, so a click on a window never counts; a skill cast
-  stands up the same way); `apply_knockback` (`knockback`); `die` (`death`); `grab_climbable` (`climb`); `teleport`
-  (`teleport`: warps, respawns, loads, fall recovery); `MapSession.transition_started` (`warp`, before the fade);
-  `Game.character_replaced` (`character`); `Events.item_lost` when the last copy of the chair leaves the bag
-  (`chair_lost`); and leaving the ground, e.g. the floor gone from under the chair (`fall`). Opening a dialogue or a
-  window does not stand the player up.
+  swings and `PlayerCombat.attack` stands the player up before the swing; PlayerCombat filters the mouse, so a click
+  on a window never counts; a skill cast stands up the same way before the cast, reason `skill`); `apply_knockback`
+  (`knockback`); `die` (`death`); `grab_climbable` (`climb`); `teleport` (`teleport`: warps, respawns, loads, fall
+  recovery); `MapSession.transition_started` (`warp`, before the fade; pressing Up at a portal while seated warps the
+  same way); `Game.character_replaced` (`character`); `Events.item_lost` when the last copy of the chair leaves the bag
+  (`chair_lost`); and leaving the ground, e.g. the floor gone from under the chair (`fall`), on the second tick off
+  it: a seated player is still, so one tick off the ground is a flicker of the ground state (`SEAT_FALL_TICKS`), not a
+  fall. Opening a dialogue or a window does not stand the player up.
 - **Not saved.** The seated state is never written to the save (contract C3): a loaded game arrives standing, and the
   chair itself stays in the Set-up tab.
 - **Pose.** `PlayerVisual` settles the body 0.2 m and leans it back 8° over 0.12 s onto a small procedural chair
@@ -219,7 +221,7 @@ combat) should read `player.input_source` too. The bot can then press their keys
 | `set_input_source(src)`, `input_source` | bot, portals, combat | |
 | `set_stats(speed, jump)`, `refresh_stats(character, db)` | character system | automatic on `Events.stats_changed` |
 | `set_climbables(list)`, `add_climbables_from_sidecar(arr)`, `grab_climbable(c, at_top)`, `grabbable_climbable()` | world runtime, prompts | |
-| `follow_anchor()` | CameraRig | feet x/z at the last ground height, so jumps never bob the camera |
+| `follow_anchor()` | CameraRig | feet x/z at the last ground height, so jumps never bob the camera; after a ladder-top exit the x/z glide from the climbing spot to the feet at walking speed |
 | `activity()` | NaturalRecovery, skills, HUD, playtests | contract C4 (above) |
 | `sit(chair_id)`, `stand_up(reason)`, `is_seated()`, `seated_chair_id()`, `can_sit()`, `sit_key()`; signals `sat_down(chair_id)`, `stood_up(reason)` | Chairs, skills, HUD | contract C5 (above); the live player also emits `Events.player_sat_down` / `player_stood_up`. `chair_owner` (tests) replaces `Game.character` for the sit key |
 | `set_view_axes(right, forward)` | CameraRig | screen-relative input axes |
@@ -241,6 +243,9 @@ pitched 40° down, looking toward Godot +X −Z.
   (Southperry and the wide fields): the character is 7.7–12.5% of the view height, about 70–110 px at 900 p.
 - **Follow.** The rig follows `target.follow_anchor()`. A dead zone of 0.15 × the view (`dead_zone_fraction`) comes
   first, then an exponential approach at 7 Hz. The height follows the ground height at 4 Hz, never the jump height.
+  A ladder-top exit moves the body about 0.8 m onto `top_exit` in one tick; `follow_anchor()` glides its x/z over
+  that step at walking speed instead, so the camera follows the exit as it follows a player walking onto the top, never
+  faster (where the player ends up is unchanged).
   The rig updates in `_physics_process` after the player (priority 100), or in `_process` when physics interpolation
   is on.
 - **Bounds (§4.11).** `set_bounds(bounds, frame_width = -1, blend_s = 0)` accepts a world x/z `PackedVector2Array`, an
@@ -366,12 +371,12 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_climb.gd` | sidecar parsing; a ladder end to end (Up grab, canonical climb time, exit to top_exit, Down grab from the top, climb down); interact and W/S; grab range; jump off sideways; descend-only; ropes without foot ground; mid-air catch; no re-grab after a jump-off with Up held (and Up held climbs, as on the keyboard); `grabbable_climbable()`/`grab_climbable()` and the exact top_exit |
 | `test_player_hit.gd` | knockback rise and airtime per MeowDB's model, push, hit-stun gating input, direction conventions, invulnerability timer and source, knocked off ladders, death and revive, teleport reset, SafeGround rules and both filter forms, kill_y |
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
-| `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat; its first tick is "attacking", not seated) and a cast stand up; knockback, death, teleport, a climb and leaving the ground stand up; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
+| `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat) and a real cast (PlayerSkills) stand up before they start, so on their first tick the activity is "attacking" and `is_seated()` is false (activity and the seated query agree); knockback, death, teleport, a climb and leaving the ground (on its second tick) stand up, while a one-tick flicker of the ground state leaves a still, seated player seated; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
 | `test_chairs_use.gd` | chairs are the Setup items with setup data (522, 525); the canonical bonus; the first chair in slot order; refusals (unknown, not a chair, not owned, level, dead, walking); use sits and stands without consuming or emitting item events; moving to another chair; a fixture ItemService never moves the live player; a quickslot-bound chair sits the live player; the inventory window's double-click and Sit / Stand button |
 | `test_player_route_bot.gd` | the bot on real exported collision (INCLUDE_WORLD=1); route geometry helpers; on synthetic collision (no world needed): jumps a 0.8 m rise, climbs a ladder up and down, reports a stall at a wall |
 | `test_player_scene.gd` | the authored `player.tscn` (player layer and mask, capsule over the step band, full-height Hurtbox, walks at the canonical speed) and every method/property the world runtime, MapSession, combat and the camera call; `camera_rig.tscn` (orthographic, KEEP_HEIGHT, camera.json near plane, MapSession duck type); bounds set before the first snap keep their size; a freed target does not crash the rig |
 | `test_camera_math.gd` | iso axes and pitch from the sidecar basis, view extents, bounds forms, clamp with overscan, centring, a real footprint, dead zone, ortho size, frame-rate independence |
-| `test_camera_rig.gd` | sidecar configuration and axes handed to the player, dead-zone follow, no bob on jumps, ground-height follow, bounds clamp and unbounded, MapSession's frame-width size with blend and clamp, the transparency fallback for a material that cannot be dithered, `map_overrides` (each has a reason, a MeowDB id and a size within min/max; clamping; only MapSession's camera reads a map id) |
+| `test_camera_rig.gd` | sidecar configuration and axes handed to the player, dead-zone follow, no bob on jumps, a ladder-top exit followed no faster than a walking player (ground and height, the player still ending on `top_exit`), ground-height follow, bounds clamp and unbounded, MapSession's frame-width size with blend and clamp, the transparency fallback for a material that cannot be dithered, `map_overrides` (each has a reason, a MeowDB id and a size within min/max; clamping; only MapSession's camera reads a map id) |
 | `test_camera_occlusion.gd` | the pure selection (`OcclusionMath`): every `occluders` rule (trees, architecture, tall foliage and props, never terrain, plinths, rocks, walkable or climbable), the tall rule reading the whole instance (a giant mushroom's short cap fades with its stem, a walkable cap never does), rooms only for room-sized Architecture (a town gate or gazebo is none), the hole floor (the deck in front stays, a canopy above the feet is cut), unit keys, body samples over the whole silhouette, the disc on the screen plane, view boxes in front / behind / aside, holes and the cut mirroring the shader, fade steps, the ellipsoid; `OccluderDither` stand-ins (parameters copied, lit and unshaded variants, cache, unconvertible materials, holes handed out); the fader on meshes through the rig: a tree in front dithers in and restores its own material, the fade time, an occluder beside the player inside the hole radius (dithered, not "covering") vs outside it and behind the player, an edge-of-body occluder the old three rays missed, trunk and canopy fading together, a tree hiding a nearby monster (physics query, a hole per monster), rooms and walkable roofs never fading, the transparency fallback and `clear()` |
 | `test_camera_silhouette.gd` | `PlayerVisual`: lit surfaces write the stencil and chain the fill and mark passes, an unshaded ink shell writes the stencil with no fill and no hull (and, with the world export, every surface of the real proxy), fill / mark / outline flags and priorities, outline meshes hidden, shadowless and on the player layer, the smoothed hull (split normals averaged), the see-through toggle and its fade; the rig turning the outline on behind a tree and behind a terrain block (which never fades) and off in the open; the library proxy lookup (`Player_Proxy_001`) and, with the world export, the real proxy instead of the placeholder |
 

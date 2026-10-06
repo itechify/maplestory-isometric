@@ -21,7 +21,7 @@ extends RefCounted
 ##   chair, name, duplicate                                                   IntegrityChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
 ##   quest_data, npc_data, dialogue_data   GameplayDataChecks (QuestCatalog / NpcCatalog / NpcDialogueBuilder
-##                   validation, run only when everything above found no error)
+##                   validation, run over the records everything above found no error in)
 ##   validator       a script error inside any of the above (see validate())
 
 ## Check slug (and domain) of the findings that report a script error inside the validator itself.
@@ -79,7 +79,8 @@ func run() -> ValidationReport:
 	IntegrityChecks.new(db, report).run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()
 	refs.flush()
-	# Last: the game's own quest / NPC / dialogue validation assumes the structurally valid data checked above.
+	# Last: the game's own quest / NPC / dialogue validation assumes structurally valid data, so it reads only the
+	# records the checks above found no error in.
 	GameplayDataChecks.new(db, report).run()
 	return report
 

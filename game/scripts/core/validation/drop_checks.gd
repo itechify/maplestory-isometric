@@ -22,7 +22,9 @@ extends RefCounted
 ##     - a monster's reported meso amount comes from MeowDB (quoted verbatim from its capture), and a player report
 ##       the owner's page capture shows is in the record unless a newer source says otherwise; meso_rules.json
 ##       no_mesos names drop owners
-##     - an unresolved member whose item a Maple Island quest objective asks for is a progression blocker
+##     - an unresolved member whose item a Maple Island quest objective asks for is a progression blocker, unless
+##       another source gives the item: another drop record (a monster or a Wooden Box) that rolls it, a shop, or a
+##       quest that hands it out (other_sources)
 ##   drop_unresolved (warnings): each member that never rolls because its item, rarity or category is unresolved, so
 ##     unknown values stay visible
 ## The capture comparisons need the capture files (DataValidator options repo_root; scripts/test.sh and
@@ -305,9 +307,56 @@ func _check_entry(id: String, e: Dictionary) -> void:
 	if not never.is_empty():
 		report.count("drop_entries_unresolved")
 		report.warning("drop_unresolved", "drops", id, "'%s' never rolls: %s" % [str(e.get("name", "?")), "; ".join(never)])
-		if item_id != null and _quest_items.has(str(item_id)):
-			_error(id, "%s: item %s is needed by quest %s but never rolls here (%s): a progression blocker unless another source gives it" % [
+		if item_id != null and _quest_items.has(str(item_id)) and other_sources(str(item_id), id).is_empty():
+			_error(id, "%s: item %s is needed by quest %s but never rolls here (%s), and no other drop record, shop or quest gives it: a progression blocker" % [
 				where, str(item_id), str(_quest_items[str(item_id)]), "; ".join(never)])
+
+
+## Where else the player gets `item_id`, besides the drop record `owner_id`: "drops/<owner>" for every other drop record
+## (a monster or a Wooden Box) whose member with that item rolls (DropRates.effective_entries: item, rarity and table
+## category resolved, a chance above 0), "shops/<id>" for every shop that stocks it, and "quests/<id>" for every quest
+## that hands it out (rewards.items, rewards.random[].items, rewards.selection[].items, items_given_on_accept,
+## next_quest_grants[].items, an adaptation's accept_items). The completion rewards of a quest that asks for the item
+## do not count: they come only after its objective. Empty: nothing else gives it.
+func other_sources(item_id: String, owner_id: String) -> PackedStringArray:
+	var out: PackedStringArray = []
+	for oid in db.ids("drops"):
+		if oid == owner_id:
+			continue
+		for row: Dictionary in DropRates.effective_entries(oid, db):
+			if String(row.get("item_id", "")) == item_id and String(row.get("excluded", "")) == "" and float(row.get("chance", 0.0)) > 0.0:
+				out.append("drops/" + oid)
+				break
+	for sid in db.ids("shops"):
+		if item_id in _item_ids(db.shop(sid).get("items", [])):
+			out.append("shops/" + sid)
+	var asking: Array = _quest_items.get(item_id, [])
+	for qid in db.ids("quests"):
+		var q: Dictionary = db.quest(qid)
+		var given := _item_ids(q.get("items_given_on_accept", []))
+		for grant in ValidationUtil.as_array(q.get("next_quest_grants", [])):
+			if grant is Dictionary:
+				given.append_array(_item_ids(grant.get("items", [])))
+		var rewards: Variant = q.get("rewards", {})
+		if rewards is Dictionary and not (qid in asking):
+			given.append_array(_item_ids(rewards.get("items", [])))
+			for group in ValidationUtil.as_array(rewards.get("random", [])) + ValidationUtil.as_array(rewards.get("selection", [])):
+				if group is Dictionary:
+					given.append_array(_item_ids(group.get("items", [])))
+		var adapted: Variant = db.miso_entity("quests", qid).get("accept_items", [])
+		given.append_array(_item_ids(adapted))
+		if item_id in given:
+			out.append("quests/" + qid)
+	return out
+
+
+## The item ids of a list of {item_id, ...} entries (anything else in the list is skipped).
+static func _item_ids(list: Variant) -> PackedStringArray:
+	var out: PackedStringArray = []
+	for e in ValidationUtil.as_array(list):
+		if e is Dictionary and e.get("item_id", null) != null:
+			out.append(str(e.item_id))
+	return out
 
 
 ## The table category the rule gives an item (DropRates.CATEGORIES), or "" for a type the table has no row for.

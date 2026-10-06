@@ -83,6 +83,51 @@ func test_jumps_do_not_bob_the_camera() -> void:
 	assert_near(max_dy, 0.0, 1e-4, "camera height unchanged by a jump")
 
 
+func test_a_ladder_top_exit_does_not_jolt_the_camera() -> void:
+	# A ladder up a 3 m cliff whose top lies along the camera's ground-forward axis (Godot +X -Z). The top exit moves the
+	# body onto top_exit in one tick; the camera must follow that step no faster than it follows a walking player.
+	var f := Vector3(1, 0, -1).normalized()
+	w.add_box(f * 5.0 + Vector3(0, 1.5, 0), Vector3(6, 3, 12), Vector3(0, 45, 0))  # the cliff face 2 m along f
+	var line := f * 1.85
+	var top_exit := f * 2.35 + Vector3.UP * 3.0
+	var c := ClimbableDef.from_sidecar({"name": "L", "kind": "ladder", "bottom": [line.x, 0.0, line.z], "top": [line.x, 3.0, line.z],
+		"foot_ground": [line.x, 0.0, line.z], "top_exit": [top_exit.x, 3.0, top_exit.z], "facing_xz": [f.x, f.z]})
+	var p := w.spawn_player(-f * 0.5)
+	p.set_climbables([c])
+	rig.configure_from_sidecar(SIDECAR_CAM)
+	rig.set_target(p)
+	assert_true(p.grab_climbable(c), "on the ladder")
+	w.bot.climb = 1.0
+	_tick(30)  # the camera catches up with the grab and trails the climb at the edge of its dead zone
+	assert_true(p.is_climbing(), "still climbing")
+	var walk_step := p.model.walk_speed * PlayerTestWorld.TICK
+	var prev := rig.focus_point()
+	var plane_at_exit := Vector2.INF
+	var body_step := 0.0
+	var max_plane := 0.0
+	var max_height := 0.0
+	for i in 150:
+		var at := p.global_position
+		var was_climbing := p.is_climbing()
+		_tick(1)
+		var fp := rig.focus_point()
+		if was_climbing and not p.is_climbing():
+			body_step = p.global_position.distance_to(at)
+			plane_at_exit = Vector2(prev.x, prev.z)
+		max_plane = maxf(max_plane, Vector2(fp.x - prev.x, fp.z - prev.z).length())
+		max_height = maxf(max_height, absf(fp.y - prev.y))
+		prev = fp
+	assert_true(body_step > 0.5, "the exit moved the body %.2f m in one tick" % body_step)
+	assert_true(p.is_grounded(), "standing on top")
+	assert_near(p.global_position.distance_to(top_exit), 0.0, 1e-3, "the player ends on top_exit, as before")
+	assert_true(max_plane <= walk_step + 1e-5, "the camera's ground focus moved at most %.4f m in a tick (following a walking player: %.4f)" % [max_plane, walk_step])
+	assert_true(max_height <= walk_step + 1e-5, "the camera's height moved at most %.4f m in a tick (walking: %.4f)" % [max_height, walk_step])
+	assert_true(plane_at_exit != Vector2.INF and Vector2(prev.x, prev.z).distance_to(plane_at_exit) > 0.3,
+		"the camera did follow the exit (%.2f m)" % Vector2(prev.x, prev.z).distance_to(plane_at_exit))
+	var anchor := p.follow_anchor()
+	assert_near(Vector2(anchor.x, anchor.z).distance_to(Vector2(p.global_position.x, p.global_position.z)), 0.0, 1e-6, "the glide is over: the camera follows the feet")
+
+
 func test_vertical_follow_tracks_ground_height() -> void:
 	w.add_box(Vector3(12, 1.0, 0), Vector3(12, 2.0, 12))  # a 2 m terrace
 	var p := w.spawn_player(Vector3(9, 2.0, 0))

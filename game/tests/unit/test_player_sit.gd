@@ -1,10 +1,13 @@
 extends TestCase
 ## Sitting on the PlayerController (contract C5): the player sits only when grounded, still, alive and with input
 ## enabled; while seated it cannot walk, jump or climb; a move, jump, attack or sit press stands it up (that press does
-## nothing else that tick); knockback, death, climbing, teleport and losing the chair stand it up; the sit key (X) sits
-## on the first chair owned or reports that there is none; and the seated state is never saved (contract C3).
+## nothing else that tick; an attack or a cast stands it up before it starts, so activity() and is_seated() agree);
+## knockback, death, climbing, teleport, losing the chair and leaving the ground (not a one-tick flicker of the ground
+## state) stand it up; the sit key (X) sits on the first chair owned or reports that there is none; and the seated
+## state is never saved (contract C3).
 
 const RELAXER := "522"
+const NIMBLE := "0001002"
 
 var w: PlayerTestWorld
 var holder: CharacterState
@@ -19,6 +22,7 @@ func parity_keys() -> Dictionary:
 		"test_an_attack_or_a_cast_stands_up": sit,
 		"test_knockback_death_climb_and_teleport_stand_up": sit,
 		"test_leaving_the_ground_stands_up": sit,
+		"test_a_ground_flicker_does_not_stand_a_still_seated_player_up": sit,
 		"test_sit_key_toggles_on_the_first_owned_chair": sit + ["chair:522"],
 		"test_sit_key_without_a_chair_says_so": sit,
 		"test_losing_the_chair_stands_up": sit + ["chair:522"],
@@ -139,11 +143,26 @@ func test_an_attack_or_a_cast_stands_up() -> void:
 	rig.w.bot.press(&"attack")
 	rig.run(1)
 	assert_eq(rig.system.player_combat.attacks, 1, "the attack press swings (PlayerCombat runs after the body)")
-	assert_true(rp.is_seated(), "the body stood before PlayerCombat swung: it stands up on the next tick")
+	assert_false(rp.is_seated(), "the swing stands the player up before it starts")
 	assert_eq(rp.activity(), &"attacking", "the swing from the chair is not seated (resting) time")
-	rig.run(1)
-	assert_false(rp.is_seated(), "the swing stands the player up")
 	assert_eq(rig_seen.back(), ["stood", &"attack"])
+	_assert_agree(rp, "on the attack's first tick")
+	rig.run(1)
+	_assert_agree(rp, "on the next tick")
+	# A real skill cast from the chair (PlayerSkills): it stands up before the cast, with the reason "skill".
+	rig.run(90)
+	var ch := rig.character()
+	ch.skills = {NIMBLE: 1}
+	ch.base_max_mp = 500
+	ch.mp = 500
+	assert_true(rp.sit(RELAXER), "seated again")
+	var cast: Dictionary = rig.system.player_combat.skills.cast(NIMBLE)
+	assert_true(bool(cast.ok), "cast from the chair: %s" % str(cast))
+	assert_false(rp.is_seated(), "the cast stood the player up")
+	assert_eq(rig_seen.back(), ["stood", &"skill"])
+	_assert_agree(rp, "on the cast's first tick")
+	if float(cast.lockout_s) > 0.0:
+		assert_eq(rp.activity(), &"attacking", "the cast's lockout is attacking")
 	rig.free_all()
 	# Any other system's attack lockout (a skill cast) does the same.
 	var p := _player()
@@ -156,6 +175,11 @@ func test_an_attack_or_a_cast_stands_up() -> void:
 	w.run(1)
 	assert_false(p.is_seated(), "PlayerCombat attacking stands up")
 	combat.attacking = false
+
+
+## activity() reads "seated" exactly while is_seated() is true.
+func _assert_agree(p: PlayerController, when: String) -> void:
+	assert_eq(p.activity() == &"seated", p.is_seated(), "%s: activity %s, is_seated %s" % [when, p.activity(), p.is_seated()])
 
 
 func test_knockback_death_climb_and_teleport_stand_up() -> void:
@@ -192,11 +216,36 @@ func test_leaving_the_ground_stands_up() -> void:
 	assert_true(p.sit(RELAXER), "seated on the ledge")
 	ledge.free()
 	w.run(1)
-	assert_false(p.is_seated(), "the floor gone from under the chair: standing (falling)")
+	assert_false(p.is_grounded(), "off the ground")
+	assert_true(p.is_seated(), "one tick off the ground may be a flicker: still seated")
+	w.run(1)
+	assert_false(p.is_seated(), "the floor gone from under the chair: standing (falling) on the second tick")
 	assert_eq(seen.back(), ["stood", &"fall"])
 	assert_eq(p.activity(), &"jumping", "airborne, so no resting time")
 	w.run(90)
 	assert_true(p.is_grounded() and not p.is_seated(), "landed below, standing")
+
+
+func test_a_ground_flicker_does_not_stand_a_still_seated_player_up() -> void:
+	# The floor under the chair is gone for exactly one tick (the ground state flickers), then back.
+	var ledge := w.add_box(Vector3(30, 2.5, 30), Vector3(2, 1, 2))
+	var p := w.spawn_player(Vector3(30, 3, 30))
+	var seen := _record(p)
+	w.run(5)
+	assert_true(p.sit(RELAXER), "seated on the ledge")
+	w.run(30)
+	var layer := ledge.collision_layer
+	ledge.collision_layer = 0
+	w.run(1)
+	var flickered := not p.is_grounded()
+	ledge.collision_layer = layer
+	assert_true(flickered, "the ground state flickered for that tick")
+	assert_true(p.is_seated(), "still seated during the flicker")
+	w.run(60)
+	assert_true(p.is_grounded(), "back on the ledge")
+	assert_true(p.is_seated(), "a still, seated player stays seated through a one-tick flicker")
+	assert_eq(p.activity(), &"seated")
+	assert_eq(seen, [["sat", RELAXER]], "no stand-up")
 
 
 func test_seated_player_ignores_ladder_keys() -> void:

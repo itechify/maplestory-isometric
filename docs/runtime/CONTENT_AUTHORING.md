@@ -322,9 +322,9 @@ an entry in `IT2_STEPS` and the reshape checks in `test_save_it2_fixtures.gd`; n
 - a drop record that is not schema 3 or holds a probability; a membership that is not MeowDB's community list on the
   owner's own, newest page capture (a member added, removed or reordered, an MSEA-only item, a raw block or votes that
   differ); a rarity that is not the Henesys.gg capture's; a category that breaks the rule; a gate that breaks the D3-9
-  rule; a MeowDB meso report the page shows but the record leaves out; an unresolved member a quest needs (a
-  progression blocker); an incomplete `drop_rates.json` table (a missing cell or one outside [0, 1]) or an invalid
-  `meso_rules.json`;
+  rule; a MeowDB meso report the page shows but the record leaves out; an unresolved member a quest needs when no
+  other drop record, shop or quest gives the item (a progression blocker); an incomplete `drop_rates.json` table (a
+  missing cell or one outside [0, 1]) or an invalid `meso_rules.json`;
 - an adaptation value without a reason and verified flag, or `verified: true` without `verified_against`;
 - the game's own quest, NPC and dialogue validation (unsupported objectives, unplaceable NPCs, dangling nodes).
 

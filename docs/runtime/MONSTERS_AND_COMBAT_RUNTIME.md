@@ -406,7 +406,8 @@ started over on every movement, attack or monster touch), which is gone.
   the clock 2.25 → 2.27 s; 7 held swings move it 2.40 → 2.42 s; the clock then resumes to the next tick; X without a
   chair says so; a double-click on The Green Relaxer in the Set-up tab sits; 10 s seated give 5 → 45 HP (+10 +30);
   a move key and a warp stand up; Quit Game with 4.40 s banked; after Continue the player stands, 4.40 s are restored
-  and complete the next tick, and X sits again.
+  and complete the next tick, and X sits again. Since then phase 0 also sits down in the trigger of Mushroom Town's
+  door and presses Up: the player stands up (`warp`) and arrives in 000000001.
 
 ## Breakables: the Wooden Box (Iteration Three, contract C8)
 
