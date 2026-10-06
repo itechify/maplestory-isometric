@@ -1,15 +1,16 @@
 // Extract the Maple Island item set from MeowDB MS Classic into game/data/canonical/items/<item id>.json
 // (one item per file, MeowDB item ids).
 //
-//   node tools/meowdb/extract_items.mjs            # offline: tools/meowdb/.cache, then the dated captures (lib.mjs)
-//   MEOWDB_ALLOW_NETWORK=1 node tools/meowdb/extract_items.mjs --refresh   # re-download (off by default; see lib.mjs)
+//   node tools/meowdb/extract_items.mjs            # tools/meowdb/.cache and the dated captures; fetches what is missing
+//   node tools/meowdb/extract_items.mjs --offline  # never fetches: a page missing from both stops it ("not cached")
+//   node tools/meowdb/extract_items.mjs --refresh  # re-download every page (new retrieved_at values; see lib.mjs)
 //
 // Which items: ITEM_IDS below (the ids referenced by the maps / monsters / drops / quests / npcs / shops domains),
 // plus every item in game/data/canonical/shops/*.json and the Beginner starter weapons in
 // game/data/canonical/formulas/beginner.json (both are already in ITEM_IDS; the script stops if one is not).
 //
-// API-only items: when an item has no /item-db/<id> page in the cache (and the network is off) but its item API body
-// was captured by hand (tools/meowdb/captures/items_api.json, served by lib.mjs), the record is built from that body
+// API-only items: when an item has no /item-db/<id> page in the cache but its item API body was captured by hand
+// (tools/meowdb/captures/items_api.json, served by lib.mjs), the record is built from that body
 // alone (buildItemFromApiOnly): every value cites the capture in field_sources, and every field only the item page
 // shows (max per stack, the Tradeable tag, MSEA drops, quest rewards, change history, ...) is null and listed in gaps.
 // When the item page itself was then read by hand and its rendered text saved (tools/meowdb/captures/item_<id>.txt,
@@ -41,8 +42,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL, hasCached, networkAllowed } from './lib.mjs';
-import { loadCaptures } from '../sources/captures.mjs';
+import { fetchPage, fetchUrl, rsc, jsonAt, pageText, source, writeJson, BASE_URL, hasCached } from './lib.mjs';
+import { loadCaptures, apiCaptureFor } from '../sources/captures.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, '..', '..');
@@ -1180,8 +1181,9 @@ async function main() {
   const questPages = new Map(); // quest id -> {pools, itemRefs, ref}; only quests with a random-reward share on an item page
   const apiOnly = [];
   for (const id of allIds) {
-    if (!hasCached(itemPagePath(id)) && !networkAllowed()) {
-      // No item page offline: build from the item API body (cache, else the hand-read capture; get() throws if neither).
+    if (!hasCached(itemPagePath(id)) && apiCaptureFor(itemApiUrl(id))) {
+      // No cached item page but a hand-read item API body: build from that body (the cached one first, else the
+      // capture), whether or not the run may fetch, so every run gives the same record.
       const apiRes = await get(itemApiUrl(id));
       const api = JSON.parse(apiRes.text);
       if (String(api.id) !== id) throw new Error('item API returned id ' + api.id + ' for ' + id);

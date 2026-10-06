@@ -193,7 +193,7 @@ function henesysRarity(j, meta) {
   const r = { ...meta, url: j.url, read_at: j.read_at, method: j.method ?? null, scope: j.scope ?? null, site_notice: j.site_notice ?? null, items: {} };
   requireReadAt(r, meta.file);
   if (r.url !== HENESYS_LOOT_URL) throw new Error(`url ${JSON.stringify(r.url)} is not ${HENESYS_LOOT_URL}`);
-  if (!r.site_notice) throw new Error('site_notice (the terms of the site: private use only) is missing');
+  if (!r.site_notice) throw new Error('site_notice (the site\'s footer, quoted) is missing');
   for (const [name, it] of Object.entries(j.items ?? {})) {
     if (!RARITY_LABELS.includes(it?.rarity)) throw new Error(`${name}: rarity ${JSON.stringify(it?.rarity)} is not one of ${RARITY_LABELS.join(', ')}`);
     const row = String(it.row ?? '');

@@ -408,7 +408,7 @@ function buildRecord(ownerId, ctx) {
     discrepancies: [listDiff].filter(Boolean),
     notes: [
       `Membership: MeowDB's community list "${MEMBERSHIP_LIST}" on the live page (${live.url}, read ${live.read_at}), every entry with its votes; nothing is excluded for votes (decision D3-11).`,
-      `Rarity: Henesys.gg's label per item (${henesys.url}, read ${henesys.read_at}; ${henesys.file}). For this private project only: ask Henesys.gg before publishing it.`,
+      `Rarity: Henesys.gg's label per item (${henesys.url}, read ${henesys.read_at}; ${henesys.file}).`,
       `Chance: the drop chance table ${DROP_RATES_FILE} by chance_category x rarity.label (decision D3-11, verified: false). Quest-gated entries roll only while their quest is in progress (D3-9).`,
       kind === 'monster'
         ? `Mesos: MeowDB's player report when there is one (meso.amount_source); the rest of the rule (the level formula where MeowDB has no report, the chance, the owners without mesos) is ${MESO_RULES_FILE} (decision D3-12).`

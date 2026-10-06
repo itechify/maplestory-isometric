@@ -159,6 +159,7 @@ Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
 node --test tools/sources/test/     # capture loader, exact raw-value parsers, the drop record builder (31 tests)
+node --test tools/meowdb/test/      # the extractors' fetch helper against a stub, never the network (7 tests)
 node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (19 tests)
 ```
 
@@ -260,12 +261,13 @@ Two more source checks, both offline:
 
 ```bash
 node tools/sources/check_spawn_captures.mjs   # the 51 canonical spawn rows against the dated MeowDB captures
-bash scripts/check_canonical.sh               # every extractor re-run cache-only in a temp copy, diffed byte for byte
+bash scripts/check_canonical.sh               # every extractor re-run --offline in a temp copy, diffed byte for byte
 ```
 
-`check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
-extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
-a missing cache. It runs the extractors in their documented order (items and quests before monsters, which resolve
+`check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). It makes no
+request: a page missing from the cache fails its extractor with "not cached". Exit 0 means every extractor reproduces
+the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or a missing cache. It
+runs the extractors in their documented order (items and quests before monsters, which resolve
 drop members against them) and passes: every canonical file is reproduced byte for byte, the 94 items included (177
 and 242 left the item subset with #32). To regenerate canonical data, see
 [`../canonical/README.md`](../canonical/README.md).

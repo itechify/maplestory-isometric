@@ -15,10 +15,11 @@ prove it works. Three rules hold throughout:
   canonical data or a test's expected canonical value to make something pass.
 - **`bash scripts/validate_data.sh` enforces both rules** (see "What the validator enforces" at the end).
 
-> **Source access.** The extractors read the local cache (decision D3-1): `tools/meowdb/lib.mjs` touches the network
-> only with `MEOWDB_ALLOW_NETWORK=1`. Newer or missing facts have come in as **dated captures** of pages read by hand
-> in a normal browser ([HOWTO.md](HOWTO.md) "Capture a source page by hand"). Henesys.gg has no extractor: its rarity
-> labels are read by hand.
+> **Source access.** The extractors read the local cache first: `tools/meowdb/lib.mjs` fetches a MeowDB page only when
+> the cache lacks it (one request per 1.2 s) and caches it; `--offline` stops with "not cached" instead. During
+> Iteration Three newer facts came in as **dated captures** of pages read by hand in a normal browser
+> ([HOWTO.md](HOWTO.md) "Capture a source page by hand"). Henesys.gg has no extractor: its rarity labels are read by
+> hand.
 
 ## What is already in
 
@@ -58,7 +59,7 @@ current). Every unresolved source value:
    it. Run an extractor twice: the output must be byte-identical.
 3. **Index and check:** `node tools/meowdb/build_sources_index.mjs` (rebuilds `canonical_sources.json`; the validator
    fails a stale index), `node --test tools/sources/test/`, `bash scripts/validate_data.sh`, and
-   `bash scripts/check_canonical.sh` (it re-runs every extractor offline, in their documented order, and diffs the
+   `bash scripts/check_canonical.sh` (it re-runs every extractor `--offline`, in their documented order, and diffs the
    result byte for byte).
 4. **Reports:** `bash scripts/validate_data.sh --report` (the provenance report). The parity manifest is the record of
    v0.3 and is not kept current; rebuild it only to make a fresh proof (HOWTO "Build the parity manifest").
@@ -138,8 +139,8 @@ source and why a member never rolls) and with `bash scripts/test.sh drop`.
 
 1. **Canonical record.** `node tools/meowdb/extract_quests.mjs` writes every quest of its region (`REGION_NAME`,
    "Maple Island", read from the quest index; a new region means a new filter and its own tracker capture), then run
-   `build_sources_index.mjs`. It is cache-only: the quest pages must be cached or captured. Extract every item, NPC
-   and monster a quest references in the same pass. The tracker capture must list every quest.
+   `build_sources_index.mjs`. It fetches a quest page the cache lacks (with `--offline` every page must be cached or
+   captured). Extract every item, NPC and monster a quest references in the same pass. The tracker capture must list every quest.
 2. **Nothing else is required.** `QuestEngine` runs any quest built from the supported objective kinds
    (`monster_kills`, `item_collection`, `item_usage`, `npc_talk`, `map_visit`, and `other` for quizzes), rewards (EXP,
    mesos, items, random and selection groups, fame) and prerequisites, and records what a completion gave

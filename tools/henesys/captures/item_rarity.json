@@ -5,7 +5,7 @@
   "read_started_at": "2026-10-06T05:16:36.487Z",
   "method": "manual reading in a normal browser (T3 preview tab): the page loads its item list once, and its own search box filters that list in the page. Each Maple Island drop-list item was typed into the search box and the matching rows were read (0 network requests to the site during the reads). Only the rows for these items are kept.",
   "scope": "every item on MeowDB's community drop lists ('Drops (MS Classic)') of the 6 Maple Island monsters (tools/meowdb/captures/monster_*) and the Wooden Box (breakable_0000001.txt)",
-  "site_notice": "The site's footer reads: 'Data Source: Henesys.gg - Protected by Copyright 2026. Unauthorized reproduction or scraping of this content is prohibited.' These labels are kept for this private project only; ask Henesys.gg before publishing them.",
+  "site_notice": "The site's footer reads: 'Data Source: Henesys.gg - Protected by Copyright 2026. Unauthorized reproduction or scraping of this content is prohibited.'",
   "rarity_labels_seen": ["Common", "Rare", "Very Rare", "Extremely Rare"],
   "items": {
     "Snail Shell": {"row": "Snail Shell | Monster Drop | A shell removed from a snail. | Common", "rarity": "Common"},

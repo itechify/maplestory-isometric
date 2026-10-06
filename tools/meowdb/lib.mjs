@@ -1,15 +1,16 @@
 // MeowDB MS Classic fetch/cache/extract helpers (development-time only; the game never talks to MeowDB).
 //
-// - Cache-only by default (Iteration Three brief: no repeat of the automated collection; decision D3-1). fetchUrl reads
-//   tools/meowdb/.cache/ (git-ignored) first. On a cache miss it serves a MeowDB API body captured by hand in a normal
-//   browser, when one exists for exactly that URL (tools/meowdb/captures/items_api.json, read through
-//   tools/sources/captures.mjs apiCaptureFor): the result then has fromCapture: true, `capture` (file, pointer,
-//   read_at note) and retrieved_at = the capture's read_at. Rendered-text page captures (monster, breakable and quest
-//   pages) are never served as pages; tools/sources/captures.mjs parses them for the drop join and cross-checks.
-//   Anything else throws "not cached". Network access needs MEOWDB_ALLOW_NETWORK=1 and should stay off unless MeowDB
-//   grants permission (their Terms forbid automated collection without it; see docs/canonical/README.md).
-// - When enabled: >= 1.2 s between network requests across ALL processes; --refresh re-fetches cached pages (and skips
-//   the capture fallback).
+// - Cache first. fetchUrl reads tools/meowdb/.cache/ (git-ignored; MEOWDB_CACHE_DIR overrides the folder) first. On a
+//   cache miss it serves a MeowDB API body captured by hand in a normal browser, when one exists for exactly that URL
+//   (tools/meowdb/captures/items_api.json, read through tools/sources/captures.mjs apiCaptureFor): the result then has
+//   fromCapture: true, `capture` (file, pointer, read_at note) and retrieved_at = the capture's read_at. Rendered-text
+//   page captures (monster, breakable and quest pages) are never served as pages; tools/sources/captures.mjs parses
+//   them for the drop join and cross-checks. Anything else is fetched once and written to the cache, so the next run
+//   reads it from there.
+// - >= 1.2 s between network requests across ALL processes; --refresh re-fetches cached pages (and skips the capture
+//   fallback).
+// - --offline never fetches: a page missing from the cache and the captures throws "not cached". The reproducibility
+//   check (scripts/check_canonical.sh) runs every extractor this way. --offline with --refresh is an error.
 // - Pages are Next.js App Router pages; the data lives in the React Server Component ("flight") payload pushed via
 //   self.__next_f.push([1, "..."]). rsc() decodes it; jsonAt()/objectsWithKey() pull plain JSON values out of it.
 import fs from 'node:fs';
@@ -20,7 +21,7 @@ import { apiCaptureFor } from '../sources/captures.mjs';
 export const AUTHORITY = 'MeowDB MS Classic';
 export const BASE_URL = 'https://meowdb.com/msclassic'; // single constant: MeowDB is rebranding to NiaDB (old links keep working)
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-export const CACHE_DIR = path.join(HERE, '.cache');
+export const CACHE_DIR = process.env.MEOWDB_CACHE_DIR ? path.resolve(process.env.MEOWDB_CACHE_DIR) : path.join(HERE, '.cache');
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36';
 const MIN_GAP_MS = 1200; // global across processes (parallel extractors share one polite request budget)
 const GATE_FILE = path.join(CACHE_DIR, '.last_fetch');
@@ -53,9 +54,9 @@ async function gate() {
   }
 }
 
-/** True when MEOWDB_ALLOW_NETWORK=1 (see the header: keep it off unless MeowDB grants permission). */
-export function networkAllowed() {
-  return process.env.MEOWDB_ALLOW_NETWORK === '1';
+/** True when the command line has --offline (see the header: a cache miss throws instead of fetching). */
+export function offline() {
+  return process.argv.includes('--offline');
 }
 
 /** The cache files of a page path or absolute meowdb.com URL ({htmlFile, metaFile}; they may not exist). */
@@ -82,8 +83,10 @@ export async function fetchPage(p, opts = {}) {
 /**
  * Fetch any absolute meowdb.com URL (pages, /msclassic/api/... JSON, /_next/static JS chunks), cache-first.
  * Returns {html, text, url, retrieved_at, fromCache} (html === text; the body is returned verbatim).
+ * `refresh` and `offline` default to the --refresh and --offline flags.
  */
-export async function fetchUrl(url, { refresh = process.argv.includes('--refresh'), accept = 'text/html,application/xhtml+xml,application/json,*/*' } = {}) {
+export async function fetchUrl(url, { refresh = process.argv.includes('--refresh'), offline: cacheOnly = offline(), accept = 'text/html,application/xhtml+xml,application/json,*/*' } = {}) {
+  if (refresh && cacheOnly) throw new Error('--refresh re-fetches every page and --offline fetches none: pass one or the other');
   fs.mkdirSync(CACHE_DIR, { recursive: true });
   const { htmlFile, metaFile } = cacheFiles(url);
   if (!refresh && fs.existsSync(htmlFile) && fs.existsSync(metaFile)) {
@@ -95,13 +98,7 @@ export async function fetchUrl(url, { refresh = process.argv.includes('--refresh
     const cap = apiCaptureFor(url);
     if (cap) return { html: cap.text, text: cap.text, url: cap.url, retrieved_at: cap.read_at, fromCache: false, fromCapture: true, capture: cap };
   }
-  if (!networkAllowed()) {
-    // MeowDB's Terms of Service forbid automated collection without permission, and its Content Reuse Policy
-    // (https://meowdb.com/reuse) asks that bulk collection be cleared with contact@meowdb.com first. The Iteration Three
-    // brief also forbids repeating the automated collection, so the extractors are cache-only; newer facts come in as
-    // manual captures (tools/meowdb/captures/). See docs/canonical/README.md before enabling network access.
-    throw new Error(`not cached: ${url} (network access is disabled; see docs/canonical/README.md)`);
-  }
+  if (cacheOnly) throw new Error(`not cached: ${url} (--offline reads only the cache and the captures)`);
   for (let attempt = 1; attempt <= 4; attempt++) {
     await gate();
     let res;
