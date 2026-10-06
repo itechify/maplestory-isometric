@@ -10,7 +10,7 @@ Blender source (no teleport failsafes over bad terrain).
 | the scanner (`StuckScan`) | `game/tools/stuck_scan.gd` |
 | the command line | `game/tools/stuck_scan_tool.gd`, `stuck_scan_tool.tscn` |
 | the report | `docs/runtime/stuck_report.json` (regenerated at milestones) |
-| reviewed results: intended dead ends (none) and reviewed UNENTERABLE components (13) | `game/data/misostory/stuck_allowlist.json` |
+| reviewed results: intended dead ends (none) and reviewed UNENTERABLE components (9) | `game/data/misostory/stuck_allowlist.json` |
 | the guard in the suite | `game/tests/unit/test_stuck_scan.gd` |
 | the former-trap regression | `game/tools/playtest/scenarios/trap_probe.gd`, `game/tests/unit/test_playtest_traps.gd` |
 | the Blender-side guard | `scripts/validate.py` check `ring_band` |
@@ -37,6 +37,11 @@ surface of the column, top down. A surface is a **node** (a place the feet can s
   solid. (Jolt reports no back faces, to rays or to point queries, and a capsule inside a hollow trimesh overlaps no
   triangle, so this face count is the only reliable test. Under a one-sided sheet, such as a plinth skirt or a
   trail's shell, also counts as buried; the body passes such sheets only from below.)
+- under a double-sided trimesh (`collision.double_sided_trimesh`: Southperry's chunk), feet that stand on something
+  else (a ring's box, a prop's hull) are not inside one of its solids: the first of its faces below the feet is not a
+  back face. A double-sided trimesh shows its back faces to a ray that asks for them (`hit_back_faces`), a one-sided
+  one never does. The face count misses such feet where two solids' tops lie in one plane (see Limits); feet standing
+  on a double-sided face are left to the count, since the ship's decks lie inside its hull;
 - it is above the map's `kill_y`.
 
 ### 2. Edges
@@ -112,9 +117,13 @@ inspected by hand, then fixed or listed.
   trail walkable). A pocket reachable only in warp mode is not scanned separately.
 - One ray per column: a surface narrower than a column can be missed or misjudged; the verification stage absorbs
   this.
-- The buried-surface test needs closed, outward-facing solids. On a map whose trimesh is double-sided
-  (`collision.double_sided_trimesh`: Southperry) rays also see back faces and the count cannot tell a buried surface;
-  there the capsule test and the verification stage carry the check.
+- The buried-surface test needs closed, outward-facing solids, and a column sees two faces in one plane as one: where
+  a solid's top is level with another's (Southperry's quay front: a wall whose top is level with the planks lying on
+  it), the count meets one top for two solids and can balance with the feet inside. Double-sidedness does not change
+  the count (the scan's rays skip back faces either way), but it makes the back faces visible, so under a
+  double-sided trimesh the back-face test (section 1) catches it. That case gave four UNENTERABLE components on the
+  ring top inside the quay wall until issue #34. Elsewhere such feet stay a node, and the verification stage
+  carries the check.
 - Into edges model the ways in that matter for traps (walking off, falling, running jumps); a way in that needs a
   precise jump sequence over several ledges, or steering in the air, may be missed. A hop is swept as an L (up to the
   apex, across at the apex height, down), which can block a long low jump under an overhang.
@@ -219,11 +228,23 @@ landing from above alone stood on the terrace over a cavern that would reopen un
 unreachable, not filled, so the scan guards it. With the world in the suite, `test_stuck_scan.gd` takes about
 80-100 s and `test_playtest_traps.gd` about 2 minutes.
 
+### Issue #34: the ring top inside Southperry's quay wall (2026-10-06)
+
+Four of the final run's UNENTERABLE components, 000000060#1-#4 (16 nodes at map-local (69.75-76.97, 4.6, 1.1-1.5)),
+stood on the top of the layout ring's wall that `keep_footprint_ring_below_y` keeps up to 5.6 m (4.6 m local) under
+the ship. That top lies inside a `Walls` solid at the quay's front (from about 3.5 m local up to 6.5 m, under the
+planks), and the face count missed it: the column meets the planks' top (`Ground`, 6.52 m) and one top for the solid
+and the `Walls` planks on it (6.50 m), then going up the two planks' undersides (6.27 m, 6.30 m), so two tops balance
+two bottoms. The allowlist blamed the double-sided trimesh; switching it back to one-sided gives the same
+count. The back-face test of section 1 now takes these 16 surfaces out of the graph, and their four `unenterable`
+entries are gone. The full scan before and after differs only in 000000060: 16 nodes, these four components and the
+edges and fall-outs of their nodes; every other map's result is unchanged.
+
 ### The final scan, per map
 
-`docs/runtime/stuck_report.json` is this run: 491,630 nodes, 3.63 M certain and 2.90 M into edges, 4,929 fall-outs
+`docs/runtime/stuck_report.json` is this run: 491,614 nodes, 3.63 M certain and 2.90 M into edges, 4,881 fall-outs
 (walk-offs onto nothing above kill_y: FallRecovery's case), 160 reachable nodes outside every region (the two
-UNENTERABLE pockets under the 000001000 / 000001006 trail; none escapable), 86 s.
+UNENTERABLE pockets under the 000001000 / 000001006 trail; none escapable), 97 s.
 
 | Map | Name | Nodes | Reachable | Flagged | CLEARED | UNENTERABLE | CONFIRMED |
 |---|---|---|---|---|---|---|---|
@@ -236,7 +257,7 @@ UNENTERABLE pockets under the 000001000 / 000001006 trail; none escapable), 86 s
 | 000000041 | Snail Hunting Ground II | 45,671 | 24,444 | 0 | 0 | 0 | 0 |
 | 000000042 | Snail Hunting Ground III | 45,628 | 25,816 | 26 | 6 | 0 | 0 |
 | 000000050 | A Split Road | 24,045 | 23,381 | 3 | 1 | 1 | 0 |
-| 000000060 | Southperry | 32,180 | 28,571 | 28 | 1 | 4 | 0 |
+| 000000060 | Southperry | 32,164 | 28,557 | 12 | 1 | 0 | 0 |
 | 000000061 | Southperry Armor Store | 1,519 | 1,228 | 42 | 2 | 0 | 0 |
 | 000001000 | The Field West of Amherst | 67,265 | 36,271 | 163 | 3 | 3 | 0 |
 | 000001001 | In a Small Forest | 13,271 | 11,820 | 13 | 4 | 0 | 0 |
@@ -258,13 +279,12 @@ a hop onto a ledge about 1.2 m up (above the certain jump's reach, which keeps a
 across to same-level ground the graph did not link (a lip or a gap one column wide in its sampling), or by a drop
 the swept drop rejected.
 
-**UNENTERABLE (13), reviewed by hand** (with `--inspect`), kept and listed with their reasons in
+**UNENTERABLE (9), reviewed by hand** (with `--inspect`), kept and listed with their reasons in
 `stuck_allowlist.json` `unenterable` (a new one fails the test until it is reviewed):
 
 | Component | Map-local point | What it is |
 |---|---|---|
 | 000000050#1 | (48.37, 2.2, -28.03) | one column of floor 3.2 m below the terrace around it: the opening above is narrower than the body |
-| 000000060#1-#4 | (69.75-76.64, 4.6, 1.3-1.5) | the top of Southperry's containment ring wall, 1.9 m under the front terrain: inside the solid terrain, which the face-count test cannot see on Southperry's double-sided trimesh (Limits) |
 | 000001000#0, 000001006#0 | (65.4, 8.0, -98.37) / (14.14, -3.0, 4.78) | the same ground under the trail 000001000 in05 - 000001006 out00, seen from the zones of both maps (80 nodes, 9.87 m down, on both): Dangerous Forest's ground under the trail, outside every map region. The graph reaches it only by a slide off the deck, which the trail's side walls stop. Before `Bridge_Abutment` the real controller got in by walking out under the bridge (the review's CONFIRMED 000001006#0) |
 | 000001000#2, #5 | (9.95, 0, -39.94), (80.63, 0, -48.5) | one column of plinth floor between terraces, 8.4 m and 4.2 m down: openings narrower than the body |
 | 000001003#0 | (29.82, 5.2, -17.37) | 1.8 m² of P03's floor under the caps of the mid mushroom stair, against P10's wall: the gaps between the cap rims and the wall are 0.2-0.55 m, narrower than the body |

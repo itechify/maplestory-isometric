@@ -252,6 +252,10 @@ var reviewed_unenterable: Array = []
 
 var _ray: PhysicsRayQueryParameters3D = null
 var _up_ray: PhysicsRayQueryParameters3D = null
+## A downward ray that also hits back faces: only a double-sided trimesh shows them (_inside_double_sided).
+var _back_ray: PhysicsRayQueryParameters3D = null
+## The bodies whose trimesh collides from both sides (IslandWorld.double_sided_trimesh: Southperry's chunk), by RID.
+var _double_sided: Dictionary = {}
 var _shape_q: PhysicsShapeQueryParameters3D = null
 var _cap_lift: float = 0.0
 var _n_rays: int = 0
@@ -278,6 +282,10 @@ static func create_in(node: Node3D, content: ContentDB, options: Dictionary = {}
 		s.exclude.append(r as RID)
 	s.host = options.get("host", w.get_parent()) as Node
 	s.space = w.get_world_3d().direct_space_state
+	for cs in w.find_children("*", "CollisionShape3D", true, false):
+		var tri := (cs as CollisionShape3D).shape as ConcavePolygonShape3D
+		if tri != null and tri.backface_collision and cs.get_parent() is CollisionObject3D:
+			s._double_sided[(cs.get_parent() as CollisionObject3D).get_rid()] = true
 	var table: Variant = content.miso_table("stuck_allowlist")
 	if table is Dictionary:
 		s.allowlist = (table as Dictionary).get("entries", [])
@@ -314,6 +322,11 @@ func _setup_queries() -> void:
 	_up_ray.hit_back_faces = false
 	_up_ray.hit_from_inside = false
 	_up_ray.exclude = exclude
+	_back_ray = PhysicsRayQueryParameters3D.new()
+	_back_ray.collision_mask = WorldLayers.PLAYER_MASK
+	_back_ray.hit_back_faces = true
+	_back_ray.hit_from_inside = false
+	_back_ray.exclude = exclude
 	# The controller's body: a capsule from step_up to body_height (PlayerController._configure_shapes).
 	var cap := CapsuleShape3D.new()
 	cap.radius = model.body_radius
@@ -450,6 +463,7 @@ func _sample(g: MapGraph) -> void:
 			g.col_first[c] = g.surf_y.size()
 			var y := g.y_top
 			var n := 0
+			var double_sided_above := false
 			while n < MAX_SURFACES:
 				_n_rays += 1
 				_ray.from = Vector3(x, y, z)
@@ -461,7 +475,9 @@ func _sample(g: MapGraph) -> void:
 				var fl := _is_floor(hit.normal as Vector3)
 				var node := -1
 				var feet := Vector3(x, hy, z)
-				if fl and hy >= kill_y and _clear(feet) and _open_above(feet, n, g.y_top):
+				var double_sided := _double_sided.has(hit.rid)
+				if fl and hy >= kill_y and _clear(feet) and _open_above(feet, n, g.y_top) \
+						and not (double_sided_above and not double_sided and _inside_double_sided(feet, g.y_bottom)):
 					node = g.node_pos.size()
 					g.node_pos.append(feet)
 					g.node_col.append(c)
@@ -470,6 +486,7 @@ func _sample(g: MapGraph) -> void:
 				g.surf_floor.append(1 if fl else 0)
 				n += 1
 				y = hy - SURFACE_GAP_M
+				double_sided_above = double_sided_above or double_sided
 			g.col_count[c] = n
 
 
@@ -516,6 +533,34 @@ func _open_above(feet: Vector3, tops_above: int, y_top: float) -> bool:
 		bottoms += 1
 		y = (h.position as Vector3).y + SURFACE_GAP_M
 	return bottoms >= tops_above
+
+
+## Feet under a double-sided trimesh that stand on something else (a ring wall's box, a prop's hull): inside a solid
+## of that trimesh when the first of its faces below them is a back face, which only a ray that hits back faces sees
+## (on a double-sided trimesh). The face count of _open_above balances where a solid's top lies in the plane of another
+## solid's top: Southperry's quay front, a wall whose top is level with the planks lying on it, with the containment
+## ring's box poking up inside it, where the column meets one top for the two solids and the planks' underside above
+## the ring top. Feet standing on a double-sided face are left to the face count: the ray would start inside that
+## face's own solid (a deck's planks) and meet its underside, and the ship's decks lie inside its hull.
+func _inside_double_sided(feet: Vector3, y_bottom: float) -> bool:
+	var y := feet.y - SURFACE_GAP_M
+	for i in MAX_SURFACES:
+		_n_rays += 1
+		_back_ray.from = Vector3(feet.x, y, feet.z)
+		_back_ray.to = Vector3(feet.x, y_bottom, feet.z)
+		var h := space.intersect_ray(_back_ray)
+		if h.is_empty():
+			return false
+		var hy: float = (h.position as Vector3).y
+		if _double_sided.has(h.rid):
+			# A front face: the ray that ignores back faces meets the same face first.
+			_n_rays += 1
+			_ray.from = _back_ray.from
+			_ray.to = _back_ray.to
+			var f := space.intersect_ray(_ray)
+			return f.is_empty() or f.rid != h.rid or absf((f.position as Vector3).y - hy) > 0.002
+		y = hy - SURFACE_GAP_M
+	return false
 
 
 ## The first surface of column c (top down) at or below height y; -1 if none.

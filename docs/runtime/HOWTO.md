@@ -233,7 +233,7 @@ TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap
 ```
 
 The tool exits 1 on a CONFIRMED trap the allowlist's `entries` do not list (`game/data/misostory/stuck_allowlist.json`;
-empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (13 components
+empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (9 components
 reviewed by hand) does not list, and on escapable ground outside every map region. The
 final Iteration Three scan reports 0 confirmed traps; every former trap (54 spots) is replayed by `trap_probe`.
 

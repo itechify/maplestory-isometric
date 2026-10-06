@@ -4,7 +4,7 @@ extends TestCase
 ## Model tests on hand-made worlds (PlayerTestWorld boxes, no export needed): a pit deeper than any jump is a
 ## CONFIRMED trap, a 1 m step is not, a ladder out of a pit makes it escapable, a descend-only rope does not, a walled
 ## yard reached only by a running jump off a tower is a CONFIRMED trap, and a surface inside a closed solid is never a
-## node.
+## node (nor one inside a double-sided solid whose top is level with another's: Southperry's quay front, issue #34).
 ##
 ## The island test (INCLUDE_WORLD=1; a SKIP line without the export) scans all 25 maps, verifies every flagged
 ## component with the real PlayerController and fails on any CONFIRMED trap that game/data/misostory/
@@ -31,6 +31,7 @@ func parity_keys() -> Dictionary:
 		"test_a_ladder_out_of_a_pit_is_not_a_trap": ["mechanic:stuck-region-scan"],
 		"test_a_descend_only_rope_out_of_a_pit_is_a_trap": ["mechanic:stuck-region-scan"],
 		"test_a_surface_inside_a_solid_is_not_a_node": ["mechanic:stuck-region-scan"],
+		"test_a_surface_inside_a_double_sided_solid_is_not_a_node": ["mechanic:stuck-region-scan"],
 		"test_a_yard_reached_only_by_a_running_jump_is_a_confirmed_trap": ["mechanic:stuck-region-scan"],
 		"test_ways_in_are_taken_in_turns_from_every_kind": ["mechanic:stuck-region-scan"],
 	}
@@ -128,6 +129,35 @@ func test_a_surface_inside_a_solid_is_not_a_node() -> void:
 	for y in heights:
 		assert_false(absf(y - 1.1) < 0.05, "the slab inside the block is not a node: %s" % heights)
 		assert_false(absf(y) < 0.05, "the ground under the block is not a node: %s" % heights)
+	w.free_all()
+
+
+## Southperry's quay front (issue #34): a wall solid whose top lies in the plane of the planks on it, in one
+## double-sided trimesh, with the containment ring's box poking up inside it. The column sees one top for the two
+## solids and the planks' underside above the ring top, so the face count balances; the wall's underside, a back face
+## below the feet, gives it away. A deck of the same trimesh under a roof (the ship's, which the player stands inside)
+## stays a node: its feet stand on a double-sided face.
+func test_a_surface_inside_a_double_sided_solid_is_not_a_node() -> void:
+	var w := PlayerTestWorld.create(db())
+	w.add_box(Vector3(0.0, -0.5, 0.0), Vector3(AREA_HALF * 2.0, 1.0, AREA_HALF * 2.0))
+	var faces := PackedVector3Array()
+	# the wall (x -3..-1, top 3.0) and the planks on it (2.8..3.0): coplanar tops
+	faces.append_array(_box_faces(AABB(Vector3(-3.0, 0.2, -1.0), Vector3(2.0, 2.8, 2.0))))
+	faces.append_array(_box_faces(AABB(Vector3(-3.0, 2.8, -1.0), Vector3(2.0, 0.2, 2.0))))
+	# an open-topped hull (x 1..5, bottom 0.2) with a deck inside it (0.8..1.0) and a roof over its middle (3.0..3.2)
+	faces.append_array(_box_faces(AABB(Vector3(1.0, 0.2, -2.0), Vector3(4.0, 2.0, 4.0)), false))
+	faces.append_array(_box_faces(AABB(Vector3(1.1, 0.8, -1.9), Vector3(3.8, 0.2, 3.8))))
+	faces.append_array(_box_faces(AABB(Vector3(2.0, 3.0, -1.0), Vector3(2.0, 0.2, 2.0))))
+	_trimesh(w, faces, true)
+	# the ring's box, up to 1.0 inside the wall
+	w.add_box(Vector3(-2.0, 0.0, 0.0), Vector3(0.6, 2.0, 0.6))
+	var r := _scan(w, [])
+	var g: StuckScan.MapGraph = r.graph
+	var ring := _heights(g, Vector3(-2.0, 0.0, 0.0))
+	assert_true(ring.has(1.0) and ring[1.0] < 0, "the ring top inside the wall is not a node: %s" % ring)
+	assert_true(ring.has(3.0) and ring[3.0] >= 0, "the planks' top is a node: %s" % ring)
+	var deck := _heights(g, Vector3(3.0, 0.0, 0.0))
+	assert_true(deck.has(1.0) and deck[1.0] >= 0, "the deck under the roof is a node: %s" % deck)
 	w.free_all()
 
 
@@ -279,18 +309,40 @@ func _verdicts(g: StuckScan.MapGraph) -> Array:
 
 ## A closed trimesh box with outward faces (like an exported terrain solid).
 func _closed_trimesh_box(w: PlayerTestWorld, b: AABB) -> void:
+	_trimesh(w, _box_faces(b), false)
+
+
+## The faces of box `b`, wound so the front faces point out of it (Godot: clockwise seen from the front); without its
+## top face when `top` is false.
+func _box_faces(b: AABB, top: bool = true) -> PackedVector3Array:
 	var p := [Vector3(b.position.x, b.position.y, b.position.z), Vector3(b.end.x, b.position.y, b.position.z),
 		Vector3(b.end.x, b.position.y, b.end.z), Vector3(b.position.x, b.position.y, b.end.z),
 		Vector3(b.position.x, b.end.y, b.position.z), Vector3(b.end.x, b.end.y, b.position.z),
 		Vector3(b.end.x, b.end.y, b.end.z), Vector3(b.position.x, b.end.y, b.end.z)]
 	var faces := PackedVector3Array()
 	for q in [[0, 1, 2, 3], [4, 7, 6, 5], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]]:
-		# wound so the front faces point out of the box (Godot: clockwise seen from the front)
+		if not top and q[0] == 4:
+			continue
 		faces.append_array([p[q[0]], p[q[2]], p[q[1]], p[q[0]], p[q[3]], p[q[2]]])
+	return faces
+
+
+## One static trimesh body of `faces` (double-sided: IslandWorld.double_sided_trimesh's backface_collision).
+func _trimesh(w: PlayerTestWorld, faces: PackedVector3Array, double_sided: bool) -> void:
 	var shape := ConcavePolygonShape3D.new()
 	shape.set_faces(faces)
+	shape.backface_collision = double_sided
 	var body := StaticBody3D.new()
 	var cs := CollisionShape3D.new()
 	cs.shape = shape
 	body.add_child(cs)
 	w.add_node(body)
+
+
+## The surfaces of the column at world point `p`: height (rounded to 0.01) -> node id (-1: not standable).
+func _heights(g: StuckScan.MapGraph, p: Vector3) -> Dictionary:
+	var out := {}
+	var c := g.column_at(p.x, p.z)
+	for k in g.col_count[c]:
+		out[snappedf(g.surf_y[g.col_first[c] + k], 0.01)] = g.surf_node[g.col_first[c] + k]
+	return out
