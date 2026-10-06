@@ -47,7 +47,7 @@ const REACH_RIM_M := 0.11
 ## sinking under the grass).
 const REACH_LIFT_M := 0.02
 const MARKER_COLOR := Color(1.0, 0.78, 0.18)
-const MARKER_LIFT_M := 0.55
+const MARKER_LIFT_M := 0.8
 ## The marker cone's top radius and height (m): it sits clear of the rim's top edge and reads as a separate shape.
 const MARKER_RADIUS_M := 0.17
 const MARKER_HEIGHT_M := 0.34
