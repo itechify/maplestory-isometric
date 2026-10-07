@@ -362,6 +362,12 @@ func test_cues_show_the_box_in_reach_and_the_quest_that_wants_its_drops() -> voi
 	p.global_position = b0.global_position + Vector3(reach * 0.5, 0, 0)
 	sys.update_cues()
 	assert_true(b0.in_reach and b0.reach_rim.visible, "within reach: the rim shows")
+	assert_true(b0.cues_drawn().rim and not b0.cues_drawn().marker, "what is drawn: the rim and its ink, no marker")
+	assert_true(b0.reach_ink.visible, "the rim's ink line shows with it")
+	# #11: wide enough to read at 1600x900 (5 px at the 19.5 m view), and an orange apart from the marker's gold.
+	assert_true(WoodenBox.REACH_RIM_M * 900.0 / 19.5 >= 5.0, "the rim is at least 5 px wide at the widest view")
+	for c: Color in [WoodenBox.REACH_COLOR, WoodenBox.REACH_PULSE_COLOR]:
+		assert_true(absf(c.h - WoodenBox.MARKER_COLOR.h) * 360.0 >= 15.0, "the rim's orange is 15 degrees of hue from the gold")
 	p.global_position = b0.global_position + Vector3(0, BreakableSystem.CUE_TIER_DY_M + 0.5, 0)
 	sys.update_cues()
 	assert_false(b0.in_reach, "a box on another tier is not in reach")
@@ -369,6 +375,7 @@ func test_cues_show_the_box_in_reach_and_the_quest_that_wants_its_drops() -> voi
 	sys.update_cues()
 	for b: WoodenBox in boxes:
 		assert_false(b.reach_rim.visible or b.marker.visible, "far away and no quest: no cue on %s" % b.placement_key())
+		assert_eq(b.cues_drawn(), {"rim": false, "marker": false}, "nothing drawn on %s" % b.placement_key())
 	# Pio's quest in progress: every intact box is marked; a broken one is not.
 	character.quests.start("1012", now)
 	for i in hits():
@@ -376,6 +383,8 @@ func test_cues_show_the_box_in_reach_and_the_quest_that_wants_its_drops() -> voi
 	sys.update_cues()
 	assert_true(b0.marker.visible and boxes[1].marker.visible, "1012 in progress: the intact boxes are marked")
 	assert_false(boxes[2].marker.visible, "a broken box shows no marker")
+	assert_true(b0.cues_drawn().marker, "what is drawn: the marker")
+	assert_false(boxes[2].cues_drawn().marker, "a broken box draws no marker")
 	# Once the bag holds what the quest asks for, the marker goes.
 	var q := QuestDef.from_records(db().quest("1012"), db().miso_entity("quests", "1012"))
 	for o: Dictionary in q.objectives_of("item_collection"):

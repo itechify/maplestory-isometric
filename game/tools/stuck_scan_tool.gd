@@ -3,7 +3,7 @@ extends Node
 ## res://tools/stuck_scan_tool.tscn:
 ##
 ##   bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- \
-##       [--map <id>[,...]] [--no-verify] [--cell <m>] [--out <file>] [--png <dir>]
+##       [--map <id>[,...]] [--no-verify] [--cell <m>] [--out <file>] [--png <dir>] [--no-cache]
 ##   bash scripts/godot.sh --headless --path game res://tools/stuck_scan_tool.tscn -- \
 ##       --map <id> --inspect "<x>,<y>,<z>[;...]" [--no-verify]
 ##
@@ -15,6 +15,8 @@ extends Node
 ## (stuck_allowlist.json unenterable) and no escapable node lies outside every region (StuckScan.outside_regions). Run it on the real game/ directory (not an ISOLATE copy) when the default --out
 ## should land in the repository's docs. --png writes a top-down picture of each map into <dir>
 ## (StuckScan.heatmap(): green escapable, red flagged, grey unreachable) for inspection.
+## The results come from StuckScan's cache when nothing they depend on changed (StuckScan.cache_key(); a STUCK_CACHE
+## line says how many maps); --no-cache (or STUCK_SCAN_CACHE=0) scans every map and leaves the cache as it is.
 ## --inspect takes map-local points of one map (--map) and prints, for each, what the graph says about it
 ## (StuckScan.describe(): its regions, the surfaces of its column with their node state, the forward path from an
 ## entry, the nearest escapable ground) as STUCK_INSPECT lines; it writes no report.
@@ -24,10 +26,10 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	var maps := PackedStringArray()
 	var do_verify := true
-	var cell := StuckScan.DEFAULT_CELL_M
 	var out_path := ProjectSettings.globalize_path("res://").path_join("../docs/runtime/stuck_report.json").simplify_path()
 	var png_dir := ""
 	var inspect := PackedStringArray()
+	var options := {"cell": StuckScan.DEFAULT_CELL_M, "host": self}
 	var i := 0
 	while i < args.size():
 		var has_value := i + 1 < args.size()
@@ -38,9 +40,11 @@ func _ready() -> void:
 					i += 1
 			"--no-verify":
 				do_verify = false
+			"--no-cache":
+				options["cache"] = ""
 			"--cell":
 				if has_value:
-					cell = float(args[i + 1])
+					options["cell"] = float(args[i + 1])
 					i += 1
 			"--out":
 				if has_value:
@@ -68,7 +72,7 @@ func _ready() -> void:
 	var build_ms := Time.get_ticks_msec() - t0
 	if not world.build_errors.is_empty():
 		push_error("[stuck_scan] island build errors: %s" % "; ".join(world.build_errors))
-	var scan := StuckScan.create(world, db, {"cell": cell, "host": self})
+	var scan := StuckScan.create(world, db, options)
 	if not inspect.is_empty():
 		_inspect(scan, maps, inspect, do_verify)
 		return
@@ -86,6 +90,9 @@ func _ready() -> void:
 			print("STUCK   %s %s %d nodes (%.2f m2) local %s blender-local xy %s drop %.2f m%s" % [c.id, c.get("verdict", "unverified"),
 				int(c.nodes), float(c.area_m2), c.local, c.blender_local_xy, float(c.drop_m),
 				(" [allowlisted: %s]" % c.allowlisted) if c.has("allowlisted") else ((" [reviewed]") if c.has("reviewed") else "")])
+	var cache: Dictionary = doc.cache
+	print("STUCK_CACHE %s: %d maps scanned, %d from the cache%s" % [scan.cache_dir if scan.cache_dir != "" else "off",
+		int(cache.maps_scanned), int(cache.maps_from_cache), (" (key %s)" % String(cache.key).left(16)) if cache.key != "" else ""])
 	var t: Dictionary = doc.totals
 	print("STUCK_SUMMARY maps=%d nodes=%d flagged=%d components=%d confirmed=%d cleared=%d unenterable=%d (unreviewed %d) allowlisted=%d new_traps=%d outside_regions=%d (escapable %d) (%d ms)" % [
 		int(t.maps), int(t.nodes), int(t.flagged), int(t.components), int(t.confirmed), int(t.cleared), int(t.unenterable),

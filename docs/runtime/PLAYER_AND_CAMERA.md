@@ -46,8 +46,17 @@ disc. The consequences:
   the foothold. Drops of up to `snap_down_m` (0.45 m) are stepped down; anything deeper is a fall.
 - Landing uses the same rays with the same 0.45 m band, so the highest ledge a jump reaches is apex + 0.45 m (1.35 m
   at Jump 100). MAP_ARCHITECTURE §4.4 already budgets `jump_apex_m_at_cap + step_up_m` for the one-way ledge.
-  Measured (review probe): a standing jump against the face lands on ledges up to 1.35 m; a running jump does too
-  from up to 1.2 m before the face.
+- In the air, a face the player pushes into (input toward it) stops the body, not the push: the horizontal velocity
+  into it is kept, each tick's motion is clipped against it, and the body moves over the lip as soon as it clears it
+  (#16). Rising, a steep face or a rounded lip is clipped as a vertical wall, so it never lifts the body above the
+  apex; coming down onto a steep slope, and with no input toward the face, the push is absorbed as before (no
+  climbing by sliding, no sticking). Before #16 every wall absorbed it; air control rebuilt only about 0.15 m of
+  creep by the apex, which reached a sharp box edge with 3 mm to spare and missed the rounded and overhanging lips of
+  the exported ledges (the feet need walkable ground, 0.10-0.15 m behind the outermost face). Measured
+  (`test_player_jump_ledge.gd`): a jump pressed into the face lands on box ledges up to 1.35 m from a standing start
+  to full walk at 0, 30 and 60 degrees off the face normal, and on rounded and overhanging lips up to 1.3 m (the route
+  ledges are 1.15-1.26 m). A rounded lip at 1.35 m from a standing start, direction and jump pressed on the same tick
+  at 60 degrees, is still missed: the feet need 0.3 m of travel within the 0.13 s the apex leaves, at about 0.5 m/s.
 - Only the feet land. A walkable contact on the capsule alone (its rounded bottom touching a ledge edge while no feet
   ray is over the ledge) is not a landing: the capsule slides off the edge, as classic drops you when your feet are
   past the foothold. (An earlier version counted that contact as ground, lifting the body ~0.5 m onto the ledge for
@@ -182,8 +191,13 @@ SafeGround and the floor sync are unchanged.
   fall. Opening a dialogue or a window does not stand the player up.
 - **Not saved.** The seated state is never written to the save (contract C3): a loaded game arrives standing, and the
   chair itself stays in the Set-up tab.
-- **Pose.** `PlayerVisual` settles the body 0.2 m and leans it back 8° over 0.12 s onto a small procedural chair
-  (`ChairProp`, turned with the facing); the proxy has no skeleton, so this is a simple pose.
+- **Pose.** `PlayerVisual` settles the body 0.2 m and leans it back 8° over 0.12 s onto a procedural armchair
+  (`ChairProp`, turned with the facing); the proxy has no skeleton, so this is a simple pose. The chair (#11) is 1 m
+  across, wider than the seated body (0.89 m with its arms), with armrests, a back that rises past the shoulders and a
+  seat that reaches out in front of the knees; green cushions in a dark wooden frame, every part inked (an inverted
+  hull) like the island's assets. The first chair (0.64 m) hid under the body on every facing, on grass and on
+  Amherst's grey road. Its surfaces write the player's stencil, so the X-ray fill never paints the body over a back
+  rail in front of it.
 
 `Chairs` finds the player through the `Chairs.SEAT_GROUP` group (the live player joins it when `use_autoloads`), and
 only for `Game.character`, so a test fixture's `ItemService` never moves the real player. Callers may also pass the
@@ -299,7 +313,11 @@ Are cliffs hiding monsters?". `CameraRig.update_occlusion()` runs after every ca
    (a circle in view space around the player's chest, radius 2.4 m, and around each nearby monster, half its size +
    0.5 m), fragments nearer than the target's depth + 0.8 m and higher than its feet + `occluder_hole_floor_margin_m`
    (0.1 m, `OcclusionMath.hole_floor`) are discarded against interleaved-gradient noise, up to
-   `occluder_dither_strength` (90%) at the centre with a soft rim (`occluder_hole_edge`). Dithering is order
+   `occluder_hole_core_strength` (100%) inside the hole's core and `occluder_dither_strength` (90%) across its soft
+   rim (`occluder_hole_edge`; `OcclusionMath.removed_share`). The core rule is #18: under the autumn canopies of
+   000001020, with a monster in contact, the 90% dots alone covered 5-7% of the player's body pixels and 1-8% of the
+   monster's; now the bodies of the player and of every nearby monster show with no dots over them under any canopy,
+   and the rim's dots keep the tree present. Dithering is order
    independent: every layer of a double-sided canopy and its ink shell drops the same pixels, and the remaining dots
    still write depth. The cut is skipped in the sun's shadow pass (its view direction is compared with the gameplay
    camera's), so a faded tree's shadow does not change. The floor height keeps the deck or floor a target stands on
@@ -342,7 +360,14 @@ Hunting Ground I and 0.31 ms in Dangerous Forest with four monsters near the pla
   current view size, unshaded in `silhouette_color` (the player's colour, #3B7AFF), no depth test, stencil read != 37,
   render priority 127: a ring around the silhouette drawn on top of everything. Its opacity eases over
   `silhouette_fade_s` (0.12 s) toward `set_see_through()`, so an unoccluded player has no extra line. The outline
-  meshes are on the player render layer (no blob shadow on them) and cast no shadow.
+  meshes are on the player render layer (no blob shadow on them) and cast no shadow. They live under their own root
+  (`SeeThroughOutlines`, which follows the model's transform, the attack lunge included), not under the body.
+- **The post-hit blink** hides the body on every other 70 ms slice while the player is invulnerable
+  (`PlayerVisual.blink_off_at`, `apply_blink`). In the open nothing is drawn on those slices, the classic blink. While
+  something hides the player (the outline is on), the blink-off slices still draw the silhouette as a ghost at the
+  X-ray fill's opacity (#18). Measured under the autumn canopies of 000001020 with an Orange Mushroom in contact
+  (`_scratch/visuals`, 2026-10-06): the canopy itself covered only 5-7% of the body; the player vanished on the
+  blink-off slices, because hiding the model also hid its X-ray fill and its outline.
 
 The visual now shows the exported Player_Proxy. The export names asset roots with Blender's suffix
 (`Player_Proxy_001`), and the old exact-name lookup had fallen back to the procedural chibi placeholder in the real
@@ -368,6 +393,7 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_movement_model.gd` | canonical speed, climb, jump, gravity and knockback conversions; caps; `jump_apex_m_at_cap` = derivation; every adaptation key has a reason |
 | `test_player_movement.gd` | 3.0 m/s per second; 3-tick start and 2-tick stop; W = camera forward; equal diagonal speed; facing; 0.90 m apex and 1.30 m at the cap; airtime; jump length; limited air control; coyote time and its expiry; jump buffer and its expiry; hold to re-jump; `landed` impact speed = √(2gh) and the terminal fall speed cap; total Speed from `StatCalculator` (a Speed effect walks faster) |
 | `test_player_step.gd` | steps up 0.4 m, stops at a 0.6 m wall (and jumps onto it); the step boundary (exactly `step_up_m` mounts, 5 cm more does not); stairs with no airborne ticks; steps down 0.4 m; 30° and 36° walkable, 41° and 45° not; no creep on slopes; down-slopes stay grounded; clutter without speed loss; trimesh seams; wall sliding; feet over a ledge land on it, a capsule-only edge contact slides off (regression); wedged in a V crevice is steady ground and can jump out (regression) |
+| `test_player_jump_ledge.gd` | a jump pressed into the face (#16): box ledges of 0.5, 0.9, 1.2, 1.3 and 1.35 m, and rounded (a 0.15 m 45° chamfer) and overhanging lips up to 1.3 m, each from a standing start (0, 1 and 2 ticks of input before the press) and walked in at full speed, at 0°, 30° and 60° off the face normal; the canonical apex against a face; a 1.5 m ledge is never landed on (the reach does not grow); a jump held into a 45° slope peaks at the apex and never stands on it |
 | `test_player_climb.gd` | sidecar parsing; a ladder end to end (Up grab, canonical climb time, exit to top_exit, Down grab from the top, climb down); interact and W/S; grab range; jump off sideways; descend-only; ropes without foot ground; mid-air catch; no re-grab after a jump-off with Up held (and Up held climbs, as on the keyboard); `grabbable_climbable()`/`grab_climbable()` and the exact top_exit |
 | `test_player_hit.gd` | knockback rise and airtime per MeowDB's model, push, hit-stun gating input, direction conventions, invulnerability timer and source, knocked off ladders, death and revive, teleport reset, SafeGround rules and both filter forms, kill_y |
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
@@ -377,8 +403,8 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_scene.gd` | the authored `player.tscn` (player layer and mask, capsule over the step band, full-height Hurtbox, walks at the canonical speed) and every method/property the world runtime, MapSession, combat and the camera call; `camera_rig.tscn` (orthographic, KEEP_HEIGHT, camera.json near plane, MapSession duck type); bounds set before the first snap keep their size; a freed target does not crash the rig |
 | `test_camera_math.gd` | iso axes and pitch from the sidecar basis, view extents, bounds forms, clamp with overscan, centring, a real footprint, dead zone, ortho size, frame-rate independence |
 | `test_camera_rig.gd` | sidecar configuration and axes handed to the player, dead-zone follow, no bob on jumps, a ladder-top exit followed no faster than a walking player (ground and height, the player still ending on `top_exit`), ground-height follow, bounds clamp and unbounded, MapSession's frame-width size with blend and clamp, the transparency fallback for a material that cannot be dithered, `map_overrides` (each has a reason, a MeowDB id and a size within min/max; clamping; only MapSession's camera reads a map id) |
-| `test_camera_occlusion.gd` | the pure selection (`OcclusionMath`): every `occluders` rule (trees, architecture, tall foliage and props, never terrain, plinths, rocks, walkable or climbable), the tall rule reading the whole instance (a giant mushroom's short cap fades with its stem, a walkable cap never does), rooms only for room-sized Architecture (a town gate or gazebo is none), the hole floor (the deck in front stays, a canopy above the feet is cut), unit keys, body samples over the whole silhouette, the disc on the screen plane, view boxes in front / behind / aside, holes and the cut mirroring the shader, fade steps, the ellipsoid; `OccluderDither` stand-ins (parameters copied, lit and unshaded variants, cache, unconvertible materials, holes handed out); the fader on meshes through the rig: a tree in front dithers in and restores its own material, the fade time, an occluder beside the player inside the hole radius (dithered, not "covering") vs outside it and behind the player, an edge-of-body occluder the old three rays missed, trunk and canopy fading together, a tree hiding a nearby monster (physics query, a hole per monster), rooms and walkable roofs never fading, the transparency fallback and `clear()` |
-| `test_camera_silhouette.gd` | `PlayerVisual`: lit surfaces write the stencil and chain the fill and mark passes, an unshaded ink shell writes the stencil with no fill and no hull (and, with the world export, every surface of the real proxy), fill / mark / outline flags and priorities, outline meshes hidden, shadowless and on the player layer, the smoothed hull (split normals averaged), the see-through toggle and its fade; the rig turning the outline on behind a tree and behind a terrain block (which never fades) and off in the open; the library proxy lookup (`Player_Proxy_001`) and, with the world export, the real proxy instead of the placeholder |
+| `test_camera_occlusion.gd` | the pure selection (`OcclusionMath`): every `occluders` rule (trees, architecture, tall foliage and props, never terrain, plinths, rocks, walkable or climbable), the tall rule reading the whole instance (a giant mushroom's short cap fades with its stem, a walkable cap never does), rooms only for room-sized Architecture (a town gate or gazebo is none), the hole floor (the deck in front stays, a canopy above the feet is cut), unit keys, body samples over the whole silhouette, the disc on the screen plane, view boxes in front / behind / aside, holes and the cut mirroring the shader, a hole's core removing every fragment for the player's and a monster's hole alike and the rim easing back to the dither strength (#18, `removed_share`, read by the fader and handed to every stand-in), fade steps, the ellipsoid; `OccluderDither` stand-ins (parameters copied, lit and unshaded variants, cache, unconvertible materials, holes handed out); the fader on meshes through the rig: a tree in front dithers in and restores its own material, the fade time, an occluder beside the player inside the hole radius (dithered, not "covering") vs outside it and behind the player, an edge-of-body occluder the old three rays missed, trunk and canopy fading together, a tree hiding a nearby monster (physics query, a hole per monster), rooms and walkable roofs never fading, the transparency fallback and `clear()` |
+| `test_camera_silhouette.gd` | `PlayerVisual`: lit surfaces write the stencil and chain the fill and mark passes, an unshaded ink shell writes the stencil with no fill and no hull (and, with the world export, every surface of the real proxy), fill / mark / outline flags and priorities, outline meshes hidden, shadowless and on the player layer, the smoothed hull (split normals averaged), the see-through toggle and its fade; the post-hit blink (#18): nothing drawn on a blink-off slice in the open, the silhouette drawn as a ghost at the X-ray opacity while hidden, the outline not under the body and following the lunge; the rig turning the outline on behind a tree and behind a terrain block (which never fades) and off in the open; the library proxy lookup (`Player_Proxy_001`) and, with the world export, the real proxy instead of the placeholder |
 
 Sandbox, run from an ISOLATE copy (`_scratch/godot_runs/<name>/game`) so the shared `.godot` cache is untouched:
 

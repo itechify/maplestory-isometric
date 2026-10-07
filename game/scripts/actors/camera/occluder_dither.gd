@@ -7,7 +7,8 @@ extends RefCounted
 ## "Materials"). clone_for() rebuilds one as a ShaderMaterial that renders the same and adds a screen-door cut: inside
 ## the holes around the player and nearby monsters (view-space circles, OcclusionMath.hole), fragments nearer than the
 ## hole's depth and above its target's feet (OcclusionMath.hole_floor) are discarded against an
-## interleaved-gradient-noise threshold, scaled by the mesh's `occlusion_fade` instance uniform. Discarding against
+## interleaved-gradient-noise threshold, scaled by the mesh's `occlusion_fade` instance uniform: `strength` of them
+## across a hole's soft rim and `core_strength` (all of them) inside it (OcclusionMath.removed_share). Discarding against
 ## one screen-space pattern is order independent: a canopy's front faces, back faces and ink shell drop the same
 ## pixels, so stacked layers cannot add up to an opaque blob the way alpha-blended fades do, and the remaining dots
 ## still write depth (the player's stencil X-ray reads through them). The cut is skipped in the sun's shadow pass
@@ -36,6 +37,7 @@ uniform vec4 holes[%d];
 uniform float hole_floor[%d];
 uniform int hole_count = 0;
 uniform float strength = 0.9;
+uniform float core_strength = 1.0;
 uniform float edge = 0.35;
 uniform vec3 view_forward = vec3(0.0, 0.0, -1.0);
 instance uniform float occlusion_fade = 0.0;
@@ -64,7 +66,7 @@ void fragment() {
 			float d = length(VERTEX.xy - h.xy) / h.z;
 			cut = max(cut, 1.0 - smoothstep(1.0 - edge, 1.0, d));
 		}
-		cut *= occlusion_fade * strength;
+		cut *= occlusion_fade * mix(strength, core_strength, cut * cut);
 		float noise = fract(52.9829189 * fract(dot(FRAGCOORD.xy, vec2(0.06711056, 0.00583715))));
 		if (noise < cut) {
 			discard;
@@ -86,6 +88,10 @@ const _CULL := {
 
 ## Fraction of the pixels removed at a hole's centre at full fade (camera.json occluder_dither_strength).
 var strength: float = 0.9
+## Fraction removed in a hole's core, inside its soft rim (camera.json occluder_hole_core_strength): the bodies of the
+## player and the nearby monsters show with no dots over them, while the rim keeps `strength`'s dots so the tree still
+## reads as present (OcclusionMath.removed_share).
+var core_strength: float = 1.0
 ## Soft rim of a hole, as a fraction of its radius (camera.json occluder_hole_edge).
 var edge: float = 0.35
 
@@ -143,6 +149,7 @@ func clone_for(m: Material) -> ShaderMaterial:
 		out.set_shader_parameter(&"emission", Vector3(em.r, em.g, em.b))
 		out.set_shader_parameter(&"emission_energy", b.emission_energy_multiplier if b.emission_enabled else 0.0)
 		out.set_shader_parameter(&"strength", strength)
+		out.set_shader_parameter(&"core_strength", core_strength)
 		out.set_shader_parameter(&"edge", edge)
 	_clones[m] = out
 	return out

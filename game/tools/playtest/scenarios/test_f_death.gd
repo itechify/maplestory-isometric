@@ -40,6 +40,8 @@ const SPAWN_TOLERANCE_M := 1.0
 var _canon_death: Dictionary = {}
 var _exp_rows: Array = []
 var _miso_death: Dictionary = {}
+## The shared composite play: the walks into monsters, the dead check, respawn, places and names.
+var kit: PlaytestKit = null
 
 
 func description() -> String:
@@ -53,6 +55,7 @@ func max_seconds() -> float:
 
 func run(d: PlaytestDriver) -> void:
 	_load_tables()
+	kit = PlaytestKit.new(d)
 	match d.phase:
 		0:
 			await _phase0(d)
@@ -169,7 +172,7 @@ func _phase3(d: PlaytestDriver) -> void:
 		var link := String(d.session().get("trail_link_id"))
 		var on_it: bool = d.check("[D5] stopped on the trail, short of the far gate", link != "" and d.current_map() == SPLIT,
 			"map %s, trail %s -> %s, %.1f m past the portal (walk %s)" % [d.current_map(), link,
-				String(d.session().get("trail_destination")), _flat(d.player().global_position - anchor), str(w.get("issues", []))])
+				String(d.session().get("trail_destination")), PlaytestKit.flat_m(d.player().global_position, anchor), str(w.get("issues", []))])
 		if on_it:
 			var r5 := await _die(d, "D5", {"mode": "trail"})
 			if not r5.is_empty():
@@ -316,7 +319,7 @@ func _die(d: PlaytestDriver, label: String, opts: Dictionary) -> Dictionary:
 	var real_ok := dead and not kill.is_empty() and (mode == "trail" or mode == "dialogue" or not bool(kill["debug"]))
 	if not d.check("[%s] died to a real monster touch in %s" % [label, map_id], real_ok,
 			"%s; touches %d; killing touch: %s" % ["dead" if dead else "NOT dead (" + String(d.session().call("state_name")) + ")",
-				touches.size(), _touch_text(d, kill)]):
+				touches.size(), _touch_text(kill)]):
 		ev.disconnect(&"player_died", on_died)
 		ev.disconnect(&"exp_gained", on_exp)
 		ms.disconnect(&"player_touched", on_touch)
@@ -393,7 +396,7 @@ func _die(d: PlaytestDriver, label: String, opts: Dictionary) -> Dictionary:
 	await d.press(&"move_right", 0.5)
 	await d.press(&"move_up", 0.3)
 	await d.wait(0.2)
-	var moved := _flat(p.global_position - p0)
+	var moved := PlaytestKit.flat_m(p.global_position, p0)
 	var pc := d.combat()
 	var atk0 := int(pc.get("attacks"))
 	await d.tap(&"attack")
@@ -415,100 +418,53 @@ func _die(d: PlaytestDriver, label: String, opts: Dictionary) -> Dictionary:
 	ev.disconnect(&"exp_gained", on_exp)
 	ms.disconnect(&"player_touched", on_touch)
 	d.note("[%s] died in %s %s at local %s; killing touch %s; trail at death '%s' (-> %s); EXP %d -> %d" % [label, map_id,
-		_map_name(d, map_id), str(_local(d, rec.get("death_pos", Vector3.ZERO), map_id)), _touch_text(d, kill),
+		_map_name(d, map_id), str(kit.map_local(rec.get("death_pos", Vector3.ZERO), map_id, 0.01)), _touch_text(kill),
 		rec.get("trail_at_death", ""), rec.get("trail_dest_at_death", ""), int(pre["exp"]), c.exp])
 	return rec
 
 
-## Walks into the nearest monster with real input until a touch kills the player (HP 1). `hop` holds the jump key
-## while steering in (holding it re-jumps on every landing), so the touch can land mid-air. `debug_ok` allows debug
-## spawns as targets (the trail has no canonical monsters).
+## Walks into monsters with real input until a touch kills the player (HP 1): the kit's walk into monsters
+## (PlaytestKit.let_monsters_win), any species, the nearest on the player's tier (feet within 0.8 m), else one on
+## another tier over the routes (its height weighing three times its distance). `hop` holds the jump key while closing
+## in (holding it re-jumps on every landing), so the touch can land mid-air. `debug_ok` allows debug spawns as targets
+## (the trail has no canonical monsters).
 func _walk_into_monster(d: PlaytestDriver, label: String, max_s: float, hop: bool, debug_ok: bool) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "walk_into_monster", "%s%s" % [label, " (hopping)" if hop else ""])
-	var p := d.player()
 	var t0 := d.game_s()
-	var exclude := {}
-	var target: Node3D = null
-	var best := INF
-	var best_t := t0
-	var hopping := false
-	while d.game_s() - t0 < max_s and not _is_dead(d):
-		if target == null or not is_instance_valid(target) or not bool(target.call("is_alive")):
-			target = _pick_monster(d, exclude, debug_ok)
-			best = INF
-			best_t = d.game_s()
-			if target == null:
-				await d.wait(0.5)
-				continue
-		var to := target.global_position - p.global_position
-		var dy := absf(to.y)
-		to.y = 0.0
-		var dist := to.length()
-		if dist < best - 0.05:
-			best = dist
-			best_t = d.game_s()
-		if d.game_s() - best_t > 4.0:
-			exclude[target.get_instance_id()] = true
-			target = null
-			continue
-		if dist > 4.0 or dy > 0.8:
-			if hopping:
-				d.input.key_up(KEY_SPACE)
-				hopping = false
-			d.input.release_movement()
-			var tgt := target
-			await d.walk_to(d.walker.grounded(tgt.global_position), {"max_s": 6.0, "retries": 0, "within_m": 1.5,
-				"stop_when": func() -> bool:
-					return _is_dead(d) or not is_instance_valid(tgt) or (_flat(tgt.global_position - p.global_position) < 3.0
-						and absf(tgt.global_position.y - p.global_position.y) < 0.8)})
-			best = INF
-			best_t = d.game_s()
-			continue
-		if hop and not hopping and dist < 3.0:
-			d.input.key_down(KEY_SPACE)
-			hopping = true
-		d.input.set_move_world(to.normalized() if dist > 0.01 else p.facing, p.view_right, p.view_forward)
-		await d.get_tree().process_frame
-		d.input.reassert()
-	if hopping:
-		d.input.key_up(KEY_SPACE)
-	d.input.release_movement()
-	d._end(i, _is_dead(d), "%s after %.1f s" % ["dead" if _is_dead(d) else "alive", d.game_s() - t0])
+	var r: Dictionary = await kit.let_monsters_win([], {"max_s": max_s, "hop": hop, "debug_spawns": debug_ok,
+		"max_dy_m": 0.8, "other_tiers": true, "climb_s": 15.0})
+	d._end(i, kit.is_dead(), "%s after %.1f s (%d touches)" % ["dead" if kit.is_dead() else "alive", d.game_s() - t0, int(r["touches"])])
 
 
 ## The conversation is open (input off): wait for a monster to wander into the player; after 20 s, debug-spawn
 ## Blue Snails around the player (they face it) and wait again.
 func _wait_touch_in_dialogue(d: PlaytestDriver, rec: Dictionary) -> void:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "wait_for_touch_in_dialogue", String(rec["label"]))
-	var natural := await d.wait_until(func() -> bool: return _is_dead(d) or not d.dialogue_open(), 20.0)
-	rec["natural_touch"] = _is_dead(d)
-	if not _is_dead(d) and d.dialogue_open():
+	var natural := await d.wait_until(func() -> bool: return kit.is_dead() or not d.dialogue_open(), 20.0)
+	rec["natural_touch"] = kit.is_dead()
+	if not kit.is_dead() and d.dialogue_open():
 		d.note("[%s] no monster touched the player in 20 s of conversation: debug-spawning Blue Snails" % rec["label"])
 		await d.console("spawn blue snail 6")
-		await d.wait_until(func() -> bool: return _is_dead(d) or not d.dialogue_open(), 40.0)
-	d._end(i, _is_dead(d), "dead %s, dialogue open %s, natural %s" % [_is_dead(d), d.dialogue_open(), natural])
+		await d.wait_until(func() -> bool: return kit.is_dead() or not d.dialogue_open(), 40.0)
+	d._end(i, kit.is_dead(), "dead %s, dialogue open %s, natural %s" % [kit.is_dead(), d.dialogue_open(), natural])
 
 
-## OK on the notice (a mouse click), the respawn, and the checks in town. `started`: the respawn was already started
-## by another key (the jump-key probe), so there is nothing to click.
+## OK on the notice (a mouse click), the respawn (both the kit's respawn), and the checks in town. `started`: the
+## respawn was already started by another key (the jump-key probe), so there is nothing to click.
 func _respawn_ok(d: PlaytestDriver, rec: Dictionary, started: bool = false) -> bool:
 	var label := String(rec["label"])
-	var death := d.main.game_session.death
 	var exp_events: Array = []
 	var on_exp := func(amount: int, source: String) -> void:
 		if source == "death":
 			exp_events.append(amount)
 	d.events().connect(&"exp_gained", on_exp)
-	var how := "after OK"
-	if started:
-		how = "after the jump key"
-	else:
+	var how := "after the jump key" if started else "after OK"
+	if not started:
 		_check_clock_held(d, rec)
-		var r: Dictionary = await d.click(death.notice.ok_button)
-		d.check("[%s] OK on the death notice (mouse click)" % label, bool(r["ok"]), str(r))
-	var back := await d.wait_until(func() -> bool:
-		return not d.game().is_character_dead() and bool(d.session().call("is_idle")) and not d.player().is_dead(), 20.0)
-	await d.wait_idle()
+	var row: Dictionary = await kit.respawn({"click": not started})
+	if not started:
+		d.check("[%s] OK on the death notice (mouse click)" % label, bool(row["ok_clicked"]), str(row))
+	var back := bool(row["respawned"])
 	await d.wait(0.5)
 	d.events().disconnect(&"exp_gained", on_exp)
 	d.check("[%s] the respawn finished" % label, back, String(d.session().call("state_name")))
@@ -604,7 +560,7 @@ func _check_alive_in_town(d: PlaytestDriver, rec: Dictionary, how: String) -> vo
 	d.check("[%s] %s: in the canonical returnMap %s (%s)" % [label, how, e["return_map"], e["return_name"]],
 		d.current_map() == String(e["return_map"]), "%s %s" % [d.current_map(), _map_name(d, d.current_map())])
 	var spawn: Dictionary = d.resolve_target("spawn:%d" % int(e["spawn_index"]))
-	var off := _flat((s["position"] as Vector3) - (spawn.get("position", Vector3.INF) as Vector3)) if bool(spawn.get("ok", false)) else INF
+	var off := PlaytestKit.flat_m(s["position"] as Vector3, spawn.get("position", Vector3.INF) as Vector3) if bool(spawn.get("ok", false)) else INF
 	d.check("[%s] %s: at the respawn spawn %d" % [label, how, int(e["spawn_index"])], off <= SPAWN_TOLERANCE_M,
 		"%.2f m from it, local %s" % [off, str(s.get("local"))])
 	# death.json's respawn HP, plus the natural ticks that landed since: the clock the death paused carries on (C4), so
@@ -748,32 +704,8 @@ static func _hp_matches(hp: int, base: int, max_hp: int, nat: Dictionary) -> boo
 # Helpers
 # =================================================================================================================
 
-func _pick_monster(d: PlaytestDriver, exclude: Dictionary, debug_ok: bool) -> Node3D:
-	var p := d.player()
-	var best: Node3D = null
-	var best_d := 40.0
-	for m: Node3D in d.monsters().call("live_monsters"):
-		if not is_instance_valid(m) or exclude.has(m.get_instance_id()):
-			continue
-		if m.has_meta("debug_spawn") and not debug_ok:
-			continue
-		var dd := _flat(m.global_position - p.global_position) + 3.0 * absf(m.global_position.y - p.global_position.y)
-		if dd < best_d:
-			best_d = dd
-			best = m
-	return best
-
-
-static func _is_dead(d: PlaytestDriver) -> bool:
-	return d.game().is_character_dead() or (d.player() != null and d.player().is_dead())
-
-
 static func _session_dead(d: PlaytestDriver) -> bool:
 	return String(d.session().call("state_name")) == "DEAD"
-
-
-static func _flat(v: Vector3) -> float:
-	return Vector2(v.x, v.z).length()
 
 
 static func _char_subset(c: CharacterState) -> Dictionary:
@@ -827,17 +759,9 @@ static func _map_monsters(d: PlaytestDriver, map_id: String) -> Array:
 	return out
 
 
-static func _local(d: PlaytestDriver, pos: Vector3, map_id: String) -> Vector3:
-	var w := d.world()
-	if w == null or not w.defs.has_map(map_id):
-		return pos
-	var v: Vector3 = w.defs.get_def(map_id).to_local(pos)
-	return Vector3(snappedf(v.x, 0.01), snappedf(v.y, 0.01), snappedf(v.z, 0.01))
-
-
-static func _touch_text(d: PlaytestDriver, t: Dictionary) -> String:
+func _touch_text(t: Dictionary) -> String:
 	if t.is_empty():
 		return "none"
-	return "%s (%s)%s for %d, HP -> %d, %s (vy %.2f) at %.2f s" % [String(d.db().monster(String(t["mob"])).get("name", "?"))
-		if d.db() != null else "?", t["mob"], " [debug spawn]" if bool(t["debug"]) else "", int(t["final"]),
+	return "%s (%s)%s for %d, HP -> %d, %s (vy %.2f) at %.2f s" % [kit.mob_name(String(t["mob"])), t["mob"],
+		" [debug spawn]" if bool(t["debug"]) else "", int(t["final"]),
 		int(t["hp_after"]), "on the ground" if bool(t["on_floor"]) else "IN THE AIR", float(t["vy"]), float(t["at"])]

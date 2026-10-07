@@ -650,12 +650,12 @@ def ground_at(bvh, x, y, z_from, z_max_drop=50.0):
 
 
 def climb_marker(o, bvh):
-    """Ladder / rope / vine: bottom and top points (the validator's climb position = bbox centre xy), plus the
-    standing point where the climber steps off at the top (probed on the ground mesh)."""
-    cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
-    cx = sum(c.x for c in cs) / 8
-    cy = sum(c.y for c in cs) / 8
-    z0, z1 = float(o["climb_z0"]), float(o["climb_z1"])
+    """Ladder / rope / vine: bottom and top points (the climb position stored on the object, obj["climb_bottom"] /
+    obj["climb_top"], set by MapCtx.climbable), plus the standing point where the climber steps off at the top
+    (probed on the ground mesh)."""
+    bot, top = o.matrix_world @ Vector(o["climb_bottom"]), o.matrix_world @ Vector(o["climb_top"])
+    cx, cy = bot.x, bot.y
+    z0, z1 = bot.z, top.z
     exit_pt, best = None, None
     for rad in (0.5, 0.8, 1.1, 1.5, 2.0):
         hits = []
@@ -677,7 +677,7 @@ def climb_marker(o, bvh):
             break
     foot = ground_at(bvh, cx, cy, z0 + 0.5, 1.5)
     return {"name": o.name, "kind": str(o["climbable"]), "descend_only": bool(o.get("descend_only", False)),
-            "bottom": gpos((cx, cy, z0)), "top": gpos((cx, cy, z1)),
+            "bottom": gpos(bot), "top": gpos(top),
             "foot_ground": None if foot is None else gpos((cx, cy, foot)),
             "top_exit": None if exit_pt is None else gpos(exit_pt),
             "facing_xz": None if best is None else [rnd(best[0] - cx), rnd(-(best[1] - cy))]}
@@ -1091,7 +1091,8 @@ def environment_block(scene):
 def route_samples(markers, step=0.25, walk_flags=False):
     """Blender-space samples of every declared route: [(route name, Vector)]. With walk_flags, each sample also
     says whether its route segment is walked (no steeper than movement.json floor_max_angle_deg and no rise above
-    step_up_m in one step) rather than climbed or dropped: [(route name, Vector, walked)]."""
+    step_up_m in one step) rather than climbed or dropped, and gives the unit horizontal vector across the segment
+    (to its left; zero on a vertical segment): [(route name, Vector, walked, across)]."""
     tan_max = math.tan(math.radians(misostory_value("movement", "", "floor_max_angle_deg", 38.0)))
     step_up = misostory_value("movement", "", "step_up_m", 0.45)
     out = []
@@ -1102,7 +1103,8 @@ def route_samples(markers, step=0.25, walk_flags=False):
             if walk_flags:
                 dz, run = abs(b.z - a.z), math.hypot(b.x - a.x, b.y - a.y)
                 walked = dz <= step_up or dz <= run * tan_max
-                out += [(r["name"], a.lerp(b, k / n), walked) for k in range(n)]
+                across = Vector((-(b.y - a.y) / run, (b.x - a.x) / run, 0.0)) if run > 1e-6 else Vector((0, 0, 0))
+                out += [(r["name"], a.lerp(b, k / n), walked, across) for k in range(n)]
             else:
                 out += [(r["name"], a.lerp(b, k / n)) for k in range(n)]
     return out
@@ -1178,11 +1180,15 @@ def wall_name_of(an, tri_index):
 
 def route_block_check(an, markers):
     """Final check of the shipped collision: route samples blocked by a prop hull, or by wall geometry overhead in
-    the body band (an upward ray from 0.15 m to 1.5 m). Samples within 0.8 m (xy) of a climbable are exempt.
+    the body band (an upward ray from 0.15 m to 1.5 m). Like the traversal validator's blocking test, each sample
+    is a body: its centre and two points a body's half-width (presentation.json grounding.capsule_radius_m) either
+    side across the route, so a shoulder that meets a hull or a wall counts. Samples within 0.8 m (xy) of a
+    climbable are exempt.
 
     `offenders` counts per (route, cause); `overhead` lists every wall-overhead sample with its Godot position, the
-    height of the hit above the sample, the wall object hit and the distance to the nearest climbable, so a reader
-    can tell a terrace lip beside a ladder from a real overhang."""
+    ray that met the wall (`centre`, `left` or `right`), the height of the hit above the sample, the wall object hit
+    and the distance to the nearest climbable, so a reader can tell a terrace lip beside a ladder from a real
+    overhang."""
     items = an["hull_items"]
     grid = hull_grid(items)
     climbs = climb_points(markers)
@@ -1193,19 +1199,27 @@ def route_block_check(an, markers):
     bvh = an.get("walls_bvh")
     up = Vector((0.0, 0.0, 1.0))
     step_up = misostory_value("movement", "", "step_up_m", 0.45)
-    for rname, sp, walked in route_samples(markers, walk_flags=True):
+    half = misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
+    for rname, sp, walked, across in route_samples(markers, walk_flags=True):
         total += 1
         near = min((math.hypot(sp.x - cx, sp.y - cy) for cx, cy in climbs), default=math.inf)
         if near < 0.8:
             continue
-        i = hull_hit(items, grid, sp, sp.z + 0.15, sp.z + 1.5)
+        rays = [("centre", sp)] + ([("left", sp + across * half), ("right", sp - across * half)]
+                                   if across.length > 0.0 else [])
+        i = next((k for k in (hull_hit(items, grid, p, sp.z + 0.15, sp.z + 1.5) for _r, p in rays)
+                  if k is not None), None)
         if i is not None:
             blocked_hull += 1
             key = rname + " <- " + (items[i]["asset"] or items[i]["name"])
             offenders[key] = offenders.get(key, 0) + 1
             continue
         if bvh is not None:
-            hit = bvh.ray_cast(sp + Vector((0, 0, 0.15)), up, 1.35)
+            hit, ray = (None,), None
+            for ray, p in rays:
+                hit = bvh.ray_cast(Vector((p.x, p.y, sp.z + 0.15)), up, 1.35)
+                if hit[0] is not None:
+                    break
             if hit[0] is not None:
                 blocked_wall += 1
                 key = rname + " <- wall overhead"
@@ -1216,7 +1230,7 @@ def route_block_check(an, markers):
                 # dropped segment, not walked; body: a real overhang inside a walking player's body
                 kind = "step" if above < step_up else ("body" if walked else "climb_or_drop")
                 kinds[kind] += 1
-                overhead.append({"route": rname, "at": gpos(sp), "hit_above_m": rnd(above, 3), "kind": kind,
+                overhead.append({"route": rname, "at": gpos(sp), "ray": ray, "hit_above_m": rnd(above, 3), "kind": kind,
                                  "wall": wall_name_of(an, hit[2]),
                                  "nearest_climb_m": None if near == math.inf else rnd(near, 2)})
     return {"samples": total, "blocked_by_hulls": blocked_hull, "blocked_by_walls_overhead": blocked_wall,
@@ -1243,7 +1257,8 @@ def capsule_checker(analysis):
     blockers(p, band=None): sorted names of what a vertical capsule of grounding.capsule_radius_m at Blender point p
     touches; band = (lo, hi) above p.z, by default the settle capsule (capsule_lift_m .. + capsule_height_m,
     presentation.json). ground(x, y, z): the highest walkable surface from 1 m above z to 3 m below, or None.
-    dims: the capsule numbers and movement.json's body band (step_up_m .. body_height_m)."""
+    dims: the capsule numbers and movement.json's body band (step_up_m .. body_height_m). segment(a, b, band):
+    (sorted names, samples) of what stands on the straight line from a to b within band above the ground."""
     r = misostory_value("presentation", "grounding", "capsule_radius_m", 0.3)
     h = misostory_value("presentation", "grounding", "capsule_height_m", 1.5)
     lift = misostory_value("presentation", "grounding", "capsule_lift_m", 0.05)
@@ -1289,8 +1304,38 @@ def capsule_checker(analysis):
                 out.add(f"{name} walls")
         return sorted(out)
 
+    def segment(a, b, band, step=0.25):
+        """(blockers, samples) of the straight walk from Blender point a to b at body height: the line itself, not a
+        capsule (a door's anchor stands against its wall). Every `step` m a sample is grounded (the line's own
+        height where no ground is found) and must have no prop hull and no wall in band = (lo, hi) above it (an
+        upward ray), and a horizontal ray from each sample to the next at lo, mid and hi must meet no wall (a thin
+        wall between two samples)."""
+        n = max(1, int(math.ceil((b - a).length / step)))
+        pts = []
+        for k in range(n + 1):
+            q = a.lerp(b, k / n)
+            g = ground(q.x, q.y, q.z)
+            pts.append(Vector((q.x, q.y, q.z if g is None else g)))
+        out = set()
+        for k, p in enumerate(pts):
+            i = hull_hit(items, grid, p, p.z + band[0], p.z + band[1])
+            if i is not None:
+                out.add(items[i]["name"])
+            for name, bvh in walls:
+                hit = bvh.ray_cast(Vector((p.x, p.y, p.z + band[0])), up, band[1] - band[0])
+                if hit[0] is None and k + 1 < len(pts):
+                    d = pts[k + 1] - p
+                    for zz in (band[0], (band[0] + band[1]) / 2, band[1]):
+                        o = p + Vector((0.0, 0.0, zz))
+                        if d.length > 1e-6 and bvh.ray_cast(o, d.normalized(), d.length)[0] is not None:
+                            hit = (True,)
+                            break
+                if hit[0] is not None:
+                    out.add(f"{name} walls")
+        return sorted(out), len(pts)
+
     dims = {"radius_m": r, "height_m": h, "lift_m": lift, "inset_m": inset, "body_band": body}
-    return blockers, ground, dims
+    return blockers, ground, dims, segment
 
 
 def spawn_clearance(analysis, sidecars, partial=False):
@@ -1302,10 +1347,12 @@ def spawn_clearance(analysis, sidecars, partial=False):
     be clear of blocking collision; a portal's arrival point is its anchor + arrival.inset_m (portal_adaptations.json)
     along the inward normal (edges: minus anchor_normal_xz; doors: the door's facing), grounded from 1 m above to
     3 m below. The runtime moves a blocked point to the nearest clear one and logs a warning; the source world should
-    not need that. Route ends are where the runtime's route bot starts a run (both directions), so a capsule must
-    stand there too. Writes `spawn_clearance` into each map / interior sidecar (additive). With --only the hulls of
-    chunks outside the run are not seen (`partial` is recorded)."""
-    blockers, ground, dims = capsule_checker(analysis)
+    not need that. The straight line from the anchor to the arrival point must also be clear at body height
+    (movement.json step_up_m .. body_height_m; capsule_checker's segment), so nothing stands between a portal and the
+    player it lets in (`portal_arrivals[].segment`). Route ends are where the runtime's route bot starts a run (both
+    directions), so a capsule must stand there too. Writes `spawn_clearance` into each map / interior sidecar
+    (additive). With --only the hulls of chunks outside the run are not seen (`partial` is recorded)."""
+    blockers, ground, dims, segment = capsule_checker(analysis)
     r, h, lift, inset, body = dims["radius_m"], dims["height_m"], dims["lift_m"], dims["inset_m"], dims["body_band"]
 
     for name, sc in sidecars.items():
@@ -1327,11 +1374,14 @@ def spawn_clearance(analysis, sidecars, partial=False):
             ln = math.hypot(ix, iy) or 1.0
             ax, ay = pos[0] + inset * ix / ln, -pos[2] + inset * iy / ln
             gz = ground(ax, ay, pos[1])
+            # the walk from the anchor to the arrival point, at body height (sidecar_diff fails a blocked one)
+            sb, sn = segment(Vector((pos[0], -pos[2], pos[1])), Vector((ax, ay, pos[1] if gz is None else gz)), body)
+            seg = {"clear": not sb, "samples": sn, "blockers": sb}
             if gz is None:
-                rows_a.append({"portal": pt["name"], "clear": False, "grounded": False, "blockers": []})
+                rows_a.append({"portal": pt["name"], "clear": False, "grounded": False, "blockers": [], "segment": seg})
                 continue
             b = blockers(Vector((ax, ay, gz)))
-            rows_a.append({"portal": pt["name"], "clear": not b, "grounded": True, "blockers": b})
+            rows_a.append({"portal": pt["name"], "clear": not b, "grounded": True, "blockers": b, "segment": seg})
         rows_r = []
         for rt in sc.get("routes") or []:
             pts = rt.get("points") or []
@@ -1956,7 +2006,7 @@ def check_report(analysis, sidecars, chunks, out_dir, T, t_all):
         json.dump(rep, f, indent=1)
     tot = {"ground_tris": 0, "walls_tris": 0, "prop_hulls": 0, "route_samples": 0, "blocked_by_hulls": 0,
            "blocked_by_walls_overhead": 0, "overhead_body": 0, "blocked_spawns": 0, "blocked_arrivals": 0,
-           "blocked_route_ends": 0}
+           "blocked_arrival_segments": 0, "blocked_route_ends": 0}
     for c in rep["chunks"].values():
         tot["ground_tris"] += c["collision"].get("ground_tris", 0)
         tot["walls_tris"] += c["collision"].get("walls_tris", 0)
@@ -1969,6 +2019,8 @@ def check_report(analysis, sidecars, chunks, out_dir, T, t_all):
         clr = c["spawn_clearance"] or {}
         tot["blocked_spawns"] += sum(1 for r in clr.get("player_spawns", []) if not r["clear"])
         tot["blocked_arrivals"] += sum(1 for r in clr.get("portal_arrivals", []) if not r["clear"])
+        tot["blocked_arrival_segments"] += sum(1 for r in clr.get("portal_arrivals", [])
+                                               if not (r.get("segment") or {}).get("clear", True))
         tot["blocked_route_ends"] += sum(1 for r in clr.get("route_ends", []) if not r["clear"])
     print("CHECK_TOTALS", json.dumps(tot))
     print("CHECK_DONE", path, json.dumps(T))

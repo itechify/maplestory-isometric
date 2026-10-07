@@ -155,23 +155,87 @@
   },
   "field_sources": {
     "items[].name": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "item detail page heading"
     },
     "items[].item_type": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "item page breadcrumb (category link)"
     },
     "items[].item_subtype": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "item page breadcrumb (?subtype= link)"
     },
     "items[].max_per_stack": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "\"Max per Stack\" row"
     },
     "items[].quantity_per_purchase": {
@@ -186,45 +250,185 @@
       "note": "1 = price_mesos buys one unit. MeowDB's Shop Item Efficiency guide divides one item's stat by the listed price (e.g. Red Potion: 100 HP / 50 mesos = \"HP / meso\" 2.000) and says \"Arrows are 1 meso each\". Re-checked on 22/22 guide rows for these shops; see cross_checks.shop_item_efficiency_guide.per_unit_ratio_rows."
     },
     "items[].sell_price_mesos": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
-      "fallback_url": "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
-      "fallback_retrieved_at": "per item: items[].item_api.retrieved_at",
-      "note": "item page \"NPC Sell-back (per unit)\" or \"NPC Sell-back\" row; when the page has no such row, the item API's stats.price (the page omits the row when the value is 0). sell_price_source says which one was used."
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
+      "fallback_pages": [
+        {
+          "url": "https://meowdb.com/msclassic/api/items/541?locale=en&preview=1",
+          "retrieved_at": "2026-10-04T10:22:27.349Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/api/items/576?locale=en&preview=1",
+          "retrieved_at": "2026-10-04T10:22:55.876Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/api/items/585?locale=en&preview=1",
+          "retrieved_at": "2026-10-04T10:22:57.084Z"
+        }
+      ],
+      "note": "item page \"NPC Sell-back (per unit)\" or \"NPC Sell-back\" row; when the page has no such row, the item API's stats.price (the page omits the row when the value is 0). sell_price_source says which one was used; fallback_pages lists the item API responses of the rows that took it."
     },
     "items[].sell_price_basis": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "per_unit when the row label is \"NPC Sell-back (per unit)\", per_item when it is \"NPC Sell-back\". For rows taken from the item API (no label), per_unit if the item page has a \"Max per Stack\" row, else per_item; this rule reproduces the label on every labelled row (cross_checks.item_api.basis_rule_holds)."
     },
     "items[].sell_price_source": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "\"item_page\" or \"item_api\" (null if neither has a value)"
     },
     "items[].rechargeable": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "true only when the item page has a \"Recharge Cost\" row"
     },
     "items[].recharge_cost_mesos_per_unit": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "\"Recharge Cost\" row"
     },
     "items[].sell_price_history": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "Change history table, \"Sell-back price\" row (COT1 -> COT2)"
     },
     "items[].other_change_history": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "Change history table, other rows"
     },
     "items[].change_notes": {
-      "url": "https://meowdb.com/msclassic/item-db/{item_id}",
-      "retrieved_at": "per item: items[].item_page.retrieved_at",
+      "pages": [
+        {
+          "url": "https://meowdb.com/msclassic/item-db/541",
+          "retrieved_at": "2026-10-04T10:08:21.654Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/576",
+          "retrieved_at": "2026-10-04T10:08:22.905Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/585",
+          "retrieved_at": "2026-10-04T10:08:24.078Z"
+        },
+        {
+          "url": "https://meowdb.com/msclassic/item-db/558",
+          "retrieved_at": "2026-10-04T10:08:25.316Z"
+        }
+      ],
       "note": "Change history notes"
     }
   },
@@ -259,7 +463,6 @@
       "mismatches": []
     },
     "item_api": {
-      "url_template": "https://meowdb.com/msclassic/api/items/{item_id}?locale=en&preview=1",
       "rows_checked": 4,
       "page_sell_back_rows": 1,
       "page_api_price_matches": 1,

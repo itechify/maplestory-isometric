@@ -192,6 +192,43 @@ func test_see_through_toggles_with_a_fade() -> void:
 		assert_false(o.visible, "hidden again")
 
 
+## #18: the post-hit blink hid the body, its X-ray fill and its outline together, so under a canopy the player
+## vanished at the moment a monster touched them. While something hides the player (any occluder or terrain), a
+## blink-off slice still draws the silhouette as a ghost at the X-ray opacity; in the open the blink is unchanged.
+func test_the_silhouette_survives_the_blink_while_hidden() -> void:
+	var vis: PlayerVisual = _player_with_visual()[1]
+	assert_true(PlayerVisual.blink_off_at(PlayerVisual.BLINK_MS) and not PlayerVisual.blink_off_at(0), "slices alternate")
+	assert_false(PlayerVisual.blink_off_at(PlayerVisual.BLINK_MS * 2 + 5), "on again")
+	for o in vis.outline_meshes():
+		assert_false(vis.model.is_ancestor_of(o), "the outline is not under the body (hiding the body leaves it)")
+	# In the open: a blink-off slice draws nothing.
+	vis.apply_blink(true)
+	vis.step_see_through(1.0)
+	assert_false(vis.model.is_visible_in_tree(), "the body blinks off")
+	for o in vis.outline_meshes():
+		assert_false(o.is_visible_in_tree(), "nothing drawn in the open")
+	# Hidden (a canopy, a building, terrain): the ghost on the blink-off slice, the ring on the blink-on slice.
+	vis.set_see_through(true)
+	vis.step_see_through(1.0)
+	for o in vis.outline_meshes():
+		assert_true(o.is_visible_in_tree(), "the silhouette is drawn while the body blinks off")
+	var mats := vis.silhouette_materials()
+	assert_near((mats.outline as StandardMaterial3D).albedo_color.a, vis.xray_color.a, 1e-4, "as a ghost at the X-ray opacity")
+	vis.apply_blink(false)
+	vis.step_see_through(0.016)
+	assert_true(vis.model.is_visible_in_tree(), "the body is back")
+	assert_near((mats.outline as StandardMaterial3D).albedo_color.a, vis.silhouette_color.a, 1e-4, "and the outline is a ring again")
+	# The outline follows the model (PlayerCombat lunges the Model node).
+	vis.model.position = Vector3(0, 0, 0.14)
+	vis.step_see_through(0.016)
+	for o in vis.outline_meshes():
+		var on_a_part := false
+		for c in vis.model.get_children():
+			if c is MeshInstance3D and (c as MeshInstance3D).global_transform.is_equal_approx(o.global_transform):
+				on_a_part = true
+		assert_true(on_a_part, "each outline sits on its part, lunge included")
+
+
 func test_rig_turns_the_outline_on_behind_a_tree() -> void:
 	var pair := _player_with_visual()
 	var p: PlayerController = pair[0]

@@ -80,7 +80,8 @@ Terrain (build this first; everything placed later is grounded by raycast onto i
 | `m.terrace(name, outline, top, bottom=None, style="grass_dirt", fringe=None, walkable=True)` | Maple platform: a rounded grass cap overhanging an earthen/stone body. `outline` is a list of `(x, y)` (CCW or CW). `style` is one of `grass_dirt`, `grass_stone` (Amherst grey-blue stone), `grass_sand` (Southperry beige), `grass_rock` (warm grey rock landmarks: shaped body, see below), `cobble` (paved plaza), `sandstone` (paved beige), `beach`, `dirt`, `wood_floor`. `stones=False` turns off the automatic cliff stones. |
 | `m.ramp(name, (x0,y0,z0), (x1,y1,z1), width, style="grass_dirt", top_mat="M_Path_Dirt")` | Sloped dirt trail with solid sides. Keep the slope at or below 30° (run at least 1.8× rise). The upper end must reach **inside** the upper terrace edge by about 0.5 m. `top_mat=None` (or `"M_Grass"`) makes a grassy slope: it gets the terrace cap's rounded grass lip and hanging fringe along both sides and is lit like the flat caps around it. |
 | `m.stairs(name, p0, p1, width, mat="M_Plank", side_mat="M_Wood_Dark", fit_edge=False)` | Steps from p0 (bottom) to p1 (top). Use stairs for steep short climbs (rise of 0.8–4 m). Use `mat="M_StoneWall", side_mat="M_Rock", stringers=False` for stone stairs. The top landing is skipped when the upper cap is already at `p1.z` (±0.05 m) 0.3 m past p1; otherwise it is a flush 3 cm slab in the material of the surface it reaches (grass, cobble...). So end the flight with p1 just inside the cap at the cap's height (or use `fit_edge=True`). `fit_edge=True` slides the flight along its climb direction (run and heights kept) so the top tread sits just inside the upper cap's real wobbled edge, so no lower tread hides under the cap lip as a grass band. |
-| `m.ladder(name, x, y, z0, z1, facing=90, kind="ladder"/"rope"/"vine", descend_only=False)` | A climbable ladder, rope or vine against a cliff face. Place it 0.3 m in front of the face; `facing=90` means the climber faces +y. A rope hangs **plumb about 0.12 m off the face** below the upper cap's lip (the face is found by probing toward the cap, so `(x, y)` may be up to ~1.5 m out), with darker knot bands every 0.4 m and an ink outline; it ends at the lip edge in a dark whipping knot (nothing curls over the lip), with a flat peg on the cap behind it. `kind="vine"` or `descend_only=True` gives a leafy green vine hung the same way from a leaf clump. The climb position the validator uses stays exactly `(x, y)`. |
+| `m.ladder(name, x, y, z0, z1, facing=90, kind="ladder"/"rope"/"vine", descend_only=False)` | A climbable ladder, rope or vine against a cliff face. Place it 0.3 m in front of the face; `facing=90` means the climber faces +y. A rope hangs **plumb about 0.12 m off the face** below the upper cap's lip (the face is found by probing toward the cap, so `(x, y)` may be up to ~1.5 m out), with darker knot bands every 0.4 m and an ink outline; it ends at the lip edge in a dark whipping knot (nothing curls over the lip), with a flat peg on the cap behind it. `kind="vine"` or `descend_only=True` gives a leafy green vine hung the same way from a leaf clump. The climb position stays exactly `(x, y)`: `m.ladder` stores it on the object (below). |
+| `m.climbable(obj, x, y, z0, z1, kind="ladder", descend_only=False)` | Makes a mesh you built yourself a climbable and stores its **climb position**: `obj["climb_bottom"]` and `obj["climb_top"]`, the climb line's ends at local `(x, y)`, heights `z0` and `z1` (stored in world space, read through the object's matrix), plus `climbable`, `climb_z0` / `climb_z1` and `descend_only`. The traversal validator, `validate.py` and the runtime export read only these, never the mesh, so the geometry may hang off-centre (a rope off the face, leaves to one side). `m.ladder` calls it; call it on any climbable you build without `m.ladder` (000001014's `vine_climb`). |
 | `m.bridge(name, (x,y,z), (x,y,z), width=2.6)` | Plank bridge with rope rails (walkable). |
 | `m.deck(name, outline, top, post_bottom=None, rail=False)` | Wooden platform on posts (docks, walkways, scaffolds). |
 | `m.path(name, pts, width=2.6, mat="M_Path_Dirt", end_taper=0.55)` | Painted path draped over the ground. Use `mat="M_Cobble_Path"` or `"M_Sand_Path"` in towns. The through-route of Maple Road / Rainbow Street uses `m.path("Main_Road", pts, **MAIN_ROAD)` (pale cream, 3.6 m; see below). `end_taper` is the width factor at both tips; `1.0` gives square ends (for example to run dirt neatly onto a stair landing). |
@@ -158,8 +159,8 @@ height; `m.size` is `(L, D)`.
 - **Placement:** `m.scatter(...)` and `m.mobs(...)` automatically avoid props placed earlier with `m.place`
   (footprint ≥ 1 m). Pass `avoid_props=False` to disable this.
 - **Ropes** (`kind="rope"`) are thick and readable, hung plumb against the face and draped over the lip to a stake on
-  the upper cap (vines: a leaf clump). The climbable metadata (`climbable`, `climb_z0/z1`, `descend_only`) and the climb position the
-  validator uses (the object's bounding-box centre, kept exactly at `(x, y)`) are unchanged. The **Butterfly** asset is visible at map scale.
+  the upper cap (vines: a leaf clump). The climbable metadata (`climbable`, `climb_z0/z1`, `descend_only`) is unchanged; the
+  climb position is stored on the object (`climb_bottom` / `climb_top`, `m.climbable`), exactly at `(x, y)`. The **Butterfly** asset is visible at map scale.
 - **Helpers:** `m.face_point(x, y, dx, dy)` marches to a cliff edge and returns `(ex, ey, z_top, z_below)`, which
   is handy for embedding stones, vines and ropes in faces. `m.view_dir()` is described in §3.
 - **Trails between maps** leave each edge portal **perpendicular to its footprint edge** for about 3.5 m (plus
@@ -203,8 +204,8 @@ height; `m.size` is `(L, D)`.
 - **Validator:** routes may include ladder and rope climbs (the slope window stops at climbs), so a route can walk
   up to a ladder, climb it and carry on: no need to start a separate route at every cliff. It also reports props
   blocking a route (`blocked`: geometry inside the body band `traversal.BODY_Z` = 0.15–1.5 m above the walk
-  surface; props beside a ladder/rope climb are exempt, see §5) and ladders or ropes without ground at their foot
-  or top.
+  surface, on the centreline or a body's half-width to either side; props beside a ladder/rope climb are exempt, see
+  §5) and ladders or ropes without ground at their foot or top.
 
 ### Layout rules from the island review
 
@@ -225,10 +226,15 @@ height; `m.size` is `(L, D)`.
 - Drops of up to 2.6 m are allowed but one-way. Avoid drops on main routes.
 - Every anchor portal must stand on ground, and every declared route must have ground everywhere.
 - Paths are at least 2.5 m wide, and nothing tall stands on them.
-- **Blocked:** an upward ray from every walk sample must not hit a placed prop or architecture inside the body band
-  `BODY_Z = (0.15, PLAYER_HEIGHT)` (0.15–1.5 m). Hits on the authored route segment that contains a ladder/rope
-  climb, or within 0.8 m of the climb, are exempt when a ladder or rope stands within 2.2 m (a trellis behind a rope,
-  dressing on the lip above a ladder foot); they are listed as `climb_exempt` on the route.
+- **Blocked:** three upward rays from every walk sample, one on the centreline and one `traversal.BODY_HALF_WIDTH`
+  (0.3 m, the runtime's capsule radius) to each side across the walking direction, must not hit a placed prop or
+  architecture inside the body band `BODY_Z = (0.15, PLAYER_HEIGHT)` (0.15–1.5 m): a post the body would meet with a
+  shoulder blocks the route too (the issue says which ray, `"ray": "left"`). So walk at least 0.3 m clear of walls,
+  frames and props. Hits on the authored route segment that contains a ladder/rope climb, or within 0.8 m of the
+  climb, are exempt when a ladder or rope stands within 2.2 m (a trellis behind a rope, dressing on the lip above a
+  ladder foot); they are listed as `climb_exempt` on the route. What counts as an obstacle is registry data
+  (`collision_tags.passable`): climbables, `passable` objects, meshes tagged `none` and kit assets with a
+  `PASSABLE_TAGS` tag never block; an object's name plays no part.
 - **Props near routes (island validator):** `validate.py`'s `props_near_routes` reports `m.place` props that are
   solid at body height near a route centreline. **Medium** (fails the check): less than 0.45 m body clearance.
   **Low**: 0.45 m up to 1.5 m outdoors (0.8 m in interiors). Hop-able furniture (top under 0.6 m) and archways
@@ -277,7 +283,9 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   `arrival.inset_m`), in a 0.3 m × 1.5 m body. Nothing that collides may stand there: no door mound, hedge, gate post
   or crate within about 1.8 m inward of an edge anchor. 1000000's front-edge barrel-door mounds stand 3.6–3.8 m behind
   their portals for this (`_door(..., back=...)`; the docstring has the arithmetic), and hidden-lane trail hedges
-  stop at the footprint edge.
+  stop at the footprint edge. The straight line from the anchor to the arrival point must be clear at body height
+  too (0.45–1.5 m above the ground under it: no prop prism, no wall across it), so nothing stands between a portal
+  and the player it lets in.
 - **Route ends must be clear.** The runtime's route bot starts a run at either end of every route, in the
   controller's body (a floating capsule 0.3 m wide from `step_up_m` 0.45 m to 1.5 m above the feet). End routes at
   least 0.35 m from walls, house stems and gate posts (the walls of a door alcove count), and never under low
@@ -297,13 +305,17 @@ refuses a staged export that breaks any of these. Run `--check` (below) while au
   builders tag their meshes (`geo.terrace`: body and cap `wall`, fringe `none`; path ribbons, foam, fringes and sign
   lettering `none`; interior floorboard and flagstone overlays (`interior.plank_floor`, 60001 `flag_floor`) `none`;
   `m.rail`, the ledge face and bridge rails `wall`; water surfaces `water`). A mesh you build yourself into a
-  map's Terrain collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)` with
-  `from misostory import collision_tags as CT`; `validate.py` (`collision_tags`) fails untagged ones. In an
-  Architecture collection an untagged mesh is a wall, so tag a visual-only layer laid over a walkable surface
-  (boards, tiles, decals) `none`: as a wall it is a solid slab a few mm above the floor. Kit assets use
+  map's Terrain or Architecture collection (or a plinth or WORLD collection) must be tagged: `CT.tag(obj, CT.WALL)`
+  with `from misostory import collision_tags as CT` (room walls, frames, parapets, stalks); `validate.py`
+  (`collision_tags`) fails untagged ones. Tag a visual-only layer laid over a walkable surface (boards, tiles,
+  decals) `none`: as a wall it is a solid slab a few mm above the floor. An Architecture mesh must also rest on or
+  touch something (`floating_props` checks the meshes a map builds like the instances, by bounding box within
+  0.15 m of another surface). Kit assets use
   registry tags: any of `collision_tags.PASSABLE_TAGS` (`passable`, `cloud`, `vine`, `flower`, `grass`, ...) makes an
   asset passable, and `collide_exact` makes it collide with its exact mesh instead of a prism (thin overhead
-  dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams).
+  dressing, such as the interior `Eave_Lashed_4m`, whose prism reached 1.30 m above the ceiling beams; and low
+  sloping shapes whose prism would stand at their full height over a low end, such as 000000020's
+  `X20000_NinaStumpRoots`: the player walks over a root, and round it only near the bark, where it rises higher).
 - **Overhangs above a walking body get their own prism.** A prop's prism covers only its 0.15–1.6 m slice, so a
   cap or roof that overhangs its walls has no collision, and a monster or prop can stand inside it. Tag such parts
   of an asset `CT.tag(part, CT.OVERHEAD_HULL)` in the asset's builder: the export then gives the asset one more

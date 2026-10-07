@@ -6,7 +6,8 @@ extends RefCounted
 ##   schema       the minimum fields each domain's consumers rely on (REQUIRED_FIELDS)
 ##   provenance   source.authority is MeowDB MS Classic, source.url is a MeowDB MS Classic page, MeowDB data file or
 ##                MeowDB API, source.retrieved_at is ISO 8601; every field_sources URL is on meowdb.com unless an
-##                `external` entry declares it
+##                `external` entry declares it; no cited URL (source, field_sources, per-property sources) is a URL
+##                template with a placeholder such as {item_id}
 ##   external     every `external` entry (a value taken from outside MeowDB) has field, source_url, reason and
 ##                verified: false
 ##   provenance (per property)  a record-level `provenance` block {<property>: source object} names a registered
@@ -153,6 +154,9 @@ func source_object_problems(property: String, src: Variant, owner_kind: String =
 		for u in urls:
 			if not ProvenanceAuthorities.url_allowed(authority, u):
 				out.append("url %s is not a %s page (%s)" % [var_to_str(u), authority, ", ".join(PackedStringArray(prefixes))])
+	for u in urls:
+		if is_url_template(u):
+			out.append("url %s is a URL template, not a page: cite the real URL" % var_to_str(u))
 	# read_at: when the value was read (MeowDB's cache stamp may be given as retrieved_at).
 	var read_at: Variant = src.get("read_at", null)
 	if read_at == null and authority == ProvenanceAuthorities.MEOWDB:
@@ -317,6 +321,8 @@ func _check_source(domain_name: String, key: String, rec: Dictionary) -> void:
 	if not _is_source_url(url):
 		report.error("provenance", domain_name, key, "source.url %s is not a MeowDB MS Classic page, MeowDB data file or MeowDB API (%s)" % [
 			var_to_str(url), ", ".join(PackedStringArray(SOURCE_URL_PREFIXES))])
+	elif is_url_template(url):
+		report.error("provenance", domain_name, key, "source.url %s is a URL template, not a page: cite the real URL" % var_to_str(url))
 	if not is_iso_timestamp(src.get("retrieved_at", null)):
 		report.error("provenance", domain_name, key, "source.retrieved_at %s is not an ISO 8601 timestamp" % var_to_str(src.get("retrieved_at", null)))
 	var declared := _external_urls(rec.get("external", null))
@@ -331,6 +337,9 @@ func _check_source(domain_name: String, key: String, rec: Dictionary) -> void:
 			if not u.begins_with(FIELD_SOURCE_PREFIX) and not declared.has(u):
 				report.error("provenance", domain_name, key,
 					"field_sources.%s cites %s, which is not on meowdb.com and has no external entry" % [field, u])
+			if is_url_template(u):
+				report.error("provenance", domain_name, key,
+					"field_sources.%s cites the URL template %s, not a page: list each real URL (e.g. pages: [{url, retrieved_at}])" % [field, u])
 
 
 static func _is_source_url(url: Variant) -> bool:
@@ -344,7 +353,19 @@ static func _is_source_url(url: Variant) -> bool:
 	return false
 
 
-## Every URL a field_sources value cites: url, fallback_url, pages[].url, urls[] (strings or {url}).
+## True when `url` is a URL template rather than a page: it holds a placeholder such as "{item_id}" or "<id>"
+## (".../item-db/{item_id}"). A record cites the real URL of every page it read.
+static func is_url_template(url: Variant) -> bool:
+	if not (url is String):
+		return false
+	for c in ["{", "}", "<", ">"]:
+		if String(url).contains(c):
+			return true
+	return false
+
+
+## Every URL a field_sources value cites: url, fallback_url, pages[].url, fallback_pages[].url, urls[] (strings or
+## {url}).
 static func _field_source_urls(v: Variant) -> PackedStringArray:
 	var out: PackedStringArray = []
 	if not (v is Dictionary):
@@ -352,7 +373,7 @@ static func _field_source_urls(v: Variant) -> PackedStringArray:
 	for k in ["url", "fallback_url"]:
 		if v.get(k, null) is String:
 			out.append(v[k])
-	for list_key in ["pages", "urls"]:
+	for list_key in ["pages", "fallback_pages", "urls"]:
 		var list: Variant = v.get(list_key, null)
 		if list is Array:
 			for p in list:

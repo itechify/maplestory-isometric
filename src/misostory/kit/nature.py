@@ -183,7 +183,9 @@ def bush_c(coll):
     _bush(coll, "Bush_C", 13, 0.55, 3)
 
 
-@asset("Bush_Flowering_A", "Foliage", footprint=1.6, tags=("bush",))
+# passable (collision_tags.PASSABLE_TAGS): a route may brush through it, as the validator has always allowed; like all
+# plain foliage it never collides in the game. Not "flower", which would also drop its ink outline (NO_OUTLINE_TAGS).
+@asset("Bush_Flowering_A", "Foliage", footprint=1.6, tags=("bush", "passable"))
 def bush_flowering(coll):
     _bush(coll, "Bush_Flowering_A", 14, 0.9, 4)
     r = core.rng("bf", 1)

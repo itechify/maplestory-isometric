@@ -3,14 +3,16 @@ extends PlaytestScenario
 ## jump (RouteBot jumped on them in test_feel_routes). Setup (console, counted apart): `god on` and a `warp` per map.
 ## Play: walk the route with real input and record where the walk jumped (the takeoff and the ledge it landed on);
 ## then, at each ledge, try it as a player would, with real keys:
-##   pressed   walk into the face until stopped, then Space with the direction still held;
+##   pressed   walk into the face until it blocks the walk, then Space with the direction still held;
 ##   running   from 1.3 m back, Space when the feet are 0.6 m from the takeoff point;
 ##   late      the same, Space at the takeoff point itself (the bot's spot);
 ## and whether the landing is on the ledge. Windowed runs write a frame sheet of one attempt per ledge.
-## FEEL_LEDGES="000000042:Main,..." picks the routes (default: 000000042:Main).
+## FEEL_LEDGES="000000042:Main,..." picks the routes (default: DEFAULT_ROUTES, the routes whose walks jump: the six
+## route ledges, three on 000000042 Main and one each on 000001020 Main, 000001005 DoorRoof and 000001005 LedgeT4).
 
 const Lib := preload("res://tools/playtest/scenarios/test_feel_common.gd")
 const TPS := 60.0
+const DEFAULT_ROUTES := "000000042:Main,000001020:Main,000001005:DoorRoof,000001005:LedgeT4"
 
 var S: Lib.Sampler = null
 var results: Array = []
@@ -35,7 +37,7 @@ func run(d: PlaytestDriver) -> void:
 	await d.console("god on")
 	var pairs := OS.get_environment("FEEL_LEDGES")
 	if pairs == "":
-		pairs = "000000042:Main"
+		pairs = DEFAULT_ROUTES
 	var frames: Array = []
 	var notes: Array = []
 	for pair: String in pairs.split(","):
@@ -48,6 +50,8 @@ func run(d: PlaytestDriver) -> void:
 		S.rows.clear()
 		S.record = true
 		var w: Dictionary = await d.walk_route(map_id, route)
+		# A route that ends at the top of its last ledge is done while the body is still over the lip: record the landing.
+		await d.wait_until(func() -> bool: return d.player().is_grounded(), 2.0)
 		S.record = false
 		d.check("walked %s %s" % [map_id, route], bool(w["ok"]), "; ".join(PackedStringArray(w.get("issues", []))))
 		var ledges := _ledges_from(S.rows, S.events.slice(ev0))
@@ -121,9 +125,11 @@ func _attempt(d: PlaytestDriver, l: Dictionary, mode: String) -> bool:
 	var i := d._begin(PlaytestReport.KIND_PLAY, "feel_ledge", "%s jump onto a %.2f m ledge" % [mode, float(l["rise"])])
 	d.input.set_move_world(dir, p.view_right, p.view_forward)
 	if mode == "pressed":
-		# Into the face until the body stops.
+		# Into the face until it blocks the walk. A face oblique to the approach (000000042's tiers, about 40 degrees)
+		# never stops the body: it slides along the face and off the end of the tier, so "until stopped" jumped from
+		# the tier below.
 		await d.wait(0.2)
-		await d.wait_until(func() -> bool: return p.actual_velocity.length() < 0.2, 2.0)
+		await d.wait_until(func() -> bool: return p.actual_velocity.dot(dir) < 0.8 * p.model.walk_speed, 2.0)
 	else:
 		var lead := 0.6 if mode == "running" else 0.0
 		await d.wait(0.1)

@@ -28,6 +28,7 @@ import math
 
 from mathutils import Vector
 
+from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -560,17 +561,24 @@ def _cargo_derrick(coll):
     mb.build("X60000_CargoDerrick", coll, smooth=False)
 
 
+DAVIT_REACH = 1.25  # X60000_RopeDavit: from the post to the pulley
+
+
 @asset("X60000_RopeDavit", "Props", footprint=0.6, tags=("prop", "climb"))
 def _rope_davit(coll):
-    """Rope head on a cliff lip: a short post with an arm reaching 0.9 m over the edge (-y) and a pulley
-    block the climbing rope hangs from. Origin at the post foot."""
+    """Rope head on a cliff lip: a tall post on a round stone foot with an arm reaching DAVIT_REACH (-y) to a pulley
+    block over the climbing rope. Origin at the post foot. The arm, its brace and the pulley start above 1.7 m, out of
+    the 0.15-1.6 m body band the export slices a prop's collision from, so the post alone collides: the post stands
+    beside its rope's top exit and the arm swings over it. (With the arm at 1.5 m the prism ran from the post to the
+    pulley, over the exit itself, and the player snagged on it for 0.25 s coming off the rope.)"""
     mb = MeshBuilder()
-    mb.box((0.5, 0.5, 0.2), loc=(0, 0, 0.1), mat="M_StoneWall", bevel=0.04, segs=1)
-    mb.box((0.18, 0.18, 1.5), loc=(0, 0, 0.85), mat="M_Wood_Dark", bevel=0.03, segs=1)
-    mb.box((0.16, 1.25, 0.16), loc=(0, -0.5, 1.5), mat="M_Wood_Dark", bevel=0.03, segs=1)
-    _line(mb, (0, 0, 1.0), (0, -0.55, 1.45), 0.05, "M_Wood_Dark")
-    mb.cyl(0.17, 0.1, loc=(-0.05, -0.95, 1.25), rot=(0, 90, 0), mat="M_Metal", verts=12)
-    mb.box((0.06, 0.14, 0.3), loc=(0, -0.95, 1.33), mat="M_Wood_Dark")
+    mb.cyl(0.26, 0.2, mat="M_StoneWall", verts=12)
+    mb.box((0.18, 0.18, 2.3), loc=(0, 0, 1.25), mat="M_Wood_Dark", bevel=0.03, segs=1)
+    arm = DAVIT_REACH + 0.3
+    mb.box((0.16, arm, 0.16), loc=(0, 0.12 - arm / 2, 2.25), mat="M_Wood_Dark", bevel=0.03, segs=1)
+    _line(mb, (0, 0, 1.8), (0, -0.6, 2.2), 0.05, "M_Wood_Dark")
+    mb.cyl(0.17, 0.1, loc=(-0.05, -DAVIT_REACH, 2.0), rot=(0, 90, 0), mat="M_Metal", verts=12)
+    mb.box((0.06, 0.14, 0.3), loc=(0, -DAVIT_REACH, 2.08), mat="M_Wood_Dark")
     # (no rope piece of its own any more: the kit rope hangs plumb off the face from its own stake, so a copy at
     # the climb position no longer lines up with it)
     mb.build("X60000_RopeDavit", coll, smooth=False)
@@ -979,7 +987,7 @@ def parapet(m, name, pts, z, h=0.5, w=0.32, gaps=()):
             mb.box((seg / n + 0.03, w, h), loc=m.w(cx, cy, z + h / 2 - 0.05), rot=(0, 0, yaw), mat=WALL,
                    bevel=0.05, segs=1)
     if mb.bm.verts:
-        mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+        CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def face_y(m, x, y_top, y_dir=-1.0):
@@ -1001,7 +1009,7 @@ def plaster_band(m, name, xs, y_top, z0, z1, t=0.2):
         ey = face_y(m, cx, y_top)
         mb.box(((x1 - x0) / n + 0.04, t, z1 - z0), loc=m.w(cx, ey + 0.06, (z0 + z1) / 2), rot=(0, 0, m.yaw),
                mat=WALL, bevel=0.04, segs=1)
-    mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+    CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def mooring_rope(m, name, p, q, sag=0.4, r=0.05):
@@ -1014,7 +1022,7 @@ def mooring_rope(m, name, p, q, sag=0.4, r=0.05):
                        p[2] + (q[2] - p[2]) * t - math.sin(math.pi * t) * sag))
     for a, b in zip(pts, pts[1:]):
         _line(mb, a, b, r, "M_Rope")
-    mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False)
+    CT.tag(mb.build(f"{m.slug}_{name}", m.col_arch, smooth=False), CT.WALL)
 
 
 def planter(m, name, outline, base, h=0.5):
@@ -1207,9 +1215,13 @@ def build(m):
     m.place("Market_Stall", 35.4, 19.8, rot=0)
     m.place("X60000_FabricRolls", 38.2, 22.4, rot=-25)
     m.place("X60000_FabricRolls", 31.8, 19.0, rot=10, scale=0.9)
-    # the ledge ropes: a davit with a pulley on the T30 lip over each rope, a coil at each foot
-    for (x, y) in ((18.0, 23.75), (19.9, 23.6)):  # pulleys over the kit ropes' lip points
-        m.place("X60000_RopeDavit", x, y + 0.95, rot=0)
+    # the ledge ropes: a davit on the T30 lip with its pulley over each rope, a coil at each foot. Each post stands
+    # beside its rope's top exit (0.5 m in from the rope), on the outer side (rope A's west, rope B's east), so the
+    # walk off either rope toward the ladder passes no post; the arm swings over the exit above head height
+    for (x, y, bearing) in ((18.0, 23.75, 138.0), (19.9, 23.6, 56.0)):  # pulley points; post bearing (deg) from it
+        b = math.radians(bearing)
+        px, py = x + math.cos(b) * DAVIT_REACH, y + math.sin(b) * DAVIT_REACH
+        m.place("X60000_RopeDavit", px, py, rot=bearing - 90.0)  # its arm (-y) points back at the pulley
     m.place("Rope_Coil", 16.9, 22.6)
     m.place("Rope_Coil", 21.0, 22.7, rot=60)
     # belvedere: the walkable front strip has Biggs's market canopy, cafe tables, blue crates and pots; the back

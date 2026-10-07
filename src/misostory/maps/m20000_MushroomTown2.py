@@ -23,6 +23,7 @@ stump's camera-facing side to her islet.
 
 import math
 
+from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -102,9 +103,9 @@ def _stone_arch(coll):
 @asset("X20000_NinaStump", "Foliage", footprint=4.6, tags=("stump", "landmark"))
 def _nina_stump(coll):
     """Giant mossy tree stump that carries Nina's flower islet (top at ~1.85 m). The trunk only: it collides as a
-    prism of its own 2.25 m radius. The roots are a separate passable asset (X20000_NinaStumpRoots): in one asset
-    their tips widened the stump's collision prism to a 3.8 m circle, an invisible ledge 1.5 m outside the bark that
-    no stair to Nina could meet."""
+    prism of its own 2.25 m radius. The roots are a separate asset (X20000_NinaStumpRoots): in one asset their tips
+    widened the stump's collision prism to a 3.8 m circle, an invisible ledge 1.5 m outside the bark that no stair to
+    Nina could meet."""
     mb = MeshBuilder()
     mb.cyl(2.25, 1.9, mat="M_Bark", verts=20, r2=2.05)
     mb.build("X20000_NinaStump", coll, smooth=True, sharp_angle=45)
@@ -113,10 +114,14 @@ def _nina_stump(coll):
 NINA_ROOT_ANGLES = tuple(2 * math.pi * k / 6 + 0.4 for k in range(6))  # stump-local, radians
 
 
-@asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump",))
+@asset("X20000_NinaStumpRoots", "Foliage", footprint=4.6, tags=("stump", "collide_exact"))
 def _nina_stump_roots(coll):
-    """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump). Low and sloping into the
-    lawn, they are passable dressing like every stump and log."""
+    """The six buttress roots spreading from Nina's stump (same frame as X20000_NinaStump), 1.1 m high at the bark
+    and sloping into the lawn. They collide with their exact mesh (collide_exact): the player walks over a root, up its
+    sloping side and along its ridge (about 0.65 m high mid-root), and is stopped by it only near the bark, where it
+    rises higher, so the body never passes through one. (Passable, as a plain Foliage stump is, the body walked
+    through them; as prisms, each root's flat top stood at the root's full 1.1 m over its low tip, and a player walking
+    off Nina's stair sideways crossed a root on that invisible top.)"""
     mb = MeshBuilder()
     for a in NINA_ROOT_ANGLES:
         mb.cyl(0.75, 2.2, loc=(math.cos(a) * 1.6, math.sin(a) * 1.6, 0.35), rot=(0, 100, math.degrees(a)),
@@ -144,7 +149,7 @@ def _sky_mushroom(m, cx, cy, base_z, cap_z, cap_r):
     stalk.cyl(0.95, cap_z - 0.5 - base_z + 0.2, loc=m.w(cx, cy, base_z - 0.2), mat="M_MushStem", verts=16, r2=0.7)
     stalk.cyl(1.25, 0.4, loc=m.w(cx, cy, base_z - 0.15), mat="M_MushStem", verts=16, r2=0.95)
     stalk.cyl(0.95, 0.18, loc=m.w(cx, cy, cap_z - 1.5), mat="M_MushStem", verts=16, r2=1.1)
-    stalk.build(f"{m.slug}_SkyMushroom_Stalk", m.col_arch, smooth=True, sharp_angle=50)
+    CT.tag(stalk.build(f"{m.slug}_SkyMushroom_Stalk", m.col_arch, smooth=True, sharp_angle=50), CT.WALL)
     cap = MeshBuilder()
     cap.dome(cap_r, 0.75, loc=m.w(cx, cy, cap_z - 0.75), mat="M_Spot_mush_red__mush_spot", u=32, v=8, lip=0.45,
              profile=0.2)

@@ -1,12 +1,12 @@
 {
   "generated_by": "game/tools/stuck_scan_tool.tscn",
-  "generated_at": "2026-10-05T17:42:09Z",
+  "generated_at": "2026-10-06T20:00:22Z",
   "engine": "4.7.2-stable (official)",
   "verified": true,
   "maps_requested": [
     "all"
   ],
-  "build_ms": 1129,
+  "build_ms": 1038,
   "allowlist": "game/data/misostory/stuck_allowlist.json",
   "params": {
     "cell_m": 0.35,
@@ -30,23 +30,23 @@
   },
   "totals": {
     "maps": 25,
-    "nodes": 491630,
-    "certain_edges": 3630167,
-    "into_edges": 2901111,
-    "reachable": 373506,
-    "flagged": 408,
-    "components": 38,
+    "nodes": 491592,
+    "certain_edges": 3629913,
+    "into_edges": 2902029,
+    "reachable": 373472,
+    "flagged": 392,
+    "components": 34,
     "confirmed": 0,
     "cleared": 25,
-    "unenterable": 13,
+    "unenterable": 9,
     "unverified": 0,
     "allowlisted": 0,
     "new_traps": 0,
     "unreviewed_unenterable": 0,
-    "fall_outs": 4929,
+    "fall_outs": 4881,
     "outside_regions": 160,
     "outside_regions_escapable": 0,
-    "ms": 86450
+    "ms": 68266
   },
   "traps": [],
   "unreviewed_unenterable": [],
@@ -64,9 +64,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 272,
-      "edges_ms": 599,
-      "ms": 944,
+      "sample_ms": 238,
+      "edges_ms": 502,
+      "ms": 795,
       "rays": 60981,
       "shape_queries": 30132,
       "sweeps": 113483,
@@ -90,9 +90,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 438,
-      "edges_ms": 950,
-      "ms": 1522,
+      "sample_ms": 363,
+      "edges_ms": 782,
+      "ms": 1249,
       "rays": 76263,
       "shape_queries": 47600,
       "sweeps": 166423,
@@ -104,24 +104,24 @@
       "outside_regions_samples_local": []
     },
     "000000020": {
-      "nodes": 13782,
-      "certain_edges": 102712,
-      "into_edges": 74307,
+      "nodes": 13759,
+      "certain_edges": 102436,
+      "into_edges": 75144,
       "refined_jumps": 0,
       "entries": 155,
       "exits": 190,
-      "reachable": 12870,
-      "escapable": 13782,
+      "reachable": 12847,
+      "escapable": 13759,
       "flagged_before_refine": 0,
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 418,
-      "edges_ms": 771,
-      "ms": 1321,
-      "rays": 101109,
-      "shape_queries": 45985,
-      "sweeps": 143302,
+      "sample_ms": 338,
+      "edges_ms": 702,
+      "ms": 1145,
+      "rays": 101201,
+      "shape_queries": 46047,
+      "sweeps": 145032,
       "name": "Mushroom Town",
       "kill_y_local": -6.15,
       "fall_out_samples_local": [],
@@ -142,9 +142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 188,
-      "sample_ms": 25,
-      "edges_ms": 171,
-      "ms": 211,
+      "sample_ms": 20,
+      "edges_ms": 134,
+      "ms": 165,
       "rays": 6195,
       "shape_queries": 2806,
       "sweeps": 30786,
@@ -273,7 +273,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.46, 2.6, -13.65])",
-          "verify_ms": 664,
+          "verify_ms": 633,
           "in_edges": [
             {
               "kind": "slide",
@@ -379,7 +379,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [28.5, 1.19, -25.76])",
-          "verify_ms": 3,
+          "verify_ms": 2,
           "in_edges": [
             {
               "kind": "slide",
@@ -427,22 +427,22 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [29.32, 0.0, -25.19] toward local [28.5, 1.19, -25.76], jump hold from local [29.32, 0.0, -25.19]: stands on escapable ground at local [28.74, 1.15, -25.43]",
+              "how": "via local [29.32, 0.0, -25.19] toward local [28.5, 1.19, -25.76], jump hold from local [29.32, 0.0, -25.19]: stands on escapable ground at local [28.7, 1.19, -25.6]",
               "tries": 1,
               "start_local": [
                 29.32,
                 0.0,
                 -25.19
               ],
-              "best_rise_m": 1.15
+              "best_rise_m": 1.19
             }
           ]
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 488,
-      "edges_ms": 1175,
-      "ms": 1809,
+      "sample_ms": 427,
+      "edges_ms": 971,
+      "ms": 1521,
       "rays": 107755,
       "shape_queries": 54098,
       "sweeps": 219210,
@@ -490,7 +490,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [-0.19, 1.2, -16.21])",
-          "verify_ms": 69,
+          "verify_ms": 74,
           "in_edges": [
             {
               "kind": "slide",
@@ -538,14 +538,14 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [-0.54, 0.0, -16.91] toward local [-0.19, 1.2, -16.21], jump hold from local [-0.54, 0.0, -16.91]: stands on escapable ground at local [-0.43, 1.14, -16.54]",
+              "how": "via local [-0.54, 0.0, -16.91] toward local [-0.19, 1.2, -16.21], jump hold from local [-0.54, 0.0, -16.91]: stands on escapable ground at local [-0.2, 1.2, -16.24]",
               "tries": 4,
               "start_local": [
                 -0.54,
                 0.0,
                 -16.91
               ],
-              "best_rise_m": 1.14
+              "best_rise_m": 1.2
             }
           ]
         },
@@ -574,7 +574,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (hop edge from local [34.81, 4.6, -33.01])",
-          "verify_ms": 2,
+          "verify_ms": 3,
           "in_edges": [
             {
               "kind": "hop",
@@ -594,7 +594,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [34.11, 4.6, -33.71] toward local [34.81, 4.6, -33.01], jump hold from local [34.11, 4.6, -33.71]: stands on escapable ground at local [34.35, 4.6, -32.77]",
+              "how": "via local [34.11, 4.6, -33.71] toward local [34.81, 4.6, -33.01], jump hold from local [34.11, 4.6, -33.71]: stands on escapable ground at local [34.36, 4.6, -33.02]",
               "tries": 1,
               "start_local": [
                 34.11,
@@ -607,9 +607,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 824,
-      "edges_ms": 1708,
-      "ms": 2793,
+      "sample_ms": 709,
+      "edges_ms": 1377,
+      "ms": 2297,
       "rays": 202371,
       "shape_queries": 85298,
       "sweeps": 275673,
@@ -639,7 +639,7 @@
     "000000041": {
       "nodes": 45671,
       "certain_edges": 347702,
-      "into_edges": 175873,
+      "into_edges": 175808,
       "refined_jumps": 8,
       "entries": 430,
       "exits": 191,
@@ -649,12 +649,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 651,
-      "sample_ms": 1725,
-      "edges_ms": 2405,
-      "ms": 4446,
+      "sample_ms": 1506,
+      "edges_ms": 2278,
+      "ms": 4041,
       "rays": 376740,
       "shape_queries": 128845,
-      "sweeps": 357477,
+      "sweeps": 357332,
       "name": "Snail Hunting Ground II",
       "kill_y_local": -8.24,
       "fall_out_samples_local": [
@@ -780,7 +780,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [15.39, 9.18, -38.12])",
-          "verify_ms": 10,
+          "verify_ms": 7,
           "in_edges": [
             {
               "kind": "drop",
@@ -839,25 +839,25 @@
             },
             {
               "escaped": true,
-              "how": "via local [15.78, 8.0, -38.43] toward local [15.39, 9.18, -38.12], jump hold from local [15.95, 8.0, -39.82]: stands on escapable ground at local [15.48, 9.16, -38.28]",
+              "how": "via local [15.78, 8.0, -38.43] toward local [15.39, 9.18, -38.12], jump hold from local [15.95, 8.0, -39.82]: stands on escapable ground at local [15.25, 9.2, -37.97]",
               "tries": 1,
               "start_local": [
                 15.95,
                 8.0,
                 -39.82
               ],
-              "best_rise_m": 1.16
+              "best_rise_m": 1.2
             },
             {
               "escaped": true,
-              "how": "via local [15.78, 8.0, -38.43] toward local [15.39, 9.18, -38.12], jump hold from local [14.43, 8.0, -38.94]: stands on escapable ground at local [15.79, 9.16, -38.11]",
+              "how": "via local [15.78, 8.0, -38.43] toward local [15.39, 9.18, -38.12], jump hold from local [14.43, 8.0, -38.94]: stands on escapable ground at local [15.76, 9.19, -38.05]",
               "tries": 1,
               "start_local": [
                 14.43,
                 8.0,
                 -38.94
               ],
-              "best_rise_m": 1.16
+              "best_rise_m": 1.19
             }
           ]
         },
@@ -886,7 +886,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 117,
+          "verify_ms": 91,
           "in_edges": [
             {
               "kind": "slide",
@@ -970,7 +970,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 488,
+          "verify_ms": 410,
           "in_edges": [
             {
               "kind": "slide",
@@ -1018,14 +1018,14 @@
           "samples": [
             {
               "escaped": true,
-              "how": "direction [-0.71, 0.0, -0.71], jump hold from local [16.08, 8.0, -40.86]: stands on escapable ground at local [14.4, 9.17, -38.52]",
+              "how": "direction [-0.71, 0.0, -0.71], jump hold from local [16.08, 8.0, -40.86]: stands on escapable ground at local [13.17, 10.4, -37.7]",
               "tries": 18,
               "start_local": [
                 16.08,
                 8.0,
                 -40.86
               ],
-              "best_rise_m": 1.17
+              "best_rise_m": 2.4
             }
           ]
         },
@@ -1054,7 +1054,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 65,
+          "verify_ms": 49,
           "in_edges": [
             {
               "kind": "slide",
@@ -1138,7 +1138,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [41.83, 2.6, -15.13])",
-          "verify_ms": 63,
+          "verify_ms": 50,
           "in_edges": [
             {
               "kind": "slide",
@@ -1186,7 +1186,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [41.18, 0.6, -15.56] toward local [41.92, 0.6, -15.82], jump hold from local [41.18, 0.6, -15.56]: stands on escapable ground at local [42.53, 0.6, -15.96]",
+              "how": "via local [41.18, 0.6, -15.56] toward local [41.92, 0.6, -15.82], jump hold from local [41.18, 0.6, -15.56]: stands on escapable ground at local [42.57, 0.6, -16.01]",
               "tries": 1,
               "start_local": [
                 41.18,
@@ -1222,7 +1222,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 151,
+          "verify_ms": 120,
           "in_edges": [
             {
               "kind": "slide",
@@ -1270,7 +1270,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [36.86, 13.3, -46.42] toward local [36.86, 14.5, -46.42], jump hold from local [36.86, 13.3, -46.42]: stands on escapable ground at local [36.73, 14.49, -46.59]",
+              "how": "via local [36.86, 13.3, -46.42] toward local [36.86, 14.5, -46.42], jump hold from local [36.86, 13.3, -46.42]: stands on escapable ground at local [36.75, 14.49, -46.55]",
               "tries": 1,
               "start_local": [
                 36.86,
@@ -1283,9 +1283,9 @@
         }
       ],
       "fall_outs": 1494,
-      "sample_ms": 2370,
-      "edges_ms": 2191,
-      "ms": 4905,
+      "sample_ms": 2090,
+      "edges_ms": 1757,
+      "ms": 4157,
       "rays": 550888,
       "shape_queries": 176992,
       "sweeps": 321413,
@@ -1413,8 +1413,8 @@
           },
           "verdict": "CLEARED",
           "entered": true,
-          "enter_how": "walk (slide edge from local [38.18, 2.96, -12.96])",
-          "verify_ms": 312,
+          "enter_how": "creep (slide edge from local [38.18, 2.96, -12.96])",
+          "verify_ms": 445,
           "in_edges": [
             {
               "kind": "slide",
@@ -1462,14 +1462,14 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [38.45, 0.0, -13.61] toward local [38.96, 0.0, -13.01], jump hold from local [38.45, 0.0, -13.61]: stands on escapable ground at local [38.37, 0.0, -13.05]",
-              "tries": 5,
+              "how": "toward local [38.26, 2.99, -14.07], jump runup from local [38.45, 0.0, -13.61]: stands on escapable ground at local [38.38, 0.0, -13.02]",
+              "tries": 11,
               "start_local": [
                 38.45,
                 0.0,
                 -13.61
               ],
-              "best_rise_m": 0.0
+              "best_rise_m": 0.84
             }
           ]
         },
@@ -1498,7 +1498,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 692,
+          "verify_ms": 704,
           "in_edges": [
             {
               "kind": "slide",
@@ -1560,9 +1560,9 @@
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 1805,
-      "edges_ms": 1830,
-      "ms": 3896,
+      "sample_ms": 1469,
+      "edges_ms": 1399,
+      "ms": 3088,
       "rays": 329777,
       "shape_queries": 139026,
       "sweeps": 264408,
@@ -1595,16 +1595,16 @@
       "outside_regions_samples_local": []
     },
     "000000060": {
-      "nodes": 32180,
-      "certain_edges": 231063,
-      "into_edges": 286661,
+      "nodes": 32163,
+      "certain_edges": 231072,
+      "into_edges": 286713,
       "refined_jumps": 33,
       "entries": 431,
       "exits": 117,
-      "reachable": 28571,
-      "escapable": 32059,
-      "flagged_before_refine": 1571,
-      "flagged": 28,
+      "reachable": 28558,
+      "escapable": 32058,
+      "flagged_before_refine": 1555,
+      "flagged": 12,
       "components": [
         {
           "id": "000000060#0",
@@ -1631,7 +1631,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [77.56, 7.2, 0.99])",
-          "verify_ms": 40,
+          "verify_ms": 55,
           "in_edges": [
             {
               "kind": "slide",
@@ -1679,14 +1679,14 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [78.16, 5.83, 0.48] toward local [78.16, -0.04, 0.48], jump hold from local [79.26, 5.78, 0.57]: stands on escapable ground at local [77.66, -0.01, 0.53]",
-              "tries": 1,
+              "how": "via local [78.16, 5.83, 0.48] toward local [77.84, -0.01, 0.34], jump hold from local [79.26, 5.78, 0.57]: stands on escapable ground at local [76.91, 0.0, 0.1]",
+              "tries": 3,
               "start_local": [
                 79.26,
                 5.78,
                 0.57
               ],
-              "best_rise_m": 1.04
+              "best_rise_m": 1.09
             },
             {
               "escaped": true,
@@ -1701,7 +1701,7 @@
             },
             {
               "escaped": true,
-              "how": "via local [78.16, 5.83, 0.48] toward local [78.16, -0.04, 0.48], jump hold from local [80.36, 5.79, 0.66]: stands on escapable ground at local [77.76, 7.2, 0.85]",
+              "how": "via local [78.16, 5.83, 0.48] toward local [78.16, -0.04, 0.48], jump hold from local [80.36, 5.79, 0.66]: stands on escapable ground at local [77.63, 7.2, 0.91]",
               "tries": 1,
               "start_local": [
                 80.36,
@@ -1711,327 +1711,15 @@
               "best_rise_m": 1.41
             }
           ]
-        },
-        {
-          "id": "000000060#1",
-          "nodes": 9,
-          "area_m2": 1.1,
-          "local": [
-            72.09,
-            4.6,
-            1.33
-          ],
-          "blender_local_xy": [
-            72.09,
-            -1.33
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 9
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 742,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                70.53,
-                6.52,
-                1.43
-              ],
-              "to_local": [
-                70.53,
-                4.6,
-                1.43
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.85,
-                6.52,
-                1.56
-              ],
-              "to_local": [
-                70.53,
-                4.6,
-                1.43
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                71.31,
-                6.52,
-                1.38
-              ],
-              "to_local": [
-                71.31,
-                4.6,
-                1.38
-              ],
-              "dy": -1.92
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                72.09,
-                4.6,
-                1.33
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall, 1.9 m under the front terrain and inside the solid terrain: the face-count buried test cannot see it on Southperry's double-sided trimesh."
-        },
-        {
-          "id": "000000060#2",
-          "nodes": 4,
-          "area_m2": 0.49,
-          "local": [
-            74.76,
-            4.6,
-            1.32
-          ],
-          "blender_local_xy": [
-            74.76,
-            -1.32
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.93,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 4
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 586,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                75.54,
-                6.53,
-                1.27
-              ],
-              "to_local": [
-                75.54,
-                4.6,
-                1.27
-              ],
-              "dy": -1.93
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                74.76,
-                4.6,
-                1.32
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
-        },
-        {
-          "id": "000000060#3",
-          "nodes": 2,
-          "area_m2": 0.24,
-          "local": [
-            76.64,
-            4.6,
-            1.36
-          ],
-          "blender_local_xy": [
-            76.64,
-            -1.36
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 2
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 541,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                76.64,
-                6.52,
-                1.36
-              ],
-              "to_local": [
-                76.64,
-                4.6,
-                1.36
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                76.97,
-                6.52,
-                1.5
-              ],
-              "to_local": [
-                76.97,
-                4.6,
-                1.5
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                77.29,
-                6.52,
-                1.63
-              ],
-              "to_local": [
-                76.97,
-                4.6,
-                1.5
-              ],
-              "dy": -1.92
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                76.64,
-                4.6,
-                1.36
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
-        },
-        {
-          "id": "000000060#4",
-          "nodes": 1,
-          "area_m2": 0.12,
-          "local": [
-            69.75,
-            4.6,
-            1.47
-          ],
-          "blender_local_xy": [
-            69.75,
-            -1.47
-          ],
-          "y_local": [
-            4.6,
-            4.6
-          ],
-          "drop_m": 1.92,
-          "entries_inside": 0,
-          "floor": {
-            "Containment/Ring_000000060 (containment)": 1
-          },
-          "verdict": "UNENTERABLE",
-          "entered": false,
-          "enter_how": "",
-          "verify_ms": 434,
-          "in_edges": [
-            {
-              "kind": "slide",
-              "from_local": [
-                69.75,
-                6.52,
-                1.47
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.07,
-                6.52,
-                1.61
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -1.92
-            },
-            {
-              "kind": "slide",
-              "from_local": [
-                70.35,
-                7.2,
-                0.97
-              ],
-              "to_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "dy": -2.6
-            }
-          ],
-          "samples": [
-            {
-              "escaped": false,
-              "how": "",
-              "tries": 24,
-              "start_local": [
-                69.75,
-                4.6,
-                1.47
-              ],
-              "best_rise_m": 0.0
-            }
-          ],
-          "reviewed": "The top of Southperry's containment ring wall under the front terrain, inside the solid terrain (double-sided trimesh)."
         }
       ],
-      "fall_outs": 231,
-      "sample_ms": 2334,
-      "edges_ms": 3979,
-      "ms": 6681,
-      "rays": 386861,
-      "shape_queries": 216318,
-      "sweeps": 560811,
+      "fall_outs": 183,
+      "sample_ms": 1918,
+      "edges_ms": 3134,
+      "ms": 5331,
+      "rays": 386885,
+      "shape_queries": 216316,
+      "sweeps": 560788,
       "name": "Southperry",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -2157,7 +1845,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [12.25, 1.91, -7.85])",
-          "verify_ms": 123,
+          "verify_ms": 157,
           "in_edges": [
             {
               "kind": "drop",
@@ -2205,8 +1893,8 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [12.25, 0.0, -8.55] toward local [11.55, 0.0, -9.25], jump hold from local [14.0, 0.0, -9.6]: stands on escapable ground at local [11.78, 0.0, -9.29]",
-              "tries": 2,
+              "how": "via local [12.25, 0.0, -8.9] toward local [11.55, 0.0, -9.6], jump hold from local [14.0, 0.0, -9.6]: stands on escapable ground at local [11.41, 0.0, -9.71]",
+              "tries": 3,
               "start_local": [
                 14.0,
                 0.0,
@@ -2216,7 +1904,7 @@
             },
             {
               "escaped": true,
-              "how": "via local [12.25, 0.0, -8.55] toward local [11.55, 0.0, -9.25], jump hold from local [12.25, 0.0, -8.55]: stands on escapable ground at local [11.8, 0.0, -9.29]",
+              "how": "via local [12.25, 0.0, -8.55] toward local [11.55, 0.0, -9.25], jump hold from local [12.25, 0.0, -8.55]: stands on escapable ground at local [11.48, 0.0, -9.38]",
               "tries": 2,
               "start_local": [
                 12.25,
@@ -2227,7 +1915,7 @@
             },
             {
               "escaped": true,
-              "how": "via local [12.25, 0.0, -8.55] toward local [11.55, 0.0, -9.25], jump hold from local [15.05, 0.0, -11.0]: stands on escapable ground at local [11.75, 0.0, -9.31]",
+              "how": "via local [12.25, 0.0, -8.55] toward local [11.55, 0.0, -9.25], jump hold from local [15.05, 0.0, -11.0]: stands on escapable ground at local [11.38, 0.0, -9.3]",
               "tries": 2,
               "start_local": [
                 15.05,
@@ -2263,7 +1951,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [13.3, 0.9, -6.45])",
-          "verify_ms": 2,
+          "verify_ms": 3,
           "in_edges": [
             {
               "kind": "drop",
@@ -2311,7 +1999,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [13.3, 0.0, -6.8] toward local [12.6, 0.0, -6.45], jump hold from local [13.3, 0.0, -6.8]: stands on escapable ground at local [12.18, 0.0, -6.2]",
+              "how": "via local [13.3, 0.0, -6.8] toward local [12.6, 0.0, -6.45], jump hold from local [13.3, 0.0, -6.8]: stands on escapable ground at local [12.01, 0.0, -6.12]",
               "tries": 1,
               "start_local": [
                 13.3,
@@ -2324,9 +2012,9 @@
         }
       ],
       "fall_outs": 342,
-      "sample_ms": 27,
-      "edges_ms": 220,
-      "ms": 273,
+      "sample_ms": 21,
+      "edges_ms": 179,
+      "ms": 218,
       "rays": 6072,
       "shape_queries": 2848,
       "sweeps": 38206,
@@ -2455,7 +2143,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 564,
+          "verify_ms": 527,
           "in_edges": [
             {
               "kind": "slide",
@@ -2540,7 +2228,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [66.77, 1.19, -17.46])",
-          "verify_ms": 14,
+          "verify_ms": 16,
           "in_edges": [
             {
               "kind": "slide",
@@ -2646,7 +2334,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 574,
+          "verify_ms": 503,
           "in_edges": [
             {
               "kind": "slide",
@@ -2779,7 +2467,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [33.01, 0.0, -27.95] toward local [32.45, 0.0, -27.53], jump hold from local [33.01, 0.0, -27.95]: stands on escapable ground at local [32.45, 0.0, -27.98]",
+              "how": "via local [33.01, 0.0, -27.95] toward local [32.45, 0.0, -27.53], jump hold from local [33.01, 0.0, -27.95]: stands on escapable ground at local [32.48, 0.0, -27.97]",
               "tries": 1,
               "start_local": [
                 33.01,
@@ -2815,7 +2503,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "hop (hop edge from local [60.94, 6.4, -29.27])",
-          "verify_ms": 22,
+          "verify_ms": 21,
           "in_edges": [
             {
               "kind": "hop",
@@ -2871,7 +2559,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 771,
+          "verify_ms": 664,
           "in_edges": [
             {
               "kind": "slide",
@@ -2933,9 +2621,9 @@
         }
       ],
       "fall_outs": 707,
-      "sample_ms": 4219,
-      "edges_ms": 3970,
-      "ms": 9113,
+      "sample_ms": 3469,
+      "edges_ms": 3116,
+      "ms": 7233,
       "rays": 748619,
       "shape_queries": 247180,
       "sweeps": 539496,
@@ -3085,7 +2773,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [29.39, 1.56, -10.02])",
-          "verify_ms": 164,
+          "verify_ms": 145,
           "in_edges": [
             {
               "kind": "drop",
@@ -3133,7 +2821,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [28.68, 0.0, -11.66] toward local [28.56, 0.0, -12.43], jump hold from local [29.28, 0.0, -10.8]: stands on escapable ground at local [28.79, 0.0, -12.08]",
+              "how": "via local [28.68, 0.0, -11.66] toward local [28.56, 0.0, -12.43], jump hold from local [29.28, 0.0, -10.8]: stands on escapable ground at local [28.79, 0.0, -12.09]",
               "tries": 3,
               "start_local": [
                 29.28,
@@ -3180,7 +2868,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 232,
+          "verify_ms": 179,
           "in_edges": [
             {
               "kind": "slide",
@@ -3264,7 +2952,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.28, 1.56, -0.82])",
-          "verify_ms": 6,
+          "verify_ms": 4,
           "in_edges": [
             {
               "kind": "slide",
@@ -3348,7 +3036,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.66, 1.57, -10.05])",
-          "verify_ms": 257,
+          "verify_ms": 240,
           "in_edges": [
             {
               "kind": "slide",
@@ -3396,8 +3084,8 @@
           "samples": [
             {
               "escaped": true,
-              "how": "toward local [31.92, 1.58, -10.08], jump hold from local [31.23, 0.0, -10.45]: stands on escapable ground at local [31.89, 1.6, -9.83]",
-              "tries": 11,
+              "how": "toward local [31.92, 1.58, -10.08], jump runup from local [31.23, 0.0, -10.45]: stands on escapable ground at local [32.12, 1.6, -10.01]",
+              "tries": 12,
               "start_local": [
                 31.23,
                 0.0,
@@ -3409,9 +3097,9 @@
         }
       ],
       "fall_outs": 144,
-      "sample_ms": 638,
-      "edges_ms": 1595,
-      "ms": 2374,
+      "sample_ms": 509,
+      "edges_ms": 1205,
+      "ms": 1811,
       "rays": 109638,
       "shape_queries": 46662,
       "sweeps": 204170,
@@ -3516,9 +3204,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 55,
-      "sample_ms": 904,
-      "edges_ms": 1323,
-      "ms": 2333,
+      "sample_ms": 716,
+      "edges_ms": 1042,
+      "ms": 1856,
       "rays": 139091,
       "shape_queries": 59054,
       "sweeps": 186762,
@@ -3611,14 +3299,14 @@
       "outside_regions_samples_local": []
     },
     "000001003": {
-      "nodes": 10476,
-      "certain_edges": 75569,
-      "into_edges": 76983,
+      "nodes": 10478,
+      "certain_edges": 75582,
+      "into_edges": 77077,
       "refined_jumps": 0,
       "entries": 205,
       "exits": 94,
-      "reachable": 9662,
-      "escapable": 9908,
+      "reachable": 9664,
+      "escapable": 9910,
       "flagged_before_refine": 17,
       "flagged": 17,
       "components": [
@@ -3648,7 +3336,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 436,
+          "verify_ms": 414,
           "in_edges": [
             {
               "kind": "slide",
@@ -3733,7 +3421,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [32.23, 11.57, -25.08])",
-          "verify_ms": 14,
+          "verify_ms": 10,
           "in_edges": [
             {
               "kind": "slide",
@@ -3781,7 +3469,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [32.31, 9.19, -24.59] toward local [32.89, 10.0, -24.19], jump hold from local [32.31, 9.19, -24.59]: stands on escapable ground at local [33.1, 10.0, -24.04]",
+              "how": "via local [32.31, 9.19, -24.59] toward local [32.89, 10.0, -24.19], jump hold from local [32.31, 9.19, -24.59]: stands on escapable ground at local [33.15, 10.0, -24.01]",
               "tries": 1,
               "start_local": [
                 32.31,
@@ -3817,7 +3505,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (drop edge from local [26.03, 12.81, -30.27])",
-          "verify_ms": 66,
+          "verify_ms": 46,
           "in_edges": [
             {
               "kind": "drop",
@@ -3878,12 +3566,12 @@
         }
       ],
       "fall_outs": 56,
-      "sample_ms": 843,
-      "edges_ms": 976,
-      "ms": 1898,
-      "rays": 173185,
-      "shape_queries": 59889,
-      "sweeps": 154433,
+      "sample_ms": 666,
+      "edges_ms": 809,
+      "ms": 1554,
+      "rays": 173181,
+      "shape_queries": 59890,
+      "sweeps": 154586,
       "name": "Mushroom Garden",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -3985,9 +3673,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 2,
-      "sample_ms": 1102,
-      "edges_ms": 1425,
-      "ms": 2636,
+      "sample_ms": 977,
+      "edges_ms": 1128,
+      "ms": 2199,
       "rays": 196198,
       "shape_queries": 75534,
       "sweeps": 197250,
@@ -4046,7 +3734,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [-0.41, 5.33, -16.45])",
-          "verify_ms": 453,
+          "verify_ms": 332,
           "in_edges": [
             {
               "kind": "drop",
@@ -4107,9 +3795,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 681,
-      "edges_ms": 1757,
-      "ms": 2582,
+      "sample_ms": 601,
+      "edges_ms": 1488,
+      "ms": 2203,
       "rays": 119667,
       "shape_queries": 56679,
       "sweeps": 255384,
@@ -4157,7 +3845,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 573,
+          "verify_ms": 401,
           "in_edges": [
             {
               "kind": "slide",
@@ -4219,9 +3907,9 @@
         }
       ],
       "fall_outs": 299,
-      "sample_ms": 1354,
-      "edges_ms": 2175,
-      "ms": 3731,
+      "sample_ms": 1043,
+      "edges_ms": 1703,
+      "ms": 2903,
       "rays": 181006,
       "shape_queries": 78434,
       "sweeps": 283385,
@@ -4347,9 +4035,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 54,
-      "sample_ms": 2341,
-      "edges_ms": 3330,
-      "ms": 6246,
+      "sample_ms": 1773,
+      "edges_ms": 2477,
+      "ms": 4667,
       "rays": 430255,
       "shape_queries": 150816,
       "sweeps": 465351,
@@ -4454,9 +4142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 229,
-      "sample_ms": 33,
-      "edges_ms": 245,
-      "ms": 293,
+      "sample_ms": 23,
+      "edges_ms": 186,
+      "ms": 219,
       "rays": 6025,
       "shape_queries": 2996,
       "sweeps": 39052,
@@ -4553,7 +4241,7 @@
       "certain_edges": 52875,
       "into_edges": 72411,
       "refined_jumps": 2,
-      "entries": 54,
+      "entries": 53,
       "exits": 176,
       "reachable": 6383,
       "escapable": 7173,
@@ -4561,9 +4249,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 291,
-      "edges_ms": 914,
-      "ms": 1279,
+      "sample_ms": 227,
+      "edges_ms": 694,
+      "ms": 977,
       "rays": 45525,
       "shape_queries": 20911,
       "sweeps": 142037,
@@ -4611,7 +4299,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 168,
+          "verify_ms": 152,
           "in_edges": [
             {
               "kind": "slide",
@@ -4672,9 +4360,9 @@
         }
       ],
       "fall_outs": 428,
-      "sample_ms": 27,
-      "edges_ms": 240,
-      "ms": 284,
+      "sample_ms": 23,
+      "edges_ms": 191,
+      "ms": 227,
       "rays": 5940,
       "shape_queries": 2862,
       "sweeps": 41000,
@@ -4779,9 +4467,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 35,
-      "sample_ms": 886,
-      "edges_ms": 1626,
-      "ms": 2659,
+      "sample_ms": 715,
+      "edges_ms": 1233,
+      "ms": 2063,
       "rays": 142179,
       "shape_queries": 61802,
       "sweeps": 227929,
@@ -4910,7 +4598,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 726,
+          "verify_ms": 579,
           "in_edges": [
             {
               "kind": "slide",
@@ -4995,7 +4683,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 517,
+          "verify_ms": 423,
           "in_edges": [
             {
               "kind": "slide",
@@ -5080,7 +4768,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 498,
+          "verify_ms": 394,
           "in_edges": [
             {
               "kind": "slide",
@@ -5142,9 +4830,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 1481,
-      "edges_ms": 1724,
-      "ms": 3422,
+      "sample_ms": 1203,
+      "edges_ms": 1281,
+      "ms": 2635,
       "rays": 288397,
       "shape_queries": 112615,
       "sweeps": 245085,
@@ -5184,9 +4872,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 4,
-      "sample_ms": 1401,
-      "edges_ms": 2013,
-      "ms": 3580,
+      "sample_ms": 1117,
+      "edges_ms": 1536,
+      "ms": 2781,
       "rays": 242495,
       "shape_queries": 91511,
       "sweeps": 317820,
@@ -5218,5 +4906,10 @@
       "outside_regions_escapable": 0,
       "outside_regions_samples_local": []
     }
+  },
+  "cache": {
+    "key": "",
+    "maps_scanned": 25,
+    "maps_from_cache": 0
   }
 }

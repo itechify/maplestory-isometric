@@ -24,7 +24,9 @@ Checks (exit code 1 when any fails):
   trigger box (portal_adaptations.json `trigger`); spawn regions present exactly where MeowDB has spawns, with species
   hints that are MeowDB species of the map and walkable ground; player_spawns[0] inside the footprint and, when the
   export measured it (`spawn_clearance`), clear of the shipped collision; every portal arrival point grounded and
-  clear (the runtime would otherwise have to move the player: fix the source world instead); every route end clear
+  clear (the runtime would otherwise have to move the player: fix the source world instead), and the straight line
+  from each portal's anchor to its arrival point clear at body height (`portal_arrivals[].segment`, where the export
+  measured it); every route end clear
   for the controller's body (the route bot starts runs there); no route sample under a real overhang (route_check
   `overhead_by_kind.body`: wall geometry inside a walking player's body band); the one-way ledge invariant of
   MAP_ARCHITECTURE 4.4 (ledge_rules.py: jump apex at the cap + step-up + 0.30 <= height <= 2.6, face on the gate
@@ -356,6 +358,10 @@ def contract(sidecars, data_dir, root):
                            f"{'' if row.get('grounded', True) else ' (not grounded)'}")
                     warns.append(msg)
                     fails.append(msg + " (the runtime would have to move arriving players)")
+                seg = row.get("segment")
+                if isinstance(seg, dict) and not seg.get("clear"):
+                    fails.append(f"{mid}.{row.get('portal')}: the line from the anchor to the arrival point is blocked "
+                                 f"at body height by {seg.get('blockers')}")
             for row in clr.get("route_ends") or []:
                 if not row.get("clear"):
                     fails.append(f"{mid} route {row.get('route')} {row.get('end')} {row.get('position')}: a standing "

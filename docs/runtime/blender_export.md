@@ -32,6 +32,8 @@ B=blender; PY=python3                                                 # Linux
 "$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out _scratch/export_staging
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py   # contract tests
+"$PY" src/misostory/test_collision_tags.py                           # the passable-tag registry (no Blender)
+"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py   # validator and export fixtures
 cp _scratch/export_staging/*.glb _scratch/export_staging/*.json game/assets/world/   # only when both pass
 ```
 
@@ -54,7 +56,12 @@ shipped export:
   height in [jump apex at the cap + step-up + 0.30, 2.6] m from `movement.json`, face within 0.1 m of the gate plane,
   gate plane 1 m outside the footprint and on the runtime's containment ring (`presentation.json` `ring_offset_m`), blocked in reverse); World_Trails one-way flags;
   **portal arrivals** grounded and clear (every blocked or ungrounded one fails; they are also listed as
-  `arrival_warnings`); **route ends** clear for the controller's body (`spawn_clearance.route_ends`: the route bot
+  `arrival_warnings`); the **line from each portal's anchor to its arrival point** clear at body height
+  (`spawn_clearance.portal_arrivals[].segment`: the export samples it every 0.25 m, grounds each sample, and fails
+  it on a prop prism or a wall inside the controller's body band, `step_up_m` 0.45 m to `body_height_m` 1.5 m above
+  the ground: an upward ray at each sample and horizontal rays between neighbouring samples at the band's bottom,
+  middle and top, for a thin wall between two samples; a line, not a capsule, because a door's anchor stands
+  against its wall); **route ends** clear for the controller's body (`spawn_clearance.route_ends`: the route bot
   starts runs there); no route sample under a **real overhang** (`collision.summary.route_check.overhead_by_kind.body`);
   every portal **reached by a declared route** that enters its press-Up trigger box (`portal_adaptations.json`
   `trigger`, 4.5 × 1.6 m centred on the anchor: a route that stops short no longer proves the portal reachable).
@@ -69,8 +76,17 @@ portal, a one-way portal without its spawn index or arrival point, a ledge low e
 drop, a face off the gate plane, a gate plane not at footprint + 1 m or off the containment ring, a blocked or missing or out-of-footprint player
 spawn, a non-MeowDB spawn species, a hunting map without regions, a removed or retyped field, a listed file that does
 not exist, missing canonical data (a failure, never a silent pass), a blocked or ungrounded portal arrival (even one
-the shipped export already had), a blocked route end, a route sample under a real overhang, a door route that stops
-1.5 m further from its door (outside the trigger), and an emptied `climbables` or `routes` list.
+the shipped export already had), a blocked line from an anchor to its arrival point, a blocked route end, a route
+sample under a real overhang, a door route that stops 1.5 m further from its door (outside the trigger), and an
+emptied `climbables` or `routes` list.
+
+The export's own geometric checks and the validators have Blender fixture tests,
+`src/misostory/test_validator_fixtures.py` (`"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py`,
+under a minute): each builds a tiny map in an empty scene and proves a check reports its defect (an obstacle on the
+anchor-to-arrival line, at body height, from a prop prism or a thin wall; a post only a body's shoulder meets; an
+untagged or floating Architecture mesh, through the real `validate.py`; a climbable read at its stored position,
+not its mesh; an object tagged passable whatever its name). `src/misostory/test_collision_tags.py` (plain Python)
+tests the passable-tag registry.
 
 | Option | Default | Effect |
 |---|---|---|
@@ -267,8 +283,8 @@ file is not written (only `World_SkyAndSea` has no collision). Map and interior 
 | `spawn_counts_authored` | Iteration One's `spawns_json` (species and proxy counts) |
 | `player_start` | The map's `Player_Proxy` (Iteration One's scale reference, inside the gameplay frame). Not a spawn point. |
 | `player_spawns[]` | Authored player spawns (`m.player_spawn`): `index` (= MeowDB `playerSpawns[]` index; only `[0]` is authored, on every map), `position`, `yaw_deg`, `xform`, `note`, `source` (`"authored"`). On 40000, `[0]` is the landing below the one-way ledge; interiors put it just inside the door. |
-| `spawn_clearance` | The export's static check of where players appear, against the **shipped** collision of every chunk in the run (prop hulls after the exact fallback, and the Walls trimeshes), mirroring the runtime's `MapDefinitions.settle`: `capsule` {`radius_m`, `height_m`, `lift_m`} (from `presentation.json` `grounding`), `arrival_inset_m` (`portal_adaptations.json` `arrival.inset_m`), `partial` (true for an `--only` run, which cannot see other chunks' hulls), `player_spawns[]` {`index`, `clear`, `blockers`}, `portal_arrivals[]` {`portal`, `clear`, `grounded`, `blockers`} (the arrival point = anchor + inset along the inward normal, grounded from 1 m above to 3 m below), and `route_ends[]` {`route`, `end` (`start` / `end`), `position`, `clear`, `blockers`}: both ends of every route, checked in the controller's own body band `route_end_body_m` [`step_up_m`, `body_height_m`] of `movement.json` (0.45–1.5 m above the feet; lower geometry is stepped onto), where the runtime's route bot starts a run. A blocked player spawn, a blocked or ungrounded arrival or a blocked route end fails `sidecar_diff`. |
-| `climbables[]` | `kind` (`ladder` / `rope` / `vine`), `descend_only`, `bottom`, `top` (the validator's climb point: bbox centre xy at `climb_z0` / `climb_z1`), `foot_ground`, `top_exit` (probed standing point on the upper cap) and `facing_xz` |
+| `spawn_clearance` | The export's static check of where players appear, against the **shipped** collision of every chunk in the run (prop hulls after the exact fallback, and the Walls trimeshes), mirroring the runtime's `MapDefinitions.settle`: `capsule` {`radius_m`, `height_m`, `lift_m`} (from `presentation.json` `grounding`), `arrival_inset_m` (`portal_adaptations.json` `arrival.inset_m`), `partial` (true for an `--only` run, which cannot see other chunks' hulls), `player_spawns[]` {`index`, `clear`, `blockers`}, `portal_arrivals[]` {`portal`, `clear`, `grounded`, `blockers`, `segment` {`clear`, `samples`, `blockers`}} (the arrival point = anchor + inset along the inward normal, grounded from 1 m above to 3 m below; `segment`: the straight line from the anchor to it, clear at body height, see "Running it"), and `route_ends[]` {`route`, `end` (`start` / `end`), `position`, `clear`, `blockers`}: both ends of every route, checked in the controller's own body band `route_end_body_m` [`step_up_m`, `body_height_m`] of `movement.json` (0.45–1.5 m above the feet; lower geometry is stepped onto), where the runtime's route bot starts a run. A blocked player spawn, a blocked or ungrounded arrival, a blocked anchor-to-arrival line or a blocked route end fails `sidecar_diff`. |
+| `climbables[]` | `kind` (`ladder` / `rope` / `vine`), `descend_only`, `bottom`, `top` (the climb position stored on the object, `obj["climb_bottom"]` / `obj["climb_top"]`, set by `MapCtx.climbable`; the validator reads the same points), `foot_ground`, `top_exit` (probed standing point on the upper cap) and `facing_xz` |
 | `routes[]` | The declared traversal routes as 3D polylines on the real ground (the DEBUG ribbons minus their 0.12 m lift), with `one_way` |
 | `cameras.gameplay`, `cameras.overview` | `xform`, `blender_ortho_scale`, `godot_size_keep_width` / `_height`, `pitch_down_deg`, `forward`, `near` / `far`; the gameplay camera also carries `focus_local` and `gameplay_scale` from `docs/build_report.json` |
 
@@ -313,7 +329,7 @@ collection-group defaults. Non-instanced meshes, in order:
 | `obj["collision"]`, set by the builder: `geo.terrace` body and cap `wall` (a walkable cap is ground by the rule above), fringe `none`; `geo.ramp_lip`, `geo.grass_fringe`, `geo.foam_ring`, `geo.path_ribbon` (`Main_Road`, paths, blends, trail aprons) and `interior.sign_text` lettering `none`; `m.rail`, a one-way trail's `LedgeFace_Body` and trail `BridgeRails` `wall`; `geo.flat_poly` on `M_Water` `water`, on sea / falls / foam `none`; the island underside, lily pads and the waterfall sheets `none` | that class (`exact` counts as wall: a mesh's exact mesh is its wall geometry) |
 | Only `M_Water` (untagged) | water (sidecar `water`: outline, surface height, AABB; no solid) |
 | Only waterfall / sea / foam materials (untagged) | none |
-| Otherwise the collection group: `_Architecture` (room walls, parapets, frames) | **wall** |
+| Otherwise the collection group: `_Architecture` | **wall** (since #29 every mesh a map builds there is tagged, and `validate.py`'s `collision_tags` check fails an untagged one; room walls, parapets, frames and stalks carry `wall` by tag) |
 | `_Props` | prop hull |
 | `_Vegetation` (giant stems; vines and strands drop out under the size rule) | prop hull, trunk band, only if ≥ 1 m tall and ≥ 0.3 m² |
 | `_Terrain`, a plinth or a WORLD collection | none (and `validate.py`'s `collision_tags` check fails any untagged mesh there, so nothing relies on this) |
@@ -375,7 +391,12 @@ triangles and walls from 919 k to 357 k. The whole collision set is 10.3 MiB.
 
 ### Validation
 
-At export, every route is sampled every 0.25 m (15,681 samples) against the shipped collision:
+At export, every route is sampled every 0.25 m (15,681 samples) against the shipped collision. Since #28 each sample
+is a body, like the traversal validator's: its centre and two points 0.3 m (`grounding.capsule_radius_m`) either side
+across the route, so a shoulder that meets a hull or a wall counts, and every `overhead[]` entry names its `ray`
+(`centre`, `left`, `right`). With the side rays (2026-10-06 export: 15,782 samples) 1 sample meets a prop hull (1010003
+`PoleShelf` passes 0.25 m from the 0.45 m `X1010003_Jar` on the chest shelf, a step for the controller) and 20 have
+wall geometry overhead, 16 `step` and 4 `climb_or_drop`, still 0 `body`. The figures below are the single-ray round:
 
 - **0** samples are blocked by a prop hull;
 - **12** samples have wall geometry overhead in the body band (an upward ray from 0.15 to 1.5 m). Each is classified
@@ -484,8 +505,8 @@ back-face culling, and the glows use alpha blending.
 8. **Collision gaps.** Stairs collide as their exact stepped mesh (the contract asks for one inclined ramp per
    flight). There are no containment walls at map or trail edges and no kill volume (use `sea_level_y` or a margin
    under the island). Water is data only. 5 climbables have no `foot_ground` within 1.5 m of `climb_z0` (the
-   descend-only vines and ropes over pits). There are 12 overhead hits at lips and climbs, none inside a walking
-   body (above). Tree canopies, bushes and flowers never collide, by design.
+   descend-only vines and ropes over pits). There are 20 overhead hits at lips and climbs (12 before the side rays),
+   none inside a walking body (above). Tree canopies, bushes and flowers never collide, by design.
 9. **Lighting is approximate in Godot.** Blender sun W/m² and EEVEE indirect light have no exact Godot equivalent.
    The probe used energy = strength / π with ambient `#B9DCFF` and linear tonemapping. A real environment preset
    belongs in `game/data/misostory`.
@@ -496,10 +517,15 @@ back-face culling, and the glows use alpha blending.
     now stand 3.6–3.8 m behind their portals (the arrival lands on the grass between the swirl and the closed door)
     and the lane's hedges stop at the footprint edge. `sidecar_diff` fails on any blocked arrival. The runtime's
     arrival rule is unchanged (anchor + `inset_m` along the anchor normal), so no new field was needed.
-12. **Name heuristics outside the export.** The export's collision classes no longer read names, but Iteration
-    One's route validation still does in places: `traversal._PASSABLE_WORDS` (ropes, signs, banners, lanterns, ...
-    never block a route walk) and `validate.py`'s `PASSABLE_WORDS` / `ARCH_WORDS`. They decide what the validator
-    calls an obstacle, not what collides; moving them onto `collision_tags` is a follow-up.
+12. **Name heuristics outside the export.** What blocks a route walk is registry data too now:
+    `collision_tags.passable` (a climbable or passable flag, the tag `none`, or a `PASSABLE_TAGS` asset tag) decides
+    it in `traversal.obstacle_bvh` and in `validate.py`'s `props_near_routes`; the old word list (rope, sign, banner,
+    lantern, flag, ...) is gone. The traversal verdicts on the island did not change. `props_near_routes` now lists 5
+    more low findings the words had hidden: 4 `Fence_Wood_Seg` beside 000001014's `VineDown_*` routes (the map's slug,
+    `SnailFieldOfFlowers`, contains "flower") and 000000060's `Signpost_Notice` ("sign"); both collide in the game.
+    `Bush_Flowering_A` gained the `passable` tag, which keeps the validator's old verdict (no collision either way:
+    plain foliage). Still name-based in `validate.py`: `ARCH_WORDS` (an archway a route passes through) and the
+    floating check's ground and skip lists; they decide what the validator excuses, not what collides.
 
 ### Gap to the MAP_ARCHITECTURE §4.10 contract
 
@@ -701,12 +727,41 @@ fixed in data (`presentation.json npc.talk_zones`), not here. Value changes:
   tours 0 / 0 / 0 / 0, `test_world_static` 0 errors and 0 warnings, and `smoke` now talks to Roger on foot (0
   warnings, no `goto npc 3`).
 
+**2026-10-06: the Blender validator and the export gate** (#25, #26, #27, #28, #29)
+
+| Where | Added field(s) | Notes |
+|---|---|---|
+| `spawn_clearance.portal_arrivals[]` | `segment` {`clear`, `samples`, `blockers`} | the line from the anchor to the arrival point at body height (#25); all 47 clear (7-8 samples each). `sidecar_diff` fails a blocked one |
+| `collision.summary.route_check.overhead[]` | `ray` (`centre`, `left`, `right`) | which of a sample's three rays met the wall (#28) |
+
+`sidecar_diff` against the previous export: `SIDECAR_DIFF_OK True`, those added paths only; 32 contract tests pass on the
+staged export. Value changes:
+
+- **Climb positions are stored** (#26): `climbables[].bottom` / `top` come from `obj["climb_bottom"]` /
+  `obj["climb_top"]` (`MapCtx.climbable`), no longer from the bounding-box centre, and the two loose vertices that
+  kept a kit rope's centre at `(x, y)` are gone. All 146 climbables export the same `bottom`, `top`, `foot_ground`,
+  `top_exit` and `facing_xz` as before (within the export's 0.0001 m rounding): 000001014's own `vine_climb` stores
+  the centre of its foliage, 0.05 m to the camera side of its strand, where its bounding box had put it. No camera
+  moved.
+- **Routes** (#28): 000001012 `Loft` starts its climb from y 8.6 (was 8.3, where a body's shoulder met the
+  cutaway house's knee wall) and 000001013 `PoleShelf` walks the chest shelf at y 11.05 (was 11.1, against the
+  timber frame). A placed `Bush_B` on 000000041 (to y 36.8) and the 000001003 `Mushroom_Giant_Blue` (to y 24.6)
+  moved clear of a body's shoulder on `East_Ropes` and `ToTop`.
+- **Collision tags** (#29): every Architecture mesh a map builds carries its tag (`wall`, as the group default gave
+  it), so `collision.mesh_class_source` moves 44 meshes from `group` to `tag` on 7 chunks; the mesh classes, prop
+  hulls and Ground / Walls triangles are unchanged (float-level decimation aside).
+- Route check with the side rays (#28): 15,782 samples, 1 prop-hull sample (`PoleShelf` beside the 0.45 m jar on
+  the chest shelf), 20 wall-overhead samples (16 `step`, 4 `climb_or_drop`, 0 `body`).
+
 ## Files
 
 - `scripts/export_runtime.py`: the exporter.
 - `src/misostory/sidecar_diff.py`: the staging check (schema additive, files, expected counts, the per-map MeowDB
   contract).
 - `src/misostory/test_sidecar_contract.py`: unit tests of that check on a real export plus mutated copies.
+- `src/misostory/test_validator_fixtures.py`: Blender fixture tests of the export's anchor-to-arrival line, the
+  traversal validator's blocking test and climb position, and `validate.py`'s `collision_tags` and `floating_props`
+  on Architecture meshes. `src/misostory/test_collision_tags.py`: the passable-tag registry (plain Python).
 - `src/misostory/ledge_rules.py`: the one-way ledge bounds (no bpy), shared by `traversal.py` / `validate.py` and
   `sidecar_diff.py`.
 - `src/misostory/collision_tags.py`: the collision-class registry (no bpy): classes (including `overhead_hull` for

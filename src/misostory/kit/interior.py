@@ -122,7 +122,7 @@ def cut_room(m, height, wall_mat, floor_mat="M_Flat_wood_dk", trim_mat="M_Wood_D
     # chunky cut ends on the camera side so the section reads as a dollhouse cut
     lbox(mb, m, (T + 0.16, 0.2, height), (x0, y0 + 0.02, height / 2), 0, trim_mat, bevel=0.03)
     lbox(mb, m, (0.2, T + 0.16, height), (x1 + T / 2 - 0.02, y1, height / 2), 0, trim_mat, bevel=0.03)
-    walls = mb.build(f"{m.slug}_Shell_Walls", m.col_arch, smooth=False)
+    walls = CT.tag(mb.build(f"{m.slug}_Shell_Walls", m.col_arch, smooth=False), CT.WALL)
     walls.visible_shadow = False
     return floor, walls
 

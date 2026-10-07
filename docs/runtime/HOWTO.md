@@ -18,6 +18,7 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=ble
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
 bash scripts/review_island.sh final 3                             # render every camera, validate, contact sheet
+"$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py   # the validators' fixture tests (<1 min)
 ```
 
 `scripts/review_island.sh` is the one command for the three review steps (render, validation, contact sheet): one exit
@@ -44,6 +45,7 @@ and gate it before replacing the game's copy, as the Blender rounds do:
 PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3
 "$PY" src/misostory/sidecar_diff.py --old game/assets/world --new _scratch/export_staging   # SIDECAR_DIFF_OK True
 MISOSTORY_EXPORT_DIR=_scratch/export_staging "$PY" src/misostory/test_sidecar_contract.py  # all OK
+"$PY" src/misostory/test_collision_tags.py                                                  # all OK
 ```
 
 Then replace `game/assets/world/` with the staging folder. Never keep a backup of it under `game/assets/`: everything
@@ -103,8 +105,8 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
   landed basic attacks (skills never hit a box: Three Snails searches monsters only, the owner's ruling in #5), and
   comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only while Pio's quest is in
-  progress; a gold marker shows over the boxes while the quest still wants them, and a warm rim while your swing can
-  reach one.
+  progress; a gold marker shows over the boxes while the quest still wants them, and a hot orange rim while your
+  swing can reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
   the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
@@ -136,7 +138,8 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
 ```
 
 - The full suite with the world is 1564 tests in 174 files (the final evidence run, 2026-10-06) and took 12 minutes
-  beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s) and the former-trap probe
+  beside two playtests; the stuck-region scan (`test_stuck_scan.gd`, about 80-110 s, under 20 s when its cache
+  holds the results for the current collision, see "Run the stuck-region scan") and the former-trap probe
   (`test_playtest_traps.gd`, about 2 minutes) are the slowest files. World tests SKIP without `INCLUDE_WORLD=1` (or a
   `game/assets/world/` in the project you run).
 - `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
@@ -159,6 +162,7 @@ Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
 node --test tools/sources/test/     # capture loader, exact raw-value parsers, the drop record builder (31 tests)
+node --test tools/meowdb/test/      # the extractors' fetch helper against a stub, never the network (7 tests)
 node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (19 tests)
 ```
 
@@ -233,9 +237,16 @@ TRAP_MAP=000001010 TRAP_LOCAL="76.70,-2.50,-37.57" bash scripts/playtest.sh trap
 ```
 
 The tool exits 1 on a CONFIRMED trap the allowlist's `entries` do not list (`game/data/misostory/stuck_allowlist.json`;
-empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (13 components
+empty: Maple Island has no intended dead end), on an UNENTERABLE component its `unenterable` list (9 components
 reviewed by hand) does not list, and on escapable ground outside every map region. The
 final Iteration Three scan reports 0 confirmed traps; every former trap (54 spots) is replayed by `trap_probe`.
+
+The scan caches its results in `_scratch/stuck_scan_cache/` (git-ignored; an ISOLATE copy uses the repository's),
+keyed by the collision as built, the maps' regions, entries and exits, the movement numbers, the parameters and the
+scanner's code. With nothing changed the tool and `test_stuck_scan.gd` read the results in under a second instead
+of scanning for about 90 s, and the allowlist is matched afresh on every run. `--no-cache` (the tool) or
+`STUCK_SCAN_CACHE=0` scans anyway; `STUCK_SCAN_CACHE=<dir>` moves the cache ([STUCK_SCAN.md](STUCK_SCAN.md) "The
+cache").
 
 ## Run canonical-data validation
 
@@ -260,12 +271,13 @@ Two more source checks, both offline:
 
 ```bash
 node tools/sources/check_spawn_captures.mjs   # the 51 canonical spawn rows against the dated MeowDB captures
-bash scripts/check_canonical.sh               # every extractor re-run cache-only in a temp copy, diffed byte for byte
+bash scripts/check_canonical.sh               # every extractor re-run --offline in a temp copy, diffed byte for byte
 ```
 
-`check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
-extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
-a missing cache. It runs the extractors in their documented order (items and quests before monsters, which resolve
+`check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). It makes no
+request: a page missing from the cache fails its extractor with "not cached". Exit 0 means every extractor reproduces
+the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or a missing cache. It
+runs the extractors in their documented order (items and quests before monsters, which resolve
 drop members against them) and passes: every canonical file is reproduced byte for byte, the 94 items included (177
 and 242 left the item subset with #32). To regenerate canonical data, see
 [`../canonical/README.md`](../canonical/README.md).

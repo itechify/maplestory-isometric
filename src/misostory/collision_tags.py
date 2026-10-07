@@ -8,7 +8,7 @@ name:
   ``none``; ``m.rail`` is ``wall``; ...). ``tag(obj, cls)`` sets it. Objects that never get a tag fall back to their
   collection group (Architecture: wall, Props: hull, Vegetation: trunk hull, Terrain / Plinth / WORLD: none); the
   exporter reports how many did (``collision.mesh_class_source``) and ``validate.py`` checks that every Terrain,
-  Plinth and WORLD mesh is tagged, so a new builder cannot silently rely on the fallback.
+  Architecture, Plinth and WORLD mesh is tagged, so a new builder cannot silently rely on the fallback.
 * **Instanced kit assets** are classified by their registry category and tags (``kit.REGISTRY``): any tag in
   ``PASSABLE_TAGS`` makes the asset passable; a tag in ``EXACT_TAGS`` makes it collide with its exact mesh (joined
   to the chunk's Walls trimesh) instead of a convex prism of its body-height slice.
@@ -55,3 +55,15 @@ def of(obj):
     """obj's authored collision class, or None when it has no tag."""
     v = obj.get(KEY) if obj is not None else None
     return v if v in CLASSES else None
+
+
+def passable(obj, asset_tags=()):
+    """True when the registry says obj never blocks a walking body: a ``climbable`` or ``passable`` flag, the
+    collision tag ``none`` (a mesh), or any of ``PASSABLE_TAGS`` among the kit asset's tags (an instance; pass
+    ``kit.REGISTRY[name]["tags"]``). Never reads the object's name. The traversal validator (traversal.py) and
+    ``validate.py`` decide what blocks a route walk with it; the export applies the same flags and tags to collision."""
+    if obj.get("climbable") or obj.get("passable"):
+        return True
+    if of(obj) == NONE:
+        return True
+    return bool(set(asset_tags) & PASSABLE_TAGS)

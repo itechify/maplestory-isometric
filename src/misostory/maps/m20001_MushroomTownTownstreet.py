@@ -22,6 +22,7 @@ armchair in a front-left reading corner) and blue jars; the entry nook gets a sh
 
 import math
 
+from misostory import collision_tags as CT
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
 from misostory.kit.interior import ROOM, RUG_Z, WALL_T, cut_room, lbox, plank_floor, point_light, room_light, solid
@@ -438,7 +439,7 @@ def gables(m):
     prof = [(ys[0] - y0, WALL_H - 0.1), (ys[-1] - y0, WALL_H - 0.1)]
     prof += [(y - y0, max(WALL_H - 0.05, cap_z(xl, y) - CAP["th"] - 0.06)) for y in reversed(ys)]
     mb.prism(prof, -T / 2, T / 2, loc=m.w(x0, y0, 0.0), rot=(90, 0, m.wyaw(90)), mat="M_Flat_mush_stem")
-    obj = mb.build(f"{m.slug}_Gables", m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_Gables", m.col_arch, smooth=False), CT.WALL)
     obj.visible_shadow = False
     return obj
 
@@ -507,7 +508,8 @@ def mushroom_cap(m):
     cut = [(grid[-1][i], grid[-1][i + 1]) for i in range(36)]                                 # faces +x
     rim = [(grid[0][i + 1], grid[0][i]) for i in range(36)] + [(grid[j][0], grid[j + 1][0]) for j in range(6)]
     shell(grid, cut, rim)
-    cap = mb.build(f"{m.slug}_Mushroom_Cap", m.col_arch, smooth=True, sharp_angle=50, recalc_normals=False)
+    cap = CT.tag(mb.build(f"{m.slug}_Mushroom_Cap", m.col_arch, smooth=True, sharp_angle=50, recalc_normals=False),
+                 CT.WALL)
     cap.visible_shadow = False
     # little cream spots on the visible crest (the 20000 house cap is plain, so keep them few and soft)
     return cap
@@ -567,7 +569,7 @@ def house_frame(m):
     lbox(mb, m, (0.3, nb - na + 0.3, 0.32), (3.4, (na + nb) / 2, 2.15), 0, HONEY, bevel=0.03)
     for (py, t) in ((na + 0.3, 40), (nb - 0.3, -40)):  # knee brackets from each post up to the beam
         lbox(mb, m, (0.12, 0.6, 0.12), (3.4, py, 1.85), 0, HONEY, tilt=(t, 0))
-    obj = mb.build(f"{m.slug}_House_Frame", m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_House_Frame", m.col_arch, smooth=False), CT.WALL)
     obj.visible_shadow = False   # posts + railings only striped the floor; the loft slab still casts its shadow
     return obj
 
@@ -586,7 +588,7 @@ def wainscot_rail(m):
         lbox(mb, m, (b - a, 0.12, 0.07), ((a + b) / 2, yb, WAINSCOT_H + 0.02), 0, HONEY, bevel=0.015)
     for (a, b) in ((y0 + 0.05, 2.2), (4.4, y1 - T / 2)):                              # left wall
         lbox(mb, m, (b - a, 0.12, 0.07), (xl, (a + b) / 2, WAINSCOT_H + 0.02), 90, HONEY, bevel=0.015)
-    obj = mb.build(f"{m.slug}_Wainscot_Rail", m.col_arch, smooth=False)
+    obj = CT.tag(mb.build(f"{m.slug}_Wainscot_Rail", m.col_arch, smooth=False), CT.WALL)
     obj.visible_shadow = False
     return obj
 

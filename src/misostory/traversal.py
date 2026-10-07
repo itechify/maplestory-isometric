@@ -6,8 +6,9 @@ height changes between samples:
   * climb  - larger rise/fall within CLIMB_RADIUS of a ladder/rope spanning it
   * drop   - a fall of <= MAX_DROP (allowed, one-way)
   * error  - unclimbable step, missing ground, slope steeper than MAX_SLOPE_DEG, or a
-             prop blocking the way (an upward ray from the walk surface hits geometry
-             inside the body band BODY_Z; not on the approach to a ladder/rope climb)
+             prop blocking the way (one of three upward rays, at the centre and a body's
+             half-width to either side, hits geometry inside the body band BODY_Z; not on
+             the approach to a ladder/rope climb)
 It also checks that every ladder/rope has walkable ground at its foot and top, that
 portals stand on ground, that terrain stays near the map footprint, and that the declared
 routes form one connected graph that joins every portal (route_graph).
@@ -19,6 +20,7 @@ import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
+from . import collision_tags as CT
 from . import core, geo, kit, ledge_rules
 
 MAX_STEP = 0.45
@@ -28,7 +30,11 @@ CLIMB_RADIUS = 2.2
 SAMPLE = 0.4
 PLAYER_HEIGHT = core.PLAYER_HEIGHT
 BODY_Z = (0.15, PLAYER_HEIGHT)  # body band above the walk surface: geometry inside it blocks a route
-HEAD = BODY_Z[1] - BODY_Z[0]    # length of the upward 'blocked' ray (kept for older callers)
+HEAD = BODY_Z[1] - BODY_Z[0]    # length of the upward 'blocked' rays (kept for older callers)
+# the 'blocked' test casts three upward rays per walk sample: the centre and this far either side across the walking
+# direction, a body's half-width (the runtime's grounding capsule radius, game/data/misostory/presentation.json), so
+# an obstacle a body would meet with a shoulder is found too
+BODY_HALF_WIDTH = 0.3
 SMALL_FOOTPRINT = 0.9  # props smaller than this (flowers, tufts) never block
 CLIMB_EXEMPT_SAMPLES = 2  # 'blocked' hits this many samples (0.8 m) from a climb, beside a ladder/rope, are exempt
 # route graph (route_graph): two routes join where a vertex of one lies within JOIN_XY (xy) and JOIN_Z (ground
@@ -51,30 +57,27 @@ def ledge_bounds(root):
     return ledge_rules.ledge_bounds(root, max_drop=MAX_DROP, max_step=MAX_STEP)
 
 
+def climb_ends(o):
+    """World (bottom, top) Vectors of a climbable's climb line, as stored by MapCtx.climbable."""
+    mw = core.GroundIndex.object_world_matrix(o)
+    return mw @ Vector(o["climb_bottom"]), mw @ Vector(o["climb_top"])
+
+
 def climbables(ctx):
+    """(x, y, z0, z1, name, descend_only) in world space of every ladder / rope / vine of the map: the climb position
+    stored on the object (MapCtx.climbable), x and y at its bottom."""
     out = []
     for o in ctx.col_arch.objects:
         if "climbable" in o.keys():
-            cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
-            cx = sum(c.x for c in cs) / 8
-            cy = sum(c.y for c in cs) / 8
-            out.append((cx, cy, o["climb_z0"], o["climb_z1"], o.name, bool(o.get("descend_only"))))
+            b, t = climb_ends(o)
+            out.append((b.x, b.y, b.z, t.z, o.name, bool(o.get("descend_only"))))
     return out
 
 
-_PASSABLE_WORDS = ("rope", "vine", "ladder", "sign", "portal", "banner", "flag", "lantern", "butterfly")
-
-
-def _passable(ob):
-    """Climbables, ropes/vines, signs and anything tagged passable never block a route."""
-    if "climbable" in ob.keys() or ob.get("passable"):
-        return True
-    n = ob.name.lower()
-    return any(w in n for w in _PASSABLE_WORDS)
-
-
 def obstacle_bvh(ctx):
-    """BVH of solid props/architecture of this map (instances + meshes), excluding small foliage."""
+    """BVH of solid props/architecture of this map (instances + meshes), excluding small props and whatever the
+    passable-tag registry calls passable (collision_tags.passable: climbables, passable flags, meshes tagged none,
+    kit assets with a passable tag such as vine, flower or grass). Object names are never read."""
     from .core import GroundIndex
     verts, polys = [], []
     owners = []  # (first face index, owner name)
@@ -89,19 +92,15 @@ def obstacle_bvh(ctx):
     for coll in (ctx.col_arch, ctx.col_props, ctx.col_veg):
         for ob in coll.objects:
             if ob.instance_type == "COLLECTION" and ob.instance_collection is not None:
-                asset = ob.get("asset", "")
-                info = kit.REGISTRY.get(asset, {})
-                if info.get("footprint", 1.0) < SMALL_FOOTPRINT or set(info.get("tags", ())) & {"portal_door"}:
-                    continue
-                if _passable(ob) or any(w in asset.lower() for w in _PASSABLE_WORDS):
-                    continue
-                if set(info.get("tags", ())) & {"flower", "grass"} or "flower" in asset.lower() or "clover" in asset.lower():
+                info = kit.REGISTRY.get(ob.get("asset", ""), {})
+                tags = set(info.get("tags", ()))
+                if info.get("footprint", 1.0) < SMALL_FOOTPRINT or "portal_door" in tags or CT.passable(ob, tags):
                     continue
                 me_w = GroundIndex.object_world_matrix(ob)
                 for src in ob.instance_collection.all_objects:
                     if src.type == "MESH":
                         add_mesh(src, me_w @ src.matrix_basis, owner=ob.name)
-            elif ob.type == "MESH" and not _passable(ob):
+            elif ob.type == "MESH" and not CT.passable(ob):
                 add_mesh(ob, GroundIndex.object_world_matrix(ob))
     if not polys:
         return None
@@ -152,6 +151,25 @@ def _resample_indexed(pts, step):
     return out, seg
 
 
+def body_hit(ctx, obstacles, a, b, z):
+    """The 'blocked' test of a body standing at local (x, y) b on ground height z (local), walking from a: three
+    upward rays through the body band BODY_Z, at the centre and BODY_HALF_WIDTH either side across the walking
+    direction. Returns (BVH hit, ray) of the first ray that meets an obstacle ("centre", "left" or "right"), or
+    (None, None)."""
+    wa, wb = ctx.w(a[0], a[1]), ctx.w(b[0], b[1])
+    d = Vector((wb.x - wa.x, wb.y - wa.y, 0.0))
+    side = Vector((-d.y, d.x, 0.0)).normalized() if d.length > 1e-6 else Vector((0.0, 0.0, 0.0))
+    z0 = ctx.origin.z + z + BODY_Z[0]
+    for ray, off in (("centre", 0.0), ("left", BODY_HALF_WIDTH), ("right", -BODY_HALF_WIDTH)):
+        if ray != "centre" and side.length == 0.0:
+            break
+        o = Vector((wb.x + side.x * off, wb.y + side.y * off, z0))
+        hit = obstacles.ray_cast(o, Vector((0, 0, 1)), BODY_Z[1] - BODY_Z[0])
+        if hit[0] is not None:
+            return hit, ray
+    return None, None
+
+
 def _near_ladder_xy(ctx, ladders, x, y):
     w = ctx.w(x, y)
     return any(math.hypot(l[0] - w.x, l[1] - w.y) < CLIMB_RADIUS for l in ladders)
@@ -200,12 +218,11 @@ def check_route(ctx, route, ladders, obstacles, reverse=False):
             else:
                 stats["walk"] += 1
             if obstacles is not None:
-                w = ctx.w(x1, y1, z1)
-                hit = obstacles.ray_cast(Vector((w.x, w.y, w.z + BODY_Z[0])), Vector((0, 0, 1)), BODY_Z[1] - BODY_Z[0])
-                if hit[0] is not None:
+                hit, ray = body_hit(ctx, obstacles, (x0, y0), (x1, y1), z1)
+                if hit is not None:
                     events.append((i + 1, {"type": "blocked", "at": [round(x1, 1), round(y1, 1)],
-                                           "height": round(hit[0].z - w.z, 2), "by": owner_of(obstacles, hit[2])},
-                                   True))
+                                           "height": round(hit[0].z - ctx.origin.z - z1, 2), "ray": ray,
+                                           "by": owner_of(obstacles, hit[2])}, True))
             continue
         near = _near_climb(ctx, ladders, (x0 + x1) / 2, (y0 + y1) / 2, z0, z1, allow_down_only=dz < 0)
         if near:

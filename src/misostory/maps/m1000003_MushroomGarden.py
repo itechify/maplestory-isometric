@@ -318,7 +318,8 @@ def build(m):
     for (x, y) in [(29.0, 19.6), (36.0, 19.4), (31.0, 20.6)]:
         put("Clover_Patch", x, y, 0.6, rot=x * 9)
     put("Bush_Flowering_A", 36.0, 21.2, 0.9, rot=20)
-    m.place("Mushroom_Giant_Blue", 36.2, 24.0, rot=-30, scale=0.85)
+    # 0.6 m behind the top cap chain: at y 24.0 its brim (1.5 m up) met the shoulder of a body on ToTop
+    m.place("Mushroom_Giant_Blue", 36.2, 24.6, rot=-30, scale=0.85)
     # P14 top terrace: berry hedges and clover
     put("X1000003_Berry_Hedge", 27.6, 30.0, 1.6, rot=0)
     put("X1000003_Berry_Hedge", 30.7, 30.2, 1.6, rot=-6)

@@ -464,5 +464,5 @@ def build(m):
     m.route("Main", [(14.0, 1.0), (14.0, 5.6), (14.0, 8.6), (12.0, 9.6), _door_point(-1.2), _door_point(0.0),
                      _door_point(1.8), (5.0, 10.6), (1.0, 12.0)])
     # up the ladder (x 77) onto the bedroom loft: the validator classifies the 4 m rise at the loft edge as a climb
-    m.route("Loft", [(14.0, 8.4), (16.0, 8.3), (16.0, 11.0), (17.2, 13.2)])
+    m.route("Loft", [(14.0, 8.4), (16.0, 8.6), (16.0, 11.0), (17.2, 13.2)])  # y 8.6: a shoulder clears the knee wall
     m.route("BackGarden", [(14.0, 6.0), (16.8, 6.9), (19.0, 6.5)])

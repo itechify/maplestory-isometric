@@ -833,7 +833,7 @@ def build(m):
     for (px, py) in ((11.75, 8.85), (11.75, 11.3), (13.7, 8.85), (15.4, 11.3)):
         lbox(legs, m, (0.22, 0.22, SHELF_Z - 0.25), (px, py, (SHELF_Z - 0.25) / 2), 0, "M_Wood_Dark")
     lbox(legs, m, (2.0, 0.1, 0.14), (12.75, 8.75, SHELF_Z - 0.32), 0, "M_Flat_roof_blue")
-    legs.build(f"{m.slug}_Shelf_Legs", m.col_arch, smooth=False)
+    CT.tag(legs.build(f"{m.slug}_Shelf_Legs", m.col_arch, smooth=False), CT.WALL)
     # wares dressing the heap (kept off the walking line x 14.2..15.2)
     m.place("X60001_ShieldBarrel", 13.3, 4.0, rot=-20)
     m.place("Barrel", 13.35, 5.2, rot=0)

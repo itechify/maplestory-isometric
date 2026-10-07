@@ -667,20 +667,18 @@ func _picked(qid: String) -> PackedStringArray:
 func _shop(npc: String, map_id: String, buys: Array, visit: String) -> bool:
 	if not await _travel(map_id):
 		return false
+	# No NPC speech bubble over (or under) the open shop window (the acceptance review saw Lucy's cut off by it), shown
+	# by waiting only (#40): a bubble before the shop opens, one falling due while it is open and not showing, and
+	# bubbles again after it closes. Each wait is bounded by the bubble schedule (PlaytestBubbleWatch).
+	await k.approach(npc)
+	var before := await PlaytestBubbleWatch.wait_shown(d)
+	d.check("an NPC speech bubble shows before %s's shop opens" % k.npc_name(npc), bool(before["ok"]), str(before))
 	if not d.check("talking to %s opens the shop" % k.npc_name(npc), await k.open_shop(npc), "", ["npc:" + npc]):
 		_finding("shop", "%s's shop did not open" % k.npc_name(npc), "talking to a shopkeeper opens the shop")
 		return false
-	# No NPC speech bubble over (or under) the open shop window (the acceptance review saw Lucy's cut off by it).
-	await d.wait(0.2)
-	var talking := PackedStringArray()
-	var presenters: Variant = d.interaction().get("presenters") if d.interaction() != null else null
-	if presenters is Dictionary:
-		for id: String in presenters:
-			var p: Variant = presenters[id]
-			if p is NpcPresenter and is_instance_valid(p) and (p as NpcPresenter).bubble != null \
-					and (p as NpcPresenter).bubble.visible:
-				talking.append(k.npc_name(id))
-	d.check("no NPC speech bubble shows while %s's shop is open" % k.npc_name(npc), talking.is_empty(), ", ".join(talking))
+	var during := await PlaytestBubbleWatch.watch_quiet(d)
+	d.check("no NPC speech bubble shows while %s's shop is open, though one fell due" % k.npc_name(npc), bool(during["ok"]),
+		str(during))
 	await k.shot("shop_" + k.npc_name(npc).to_lower())
 	var c := d.character()
 	var shop_id := String(d.shop().get("shop_id"))
@@ -718,6 +716,8 @@ func _shop(npc: String, map_id: String, buys: Array, visit: String) -> bool:
 		if bool(r3["ok"]):
 			(row["sold"] as Array).append({"item": id, "qty": qty, "price": each, "visit": visit})
 	await k.close_shop()
+	var after := await PlaytestBubbleWatch.wait_shown(d)
+	d.check("NPC speech bubbles show again after %s's shop closes" % k.npc_name(npc), bool(after["ok"]), str(after))
 	var shops: Dictionary = d.carry.get("shops", {})
 	shops[npc] = row
 	d.carry["shops"] = shops

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Reproducibility check for the canonical snapshot: re-run every extractor offline (cache-only, plus the dated
-# captures under tools/*/captures) into a temporary copy of the repository, then compare what they write with
-# game/data/canonical and game/data/misostory/map_id_crosswalk.json byte for byte.
+# Reproducibility check for the canonical snapshot: re-run every extractor with --offline (the cache plus the dated
+# captures under tools/*/captures, no network) into a temporary copy of the repository, then compare what they write
+# with game/data/canonical and game/data/misostory/map_id_crosswalk.json byte for byte.
 #
 #   bash scripts/check_canonical.sh               # exit 0 = every extractor reproduces the committed files
 #   bash scripts/check_canonical.sh --keep        # keep the temporary copy (its path is printed) to inspect a diff
@@ -20,8 +20,9 @@
 # reported: it also reads Blender-side files (docs/manifest.json, src/misostory/layout.py) that change with every world
 # build, so it is a report to refresh (node tools/meowdb/extract_maps.mjs), not canonical data.
 #
-# Needs tools/meowdb/.cache (git-ignored: copy it from a checkout that has it). Network access stays off:
-# MEOWDB_ALLOW_NETWORK is cleared for the run, so a page missing from the cache fails the extractor ("not cached").
+# Needs tools/meowdb/.cache (git-ignored: copy it from a checkout that has it). Every extractor runs with --offline
+# (tools/meowdb/lib.mjs), so the check makes no request: a page missing from the cache fails the extractor ("not
+# cached") instead of being fetched.
 # Exit codes: 0 reproduced, 1 differences, 2 an extractor failed or the cache is missing.
 set -uo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -92,7 +93,7 @@ STEPS=(extract_maps extract_npcs extract_quests extract_shops extract_formulas e
 failed_steps=()
 for step in "${STEPS[@]}"; do
   log="$WORK/$step.log"
-  if (cd "$WORK" && env -u MEOWDB_ALLOW_NETWORK node "tools/meowdb/$step.mjs" >"$log" 2>&1); then
+  if (cd "$WORK" && node "tools/meowdb/$step.mjs" --offline >"$log" 2>&1); then
     echo "ok    $step"
   else
     echo "FAIL  $step (last lines of its output:)"

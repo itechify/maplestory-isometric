@@ -22,6 +22,8 @@ round stepping stones (0.4 m per step) winding up from the wide east rim to the 
 
 import math
 
+from mathutils import Vector
+
 from misostory import core, geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
@@ -131,10 +133,12 @@ def vine_climb(m, name, x, y, z0, z1, seed=0):
         k += 1
     mb.sphere(0.26, loc=(p.x, p.y - 0.02, p.z + h + 0.25), scale=(1.4, 0.8, 0.7), mat="M_Flat_leaf_lt", subdiv=1)
     obj = mb.build(m._name(name), m.col_arch, smooth=True, sharp_angle=60)
-    obj["climbable"] = "rope"
-    obj["climb_z0"] = m.origin.z + z0
-    obj["climb_z1"] = m.origin.z + z1
-    return obj
+    # climbed at the centre of its foliage (the leaves hang a little to the camera side of the strand), as it always
+    # was: the built mesh is in world coordinates
+    vs = [v.co for v in obj.data.vertices]
+    cx, cy, _z = m._local(Vector(((min(v.x for v in vs) + max(v.x for v in vs)) / 2,
+                                  (min(v.y for v in vs) + max(v.y for v in vs)) / 2, 0.0)))
+    return m.climbable(obj, cx, cy, z0, z1, kind="rope")
 
 
 def dark_strand(m, name, x, y, z_top, length, seed=0):

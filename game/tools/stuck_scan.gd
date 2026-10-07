@@ -28,6 +28,11 @@ extends RefCounted
 ##   scan.verify(g)                                # labels g.components
 ##   var doc := scan.run(PackedStringArray())      # every map, verified: the docs/runtime/stuck_report.json document
 ##
+## run() caches each map's result in cache_dir (default_cache_dir(): <repo>/_scratch/stuck_scan_cache), keyed by a
+## hash of the collision as built, every map's graph inputs, the movement numbers, the parameters and the scanner's
+## code (cache_key()). A run with nothing changed reads the results instead of scanning; STUCK_SCAN_CACHE=0 (or the
+## option cache: "") turns the cache off.
+##
 ## Every number of the body comes from the MovementModel (data/canonical/formulas/movement.json via WorldScale, and
 ## data/misostory/movement.json); the constants below are the scanner's own sampling choices.
 
@@ -88,6 +93,20 @@ const MAX_STARTS := 3
 
 const DIRS := [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
 	Vector2i(1, 1), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]
+
+## The cache of run()'s results (cache_key()): the layout of its files, and how many of them (the newest) a cache
+## directory keeps.
+const CACHE_FORMAT := 1
+const CACHE_KEEP := 4
+## The scripts a result depends on besides the collision and the data (cache_key() hashes those as built and as read):
+## the scanner, and the controller and the definitions its verification runs. Their source is in the key, so an edit to
+## any of them scans again.
+const SOURCES := ["res://tools/stuck_scan.gd", "res://scripts/actors/player/player_controller.gd",
+	"res://scripts/actors/player/player_test_world.gd", "res://scripts/actors/player/movement_model.gd",
+	"res://scripts/actors/player/climbable_def.gd", "res://scripts/actors/player/bot_input.gd",
+	"res://scripts/actors/player/input_source.gd", "res://scripts/actors/player/safe_ground.gd",
+	"res://scripts/world/fall_recovery.gd", "res://scripts/world/world_layers.gd", "res://scripts/core/maps/portal_def.gd",
+	"res://scripts/core/maps/gate_def.gd", "res://scripts/core/maps/region_index.gd"]
 
 
 ## One map's walkability graph and its result.
@@ -236,6 +255,8 @@ class MapGraph:
 
 
 var world: IslandWorld = null
+## The node whose subtree holds the scanned collision: the island, or a test's host.
+var root: Node3D = null
 var db: ContentDB = null
 var model: MovementModel = null
 var cell: float = DEFAULT_CELL_M
@@ -249,9 +270,17 @@ var allowlist: Array = []
 ## The reviewed UNENTERABLE components (stuck_allowlist.json unenterable): open space the real controller could not get
 ## into, inspected by hand and kept, each with its reason. An UNENTERABLE component none of them covers is unreviewed.
 var reviewed_unenterable: Array = []
+## Where run() keeps its results, by cache_key() ("": no cache). default_cache_dir() unless options.cache says.
+var cache_dir: String = ""
+## The SHA-256 of SOURCES, part of cache_key().
+var code_version: String = ""
 
 var _ray: PhysicsRayQueryParameters3D = null
 var _up_ray: PhysicsRayQueryParameters3D = null
+## A downward ray that also hits back faces: only a double-sided trimesh shows them (_inside_double_sided).
+var _back_ray: PhysicsRayQueryParameters3D = null
+## The bodies whose trimesh collides from both sides (IslandWorld.double_sided_trimesh: Southperry's chunk), by RID.
+var _double_sided: Dictionary = {}
 var _shape_q: PhysicsShapeQueryParameters3D = null
 var _cap_lift: float = 0.0
 var _n_rays: int = 0
@@ -259,7 +288,8 @@ var _n_shapes: int = 0
 var _n_sweeps: int = 0
 
 
-## A scanner over `w`'s physics space (the island must be built). `options`: cell (m), exclude (Array[RID]), host.
+## A scanner over `w`'s physics space (the island must be built). `options`: cell (m), exclude (Array[RID]), host,
+## cache (run()'s cache directory, "" for none; default_cache_dir() when absent).
 static func create(w: IslandWorld, content: ContentDB, options: Dictionary = {}) -> StuckScan:
 	return create_in(w, content, options, w)
 
@@ -270,6 +300,7 @@ static func create_in(node: Node3D, content: ContentDB, options: Dictionary = {}
 	var s := StuckScan.new()
 	var w := node
 	s.world = island
+	s.root = w
 	s.db = content
 	s.model = MovementModel.from_db(content)
 	s.cell = float(options.get("cell", DEFAULT_CELL_M))
@@ -278,10 +309,16 @@ static func create_in(node: Node3D, content: ContentDB, options: Dictionary = {}
 		s.exclude.append(r as RID)
 	s.host = options.get("host", w.get_parent()) as Node
 	s.space = w.get_world_3d().direct_space_state
+	for cs in w.find_children("*", "CollisionShape3D", true, false):
+		var tri := (cs as CollisionShape3D).shape as ConcavePolygonShape3D
+		if tri != null and tri.backface_collision and cs.get_parent() is CollisionObject3D:
+			s._double_sided[(cs.get_parent() as CollisionObject3D).get_rid()] = true
 	var table: Variant = content.miso_table("stuck_allowlist")
 	if table is Dictionary:
 		s.allowlist = (table as Dictionary).get("entries", [])
 		s.reviewed_unenterable = (table as Dictionary).get("unenterable", [])
+	s.cache_dir = String(options.get("cache", default_cache_dir()))
+	s.code_version = source_digest()
 	s._setup_queries()
 	return s
 
@@ -314,6 +351,11 @@ func _setup_queries() -> void:
 	_up_ray.hit_back_faces = false
 	_up_ray.hit_from_inside = false
 	_up_ray.exclude = exclude
+	_back_ray = PhysicsRayQueryParameters3D.new()
+	_back_ray.collision_mask = WorldLayers.PLAYER_MASK
+	_back_ray.hit_back_faces = true
+	_back_ray.hit_from_inside = false
+	_back_ray.exclude = exclude
 	# The controller's body: a capsule from step_up to body_height (PlayerController._configure_shapes).
 	var cap := CapsuleShape3D.new()
 	cap.radius = model.body_radius
@@ -450,6 +492,7 @@ func _sample(g: MapGraph) -> void:
 			g.col_first[c] = g.surf_y.size()
 			var y := g.y_top
 			var n := 0
+			var double_sided_above := false
 			while n < MAX_SURFACES:
 				_n_rays += 1
 				_ray.from = Vector3(x, y, z)
@@ -461,7 +504,9 @@ func _sample(g: MapGraph) -> void:
 				var fl := _is_floor(hit.normal as Vector3)
 				var node := -1
 				var feet := Vector3(x, hy, z)
-				if fl and hy >= kill_y and _clear(feet) and _open_above(feet, n, g.y_top):
+				var double_sided := _double_sided.has(hit.rid)
+				if fl and hy >= kill_y and _clear(feet) and _open_above(feet, n, g.y_top) \
+						and not (double_sided_above and not double_sided and _inside_double_sided(feet, g.y_bottom)):
 					node = g.node_pos.size()
 					g.node_pos.append(feet)
 					g.node_col.append(c)
@@ -470,6 +515,7 @@ func _sample(g: MapGraph) -> void:
 				g.surf_floor.append(1 if fl else 0)
 				n += 1
 				y = hy - SURFACE_GAP_M
+				double_sided_above = double_sided_above or double_sided
 			g.col_count[c] = n
 
 
@@ -516,6 +562,34 @@ func _open_above(feet: Vector3, tops_above: int, y_top: float) -> bool:
 		bottoms += 1
 		y = (h.position as Vector3).y + SURFACE_GAP_M
 	return bottoms >= tops_above
+
+
+## Feet under a double-sided trimesh that stand on something else (a ring wall's box, a prop's hull): inside a solid
+## of that trimesh when the first of its faces below them is a back face, which only a ray that hits back faces sees
+## (on a double-sided trimesh). The face count of _open_above balances where a solid's top lies in the plane of another
+## solid's top: Southperry's quay front, a wall whose top is level with the planks lying on it, with the containment
+## ring's box poking up inside it, where the column meets one top for the two solids and the planks' underside above
+## the ring top. Feet standing on a double-sided face are left to the face count: the ray would start inside that
+## face's own solid (a deck's planks) and meet its underside, and the ship's decks lie inside its hull.
+func _inside_double_sided(feet: Vector3, y_bottom: float) -> bool:
+	var y := feet.y - SURFACE_GAP_M
+	for i in MAX_SURFACES:
+		_n_rays += 1
+		_back_ray.from = Vector3(feet.x, y, feet.z)
+		_back_ray.to = Vector3(feet.x, y_bottom, feet.z)
+		var h := space.intersect_ray(_back_ray)
+		if h.is_empty():
+			return false
+		var hy: float = (h.position as Vector3).y
+		if _double_sided.has(h.rid):
+			# A front face: the ray that ignores back faces meets the same face first.
+			_n_rays += 1
+			_ray.from = _back_ray.from
+			_ray.to = _back_ray.to
+			var f := space.intersect_ray(_ray)
+			return f.is_empty() or f.rid != h.rid or absf((f.position as Vector3).y - hy) > 0.002
+		y = hy - SURFACE_GAP_M
+	return false
 
 
 ## The first surface of column c (top down) at or below height y; -1 if none.
@@ -1569,9 +1643,22 @@ func nearest_escapable(g: MapGraph, p: Vector3, count: int, min_y: float = -INF)
 ## Scans (and verifies) `maps` (MeowDB ids; empty = every map) and returns the report document
 ## (docs/runtime/stuck_report.json). Components are matched against the allowlist. `png_dir` (optional): writes a
 ## top-down picture of each map there (heatmap()).
+##
+## With a cache_dir, a map whose result an earlier run stored under the same cache_key() is not scanned again: the
+## report is built from the stored result, matched against the allowlist as it is now. The document's `cache` says
+## how many maps came from the cache. A picture needs the graph, so with `png_dir` every map is scanned.
 func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, png_dir: String = "") -> Dictionary:
 	var t0 := Time.get_ticks_msec()
 	var ids := maps if not maps.is_empty() else world.defs.ids()
+	var key := ""
+	var known := {}
+	if cache_dir != "":
+		var graphs: Array = []
+		for id in world.defs.ids():
+			graphs.append(map_graph(id))
+		key = cache_key(graphs, do_verify)
+		known = _cache_load(key)
+	var scanned := 0
 	var per_map := {}
 	var totals := {"maps": 0, "nodes": 0, "certain_edges": 0, "into_edges": 0, "reachable": 0, "flagged": 0,
 		"components": 0, "confirmed": 0, "cleared": 0, "unenterable": 0, "unverified": 0, "allowlisted": 0,
@@ -1581,17 +1668,16 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 	for id in ids:
 		if not world.defs.has_map(id):
 			continue
-		var g := scan_map(id)
-		var outside := outside_regions(g)
-		if do_verify:
-			verify(g)
-		if png_dir != "":
-			heatmap(g, 5).save_png(png_dir.path_join("stuck_%s.png" % id))
+		var found: Dictionary = known.get(id, {})
+		if found.is_empty() or png_dir != "":
+			found = _map_found(scan_map(id), do_verify, png_dir)
+			known[id] = found
+			scanned += 1
 		var comps: Array = []
-		for comp in g.components:
-			var entry := report_component(g, comp)
+		for c: Dictionary in found.components:
+			var entry := _reviewed(id, found.frame, c)
 			comps.append(entry)
-			var verdict := String(comp.verdict)
+			var verdict := String(entry.verdict)
 			match verdict:
 				VERDICT_CONFIRMED:
 					totals.confirmed += 1
@@ -1601,38 +1687,206 @@ func run(maps: PackedStringArray = PackedStringArray(), do_verify: bool = true, 
 					totals.unenterable += 1
 				_:
 					totals.unverified += 1
-			if String(comp.allowlisted) != "":
+			if entry.has("allowlisted"):
 				totals.allowlisted += 1
 			elif verdict == VERDICT_CONFIRMED:
 				totals.new_traps += 1
 				traps.append(entry)
-			if verdict == VERDICT_UNENTERABLE and String(comp.get("reviewed", "")) == "":
+			if verdict == VERDICT_UNENTERABLE and not entry.has("reviewed"):
 				totals.unreviewed_unenterable += 1
 				unreviewed.append(entry)
-		var row := g.stats.duplicate()
-		row["name"] = g.name
-		row["kill_y_local"] = snappedf(g.kill_y - g.frame.origin.y, 0.01)
-		var fo: Array = []
-		for q in g.fall_out_samples:
-			fo.append(_r3(g.to_local(q)))
-		row["fall_out_samples_local"] = fo
-		row["outside_regions"] = outside.count
-		row["outside_regions_escapable"] = outside.escapable
-		row["outside_regions_samples_local"] = outside.samples
+		var row: Dictionary = (found.row as Dictionary).duplicate()
 		row["components"] = comps
 		per_map[id] = row
-		totals.outside_regions += int(outside.count)
-		totals.outside_regions_escapable += int(outside.escapable)
+		totals.outside_regions += int(row.outside_regions)
+		totals.outside_regions_escapable += int(row.outside_regions_escapable)
 		totals.maps += 1
-		totals.nodes += int(g.stats.nodes)
-		totals.certain_edges += int(g.stats.certain_edges)
-		totals.into_edges += int(g.stats.into_edges)
-		totals.reachable += int(g.stats.reachable)
-		totals.flagged += int(g.stats.flagged)
-		totals.components += g.components.size()
-		totals.fall_outs += g.fall_outs
+		totals.nodes += int(row.nodes)
+		totals.certain_edges += int(row.certain_edges)
+		totals.into_edges += int(row.into_edges)
+		totals.reachable += int(row.reachable)
+		totals.flagged += int(row.flagged)
+		totals.components += comps.size()
+		totals.fall_outs += int(row.fall_outs)
+	if key != "" and scanned > 0:
+		_cache_store(key, known)
 	totals["ms"] = Time.get_ticks_msec() - t0
-	return {"params": params(), "totals": totals, "traps": traps, "unreviewed_unenterable": unreviewed, "maps": per_map}
+	return {"params": params(), "totals": totals, "traps": traps, "unreviewed_unenterable": unreviewed, "maps": per_map,
+		"cache": {"key": key, "maps_scanned": scanned, "maps_from_cache": totals.maps - scanned}}
+
+
+## What the scan of one map found, before the allowlist (what the cache keeps): the map's frame, its row of the report
+## (the scan's stats, kill_y, fall-outs, the nodes outside every region) and its components (report_component()).
+func _map_found(g: MapGraph, do_verify: bool, png_dir: String) -> Dictionary:
+	var outside := outside_regions(g)
+	if do_verify:
+		verify(g)
+	if png_dir != "":
+		heatmap(g, 5).save_png(png_dir.path_join("stuck_%s.png" % g.map_id))
+	var row := g.stats.duplicate()
+	row["name"] = g.name
+	row["kill_y_local"] = snappedf(g.kill_y - g.frame.origin.y, 0.01)
+	var fo: Array = []
+	for q in g.fall_out_samples:
+		fo.append(_r3(g.to_local(q)))
+	row["fall_out_samples_local"] = fo
+	row["outside_regions"] = outside.count
+	row["outside_regions_escapable"] = outside.escapable
+	row["outside_regions_samples_local"] = outside.samples
+	var comps: Array = []
+	for comp in g.components:
+		comps.append(report_component(g, comp))
+	return {"frame": g.frame, "row": row, "components": comps}
+
+
+## The cache key of run(): a SHA-256 over everything a map's result depends on, so that an unchanged key means an
+## unchanged result. That is the collision the player meets, as built (collision_digest()), the inputs of every map's
+## graph (`graphs`: map_graph() of each map; their regions, entries, exits and climbables), the movement model's numbers,
+## the cell size, whether components are verified, and the scanner's code (code_version, the SOURCES). The allowlist is
+## not in it: run() matches the stored components against it on every run.
+func cache_key(graphs: Array, do_verify: bool) -> String:
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	var movement: Array = []
+	for p in model.get_property_list():
+		var pname := String(p.name)
+		if int(p.usage) & PROPERTY_USAGE_SCRIPT_VARIABLE != 0 and not pname.begins_with("_"):
+			movement.append([pname, model.get(pname)])
+	ctx.update(var_to_bytes([CACHE_FORMAT, code_version, cell, do_verify, movement]))
+	ctx.update(collision_digest())
+	for g: MapGraph in graphs:
+		var climbs: Array = []
+		for c in g.climbables:
+			climbs.append([c.name, c.kind, c.descend_only, c.bottom, c.top, c.top_exit, c.has_foot_ground, c.foot_ground,
+				c.facing])
+		var portals: Array = []
+		for p in g.exit_portals:
+			portals.append([p.portal_id, p.trigger_transform(), p.trigger_size])
+		var gates: Array = []
+		for gt in g.exit_gates:
+			gates.append([gt.map_id, gt.origin, gt.normal, gt.lateral, gt.half_width, gt.height, gt.below])
+		ctx.update(var_to_bytes([g.map_id, g.name, g.frame, g.polygons, g.kill_y, g.y_top, g.entry_points, climbs, portals,
+			gates, g.exit_boxes]))
+	return ctx.finish().hex_encode()
+
+
+## A SHA-256 of the collision the player meets under `root`, as built: every collision object on the player's mask (by
+## its path under root) with its layer, its transform and its shapes (each shape's stored properties: a trimesh's faces
+## and sidedness, a box's size). The exported collision meshes are in it, and so are the rings, plugs and trail walls
+## the island builds at runtime.
+func collision_digest() -> PackedByteArray:
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	var bodies: Array[Node] = root.find_children("*", "CollisionObject3D", true, false)
+	var paths := {}
+	for b in bodies:
+		paths[b] = String(root.get_path_to(b))
+	bodies.sort_custom(func(x: Node, y: Node) -> bool: return String(paths[x]) < String(paths[y]))
+	var shapes := {}
+	for b in bodies:
+		var co := b as CollisionObject3D
+		if co.collision_layer & WorldLayers.PLAYER_MASK == 0 or co.get_rid() in exclude:
+			continue
+		ctx.update(var_to_bytes([paths[co], co.collision_layer, co.global_transform]))
+		for cs in co.get_children():
+			if cs is CollisionShape3D:
+				ctx.update(var_to_bytes([(cs as CollisionShape3D).transform, (cs as CollisionShape3D).disabled]))
+				ctx.update(_shape_digest((cs as CollisionShape3D).shape, shapes))
+	return ctx.finish()
+
+
+## A SHA-256 of a shape's class and stored properties (`known`: the digests so far, by instance: shapes are shared).
+func _shape_digest(shape: Shape3D, known: Dictionary) -> PackedByteArray:
+	if shape == null:
+		return PackedByteArray()
+	var id := shape.get_instance_id()
+	if known.has(id):
+		return known[id]
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	ctx.update(shape.get_class().to_utf8_buffer())
+	for p in shape.get_property_list():
+		var pname := String(p.name)
+		if int(p.usage) & PROPERTY_USAGE_STORAGE == 0 or pname.begins_with("resource_") or pname == "script":
+			continue
+		ctx.update(pname.to_utf8_buffer())
+		ctx.update(var_to_bytes(shape.get(pname)))
+	var d := ctx.finish()
+	known[id] = d
+	return d
+
+
+## The SHA-256 of the SOURCES (a missing file counts as its path).
+static func source_digest() -> String:
+	var ctx := HashingContext.new()
+	ctx.start(HashingContext.HASH_SHA256)
+	for path: String in SOURCES:
+		ctx.update(path.to_utf8_buffer())
+		ctx.update(FileAccess.get_file_as_bytes(path))
+	return ctx.finish().hex_encode()
+
+
+## Where run() keeps its results by default: STUCK_SCAN_CACHE when set (a directory, or 0 / off for no cache), else
+## _scratch/stuck_scan_cache in the repository that holds the project (git-ignored, and the same directory for an
+## ISOLATE copy under _scratch/godot_runs/, whose own files the next mirror replaces), else user://stuck_scan_cache.
+static func default_cache_dir() -> String:
+	var env := OS.get_environment("STUCK_SCAN_CACHE")
+	if env.to_lower() in ["0", "off", "no", "false"]:
+		return ""
+	if env != "":
+		return env
+	var dir := ProjectSettings.globalize_path("res://").simplify_path()
+	while dir != "":
+		if FileAccess.file_exists(dir.path_join(".git")) or DirAccess.dir_exists_absolute(dir.path_join(".git")):
+			return dir.path_join("_scratch/stuck_scan_cache")
+		var up := dir.get_base_dir()
+		if up == dir:
+			break
+		dir = up
+	return ProjectSettings.globalize_path("user://stuck_scan_cache")
+
+
+func _cache_file(key: String) -> String:
+	return cache_dir.path_join("stuck_scan_%s.bin" % key.left(32))
+
+
+## The per-map results stored under `key` (map id -> _map_found()), or {}.
+func _cache_load(key: String) -> Dictionary:
+	var path := _cache_file(key)
+	if not FileAccess.file_exists(path):
+		return {}
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var v: Variant = f.get_var()
+	if v is Dictionary and int((v as Dictionary).get("format", 0)) == CACHE_FORMAT \
+			and String((v as Dictionary).get("key", "")) == key and (v as Dictionary).get("maps") is Dictionary:
+		return (v as Dictionary).maps
+	return {}
+
+
+## Stores the per-map results under `key` (written beside and then renamed, so a reader never sees half a file), and
+## keeps the CACHE_KEEP newest files of the directory.
+func _cache_store(key: String, maps: Dictionary) -> void:
+	DirAccess.make_dir_recursive_absolute(cache_dir)
+	var path := _cache_file(key)
+	var tmp := "%s.%d.tmp" % [path, OS.get_process_id()]
+	var f := FileAccess.open(tmp, FileAccess.WRITE)
+	if f == null:
+		push_warning("[stuck_scan] cannot write the cache %s" % tmp)
+		return
+	f.store_var({"format": CACHE_FORMAT, "key": key, "maps": maps})
+	f.close()
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(path)
+	DirAccess.rename_absolute(tmp, path)
+	var files: Array = []
+	for n in DirAccess.get_files_at(cache_dir):
+		if n.begins_with("stuck_scan_") and n.ends_with(".bin"):
+			files.append(cache_dir.path_join(n))
+	files.sort_custom(func(x: String, y: String) -> bool: return FileAccess.get_modified_time(x) > FileAccess.get_modified_time(y))
+	for old: String in files.slice(CACHE_KEEP):
+		DirAccess.remove_absolute(old)
 
 
 ## Forward-reachable nodes of `g` outside every map region and trail zone (RegionIndex "void"): {count, escapable,
@@ -1663,12 +1917,9 @@ func outside_regions(g: MapGraph) -> Dictionary:
 	return {"count": count, "escapable": escapable, "samples": (esc_samples + other).slice(0, 4)}
 
 
-## The JSON-ready summary of a component (with its allowlist match, and for an UNENTERABLE one its review, if any).
+## The JSON-ready summary of a component, before the allowlist (_reviewed() adds its match), with the world positions
+## of its nodes (`nodes_at`, which the allowlist is matched against and the report leaves out).
 func report_component(g: MapGraph, comp: Dictionary) -> Dictionary:
-	var hit := _match(allowlist, g, comp)
-	comp["allowlisted"] = hit
-	if String(comp.verdict) == VERDICT_UNENTERABLE:
-		comp["reviewed"] = _match(reviewed_unenterable, g, comp)
 	var out := {}
 	for k in ["id", "nodes", "area_m2", "local", "blender_local_xy", "y_local", "drop_m", "entries_inside", "floor", "verdict",
 			"entered", "enter_how", "verify_ms"]:
@@ -1681,26 +1932,42 @@ func report_component(g: MapGraph, comp: Dictionary) -> Dictionary:
 	out["in_edges"] = edges
 	if comp.has("samples"):
 		out["samples"] = comp.samples
+	var at := PackedVector3Array()
+	for u: int in comp.members:
+		at.append(g.node_pos[u])
+	out["nodes_at"] = at
+	return out
+
+
+## A component of map `map_id` (report_component()) as the report lists it: with its allowlist match, and for an
+## UNENTERABLE one its review, if any.
+func _reviewed(map_id: String, frame: Transform3D, found: Dictionary) -> Dictionary:
+	var out := found.duplicate()
+	out.erase("nodes_at")
+	var hit := _match(allowlist, map_id, frame, found.nodes_at)
 	if hit != "":
 		out["allowlisted"] = hit
-	if String(comp.get("reviewed", "")) != "":
-		out["reviewed"] = comp.reviewed
+	if String(found.verdict) == VERDICT_UNENTERABLE:
+		var why := _match(reviewed_unenterable, map_id, frame, found.nodes_at)
+		if why != "":
+			out["reviewed"] = why
 	return out
 
 
 ## The reason of the first entry of `list` (allowlist or reviewed_unenterable: {map_id, local, radius_m, reason}) whose
-## map-local point lies within its radius of a node of the component; "" if none.
-func _match(list: Array, g: MapGraph, comp: Dictionary) -> String:
+## map-local point (map-local -> world: `frame`) lies within its radius of one of the component's nodes `at`; "" if
+## none.
+func _match(list: Array, map_id: String, frame: Transform3D, at: PackedVector3Array) -> String:
 	for e in list:
-		if not (e is Dictionary) or String((e as Dictionary).get("map_id", "")) != g.map_id:
+		if not (e is Dictionary) or String((e as Dictionary).get("map_id", "")) != map_id:
 			continue
 		var l: Array = (e as Dictionary).get("local", [])
 		if l.size() < 3:
 			continue
-		var at := g.to_world(Vector3(float(l[0]), float(l[1]), float(l[2])))
+		var p := frame * Vector3(float(l[0]), float(l[1]), float(l[2]))
 		var radius := float((e as Dictionary).get("radius_m", 1.0))
-		for u: int in comp.members:
-			if g.node_pos[u].distance_to(at) <= radius:
+		for q in at:
+			if q.distance_to(p) <= radius:
 				return String((e as Dictionary).get("reason", "allowlisted"))
 	return ""
 

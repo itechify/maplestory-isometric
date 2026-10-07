@@ -14,8 +14,8 @@ Objects: 18027, triangles (evaluated, incl. instances): 9,279,400
 | polygon_budget | yes | maps over 400,000: {}; largest 1000000 (391,938) |
 | world_polygon_budget | yes | WORLD layer 3,349,268 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
-| floating_props | yes | 0 of 4086 instances (295 trail dressing) neither on walkable ground nor within 0.15 m of a surface (75 rest against walls/props) |
-| props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 16 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
+| floating_props | yes | 0 of 4086 instances (295 trail dressing) and 62 architecture meshes neither on walkable ground nor within 0.15 m of a surface (137 rest against walls/props) |
+| props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 21 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
 | fidelity | yes | 21 NPC proxies vs MeowDB 21 NPCs (by MeowDB id and name); monster proxies and spawn-region species vs MeowDB species |
 | traversal | yes | maps failing traversal: [] |
 | portal_split | yes | 25 maps with route groups; portals split in: [] |
@@ -27,7 +27,7 @@ Objects: 18027, triangles (evaluated, incl. instances): 9,279,400
 | player_spawns | yes | 25/25 maps have a grounded player_spawns[0] inside the footprint whose body (0.3 m) clears every press-Up trigger box (4.5 x 1.6 m); arrival map spawn >= 2.5 m inside its gate plane |
 | spawn_regions | yes | 15 maps with spawn regions (150 regions) vs 15 maps with MeowDB spawns |
 | ring_band | yes | 21/21 exterior maps have walkable ground within step_up (0.45 m) of their base all along the ring line inset by the body radius (footprint + 0.70 m; gate corridors and rim edges skipped) |
-| collision_tags | yes | 2037 Terrain / Plinth / WORLD meshes: 1263 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
+| collision_tags | yes | 2245 Terrain / Architecture / Plinth / WORLD meshes: 1325 tagged, the rest walkable / collider / climbable / passable; untagged: 0 []; unknown class: [] |
 | no_swallowed_exceptions | yes | 0 recorded: [] |
 
 ## Triangle budget
@@ -79,13 +79,18 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | `Mob_Snail` | 67 | 2,968 | 198,856 |
 | `Tree_Autumn_A` | 79 | 2,312 | 182,648 |
 
-Issues: 0 high, 0 medium, 21 low
+Issues: 0 high, 0 medium, 26 low
 
+- [low] props_near_routes: map 60000: Signpost_Notice at (18.0, 17.0) stands 1.27 m from route LedgeRopes_Belvedere, solid at body height 0.8 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (23.5, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (27.9, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (35.8, 27.5) stands 0.85 m from route EastLedges, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010001: Armor_Stand at (2.9, 5.3) stands 1.17 m from route Main, solid at body height 0.74 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010004: Fence_Wood_Seg at (6.0, 28.9) stands 1.4 m from route VineDown_0, solid at body height 1.31 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010004: Fence_Wood_Seg at (17.0, 29.0) stands 1.4 m from route VineDown_1, solid at body height 1.3 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010004: Fence_Wood_Seg at (23.0, 28.9) stands 1.4 m from route VineDown_2, solid at body height 1.31 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010004: Fence_Wood_Seg at (34.8, 28.9) stands 1.4 m from route VineDown_3, solid at body height 1.29 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020000: Berry_Bush at (17.6, 25.4) stands 1.48 m from route West_StairsToShelves, solid at body height 0.82 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020000: Berry_Bush at (27.3, 25.3) stands 1.45 m from route West_StairsToShelves, solid at body height 0.79 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020001: Fence_Wood_Seg at (14.2, 0.3) stands 1.07 m from route WestBed, solid at body height 0.94 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)

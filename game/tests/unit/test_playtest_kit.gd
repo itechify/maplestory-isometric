@@ -1,8 +1,9 @@
 extends TestCase
 ## PlaytestKit's pure parts (docs/runtime/PLAYTEST_HARNESS.md "PlaytestKit"): the quiz answer key read from the
 ## canonical quest records (the correct choice by correct_choice_index, the wrong-answer lines paired in choice order),
-## travel over the canonical portals (the 000000030 -> 000000040 link is one-way), the dialogue node parser, and the
-## bag bookkeeping the reward checks use.
+## travel over the canonical portals (the 000000030 -> 000000040 link is one-way), the dialogue node parser, the bag
+## bookkeeping the reward checks use, the row readers, unstick()'s push directions and the monster pick of the walks
+## into monsters. The kit's live helpers are checked in the real game by the `kit` scenario.
 
 ## Rain's quizzes: the canonical correct choice text (quests/<id>.json dialogue.on_completion.quiz), read here only to
 ## name the expectation; the resolver must find it through correct_choice_index.
@@ -88,6 +89,60 @@ func test_node_quest_and_bag_bookkeeping() -> void:
 	assert_true(PlaytestKit.row_has([{"text": "Snail 3/10", "done": false}], "Snail 3/10", false))
 	assert_false(PlaytestKit.row_has([{"text": "Snail 3/10", "done": false}], "Snail 3/10", true), "not ticked")
 	assert_eq(PlaytestKit.rows_text([{"text": "a", "done": true}, {"text": "b"}]), "a [x]; b")
+	# Item tooltip rows: the texts in order, empty rows (spacers) left out.
+	var tip := [{"text": "Egg"}, {"text": ""}, {"text": "Recovers 50 HP", "tone": "good"}, {"tone": "dim"}]
+	assert_eq(PlaytestKit.row_texts(tip), PackedStringArray(["Egg", "Recovers 50 HP"]))
+	assert_true(PlaytestKit.row_contains(tip, "50 HP"), "a row contains the needle")
+	assert_false(PlaytestKit.row_contains(tip, "Sells for"), "no row does")
+	assert_eq(PlaytestKit.flat_m(Vector3(0, 5, 0), Vector3(3, -2, 4)), 5.0, "only the flat distance counts")
+
+
+## unstick(): without a target the pushes go round from +X every 45 degrees; with one ("toward", test_b_combat's
+## wedges) toward it first, then its sides, straight away, and the diagonals, the front ones first.
+func test_unstick_pushes_toward_the_target_first() -> void:
+	var ring := PlaytestKit.unstick_dirs(Vector3.ZERO)
+	assert_eq(ring.size(), 8)
+	assert_true((ring[0] as Vector3).is_equal_approx(Vector3(1, 0, 0)), "from +X: %s" % ring[0])
+	assert_true((ring[2] as Vector3).is_equal_approx(Vector3(0, 0, 1)), "90 degrees on: %s" % ring[2])
+	var to := PlaytestKit.unstick_dirs(Vector3(0, 3, -2))
+	assert_eq(to.size(), 8)
+	assert_true((to[0] as Vector3).is_equal_approx(Vector3(0, 0, -1)), "toward it, flat: %s" % to[0])
+	assert_true(is_equal_approx(absf((to[1] as Vector3).dot(to[0] as Vector3)), 0.0), "then a side")
+	assert_true(is_equal_approx((to[2] as Vector3).dot(to[1] as Vector3), -1.0), "then the other side")
+	assert_true((to[3] as Vector3).is_equal_approx(Vector3(0, 0, 1)), "then straight away")
+	for k in range(4, 6):
+		assert_true(is_equal_approx((to[k] as Vector3).dot(to[0] as Vector3), cos(PI * 0.25)), "front diagonal %d" % k)
+	for k in range(6, 8):
+		assert_true(is_equal_approx((to[k] as Vector3).dot(to[0] as Vector3), cos(PI * 0.75)), "back diagonal %d" % k)
+	var seen := {}
+	for v: Vector3 in to:
+		assert_true(is_equal_approx(v.length(), 1.0) and is_zero_approx(v.y), "a flat unit push: %s" % v)
+		seen[v.snappedf(0.01)] = true
+	assert_eq(seen.size(), 8, "eight different directions")
+
+
+## The monster a walk into monsters goes for (let_monsters_win, test_b_combat's touch probes and fights,
+## test_f_death's deaths): the nearest on the player's tier; other tiers only with opts "other_tiers", by flat
+## distance plus three times the height difference.
+func test_monster_pick_prefers_the_players_tier() -> void:
+	var feet := Vector3(0, 0, 0)
+	var cands := [
+		{"id": "2", "iid": 1, "pos": Vector3(8, 0.4, 0), "debug": false},     # Snail, own tier, 8 m
+		{"id": "2", "iid": 2, "pos": Vector3(3, 2.0, 0), "debug": false},     # Snail on a terrace 2 m up, 3 m away
+		{"id": "3", "iid": 3, "pos": Vector3(5, 0.0, 0), "debug": false},     # Blue Snail, own tier, 5 m
+		{"id": "2", "iid": 4, "pos": Vector3(2, 0.0, 0), "debug": true},      # a console-spawned Snail, 2 m
+		{"id": "2", "iid": 5, "pos": Vector3(0, -4.0, 6), "debug": false},    # Snail 4 m below, 6 m away
+	]
+	assert_eq(PlaytestKit.pick_index(cands, feet, [], {}), 3, "any species: the nearest on the tier, a debug spawn too")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["2"], {}, {"debug_spawns": false}), 0, "no debug spawns: the 8 m Snail")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["2"], {4: true, 1: true}), -1, "no Snail left on the tier")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["2"], {4: true, 1: true}, {"other_tiers": true}), 1,
+		"other tiers: 3 + 3 x 2 = 9 beats 6 + 3 x 4 = 18")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["2"], {4: true, 1: true}, {"max_dy_m": 2.5}), 1, "a taller tier band")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["3"], {}, {"max_dist_m": 4.0}), -1, "beyond max_dist_m")
+	assert_eq(PlaytestKit.pick_index(cands, feet, ["2"], {}, {"max_dy_m": 0.3, "debug_spawns": false}), -1,
+		"a 0.3 m band leaves out the Snail 0.4 m up")
+	assert_eq(PlaytestKit.pick_index([], feet, [], {}, {"other_tiers": true}), -1, "no monsters")
 
 
 ## travel_to unsticks a hop whose retry stalled where it began, wherever the hop began: seed 2 of the every-quest set
