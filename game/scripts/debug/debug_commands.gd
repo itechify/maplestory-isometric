@@ -70,6 +70,8 @@ func install() -> void:
 	d.register_command("level", "level <n>: set the level through Progression (up: the exact EXP per level; down: the gains taken back)", _cmd_level)
 	d.register_command("ap", "ap <str|dex|int|luk> [n]: spend unspent AP (Game.allocate_ap)", _cmd_ap)
 	d.register_command("heal", "heal: restore HP and MP to their maxima", _cmd_heal)
+	d.register_command("hp", "hp <n|max>: set HP to n, clamped to 0..Max HP, through Game.change_hp (0 is a death, as a lethal hit)", _cmd_vital.bind("hp"))
+	d.register_command("mp", "mp <n|max>: set MP to n, clamped to 0..Max MP, through Game.change_mp", _cmd_vital.bind("mp"))
 	d.register_command("god", "god [on|off]: player invulnerable and HP locked at max", _cmd_god)
 	d.register_command("char", "char: level, EXP, HP/MP, stats, AP/SP, mesos", _cmd_char)
 	# Items.
@@ -103,6 +105,8 @@ func install() -> void:
 	d.set_completion("give", ["item"])
 	d.set_completion("clearinv", ["tab"])
 	d.set_completion("ap", ["stat"])
+	for c in ["hp", "mp"]:
+		d.set_completion(c, [["max"]])
 	d.set_completion("quest", ["quest_sub", "quest"])
 	for c in ["quest_accept", "quest_complete", "quest_reset"]:
 		d.set_completion(c, ["quest"])
@@ -785,6 +789,48 @@ func _cmd_heal(_args: PackedStringArray) -> String:
 	dbg.emit_event(&"hp_changed", [c.hp, c.hp])
 	dbg.emit_event(&"mp_changed", [c.mp, c.mp])
 	return "healed: HP %d/%d, MP %d/%d" % [c.hp, c.hp, c.mp, c.mp]
+
+
+## hp / mp <n|max>: sets the vital to n, clamped to 0..its derived maximum (StatCalculator), through Game.change_hp /
+## change_mp (so hp_changed / mp_changed reach the HUD, god mode's HP lock and the death watch: HP 0 is a death, as a
+## lethal hit would be). Refused while dead (respawn first) and on anything but one integer or "max".
+func _cmd_vital(args: PackedStringArray, which: String) -> String:
+	var label := which.to_upper()
+	if args.size() != 1 or not (args[0].is_valid_int() or args[0].to_lower() == "max"):
+		return "usage: %s <n|max>" % which
+	var c := dbg.get_character()
+	if c == null:
+		return "%s: no character" % which
+	var s := dbg.get_session()
+	if s != null and s.has_method("state_name") and String(s.call("state_name")) == "DEAD":
+		return "%s: the character is dead; use respawn" % which
+	var db := dbg.get_db()
+	var hp := which == "hp"
+	var mx := StatCalculator.max_hp(c, db) if hp else StatCalculator.max_mp(c, db)
+	var want := mx if args[0].to_lower() == "max" else int(args[0])
+	var target := clampi(want, 0, mx)
+	var before := c.hp if hp else c.mp
+	var g := dbg.get_game()
+	var method := "change_hp" if hp else "change_mp"
+	if g != null and g.has_method(method):
+		g.call(method, target - before)
+	elif hp:
+		StatCalculator.change_hp(c, target - before, db)
+		dbg.emit_event(&"hp_changed", [c.hp, mx])
+	else:
+		StatCalculator.change_mp(c, target - before, db)
+		dbg.emit_event(&"mp_changed", [c.mp, mx])
+	var now := c.hp if hp else c.mp
+	var notes := PackedStringArray()
+	if target != want:
+		notes.append("clamped from %d to 0..%d" % [want, mx])
+	if now != target and hp and dbg.god_mode:
+		notes.append("god mode keeps HP at max")
+	elif now != target and hp and target == 0:
+		notes.append("a death: the death commit already set the respawn HP")
+	elif now != target:
+		notes.append("the game holds it at %d" % now)
+	return "%s %d -> %d/%d%s" % [label, before, now, mx, "" if notes.is_empty() else " (%s)" % "; ".join(notes)]
 
 
 func _cmd_god(args: PackedStringArray) -> String:

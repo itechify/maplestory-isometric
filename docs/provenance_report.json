@@ -28,7 +28,7 @@
       "file": "game/data/misostory/breakables.json",
       "kind": "misostory_adaptation",
       "path": "hit_rule",
-      "reason": "MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. Three Snails (the one attack skill on Maple Island) counts too: its cast searches the canonical band (attack_styles.json three_snails_targeting) for the nearest target among the live monsters and the intact boxes, one target per cast (the skill's canonical target count; one shell is one target, so a box in front shields a monster behind it), and a box it picks takes one landed hit through BreakableSystem.land_hit, exactly like a swing (PlayerSkills._hit_box). MeowDB says only 'basic attacks' and nothing about skills on reactors, so whether skills count is a MisoStory choice: Three Snails is a thrown attack, and a Beginner throwing a shell at a crate expects it to land. The owner may still rule otherwise; the skill would then search monsters only.",
+      "reason": "MeowDB: 'Hits is how many basic attacks it takes to break open' (hits_to_break 4), and nothing more (breakables/0000001.json gaps: HP, damage and skills are not published). Interpretation: a basic attack whose canonical hit box (CombatReach.attack_box_px placed by MeleeQuery, with the same isometric depth as against monsters) overlaps an intact box counts one hit on the nearest such box, whatever monster the same swing also hits. A box has no avoidability, so there is no MISS, and damage does not matter. Skills do not count as hits: the owner ruled on 2026-10-06 (#5) that Wooden Boxes break by basic attacks only, which is also the narrowest reading of MeowDB's 'basic attacks'. Three Snails (the one attack skill on Maple Island) searches its canonical band (attack_styles.json three_snails_targeting) for monsters only, so a box in its band is never its target: a box nearer than a monster does not shield it (the monster is hit), and a cast with only a box in its band is a cast with no target (the shell and the MP are spent, the shell flies its range and hits nothing, and the box takes no hit; skills.json three_snails whiff_consumes_costs). MeowDB says nothing about skills on reactors.",
       "verified": false,
       "verified_against": null
     },
@@ -76,7 +76,7 @@
       "file": "game/data/misostory/combat.json",
       "kind": "misostory_adaptation",
       "path": "beginner_sp_after_level_10",
-      "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. MisoStory grants a Beginner no SP after level 10.",
+      "reason": "Canonical: a Beginner earns 1 SP per level-up from level 2 to 10, 9 in total (beginner.json sp). MeowDB does not document SP for a Beginner who stays past level 10, and its calculator returns 9 total at every level. The project owner's ruling (#4, 2026-10-06) is 1 SP per level-up up to and including level 10, 9 in all, so MisoStory grants a Beginner no SP after level 10.",
       "verified": false,
       "verified_against": null
     },
@@ -124,7 +124,7 @@
       "file": "game/data/misostory/combat.json",
       "kind": "misostory_adaptation",
       "path": "player_knockback",
-      "reason": "MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage; a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value.",
+      "reason": "MeowDB models only the vertical part of a knockback (270 px/s up, gravity 2000 px/s^2, about 0.27 s of airtime; movement.json knockback_airtime, read from canonical data). It does not document the horizontal speed or distance, or whether every hit knocks the player back (knockback_airtime.gaps). MisoStory pushes the player away from the monster on every landed hit that deals damage (backwards from its facing when the monster stands within movement.json knockback_point_blank_m of it, #17); a miss or a guard grants the canonical invincibility but no push. The horizontal push speed has exactly one owner, the player controller's adaptation table (data/misostory/movement.json knockback_horizontal_speed_mps, read by MovementModel), so this table deliberately holds no second horizontal speed; CombatFormula.player_knockback reports that value.",
       "verified": false,
       "verified_against": null
     },
@@ -189,6 +189,14 @@
       "kind": "misostory_adaptation",
       "path": "(file)",
       "reason": "(per value: its <key>_reason entries)",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/inventory.json",
+      "kind": "misostory_adaptation",
+      "path": "shop.protected_items[]",
+      "reason": "Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation.",
       "verified": false,
       "verified_against": null
     },
@@ -348,7 +356,7 @@
       "file": "game/data/misostory/new_character.json",
       "kind": "misostory_adaptation",
       "path": "starting_sp",
-      "reason": "No MeowDB page states a starting SP number. The cached Beginner's guide (https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world, formulas/beginner.json sp.note) says only 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10)', and the /formulas/leveling calculator prints the level-10 total 'Beginner SP = 9' at every level (sp.calculator_caveat). 0 at level 1 is the arithmetic that sentence leaves (9 SP, all from the 9 level-ups), a derivation and not a published value, so it is an adaptation here and not canonical data.",
+      "reason": "The project owner's ruling (#4, 2026-10-06): 0 SP at level 1, then 1 SP per level-up up to and including level 10, 9 in all. No MeowDB page states a starting SP number. The cached Beginner's guide (https://meowdb.com/msclassic/guides/beginners-guide-first-steps-in-maple-world, formulas/beginner.json sp.note) says only 'You earn 9 SP by the time you hit level 10 (1 per level-up, 9 level-ups from 1 to 10)', and the /formulas/leveling calculator prints the level-10 total 'Beginner SP = 9' at every level (sp.calculator_caveat). 0 at level 1 is also the arithmetic that sentence leaves (9 SP, all from the 9 level-ups), a derivation and not a published value, so it is an adaptation here and not canonical data.",
       "verified": false,
       "verified_against": null
     },
@@ -484,7 +492,7 @@
       "file": "game/data/misostory/presentation.json",
       "kind": "misostory_adaptation",
       "path": "fall_recovery",
-      "reason": "MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage. A sea-level kill plane catches anything that leaves every map. MeowDB documents fall damage (canonical formulas/movement.json fall_damage, from https://meowdb.com/msclassic/formulas/damage-taken: a landing after at least 45 consecutive fast-falling movement updates (downward speed at least 500 px/s) deals base 24, rising to 36; 'Maps can disable fall damage'); MisoStory applies none, neither on a landing nor on a recovery. The canonical rule cannot be applied as published: the length of one movement update is not documented (fall_damage.gaps) and MeowDB does not say which maps disable fall damage, so whether Maple Island's maps have it is unknown. No damage is the adaptation, not a canonical statement.",
+      "reason": "MAP_ARCHITECTURE section 4.6: an airborne player below kill_y (the lowest walkable height of the map minus 6 m; the sidecar's own kill_y when the exporter provides one) returns to the last SafeGround point with no damage. A sea-level kill plane catches anything that leaves every map. MisoStory has no fall damage, neither on a landing nor on a recovery: the project owner's ruling (#4, 2026-10-06). MeowDB documents fall damage (canonical formulas/movement.json fall_damage, from https://meowdb.com/msclassic/formulas/damage-taken: a landing after at least 45 consecutive fast-falling movement updates (downward speed at least 500 px/s) deals base 24, rising to 36; 'Maps can disable fall damage'). The canonical rule cannot be applied as published: the length of one movement update is not documented (fall_damage.gaps) and MeowDB does not say which maps disable fall damage, so whether Maple Island's maps have it is unknown. No damage is the adaptation, not a canonical statement.",
       "verified": false,
       "verified_against": null
     },
@@ -580,7 +588,7 @@
       "file": "game/data/misostory/recovery.json",
       "kind": "misostory_adaptation",
       "path": "natural_mp",
-      "reason": "No natural MP recovery. MeowDB documents none: formulas/recovery.json natural_regeneration.mp_per_tick is null and its gaps say 'Whether natural regeneration also restores MP is not stated'; the only MP sources in the cache are consumables (Orange, Lemon, Blue Potion) and the level-up heal. The brief forbids inferring an MP rule from the HP rule ('Do not invent matching MP behavior merely for symmetry'), so the values stay null and this stays an open gap until MeowDB or the owner supplies a rule.",
+      "reason": "No natural MP recovery: the project owner's ruling (#4, 2026-10-06). A future Magician skill will grant it; jobs are out of scope. The source-data gap behind the ruling stays recorded (status): MeowDB documents none: formulas/recovery.json natural_regeneration.mp_per_tick is null and its gaps say 'Whether natural regeneration also restores MP is not stated'; the only MP sources in the cache are consumables (Orange, Lemon, Blue Potion) and the level-up heal. The brief forbids inferring an MP rule from the HP rule ('Do not invent matching MP behavior merely for symmetry'), so the values stay null; the gap ends only when MeowDB publishes a rule.",
       "verified": false,
       "verified_against": null
     },
@@ -708,7 +716,23 @@
       "file": "game/data/misostory/dialogue/_rules.json",
       "kind": null,
       "path": "default_talk",
-      "reason": "MeowDB does not label when each \"What X Says\" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai (Sera's \"Did you give my mirror to Heena?\" and Sen's \"What did my sister say?\" read as mid-quest lines but follow the same rule; an owner decision could move them). quest_npc may also be \"all_lines_in_order\". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line.",
+      "reason": "MeowDB does not label when each \"What X Says\" line is shown (docs/canonical/npcs.md, gaps). Quest NPCs with two or more lines say line 0 until every quest they start or end is completed, then the last line, which reads as the after-quest line for Heena, Roger, Maria, Rain and Mai. Sera's \"Did you give my mirror to Heena?\" and Sen's \"What did my sister say?\" read as mid-quest lines, so by the owner's ruling (#9) each shows only while the quest it refers to is in progress (in_progress_lines). quest_npc may also be \"all_lines_in_order\". Townsfolk say all their lines as pages; an NPC with no quoted lines says its first speech-bubble line.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/dialogue/_rules.json",
+      "kind": null,
+      "path": "default_talk.in_progress_lines[]",
+      "reason": "Sera's \"Did you give my mirror to Heena? When will she help me with the laundry...\" asks about the mirror she hands over in 1001 (Bringing a Mirror to Heena), so it shows only while 1001 is in progress; before and after it she says line 0 (\"It's a fine day for laundry, don't you think?\"). While 1001 is in progress her conversation opens on the canonical reminder (1001's wrong_npc branch) or the lost-mirror branch, so her default talk is reached only when neither shows.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/dialogue/_rules.json",
+      "kind": null,
+      "path": "default_talk.in_progress_lines[]",
+      "reason": "Sen's \"What did my sister say? Oh, I'm so hungry...\" waits for Nina's answer, which the player carries in 1004 (Returning to Nina), so it shows only while 1004 is in progress; before and after it he says line 0 (\"There's nothing to eat in here. Oh...\").",
       "verified": false,
       "verified_against": null
     },
@@ -980,8 +1004,6 @@
   "capture_files": [
     "tools/henesys/captures/item_rarity.json",
     "tools/meowdb/captures/breakable_0000001.txt",
-    "tools/meowdb/captures/item_242.txt",
-    "tools/meowdb/captures/items_api.json",
     "tools/meowdb/captures/monster_1.json",
     "tools/meowdb/captures/monster_2.txt",
     "tools/meowdb/captures/monster_3.json",
@@ -991,33 +1013,33 @@
     "tools/meowdb/captures/quest_tracker_maple_island.txt"
   ],
   "counts": {
-    "adaptations": 122,
-    "adaptations_unverified": 120,
+    "adaptations": 125,
+    "adaptations_unverified": 123,
     "adaptations_verified": 2,
-    "capture_files": 11,
-    "property_rows": 1321,
+    "capture_files": 9,
+    "property_rows": 1299,
     "property_rows_by_authority": {
       "Henesys.gg": 93,
-      "MeowDB MS Classic": 1228
+      "MeowDB MS Classic": 1206
     },
-    "records": 192,
+    "records": 190,
     "records_by_domain": {
       "breakables": 1,
       "drops": 7,
       "formulas": 13,
-      "items": 96,
+      "items": 94,
       "maps": 25,
       "monsters": 6,
       "npcs": 21,
       "quests": 20,
       "shops": 3
     },
-    "unresolved": 375,
+    "unresolved": 370,
     "unresolved_by_domain": {
       "breakables": 3,
       "drops": 26,
       "formulas": 40,
-      "items": 60,
+      "items": 55,
       "maps": 113,
       "monsters": 32,
       "npcs": 14,
@@ -7253,85 +7275,6 @@
         "MeowDB MS Classic"
       ],
       "domain": "items",
-      "file": "game/data/canonical/items/177.json",
-      "findings": [],
-      "id": "177",
-      "name": "Shoes Jump Scroll: Greater",
-      "properties": [
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "(record)",
-          "read_at": "2026-10-04T10:43:09.518Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/177"
-          ],
-          "via": "source"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "description",
-          "read_at": "2026-10-04T10:43:10.625Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/177?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "requirements.level",
-          "read_at": "2026-10-04T10:43:10.625Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/177?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "scroll",
-          "read_at": "2026-10-04T10:43:10.625Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/177?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "sources.monster_drops",
-          "read_at": "2026-10-04T10:43:11.771Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/drops?itemId=177"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "sources.monster_drops[].monster_name",
-          "read_at": "2026-10-04T10:05:48.947Z",
-          "urls": [
-            "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js"
-          ],
-          "via": "field_sources"
-        }
-      ],
-      "unresolved_count": 0
-    },
-    {
-      "authorities": [
-        "MeowDB MS Classic"
-      ],
-      "domain": "items",
       "file": "game/data/canonical/items/209.json",
       "findings": [],
       "id": "209",
@@ -7903,195 +7846,6 @@
         }
       ],
       "unresolved_count": 0
-    },
-    {
-      "authorities": [
-        "MeowDB MS Classic"
-      ],
-      "domain": "items",
-      "file": "game/data/canonical/items/242.json",
-      "findings": [],
-      "id": "242",
-      "name": "Green Apple",
-      "properties": [
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "(record)",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "source"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "consumable.mp_restore",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "description",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "game_item_id",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/item_242.txt",
-          "decision": null,
-          "property": "max_stack",
-          "read_at": "2026-10-05T22:11:30.520Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/242"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "name",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "requirements",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/item_242.txt",
-          "decision": null,
-          "property": "sell_price_basis",
-          "read_at": "2026-10-05T22:11:30.520Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/242"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/item_242.txt",
-          "decision": null,
-          "property": "sell_price_mesos",
-          "read_at": "2026-10-05T22:11:30.520Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/242"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "sources.monster_drops",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/item_242.txt",
-          "decision": null,
-          "property": "sources.msea_reference_drops",
-          "read_at": "2026-10-05T22:11:30.520Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/242"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": null,
-          "decision": null,
-          "property": "sources.msea_reference_drops[].monster_id",
-          "read_at": "2026-10-04T10:05:48.947Z",
-          "urls": [
-            "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "sources.shops",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "subtype",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/item_242.txt",
-          "decision": null,
-          "property": "tradeable",
-          "read_at": "2026-10-05T22:11:30.520Z",
-          "urls": [
-            "https://meowdb.com/msclassic/item-db/242"
-          ],
-          "via": "field_sources"
-        },
-        {
-          "authority": "MeowDB MS Classic",
-          "capture": "tools/meowdb/captures/items_api.json",
-          "decision": null,
-          "property": "type",
-          "read_at": "2026-10-05T08:17Z",
-          "urls": [
-            "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1"
-          ],
-          "via": "field_sources"
-        }
-      ],
-      "unresolved_count": 5
     },
     {
       "authorities": [
@@ -18687,31 +18441,6 @@
         "kind": "gap",
         "record": "items/1440",
         "text": "max_stack: MeowDB gives no stack size for equipment"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "sources.quest_rewards: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "sources.breakables: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "sources.crafting_recipes: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "used_in: shown only on the item page; its capture (tools/meowdb/captures/item_242.txt) is trimmed to the record and does not include it"
-      },
-      {
-        "kind": "gap",
-        "record": "items/242",
-        "text": "change_history: the capture of the item page (tools/meowdb/captures/item_242.txt) shows only the section's label (\"updated in COT2\"), not its rows"
       },
       {
         "kind": "gap",

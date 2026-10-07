@@ -12,8 +12,8 @@ extends TestCase
 ## (a changed expected record alone can trip the record's own derivation checks instead of the comparison). Documented
 ## adaptations are asserted as documented: equipment stacks by data/misostory/inventory.json equipment_max_stack, an
 ## unpublished max_stack by unpublished_max_stack, and only when the record's gaps and that table's reason both say so
-## (no shipped item has one since Green Apple's item page was read, tools/meowdb/captures/item_242.txt: the stack
-## comparison's mutation test shows the fallback on a private copy of the content).
+## (no shipped item has one: the stack comparison's mutation test shows the fallback on a private copy of the content,
+## where Apple's record has lost its max_stack).
 
 const ITEMS_DIR := "res://data/canonical/items"
 ## The canonical stat rows the runtime turns into Equipment.BONUS_KEYS, written from docs/canonical/items.md ("hp" is
@@ -147,26 +147,25 @@ func test_stack_comparison_can_fail() -> void:
 	_expect_caught(_stack_problems, "209", "max_stack", 100, "max_stack")
 	_expect_caught(_stack_problems, "270", "inventory_tab", "etc", "tab")
 	_expect_caught(_stack_problems, "541", "max_stack", 5, "max_stack")
-	# Green Apple's stack comes from its item page capture now (Max per Stack 100).
-	_expect_caught(_stack_problems, "242", "max_stack", 30, "max_stack")
-	# The unpublished-stack fallback (no shipped item uses it any more) counts only while the record's gaps and
-	# inventory.json's reason both document the missing value: shown on a private copy of the content where Green
-	# Apple's record has no max_stack again.
-	var unpub := _set_path(_set_path(_canonical("242"), "max_stack", null), "gaps",
+	_expect_caught(_stack_problems, "236", "max_stack", 30, "max_stack")
+	# The unpublished-stack fallback (no shipped item uses it) counts only while the record's gaps and inventory.json's
+	# reason both document the missing value: shown on a private copy of the content where Apple's record has no
+	# max_stack.
+	var unpub := _set_path(_set_path(_canonical("236"), "max_stack", null), "gaps",
 		["max_stack: (test) the item page's \"Max per Stack\" row was not read"])
 	var inv: Dictionary = (db().miso_table("inventory") as Dictionary).duplicate(true)
-	inv["unpublished_max_stack_reason"] = "(test) Green Apple (242) has no published stack size"
-	var fallback := _db_with_miso_table(_db_with_record("items", "242", unpub.duplicate(true)), "inventory", inv)
-	var ok := _stack_problems("242", unpub, fallback)
+	inv["unpublished_max_stack_reason"] = "(test) Apple (236) has no published stack size"
+	var fallback := _db_with_miso_table(_db_with_record("items", "236", unpub.duplicate(true)), "inventory", inv)
+	var ok := _stack_problems("236", unpub, fallback)
 	assert_eq(ok.size(), 0, "a documented unpublished stack holds unpublished_max_stack (%d): %s" % [
 		int(inv.get("unpublished_max_stack", -1)), "; ".join(ok)])
-	assert_true(_mentions(_stack_problems("242", _set_path(unpub, "gaps", []), fallback), "documented"),
+	assert_true(_mentions(_stack_problems("236", _set_path(unpub, "gaps", []), fallback), "documented"),
 		"a null max_stack the record's gaps do not document is caught")
 	var undocumented := inv.duplicate(true)
 	undocumented["unpublished_max_stack_reason"] = "(test) names no item"
-	assert_true(_mentions(_stack_problems("242", unpub, _db_with_miso_table(fallback, "inventory", undocumented)), "not documented"),
+	assert_true(_mentions(_stack_problems("236", unpub, _db_with_miso_table(fallback, "inventory", undocumented)), "not documented"),
 		"a fallback inventory.json's reason does not name is caught")
-	assert_true(_mentions(_stack_problems("242", _set_path(unpub, "max_stack", 30), fallback), "max_stack"),
+	assert_true(_mentions(_stack_problems("236", _set_path(unpub, "max_stack", 30), fallback), "max_stack"),
 		"a runtime fallback stack other than the record's is caught")
 	# The runtime side: the game reads a different stack size than the canonical file says.
 	assert_true(_mentions(_stack_problems("270", _canonical("270"), _db_with("270", "max_stack", 7)), "max_stack"),
@@ -258,7 +257,7 @@ func test_consumable_comparison_can_fail() -> void:
 	_expect_caught(_consumable_problems, "269", "consumable/pet_fullness_restore", 31, "pet_fullness")
 	_expect_caught(_consumable_problems, "270", "consumable/sp_restore", 1, "consumable field")
 	_expect_caught(_consumable_problems, "348", "consumable", {"hp_restore": 5}, "hp_restore")
-	_expect_caught(_consumable_problems, "177", "scroll/success_rate_pct", 60, "scroll")
+	_expect_caught(_consumable_problems, "139", "scroll/success_rate_pct", 60, "scroll")
 	assert_true(_mentions(_consumable_problems("270", _canonical("270"), _db_with("270", "consumable/hp_restore", 90)),
 		"hp_restore"), "a runtime Red Potion restoring 90 HP is caught")
 	# No Maple Island item restores a percentage, so the family tests never use that path: a record that did (Red Potion
@@ -791,6 +790,10 @@ func _price_problems(id: String, rec: Dictionary, d: ContentDB) -> PackedStringA
 	var res := ShopService.quote_sell(seller, any_shop, id, qty, d)
 	if sell == null:
 		_eq(p, "sell: no sell-back value", String(res.get("code", "")), ItemCodes.NO_SELL_PRICE)
+	elif not ItemsConfig.protected_item(id, d).is_empty():
+		# A protected item (inventory.json shop.protected_items, owner ruling #7) keeps its canonical sell-back value,
+		# but no shop buys it.
+		_eq(p, "sell: protected item refused", String(res.get("code", "")), ShopService.PROTECTED_ITEM)
 	else:
 		_eq(p, "sell: quote", String(res.get("code", "")), ItemCodes.OK)
 		_eq(p, "sell: total for %d" % qty, int(res.get("total", -1)), int(sell) * qty)

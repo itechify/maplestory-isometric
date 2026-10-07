@@ -17,7 +17,7 @@ property of Nexon Co., Ltd.
 | npcs | the 21 Maple Island NPCs with dialogue | [npcs.md](npcs.md) |
 | quests | the 20 Maple Island quests (1000–1019), with the live tracker's tags (all "Missable", "COT2") | [quests.md](quests.md) |
 | shops | Pan, Sid, Lucy | [shops.md](shops.md) |
-| items | 96 items: the Iteration Two subset and Green Apple (242, built from a hand-read API capture and a hand-read text capture of its item page) | [items.md](items.md) |
+| items | 94 items: the Iteration Two subset without Shoes Jump Scroll: Greater (177) and Green Apple (242), which the game cannot give (#32) | [items.md](items.md) |
 | formulas | EXP table, Beginner rules, damage, accuracy, derived stats, attack speed and styles, spawn model, HP/MP gain, movement, recovery, death, loot rules | [formulas.md](formulas.md) |
 | parity vectors (tests only) | 818 golden vectors computed by MeowDB's own calculators → `game/tests/data/parity_vectors.json` | [oracles.md](oracles.md) |
 
@@ -70,7 +70,7 @@ node tools/meowdb/extract_npcs.mjs
 node tools/meowdb/extract_quests.mjs      # + missable / tracker_tags from the quest tracker capture
 node tools/meowdb/extract_shops.mjs
 node tools/meowdb/extract_formulas.mjs
-node tools/meowdb/extract_items.mjs       # Green Apple (242) from its item API and item page captures (API-only record)
+node tools/meowdb/extract_items.mjs       # the item subset (an item with no cached page: from its item API capture)
 node tools/meowdb/extract_monsters.mjs    # monsters/, drops/ (through tools/sources/drops_merge.mjs), breakables/
 node tools/meowdb/oracle_vectors.mjs      # tests/data/parity_vectors.json (+ local-only oracle extracts)
 node tools/meowdb/build_sources_index.mjs # canonical_sources.json (capture files and per-property authorities too)
@@ -99,7 +99,8 @@ for byte, the schema 3 drop records included.
 **Reports.** `bash scripts/validate_data.sh --report` writes the provenance validation report
 ([`../PROVENANCE_REPORT.md`](../PROVENANCE_REPORT.md): every record and property with its authority, URL, read time
 and capture; every unresolved value; every adaptation), and `node tools/parity/build_parity.mjs` the parity manifest
-([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) from the data, that report and the test evidence.
+([`../MAPLE_ISLAND_PARITY.md`](../MAPLE_ISLAND_PARITY.md)) from the data, that report and the test evidence. The
+committed manifest is the record of v0.3 at its evidence commit and is not kept current.
 
 ## Rules for using it
 
@@ -115,7 +116,7 @@ and capture; every unresolved value; every adaptation), and `node tools/parity/b
 | Item drop chances and quantities (MeowDB lists drops and votes only; Henesys.gg gives a rarity per item, no chance) | Adaptations by the project owner: the chance table by item category x Henesys.gg rarity and one item per drop, `game/data/misostory/drop_rates.json` (decision D3-11, `verified: false`). The schema 3 drop records hold only the sourced facts (membership, item, rarity, category inputs). The D3-9 quest-gate rule is there too |
 | Meso drop chances, most meso amounts (MeowDB has one player report: the Snail's 2 per kill) | Adaptations by the project owner: MeowDB's report where there is one, else a uniform integer in [level, 2 x level]; 60% chance; none for the Tutorial Jr. Sentinel and the Wooden Box, `game/data/misostory/meso_rules.json` (decision D3-12, `verified: false`). A MeowDB report a newer capture or cache gains replaces the formula at the next extraction |
 | Drop ground lifetime and ownership time | `game/data/misostory/drops.json` |
-| Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` `natural_hp` (Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery: MeowDB documents none (`natural_mp`, an unresolved source gap) |
+| Natural HP regeneration (10 HP per 10 s of eligible time) | The project owner's rule (brief "Natural HP Regeneration", contract C4): authority `Project owner`, `verified: true` against that brief section, in `game/data/misostory/recovery.json` `natural_hp` (Iteration Two's placeholder was `combat.json natural_recovery`). MP has no natural recovery, by the owner's ruling (#4): MeowDB documents none (`natural_mp`, an unresolved source gap; the ruling is its adaptation) |
 | When a chair's bonus clock starts and whether it holds at full HP; the sit key; ground sitting and map benches (none documented) | `game/data/misostory/recovery.json` `chair_bonus`, `sitting` |
 | Beginner skills: Recovery's tick, the buff cast time ("Timing unavailable"), a Three Snails cast with no target, its terrain check, effects at death | `game/data/misostory/skills.json` |
 | Wooden Box size, which attacks count as hits, the respawn clock, 3D placement (MeowDB's coordinates are 2D) | `game/data/misostory/breakables.json` |

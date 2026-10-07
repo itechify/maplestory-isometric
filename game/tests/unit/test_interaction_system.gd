@@ -313,4 +313,74 @@ func test_presenters_survive_a_freed_overlay() -> void:
 	var again := NpcPresenter.attach(sam, system.overlay, db())
 	assert_eq(again, p, "same presenter")
 	assert_true(is_instance_valid(p.tag) and p.tag.get_parent() == system.overlay, "fresh tag in the new overlay")
-	assert_true(is_instance_valid(p.marker) and p.marker.get_parent() == system.overlay)
+	assert_true(is_instance_valid(p.marker) and p.marker.get_parent() == system.marker_clip,
+		"fresh marker in the new overlay's marker clip")
+
+
+## Issue #14: a quest marker over an NPC low on the screen showed on the HUD's status bar (the overlay sits under the
+## HUD, but the bar is translucent). Markers live in the overlay's MarkerClip, which ends at the bar's top edge: a marker
+## that projects into the bar is cut there and no part of it is drawn over the bar, while a marker higher up is placed
+## and drawn exactly as before. The HUD sits under ctx.ui_root as the shell installs it; an orthographic camera looks
+## at Sam (who offers 1006, so his marker shows).
+func test_a_quest_marker_is_never_drawn_over_the_hud_bar() -> void:
+	var ui_root := CanvasLayer.new()
+	ui_root.layer = 10
+	_parent().add_child(ui_root)
+	var hud: MisoHud = load("res://scenes/ui/hud.tscn").instantiate()
+	hud.configure(MisoUiEnv.isolated(character, db(), bus))
+	ui_root.add_child(hud)
+	hud.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var cam := Camera3D.new()
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	cam.size = 20.0
+	world.add_child(cam)
+	cam.position = Vector3(0, 10, 10)
+	cam.look_at(Vector3.ZERO)
+	var ctx := GameContext.new()
+	ctx.player = player
+	ctx.world = world
+	ctx.ui_root = ui_root
+	ctx.camera = cam
+	var sam := _npc("9", "Sam", Vector3.ZERO)
+	system.setup(ctx)
+	system.refresh_markers()
+	var ps: NpcPresenter = system.presenters["9"]
+	assert_eq(ps.marker.state, "available", "Sam offers 1006")
+	assert_eq(ps.marker.get_parent(), system.marker_clip, "the marker lives in the overlay's marker clip")
+	assert_true(system.marker_clip.clip_contents, "which clips what it holds")
+	var bar := hud.status.get_global_rect()
+	var head_up := Vector3.UP * (ps.height + NpcPresenter.MARKER_GAP_M)
+	# Slide Sam down the screen until his marker's lower half lies on the bar (screen y grows as he moves toward the
+	# camera's bottom edge).
+	var down := -cam.global_transform.basis.y
+	var lo := -12.0
+	var hi := 12.0
+	for i in 40:
+		var mid := (lo + hi) * 0.5
+		var y := cam.unproject_position(down * mid + head_up).y
+		if y < bar.position.y + QuestMarker.SIZE.y * 0.5:
+			lo = mid
+		else:
+			hi = mid
+	sam.position = down * lo
+	system._process(0.0)
+	ps.update(0.1)
+	var r := ps.marker.get_global_rect()
+	var clip := system.marker_clip.get_global_rect()
+	print("marker %s, clip %s, bar %s" % [r, clip, bar])
+	assert_true(ps.marker.visible, "the marker shows (Sam's feet are on screen)")
+	assert_true(r.intersects(bar), "the marker %s projects into the bar %s" % [r, bar])
+	assert_near(clip.end.y, bar.position.y, 0.5, "the clip ends at the bar's top edge")
+	var drawn := r.intersection(clip)
+	assert_true(drawn.size.y > 0.0, "the part above the bar is drawn: %s" % drawn)
+	assert_false(drawn.intersects(bar), "no part of the marker is drawn over the bar: %s" % drawn)
+	# Higher up the screen the marker is placed exactly where it always was, and nothing of it is clipped.
+	sam.position = Vector3.ZERO
+	system._process(0.0)
+	ps.update(0.1)
+	r = ps.marker.get_global_rect()
+	var head := cam.unproject_position(sam.global_position + head_up)
+	assert_eq(ps.marker.position, (head - Vector2(QuestMarker.SIZE.x * 0.5, QuestMarker.SIZE.y)).round(),
+		"placed above the head as before")
+	assert_true(system.marker_clip.get_global_rect().encloses(r), "and drawn whole: %s" % r)
+	ui_root.free()

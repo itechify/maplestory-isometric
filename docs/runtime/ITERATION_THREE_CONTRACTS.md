@@ -241,6 +241,6 @@ collision and against the tree canopies (`breakables.json` `placement.canopies`,
 from the export: canopies have no collision). With the canopy rule, Amherst's boxes 000001010:2, :4 and :5 moved to
 (257.61, 6.00, 611.37), (214.55, 6.00, 605.54) and (216.34, 6.00, 580.98); the other 16 are unchanged. This is a
 recorded MisoStory adaptation (`verified: false`), and every box position is checked by a physics test. The box
-breaks after `hits_to_break` landed hits (4: basic attacks, or Three Snails throws, one target per cast) and drops
+breaks after `hits_to_break` landed hits (4 basic attacks; skills never count, the owner's ruling in #5) and drops
 through `DropRoller.roll("0000001", db, rng, ctx)`. It respawns after its placement's respawn time, and it is not
 persisted.

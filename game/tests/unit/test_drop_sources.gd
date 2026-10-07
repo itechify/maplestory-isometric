@@ -261,6 +261,37 @@ func test_progression_item_that_never_rolls_is_a_blocker() -> void:
 	# Blue Snail Shell (349) is what Biggs's quest 1011 collects; without a rarity it never rolls.
 	var r := run_validator(_with_entries("3", func(rec: Dictionary) -> void: rec.entries[0].rarity = null))
 	expect_new(r, "error", "drop_policy", "drops", "3", "item 349 is needed by quest [\"1011\"] but never rolls here")
+	# Quest 1011's own completion reward comes after its objective: it is no source for it.
+	var c := _with_entries("3", func(rec: Dictionary) -> void: rec.entries[0].rarity = null)
+	(c.get_entity("quests", "1011").rewards.items as Array).append({"item_id": "349", "name": "Blue Snail Shell", "count": 1})
+	expect_new(run_validator(c), "error", "drop_policy", "drops", "3", "no other drop record, shop or quest gives it: a progression blocker")
+
+
+func test_an_item_another_source_gives_is_not_a_blocker() -> void:
+	# Blue Snail Shell (349) never rolls on the Blue Snail (no rarity), but a second source gives it: another drop record
+	# that rolls it (a monster, or the Wooden Box), a shop, another quest's reward or accept item.
+	var member: Dictionary = (db().drop_table("3").entries[0] as Dictionary).duplicate(true)
+	var cases := {
+		"a monster's drop record": func(c: ContentDB) -> void: (c.canonical.drops["2"].entries as Array).append(member.duplicate(true)),
+		"a Wooden Box's drop record": func(c: ContentDB) -> void: (c.canonical.drops["0000001"].entries as Array).append(member.duplicate(true)),
+		"a shop": func(c: ContentDB) -> void: (c.get_entity("shops", c.ids("shops")[0]).items as Array).append({"item_id": "349", "name": "Blue Snail Shell"}),
+		"another quest's reward": func(c: ContentDB) -> void:
+			(c.get_entity("quests", "1012").rewards.items as Array).append({"item_id": "349", "name": "Blue Snail Shell", "count": 10}),
+		"another quest's accept item": func(c: ContentDB) -> void:
+			(c.get_entity("quests", "1012").items_given_on_accept as Array).append({"item_id": "349", "name": "Blue Snail Shell", "count": 10}),
+	}
+	for what: String in cases:
+		var c := _with_entries("3", func(rec: Dictionary) -> void: rec.entries[0].rarity = null)
+		(cases[what] as Callable).call(c)
+		reindex(c)
+		var r := run_validator(c)
+		expect_new(r, "warning", "drop_unresolved", "drops", "3", "'Blue Snail Shell' never rolls")
+		for f in r.matching("drop_policy", "drops", "3", "error"):
+			assert_false("progression blocker" in String(f.message), "%s gives item 349: not a blocker (%s)" % [what, f.message])
+	# The same check over the shipped data names the sources it finds.
+	var dc := DropChecks.new(db(), ValidationReport.new())
+	assert_eq(dc.other_sources("349", "3"), PackedStringArray(), "the Blue Snail is the only source of its shell")
+	assert_true("shops/maple-road-lucy" in dc.other_sources("270", ""), "Lucy sells Red Potions")
 
 
 func test_a_record_quoting_another_owners_page_fails() -> void:

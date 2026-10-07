@@ -24,9 +24,12 @@ const ACTIONS := {
 ## Where each window first appears (presentation only): Character Stats and the Quest Log side by side from the left
 ## edge, the Item Inventory (classic: bags on the right) and Equipment side by side from the right edge, each placed
 ## from the windows' measured widths so the four never overlap on the 1600 x 900 base viewport (or anything wider).
-## The five windows are wider together than the screen, so the Skills window opens under the Quest Log (BELOW: window
-## -> the window it sits under, left-aligned, WINDOW_GAP lower, pulled up to stay on screen). A window not listed
-## anywhere opens at FALLBACK_X.
+## The five windows are wider together than the screen, so the Skills window opens by the Quest Log (BELOW: window ->
+## the window it opens by): under it, left-aligned and WINDOW_GAP lower, when its whole height fits there; else beside
+## it, WINDOW_GAP to its right and as low as the screen above the status bar allows, so it never covers the Quest Log.
+## On the 1600 x 900 base viewport no place is clear of all four (no two windows fit one above the other, and the
+## five side by side are 1764 px wide): beside the Quest Log it covers the lower left corner of the Equipment window,
+## the least it can cover there. A window not listed anywhere opens at FALLBACK_X.
 const LEFT_ROW: PackedStringArray = ["stats", "quests"]
 ## Listed from the right edge inward.
 const RIGHT_ROW: PackedStringArray = ["inventory", "equipment"]
@@ -67,6 +70,8 @@ var stats: MisoStatsWindow
 var quests: MisoQuestWindow
 var skills: MisoSkillsWindow
 var tooltip: MisoItemTooltip
+## The Quest Log's "Forfeit quest?" confirmation (MisoForfeitPrompt).
+var forfeit_prompt: MisoForfeitPrompt
 var _placed: Dictionary = {}
 var _configured_by_setup := false
 
@@ -87,6 +92,10 @@ func _init() -> void:
 		w.opened.connect(_on_window_opened)
 	inventory.tooltip_host = self
 	equipment.tooltip_host = self
+	# The Quest Log's forfeit confirmation, above every window (it dims the screen while it asks).
+	forfeit_prompt = MisoForfeitPrompt.new()
+	add_child(forfeit_prompt)
+	quests.forfeit_prompt = forfeit_prompt
 	tooltip = MisoItemTooltip.new()
 	tooltip.top_level = true
 	add_child(tooltip)
@@ -123,6 +132,8 @@ func configure(e: MisoUiEnv) -> void:
 	env = e
 	for w: MisoWindow in windows.values():
 		w.env = e
+	forfeit_prompt.cancel()
+	forfeit_prompt.env = e
 	_bind()
 	refresh_open()
 
@@ -287,6 +298,7 @@ func _on_game_loaded(_slot: String) -> void:
 
 func _on_character_replaced(_reason: String) -> void:
 	hide_item_tooltip()
+	forfeit_prompt.cancel()
 	skills.selected = ""
 	refresh_open()
 
@@ -304,7 +316,8 @@ func bottom_inset() -> float:
 	return MisoUiEnv.bottom_bar_inset(self)
 
 
-## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW / BELOW). Every window opens
+## The top-left corner a window gets the first time it opens (see LEFT_ROW / RIGHT_ROW / BELOW: the Skills window under
+## the Quest Log when it fits there, else beside it). Every window opens
 ## inside the screen above the HUD's status bar (bottom_inset()); MisoWindow keeps it there as it grows.
 func default_position(window_name: String) -> Vector2:
 	var area := get_viewport_rect().size if is_inside_tree() else Vector2(1600, 900)
@@ -312,10 +325,14 @@ func default_position(window_name: String) -> Vector2:
 	if BELOW.has(window_name):
 		var anchor := String(BELOW[window_name])
 		var above := default_position(anchor)
-		var below_y := above.y + window_size(anchor).y + WINDOW_GAP
-		var h := window_size(window_name).y
+		var anchor_size := window_size(anchor)
+		var below_y := above.y + anchor_size.y + WINDOW_GAP
+		var sz := window_size(window_name)
 		var bottom := area.y - (bottom_inset() + MisoWindow.BAR_GAP if bottom_inset() > 0.0 else EDGE_MARGIN)
-		return Vector2(above.x, roundf(maxf(y, minf(below_y, bottom - h))))
+		if below_y + sz.y <= bottom:
+			return Vector2(above.x, roundf(below_y))
+		var beside_x := minf(above.x + anchor_size.x + WINDOW_GAP, area.x - EDGE_MARGIN - sz.x)
+		return Vector2(roundf(maxf(0.0, beside_x)), roundf(maxf(y, bottom - sz.y)))
 	if window_name in LEFT_ROW:
 		var x := EDGE_MARGIN
 		for n in LEFT_ROW:

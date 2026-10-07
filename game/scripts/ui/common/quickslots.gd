@@ -173,16 +173,19 @@ static func use(env: MisoUiEnv, key: String) -> Dictionary:
 
 
 ## Casts a skill through the player's PlayerSkills (the GameContext player's, else the one in PlayerSkills.GROUP).
-## A refusal with something to say (cooldown, MP, shell, position) is announced with Events.notice.
-static func use_skill(env: MisoUiEnv, skill_id: String) -> Dictionary:
+## A refusal with something to say (cooldown, MP, shell, position) is announced with Events.notice, unless `announce`
+## is false (a held key's repeat that already announced one, #20). A refusal's result carries that line as "notice"
+## ("" for the silent ones).
+static func use_skill(env: MisoUiEnv, skill_id: String, announce: bool = true) -> Dictionary:
 	var skills := player_skills(env)
 	if skills == null:
 		return {"ok": false, "code": SkillBook.UNAVAILABLE, "skill_id": skill_id}
 	var res := skills.cast(skill_id)
 	if not res.get("ok", false):
 		var line := PlayerSkills.refusal_text(res, env.get_db())
-		if line != "":
+		if line != "" and announce:
 			env.notice(line)
+		res["notice"] = line
 	return res
 
 

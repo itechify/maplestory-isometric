@@ -17,7 +17,12 @@ B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=ble
 "$B" -b --factory-startup --python scripts/build_island.py        # -> MapleIsland.blend (~1 min)
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
+bash scripts/review_island.sh final 3                             # render every camera, validate, contact sheet
 ```
+
+`scripts/review_island.sh` is the one command for the three review steps (render, validation, contact sheet): one exit
+code, and its last line names any step that failed ([`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) "Everyday
+workflow").
 
 The generator is `src/misostory/` (maps in `maps/m<id>_*.py`). Authoring rules: [`../AUTHORING.md`](../AUTHORING.md).
 The integrated Iteration Three island validates with 0 high, 0 medium and 21 low findings. `validate.py` now also runs
@@ -65,20 +70,28 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 | Z | pick up drops |
 | X | sit on your first chair, or stand up |
 | I / E / C / Q (or L) / K | inventory, equipment, character stats (spend AP), quest log, skills (spend SP) |
-| 1 - 8 | quickslots: potions, food, a chair or a learned skill |
-| M | fold the minimap to its title strip (the map name stays) |
+| 1 - 8 | quickslots: potions, food, a chair or a learned skill (hold a skill's key to cast it again each time it is ready) |
+| M | fold the minimap to its title strip (the map name stays); the status bar's Map [M] button does the same, and the fold is remembered across restarts |
 | Esc | close the newest window, else the pause menu (save, load, controls, quit) |
 | ` (backtick) / F3 | developer console / debug overlay (F3 also shows the canonical map id on the minimap) |
 
 - **Quests.** The Quest Log (Q) lists Available, In Progress and Completed quests, a chain's steps ("Mai's Training
   2/3"), the start and turn-in NPCs with their maps, the canonical Missable tag and the random reward you received.
-  A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". A shop refuses to
-  buy a quest item an in-progress quest still needs, and Roger hands you another apple if yours is gone (quest 1002).
-- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills); a
-  Beginner past level 10 gets none (an adaptation: MeowDB does not say). K opens the Skills window: "+" spends SP on
+  A turn-in row reads "Return to X" once you have dealt with X through a quest, else "Talk to X". Forfeit (or Delete)
+  on an in-progress quest gives it up after a confirmation; its NPC offers it again. A shop refuses to buy a quest
+  item an in-progress quest still needs, no shop buys The Green Relaxer (it cannot be obtained again), and Roger
+  hands you another apple if yours is gone (quest 1002).
+- **Skills.** Each level-up from 2 to 10 gives 1 SP, 9 in all (canonical; enough to max the three skills). A new
+  character starts with 0 SP and a Beginner past level 10 gets none: adaptations, by the owner's ruling (#4), where
+  MeowDB does not say. K opens the Skills window: "+" spends SP on
   Three Snails, Recovery or Nimble Feet. Drag a learned skill onto the HUD bar, or select it and press Set key and a
-  key 1-8; that key casts it. Three Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
-  skill level).
+  key 1-8; that key casts it. Hold the key to keep casting: it casts again as soon as the last cast's lockout (and
+  any cooldown) ends, and stops when you let go; nothing is queued beyond holding it, and a refusal (no MP, no shell)
+  is said once per hold (the owner's decision in #20). Potion and chair keys still use one item per press. Three
+  Snails costs MP and one shell a cast (a Snail, Blue Snail or Red Snail Shell, by
+  skill level). It hits the nearest monster in front of you that no wall stands before: terrain and buildings stop
+  the shell, props, monsters and Wooden Boxes do not, and a throw with no such monster still spends the shell and the
+  MP (the owner's rulings in #5 and #6).
 - **Sitting and chairs.** Pio's quest (1012) gives The Green Relaxer. Double-click it in the inventory's Set-up tab
   (or select it and press Sit), bind it to a quickslot, or press X, which sits on the first chair you own (or says you
   have none). Any move, jump, attack or skill, a knockback, death or a warp stands you up. While you sit, the HUD
@@ -86,12 +99,12 @@ bash scripts/play.sh --editor     # open the project in the Godot editor
 - **Natural recovery.** 10 HP for every 10 s you stand still or sit, the project owner's rule. Walking, jumping,
   climbing and attacking (a Three Snails cast included) pause the clock; nothing resets it, and the clock is saved.
   Seated on The Green Relaxer you also get its canonical 30 HP every 10 s on a clock of its own. MP does not recover
-  naturally (MeowDB documents none).
+  naturally, by the owner's ruling (#4): MeowDB documents none, and a future Magician skill will grant it.
 - **Wooden Boxes.** 19 boxes stand on six maps around Amherst (000001000, 000001010-000001014). Each breaks after 4
-  landed hits, basic attacks or Three Snails throws (one target per cast: the nearest monster or box in its band;
-  whether skills may hit boxes is still an owner decision), and comes back after its canonical respawn time. Old
-  Wooden Board and Rusty Screw drop only while Pio's quest is in progress; a gold marker shows over the boxes while
-  the quest still wants them, and a warm rim while your swing can reach one.
+  landed basic attacks (skills never hit a box: Three Snails searches monsters only, the owner's ruling in #5), and
+  comes back after its canonical respawn time. Old Wooden Board and Rusty Screw drop only while Pio's quest is in
+  progress; a gold marker shows over the boxes while the quest still wants them, and a warm rim while your swing can
+  reach one.
 - **The minimap** (top left) shows the map's ground by terrace height, the exits with their destination names (hover
   an exit when its name does not fit; that happens only on 000001000, whose eight names do not all fit: three go to
   the hover text in the suite's layout), NPCs with their quest markers and shop or boat icons, and your arrow. The
@@ -146,7 +159,7 @@ Node tests for the source and parity tools (no Godot, a few seconds):
 
 ```bash
 node --test tools/sources/test/     # capture loader, exact raw-value parsers, the drop record builder (31 tests)
-node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (18 tests)
+node --test tools/parity/test/      # the parity state rule and the evidence provenance checks (19 tests)
 ```
 
 ## Run real-game playtests
@@ -174,14 +187,15 @@ bash scripts/playtest_quests.sh                                   # every Maple 
 - Use your own `ISOLATE` name when several agents run at once (default `playtest`); each name is a private mirrored
   copy of `game/` under `_scratch/godot_runs/`.
 - Iteration Three scenarios: `quest` (the every-quest set), `test_box` (Pio's quest with Amherst's Wooden Boxes,
-  a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken),
+  Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of the 19 broken),
   `test_skills` (SP, the Skills window, all three Beginner skills), `regen` (the natural-recovery pause rule and
   seated recovery), `ui_minimap` (the minimap on all 25 maps and level-up feedback), `test_b_population` (all 15
   hunting maps' spawns), `save_it2_continue` (an Iteration Two save migrated in the real game), `npc_shanks` (the
   departure boundary and the fare refusal), `npc_bubbles` (the NPC speech bubbles), `pause_load` (a Load through the
   pause menu), `resume_gate` (a save just past a trail gate resumes where it was), `kit` (PlaytestKit's reference
   run), `playthrough` (the clean-character playthrough, creation to Shanks), `trap_probe` and `walk_probe` (single
-  spots). Tests A-G are as in Iteration Two.
+  spots). Tests A-G are as in Iteration Two. Since then: `quest_forfeit` (a quest forfeited from the Quest Log by
+  clicking, then accepted again).
 - **The every-quest set.** `scripts/playtest_quests.sh [--jobs N] [--seed N] [--out DIR] [--isolate PREFIX]
   [chains...]` runs the `quest` scenario once per chain (`--list` prints the 9 chains), `--jobs` at a time (default 3)
   in private copies named `<prefix>_<i>` (default prefix `quests`), then writes `<out>/quests.md` and `quests.json`: one
@@ -252,16 +266,18 @@ bash scripts/check_canonical.sh               # every extractor re-run cache-onl
 `check_canonical.sh` needs `tools/meowdb/.cache` (git-ignored: copy it from a checkout that has it). Exit 0 means every
 extractor reproduces the committed files, 1 a difference (`--keep` keeps the copy to inspect), 2 a failed extractor or
 a missing cache. It runs the extractors in their documented order (items and quests before monsters, which resolve
-drop members against them) and passes on the final Iteration Three build: every canonical file is reproduced byte for
-byte, Green Apple's record (242) from its two hand-read captures included. To regenerate canonical data, see
+drop members against them) and passes: every canonical file is reproduced byte for byte, the 94 items included (177
+and 242 left the item subset with #32). To regenerate canonical data, see
 [`../canonical/README.md`](../canonical/README.md).
 
 ## Build the parity manifest
 
 `docs/MAPLE_ISLAND_PARITY.md` and `docs/maple_island_parity.json` give every in-scope entry (maps, portals, monsters,
 populations, drops, items, NPCs, shops, quests and their objectives and rewards, skills, breakables, chairs, mechanics)
-a state: missing, partial, implemented or verified. They are generated from the data, the provenance report and test
-evidence:
+a state: missing, partial, implemented or verified. The committed copy is the record of v0.3 at its evidence commit
+and is not kept current: it was Iteration Three's exit proof, it is not a gate, and nothing needs it rebuilt (the tests
+and the playtest scenarios guard against regressions; a rebuild costs a full evidence run). To make a fresh proof,
+generate it from the data, the provenance report and test evidence:
 
 ```bash
 ISOLATE=ev INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/final3/unit_evidence.json" bash scripts/test.sh
@@ -284,10 +300,11 @@ the clean-character playthrough (`--playtest` with its report or directory). The
 in the manifest) when an input records no commit, a dirty tree or a commit whose `game/`, `tools/` or `scripts/` differs
 from HEAD, and when the inputs ran on different commits. In the final evidence run (commit `1f3120c`, 2026-10-06) every
 one of them passed: seed 1 headless, the every-quest set and the playthrough on seeds 1, 2 and 3, and the playthrough,
-`test_skills`, `test_box` and `kit` also windowed. The manifest has 652 entries: 646 verified, 3 partial (all
-source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD, it warns that `tools/` differs from the
-evidence commit: after the run only the wording of the drop rows in `tools/parity` changed, which no Godot test or
-scenario runs, and the text of `tools/henesys/captures/README.md`, which nothing loads.
+`test_skills`, `test_box` and `kit` also windowed. The committed manifest, the v0.3 record built from that run, has
+652 entries: 646 verified, 3 partial (all source-data gaps), 0 missing, 3 out of scope, 0 open. Built at a later HEAD,
+it warns that `tools/` differs from the evidence commit: after the run only the wording of the drop rows in
+`tools/parity` changed, which no Godot test or scenario runs, and the text of `tools/henesys/captures/README.md`,
+which nothing loads. Later commits change the data and the code without rebuilding it.
 
 The JSON is format 3 (contract C6). Besides the state, an entry may carry one of two labels: `source_data_gap` (the
 sources were read and give no value: excused from the exit criterion) or `pending_source_read` (a source publishes the
@@ -375,6 +392,7 @@ level 8                   # set the level consistently (AP/SP/HP/MP)
 quest complete 1006       # quest accept|complete|forfeit|reset <id> [force], quests
 skills                    # skill levels, SP, cooldowns and active effects
 cast recovery             # cast a learned skill now (by id or name)
+hp 10                     # set HP (clamped to 0..Max HP; 0 is a death); mp 3 sets MP; "max" fills either
 ```
 
 ## Drops and Wooden Boxes

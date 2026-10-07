@@ -28,6 +28,8 @@ const GROUP := &"interaction_system"
 const PHYSICS_PRIORITY := 110
 ## Screen-space lift of the prompt above an NPC that shows a quest marker (the marker's height plus a gap).
 const MARKER_CLEARANCE_PX := 44.0
+## Name of the overlay child that holds (and clips) the quest markers; NpcPresenter puts markers there when present.
+const MARKER_LAYER := "MarkerClip"
 
 var ctx: GameContext = null
 ## IslandWorld (duck-typed: nearest_interactable, portal_under_player, npc_nodes, defs).
@@ -48,6 +50,10 @@ var read_input: bool = true
 var overlay_layer: CanvasLayer = null
 ## Screen-space layer for name tags, quest markers and the prompt.
 var overlay: Control = null
+## The quest markers' parent inside the overlay (MARKER_LAYER): it clips them to the screen above the HUD's status
+## bar, so a marker over an NPC low on the screen is cut at the bar's top edge instead of showing through the
+## translucent bar (issue #14). Everywhere else a marker draws exactly as before.
+var marker_clip: Control = null
 var prompt: InteractionPrompt = null
 ## The resolver result shown now.
 var current: Dictionary = {}
@@ -103,6 +109,23 @@ func _ensure_overlay() -> void:
 	NpcUiStyle.apply_base(overlay)
 	prompt = InteractionPrompt.new()
 	overlay.add_child(prompt)
+	marker_clip = Control.new()
+	marker_clip.name = MARKER_LAYER
+	marker_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	marker_clip.clip_contents = true
+	overlay.add_child(marker_clip)
+	update_marker_clip()
+
+
+## Sizes the markers' clip to the screen above the HUD's status bar (MisoUiEnv.bottom_bar_top over ctx.ui_root's UI
+## roots; the whole overlay without a bar). The bar is found by layout every frame, so it follows a resize.
+func update_marker_clip() -> void:
+	if marker_clip == null:
+		return
+	var area := overlay.size
+	var top := MisoUiEnv.bottom_bar_top(ctx.ui_root if ctx != null else null)
+	marker_clip.position = Vector2.ZERO
+	marker_clip.size = Vector2(area.x, clampf(top, 0.0, area.y))
 
 
 ## Attaches an NpcPresenter to every NPC node of the world (idempotent).
@@ -145,6 +168,7 @@ func _physics_process(_delta: float) -> void:
 
 
 func _process(_delta: float) -> void:
+	update_marker_clip()
 	update_prompt()
 
 

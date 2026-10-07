@@ -4,10 +4,10 @@
   "authority": "MeowDB MS Classic (https://meowdb.com/msclassic)",
   "attribution": "Gameplay facts courtesy of NiaMeowDB (meowdb.com); each record links to its source page. Game names and text are property of Nexon Co., Ltd.",
   "totals": {
-    "records": 192,
-    "distinct_source_urls": 418,
+    "records": 190,
+    "distinct_source_urls": 413,
     "external_values": 0,
-    "capture_files": 11
+    "capture_files": 9
   },
   "records": [
     {
@@ -920,23 +920,6 @@
     },
     {
       "domain": "items",
-      "id": "177",
-      "name": "Shoes Jump Scroll: Greater",
-      "file": "res://data/canonical/items/177.json",
-      "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/item-db/177",
-      "retrieved_at": "2026-10-04T10:43:09.518Z",
-      "field_source_urls": [
-        "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
-        "https://meowdb.com/msclassic/api/drops?itemId=177",
-        "https://meowdb.com/msclassic/api/items/177?locale=en&preview=1"
-      ],
-      "external": [],
-      "gap_count": 0,
-      "discrepancy_count": 0
-    },
-    {
-      "domain": "items",
       "id": "209",
       "name": "Arrows for Bows",
       "file": "res://data/canonical/items/209.json",
@@ -1070,27 +1053,6 @@
       "external": [],
       "gap_count": 0,
       "discrepancy_count": 0
-    },
-    {
-      "domain": "items",
-      "id": "242",
-      "name": "Green Apple",
-      "file": "res://data/canonical/items/242.json",
-      "authority": "MeowDB MS Classic",
-      "url": "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
-      "retrieved_at": "2026-10-05T08:17Z",
-      "field_source_urls": [
-        "https://meowdb.com/_next/static/chunks/782-bb5a5ee666dc6188.js",
-        "https://meowdb.com/msclassic/api/items/242?locale=en&preview=1",
-        "https://meowdb.com/msclassic/item-db/242"
-      ],
-      "external": [],
-      "gap_count": 5,
-      "discrepancy_count": 0,
-      "capture_files": [
-        "tools/meowdb/captures/item_242.txt",
-        "tools/meowdb/captures/items_api.json"
-      ]
     },
     {
       "domain": "items",

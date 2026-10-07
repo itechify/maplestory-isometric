@@ -16,8 +16,9 @@
 // parsed by tools/sources/captures.mjs), the rows that capture shows are read from it instead (Max per Stack, the
 // Tradeable/Untradeable tag, the NPC Sell-back row and its per-unit/per-item basis, the MSEA Reference Drops), each
 // citing it in field_sources (url, read_at, capture), and the rest of what it shows is cross-checked with the API body;
-// a section the trimmed capture leaves out stays a gap. Green Apple (242) is the one such item (Iteration Three
-// decision D3-1; its page capture was read on 2026-10-05).
+// a section the trimmed capture leaves out stays a gap. No item of the subset takes this path today: Green Apple (242)
+// did (Iteration Three decision D3-1; its page capture was read on 2026-10-05) until #32 removed it from the subset.
+// Its captures stay as dated records that nothing reads, like the item API bodies of items never extracted.
 //
 // Pages read per item (all cache-first through lib.mjs, so retrieved_at comes from the cache meta):
 //   /item-db/<id>                              primary: everything rendered server-side (header, requirements, stat
@@ -49,15 +50,16 @@ const CANON = path.join(ROOT, 'game', 'data', 'canonical');
 const OUT_DIR = path.join(CANON, 'items');
 
 // Item ids requested for Iteration Two (MeowDB ids). Order here does not matter; output is one file per id.
+// #32 (owner decision, 2026-10-06) removed Shoes Jump Scroll: Greater (177) and Green Apple (242, added in Iteration
+// Three): both were drop members only under the earlier drop sources, and since the sources changed (D3-11) neither
+// is a drop member, a quest item or a shop item, so the game cannot give them. 177 stays on the Orange Mushroom's
+// MSEA reference list, which is reference data only (drops/9.json msea_reference item_id null: no local record).
 const ITEM_IDS = [
-  59, 61, 139, 143, 177, 209, 213, 236, 237, 270, 320, 321, 322, 324, 327, 347, 348, 349, 350, 351, 356, 413, 414, 415,
+  59, 61, 139, 143, 209, 213, 236, 237, 270, 320, 321, 322, 324, 327, 347, 348, 349, 350, 351, 356, 413, 414, 415,
   417, 441, 442, 483, 522, 541, 543, 558, 562, 576, 577, 589, 595, 608, 633, 651, 666, 709, 710, 711, 713, 714, 715,
   724, 731, 900, 933, 934, 935, 937, 938, 939, 940, 945, 960, 963, 1157, 1160, 1163, 1168, 1175, 1177, 1181, 1195,
   1305, 1308, 1314, 1317, 1325, 1327, 1439, 1440, 235, 239, 269, 271, 438, 585, 1158, 1161, 1306, 439, 440, 559, 708,
   712, 525, 238, 240, 273, 551,
-  // Iteration Three: Green Apple, read by hand because no cached item page covered it. API-only: built from
-  // tools/meowdb/captures/items_api.json and item_242.txt.
-  242,
 ].map(String);
 
 const GUIDE_PATH = '/guides/beginners-guide-first-steps-in-maple-world';
@@ -1212,8 +1214,11 @@ async function main() {
   }
 
   resolveMseaMonsterIds(items, monsters);
-  // A hand-read item page capture is read only by the API-only path; one nothing read would be silently ignored.
+  // A hand-read item page capture is read only by the API-only path; one for an item of the subset that took the other
+  // path would be silently ignored. A capture of an item outside the subset (Green Apple, 242, since #32) is a dated
+  // record nothing reads, as the item API bodies of items never extracted are.
   for (const [cid, pc] of Object.entries(loadCaptures().meowdb.item_pages)) {
+    if (!ids.has(cid)) { console.log('NOTE: ' + pc.file + ': item ' + cid + ' is not in the item subset; the capture is kept and not read'); continue; }
     if (!apiOnly.some((x) => x.startsWith(cid + ' '))) throw new Error(pc.file + ': item ' + cid + ' is not an API-only item of this extract, so nothing reads the capture');
   }
 

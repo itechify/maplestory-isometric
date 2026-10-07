@@ -1,4 +1,6 @@
 // Build the Maple Island parity manifest: docs/maple_island_parity.json and docs/MAPLE_ISLAND_PARITY.md.
+// The committed manifest is the record of v0.3 at its evidence commit and is not kept current (#38; parity.mjs
+// SNAPSHOT_NOTE, stated at the top of both files): run this to make a fresh proof, not after every change.
 //
 //   node tools/parity/build_parity.mjs --tests <evidence.json> [--tests ...] [--playtest <report.json | dir> ...]
 //   node tools/parity/build_parity.mjs --check ...      # exit 1 when the committed files differ from a fresh build

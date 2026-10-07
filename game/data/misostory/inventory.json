@@ -14,7 +14,7 @@
   "equipment_max_stack": 1,
   "equipment_max_stack_reason": "MeowDB has no 'Max per Stack' row for any Equip item (items.md Gaps; max_stack is null on all 55 equips). Equipment is unstackable: one piece per slot, so each piece can carry per-instance data (future scroll results, stat rolls).",
   "unpublished_max_stack": 1,
-  "unpublished_max_stack_reason": "Fallback for a non-equipment item whose canonical max_stack is null; 1 is the conservative choice so an unknown item can never overfill a slot. No shipped item hits it: Green Apple, 242, did until its item page was read by hand (tools/meowdb/captures/item_242.txt, Max per Stack 100). An item that needs it must be named here as (<id>) and documented in its record's gaps (test_items_canonical).",
+  "unpublished_max_stack_reason": "Fallback for a non-equipment item whose canonical max_stack is null; 1 is the conservative choice so an unknown item can never overfill a slot. No shipped item hits it. An item that needs it must be named here as (<id>) and documented in its record's gaps (test_items_canonical).",
   "meso_cap": 2147483647,
   "meso_cap_reason": "MeowDB documents no meso cap. 2,147,483,647 is the signed 32-bit limit of a classic meso counter (not from MeowDB, unverified); it exists so mesos can never overflow. Picking up or earning past it adds only up to the cap; a sale that would pass it is refused.",
   "equipment_slots": [
@@ -106,6 +106,16 @@
     "sell_zero_value_items": true,
     "sell_zero_value_items_reason": "MeowDB records sell-back 0 for 25 items (all of Pan's stock, Sid's Sword/Hand Axe/Wooden Club, arrows, Roger's Apple, several quest items) but does not say whether an NPC refuses them or pays 0 (shops.md Gaps). MisoStory lets the NPC take them for 0 mesos so the shop doubles as a way to get rid of items (Roger: 'get rid of unimportant items by either discarding them or selling them at a store').",
     "max_bundles_per_purchase": null,
-    "max_bundles_per_purchase_reason": "MeowDB documents no per-purchase limit (shops.md: quantity_per_purchase is not a limit). null = no limit beyond mesos and inventory space; the UI may clamp its quantity box."
+    "max_bundles_per_purchase_reason": "MeowDB documents no per-purchase limit (shops.md: quantity_per_purchase is not a limit). null = no limit beyond mesos and inventory space; the UI may clamp its quantity box.",
+    "protected_items": [
+      {
+        "item_id": "522",
+        "name": "The Green Relaxer",
+        "reason": "Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation.",
+        "verified": false,
+        "decision": "#7 (owner ruling, 2026-10-06)"
+      }
+    ],
+    "protected_items_reason": "Items every NPC shop refuses to buy, whatever the quests: ShopService.quote_sell answers protected_item with the item's own message and changes nothing. Each entry names a canonical item id (data validation fails on an id that does not exist) and carries its own reason. MeowDB documents no sell restriction for NPC shops, so the list is a MisoStory rule."
   }
 }

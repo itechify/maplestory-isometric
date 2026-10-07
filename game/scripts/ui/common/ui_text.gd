@@ -35,6 +35,10 @@ static func result_message(res: Dictionary, db: ContentDB = null) -> String:
 			var item_name := String(db.item(qid).get("name", qid)) if db != null else qid
 			return "%s is needed for %s (keep %d). The shop will not buy it while the quest is in progress." % [
 				item_name, String(res.get("quest_name", res.get("quest_id", "a quest"))), int(res.get("needed", 1))]
+		ShopService.PROTECTED_ITEM:
+			var pid := String(res.get("item_id", ""))
+			var protected_name := String(db.item(pid).get("name", pid)) if db != null else pid
+			return "%s cannot be obtained again. The shop will not buy it." % protected_name
 	return ItemCodes.message(res)
 
 

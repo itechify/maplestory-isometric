@@ -1,15 +1,16 @@
 extends PlaytestScenario
 ## ui_minimap: the minimap and the persistent map name in the real game (brief Phases 11 and 12), on all 25 maps.
 ## New game through the screens -> on the start map: the minimap is installed and unfolded, its title is the
-## canonical street and name, the player's arrow is on the picture; M (real key) folds it to the title strip and back;
-## F3 (the debug overlay) adds the canonical map id and takes it away; M does nothing while Heena's conversation is
+## canonical street and name, the player's arrow is on the picture; M (real key) folds it to the title strip and back,
+## and so does a click on the status bar's Map [M] button, each fold saved in the UI preferences; F3 (the debug overlay) adds the canonical map id and takes it away; M does nothing while Heena's conversation is
 ## open -> the player placed mid-trail: the arrow carries "-> <destination>" -> every one of the 25 maps (console warp,
 ## setup only): title, portal markers (exactly the visible canonical portals: no arrival gate, no hidden portal), NPC
 ## dots (exactly the canonical NPCs), shop badges on the doors to Pan, Sid and Lucy, the collision ground drawn, the
 ## picture on screen with its ground meshes, every exit named on the picture (maps with up to five exits), the arrow
 ## on the picture after arrival, and the NPC name tags' shop / transport icons; a screenshot per map (windowed)
 ## -> Phase 12 feedback through real kills in 000000040 to level 2: the flourish, the level, AP and SP lines, hits,
-## pickup lines. Ends with no engine error raised from the minimap's scripts.
+## pickup lines. Then no engine error raised from the minimap's scripts -> Map [M] folds it, Quit Game -> phase 1, a
+## new process: Continue shows the minimap still folded with the map's name; M unfolds it.
 
 const START_MAP := "000000001"
 const HEENA := "1"
@@ -28,6 +29,9 @@ func max_seconds() -> float:
 
 
 func run(d: PlaytestDriver) -> void:
+	if d.phase == 1:
+		await _after_restart(d)
+		return
 	var ng: Dictionary = await d.new_game("Minimap", "female", "541", {})
 	if not d.check("new game through the title and creation screens", bool(ng["ok"]), str(ng)):
 		return
@@ -53,6 +57,20 @@ func run(d: PlaytestDriver) -> void:
 	await d.tap("toggle_minimap")
 	await d.frames(2)
 	d.check("M brings it back", bool(mm.snapshot()["expanded"]) and mm.view.is_visible_in_tree())
+
+	# The status bar's Map [M] button (a real click) does what M does, and the fold is saved in the UI preferences.
+	var map_button := (d.hud() as MisoHud).status.map_button
+	d.check("the status bar shows a Map [M] button", map_button.is_visible_in_tree() and map_button.text == "Map [M]",
+		map_button.text)
+	var clicked: Dictionary = await d.click(map_button)
+	var shown: bool = await _shown(d, mm)
+	d.check("a click on Map [M] folds the map", bool(clicked["ok"]) and not shown, "%s, shown %s" % [clicked.get("why", ""), shown])
+	d.check("the fold is saved beside the save slots", _saved_fold(d) == false, str(_saved_fold(d)))
+	await d.screenshot("minimap_folded_by_button")
+	clicked = await d.click(map_button)
+	shown = await _shown(d, mm)
+	d.check("a second click unfolds it", bool(clicked["ok"]) and shown, "%s, shown %s" % [clicked.get("why", ""), shown])
+	d.check("and the save says unfolded", _saved_fold(d) == true, str(_saved_fold(d)))
 
 	# Debug mode (F3): the canonical map id joins the title, and leaves with the overlay.
 	await d.tap("debug_overlay")
@@ -123,6 +141,43 @@ func run(d: PlaytestDriver) -> void:
 		if String(e.get("message", "")).contains("minimap") or String(e.get("message", "")).contains("map_icons"):
 			errs.append(e)
 	d.check("no engine error from the minimap's scripts", errs.is_empty(), str(errs))
+	# Fold it and quit the game (the pause menu's Quit Game); phase 1 starts the game again.
+	await d.click((d.hud() as MisoHud).status.map_button)
+	shown = await _shown(d, mm)
+	d.check("folded before quitting", not shown and _saved_fold(d) == false, str(_saved_fold(d)))
+	d.carry["map_id"] = mm.map_id
+	await d.reload_process()
+
+
+## Phase 1, a new process on the same saves: Continue shows the minimap folded as the player left it (the UI
+## preferences outlive the process), with the map's name on its title strip; M unfolds it again.
+func _after_restart(d: PlaytestDriver) -> void:
+	var cont: Dictionary = await d.continue_game()
+	if not d.check("Continue after quitting", bool(cont["ok"]), str(cont)):
+		return
+	var mm := d.system("Minimap") as MisoMinimap
+	await d.frames(10)
+	var s := mm.snapshot()
+	d.check("the minimap is still folded after quitting and starting again", not bool(s["expanded"])
+		and not mm.view.is_visible_in_tree(), str(s["expanded"]))
+	d.check("its title strip names the map", mm.name_label.is_visible_in_tree() and s["map_id"] == d.carry.get("map_id", "")
+		and s["title"] == _title(d, String(s["map_id"])), "%s %s" % [s["map_id"], s["title"]])
+	await d.screenshot("minimap_folded_after_restart")
+	await d.tap("toggle_minimap")
+	var shown: bool = await _shown(d, mm)
+	d.check("M unfolds it", shown)
+	d.check("and the save says unfolded", _saved_fold(d) == true, str(_saved_fold(d)))
+
+
+## True when the minimap's picture shows, two frames after an input.
+func _shown(d: PlaytestDriver, mm: MisoMinimap) -> bool:
+	await d.frames(2)
+	return mm.is_expanded() and mm.view.is_visible_in_tree()
+
+
+## The fold the UI preferences file in the run's save directory holds (null when there is none).
+func _saved_fold(d: PlaytestDriver) -> Variant:
+	return MisoUiPrefs.read(d.save_dir.path_join(MisoUiPrefs.FILE_NAME), MisoUiPrefs.MINIMAP, MisoUiPrefs.MINIMAP_EXPANDED, null)
 
 
 ## Phase 12 feedback through real play in Snail Hunting Ground I: fight Snails until level 2, then the HUD log has the

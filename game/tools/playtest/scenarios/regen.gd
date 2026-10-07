@@ -2,16 +2,18 @@ extends PlaytestScenario
 ## regen: natural HP recovery and sitting in the real game, with real input (contracts C4 and C5; data/misostory/
 ## recovery.json natural_hp, the project owner's rule: 10 HP per 10 s of time spent standing still or seated; walking,
 ## jumping and attacking pause the clock and never reset it; never above Max HP).
-## Phase 0: a new game, HP lowered by an api setup step (the console has no HP setter). 6 s still, 5 s walking and 4 s
+## Phase 0: a new game, HP lowered by the console's hp command (setup, counted). 6 s still, 5 s walking and 4 s
 ## still reach exactly one tick (the brief's example). Holding jump (hopping) and holding attack pause the clock, and
 ## it resumes to the next tick. Sitting: X with no chair says so; The Green Relaxer (522) is granted with the console
 ## (setup, counted) and double-clicked in the Set-up tab; 10 s seated give the natural tick plus the chair's own +30; a
-## move key stands up; X sits on the first chair owned; a warp stands the player up. Finally time is banked on the
-## clock, the player sits down, and Quit Game saves.
+## move key stands up; X sits on the first chair owned; a warp stands the player up, and so does Up at a real portal
+## while seated (Mushroom Town's first press-Up portal, which it then uses). Finally time is banked on the clock, the
+## player sits down, and Quit Game saves.
 ## Phase 1: Continue. The player arrives standing (the seat is not saved), the chair is still owned, and the banked
-## clock is restored and completes the next tick. Last, on 000000001's ladder near its top at 40% HP (an api setup
-## step: no console command lowers HP or grabs a ladder): climbing pauses the clock, and PlaytestKit.rest() climbs off
-## before it stands still, so natural recovery heals. tests/unit/test_playtest_regen.gd runs it headless.
+## clock is restored and completes the next tick. Last, on 000000001's ladder near its top at 40% HP (setup: HP by the
+## console, the grab by an api step, since no console command grabs a ladder): climbing pauses the clock, and
+## PlaytestKit.rest() climbs off before it stands still, so natural recovery heals. tests/unit/test_playtest_regen.gd
+## runs it headless.
 
 const CHAIR := "522"
 const WARP_MAP := "000000010"
@@ -47,7 +49,7 @@ func _play(d: PlaytestDriver) -> void:
 		" or ".join(PackedStringArray(cfg["eligible_activities"])), str(cfg["verified"]), String(cfg["verified_against"])])
 	var c := d.character()
 	var p := d.player()
-	_set_hp(d, 10)
+	await _set_hp(d, 10)
 
 	# --- The brief's example: 6 s still, 5 s moving, 4 s still reach the 10 s tick (pause, not reset). ------------
 	var hp := c.hp
@@ -116,7 +118,7 @@ func _play(d: PlaytestDriver) -> void:
 	await d.close_window("inventory")
 	var max_hp := StatCalculator.max_hp(c, d.db())
 	var bonus := Chairs.bonus(CHAIR, d.db())
-	_set_hp(d, maxi(1, max_hp - per_tick - int(bonus["hp"]) - 5))
+	await _set_hp(d, maxi(1, max_hp - per_tick - int(bonus["hp"]) - 5))
 	hp = c.hp
 	var nr := p.get_node_or_null(^"NaturalRecovery") as NaturalRecovery
 	var chair_left := float(bonus["interval_s"]) - (nr.rule.chair_rest_s if nr != null else 0.0)
@@ -138,9 +140,10 @@ func _play(d: PlaytestDriver) -> void:
 	d.check("a warp stands the player up first (map-transition safety)", d.current_map() == WARP_MAP
 		and not p.is_seated() and stood.has("warp"), "map %s, seated %s, stood: %s" % [d.current_map(), p.is_seated(),
 		str(stood)])
+	await _seated_portal(d, p)
 
 	# --- Bank time on the clock, sit down, Quit Game (the shell saves). -------------------------------------------
-	_set_hp(d, 10)
+	await _set_hp(d, 10)
 	if _clock(d) > tick_s - 5.0:
 		await d.wait(tick_s - _clock(d) + 0.5)  # past the next tick first, so none fires while quitting
 	await d.wait(3.0)
@@ -184,6 +187,41 @@ func _after_reload(d: PlaytestDriver) -> void:
 	await _ladder(d)
 
 
+## Up at a real portal while seated (contract C5): the press is the portal's, so its transition starts and stands the
+## player up (`warp`) and the player arrives at the destination. Real input only: a walk into the trigger of the
+## current map's first press-Up portal, X, then Up.
+func _seated_portal(d: PlaytestDriver, p: PlayerController) -> void:
+	var w := d.world()
+	var src: PortalDef = null
+	for q: PortalDef in w.defs.get_def(d.current_map()).canonical_portals():
+		if src == null and q.accepts_press() and not q.hidden:
+			src = q
+	if not d.check("a press-Up portal in %s" % d.current_map(), src != null, ""):
+		return
+	var node := w.portal_node(src.source_map_id, src.portal_id)
+	await d.walk_to(src.anchor_ground, {"within_m": 0.5, "max_s": 60.0})
+	var inside: bool = await d.walker.nudge_until(src.anchor_ground, func() -> bool: return w.portal_under_player() == node)
+	if not d.check("standing in %s's trigger" % src.key(), inside, "at %s" % str(p.global_position)):
+		return
+	await d.wait(0.5)
+	await d.tap(&"sit")
+	await d.frames(2)
+	if not d.check("X sits down inside %s's trigger" % src.key(), p.is_seated(), "activity %s" % p.activity()):
+		return
+	var heard := stood.size()
+	var from := d.current_map()
+	await d.tap(&"portal_enter")
+	var started := await d.wait_until(func() -> bool: return not bool(d.session().call("is_idle")) or d.current_map() != from, 0.5)
+	var arrived := false
+	if started:
+		arrived = await d.wait_idle()
+	var reasons := stood.slice(heard)
+	d.check("Up at %s while seated: the player stands up (warp) and uses the portal to %s" % [src.key(), src.destination_map_id],
+		arrived and d.current_map() == src.destination_map_id and not p.is_seated() and reasons == PackedStringArray(["warp"]),
+		"started %s, map %s, seated %s, stood: %s, last block '%s'" % [started, d.current_map(), p.is_seated(), str(reasons),
+		w.interactor.last_block])
+
+
 ## On a ladder: climbing is not resting time (contract C4: only still and seated count), and PlaytestKit.rest() gets
 ## off the ladder before it stands still. Test C's hunter once grabbed a ladder chasing a Shroom on A Split Road and
 ## "rested" on it through 15 rests, 2,250 s of game time, without one tick (the final evidence run of 2026-10-06).
@@ -202,7 +240,7 @@ func _ladder(d: PlaytestDriver) -> void:
 			"%s" % (ladder.name if ladder != null else "none of %d climbables" % p.climbables.size())):
 		return
 	var max_hp := StatCalculator.max_hp(c, d.db())
-	_set_hp(d, int(max_hp * 0.4))
+	await _set_hp(d, int(max_hp * 0.4))
 	var i := d._begin(PlaytestReport.KIND_API, "PlayerController.grab_climbable", "setup: on %s near its top" % ladder.name)
 	var grabbed := p.grab_climbable(ladder, true)
 	d._end(i, grabbed and p.is_climbing(), "climbing %s" % p.is_climbing())
@@ -224,12 +262,9 @@ func _clock(d: PlaytestDriver) -> float:
 	return float(d.character().natural_recovery.get("hp_rest_s", 0.0))
 
 
-## Setup: sets HP through Game.change_hp (an api step: the console has no HP setter).
+## Setup: sets HP with the console's hp command (a counted console step, #39). Await it.
 func _set_hp(d: PlaytestDriver, hp: int) -> void:
-	var c := d.character()
-	var i := d._begin(PlaytestReport.KIND_API, "Game.change_hp", "setup: HP %d -> %d (no console HP setter)" % [c.hp, hp])
-	d.game().change_hp(hp - c.hp)
-	d._end(i, c.hp == hp, "HP %d / %d" % [c.hp, StatCalculator.max_hp(c, d.db())])
+	await d.console("hp %d" % hp)
 
 
 ## A real mouse double-click on a control (MisoItemSlot activates on a press with double_click set): move, press,

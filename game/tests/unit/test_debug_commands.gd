@@ -206,6 +206,45 @@ func test_heal_and_god_mode() -> void:
 	assert_true(h.run("heal").contains("dead"), "no heal while dead")
 
 
+## hp / mp <n|max> (#39): set the vital through Game.change_hp / change_mp (announced on the bus), clamped to 0..the
+## derived maximum; bad input changes nothing; refused while dead; the console completes the names and "max".
+func test_hp_and_mp_set_the_vitals_clamped_and_reject_bad_input() -> void:
+	var c := _c()
+	var mx_hp := StatCalculator.max_hp(c, db())
+	var mx_mp := StatCalculator.max_mp(c, db())
+	var heard: Array = []
+	h.bus.connect("hp_changed", func(hp: int, mx: int) -> void: heard.append(["hp", hp, mx]))
+	h.bus.connect("mp_changed", func(mp: int, mx: int) -> void: heard.append(["mp", mp, mx]))
+	assert_true(h.run("hp 10").begins_with("HP %d -> 10/%d" % [c.hp, mx_hp]), "hp 10")
+	assert_eq(c.hp, 10, "HP set")
+	assert_true(h.run("mp 2").begins_with("MP"), "mp 2")
+	assert_eq(c.mp, 2, "MP set")
+	assert_eq(heard, [["hp", 10, mx_hp], ["mp", 2, mx_mp]], "announced on the bus (Game.change_hp / change_mp)")
+	assert_true(h.run("hp 99999").contains("clamped from 99999 to 0..%d" % mx_hp), "too high: clamped")
+	assert_eq(c.hp, mx_hp, "to Max HP")
+	assert_true(h.run("mp -5").contains("clamped"), "too low: clamped")
+	assert_eq(c.mp, 0, "to 0")
+	h.run("mp max")
+	assert_eq(c.mp, mx_mp, "max is Max MP")
+	h.run("hp 7")
+	for bad in ["hp", "hp abc", "hp 1.5", "hp 3 4", "mp ten", "mp max 2"]:
+		assert_true(h.run(bad).begins_with("usage"), "'%s' is rejected" % bad)
+	assert_eq([c.hp, c.mp], [7, mx_mp], "bad input changed nothing")
+	h.run("god on")
+	assert_true(h.run("hp 3").contains("god mode keeps HP at max"), "god mode's HP lock wins and says so")
+	assert_eq(c.hp, mx_hp, "HP locked at max")
+	h.run("god off")
+	h.run("hp 0")
+	assert_eq(c.hp, 0, "HP 0 is allowed (a death, as a lethal hit)")
+	h.run("warp 000000040")
+	h.session.call("enter_dead")
+	assert_true(h.run("hp 20").contains("dead"), "refused while dead")
+	assert_true(h.run("mp 1").contains("dead"), "both")
+	assert_eq(String(h.dbg.complete("hp").line), "hp ", "the console completes the command")
+	assert_eq(String(h.dbg.complete("mp m").line), "mp max ", "and its 'max'")
+	assert_true(h.run("help hp").contains("hp <n|max>"), "help lists it")
+
+
 func test_char_and_inv_reports() -> void:
 	assert_true(h.run("char").contains("Lv 1"), "char")
 	h.run("give 270 3")

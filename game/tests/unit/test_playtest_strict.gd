@@ -125,6 +125,31 @@ func test_strict_report_fails_on_console_and_api_steps_after_the_strict_step() -
 	assert_true(r3.to_markdown().contains("VIOLATED"), "report.md says so")
 
 
+## The HP and MP console commands (#39) count as console use like every other command: after the strict step the
+## driver refuses them (they never reach Debug, so nothing changes) and the run fails.
+func test_a_strict_phase_refuses_the_hp_and_mp_commands() -> void:
+	var drv := PlaytestDriver.new()
+	(Engine.get_main_loop() as SceneTree).current_scene.add_child(drv)
+	var r := PlaytestReport.new()
+	r.scenario = "unit"
+	r.finished = true
+	drv.log_steps = false
+	drv.setup(r, 0, "user://_tests/strict_hp_mp")
+	var dbg := drv.debug()
+	assert_true(dbg != null and dbg.has_command("hp") and dbg.has_command("mp"), "the Debug autoload has hp and mp")
+	r.add_check(0, "a", true, "", 0.0, -1)
+	drv.begin_strict("unit")
+	var ran0 := int(dbg.get("commands_run"))
+	for cmd in ["hp 1", "mp 0", "hp max"]:
+		assert_eq(str(drv.call("console", cmd)), "", "'%s' is refused (it never runs)" % cmd)
+	assert_eq(int(dbg.get("commands_run")), ran0, "no developer command ran")
+	var st := r.strict_summary()
+	assert_eq(int(st["console_steps"]), 3, "three refused console steps after the strict step")
+	assert_eq((st["violations"] as Array).size(), 3, "each one a violation")
+	assert_false(r.passed(), "the run fails")
+	drv.free()
+
+
 func test_ledger_explains_service_changes_and_flags_direct_writes() -> void:
 	var bus: Node = (load("res://scripts/autoload/events.gd") as GDScript).new()
 	var c := CharacterFactory.create(CharacterFactory.default_params(db()), db()).character

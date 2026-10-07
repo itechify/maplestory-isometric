@@ -383,8 +383,9 @@ owner's (docs/ITERATION_THREE_BRIEF.md "Natural HP Regeneration", contract C4), 
   `setup.interval_s`; The Green Relaxer: 30 HP every 10 s) runs on its own clock on top (contract C5): 10 s on The
   Green Relaxer give 10 + 30 HP. When that clock starts and whether it holds at full HP are adaptations
   (`recovery.json` `chair_bonus`, verified false): it starts again at 0 at each sit and holds while HP is full.
-- **MP.** No natural MP recovery: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
-  `unresolved_source_gap`). The brief forbids inferring one from the HP rule.
+- **MP.** No natural MP recovery, by the owner's ruling (#4, 2026-10-06; a future Magician skill will grant it). It is
+  an adaptation over a source-data gap: MeowDB documents none (`recovery.json` `natural_mp`, values null, status
+  `unresolved_source_gap`, `decision` #4). The brief forbids inferring one from the HP rule.
 
 This replaces Iteration Two's adaptation (`combat.json` `natural_recovery`: a 5 s out-of-combat delay and a rest that
 started over on every movement, attack or monster touch), which is gone.
@@ -406,7 +407,8 @@ started over on every movement, attack or monster touch), which is gone.
   the clock 2.25 → 2.27 s; 7 held swings move it 2.40 → 2.42 s; the clock then resumes to the next tick; X without a
   chair says so; a double-click on The Green Relaxer in the Set-up tab sits; 10 s seated give 5 → 45 HP (+10 +30);
   a move key and a warp stand up; Quit Game with 4.40 s banked; after Continue the player stands, 4.40 s are restored
-  and complete the next tick, and X sits again.
+  and complete the next tick, and X sits again. Since then phase 0 also sits down in the trigger of Mushroom Town's
+  door and presses Up: the player stands up (`warp`) and arrives in 000000001.
 
 ## Breakables: the Wooden Box (Iteration Three, contract C8)
 
@@ -431,10 +433,10 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   hang over one). A map always gets the same boxes.
 - **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
   one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
-  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Three Snails counts
-  too: its cast picks the nearest target among the live monsters and the intact boxes in its canonical band, one
-  target per cast, and a box it picks takes one landed hit through `land_hit(box, "skill:0001000")` (a MisoStory
-  choice, `breakables.json hit_rule`, `verified: false`; the owner may rule that skills search monsters only).
+  MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Skills do not count
+  (`breakables.json hit_rule`, `verified: false`, the owner's ruling in #5): Three Snails searches the live monsters
+  only, so a box in its band neither takes a hit nor shields a monster behind it, and a cast with only a box in its
+  band is a cast with no target.
 - **Break and drops.** At `hits_to_break` the box breaks and rolls `DropRoller.roll(<breakable id>, db, rng, ctx)`
   with the character's quests in progress (contract C2): Old Wooden Board and Rusty Screw (every break, only while Pio's
   quest 1012 is in progress), Apple and Egg (2% each, the owner's table, decision D3-11); the box drops no mesos. The loot goes
@@ -448,7 +450,8 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
   the real roller, respawn), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
   `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
-  real reload, a box broken by Three Snails, then every box of the other five maps: 17 of the 19 broken,
+  real reload, Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of
+  the 19 broken,
   since the quest needs three of Amherst's six) and the every-quest set's 1012 chain.
 
 ## Damage numbers (`DamageNumbers`)
