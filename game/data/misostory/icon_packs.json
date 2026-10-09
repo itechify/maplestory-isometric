@@ -1,0 +1,8 @@
+{
+  "id": "icon_packs",
+  "kind": "misostory_adaptation",
+  "description": "The icon packs the UI draws item and skill icons from, highest priority first. Each name is a folder game/assets/icon_packs/<name>/ in pack format 1: pack.json, items/<game_item_id>/<variant>.png and skills/<skill_id>/<variant>.png. The first pack with a PNG for an id and variant wins; without one the procedural icon is drawn. Read by MisoIconResolver (scripts/ui/common/icon_resolver.gd); see docs/runtime/UI.md \"Icon packs\" and docs/adr/0001-icon-packs.md.",
+  "packs": ["maplestory_io"],
+  "reason": "Presentation, the owner's decision of 2026-10-09 (#49): item and skill icons resolve through layered icon packs over the procedural base. maplestory_io is the maplestory.io MCW/CBT2 pack built by tools/icons (#50). Its PNGs are fetched and never committed, so a fresh clone has none and draws every icon procedurally.",
+  "verified": false
+}
