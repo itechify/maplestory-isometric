@@ -1,7 +1,8 @@
 extends DataValidationTestCase
 ## The provenance validation report (brief Phase 17; ProvenanceReport, written by `validate_data.sh --report`): every
 ## canonical record and property with its authority, URL, read time and capture; every unresolved value; every
-## adaptation with its verified flag and reason; counts that add up; and the same output for the same data.
+## adaptation with its verified flag and reason; every icon pack from its pack.json; counts that add up; and the same
+## output for the same data.
 
 func parity_keys() -> Dictionary:
 	return {
@@ -128,7 +129,8 @@ func test_same_data_same_report() -> void:
 	assert_eq(JSON.stringify(a), JSON.stringify(b), "deterministic JSON")
 	var md := ProvenanceReport.to_markdown(a)
 	assert_eq(md, ProvenanceReport.to_markdown(b), "deterministic markdown")
-	for heading in ["# Provenance validation report", "## Summary", "## Records", "## Properties", "## Unresolved values", "## Adaptations"]:
+	for heading in ["# Provenance validation report", "## Summary", "## Records", "## Properties", "## Unresolved values", "## Adaptations",
+			"## Icon packs"]:
 		assert_true(md.contains("\n" + heading + "\n") or md.begins_with(heading + "\n"), "heading %s" % heading)
 
 
@@ -140,3 +142,80 @@ func test_findings_are_attached_to_their_record() -> void:
 	var record: Dictionary = doc.records.filter(func(r: Dictionary) -> bool: return r.domain == "shops" and r.id == shop)[0]
 	assert_true(record.findings.any(func(f: Dictionary) -> bool: return f.severity == "error" and BOGUS in f.message), "the record lists its error: %s" % str(record.findings))
 	assert_true(doc.validation.errors > 0, "the run's error count")
+
+
+func test_icon_packs_are_reported_from_pack_json_alone() -> void:
+	# A folder of this process's own (user:// is shared by every checkout and copy that runs the suite) with a fake
+	# pack, a pack.json that does not parse, one that is not an object and a folder without one.
+	var dir := "user://zz_icon_packs_report_%d" % OS.get_process_id()
+	var variant := func(id: String, v: String, fetched: String) -> Dictionary:
+		return {"url": "https://example.test/item/%s/%s" % [id, v], "sha256": "ab", "size": [26, 27], "origin": [-4, 27], "fetched": fetched}
+	_write_text(dir.path_join("zz_fake/pack.json"), JSON.stringify({
+		"format": 1, "name": "zz_fake", "source": {"service": "example.test", "region": "R", "version": "V1"},
+		"items": {
+			"4000001": {"icon": variant.call("4000001", "icon", "2026-10-09")},
+			"2000000": {"icon": variant.call("2000000", "icon", "2026-10-09"), "iconRaw": variant.call("2000000", "iconRaw", "2026-10-01")},
+			"1002000": {"icon": {}},
+		},
+		"skills": {"0001000": {"icon": variant.call("0001000", "icon", "2026-10-09")}},
+		"missing": [{"kind": "item", "id": "4000001", "variant": "iconRaw", "reason": "http 404"}],
+	}))
+	_write_text(dir.path_join("zz_broken/pack.json"), "{not json")
+	_write_text(dir.path_join("zz_list/pack.json"), "[1, 2]")
+	DirAccess.make_dir_recursive_absolute(dir.path_join("zz_none"))
+	var c := clone_db()
+	var doc := ProvenanceReport.build(c, run_validator(c), dir)
+	assert_eq(doc.icon_packs.map(func(p: Dictionary) -> String: return p.name), ["zz_broken", "zz_fake", "zz_list"],
+		"packs by name; a folder without pack.json is none")
+	assert_eq(doc.counts.icon_packs, 3, "count")
+	if doc.icon_packs.size() != 3:
+		_remove_tree(dir)
+		return
+	var fake: Dictionary = doc.icon_packs[1]
+	assert_eq([fake.format, fake.problem, fake.source.version], [1, null, "V1"], "format, no problem, source")
+	assert_eq(fake.items.map(func(e: Dictionary) -> String: return e.id), ["2000000", "4000001"], "numeric order; an empty record covers nothing")
+	if fake.items.size() == 2:
+		assert_eq(fake.items[0].variants, ["icon", "iconRaw"], "the recorded variants")
+		assert_eq(fake.items[0].fetched, ["2026-10-01", "2026-10-09"], "their fetch dates")
+	assert_eq(fake.skills.map(func(e: Dictionary) -> String: return e.id), ["0001000"], "skills")
+	assert_eq(fake.missing, [{"kind": "item", "id": "4000001", "variant": "iconRaw", "reason": "http 404"}], "the miss and its reason")
+	assert_true(str(doc.icon_packs[0].problem).begins_with("pack.json does not parse (line "),
+		"a broken manifest is a row with its problem: %s" % doc.icon_packs[0].problem)
+	assert_eq(doc.icon_packs[2].problem, "pack.json is not a JSON object", "and so is one that is not an object")
+	var md := ProvenanceReport.to_markdown(doc)
+	var section := md.substr(md.find("\n## Icon packs\n"))
+	for line in ["### zz_fake", "Source: example.test, region R, version V1. Manifest: `%s`, format 1." % dir.path_join("zz_fake/pack.json"),
+			"Covered: 2 items and 1 skills. Missing: 1 variants.", "| item | 2000000 | icon, iconRaw | 2026-10-01, 2026-10-09 |",
+			"| skill | 0001000 | icon | 2026-10-09 |", "| item | 4000001 | iconRaw | http 404 |",
+			"The manifest cannot be read: pack.json is not a JSON object.", "### zz_broken"]:
+		assert_true(section.contains("\n" + line + "\n"), "markdown line: %s" % line)
+	assert_true(md.contains("| Icon packs (covered IDs, missing variants) | zz_broken: 0 items, 0 skills covered, 0 variants missing; " +
+		"zz_fake: 2 items, 1 skills covered, 1 variants missing; zz_list: 0 items, 0 skills covered, 0 variants missing |"),
+		"summary row")
+	for image in [".png", "![", "<img", "example.test/item"]:
+		assert_false(section.contains(image), "no image or icon URL in the section: %s" % image)
+	# PNGs in the pack folder change nothing: the report reads pack.json alone.
+	_write_text(dir.path_join("zz_fake/items/2000000/icon.png"), "not read")
+	_write_text(dir.path_join("zz_fake/items/9999999/icon.png"), "not read")
+	assert_eq(JSON.stringify(ProvenanceReport.icon_pack_rows(dir)), JSON.stringify(doc.icon_packs), "the same rows with PNGs present")
+	_remove_tree(dir)
+	# The bundled maplestory.io pack (tools/icons/) is listed from its tracked pack.json.
+	var bundled: Array = ProvenanceReport.icon_pack_rows(ProvenanceReport.ICON_PACKS_DIR).filter(func(p: Dictionary) -> bool: return p.name == "maplestory_io")
+	assert_eq(bundled.size(), 1, "the maplestory_io pack")
+	if bundled.size() == 1:
+		assert_eq([bundled[0].problem, bundled[0].source.get("service", null)], [null, "maplestory.io"], "readable, from maplestory.io")
+
+
+static func _write_text(path: String, text: String) -> void:
+	DirAccess.make_dir_recursive_absolute(path.get_base_dir())
+	var f := FileAccess.open(path, FileAccess.WRITE)
+	f.store_string(text)
+	f.close()
+
+
+static func _remove_tree(dir: String) -> void:
+	for d in DirAccess.get_directories_at(dir):
+		_remove_tree(dir.path_join(d))
+	for f in DirAccess.get_files_at(dir):
+		DirAccess.remove_absolute(dir.path_join(f))
+	DirAccess.remove_absolute(dir)

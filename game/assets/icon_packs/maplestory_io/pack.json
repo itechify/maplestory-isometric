@@ -1,0 +1,401 @@
+{
+  "format": 1,
+  "name": "maplestory_io",
+  "source": {"service": "maplestory.io", "region": "MCW", "version": "CBT2"},
+  "items": {
+    "1002000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002000/icon", "sha256": "5158cce974945b37f5d1bb03a75ae64b1a3d8e1548269fef2ada9502fa437af2", "size": [27, 30], "origin": [-2, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002000/iconRaw", "sha256": "ef5b1b4a0ecdb0438ba94f64a8edab98e18a8103f5833ffa77df9d76baaeee46", "size": [26, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1002001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002001/icon", "sha256": "e5bf74b59675ef16c5c8a35c4801fdb7ed592f2203e4826460213574d6e54679", "size": [27, 30], "origin": [-2, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002001/iconRaw", "sha256": "356cd90508ff7708e5ba02046403f2b0325609002c46e31c737925dacff8b4d1", "size": [26, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1002002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002002/icon", "sha256": "929b33fa452a0614775cca2111e0ffedba6d9fce6b4f14ee9fd35fdfe5e4fd31", "size": [27, 30], "origin": [-2, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002002/iconRaw", "sha256": "3f753d17d45d892680a3ae3443ca70264efcfa63e37e9caa1c1bf38e4122bbe9", "size": [26, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1002003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002003/icon", "sha256": "cd611da6de822441ec1040d7a8bbdd64eacc243b678e971d139fdf7c19d2c026", "size": [28, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002003/iconRaw", "sha256": "bb338a19b8d04ab88b6bc2d7985834d01c2d2224a1f698f2dc0702691a507db8", "size": [28, 19], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1002004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002004/icon", "sha256": "ba6894c2813d09432ec882255cbc1320362da18a3b9906ba12a10d5381ebe26c", "size": [28, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002004/iconRaw", "sha256": "9feec9ac531e763c81fd1444a1e0af16c2327be4b8de9bbc34749bfd43cf05d8", "size": [28, 19], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1002005": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002005/icon", "sha256": "8001b390cb87886ad104fff7d6434a4c31d5d640aa0edb7a79ab5b89372a88c8", "size": [29, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002005/iconRaw", "sha256": "762355d3e41b996df01e07f5f2c8b49a71f63c1db5c67b258fab551edaf0c2fe", "size": [28, 19], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1002006": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002006/icon", "sha256": "d9d7097e2b12ecb5b6c199d2941d6f2c862e2f745ce4895590e72e2b24b35686", "size": [28, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002006/iconRaw", "sha256": "e7b458802d03cb37486f206d25928bf300734e9f4b0c7c09f851ec8183e36106", "size": [28, 19], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1002007": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002007/icon", "sha256": "d1c342e839ecf94161da73e3bb4f12843cbfd4c221a993e03a6028a870488a79", "size": [28, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002007/iconRaw", "sha256": "f15ba1aa156f1f2a5ce8c7041a69c541b0c14a742a3b16e9cf85007fbfbe1db2", "size": [28, 19], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1002016": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002016/icon", "sha256": "52e451f28985754f9307ec20d21db04ee70d555a8fdca05f9b036c7d6590b2e0", "size": [31, 31], "origin": [0, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002016/iconRaw", "sha256": "8d98b03f3bfb5089a336c68aa0098303d74df7d52ae3c7cd327d8131a385967b", "size": [31, 30], "origin": [0, 31], "fetched": "2026-10-09"}
+    },
+    "1002023": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002023/icon", "sha256": "94e5de525d13c96da312a5e40d168597ad453835edb91f0d2ad065160d1b1af7", "size": [29, 26], "origin": [-2, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1002023/iconRaw", "sha256": "c19bdd2815a8a05a8f779494fac5eb3e64007dc9fe46c39a95809a4000cfac47", "size": [29, 21], "origin": [-2, 26], "fetched": "2026-10-09"}
+    },
+    "1032001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1032001/icon", "sha256": "31f60e562810ee92053d48921e3bd140e42895b3878b359d1b6e0a6424521512", "size": [29, 26], "origin": [-2, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1032001/iconRaw", "sha256": "ad3e15fd8e564d2d1106a02d382953b6ab2d88320c88cfb820987dba1f07be16", "size": [29, 22], "origin": [-2, 26], "fetched": "2026-10-09"}
+    },
+    "1040001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040001/icon", "sha256": "2e5f726a23c6d487933aa0f76ebbfa24d43268ea5b3d1ed638ea2643b5e4db6f", "size": [30, 28], "origin": [-1, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040001/iconRaw", "sha256": "bc8cfbe31b6307ed67b540b87f1bcb7e75ca8b9b33970b8d2f4c092e532bc991", "size": [30, 26], "origin": [-1, 28], "fetched": "2026-10-09"}
+    },
+    "1040002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040002/icon", "sha256": "0c3a6b3ae0faa32b9829766f2a0005a8a25bd32ba5dae28c9d337e4cc6c13983", "size": [30, 28], "origin": [-1, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040002/iconRaw", "sha256": "13233cdb3e56e8f83eb2060efbcd0430008209332e4b0a8d7d58d504db6652a1", "size": [30, 26], "origin": [-1, 28], "fetched": "2026-10-09"}
+    },
+    "1040003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040003/icon", "sha256": "ee92a53db40797b2d2235f089db7aa07587148a4a1aa08b80e388346630bbdf9", "size": [26, 28], "origin": [-4, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040003/iconRaw", "sha256": "de47110c8c935fd172b06d14caed945abcef1bb8498ae6c58713aec1f130d390", "size": [23, 25], "origin": [-4, 28], "fetched": "2026-10-09"}
+    },
+    "1040007": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040007/icon", "sha256": "d801a455c068fd4c4e7717e0b57815afd739406874ae83155197ecfa3d3fc58f", "size": [28, 28], "origin": [-2, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040007/iconRaw", "sha256": "55ef254df6238810aaf0966e00cf0f04a2c783b8a75975165fa1c4198646fc64", "size": [28, 26], "origin": [-2, 28], "fetched": "2026-10-09"}
+    },
+    "1040013": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040013/icon", "sha256": "2e01b07022cda590c45e250e8d747b6672e1308eb5c2e05bf175037e9ce162a2", "size": [30, 28], "origin": [-1, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1040013/iconRaw", "sha256": "40d12dad40c3ba4b01953e6f8e4866e46e53d04dcf186ec78a194b4afe142b32", "size": [30, 26], "origin": [-1, 28], "fetched": "2026-10-09"}
+    },
+    "1041001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041001/icon", "sha256": "f734f5ee6cb277fb49844901e35332af015e0b6f8320eb81247da5eabbf52a2a", "size": [26, 22], "origin": [-4, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041001/iconRaw", "sha256": "2a929e2e9a131dbda614023629b4118b7d724c73dd71eb4d69fdf5708e5a1dcb", "size": [25, 12], "origin": [-4, 22], "fetched": "2026-10-09"}
+    },
+    "1041002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041002/icon", "sha256": "72f1f2ed4cef03c9d6619bb23a903b7ffe7e8601e8a77cb3fda86edf0c398d22", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041002/iconRaw", "sha256": "23c618b2fab118e5eaccc0cb7b8468fcbfb74690a0c89cdc52f5c589f8534f34", "size": [26, 23], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "1041003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041003/icon", "sha256": "f66a410ee1af26ed1525c2f303d4bb920c61ccf39f7f3b1aa3e4637681e27595", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041003/iconRaw", "sha256": "efcaa0c19e8738a990228043adb8c5c7b5970de8d648eb136fb0f0e0797a167e", "size": [26, 23], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "1041004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041004/icon", "sha256": "a57f76903983ae8b7fe47df089d74a857b9153ad816028548b001ee166584d4a", "size": [26, 25], "origin": [-4, 25], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041004/iconRaw", "sha256": "d65e445b82d3ef3a040ac2869c51e997d6187cc8a40e2475d3d5168814fa9d14", "size": [23, 19], "origin": [-5, 25], "fetched": "2026-10-09"}
+    },
+    "1041015": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041015/icon", "sha256": "ac4451f9c06d1772a535ff76904989d844098470275861848c2edc76bdb129b8", "size": [26, 28], "origin": [-3, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1041015/iconRaw", "sha256": "4fac5168e0179c53c2fea1fb8e761841ce1890aa29771997d393cf2fe06ea000", "size": [26, 24], "origin": [-3, 28], "fetched": "2026-10-09"}
+    },
+    "1060001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060001/icon", "sha256": "005c02f6377dc70d372d277b2399ad20ebdcb0898a03c8dce528d0591095ea88", "size": [26, 23], "origin": [-4, 23], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060001/iconRaw", "sha256": "fe25a2f67e8945d5d2f6fb638bdf88e5af2e862de5c385678b8e0a5ade1ee3ee", "size": [25, 16], "origin": [-4, 23], "fetched": "2026-10-09"}
+    },
+    "1060002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060002/icon", "sha256": "3982c27c76cd12b99060f416f0004ccac7e57d42eb092b1c55aa87138ff9459b", "size": [26, 23], "origin": [-4, 23], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060002/iconRaw", "sha256": "bc707db88a24d93a895b9fd47a2ef4939cc34629320078358e23376b4d5e767d", "size": [25, 16], "origin": [-4, 23], "fetched": "2026-10-09"}
+    },
+    "1060003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060003/icon", "sha256": "e65c38480c7e4daf4ccf0e319e19302912b9ee11683f08578936401db85e4fca", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060003/iconRaw", "sha256": "bee64d60e8f5d537a4d33633ace4cb79706264e11c48ef674f247891c41cdb4b", "size": [25, 21], "origin": [-4, 26], "fetched": "2026-10-09"}
+    },
+    "1060008": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060008/icon", "sha256": "2b348a0734484bb8ce6e1c8d600a60e95f0e874703f3734a18f22a9c39f854e0", "size": [26, 28], "origin": [-4, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060008/iconRaw", "sha256": "f5bec4631e701d1e33b1f9a9dadd500dce2212ad58450095cf0aa0a8f8668f5e", "size": [23, 23], "origin": [-5, 28], "fetched": "2026-10-09"}
+    },
+    "1060011": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060011/icon", "sha256": "8bb67c7b7ddffd78328d1291b1d063d7939d4a625b0b11b44983aa71a663e4f4", "size": [26, 29], "origin": [-4, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1060011/iconRaw", "sha256": "24028164f85da44615e67362766488cfb723a55e7ed6d5a5cec013c883478e70", "size": [22, 27], "origin": [-5, 29], "fetched": "2026-10-09"}
+    },
+    "1061001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061001/icon", "sha256": "0f11edf0698fb6dc413ec0085db19b497810ccf5183a15de4ee9c133d8d04301", "size": [26, 23], "origin": [-3, 24], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061001/iconRaw", "sha256": "3fedbbed7e8e37c42f15fe132cd2e03c2161c3f1bcf3c7726148cf6957cf4f46", "size": [25, 17], "origin": [-3, 24], "fetched": "2026-10-09"}
+    },
+    "1061002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061002/icon", "sha256": "a7be8036985a31ff40363fcc516e5ccb1d0ade02307f709303483f55aa3fe387", "size": [26, 23], "origin": [-3, 24], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061002/iconRaw", "sha256": "547bd58d455fc36a94e43fa0473f755f6273e481c28f5da3dd6b16932e0578fd", "size": [25, 17], "origin": [-3, 24], "fetched": "2026-10-09"}
+    },
+    "1061007": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061007/icon", "sha256": "15a1b288457587102c908f5a5b87b614ed4e948c15a87fb290fb0549f9a16178", "size": [28, 25], "origin": [-3, 25], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061007/iconRaw", "sha256": "cc0564f60649fe2c34de49b236d68f6bd140320b17fc3533f93616017ab3df99", "size": [28, 21], "origin": [-3, 25], "fetched": "2026-10-09"}
+    },
+    "1061009": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061009/icon", "sha256": "e9393674a4d9e97661bf8d019e6fc896d4519b3ccee6d5bfb9f8fcf208534423", "size": [26, 25], "origin": [-4, 25], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1061009/iconRaw", "sha256": "463809f1ecf2df28a5aceb777536df014dd09af6117693e540e6f02bf708ee52", "size": [23, 18], "origin": [-5, 25], "fetched": "2026-10-09"}
+    },
+    "1062001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1062001/icon", "sha256": "a7fac722ecec77e4c0642e64b2d4d66211f4df0504acbd1b2d6fd4107f6eb486", "size": [26, 30], "origin": [-4, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1062001/iconRaw", "sha256": "1b40d07510e9749397cbd2fc73ca4e242b9002c3f8c6215842d8c64c996f0a14", "size": [25, 29], "origin": [-4, 30], "fetched": "2026-10-09"}
+    },
+    "1072000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072000/icon", "sha256": "20faa2c64256ac153b4c47d81e36701d670fc3536edb3bbb932cd9f609392f86", "size": [26, 27], "origin": [-3, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072000/iconRaw", "sha256": "51baaddb388f6bfdf2878522fdec751d0e2d08da183e2f9bd85ce54bcf3da26e", "size": [22, 25], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "1072001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072001/icon", "sha256": "92f18130c1526a215ad91fc53364f02f1152b2d15f5962f959fadfd8c7eac1e3", "size": [26, 30], "origin": [-2, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072001/iconRaw", "sha256": "dcd43f494358cb1d932e5536cfcd03b616fca37f4e324a535c7e72dabf7beec0", "size": [24, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1072003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072003/icon", "sha256": "6bc6e5eb18c73b7ec0086f80d84449749b01ad3430b02f7e520a9e68242d4349", "size": [26, 30], "origin": [-1, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072003/iconRaw", "sha256": "3417783159d165ec5cf469e49f9999a7a5012de9c4481c159076d4afb639b532", "size": [24, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1072008": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072008/icon", "sha256": "e1fd284641501ab7a97eedfbfbfa41ee252af2b5c3988cdd4b9294db59f88285", "size": [27, 32], "origin": [-3, 32], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072008/iconRaw", "sha256": "fe4bb3673549d457e7aa2b54d939b9cb4f47dc66d4805392116d8b89af2063ec", "size": [25, 31], "origin": [-3, 32], "fetched": "2026-10-09"}
+    },
+    "1072011": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072011/icon", "sha256": "f106cbe30b79e04a03d3b6818c20a36560aeb640247b7308398c0f96b3bdcb97", "size": [28, 22], "origin": [-2, 22], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072011/iconRaw", "sha256": "8742bc7195a8bfb2ec7c1eee6cda6d9b4424fb527bf440b216ca2b8b370a4c00", "size": [28, 20], "origin": [-2, 22], "fetched": "2026-10-09"}
+    },
+    "1072019": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072019/icon", "sha256": "f8643104d4eb4af1e625343abb5660d2fda8464daff68767783fa80c9e29d95f", "size": [26, 28], "origin": [-3, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072019/iconRaw", "sha256": "317396ab6bbf33c8cb52730465bb205309eb566378d94166107901aae3bbcdcd", "size": [25, 27], "origin": [-3, 28], "fetched": "2026-10-09"}
+    },
+    "1072021": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072021/icon", "sha256": "c96d649b802ceccb0a8a5e6d15d0ef7dc450c47b4158cfaafcb8f9ca02f70c21", "size": [27, 31], "origin": [-4, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1072021/iconRaw", "sha256": "6d64ac4ccd083f6fb36d0f2f2b725c1a2f0af8ed28ed204e435675040f336180", "size": [25, 30], "origin": [-4, 31], "fetched": "2026-10-09"}
+    },
+    "1082004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1082004/icon", "sha256": "540ad4c0bbbf1c0cd66302824a97c331ca45e6defa1fc4adbbe7d4eb551dce36", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1082004/iconRaw", "sha256": "f414d475e911430659a6569929be51c9fc96b7b5db3f3e59651a995b754256bc", "size": [24, 23], "origin": [-5, 26], "fetched": "2026-10-09"}
+    },
+    "1082005": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1082005/icon", "sha256": "b4e44e5ced59fb655ca07f4baa3ef29a59f19fc2ba160fbd3634cd6305763e89", "size": [26, 24], "origin": [-4, 24], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1082005/iconRaw", "sha256": "d1644567f5f1a2ee1497fe9c8081d9b5a09fa865c5385720cabc8a03dfd3eb53", "size": [24, 23], "origin": [-6, 24], "fetched": "2026-10-09"}
+    },
+    "1302000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302000/icon", "sha256": "eb4bea443525668c0e3a62fc3eb14b18cc7bba33dd83b3863c32e5dd12a7bb9d", "size": [31, 30], "origin": [0, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302000/iconRaw", "sha256": "4d22e287d1e88dbba1f26692c5a303aaf7b628a72a7160889057162ae01030ac", "size": [31, 29], "origin": [0, 30], "fetched": "2026-10-09"}
+    },
+    "1302001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302001/icon", "sha256": "bea1533c496fa0fbb0e0439edfdbeead8e73a2b3dfc56a93f73c922b9afd03cb", "size": [32, 31], "origin": [0, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302001/iconRaw", "sha256": "fbcde62d6aee2d3880a2233efa353e5a21d8cfad183a00fc958383981a60a615", "size": [32, 30], "origin": [0, 31], "fetched": "2026-10-09"}
+    },
+    "1302008": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302008/icon", "sha256": "67f94c4045a922e6c5dc3bdd47c552a9bc2e04f1925eb0c80620dd9d230cf7c6", "size": [30, 31], "origin": [-2, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1302008/iconRaw", "sha256": "cf8830f3d433128470e735c897d66d4bb249803414d52f85848c0aeed598fb04", "size": [30, 30], "origin": [-2, 31], "fetched": "2026-10-09"}
+    },
+    "1312000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1312000/icon", "sha256": "892f1de14b3e03d6171367a604126f5358e9fcd1bfcc04036c82398091c57158", "size": [30, 32], "origin": [0, 32], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1312000/iconRaw", "sha256": "1716cbc340ab50bb50d0ebaf93863de04cb5b7c8fba37cdb8d00b63e8b41135b", "size": [26, 32], "origin": [0, 32], "fetched": "2026-10-09"}
+    },
+    "1312001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1312001/icon", "sha256": "1832e3e16519e6db1d8953fdfc20ea1b1681a17a5207c228365e4e10020072bb", "size": [31, 31], "origin": [0, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1312001/iconRaw", "sha256": "e564888efc2e6f7ca85a193fa317bfba41baf8c56ca1b537f871676df8f700cb", "size": [31, 31], "origin": [0, 31], "fetched": "2026-10-09"}
+    },
+    "1322000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322000/icon", "sha256": "f5e23574b3232fa45304764e3b9a5708277226502d882edb92a4fca1f6a523c6", "size": [28, 30], "origin": [-2, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322000/iconRaw", "sha256": "b0e0958022733d2b01a49f70761d7517bf3e49f0814e4771d0fdf2fdf02ae175", "size": [28, 29], "origin": [-2, 30], "fetched": "2026-10-09"}
+    },
+    "1322002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322002/icon", "sha256": "c0eaa31f9f56b7c0a0875124e96bd54efa03880f16cbf3efad69ca06a261f526", "size": [26, 28], "origin": [-4, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322002/iconRaw", "sha256": "dd65daabf35627cd9b5d83e8424172581121623551ac04012e7282c145308da6", "size": [22, 23], "origin": [-4, 28], "fetched": "2026-10-09"}
+    },
+    "1322008": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322008/icon", "sha256": "32e95de2b88601aef2a29422fb76931ab2292ce01b22f92503ecdd003e635076", "size": [30, 31], "origin": [-1, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1322008/iconRaw", "sha256": "d7297b1cc7f031dc5b46f5872347c650d213848a609ed9da2794982e23b6f40b", "size": [30, 30], "origin": [-1, 31], "fetched": "2026-10-09"}
+    },
+    "1332000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332000/icon", "sha256": "6e5d7d9c0f18c7b232c5e93cb6e4e1eb4bd5f120d0615897316bbf498da0692d", "size": [28, 26], "origin": [-2, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332000/iconRaw", "sha256": "812fa3009ebd919f4c0430749d638060e0a0bcc80ab92c8c1a7f1b26c7dad55e", "size": [24, 25], "origin": [-2, 26], "fetched": "2026-10-09"}
+    },
+    "1332001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332001/icon", "sha256": "4eddb9686734d7179629cca597ecfb7673935cab67f53eb739c459d3438b70a5", "size": [29, 24], "origin": [-2, 24], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332001/iconRaw", "sha256": "f48fb522be9a44604ee8a6f11366155f05a99e27563570ecdc47cb86d5b7ecd4", "size": [27, 23], "origin": [-2, 24], "fetched": "2026-10-09"}
+    },
+    "1332003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332003/icon", "sha256": "1dc681caa5c09141150d9351f5cfc823ad098956336fc3ddd1fb72c478886b3d", "size": [26, 30], "origin": [-3, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1332003/iconRaw", "sha256": "a930330cd5ff0127b6e8b6ee82bd8ea152a0ad40240d4d6a6225200a4d06959b", "size": [26, 29], "origin": [-3, 30], "fetched": "2026-10-09"}
+    },
+    "1372002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1372002/icon", "sha256": "ae76d894eab4643722bcf6b3b053bdbd8b508fdcd3ebb736006d5471ab3a3fd5", "size": [28, 27], "origin": [-2, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1372002/iconRaw", "sha256": "6143623e6f235abfa6dc6556a688035938083a1c4c01f986ee6953301cc30256", "size": [26, 26], "origin": [-2, 27], "fetched": "2026-10-09"}
+    },
+    "1402000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1402000/icon", "sha256": "d5787b2bc1e25c101ee3b341f106bff1b96be025c05dc1a4a2ec84840c99bc6e", "size": [31, 27], "origin": [0, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1402000/iconRaw", "sha256": "504fb7fe83e985da31541fd7978488ebeaf2a159aff24db4eb8a95d84d61a5a8", "size": [31, 26], "origin": [0, 27], "fetched": "2026-10-09"}
+    },
+    "1432000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1432000/icon", "sha256": "eb4ba6231aa96afbd7b12a4f51a7c5cbc8d2ff6fd0916410eff1ec440b068049", "size": [33, 35], "origin": [0, 35], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1432000/iconRaw", "sha256": "6b0040bf98ef88b0028e5ce00d5961cb6f1e7eb198082f6017b9c207beabedae", "size": [33, 34], "origin": [0, 35], "fetched": "2026-10-09"}
+    },
+    "1452002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/1452002/icon", "sha256": "894a20e21ca3c59929138579251c3ba40696761662cfe732e3032158c4c6d812", "size": [30, 30], "origin": [-1, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/1452002/iconRaw", "sha256": "299ea3f728864b7baa42c1d902735fb90ec9b6cc2b28d025032927406b4b9900", "size": [30, 29], "origin": [-1, 30], "fetched": "2026-10-09"}
+    },
+    "2000000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000000/icon", "sha256": "af192ca5ec28c6c957ec326b26b4a1e56af2656097d462c51ecf0aefbe01591a", "size": [27, 30], "origin": [-3, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000000/iconRaw", "sha256": "8667fd2a4d53a126caae384a15fc319680bb5eb3e2b2d19714a7220709f58788", "size": [27, 27], "origin": [-3, 30], "fetched": "2026-10-09"}
+    },
+    "2000001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000001/icon", "sha256": "a3bc10f54a8ea056f36e1797bd370d413d12949afc60e8f97e9cf3c180ad8f59", "size": [27, 30], "origin": [-3, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000001/iconRaw", "sha256": "267be74f51dc39134f49afe3c8a77725f01aa5ebe9735b25793e18c27c489925", "size": [27, 27], "origin": [-3, 30], "fetched": "2026-10-09"}
+    },
+    "2000003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000003/icon", "sha256": "f918f40c8c8487700d42fbc3ce9df64032f5fa506407115bb63b17db071a788c", "size": [27, 30], "origin": [-3, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2000003/iconRaw", "sha256": "085ca9d55fc72aa53a027759306eefbbdce9e7258f0b10e9ab6d4c0c1e213016", "size": [27, 27], "origin": [-3, 30], "fetched": "2026-10-09"}
+    },
+    "2010000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010000/icon", "sha256": "7ed67fbdadfb52323614f55eb5c46df5b717c76e9093671d61787d0d791399d4", "size": [26, 30], "origin": [-4, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010000/iconRaw", "sha256": "a1c0c77a16053934165fefeba19c7d59d07123ad934ec896dc356e8e2f56bb3d", "size": [20, 25], "origin": [-6, 30], "fetched": "2026-10-09"}
+    },
+    "2010001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010001/icon", "sha256": "7ed67fbdadfb52323614f55eb5c46df5b717c76e9093671d61787d0d791399d4", "size": [26, 30], "origin": [-4, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010001/iconRaw", "sha256": "a1c0c77a16053934165fefeba19c7d59d07123ad934ec896dc356e8e2f56bb3d", "size": [20, 25], "origin": [-6, 30], "fetched": "2026-10-09"}
+    },
+    "2010002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010002/icon", "sha256": "f2dd62a8aff5247561b8cdb613d8b9e8b9e894d20d5e615dcbad76828573d8e4", "size": [27, 25], "origin": [-3, 25], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010002/iconRaw", "sha256": "cb5f48d845b041859bc1827cb512857e4a37477449eb5450dcbd7a2c9c82b102", "size": [27, 21], "origin": [-3, 25], "fetched": "2026-10-09"}
+    },
+    "2010003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010003/icon", "sha256": "e133bcd3147894a283434ea2387f9a6369b428f5cd28fc7516e90ff634e31b87", "size": [29, 31], "origin": [-2, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010003/iconRaw", "sha256": "268873389a2c37f22cf2e9cb36e6e0814f432dcf6a4b782f3251adf755c1609c", "size": [29, 30], "origin": [-2, 31], "fetched": "2026-10-09"}
+    },
+    "2010004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010004/icon", "sha256": "1f51f2d70328d107c8b9d177adcfa3af6a9443c2c2d3a7bcf47e93db19db5a6f", "size": [26, 25], "origin": [-3, 25], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010004/iconRaw", "sha256": "0aa398e764104ff5ef5fda77850ba18a4f852be9f46e8cf574746dc1579e19f9", "size": [21, 20], "origin": [-5, 25], "fetched": "2026-10-09"}
+    },
+    "2010005": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010005/icon", "sha256": "3090fb6422796e59f487a69180f24b4623fbcf68648c88f3d7402a3ebfa693b7", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2010005/iconRaw", "sha256": "f6ee644e9d59884458e8f7480afc12063186b0cbc3fd22d6fbc4edd991d9d82b", "size": [19, 21], "origin": [-7, 26], "fetched": "2026-10-09"}
+    },
+    "2040501": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2040501/icon", "sha256": "9413e5fd82dbd24871a2c608692c585ceeef0007ddf809a8ee25005ef987cd71", "size": [30, 29], "origin": [-1, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2040501/iconRaw", "sha256": "b8e05d0f579b73f22a90d51c1fc2fc5c91ede7941705e5a1d666375c5061c464", "size": [30, 26], "origin": [-1, 29], "fetched": "2026-10-09"}
+    },
+    "2040510": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2040510/icon", "sha256": "940abbfbcc72e46e618ee2ff78f4530bbb61be88fbba7919bbe4f20e6e0cf95e", "size": [30, 29], "origin": [-1, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2040510/iconRaw", "sha256": "275b0814f3e137e5c1b71177bea9fc821a85aabc09a4e4857f228fffb4bed5d0", "size": [30, 26], "origin": [-1, 29], "fetched": "2026-10-09"}
+    },
+    "2041001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2041001/icon", "sha256": "9413e5fd82dbd24871a2c608692c585ceeef0007ddf809a8ee25005ef987cd71", "size": [30, 29], "origin": [-1, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2041001/iconRaw", "sha256": "b8e05d0f579b73f22a90d51c1fc2fc5c91ede7941705e5a1d666375c5061c464", "size": [30, 26], "origin": [-1, 29], "fetched": "2026-10-09"}
+    },
+    "2041005": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2041005/icon", "sha256": "9413e5fd82dbd24871a2c608692c585ceeef0007ddf809a8ee25005ef987cd71", "size": [30, 29], "origin": [-1, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2041005/iconRaw", "sha256": "b8e05d0f579b73f22a90d51c1fc2fc5c91ede7941705e5a1d666375c5061c464", "size": [30, 26], "origin": [-1, 29], "fetched": "2026-10-09"}
+    },
+    "2060000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2060000/icon", "sha256": "a67c52cd924a9c4db4bd8cc66351599c425248ce16eda18b8180c56910dcafd6", "size": [32, 32], "origin": [0, 32], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2060000/iconRaw", "sha256": "a44fd8c305e44e8a0d93d561a280c3b6b867aacdbf05886aa4a04cb082e258e2", "size": [32, 31], "origin": [0, 32], "fetched": "2026-10-09"}
+    },
+    "2061000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2061000/icon", "sha256": "0ffb5ed930b752930c4f31a2de1d8f8474aed7603aa5f9fde982b5fe1d603ba0", "size": [32, 32], "origin": [0, 32], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2061000/iconRaw", "sha256": "aa007e3a26318b81a4444239c581bd4dbd2bcec692c70104a028d3b3918252a9", "size": [32, 31], "origin": [0, 32], "fetched": "2026-10-09"}
+    },
+    "2120000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/2120000/icon", "sha256": "1e1b7963a68cb6978404634b03c409748f9a4ac9c936b5a0c458c4720665f61a", "size": [26, 32], "origin": [-4, 32], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/2120000/iconRaw", "sha256": "eca6d5464d1bc0aef633df42fff349a596d02c3ef5ef7cdd10c17a09f0dc55e9", "size": [23, 31], "origin": [-5, 32], "fetched": "2026-10-09"}
+    },
+    "3010000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/3010000/icon", "sha256": "c3dde9b422fdffb4d2617a5cc624de6800c2931d4cafb11e0211fc1f03264a95", "size": [33, 28], "origin": [1, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/3010000/iconRaw", "sha256": "263a71d3d4402211caf46ed979fd41b8e80214a89ea7e6ef8c75343f167186d8", "size": [33, 26], "origin": [1, 30], "fetched": "2026-10-09"}
+    },
+    "3010003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/3010003/icon", "sha256": "11b7e1cea6b29c9a8ee5af05d5e49361799fea247c09c5c3fab07e68206590e7", "size": [29, 29], "origin": [-1, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/3010003/iconRaw", "sha256": "2201f8bfc270f375c5e1ceb4438b41574e371108bc1f3d5f375c12b25bfdcb72", "size": [29, 27], "origin": [-1, 29], "fetched": "2026-10-09"}
+    },
+    "4000000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000000/icon", "sha256": "62a8b2c85560ac9e169c39467b735f997ed59d7b2dd1f012cbe5320c829f45a4", "size": [27, 24], "origin": [-4, 24], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000000/iconRaw", "sha256": "4b5d674a439b4ccbc86fe8c3a63dfb885d19a9a79b0accba6d4145da768ccc02", "size": [25, 19], "origin": [-6, 24], "fetched": "2026-10-09"}
+    },
+    "4000001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000001/icon", "sha256": "1de390b861f1c9d900a4e1d2aa40ce2dca23afa72a1b4b39e40ac76a556c9bb1", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000001/iconRaw", "sha256": "b9e775100a202bea1f73ba3d6301480d8395974bef861edcfaeb6870ddad95f1", "size": [25, 25], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "4000002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000002/icon", "sha256": "92df58f07367baf0cef4426651d5b677c82e21f552907a1ed2bb8c9179aa9793", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000002/iconRaw", "sha256": "527dfc2f8fc9c8b1bf7e7b67f6034198fc07b7d86ac361ff1bd20ab723b96448", "size": [25, 25], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "4000003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000003/icon", "sha256": "16ecdab44c897c94ecbb55e9ad1779265302e7562e2db5ad3af0ea9e625a3b30", "size": [29, 30], "origin": [-1, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000003/iconRaw", "sha256": "fdc0aaa2c431ba1d9cd15ce150f5e9e2d44ee1d6d546ddffd6864ba176767f04", "size": [29, 27], "origin": [-1, 30], "fetched": "2026-10-09"}
+    },
+    "4000004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000004/icon", "sha256": "5afa5fafa855930b03f1666980b5c137e92a29ed60a568578c7bf4278b94c535", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000004/iconRaw", "sha256": "b31a0059374bac8962786a2ba8878af224de5f4abbc569ea2c6d556dd7a4963b", "size": [25, 25], "origin": [-4, 27], "fetched": "2026-10-09"}
+    },
+    "4000009": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000009/icon", "sha256": "c8fa8993ea2d42e972f852febefaff7e7fa961293ad59b43fe0092895ae2e5e9", "size": [30, 28], "origin": [-1, 28], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4000009/iconRaw", "sha256": "407c135e8d789a21a729caa62423fa0628d396df1f600823f4c0052e1a568b5e", "size": [30, 26], "origin": [-1, 28], "fetched": "2026-10-09"}
+    },
+    "4010000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010000/icon", "sha256": "23e9bbd213389d3c662cb2843235ebfd49204fa970f1baace7ad939d3a558c22", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010000/iconRaw", "sha256": "3f6cab0f2f4757961edb3168f29d7cde1c4307261388c4548b54d26fae05a105", "size": [25, 21], "origin": [-4, 26], "fetched": "2026-10-09"}
+    },
+    "4010001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010001/icon", "sha256": "ce994601a8c6975e87e92350e3c9987e0036f6785a43ee7bc6ed3d7b38b081b4", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010001/iconRaw", "sha256": "400d41ba3da029a4e7b53b510a313d99eeb7ce7d1bc3c8e9a380712e36157690", "size": [25, 21], "origin": [-4, 26], "fetched": "2026-10-09"}
+    },
+    "4010002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010002/icon", "sha256": "3e80f5f36a6b9238763cac92f503f7a1c83305ca6f0fc86437018a69cead5850", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010002/iconRaw", "sha256": "ce27421e464c876a10c1d1bdedc30da491680150abe33dee275d6145b2b0467f", "size": [25, 21], "origin": [-4, 26], "fetched": "2026-10-09"}
+    },
+    "4010004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010004/icon", "sha256": "f5a858fd9a5415f60b6a9eb06fa63733205494ba24174b68431cab6afb659e3c", "size": [26, 26], "origin": [-4, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4010004/iconRaw", "sha256": "310e7714f0dbdafbbe068d0e23bf94c936bcf1a7754be1fd2be4ce3d6c8d1685", "size": [25, 21], "origin": [-4, 26], "fetched": "2026-10-09"}
+    },
+    "4020000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020000/icon", "sha256": "3298bdf13fc8177b16106ab52f355512a056f60d07f9fdfc59e905c6b9b3f5b3", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020000/iconRaw", "sha256": "d71f763451a536abb70c99831968f8a86b8c43cbf28fbffd6141ccafb152e332", "size": [22, 22], "origin": [-5, 27], "fetched": "2026-10-09"}
+    },
+    "4020001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020001/icon", "sha256": "eff453ebed943133db7c36035312ccea53f411df19acf4620ec704af5a38e8ca", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020001/iconRaw", "sha256": "e302bef438360028cac3116b7a2417d25091c3b957d8cdadbc6299890e886a2d", "size": [22, 22], "origin": [-5, 27], "fetched": "2026-10-09"}
+    },
+    "4020002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020002/icon", "sha256": "7df35185a94acdf26d720a3a2523fa37f907236c4d61aefb8808c2ed01933684", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020002/iconRaw", "sha256": "e5f30557f3e70ff9a108c94f9e945fcdffea74d3f565a45251bce47fe85f9197", "size": [22, 22], "origin": [-5, 27], "fetched": "2026-10-09"}
+    },
+    "4020004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020004/icon", "sha256": "3a092c2e0d86ddce09a454ebda018ffb6ec45c7aa3378a6addc17215dcc9a9b9", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020004/iconRaw", "sha256": "f6bf836e0c01c09e804ab3bb98528e4dca0b8912652c0686fcd5361f56dd28c7", "size": [22, 22], "origin": [-5, 27], "fetched": "2026-10-09"}
+    },
+    "4020007": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020007/icon", "sha256": "870122a16ecc0ed12e9e7e11a31ba19c482de6075ada3f7abc62fde777b8b3ff", "size": [26, 27], "origin": [-4, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4020007/iconRaw", "sha256": "1e1b0787bf9755137dfde1363118bb94eaf05c9a19b1267e5176ab5a6d0c46ab", "size": [22, 22], "origin": [-5, 27], "fetched": "2026-10-09"}
+    },
+    "4031000": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031000/icon", "sha256": "b3ed010e301345fcee4205b591f0f03b6de587cb595aefdd326ee79ed043a9ad", "size": [32, 29], "origin": [0, 29], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031000/iconRaw", "sha256": "a2f208237a57a7c0a73c806a2327dbfe0a4296ca44cc95fee3b7f52782f4a949", "size": [32, 26], "origin": [0, 29], "fetched": "2026-10-09"}
+    },
+    "4031001": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031001/icon", "sha256": "ca4ba9281bacbbb261f92e567ae371d8ce4d6ca0068121f805dc5ab21e3cd5d9", "size": [29, 31], "origin": [-2, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031001/iconRaw", "sha256": "6b38f8cfaee53376767e5042db90681ae09c657669c137dd16711562fec9f6b4", "size": [29, 29], "origin": [-2, 31], "fetched": "2026-10-09"}
+    },
+    "4031002": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031002/icon", "sha256": "ca4ba9281bacbbb261f92e567ae371d8ce4d6ca0068121f805dc5ab21e3cd5d9", "size": [29, 31], "origin": [-2, 31], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031002/iconRaw", "sha256": "6b38f8cfaee53376767e5042db90681ae09c657669c137dd16711562fec9f6b4", "size": [29, 29], "origin": [-2, 31], "fetched": "2026-10-09"}
+    },
+    "4031003": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031003/icon", "sha256": "b0b71f1be1b7b82ede83fef600e785d28af99b3c414921ed736f674361b267d9", "size": [27, 27], "origin": [-3, 27], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031003/iconRaw", "sha256": "0eaea7d65fb01465d59ce4b3d1ecb55686f9973d6dc60949eb51c8f29e40e735", "size": [25, 24], "origin": [-3, 27], "fetched": "2026-10-09"}
+    },
+    "4031004": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031004/icon", "sha256": "80d91d8666fc7f493a69cfa93ce7229f15c0a41676003934a9f162a6e481edb9", "size": [32, 26], "origin": [0, 26], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031004/iconRaw", "sha256": "3203a58990e5cc2ddc5333249429d6413b6cff4d825c2983afa680cd3b1b6b9c", "size": [32, 21], "origin": [0, 26], "fetched": "2026-10-09"}
+    },
+    "4031045": {
+      "icon": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031045/icon", "sha256": "5b95e1c6c04aab5c9f22dd9ab44789e051da9491fb4465b1ac530fb18c264966", "size": [26, 30], "origin": [-4, 30], "fetched": "2026-10-09"},
+      "iconRaw": {"url": "https://maplestory.io/api/MCW/CBT2/item/4031045/iconRaw", "sha256": "7535aba42f858637a0bed1e95c2d1523abac4c9e6ce08a625b870f32b9e88401", "size": [22, 29], "origin": [-5, 30], "fetched": "2026-10-09"}
+    }
+  },
+  "skills": {
+    "0001000": {
+      "icon": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001000/icon", "sha256": "61097a798b6c8740dc174ed598647cd6df01f8412e0ee224eb3ea4cf9cc20187", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconMouseOver": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001000/iconMouseOver", "sha256": "3dacfe3d8140c06eee3941e4f72e1f642dc88eb30fd018dfb6dd4daa3561d42b", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconDisabled": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001000/iconDisabled", "sha256": "74c2a054d45774f2f7f4bb0bcb056ac11cb8acddc58b5bf38f5b18352045a64d", "size": [32, 32], "fetched": "2026-10-09"}
+    },
+    "0001001": {
+      "icon": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001001/icon", "sha256": "2c8115d8b6599b26a5f9684a090e06d22981b527587cdaf8a3af65b7a874503f", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconMouseOver": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001001/iconMouseOver", "sha256": "9785586c0301c08a239cfb74883eed09ec64c1ad97f201d45b153bd9d0d4b776", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconDisabled": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001001/iconDisabled", "sha256": "2506e823f8d52eafcbc421aa9f7c5417ffb0fd6d8dbfab74ad53a255a380deae", "size": [32, 32], "fetched": "2026-10-09"}
+    },
+    "0001002": {
+      "icon": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001002/icon", "sha256": "9ebc8a3224133cab28ea5953f3d9a1d65f989e8af3bee9f86394a32df27698aa", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconMouseOver": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001002/iconMouseOver", "sha256": "57a0940cef31eeb5c43b7e7a7384eff3b6cc55f334f4ca4a3ae22951b33ed14e", "size": [32, 32], "fetched": "2026-10-09"},
+      "iconDisabled": {"url": "https://maplestory.io/api/wz/img/MCW/CBT2/Skill/_Canvas/000.img/skill/0001002/iconDisabled", "sha256": "9ff02b384297e5f84d2fc89487ef13eb626984fa87b5d71d97b21e480933b990", "size": [32, 32], "fetched": "2026-10-09"}
+    }
+  },
+  "missing": []
+}

@@ -2,13 +2,15 @@ class_name ProvenanceReport
 extends RefCounted
 ## The provenance validation report (brief Phase 17): for every canonical record and every property, which authority
 ## supplied it, from which URL, when it was read and from which dated capture; every unresolved value; every MisoStory
-## adaptation with its verified flag and reason; and counts. Written by `bash scripts/validate_data.sh --report` to
-## docs/provenance_report.json (build()) and docs/PROVENANCE_REPORT.md (to_markdown()).
+## adaptation with its verified flag and reason; every bundled icon pack's source and covered and missing IDs; and
+## counts. Written by `bash scripts/validate_data.sh --report` to docs/provenance_report.json (build()) and
+## docs/PROVENANCE_REPORT.md (to_markdown()).
 ##
 ##   var doc := ProvenanceReport.build(db, DataValidator.validate(db))
 ##
-## Pure: it reads the ContentDB and the finished ValidationReport. It records no clock time (only the data's own
-## read_at / retrieved_at), so regenerating it over unchanged data gives the same files.
+## It reads the ContentDB, the finished ValidationReport and each icon pack's pack.json (never its PNGs, which a
+## checkout may not have fetched). It records no clock time (only the data's own read_at / retrieved_at / fetched), so
+## regenerating it over unchanged data gives the same files.
 ##
 ## Property rows ("properties" of a record), in this order:
 ##   (record)      the record's own `source` (its MeowDB page): it covers every value no other row names
@@ -26,10 +28,15 @@ const RECORD_PROPERTY := "(record)"
 const EXTERNAL := "external"
 ## The adaptation keys that state what a value was checked against (AdaptationChecks.VERIFIED_AGAINST).
 const VERIFIED_AGAINST := "verified_against"
+## The bundled icon packs: <pack>/pack.json each (format 1 of #49; the maplestory_io pack is built by tools/icons/).
+const ICON_PACKS_DIR := "res://assets/icon_packs"
+const ICON_PACK_FORMAT := 1
+const ICON_PACK_KINDS := {"items": "item", "skills": "skill"}
 
 
-## The report as a JSON-ready Dictionary (sorted, deterministic).
-static func build(db: ContentDB, validation: ValidationReport) -> Dictionary:
+## The report as a JSON-ready Dictionary (sorted, deterministic). `icon_packs_dir` is where the icon packs are read
+## (a test points it at a fake pack).
+static func build(db: ContentDB, validation: ValidationReport, icon_packs_dir: String = ICON_PACKS_DIR) -> Dictionary:
 	var findings_by_record := {}
 	for f in validation.findings:
 		var k := "%s/%s" % [f.domain, f.id]
@@ -84,6 +91,7 @@ static func build(db: ContentDB, validation: ValidationReport) -> Dictionary:
 		unresolved_total += unresolved[d].size()
 	var capture_list: Array = captures.keys()
 	capture_list.sort()
+	var packs := icon_pack_rows(icon_packs_dir)
 	return {
 		"format": FORMAT,
 		"generated_by": COMMAND,
@@ -99,11 +107,13 @@ static func build(db: ContentDB, validation: ValidationReport) -> Dictionary:
 			"unresolved": unresolved_total, "unresolved_by_domain": unresolved_counts,
 			"adaptations": adaptations.size(), "adaptations_verified": verified,
 			"adaptations_unverified": adaptations.size() - verified,
+			"icon_packs": packs.size(),
 		},
 		"capture_files": capture_list,
 		"records": records,
 		"unresolved": unresolved,
 		"adaptations": adaptations,
+		"icon_packs": packs,
 	}
 
 
@@ -234,6 +244,63 @@ static func _collect_verified(node: Variant, path: String, inherited_reason: Var
 			_collect_verified(e, path + "[]", inherited_reason, file, kind, out)
 
 
+## Every icon pack under `dir` that has a pack.json, sorted by name: [{name, file, format, source, problem, items,
+## skills, missing}], read from pack.json alone. `items` / `skills`: [{id, variants, fetched}] in numeric ID order, the
+## recorded variants in pack.json order and their fetch dates; `missing`: [{kind, id, variant, reason}] as the pack
+## lists them. A pack.json that does not parse, or of another format, is a row with its `problem` and nothing covered.
+static func icon_pack_rows(dir: String) -> Array:
+	var out: Array = []
+	if not DirAccess.dir_exists_absolute(dir):
+		return out
+	var names := Array(DirAccess.get_directories_at(dir))
+	names.sort()
+	for pack_name in names:
+		var file: String = dir.path_join(pack_name).path_join("pack.json")
+		if not FileAccess.file_exists(file):
+			continue
+		var row := {"name": pack_name, "file": "game/" + file.trim_prefix("res://") if file.begins_with("res://") else file,
+			"format": null, "source": null, "problem": null, "items": [], "skills": [], "missing": []}
+		out.append(row)
+		var json := JSON.new()
+		if json.parse(FileAccess.get_file_as_string(file)) != OK:
+			row.problem = "pack.json does not parse (line %d: %s)" % [json.get_error_line(), json.get_error_message()]
+			continue
+		var doc: Variant = json.data
+		if not (doc is Dictionary):
+			row.problem = "pack.json is not a JSON object"
+			continue
+		row.format = int(doc.format) if ValidationUtil.is_number(doc.get("format", null)) else doc.get("format", null)
+		row.source = doc.get("source", null)
+		if not ValidationUtil.same(row.format, ICON_PACK_FORMAT):
+			row.problem = "format %s (this report reads format %d)" % [str(row.format), ICON_PACK_FORMAT]
+			continue
+		for section in ICON_PACK_KINDS:
+			var entries: Variant = doc.get(section, null)
+			if not (entries is Dictionary):
+				continue
+			var ids: Array = entries.keys()
+			ids.sort_custom(func(a: String, b: String) -> bool: return a.length() < b.length() or (a.length() == b.length() and a < b))
+			for id in ids:
+				var entry: Variant = entries[id]
+				var variants: Array = []
+				var dates := {}
+				if entry is Dictionary:
+					for v in entry:
+						if entry[v] is Dictionary and not entry[v].is_empty():
+							variants.append(str(v))
+							if entry[v].get("fetched", null) != null:
+								dates[str(entry[v].fetched)] = true
+				if not variants.is_empty():
+					var fetched: Array = dates.keys()
+					fetched.sort()
+					row[section].append({"id": id, "variants": variants, "fetched": fetched})
+		for m in ValidationUtil.as_array(doc.get("missing", null)):
+			if m is Dictionary:
+				row.missing.append({"kind": m.get("kind", null), "id": m.get("id", null), "variant": m.get("variant", null),
+					"reason": m.get("reason", null)})
+	return out
+
+
 # --- markdown -----------------------------------------------------------------------------------------------
 
 ## The human-readable report (docs/PROVENANCE_REPORT.md) of a build() Dictionary.
@@ -261,6 +328,11 @@ static func to_markdown(doc: Dictionary) -> String:
 	L.append("| Unresolved values | %d (%s) |" % [int(c.unresolved), _pairs(c.unresolved_by_domain)])
 	L.append("| Adaptations (objects with a verified flag) | %d: %d verified, %d not verified |" % [
 		int(c.adaptations), int(c.adaptations_verified), int(c.adaptations_unverified)])
+	var packs: Array = doc.get("icon_packs", [])
+	var pack_counts: PackedStringArray = []
+	for p in packs:
+		pack_counts.append("%s: %d items, %d skills covered, %d variants missing" % [p.name, p.items.size(), p.skills.size(), p.missing.size()])
+	L.append("| Icon packs (covered IDs, missing variants) | %s |" % ("; ".join(pack_counts) if not packs.is_empty() else "none"))
 	L.append("")
 	if not v.findings.is_empty():
 		L.append("Findings of the validation run:")
@@ -343,7 +415,50 @@ static func to_markdown(doc: Dictionary) -> String:
 		L.append("| %s | %s | %s | %s | %s |" % [a.file.trim_prefix("game/data/misostory/"), _esc(a.path),
 			"yes" if a.verified else "no", _esc(a.verified_against), _esc(a.reason)])
 	L.append("")
+	L.append("## Icon packs")
+	L.append("")
+	L.append("Every icon pack bundled in `game/assets/icon_packs/`, read from its `pack.json` alone, so this section does not")
+	L.append("depend on which PNGs a checkout has fetched (they are git-ignored; `tools/icons/README.md`). It shows no images.")
+	if packs.is_empty():
+		L.append("")
+		L.append("No icon pack is bundled.")
+	for p in packs:
+		L.append("")
+		L.append("### %s" % p.name)
+		L.append("")
+		L.append("Source: %s. Manifest: `%s`, format %s." % [_pack_source(p.source), p.file,
+			_esc(p.format) if p.format != null else "not stated"])
+		if p.problem != null:
+			L.append("")
+			L.append("The manifest cannot be read: %s." % _esc(p.problem))
+			continue
+		L.append("Covered: %d items and %d skills. Missing: %d variants." % [p.items.size(), p.skills.size(), p.missing.size()])
+		L.append("")
+		L.append("| Kind | ID | Variants | Fetched |")
+		L.append("|---|---|---|---|")
+		for section in ICON_PACK_KINDS:
+			for e in p[section]:
+				L.append("| %s | %s | %s | %s |" % [ICON_PACK_KINDS[section], _esc(e.id), _esc(", ".join(PackedStringArray(e.variants))),
+					_esc(", ".join(PackedStringArray(e.fetched)))])
+		if not p.missing.is_empty():
+			L.append("")
+			L.append("| Kind | ID | Missing variant | Reason |")
+			L.append("|---|---|---|---|")
+			for m in p.missing:
+				L.append("| %s | %s | %s | %s |" % [_esc(m.kind), _esc(m.id), _esc(m.variant), _esc(m.reason)])
+	L.append("")
 	return "\n".join(L)
+
+
+## "maplestory.io, region MCW, version CBT2" for a pack's source block.
+static func _pack_source(s: Variant) -> String:
+	if not (s is Dictionary):
+		return "not stated"
+	var parts: PackedStringArray = [_esc(s.get("service", "(no service)"))]
+	for k in ["region", "version"]:
+		if s.get(k, null) != null:
+			parts.append("%s %s" % [k, _esc(s[k])])
+	return ", ".join(parts)
 
 
 static func _pairs(d: Dictionary) -> String:
