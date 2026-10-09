@@ -64,7 +64,7 @@ const BADGES := {
 }
 const OUTLINE := Color(0.06, 0.07, 0.10, 0.95)
 const SHELLS := [Color(0.80, 0.56, 0.30), Color(0.25, 0.52, 0.95), Color(0.90, 0.20, 0.18)]
-## The plain pack art greyed when no pack has the iconDisabled, as the procedural dim greys the badge (darkened by
+## The plain pack art greyed when no pack has its iconDisabled, as the procedural dim greys the badge (darkened by
 ## 0.5, half opaque).
 const DIM_ART := Color(0.5, 0.5, 0.5, 0.5)
 
