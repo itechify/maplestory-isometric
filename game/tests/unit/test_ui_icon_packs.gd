@@ -26,6 +26,7 @@ func before_each() -> void:
 
 func after_each() -> void:
 	MisoIconResolver.set_shared(null)
+	nodes.reverse()
 	for n in nodes:
 		if is_instance_valid(n):
 			n.free()
