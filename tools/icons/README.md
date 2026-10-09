@@ -59,7 +59,10 @@ the `/job/.../skillbook` and `/job/skill/...` endpoints answer 500. maplestory.i
   maplestory.io (a network error or a timeout), the network is taken to be down and the run stops asking, so a build
   without a network takes seconds. An error status means the network is up. The run then stops asking only after ten
   URLs in a row got one, so one ID maplestory.io cannot serve (an item or a skill has three URLs) never stops it: its
-  variants are not reached and the run goes on to the next ID.
+  variants are not reached and the run goes on to the next ID. An error is not cached, so a later run asks only the
+  URLs that got one, and ten whose errors never clear stop every run at the tenth: no URL after it is asked.
+  maplestory.io answers 500, not 404, for every skill of a job whose `.img` it lacks (`500.img`, for instance), so
+  four such skills are enough.
 - **Polite.** At least 1.2 s between requests across every process sharing the cache, one request at a time, and a
   User-Agent that names the project.
 - **Misses.** A 404, a 1x1 image or a body that is not a PNG is a miss: maplestory.io says the variant does not exist.
@@ -84,11 +87,12 @@ exist, with the reason (`http 404`, `blank 1x1 image`, `not a PNG (<content type
 - It changes only when a variant is obtained (new, or with new bytes under `--refresh`) or when maplestory.io answers
   that a variant does not exist. A variant's `fetched` date changes only when its bytes change. An ID the game data no
   longer names is dropped.
-- `--offline` never writes it, and neither does a run that stopped asking (the network down, or ten errors in a row),
-  even when the game data has dropped an ID. Otherwise a fresh clone's offline build would overwrite the committed
-  manifest with every ID missing. What such a run did fetch is cached, and the next run records it. A run that asked
-  every URL writes it, even when some got an error: an error is not a miss, so those variants keep their records. What
-  is present locally is the summary line's business, not the manifest's.
+- `--offline` never writes it, and neither does a run that found the network down, even when the game data has
+  dropped an ID. Otherwise a fresh clone's offline build would overwrite the committed manifest with every ID missing.
+  What such a run did fetch is cached, and the next run with a network records it. A run that reached maplestory.io
+  writes it, even when some URLs got an error and even when it stopped asking after ten errors in a row: an error is
+  not a miss, so those variants keep their records. What is present locally is the summary line's business, not the
+  manifest's.
 - The text is stable: a fixed key order, IDs in numeric order, one line per variant. A cache-hit run leaves it
   byte-for-byte unchanged.
 
