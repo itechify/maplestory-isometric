@@ -142,19 +142,23 @@ test('--offline with an empty cache reports nothing present and never writes pac
 });
 
 test('a run without a network keeps the committed pack.json; the PNGs the cache holds still reach the pack', async () => {
-  const data = dataDir({ items: ['2000200'], skills: [] });
   const built = tempDir('icons-pack-');
-  await withFetch(async () => { await run({ packDir: built, dataDir: data }); }, site({ 2000200: { icon: png(20, 20), iconRaw: png(20, 19) } }));
+  await withFetch(async () => { await run({ packDir: built, dataDir: dataDir({ items: ['2000199', '2000200'], skills: [] }) }); },
+    site({ 2000199: { icon: png(21, 21), iconRaw: png(21, 20) }, 2000200: { icon: png(20, 20), iconRaw: png(20, 19) } }));
   const committed = fs.readFileSync(path.join(built, 'pack.json'), 'utf8');
-  // A fresh checkout: the committed pack.json, no PNGs, a cache that lacks the metadata, then no network at all.
+  // A fresh checkout whose game data has since dropped 2000199 and added 2000201: the committed pack.json, no PNGs, a
+  // cache that lacks 2000200's metadata, then no network at all. A written pack would drop 2000199.
   fs.rmSync(cacheFiles(itemUrl('2000200')).metaFile);
   const clone = tempDir('icons-pack-');
   fs.writeFileSync(path.join(clone, 'pack.json'), committed);
   let r;
-  await withFetch(async () => { r = await run({ packDir: clone, dataDir: data }); }, () => { throw new TypeError('fetch failed'); });
+  await withFetch(async () => { r = await run({ packDir: clone, dataDir: dataDir({ items: ['2000200', '2000201'], skills: [] }) }); },
+    () => { throw new TypeError('fetch failed'); });
+  assert.equal(network.down, true, 'three URLs in a row without an answer');
   assert.equal(r.wrote, false);
-  assert.equal(fs.readFileSync(path.join(clone, 'pack.json'), 'utf8'), committed, 'byte-for-byte');
-  assert.match(r.line, /^icons: 1\/1 items, 0\/0 skills present \(maplestory\.io MCW\/CBT2\)$/, r.line);
+  assert.equal(fs.readFileSync(path.join(clone, 'pack.json'), 'utf8'), committed, 'byte-for-byte, 2000199 and all');
+  assert.equal(r.line, 'icons: 1/2 items, 0/0 skills present (maplestory.io MCW/CBT2); 2 variants not reached (network unavailable)');
+  assert.ok(fs.readFileSync(path.join(clone, 'items', '2000200', 'icon.png')).equals(png(20, 20)), 'the cached PNG');
   network.failures = 0;
   network.down = false;
 });

@@ -80,9 +80,10 @@ exist, with the reason (`http 404`, `blank 1x1 image`, `not a PNG (<content type
 - It changes only when a variant is obtained (new, or with new bytes under `--refresh`) or when maplestory.io answers
   that a variant does not exist. A variant's `fetched` date changes only when its bytes change. An ID the game data no
   longer names is dropped.
-- A run that reaches nothing leaves it as it is, and `--offline` never writes it. Otherwise a fresh clone's offline
-  build would overwrite the committed manifest with every ID missing. What is present locally is the summary line's
-  business, not the manifest's.
+- `--offline` never writes it, and neither does a run that finds the network down (three URLs in a row without an
+  answer), even when the game data has dropped an ID. Otherwise a fresh clone's offline build would overwrite the
+  committed manifest with every ID missing. What such a run did fetch is cached, and the next run with a network
+  records it. What is present locally is the summary line's business, not the manifest's.
 - The text is stable: a fixed key order, IDs in numeric order, one line per variant. A cache-hit run leaves it
   byte-for-byte unchanged.
 
