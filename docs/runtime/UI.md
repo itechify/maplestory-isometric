@@ -10,10 +10,13 @@ MapleStory-inspired and built entirely in code:
 - a dark title strip with a gold title, orange call-to-action buttons and orange tabs;
 - dark recessed content areas;
 - outlined text for HUD numbers;
-- procedural item icons;
+- item and skill icons from icon packs, over procedural ones;
 - a gold "LEVEL UP!" with a star burst.
 
-No MapleStory/Nexon sprite, icon, font or sound is used. The only vendored asset is the OFL font Nunito.
+Item and skill icons can come from an icon pack (see "Icon packs" below). The maplestory.io pack's art is fetched into
+a git-ignored folder and never committed; the decision is recorded in `docs/adr/0001-icon-packs.md`. Without a pack
+every icon is drawn in code. No other MapleStory/Nexon sprite, and no font or sound, is used; the only vendored asset
+is the OFL font Nunito.
 
 The UI only displays state and calls the existing services. It never changes game state by any other route:
 
@@ -47,8 +50,11 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/common/ui_prefs.gd` | `MisoUiPrefs` | The player's UI preferences on this machine (the minimap's fold), a ConfigFile beside the save slots |
 | `scripts/ui/common/miso_window.gd` | `MisoWindow` | Base window: title strip, key hint, close, drag, clamp, ctx registration, status line |
 | `scripts/ui/common/item_slot.gd` | `MisoItemSlot` | One item square: icon, count, caption, key label, click/double-click/right-click/hover, drag-and-drop hooks |
-| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Procedural item icon (shape per category/item, tint from the name) |
-| `scripts/ui/common/skill_icon.gd` | `MisoSkillIcon` | Procedural skill icon (shells, heart, winged boot) with the dim and cooldown-sweep overlays |
+| `scripts/ui/common/icon_resolver.gd` | `MisoIconResolver` | Item and skill pictures from the icon packs, first pack wins; the cell placement and scaling |
+| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Item icon: pack art, else procedural (shape per category/item, tint from the name) |
+| `scripts/ui/common/skill_icon.gd` | `MisoSkillIcon` | Skill icon: pack art, else procedural (shells, heart, winged boot); the dim and cooldown-sweep overlays over either |
+| `data/misostory/icon_packs.json` | | The icon packs, highest priority first (`packs`: `["maplestory_io"]`) |
+| `assets/icon_packs/<pack>/` | | One icon pack: `pack.json` (tracked) and its PNGs (git-ignored, `assets/icon_packs/.gitignore`) |
 | `scripts/ui/common/item_tooltip.gd` | `MisoItemTooltip` | Inspect card; `describe()` is the pure part |
 | `scripts/ui/common/gauge.gd` | `MisoGauge` | Bar + tag + outlined value text |
 | `scripts/ui/common/coin_icon.gd` | `MisoCoinIcon` | Procedural meso coin |
@@ -63,6 +69,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, held skill keys (#20: one cast per lockout, one refusal notice per hold, items once per press), the five window positions (10 tests) |
+| `tests/unit/test_ui_icon_packs.gd` | | icon packs over the procedural base, with fake packs written by the test (see "Testing") (9 tests) |
 | `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); the effects row on top of the bar, 40 px icons, covering no gauge, button or quickslot; a window that grows, a drag and a smaller viewport are clamped back (8 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |
 
@@ -259,6 +266,28 @@ character on each event. No character object is cached.
   `confirm()`, `cancel()` (also `close()`, the window stack's hook), `is_open()`, signals `confirmed(quest_id)` and
   `cancelled(quest_id)`, and the parts `message_label`, `confirm_button`, `cancel_button`.
 
+### Icons
+
+- **`MisoIconResolver`**:
+  - `static shared()`: the resolver the UI draws from, over the packs `icon_packs.json` lists (built on first use);
+    `static set_shared(resolver)` swaps it (tests; null goes back to the listed packs);
+  - `new(pack_roots)`: a resolver over the given pack folders, highest priority first;
+    `static listed_roots(list_path, packs_dir)` reads the list;
+  - `art(kind, id, variant := "icon") -> Art` (kind `ITEMS` or `SKILLS`), or null when no pack has a PNG for it;
+    `Art` holds the `texture` and its `offset` in the cell, and `rect_in(box, fill := false)` gives the rect it covers
+    in a box;
+  - `static cell_offset(size, origin)` and `static cell_transform(box, fill := false)`: the placement and scaling
+    rules below.
+- **`MisoItemIcon`**: `set_item(item_id, db)`, `show_like(other)` (the drag preview: the same item, shape, colour and
+  art), `art_rect()`, the fields `item_id`, `game_item_id`, `shape`, `color`, `art` and `dim`, and
+  `static shape_for(def)` and `static color_for(def, fallback_id)`.
+- **`MisoSkillIcon`**: `skill_id` (resolves the art), `dim`, `cooldown`, `cooldown_text`, `fill` (the effects bar) and
+  `art_rect()`.
+- **`MisoItemSlot.drag_preview()`**: what follows the pointer while a slot's item is dragged, a 40 px `MisoItemIcon`
+  shown like the slot's own.
+- **`NpcUiStyle.item_icon(item_id, db, side)`** and **`set_icon_item(icon, item_id, db)`**: the shop's item icons,
+  `MisoItemIcon`s of `side` px.
+
 ## What the player sees and does
 
 **HUD.**
@@ -396,7 +425,7 @@ a 2400 x 900 window keeps it centred (before the fix it stayed at x 800 of 2400)
   Speed %, Jump %.
 
 **Skills (K).** One row per skill the character's job can learn (`SkillDef.catalog`: the canonical Beginner skills
-Three Snails, Recovery, Nimble Feet), each with its procedural icon, name, "Lv. x / 3" and the current level's MeowDB
+Three Snails, Recovery, Nimble Feet), each with its icon, name, "Lv. x / 3" and the current level's MeowDB
 effect line ("MP -4; speed +10 for 10 sec. Cooldown: 3 min."), and the unspent Skill Points in the header.
 - An orange "+" per skill while SP is left and the skill is below its max level: one SP, one level (`SkillBook.learn`;
   no refunds).
@@ -462,6 +491,87 @@ itself. A quickslot's card sits above the bar. The card shows:
 - consumable effects (flat and % HP/MP, buffs, pet fullness, chair recovery);
 - the canonical description, the sell price ("Sells for 25 mesos each"), and an action hint.
 
+## Icon packs
+
+Every item and skill icon in the UI goes through one resolver, `MisoIconResolver`. It asks an ordered list of icon
+packs for a picture by id and variant. The first pack with a PNG for them wins; when none has one, the icon draws its
+procedural picture, which stays as the base layer under every pack. A fresh clone has each pack's tracked `pack.json`
+but none of its PNGs, so it draws every icon procedurally and looks as the game did before the packs. The decisions are
+recorded in `docs/adr/0001-icon-packs.md` (#52); the maplestory.io pack is built by the fetcher in `tools/icons/`
+(#50).
+
+**The pack list.** `data/misostory/icon_packs.json` names the packs under `packs`, highest priority first; it starts as
+`["maplestory_io"]`. Each name is a folder under `assets/icon_packs/`. The list carries a reason and a verified flag
+like every adaptation file.
+
+**Pack format 1.**
+
+```
+assets/icon_packs/<pack>/pack.json                            tracked
+assets/icon_packs/<pack>/items/<game_item_id>/<variant>.png   git-ignored   (icon, iconRaw)
+assets/icon_packs/<pack>/skills/<skill_id>/<variant>.png      git-ignored   (icon, iconMouseOver, iconDisabled)
+```
+
+```json
+{
+  "format": 1,
+  "name": "maplestory_io",
+  "source": {"service": "maplestory.io", "region": "MCW", "version": "CBT2"},
+  "items":  {"2000000": {"icon": {"url": "...", "sha256": "...", "size": [27, 30], "origin": [-3, 30], "fetched": "2026-10-09"}, "iconRaw": {}}},
+  "skills": {"0001000": {"icon": {}, "iconMouseOver": {}, "iconDisabled": {}}},
+  "missing": [{"kind": "item", "id": "...", "variant": "icon", "reason": "http 404"}]
+}
+```
+
+- Items are keyed by the record's `game_item_id` (`ItemDef.game_item_id`), not its `id`: Red Potion is record `270`,
+  `game_item_id` `2000000`. Skills are keyed by `skill_id` (`0001000`).
+- A folder without a `pack.json` is no pack, and a `pack.json` of another format is skipped with a warning.
+- The PNG decides whether a pack has a picture; the manifest only gives its `origin`, which is optional. An entry whose
+  PNG is missing falls through to the next pack.
+- The UI draws the plain `icon` variant only. The skill states (`iconDisabled`, `iconMouseOver`) are #51; until then a
+  disabled skill shows its pack art under the procedural dim.
+
+**Loading.** A pack under `res://` (the bundled `maplestory_io`) loads its imported textures through
+`ResourceLoader` and checks for a PNG with `ResourceLoader.exists()`, because an exported build holds only the
+imported copies. A pack rooted anywhere else loads raw PNGs with `Image.load_from_file`: the tests' fake packs now,
+players' own packs later (#54). The resolver caches every lookup, hit or miss, so each texture is loaded once and
+drawing never touches the disk. The pack roots are injected (`MisoIconResolver.new(roots)`, `set_shared`), so a test
+points the UI at a fake pack in a temp folder. A PNG made at runtime cannot go through `ResourceLoader`, because it was
+never imported. An id that is not a valid file name, such as the effects bar's "?" for an effect without a skill, is
+never looked up.
+
+**Display rules** (owner decisions, 2026-10-09).
+- **Placement.** Item art sits in a 32 × 32 cell by its origin: top-left = (−origin.x, 32 − origin.y). Red Potion's
+  27 × 30 icon (origin −3, 30) therefore sits at (3, 2), and Snail Shell's 26 × 27 (origin −4, 27) at (4, 5). Every
+  icon's bottom, shadow included, rests on the cell's bottom edge, so all share one baseline. An entry without an
+  origin is centred. Art larger than the cell is not clipped: The Spear (33 × 35) pokes 3 px over the top and The Green
+  Relaxer 1 px past the left, both still inside the larger slots. Skill art is 32 × 32 and fills the cell.
+- **Scaling.** Whole multiples only, never below 1×, with nearest filtering. The filter is the icon node's
+  `texture_filter`, set only while it shows pack art, so the procedural icons keep their look. The cell is centred on
+  whole pixels in the icon's box (`MisoIconResolver.cell_transform`):
+
+  | Where | Icon box | Cell drawn at |
+  |---|---|---|
+  | Inventory and Equipment slots (46 px) | 38 px | 1× |
+  | Quickslots (40 px) | 32 px for an item, 36 px for a skill | 1× |
+  | Tooltip | 44 px | 1× |
+  | Skills window (40 px) | 36 px | 1× |
+  | Quest reward (26 px before the packs) | 32 px | 1× |
+  | Shop row (30 px before the packs) | 32 px | 1× |
+  | Shop detail (56 px before the packs) | 64 px | 2× |
+  | Drag previews | 40 px for an item, 36 px for a skill | 1× |
+  | Effects bar | 40 px | stretched over the box |
+
+  The effects bar is the one exception (`MisoSkillIcon.fill`): its art fills the 40 px box, still with nearest
+  filtering, which keeps the 36 px minimum from issue #12.
+- **Overlays.** A greyed icon (an empty quickslot stack, an unlearned skill, a skill without its MP or shell) draws
+  its pack art darkened and partly transparent, as the procedural dim does. The cooldown sweep and its seconds are
+  drawn over the art's cell.
+- **Scope.** The UI only. Ground drops, meso coins and the thrown shell's mesh stay as they are. The shell took its
+  colour from `MisoItemIcon.color_for`; that colour is now pinned per shell item in `PlayerSkills.SHELL_COLORS`
+  (Snail Shell brown, Blue Snail Shell blue, Red Snail Shell red), so no icon change can reach it. NPC dialogue tokens
+  are #56, and the UI meso icon is #55.
+
 ## Decisions and adaptations
 
 No gameplay number lives in this system. Every number shown is read from canonical data or a service:
@@ -480,7 +590,8 @@ doc comment.
 
 | Decision | Why |
 |---|---|
-| Item icons are procedural: a shape from type, subtype, equip slot and name keywords (potion, apple, sword, skullcap, shirt, shell, gem ...); the tint is the colour word in the name ("Red", "Amethyst", "Jean"), else a stable hue from the id | No proprietary icons may be used. `test_every_canonical_item_has_a_procedural_icon` fails if a new item kind has no shape |
+| Item and skill icons come from the first icon pack with a PNG for them ("Icon packs"); under every pack the procedural icons stay as the base layer. A procedural item icon is a shape from type, subtype, equip slot and name keywords (potion, apple, sword, skullcap, shirt, shell, gem ...); the tint is the colour word in the name ("Red", "Amethyst", "Jean"), else a stable hue from the id | Icon art from maplestory.io is fetched into a git-ignored pack, never committed, and the game stays complete without it (`docs/adr/0001-icon-packs.md`, #49). `test_every_canonical_item_has_a_procedural_icon` fails if a new item kind has no shape |
+| Pack art is placed by its origin in a 32 px cell and drawn at whole multiples with nearest filtering; the quest-reward and shop-row boxes grew to 32 px and the shop detail to 64 px; only the effects bar stretches its art | The owner's display rules of 2026-10-09 (#49). Whole multiples keep every source pixel the same size on screen, which a 26 or 30 px box cannot; the origin puts every icon's bottom on the cell's bottom edge (checked that day with eight real icons) |
 | Font: Nunito (OFL), vendored with its license | A rounded, friendly sans close in spirit to the classic UI, and legally redistributable |
 | Quickslot keys are `"1".."8"`, the suffix of the `quickslot_N` actions, stored as `CharacterState.quickslots[key] = item_id` | Matches the save tests (`test_save_roundtrip`). The count comes from the InputMap (8 by the Controls contract) |
 | Only consumables (`ItemDef.is_consumable`) can be bound; an empty stack keeps its binding (greyed, count 0) and refills on pickup | Classic behaviour. Pressing an empty slot says "You have no X left." |
@@ -521,6 +632,7 @@ ISOLATE=hud INCLUDE_WORLD=1 bash scripts/test.sh            # everything
 | `test_ui_theme.gd` | The theme builds and caches; every type variation is registered with the right base; the vendored Nunito loads (not the fallback) with its OFL text; weights differ; helpers (`thousands`, labels, gauges, check textures, panel and button styles) |
 | `test_ui_hud.gd` | `hud.tscn` root has `setup`; initial values from the character (level, name, canonical job name, HP/MP, mesos separators, EXP percent, 8 quickslots); values follow `hp_changed`, `mp_changed`, `mesos_changed` (no line for delta 0), `exp_gained`, `item_gained`, `inventory_full`, `notice`, `equipment_changed`; `exp_gained` amounts <= 0 (the death penalty's -N, and 0) redraw the bar with no line; level-up flourish and the AP highlight; map banner (canonical street and name, fade timeline, no trail line); the trail line on a private `map_session.gd` (`set_trail`): "-> " + the destination's canonical name under the current map's, held past the arrival banner's time, a refresh does not restart it, cleared by "" (fades out), back on mid-fade fades in from there, shown at once for a HUD set up on a trail, a gate commit (clear, then `map_entered`) leaves the new map's banner with no line, the way back after turning round, an unknown id shows the id, re-entering the tree re-syncs and keeps listening, `reset()` clears it; a held banner stays centred when the HUD resizes (wider and narrower than 1600 px) and the next banner is centred for the new width; the HP gauge at 0 from `player_died` to `player_respawned` through `stats_changed`, `hp_changed`, `equipment_changed`, `leveled_up` and `game_loaded` (the character holding its respawn HP), the HP back at the respawn, an announced death (HP above 0) also 0; `character_replaced` re-reads `is_character_dead()` (a stand-in game: still dead = 0, alive = its HP), a HUD configured during a death starts at 0; log cap, history, dedupe, fade; quickslot bind → use → count decrements → HP restored → `item_used` → the key path → JSON save round trip keeps the binding → empty stack greys out with a notice; non-consumables refused; drop, move, unbind; quest progress lines through a real `QuestService`; leaving and re-entering the tree keeps listening and redraws; no character or content: nothing breaks |
 | `test_ui_windows.gd` | `windows.tscn` root has `setup` and four closed windows; inventory tabs and slots from the live inventory, counts, mesos, live refresh on pickup; use and equip through `ItemService` (`item_used`, `equipment_changed`, previous weapon back in the bag), a level-requirement refusal with message and notice, Etc not usable; quickslot assignment and drag-move (`ItemService.move`); equipment doll covers every slot, W.ATK contribution, unequip with a full Equip tab refused gracefully, then unequip and re-equip by drop; stats window: "+" only with AP, every derived value equals `StatCalculator.snapshot`, `Game.allocate_ap` (a real `GameState` on a private bus) spends AP and moves the damage range, "+" hidden at 0 AP; quest log: Sam's Suggestion available, then "Snail 7/10" after 7 `monster_killed` events through an attached `QuestService`, the turn-in row, the canonical EXP and item rewards, capped and ticked at 10/10; the ctx window stack (newest closes first, re-focus, close button, `window_changed`); hotkeys toggle and stay quiet under a modal; HUD buttons open windows through the group; standalone Esc; the four default window rects are disjoint and on screen whatever the opening order; a real mouse press on a slot of a back window (`Viewport.push_input`) makes it the newest, so Esc closes it first; dragging a window by its title follows the pointer, clamps at the edges and leaves the attack action alone; tooltip rows (unmet requirement red, met plain, effect, price, description) and hover in the window; every canonical item has an icon shape |
+| `test_ui_icon_packs.gd` | Icon packs over the procedural base. Every pack is a fake one the test writes to a private `user://` folder (solid-colour PNGs made with `Image.create`, loaded through the raw-PNG path) and removes afterwards; no network and no Nexon art. A pack icon replaces the procedural one for items (keyed by `game_item_id`) and skills, with nearest filtering; the first pack with the PNG wins; a variant the first pack lacks, or a manifest entry without its PNG, falls through to the next pack; an id no pack has (and "?" or a path) gets no art and draws its procedural icon with today's filtering; lookups are cached. A fresh clone (a `pack.json` listing every item and skill, no PNGs) and a missing pack folder draw every icon procedurally; the shipped list names `maplestory_io`; a list's non-names and a pack of another format are skipped. The origin places Red Potion at (3, 2) and Snail Shell at (4, 5), both ending at y = 32; no origin is centred; The Spear pokes over the top; a skill fills the cell. Whole-multiple scaling in boxes from 26 to 100 px, and the effects bar's stretch over 40 px. The quest-reward and shop-row boxes are 32 px and the shop detail 64 px with the art at 2x. The drag preview, `NpcUiStyle`, a quickslot's and the Skills window's skill icons go through the resolver; the thrown shell keeps its three colours |
 | `test_quest_forfeit_ui.gd` | The Quest Log's Forfeit (owner ruling #10): the button only on an in-progress quest (not on available or completed ones); real clicks through `Viewport.push_input`: Forfeit asks (modal, the message names the quest and Sera), Cancel changes nothing, the question's Forfeit forfeits through `Game.quests` (one `quest_forfeited`, the mirror taken back), the log updates and Sera offers 1001 again; real keys: Delete asks, Cancel has the focus, Left/Right move it, Enter presses it, Space and key repeat do not, Y forfeits, N and Esc cancel, the window stack's Esc reaches the question first; quiet under another modal; closing the log cancels; without a quest service nothing changes and the HUD says so |
 | `test_ui_minimap_projection.gd` | No world: `project()` equals a real orthographic `Camera3D`'s `unproject_position` up to one scale and offset (20 points); further and higher points sit higher; `for_map` prefers the live basis; `fit` keeps the aspect and the margin; `clamp_to_rect` keeps the direction |
 | `test_ui_minimap_world.gd` | With the world (SKIP without), one island build for the file (a test process survives about ten builds; the suite makes nine): `IslandWorld.ground_faces` on all 25 maps (non-empty, in the footprint, in the chunk's height range, cached); `MinimapModel` on all 25 maps against the canonical records: name and street, upward ground by tier, portal markers = the type-2 portals with their canonical destination names, NPC dots = the canonical NPCs, shop badges exactly on the doors to Pan, Sid and Lucy, role icons, interior floors, `player_spawns[0]` inside the bounds; the destination names inside the picture, never over another name or a portal glyph, and every exit named on each map with up to five exits; the hidden portal, its lane and arrival gates never shown; trail stubs only where the map's own canonical portals lead (no stub back up the one-way 30 → 40 on 000000040); every sidecar camera is the rig's default view; the footprint fallback |
