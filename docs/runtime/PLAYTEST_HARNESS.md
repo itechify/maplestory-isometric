@@ -702,6 +702,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `test_b_population` | the monster population of all 15 hunting maps | monsters |
 | `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
 | `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2; the status bar's Map [M] button, and the fold kept across Quit Game and Continue (two phases) | UI |
+| `icons` | item and skill icons in every UI place (the Skills window, each Item window tab, a tooltip, the Equipment window, the HUD's quickslots and effects bar with a cooldown and a skill out of MP, a quest's rewards, Pan's shop): with the icon pack built every icon shows pack art, without its PNGs every one is procedural (#49-#51); console setup only. Also run in an exported build to prove the imported pack loads there | UI |
 
 ## Findings (2026-10-05)
 
