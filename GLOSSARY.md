@@ -1,8 +1,8 @@
 # MisoStory
 
 Classic Maple Island rebuilt as one isometric 3D island and a playable game on it. Its content follows what the
-project's sources publish about the classic game; this glossary names the ways a piece of work or a value can stand
-relative to those sources and to the project's plans.
+project's sources publish about the classic game; this glossary names the ways a piece of work, a value or a piece of
+art can stand relative to those sources and to the project's plans.
 
 ## Language
 
@@ -19,6 +19,15 @@ _Avoid_: Unknown, placeholder, TBD
 A MisoStory rule that stands in where the canonical value is missing or does not translate to isometric 3D. It is
 marked unverified, and changing one is the owner's decision.
 _Avoid_: Placeholder, guess, house rule
+
+**Source art**:
+Art taken by ID from maplestory.io. It is never a source of names or values, which stay Canonical only when MeowDB
+MS Classic or Henesys.gg publishes them.
+_Avoid_: Canonical art, official icons
+
+**Icon pack**:
+One ordered layer of icons keyed by ID, with the procedural icons always underneath.
+_Avoid_: Skin, theme
 
 **Brief**:
 The document that set one iteration's goal, scope and definition of done. Iterations One to Three each had one; work
