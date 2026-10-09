@@ -62,7 +62,8 @@ func _pack(pack_name: String, entries: Array) -> String:
 	return dir
 
 
-func _item(game_item_id: String, size: Vector2i, color: Color, origin: Variant = null, variant: String = "icon") -> Dictionary:
+func _item(game_item_id: String, size: Vector2i, color: Color, origin: Variant = null,
+		variant: String = "icon") -> Dictionary:
 	var e := {"kind": "items", "id": game_item_id, "variant": variant, "size": size, "color": color}
 	if origin != null:
 		e["origin"] = origin
@@ -244,6 +245,41 @@ func test_art_scales_by_whole_multiples_with_nearest_filtering_except_the_effect
 	effect.size = Vector2(MisoEffectsBar.ICON_SIZE, MisoEffectsBar.ICON_SIZE)
 	assert_eq(effect.art_rect(), Rect2(0, 0, 40, 40), "stretched over the whole 40 px box")
 	assert_eq(effect.texture_filter, CanvasItem.TEXTURE_FILTER_NEAREST, "still with nearest filtering")
+
+
+func test_the_slots_draw_the_cell_at_1x() -> void:
+	_use([_pack("fake", [_item("2000000", Vector2i(27, 30), RED, [-3, 30]), _skill(SNAILS, GREEN)])])
+	var ui: Control = Control.new()
+	ui.theme = MisoTheme.get_theme()
+	var tree := Engine.get_main_loop() as SceneTree
+	(tree.current_scene if tree.current_scene != null else tree.root).add_child(ui)
+	_keep(ui)
+	var bag := MisoItemSlot.new(MisoInventoryWindow.SLOT_SIZE)
+	var quick_item := MisoQuickslotBar.QuickslotCell.new(MisoQuickslotBar.SLOT_SIZE)
+	var quick_skill := MisoQuickslotBar.QuickslotCell.new(MisoQuickslotBar.SLOT_SIZE)
+	var learned := MisoSkillsWindow.SkillIconCell.new(SNAILS)
+	var tip := MisoItemTooltip.new()
+	for c: Control in [bag, quick_item, quick_skill, learned, tip]:
+		ui.add_child(c)
+	bag.set_stack(RED_POTION, 1, db())
+	quick_item.set_stack(RED_POTION, 1, db(), {}, true)
+	quick_skill.set_skill(SNAILS, true, 0.0, 0.0)
+	tip.show_item(RED_POTION, CharacterState.new(), db())
+	for c: Control in [bag, quick_item, quick_skill, learned, tip]:
+		c.size = c.get_combined_minimum_size()
+		c.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	# The boxes UI.md "Icon packs" lists: each shows the 32 px cell at 1x, centred on whole pixels.
+	for pair: Array in [["an inventory slot", bag.icon, Vector2(38, 38)],
+			["an item quickslot", quick_item.icon, Vector2(32, 32)],
+			["a skill quickslot", quick_skill.skill_icon, Vector2(36, 36)],
+			["the Skills window", learned.icon, Vector2(36, 36)]]:
+		var icon: Control = pair[1]
+		assert_eq(icon.size, pair[2], "%s's icon box" % pair[0])
+		var cell := floorf((pair[2].x - 32.0) / 2.0)
+		var art_at: Vector2 = Vector2(3, 2) if icon is MisoItemIcon else Vector2.ZERO
+		assert_eq(icon.call("art_rect").position, Vector2(cell, cell) + art_at, "%s draws the cell at 1x" % pair[0])
+	assert_eq(tip._icon.size.x, 44.0, "the tooltip's icon box")
+	assert_eq(tip._icon.art_rect().size, Vector2(27, 30), "the tooltip draws the cell at 1x")
 
 
 func test_quest_reward_and_shop_icons_are_32_px_and_the_shop_detail_64() -> void:
