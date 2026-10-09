@@ -60,6 +60,10 @@ the `/job/.../skillbook` and `/job/skill/...` endpoints answer 500. maplestory.i
   User-Agent that names the project.
 - **Misses.** A 404, a 1x1 image or a body that is not a PNG is a miss: maplestory.io says the variant does not exist.
   A miss never fails the run, and a malformed answer is a miss, not a crash.
+- **The PNG itself.** maplestory.io appends a short trailer after each PNG's IEND chunk (`00 dd 01`, then JSON: a
+  notice, the serving container, its git hash, the URL and the time the image was generated). The pack keeps the PNG
+  through IEND, so a variant's sha256 and `fetched` date follow the picture, not the time the server regenerated it.
+  The cache keeps the answer as it came.
 
 ## pack.json
 
