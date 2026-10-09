@@ -6,7 +6,10 @@
 // - Only definitive answers are cached: a 200 (whatever its body) and a 404. Anything else (a network error, a timeout,
 //   403, 429, 5xx) is no answer: the request is tried a few times, then given up for this run, and never cached.
 // - >= 1.2 s between network requests across ALL processes (the gate file lives in the cache folder). After three
-//   URLs in a row got no answer, the run stops asking: a build without a network ends in seconds, not an hour.
+//   URLs it asked in a row could not reach maplestory.io (cache hits are not asked), the run takes the network to be
+//   down and stops asking: a build without a network ends in seconds, not an hour. An error status means the network
+//   is up: the run stops asking only after ten URLs in a row got one, so one ID maplestory.io cannot serve never
+//   stops it.
 // - --refresh re-fetches cached answers. --offline never fetches: a URL missing from the cache gets no answer.
 //   --offline with --refresh is an error.
 import fs from 'node:fs';
@@ -24,10 +27,17 @@ const MIN_GAP_MS = 1200; // global across processes (parallel runs share one pol
 const GATE_FILE = path.join(CACHE_DIR, '.last_fetch');
 const TIMEOUT_MS = 30000;
 const ATTEMPTS = 3;
-const GIVE_UP_AFTER = 3; // URLs in a row without an answer before the run stops asking
+const GIVE_UP_AFTER = 3; // URLs in a row that could not reach maplestory.io before the run takes the network to be down
+// URLs in a row maplestory.io answered with an error (403, 429, 5xx) before the run stops asking. More than the three
+// URLs of one ID (an item's metadata and two icons, a skill's three icons): one ID it cannot serve never stops a run.
+const ERRORS_BEFORE_GIVING_UP = 10;
 
-/** The run's view of the network: `down` once GIVE_UP_AFTER URLs in a row got no answer (tests reset it). */
-export const network = { failures: 0, down: false };
+/**
+ * The run's view of maplestory.io (tests reset it). Of the URLs it asked in a row, `failures` could not reach it (a
+ * network error, a timeout) and `errors` got an error status; an answer resets both, and an error status resets
+ * `failures`. At GIVE_UP_AFTER failures or ERRORS_BEFORE_GIVING_UP errors the run stops asking: `down`, for `reason`.
+ */
+export const network = { failures: 0, errors: 0, down: false, reason: '' };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const cacheKey = (url) => url.replace(/^https?:\/\/[^/]+/, '').replace(/^\/+/, '').replace(/[^A-Za-z0-9._-]+/g, '_').slice(0, 180);
@@ -108,9 +118,10 @@ export async function fetchAnswer(url, { refresh = process.argv.includes('--refr
     }
   }
   if (offline) return { url, status: null, reason: 'not cached (--offline)', fromCache: false };
-  if (network.down) return { url, status: null, reason: 'network unavailable', fromCache: false };
+  if (network.down) return { url, status: null, reason: network.reason, fromCache: false };
   fs.mkdirSync(CACHE_DIR, { recursive: true });
   let reason = '';
+  let refused = false; // the last attempt reached maplestory.io and got an error status
   for (let attempt = 1; attempt <= attempts; attempt++) {
     if (attempt > 1) await sleep(2000 * (attempt - 1));
     await gate();
@@ -122,6 +133,7 @@ export async function fetchAnswer(url, { refresh = process.argv.includes('--refr
       if (res.status === 200 || res.status === 404) body = Buffer.from(await res.arrayBuffer());
     } catch (e) {
       reason = `network error: ${e.cause?.code ?? e.name ?? e.message}`;
+      refused = false;
       continue;
     }
     if (body) {
@@ -130,13 +142,24 @@ export async function fetchAnswer(url, { refresh = process.argv.includes('--refr
       fs.writeFileSync(bodyFile, body);
       fs.writeFileSync(metaFile, JSON.stringify({ url, status: res.status, content_type: contentType, retrieved_at }, null, 1));
       network.failures = 0;
+      network.errors = 0;
       return { url, status: res.status, contentType, body, retrieved_at, fromCache: false };
     }
-    reason = `http ${res.status}`;
+    reason = `${SOURCE.service} answered http ${res.status}`;
+    refused = true;
   }
-  if (++network.failures >= GIVE_UP_AFTER && !network.down) {
-    network.down = true;
-    console.error(`icons: ${GIVE_UP_AFTER} requests in a row got no answer (last: ${reason}); not asking maplestory.io again this run`);
+  if (refused) {
+    network.failures = 0; // it answered: the network is up
+    if (++network.errors >= ERRORS_BEFORE_GIVING_UP) stopAsking(reason, `${ERRORS_BEFORE_GIVING_UP} URLs in a row got an error (last: ${reason})`);
+  } else if (++network.failures >= GIVE_UP_AFTER) {
+    stopAsking('network unavailable', `${GIVE_UP_AFTER} URLs in a row could not reach ${SOURCE.service} (last: ${reason})`);
   }
   return { url, status: null, reason, fromCache: false };
+}
+
+/** Ends the run's requests: every later URL that is not cached gets no answer, for `reason`. */
+function stopAsking(reason, detail) {
+  if (network.down) return;
+  Object.assign(network, { down: true, reason });
+  console.error(`icons: ${detail}; not asking again this run`);
 }

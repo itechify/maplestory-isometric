@@ -30,8 +30,8 @@ icons: 94/94 items, 3/3 skills present (maplestory.io MCW/CBT2)
 ```
 
 An ID is present when every variant's PNG is in the pack folder. When there are any, the line adds the variants
-maplestory.io answered do not exist and the variants not reached this run (with why, such as `--offline`). Exit 2
-means a bad command line.
+maplestory.io answered do not exist and the variants not reached this run (with why, such as `--offline`,
+`network unavailable` or `maplestory.io answered http 500`). Exit 2 means a bad command line.
 
 ## What it fetches
 
@@ -53,9 +53,13 @@ the `/job/.../skillbook` and `/job/skill/...` endpoints answer 500. maplestory.i
 ## How it behaves
 
 - **Cache first** (`lib.mjs`, the pattern of `tools/meowdb/lib.mjs`). An answer is fetched once and kept, so a second
-  run makes no request. Only definitive answers are cached: a 200 and a 404. A network error, a timeout, 403, 429 or a
-  5xx is tried three times, then given up for this run. After three URLs in a row get no answer, the run stops asking,
-  so a build without a network takes seconds.
+  run makes no request. Only definitive answers are cached: a 200 and a 404. A network error, a timeout (also one in
+  the middle of a download), 403, 429 or a 5xx is tried three times, then given up for this run.
+- **Giving up.** Counting only the URLs the run asks (a cache hit is not asked): after three in a row could not reach
+  maplestory.io (a network error or a timeout), the network is taken to be down and the run stops asking, so a build
+  without a network takes seconds. An error status means the network is up. The run then stops asking only after ten
+  URLs in a row got one, so one ID maplestory.io cannot serve (an item or a skill has three URLs) never stops it: its
+  variants are not reached and the run goes on to the next ID.
 - **Polite.** At least 1.2 s between requests across every process sharing the cache, one request at a time, and a
   User-Agent that names the project.
 - **Misses.** A 404, a 1x1 image or a body that is not a PNG is a miss: maplestory.io says the variant does not exist.
@@ -80,10 +84,11 @@ exist, with the reason (`http 404`, `blank 1x1 image`, `not a PNG (<content type
 - It changes only when a variant is obtained (new, or with new bytes under `--refresh`) or when maplestory.io answers
   that a variant does not exist. A variant's `fetched` date changes only when its bytes change. An ID the game data no
   longer names is dropped.
-- `--offline` never writes it, and neither does a run that finds the network down (three URLs in a row without an
-  answer), even when the game data has dropped an ID. Otherwise a fresh clone's offline build would overwrite the
-  committed manifest with every ID missing. What such a run did fetch is cached, and the next run with a network
-  records it. What is present locally is the summary line's business, not the manifest's.
+- `--offline` never writes it, and neither does a run that stopped asking (the network down, or ten errors in a row),
+  even when the game data has dropped an ID. Otherwise a fresh clone's offline build would overwrite the committed
+  manifest with every ID missing. What such a run did fetch is cached, and the next run records it. A run that asked
+  every URL writes it, even when some got an error: an error is not a miss, so those variants keep their records. What
+  is present locally is the summary line's business, not the manifest's.
 - The text is stable: a fixed key order, IDs in numeric order, one line per variant. A cache-hit run leaves it
   byte-for-byte unchanged.
 
@@ -94,5 +99,6 @@ exist, with the reason (`http 404`, `blank 1x1 image`, `not a PNG (<content type
 
 ```bash
 node --test tools/icons/test/    # the ID list, the 1x1 rejection, misses and their reasons, the pack.json shape,
-                                 # cache first, --offline and --refresh; fetch is a stub, never the network
+                                 # cache first, --offline and --refresh, giving up and when pack.json is written;
+                                 # fetch is a stub, never the network
 ```

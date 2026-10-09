@@ -1,9 +1,10 @@
 // node --test tools/icons/test/
 // The fetch helper (lib.mjs fetchAnswer) and whole runs (fetch_pack.mjs run) against a stub: cache first, which
-// answers are cached, --offline and --refresh, giving up without a network, and pack.json left byte-for-byte as it was
-// by a cache-hit run, an --offline run and a run without a network. globalThis.fetch is a stub that counts its calls.
+// answers are cached, --offline and --refresh, a body that breaks off, giving up without a network or after error
+// after error, and pack.json left byte-for-byte as it was by a cache-hit run, an --offline run and a run without a
+// network, but written by a run that got errors for one ID. globalThis.fetch is a stub that counts its calls.
 import { CACHE, tempDir, png, withFetch, dataDir, itemJson } from './fixtures.mjs';
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,6 +13,8 @@ import { run } from '../fetch_pack.mjs';
 
 const MIN_GAP_MS = 1200; // lib.mjs's gap between requests
 let n = 0;
+// Every test starts with a run that has not given up yet.
+afterEach(() => Object.assign(network, { failures: 0, errors: 0, down: false, reason: '' }));
 const fresh = () => `https://maplestory.io/api/MCW/CBT2/item/test-${++n}/icon`; // never cached
 
 /** maplestory.io as the stub plays it: icons for the IDs in `art`, the metadata of each, a 404 for anything else. */
@@ -61,9 +64,8 @@ test('a 404 is cached; a 500 is no answer and is not cached; requests are at lea
   assert.ok(calls[1].at - calls[0].at >= MIN_GAP_MS - 5, `gap ${calls[1].at - calls[0].at} ms`);
   assert.equal(a404.status, 404);
   assert.equal(hasCached(gone), true, 'maplestory.io said it does not exist');
-  assert.deepEqual([a500.status, a500.reason], [null, 'http 500']);
+  assert.deepEqual([a500.status, a500.reason], [null, 'maplestory.io answered http 500']);
   assert.equal(hasCached(busy), false, 'a transient failure is asked again next run');
-  network.failures = 0;
 });
 
 /** A 200 whose body breaks off after the headers (a dropped connection; a stalled one times out the same way). */
@@ -76,7 +78,6 @@ test('a body that breaks off is no answer, not a crash, and is not cached', asyn
   assert.equal(calls.length, 2, 'tried again');
   assert.deepEqual([r.status, r.reason], [null, 'network error: TypeError']);
   assert.equal(hasCached(url), false);
-  network.failures = 0;
 });
 
 test('a run whose download breaks off still records the rest and prints its line', async () => {
@@ -89,7 +90,6 @@ test('a run whose download breaks off still records the rest and prints its line
   assert.equal(r.line, 'icons: 0/1 items, 0/0 skills present (maplestory.io MCW/CBT2); 1 variant not reached (network error: TypeError)');
   assert.equal(r.wrote, true);
   assert.deepEqual(Object.keys(JSON.parse(fs.readFileSync(path.join(pack, 'pack.json'), 'utf8')).items['2000300']), ['iconRaw']);
-  network.failures = 0;
 });
 
 test('--offline makes no request; --refresh re-fetches; both together are an error', async () => {
@@ -107,7 +107,7 @@ test('--offline makes no request; --refresh re-fetches; both together are an err
   await assert.rejects(fetchAnswer(url, { refresh: true, offline: true }), /--offline/);
 });
 
-test('after three URLs in a row without an answer the run stops asking', async () => {
+test('after three URLs in a row that cannot reach maplestory.io the run stops asking', async () => {
   const urls = [fresh(), fresh(), fresh(), fresh()];
   const answers = [];
   const calls = await withFetch(async () => {
@@ -117,8 +117,22 @@ test('after three URLs in a row without an answer the run stops asking', async (
   assert.equal(network.down, true);
   assert.deepEqual(answers.map((a) => a.status), [null, null, null, null]);
   assert.equal(answers[3].reason, 'network unavailable');
-  network.failures = 0;
-  network.down = false;
+});
+
+test('an error status means the network is up; the run stops asking after ten URLs in a row got one', async () => {
+  const urls = Array.from({ length: 13 }, () => fresh());
+  const answers = [];
+  const calls = await withFetch(async () => {
+    for (const u of urls) answers.push(await fetchAnswer(u, { attempts: 1 }));
+  }, (url) => {
+    if (urls.indexOf(url) < 2) throw new TypeError('fetch failed');
+    return { status: 503, body: 'busy' };
+  });
+  assert.equal(calls.length, 12, 'two URLs that could not reach it and ten errors; the thirteenth is not asked');
+  assert.equal(network.down, true);
+  assert.equal(network.failures, 0, 'an error status resets the URLs that could not reach it');
+  assert.equal(answers[2].reason, 'maplestory.io answered http 503');
+  assert.equal(answers[12].reason, 'maplestory.io answered http 503', 'the summary says why, not "network unavailable"');
 });
 
 test('a run builds the pack; a second run makes no request and leaves pack.json as it was', async () => {
@@ -178,13 +192,31 @@ test('a run without a network keeps the committed pack.json; the PNGs the cache 
   const clone = tempDir('icons-pack-');
   fs.writeFileSync(path.join(clone, 'pack.json'), committed);
   let r;
-  await withFetch(async () => { r = await run({ packDir: clone, dataDir: dataDir({ items: ['2000200', '2000201'], skills: [] }) }); },
+  await withFetch(async () => { r = await run({ packDir: clone, dataDir: dataDir({ items: ['2000200', '2000201'], skills: [] }), attempts: 1 }); },
     () => { throw new TypeError('fetch failed'); });
-  assert.equal(network.down, true, 'three URLs in a row without an answer');
+  assert.equal(network.down, true, 'three URLs in a row that could not reach maplestory.io');
   assert.equal(r.wrote, false);
   assert.equal(fs.readFileSync(path.join(clone, 'pack.json'), 'utf8'), committed, 'byte-for-byte, 2000199 and all');
   assert.equal(r.line, 'icons: 1/2 items, 0/0 skills present (maplestory.io MCW/CBT2); 2 variants not reached (network unavailable)');
   assert.ok(fs.readFileSync(path.join(clone, 'items', '2000200', 'icon.png')).equals(png(20, 20)), 'the cached PNG');
-  network.failures = 0;
-  network.down = false;
+});
+
+test('a run in which maplestory.io answers errors for one ID writes pack.json and asks for the IDs after it', async () => {
+  // An item it serves, then a skill whose three URLs it answers 500 (as it does for the /job/... paths), then a skill
+  // it serves. One ID's errors must not stop the run nor keep the item and the second skill out of pack.json.
+  const data = dataDir({ items: ['2000400'], skills: ['0001400', '0001401'] });
+  const pack = tempDir('icons-pack-');
+  const served = site({
+    2000400: { icon: png(22, 22), iconRaw: png(22, 21) },
+    '0001401': { icon: png(32, 32), iconMouseOver: png(32, 32, 1), iconDisabled: png(32, 32, 2) },
+  });
+  let r;
+  const calls = await withFetch(async () => { r = await run({ packDir: pack, dataDir: data, attempts: 1 }); },
+    (url) => (url.includes('/skill/0001400/') ? { status: 500, body: 'Internal Server Error' } : served(url)));
+  assert.equal(calls.length, 3 + 3 + 3, 'every URL asked');
+  assert.equal(network.down, false);
+  assert.equal(r.line, 'icons: 1/1 items, 1/2 skills present (maplestory.io MCW/CBT2); 3 variants not reached (maplestory.io answered http 500)');
+  assert.equal(r.wrote, true);
+  const doc = JSON.parse(fs.readFileSync(path.join(pack, 'pack.json'), 'utf8'));
+  assert.deepEqual([Object.keys(doc.items), Object.keys(doc.skills), doc.missing], [['2000400'], ['0001401'], []], 'an error is not a miss');
 });

@@ -12,8 +12,9 @@
 //
 // A miss never fails the run: it prints one line such as
 // "icons: 94/94 items, 3/3 skills present (maplestory.io MCW/CBT2)" and exits 0. Exit 2 is a bad command line.
-// pack.json is rewritten only when its text changes, and never by --offline or by a run that found the network down (a
-// fresh clone's offline build must not overwrite the committed manifest with every ID missing).
+// pack.json is rewritten only when its text changes, and never by --offline or by a run that stopped asking because the
+// network was down or maplestory.io kept answering errors (a fresh clone's offline build must not overwrite the
+// committed manifest with every ID missing).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -54,7 +55,7 @@ function writeIfChanged(file, body) {
 
 /**
  * One run: fetch (cache first), write the PNGs, write pack.json when its text changed (never with `offline`, never
- * once the network is found down).
+ * once the run stopped asking: lib.mjs `network.down`).
  * Returns {line, wrote, ids, outcomes}; `line` is the summary line. `attempts` per URL defaults to lib.mjs's (tests
  * pass 1).
  */
@@ -90,7 +91,7 @@ export async function run({ packDir = DEFAULT_PACK_DIR, dataDir = DEFAULT_DATA_D
   for (const id of ids.skills) {
     for (const variant of KINDS.skill.variants) await settle('skill', id, variant, skillIconUrl(id, variant), null);
   }
-  if (network.down) why = 'network unavailable';
+  if (network.down) why = network.reason;
   const manifest = path.join(packDir, 'pack.json');
   const before = fs.existsSync(manifest) ? fs.readFileSync(manifest, 'utf8') : null;
   let prev = null;
@@ -101,8 +102,9 @@ export async function run({ packDir = DEFAULT_PACK_DIR, dataDir = DEFAULT_DATA_D
   }
   const text = stringifyPack(nextPack(prev, ids, outcomes));
   // Without a network the next pack can still differ: it drops IDs the game data no longer names, and a moved SOURCE
-  // version drops the whole previous pack. A run that found the network down leaves pack.json as committed; what it
-  // did fetch is cached, and the next run with a network records it.
+  // version drops the whole previous pack. A run that stopped asking (the network down, or maplestory.io answering
+  // errors to URL after URL) leaves pack.json as committed; what it did fetch is cached, and the next run records it.
+  // A run that asked everything writes, even when some URLs got an error: those variants keep their records.
   const wrote = !offline && !network.down && text !== before;
   if (wrote) {
     fs.mkdirSync(packDir, { recursive: true });
