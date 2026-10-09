@@ -115,14 +115,16 @@ export async function fetchAnswer(url, { refresh = process.argv.includes('--refr
     if (attempt > 1) await sleep(2000 * (attempt - 1));
     await gate();
     let res;
+    let body;
     try {
       res = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'image/png,application/json;q=0.9,*/*;q=0.8' }, signal: AbortSignal.timeout(TIMEOUT_MS) });
+      // fetch resolves on the headers: a connection that drops or stalls in the body throws here, on the same timeout
+      if (res.status === 200 || res.status === 404) body = Buffer.from(await res.arrayBuffer());
     } catch (e) {
       reason = `network error: ${e.cause?.code ?? e.name ?? e.message}`;
       continue;
     }
-    if (res.status === 200 || res.status === 404) {
-      const body = Buffer.from(await res.arrayBuffer());
+    if (body) {
       const contentType = res.headers.get('content-type') ?? '';
       const retrieved_at = new Date().toISOString();
       fs.writeFileSync(bodyFile, body);

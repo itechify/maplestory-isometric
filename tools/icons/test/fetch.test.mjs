@@ -66,6 +66,32 @@ test('a 404 is cached; a 500 is no answer and is not cached; requests are at lea
   network.failures = 0;
 });
 
+/** A 200 whose body breaks off after the headers (a dropped connection; a stalled one times out the same way). */
+const brokenBody = () => ({ body: new ReadableStream({ start(c) { c.error(new TypeError('terminated')); } }), type: 'image/png' });
+
+test('a body that breaks off is no answer, not a crash, and is not cached', async () => {
+  const url = fresh();
+  let r;
+  const calls = await withFetch(async () => { r = await fetchAnswer(url, { attempts: 2 }); }, brokenBody);
+  assert.equal(calls.length, 2, 'tried again');
+  assert.deepEqual([r.status, r.reason], [null, 'network error: TypeError']);
+  assert.equal(hasCached(url), false);
+  network.failures = 0;
+});
+
+test('a run whose download breaks off still records the rest and prints its line', async () => {
+  const data = dataDir({ items: ['2000300'], skills: [] });
+  const pack = tempDir('icons-pack-');
+  const served = site({ 2000300: { icon: png(24, 26), iconRaw: png(24, 24) } });
+  let r;
+  await withFetch(async () => { r = await run({ packDir: pack, dataDir: data, attempts: 1 }); },
+    (url) => (url === itemIconUrl('2000300', 'icon') ? brokenBody() : served(url)));
+  assert.equal(r.line, 'icons: 0/1 items, 0/0 skills present (maplestory.io MCW/CBT2); 1 variant not reached (network error: TypeError)');
+  assert.equal(r.wrote, true);
+  assert.deepEqual(Object.keys(JSON.parse(fs.readFileSync(path.join(pack, 'pack.json'), 'utf8')).items['2000300']), ['iconRaw']);
+  network.failures = 0;
+});
+
 test('--offline makes no request; --refresh re-fetches; both together are an error', async () => {
   const url = fresh();
   const calls = await withFetch(async () => {

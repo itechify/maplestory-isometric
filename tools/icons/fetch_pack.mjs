@@ -55,16 +55,17 @@ function writeIfChanged(file, body) {
 /**
  * One run: fetch (cache first), write the PNGs, write pack.json when its text changed (never with `offline`, never
  * once the network is found down).
- * Returns {line, wrote, ids, outcomes}; `line` is the summary line.
+ * Returns {line, wrote, ids, outcomes}; `line` is the summary line. `attempts` per URL defaults to lib.mjs's (tests
+ * pass 1).
  */
-export async function run({ packDir = DEFAULT_PACK_DIR, dataDir = DEFAULT_DATA_DIR, offline = false, refresh = false } = {}) {
+export async function run({ packDir = DEFAULT_PACK_DIR, dataDir = DEFAULT_DATA_DIR, offline = false, refresh = false, attempts } = {}) {
   const ids = wantedIds(dataDir);
   const outcomes = new Map();
   let gone = 0;
   let none = 0;
   let why = offline ? '--offline' : '';
   const settle = async (kind, id, variant, url, origin) => {
-    const answer = await fetchAnswer(url, { offline, refresh });
+    const answer = await fetchAnswer(url, { offline, refresh, attempts });
     const judged = judgeImage(answer);
     const file = pngPath(packDir, kind, id, variant);
     if (judged.state === 'ok') {
@@ -83,7 +84,7 @@ export async function run({ packDir = DEFAULT_PACK_DIR, dataDir = DEFAULT_DATA_D
     }
   };
   for (const id of ids.items) {
-    const origins = originsOf(await fetchAnswer(itemUrl(id), { offline, refresh }));
+    const origins = originsOf(await fetchAnswer(itemUrl(id), { offline, refresh, attempts }));
     for (const variant of KINDS.item.variants) await settle('item', id, variant, itemIconUrl(id, variant), origins ? origins[variant] : undefined);
   }
   for (const id of ids.skills) {
