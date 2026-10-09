@@ -204,7 +204,7 @@
       "file": "game/data/misostory/loot_visuals.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
-      "reason": "MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera.",
+      "reason": "MeowDB publishes item icons and meso art only as 2D Nexon sprites, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops, mesos included, are therefore procedural 3D shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. Item icons in the UI can come from an icon pack instead (docs/adr/0001-icon-packs.md); ground drops do not.",
       "verified": false,
       "verified_against": null
     },

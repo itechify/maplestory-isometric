@@ -13,6 +13,7 @@ published as GitHub Release assets at milestones.
 | `docs/**`: guides, research briefs, reviews, iteration log | `_scratch/`: agent sandboxes, test builds and logs |
 | Generated text docs: `docs/VALIDATION.md`, `validation_report.json`, `build_report.json`, `manifest.json`, `MAPLE_ISLAND_MANIFEST.md`, `ASSET_CATALOG.md` | `docs/research/ref_renders`, `ref_sprites`, `ref_web`, `raw`: proprietary Nexon reference material that must never be redistributed |
 | `docs/images/*.jpg`: a few small README images | Blender backups (`*.blend1`), caches, `node_modules/` |
+| `game/assets/icon_packs/<pack>/pack.json`: each icon pack's manifest | The icon packs' PNGs and their `.import` files: Nexon art fetched from maplestory.io, which git history would keep even after deletion ([ADR 0001](docs/adr/0001-icon-packs.md)) |
 
 **Why the `.blend` and renders stay out of git.** Git cannot delta-compress them, so every rebuild that changed
 would add another full copy (35 MB for the `.blend`, about 165 MB for the renders) to history forever. Twenty
@@ -102,4 +103,5 @@ Name releases `v<major>.<minor>-<short-name>` (for example `v0.1-iteration-one`)
 
 Use [Git LFS](https://git-lfs.com) for `*.blend` and `*.png`: `git lfs track "*.blend" "*.png"`, then commit
 `.gitattributes`. Clones stay small, but every version still counts against the account's LFS storage and
-download quota. For occasional snapshots, Releases remain the better fit.
+download quota. For occasional snapshots, Releases remain the better fit. The icon packs' PNGs are not a case for LFS:
+they stay out of git altogether ([ADR 0001](docs/adr/0001-icon-packs.md)).

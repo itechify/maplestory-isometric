@@ -282,7 +282,7 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 
 | What | Where | Why |
 |---|---|---|
-| Drop shapes, colours, sizes (item 0.58 m, coin 0.36 m), meso tiers (<50 bronze, <100 gold, <1000 pile, bag) | `loot_visuals.json` | MeowDB's item and meso art are Nexon sprites, which MisoStory never uses. The sizes are set so a drop reads at the gameplay camera's 50-75 px per meter, close to a classic 32 px icon next to a character. |
+| Drop shapes, colours, sizes (item 0.58 m, coin 0.36 m), meso tiers (<50 bronze, <100 gold, <1000 pile, bag) | `loot_visuals.json` | MeowDB's item and meso art are 2D Nexon sprites, so ground drops, mesos included, are procedural 3D shapes. Item icons in the UI can come from an icon pack ([`../adr/0001-icon-packs.md`](../adr/0001-icon-packs.md)); ground drops do not. The sizes are set so a drop reads at the gameplay camera's 50-75 px per meter, close to a classic 32 px icon next to a character. |
 | Toss 0.5 s / 1.1 m, hover 0.15 m, bob 5 cm, spin 70°/s, blink at 4 Hz in the last 10 s | `loot_visuals.json` motion | MeowDB documents no drop animation beyond "loot drops as soon as the mob dies" |
 | Scatter along the camera's ground-right axis; a scatter point more than 0.6 m above or below the kill's ground is pulled back (half the offset, then none) | `loot_visuals.json` placement; `LootSystem._landing` | Classic drops spread across the screen and stay on the monster's foothold. 0.6 m is the spawn tier tolerance. |
 | Holding Z picks up every 0.2 s | `loot_visuals.json` pickup | Classic hold-to-loot; MeowDB documents no rate |
