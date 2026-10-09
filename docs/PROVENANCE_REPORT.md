@@ -16,7 +16,7 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 | Property rows by authority | Henesys.gg 93, MeowDB MS Classic 1206 |
 | Dated capture files cited | 9 |
 | Unresolved values | 370 (breakables 3, drops 26, formulas 40, items 55, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
-| Adaptations (objects with a verified flag) | 125: 2 verified, 123 not verified |
+| Adaptations (objects with a verified flag) | 126: 2 verified, 124 not verified |
 | Icon packs (covered IDs, missing variants) | maplestory_io: 94 items, 3 skills covered, 0 variants missing |
 
 References skipped as out of scope (not findings):
@@ -2009,6 +2009,7 @@ and its reason (the nearest one when the object inherits it).
 | drop_rates.json | (file) | no |  | MeowDB MS Classic publishes no drop chances and Henesys.gg publishes only a rarity label per item, so the project owner approved this table on 2026-10-06 as a MisoStory adaptation (decision D3-11): a chance per item category and rarity. It is not a MapleStory fact and is not verified against anything. |
 | drop_rates.json | quest_gate_rule | no |  | MeowDB does not say who can loot a quest item. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not. |
 | drops.json | (file) | no |  | (per value: its <key>_reason entries) |
+| icon_packs.json | (file) | no |  | Presentation, the owner's decision of 2026-10-09 (#49): item and skill icons resolve through layered icon packs over the procedural base. maplestory_io is the maplestory.io MCW/CBT2 pack built by tools/icons (#50). Its PNGs are fetched and never committed, so a fresh clone has none and draws every icon procedurally. |
 | inventory.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | shop.protected_items[] | no |  | Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation. |
 | loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as 2D Nexon sprites, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops, mesos included, are therefore procedural 3D shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. Item icons in the UI can come from an icon pack instead (docs/adr/0001-icon-packs.md); ground drops do not. |

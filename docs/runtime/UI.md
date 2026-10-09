@@ -69,7 +69,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/minimap/map_icons.gd` | `MapIcons` | Procedural icons (coin, boat, swirl, door, arrow, quest dot) and an NPC's role icon; shared with the NPC name tags |
 | `tests/unit/test_ui_theme.gd`, `test_ui_hud.gd`, `test_ui_windows.gd`, `test_ui_drag_attack.gd` | | 38 tests |
 | `tests/unit/test_skills_ui.gd` | | the Skills window, typed quickslots, skill slots, chairs, held skill keys (#20: one cast per lockout, one refusal notice per hold, items once per press), the five window positions (10 tests) |
-| `tests/unit/test_ui_icon_packs.gd` | | icon packs over the procedural base, with fake packs written by the test (see "Testing") (10 tests) |
+| `tests/unit/test_ui_icon_packs.gd` | | icon packs over the procedural base, with fake packs written by the test (see "Testing") (11 tests) |
 | `tests/unit/test_ui_skill_icon_states.gd` | | a skill icon's disabled and mouse-over pictures from a fake pack, their fallback, and the cooldown over the art (see "Testing") (4 tests) |
 | `tests/unit/test_ui_window_fit.gd` | | every window (and the largest shop) with its largest content inside exactly 1600 x 900 and off the HUD's status bar; the Skills window keeps one size and opens clear of the Quest Log (every pair's overlap printed and bounded); the effects row on top of the bar, 40 px icons, covering no gauge, button or quickslot; a window that grows, a drag and a smaller viewport are clamped back (8 tests) |
 | `tests/unit/test_ui_minimap.gd`, `test_ui_minimap_projection.gd`, `test_ui_minimap_world.gd`, `test_ui_minimap_feedback.gd` | | the minimap and the world feedback (see "Testing") |

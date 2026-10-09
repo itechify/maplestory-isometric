@@ -185,6 +185,14 @@
       "verified_against": null
     },
     {
+      "file": "game/data/misostory/icon_packs.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Presentation, the owner's decision of 2026-10-09 (#49): item and skill icons resolve through layered icon packs over the procedural base. maplestory_io is the maplestory.io MCW/CBT2 pack built by tools/icons (#50). Its PNGs are fetched and never committed, so a fresh clone has none and draws every icon procedurally.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
       "file": "game/data/misostory/inventory.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
@@ -1013,8 +1021,8 @@
     "tools/meowdb/captures/quest_tracker_maple_island.txt"
   ],
   "counts": {
-    "adaptations": 125,
-    "adaptations_unverified": 123,
+    "adaptations": 126,
+    "adaptations_unverified": 124,
     "adaptations_verified": 2,
     "capture_files": 9,
     "icon_packs": 1,

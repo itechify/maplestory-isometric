@@ -33,7 +33,7 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/ui/npc/npc_portrait.gd` | `NpcPortrait` | the NPC's own proxy model rendered in a SubViewport, or an initial badge |
 | `scripts/ui/npc/shop_window.gd` | `ShopWindow` | Buy and Sell tabs, quantity picker, meso check, result messages |
 | `scripts/ui/npc/npc_ui_style.gd` | `NpcUiStyle` | MisoTheme bridge (loaded by path) plus the local paper and overlay styles |
-| `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | fallback icon drawn in the item's ground-drop shape |
+| `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | the coin drawn by `NpcUiStyle.coin_icon` when `MisoCoinIcon` is missing; shop item icons are `MisoItemIcon`s through the icon resolver ([UI.md](UI.md), "Icon packs") |
 | `scenes/systems/loot_system.tscn` | `LootSystem` | root: drops on the ground, pickup, expiry, persistence |
 | `scripts/actors/loot/ground_drop.gd` | `GroundDrop` | one drop: toss arc, hover, bob and spin, expiry blink |
 | `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | procedural drop models and styles from `loot_visuals.json` |
