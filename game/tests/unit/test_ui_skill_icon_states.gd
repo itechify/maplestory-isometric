@@ -104,6 +104,15 @@ func _windows(c: CharacterState) -> MisoWindowsRoot:
 	return windows
 
 
+## A real pointer move to `at` (viewport px): the viewport sends mouse_entered and mouse_exited as the pointer crosses
+## a control, as it does in play.
+func _point(vp: Viewport, at: Vector2) -> void:
+	var m := InputEventMouseMotion.new()
+	m.position = at
+	m.global_position = at
+	vp.push_input(m, true)
+
+
 func _hud(c: CharacterState) -> MisoHud:
 	var h: MisoHud = load("res://scenes/ui/hud.tscn").instantiate()
 	h.configure(MisoUiEnv.isolated(c, db(), bus, null))
@@ -166,27 +175,37 @@ func test_the_skills_window_greys_unlearned_skills_and_lights_the_one_under_the_
 	var windows := _windows(c)
 	windows.open_window("skills")
 	var w := windows.skills
+	# Lay the window out now (containers sort deferred), so the pointer lands on the real cells.
+	w.reset_size()
+	w.propagate_notification(Container.NOTIFICATION_SORT_CHILDREN)
+	var vp := w.get_viewport()
 	var nimble: MisoSkillsWindow.SkillIconCell = w.rows[NIMBLE]["icon"]
 	var recovery: MisoSkillsWindow.SkillIconCell = w.rows[RECOVERY]["icon"]
 	var snails: MisoSkillsWindow.SkillIconCell = w.rows[SNAILS]["icon"]
+	var beside := (w.rows[NIMBLE]["name"] as Label).get_global_rect().get_center()
 	assert_eq(_drawn(nimble.icon), DISABLED, "unlearned Nimble Feet: its iconDisabled")
 	assert_eq([_drawn(recovery.icon), recovery.icon.procedural_dim()], [PLAIN, true],
 		"unlearned Recovery: its icon under the procedural dim")
-	assert_eq([_drawn(snails.icon), snails.icon.procedural_dim()], [null, true], "unlearned Three Snails: the dim badge")
-	nimble.mouse_entered.emit()
+	assert_eq([_drawn(snails.icon), snails.icon.procedural_dim()], [null, true],
+		"unlearned Three Snails: the dim badge")
+	_point(vp, nimble.get_global_rect().get_center())
+	assert_true(nimble.icon.hover, "the pointer is over Nimble Feet's cell")
 	assert_eq(_drawn(nimble.icon), DISABLED, "under the pointer, still greyed")
-	nimble.mouse_exited.emit()
+	_point(vp, beside)
 	assert_true(w.add_point(NIMBLE), "learn Nimble Feet")
 	assert_eq(_drawn(nimble.icon), PLAIN, "learned: its icon")
-	nimble.mouse_entered.emit()
+	_point(vp, nimble.get_global_rect().get_center())
 	assert_eq(_drawn(nimble.icon), MOUSE_OVER, "the pointer over its cell: iconMouseOver")
 	w.refresh()
 	assert_eq(_drawn(nimble.icon), MOUSE_OVER, "a refresh keeps it")
-	nimble.mouse_exited.emit()
+	_point(vp, beside)
+	assert_false(nimble.icon.hover, "the pointer on the row's name, off the cell")
 	assert_eq(_drawn(nimble.icon), PLAIN, "the pointer gone: its icon")
-	recovery.mouse_entered.emit()
+	_point(vp, recovery.get_global_rect().get_center())
 	assert_eq([_drawn(recovery.icon), recovery.icon.procedural_dim()], [PLAIN, true],
 		"Recovery has no iconMouseOver and stays greyed")
+	_point(vp, beside)
+	assert_false(recovery.icon.hover, "the pointer gone")
 
 
 func test_a_quickslot_greys_an_unusable_skill_and_lights_under_the_pointer() -> void:
