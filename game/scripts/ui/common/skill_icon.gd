@@ -1,18 +1,32 @@
 class_name MisoSkillIcon
 extends Control
-## A procedurally drawn skill icon on a round badge (no MapleStory art): three snail shells for Three Snails, a heart
-## with a plus for Recovery, a winged boot for Nimble Feet, a star for any other skill. Optional overlays: `dim`
-## (greyed: not learned, or not enough MP / no shell for a quickslot) and `cooldown` (0..1 of the cooldown left,
-## drawn as a dark sweep with the seconds left in `cooldown_text`). Presentation only.
+## A skill icon: the skill's plain "icon" picture from the first icon pack that has one (MisoIconResolver), else a
+## procedurally drawn one on a round badge, the base layer under every pack: three snail shells for Three Snails, a
+## heart with a plus for Recovery, a winged boot for Nimble Feet, a star for any other skill. Optional overlays, drawn
+## over either: `dim` (greyed: not learned, or not enough MP / no shell for a quickslot) and `cooldown` (0..1 of the
+## cooldown left, drawn as a dark sweep with the seconds left in `cooldown_text`). Presentation only.
 ##
 ##   var icon := MisoSkillIcon.new()
 ##   icon.skill_id = "0001002"
+##
+## Pack art (32 x 32) fills the cell, drawn at whole multiples with nearest filtering, or with `fill` stretched over
+## the whole box (the effects bar); the procedural badge fills the box as before.
 
 ## Skill to draw ("" = nothing).
 var skill_id: String = "":
 	set(v):
 		skill_id = v
+		art = MisoIconResolver.shared().art(MisoIconResolver.SKILLS, v) if v != "" else null
+		# Nearest filtering only under pack art, so the cooldown seconds keep today's look on the badge.
+		texture_filter = TEXTURE_FILTER_NEAREST if art != null else TEXTURE_FILTER_PARENT_NODE
 		queue_redraw()
+## Pack art fills the whole box (scaled to its shorter side) instead of whole multiples of the cell: the effects bar.
+var fill: bool = false:
+	set(v):
+		fill = v
+		queue_redraw()
+## The pack picture drawn instead of the badge (null: no pack has one, so the procedural badge draws).
+var art: MisoIconResolver.Art = null
 ## Greyed out.
 var dim: bool = false:
 	set(v):
@@ -37,6 +51,8 @@ const BADGES := {
 }
 const OUTLINE := Color(0.06, 0.07, 0.10, 0.95)
 const SHELLS := [Color(0.80, 0.56, 0.30), Color(0.25, 0.52, 0.95), Color(0.90, 0.20, 0.18)]
+## Pack art greyed as the procedural dim greys the badge (darkened by 0.5, half opaque).
+const DIM_ART := Color(0.5, 0.5, 0.5, 0.5)
 
 
 func _init() -> void:
@@ -44,12 +60,45 @@ func _init() -> void:
 	custom_minimum_size = Vector2(32, 32)
 
 
+## The rect the pack art covers in this icon's box (Rect2() without art): a whole multiple of the 32 px cell, or the
+## box's shorter side with `fill`.
+func art_rect() -> Rect2:
+	return art.rect_in(size, fill) if art != null else Rect2()
+
+
 func _draw() -> void:
 	if skill_id == "":
 		return
 	var side := minf(size.x, size.y)
-	var s := side / 32.0
-	draw_set_transform(Vector2((size.x - side) * 0.5, (size.y - side) * 0.5), 0.0, Vector2(s, s))
+	if art != null:
+		draw_texture_rect(art.texture, art_rect(), false, DIM_ART if dim else Color.WHITE)
+		# The cooldown sweep below covers the art's cell.
+		var xf := MisoIconResolver.cell_transform(size, fill)
+		draw_set_transform(xf.origin, 0.0, xf.get_scale())
+	else:
+		var s := side / 32.0
+		draw_set_transform(Vector2((size.x - side) * 0.5, (size.y - side) * 0.5), 0.0, Vector2(s, s))
+		_draw_badge()
+	if cooldown > 0.0:
+		var pts := PackedVector2Array([Vector2(16, 16)])
+		var steps := 24
+		for i in steps + 1:
+			var ang := -PI / 2.0 + TAU * cooldown * float(i) / steps
+			pts.append(Vector2(16, 16) + Vector2(cos(ang), sin(ang)) * 15.0)
+		if pts.size() >= 3:
+			draw_colored_polygon(pts, Color(0.02, 0.03, 0.06, 0.62))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	if cooldown > 0.0 and cooldown_text != "":
+		var font := get_theme_default_font()
+		var fs := int(maxf(9.0, side * 0.36))
+		var tw := font.get_string_size(cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
+		var p := Vector2((size.x - tw) * 0.5, size.y * 0.5 + fs * 0.35)
+		draw_string_outline(font, p, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, OUTLINE)
+		draw_string(font, p, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1))
+
+
+## The procedural badge on the 32 x 32 grid.
+func _draw_badge() -> void:
 	var a := 0.5 if dim else 1.0
 	var badge: Color = BADGES.get(skill_id, Color(0.55, 0.60, 0.80))
 	if dim:
@@ -70,22 +119,6 @@ func _draw() -> void:
 			_boot(Color(0.55, 0.32, 0.18, a), Color(1, 1, 1, a))
 		_:
 			_star(Vector2(16, 16), Color(1, 1, 1, a))
-	if cooldown > 0.0:
-		var pts := PackedVector2Array([Vector2(16, 16)])
-		var steps := 24
-		for i in steps + 1:
-			var ang := -PI / 2.0 + TAU * cooldown * float(i) / steps
-			pts.append(Vector2(16, 16) + Vector2(cos(ang), sin(ang)) * 15.0)
-		if pts.size() >= 3:
-			draw_colored_polygon(pts, Color(0.02, 0.03, 0.06, 0.62))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-	if cooldown > 0.0 and cooldown_text != "":
-		var font := get_theme_default_font()
-		var fs := int(maxf(9.0, side * 0.36))
-		var tw := font.get_string_size(cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs).x
-		var p := Vector2((size.x - tw) * 0.5, size.y * 0.5 + fs * 0.35)
-		draw_string_outline(font, p, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, 4, OUTLINE)
-		draw_string(font, p, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(1, 1, 1))
 
 
 func _shell(at: Vector2, c: Color, a: float) -> void:

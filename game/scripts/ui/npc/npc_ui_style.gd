@@ -13,7 +13,6 @@ extends RefCounted
 ## the name tags and the quest markers.
 
 const MISO_THEME_PATH := "res://scripts/ui/theme/miso_theme.gd"
-const MISO_ITEM_ICON_PATH := "res://scripts/ui/common/item_icon.gd"
 const MISO_COIN_ICON_PATH := "res://scripts/ui/common/coin_icon.gd"
 
 # Paper (local) palette.
@@ -230,28 +229,20 @@ static func style_rich(r: RichTextLabel, font_size: int, ink: Color = INK) -> vo
 
 # --- icons ---------------------------------------------------------------------------------------------------------
 
-## An item icon: the HUD's MisoItemIcon (the inventory's icons) when it exists, else a LootItemIcon in the item's
-## ground-drop shape and colours.
-static func item_icon(item_id: String, db: ContentDB, visuals: LootVisuals, side: float = 32.0) -> Control:
-	if ResourceLoader.exists(MISO_ITEM_ICON_PATH):
-		var s: Variant = load(MISO_ITEM_ICON_PATH)
-		if s is Script and (s as Script).can_instantiate():
-			var icon: Variant = (s as Script).new()
-			if icon is Control and (icon as Control).has_method("set_item"):
-				(icon as Control).custom_minimum_size = Vector2(side, side)
-				(icon as Control).call("set_item", item_id, db)
-				return icon
-			if icon is Node:
-				(icon as Node).free()
-	return LootItemIcon.new(visuals.style_for_item(item_id) if visuals != null else {}, side)
+## An item icon `side` px square: the inventory's MisoItemIcon, so the item's pack art when an icon pack has it
+## (MisoIconResolver), else its procedural icon. Pack art is drawn at whole multiples of its 32 px cell: a 32 px box
+## shows it at 1x, a 64 px box at 2x.
+static func item_icon(item_id: String, db: ContentDB, side: float = 32.0) -> MisoItemIcon:
+	var icon := MisoItemIcon.new()
+	icon.custom_minimum_size = Vector2(side, side)
+	icon.set_item(item_id, db)
+	return icon
 
 
 ## Updates an icon made by item_icon() to show another item.
-static func set_icon_item(icon: Control, item_id: String, db: ContentDB, visuals: LootVisuals) -> void:
-	if icon is LootItemIcon:
-		(icon as LootItemIcon).set_style(visuals.style_for_item(item_id) if visuals != null else {})
-	elif icon != null and icon.has_method("set_item"):
-		icon.call("set_item", item_id, db)
+static func set_icon_item(icon: MisoItemIcon, item_id: String, db: ContentDB) -> void:
+	if icon != null:
+		icon.set_item(item_id, db)
 
 
 ## A meso coin icon: the HUD's MisoCoinIcon when it exists, else a LootItemIcon coin.

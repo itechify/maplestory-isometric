@@ -17,6 +17,8 @@ const REQ_STAT_KEYS: PackedStringArray = ["str", "dex", "int", "luk"]
 
 var id: String = ""
 var name: String = ""
+## The item id the MapleStory client uses ("2000000" for Red Potion, record 270): what icon packs key items by.
+var game_item_id: String = ""
 ## MeowDB type ("Equip", "Use", "Setup", "Etc") and subtype ("Potion", "One-Handed Sword", ...; "" when none).
 var type: String = ""
 var subtype: String = ""
@@ -99,6 +101,7 @@ static func from_record(rec: Dictionary, db: ContentDB = null) -> ItemDef:
 	d.raw = rec
 	d.id = id_of(rec.get("id", ""))
 	d.name = _s(rec.get("name", ""))
+	d.game_item_id = _s(rec.get("game_item_id"))
 	d.type = _s(rec.get("type"))
 	d.subtype = _s(rec.get("subtype"))
 	d.tab = _s(rec.get("inventory_tab"))

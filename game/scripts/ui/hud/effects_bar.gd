@@ -101,6 +101,9 @@ func _make_cell(id: String) -> Control:
 	var icon := MisoSkillIcon.new()
 	icon.name = "Icon"
 	icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+	# The one exception to whole-multiple icon art (UI.md "Icon packs"): pack art fills the 40 px box, keeping the
+	# icon's 36 px minimum (#12).
+	icon.fill = true
 	cell.add_child(icon)
 	var label := MisoTheme.make_label("", TIME_FONT_SIZE, MisoTheme.TEXT, 4, MisoTheme.WEIGHT_BOLD)
 	label.name = "Time"

@@ -1,6 +1,6 @@
 class_name MisoItemSlot
 extends PanelContainer
-## One item square (inventory grid, equipment doll, quickslot bar): a procedural icon, a stack count, an optional
+## One item square (inventory grid, equipment doll, quickslot bar): an item icon, a stack count, an optional
 ## caption for an empty slot ("Hat") and an optional key label ("1"). It reports clicks, double-clicks, right-clicks
 ## and hover, and supports Godot drag and drop through injectable callbacks, so the owner decides what a drag means.
 
@@ -155,17 +155,21 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	# The drag may cross the world with the left (attack) button held. That never swings: the press was consumed here,
 	# and PlayerCombat counts only unconsumed presses outside a GUI drag (MouseAttackGate). The attack action is left
 	# alone, so an attack key held meanwhile (J) keeps repeating.
+	set_drag_preview(drag_preview())
+	return d
+
+
+## What follows the pointer while the slot's item is dragged: the slot's icon (its pack art or procedural shape),
+## 40 px and centred on the pointer.
+func drag_preview() -> Control:
 	var preview := MisoItemIcon.new()
 	preview.size = Vector2(40, 40)
-	preview.item_id = item_id
-	preview.shape = icon.shape
-	preview.color = icon.color
+	preview.show_like(icon)
 	preview.modulate = Color(1, 1, 1, 0.85)
 	var holder := Control.new()
 	holder.add_child(preview)
 	preview.position = Vector2(-20, -20)
-	set_drag_preview(holder)
-	return d
+	return holder
 
 
 func _can_drop_data(_at_position: Vector2, d: Variant) -> bool:

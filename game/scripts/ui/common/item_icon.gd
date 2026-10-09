@@ -1,14 +1,17 @@
 class_name MisoItemIcon
 extends Control
-## A procedurally drawn item icon: a small sticker-like shape chosen from the item's canonical type, subtype and
-## equip slot (a potion bottle, an apple, a sword, a skullcap, a shell ...) tinted by the colour its name states
-## ("Red Potion", "Blue Headband", "Amethyst Ore"), or a stable hue derived from the id. No MapleStory art is used.
+## An item icon: the item's picture from the first icon pack that has one (MisoIconResolver, keyed by the item's
+## game_item_id), else a procedurally drawn one. The procedural icon is the base layer under every pack: a small
+## sticker-like shape chosen from the item's canonical type, subtype and equip slot (a potion bottle, an apple, a
+## sword, a skullcap, a shell ...) tinted by the colour its name states ("Red Potion", "Blue Headband", "Amethyst
+## Ore"), or a stable hue derived from the id.
 ##
 ##   var icon := MisoItemIcon.new()
-##   icon.set_item("270", Data.db)      # Red Potion: a red bottle
+##   icon.set_item("270", Data.db)      # Red Potion: the pack's red potion, or a red bottle
 ##
-## The shape and colour rules are presentation only (no gameplay value); shape_for() and color_for() are static so
-## other UI (shop, dialogue item refs, loot labels) can reuse them.
+## Pack art sits in the 32 x 32 cell by its origin, and the cell is drawn at whole multiples with nearest filtering
+## (MisoIconResolver.cell_transform); the procedural shape fills the box as before. The shape and colour rules are
+## presentation only (no gameplay value); shape_for() and color_for() are static so other UI can reuse them.
 
 ## Item to draw ("" = nothing).
 var item_id: String = ""
@@ -20,6 +23,10 @@ var dim: bool = false:
 
 var shape: String = ""
 var color: Color = Color.WHITE
+## The item's client id, the key icon packs use ("" for nothing or an unknown item).
+var game_item_id: String = ""
+## The pack picture drawn instead of the shape (null: no pack has one, so the procedural shape draws).
+var art: MisoIconResolver.Art = null
 
 ## Name keyword -> tint, checked in order (longer, more specific words first).
 const COLOR_WORDS: Array = [
@@ -43,6 +50,8 @@ const OUTLINE_COLOR := Color(0.06, 0.07, 0.10, 0.95)
 const UNKNOWN_COLOR := Color(0.62, 0.62, 0.66)
 const METAL := Color(0.82, 0.86, 0.92)
 const WOOD := Color(0.62, 0.42, 0.22)
+## Pack art greyed as the procedural dim greys a shape (darkened by 0.45, 0.55 opaque).
+const DIM_ART := Color(0.55, 0.55, 0.55, 0.55)
 
 
 func _init() -> void:
@@ -57,6 +66,27 @@ func set_item(p_item_id: String, db: ContentDB) -> void:
 	var def: ItemDef = ItemDef.of(item_id, db) if item_id != "" and db != null else null
 	shape = shape_for(def) if item_id != "" else ""
 	color = color_for(def, item_id) if def != null else UNKNOWN_COLOR
+	_show_art(def.game_item_id if def != null else "")
+
+
+## Shows what `other` shows (a drag preview): the same item, shape and colour, and its pack art.
+func show_like(other: MisoItemIcon) -> void:
+	item_id = other.item_id
+	shape = other.shape
+	color = other.color
+	_show_art(other.game_item_id)
+
+
+## The rect the pack art covers in this icon's box, at a whole multiple of the 32 px cell (Rect2() without art).
+func art_rect() -> Rect2:
+	return art.rect_in(size) if art != null else Rect2()
+
+
+func _show_art(p_game_item_id: String) -> void:
+	game_item_id = p_game_item_id
+	art = MisoIconResolver.shared().art(MisoIconResolver.ITEMS, game_item_id) if game_item_id != "" else null
+	# Nearest filtering only under pack art, so the procedural "?" token's glyph keeps today's look.
+	texture_filter = TEXTURE_FILTER_NEAREST if art != null else TEXTURE_FILTER_PARENT_NODE
 	queue_redraw()
 
 
@@ -167,6 +197,9 @@ static func color_for(def: ItemDef, fallback_id: String = "") -> Color:
 
 
 func _draw() -> void:
+	if art != null:
+		draw_texture_rect(art.texture, art_rect(), false, DIM_ART if dim else Color.WHITE)
+		return
 	if shape == "":
 		return
 	var side := minf(size.x, size.y)

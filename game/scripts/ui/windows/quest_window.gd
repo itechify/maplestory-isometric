@@ -26,6 +26,9 @@ const TAB_LABELS := {TAB_IN_PROGRESS: "In Progress", TAB_AVAILABLE: "Available",
 const FORFEIT_TEXT := "Forfeit"
 ## The key that asks to forfeit the selected in-progress quest while the log is open (Enter is the inventory's).
 const FORFEIT_KEY := KEY_DELETE
+## An item reward's icon box in px: the 32 px icon cell at 1x (UI.md "Icon packs": pack art is drawn at whole
+## multiples only).
+const REWARD_ICON_SIZE := 32.0
 
 var current_tab: String = TAB_IN_PROGRESS
 var selected_quest: String = ""
@@ -488,7 +491,7 @@ func _item_row(item_id: String, count: int, db: ContentDB) -> Control:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
 	var icon := MisoItemIcon.new()
-	icon.custom_minimum_size = Vector2(26, 26)
+	icon.custom_minimum_size = Vector2(REWARD_ICON_SIZE, REWARD_ICON_SIZE)
 	icon.set_item(item_id, db)
 	row.add_child(icon)
 	var nm := String(db.item(item_id).get("name", item_id)) if db != null else item_id

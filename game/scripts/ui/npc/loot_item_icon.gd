@@ -1,7 +1,8 @@
 class_name LootItemIcon
 extends Control
 ## A small procedural item icon (no Nexon art): the same shape family and colours as the item's ground drop
-## (LootVisuals: chest, bottle, fruit, scroll, arrows, gem, pouch, coins), drawn in code. Used by the shop window.
+## (LootVisuals: chest, bottle, fruit, scroll, arrows, gem, pouch, coins), drawn in code. NpcUiStyle.coin_icon falls
+## back to its coins; item icons in the shop are MisoItemIcons (NpcUiStyle.item_icon).
 
 var style: Dictionary = {}
 
