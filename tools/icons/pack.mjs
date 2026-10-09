@@ -9,6 +9,11 @@
 // gives one, fetched date) and, in `missing`, each variant maplestory.io answered does not exist (a 404, a blank 1x1
 // image, a body that is not a PNG). A variant this run got no answer for keeps what the previous pack.json says, so a
 // run without a network leaves the file as it was. A variant's `fetched` date changes only when its bytes change.
+//
+// maplestory.io appends a short trailer after a PNG's IEND chunk (00 dd 01, then JSON: a notice, the serving
+// container, its git hash, the URL and the time the image was generated). The pack keeps the PNG itself, through IEND:
+// the trailer changes whenever the server regenerates the image, so its sha256 and fetched date follow the picture,
+// not the server. The cache keeps the answer as it came.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -72,18 +77,28 @@ export function wantedIds(dataDir) {
   return { items: [...items].sort(byId), skills: [...skills].sort(byId) };
 }
 
-/** {width, height} of a whole PNG (signature, IHDR first, IEND last), else null. */
-export function pngSize(buf) {
+/**
+ * The PNG at the start of `buf`: {width, height, png} with `png` the bytes through the IEND chunk (anything after it,
+ * such as maplestory.io's trailer, left out), or null unless its chunks run whole from the signature and IHDR to IEND.
+ */
+export function pngImage(buf) {
   if (!Buffer.isBuffer(buf) || buf.length < 45 || !buf.subarray(0, 8).equals(PNG_SIGNATURE)) return null;
-  if (buf.toString('latin1', 12, 16) !== 'IHDR' || buf.toString('latin1', buf.length - 8, buf.length - 4) !== 'IEND') return null;
-  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
+  if (buf.readUInt32BE(8) !== 13 || buf.toString('latin1', 12, 16) !== 'IHDR') return null;
+  for (let p = 8; p + 12 <= buf.length;) {
+    const end = p + 12 + buf.readUInt32BE(p);
+    if (end > buf.length) return null;
+    if (buf.toString('latin1', p + 4, p + 8) === 'IEND') return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20), png: buf.subarray(0, end) };
+    p = end;
+  }
+  return null;
 }
 
 export const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('hex');
 
 /**
  * What an answer (lib.mjs fetchAnswer) means for an icon variant:
- *   {state: 'ok', body, url, sha256, size, fetched}   a PNG larger than 1x1; `fetched` is the UTC date it was fetched
+ *   {state: 'ok', body, url, sha256, size, fetched}   a PNG larger than 1x1; `body` is the PNG through IEND and
+ *                                                      `sha256` its hash; `fetched` is the UTC date it was fetched
  *   {state: 'gone', reason}                            maplestory.io says it does not exist: a 404, a blank 1x1 image,
  *                                                      a body that is not a PNG
  *   {state: 'none', reason}                            no answer this run
@@ -91,10 +106,10 @@ export const sha256 = (buf) => crypto.createHash('sha256').update(buf).digest('h
 export function judgeImage(answer) {
   if (answer.status === null) return { state: 'none', reason: answer.reason };
   if (answer.status !== 200) return { state: 'gone', reason: `http ${answer.status}` };
-  const size = pngSize(answer.body);
-  if (!size) return { state: 'gone', reason: `not a PNG (${answer.contentType || 'no content type'})` };
-  if (size.width * size.height <= 1) return { state: 'gone', reason: `blank ${size.width}x${size.height} image` };
-  return { state: 'ok', body: answer.body, url: answer.url, sha256: sha256(answer.body), size: [size.width, size.height],
+  const image = pngImage(answer.body);
+  if (!image) return { state: 'gone', reason: `not a PNG (${answer.contentType || 'no content type'})` };
+  if (image.width * image.height <= 1) return { state: 'gone', reason: `blank ${image.width}x${image.height} image` };
+  return { state: 'ok', body: image.png, url: answer.url, sha256: sha256(image.png), size: [image.width, image.height],
     fetched: String(answer.retrieved_at).slice(0, 10) };
 }
 
