@@ -20,11 +20,13 @@ const PACKS_DIR := "res://assets/icon_packs"
 const MANIFEST := "pack.json"
 ## The pack format this resolver reads; a pack.json of another format is skipped with a warning.
 const FORMAT := 1
-## Kinds (a pack's subfolders) and the plain variant. The other variants (iconRaw; iconMouseOver, iconDisabled) are
-## in the packs but not drawn yet (#51).
+## Kinds (a pack's subfolders) and the variants drawn: the plain icon, and a skill's disabled and mouse-over states
+## (MisoSkillIcon). An item's iconRaw is in the packs but not drawn.
 const ITEMS := "items"
 const SKILLS := "skills"
 const ICON := "icon"
+const ICON_DISABLED := "iconDisabled"
+const ICON_MOUSE_OVER := "iconMouseOver"
 ## The icon cell in px. Item art is placed in it by its origin, skill art (32 x 32) fills it; the cell is drawn at
 ## whole multiples (cell_transform).
 const CELL := 32

@@ -26,7 +26,8 @@ const KEY_ROW_HEIGHT := 26.0
 
 
 ## A skill's icon in its row: a drag source for learned skills ({"kind": SKILL_DRAG_KIND, "source": "skills",
-## "skill_id"}), which a HUD quickslot accepts.
+## "skill_id"}), which a HUD quickslot accepts. The icon is greyed while the skill is not learned (refresh) and shows
+## its mouse-over picture while the pointer is over the cell (MisoSkillIcon.dim and hover).
 class SkillIconCell extends PanelContainer:
 	var skill_id: String = ""
 	var icon: MisoSkillIcon
@@ -42,6 +43,8 @@ class SkillIconCell extends PanelContainer:
 		icon = MisoSkillIcon.new()
 		icon.skill_id = p_skill_id
 		add_child(icon)
+		mouse_entered.connect(func() -> void: icon.hover = true)
+		mouse_exited.connect(func() -> void: icon.hover = false)
 
 	func _get_drag_data(_at_position: Vector2) -> Variant:
 		if learned.is_valid() and not bool(learned.call()):

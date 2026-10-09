@@ -1,13 +1,17 @@
 class_name MisoSkillIcon
 extends Control
-## A skill icon: the skill's plain "icon" picture from the first icon pack that has one (MisoIconResolver), else a
-## procedurally drawn one on a round badge, the base layer under every pack: three snail shells for Three Snails, a
-## heart with a plus for Recovery, a winged boot for Nimble Feet, a star for any other skill. Optional overlays, drawn
-## over either: `dim` (greyed: not learned, or not enough MP / no shell for a quickslot) and `cooldown` (0..1 of the
-## cooldown left, drawn as a dark sweep with the seconds left in `cooldown_text`). Presentation only.
+## A skill icon: the skill's picture from the first icon pack that has one (MisoIconResolver), else a procedurally
+## drawn one on a round badge, the base layer under every pack: three snail shells for Three Snails, a heart with a
+## plus for Recovery, a winged boot for Nimble Feet, a star for any other skill. Two states draw the pack's variants:
+## `dim` (greyed: not learned, or not enough MP / no shell for a quickslot) draws "iconDisabled", and `hover` (the
+## pointer is over the icon in the Skills window or a quickslot) draws "iconMouseOver"; a greyed icon stays greyed
+## under the pointer. A state whose variant no pack has draws the plain "icon" instead: greyed by the procedural dim
+## while `dim`, unchanged while `hover`. `cooldown` (0..1 of the cooldown left) is drawn over any of them as a dark
+## sweep with the seconds left in `cooldown_text`, since the art has no cooldown frames. Presentation only.
 ##
 ##   var icon := MisoSkillIcon.new()
 ##   icon.skill_id = "0001002"
+##   icon.dim = true                 # Nimble Feet's iconDisabled, else its icon or badge under the procedural dim
 ##
 ## Pack art (32 x 32) fills the cell, drawn at whole multiples with nearest filtering, or with `fill` stretched over
 ## the whole box (the effects bar); the procedural badge fills the box as before.
@@ -16,10 +20,10 @@ extends Control
 var skill_id: String = "":
 	set(v):
 		skill_id = v
-		art = MisoIconResolver.shared().art(MisoIconResolver.SKILLS, v) if v != "" else null
-		# Nearest filtering only under pack art, so the cooldown seconds keep today's look on the badge.
-		texture_filter = TEXTURE_FILTER_NEAREST if art != null else TEXTURE_FILTER_PARENT_NODE
-		queue_redraw()
+		art = _resolve(MisoIconResolver.ICON)
+		disabled_art = _resolve(MisoIconResolver.ICON_DISABLED)
+		hover_art = _resolve(MisoIconResolver.ICON_MOUSE_OVER)
+		_redraw()
 ## Pack art fills the whole box (scaled to its shorter side) instead of whole multiples of the cell: the effects bar.
 var fill: bool = false:
 	set(v):
@@ -27,11 +31,20 @@ var fill: bool = false:
 		queue_redraw()
 ## The pack picture drawn instead of the badge (null: no pack has one, so the procedural badge draws).
 var art: MisoIconResolver.Art = null
+## The pack's pictures of the two states, iconDisabled and iconMouseOver (null: no pack has one, so `art` or the
+## badge draws in that state).
+var disabled_art: MisoIconResolver.Art = null
+var hover_art: MisoIconResolver.Art = null
 ## Greyed out.
 var dim: bool = false:
 	set(v):
 		dim = v
-		queue_redraw()
+		_redraw()
+## The pointer is over the icon (the Skills window's icon cells and the quickslots set it).
+var hover: bool = false:
+	set(v):
+		hover = v
+		_redraw()
 ## Share of the cooldown still to run (0 = ready, 1 = just cast).
 var cooldown: float = 0.0:
 	set(v):
@@ -51,7 +64,8 @@ const BADGES := {
 }
 const OUTLINE := Color(0.06, 0.07, 0.10, 0.95)
 const SHELLS := [Color(0.80, 0.56, 0.30), Color(0.25, 0.52, 0.95), Color(0.90, 0.20, 0.18)]
-## Pack art greyed as the procedural dim greys the badge (darkened by 0.5, half opaque).
+## The plain pack art greyed when no pack has the iconDisabled, as the procedural dim greys the badge (darkened by
+## 0.5, half opaque).
 const DIM_ART := Color(0.5, 0.5, 0.5, 0.5)
 
 
@@ -60,18 +74,46 @@ func _init() -> void:
 	custom_minimum_size = Vector2(32, 32)
 
 
-## The rect the pack art covers in this icon's box (Rect2() without art): a whole multiple of the 32 px cell, or the
-## box's shorter side with `fill`.
+## The pack picture drawn now (null: the procedural badge): iconDisabled while `dim`, else iconMouseOver while
+## `hover`, else the plain icon, which also stands in for a state's missing variant.
+func shown_art() -> MisoIconResolver.Art:
+	if dim:
+		return disabled_art if disabled_art != null else art
+	if hover and hover_art != null:
+		return hover_art
+	return art
+
+
+## Whether the procedural dim greys the picture: `dim` with no iconDisabled to draw.
+func procedural_dim() -> bool:
+	return dim and disabled_art == null
+
+
+## The rect the pack art drawn now covers in this icon's box (Rect2() without art): a whole multiple of the 32 px
+## cell, or the box's shorter side with `fill`.
 func art_rect() -> Rect2:
-	return art.rect_in(size, fill) if art != null else Rect2()
+	var shown := shown_art()
+	return shown.rect_in(size, fill) if shown != null else Rect2()
+
+
+## The skill's picture of `variant` from the packs (null without a skill, or when no pack has one).
+func _resolve(variant: String) -> MisoIconResolver.Art:
+	return MisoIconResolver.shared().art(MisoIconResolver.SKILLS, skill_id, variant) if skill_id != "" else null
+
+
+func _redraw() -> void:
+	# Nearest filtering only under pack art, so the cooldown seconds keep today's look on the badge.
+	texture_filter = TEXTURE_FILTER_NEAREST if shown_art() != null else TEXTURE_FILTER_PARENT_NODE
+	queue_redraw()
 
 
 func _draw() -> void:
 	if skill_id == "":
 		return
 	var side := minf(size.x, size.y)
-	if art != null:
-		draw_texture_rect(art.texture, art_rect(), false, DIM_ART if dim else Color.WHITE)
+	var shown := shown_art()
+	if shown != null:
+		draw_texture_rect(shown.texture, art_rect(), false, DIM_ART if procedural_dim() else Color.WHITE)
 		# The cooldown sweep below covers the art's cell.
 		var xf := MisoIconResolver.cell_transform(size, fill)
 		draw_set_transform(xf.origin, 0.0, xf.get_scale())
