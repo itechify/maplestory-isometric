@@ -1,9 +1,10 @@
 extends TestCase
 ## Item and skill icons resolve through layered icon packs over the procedural base (#49, docs/runtime/UI.md "Icon
-## packs"). Every pack here is a fake one the test writes to a private folder under user:// (solid-colour PNGs made
-## with Image.create), so it loads through the raw-PNG path: a PNG made at runtime was never imported, so
-## ResourceLoader cannot load it. No network and no Nexon art. The shared resolver is swapped for the test's own and
-## restored after every test.
+## packs"). Every pack here is a fake one the test writes to a private folder (solid-colour PNGs made with
+## Image.create). Those under user:// load through the raw-PNG path: a PNG made at runtime was never imported, so
+## ResourceLoader cannot load it. The one res:// pack stands in for the bundled pack in an exported build, where only
+## the imported copies are left: the test writes each imported texture and its .import remap itself. No network and
+## no Nexon art. The shared resolver is swapped for the test's own and restored after every test.
 
 const RED_POTION := "270"       # game_item_id 2000000, 27 x 30, origin (-3, 30)
 const SNAIL_SHELL := "348"      # game_item_id 4000001, 26 x 27, origin (-4, 27)
@@ -14,13 +15,17 @@ const RED := Color(1, 0, 0)
 const BLUE := Color(0, 0, 1)
 const GREEN := Color(0, 1, 0)
 
-## The private folder the fake packs live in (removed after each test).
+## The private folders the fake packs live in (removed after each test). res_root is under res://.godot/, the import
+## cache, which git and the editor's file scan both skip.
 var root := ""
+var res_root := ""
 var nodes: Array = []
 
 
 func before_each() -> void:
-	root = "user://_tests/icon_packs_%d_%d" % [Time.get_ticks_usec(), randi()]
+	var run := "icon_packs_%d_%d" % [Time.get_ticks_usec(), randi()]
+	root = "user://_tests".path_join(run)
+	res_root = "res://.godot/_tests".path_join(run)
 	MisoIconResolver.set_shared(null)
 
 
@@ -32,12 +37,14 @@ func after_each() -> void:
 			n.free()
 	nodes.clear()
 	_remove_tree(root)
+	_remove_tree(res_root)
 
 
-## A fake pack `pack_name` in format 1. entries: [{kind, id, variant, size: Vector2i, color, origin (optional),
-## png (default true: false lists the entry in pack.json without its PNG, as a fresh clone has it)}].
-func _pack(pack_name: String, entries: Array) -> String:
-	var dir := root.path_join(pack_name)
+## A fake pack `pack_name` in format 1, in `base` (default root). entries: [{kind, id, variant, size: Vector2i, color,
+## origin (optional), png (default true: false lists the entry in pack.json without its PNG, as a fresh clone has it),
+## imported (default false: true leaves only the imported copy of the PNG, as an exported build has it)}].
+func _pack(pack_name: String, entries: Array, base: String = "") -> String:
+	var dir := (base if base != "" else root).path_join(pack_name)
 	var manifest := {"format": 1, "name": pack_name, "source": {"service": "test"}, "items": {}, "skills": {},
 		"missing": []}
 	for e: Dictionary in entries:
@@ -54,12 +61,26 @@ func _pack(pack_name: String, entries: Array) -> String:
 			DirAccess.make_dir_recursive_absolute(folder)
 			var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
 			img.fill(e.get("color", RED))
-			assert_eq(img.save_png(folder.path_join("%s.png" % e.get("variant", "icon"))), OK, "PNG written")
+			var png := folder.path_join("%s.png" % e.get("variant", "icon"))
+			if e.get("imported", false):
+				_write_imported(png, img)
+			else:
+				assert_eq(img.save_png(png), OK, "PNG written")
 	DirAccess.make_dir_recursive_absolute(dir)
 	var f := FileAccess.open(dir.path_join("pack.json"), FileAccess.WRITE)
 	f.store_string(JSON.stringify(manifest, "  "))
 	f.close()
 	return dir
+
+
+## What an exported build holds for the PNG `png` of a res:// pack: the imported texture and the .import remap that
+## leads ResourceLoader to it, but not the .png. The editor imports to a .ctex; a saved ImageTexture stands in for it.
+func _write_imported(png: String, img: Image) -> void:
+	var tex := png.get_basename() + ".res"
+	assert_eq(ResourceSaver.save(ImageTexture.create_from_image(img), tex), OK, "imported texture written")
+	var f := FileAccess.open(png + ".import", FileAccess.WRITE)
+	f.store_string('[remap]\n\nimporter="texture"\ntype="ImageTexture"\npath="%s"\n' % tex)
+	f.close()
 
 
 func _item(game_item_id: String, size: Vector2i, color: Color, origin: Variant = null,
@@ -175,6 +196,23 @@ func test_with_no_pack_pngs_every_icon_is_drawn_procedurally() -> void:
 		assert_eq(skill.art, null, "skill %s draws its badge" % s.id)
 	assert_eq(MisoIconResolver.new(PackedStringArray([root.path_join("nothing")])).art("items", "2000000"), null,
 		"a pack folder that is not there is no pack")
+
+
+func test_a_res_pack_loads_only_imported_textures() -> void:
+	# The bundled pack in an exported build: the Red Potion only as its imported copy, the Snail Shell as a raw PNG
+	# that was never imported, the Egg listed without a PNG.
+	var pack := _pack("bundled", [_item("2000000", Vector2i(27, 30), RED, [-3, 30]).merged({"imported": true}),
+		_item("4000001", Vector2i(26, 27), BLUE, [-4, 27]),
+		_item("2010002", Vector2i(32, 32), GREEN).merged({"png": false})], res_root)
+	var r := MisoIconResolver.new(PackedStringArray([pack]))
+	assert_false(FileAccess.file_exists(pack.path_join("items/2000000/icon.png")), "the Red Potion's .png is not there")
+	var potion := r.art("items", "2000000")
+	assert_true(potion != null, "but ResourceLoader finds and loads its imported copy")
+	assert_eq(_colour_of(potion), RED)
+	assert_eq(potion.offset, Vector2i(3, 2), "placed by its origin")
+	assert_true(FileAccess.file_exists(pack.path_join("items/4000001/icon.png")), "the Snail Shell's .png is there")
+	assert_eq(r.art("items", "4000001"), null, "but a res:// pack never loads a raw PNG")
+	assert_eq(r.art("items", "2010002"), null, "an entry without its PNG falls through")
 
 
 func test_the_pack_list_names_folders_in_order() -> void:

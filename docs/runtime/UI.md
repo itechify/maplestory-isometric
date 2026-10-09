@@ -533,12 +533,13 @@ assets/icon_packs/<pack>/skills/<skill_id>/<variant>.png      git-ignored   (ico
 
 **Loading.** A pack under `res://` (the bundled `maplestory_io`) loads its imported textures through
 `ResourceLoader` and checks for a PNG with `ResourceLoader.exists()`, because an exported build holds only the
-imported copies. A pack rooted anywhere else loads raw PNGs with `Image.load_from_file`: the tests' fake packs now,
-players' own packs later (#54). The resolver caches every lookup, hit or miss, so each texture is loaded once and
-drawing never touches the disk. The pack roots are injected (`MisoIconResolver.new(roots)`, `set_shared`), so a test
-points the UI at a fake pack in a temp folder. A PNG made at runtime cannot go through `ResourceLoader`, because it was
-never imported. An id that is not a valid file name, such as the effects bar's "?" for an effect without a skill, is
-never looked up.
+imported copies; a `.png` there that was never imported is no art. A pack rooted anywhere else loads raw PNGs with
+`Image.load_from_file`: the tests' fake packs now, players' own packs later (#54). The resolver caches every lookup,
+hit or miss, so each texture is loaded once and drawing never touches the disk. The pack roots are injected
+(`MisoIconResolver.new(roots)`, `set_shared`), so a test points the UI at a fake pack in a temp folder. A PNG made at
+runtime cannot go through `ResourceLoader`, because it was never imported, so the one test of a `res://` pack lays it
+out as an exported build has it: an imported texture and its `.import` remap, and no `.png`. An id that is not a valid
+file name, such as the effects bar's "?" for an effect without a skill, is never looked up.
 
 **Display rules** (owner decisions, 2026-10-09).
 - **Placement.** Item art sits in a 32 × 32 cell by its origin: top-left = (−origin.x, 32 − origin.y). Red Potion's
