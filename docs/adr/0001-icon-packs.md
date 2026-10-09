@@ -31,7 +31,7 @@ git, in the builds, or with the player.
 
 ## Consequences
 
-- A fresh clone has no pack PNGs, and neither has a build whose fetcher could not reach maplestory.io. Both draw every
+- A fresh clone has no pack PNGs, and neither has a build made with `--offline` from an empty cache. Both draw every
   icon procedurally, so the procedural base must keep covering every item and skill
   (`test_every_canonical_item_has_a_procedural_icon`).
 - Tests never need the network or Nexon art: they layer small fake packs over the base.
