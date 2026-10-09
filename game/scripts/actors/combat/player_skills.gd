@@ -43,6 +43,11 @@ signal cast_refused(skill_id: String, code: String)
 const GROUP := &"miso_player_skills"
 ## Name of the thrown-shell presentation node (it leaves the player on the canonical 28 px aim line).
 const SHELL_FX_NAME := "SnailShell"
+## The thrown shell's colour per shell item (presentation): Snail Shell 348 brown, Blue Snail Shell 349 blue, Red Snail
+## Shell 351 red. These are the procedural item icons' tints of the shells' names, pinned here when icons came to
+## resolve through icon packs (#49), so no icon art or icon rule can change the shell; any other item gets the fallback.
+const SHELL_COLORS := {"348": Color(0.80, 0.56, 0.30), "349": Color(0.25, 0.52, 0.95), "351": Color(0.90, 0.20, 0.18)}
+const SHELL_FALLBACK_COLOR := Color(0.8, 0.7, 0.5)
 
 ## The PlayerController (duck-typed: global_position, facing, is_grounded(), is_climbing(), is_dead(),
 ## is_input_enabled(), in_hitstun; optionally is_seated() and stand_up() / stand()).
@@ -329,6 +334,11 @@ func shell_end(def: SkillDef, target: Node, facing: Vector3) -> Vector3:
 	return last_shell_to
 
 
+## The thrown shell's colour for the shell item a cast spends (SHELL_COLORS).
+static func shell_color(item_id: String) -> Color:
+	return SHELL_COLORS.get(item_id, SHELL_FALLBACK_COLOR)
+
+
 ## A shell flies from the player's aim line to the target's body (or, on a whiff, to shell_end: the full reach or the
 ## first wall).
 func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vector3.ZERO) -> void:
@@ -351,9 +361,7 @@ func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vect
 	mesh.rings = 6
 	shell.mesh = mesh
 	var mat := StandardMaterial3D.new()
-	var item := def.item_cost(level)
-	var item_def := ItemDef.of(String(item.get("item_id", "")), _db())
-	mat.albedo_color = MisoItemIcon.color_for(item_def) if item_def != null else Color(0.8, 0.7, 0.5)
+	mat.albedo_color = shell_color(String(def.item_cost(level).get("item_id", "")))
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	shell.material_override = mat
 	shell.top_level = true

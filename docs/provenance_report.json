@@ -185,6 +185,14 @@
       "verified_against": null
     },
     {
+      "file": "game/data/misostory/icon_packs.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Presentation, the owner's decision of 2026-10-09 (#49): item and skill icons resolve through layered icon packs over the procedural base. maplestory_io is the maplestory.io MCW/CBT2 pack built by tools/icons (#50). Its PNGs are fetched and never committed, so a fresh clone has none and draws every icon procedurally.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
       "file": "game/data/misostory/inventory.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
@@ -204,7 +212,7 @@
       "file": "game/data/misostory/loot_visuals.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
-      "reason": "MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera.",
+      "reason": "MeowDB publishes item icons and meso art only as 2D Nexon sprites, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops, mesos included, are therefore procedural 3D shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. Item icons in the UI can come from an icon pack instead (docs/adr/0001-icon-packs.md); ground drops do not.",
       "verified": false,
       "verified_against": null
     },
@@ -1013,10 +1021,11 @@
     "tools/meowdb/captures/quest_tracker_maple_island.txt"
   ],
   "counts": {
-    "adaptations": 125,
-    "adaptations_unverified": 123,
+    "adaptations": 126,
+    "adaptations_unverified": 124,
     "adaptations_verified": 2,
     "capture_files": 9,
+    "icon_packs": 1,
     "property_rows": 1299,
     "property_rows_by_authority": {
       "Henesys.gg": 93,
@@ -1049,6 +1058,997 @@
   },
   "format": 1,
   "generated_by": "bash scripts/validate_data.sh --report",
+  "icon_packs": [
+    {
+      "file": "game/assets/icon_packs/maplestory_io/pack.json",
+      "format": 1,
+      "items": [
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002005",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002006",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002007",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002016",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1002023",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1032001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1040001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1040002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1040003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1040007",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1040013",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1041001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1041002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1041003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1041004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1041015",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1060001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1060002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1060003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1060008",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1060011",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1061001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1061002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1061007",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1061009",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1062001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072008",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072011",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072019",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1072021",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1082004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1082005",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1302000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1302001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1302008",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1312000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1312001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1322000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1322002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1322008",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1332000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1332001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1332003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1372002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1402000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1432000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "1452002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2000000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2000001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2000003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2010005",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2040501",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2040510",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2041001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2041005",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2060000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2061000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "2120000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "3010000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "3010003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4000009",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4010000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4010001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4010002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4010004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4020000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4020001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4020002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4020004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4020007",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031000",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031001",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031002",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031003",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031004",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "4031045",
+          "variants": [
+            "icon",
+            "iconRaw"
+          ]
+        }
+      ],
+      "missing": [],
+      "name": "maplestory_io",
+      "problem": null,
+      "skills": [
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "0001000",
+          "variants": [
+            "icon",
+            "iconMouseOver",
+            "iconDisabled"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "0001001",
+          "variants": [
+            "icon",
+            "iconMouseOver",
+            "iconDisabled"
+          ]
+        },
+        {
+          "fetched": [
+            "2026-10-09"
+          ],
+          "id": "0001002",
+          "variants": [
+            "icon",
+            "iconMouseOver",
+            "iconDisabled"
+          ]
+        }
+      ],
+      "source": {
+        "region": "MCW",
+        "service": "maplestory.io",
+        "version": "CBT2"
+      }
+    }
+  ],
   "records": [
     {
       "authorities": [

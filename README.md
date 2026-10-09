@@ -230,7 +230,9 @@ swallowed exceptions.
 
 **Proprietary reference material:** `docs/research/ref_renders`, `ref_sprites`, `ref_web` and `raw` hold Nexon
 game data and art, fetched only as reference. None of it is loaded into the `.blend` or used as a texture; all
-geometry and materials are original. Do not redistribute those folders.
+geometry and materials are original. Do not redistribute those folders. The icon pack in `game/assets/icon_packs/` is
+Nexon art too: its PNGs are fetched at build time and never committed, only its `pack.json`
+([ADR 0001](docs/adr/0001-icon-packs.md)).
 
 ## Known limitations
 
@@ -238,7 +240,9 @@ Open work: the GitHub issues. Out of scope, unsourced or decided against: `docs/
 `docs/VALIDATION.md`.
 
 - **Placeholder art.** Characters and monsters are static chibi proxies (no rigs or animation beyond procedural bob,
-  lunge and a simple sit pose); skill icons and effects are procedural. There is no audio.
+  lunge and a simple sit pose); skill effects are procedural. Item and skill icons in the UI come from an icon pack
+  of Classic World's own icons, which `scripts/build_runtime.sh` fetches from maplestory.io; without the pack they
+  are drawn procedurally ([ADR 0001](docs/adr/0001-icon-packs.md)). There is no audio.
 - **Maple Island only.** One Beginner, from character creation to Southperry: no job advancement, no Victoria Island
   (Shanks' boat ends at an "End of Maple Island" screen; nobody travels and no fare is taken), no multiplayer.
 - **Drop chances are the owner's, not MapleStory's.** No source publishes drop chances: MeowDB lists who drops what

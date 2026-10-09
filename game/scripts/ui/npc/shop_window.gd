@@ -19,6 +19,10 @@ signal closed(shop_id: String)
 signal result_shown(result: Dictionary, message: String)
 
 const SIZE := Vector2(940, 600)
+## Item icon boxes in px: a list row shows the 32 px icon cell at 1x, the detail at 2x (UI.md "Icon packs": pack art
+## is drawn at whole multiples only).
+const ROW_ICON_SIZE := 32.0
+const DETAIL_ICON_SIZE := 64.0
 const TAB_LABELS := {"equip": "Equip", "use": "Use", "setup": "Set-up", "etc": "Etc", "cash": "Cash"}
 const STAT_LABELS := {"watk": "Weapon ATT", "matk": "Magic ATT", "wdef": "Weapon DEF", "mdef": "Magic DEF",
 	"str": "STR", "dex": "DEX", "int": "INT", "luk": "LUK", "max_hp": "Max HP", "max_mp": "Max MP",
@@ -54,7 +58,6 @@ var quantity: int = 1
 var last_result: Dictionary = {}
 var status_text: String = ""
 
-var visuals: LootVisuals = null
 var portrait: NpcPortrait = null
 var title_label: Label = null
 var subtitle_label: Label = null
@@ -64,7 +67,7 @@ var sell_tab_bar: HBoxContainer = null
 var list_box: VBoxContainer = null
 var list_scroll: ScrollContainer = null
 var header_price: Label = null
-var detail_icon: Control = null
+var detail_icon: MisoItemIcon = null
 var detail_name: Label = null
 var detail_type: Label = null
 var detail_desc: Label = null
@@ -435,7 +438,7 @@ func _render_rows() -> void:
 		h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		h.add_theme_constant_override("separation", 10)
 		row.add_child(h)
-		var icon := NpcUiStyle.item_icon(item_id, db, visuals, 30.0)
+		var icon := NpcUiStyle.item_icon(item_id, db, ROW_ICON_SIZE)
 		h.add_child(icon)
 		var nm := NpcUiStyle.label(_item_name(item_id), NpcUiStyle.INK, 15, true)
 		nm.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -482,7 +485,7 @@ func _refresh_detail() -> void:
 		return
 	var item_id := String((buy_rows if mode == "buy" else sell_rows)[selected].item_id)
 	var def := ItemDef.of(item_id, db)
-	NpcUiStyle.set_icon_item(detail_icon, item_id, db, visuals)
+	NpcUiStyle.set_icon_item(detail_icon, item_id, db)
 	detail_name.text = _item_name(item_id)
 	detail_type.text = ("%s / %s" % [def.type, def.subtype]) if def != null and def.subtype != "" else (def.type if def != null else "")
 	detail_desc.text = def.description if def != null else ""
@@ -559,8 +562,6 @@ func _scroll_to_selected() -> void:
 func _ensure_db() -> void:
 	if db == null:
 		db = WorldUiServices.content()
-	if visuals == null and db != null:
-		visuals = LootVisuals.new(db)
 
 
 func _character() -> CharacterState:
@@ -730,7 +731,7 @@ func _build() -> void:
 	var top := HBoxContainer.new()
 	top.add_theme_constant_override("separation", 10)
 	dcol.add_child(top)
-	detail_icon = NpcUiStyle.item_icon("", db, visuals, 56.0)
+	detail_icon = NpcUiStyle.item_icon("", db, DETAIL_ICON_SIZE)
 	top.add_child(detail_icon)
 	var names := VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL

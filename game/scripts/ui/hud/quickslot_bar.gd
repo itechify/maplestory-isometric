@@ -14,7 +14,8 @@ signal hover_changed(slot: MisoItemSlot, inside: bool)
 const SLOT_SIZE := 40.0
 
 
-## A quickslot square: an item slot that can also hold a skill (an icon overlay with the cooldown sweep).
+## A quickslot square: an item slot that can also hold a skill (an icon overlay with the cooldown sweep, showing its
+## mouse-over picture while the pointer is over the slot).
 class QuickslotCell extends MisoItemSlot:
 	## The bound skill ("" for an item binding or an empty slot).
 	var skill_id: String = ""
@@ -27,6 +28,7 @@ class QuickslotCell extends MisoItemSlot:
 		add_child(skill_icon)
 		# Under the slot's own layer, so the key label stays on top.
 		move_child(skill_icon, 0)
+		hover_changed.connect(func(_slot: MisoItemSlot, inside: bool) -> void: skill_icon.hover = inside)
 
 	## Shows a skill binding (clears any item).
 	func set_skill(p_skill_id: String, usable: bool, cooldown_share: float, cooldown_left_s: float) -> void:

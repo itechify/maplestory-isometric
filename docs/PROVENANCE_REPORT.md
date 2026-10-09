@@ -16,7 +16,8 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 | Property rows by authority | Henesys.gg 93, MeowDB MS Classic 1206 |
 | Dated capture files cited | 9 |
 | Unresolved values | 370 (breakables 3, drops 26, formulas 40, items 55, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
-| Adaptations (objects with a verified flag) | 125: 2 verified, 123 not verified |
+| Adaptations (objects with a verified flag) | 126: 2 verified, 124 not verified |
+| Icon packs (covered IDs, missing variants) | maplestory_io: 94 items, 3 skills covered, 0 variants missing |
 
 References skipped as out of scope (not findings):
 
@@ -2008,9 +2009,10 @@ and its reason (the nearest one when the object inherits it).
 | drop_rates.json | (file) | no |  | MeowDB MS Classic publishes no drop chances and Henesys.gg publishes only a rarity label per item, so the project owner approved this table on 2026-10-06 as a MisoStory adaptation (decision D3-11): a chance per item category and rarity. It is not a MapleStory fact and is not verified against anything. |
 | drop_rates.json | quest_gate_rule | no |  | MeowDB does not say who can loot a quest item. The orchestrator's derivation (contract C1) is applied by tools/sources/drops_merge.mjs, which writes each gate into the record's quest_gate with its basis: Old Wooden Board and Rusty Screw are gated to Pio's quest 1012; Jr. Sentinel Shellpiece (MeowDB subtype Monster Drop) is not. |
 | drops.json | (file) | no |  | (per value: its <key>_reason entries) |
+| icon_packs.json | (file) | no |  | Presentation, the owner's decision of 2026-10-09 (#49): item and skill icons resolve through layered icon packs over the procedural base. maplestory_io is the maplestory.io MCW/CBT2 pack built by tools/icons (#50). Its PNGs are fetched and never committed, so a fresh clone has none and draws every icon procedurally. |
 | inventory.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | shop.protected_items[] | no |  | Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation. |
-| loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. |
+| loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as 2D Nexon sprites, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops, mesos included, are therefore procedural 3D shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. Item icons in the UI can come from an icon pack instead (docs/adr/0001-icon-packs.md); ground drops do not. |
 | loot_visuals.json | colors | no |  | Body and accent colours per shape, chosen for contrast against Maple Island's greens and browns. |
 | loot_visuals.json | meso_tiers | no |  | Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit. |
 | loot_visuals.json | motion | no |  | Classic drops pop up out of the monster and fall to its feet, then hover and bob. A 0.5 s toss 1.1 m high reads from the 40-degree isometric camera; the drop then hovers 0.15 m above the ground, bobs 5 cm and turns slowly so its 3D shape reads. It blinks at 4 Hz for its last 10 s on the ground so the player sees it is about to vanish (classic items flicker before they disappear). Drops land on the first walkable or blocking surface between 1.5 m above and 6 m below their scatter point. |
@@ -2110,3 +2112,113 @@ and its reason (the nearest one when the object inherits it).
 | quests/1002.json | reissue_lost_accept_items | no |  | MeowDB has no "If you lost the items" branch for 1002, so an apple lost before it is eaten (Iteration Two: sold to a shop) left the quest uncompletable without the debug console. While 1002 is in progress and the player holds no Roger's Apple and has not eaten one, talking to Roger hands one over again, then shows his canonical missing-items line ("Eat the Roger's Apple I gave you ..."). No NPC speech is invented. The shop also refuses to buy it while 1002 needs it (misostory/quests/_quest_items.json). |
 | quests/_quest_items.json | (file) | no |  | Selling a quest item the player still needs could leave a Maple Island quest uncompletable without the debug console (Iteration Three audit, npcs_shops: selling Roger's Apple during 1002). MeowDB documents no sell restriction for NPC shops, so this guard is a MisoStory rule, applied by ShopService.quote_sell through QuestItemGuard. |
 | quests/_quest_items.json | block_selling_needed_quest_items | no |  | A shop refuses to buy an item when, after the sale, the player would hold fewer than an in-progress quest still needs: an item_collection objective's count, or an item_usage objective's remaining uses. Only quest-critical items are held back: canonical quest_item true, tradeable false, or handed over by that quest on accept (235 Roger's Apple, 347 Jr. Sentinel Shellpiece, 438 Sera's Mirror, 439 / 440 the letters, 441 Rusty Screw, 442 Old Wooden Board). Ordinary drops a quest also collects (349 Blue Snail Shell, 356 Orange Mushroom Cap for 1011) can be sold, as they can be hunted again. Extra copies above what the quest needs can always be sold. |
+
+## Icon packs
+
+Every icon pack bundled in `game/assets/icon_packs/`, read from its `pack.json` alone, so this section does not
+depend on which PNGs a checkout has fetched (they are git-ignored; `tools/icons/README.md`). It shows no images.
+
+### maplestory_io
+
+Source: maplestory.io, region MCW, version CBT2. Manifest: `game/assets/icon_packs/maplestory_io/pack.json`, format 1.
+Covered: 94 items and 3 skills. Missing: 0 variants.
+
+| Kind | ID | Variants | Fetched |
+|---|---|---|---|
+| item | 1002000 | icon, iconRaw | 2026-10-09 |
+| item | 1002001 | icon, iconRaw | 2026-10-09 |
+| item | 1002002 | icon, iconRaw | 2026-10-09 |
+| item | 1002003 | icon, iconRaw | 2026-10-09 |
+| item | 1002004 | icon, iconRaw | 2026-10-09 |
+| item | 1002005 | icon, iconRaw | 2026-10-09 |
+| item | 1002006 | icon, iconRaw | 2026-10-09 |
+| item | 1002007 | icon, iconRaw | 2026-10-09 |
+| item | 1002016 | icon, iconRaw | 2026-10-09 |
+| item | 1002023 | icon, iconRaw | 2026-10-09 |
+| item | 1032001 | icon, iconRaw | 2026-10-09 |
+| item | 1040001 | icon, iconRaw | 2026-10-09 |
+| item | 1040002 | icon, iconRaw | 2026-10-09 |
+| item | 1040003 | icon, iconRaw | 2026-10-09 |
+| item | 1040007 | icon, iconRaw | 2026-10-09 |
+| item | 1040013 | icon, iconRaw | 2026-10-09 |
+| item | 1041001 | icon, iconRaw | 2026-10-09 |
+| item | 1041002 | icon, iconRaw | 2026-10-09 |
+| item | 1041003 | icon, iconRaw | 2026-10-09 |
+| item | 1041004 | icon, iconRaw | 2026-10-09 |
+| item | 1041015 | icon, iconRaw | 2026-10-09 |
+| item | 1060001 | icon, iconRaw | 2026-10-09 |
+| item | 1060002 | icon, iconRaw | 2026-10-09 |
+| item | 1060003 | icon, iconRaw | 2026-10-09 |
+| item | 1060008 | icon, iconRaw | 2026-10-09 |
+| item | 1060011 | icon, iconRaw | 2026-10-09 |
+| item | 1061001 | icon, iconRaw | 2026-10-09 |
+| item | 1061002 | icon, iconRaw | 2026-10-09 |
+| item | 1061007 | icon, iconRaw | 2026-10-09 |
+| item | 1061009 | icon, iconRaw | 2026-10-09 |
+| item | 1062001 | icon, iconRaw | 2026-10-09 |
+| item | 1072000 | icon, iconRaw | 2026-10-09 |
+| item | 1072001 | icon, iconRaw | 2026-10-09 |
+| item | 1072003 | icon, iconRaw | 2026-10-09 |
+| item | 1072008 | icon, iconRaw | 2026-10-09 |
+| item | 1072011 | icon, iconRaw | 2026-10-09 |
+| item | 1072019 | icon, iconRaw | 2026-10-09 |
+| item | 1072021 | icon, iconRaw | 2026-10-09 |
+| item | 1082004 | icon, iconRaw | 2026-10-09 |
+| item | 1082005 | icon, iconRaw | 2026-10-09 |
+| item | 1302000 | icon, iconRaw | 2026-10-09 |
+| item | 1302001 | icon, iconRaw | 2026-10-09 |
+| item | 1302008 | icon, iconRaw | 2026-10-09 |
+| item | 1312000 | icon, iconRaw | 2026-10-09 |
+| item | 1312001 | icon, iconRaw | 2026-10-09 |
+| item | 1322000 | icon, iconRaw | 2026-10-09 |
+| item | 1322002 | icon, iconRaw | 2026-10-09 |
+| item | 1322008 | icon, iconRaw | 2026-10-09 |
+| item | 1332000 | icon, iconRaw | 2026-10-09 |
+| item | 1332001 | icon, iconRaw | 2026-10-09 |
+| item | 1332003 | icon, iconRaw | 2026-10-09 |
+| item | 1372002 | icon, iconRaw | 2026-10-09 |
+| item | 1402000 | icon, iconRaw | 2026-10-09 |
+| item | 1432000 | icon, iconRaw | 2026-10-09 |
+| item | 1452002 | icon, iconRaw | 2026-10-09 |
+| item | 2000000 | icon, iconRaw | 2026-10-09 |
+| item | 2000001 | icon, iconRaw | 2026-10-09 |
+| item | 2000003 | icon, iconRaw | 2026-10-09 |
+| item | 2010000 | icon, iconRaw | 2026-10-09 |
+| item | 2010001 | icon, iconRaw | 2026-10-09 |
+| item | 2010002 | icon, iconRaw | 2026-10-09 |
+| item | 2010003 | icon, iconRaw | 2026-10-09 |
+| item | 2010004 | icon, iconRaw | 2026-10-09 |
+| item | 2010005 | icon, iconRaw | 2026-10-09 |
+| item | 2040501 | icon, iconRaw | 2026-10-09 |
+| item | 2040510 | icon, iconRaw | 2026-10-09 |
+| item | 2041001 | icon, iconRaw | 2026-10-09 |
+| item | 2041005 | icon, iconRaw | 2026-10-09 |
+| item | 2060000 | icon, iconRaw | 2026-10-09 |
+| item | 2061000 | icon, iconRaw | 2026-10-09 |
+| item | 2120000 | icon, iconRaw | 2026-10-09 |
+| item | 3010000 | icon, iconRaw | 2026-10-09 |
+| item | 3010003 | icon, iconRaw | 2026-10-09 |
+| item | 4000000 | icon, iconRaw | 2026-10-09 |
+| item | 4000001 | icon, iconRaw | 2026-10-09 |
+| item | 4000002 | icon, iconRaw | 2026-10-09 |
+| item | 4000003 | icon, iconRaw | 2026-10-09 |
+| item | 4000004 | icon, iconRaw | 2026-10-09 |
+| item | 4000009 | icon, iconRaw | 2026-10-09 |
+| item | 4010000 | icon, iconRaw | 2026-10-09 |
+| item | 4010001 | icon, iconRaw | 2026-10-09 |
+| item | 4010002 | icon, iconRaw | 2026-10-09 |
+| item | 4010004 | icon, iconRaw | 2026-10-09 |
+| item | 4020000 | icon, iconRaw | 2026-10-09 |
+| item | 4020001 | icon, iconRaw | 2026-10-09 |
+| item | 4020002 | icon, iconRaw | 2026-10-09 |
+| item | 4020004 | icon, iconRaw | 2026-10-09 |
+| item | 4020007 | icon, iconRaw | 2026-10-09 |
+| item | 4031000 | icon, iconRaw | 2026-10-09 |
+| item | 4031001 | icon, iconRaw | 2026-10-09 |
+| item | 4031002 | icon, iconRaw | 2026-10-09 |
+| item | 4031003 | icon, iconRaw | 2026-10-09 |
+| item | 4031004 | icon, iconRaw | 2026-10-09 |
+| item | 4031045 | icon, iconRaw | 2026-10-09 |
+| skill | 0001000 | icon, iconMouseOver, iconDisabled | 2026-10-09 |
+| skill | 0001001 | icon, iconMouseOver, iconDisabled | 2026-10-09 |
+| skill | 0001002 | icon, iconMouseOver, iconDisabled | 2026-10-09 |

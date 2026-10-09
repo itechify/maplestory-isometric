@@ -33,7 +33,7 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/ui/npc/npc_portrait.gd` | `NpcPortrait` | the NPC's own proxy model rendered in a SubViewport, or an initial badge |
 | `scripts/ui/npc/shop_window.gd` | `ShopWindow` | Buy and Sell tabs, quantity picker, meso check, result messages |
 | `scripts/ui/npc/npc_ui_style.gd` | `NpcUiStyle` | MisoTheme bridge (loaded by path) plus the local paper and overlay styles |
-| `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | fallback icon drawn in the item's ground-drop shape |
+| `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | the coin drawn by `NpcUiStyle.coin_icon` when `MisoCoinIcon` is missing; shop item icons are `MisoItemIcon`s through the icon resolver ([UI.md](UI.md), "Icon packs") |
 | `scenes/systems/loot_system.tscn` | `LootSystem` | root: drops on the ground, pickup, expiry, persistence |
 | `scripts/actors/loot/ground_drop.gd` | `GroundDrop` | one drop: toss arc, hover, bob and spin, expiry blink |
 | `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | procedural drop models and styles from `loot_visuals.json` |
@@ -282,7 +282,7 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 
 | What | Where | Why |
 |---|---|---|
-| Drop shapes, colours, sizes (item 0.58 m, coin 0.36 m), meso tiers (<50 bronze, <100 gold, <1000 pile, bag) | `loot_visuals.json` | MeowDB's item and meso art are Nexon sprites, which MisoStory never uses. The sizes are set so a drop reads at the gameplay camera's 50-75 px per meter, close to a classic 32 px icon next to a character. |
+| Drop shapes, colours, sizes (item 0.58 m, coin 0.36 m), meso tiers (<50 bronze, <100 gold, <1000 pile, bag) | `loot_visuals.json` | MeowDB's item and meso art are 2D Nexon sprites, so ground drops, mesos included, are procedural 3D shapes. Item icons in the UI can come from an icon pack ([`../adr/0001-icon-packs.md`](../adr/0001-icon-packs.md)); ground drops do not. The sizes are set so a drop reads at the gameplay camera's 50-75 px per meter, close to a classic 32 px icon next to a character. |
 | Toss 0.5 s / 1.1 m, hover 0.15 m, bob 5 cm, spin 70°/s, blink at 4 Hz in the last 10 s | `loot_visuals.json` motion | MeowDB documents no drop animation beyond "loot drops as soon as the mob dies" |
 | Scatter along the camera's ground-right axis; a scatter point more than 0.6 m above or below the kill's ground is pulled back (half the offset, then none) | `loot_visuals.json` placement; `LootSystem._landing` | Classic drops spread across the screen and stay on the monster's foothold. 0.6 m is the spawn tier tolerance. |
 | Holding Z picks up every 0.2 s | `loot_visuals.json` pickup | Classic hold-to-loot; MeowDB documents no rate |
