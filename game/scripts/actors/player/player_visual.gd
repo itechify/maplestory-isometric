@@ -1,15 +1,26 @@
 class_name PlayerVisual
 extends Node3D
 ## Presentation of the player (child "Visual" of player.tscn): the model, a blob shadow, the X-ray fill and the
-## see-through outline, facing, step smoothing, walk bob, invulnerability blink, climbing, death and sit poses. Reads
-## the parent PlayerController every frame and never changes gameplay state.
+## see-through outline, facing, step smoothing, the rig's clips or the placeholder's procedural motions, invulnerability
+## blink, and the chair. Reads the parent PlayerController (and its PlayerCombat / PlayerSkills signals) every frame
+## and never changes gameplay state.
 ##
-## Sit pose (PlayerController.is_seated(), contract C5): the proxy has no skeleton, so sitting is a simple pose: the
-## body settles SIT_DROP_M lower and leans back SIT_LEAN_DEG over SIT_EASE_S, onto a small procedural chair (the
-## "ChairProp" child of the player, turned with the facing). Presentation constants, not gameplay values.
+## Model, first found (feet at y = 0, front +Z, named "Model"):
+##   1. the art pack's rigged Beginner preset for the character's gender (#63; PRESETS, looked up by ID through
+##      ArtPack, already at the character scale on its rig node). PlayerAnimator plays its clips from the gameplay
+##      state (idle, walk, run, jump, climb, attack, hit, sit, death). Animation never moves the body: the clips'
+##      root translation is held by the import (#62), and the procedural motions a clip covers (covers(): the walk bob
+##      and lean, the death fall, the sit drop and lean, PlayerCombat's attack lunge) do not run. The only vertical
+##      offsets the visual adds on the rig are ground_lift(): onto the chair's cushion while seated (SEAT_LIFT_M, the
+##      sit clip keeps its root drop) and onto the ground while dead (DEATH_REST_LIFT_M);
+##   2. Iteration One's Player_Proxy from the exported library (res://assets/world/_library.glb, "Player_Proxy_001");
+##   3. a procedural chibi placeholder.
+## Without the pack (a fresh clone, unit tests) 2 and 3 keep their procedural motions exactly as before.
 ##
-## Model: Iteration One's Player_Proxy from the exported library (res://assets/world/_library.glb, node
-## "Player_Proxy_001": feet at y = 0, front +Z) when present, else a procedural chibi placeholder.
+## Sit pose (PlayerController.is_seated(), contract C5): on the rig, the sit clip onto the pack's model of the chair
+## item. Without it the body settles SIT_DROP_M lower and leans back SIT_LEAN_DEG over SIT_EASE_S onto a procedural
+## chair. Either way the chair is the "ChairProp" child of the player, turned with the facing. Presentation constants,
+## not gameplay values.
 ##
 ## Readability through geometry (camera.json, docs/runtime/PLAYER_AND_CAMERA.md "X-ray fill and see-through outline"):
 ##   - every surface (the unshaded ink shell too) writes STENCIL_REF where it is visible;
@@ -17,7 +28,8 @@ extends Node3D
 ##     in `xray_color`; an invisible mark pass after it writes STENCIL_REF over the whole silhouette (Godot keeps
 ##     stencil read and write exclusive in one pass);
 ##   - a see-through outline (a copy of the model with smoothed normals, grown `silhouette_width_px` on screen, no
-##     depth test, stencil != STENCIL_REF, drawn last) rings the silhouette in `silhouette_color` on top of
+##     depth test, stencil != STENCIL_REF, drawn last; on the rig each copy keeps its bones and weights and is posed by
+##     the same skin and skeleton, so it follows the clips) rings the silhouette in `silhouette_color` on top of
 ##     everything. It shows while set_see_through(true) (CameraRig: something hides the player) and fades out
 ##     otherwise, so an unoccluded player has no extra line.
 ##
