@@ -118,7 +118,9 @@ def cart(coll):
     mb.build("Cart", coll, smooth=True, sharp_angle=40)
 
 
-@asset("Haystack", "Props", footprint=1.6, tags=("prop", "farm"))
+# pack: the kit haystack's width is the loose straw at its foot (2.8 m), its body 1.9 m; the solid pack stack fitted to
+# the straw blocked route EastYard in Tomato Field, so 0.7 gives the kit body (2 m across, 1.5 m tall)
+@asset("Haystack", "Props", footprint=1.6, tags=("prop", "farm"), pack=dict(scale_mul=0.7))
 def haystack(coll):
     """Tapered straw stack with binding bands, a ragged top tuft and loose straw at the foot."""
     r = core.rng("hay", 1)

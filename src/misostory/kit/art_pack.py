@@ -50,7 +50,7 @@ MAPPING_FILE = "environment/source_catalog_mapping.json"
 FETCH_COMMAND = "bash scripts/art_pack.sh fetch"
 ALIAS_KIND = "semantically_equivalent_original_adaptation"
 
-# The kit categories whose catalog assets come from the pack. #72: Trees and Foliage. #73 adds Props and Markers,
+# The kit categories whose catalog assets come from the pack. #72: Trees and Foliage; #73: Props and Markers;
 # #74 Architecture, Rocks and Terrain. Per-map X<mapid>_* landmarks are not in the mapping and never swap here.
 CATEGORIES = {"Trees", "Foliage", "Props", "Markers"}
 LANDMARK = re.compile(r"X\d+_")

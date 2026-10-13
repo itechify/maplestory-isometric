@@ -217,7 +217,8 @@ def emission(mat):
 class EnsurePropsAndMarkersFromPack(unittest.TestCase):
     """#73: the props and markers built from the pack keep the kit asset's frame, height and glow."""
 
-    NAMES = ("Lamp_Post", "Hanging_Lantern", "Portal_Swirl", "Portal_Door", "Bed", "Cart", "NPC_Beacon", "Crate")
+    NAMES = ("Lamp_Post", "Hanging_Lantern", "Portal_Swirl", "Portal_Door", "Bed", "Cart", "NPC_Beacon", "Crate",
+             "Haystack")
 
     @classmethod
     def setUpClass(cls):
@@ -279,6 +280,13 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
         lo, hi = bounds(self.objs("NPC_Beacon"))
         self.assertAlmostEqual(lo.z, self.ref["NPC_Beacon"]["lo"][2], delta=0.02)
         self.assertAlmostEqual(hi.z, self.ref["NPC_Beacon"]["hi"][2], delta=0.02)
+
+    def test_haystack_body_blocks_about_as_much_as_the_kit_haystack(self):
+        """The kit haystack's width is the loose straw at its foot (2.8 m); its body is 1.9 m across. Fitted to the
+        straw, the solid pack haystack blocked route EastYard in Tomato Field (1020001)."""
+        reach = max(math.hypot(p.x, p.y) for o in self.objs("Haystack") for v in o.data.vertices
+                    for p in [o.matrix_world @ v.co] if 0.15 <= p.z <= 1.6)
+        self.assertLessEqual(reach, 1.0)
 
     def test_plain_props_stand_on_z0_at_the_kit_size(self):
         lo, hi = bounds(self.objs("Crate"))
