@@ -429,8 +429,9 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   hangs from its origin (`fit="z", anchor_z="kit_top"`), the butterflies hover (`anchor_z="kit_bottom"`),
   `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), `Mushroom_Cluster_A` lies along Y in the pack
   (`rot_z=-90`), `Stump_A` fits the kit stump's body, not its splayed roots (`scale_mul=0.6`), and the broadleaf
-  and birch trees draw their roots in to the kit tree's reach (`nature.TREE_PACK`). The kit's non-uniform placements rely on the kit mesh's frame (fences scale along X from the origin,
-  mountains are unit-radius); match that frame with these keys.
+  and birch trees draw their roots in to the kit tree's reach (`nature.TREE_PACK`; the birches also slim their
+  trunks to the kit birch's, `nature.BIRCH_PACK`). The kit's non-uniform placements rely on the kit mesh's frame
+  (fences scale along X from the origin, mountains are unit-radius); match that frame with these keys.
 - **No pack, no build.** `scripts/build_island.py` and `scripts/build_map.py` call `art_pack.require_or_exit` first:
   without the pack (or with a GLB missing) they print `ART_PACK_MISSING` and the fetch command and exit 1; there is
   no silent fallback. `build_island.py` also exits 1 when the build raises or a map is not authored (Blender itself
