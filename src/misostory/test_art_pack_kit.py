@@ -149,6 +149,14 @@ class EnsureFromPack(unittest.TestCase):
                     self.assertTrue(any(n.type == "GROUP" and n.node_tree and n.node_tree.name == "MS_Shading"
                                         for n in m.node_tree.nodes), f"{name}: {m.name}")
 
+    def test_every_pack_asset_shares_one_material_so_it_draws_as_one_surface(self):
+        """The pack's colors ride on the mesh, so a tree of five pack colors is one draw, not five."""
+        looks = {m.name for n in self.colls for o in self.colls[n].objects for m in o.data.materials
+                 if m.name != "M_Outline"}
+        self.assertEqual(len(looks), 1, looks)
+        bush = self.colls["Bush_A"].objects[0].data
+        self.assertIn(art_pack.COLOR_ATTRIBUTE, bush.color_attributes)
+
     def test_trees_get_the_ink_outline_and_flowers_do_not(self):
         self.assertTrue(any(md.name == "Outline" for o in self.colls["Tree_Round_A"].objects for md in o.modifiers))
         self.assertFalse(any(md.name == "Outline" for o in self.colls["Flower_Patch_A"].objects for md in o.modifiers))

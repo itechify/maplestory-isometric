@@ -404,16 +404,18 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   with an identity transform: `traversal.obstacle_bvh` reads `matrix_basis`), glTF's per-face split vertices
   welded, and the custom normals dropped.
 - **Materials.** An imported Principled material bakes **black** in the export (`bake_albedo` reads the
-  `MS_Shading` group). Each pack material (a linear base color; the environment GLBs have no textures, no
-  emission, no alpha) becomes the kit's `M_Grad_<darker>__<color>` (sRGB hex; the darker base is
-  `art_pack.SHADE_BOTTOM` = 0.6 of the color), a vertical gradient through `MS_Shading` like `M_Leaf` and `M_Bush`.
-  Glow is never in the pack: an asset that glows (portals, lamps, windows) must get its kit glow material back on
-  purpose, through a `parts` split and a `post` hook.
-- **Size.** The parts are joined into one object named after the asset (fewer draw calls), then scaled
+  `MS_Shading` group). Each pack material's color (a linear base color; the environment GLBs have no textures, no
+  emission, no alpha) is written per face into the `PackColor` corner color attribute, and every pack asset uses
+  the one material `M_Pack`: a vertical gradient through `MS_Shading` like `M_Leaf` and `M_Bush`, from
+  `art_pack.SHADE_BOTTOM` = 0.6 of the color (sRGB) at the bottom of the object to the color at its top. One
+  material keeps an asset one surface (one draw call in Godot) however many colors the pack gave it. Glow is never
+  in the pack: an asset that glows (portals, lamps, windows) must get its kit glow material back on purpose,
+  through a `parts` split and a `post` hook that assigns it.
+- **Size.** The parts are joined into one object named after the asset (fewer nodes), then scaled
   **uniformly** so the largest horizontal size equals the procedural asset's (its builder is run once to measure
   it, then thrown away; `art_pack.reference(name, info)`), and stood on z = 0 with the pack's own horizontal pivot.
 - **Triangle budget.** A pack model heavier than the kit asset it replaces is collapse-decimated down to the kit
-  asset's own triangle count (an art adjustment), so no map gets heavier than before (`validate.py` budgets: 400k
+  asset's own triangle count (an art adjustment, done before the fit so the fitted size is exact), so no map gets heavier than before (`validate.py` budgets: 400k
   per map, 3.5M for the WORLD layer). Most foliage needed it (a flower patch is 6,940 triangles in the pack against
   292 in the kit, at 383 instances).
 - **Outline.** `kit.ensure` adds the ink outline to the joined object as for any kit asset (category thickness,

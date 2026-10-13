@@ -11,9 +11,10 @@ lookups and the export's collision classes are unchanged; only the mesh comes fr
 2. **Import** into the scene root (the excluded ``ENVIRONMENT_ASSETS`` collection would silently not take it), new
    objects found as the difference of ``bpy.data.objects``; transforms are baked into the mesh, parts unparented,
    glTF's per-face split vertices welded and its custom normals dropped.
-3. **Materials:** every pack material (a linear Principled base color) becomes the kit gradient material for that
-   color, ``M_Grad_<darker srgb hex>__<srgb hex>``, which goes through the shared ``MS_Shading`` group. That is what
-   the soft shading, the renders and the export's albedo bake read (an imported Principled material bakes black).
+3. **Materials:** every pack material (a linear Principled base color) is written per face into the ``PackColor``
+   corner color attribute, and every pack asset uses the one material ``M_Pack``, a painted gradient of that color
+   through the shared ``MS_Shading`` group. That is what the soft shading, the renders and the export's albedo bake
+   read (an imported Principled material bakes black), and it keeps an asset one surface, one draw call.
 4. **Fit to the kit:** the parts are joined into one object (fewer draw calls), optionally rotated, then scaled
    uniformly so the largest horizontal size equals the procedural kit asset's (measured by running its builder
    once and throwing the result away), then stood on z = 0. Per-asset exceptions go in ``@asset(..., pack={...})``,
@@ -231,29 +232,53 @@ def tri_budget(name, ref, spec=None):
 # Build
 # ---------------------------------------------------------------------------
 
-# The kit's painted look: a vertical gradient from a darker base to the color over each object's bounding box
-# (like M_Leaf / M_Bush, leaf_dk -> leaf_lt). Pack colors are flat, and flat bright greens melt into the grass.
+# One material for every pack asset: the pack's colors ride on the mesh (a corner color attribute), so an asset is
+# one surface (one draw call) whatever its number of pack materials, and all pack assets batch together. The look is
+# the kit's painted gradient (like M_Leaf / M_Bush, leaf_dk -> leaf_lt): from SHADE_BOTTOM x the color (in sRGB) at
+# the bottom of the object's bounding box to the color at its top. Flat bright pack greens melt into the grass.
+PACK_MATERIAL = "M_Pack"
+COLOR_ATTRIBUTE = "PackColor"
 SHADE_BOTTOM = 0.6
 
 
-def _srgb_hex(c, k=1.0):
-    out = []
-    for v in c[:3]:
-        v = min(max(v, 0.0), 1.0)
-        s = v * 12.92 if v <= 0.0031308 else 1.055 * v ** (1 / 2.4) - 0.055
-        out.append(round(s * k * 255))
-    return "".join(f"{v:02x}" for v in out)
+def pack_material():
+    """The shared MS_Shading material of the pack assets (albedo from the PackColor attribute)."""
+    mat = bpy.data.materials.get(PACK_MATERIAL)
+    if mat is not None:
+        return mat
+    b = M._MatBuilder(PACK_MATERIAL)
+    attr = b.n.new("ShaderNodeAttribute")
+    attr.attribute_name = COLOR_ATTRIBUTE
+    color = attr.outputs["Color"]
+    z = b.separate(b.coord("Generated"))[2]
+    nz = b.noise(scale=1.2, detail=1.0, coord_kind="Generated")
+    f = b.math("ADD", z, b.math("MULTIPLY", b.math("SUBTRACT", nz, 0.5), 0.16), clamp=True)
+    k = SHADE_BOTTOM ** 2.2  # the sRGB factor, in linear
+    dark = b.mix(color, (k, k, k, 1.0), 1.0, blend="MULTIPLY")
+    return b.finish(b.mix(dark, color, f))
 
 
-def kit_material(pack_mat):
-    """The kit material for an imported pack material (a linear Principled base color, no textures):
-    M_Grad_<darker srgb hex>__<srgb hex>, which goes through the shared MS_Shading group."""
-    color = (0.8, 0.8, 0.8, 1.0)
+def _base_color(pack_mat):
+    """The linear base color of an imported pack material (no textures in the environment GLBs)."""
     if pack_mat is not None and pack_mat.node_tree is not None:
         bsdf = next((n for n in pack_mat.node_tree.nodes if n.type == "BSDF_PRINCIPLED"), None)
         if bsdf is not None:
-            color = tuple(bsdf.inputs["Base Color"].default_value)
-    return M.get(f"M_Grad_{_srgb_hex(color, SHADE_BOTTOM)}__{_srgb_hex(color)}")
+            return tuple(bsdf.inputs["Base Color"].default_value)
+    return (0.8, 0.8, 0.8, 1.0)
+
+
+def _colors_to_attribute(me):
+    """Write each face's pack material color into the PackColor corner attribute, then use the one pack material."""
+    colors = [_base_color(m) for m in me.materials] or [(0.8, 0.8, 0.8, 1.0)]
+    ca = me.color_attributes.new(COLOR_ATTRIBUTE, "FLOAT_COLOR", "CORNER")
+    for p in me.polygons:
+        c = colors[min(p.material_index, len(colors) - 1)]
+        for li in p.loop_indices:
+            ca.data[li].color = c
+    me.materials.clear()
+    me.materials.append(pack_material())
+    for p in me.polygons:
+        p.material_index = 0
 
 
 def _import(path):
@@ -336,15 +361,16 @@ def build(name, info, coll):
         if "custom_normal" in me.attributes:
             me.attributes.remove(me.attributes["custom_normal"])
         _weld(me)
-        for i, m in enumerate(list(me.materials)):
-            me.materials[i] = kit_material(m)
+        _colors_to_attribute(me)
         pack_tris += _tris([o])
         suffix = next((s for s, keys in (spec.get("parts") or {}).items() if any(k in o.name for k in keys)), "")
         groups.setdefault(suffix, []).append(o)
     parts = {s: _join(objs, f"{name}_{s}" if s else name) for s, objs in sorted(groups.items())}
     objs = list(parts.values())
 
-    # rotate, fit the kit asset's size uniformly, anchor
+    # triangle budget first (a collapse can move the silhouette), then rotate, fit the kit asset's size, anchor
+    budget = tri_budget(name, ref, spec)
+    tris = _decimate(objs, budget)
     rot = Matrix.Rotation(math.radians(spec.get("rot_z", 0.0)), 4, "Z")
     for o in objs:
         o.data.transform(rot)
@@ -365,9 +391,6 @@ def build(name, info, coll):
     fit = Matrix.Translation((dx, dy, dz)) @ Matrix.Scale(s, 4)
     for o in objs:
         o.data.transform(fit)
-
-    budget = tri_budget(name, ref, spec)
-    tris = _decimate(objs, budget)
     sharp = math.radians(spec.get("sharp_angle", 60.0))
     for o in objs:
         me = o.data
