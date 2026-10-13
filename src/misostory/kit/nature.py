@@ -55,6 +55,10 @@ def _puffy_canopy(mb, r, seed, center, radius, lobes=6, squash=0.82, mat="M_Leaf
 # from the trunk (the kit tree's reach about 0.9 m). The roots set the export's trunk prism (the 0.1-1.0 m slice),
 # and at that reach they boxed players into pockets at cliff feet, so they are drawn in to the kit's reach.
 TREE_PACK = dict(node_scale={"Splayed root": (0.6, 0.6, 1.0)})
+# The kit birches are slim (trunk prism 0.39 m): the pack birch's trunk (with its bark dashes) is slimmed to 0.75 and
+# its roots tucked in to the trunk, for a 0.45 m prism instead of 0.8 m.
+BIRCH_PACK = dict(node_scale={"Splayed root": (0.33, 0.33, 1.0), "Tapered trunk": (0.75, 0.75, 1.0),
+                              "Birch dark bark dash": (0.75, 0.75, 1.0)})
 
 
 def _make_tree(coll, name, seed, height, base_r, canopy_r, lobes, leaf="M_Leaf", bend=0.25):
@@ -477,12 +481,12 @@ def _birch(coll, name, seed, height, canopy_r, leaf):
     can.build(name + "_Canopy", coll, smooth=True, sharp_angle=80)
 
 
-@asset("Tree_Birch_Orange", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=TREE_PACK)
+@asset("Tree_Birch_Orange", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=BIRCH_PACK)
 def birch_orange(coll):
     _birch(coll, "Tree_Birch_Orange", 31, 4.6, 2.2, "M_Leaf_Autumn")
 
 
-@asset("Tree_Birch_Yellow", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=TREE_PACK)
+@asset("Tree_Birch_Yellow", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=BIRCH_PACK)
 def birch_yellow(coll):
     _birch(coll, "Tree_Birch_Yellow", 32, 5.2, 2.4, "M_Leaf_Yellow")
 

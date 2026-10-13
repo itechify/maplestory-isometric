@@ -93,7 +93,7 @@ class EnsureFromPack(unittest.TestCase):
         build.reset_scene()
         art_pack.configure("required")
         cls.kit_size = {}
-        for name in ("Bush_A", "Flower_Patch_A", "Vine_Hanging_A", "Butterfly", "Tree_Round_A"):
+        for name in ("Bush_A", "Flower_Patch_A", "Vine_Hanging_A", "Butterfly", "Tree_Round_A", "Tree_Birch_Teal"):
             ref = art_pack.reference(name, kit.REGISTRY[name])   # the procedural builder's size and triangles
             cls.kit_size[name] = ref
         cls.colls = {n: kit.ensure(n) for n in cls.kit_size}
@@ -136,9 +136,15 @@ class EnsureFromPack(unittest.TestCase):
     def test_tree_trunk_band_blocks_about_as_much_as_the_kit_tree(self):
         """The export's trunk prism is the 0.1-1.0 m slice: the kit Tree_Round_A's reaches 0.92 m from the trunk.
         The pack's splayed roots, fitted to the kit canopy, reached 1.47 m and boxed players in at cliff feet."""
-        reach = max(math.hypot(p.x, p.y) for o in self.objs("Tree_Round_A") for v in o.data.vertices
-                    for p in [o.matrix_world @ v.co] if 0.1 <= p.z <= 1.0)
-        self.assertLessEqual(reach, 1.0)
+        self.assertLessEqual(self.trunk_reach("Tree_Round_A"), 1.0)
+
+    def test_birch_trunk_band_stays_slim_like_the_kit_birch(self):
+        """The kit birches' trunk prism reaches 0.39 m; the pack birch's trunk and roots reached 0.8 m."""
+        self.assertLessEqual(self.trunk_reach("Tree_Birch_Teal"), 0.5)
+
+    def trunk_reach(self, name):
+        return max(math.hypot(p.x, p.y) for o in self.objs(name) for v in o.data.vertices
+                   for p in [o.matrix_world @ v.co] if 0.1 <= p.z <= 1.0)
 
     def test_butterfly_hovers_at_the_kit_height(self):
         lo, _ = bounds(self.objs("Butterfly"))
