@@ -20,32 +20,32 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
-from .nature import birch
+from .nature import BIRCH_PACK, birch
 
 
 # ---------------------------------------------------------------------------
 # White-trunk birches (classic midForest / grassySoil trees)
 # ---------------------------------------------------------------------------
 
-@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_teal(coll):
     """White-trunk birch with teal-green foliage (the classic 'midForest' teal tree)."""
     birch(coll, "Tree_Birch_Teal", 33, 5.0, 2.3, "M_Leaf_B")
 
 
-@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_green(coll):
     """White-trunk birch with fresh green foliage (classic grassySoil lawn trees)."""
     birch(coll, "Tree_Birch_Green", 41, 4.8, 2.3, "M_Leaf")
 
 
-@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_lime(coll):
     """White-trunk birch, same green leaf as Tree_Birch_Green but shorter (4.4 m) with a smaller crown."""
     birch(coll, "Tree_Birch_Lime", 43, 4.4, 2.1, "M_Leaf")
 
 
-@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_red(coll):
     """White-trunk birch with a red-leaf crown (the red-leaf trees of the snail hunting grounds)."""
     birch(coll, "Tree_Birch_Red", 43, 4.3, 2.1, "M_Grad_rsnail_shell_dk__rsnail_shell")
@@ -150,13 +150,13 @@ def butterfly_model(coll, name, wing, spot):
     mb.build(name, coll, smooth=True)
 
 
-@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_yellow(coll):
     """A visible (0.35 m) yellow butterfly with orange spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Yellow", "M_Flat_flower_yellow", "M_Flat_mush_orange")
 
 
-@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_pink(coll):
     """A visible (0.35 m) pink butterfly with white spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Pink", "M_Flat_flower_pink", "M_Flat_flower_white")
@@ -604,7 +604,7 @@ def arch_leafy_trail(coll):
     arch_leafy(coll, "Arch_Leafy_Trail", "trail")
 
 
-@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"))
+@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"), pack=dict(align_xy="kit"))
 def hedge_tunnel(coll):
     """Clipped hedge tunnel over a secret path (4.6 m clear corridor, >= 3 m clear at the centre, 1.7 m deep).
 
