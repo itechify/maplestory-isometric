@@ -240,6 +240,20 @@ func test_the_system_builds_monsters_from_the_pack_and_a_touch_plays_attack() ->
 	rig.free_all()
 
 
+func test_the_shell_setup_loads_the_installed_pack_unless_one_is_injected() -> void:
+	var sys := MonsterSystem.new()
+	host.add_child(sys)
+	assert_true(sys.art == null, "nothing loaded before setup: bare tests keep the proxies")
+	sys.setup(GameContext.new())
+	assert_true(sys.art != null and sys.art.root == ArtPack.install_dir().trim_suffix("/"), "setup loads the installed pack")
+	var injected := standin_pack(["2"])
+	var other := MonsterSystem.new()
+	host.add_child(other)
+	other.art = injected
+	other.setup(GameContext.new())
+	assert_eq(other.art, injected, "an injected pack is kept")
+
+
 # =================================================================================================================
 # Flash, fades, HP bar and the silhouette on skinned meshes
 # =================================================================================================================
