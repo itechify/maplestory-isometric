@@ -30,11 +30,11 @@
   },
   "polygon_budget": {
    "ok": true,
-   "detail": "maps over 400,000: {}; largest 1000000 (391,938)"
+   "detail": "maps over 400,000: {}; largest 1000000 (389,929)"
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,349,268 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 3,026,622 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
@@ -155,12 +155,12 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020000: Berry_Bush at (17.6, 25.4) stands 1.48 m from route West_StairsToShelves, solid at body height 0.82 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020000: Berry_Bush at (17.6, 25.4) stands 1.48 m from route West_StairsToShelves, solid at body height 1.01 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020000: Berry_Bush at (27.3, 25.3) stands 1.45 m from route West_StairsToShelves, solid at body height 0.79 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020000: Berry_Bush at (27.3, 25.3) stands 1.45 m from route West_StairsToShelves, solid at body height 0.92 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -180,12 +180,12 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.53 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.5 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.52 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.48 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -234,42 +234,36 @@
   }
  ],
  "stats": {
-  "total_triangles": 9279400,
-  "world_triangles": 3349268,
+  "total_triangles": 8844868,
+  "world_triangles": 3026622,
   "triangles_by_map": {
-   "0": 99184,
-   "10000": 132989,
-   "20000": 117195,
-   "30000": 161549,
-   "40000": 160036,
-   "40001": 318818,
-   "40002": 308063,
-   "50000": 193647,
-   "60000": 371142,
+   "0": 92654,
+   "10000": 127606,
+   "20000": 114009,
+   "30000": 157444,
+   "40000": 157670,
+   "40001": 315883,
+   "40002": 305730,
+   "50000": 192198,
+   "60000": 371092,
    "60001": 75405,
    "20001": 36964,
-   "1000000": 391938,
-   "1000001": 226696,
-   "1000002": 271532,
-   "1000003": 158291,
-   "1000004": 216015,
-   "1000005": 267112,
-   "1000006": 343587,
-   "1010000": 249060,
+   "1000000": 389929,
+   "1000001": 224710,
+   "1000002": 268664,
+   "1000003": 156694,
+   "1000004": 212509,
+   "1000005": 261876,
+   "1000006": 341234,
+   "1010000": 242877,
    "1010001": 38776,
-   "1010002": 72778,
+   "1010002": 68970,
    "1010003": 58720,
-   "1010004": 267316,
-   "1020000": 311826,
-   "1020001": 293465
+   "1010004": 265180,
+   "1020000": 298638,
+   "1020001": 254786
   },
   "top_assets_by_instanced_triangles": [
-   {
-    "asset": "Tree_Round_B",
-    "instances": 177,
-    "tris_per_instance": 2472,
-    "total": 437544
-   },
    {
     "asset": "Rock_Cliff_Stone",
     "instances": 8389,
@@ -277,22 +271,22 @@
     "total": 419450
    },
    {
+    "asset": "Tree_Round_B",
+    "instances": 177,
+    "tris_per_instance": 2072,
+    "total": 366744
+   },
+   {
     "asset": "Tree_Round_A",
     "instances": 174,
-    "tris_per_instance": 2312,
-    "total": 402288
+    "tris_per_instance": 2072,
+    "total": 360528
    },
    {
     "asset": "Tree_Birch_Yellow",
     "instances": 159,
-    "tris_per_instance": 2112,
-    "total": 335808
-   },
-   {
-    "asset": "Tree_Tall_A",
-    "instances": 74,
-    "tris_per_instance": 3984,
-    "total": 294816
+    "tris_per_instance": 2068,
+    "total": 328812
    },
    {
     "asset": "Cloud_Puff_A",
@@ -301,16 +295,16 @@
     "total": 285120
    },
    {
-    "asset": "Tree_Birch_Orange",
-    "instances": 128,
-    "tris_per_instance": 2112,
-    "total": 270336
-   },
-   {
     "asset": "Cloud_Puff_B",
     "instances": 306,
     "tris_per_instance": 880,
     "total": 269280
+   },
+   {
+    "asset": "Tree_Birch_Orange",
+    "instances": 128,
+    "tris_per_instance": 2068,
+    "total": 264704
    },
    {
     "asset": "Mob_Snail",
@@ -319,10 +313,16 @@
     "total": 198856
    },
    {
-    "asset": "Tree_Autumn_A",
-    "instances": 79,
-    "tris_per_instance": 2312,
-    "total": 182648
+    "asset": "Mob_BlueSnail",
+    "instances": 47,
+    "tris_per_instance": 3696,
+    "total": 173712
+   },
+   {
+    "asset": "Tree_Round_C",
+    "instances": 82,
+    "tris_per_instance": 2072,
+    "total": 169904
    }
   ],
   "portal_links": [
@@ -654,7 +654,7 @@
      17.6,
      25.4
     ],
-    "body_clearance_m": 0.82,
+    "body_clearance_m": 1.01,
     "grade": "low"
    },
    {
@@ -668,7 +668,7 @@
      27.3,
      25.3
     ],
-    "body_clearance_m": 0.79,
+    "body_clearance_m": 0.92,
     "grade": "low"
    },
    {
@@ -724,7 +724,7 @@
      17.7,
      18.4
     ],
-    "body_clearance_m": 0.53,
+    "body_clearance_m": 0.5,
     "grade": "low"
    },
    {
@@ -738,7 +738,7 @@
      42.2,
      18.4
     ],
-    "body_clearance_m": 0.52,
+    "body_clearance_m": 0.48,
     "grade": "low"
    },
    {
@@ -3818,9 +3818,9 @@
    }
   },
   "ring_band": {},
-  "objects": 18027,
-  "meshes": 2729,
-  "materials": 201
+  "objects": 17997,
+  "meshes": 2699,
+  "materials": 217
  },
  "exceptions": [],
  "summary": {
