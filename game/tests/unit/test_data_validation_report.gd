@@ -121,6 +121,24 @@ func test_adaptations_are_listed_with_flag_and_reason() -> void:
 	assert_eq(sp.size(), 1, "new_character starting_sp listed")
 
 
+func test_the_pinned_art_pack_is_recorded_as_project_art() -> void:
+	var doc := _doc()
+	var art: Dictionary = doc.get("project_art", {})
+	assert_eq(art.get("tag", ""), "art-pack-v1.0", "the Release tag")
+	assert_eq(art.get("kind", ""), "Project art", "recorded as Project art")
+	assert_true(String(art.get("made_by", "")).contains("Jarvis"), "made by Jarvis")
+	assert_true(String(art.get("made_with", "")).contains("Blender 4.3.2"), "made in Blender 4.3.2")
+	assert_eq(art.get("checksum_manifest", ""), "tools/art_pack/art-pack-v1.0.files.tsv", "the checksum manifest")
+	assert_eq(art.get("asset_sha256", ""), "51928327e3126b7348971c8605e1eb6558468b70b6f2aed49d3b128e3cfe110c", "the asset's SHA-256")
+	var changes: Array = art.get("packaging_changes", [])
+	assert_eq(changes.size(), 1, "one packaging change")
+	if changes.size() == 1:
+		assert_eq([changes[0].from, changes[0].to], ["environment/glb/bed.glb", "environment/glb/bed_single.glb"], "the bed rename")
+	var md := ProvenanceReport.to_markdown(doc)
+	assert_true(md.contains("\n## Project art\n"), "a Project art section")
+	assert_true(md.contains("art-pack-v1.0") and md.contains("bed_single.glb"), "naming the tag and the rename")
+
+
 func test_same_data_same_report() -> void:
 	var c := clone_db()
 	var a := ProvenanceReport.build(c, run_validator(c))

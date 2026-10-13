@@ -16,7 +16,7 @@ Do not edit: change the data or the validator and regenerate. The machine-readab
 | Property rows by authority | Henesys.gg 93, MeowDB MS Classic 1206 |
 | Dated capture files cited | 9 |
 | Unresolved values | 370 (breakables 3, drops 26, formulas 40, items 55, maps 113, monsters 32, npcs 14, quests 70, shops 17) |
-| Adaptations (objects with a verified flag) | 125: 2 verified, 123 not verified |
+| Adaptations (objects with a verified flag) | 127: 3 verified, 124 not verified |
 
 References skipped as out of scope (not findings):
 
@@ -28,6 +28,22 @@ References skipped as out of scope (not findings):
 - 1 x quests dialogue link -> npcs (MeowDB link to content outside the dataset)
 
 Captures cited: `tools/henesys/captures/item_rarity.json`, `tools/meowdb/captures/breakable_0000001.txt`, `tools/meowdb/captures/monster_1.json`, `tools/meowdb/captures/monster_2.txt`, `tools/meowdb/captures/monster_3.json`, `tools/meowdb/captures/monster_4.json`, `tools/meowdb/captures/monster_5.json`, `tools/meowdb/captures/monster_9.json`, `tools/meowdb/captures/quest_tracker_maple_island.txt`.
+
+## Project art
+
+The game's models and icons come from the pinned art pack (`game/data/misostory/art_pack.json`, ADR 0002), not from canonical data.
+
+| What | Value |
+|---|---|
+| Kind | Project art |
+| Made by | Jarvis, the project owner's ChatGPT agent |
+| Made with | Blender 4.3.2, procedurally (the generators stay with Jarvis; a not-run copy ships under reference/) |
+| Delivered | 2026-10-13, as nine ZIPs attached to #59 (pack v1) (https://github.com/itechify/maplestory-isometric/issues/59) |
+| Release | `art-pack-v1.0`: https://github.com/itechify/maplestory-isometric/releases/download/art-pack-v1.0/MisoStory_Art_Pack_v1.0.zip |
+| Asset SHA-256 | `51928327e3126b7348971c8605e1eb6558468b70b6f2aed49d3b128e3cfe110c` |
+| Checksum manifest | `tools/art_pack/art-pack-v1.0.files.tsv` |
+| Packaged by | tools/art_pack/build_release.py (PACKAGING.json in the asset records the source ZIPs' SHA-256) |
+| Packaging change | `environment/glb/bed.glb` -> `environment/glb/bed_single.glb` (SHA-256 `2809d1a0bc9213a55dfe0c30fa4769350f8aa686586db39e74df0a4058c5a5a9` unchanged): bed.glb and Bed.glb differ only in case and collide on case-insensitive file systems; the catalog maps Bed to Bed.glb. Every JSON naming bed.glb was updated (asset_index.json, docs/glb_structural_audit.json, environment/manifest.json, environment/manifest_complete.json, godot_validation.json, validation.json). #61 removes the clash upstream in v1.1, which then needs only a version bump. |
 
 ## Records
 
@@ -1985,6 +2001,7 @@ and its reason (the nearest one when the object inherits it).
 
 | File | Path | Verified | Verified against | Reason |
 |---|---|---|---|---|
+| art_pack.json | (file) | yes | https://github.com/itechify/maplestory-isometric/releases/tag/art-pack-v1.0; docs/adr/0002-pinned-art-pack.md | Project art is pinned as a Release asset, not generated in the repo (ADR 0002); spec #59, ticket #62. |
 | breakables.json | (file) | no |  | MeowDB's breakable page gives only the hit count, the maps, the per-map counts, the respawn time and the community drop list; reactor size, hit rules beyond 'basic attacks', and 3D positions are not published (breakables/0000001.json gaps). |
 | breakables.json | box | no |  | The box's body for the attack overlap test, in MapleStory px like a monster's canonical touch_zone_px: [width, height] anchored at the bottom centre, as deep as it is wide (combat.json isometric_reach touch_zone_depth 'width'), converted with WorldScale.actor (0.75 m). MeowDB publishes no reactor size; 30 x 30 px is a knee-high crate next to the 1.5 m player, small enough for the canonical basic-attack boxes (thrust 14-30 px above the feet, swings up to 61 px, the crouched attack 14 px) to reach it from 0.1 to about 2 m away. The box is not solid: classic reactors never block movement, so a box cannot close a route, trap the player or push monsters. |
 | breakables.json | cues | no |  | Presentation where MeowDB says nothing: the acceptance review could not tell a Wooden Box from the island's decorative crates. A warm rim while the player's swing can reach the box and a bobbing gold marker over the boxes while Pio's quest (1012) still needs its Old Wooden Boards or Rusty Screws tell the player which crates break and when they matter (BreakableSystem.update_cues, WoodenBox.set_cues). Recorded here; the code has this one behaviour. |
@@ -2010,6 +2027,7 @@ and its reason (the nearest one when the object inherits it).
 | drops.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | (file) | no |  | (per value: its <key>_reason entries) |
 | inventory.json | shop.protected_items[] | no |  | Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation. |
+| kit_assets_placed.json | (file) | no |  | Generated from the island build: the catalog names it never places need no art (#62). |
 | loot_visuals.json | (file) | no |  | MeowDB publishes item icons and meso art only as Nexon sprites, which MisoStory may not use, and documents no drop animation beyond 'loot drops as soon as the mob dies' (monster pages). Ground drops and item icons are therefore procedural shapes coloured from this table, and every motion value is a MisoStory feel decision for the isometric camera. |
 | loot_visuals.json | colors | no |  | Body and accent colours per shape, chosen for contrast against Maple Island's greens and browns. |
 | loot_visuals.json | meso_tiers | no |  | Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit. |
