@@ -28,7 +28,8 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/combat/melee_query.gd` | `MeleeQuery` | pure: canonical hit boxes and touch zones placed in 3D, target selection, touch overlap |
 | `scripts/actors/combat/contact_damage.gd` | `ContactDamage` | pure statics: touch gate, resolve, apply (HP, events, knockback), death announcement |
 | `scripts/actors/combat/damage_numbers.gd` | `DamageNumbers` | floating numbers (`scenes/fx/damage_numbers.tscn`) |
-| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark, and the attack box's footprint on the ground (`scenes/fx/attack_fx.tscn`) |
+| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark (the art pack's `HitSpark` when installed), and the attack box's footprint on the ground (`scenes/fx/attack_fx.tscn`) |
+| `scripts/actors/combat/effect_meshes.gd` | `EffectMeshes` | the art pack's effect meshes by name (`ArtPack` kind `EFFECT`), loaded once; empty without the pack (#71) |
 | `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, floor band, pacing rhythm, chase time, hop landing reach, fall landing tolerance, the see-through silhouette's radius, hysteresis, colour and fade); a species file overrides any key |
 | `data/misostory/monsters/{1,2,3,4,5,9}.json` | | per-species adaptation (model, capsule, walk style, speed model, stand and walk times, touch rule, hop and its floors) |
 | `data/misostory/combat.json` `player_attack` | | the player-attack feel: ground root, input buffer, target count, model lunge |

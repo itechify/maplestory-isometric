@@ -139,7 +139,8 @@ checked against the source on 2026-10-06: what Iterations One to Three already b
 - Monster and character proxies stay Iteration One's chibi models with procedural motion (bob, hop, flinch, a settle
   and lean for the sit pose); the proxies have no skeleton. Small monsters are about 30 px tall at 1600x900, and
   Shroom caps resemble the decorative red mushrooms.
-- No skill art: skill icons and the thrown shell are procedural.
+- Skill icons are procedural. Without the art pack the thrown shell and the hit spark are too, and Recovery, Nimble
+  Feet and jump dust show nothing (with it they are the pack's effect meshes, #71).
 - Equipment and customization on the player proxy; individual NPC face and hair detail beyond silhouette and colour.
 - Flat untextured green slopes fill 40-50% of the arrival frames at 000000040, 000000050 and 000001010.
 
