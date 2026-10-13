@@ -1,0 +1,30 @@
+{
+  "_doc": "The pinned art pack (ADR 0002, docs/adr/0002-pinned-art-pack.md): which release the game uses and where it is installed. bash scripts/art_pack.sh fetch reads the release block; ArtPack (game/scripts/core/art/art_pack.gd) reads install_dir and the rest. Bump the pack by changing the release block and the checksum manifest together (CONTRIBUTING.md, Art pack releases).",
+  "release": {
+    "tag": "art-pack-v1.0",
+    "asset": "MisoStory_Art_Pack_v1.0.zip",
+    "asset_bytes": 18383508,
+    "asset_sha256": "51928327e3126b7348971c8605e1eb6558468b70b6f2aed49d3b128e3cfe110c",
+    "url": "https://github.com/itechify/maplestory-isometric/releases/download/art-pack-v1.0/MisoStory_Art_Pack_v1.0.zip",
+    "checksum_manifest": "tools/art_pack/art-pack-v1.0.files.tsv"
+  },
+  "install_dir": "res://assets/art_pack",
+  "provenance": {
+    "kind": "Project art",
+    "made_by": "Jarvis, the project owner's ChatGPT agent",
+    "made_with": "Blender 4.3.2, procedurally (the generators stay with Jarvis; a not-run copy ships under reference/)",
+    "delivered": "2026-10-13, as nine ZIPs attached to #59 (pack v1)",
+    "source": "https://github.com/itechify/maplestory-isometric/issues/59",
+    "decision": "docs/adr/0002-pinned-art-pack.md",
+    "packaged_by": "tools/art_pack/build_release.py (PACKAGING.json in the asset records the source ZIPs' SHA-256)",
+    "packaging_changes": [
+      {
+        "from": "environment/glb/bed.glb",
+        "to": "environment/glb/bed_single.glb",
+        "bytes": 45516,
+        "file_sha256": "2809d1a0bc9213a55dfe0c30fa4769350f8aa686586db39e74df0a4058c5a5a9",
+        "why": "bed.glb and Bed.glb differ only in case and collide on case-insensitive file systems; the catalog maps Bed to Bed.glb. Every JSON naming bed.glb was updated (asset_index.json, docs/glb_structural_audit.json, environment/manifest.json, environment/manifest_complete.json, godot_validation.json, validation.json). #61 removes the clash upstream in v1.1, which then needs only a version bump."
+      }
+    ]
+  }
+}

@@ -2,3 +2,5 @@
 world/
 # Backups of an earlier export (e.g. world.prev/) are never committed either.
 world.*/
+# The pinned art pack (ADR 0002), installed by scripts/art_pack.sh fetch from its GitHub Release; never committed.
+art_pack/
