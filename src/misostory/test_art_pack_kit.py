@@ -1,7 +1,7 @@
 """Tests of the kit's pinned-art-pack swap (kit/art_pack.py, ADR 0002), run inside Blender (bpy):
 
     B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=blender
-    "$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py
+    "$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py [-- ClassName[.test_name] ...]
 
 Seams: the pack lookup by catalog name (aliases included), ``kit.ensure(name)`` with the pack required (what an
 @asset built from a pack GLB looks like to the rest of the build), the runtime export's albedo bake of such an
@@ -62,9 +62,171 @@ class PackLookup(unittest.TestCase):
         swapped = art_pack.swapped_names(kit.REGISTRY)
         self.assertIn("Tree_Round_A", swapped)
         self.assertIn("Vine_Hanging_A", swapped)
-        self.assertNotIn("Rock_A", swapped)          # Rocks: #74
         self.assertNotIn("Crate", swapped)           # Props: #73
         self.assertFalse([n for n in swapped if n.startswith("X")])  # per-map landmarks: #75
+
+
+class ArchitectureRocksTerrainLookup(unittest.TestCase):
+    """#74: the architecture, rocks and terrain catalog names come from the pack too."""
+
+    def setUp(self):
+        if not HAVE_PACK:
+            self.skipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+
+    def test_architecture_rocks_and_terrain_swap_but_their_landmarks_do_not(self):
+        swapped = art_pack.swapped_names(kit.REGISTRY)
+        for name in ("Fence_Wood_Seg", "House_Mushroom_OrangeSpotted", "Sign_Board", "Rock_A", "Rock_Cliff_Stone",
+                     "Mountain_Peak_A", "Cloud_Puff_A"):
+            self.assertIn(name, swapped)
+        self.assertFalse([n for n in swapped if n.startswith("X")])  # per-map landmarks: #75
+
+    def test_the_missing_pack_message_names_every_swapped_category(self):
+        msg = art_pack.missing_message(["no art pack installed at nowhere"])
+        for cat in ("Architecture", "Rocks", "Terrain", "Trees", "Foliage"):
+            self.assertIn(cat, msg)
+
+
+class ArchitectureRocksTerrainFromPack(unittest.TestCase):
+    """#74: kit.ensure(name) of architecture, rocks and terrain keeps the frame the island places them in."""
+
+    NAMES = ("Fence_Wood_Seg", "Fence_Picket_Seg", "Mountain_Peak_B", "Mountain_Hill", "Rock_A", "Rock_B",
+             "Rock_Boulder", "Rock_Cliff_Stone", "Cloud_Puff_A", "Post_StoneCap", "Eave_Lashed_4m",
+             "House_Mushroom_OrangeSpotted", "House_Mushroom_OrangeOven", "House_Wood_TwoStory_Capped",
+             "Tomato_Gate", "Hill_Door", "Barrel_Door_Mound", "Door_Plank")
+
+    @classmethod
+    def setUpClass(cls):
+        if not HAVE_PACK:
+            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+        build.reset_scene()
+        art_pack.configure("required")
+        cls.kit = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
+        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
+
+    @classmethod
+    def tearDownClass(cls):
+        art_pack.configure("off")
+
+    def objs(self, name):
+        return list(self.colls[name].objects)
+
+    def points(self, name, z0=-1e9, z1=1e9):
+        return [p for o in self.objs(name) for v in o.data.vertices for p in [o.matrix_world @ v.co] if z0 <= p.z <= z1]
+
+    def test_fences_run_from_the_origin_along_x_like_the_kit_segment(self):
+        """m.fence and the trails scale a segment (L/n/2, 1, 1) from its origin: the kit runs 0..2 m along +X."""
+        for name in ("Fence_Wood_Seg", "Fence_Picket_Seg"):
+            lo, hi = bounds(self.objs(name))
+            self.assertAlmostEqual(lo.x, self.kit[name]["lo"][0], delta=0.05, msg=name)
+            self.assertAlmostEqual(hi.x, self.kit[name]["hi"][0], delta=0.05, msg=name)
+
+    def test_mountains_keep_the_kit_frame_radius_and_height(self):
+        """The island scales a mountain (radius, radius, height / kit height): the pack peak must fill the kit's
+        unit radius and its exact height, whatever the pack's proportions."""
+        for name in ("Mountain_Peak_B", "Mountain_Hill"):
+            lo, hi = bounds(self.objs(name))
+            klo, khi = self.kit[name]["lo"], self.kit[name]["hi"]
+            self.assertAlmostEqual(hi.z - lo.z, khi[2] - klo[2], delta=0.02, msg=name)
+            self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.02,
+                                   msg=name)
+
+    def test_clouds_fill_the_kit_cloud_frame(self):
+        """The island squashes clouds (sea layers at (s, 0.8 s, 0.55 s)): the slim pack cloud, fitted by its width
+        only, read as a field of white petals, so it fills the kit cloud's box on every axis."""
+        lo, hi = bounds(self.objs("Cloud_Puff_A"))
+        klo, khi = self.kit["Cloud_Puff_A"]["lo"], self.kit["Cloud_Puff_A"]["hi"]
+        for i in range(3):
+            self.assertAlmostEqual(hi[i] - lo[i], khi[i] - klo[i], delta=0.02, msg=i)
+            self.assertAlmostEqual(lo[i], klo[i], delta=0.02, msg=i)
+
+    def test_rocks_keep_the_kit_height_so_their_collision_class_is_unchanged(self):
+        """The export gives a rock a prism only when its scaled top reaches 0.9 m: the kit Rock_A (top 0.64 m) never
+        blocks at its usual scales, and the pack rock must not start to: same top (Rock_B, 0.86 m, is close)."""
+        for name in ("Rock_A", "Rock_B"):
+            lo, hi = bounds(self.objs(name))
+            klo, khi = self.kit[name]["lo"], self.kit[name]["hi"]
+            self.assertAlmostEqual(hi.z, khi[2], delta=0.01, msg=name)
+
+    def test_cliff_stones_stay_set_into_the_cliff_face(self):
+        """Rock_Cliff_Stone's origin is inside the stone (kit z -0.33..0.55): 8,389 stones are placed at the face."""
+        lo, hi = bounds(self.objs("Rock_Cliff_Stone"))
+        klo, khi = self.kit["Rock_Cliff_Stone"]["lo"], self.kit["Rock_Cliff_Stone"]["hi"]
+        self.assertAlmostEqual(lo.z, klo[2], delta=0.02)
+        self.assertAlmostEqual((lo.y + hi.y) / 2, (klo[1] + khi[1]) / 2, delta=0.03)
+
+    def test_assets_the_kit_keeps_out_of_the_shadows_still_cast_none(self):
+        for name in ("Cloud_Puff_A", "Post_StoneCap", "Eave_Lashed_4m"):
+            self.assertTrue(all(not o.visible_shadow for o in self.objs(name)), name)
+        self.assertTrue(all(o.visible_shadow for o in self.objs("Rock_A")))
+
+    def test_clouds_and_hills_keep_the_kit_look_materials(self):
+        """Clouds glow softly (M_Cloud) and hills wear the meadow's grass painting (M_Hill)."""
+        self.assertEqual({m.name for o in self.objs("Cloud_Puff_A") for m in o.data.materials}, {"M_Cloud"})
+        self.assertIn("M_Hill", {m.name for o in self.objs("Mountain_Hill") for m in o.data.materials})
+
+    def test_house_windows_and_lantern_glow_and_the_cap_is_its_own_part(self):
+        """The pack has no emission: the kit's lit windows (M_Window) and lantern (M_Glow_window) come back on
+        purpose, and the cap is a separate <name>_Cap like the kit's (no collision tag: it starts above any jump)."""
+        name = "House_Mushroom_OrangeSpotted"
+        mats = {m.name for o in self.objs(name) for m in o.data.materials}
+        self.assertTrue({"M_Window", "M_Glow_window"} <= mats, mats)
+        cap = self.colls[name].objects.get(f"{name}_Cap")
+        self.assertIsNotNone(cap)
+        self.assertIsNone(cap.get("collision"))
+        self.assertGreater(min((cap.matrix_world @ v.co).z for v in cap.data.vertices), 3.0)
+
+    def test_mushroom_house_walls_stand_where_the_kit_walls_did(self):
+        """The map's door path and portal line up with the kit stem (front 2.12 m, base ring 2.5 m): fitted by its
+        wider cap, the pack Sen's house (1.25x) blocked route ToSensHouse in 20000."""
+        name = "House_Mushroom_OrangeOven"
+        self.assertGreaterEqual(min(p.y for p in self.points(name, 0.15, 1.6)), -2.6)
+
+    def test_weapon_store_door_stays_where_the_kit_door_and_its_portal_are(self):
+        """Amherst's in00 door portal stands in front of the kit door at (-1.2, -2.4)."""
+        pts = self.points("House_Wood_TwoStory_Capped", 0.15, 1.6)
+        ymin = min(p.y for p in pts)
+        front = [p for p in pts if p.y < ymin + 0.1]
+        self.assertAlmostEqual(sum(p.x for p in front) / len(front), -1.2, delta=0.2)
+        self.assertTrue(-2.9 <= ymin <= -2.4, ymin)
+
+    def test_portal_doors_leave_the_portal_and_its_arrival_clear(self):
+        """The body band (0.15-1.6 m, the export's prism slice) stays behind the kit's front: Barrel_Door_Mound
+        reaches 1.65 m in front of its origin (m1000000 _door), Tomato_Gate's posts and arch stand on its origin
+        line with the portal 1.5 m in front (m1020001), Hill_Door is set into a hill face at its origin."""
+        for name, front in (("Barrel_Door_Mound", -1.7), ("Hill_Door", -0.85)):
+            self.assertGreaterEqual(min(p.y for p in self.points(name, 0.15, 1.6)), front, name)
+
+    def test_tomato_gate_door_stands_behind_its_portal_so_arrivals_walk_in(self):
+        """m1020001 puts the gate 1.5 m inward of out00, so the arrival point (1.5 m inward of the anchor) is the gate
+        origin and route Main runs on through it: the kit gate was an open arch. The pack gate is a closed door, so
+        its body stands behind the portal anchor (y -1.5) by more than a body radius (0.3 m)."""
+        self.assertLessEqual(max(p.y for p in self.points("Tomato_Gate", 0.15, 1.6)), -1.85)
+
+    def test_interior_door_stays_as_flat_against_its_wall_as_the_kit_door(self):
+        """The door portals' route starts stand in front of Door_Plank (1010001, 1010003): the pack door's
+        threshold, raised into the body band by the fit, touched them."""
+        coll = bpy.data.collections.new("_kit_door")
+        try:
+            kit.REGISTRY["Door_Plank"]["fn"](coll)
+            kit_front = min(p.y for o in coll.objects for v in o.data.vertices for p in [o.matrix_world @ v.co]
+                            if 0.15 <= p.z <= 1.6)
+        finally:
+            for o in list(coll.objects):
+                bpy.data.objects.remove(o)
+            bpy.data.collections.remove(coll)
+        self.assertGreaterEqual(min(p.y for p in self.points("Door_Plank", 0.15, 1.6)), kit_front - 0.15)
+
+    def test_hill_door_fits_under_the_turf_lip_without_a_mound_of_its_own(self):
+        """The map's hill is the mound: the door alone, at the kit door's size, tops out under a 2 m hill's lip."""
+        lo, hi = bounds(self.objs("Hill_Door"))
+        self.assertLessEqual(hi.z, 1.9)
+        self.assertLessEqual(hi.x - lo.x, 2.1)
+
+    def test_eave_runs_along_the_wall_top_like_the_kit_eave(self):
+        lo, hi = bounds(self.objs("Eave_Lashed_4m"))
+        self.assertAlmostEqual(lo.x, 0.0, delta=0.05)
+        self.assertAlmostEqual(hi.x, 4.0, delta=0.05)
+        self.assertAlmostEqual(hi.y, self.kit["Eave_Lashed_4m"]["hi"][1], delta=0.05)
 
 
 class PreflightWithoutPack(unittest.TestCase):
@@ -199,5 +361,7 @@ class EnsureFromPack(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    prog = unittest.main(exit=False, verbosity=2, argv=[sys.argv[0]])
+    # "-- ClassName[.test_name] ..." runs a subset
+    prog = unittest.main(exit=False, verbosity=2,
+                         argv=[sys.argv[0]] + (sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []))
     sys.exit(0 if prog.result.wasSuccessful() else 1)
