@@ -214,6 +214,38 @@ func test_the_seated_beginner_sits_on_the_green_relaxer() -> void:
 		rig.floor(40.0)
 
 
+func test_the_xray_fill_and_outline_follow_the_skinned_pose() -> void:
+	if _skip("test_the_xray_fill_and_outline_follow_the_skinned_pose"):
+		return
+	var vis: PlayerVisual = _player()[1]
+	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
+	var skinned := 0
+	for node in vis.model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		skinned += 1 if mi.skin != null else 0
+		for s in mi.mesh.get_surface_count():
+			var m := mi.get_active_material(s) as BaseMaterial3D
+			assert_true(m != null, "%s: a BaseMaterial3D" % mi.name)
+			if m == null:
+				continue
+			assert_eq(m.stencil_flags, BaseMaterial3D.STENCIL_FLAG_WRITE, "%s writes the stencil" % mi.name)
+			assert_eq(m.stencil_reference, PlayerVisual.STENCIL_REF, "%s: the player's reference" % mi.name)
+			assert_eq(m.next_pass, vis.silhouette_materials().fill, "%s carries the X-ray fill (same instance: skinned)" % mi.name)
+		assert_eq(mi.layers, PlayerVisual.PLAYER_LAYER, "%s is on the player layer (no blob shadow on it)" % mi.name)
+	assert_true(skinned >= 10, "the merged Beginner meshes are skinned (%d)" % skinned)
+	var outlines := vis.outline_meshes()
+	assert_eq(outlines.size(), skinned, "one outline hull per skinned mesh")
+	for o in outlines:
+		# A copy without the skin and the bone channels would stand in the bind pose while the body animates.
+		assert_true(o.skin != null, "%s has the rig's skin" % o.name)
+		assert_true(o.get_node_or_null(o.skeleton) == sk, "%s is posed by the rig's skeleton" % o.name)
+		var a := o.mesh.surface_get_arrays(0)
+		assert_true(a[Mesh.ARRAY_BONES] != null and a[Mesh.ARRAY_WEIGHTS] != null, "%s keeps its bones and weights" % o.name)
+		var verts: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		assert_true(a[Mesh.ARRAY_BONES] != null and (a[Mesh.ARRAY_BONES] as PackedInt32Array).size() >= verts.size() * 4,
+			"%s: four or eight bones per vertex" % o.name)
+
+
 func _bone_y(sk: Skeleton3D, bone: String) -> float:
 	return (sk.global_transform * sk.get_bone_global_pose(sk.find_bone(bone))).origin.y
 

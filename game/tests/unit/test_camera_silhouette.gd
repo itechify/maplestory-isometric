@@ -292,6 +292,11 @@ func test_finds_the_library_proxy_by_asset_name() -> void:
 	var vis := PlayerVisual.new()
 	vis.blob_shadow = false
 	p.add_child(vis)
+	if vis.rigged():
+		# With the art pack installed the real game shows the rigged Beginner before the proxy (#63); its surfaces,
+		# fill and skinned outline hulls are pinned in test_player_rig.gd. Run with NO_ART_PACK=1 for the proxy.
+		assert_true(vis.outline_meshes().size() >= 1, "the rig has outline hulls")
+		return
 	var placeholder_parts := 0
 	for c in vis.model.get_children():
 		if c is MeshInstance3D and ((c as MeshInstance3D).mesh is CapsuleMesh or (c as MeshInstance3D).mesh is SphereMesh):

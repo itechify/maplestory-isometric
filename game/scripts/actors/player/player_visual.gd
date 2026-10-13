@@ -585,16 +585,25 @@ func _apply_silhouette(root: Node) -> void:
 			n = n.get_parent()
 		o.transform = rel
 		_outline_root.add_child(o)
+		# A skinned mesh (the rig): the hull keeps its bones and weights (smoothed_hull) and is posed by the same skin
+		# and skeleton, so the outline follows every clip instead of standing in the bind pose.
+		if mi.skin != null:
+			o.skin = mi.skin
+			o.skeleton = o.get_path_to(mi.get_node(mi.skeleton))
 		_outlines.append(o)
 
 
 ## One triangle surface of `surfaces` of `mesh` with every vertex normal averaged over the vertices at the same
 ## position, so growing it along the normals never cracks at hard edges (the proxy is flat shaded). Null when the
-## surfaces hold no triangles.
+## surfaces hold no triangles. Skinned surfaces keep their bones and weights (when every surface has the same number
+## per vertex), so the hull can be posed by the source's skin.
 static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
 	var verts := PackedVector3Array()
 	var normals := PackedVector3Array()
 	var index := PackedInt32Array()
+	var bones := PackedInt32Array()
+	var weights := PackedFloat32Array()
+	var per_vertex := -1
 	var acc: Dictionary = {}
 	for s in surfaces:
 		# PrimitiveMeshes are always triangles; an ArrayMesh says.
@@ -605,6 +614,17 @@ static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
 		var nrm: PackedVector3Array = arr[Mesh.ARRAY_NORMAL] if arr[Mesh.ARRAY_NORMAL] != null else PackedVector3Array()
 		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
 		var base := verts.size()
+		if arr[Mesh.ARRAY_BONES] != null and arr[Mesh.ARRAY_WEIGHTS] != null and v.size() > 0 and per_vertex != 0:
+			var b: PackedInt32Array = arr[Mesh.ARRAY_BONES]
+			var n_per := b.size() / v.size()
+			if per_vertex < 0 or per_vertex == n_per:
+				per_vertex = n_per
+				bones.append_array(b)
+				weights.append_array(arr[Mesh.ARRAY_WEIGHTS])
+			else:
+				per_vertex = 0
+		else:
+			per_vertex = 0
 		verts.append_array(v)
 		for i in v.size():
 			var key := v[i].snappedf(0.0001)
@@ -626,8 +646,14 @@ static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
 	arrays[Mesh.ARRAY_VERTEX] = verts
 	arrays[Mesh.ARRAY_NORMAL] = normals
 	arrays[Mesh.ARRAY_INDEX] = index
+	var flags := 0
+	if per_vertex > 0 and bones.size() == verts.size() * per_vertex:
+		arrays[Mesh.ARRAY_BONES] = bones
+		arrays[Mesh.ARRAY_WEIGHTS] = weights
+		if per_vertex == 8:
+			flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
 	var out := ArrayMesh.new()
-	out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	return out
 
 
