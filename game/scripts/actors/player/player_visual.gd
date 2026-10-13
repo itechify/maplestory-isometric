@@ -119,6 +119,8 @@ var gender: String = ""
 var preset: String = ""
 ## Drives the rig's clips (null without a rig).
 var animator: PlayerAnimator = null
+## The art pack (injectable before the node enters the tree; else the installed one, loaded once).
+var art: ArtPack = null
 
 var _chair_id: String = ""
 var _last_feet: Vector3 = Vector3.ZERO
@@ -362,7 +364,7 @@ func step_sit(delta: float) -> void:
 func _pack_chair(item_id: String) -> Node3D:
 	if animator == null:
 		return null
-	var art := ArtPack.load_installed()
+	_load_art()
 	var inst := art.instance(ArtPack.ITEM, item_id) if art.present() else null
 	if inst == null:
 		return null
@@ -746,7 +748,7 @@ func _build_model() -> Node3D:
 ## The art pack's Beginner preset for the character's gender (looked up by ID, #62; already at the character scale
 ## on its rig node), named "Model", with its animator; null without the pack.
 func _rig_model() -> Node3D:
-	var art := ArtPack.load_installed()
+	_load_art()
 	if not art.present():
 		return null
 	var wanted := preset_for(_gender())
@@ -762,6 +764,11 @@ func _rig_model() -> Node3D:
 	preset = wanted
 	animator = anims
 	return inst
+
+
+func _load_art() -> void:
+	if art == null:
+		art = ArtPack.load_installed()
 
 
 func _gender() -> String:
