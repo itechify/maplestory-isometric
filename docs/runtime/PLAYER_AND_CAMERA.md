@@ -398,6 +398,37 @@ rests on (`ground_lift()`):
 
 Windowed screenshots: `bash scripts/playtest.sh player_rig --windowed` (`QUEST=female` for the female preset).
 
+### Equipment on the rig (#68)
+
+The rig wears what `CharacterState.equipment` holds (`CharacterWardrobe.dress`, after the look). Every model is
+looked up through `ArtPack` by item id: wearable files are named by MeowDB id and equipment files by game item id, so
+only the pack's index is consistent.
+
+- **Wearables** (hat, top, bottom, overall, shoes, gloves, earrings) are skinned parts with their own copy of the rig.
+  `CharacterLook.graft` moves their meshes onto the player's skeleton by bone name. They inherit the character scale
+  from the rig node and are never rescaled.
+- **Weapons** hang in `socket_weapon_r`, shields in `socket_shield_l`, at the socket's transform, so they follow the
+  hand through every clip. Their see-through outline hulls are put back on them every frame the outline shows.
+- **The preset garments a slot replaces come off** (`HIDES`, `ITEM_HIDES`). The import merges the preset's meshes per
+  material, so the collar and the socks share one mesh, as do the tunic and the sleeves. Each merged mesh therefore
+  remembers which triangles each garment drew (`ArtImport.garments`), and a hidden garment is cut out of its mesh,
+  costing no draw call. The rules were read from contact sheets:
+  - A top takes off the tunic and what is sewn on it, and its colour goes on the preset's puffed shoulders.
+  - A bottom takes off the trousers and the female flared skirt. Shoes take off the preset's shoes.
+  - Sandals (1305, 1327) keep the preset's shoe in the skin colour as a bare foot, and take off the socks.
+  - A cap takes off the hair on the crown (scalp, cowlick, bun, fringe) and the female preset's bow. The hair that
+    hangs below a cap (temples, long locks, pigtails) stays.
+  - A headband (711-715) takes off only the fringe and the bow, because without the crown hair the head showed bald
+    inside the band.
+- **Every equip, unequip and swap shows at once.** `PlayerVisual` listens to `Events.equipment_changed` and
+  `Game.character_replaced` and rebuilds the model once (`show_character`) when the preset, the look or the shown
+  equipment changes.
+
+A fully equipped Beginner draws about 26-28 surfaces, against 16 (male) or 19 (female) bare. Contact sheets of all 40
+wearables, every hair under every hat, and the starter weapons in idle, attack and sitting come from
+`res://tools/wardrobe_sheet.tscn` (`--sheet wearables|hats_male|hats_female|weapons --out <png>`, windowed). The
+live check is `bash scripts/playtest.sh wardrobe --windowed` (`QUEST=male` for the male preset).
+
 Without the pack the visual shows the exported Player_Proxy. The export names asset roots with Blender's suffix
 (`Player_Proxy_001`), and the old exact-name lookup had fallen back to the procedural chibi placeholder in the real
 game. `PlayerVisual.find_proxy()` matches the name like `ProxyLibrary` does.
@@ -428,6 +459,7 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
 | `test_player_animation.gd` | `PlayerAnimator.select` (no pack): idle, walk and run by ground speed; jump while airborne; climb; the one-shots in gameplay order (attack over walk and a jump, hit over the attack and the climb, sit, death over all) |
 | `test_player_rig.gd` | with the art pack (SKIP without): the gender's Beginner preset at 1.5 m and its swap; each state plays its clip on the rig (idle, walk, run, jump, climb a rope, attack, hit, sit, death); through a full jump the root bone stays on the body's feet and the visual adds no offset; the bob, lean, death fall, sit drop and lunge never run; the pelvis rests on The Green Relaxer's cushion and the dead body on the ground (both genders); every rig surface writes the stencil and carries the fill, and each outline hull is skinned by the rig's skeleton. Without a rig, the placeholder keeps its bob, lean, lunge, sit drop and death fall |
+| `test_character_wardrobe.gd` | hiding one garment of a merged mesh keeps the others in the same mesh and material, and hiding all of them frees it (no pack). With the art pack (SKIP without): one item per slot on each preset, worn on the skeleton (bound by bone name, not rescaled) or held in `socket_weapon_r`; the garments each slot takes off (top, bottom, shoes, cap, headband); gloves and earrings take nothing off; a new top colours the shoulders and sandals bare the feet; an item without a model is listed. On `PlayerVisual`: the equipment shown and rebuilt at once on every swap, kept through a new look and preset; the held sword's outline follows the swing; draw calls when fully equipped. Without a rig the placeholder ignores equipment |
 | `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat) and a real cast (PlayerSkills) stand up before they start, so on their first tick the activity is "attacking" and `is_seated()` is false (activity and the seated query agree); knockback, death, teleport, a climb and leaving the ground (on its second tick) stand up, while a one-tick flicker of the ground state leaves a still, seated player seated; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
 | `test_chairs_use.gd` | chairs are the Setup items with setup data (522, 525); the canonical bonus; the first chair in slot order; refusals (unknown, not a chair, not owned, level, dead, walking); use sits and stands without consuming or emitting item events; moving to another chair; a fixture ItemService never moves the live player; a quickslot-bound chair sits the live player; the inventory window's double-click and Sit / Stand button |
 | `test_player_route_bot.gd` | the bot on real exported collision (INCLUDE_WORLD=1); route geometry helpers; on synthetic collision (no world needed): jumps a 0.8 m rise, climbs a ladder up and down, reports a stall at a wall |
@@ -543,8 +575,8 @@ show instead:
 - Without the art pack the Player_Proxy is a static model with procedural bob, lean, blink, death tilt and a simple
   sit pose (settle and lean onto a procedural chair). The fallback model (when `_library.glb` is missing) is
   procedural.
-- The rigged Beginner has one `attack` clip, so the three starter weapons swing alike (weapons show on the body in
-  #68). There is no player name tag.
+- The rigged Beginner has one `attack` clip, so every weapon swings alike, the bow and wand too. Every weapon is
+  held in the right hand. There is no player name tag.
 - Sitting needs a chair item: there is no ground sit and no map bench (MeowDB documents neither on Maple Island;
   Rain's quiz 1016 only mentions chairs and benches in general).
 - Crouch and down-jump through platforms (the classic statement from Rain's quiz) are not implemented: excluded as an
