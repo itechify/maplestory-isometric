@@ -8,7 +8,9 @@ extends Node3D
 ## Model, first found (feet at y = 0, front +Z, named "Model"):
 ##   1. the art pack's rigged Beginner preset for the character's gender (#63; PRESETS, looked up by ID through
 ##      ArtPack, already at the character scale on its rig node), wearing the character's saved hair, face and skin
-##      (#67, CharacterLook; set_look() rebuilds when they change). PlayerAnimator plays its clips from the gameplay
+##      (#67, CharacterLook; set_look() rebuilds when they change) and its equipment (#68, CharacterWardrobe: wearables
+##      on the skeleton, the weapon in socket_weapon_r; set_equipment() rebuilds at once on every equip, unequip and
+##      swap, which the live player hears as Events.equipment_changed). PlayerAnimator plays its clips from the gameplay
 ##      state (idle, walk, run, jump, climb, attack, hit, sit, death). Animation never moves the body: the clips'
 ##      root translation is held by the import (#62), and the procedural motions a clip covers (covers(): the walk bob
 ##      and lean, the death fall, the sit drop and lean, PlayerCombat's attack lunge) do not run. The only vertical
@@ -136,6 +138,13 @@ var appearance: Dictionary = {}
 var preset: String = ""
 ## The look on the rig (a complete CharacterAppearance look; {} without a rig).
 var look: Dictionary = {}
+## Equipment.equipped() for what the character wears (slot -> item id; read from Game.character with the gender when
+## `gender` is ""). Set it with `gender`, before the node enters the tree; set_equipment() changes it later.
+var equipment: Dictionary = {}
+## The equipment on the rig (its non-empty slots; {} without a rig) and what CharacterWardrobe.dress made of it
+## ({worn: {slot: [meshes]}, held: {slot: node}, hidden, missing}).
+var worn: Dictionary = {}
+var wardrobe: Dictionary = {}
 ## Drives the rig's clips (null without a rig).
 var animator: PlayerAnimator = null
 ## The art pack (injectable before the node enters the tree; else the installed one, loaded once).
@@ -148,6 +157,9 @@ var _combat: Node = null
 var _skills: Node = null
 var _skeleton: Skeleton3D = null
 var _root_bone: int = -1
+## Outline hulls of the held items' static meshes, which a bone attachment moves: [source mesh, hull] pairs that
+## step_see_through puts back on their source every frame the outline shows.
+var _held_outlines: Array = []
 
 
 func _ready() -> void:
@@ -166,6 +178,10 @@ func _ready() -> void:
 		var game := get_node_or_null(^"/root/Game")
 		if game != null and game.has_signal(&"character_replaced"):
 			game.connect(&"character_replaced", _on_character_replaced)
+		# Every equip, unequip and swap (and the "" after a new game or a load) shows at once (#68).
+		var events := get_node_or_null(^"/root/Events")
+		if events != null and events.has_signal(&"equipment_changed"):
+			events.connect(&"equipment_changed", _on_equipment_changed)
 
 
 ## Shows the preset for `character_gender` (CharacterState.gender) with the current appearance (set_look).
@@ -177,10 +193,23 @@ func set_gender(character_gender: String) -> void:
 ## values: the gender's default), rebuilding the rigged model and its silhouette when the preset or the look changes.
 ## Without a rig (no pack, the proxy or the placeholder) nothing changes.
 func set_look(character_gender: String, character_appearance: Dictionary) -> void:
+	show_character(character_gender, character_appearance, equipment)
+
+
+## Shows `equipped` (Equipment.equipped(): slot -> item id) on the rig, rebuilding the model and its silhouette when
+## the items shown change (#68). Without a rig nothing changes.
+func set_equipment(equipped: Dictionary) -> void:
+	show_character(gender, appearance, equipped)
+
+
+## The preset, look and equipment together: one rebuild when any of them changes what the rig shows.
+func show_character(character_gender: String, character_appearance: Dictionary, equipped: Dictionary) -> void:
 	gender = character_gender
 	appearance = character_appearance.duplicate()
+	equipment = equipped.duplicate()
 	if animator == null or (preset_for(character_gender) == preset
-			and CharacterAppearance.resolve(character_appearance, character_gender) == look):
+			and CharacterAppearance.resolve(character_appearance, character_gender) == look
+			and shown_equipment(equipped) == worn):
 		return
 	remove_child(model)
 	model.free()
@@ -189,17 +218,40 @@ func set_look(character_gender: String, character_appearance: Dictionary) -> voi
 		_outline_root.free()
 	_outline_root = null
 	_outlines.clear()
+	_held_outlines.clear()
 	animator = null
 	preset = ""
 	look = {}
+	worn = {}
+	wardrobe = {}
 	_install_model()
 
 
+## The slots of `equipped` that hold an item (what the rig shows).
+static func shown_equipment(equipped: Dictionary) -> Dictionary:
+	var out := {}
+	for slot in equipped:
+		if String(equipped[slot]) != "":
+			out[String(slot)] = String(equipped[slot])
+	return out
+
+
 func _on_character_replaced(_reason: String = "") -> void:
+	var c := _live_character()
+	if c != null:
+		show_character(c.gender, c.appearance, c.equipment.equipped())
+
+
+func _on_equipment_changed(_slot: String = "") -> void:
+	var c := _live_character()
+	if c != null:
+		show_character(c.gender, c.appearance, c.equipment.equipped())
+
+
+func _live_character() -> CharacterState:
 	var game := get_node_or_null(^"/root/Game")
 	var c: Variant = game.get("character") if game != null else null
-	if c is CharacterState:
-		set_look((c as CharacterState).gender, (c as CharacterState).appearance)
+	return c as CharacterState if c is CharacterState else null
 
 
 func _install_model() -> void:
@@ -518,6 +570,11 @@ func step_see_through(delta: float) -> void:
 			o.visible = on
 	if on:
 		_outline_mat.grow_amount = outline_grow()
+		for pair: Array in _held_outlines:
+			var src: MeshInstance3D = pair[0]
+			var hull: MeshInstance3D = pair[1]
+			if is_instance_valid(src) and is_instance_valid(hull) and src.is_inside_tree() and hull.is_inside_tree():
+				hull.global_transform = src.global_transform
 
 
 ## True on the blink-off slices of the post-hit blink at `msec` (Time.get_ticks_msec()).
@@ -685,7 +742,28 @@ func _apply_silhouette(root: Node) -> void:
 		if mi.skin != null:
 			o.skin = mi.skin
 			o.skeleton = o.get_path_to(mi.get_node(mi.skeleton))
+		elif _on_bone(mi, root):
+			# A held item (#68): a bone attachment moves it, so its hull is put back on it every frame it shows.
+			_held_outlines.append([mi, o])
 		_outlines.append(o)
+
+
+## True when `n` hangs under a BoneAttachment3D inside `root` (a held weapon or shield).
+static func _on_bone(n: Node, root: Node) -> bool:
+	var p := n.get_parent()
+	while p != null and p != root:
+		if p is BoneAttachment3D:
+			return true
+		p = p.get_parent()
+	return false
+
+
+## The see-through outline hull of a held item's mesh (null when it has none).
+func held_outline(mi: MeshInstance3D) -> MeshInstance3D:
+	for pair: Array in _held_outlines:
+		if pair[0] == mi:
+			return pair[1]
+	return null
 
 
 ## One triangle surface of `surfaces` of `mesh` with every vertex normal averaged over the vertices at the same
@@ -796,8 +874,12 @@ func _rig_model() -> Node3D:
 	# The saved hair, face and skin (#67), before the silhouette copies the meshes.
 	var shown := CharacterAppearance.resolve(_appearance(), g)
 	CharacterLook.apply(inst, shown, wanted, art)
+	# What the character wears and holds (#68), on the look and before the silhouette copies the meshes.
+	var equipped := shown_equipment(_equipment())
+	wardrobe = CharacterWardrobe.dress(inst, equipped, art)
 	preset = wanted
 	look = shown
+	worn = equipped
 	animator = anims
 	return inst
 
@@ -822,6 +904,14 @@ func _appearance() -> Dictionary:
 	var game := get_node_or_null(^"/root/Game")
 	var c: Variant = game.get("character") if game != null else null
 	return (c as CharacterState).appearance if c is CharacterState else {}
+
+
+## The equipment to show: `equipment` when the gender was given (tests, show_character), else the live character's.
+func _equipment() -> Dictionary:
+	if gender != "" or not equipment.is_empty() or player == null or not player.use_autoloads:
+		return equipment
+	var c := _live_character()
+	return c.equipment.equipped() if c != null else {}
 
 
 ## The Player_Proxy root of an instantiated library: the export names asset roots with Blender's numeric suffix

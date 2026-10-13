@@ -228,3 +228,117 @@ func test_without_the_pack_nothing_changes() -> void:
 	assert_eq(out, {"worn": {}, "held": {}, "hidden": 0, "missing": []}, "nothing dressed")
 	assert_eq(sk.get_child_count(), 1, "the tunic stays")
 	root.free()
+
+
+# --- PlayerVisual -------------------------------------------------------------------------------------------------
+
+## A PlayerVisual ("Visual", no blob shadow, processed by hand) for `gender` wearing `equipped`, on a fresh player.
+func _visual(rig: MonsterTestRig, gender: String, equipped: Dictionary, use_pack: bool = true) -> PlayerVisual:
+	var p := rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var vis := PlayerVisual.new()
+	vis.name = "Visual"
+	vis.blob_shadow = false
+	vis.use_library_model = use_pack
+	vis.gender = gender
+	vis.equipment = equipped
+	p.add_child(vis)
+	vis.set_process(false)
+	return vis
+
+
+func _item_ids_on(vis: PlayerVisual) -> Array:
+	var out := []
+	for n in vis.model.find_children("*", "", true, false):
+		if n.has_meta(&"item_id") and not out.has(String(n.get_meta(&"item_id"))):
+			out.append(String(n.get_meta(&"item_id")))
+	out.sort()
+	return out
+
+
+func test_the_player_wears_its_equipment_and_follows_every_change() -> void:
+	if _skip("test_the_player_wears_its_equipment_and_follows_every_change"):
+		return
+	var rig := MonsterTestRig.create(db(), 68)
+	rig.floor(40.0)
+	var vis := _visual(rig, "male", {"weapon": "541", "top": "933"})
+	assert_eq(vis.worn, {"weapon": "541", "top": "933"}, "the equipment shown")
+	assert_eq(_item_ids_on(vis), ["541", "933"], "sword and undershirt on the model")
+	assert_true(vis.model.find_child("socket_weapon_r", true, false).get_child(0).get_meta(&"item_id") == "541", "the sword in the right hand")
+	var old := vis.model
+	vis.set_equipment({"weapon": "541", "top": "933", "ring_1": ""})
+	assert_true(vis.model == old, "the same items: no rebuild")
+	vis.set_equipment({"weapon": "576", "top": "933", "hat": "708"})
+	assert_true(vis.model != old, "a swap rebuilds at once")
+	assert_eq(_item_ids_on(vis), ["576", "708", "933"], "axe, skullcap and undershirt")
+	vis.set_equipment({"weapon": "576"})
+	assert_eq(_item_ids_on(vis), ["576"], "unequipped pieces are gone")
+	assert_true(vis.model.find_child("Clothing_Cloth sage", true, false) != null, "and the tunic is back")
+	vis.set_look("male", {"hair_style": 0, "face": 1, "skin": 2})
+	assert_eq(_item_ids_on(vis), ["576"], "a new look keeps the equipment")
+	vis.set_gender("female")
+	assert_eq(vis.preset, "Beginner_Female", "another preset")
+	assert_eq(_item_ids_on(vis), ["576"], "still holding the axe")
+	rig.free_all()
+
+
+func test_the_see_through_outline_covers_what_is_worn_and_held() -> void:
+	if _skip("test_the_see_through_outline_covers_what_is_worn_and_held"):
+		return
+	var rig := MonsterTestRig.create(db(), 68)
+	rig.floor(40.0)
+	var vis := _visual(rig, "male", MALE_KIT)
+	var skinned := 0
+	for o in vis.outline_meshes():
+		if o.skin != null:
+			skinned += 1
+	var worn := 0
+	for slot in vis.wardrobe["worn"]:
+		worn += (vis.wardrobe["worn"][slot] as Array).size()
+	assert_true(worn > 0, "worn meshes")
+	# Every worn (skinned) mesh has a skinned hull; the sword's static parts follow the hand (checked through a clip).
+	var sword := vis.model.find_child("socket_weapon_r", true, false).get_child(0) as Node3D
+	vis.set_see_through(true)
+	var mi := sword.find_children("*", "MeshInstance3D", true, false)[0] as MeshInstance3D
+	var rest := mi.global_transform
+	var ap := vis.model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	ap.play("attack")
+	ap.seek(0.3, true)
+	(vis.model.find_child("Skeleton3D", true, false) as Skeleton3D).force_update_all_bone_transforms()
+	(vis.model.find_child("hand_R", true, false) as BoneAttachment3D).on_skeleton_update()
+	assert_false(mi.global_transform.origin.is_equal_approx(rest.origin), "the swing moves the sword (%s)" % [rest.origin])
+	vis.step_see_through(1.0)
+	var hull := vis.held_outline(mi)
+	assert_true(hull != null, "the sword has an outline")
+	if hull != null:
+		assert_true(hull.global_transform.is_equal_approx(mi.global_transform), "the sword's outline follows the swing: %s vs %s" % [hull.global_transform.origin, mi.global_transform.origin])
+	assert_true(skinned >= worn, "worn meshes have skinned outline hulls (%d hulls, %d worn)" % [skinned, worn])
+	rig.free_all()
+
+
+func test_without_the_pack_the_placeholder_ignores_equipment() -> void:
+	var rig := MonsterTestRig.create(db(), 68)
+	rig.floor(40.0)
+	var vis := _visual(rig, "male", MALE_KIT, false)
+	assert_false(vis.rigged(), "the placeholder")
+	assert_eq(vis.worn, {}, "nothing shown")
+	var old := vis.model
+	vis.set_equipment({"hat": "708"})
+	assert_true(vis.model == old, "no rebuild without a rig")
+	rig.free_all()
+
+
+func test_a_fully_equipped_player_costs_few_extra_draw_calls() -> void:
+	if _skip("test_a_fully_equipped_player_costs_few_extra_draw_calls"):
+		return
+	for kit: Dictionary in [MALE_KIT, FEMALE_KIT]:
+		var gender := "male" if kit == MALE_KIT else "female"
+		var plain := _preset(gender)
+		var model := _preset(gender)
+		CharacterWardrobe.dress(model, kit, art)
+		var base := ArtImport.draw_calls(plain)
+		var dressed := ArtImport.draw_calls(model)
+		print("NOTE %s: preset %d draw calls, fully equipped %d" % [gender, base, dressed])
+		# Each wearable is 2-4 merged surfaces and the weapon 4-5; what it covers is taken off.
+		assert_true(dressed <= base + 24, "%s: %d draw calls (preset %d)" % [gender, dressed, base])
+		plain.free()
+		model.free()
