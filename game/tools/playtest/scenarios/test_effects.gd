@@ -112,7 +112,7 @@ func _dust(d: PlaytestDriver, pack: bool) -> void:
 	var on_land := func(_s: float) -> void: landed[0] = true
 	p.landed.connect(on_land)
 	await d.tap(&"jump")
-	d.check("dust at the take-off %s" % ("" if pack else "(none without the pack)"), (fx.dust_count() > 0) == pack,
+	d.check("dust at the take-off" + ("" if pack else " (none without the pack)"), (fx.dust_count() > 0) == pack,
 		"%d puffs" % fx.dust_count())
 	await d.screenshot("jump_dust_takeoff")
 	var t0 := d.game_s()
