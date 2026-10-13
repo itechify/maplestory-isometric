@@ -124,6 +124,46 @@ func _ready() -> void:
 	player = get_parent() as PlayerController
 	if not _config_loaded:
 		load_config(_read_config())
+	_install_model()
+	if blob_shadow and player != null:
+		shadow = _build_shadow()
+		player.add_child.call_deferred(shadow)
+	if player != null:
+		_yaw = atan2(player.facing.x, player.facing.z)
+		_last_feet = player.global_position
+	# The live player follows the live character: a new game or a load during play may change the gender.
+	if player != null and player.use_autoloads and gender == "":
+		var game := get_node_or_null(^"/root/Game")
+		if game != null and game.has_signal(&"character_replaced"):
+			game.connect(&"character_replaced", _on_character_replaced)
+
+
+## Shows the preset for `character_gender` (CharacterState.gender), rebuilding the rigged model and its silhouette
+## when the preset changes. Without a rig (no pack, the proxy or the placeholder) nothing changes.
+func set_gender(character_gender: String) -> void:
+	gender = character_gender
+	if animator == null or preset_for(character_gender) == preset:
+		return
+	remove_child(model)
+	model.free()
+	if _outline_root != null:
+		remove_child(_outline_root)
+		_outline_root.free()
+	_outline_root = null
+	_outlines.clear()
+	animator = null
+	preset = ""
+	_install_model()
+
+
+func _on_character_replaced(_reason: String = "") -> void:
+	var game := get_node_or_null(^"/root/Game")
+	var c: Variant = game.get("character") if game != null else null
+	if c is CharacterState:
+		set_gender((c as CharacterState).gender)
+
+
+func _install_model() -> void:
 	model = _build_model()
 	add_child(model)
 	if xray:
@@ -131,12 +171,6 @@ func _ready() -> void:
 	_tag_meshes(model)
 	if _outline_root != null:
 		_tag_meshes(_outline_root)
-	if blob_shadow and player != null:
-		shadow = _build_shadow()
-		player.add_child.call_deferred(shadow)
-	if player != null:
-		_yaw = atan2(player.facing.x, player.facing.z)
-		_last_feet = player.global_position
 
 
 func _process(delta: float) -> void:
@@ -257,19 +291,23 @@ func _hook_sources() -> void:
 
 
 func _on_knocked_back(_push_dir: Vector3) -> void:
-	animator.trigger_hit()
+	if animator != null:
+		animator.trigger_hit()
 
 
 func _on_player_damaged(_amount: Variant = null, _mob_id: Variant = null) -> void:
-	animator.trigger_hit()
+	if animator != null:
+		animator.trigger_hit()
 
 
 func _on_attack_started(_action: Variant, _presentation: Variant, lockout_s: float) -> void:
-	animator.trigger_attack(lockout_s)
+	if animator != null:
+		animator.trigger_attack(lockout_s)
 
 
 func _on_cast_started(_skill_id: Variant, _level: Variant, lockout_s: float) -> void:
-	animator.trigger_attack(lockout_s)
+	if animator != null:
+		animator.trigger_attack(lockout_s)
 
 
 # =================================================================================================================

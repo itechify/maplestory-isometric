@@ -70,6 +70,27 @@ func test_the_player_is_the_beginner_preset_for_the_gender() -> void:
 	assert_true(female.model.find_child("Hat_*", true, false) != null, "the female Beginner's hair bow (Hat_ meshes)")
 
 
+func test_a_new_character_of_the_other_gender_swaps_the_preset() -> void:
+	if _skip("test_a_new_character_of_the_other_gender_swaps_the_preset"):
+		return
+	var pair := _player("male")
+	var vis: PlayerVisual = pair[1]
+	vis.set_see_through(true)
+	_tick(vis, 5)
+	vis.set_gender("female")
+	assert_eq(vis.preset, "Beginner_Female", "the female preset")
+	assert_eq(vis.get_children().filter(func(c: Node) -> bool: return c.name == "Model").size(), 1, "one Model")
+	assert_true(vis.model.is_inside_tree() and vis.model.find_child("Hat_*", true, false) != null, "the new model shows")
+	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
+	assert_true(vis.outline_meshes().size() >= 10, "outline hulls for the new model")
+	for o in vis.outline_meshes():
+		assert_true(is_instance_valid(o) and o.get_node_or_null(o.skeleton) == sk, "posed by the new skeleton")
+	_tick(vis, 5)
+	assert_true(vis.outline_meshes()[0].visible, "the see-through state carries over")
+	vis.set_gender("female")
+	assert_eq(vis.model.find_child("Skeleton3D", true, false), sk, "the same gender keeps the model")
+
+
 func test_each_gameplay_state_plays_its_clip() -> void:
 	if _skip("test_each_gameplay_state_plays_its_clip"):
 		return
