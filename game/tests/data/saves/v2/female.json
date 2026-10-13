@@ -1,0 +1,108 @@
+{
+	"character": {
+		"ap": 0,
+		"base_max_hp": 50,
+		"base_max_mp": 5,
+		"base_stats": {
+			"dex": 8,
+			"int": 4,
+			"luk": 4,
+			"str": 9
+		},
+		"cooldowns": {},
+		"effects": [],
+		"equipment": {
+			"slots": {
+				"weapon": {
+					"item_id": "541"
+				}
+			},
+			"version": 1
+		},
+		"exp": 0,
+		"fame": 0,
+		"flags": {},
+		"gender": "female",
+		"hp": 50,
+		"inventory": {
+			"capacity": {
+				"cash": 24,
+				"equip": 24,
+				"etc": 24,
+				"setup": 24,
+				"use": 24
+			},
+			"slots": {
+				"cash": [],
+				"equip": [],
+				"etc": [],
+				"setup": [],
+				"use": []
+			},
+			"version": 1
+		},
+		"job": "beginner",
+		"level": 1,
+		"location": {
+			"entry": {
+				"map_id": "000000001",
+				"spawn_index": 0
+			},
+			"map_id": "000000001",
+			"resume": {
+				"facing_deg": 118.04834302076327,
+				"local_pos": [
+					30.393604278564453,
+					0.0,
+					-9.676840782165527
+				],
+				"map_content_hash": "e0bb2b7513511736"
+			}
+		},
+		"mesos": 0,
+		"mp": 5,
+		"name": "Mira",
+		"natural_recovery": {
+			"hp_rest_s": 0.0
+		},
+		"play_time_s": 12.183333333333518,
+		"quests": {
+			"format": 2,
+			"quests": {}
+		},
+		"quickslots": {},
+		"respawn_reference": "000000001",
+		"skills": {},
+		"sp": 0
+	},
+	"game": "MisoStory",
+	"meta": {
+		"job": "beginner",
+		"level": 1,
+		"map_id": "000000001",
+		"map_name": "Mushroom Town - West Entrance",
+		"name": "Mira",
+		"play_time_s": 12.183333333333518
+	},
+	"save_version": 2,
+	"saved_at": "2026-10-13T21:39:18Z",
+	"world": {
+		"location": {
+			"entry": {
+				"map_id": "000000001",
+				"spawn_index": 0
+			},
+			"map_id": "000000001",
+			"resume": {
+				"facing_deg": 118.04834302076327,
+				"local_pos": [
+					30.393604278564453,
+					0.0,
+					-9.676840782165527
+				],
+				"map_content_hash": "e0bb2b7513511736"
+			}
+		},
+		"respawn_reference": "000000001"
+	}
+}
