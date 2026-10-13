@@ -6,6 +6,7 @@ extends PlaytestScenario
 ## and in real time (fixed-fps would cap the frame rate):
 ##
 ##   PLAYTEST_RESOLUTION=1920x1080 bash scripts/playtest.sh perf_baseline --windowed --realtime --out <dir>
+##   PERF_EQUIP=1 ...                                  # the same with a fully equipped player (#68)
 ##
 ## The committed baseline is docs/runtime/PERF_BASELINE.md (with docs/runtime/perf_baseline.json).
 
@@ -14,6 +15,9 @@ extends PlaytestScenario
 const MAPS := ["000001000", "000000060", "000000050", "000001010", "000000041"]
 const SETTLE_S := 5.0
 const SAMPLE_FRAMES := 300
+## With PERF_EQUIP=1 the (female) player wears these on top of the starter sword: a hat, a top, a bottom, shoes and
+## earrings.
+const FULL_KIT := ["708", "937", "1160", "1306", "900"]
 
 
 func description() -> String:
@@ -33,7 +37,17 @@ func run(d: PlaytestDriver) -> void:
 	if not d.check("the game started", bool(ng["ok"]), str(ng["why"])):
 		return
 	var gs: GameSession = d.main.game_session
+	# PERF_EQUIP=1: the player fully equipped (#68's gate), by the Item window as a player does (setup only).
+	var equipped := {}
+	if OS.get_environment("PERF_EQUIP") == "1":
+		await d.console("level 15")
+		var kit := PlaytestKit.new(d)
+		for id: String in FULL_KIT:
+			await d.console("give %s 1" % id)
+			d.soft_check("equip %s" % id, bool((await kit.equip(id))["ok"]))
+		equipped = d.character().equipment.equipped()
 	var result := {
+		"equipped": equipped,
 		"windowed": DisplayServer.get_name() != "headless",
 		"window_size": [DisplayServer.window_get_size().x, DisplayServer.window_get_size().y],
 		"vsync": DisplayServer.window_get_vsync_mode() != DisplayServer.VSYNC_DISABLED,
