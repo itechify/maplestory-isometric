@@ -5,7 +5,8 @@ blender -b --factory-startup --python scripts/build_map.py -- <map_id> [--out DI
         [--save file.blend] [--extra-cams x,y,scale;x,y,scale]
 
 Writes <DIR>/<slug>_Overview.png, <slug>_Gameplay.png (+ _debug variants with --debug)
-and prints the map's build status, portals, routes and timing.
+and prints the map's build status, portals, routes and timing. Needs the pinned art pack (bash scripts/art_pack.sh
+fetch; ADR 0002): without it, it exits 1 before building.
 """
 
 import json
@@ -17,7 +18,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 
 import bpy  # noqa: E402
 
-from misostory import build, render, scene_setup, core, traversal  # noqa: E402
+from misostory import build, kit, render, scene_setup, core, traversal  # noqa: E402
 from misostory import layout as LY  # noqa: E402
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -26,6 +27,7 @@ outdir = argv[argv.index("--out") + 1] if "--out" in argv else os.path.join(ROOT
 res = tuple(int(v) for v in (argv[argv.index("--res") + 1] if "--res" in argv else "1600x900").split("x"))
 debug = "--debug" in argv
 
+kit.art_pack.require_or_exit(kit.REGISTRY)
 report, ctxs, world = build.build(map_ids=[mid], scenery=False, res=res, samples=32)
 info = report["maps"][str(mid)]
 print("MAP_STATUS", json.dumps({k: info[k] for k in ("slug", "status", "seconds")}))
