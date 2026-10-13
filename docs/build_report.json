@@ -132,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 15.06,
+   "seconds": 12.32,
    "portals": [
     {
      "name": "out00",
@@ -459,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 4.0,
+   "seconds": 3.69,
    "portals": [
     {
      "name": "in00",
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 2.01,
+   "seconds": 1.71,
    "portals": [
     {
      "name": "in01",
@@ -1175,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.97,
+   "seconds": 0.84,
    "portals": [
     {
      "name": "in00",
@@ -1852,7 +1852,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 5.61,
+   "seconds": 4.84,
    "portals": [
     {
      "name": "east00",
@@ -2791,7 +2791,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 3.83,
+   "seconds": 3.18,
    "portals": [
     {
      "name": "west00",
@@ -3870,7 +3870,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 4.1,
+   "seconds": 4.04,
    "portals": [
     {
      "name": "west00",
@@ -4932,7 +4932,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 3.23,
+   "seconds": 2.84,
    "portals": [
     {
      "name": "west00",
@@ -5907,7 +5907,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 4.04,
+   "seconds": 3.72,
    "portals": [
     {
      "name": "west00",
@@ -6542,7 +6542,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.61,
+   "seconds": 0.51,
    "portals": [
     {
      "name": "out00",
@@ -6841,7 +6841,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.29,
+   "seconds": 0.31,
    "portals": [
     {
      "name": "out00",
@@ -7304,7 +7304,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 9.44,
+   "seconds": 8.29,
    "portals": [
     {
      "name": "in00",
@@ -8558,7 +8558,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 2.33,
+   "seconds": 1.82,
    "portals": [
     {
      "name": "out00",
@@ -9406,18 +9406,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@19.5,10.1",
-     "X1000002_Toadstool_Dark@20.8,8.6",
-     "X1000002_Toadstool_Dark@16.9,12.4",
      "X1000002_Toadstool_Dark@17.8,17.2",
-     "X1000002_Toadstool_Dark@32.8,25.2",
-     "X1000002_Toadstool_Dark@34.7,13.0"
+     "X1000002_Toadstool_Dark@20.8,8.6",
+     "X1000002_Toadstool_Dark@19.5,10.1",
+     "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@16.9,12.4",
+     "X1000002_Toadstool_Dark@32.8,25.2"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 7.41,
+   "seconds": 7.35,
    "portals": [
     {
      "name": "out01",
@@ -13317,7 +13317,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 9.66,
+   "seconds": 9.24,
    "portals": [
     {
      "name": "out00",
@@ -56165,7 +56165,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 7.98,
+   "seconds": 6.65,
    "portals": [
     {
      "name": "out00",
@@ -102500,7 +102500,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 3.47,
+   "seconds": 3.43,
    "portals": [
     {
      "name": "out00",
@@ -104248,7 +104248,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 6.65,
+   "seconds": 6.17,
    "portals": [
     {
      "name": "out00",
@@ -108217,7 +108217,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.85,
+   "seconds": 1.69,
    "portals": [
     {
      "name": "west00",
@@ -108724,7 +108724,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.43,
+   "seconds": 0.38,
    "portals": [
     {
      "name": "out00",
@@ -109016,7 +109016,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.48,
+   "seconds": 0.43,
    "portals": [
     {
      "name": "out00",
@@ -109294,7 +109294,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 3.04,
+   "seconds": 2.35,
    "portals": [
     {
      "name": "out00",
@@ -109992,7 +109992,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 3.66,
+   "seconds": 2.65,
    "portals": [
     {
      "name": "east00",
@@ -111003,7 +111003,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 10.61,
+   "seconds": 8.18,
    "portals": [
     {
      "name": "west00",
@@ -111972,7 +111972,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 3.52,
+   "seconds": 2.82,
    "portals": [
     {
      "name": "out00",
@@ -112487,7 +112487,7 @@
    }
   }
  },
- "started": "2026-10-13 13:05:41",
+ "started": "2026-10-13 13:58:00",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -114082,7 +114082,7 @@
     "file": "environment/glb/Butterfly.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.412,
+    "scale": 1.417,
     "pack_tris": 1120,
     "tris": 210,
     "kit_tris": 216,
@@ -114095,7 +114095,7 @@
     "file": "environment/glb/Butterfly_Pink.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.1487,
+    "scale": 1.1492,
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114108,7 +114108,7 @@
     "file": "environment/glb/Butterfly_Yellow.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.1487,
+    "scale": 1.1492,
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114121,7 +114121,7 @@
     "file": "environment/glb/Clover_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.4246,
+    "scale": 1.426,
     "pack_tris": 8064,
     "tris": 564,
     "kit_tris": 576,
@@ -114134,7 +114134,7 @@
     "file": "environment/glb/Flower_Bed_Large.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.3091,
+    "scale": 1.3033,
     "pack_tris": 41640,
     "tris": 1050,
     "kit_tris": 1072,
@@ -114147,7 +114147,7 @@
     "file": "environment/glb/flower_1.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.6256,
+    "scale": 1.5752,
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114160,7 +114160,7 @@
     "file": "environment/glb/flower_2.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.4243,
+    "scale": 1.3801,
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114212,7 +114212,7 @@
     "file": "environment/glb/Iris_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.4686,
+    "scale": 1.4691,
     "pack_tris": 6940,
     "tris": 1438,
     "kit_tris": 1468,
@@ -114225,7 +114225,7 @@
     "file": "environment/glb/log.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.3279,
+    "scale": 1.3309,
     "pack_tris": 132,
     "tris": 86,
     "kit_tris": 88,
@@ -114238,7 +114238,7 @@
     "file": "environment/glb/Marigold_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.6347,
+    "scale": 1.6352,
     "pack_tris": 6940,
     "tris": 1736,
     "kit_tris": 1772,
@@ -114251,7 +114251,7 @@
     "file": "environment/glb/mushroom_blue_small.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.4719,
+    "scale": 1.4723,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114264,7 +114264,7 @@
     "file": "environment/glb/mushroom_patch.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 0.8352,
+    "scale": 0.8371,
     "pack_tris": 8120,
     "tris": 892,
     "kit_tris": 912,
@@ -114277,7 +114277,7 @@
     "file": "environment/glb/Mushroom_Giant_Blue.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.6949,
+    "scale": 1.6954,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114290,7 +114290,7 @@
     "file": "environment/glb/Mushroom_Giant_Orange.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.849,
+    "scale": 1.8495,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114303,7 +114303,7 @@
     "file": "environment/glb/Mushroom_Giant_Red.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.5408,
+    "scale": 1.5413,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114316,7 +114316,7 @@
     "file": "environment/glb/mushroom_orange_small.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.6949,
+    "scale": 1.6954,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114329,7 +114329,7 @@
     "file": "environment/glb/mushroom_red_small.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.5165,
+    "scale": 1.5169,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114342,7 +114342,7 @@
     "file": "environment/glb/Mushroom_Yellow_S.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.3381,
+    "scale": 1.3385,
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114355,7 +114355,7 @@
     "file": "environment/glb/Strawberry_Bush.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 0.7472,
+    "scale": 0.7375,
     "pack_tris": 8908,
     "tris": 646,
     "kit_tris": 660,
@@ -114368,7 +114368,7 @@
     "file": "environment/glb/stump.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
-    "scale": 1.1751,
+    "scale": 1.1728,
     "pack_tris": 952,
     "tris": 164,
     "kit_tris": 168,
@@ -114381,7 +114381,7 @@
     "file": "environment/glb/Sunflower_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.2092,
+    "scale": 1.2143,
     "pack_tris": 7524,
     "tris": 666,
     "kit_tris": 680,
@@ -114589,7 +114589,7 @@
     "file": "environment/glb/Veg_Garden_Bed.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.2109,
+    "scale": 1.1752,
     "pack_tris": 15988,
     "tris": 434,
     "kit_tris": 444,
@@ -114602,7 +114602,7 @@
     "file": "environment/glb/Vine_Hanging_A.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
-    "scale": 1.698,
+    "scale": 1.7038,
     "pack_tris": 2680,
     "tris": 458,
     "kit_tris": 468,
@@ -114613,6 +114613,6 @@
    }
   }
  },
- "seconds": 162.9,
+ "seconds": 139.6,
  "objects": 17997
 }

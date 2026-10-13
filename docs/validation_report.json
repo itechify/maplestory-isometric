@@ -180,12 +180,12 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.5 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.48 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.48 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.52 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -724,7 +724,7 @@
      17.7,
      18.4
     ],
-    "body_clearance_m": 0.5,
+    "body_clearance_m": 0.48,
     "grade": "low"
    },
    {
@@ -738,7 +738,7 @@
      42.2,
      18.4
     ],
-    "body_clearance_m": 0.48,
+    "body_clearance_m": 0.52,
     "grade": "low"
    },
    {
@@ -3820,7 +3820,7 @@
   "ring_band": {},
   "objects": 17997,
   "meshes": 2699,
-  "materials": 217
+  "materials": 201
  },
  "exceptions": [],
  "summary": {
