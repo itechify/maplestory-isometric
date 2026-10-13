@@ -13,6 +13,7 @@ published as GitHub Release assets at milestones.
 | `docs/**`: guides, research briefs, reviews, iteration log | `_scratch/`: agent sandboxes, test builds and logs |
 | Generated text docs: `docs/VALIDATION.md`, `validation_report.json`, `build_report.json`, `manifest.json`, `MAPLE_ISLAND_MANIFEST.md`, `ASSET_CATALOG.md` | `docs/research/ref_renders`, `ref_sprites`, `ref_web`, `raw`: proprietary Nexon reference material that must never be redistributed |
 | `docs/images/*.jpg`: a few small README images | Blender backups (`*.blend1`), caches, `node_modules/` |
+| The art pack's pin and checksum manifest: `game/data/misostory/art_pack.json`, `tools/art_pack/<tag>.files.tsv` | `game/assets/art_pack/`: the pinned art pack (about 56 MB of GLBs), fetched from its Release (below) |
 
 **Why the `.blend` and renders stay out of git.** Git cannot delta-compress them, so every rebuild that changed
 would add another full copy (35 MB for the `.blend`, about 165 MB for the renders) to history forever. Twenty
@@ -97,6 +98,44 @@ not as the original file. Check for them with `ResourceLoader.exists()`, not `Fi
 Release assets don't touch git history, and each can be up to 2 GB. Download the latest with
 `gh release download --repo itechify/maplestory-isometric --pattern "*.blend"`, or simply rebuild from source.
 Name releases `v<major>.<minor>-<short-name>` (for example `v0.1-iteration-one`).
+
+## Art pack releases (the pinned Project art)
+
+The game's models and icons come from Jarvis's 3D asset pack (**Project art**), pinned as a GitHub Release asset and
+never committed (ADR 0002, `docs/adr/0002-pinned-art-pack.md`). Art packs have their own tags,
+**`art-pack-v<major>.<minor>`** (for example `art-pack-v1.0`), separate from the game's `v<major>.<minor>-<name>`
+milestones. An art-pack release holds one asset, `MisoStory_Art_Pack_v<major>.<minor>.zip`, and is published with
+`--latest=false` so it never displaces the latest game release.
+
+```bash
+bash scripts/art_pack.sh fetch    # install the pinned pack into game/assets/art_pack (build_runtime.sh does this)
+bash scripts/art_pack.sh verify   # check the install file for file against the checksum manifest
+bash scripts/validate_data.sh     # includes the coverage check: "ART PACK coverage: covered | missing | no pack"
+```
+
+The fetch caches the asset outside the repo (`%LOCALAPPDATA%/MisoStory/art-pack/`, Linux
+`~/.local/share/MisoStory/art-pack/`), so a warm cache works offline; it fails on any checksum mismatch, and it leaves
+a verified install alone so Godot does not re-import it. Without the pack the game falls back to its procedural
+placeholders, and `NO_ART_PACK=1` leaves it out of the isolated copies of `test.sh`, `validate_data.sh` and
+`playtest.sh`. Godot normalises every pack model as it imports it (`game/scripts/core/art/art_import.gd`).
+
+**Bumping the pinned version** when Jarvis delivers a new pack (for example v1.1 from #61):
+
+1. Download the delivery's ZIPs into a new, empty directory outside the repo. They are untrusted data: never run
+   their scripts or open their `.blend` files.
+2. Package the runtime subset into another new, empty directory (Python run isolated, from outside the delivery):
+   ```bash
+   "$PY" -I tools/art_pack/build_release.py --tag art-pack-v1.1 --out-dir <out> <delivery>/*.zip
+   ```
+   Remove an entry from `RENAMES` in `build_release.py` once the delivery fixes what it worked around (v1.1 drops the
+   `bed.glb` rename), and keep `"$PY" -I tools/art_pack/test_build_release.py` passing.
+3. Publish: `gh release create art-pack-v1.1 <out>/MisoStory_Art_Pack_v1.1.zip --latest=false --title "..." --notes "..."`.
+4. Copy `<out>/art-pack-v1.1.files.tsv` to `tools/art_pack/`, delete the old manifest, and update the `release` block
+   of `game/data/misostory/art_pack.json` (tag, asset, `asset_bytes`, `asset_sha256`, url, `checksum_manifest`) and
+   its `project_art` record (delivery, packaging changes).
+5. `bash scripts/art_pack.sh fetch`, then `bash scripts/validate_data.sh --report` (the coverage check, and the
+   regenerated provenance report records the new tag), `bash scripts/test.sh art_` and the performance baseline
+   check (`docs/runtime/PERF_BASELINE.md`). Commit the pin, the manifest and the regenerated docs together.
 
 ## If binaries ever need to live in the repo
 
