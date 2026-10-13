@@ -22,6 +22,10 @@ static var _natural_tick_s: float = -1.0
 var name: String = ""
 ## "male" / "female" (chosen at creation; gendered equipment checks it), or "" when unknown.
 var gender: String = ""
+## The look chosen at creation (#67, CharacterAppearance): {"hair_style", "face", "skin"}. {} (a fresh state) or any
+## missing or bad value means the gender's default; to_dict() and from_dict() always hold the complete look
+## (save_version 3; the v2 -> v3 migration gives older characters their gender's default).
+var appearance: Dictionary = {}
 ## Canonical class slug (MeowDB /classes): "beginner" for all of Iteration Two.
 var job: String = "beginner"
 var level: int = 1
@@ -91,6 +95,7 @@ func to_dict() -> Dictionary:
 	return {
 		"name": name,
 		"gender": gender,
+		"appearance": CharacterAppearance.resolve(appearance, gender),
 		"job": job,
 		"level": level,
 		"exp": exp,
@@ -122,6 +127,7 @@ static func from_dict(d: Dictionary) -> CharacterState:
 	var c := CharacterState.new()
 	c.name = String(d.get("name", ""))
 	c.gender = String(d.get("gender", ""))
+	c.appearance = CharacterAppearance.resolve(d.get("appearance", null), c.gender)
 	c.job = String(d.get("job", "beginner"))
 	c.level = int(d.get("level", 1))
 	c.exp = int(d.get("exp", 0))

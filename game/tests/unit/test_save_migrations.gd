@@ -116,7 +116,7 @@ func test_v0_save_migrates_to_v1() -> void:
 		return
 	assert_eq(r.version_found, 0, "detected as v0")
 	assert_eq(r.migrations_applied, PackedStringArray(["v0_flat_character_to_v1_envelope",
-		"v1_typed_quickslots_quest_rewards"]), "v0 -> v1, then v1 -> v2")
+		"v1_typed_quickslots_quest_rewards", "v2_appearance_default_preset"]), "v0 -> v1, then v1 -> v2, then v2 -> v3")
 	assert_eq(int(r.document["save_version"]), SaveMigrations.CURRENT_VERSION, "document is current after migration")
 	assert_eq(String(r.document["game"]), SaveDocument.GAME_ID)
 	var c := r.character
@@ -226,9 +226,32 @@ func _to_v2(doc: Dictionary) -> Dictionary:
 	return out["doc"]
 
 
-func test_current_version_is_2() -> void:
-	assert_eq(SaveMigrations.CURRENT_VERSION, 2, "Iteration Three writes save_version 2")
+func test_current_version_is_3() -> void:
+	assert_eq(SaveMigrations.CURRENT_VERSION, 3, "the character's appearance (#67) is save_version 3")
 	assert_true(SaveMigrations.new().has_step(1), "with a v1 -> v2 step")
+	assert_true(SaveMigrations.new().has_step(2), "and a v2 -> v3 step")
+
+
+# --- v2 -> v3 (#67) --------------------------------------------------------------------------------------------
+
+func _to_v3(doc: Dictionary) -> Dictionary:
+	var out := SaveMigrations.new().migrate(doc, 3)
+	assert_eq(out["error"], OK, String(out["message"]))
+	return out["doc"]
+
+
+func test_v2_to_v3_gives_each_gender_its_default_look() -> void:
+	var v2 := _to_v2(_v1_doc())
+	for row: Array in [["male", {"hair_style": 3, "face": 0, "skin": 0}],
+			["female", {"hair_style": 2, "face": 0, "skin": 3}], ["", {"hair_style": 3, "face": 0, "skin": 0}],
+			["robot", {"hair_style": 3, "face": 0, "skin": 0}]]:
+		v2["character"]["gender"] = row[0]
+		var v3 := _to_v3(v2)
+		assert_eq(int(v3["save_version"]), 3)
+		assert_eq(v3["character"]["appearance"], row[1], "gender '%s'" % row[0])
+		for k: String in v2["character"]:
+			assert_eq(v3["character"][k], v2["character"][k], "character.%s unchanged" % k)
+	assert_false(v2["character"].has("appearance"), "the input document is not modified")
 
 
 func test_v1_to_v2_types_quickslots() -> void:

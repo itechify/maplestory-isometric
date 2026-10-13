@@ -141,7 +141,8 @@ func has_active_game() -> bool:
 
 
 ## Creates a new character (CharacterFactory) and makes it the live game.
-## params: {"name", "ap": {stat: points}, "weapon_id", "gender"?: one of GENDERS or "", "slot"?: String =
+## params: {"name", "ap": {stat: points}, "weapon_id", "gender"?: one of GENDERS or "", "appearance"?: a
+## CharacterAppearance look (missing keys: the gender's default; out of range: refused), "slot"?: String =
 ## DEFAULT_SLOT, "save"?: bool = true}.
 ## With none of name/ap/weapon_id, the quick-start parameters of new_character.json are used. Writes the initial
 ## save into the slot (bypassing can_save(): the character stands at the canonical start, no world state exists yet)
@@ -384,6 +385,7 @@ func _start_new(params: Dictionary, reason: String) -> Error:
 	var creation := CharacterFactory.create(p, _db())
 	var problems := creation.errors.duplicate()
 	problems.append_array(validate_gender(p.get("gender", "")))
+	problems.append_array(CharacterAppearance.problems(p.get("appearance", null)))
 	if not creation.ok or not problems.is_empty():
 		last_creation_errors = problems
 		if log_warnings:
@@ -394,6 +396,8 @@ func _start_new(params: Dictionary, reason: String) -> Error:
 		for w in creation.warnings:
 			push_warning("[Game] " + w)
 	creation.character.gender = SaveDocument.as_text(p.get("gender", ""))
+	# The look chosen at creation (#67); none given (quick start, tools): the gender's default.
+	creation.character.appearance = CharacterAppearance.resolve(p.get("appearance", null), creation.character.gender)
 	_install(creation.character, slot, reason)
 	if bool(p.get("save", true)):
 		var err := _saves().save_character(slot, character, SaveDocument.world_from_character(character))

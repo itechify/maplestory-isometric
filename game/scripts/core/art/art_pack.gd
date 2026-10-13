@@ -55,6 +55,10 @@ var _models: Dictionary = {}
 ## kind -> {id: pack-relative icon path}
 var _icons: Dictionary = {}
 var _skin: Array = []
+## customization.json faces[].style, in order (a CharacterAppearance face index picks one).
+var _face_styles: PackedStringArray = []
+## Player preset name -> characters/manifest.json base_recipe {skin, hair_color, hair_style, outfit, palette, hat, face}.
+var _recipes: Dictionary = {}
 var _present := false
 ## godot_validation.json files[] by pack-relative path (loaded on first bounds() / ground_offset_y()).
 var _validation_by_file: Dictionary = {}
@@ -116,12 +120,15 @@ static func load_from(dir: String) -> ArtPack:
 	for c in _json(p.root.path_join("characters/manifest.json")).get("assets", []):
 		if String(c.get("type", "")) == "player":
 			p._add(PRESET, c.get("name"), _under("characters", c.get("file")))
+			if c.get("base_recipe") is Dictionary:
+				p._recipes[str(c.get("name"))] = (c.get("base_recipe") as Dictionary).duplicate()
 	var custom := _json(p.root.path_join("characters/customization.json"))
 	var hair_files: Array = custom.get("hair", {}).get("files", [])
 	for i in hair_files.size():
 		p._add(HAIR, str(i), _under("characters", hair_files[i]))
 	for f in custom.get("faces", []):
 		p._add(FACE, f.get("style"), _under("characters", f.get("file")))
+		p._face_styles.append(str(f.get("style")))
 	p._skin = custom.get("skin", {}).get("colors_linear", [])
 	return p
 
@@ -196,6 +203,22 @@ func _import_scale(kind: String, id: String) -> float:
 
 static func _vec3(a: Array) -> Vector3:
 	return Vector3(float(a[0]), float(a[1]), float(a[2])) if a.size() >= 3 else Vector3.ZERO
+
+
+## How many skin colours the palette has.
+func skin_count() -> int:
+	return _skin.size()
+
+
+## The face styles in customization.json order (FACE ids; a CharacterAppearance face index picks one).
+func face_styles() -> PackedStringArray:
+	return _face_styles.duplicate()
+
+
+## A player preset's look as the pack built it (characters/manifest.json base_recipe: "skin", "hair_color",
+## "hair_style", "face", ... as indices); {} when unknown.
+func base_recipe(preset_name: String) -> Dictionary:
+	return (_recipes.get(preset_name, {}) as Dictionary).duplicate()
 
 
 ## Skin palette entry `index` as an sRGB colour (white when out of range).
