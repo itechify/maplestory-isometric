@@ -62,14 +62,15 @@ static func frame(src: Image) -> Image:
 	if used.size.x <= 0 or used.size.y <= 0:
 		return null
 	var content := img.get_region(used)
-	# Bleed colour into the transparent pixels, so resampling does not darken the edges.
-	content.fix_alpha_edges()
 	var k := float(SIDE - 2 * MARGIN) / float(maxi(used.size.x, used.size.y))
 	var w := maxi(1, roundi(used.size.x * k))
 	var h := maxi(1, roundi(used.size.y * k))
 	content.resize(w, h, Image.INTERPOLATE_LANCZOS)
 	var out := Image.create_empty(SIDE, SIDE, false, Image.FORMAT_RGBA8)
 	out.blit_rect(content, Rect2i(Vector2i.ZERO, Vector2i(w, h)), Vector2i((SIDE - w) / 2, (SIDE - h) / 2))
+	# Bleed colour into the transparent pixels, so the smaller mip levels do not darken the outline. (The importer's
+	# fix_alpha_border already did this for the source, which keeps the resize clean.)
+	out.fix_alpha_edges()
 	out.generate_mipmaps()
 	return out
 
