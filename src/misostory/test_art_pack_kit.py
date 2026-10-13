@@ -10,6 +10,7 @@ the installed pack print SKIP without it (``bash scripts/art_pack.sh fetch``). E
 """
 
 import importlib.util
+import math
 import os
 import subprocess
 import sys
@@ -131,6 +132,13 @@ class EnsureFromPack(unittest.TestCase):
         klo, khi = self.kit_size["Vine_Hanging_A"]["lo"], self.kit_size["Vine_Hanging_A"]["hi"]
         self.assertAlmostEqual(hi.z, khi[2], delta=0.02)
         self.assertAlmostEqual(hi.z - lo.z, khi[2] - klo[2], delta=0.05)
+
+    def test_tree_trunk_band_blocks_about_as_much_as_the_kit_tree(self):
+        """The export's trunk prism is the 0.1-1.0 m slice: the kit Tree_Round_A's reaches 0.92 m from the trunk.
+        The pack's splayed roots, fitted to the kit canopy, reached 1.47 m and boxed players in at cliff feet."""
+        reach = max(math.hypot(p.x, p.y) for o in self.objs("Tree_Round_A") for v in o.data.vertices
+                    for p in [o.matrix_world @ v.co] if 0.1 <= p.z <= 1.0)
+        self.assertLessEqual(reach, 1.0)
 
     def test_butterfly_hovers_at_the_kit_height(self):
         lo, _ = bounds(self.objs("Butterfly"))

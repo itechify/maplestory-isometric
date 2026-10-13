@@ -422,11 +422,14 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   no outline for the `NO_OUTLINE_TAGS` and for small Props/Foliage).
 - **Per-asset exceptions:** `@asset(..., pack=dict(...))`, keys in `art_pack.SPEC_KEYS`: `fit` (`"xy"` or `"z"`),
   `rot_z`, `align_xy` (`"origin"` or `"kit"`), `anchor_z` (`"ground"`, `"kit_bottom"`, `"kit_top"`), `scale_mul`,
-  `max_tris`, `sharp_angle`, `parts` (pack node-name substrings that become their own object, e.g. an overhanging
+  `max_tris`, `sharp_angle`, `node_scale` (scale the pack nodes whose name contains a substring, e.g. the trees'
+  splayed roots: their reach is the export's trunk prism, and at the pack's reach they boxed players into pockets at
+  cliff feet in the stuck scan), `parts` (pack node-name substrings that become their own object, e.g. an overhanging
   cap that needs `collision_tags.OVERHEAD_HULL`) and `post` (a hook that tags the parts). Examples: `Vine_Hanging_A`
   hangs from its origin (`fit="z", anchor_z="kit_top"`), the butterflies hover (`anchor_z="kit_bottom"`),
-  `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), and `Mushroom_Cluster_A` lies along Y in the pack
-  (`rot_z=-90`). The kit's non-uniform placements rely on the kit mesh's frame (fences scale along X from the origin,
+  `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), `Mushroom_Cluster_A` lies along Y in the pack
+  (`rot_z=-90`), `Stump_A` fits the kit stump's body, not its splayed roots (`scale_mul=0.6`), and the broadleaf
+  and birch trees draw their roots in to the kit tree's reach (`nature.TREE_PACK`). The kit's non-uniform placements rely on the kit mesh's frame (fences scale along X from the origin,
   mountains are unit-radius); match that frame with these keys.
 - **No pack, no build.** `scripts/build_island.py` and `scripts/build_map.py` call `art_pack.require_or_exit` first:
   without the pack (or with a GLB missing) they print `ART_PACK_MISSING` and the fetch command and exit 1; there is

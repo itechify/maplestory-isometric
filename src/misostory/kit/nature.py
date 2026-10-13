@@ -51,6 +51,12 @@ def _puffy_canopy(mb, r, seed, center, radius, lobes=6, squash=0.82, mat="M_Leaf
               scale=(1, 1, squash), mat=mat, subdiv=2, lumpy=0.1, seed=seed + 99)
 
 
+# The art pack's broadleaf and birch trees (kit/art_pack.py), fitted to the kit canopy, splay their roots about 1.5 m
+# from the trunk (the kit tree's reach about 0.9 m). The roots set the export's trunk prism (the 0.1-1.0 m slice),
+# and at that reach they boxed players into pockets at cliff feet, so they are drawn in to the kit's reach.
+TREE_PACK = dict(node_scale={"Splayed root": (0.6, 0.6, 1.0)})
+
+
 def _make_tree(coll, name, seed, height, base_r, canopy_r, lobes, leaf="M_Leaf", bend=0.25):
     r = core.rng(name, seed)
     trunk = MeshBuilder()
@@ -61,22 +67,22 @@ def _make_tree(coll, name, seed, height, base_r, canopy_r, lobes, leaf="M_Leaf",
     can.build(name + "_Canopy", coll, smooth=True, sharp_angle=80)
 
 
-@asset("Tree_Round_A", "Trees", footprint=3.0, tags=("tree",))
+@asset("Tree_Round_A", "Trees", footprint=3.0, tags=("tree",), pack=TREE_PACK)
 def tree_round_a(coll):
     _make_tree(coll, "Tree_Round_A", 1, height=4.2, base_r=0.42, canopy_r=2.4, lobes=6)
 
 
-@asset("Tree_Round_B", "Trees", footprint=3.0, tags=("tree",))
+@asset("Tree_Round_B", "Trees", footprint=3.0, tags=("tree",), pack=TREE_PACK)
 def tree_round_b(coll):
     _make_tree(coll, "Tree_Round_B", 2, height=5.0, base_r=0.48, canopy_r=2.8, lobes=7, leaf="M_Leaf_B")
 
 
-@asset("Tree_Round_C", "Trees", footprint=2.5, tags=("tree",))
+@asset("Tree_Round_C", "Trees", footprint=2.5, tags=("tree",), pack=TREE_PACK)
 def tree_round_c(coll):
     _make_tree(coll, "Tree_Round_C", 3, height=3.4, base_r=0.36, canopy_r=2.0, lobes=5)
 
 
-@asset("Tree_Tall_A", "Trees", footprint=3.0, tags=("tree",))
+@asset("Tree_Tall_A", "Trees", footprint=3.0, tags=("tree",), pack=TREE_PACK)
 def tree_tall_a(coll):
     """Tall tree with two canopy tiers (forest maps)."""
     name = "Tree_Tall_A"
@@ -91,7 +97,7 @@ def tree_tall_a(coll):
     can.build(name + "_Canopy", coll, smooth=True, sharp_angle=80)
 
 
-@asset("Tree_Giant_A", "Trees", footprint=6.0, tags=("tree", "landmark"))
+@asset("Tree_Giant_A", "Trees", footprint=6.0, tags=("tree", "landmark"), pack=TREE_PACK)
 def tree_giant_a(coll):
     """Huge landmark tree (towns / forest centers)."""
     _make_tree(coll, "Tree_Giant_A", 5, height=8.5, base_r=1.1, canopy_r=5.2, lobes=8, bend=0.35)
@@ -114,12 +120,12 @@ def tree_pine_a(coll):
     can.build(name + "_Canopy", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Tree_Autumn_A", "Trees", footprint=3.0, tags=("tree",))
+@asset("Tree_Autumn_A", "Trees", footprint=3.0, tags=("tree",), pack=TREE_PACK)
 def tree_autumn_a(coll):
     _make_tree(coll, "Tree_Autumn_A", 7, height=4.4, base_r=0.42, canopy_r=2.5, lobes=6, leaf="M_Leaf_Autumn")
 
 
-@asset("Tree_Sapling_A", "Trees", footprint=1.2, tags=("tree", "small"))
+@asset("Tree_Sapling_A", "Trees", footprint=1.2, tags=("tree", "small"), pack=TREE_PACK)
 def tree_sapling(coll):
     _make_tree(coll, "Tree_Sapling_A", 8, height=1.8, base_r=0.16, canopy_r=0.95, lobes=4)
 
@@ -471,12 +477,12 @@ def _birch(coll, name, seed, height, canopy_r, leaf):
     can.build(name + "_Canopy", coll, smooth=True, sharp_angle=80)
 
 
-@asset("Tree_Birch_Orange", "Trees", footprint=2.6, tags=("tree", "autumn"))
+@asset("Tree_Birch_Orange", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=TREE_PACK)
 def birch_orange(coll):
     _birch(coll, "Tree_Birch_Orange", 31, 4.6, 2.2, "M_Leaf_Autumn")
 
 
-@asset("Tree_Birch_Yellow", "Trees", footprint=2.6, tags=("tree", "autumn"))
+@asset("Tree_Birch_Yellow", "Trees", footprint=2.6, tags=("tree", "autumn"), pack=TREE_PACK)
 def birch_yellow(coll):
     _birch(coll, "Tree_Birch_Yellow", 32, 5.2, 2.4, "M_Leaf_Yellow")
 

@@ -20,32 +20,32 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
-from .nature import birch
+from .nature import TREE_PACK, birch
 
 
 # ---------------------------------------------------------------------------
 # White-trunk birches (classic midForest / grassySoil trees)
 # ---------------------------------------------------------------------------
 
-@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",), pack=TREE_PACK)
 def tree_birch_teal(coll):
     """White-trunk birch with teal-green foliage (the classic 'midForest' teal tree)."""
     birch(coll, "Tree_Birch_Teal", 33, 5.0, 2.3, "M_Leaf_B")
 
 
-@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",), pack=TREE_PACK)
 def tree_birch_green(coll):
     """White-trunk birch with fresh green foliage (classic grassySoil lawn trees)."""
     birch(coll, "Tree_Birch_Green", 41, 4.8, 2.3, "M_Leaf")
 
 
-@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",), pack=TREE_PACK)
 def tree_birch_lime(coll):
     """White-trunk birch, same green leaf as Tree_Birch_Green but shorter (4.4 m) with a smaller crown."""
     birch(coll, "Tree_Birch_Lime", 43, 4.4, 2.1, "M_Leaf")
 
 
-@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",), pack=TREE_PACK)
 def tree_birch_red(coll):
     """White-trunk birch with a red-leaf crown (the red-leaf trees of the snail hunting grounds)."""
     birch(coll, "Tree_Birch_Red", 43, 4.3, 2.1, "M_Grad_rsnail_shell_dk__rsnail_shell")

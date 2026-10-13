@@ -65,11 +65,15 @@ LANDMARK = re.compile(r"X\d+_")
 #   scale_mul    extra uniform factor after the fit (an art adjustment checked by eye)
 #   max_tris     triangle budget instead of the kit asset's own triangle count
 #   sharp_angle  degrees; edges sharper than this stay hard (default 60)
+#   node_scale   {substring: (sx, sy, sz)}: scale the pack nodes whose name contains the substring about the pack
+#                origin, before the fit (an art adjustment, e.g. the trees' splayed roots, whose reach sets the
+#                export's trunk prism)
 #   parts        {suffix: [substring, ...]}: pack nodes whose name contains a substring become their own object
 #                <name>_<suffix> (e.g. an overhanging cap that needs collision_tags.OVERHEAD_HULL); the rest is one
 #                object named after the asset
 #   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts
-SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "parts", "post"}
+SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "node_scale", "parts",
+             "post"}
 
 _state = {"mode": "off", "mapping": {}}
 _reference = {}
@@ -357,6 +361,9 @@ def build(name, info, coll):
             o.data = o.data.copy()
         o.data.transform(o.matrix_world)
         o.matrix_world = Matrix.Identity(4)
+        for key, k in (spec.get("node_scale") or {}).items():
+            if key in o.name:  # the pack node's own name, before any renaming
+                o.data.transform(Matrix.Diagonal((*k, 1.0)))
         me = o.data
         if "custom_normal" in me.attributes:
             me.attributes.remove(me.attributes["custom_normal"])
