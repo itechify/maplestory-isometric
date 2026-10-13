@@ -127,6 +127,93 @@ func test_climbing_a_rope_plays_climb() -> void:
 	assert_eq(_playing(vis), "climb", "climbing")
 
 
+## The lowest point of the seated body's pelvis above the player's feet (m): the skinned Body_/Clothing_ vertices
+## that sit around the hips in the rest pose (0.25-0.45 m up, within 0.15 m of the middle, so not the hands), posed
+## by the skeleton as it stands now.
+func _pelvis_bottom(vis: PlayerVisual, p: PlayerController) -> float:
+	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
+	var to_model := ArtImport._to_root(vis.model, sk)
+	var lowest := INF
+	for node in sk.get_children():
+		var mi := node as MeshInstance3D
+		if mi == null or mi.skin == null or not (String(mi.name).begins_with("Body_") or String(mi.name).begins_with("Clothing_")):
+			continue
+		var bind_bone: Array[int] = []
+		for b in mi.skin.get_bind_count():
+			var bone := mi.skin.get_bind_bone(b)
+			bind_bone.append(bone if bone >= 0 else sk.find_bone(String(mi.skin.get_bind_name(b))))
+		var a := mi.mesh.surface_get_arrays(0)
+		var verts: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+		var bones: PackedInt32Array = a[Mesh.ARRAY_BONES]
+		var weights: PackedFloat32Array = a[Mesh.ARRAY_WEIGHTS]
+		var per := bones.size() / verts.size()
+		for i in verts.size():
+			var rest := to_model * verts[i]
+			if rest.y < 0.25 or rest.y > 0.45 or absf(rest.x) > 0.15:
+				continue
+			var posed := Vector3.ZERO
+			for k in per:
+				var wt := weights[i * per + k]
+				if wt > 0.0:
+					var bi := bones[i * per + k]
+					posed += (sk.get_bone_global_pose(bind_bone[bi]) * mi.skin.get_bind_pose(bi) * verts[i]) * wt
+			lowest = minf(lowest, (sk.global_transform * posed).y - p.global_position.y)
+	return lowest
+
+
+## The chair's seat top above the player's feet (m): the height holding the most upward-facing surface area between
+## 0.15 and 0.6 m (the seat cushion; not the armrests or the back's top rail).
+func _seat_top(chair: Node3D, p: PlayerController) -> float:
+	var area := {}
+	for node in chair.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		var xf := mi.global_transform
+		for s in mi.mesh.get_surface_count():
+			var a := mi.mesh.surface_get_arrays(s)
+			var v: PackedVector3Array = a[Mesh.ARRAY_VERTEX]
+			var idx: PackedInt32Array = a[Mesh.ARRAY_INDEX]
+			for t in range(0, idx.size(), 3):
+				var p0 := xf * v[idx[t]]
+				var n := (xf * v[idx[t + 1]] - p0).cross(xf * v[idx[t + 2]] - p0)
+				var y := (p0.y + (xf * v[idx[t + 1]]).y + (xf * v[idx[t + 2]]).y) / 3.0 - p.global_position.y
+				if n.length() > 0.0 and n.normalized().y > 0.9 and y > 0.15 and y < 0.6:
+					var key := snappedf(y, 0.01)
+					area[key] = float(area.get(key, 0.0)) + n.length() * 0.5
+	var best := -1.0
+	for k in area:
+		if best < 0.0 or float(area[k]) > float(area[best]):
+			best = k
+	return best
+
+
+func test_the_seated_beginner_sits_on_the_green_relaxer() -> void:
+	if _skip("test_the_seated_beginner_sits_on_the_green_relaxer"):
+		return
+	for g in ["male", "female"]:
+		var pair := _player(g)
+		var p: PlayerController = pair[0]
+		var vis: PlayerVisual = pair[1]
+		_tick(vis, 10)
+		var standing := _pelvis_bottom(vis, p)
+		assert_true(p.sit("522"), "%s sits on The Green Relaxer" % g)
+		_tick(vis, 120)
+		var chair := vis.chair_prop
+		assert_true(chair != null and chair.visible, "%s: the chair shows" % g)
+		assert_eq(String(chair.get_meta("item_id", "")), "522", "%s: it is the pack's Green Relaxer model" % g)
+		var seat := _seat_top(chair, p)
+		var pelvis := _pelvis_bottom(vis, p)
+		assert_between(seat, 0.3, 0.4, "%s: the seat is a chair's height at the character scale (%.3f m)" % [g, seat])
+		assert_near(pelvis, seat, 0.03, "%s: the pelvis rests on the cushion: no floating, no sinking" % g)
+		assert_true(pelvis > standing, "%s: seated higher than the standing pelvis (the chibi climbs onto it)" % g)
+		p.stand_up()
+		_tick(vis, 60)
+		assert_false(chair.visible, "%s: the chair goes away on standing" % g)
+		assert_near(vis.seat_lift(), 0.0, 1e-3, "%s: and the lift with it" % g)
+		rig.free_all()
+		rig = MonsterTestRig.create(db(), 63)
+		rig.floor(40.0)
+
+
 func _bone_y(sk: Skeleton3D, bone: String) -> float:
 	return (sk.global_transform * sk.get_bone_global_pose(sk.find_bone(bone))).origin.y
 

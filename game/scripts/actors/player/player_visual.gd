@@ -281,12 +281,52 @@ func _on_cast_started(_skill_id: Variant, _level: Variant, lockout_s: float) -> 
 func step_sit(delta: float) -> void:
 	var seated := player != null and player.is_seated()
 	sit_amount = move_toward(sit_amount, 1.0 if seated else 0.0, delta / SIT_EASE_S)
-	if seated and chair_prop == null and player != null:
-		chair_prop = _build_chair()
+	if seated and (chair_prop == null or player.seated_chair_id() != _chair_id):
+		if chair_prop != null:
+			chair_prop.free()
+		_chair_id = player.seated_chair_id()
+		chair_prop = _pack_chair(_chair_id)
+		if chair_prop == null:
+			chair_prop = _build_chair()
 		player.add_child(chair_prop)
 	if chair_prop != null:
 		chair_prop.visible = seated
 		chair_prop.rotation = Vector3(0.0, _yaw, 0.0)
+
+
+## With the rig: the art pack's model of the chair item (The Green Relaxer is "522"), at the character scale like
+## the body that sits on it (the seat line-up is SEAT_LIFT_M), front +Z, every surface writing the player's stencil
+## like the procedural chair. Null without the rig or without a model for that item (the procedural chair then).
+func _pack_chair(item_id: String) -> Node3D:
+	if animator == null:
+		return null
+	var art := ArtPack.load_installed()
+	var inst := art.instance(ArtPack.ITEM, item_id) if art.present() else null
+	if inst == null:
+		return null
+	var root := Node3D.new()
+	root.name = CHAIR_NAME
+	root.set_meta("item_id", item_id)
+	inst.scale = Vector3.ONE * ArtPack.character_scale()
+	root.add_child(inst)
+	for node in inst.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		for s in mi.mesh.get_surface_count():
+			var mat := mi.get_active_material(s) as BaseMaterial3D
+			if mat == null:
+				continue
+			var copy := mat.duplicate() as BaseMaterial3D
+			_write_stencil(copy)
+			mi.set_surface_override_material(s, copy)
+	_tag_meshes(root)
+	return root
+
+
+static func _write_stencil(m: BaseMaterial3D) -> void:
+	m.stencil_mode = BaseMaterial3D.STENCIL_MODE_CUSTOM
+	m.stencil_flags = BaseMaterial3D.STENCIL_FLAG_WRITE
+	m.stencil_compare = BaseMaterial3D.STENCIL_COMPARE_ALWAYS
+	m.stencil_reference = STENCIL_REF
 
 
 ## A four-legged armchair with a high back, in the model frame (front +Z, feet at y = 0): the seat sits under the
