@@ -1,11 +1,31 @@
 class_name NpcPortrait
 extends PanelContainer
-## The speaker's portrait in the dialogue and shop windows, made in code (MeowDB's NPC art is Nexon's): the NPC's own
-## Iteration One proxy model rendered live into a small SubViewport (three-quarter view, own lights), or, when no model
-## is available (standalone UI, an NPC without a proxy), a coloured badge with the NPC's initial. System lines get a
-## neutral "i" badge.
+## The speaker's portrait in the dialogue and shop windows, made in code (MeowDB's NPC art is Nexon's): the world NPC's
+## own model rendered live into a small SubViewport (three-quarter view, own lights), or, when no model is available
+## (standalone UI, an NPC without a model), a coloured badge with the NPC's initial. System lines get a neutral "i"
+## badge.
+##
+## The model is a copy of the world NPC's "Visual": with the art pack its rigged model (#66), playing its idle clip and
+## framed head and shoulders (from just below the shoulder bones to the top of the head, a hat included); otherwise
+## Iteration One's proxy, framed on its upper ~70%. The copy is kept while the same speaker talks on (a new line does
+## not rebuild it).
 
 const PORTRAIT_SIZE := Vector2(132, 150)
+## Head-and-shoulders framing of a rig: the frame's bottom sits this share of the model's height below the shoulder
+## bones, and its top this share above the model's top.
+const SHOULDER_MARGIN := 0.07
+const HEAD_MARGIN := 0.04
+## The rig bone whose rest height is the shoulders (the art pack's 17-bone character rig).
+const SHOULDER_BONE := "upper_arm.L"
+## The rig's head meshes (ArtImport merges a character's meshes by part and names them <Part>_<material>), and how
+## much wider than the head the frame is at least.
+const HEAD_PARTS := ["Hair_", "Face_", "Hat_"]
+const HEAD_WIDTH_MARGIN := 1.04
+const ASPECT := PORTRAIT_SIZE.x / PORTRAIT_SIZE.y
+## The frame never grows past this share of the model's height (about the hips): Mai's buns may touch its sides.
+const MAX_FRAME_SHARE := 0.75
+## The eye's rise above the frame's centre, as a share of the frame's height (6 m away: a slight look down).
+const EYE_RISE := 0.02 / 0.78
 
 var npc_id: String = ""
 var npc_name: String = ""
@@ -19,6 +39,11 @@ var _camera: Camera3D = null
 var _badge: Control = null
 var _badge_text: String = "?"
 var _badge_color: Color = Color.GRAY
+## The copy shown in model mode, the instance id of the source it was made from, and the frame's bottom and top
+## (model-space y).
+var _shown: Node3D = null
+var _shown_source: int = 0
+var _span: Vector2 = Vector2.ZERO
 
 
 func _init() -> void:
@@ -72,11 +97,26 @@ func _draw_badge() -> void:
 	_badge.draw_string(font, base, _badge_text, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color.WHITE)
 
 
+## The model copy shown in model mode (null before the first one or after a failed one).
+func shown_model() -> Node3D:
+	return _shown if _shown != null and is_instance_valid(_shown) else null
+
+
+## The frame's bottom (x) and top (y) heights in the model's space, as last shown.
+func framed_span() -> Vector2:
+	return _span
+
+
 func _show_model(source: Node3D) -> bool:
 	_ensure_viewport()
+	if source.get_instance_id() == _shown_source and shown_model() != null:
+		_set_model_mode()
+		return true
 	for c in _pivot.get_children():
 		_pivot.remove_child(c)
 		c.queue_free()
+	_shown = null
+	_shown_source = 0
 	var copy := source.duplicate() as Node3D
 	if copy == null:
 		return false
@@ -88,17 +128,81 @@ func _show_model(source: Node3D) -> bool:
 	if box.size.y < 0.05:
 		copy.queue_free()
 		return false
-	var h := box.size.y
-	# Head and shoulders to mid-body: the upper ~70% of the model, three-quarter view.
+	# A rig shows its idle clip (a duplicated AnimationPlayer does not play by itself; the rest pose is a T).
+	var ap := copy.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if ap != null and ap.has_animation(WorldNpc.CLIP_IDLE):
+		ap.play(WorldNpc.CLIP_IDLE)
+	_span = frame_span(box, _shoulder_height(copy), _head_width(copy))
+	var h := _span.y - _span.x
+	var cy := (_span.x + _span.y) * 0.5
 	_pivot.rotation_degrees = Vector3(0, -22, 0)
-	_camera.size = h * 0.78
-	var eye := Vector3(box.get_center().x, box.position.y + h * 0.62, 6.0)
-	var target := Vector3(box.get_center().x, box.position.y + h * 0.6, 0.0)
+	_camera.size = h
+	# The eye a little above the frame's centre: the slight downward look of a three-quarter portrait.
+	var eye := Vector3(box.get_center().x, cy + h * EYE_RISE, 6.0)
+	var target := Vector3(box.get_center().x, cy, 0.0)
 	_camera.transform = Transform3D(Basis.looking_at(target - eye), eye)
+	_shown = copy
+	_shown_source = source.get_instance_id()
+	_set_model_mode()
+	return true
+
+
+func _set_model_mode() -> void:
 	mode = "model"
 	_container.visible = true
 	_badge.visible = false
-	return true
+
+
+## The frame's bottom (x) and top (y) heights for a model with bounds `box`: with a rig's `shoulder_y` (NAN when
+## none), head and shoulders, from just below the shoulders to just above the top, taller (downward) where the head's
+## `head_width` would not fit the frame's width (the chibi heads are wide: hair, pigtails, buns), up to
+## MAX_FRAME_SHARE of the height; without one,
+## Iteration One's framing of the proxies, their upper ~70% (head and shoulders to mid-body).
+static func frame_span(box: AABB, shoulder_y: float, head_width: float = 0.0) -> Vector2:
+	var h := box.size.y
+	if is_nan(shoulder_y) or shoulder_y <= box.position.y or shoulder_y >= box.end.y:
+		var c := box.position.y + h * 0.6
+		return Vector2(c - h * 0.39, c + h * 0.39)
+	var top := box.end.y + h * HEAD_MARGIN
+	var size := maxf(top - (shoulder_y - h * SHOULDER_MARGIN), head_width * HEAD_WIDTH_MARGIN / ASPECT)
+	return Vector2(top - minf(size, h * MAX_FRAME_SHARE), top)
+
+
+## The width of the rig's head (its Hair_, Face_ and Hat_ meshes, as the import names them) in `root`'s space, or 0.
+static func _head_width(root: Node3D) -> float:
+	var out := AABB()
+	var found := false
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null or not HEAD_PARTS.any(func(p: String) -> bool: return String(mi.name).begins_with(p)):
+			continue
+		var xf := Transform3D.IDENTITY
+		var cur: Node = mi
+		while cur != null and cur != root:
+			if cur is Node3D:
+				xf = (cur as Node3D).transform * xf
+			cur = cur.get_parent()
+		var b := xf * mi.get_aabb()
+		out = out.merge(b) if found else b
+		found = true
+	return out.size.x if found else 0.0
+
+
+## The rest height of the rig's shoulders in `root`'s space, or NAN without a rig.
+static func _shoulder_height(root: Node3D) -> float:
+	var sk := root.find_child("Skeleton3D", true, false) as Skeleton3D
+	if sk == null:
+		return NAN
+	var b := sk.find_bone(SHOULDER_BONE)
+	if b < 0:
+		return NAN
+	var xf := Transform3D.IDENTITY
+	var cur: Node = sk
+	while cur != null and cur != root:
+		if cur is Node3D:
+			xf = (cur as Node3D).transform * xf
+		cur = cur.get_parent()
+	return (xf * sk.get_bone_global_rest(b).origin).y
 
 
 func _ensure_viewport() -> void:

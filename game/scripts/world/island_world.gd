@@ -14,8 +14,9 @@ extends Node3D
 ##   5. ground    MapDefinitions.ground_all(PhysicsGroundQuery): arrivals, player spawns, NPCs, spawn slots, gate heights;
 ##                finish_trails(): kill_y and camera bounds include the trails
 ##   6. nodes     containment (rings with a gap at every gate, plugs closing the gaps of warp-mode links, trail side
-##                walls), a sea kill plane, one WorldPortal per canonical portal, one WorldNpc per MeowDB NPC, the
-##                MapInstanceView, FallRecovery, PortalInteractor, GateMonitor, RegionMonitor and the ScreenFader
+##                walls), a sea kill plane, one WorldPortal per canonical portal, one WorldNpc per MeowDB NPC (its art
+##                pack model: `art`), the MapInstanceView, FallRecovery, PortalInteractor, GateMonitor, RegionMonitor
+##                and the ScreenFader
 ##   7. session   attaches itself to the MapSession autoload (attach_to_session)
 ## Wave 2 composes this scene into the main game scene, adds the player and calls set_player(player); the camera
 ## rig registers with MapSession.attach_camera(). The world never decides current_map: MapSession does.
@@ -47,6 +48,11 @@ var sidecars: WorldSidecars = null
 var defs: MapDefinitions = null
 var tuning: WorldTuning = null
 var library: ProxyLibrary = null
+## The art pack the NPCs' rigged models come from (WorldNpc.art, #66). Like BreakableSystem.art, null does not mean
+## "the installed one" everywhere: build() (the game's path, behind the loading screen) loads the installed pack
+## (ArtPack.load_installed) when nothing was injected, while build_now() (tests and the headless world tools) uses
+## only an injected one, so they keep the library proxies.
+var art: ArtPack = null
 var ground_query: PhysicsGroundQuery = null
 var region_index: RegionIndex = null
 var player: Node3D = null
@@ -115,6 +121,8 @@ func build() -> void:
 	if is_built or _building:
 		return
 	_building = true
+	if art == null:
+		art = ArtPack.load_installed()
 	_make_children()
 	_stage_data(null)
 	load_progress.emit(0.05, "data")
@@ -122,6 +130,10 @@ func build() -> void:
 	var plan := _chunk_plan()
 	for item in plan:
 		ResourceLoader.load_threaded_request(String(item.path), "", true)
+	# The NPCs' art pack models load on the same threads as the chunks; _stage_nodes then instantiates cached scenes.
+	var npc_models := _npc_model_paths()
+	for path in npc_models:
+		ResourceLoader.load_threaded_request(path, "", true)
 	var loaded := {}
 	while loaded.size() < plan.size():
 		var progress := 0.0
@@ -156,9 +168,26 @@ func build() -> void:
 	load_progress.emit(0.92, "grounding")
 	_stage_ground()
 	load_progress.emit(0.97, "portals and npcs")
+	# Held until the NPCs are placed, so the cache keeps them.
+	var npc_scenes: Array[Resource] = []
+	for path in npc_models:
+		npc_scenes.append(ResourceLoader.load_threaded_get(path))
 	_stage_nodes()
+	npc_scenes.clear()
 	_finish()
 	load_progress.emit(1.0, "ready")
+
+
+## The art pack model of every canonical NPC that is imported ([] without the pack).
+func _npc_model_paths() -> PackedStringArray:
+	var out := PackedStringArray()
+	if art == null or not art.present():
+		return out
+	for id in art.ids(ArtPack.NPC):
+		var path := art.model(ArtPack.NPC, id)
+		if ResourceLoader.exists(path):
+			out.append(path)
+	return out
 
 
 ## Builds synchronously (tests, tools). `db` defaults to the Data autoload's ContentDB.
@@ -392,6 +421,7 @@ func _stage_nodes() -> void:
 	for id in defs.ids():
 		for pl in defs.get_def(id).npc_definitions:
 			var n := WorldNpc.new()
+			n.art = art
 			npcs_root.add_child(n)
 			var zone := tuning.talk_zone(pl.npc_id)
 			n.setup(pl, library, float(zone.radius_m), float(zone.centre_height_m), String(zone.profile))
