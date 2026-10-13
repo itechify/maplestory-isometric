@@ -37,6 +37,59 @@ func test_every_island_npc_resolves_to_its_pack_model() -> void:
 	world.free()
 
 
+## The game's asynchronous build() loads the chunks on worker threads, but never the NPCs' pack models: a rigged model
+## builds its meshes as it loads, and headless (tests, playtests) the dummy renderer's mesh RIDs are not thread-safe, so
+## a model loading on a worker thread corrupted them ("Attempting to initialize the wrong RID") and crashed some runs
+## (#66). The same limit keeps the visual chunks out of headless builds (GameSession.load_visuals). The NPCs load on
+## the main thread when they are placed. The probe: once build() has asked for its threaded loads ("loading
+## chunks"), ResourceLoader knows no threaded load of any NPC model.
+func test_build_never_loads_npc_models_on_worker_threads() -> void:
+	if not WorldSidecars.exists():
+		print("SKIP test_build_never_loads_npc_models_on_worker_threads: game/assets/world not present " +
+			"(run with INCLUDE_WORLD=1)")
+		return
+	var art := ArtPack.load_installed()
+	if not art.present():
+		print("SKIP test_build_never_loads_npc_models_on_worker_threads: no art pack installed " +
+			"(bash scripts/art_pack.sh fetch)")
+		return
+	var paths := PackedStringArray()
+	for id in art.ids(ArtPack.NPC):
+		var path := art.model(ArtPack.NPC, id)
+		if ResourceLoader.exists(path):
+			paths.append(path)
+	assert_true(paths.size() > 0, "the pack has imported NPC models")
+	var world := IslandWorld.new()
+	world.name = "NpcWorld"
+	world.build_on_ready = false
+	world.load_visuals = false
+	world.attach_to_session = false
+	world.art = art
+	var tree := Engine.get_main_loop() as SceneTree
+	tree.current_scene.add_child(world)
+	var threaded := {}
+	var probe := func(_fraction: float, stage: String) -> void:
+		if stage != "loading chunks" or not threaded.is_empty():
+			return
+		for path in paths:
+			threaded[path] = ResourceLoader.load_threaded_get_status(path)
+	world.load_progress.connect(probe)
+	# Runs up to its first wait for the chunks (the runner never resumes it): every threaded request is made by then.
+	world.build()
+	assert_eq(threaded.size(), paths.size(), "build() reported loading the chunks")
+	for path in threaded:
+		assert_eq(int(threaded[path]), ResourceLoader.THREAD_LOAD_INVALID_RESOURCE,
+			"%s is not loading on a worker thread" % path)
+	# No worker thread outlives the test.
+	var requested := PackedStringArray(paths)
+	for item in world._chunk_plan():
+		requested.append(String(item.path))
+	for path in requested:
+		if ResourceLoader.load_threaded_get_status(path) != ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			ResourceLoader.load_threaded_get(path)
+	world.free()
+
+
 func test_build_now_without_an_injected_pack_keeps_the_proxies() -> void:
 	if not WorldSidecars.exists():
 		print("SKIP test_build_now_without_an_injected_pack_keeps_the_proxies: game/assets/world not present " +
