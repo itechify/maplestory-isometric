@@ -53,7 +53,25 @@ const CHAIR_FRAME_COLOR := Color("#4a2c17")
 const CHAIR_INK_COLOR := Color(0.16, 0.09, 0.04)
 const CHAIR_INK_M := 0.022
 
-## Use the library proxy when available (tests and tools can turn the whole visual off by not adding it).
+## Rigged Beginner (with the art pack): the walk and run clips play at ground speed above a Speed 100 walk times this.
+const RUN_FACTOR := 1.15
+## The procedural motions and the clip that replaces each one on the rig (covers()). Never both.
+const COVERED_BY := {&"bob": PlayerAnimator.WALK, &"lean": PlayerAnimator.WALK, &"death_fall": PlayerAnimator.DEATH,
+	&"sit_drop": PlayerAnimator.SIT, &"sit_lean": PlayerAnimator.SIT, &"lunge": PlayerAnimator.ATTACK}
+## The rig's sit clip keeps its root drop (#59 decision 5): 0.28 m in rig units, about 0.21 m at the character scale.
+const SIT_ROOT_DROP := 0.28
+## How far the seated Beginner is lifted onto the chair (m). Measured on the pack's v1 rigs at the character scale:
+## at the end of the sit clip the pelvis rests 0.127 m above the feet, and The Green Relaxer's seat cushion tops out
+## at 0.46 m x 0.7566 = 0.348 m, so the dropped pose would sink 0.22 m into the seat. The lift follows the clip's
+## own root drop (0 standing .. SEAT_LIFT_M fully seated), so the body settles onto the cushion instead of through
+## it; the chair stays on the ground (sinking it instead buried its legs). test_player_rig pins the line-up.
+const SEAT_LIFT_M := 0.221
+## The art pack's Beginner preset per CharacterState.gender (#59: the default preset for the gender; hair, face and
+## skin choice is #67). Unknown ("") shows the male preset.
+const PRESETS := {"male": "Beginner_Male", "female": "Beginner_Female"}
+const DEFAULT_PRESET := "Beginner_Male"
+
+## Use the art pack's rigged Beginner, else the library proxy, when available (tests set false for the placeholder).
 @export var use_library_model: bool = true
 @export var blob_shadow: bool = true
 ## The X-ray fill and the see-through outline.
@@ -87,6 +105,19 @@ var _death_t: float = 0.0
 ## Sit pose amount (0 standing .. 1 seated) and the chair under the player (built on the first sit).
 var sit_amount: float = 0.0
 var chair_prop: Node3D = null
+## CharacterState.gender for the preset ("" = read Game.character when the player uses the autoloads). Set it before
+## the node enters the tree.
+var gender: String = ""
+## The art pack preset shown ("" = no rig: the library proxy or the placeholder).
+var preset: String = ""
+## Drives the rig's clips (null without a rig).
+var animator: PlayerAnimator = null
+
+var _chair_id: String = ""
+var _last_feet: Vector3 = Vector3.ZERO
+var _hooked: bool = false
+var _combat: Node = null
+var _skills: Node = null
 
 
 func _ready() -> void:
@@ -105,9 +136,16 @@ func _ready() -> void:
 		player.add_child.call_deferred(shadow)
 	if player != null:
 		_yaw = atan2(player.facing.x, player.facing.z)
+		_last_feet = player.global_position
 
 
 func _process(delta: float) -> void:
+	advance(delta)
+
+
+## One presentation frame of `delta` seconds (called from _process; tests call it directly): the see-through fade,
+## the facing, the rig's clips or the placeholder's procedural motions, the sit pose, the blink and the shadow.
+func advance(delta: float) -> void:
 	step_see_through(delta)
 	if player == null or player.model == null:
 		return
@@ -117,26 +155,121 @@ func _process(delta: float) -> void:
 	var diff := wrapf(want - _yaw, -PI, PI)
 	var step := m.facing_turn_rate * delta
 	_yaw = want if absf(diff) <= step else _yaw + signf(diff) * step
-	# Walk bob and a slight lean into the motion; nothing while airborne, climbing or dead.
-	var speed := player.actual_velocity.length()
+	var speed := Vector3(player.actual_velocity.x, 0.0, player.actual_velocity.z).length()
+	if animator != null:
+		_step_rig(delta, speed)
+	# Walk bob and a slight lean into the motion; nothing while airborne, climbing or dead. Retired on the rig, whose
+	# walk clip moves the body (covers()).
 	var moving := player.is_grounded() and speed > 0.2 and not player.is_dead()
 	if moving:
 		_bob_phase += delta * speed / maxf(m.walk_speed, 0.01) * TAU * 2.2
 	else:
 		_bob_phase = 0.0
-	var bob := absf(sin(_bob_phase)) * 0.05 if moving else 0.0
-	var lean := clampf(speed / maxf(m.walk_speed, 0.01), 0.0, 1.0) * 0.12 if moving else 0.0
+	var bob := absf(sin(_bob_phase)) * 0.05 if moving and not covers(&"bob") else 0.0
+	var lean := clampf(speed / maxf(m.walk_speed, 0.01), 0.0, 1.0) * 0.12 if moving and not covers(&"lean") else 0.0
 	_tilt = lerpf(_tilt, lean, 1.0 - exp(-12.0 * delta))
-	# Death: fall over backwards.
+	# Death: fall over backwards (the placeholder; the rig plays its death clip).
 	_death_t = clampf(_death_t + (delta if player.is_dead() else -delta * 4.0) / 0.35, 0.0, 1.0)
+	var fall := 0.0 if covers(&"death_fall") else _death_t * deg_to_rad(80.0)
 	step_sit(delta)
-	position = player.presentation_offset + Vector3.UP * bob + Vector3.DOWN * SIT_DROP_M * sit_amount
-	rotation = Vector3(_tilt - _death_t * deg_to_rad(80.0) - sit_amount * deg_to_rad(SIT_LEAN_DEG), _yaw, 0.0)
+	var drop := 0.0 if covers(&"sit_drop") else SIT_DROP_M * sit_amount
+	var sit_lean := 0.0 if covers(&"sit_lean") else sit_amount * deg_to_rad(SIT_LEAN_DEG)
+	position = player.presentation_offset + Vector3.UP * (bob + seat_lift()) + Vector3.DOWN * drop
+	rotation = Vector3(_tilt - fall - sit_lean, _yaw, 0.0)
 	# Classic post-hit blink while invulnerable.
 	if model != null:
 		apply_blink(player.is_invulnerable() and blink_off_at(Time.get_ticks_msec()))
 	if shadow != null:
 		shadow.visible = not player.is_climbing()
+
+
+# =================================================================================================================
+# Rigged Beginner
+# =================================================================================================================
+
+## True when the model is the art pack's rigged Beginner (its clips follow the gameplay state).
+func rigged() -> bool:
+	return animator != null
+
+
+## The clip the rig plays now (&"" without a rig).
+func current_clip() -> StringName:
+	return animator.current if animator != null else &""
+
+
+## True when a rig clip replaces the procedural `motion` (COVERED_BY: &"bob", &"lean", &"death_fall", &"sit_drop",
+## &"sit_lean", &"lunge"), so the procedural one must not run. PlayerCombat asks before its attack lunge.
+func covers(motion: StringName) -> bool:
+	return animator != null and COVERED_BY.has(motion) and animator.has_clip(COVERED_BY[motion])
+
+
+## The art pack preset for a CharacterState.gender.
+static func preset_for(character_gender: String) -> String:
+	return String(PRESETS.get(character_gender, DEFAULT_PRESET))
+
+
+## How far the rig is lifted onto the chair now (m): SEAT_LIFT_M times the sit clip's current share of its root drop,
+## so it rises and settles with the clip (and the blend out of it). 0 without a rig.
+func seat_lift() -> float:
+	if animator == null or model == null:
+		return 0.0
+	var sk := model.find_child("Skeleton3D", true, false) as Skeleton3D
+	var root_bone := sk.find_bone(ArtImport.ROOT_BONE) if sk != null else -1
+	if root_bone < 0:
+		return 0.0
+	var drop := sk.get_bone_rest(root_bone).origin.y - sk.get_bone_pose_position(root_bone).y
+	return SEAT_LIFT_M * clampf(drop / SIT_ROOT_DROP, 0.0, 1.0)
+
+
+func _step_rig(delta: float, speed: float) -> void:
+	_hook_sources()
+	var m := player.model
+	var feet := player.global_position
+	var climb_rate := absf(feet.y - _last_feet.y) / delta / maxf(m.climb_speed, 0.01) if delta > 0.0 else 0.0
+	_last_feet = feet
+	var walk_ref := m.walk_speed * 100.0 / maxf(m.speed_stat, 1.0)
+	animator.update({
+		"dead": player.is_dead(), "seated": player.is_seated(), "hitstun": player.in_hitstun,
+		"climbing": player.is_climbing(), "airborne": not player.is_grounded() and not player.is_climbing(),
+		"speed": speed, "run_speed": walk_ref * RUN_FACTOR, "climb_rate": climb_rate,
+		"cycle_speed": walk_ref * RUN_FACTOR if speed >= walk_ref * RUN_FACTOR else walk_ref,
+	}, delta)
+
+
+## Connects the gameplay signals the clips react to. PlayerCombat and PlayerSkills join the player after this visual
+## (MonsterSystem.attach_player), so this runs every frame and connects whatever has appeared.
+func _hook_sources() -> void:
+	if not _hooked:
+		_hooked = true
+		player.knocked_back.connect(_on_knocked_back)
+		# A landed touch without a knockback (ContactDamage) is announced only on the bus, by the live player.
+		var events := get_node_or_null(^"/root/Events") if player.use_autoloads else null
+		if events != null and events.has_signal(&"player_damaged"):
+			events.connect(&"player_damaged", _on_player_damaged)
+	var combat := player.get_node_or_null(^"PlayerCombat")
+	if combat != _combat and combat != null and combat.has_signal(&"attack_started"):
+		_combat = combat
+		combat.connect(&"attack_started", _on_attack_started)
+	var skills := player.get_node_or_null(^"PlayerSkills")
+	if skills != _skills and skills != null and skills.has_signal(&"cast_started"):
+		_skills = skills
+		skills.connect(&"cast_started", _on_cast_started)
+
+
+func _on_knocked_back(_push_dir: Vector3) -> void:
+	animator.trigger_hit()
+
+
+func _on_player_damaged(_amount: Variant = null, _mob_id: Variant = null) -> void:
+	animator.trigger_hit()
+
+
+func _on_attack_started(_action: Variant, _presentation: Variant, lockout_s: float) -> void:
+	animator.trigger_attack(lockout_s)
+
+
+func _on_cast_started(_skill_id: Variant, _level: Variant, lockout_s: float) -> void:
+	animator.trigger_attack(lockout_s)
 
 
 # =================================================================================================================
@@ -463,6 +596,10 @@ static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
 # =================================================================================================================
 
 func _build_model() -> Node3D:
+	if use_library_model:
+		var rig := _rig_model()
+		if rig != null:
+			return rig
 	if use_library_model and ResourceLoader.exists(LIBRARY):
 		var lib: PackedScene = load(LIBRARY)
 		if lib != null:
@@ -476,6 +613,35 @@ func _build_model() -> Node3D:
 				return copy
 			inst.free()
 	return _placeholder()
+
+
+## The art pack's Beginner preset for the character's gender (looked up by ID, #62; already at the character scale
+## on its rig node), named "Model", with its animator; null without the pack.
+func _rig_model() -> Node3D:
+	var art := ArtPack.load_installed()
+	if not art.present():
+		return null
+	var wanted := preset_for(_gender())
+	var inst := art.instance(ArtPack.PRESET, wanted)
+	if inst == null:
+		return null
+	var anims := PlayerAnimator.from_model(inst)
+	if anims == null:
+		inst.free()
+		return null
+	inst.name = "Model"
+	inst.transform = Transform3D.IDENTITY
+	preset = wanted
+	animator = anims
+	return inst
+
+
+func _gender() -> String:
+	if gender != "" or player == null or not player.use_autoloads:
+		return gender
+	var game := get_node_or_null(^"/root/Game")
+	var c: Variant = game.get("character") if game != null else null
+	return String(c.gender) if c is CharacterState else ""
 
 
 ## The Player_Proxy root of an instantiated library: the export names asset roots with Blender's numeric suffix
