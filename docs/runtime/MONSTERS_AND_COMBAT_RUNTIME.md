@@ -455,7 +455,7 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
 | `scripts/core/breakables/breakable_placement.gd` | `BreakablePlacement` | one planned placement: key `<map_id>:<index>`, breakable id, position, respawn time |
 | `scripts/core/maps/map_instance_state.gd` | `MapInstanceState.breakables` | the live state: `{id, hits, respawn_at (-1 intact), respawn_s}` per placement; `hit_breakable`, `tick_breakables`; in the map's snapshot |
 | `scripts/actors/breakables/breakable_system.gd` | `BreakableSystem` | the current map's boxes in the scene (`scenes/systems/breakable_system.tscn`, installed after the loot system): realizes them from the live state, lands hits, rolls drops, brings boxes back; the `boxes` console command |
-| `scripts/actors/breakables/wooden_box.gd` | `WoodenBox` | presentation only: a procedural crate (lighter, faintly glowing planks), hit flash, wobble, break and respawn; group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()` |
+| `scripts/actors/breakables/wooden_box.gd` | `WoodenBox` | presentation only: the art pack's rigged WoodenBox (`Idle`, `Hit`, `Break`; #65), or without the pack a procedural crate (lighter, faintly glowing planks); hit flash, break and respawn; group `&"miso_breakables"` with `placement_key()`, `is_broken()`, `hits_left()` |
 | `data/misostory/breakables.json` | | the box's body (`box.touch_px` 30 x 30), the hit rule, the respawn clock and the placement rules (all `verified: false`) |
 
 - **Placement.** MeowDB's `x_px` / `y_px` are 2D and not used (as for spawns). Candidates come from the map's spawn
@@ -477,11 +477,23 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
 - **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
   monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the
   breakable page's single 120 s). The box is not solid (classic reactors never block movement).
+- **Model (#65).** `BreakableSystem.setup(ctx)` loads the installed art pack (`ArtPack.load_installed()`) into its
+  `art` seam, and every box it realizes looks up the pack's WoodenBox by canonical breakable id (`ArtPack.BREAKABLE`,
+  `0000001`), fitted by one uniform scale so its wider footprint side matches the body (`box.touch_px`) and its base
+  sits on the feet. `Idle` loops while the box stands; each hit that does not break it plays `Hit` from its start
+  (instead of the crate's wobble and lid), then `Idle` again; the flash and chips stay. On the breaking hit everything
+  gameplay sees changes at that moment, as without the pack (broken, no attack target, the drops, the respawn clock,
+  the hidden `Model` and cues); the standing model is detached from `Model` as a presentation-only node
+  (`WoodenBox.breaking_rigs()`) that plays `Break` once, its flying pieces replacing the crate's plank burst (the dust
+  stays), and frees itself; nothing gameplay-visible waits on the clip. A fresh model waits in the hidden `Model` and
+  grows back with it at the respawn. The clips are stepped by `WoodenBox.advance()`. Without the pack, or a system
+  built without `setup` (the unit tests), the procedural crate stays (`test_wooden_box_art.gd`).
 - **Not saved.** Box state lives in the map instance (parked with the map in `MapStateCache`) and never in a save; a
   reload rebuilds every box intact (`test_breakables_persistence.gd`).
 - **Tests:** `test_breakables_state.gd`, `test_breakables_placement.gd` (with the world: every box on real collision,
   standing room, camera sight), `test_breakables_system.gd` (hits, the nearest-box cap, breaks, gated drops through
-  the real roller, respawn, the reach rim and quest marker as drawn: `WoodenBox.cues_drawn`), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`; in the real game
+  the real roller, respawn, the reach rim and quest marker as drawn: `WoodenBox.cues_drawn`), `test_breakables_drop_fixture.gd`, `test_breakables_persistence.gd`, `test_wooden_box_art.gd` (the pack model's
+  clips across four hits and a respawn; the procedural crate without the pack); in the real game
   `bash scripts/playtest.sh test_box` (Pio's quest with real swings on Amherst's boxes, the box state across a
   real reload, Three Snails thrown at a box that keeps all its hits, then every box of the other five maps: 16 of
   the 19 broken,
