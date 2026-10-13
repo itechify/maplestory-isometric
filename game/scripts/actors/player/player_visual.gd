@@ -7,7 +7,8 @@ extends Node3D
 ##
 ## Model, first found (feet at y = 0, front +Z, named "Model"):
 ##   1. the art pack's rigged Beginner preset for the character's gender (#63; PRESETS, looked up by ID through
-##      ArtPack, already at the character scale on its rig node). PlayerAnimator plays its clips from the gameplay
+##      ArtPack, already at the character scale on its rig node), wearing the character's saved hair, face and skin
+##      (#67, CharacterLook; set_look() rebuilds when they change). PlayerAnimator plays its clips from the gameplay
 ##      state (idle, walk, run, jump, climb, attack, hit, sit, death). Animation never moves the body: the clips'
 ##      root translation is held by the import (#62), and the procedural motions a clip covers (covers(): the walk bob
 ##      and lean, the death fall, the sit drop and lean, PlayerCombat's attack lunge) do not run. The only vertical
@@ -85,8 +86,9 @@ const SEAT_LIFT_M := 0.221
 ## clip (the sink grows about linearly until then and holds), and goes with the clip. test_player_rig pins it.
 const DEATH_REST_LIFT_M := 0.176
 const DEATH_FALL_SHARE := 0.5
-## The art pack's Beginner preset per CharacterState.gender (#59: the default preset for the gender; hair, face and
-## skin choice is #67). Unknown ("") shows the male preset.
+## The art pack's Beginner preset per CharacterState.gender (#59: the default preset for the gender). Unknown ("")
+## shows the male preset. The character's hair, face and skin (#67, CharacterState.appearance) go on it through
+## CharacterLook.
 const PRESETS := {"male": "Beginner_Male", "female": "Beginner_Female"}
 const DEFAULT_PRESET := "Beginner_Male"
 
@@ -127,8 +129,13 @@ var chair_prop: Node3D = null
 ## CharacterState.gender for the preset ("" = read Game.character when the player uses the autoloads). Set it before
 ## the node enters the tree.
 var gender: String = ""
+## CharacterState.appearance for the look (read from Game.character with the gender when `gender` is ""). Set it
+## with `gender`, before the node enters the tree.
+var appearance: Dictionary = {}
 ## The art pack preset shown ("" = no rig: the library proxy or the placeholder).
 var preset: String = ""
+## The look on the rig (a complete CharacterAppearance look; {} without a rig).
+var look: Dictionary = {}
 ## Drives the rig's clips (null without a rig).
 var animator: PlayerAnimator = null
 ## The art pack (injectable before the node enters the tree; else the installed one, loaded once).
@@ -161,11 +168,19 @@ func _ready() -> void:
 			game.connect(&"character_replaced", _on_character_replaced)
 
 
-## Shows the preset for `character_gender` (CharacterState.gender), rebuilding the rigged model and its silhouette
-## when the preset changes. Without a rig (no pack, the proxy or the placeholder) nothing changes.
+## Shows the preset for `character_gender` (CharacterState.gender) with the current appearance (set_look).
 func set_gender(character_gender: String) -> void:
+	set_look(character_gender, appearance)
+
+
+## Shows the preset for `character_gender` wearing `character_appearance` (CharacterState.appearance; missing or bad
+## values: the gender's default), rebuilding the rigged model and its silhouette when the preset or the look changes.
+## Without a rig (no pack, the proxy or the placeholder) nothing changes.
+func set_look(character_gender: String, character_appearance: Dictionary) -> void:
 	gender = character_gender
-	if animator == null or preset_for(character_gender) == preset:
+	appearance = character_appearance.duplicate()
+	if animator == null or (preset_for(character_gender) == preset
+			and CharacterAppearance.resolve(character_appearance, character_gender) == look):
 		return
 	remove_child(model)
 	model.free()
@@ -176,6 +191,7 @@ func set_gender(character_gender: String) -> void:
 	_outlines.clear()
 	animator = null
 	preset = ""
+	look = {}
 	_install_model()
 
 
@@ -183,7 +199,7 @@ func _on_character_replaced(_reason: String = "") -> void:
 	var game := get_node_or_null(^"/root/Game")
 	var c: Variant = game.get("character") if game != null else null
 	if c is CharacterState:
-		set_gender((c as CharacterState).gender)
+		set_look((c as CharacterState).gender, (c as CharacterState).appearance)
 
 
 func _install_model() -> void:
@@ -766,7 +782,8 @@ func _rig_model() -> Node3D:
 	_load_art()
 	if not art.present():
 		return null
-	var wanted := preset_for(_gender())
+	var g := _gender()
+	var wanted := preset_for(g)
 	var inst := art.instance(ArtPack.PRESET, wanted)
 	if inst == null:
 		return null
@@ -776,7 +793,11 @@ func _rig_model() -> Node3D:
 		return null
 	inst.name = "Model"
 	inst.transform = Transform3D.IDENTITY
+	# The saved hair, face and skin (#67), before the silhouette copies the meshes.
+	var shown := CharacterAppearance.resolve(_appearance(), g)
+	CharacterLook.apply(inst, shown, wanted, art)
 	preset = wanted
+	look = shown
 	animator = anims
 	return inst
 
@@ -792,6 +813,15 @@ func _gender() -> String:
 	var game := get_node_or_null(^"/root/Game")
 	var c: Variant = game.get("character") if game != null else null
 	return String(c.gender) if c is CharacterState else ""
+
+
+## The appearance to show: `appearance` when the gender was given (tests, set_look), else the live character's.
+func _appearance() -> Dictionary:
+	if gender != "" or not appearance.is_empty() or player == null or not player.use_autoloads:
+		return appearance
+	var game := get_node_or_null(^"/root/Game")
+	var c: Variant = game.get("character") if game != null else null
+	return (c as CharacterState).appearance if c is CharacterState else {}
 
 
 ## The Player_Proxy root of an instantiated library: the export names asset roots with Blender's numeric suffix
