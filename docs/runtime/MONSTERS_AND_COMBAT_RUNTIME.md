@@ -175,7 +175,7 @@ sea plane it returns to its spawn point.
 
 **Rigged models (Project art, #64).** With the art pack installed (ADR 0002), each species is Jarvis's rigged model,
 looked up by canonical id: `MonsterVisual.build(def, library, art)` takes `art.instance(ArtPack.MONSTER, def.id)`
-(`MonsterSystem.art`: `setup(ctx)` loads `ArtPack.load_installed()` unless one was injected, as `BreakableSystem` does; passed through `Monster.setup`). `model_fit` still sizes it:
+(`MonsterSystem.art`: `setup(ctx)` loads `ArtPack.load_installed()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
 the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z).
 `model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
 it:
