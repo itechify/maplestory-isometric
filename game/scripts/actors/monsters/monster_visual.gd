@@ -1,9 +1,11 @@
 class_name MonsterVisual
 extends Node3D
-## Presentation of one monster (child "Visual" of a Monster): its proxy model from _library.glb (or a named stone
-## fallback body when the library lacks it), facing, a walk bob timed by the canonical move clip, a hit flinch over the canonical hit clip, an HP
-## bar over the head once damaged, the spawn fade-in and the death fade over the canonical die time, and the
-## see-through silhouette. Reads its Monster every frame and never changes gameplay state.
+## Presentation of one monster (child "Visual" of a Monster): the species' rigged model from the art pack (ADR 0002),
+## else its proxy model from _library.glb, else a named stone fallback body; facing; the rig's clips chosen by the
+## monster's state (Idle, Walk, Attack on its touch, Hit, Death), or without a rig a walk bob timed by the canonical
+## move clip and a hit flinch over the canonical hit clip; an HP bar over the head once damaged, the spawn fade-in and
+## the death fade over the canonical die time, and the see-through silhouette. Reads its Monster every frame and never
+## changes gameplay state.
 ##
 ## See-through silhouette (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md "See-through silhouette"): terrain never
 ## fades, so a monster near the player shows a flat tinted silhouette wherever something hides it.
