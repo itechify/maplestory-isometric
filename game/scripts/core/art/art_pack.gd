@@ -165,7 +165,7 @@ func skin_color(index: int) -> Color:
 ## Checks that every required ID has a model: {status: COVERED | MISSING | NO_PACK, checked, missing: [{kind, id,
 ## why}]}. `required` is kind -> [ids] (see required_ids); `exists` decides whether a model path is there
 ## (default ResourceLoader.exists: imported, as in an exported build).
-func coverage(required: Dictionary, exists: Callable = ResourceLoader.exists) -> Dictionary:
+func coverage(required: Dictionary, exists: Callable = Callable(ResourceLoader, "exists")) -> Dictionary:
 	if not _present:
 		return {"status": NO_PACK, "checked": 0, "missing": []}
 	var missing: Array = []

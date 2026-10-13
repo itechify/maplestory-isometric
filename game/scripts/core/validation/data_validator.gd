@@ -20,6 +20,7 @@ extends RefCounted
 ##                                                                            the Phase 16 per-category counters)
 ##   chair, name, duplicate                                                   IntegrityChecks
 ##   adaptation, crosswalk                                                    AdaptationChecks
+##   art_pack        every required ID has a model when the art pack is installed ("no pack" otherwise; ArtPackChecks)
 ##   quest_data, npc_data, dialogue_data   GameplayDataChecks (QuestCatalog / NpcCatalog / NpcDialogueBuilder
 ##                   validation, run over the records everything above found no error in)
 ##   validator       a script error inside any of the above (see validate())
@@ -32,6 +33,8 @@ const VALIDATOR_CHECK := "validator"
 ##   world_sidecars: Dictionary slug -> sidecar Dictionary; replaces the disk lookup (tests)
 ##   repo_root: String          the folder holding tools/*/captures (default: the folder above res://)
 ##   capture_files: Dictionary  capture path -> true; replaces the disk lookup of cited captures (tests)
+##   art_pack: ArtPack          the art pack to check (default ArtPack.load_installed()) (tests)
+##   art_pack_exists: Callable  whether a model path exists (default ResourceLoader.exists) (tests)
 var options: Dictionary
 var db: ContentDB
 var report := ValidationReport.new()
@@ -78,6 +81,7 @@ func run() -> ValidationReport:
 	refs.run()
 	IntegrityChecks.new(db, report).run()
 	AdaptationChecks.new(db, report, refs, provenance, options).run()
+	ArtPackChecks.new(db, report, options).run()
 	refs.flush()
 	# Last: the game's own quest / NPC / dialogue validation assumes structurally valid data, so it reads only the
 	# records the checks above found no error in.

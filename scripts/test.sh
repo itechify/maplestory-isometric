@@ -7,6 +7,8 @@
 #                                                # agents/processes can test concurrently without fighting over .godot/
 #   ISOLATE=<name> INCLUDE_WORLD=1 bash ...      # same, but also mirror assets/world (needed by world/actor tests)
 #                                                # (an isolated copy always gets tools/*/captures next to game/)
+#   ISOLATE=<name> NO_ART_PACK=1 bash ...        # leave the art pack (game/assets/art_pack) out of the copy: the
+#                                                # run without the pack (it is mirrored by default when installed)
 #   TEST_EVIDENCE_OUT=<file> bash scripts/test.sh   # also write the machine-readable test evidence (contract C6):
 #                                                # {run_at, commit, dirty, world_present, totals,
 #                                                #  tests: [{file, name, ok, parity, needs_world}]}
@@ -46,7 +48,10 @@ if [[ -n "${ISOLATE:-}" ]]; then
   DEST="$REPO/_scratch/godot_runs/$ISOLATE"
   mkdir -p "$DEST/game"
   # Mirror everything except the import cache and the (large) exported world; logic tests do not need the world.
-  (cd "$PROJECT" && tar --exclude=./.godot --exclude=./assets/world -cf - .) | (cd "$DEST/game" && tar -xf -)
+  # The art pack (game/assets/art_pack) is mirrored unless NO_ART_PACK=1 asks for a run without it.
+  ART_EXCLUDE=""
+  if [[ "${NO_ART_PACK:-0}" == "1" ]]; then ART_EXCLUDE="--exclude=./assets/art_pack"; rm -rf "$DEST/game/assets/art_pack"; fi
+  (cd "$PROJECT" && tar --exclude=./.godot --exclude=./assets/world $ART_EXCLUDE -cf - .) | (cd "$DEST/game" && tar -xf -)
   # Drop files deleted from the source since the last mirror.
   (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT/$f" ]] || rm -f "$f"; done)
   if [[ "${INCLUDE_WORLD:-0}" == "1" && -d "$PROJECT/assets/world" ]]; then
