@@ -242,6 +242,32 @@ func test_merged_meshes_keep_vertices_materials_and_skinning() -> void:
 		assert_eq(names, ["Cloth sage", "Hair chestnut", "Skin 0"], "materials kept by name"))
 
 
+func test_merged_character_meshes_remember_which_triangles_each_garment_drew() -> void:
+	_with(_character(_nine_clips()), func(root: Node3D) -> void:
+		ArtImport.normalize(root, ArtImport.CHARACTER, 1.0)
+		var clothing: MeshInstance3D = null
+		var hair: MeshInstance3D = null
+		for mi: MeshInstance3D in _meshes(root):
+			if String(mi.name).begins_with("Clothing_"):
+				clothing = mi
+			elif String(mi.name).begins_with("Hair_"):
+				hair = mi
+		assert_eq(ArtImport.garments(clothing), PackedStringArray(["sleeve", "tunic"]), "the tunic and the sleeve, by name")
+		assert_eq(ArtImport.garments(hair), PackedStringArray(["fringe", "scalp"]), "the numeric suffix goes: Hair_fringe_00 is the fringe")
+		var arrays := clothing.mesh.surface_get_arrays(0)
+		var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+		var index: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+		# The stand-in tunic spans y 0.7..1.4 and the sleeve 0.9..1.3, two triangles each.
+		for g: Array in [["tunic", 0.7, 1.4], ["sleeve", 0.9, 1.3]]:
+			var ys := []
+			for i in ArtImport.garment_indices(clothing, g[0]):
+				ys.append(verts[index[i]].y)
+			assert_eq(ys.size(), 6, "%s: its two triangles" % g[0])
+			assert_near(ys.min(), g[1], 1e-4, "%s: exactly its own triangles (bottom)" % g[0])
+			assert_near(ys.max(), g[2], 1e-4, "%s: exactly its own triangles (top)" % g[0])
+		assert_eq(ArtImport.garment_indices(clothing, "trouser"), PackedInt32Array(), "a garment the mesh lacks: none"))
+
+
 func test_hair_bones_stay_on_the_head_after_merging() -> void:
 	_with(_character(_nine_clips()), func(root: Node3D) -> void:
 		ArtImport.normalize(root, ArtImport.CHARACTER, 1.0)
