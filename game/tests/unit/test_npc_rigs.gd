@@ -63,6 +63,10 @@ func test_every_canonical_npc_is_its_pack_model_playing_idle() -> void:
 		assert_false(v.has_meta("placeholder"), "%s: not the placeholder" % id)
 		assert_eq(n.model_source, art.model(ArtPack.NPC, id), "%s: the pack's model for its canonical id" % id)
 		assert_true(v.find_child("Skeleton3D", true, false) is Skeleton3D, "%s: rigged" % id)
+		# The camera's occlusion fader scans the world for meshes with glTF extras (trees, buildings): an NPC is never
+		# taken for an occluder and faded.
+		for mi in v.find_children("*", "MeshInstance3D", true, false):
+			assert_false(mi.has_meta("extras"), "%s: %s carries no occluder extras" % [id, mi.name])
 		var ap := n.animation_player()
 		assert_true(ap != null and ap.is_playing(), "%s: its AnimationPlayer plays" % id)
 		if ap != null:
@@ -107,17 +111,36 @@ func test_every_portrait_renders_the_rig_head_and_shoulders() -> void:
 			continue
 		var ap := copy.find_child("AnimationPlayer", true, false) as AnimationPlayer
 		assert_true(ap != null and ap.is_playing() and String(ap.current_animation) == "idle", "%s: idles" % id)
-		# Head and shoulders: the frame holds the top of the head (a hat too) and the shoulders, not the hips.
+		# Head and shoulders: the frame holds the whole head (a hat and the hair too; at least 90% of its width: the
+		# tips of Mai's wide buns may touch the sides) and the shoulders, and ends above the knees.
 		var span := portrait.framed_span()
 		var box := ArtImport.visual_aabb(copy)
+		var head := _head_box(copy)
 		var sk := copy.find_child("Skeleton3D", true, false) as Skeleton3D
 		var k := ArtPack.character_scale()
 		var shoulders := sk.get_bone_global_rest(sk.find_bone("upper_arm.L")).origin.y * k
-		var hips := sk.get_bone_global_rest(sk.find_bone("hips")).origin.y * k
+		var knees := sk.get_bone_global_rest(sk.find_bone("shin.L")).origin.y * k
+		var aspect := NpcPortrait.PORTRAIT_SIZE.x / NpcPortrait.PORTRAIT_SIZE.y
 		assert_true(span.y >= box.end.y, "%s: the head's top (%.2f) is in the frame (top %.2f)" % [id, box.end.y, span.y])
+		assert_true((span.y - span.x) * aspect >= head.size.x * 0.9,
+			"%s: the head's width (%.2f) fits the frame's (%.2f)" % [id, head.size.x, (span.y - span.x) * aspect])
 		assert_true(span.x < shoulders, "%s: the shoulders (%.2f) are in the frame (bottom %.2f)" % [id, shoulders, span.x])
-		assert_true(span.x > hips, "%s: the hips (%.2f) are below the frame (bottom %.2f)" % [id, hips, span.x])
+		assert_true(span.x > knees, "%s: the knees (%.2f) are below the frame (bottom %.2f)" % [id, knees, span.x])
 		n.free()
+
+
+## The bounds of the head's meshes (the import names merged meshes by part: Hair_, Face_, Hat_) in `root`'s space.
+static func _head_box(root: Node3D) -> AABB:
+	var out := AABB()
+	var first := true
+	for mi: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		var nm := String(mi.name)
+		if not (nm.begins_with("Hair_") or nm.begins_with("Face_") or nm.begins_with("Hat_")):
+			continue
+		var b := root.global_transform.affine_inverse() * mi.global_transform * mi.get_aabb()
+		out = b if first else out.merge(b)
+		first = false
+	return out
 
 
 func test_a_portrait_of_the_same_speaker_is_not_rebuilt_every_line() -> void:

@@ -17,6 +17,13 @@ const SHOULDER_MARGIN := 0.07
 const HEAD_MARGIN := 0.04
 ## The rig bone whose rest height is the shoulders (the art pack's 17-bone character rig).
 const SHOULDER_BONE := "upper_arm.L"
+## The rig's head meshes (ArtImport merges a character's meshes by part and names them <Part>_<material>), and how
+## much wider than the head the frame is at least.
+const HEAD_PARTS := ["Hair_", "Face_", "Hat_"]
+const HEAD_WIDTH_MARGIN := 1.04
+const ASPECT := PORTRAIT_SIZE.x / PORTRAIT_SIZE.y
+## The frame never grows past this share of the model's height (about the hips): Mai's buns may touch its sides.
+const MAX_FRAME_SHARE := 0.75
 ## The eye's rise above the frame's centre, as a share of the frame's height (6 m away: a slight look down).
 const EYE_RISE := 0.02 / 0.78
 
@@ -125,7 +132,7 @@ func _show_model(source: Node3D) -> bool:
 	var ap := copy.find_child("AnimationPlayer", true, false) as AnimationPlayer
 	if ap != null and ap.has_animation(WorldNpc.CLIP_IDLE):
 		ap.play(WorldNpc.CLIP_IDLE)
-	_span = frame_span(box, _shoulder_height(copy))
+	_span = frame_span(box, _shoulder_height(copy), _head_width(copy))
 	var h := _span.y - _span.x
 	var cy := (_span.x + _span.y) * 0.5
 	_pivot.rotation_degrees = Vector3(0, -22, 0)
@@ -147,14 +154,38 @@ func _set_model_mode() -> void:
 
 
 ## The frame's bottom (x) and top (y) heights for a model with bounds `box`: with a rig's `shoulder_y` (NAN when
-## none), head and shoulders, from just below the shoulders to just above the top; without one, Iteration One's
-## framing of the proxies, their upper ~70% (head and shoulders to mid-body).
-static func frame_span(box: AABB, shoulder_y: float) -> Vector2:
+## none), head and shoulders, from just below the shoulders to just above the top, taller (downward) where the head's
+## `head_width` would not fit the frame's width (the chibi heads are wide: hair, pigtails, buns), up to
+## MAX_FRAME_SHARE of the height; without one,
+## Iteration One's framing of the proxies, their upper ~70% (head and shoulders to mid-body).
+static func frame_span(box: AABB, shoulder_y: float, head_width: float = 0.0) -> Vector2:
 	var h := box.size.y
 	if is_nan(shoulder_y) or shoulder_y <= box.position.y or shoulder_y >= box.end.y:
 		var c := box.position.y + h * 0.6
 		return Vector2(c - h * 0.39, c + h * 0.39)
-	return Vector2(shoulder_y - h * SHOULDER_MARGIN, box.end.y + h * HEAD_MARGIN)
+	var top := box.end.y + h * HEAD_MARGIN
+	var size := maxf(top - (shoulder_y - h * SHOULDER_MARGIN), head_width * HEAD_WIDTH_MARGIN / ASPECT)
+	return Vector2(top - minf(size, h * MAX_FRAME_SHARE), top)
+
+
+## The width of the rig's head (its Hair_, Face_ and Hat_ meshes, as the import names them) in `root`'s space, or 0.
+static func _head_width(root: Node3D) -> float:
+	var out := AABB()
+	var found := false
+	for n in root.find_children("*", "MeshInstance3D", true, false):
+		var mi := n as MeshInstance3D
+		if mi.mesh == null or not HEAD_PARTS.any(func(p: String) -> bool: return String(mi.name).begins_with(p)):
+			continue
+		var xf := Transform3D.IDENTITY
+		var cur: Node = mi
+		while cur != null and cur != root:
+			if cur is Node3D:
+				xf = (cur as Node3D).transform * xf
+			cur = cur.get_parent()
+		var b := xf * mi.get_aabb()
+		out = out.merge(b) if found else b
+		found = true
+	return out.size.x if found else 0.0
 
 
 ## The rest height of the rig's shoulders in `root`'s space, or NAN without a rig.
