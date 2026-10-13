@@ -248,10 +248,10 @@ func test_v2_fields_round_trip_with_their_types() -> void:
 func test_persisted_character_fields_are_exactly_the_schema() -> void:
 	var keys := PackedStringArray(CharacterState.new().to_dict().keys())
 	keys.sort()
-	assert_eq(keys, PackedStringArray(["ap", "base_max_hp", "base_max_mp", "base_stats", "cooldowns", "effects",
-		"equipment", "exp", "fame", "flags", "gender", "hp", "inventory", "job", "level", "location", "mesos", "mp",
-		"name", "natural_recovery", "play_time_s", "quests", "quickslots", "respawn_reference", "skills", "sp"]),
-		"save_version 2 character fields")
+	assert_eq(keys, PackedStringArray(["ap", "appearance", "base_max_hp", "base_max_mp", "base_stats", "cooldowns",
+		"effects", "equipment", "exp", "fame", "flags", "gender", "hp", "inventory", "job", "level", "location", "mesos",
+		"mp", "name", "natural_recovery", "play_time_s", "quests", "quickslots", "respawn_reference", "skills", "sp"]),
+		"save_version 3 character fields")
 	var world := SaveDocument.build(CharacterState.new(), {}, "2026-10-05T00:00:00Z", db())["world"] as Dictionary
 	var wkeys := PackedStringArray(world.keys())
 	wkeys.sort()

@@ -58,8 +58,9 @@ nothing. `MainShell` fires the event, then shows the screen that belongs to the 
   most recently written loadable slot, chosen by `SaveSlotIndex.continue_slot`. Load opens the slot list, with one
   row per `Saves.list_saves()` entry. A row shows the name, level, map name, play time, slot and save time. An
   unreadable save is listed with its error, plus a "Restore backup" button when a backup exists.
-- **Creation.** It has a name field, gender, the creation weapon (each with its canonical W.ATK and attack speed),
-  and the creation AP with +/−, Clear and Recommended. A live preview shows HP/MP, W.ATK, Accuracy, Avoidability
+- **Creation.** It has a name field, gender, the look (#67: hair style, face and skin buttons `Look_<key>_<index>`,
+  previewed live on the rigged Beginner; an Adaptation, docs/runtime/SAVES.md), the creation weapon (each with its
+  canonical W.ATK and attack speed), and the creation AP with +/−, Clear and Recommended. A live preview shows HP/MP, W.ATK, Accuracy, Avoidability
   and Damage. Start is enabled only when `CreationModel.errors()` is empty. A new game is written to the first free
   slot (`slot1`, `slot2`, ...), so New Game never overwrites a save. The screen shows which slot it will use.
 - **Loading.** A bar driven by `GameSession.progress`. The island load (`IslandWorld.load_progress`) fills the
