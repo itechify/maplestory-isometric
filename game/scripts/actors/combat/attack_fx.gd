@@ -1,11 +1,12 @@
 class_name AttackFx
 extends Node3D
-## Short-lived combat effects (scenes/fx/attack_fx.tscn). Presentation only: procedural meshes (no sprites), sized
+## Short-lived combat effects (scenes/fx/attack_fx.tscn). Presentation only: meshes (no sprites), sized
 ## from the canonical hit box of the attack that played, so what the player sees is the reach that hits.
 ##   swing(feet, facing, box_px)   a crescent slash through the box (sword, axe, club swings)
 ##   stab(feet, facing, box_px)    a thrust spike from the box's near edge to its far edge (stabs, dagger thrusts)
 ##   punch(feet, facing, box_px)   a small burst at the far end of the box (bare hands)
-##   spark(pos)                    a hit flash on a monster
+##   spark(pos)                    a hit flash on a monster: the art pack's HitSpark when the pack is installed
+##                                 (EffectMeshes, #71), else a procedural starburst; the same place and life either way
 ## box_px is CombatReach.attack_box_px(weapon, presentation, true, level): facing +x, y down, px. Meters through
 ## WorldScale.actor, as for the hit test (MeleeQuery).
 ##
@@ -47,6 +48,8 @@ const ARC_SEGMENTS := 18
 var depth_px: float = 0.0
 ## The hit-area footprint the last swing, stab or punch laid down (null before the first, or without depth_px).
 var last_reach: MeshInstance3D = null
+## Where the hit spark's mesh comes from (tests pin a pack or none); null = EffectMeshes.shared().
+var effect_meshes: EffectMeshes = null
 var _live: Array[Dictionary] = []
 
 
@@ -96,7 +99,17 @@ func _reach(feet: Vector3, facing: Vector3, box_px: Rect2, life: float) -> MeshI
 	return mi
 
 
+## A hit spark at `pos`, `radius` m across each way. With the pack it is the HitSpark card (as tall as the burst's
+## diameter, centred on `pos`, turned to the camera; it spins in its own Loop clip), else the procedural starburst.
 func spark(pos: Vector3, radius: float = 0.35) -> Node3D:
+	var meshes := effect_meshes if effect_meshes != null else EffectMeshes.shared()
+	var card := meshes.centered(EffectMeshes.HIT_SPARK, radius * 2.0)
+	if card != null:
+		add_child(card)
+		card.global_position = pos
+		_face_camera(card)
+		_live.append({"node": card, "t": 0.0, "life": SPARK_LIFE_S, "kind": &"pack"})
+		return card
 	var mi := make_burst(radius, SPARK_COLOR, 10, true)
 	add_child(mi)
 	mi.global_position = pos
@@ -126,6 +139,10 @@ func advance(delta: float) -> void:
 			continue
 		var gi := n as GeometryInstance3D
 		match e.kind:
+			&"pack":
+				# A pack model (a Node3D over its meshes): a slight swell, faded mesh by mesh.
+				n.scale = Vector3.ONE * lerpf(0.85, 1.1, sqrt(k))
+				EffectMeshes.fade(n, k)
 			&"swing":
 				n.scale = Vector3.ONE * lerpf(0.82, 1.06, sqrt(k))
 				gi.transparency = k * k * k
@@ -161,6 +178,16 @@ static func _geometry(box_px: Rect2) -> Dictionary:
 	var top_h := WorldScale.actor(-box_px.position.y)
 	var bottom_h := WorldScale.actor(-box_px.end.y)
 	return {"near": near, "far": far, "top_h": top_h, "bottom_h": bottom_h, "center_h": (top_h + bottom_h) * 0.5}
+
+
+## Turns a flat card (its face along +Z) about the vertical toward the viewport's camera (none headless: unturned).
+func _face_camera(card: Node3D) -> void:
+	var cam := get_viewport().get_camera_3d() if is_inside_tree() else null
+	if cam == null:
+		return
+	var back := Vector3(cam.global_basis.z.x, 0.0, cam.global_basis.z.z)
+	if back.length_squared() > 1e-6:
+		card.global_basis = Basis.looking_at(-back.normalized(), Vector3.UP)
 
 
 static func _flat(v: Vector3) -> Vector3:
