@@ -14,7 +14,10 @@ extends RefCounted
 ##               decision 5, lined up with The Green Relaxer). Bone rotations and every other bone are untouched.
 ##   Draw calls  a model's meshes are merged per material, and for characters and their parts per name prefix as
 ##               well (Body_, Clothing_, Face_, Footwear_, Hair_, Hat_, Prop_, Uniform_, Wear_), so the merged nodes
-##               are named "<Prefix>_<material>" and customization can still hide or swap a part by prefix. Skinning
+##               are named "<Prefix>_<material>" and customization can still hide or swap a part by prefix. Each merged
+##               character mesh remembers which of its triangles each source garment drew (garments(),
+##               garment_indices(): the Beginner's collar and socks share a material), so equipment can hide one
+##               garment without another draw call (#68). Skinning
 ##               (the shared Skin and skeleton path), materials and the BoneAttachment3D sockets (socket_weapon_r,
 ##               socket_shield_l, socket_hat, socket_back) survive; static parts are baked into their parent's space.
 ##   Scale       characters (player presets, NPCs) and character parts (wearables, hair and face modules) get the one
@@ -40,6 +43,8 @@ const ROOT_BONE := "root"
 ## Clips whose root translation is kept.
 const ROOT_MOTION_KEPT := ["sit"]
 const PART_PREFIXES := ["Body", "Clothing", "Face", "Footwear", "Hair", "Hat", "Prop", "Uniform", "Wear"]
+## Meta on a merged character mesh: garment -> PackedInt32Array [first index, index count, ...] (garments()).
+const GARMENTS_META := &"art_garments"
 const SCALED := [CHARACTER, CHARACTER_PART]
 const MERGED := [CHARACTER, CHARACTER_PART, MONSTER, BREAKABLE, DROP, EFFECT, ITEM]
 const MONSTER_CATEGORIES := {"monster": MONSTER, "breakable": BREAKABLE, "drop": DROP, "effect": EFFECT}
@@ -162,6 +167,35 @@ static func _hold_root(ap: AnimationPlayer) -> void:
 		a.position_track_insert_key(t, 0.0, rest)
 
 
+## The garments merged into a character mesh, sorted ("tunic", "sleeve", "sock", ...; [] for a mesh that was not
+## merged by part).
+static func garments(mi: MeshInstance3D) -> PackedStringArray:
+	var out := PackedStringArray((mi.get_meta(GARMENTS_META, {}) as Dictionary).keys())
+	out.sort()
+	return out
+
+
+## The positions in a merged character mesh's index buffer that draw `garment`'s triangles ([] when it has none).
+static func garment_indices(mi: MeshInstance3D, garment: String) -> PackedInt32Array:
+	var out := PackedInt32Array()
+	var ranges: PackedInt32Array = (mi.get_meta(GARMENTS_META, {}) as Dictionary).get(garment, PackedInt32Array())
+	for r in range(0, ranges.size(), 2):
+		for i in ranges[r + 1]:
+			out.append(ranges[r] + i)
+	return out
+
+
+## A part mesh's garment: its name without the part prefix and Blender's numeric suffix ("Clothing_sleeve_001" ->
+## "sleeve", "Hair_pigtail_tie" -> "pigtail_tie"); "" outside a part.
+static func _garment_of(node_name: String, part: String) -> String:
+	if part == "":
+		return ""
+	var parts := node_name.substr(part.length() + 1).split("_")
+	while parts.size() > 1 and parts[parts.size() - 1].is_valid_int():
+		parts.remove_at(parts.size() - 1)
+	return "_".join(parts)
+
+
 static func _part_of(node_name: String) -> String:
 	var head := node_name.get_slice("_", 0)
 	return head if head in PART_PREFIXES and node_name.length() > head.length() else ""
@@ -192,7 +226,7 @@ static func _merge(root: Node3D, by_part: bool) -> void:
 				groups[key] = {"parent": mi.get_parent(), "part": part, "material": mat, "skin": mi.skin,
 					"skeleton": mi.skeleton, "first": mi, "surfaces": []}
 				order.append(key)
-			groups[key].surfaces.append({"arrays": arrays, "xf": xf})
+			groups[key].surfaces.append({"arrays": arrays, "xf": xf, "garment": _garment_of(String(mi.name), part)})
 		merged_nodes.append(mi)
 	if merged_nodes.is_empty():
 		return
@@ -203,11 +237,14 @@ static func _merge(root: Node3D, by_part: bool) -> void:
 		var mat: Material = g.material
 		var mat_name := mat.resource_name if mat != null and mat.resource_name != "" else "material"
 		out.name = ("%s_%s" % [g.part, mat_name]) if g.part != "" else mat_name
-		out.mesh = _combine(g.surfaces, mat)
+		var ranges := {}
+		out.mesh = _combine(g.surfaces, mat, ranges)
 		var first: MeshInstance3D = g.first
 		out.cast_shadow = first.cast_shadow
 		out.layers = first.layers
 		out.set_meta("art_merged_from", g.surfaces.size())
+		if not ranges.is_empty():
+			out.set_meta(GARMENTS_META, ranges)
 		built.append([g.parent, out, g])
 	for mi in merged_nodes:
 		mi.get_parent().remove_child(mi)
@@ -249,7 +286,9 @@ static func _signature(arrays: Array) -> String:
 	return s
 
 
-static func _combine(surfaces: Array, mat: Material) -> ArrayMesh:
+## Concatenates the surfaces into one; `ranges` receives garment -> [first index, index count, ...] in the result's
+## index buffer for every surface that names its garment.
+static func _combine(surfaces: Array, mat: Material, ranges: Dictionary = {}) -> ArrayMesh:
 	var out := []
 	out.resize(Mesh.ARRAY_MAX)
 	var first: Array = surfaces[0].arrays
@@ -282,6 +321,7 @@ static func _combine(surfaces: Array, mat: Material) -> ArrayMesh:
 				for i in range(0, tan.size(), 4):
 					var t := (xf.basis * Vector3(tan[i], tan[i + 1], tan[i + 2])).normalized()
 					out[k].append_array([t.x, t.y, t.z, tan[i + 3]])
+		var first_index: int = out[Mesh.ARRAY_INDEX].size()
 		if a[Mesh.ARRAY_INDEX] != null:
 			for i in (a[Mesh.ARRAY_INDEX] as PackedInt32Array):
 				out[Mesh.ARRAY_INDEX].append(i + offset)
@@ -289,6 +329,11 @@ static func _combine(surfaces: Array, mat: Material) -> ArrayMesh:
 			for i in verts.size():
 				out[Mesh.ARRAY_INDEX].append(i + offset)
 		offset += verts.size()
+		var garment := String(surf.get("garment", ""))
+		if garment != "":
+			if not ranges.has(garment):
+				ranges[garment] = PackedInt32Array()
+			ranges[garment].append_array([first_index, out[Mesh.ARRAY_INDEX].size() - first_index])
 	var flags := 0
 	if out[Mesh.ARRAY_BONES] != null and offset > 0 and (out[Mesh.ARRAY_BONES] as PackedInt32Array).size() == offset * 8:
 		flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
