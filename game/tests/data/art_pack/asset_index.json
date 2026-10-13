@@ -1,0 +1,18 @@
+{
+  "_doc": "A tiny stand-in for the art pack's asset_index.json (tests/unit/test_art_pack.gd): the same shape, a few real entries. No model files: lookups return paths, existence is checked separately.",
+  "name": "MisoStory Maple Island original 3D asset pack",
+  "canonical_items": [
+    {"id": "541", "game_item_id": "1302000", "name": "Sword", "equip_slot": "weapon", "file": "equipment/glb/item_1302000_Sword.glb", "icon": "icons/equipment/item_1302000_Sword.png", "origin": "grip center; long axis +Z"},
+    {"id": "708", "game_item_id": "1002014", "name": "Brown Skullcap", "equip_slot": "hat", "file": "characters/wearables/708_Brown_Skullcap.glb", "icon": "icons/characters/wearables/708_Brown_Skullcap.png", "origin": "shared character bind coordinates"},
+    {"id": "348", "game_item_id": "4000001", "name": "Snail Shell", "equip_slot": null, "file": "monsters/SnailShell.glb", "icon": "monsters/icons/SnailShell.png", "origin": "ground center"}
+  ],
+  "canonical_npcs": [
+    {"id": "1", "name": "Heena", "file": "characters/glb/Heena.glb"},
+    {"id": "15", "name": "Shanks", "file": "characters/glb/Shanks.glb"}
+  ],
+  "canonical_monsters": [
+    {"id": "2", "name": "Snail", "file": "monsters/Snail.glb"}
+  ],
+  "files": [],
+  "counts": {"glb_files": 0, "canonical_items": 3, "canonical_npcs": 2, "canonical_monsters": 1}
+}

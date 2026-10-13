@@ -1,0 +1,9 @@
+{
+  "assets": [
+    {"name": "Snail", "category": "monster", "canonical_id": "2", "item_id": null, "monster_id": "2", "glb": "Snail.glb", "icon": "icons/Snail.png"},
+    {"name": "WoodenBox", "category": "breakable", "canonical_id": "0000001", "item_id": null, "monster_id": null, "glb": "WoodenBox.glb", "icon": "icons/WoodenBox.png"},
+    {"name": "SnailShell", "category": "drop", "canonical_id": "348", "item_id": "348", "monster_id": null, "glb": "SnailShell.glb", "icon": "icons/SnailShell.png"},
+    {"name": "Meso", "category": "drop", "canonical_id": null, "item_id": null, "monster_id": null, "glb": "Meso.glb", "icon": "icons/Meso.png"},
+    {"name": "HitSpark", "category": "effect", "canonical_id": null, "item_id": null, "monster_id": null, "glb": "HitSpark.glb", "icon": "icons/HitSpark.png"}
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "assets": [
+    {"id": "708", "name": "Brown Skullcap", "game_item_id": "1002014", "equip_slot": "hat", "gender": "any", "file": "wearables/708_Brown_Skullcap.glb"},
+    {"id": "1157", "name": "Blue Jean Shorts", "game_item_id": "1060001", "equip_slot": "bottom", "gender": "male", "file": "wearables/1157_Blue_Jean_Shorts.glb"}
+  ]
+}
