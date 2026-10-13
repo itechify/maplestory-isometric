@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 17997, triangles (evaluated, incl. instances): 8,844,868
+Objects: 18012, triangles (evaluated, incl. instances): 8,844,712
 
 | check | ok | detail |
 |---|---|---|
@@ -12,7 +12,7 @@ Objects: 17997, triangles (evaluated, incl. instances): 8,844,868
 | materials | yes | 0 meshes missing materials: [] |
 | instances | yes | 0 broken instances |
 | polygon_budget | yes | maps over 400,000: {}; largest 1000000 (389,929) |
-| world_polygon_budget | yes | WORLD layer 3,026,622 triangles (budget 3,500,000) |
+| world_polygon_budget | yes | WORLD layer 3,026,590 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
 | floating_props | yes | 0 of 4086 instances (295 trail dressing) and 62 architecture meshes neither on walkable ground nor within 0.15 m of a surface (137 rest against walls/props) |
 | props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 21 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
@@ -37,32 +37,32 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | layer | triangles | budget | ok |
 |---|---|---|---|
 | 1000000 FieldWestOfAmherst_1000000 | 389,929 | 400,000 | yes |
-| 60000 Southperry_60000 | 371,092 | 400,000 | yes |
+| 60000 Southperry_60000 | 371,040 | 400,000 | yes |
 | 1000006 HuntingGroundMidForest2_1000006 | 341,234 | 400,000 | yes |
-| 40001 SnailHuntingGround2_40001 | 315,883 | 400,000 | yes |
-| 40002 SnailHuntingGround3_40002 | 305,730 | 400,000 | yes |
-| 1020000 FieldEastOfAmherst_1020000 | 298,638 | 400,000 | yes |
+| 40001 SnailHuntingGround2_40001 | 315,875 | 400,000 | yes |
+| 40002 SnailHuntingGround3_40002 | 305,706 | 400,000 | yes |
+| 1020000 FieldEastOfAmherst_1020000 | 298,634 | 400,000 | yes |
 | 1000002 DangerousForest_1000002 | 268,664 | 400,000 | yes |
 | 1010004 SnailFieldOfFlowers_1010004 | 265,180 | 400,000 | yes |
-| 1000005 HuntingGroundMidForest1_1000005 | 261,876 | 400,000 | yes |
+| 1000005 HuntingGroundMidForest1_1000005 | 261,868 | 400,000 | yes |
 | 1020001 TomatoField_1020001 | 254,786 | 400,000 | yes |
 | 1010000 Amherst_1010000 | 242,877 | 400,000 | yes |
 | 1000001 InASmallForest_1000001 | 224,710 | 400,000 | yes |
-| 1000004 SnailGarden_1000004 | 212,509 | 400,000 | yes |
-| 50000 ASplitRoad_50000 | 192,198 | 400,000 | yes |
-| 40000 SnailHuntingGround1_40000 | 157,670 | 400,000 | yes |
+| 1000004 SnailGarden_1000004 | 212,505 | 400,000 | yes |
+| 50000 ASplitRoad_50000 | 192,190 | 400,000 | yes |
+| 40000 SnailHuntingGround1_40000 | 157,658 | 400,000 | yes |
 | 30000 EastEntranceMushroomTown_30000 | 157,444 | 400,000 | yes |
 | 1000003 MushroomGarden_1000003 | 156,694 | 400,000 | yes |
 | 10000 MushroomTown_10000 | 127,606 | 400,000 | yes |
 | 20000 MushroomTown_20000 | 114,009 | 400,000 | yes |
-| 0 WestEntranceMushroomTown_0 | 92,654 | 400,000 | yes |
+| 0 WestEntranceMushroomTown_0 | 92,650 | 400,000 | yes |
 | 60001 SouthperryArmorStore_60001 | 75,405 | 400,000 | yes |
 | 1010002 AmherstTownstreet_1010002 | 68,970 | 400,000 | yes |
 | 1010003 AmherstDepartmentStore_1010003 | 58,720 | 400,000 | yes |
 | 1010001 AmherstWeaponStore_1010001 | 38,776 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
-| WORLD (plinth, hull, trails, scenery, clouds) | 3,026,622 | 3,500,000 | yes |
-| total | 8,844,868 | | |
+| WORLD (plinth, hull, trails, scenery, clouds) | 3,026,590 | 3,500,000 | yes |
+| total | 8,844,712 | | |
 
 ## Top 10 assets by instanced triangles
 

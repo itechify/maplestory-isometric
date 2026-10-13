@@ -132,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 12.32,
+   "seconds": 11.01,
    "portals": [
     {
      "name": "out00",
@@ -459,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 3.69,
+   "seconds": 3.27,
    "portals": [
     {
      "name": "in00",
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 1.71,
+   "seconds": 1.26,
    "portals": [
     {
      "name": "in01",
@@ -1175,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.84,
+   "seconds": 0.65,
    "portals": [
     {
      "name": "in00",
@@ -1852,7 +1852,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 4.84,
+   "seconds": 5.04,
    "portals": [
     {
      "name": "east00",
@@ -2791,7 +2791,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 3.18,
+   "seconds": 2.89,
    "portals": [
     {
      "name": "west00",
@@ -3870,7 +3870,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 4.04,
+   "seconds": 3.63,
    "portals": [
     {
      "name": "west00",
@@ -4932,7 +4932,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 2.84,
+   "seconds": 2.28,
    "portals": [
     {
      "name": "west00",
@@ -5907,7 +5907,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 3.72,
+   "seconds": 3.48,
    "portals": [
     {
      "name": "west00",
@@ -6542,7 +6542,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.51,
+   "seconds": 0.46,
    "portals": [
     {
      "name": "out00",
@@ -6841,7 +6841,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.31,
+   "seconds": 0.26,
    "portals": [
     {
      "name": "out00",
@@ -7304,7 +7304,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 8.29,
+   "seconds": 8.53,
    "portals": [
     {
      "name": "in00",
@@ -8558,7 +8558,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.82,
+   "seconds": 1.85,
    "portals": [
     {
      "name": "out00",
@@ -9406,18 +9406,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@17.8,17.2",
-     "X1000002_Toadstool_Dark@20.8,8.6",
-     "X1000002_Toadstool_Dark@19.5,10.1",
      "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@32.8,25.2",
      "X1000002_Toadstool_Dark@16.9,12.4",
-     "X1000002_Toadstool_Dark@32.8,25.2"
+     "X1000002_Toadstool_Dark@17.8,17.2",
+     "X1000002_Toadstool_Dark@19.5,10.1",
+     "X1000002_Toadstool_Dark@20.8,8.6"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 7.35,
+   "seconds": 6.58,
    "portals": [
     {
      "name": "out01",
@@ -13317,7 +13317,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 9.24,
+   "seconds": 8.04,
    "portals": [
     {
      "name": "out00",
@@ -56165,7 +56165,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 6.65,
+   "seconds": 5.12,
    "portals": [
     {
      "name": "out00",
@@ -102500,7 +102500,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 3.43,
+   "seconds": 2.26,
    "portals": [
     {
      "name": "out00",
@@ -104248,7 +104248,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 6.17,
+   "seconds": 4.01,
    "portals": [
     {
      "name": "out00",
@@ -108217,7 +108217,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.69,
+   "seconds": 1.33,
    "portals": [
     {
      "name": "west00",
@@ -108724,7 +108724,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.38,
+   "seconds": 0.28,
    "portals": [
     {
      "name": "out00",
@@ -109016,7 +109016,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.43,
+   "seconds": 0.34,
    "portals": [
     {
      "name": "out00",
@@ -109294,7 +109294,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 2.35,
+   "seconds": 1.88,
    "portals": [
     {
      "name": "out00",
@@ -109992,7 +109992,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 2.65,
+   "seconds": 2.11,
    "portals": [
     {
      "name": "east00",
@@ -111003,7 +111003,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 8.18,
+   "seconds": 5.86,
    "portals": [
     {
      "name": "west00",
@@ -111972,7 +111972,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 2.82,
+   "seconds": 2.03,
    "portals": [
     {
      "name": "out00",
@@ -112487,7 +112487,7 @@
    }
   }
  },
- "started": "2026-10-13 13:58:00",
+ "started": "2026-10-13 14:29:15",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -114400,7 +114400,8 @@
     "kit_tris": 1156,
     "decimated": false,
     "parts": [
-     "Tree_Autumn_A"
+     "Tree_Autumn_A",
+     "Tree_Autumn_A_Canopy"
     ]
    },
    "Tree_Birch_Green": {
@@ -114413,7 +114414,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Green"
+     "Tree_Birch_Green",
+     "Tree_Birch_Green_Canopy"
     ]
    },
    "Tree_Birch_Lime": {
@@ -114426,7 +114428,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Lime"
+     "Tree_Birch_Lime",
+     "Tree_Birch_Lime_Canopy"
     ]
    },
    "Tree_Birch_Orange": {
@@ -114439,7 +114442,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Orange"
+     "Tree_Birch_Orange",
+     "Tree_Birch_Orange_Canopy"
     ]
    },
    "Tree_Birch_Red": {
@@ -114452,7 +114456,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Red"
+     "Tree_Birch_Red",
+     "Tree_Birch_Red_Canopy"
     ]
    },
    "Tree_Birch_Teal": {
@@ -114465,7 +114470,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Teal"
+     "Tree_Birch_Teal",
+     "Tree_Birch_Teal_Canopy"
     ]
    },
    "Tree_Birch_Yellow": {
@@ -114478,7 +114484,8 @@
     "kit_tris": 1056,
     "decimated": true,
     "parts": [
-     "Tree_Birch_Yellow"
+     "Tree_Birch_Yellow",
+     "Tree_Birch_Yellow_Canopy"
     ]
    },
    "Tree_Giant_A": {
@@ -114491,7 +114498,8 @@
     "kit_tris": 1316,
     "decimated": false,
     "parts": [
-     "Tree_Giant_A"
+     "Tree_Giant_A",
+     "Tree_Giant_A_Canopy"
     ]
    },
    "Tree_Palm_A": {
@@ -114500,11 +114508,12 @@
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.2716,
     "pack_tris": 996,
-    "tris": 232,
+    "tris": 230,
     "kit_tris": 237,
     "decimated": true,
     "parts": [
-     "Tree_Palm_A"
+     "Tree_Palm_A",
+     "Tree_Palm_A_Canopy"
     ]
    },
    "Tree_Pine_A": {
@@ -114517,7 +114526,8 @@
     "kit_tris": 216,
     "decimated": false,
     "parts": [
-     "Tree_Pine_A"
+     "Tree_Pine_A",
+     "Tree_Pine_A_Canopy"
     ]
    },
    "Tree_Round_A": {
@@ -114530,7 +114540,8 @@
     "kit_tris": 1156,
     "decimated": false,
     "parts": [
-     "Tree_Round_A"
+     "Tree_Round_A",
+     "Tree_Round_A_Canopy"
     ]
    },
    "Tree_Round_B": {
@@ -114543,7 +114554,8 @@
     "kit_tris": 1236,
     "decimated": false,
     "parts": [
-     "Tree_Round_B"
+     "Tree_Round_B",
+     "Tree_Round_B_Canopy"
     ]
    },
    "Tree_Round_C": {
@@ -114556,7 +114568,8 @@
     "kit_tris": 1076,
     "decimated": false,
     "parts": [
-     "Tree_Round_C"
+     "Tree_Round_C",
+     "Tree_Round_C_Canopy"
     ]
    },
    "Tree_Sapling_A": {
@@ -114565,11 +114578,12 @@
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0929,
     "pack_tris": 1036,
-    "tris": 976,
+    "tris": 974,
     "kit_tris": 996,
     "decimated": true,
     "parts": [
-     "Tree_Sapling_A"
+     "Tree_Sapling_A",
+     "Tree_Sapling_A_Canopy"
     ]
    },
    "Tree_Tall_A": {
@@ -114582,7 +114596,8 @@
     "kit_tris": 1992,
     "decimated": false,
     "parts": [
-     "Tree_Tall_A"
+     "Tree_Tall_A",
+     "Tree_Tall_A_Canopy"
     ]
    },
    "Veg_Garden_Bed": {
@@ -114613,6 +114628,6 @@
    }
   }
  },
- "seconds": 139.6,
- "objects": 17997
+ "seconds": 116.3,
+ "objects": 18012
 }
