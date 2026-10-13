@@ -435,7 +435,13 @@ def ivy_sign_3way(coll):
 # Landmarks
 # ---------------------------------------------------------------------------
 
-@asset("Tomato_Gate", "Architecture", footprint=6.0, tags=("landmark", "portal_door"))
+# pack (#74): the kit gate is an open arch: m1020001 sets it 1.5 m inward of out00, so the arrival point (1.5 m
+# inward of the anchor) is its origin and route Main walks on through it. The pack gate is a closed round door under
+# a tomato crown, the door 1.1 m in front of its origin (fitted x1.7: on the portal). It stands 0.65 m further out,
+# behind the portal like the barrel-door mounds, its door clear of the anchor and the arrival segment by more than
+# a body radius; the crown hangs over the arrival above head height (3.1 m).
+@asset("Tomato_Gate", "Architecture", footprint=6.0, tags=("landmark", "portal_door"),
+       pack=dict(shift=(0.0, -0.65, 0.0)))
 def tomato_gate(coll):
     """Barrel gate capped with a giant ripe tomato (hidden path East Field <-> Tomato Field); opening faces -Y.
 
@@ -487,7 +493,11 @@ def tomato_gate(coll):
 # Garden doors, leafy arches and the hedge tunnel (promoted from 1000003/1000004, 1010000/1010002, 1020000)
 # ---------------------------------------------------------------------------
 
-@asset("Hill_Door", "Architecture", footprint=2.4, tags=("landmark", "portal_door"))
+# pack: the pack door comes in its own grass mound; here the map's hill is the mound, so the mound is left out and
+# the door alone is fitted to the kit door (1.84 m: under a 2 m hill's turf lip) and set into the face at the
+# origin (moved 0.6 m back, as deep as the pack door stood in front of its mound).
+@asset("Hill_Door", "Architecture", footprint=2.4, tags=("landmark", "portal_door"),
+       pack=dict(omit=["Grass mound", "Sunlit mound top"], scale_mul=0.92, shift=(0.0, 0.6, 0.0)))
 def hill_door(coll):
     """Round banded plank door set into a grassy hill face (grassySoil door/0). Faces -Y.
 
