@@ -19,7 +19,10 @@ follow [MAP_ARCHITECTURE.md](MAP_ARCHITECTURE.md) §4.8–4.9.
 | `scripts/autoload/game_state.gd` | autoload `Game` (`class_name GameState`): live character, clock, RNG, lifecycle, autosave |
 | `scripts/core/maps/arrival_resolver.gd` | `ArrivalResolver.resolve_load`: the load fallback chain, including the resume-point content-hash guard |
 | `data/misostory/new_character.json` | the creation values MeowDB does not publish (marked adaptations) |
+| `data/misostory/appearance.json` | the look chosen at creation (hair style, face, skin): an Adaptation, decision #59 |
+| `scripts/core/character/character_appearance.gd` | `CharacterAppearance`: the look's choices and each gender's default, for code without a db |
 | `tests/data/saves/it2/` | real Iteration Two (`save_version` 1) saves, the regression anchor of the migrations (README there) |
+| `tests/data/saves/v2/` | real `save_version` 2 saves from before the look existed (female, male, no gender; README there) |
 
 Everything in `scripts/core` is pure. It does file IO but never touches the scene tree.
 
@@ -49,6 +52,15 @@ weapon_placement}` and never returns null. The params are:
 The weapon is placed through the items system's own path. `Inventory.add(id, 1, db)` comes first, then
 `Equipment.equip(character, id, db)`, which moves it to the weapon slot after the canonical requirement checks. If
 equipping fails, the weapon stays in the bag, `weapon_placement` is `"inventory"` and a warning says why.
+
+**The look (#67).** `Game.new_game()` also takes `"gender"` and `"appearance"`: `{"hair_style": 0..5, "face": 0..2,
+"skin": 0..3}`, indices into the art pack's `characters/customization.json` (hair files, faces, skin palette). It is
+an **Adaptation** (`data/misostory/appearance.json`, decision #59, unverified): the sources list no creation
+appearance options for Maple Island. It is chosen at creation only (Maple Island has no salon). A missing key takes
+the gender's default, the Beginner preset's own look (male: hair 3, face 0, skin 0; female: hair 2, face 0, skin 3;
+no gender: the male one); a value out of range is refused like a bad gender. The quick start and `reset_save` get the
+default. `PlayerVisual` shows it through `CharacterLook` (the hair and face modules grafted onto the preset's skeleton
+by bone name, every `Skin ` material painted).
 
 `CharacterFactory.default_params(db)` returns the `quick_start` parameters (name "Beginner", 9 STR, Wooden Club),
 which follow the Beginner's guide advice. `Game.new_game()` uses them when called without a name, AP or weapon.
@@ -101,7 +113,7 @@ is active. The total is saved with the character and shown in the slot meta.
 
 | Member | Behaviour |
 |---|---|
-| `SAVE_VERSION: int` | `= SaveMigrations.CURRENT_VERSION` (2) |
+| `SAVE_VERSION: int` | `= SaveMigrations.CURRENT_VERSION` (3) |
 | `save_game(slot) -> Error` | Saves `Game.character` with the world block. Needs an active game and `can_save()` |
 | `save_character(slot, character, world := {}) -> Error` | Writes without the `can_save()` check (new game, tools, tests). Every write goes through here, and the first one over an older-schema file keeps that file first (`keep_pre_migration_copy`) |
 | `keep_pre_migration_copy(slot) -> PackedInt32Array` | Keeps the slot's save (else its backup) once as `<slot>.json.pre-v<N>` when it was written at an older schema N. Returns the versions copied. See "The pre-migration copy" |
@@ -147,7 +159,7 @@ player's UI preferences (the minimap's fold; `MisoUiPrefs`, UI.md). It belongs t
 
 ```json
 {
-  "save_version": 2,
+  "save_version": 3,
   "game": "MisoStory",
   "saved_at": "2026-10-04T12:00:00Z",
   "character": { "...": "CharacterState.to_dict(), verbatim (inventory/equipment/quests are their modules' to_dict())" },
@@ -160,7 +172,7 @@ player's UI preferences (the minimap's fold; `MisoUiPrefs`, UI.md). It belongs t
 }
 ```
 
-**The character block (`save_version` 2).** `CharacterState.to_dict()` writes exactly these fields;
+**The character block (`save_version` 3).** `CharacterState.to_dict()` writes exactly these fields;
 `test_persisted_character_fields_are_exactly_the_schema` pins the list, so a new field is always a deliberate
 change to this table. The fields marked C3 are the Iteration Three contract
 ([ITERATION_THREE_CONTRACTS.md](ITERATION_THREE_CONTRACTS.md) C3).
@@ -168,6 +180,7 @@ change to this table. The fields marked C3 are the Iteration Three contract
 | Field | Shape | Notes |
 |---|---|---|
 | `name`, `gender`, `job` | String | `gender` is `"male"`, `"female"` or `""` |
+| `appearance` (v3) | `{"hair_style", "face", "skin"}` ints | the look chosen at creation (#67, `CharacterAppearance`). Always written complete; on load a missing, unknown or out-of-range value takes the gender's default |
 | `level`, `exp`, `hp`, `mp`, `base_max_hp`, `base_max_mp`, `ap`, `sp`, `fame`, `mesos` | int | base values only; totals are derived |
 | `base_stats` | `{str, dex, int, luk}` ints | |
 | `skills` | `{skill_id: level}` | canonical ids (`"0001000"` Three Snails ...) |
@@ -309,12 +322,21 @@ A part of the wrong type is left as it is, so the type check still reports the f
 Iteration Two saves (`tests/data/saves/it2/`) pin the step: each loads with every value it held, and the reshaped
 parts are checked one by one.
 
+**v2 → v3** (`v2_appearance_default_preset`, #67) adds `character.appearance`: v2 characters had no look, so each
+gets its gender's default Beginner preset look (male `{"hair_style": 3, "face": 0, "skin": 0}`, female
+`{"hair_style": 2, "face": 0, "skin": 3}`; no or an unknown gender: the male one). The step keeps its own frozen copy
+of those values (`V3_DEFAULT_LOOKS`), so it keeps meaning what it meant when v3 shipped. Nothing else changes. Three
+real v2 saves (`tests/data/saves/v2/`: female, male, and a quick-start character with no gender) pin it in
+`test_save_v2_fixtures.gd`: each loads with its default look and every other value unchanged, and the first save
+over it keeps `<slot>.json.pre-v2` byte for byte.
+
 **Adding a schema change:**
 
 1. Bump `CURRENT_VERSION`.
 2. Write `_vN_to_vN1()` and register it in `_init()`.
 3. Add a fixture test to `test_save_migrations.gd`, and update `IT2_STEPS` and the reshaped-key checks in
-   `test_save_it2_fixtures.gd`. The Iteration Two fixtures must keep loading.
+   `test_save_it2_fixtures.gd` and `V2_STEPS` in `test_save_v2_fixtures.gd`. The older fixtures must keep loading.
+   Before the bump, capture real saves of the current version as fixtures (the v2 README says how).
 
 Never edit an existing step. A `CharacterState` field added with a default needs no migration, because `from_dict`
 fills it in. A field that changes meaning does. This holds for the top-level character fields only. The composed
@@ -355,6 +377,8 @@ ISOLATE=<name> bash scripts/test.sh save_ new_character game_state
 | `test_save_store.gd` | Write/read; one-generation backup; a failed write (a real file-system failure: the `.tmp` path is a non-empty directory) leaves the old save and backup byte-identical; unserializable values refused; error codes for missing, garbage, empty, truncated, non-object and binary files; slot-name safety (paths, newlines, Windows device names); list and delete; restore from backup; a corrupt save never replaces a good backup; the pre-migration copy primitive (made once, byte for byte, not a slot, deleted with its slot only) |
 | `test_save_migrations.gd` | `save_version` written and equal to `SAVE_VERSION`; a v0 fixture migrated through v1 to v2 and loaded (renames, location, meta, inventory pass-through); a migrated save is rewritten as current; steps run in order; newer or invalid versions and missing steps refused. The v1 → v2 step: typed quickslots, completed quests marked `{"recorded": false}` (an existing record kept, in-progress untouched), effects cleared, timers added or kept, everything else unchanged, wrong-type parts still corrupt. The pre-migration copy: byte-identical to the Iteration Two file, survives the save that rotates v1 out of `.bak`, the backup-only case, never replaced, none for current saves, removed by delete |
 | `test_save_it2_fixtures.gd` | The six real Iteration Two saves: unedited (sha256), each decodes with its pinned values (identity, progression, location, quests, every item, equipment, quickslots) and no warnings, every saved value comes back unchanged apart from the documented reshapes, the v2 additions on the migrated document, completed quests not offered again, Continue then save writes v2 losslessly, and the item tripwire |
+| `test_save_v2_fixtures.gd` | The three real `save_version` 2 saves: unedited (sha256), each migrates with only the v2 → v3 step to its gender's default look (no gender: the male one) with no warnings, every saved value unchanged, and Continue then save writes v3 and keeps the `.pre-v2` copy byte for byte |
+| `test_character_appearance.gd`, `test_creation_appearance.gd` | The look's defaults, fallback and range checks, its round trip through `CharacterState`; creation picks it, `new_game` saves it (and refuses one out of range), save/load keeps it, quick start gets the default |
 | `test_save_roundtrip.gd` | save → load deep equality of `CharacterState.to_dict()` with the real inventory, equipment, quest log, location (entry and resume), flags, effects, cooldowns, the recovery clock, skills and typed quickslots; the v2 fields keep their types (timers as floats); the persisted field list is pinned; seated and breakable state are not persisted; the envelope; `can_save` blocking and the no-`can_save` fallback; corrupt and missing loads keep the live game; wrong-type fields are `ERR_FILE_CORRUPT`; wrong-type values inside a block (recovery clock, effects, quickslot ids, inventory counts) load corrected and keep every slot listed; unknown map fallback; respawn recomputed; `list_saves`; delete; a failed save keeps the previous save loadable |
 | `test_save_unknown_items.gd` | Unknown item ids kept in the bag, the equipment and a quickslot, counted in one warning and a player notice, written back unchanged; they cannot be used, equipped, sold or added; the "Unknown item `<id>`" tooltip and grey icon |
 | `test_save_resume_guard.gd` | The resume guard: a matching hash resumes, a changed one arrives at the entry (or player spawn 0) without validating the stale point, a missing hash on either side keeps the physical check; with the world export, each Iteration Two fixture resumes exactly when its map is unchanged, and arrives at its saved entry's spawn transform when its map's hash is changed |
