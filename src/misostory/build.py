@@ -17,6 +17,7 @@ TOP_COLLECTIONS = ["MAPS", "WORLD", "ENVIRONMENT_ASSETS", "CHARACTER_PROXIES", "
 
 
 def reset_scene():
+    kit.art_pack.reset()
     for o in list(bpy.data.objects):
         bpy.data.objects.remove(o)
     for c in list(bpy.data.collections):
@@ -116,6 +117,7 @@ def build(map_ids=None, scenery=True, res=(1920, 1080), samples=48):
         island_cameras(world)
         map_labels(origins)
     core.get_collection("DEBUG").hide_render = True
+    report["art_pack"] = kit.art_pack.report()  # which catalog assets came from which pack GLB (ADR 0002)
     report["seconds"] = round(time.time() - t0, 1)
     report["objects"] = len(bpy.data.objects)
     return report, ctxs, world

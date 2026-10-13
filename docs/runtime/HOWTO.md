@@ -14,11 +14,13 @@ On **Linux** the same commands run in bash: the scripts use `blender` from `PATH
 
 ```bash
 B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Linux: B=blender
+bash scripts/art_pack.sh fetch                                    # the pinned art pack: the island build needs it
 "$B" -b --factory-startup --python scripts/build_island.py        # -> MapleIsland.blend (~1 min)
 "$B" -b MapleIsland.blend --python scripts/validate.py            # -> docs/VALIDATION.md (expect 0 high, 0 medium)
 "$B" -b --factory-startup --python scripts/build_map.py -- 50000  # one map alone (GMS v8 id), with MAP_TRAVERSAL_OK
 bash scripts/review_island.sh final 3                             # render every camera, validate, contact sheet
 "$B" -b --factory-startup --python src/misostory/test_validator_fixtures.py   # the validators' fixture tests (<1 min)
+"$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py         # kit assets from the art pack (<1 min)
 ```
 
 `scripts/review_island.sh` is the one command for the three review steps (render, validation, contact sheet): one exit

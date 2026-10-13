@@ -26,6 +26,7 @@ stairs (and Roger a gap in his hedge and fence). The sidecar fields they added a
 B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"       # Windows (Git Bash)
 PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"
 B=blender; PY=python3                                                 # Linux
+bash scripts/art_pack.sh fetch                                        # the island's trees and foliage come from it
 "$B" -b --factory-startup --python scripts/build_island.py            # rebuild MapleIsland.blend (~55 s)
 "$B" -b MapleIsland.blend --python scripts/validate.py                # must stay 0 high / 0 medium (~75 s)
 "$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out _scratch/export_check --check   # ~45 s: check.json only

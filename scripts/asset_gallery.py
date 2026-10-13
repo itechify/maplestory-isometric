@@ -1,7 +1,10 @@
 """Render a row/grid of kit assets for review.
 
 blender -b --factory-startup --python scripts/asset_gallery.py -- <out.png> <AssetName> [<AssetName> ...]
-        [--cols 6] [--spacing 9] [--scale 1.0] [--res 1800x1000]
+        [--cols 6] [--spacing 9] [--scale 1.0] [--res 1800x1000] [--procedural]
+
+Kit assets built from the art pack (kit/art_pack.py) are shown from the pack when it is installed;
+--procedural shows their procedural placeholders instead (for a kit-vs-pack comparison).
 """
 
 import math
@@ -29,6 +32,7 @@ spacing = float(opt("--spacing", "9"))
 res = tuple(int(v) for v in opt("--res", "1800x1000").split("x"))
 skip = {opts.index(f) + 1 for f in ("--cols", "--spacing", "--res", "--scale") if f in opts}
 names = [a for i, a in enumerate(opts) if not a.startswith("--") and i not in skip]
+kit.art_pack.configure("off" if "--procedural" in opts else "auto")
 build.reset_scene()
 scene_setup.setup_render(res=res, samples=32)
 scene_setup.setup_world()

@@ -26,6 +26,9 @@ commits like that would add gigabytes, slow every clone, and push the repo past 
 B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"   # Blender 5.2.2 LTS (Windows, Git Bash)
 B=blender                                                         # Linux: Blender 5.2 on PATH
 
+# the island's trees and foliage come from the pinned art pack: without it both builds below stop with exit 1
+bash scripts/art_pack.sh fetch
+
 # while authoring one map: build it alone, render its cameras, read MAP_TRAVERSAL_OK / PLAYER_IN_FRAME_OK
 "$B" -b --factory-startup --python scripts/build_map.py -- <mapId> --debug
 
