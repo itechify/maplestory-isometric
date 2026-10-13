@@ -66,6 +66,13 @@ const SIT_ROOT_DROP := 0.28
 ## own root drop (0 standing .. SEAT_LIFT_M fully seated), so the body settles onto the cushion instead of through
 ## it; the chair stays on the ground (sinking it instead buried its legs). test_player_rig pins the line-up.
 const SEAT_LIFT_M := 0.221
+## How far the dead Beginner is lifted so it lies on the ground (m). Measured on the pack's v1 rigs at the character
+## scale: with its root held at rest (#62) the death clip lays the big chibi head 0.176 m under the feet (the clip's
+## own stripped root lift, 0.12 m x 0.7566, was not enough either), and the X-ray fill painted the buried head and
+## heels blue on a dead player nothing hides. The lift grows with the fall, over the first DEATH_FALL_SHARE of the
+## clip (the sink grows about linearly until then and holds), and goes with the clip. test_player_rig pins it.
+const DEATH_REST_LIFT_M := 0.176
+const DEATH_FALL_SHARE := 0.5
 ## The art pack's Beginner preset per CharacterState.gender (#59: the default preset for the gender; hair, face and
 ## skin choice is #67). Unknown ("") shows the male preset.
 const PRESETS := {"male": "Beginner_Male", "female": "Beginner_Female"}
@@ -208,7 +215,7 @@ func advance(delta: float) -> void:
 	step_sit(delta)
 	var drop := 0.0 if covers(&"sit_drop") else SIT_DROP_M * sit_amount
 	var sit_lean := 0.0 if covers(&"sit_lean") else sit_amount * deg_to_rad(SIT_LEAN_DEG)
-	position = player.presentation_offset + Vector3.UP * (bob + seat_lift()) + Vector3.DOWN * drop
+	position = player.presentation_offset + Vector3.UP * (bob + ground_lift()) + Vector3.DOWN * drop
 	rotation = Vector3(_tilt - fall - sit_lean, _yaw, 0.0)
 	# Classic post-hit blink while invulnerable.
 	if model != null:
@@ -253,6 +260,23 @@ func seat_lift() -> float:
 		return 0.0
 	var drop := sk.get_bone_rest(root_bone).origin.y - sk.get_bone_pose_position(root_bone).y
 	return SEAT_LIFT_M * clampf(drop / SIT_ROOT_DROP, 0.0, 1.0)
+
+
+## How far the dead rig is lifted onto the ground now (m): DEATH_REST_LIFT_M as the death clip falls. 0 otherwise.
+func death_lift() -> float:
+	if animator == null or animator.current != PlayerAnimator.DEATH:
+		return 0.0
+	var ap := animator.anim
+	if not ap.is_playing() or ap.current_animation != String(PlayerAnimator.DEATH):
+		return DEATH_REST_LIFT_M
+	var fall := ap.current_animation_length * DEATH_FALL_SHARE
+	return DEATH_REST_LIFT_M * clampf(ap.current_animation_position / fall, 0.0, 1.0) if fall > 0.0 else DEATH_REST_LIFT_M
+
+
+## The rig's whole lift onto what it rests on (seat_lift() + death_lift()); the only vertical offset the visual
+## adds to the body on the rig besides the controller's step smoothing.
+func ground_lift() -> float:
+	return seat_lift() + death_lift()
 
 
 func _step_rig(delta: float, speed: float) -> void:

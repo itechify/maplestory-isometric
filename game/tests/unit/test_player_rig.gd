@@ -152,12 +152,19 @@ func test_climbing_a_rope_plays_climb() -> void:
 ## that sit around the hips in the rest pose (0.25-0.45 m up, within 0.15 m of the middle, so not the hands), posed
 ## by the skeleton as it stands now.
 func _pelvis_bottom(vis: PlayerVisual, p: PlayerController) -> float:
+	return _lowest_posed(vis, p, true)
+
+
+## The lowest posed vertex above the player's feet (m): of the pelvis (see _pelvis_bottom) or of the whole body.
+func _lowest_posed(vis: PlayerVisual, p: PlayerController, pelvis_only: bool = false) -> float:
 	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
 	var to_model := ArtImport._to_root(vis.model, sk)
 	var lowest := INF
 	for node in sk.get_children():
 		var mi := node as MeshInstance3D
-		if mi == null or mi.skin == null or not (String(mi.name).begins_with("Body_") or String(mi.name).begins_with("Clothing_")):
+		if mi == null or mi.skin == null:
+			continue
+		if pelvis_only and not (String(mi.name).begins_with("Body_") or String(mi.name).begins_with("Clothing_")):
 			continue
 		var bind_bone: Array[int] = []
 		for b in mi.skin.get_bind_count():
@@ -170,7 +177,7 @@ func _pelvis_bottom(vis: PlayerVisual, p: PlayerController) -> float:
 		var per := bones.size() / verts.size()
 		for i in verts.size():
 			var rest := to_model * verts[i]
-			if rest.y < 0.25 or rest.y > 0.45 or absf(rest.x) > 0.15:
+			if pelvis_only and (rest.y < 0.25 or rest.y > 0.45 or absf(rest.x) > 0.15):
 				continue
 			var posed := Vector3.ZERO
 			for k in per:
@@ -230,6 +237,33 @@ func test_the_seated_beginner_sits_on_the_green_relaxer() -> void:
 		_tick(vis, 60)
 		assert_false(chair.visible, "%s: the chair goes away on standing" % g)
 		assert_near(vis.seat_lift(), 0.0, 1e-3, "%s: and the lift with it" % g)
+		rig.free_all()
+		rig = MonsterTestRig.create(db(), 63)
+		rig.floor(40.0)
+
+
+func test_the_dead_beginner_lies_on_the_ground() -> void:
+	if _skip("test_the_dead_beginner_lies_on_the_ground"):
+		return
+	for g in ["male", "female"]:
+		var pair := _player(g)
+		var p: PlayerController = pair[0]
+		var vis: PlayerVisual = pair[1]
+		_tick(vis, 10)
+		assert_near(_lowest_posed(vis, p), 0.0, 0.03, "%s: standing on the ground" % g)
+		p.die()
+		var worst := INF
+		for i in 120:
+			_tick(vis)
+			if i % 6 == 0:
+				worst = minf(worst, _lowest_posed(vis, p))
+		# The v1 death clip lays the big chibi head 0.18 m under the feet once its root lift is held (#62): the X-ray
+		# fill then painted the buried head and heels blue on a dead player nothing hides.
+		assert_true(worst > -0.04, "%s: nothing sinks into the ground while falling (%.3f m)" % [g, worst])
+		assert_near(_lowest_posed(vis, p), 0.0, 0.03, "%s: the body rests on the ground" % g)
+		p.revive()
+		_tick(vis, 30)
+		assert_near(vis.position.y - p.presentation_offset.y, 0.0, 1e-4, "%s: no lift once alive" % g)
 		rig.free_all()
 		rig = MonsterTestRig.create(db(), 63)
 		rig.floor(40.0)
@@ -322,7 +356,7 @@ func test_the_rig_retires_the_procedural_motions() -> void:
 	var worst := {"bob": 0.0, "tilt": 0.0, "lunge": 0.0, "lunging": false}
 	var pc := rig.system.player_combat
 	var watch := func() -> void:
-		worst.bob = maxf(worst.bob, absf(vis.position.y - p.presentation_offset.y - vis.seat_lift()))
+		worst.bob = maxf(worst.bob, absf(vis.position.y - p.presentation_offset.y - vis.ground_lift()))
 		worst.tilt = maxf(worst.tilt, absf(vis.rotation.x))
 		worst.lunge = maxf(worst.lunge, vis.model.position.length())
 		worst.lunging = worst.lunging or pc.is_lunging()
