@@ -19,7 +19,7 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/monsters/monster_def.gd` | `MonsterDef` | pure: the canonical record joined with its adaptation file; the speed, hop and size conversions |
 | `scripts/actors/monsters/monster_brain.gd` | `MonsterBrain` | pure: stand / pace back and forth / turn / stagger / chase |
 | `scripts/actors/monsters/mob_region.gd` | `MobRegion` | pure XZ geometry: the map's mob region minus the portal-arrival discs |
-| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the proxy model (or a named stone fallback body when the library lacks it), bob, facing, flinch, HP bar, spawn and death fades, the see-through silhouette (stencil 36) |
+| `scripts/actors/monsters/monster_visual.gd` | `MonsterVisual` | the art pack's rigged model and its state-driven clips (else the proxy model, else a named stone fallback body), bob, facing, flinch, HP bar, spawn and death fades, the see-through silhouette (stencil 36) |
 | `scripts/actors/monsters/monster_test_rig.gd` | `MonsterTestRig` | synchronous combat lab for tests (private bus, private `GameState`, seeded RNG) |
 | `scripts/actors/monsters/monster_game_checks.gd` | | the real-game checks (`scenes/actors/monster_game_checks.tscn`): `main.tscn`, the console's `spawn`/`kill`, real mouse and key events |
 | `scripts/actors/combat/player_combat.gd` | `PlayerCombat` | the player's basic attack (a child of the player, added by `setup`) |
@@ -28,7 +28,8 @@ spawn model and slots are [`WORLD_RUNTIME.md`](WORLD_RUNTIME.md) (`MapInstanceVi
 | `scripts/actors/combat/melee_query.gd` | `MeleeQuery` | pure: canonical hit boxes and touch zones placed in 3D, target selection, touch overlap |
 | `scripts/actors/combat/contact_damage.gd` | `ContactDamage` | pure statics: touch gate, resolve, apply (HP, events, knockback), death announcement |
 | `scripts/actors/combat/damage_numbers.gd` | `DamageNumbers` | floating numbers (`scenes/fx/damage_numbers.tscn`) |
-| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark, and the attack box's footprint on the ground (`scenes/fx/attack_fx.tscn`) |
+| `scripts/actors/combat/attack_fx.gd` | `AttackFx` | swing arc, thrust, punch, hit spark (the art pack's `HitSpark` when installed), and the attack box's footprint on the ground (`scenes/fx/attack_fx.tscn`) |
+| `scripts/actors/combat/effect_meshes.gd` | `EffectMeshes` | the art pack's effect meshes by name (`ArtPack` kind `EFFECT`), loaded once; empty without the pack (#71) |
 | `data/misostory/monsters/_shared.json` | | the adaptation every species shares (model fit, terrain probes, floor band, pacing rhythm, chase time, hop landing reach, fall landing tolerance, the see-through silhouette's radius, hysteresis, colour and fade); a species file overrides any key |
 | `data/misostory/monsters/{1,2,3,4,5,9}.json` | | per-species adaptation (model, capsule, walk style, speed model, stand and walk times, touch rule, hop and its floors) |
 | `data/misostory/combat.json` `player_attack` | | the player-attack feel: ground root, input buffer, target count, model lunge |
@@ -168,11 +169,37 @@ sea plane it returns to its spawn point.
   attacker and, after the stagger, walks toward the attacker for `provoked_chase_s` (a chase stops at an edge instead
   of turning away), then paces its line again.
 - **Death.** No more touches or hits; the owner announces it at once (MeowDB: "Loot drops as soon as the mob dies");
-  the body fades over the canonical `die_fade_ms` (Snail 1.26 s), sinks a little and frees itself.
+  the body fades over the canonical `die_fade_ms` (Snail 1.26 s), sinks a little (a rig plays `Death` instead) and
+  frees itself.
 
 ### Presentation (`MonsterVisual`)
 
-The proxies from `_library.glb` (Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom, and since Iteration Three the
+**Rigged models (Project art, #64).** With the art pack installed (ADR 0002), each species is Jarvis's rigged model,
+looked up by canonical id: `MonsterVisual.build(def, library, art)` takes `art.instance(ArtPack.MONSTER, def.id)`
+(`MonsterSystem.art`: `setup(ctx)` loads `ArtPack.load_installed()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
+the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z).
+`model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
+it:
+
+| State | Clip | How it plays |
+|---|---|---|
+| standing (`is_walking()` false) | `Idle` | loops |
+| moving or hopping (`is_walking()`) | `Walk` | loops |
+| a resolved touch (`MonsterSystem.monster_touch` returned true; monsters have no other attack) | `Attack` | once; never cuts a `Hit` short |
+| a landed hit (`on_hit`) | `Hit` | once, over the canonical `hit1` time |
+| death (`start_death_fade`) | `Death` | once, over the first half (`DEATH_CLIP_SHARE`) of the canonical die time at full opacity; the body fades over the rest, so `faded_out` still fires at the die time; nothing interrupts it |
+
+Changes cross-fade over `CLIP_BLEND_S` (0.15 s). The import holds every clip's root bone at rest and sets the loops
+(`ArtImport`), so animation never moves the monster: AI and physics own its position. Where a clip covers it, the
+procedural motion below is skipped (walk bob and squash under `Walk`, flinch under `Hit`, death sink under `Death`);
+facing, the spawn scale-in, the flash, the HP bar and the fades stay. Without the pack (or for a species it lacks) the
+proxy or the fallback body is built and moves procedurally, as before. Fitted to the sprite height, the pack's
+Tutorial Jr. Sentinel is a 1.7 m dome about 1.7 m across (its touch zone is 0.53 m wide: the sprite is tall, the model
+squat), and the snails are 1.25-1.4x their touch width along their facing; the Shroom and the Orange Mushroom match.
+`bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://scenes/sandbox/monster_sandbox.tscn --
+--map 000001010 --showcase <dir>` shoots every species' states.
+
+**Proxies.** The proxies from `_library.glb` (Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom, and since Iteration Three the
 Tutorial Jr. Sentinel: `Mob_TutorialJrSentinel`, a small stone sentinel with one glowing eye, `src/misostory/kit/
 creatures.py`). Every proxy stands on its feet (its lowest vertex at y = 0: the Orange Mushroom floated 0.18 m and the
 Snail 5 cm) and, fitted to its canonical sprite height, its footprint along its facing is 1.0-1.2x its canonical
@@ -214,6 +241,9 @@ monster is hidden.
   monster on a slope wore a tinted line along its underside, where the body dips a few centimetres into the ground
   (seen in the real game; 27 sampled px under one Snail on Snail Hunting Ground I, 0 with the threshold), and grass at
   its feet would tint too. Cliffs, terrace edges and boulders are half a metre to metres in front and still show it.
+- **Skinned rigs.** Under a rig's skinned mesh the fill shares the mesh's `Skin` and points at the same `Skeleton3D`,
+  and a merged fill mesh keeps every vertex's bones and weights, so the silhouette follows the animation instead of
+  freezing in the rest pose.
 - **Draw order.** Priority -1 puts the fill before every default-priority transparent (the placeholder's name tag,
   occluders the camera fades by alpha, the hit flash, ground-drop shadows), the attack FX (8), the damage numbers (10+)
   and the HP bar (20, 21), which all stay on top of a silhouette; the player's X-ray fill and outline (120-127) come
@@ -540,6 +570,7 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 | `test_player_combat_feel.gd` | `combat.json player_attack` holds every feel value with its own reason and `verified: false`; PlayerCombat reads them; edited data changes the attack (no root: walks during it); with `input_buffer_s` 0 a tap whose key is already up at the tick still attacks at once and a press during the lockout is not kept, while the shipped buffer keeps one; a missing section or malformed values are errors and leave the features off |
 | `test_monster_combat.gd` | every species (Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom) dies to Sword hits with a stagger and its HP bar, awarding exactly its own canonical EXP, one `monster_killed(id, map)` and items only from its own drop table; a seeded Sword kill of a Snail in 3-6 hits grants exactly the canonical 2 EXP (`exp_gained` "monster:2"), one `monster_killed("2", map)`; `loot_dropped` = `DropRoller.roll` with the same seed, at the feet, items from the canonical table, none for an empty roll; the kill is recorded and the slot respawns exactly at the 7.56 s tick, not before; survivor HP through release/realize; an already-live map is re-realized as monsters; contact damage = `resolve_monster_touch(...).final` with the same seed, events, the canonical 1.5 s gate, a second touch only after it; a miss (no damage, no push, MISS); a guard; the Peace rule; HP 0 → `player_died` and a dead player; no touch during a warp; touch geometry edges |
 | `test_monster_see_through.gd` | the rule (inside, at and past the radius, the hysteresis, dead, zero radius); the values reach every species from `_shared.json` (radius at least the camera's nearby radius; a malformed colour is an error); the fill: one shared ShaderMaterial, `stencil_mode read, write, compare_greater, 36`, no depth test, both faces, priority below labels, numbers and the HP bar, and `STENCIL_REF` below `PlayerVisual.STENCIL_REF`; lit and ink surfaces write the stencil on copies shared between monsters while the originals stay untouched; the fill mesh is one surface holding every surface's triangles (merged once per source mesh, a one-surface mesh used as it is) and is never occlusion-culled; with the world export, every surface of the real Snail proxy (ink shells included) writes the stencil, each fill is one surface over the whole mesh, and the library stays untouched; the placeholder in place (no fill under its tag); a visual rebuilt from the placeholder to a library model never edits the library's shared material; the fade in and out (alpha follows, hidden when off) through `step_see_through` and `advance`; death drops it at once and ignores requests, and the flash and death fade never touch the fill; `MonsterSystem.update_see_through` by distance (near, edge, past, far), the player walking in and back (hysteresis), a killed monster, no player |
+| `test_monster_rigs.gd` | on a stand-in pack written to `user://` (runs with or without the real pack): a species in the pack is built from its model at the canonical sprite height; Idle, Walk, Attack (from a real touch through `MonsterSystem`), Hit (over the canonical hit time, never cut short by a touch) and Death (final) follow the state; the fills share the skin and skeleton and keep bones and weights; flash, HP bar, spawn scale-in and the death fade (opaque during the clip, `faded_out` at the die time) on the skinned meshes; no bob, squash, flinch or sink under a rig while the fallback keeps them; a species the pack lacks keeps the old path. With the real pack (SKIP without): all six species map to their models at the sprite height, every state selects its clip (Idle and Walk loop, the rest once), every surface writes the stencil and every fill is skinned to the rig |
 | `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit (the Tutorial Jr. Sentinel's too) and the named fallback body without a library (never called a placeholder); the HP bar and the death fade over the canonical time |
 | `test_monster_world.gd` | INCLUDE_WORLD: the island built synchronously, the factory installed on the world's view, maps 030/040/050/1002/1020 realized to capacity with real monsters (all six species), 12 s of stepping each: no falls, no recoveries, inside the mob region and the footprint, on walkable ground, every species wanders, Orange Mushrooms hop; no portal trigger of those maps reaches into the mob region and no monster ever stands in a trigger |
 | `test_spawn_placement.gd` | slots keep `slot_npc_clearance_m` from NPCs; a 16 m² region keeps 8 m² per slot and spills the rest, one species' overflow never displaces another species from its own region, a species shares its regions by weight; authored exclusions are no room and no slot lands in them; INCLUDE_WORLD: on the island every slot is clear of every NPC and exclusion, no region crowded past the map's own density; a respawn is held back while the player stands on its slot and appears once the player leaves (`respawn_waited` inside `monster_spawned`) |

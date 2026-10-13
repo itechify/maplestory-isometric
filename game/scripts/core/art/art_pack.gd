@@ -9,6 +9,8 @@ extends RefCounted
 ##   if art.present():
 ##       var shanks := art.instance(ArtPack.NPC, "15")      # null when the model is missing: keep the placeholder
 ##   art.model(ArtPack.ITEM, "1302000")           # by game_item_id or canonical item id -> "res://.../item_..glb"
+##   art.bounds(ArtPack.ITEM, "541")              # AABB as imported, from godot_validation.json (y -0.26..0.94)
+##   art.ground_offset_y(ArtPack.ITEM, "541")     # 0.26: raise the grip-centred sword by this to rest on the ground
 ##
 ## Kinds and their IDs:
 ##   NPC        canonical NPC id ("15" Shanks)                       asset_index canonical_npcs
@@ -54,6 +56,8 @@ var _models: Dictionary = {}
 var _icons: Dictionary = {}
 var _skin: Array = []
 var _present := false
+## godot_validation.json files[] by pack-relative path (loaded on first bounds() / ground_offset_y()).
+var _validation_by_file: Dictionary = {}
 
 
 static func _pin() -> Dictionary:
@@ -152,6 +156,46 @@ func instance(kind: String, id: String) -> Node3D:
 		return null
 	var scene := load(path) as PackedScene
 	return scene.instantiate() as Node3D if scene != null else null
+
+
+## The model's bounds as the game imports it, from the pack's godot_validation.json (an empty AABB when the pack has
+## none). The pack measured raw imports; ArtImport scales characters and their parts (characters/*) by the character
+## factor, so their bounds are scaled the same way here.
+func bounds(kind: String, id: String) -> AABB:
+	var v := _validation(kind, id)
+	if v.is_empty() or not (v.get("bounds_min") is Array) or not (v.get("bounds_max") is Array):
+		return AABB()
+	var k := _import_scale(kind, id)
+	var lo := _vec3(v.bounds_min) * k
+	return AABB(lo, _vec3(v.bounds_max) * k - lo)
+
+
+## How far the model must be raised to sit on the ground (godot_validation.json loot_ground_offset_y, = -bounds
+## min y: 0.26 for a grip-centred sword), in the imported model's space; 0 when the pack has none.
+func ground_offset_y(kind: String, id: String) -> float:
+	var v := _validation(kind, id)
+	return float(v.get("loot_ground_offset_y", 0.0)) * _import_scale(kind, id)
+
+
+## godot_validation.json's entry for the model's file ({} when absent). Read once, on first use.
+func _validation(kind: String, id: String) -> Dictionary:
+	var rel: Variant = _models.get(kind, {}).get(id, null)
+	if not (rel is String):
+		return {}
+	if _validation_by_file.is_empty():
+		for f in _json(root.path_join("godot_validation.json")).get("files", []):
+			if f is Dictionary:
+				_validation_by_file[String(f.get("file", ""))] = f
+	return _validation_by_file.get(rel, {})
+
+
+func _import_scale(kind: String, id: String) -> float:
+	var rel: Variant = _models.get(kind, {}).get(id, null)
+	return character_scale() if rel is String and String(rel).begins_with("characters/") else 1.0
+
+
+static func _vec3(a: Array) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2])) if a.size() >= 3 else Vector3.ZERO
 
 
 ## Skin palette entry `index` as an sRGB colour (white when out of range).

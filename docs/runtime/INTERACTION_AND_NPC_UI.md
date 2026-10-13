@@ -36,7 +36,7 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | fallback icon drawn in the item's ground-drop shape |
 | `scenes/systems/loot_system.tscn` | `LootSystem` | root: drops on the ground, pickup, expiry, persistence |
 | `scripts/actors/loot/ground_drop.gd` | `GroundDrop` | one drop: toss arc, hover, bob and spin, expiry blink |
-| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | procedural drop models and styles from `loot_visuals.json` |
+| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | drop models (the art pack's, else procedural) and styles from `loot_visuals.json` |
 | `scripts/actors/loot/loot_rules.gd` | `LootPickupRules` | pure: pickup box in 3D, pickup target, scatter, notices, record helpers |
 | `data/misostory/loot_visuals.json` | | adaptation: drop shapes, colours, sizes, motion, placement, pickup repeat |
 
@@ -239,6 +239,12 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
   | tied pouch | other Etc items |
 
   Name keywords tint the body (Red Potion red, Blue Snail Shell blue). Mesos change art with the amount: a bronze coin, a gold coin, a pile, then a bag. Every model has a soft shadow disc and slight emission, so it still reads in shade.
+- **Pack models (#70).** With the art pack installed (ADR 0002), every drop shows the pack's model instead (`LootVisuals.new(db, art)`; `LootSystem.art`, default `ArtPack.load_installed()`).
+  - Items resolve by canonical id through `ArtPack.ITEM`, so the monster drops (Snail Shell and the rest) come from the pack's monster manifest.
+  - Every meso tier shows the pack's one meso model: the bronze coin is recoloured (`pack_tint`), the pile and the bag are bigger (`pack_extent_m`).
+  - Each model sits under a `Pack` child of the drop's `Model`. It is raised by `godot_validation.json`'s ground offset (`ArtPack.ground_offset_y`), so a grip-centred sword stands on its pommel instead of sinking. It is centred over the drop (`ArtPack.bounds`), so it turns in place, and scaled so its longest side is `pack_models.item_extent_m` (0.6 m). Characters' parts are scaled on import, so both lookups scale their bounds to match.
+  - The skinned drops' `Hover` clip loops. Pack meshes cast no shadow, like the procedural ones.
+  - Without the pack, or for a model the pack lacks, the procedural shape above is used.
 - **Debug console:**
   - `loot <owner_id> [kills]`: rolls a drop table at the player's feet;
   - `drop_item <item_id> [qty]`;
@@ -320,6 +326,7 @@ ISOLATE=worldui bash scripts/validate_data.sh                             # loot
 | `test_shop_ui_window.gd` | canonical stock in order with prices; buy with quantity (mesos, inventory, Events, status, meso display, owned count); insufficient mesos with the numbers; full inventory; the picker's limits; sell from tabs at the canonical sell-back price; selling an equipment slot; every shop renders; unknown shops refused; keys; Space never buys or sells and Enter waits for `confirm_arm_s` (the Buy button never does); modal + window stack; `NpcUi` opens the shop from Lucy's greeting and from `Events.shop_open_requested` |
 | `test_loot_system.gd` | `loot_dropped` → records (uid, pos_local, expires_at, owner) + nodes, scatter in m, toss; another map's loot ignored; pos_local in the map frame; pickup into the inventory with notices (single, stack, mesos); inventory full leaves the drop; the canonical box through `WorldScale.actor` and the nearest drop first; the owner window; Z through the player's input source (not under a modal, not on a ladder) and hold-to-repeat; holding Z with a full inventory announces the refusal once and still takes the meso bag next to it; the pickup notices are word for word the HUD's lines (thousands separators); blink then expiry; records expired by the map instance lose their node; leaving and returning keeps drops with their remaining lifetime; expired after a long absence; 20 seeded Snail kills picked up exactly |
 | `test_loot_visuals.gd` | `loot_visuals.json` labelled; shapes by canonical type/subtype; keyword tints; meso tiers; a model for every drop-table item and meso tier; toss arc, hover and bob; the blink window |
+| `test_loot_pack_models.gd` | with the pack (SKIP without it): all 94 items and every meso tier resolve a pack model; measured on the built model, every drop's lowest point is on the ground (weapons included), it is centred, and its longest side is the table's size; Hover loops and only lifts; meso tiers differ by tint then size and share the tinted material; `LootSystem` drops pack models. With or without the pack: no pack, or an unimported model, keeps the procedural drop |
 | `test_interaction_main_flow.gd` | the real game in a child process (`world_ui_main_checks.tscn --scenario main`, see below) |
 | `test_npc_speech_bubbles.gd` | the timing comes from the adaptation file; seeded per NPC; intervals in range; sequential order shows every line; an off-screen turn is skipped, a conversation hides it; every bubble of all 21 NPCs is their canonical line with its source; a presenter shows bubbles on screen, never while talking, never for another map's NPC |
 | `test_npc_departure_screen.gd` | the scene builds the screen hidden; Yes at Shanks opens it (texts, level, mesos, 20 of 20, modal and window stack, the button closes it, no mesos taken); unfinished quests are named and Esc closes it; quit to title closes it |
