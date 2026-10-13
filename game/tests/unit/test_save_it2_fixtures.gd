@@ -14,7 +14,7 @@ const SHA256 := {
 	"g_shop": "cf3a1c889e6bc745d05f8972c2c6249154a7430847996f4d0fdbbaabdd312196",
 }
 ## The migration steps an Iteration Two (save_version 1) file goes through to reach the current schema.
-const IT2_STEPS: PackedStringArray = ["v1_typed_quickslots_quest_rewards"]
+const IT2_STEPS: PackedStringArray = ["v1_typed_quickslots_quest_rewards", "v2_appearance_default_preset"]
 ## Character keys whose saved value the migration steps above reshape; every other saved key must come back equal.
 ## (They are checked one by one in test_each_fixture_keeps_every_saved_value and test_v2_migration_of_each_fixture.)
 const RESHAPED_KEYS: PackedStringArray = ["quests", "quickslots"]
