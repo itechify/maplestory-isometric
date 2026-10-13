@@ -53,8 +53,11 @@ func _create(d: PlaytestDriver) -> void:
 	await d.click(String(CreationScreen.GENDER_LABELS[gender]))
 	d.check("name and gender", cs.model.name == NAME and cs.model.gender == gender, "%s %s" % [cs.model.name, cs.model.gender])
 	var preview := cs.preview_visual()
-	d.check("the creation screen previews the rigged Beginner", preview != null and preview.rigged(),
-		"preset %s" % (preview.preset if preview != null else "(none)"))
+	# Without the art pack (NO_ART_PACK=1) the preview and the player are the placeholder: the look is still chosen,
+	# saved and loaded, only not shown.
+	var has_art := ArtPack.load_installed().present()
+	d.check("the creation screen previews the %s" % ("rigged Beginner" if has_art else "placeholder (no art pack)"),
+		preview != null and preview.rigged() == has_art, "preset %s" % (preview.preset if preview != null else "(none)"))
 	var base := CharacterAppearance.default_for(gender)
 	for key in CharacterAppearance.KEYS:
 		for i in CharacterAppearance.choices(key):
@@ -79,7 +82,8 @@ func _create(d: PlaytestDriver) -> void:
 	var ch := d.character()
 	d.check("the new character has the chosen look", ch.appearance == CHOSEN, str(ch.appearance))
 	var vis := d.player().get_node(^"Visual") as PlayerVisual
-	d.check("the player wears it", vis.rigged() and vis.look == CHOSEN, "%s %s" % [vis.preset, vis.look])
+	d.check("the player wears it", vis.rigged() == has_art and (not has_art or vis.look == CHOSEN),
+		"%s %s" % [vis.preset, vis.look])
 	await d.wait(1.0)
 	await _shot(d, "game_chosen")
 	for key in CharacterAppearance.KEYS:
