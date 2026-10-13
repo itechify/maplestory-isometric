@@ -14,8 +14,9 @@ extends Node3D
 ##   5. ground    MapDefinitions.ground_all(PhysicsGroundQuery): arrivals, player spawns, NPCs, spawn slots, gate heights;
 ##                finish_trails(): kill_y and camera bounds include the trails
 ##   6. nodes     containment (rings with a gap at every gate, plugs closing the gaps of warp-mode links, trail side
-##                walls), a sea kill plane, one WorldPortal per canonical portal, one WorldNpc per MeowDB NPC, the
-##                MapInstanceView, FallRecovery, PortalInteractor, GateMonitor, RegionMonitor and the ScreenFader
+##                walls), a sea kill plane, one WorldPortal per canonical portal, one WorldNpc per MeowDB NPC (its art
+##                pack model: `art`), the MapInstanceView, FallRecovery, PortalInteractor, GateMonitor, RegionMonitor
+##                and the ScreenFader
 ##   7. session   attaches itself to the MapSession autoload (attach_to_session)
 ## Wave 2 composes this scene into the main game scene, adds the player and calls set_player(player); the camera
 ## rig registers with MapSession.attach_camera(). The world never decides current_map: MapSession does.
@@ -47,6 +48,11 @@ var sidecars: WorldSidecars = null
 var defs: MapDefinitions = null
 var tuning: WorldTuning = null
 var library: ProxyLibrary = null
+## The art pack the NPCs' rigged models come from (WorldNpc.art, #66). Like BreakableSystem.art, null does not mean
+## "the installed one" everywhere: build() (the game's path, behind the loading screen) loads the installed pack
+## (ArtPack.load_installed) when nothing was injected, while build_now() (tests and the headless world tools) uses
+## only an injected one, so they keep the library proxies.
+var art: ArtPack = null
 var ground_query: PhysicsGroundQuery = null
 var region_index: RegionIndex = null
 var player: Node3D = null
@@ -115,6 +121,8 @@ func build() -> void:
 	if is_built or _building:
 		return
 	_building = true
+	if art == null:
+		art = ArtPack.load_installed()
 	_make_children()
 	_stage_data(null)
 	load_progress.emit(0.05, "data")
@@ -392,6 +400,7 @@ func _stage_nodes() -> void:
 	for id in defs.ids():
 		for pl in defs.get_def(id).npc_definitions:
 			var n := WorldNpc.new()
+			n.art = art
 			npcs_root.add_child(n)
 			var zone := tuning.talk_zone(pl.npc_id)
 			n.setup(pl, library, float(zone.radius_m), float(zone.centre_height_m), String(zone.profile))
