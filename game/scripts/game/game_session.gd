@@ -52,6 +52,9 @@ var main: Node = null
 ## Why start() failed ("" when it did not).
 var error_message: String = ""
 var is_ready: bool = false
+## Wall time from the start of the world load to world_ready (ms); -1 until then. Read by the performance baseline
+## (tools/playtest/scenarios/perf_baseline.gd).
+var world_load_ms: int = -1
 
 var _stats_hooked := false
 
@@ -73,6 +76,7 @@ func start(mode: String, arg: Variant) -> Error:
 	_reset_map_session(session)
 	# 1. world
 	progress.emit(0.0, "loading the island")
+	var load_t0 := Time.get_ticks_msec()
 	var world_scene := load(WORLD_SCENE) as PackedScene
 	if world_scene == null:
 		return _fail(ERR_FILE_NOT_FOUND, "%s is missing" % WORLD_SCENE)
@@ -90,6 +94,7 @@ func start(mode: String, arg: Variant) -> Error:
 	add_child(world)
 	if not bool(world.get("is_built")):
 		await Signal(world, &"world_ready")
+	world_load_ms = Time.get_ticks_msec() - load_t0
 	if not is_inside_tree():
 		return _fail(ERR_UNAVAILABLE, "the session was closed while loading")
 	var build_errors: PackedStringArray = world.get("build_errors")
