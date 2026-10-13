@@ -138,6 +138,12 @@ class EnsureFromPack(unittest.TestCase):
         The pack's splayed roots, fitted to the kit canopy, reached 1.47 m and boxed players in at cliff feet."""
         self.assertLessEqual(self.trunk_reach("Tree_Round_A"), 1.0)
 
+    def test_trees_keep_a_separate_canopy_part_like_the_kit(self):
+        """The game reads <asset>_Canopy meshes (breakables.json placement.canopies: box sight lines)."""
+        for name in ("Tree_Round_A", "Tree_Birch_Teal"):
+            names = sorted(o.name for o in self.colls[name].objects)
+            self.assertEqual(names, [name, f"{name}_Canopy"])
+
     def test_birch_trunk_band_stays_slim_like_the_kit_birch(self):
         """The kit birches' trunk prism reaches 0.39 m; the pack birch's trunk and roots reached 0.8 m."""
         self.assertLessEqual(self.trunk_reach("Tree_Birch_Teal"), 0.5)

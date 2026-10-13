@@ -53,12 +53,15 @@ def _puffy_canopy(mb, r, seed, center, radius, lobes=6, squash=0.82, mat="M_Leaf
 
 # The art pack's broadleaf and birch trees (kit/art_pack.py), fitted to the kit canopy, splay their roots about 1.5 m
 # from the trunk (the kit tree's reach about 0.9 m). The roots set the export's trunk prism (the 0.1-1.0 m slice),
-# and at that reach they boxed players into pockets at cliff feet, so they are drawn in to the kit's reach.
-TREE_PACK = dict(node_scale={"Splayed root": (0.6, 0.6, 1.0)})
+# and at that reach they boxed players into pockets at cliff feet, so they are drawn in to the kit's reach. Like the
+# kit trees, the leaves stay their own <name>_Canopy part: the game's box placement reads the canopy meshes
+# (game/data/misostory/breakables.json placement.canopies).
+_LEAVES = {"Canopy": ["Sculpted leaf cloud", "Leaf light cluster"]}
+TREE_PACK = dict(node_scale={"Splayed root": (0.6, 0.6, 1.0)}, parts=_LEAVES)
 # The kit birches are slim (trunk prism 0.39 m): the pack birch's trunk (with its bark dashes) is slimmed to 0.75 and
 # its roots tucked in to the trunk, for a 0.45 m prism instead of 0.8 m.
 BIRCH_PACK = dict(node_scale={"Splayed root": (0.33, 0.33, 1.0), "Tapered trunk": (0.75, 0.75, 1.0),
-                              "Birch dark bark dash": (0.75, 0.75, 1.0)})
+                              "Birch dark bark dash": (0.75, 0.75, 1.0)}, parts=_LEAVES)
 
 
 def _make_tree(coll, name, seed, height, base_r, canopy_r, lobes, leaf="M_Leaf", bend=0.25):
@@ -107,7 +110,7 @@ def tree_giant_a(coll):
     _make_tree(coll, "Tree_Giant_A", 5, height=8.5, base_r=1.1, canopy_r=5.2, lobes=8, bend=0.35)
 
 
-@asset("Tree_Pine_A", "Trees", footprint=2.2, tags=("tree",))
+@asset("Tree_Pine_A", "Trees", footprint=2.2, tags=("tree",), pack=dict(parts={"Canopy": ["Tiered evergreen crown"]}))
 def tree_pine_a(coll):
     """Chunky stacked-cone fir (dark forest maps)."""
     name = "Tree_Pine_A"
@@ -134,7 +137,8 @@ def tree_sapling(coll):
     _make_tree(coll, "Tree_Sapling_A", 8, height=1.8, base_r=0.16, canopy_r=0.95, lobes=4)
 
 
-@asset("Tree_Palm_A", "Trees", footprint=2.5, tags=("tree", "coast"))
+@asset("Tree_Palm_A", "Trees", footprint=2.5, tags=("tree", "coast"),
+       pack=dict(parts={"Canopy": ["Palm folded frond", "Coconut"]}))
 def tree_palm(coll):
     """Leaning coastal palm for Southperry."""
     name = "Tree_Palm_A"
