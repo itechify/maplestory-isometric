@@ -1,7 +1,8 @@
 class_name GroundDrop
 extends Node3D
-## One drop lying on the ground (an item or a meso bag): a procedural model (LootVisuals) that is tossed out of the
-## monster in a small arc, then hovers, bobs and turns, and blinks during its last seconds. The node is presentation
+## One drop lying on the ground (an item or a meso bag): a model from LootVisuals (the art pack's, else a procedural
+## shape) that is tossed out of the monster in a small arc, then hovers, bobs and turns, and blinks during its last
+## seconds. The node is presentation
 ## only: the record it shows lives in the map instance (MapInstanceState.drops) and LootSystem owns both. LootSystem
 ## calls update(now, delta) every frame, so the node has no clock of its own and tests can drive it synchronously.
 

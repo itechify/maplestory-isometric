@@ -1,13 +1,20 @@
 class_name LootVisuals
 extends RefCounted
-## Procedural looks for ground drops and item icons, from data/misostory/loot_visuals.json (an adaptation: MeowDB's
-## item and meso art are Nexon sprites, which MisoStory never uses).
+## Looks for ground drops and item icons, from data/misostory/loot_visuals.json (an adaptation: MeowDB's item and meso
+## art are Nexon sprites, which MisoStory never uses). With the art pack (Project art, ADR 0002) a drop shows the pack's
+## model; without it, or for a model the pack lacks, a procedural shape.
 ##
-##   var vis := LootVisuals.new(Data.db)
+##   var vis := LootVisuals.new(Data.db, ArtPack.load_installed())   # no pack argument: procedural only
 ##   vis.style_for_item("270")      # {"shape": "potion", "body": Color, "accent": Color, "name": "Red Potion"}
-##   vis.style_for_mesos(7)         # {"shape": "meso", "body": Color, "coins": 1, "bag": false}
-##   var mesh_root := vis.build_drop_model(record)    # Node3D: a bottle, a chest, a pouch, a coin pile ...
+##   vis.style_for_mesos(7)         # {"shape": "meso", "body": Color, "coins": 1, "bag": false, "pack_extent_m", ...}
+##   var mesh_root := vis.build_drop_model(record)    # Node3D: the pack model, or a bottle, a chest, a coin pile ...
+##   LootVisuals.is_pack_model(mesh_root)             # true when it shows the pack's model
 ##   vis.motion("toss_duration_s")
+##
+## Pack models: the item's model by canonical id (monster drops such as the Snail Shell through the pack's monster
+## manifest), the one meso model for every meso tier (tiers differ by size and tint). Each sits under a "Pack" child of
+## the "Model" root, raised by the pack's ground offset (godot_validation.json), centred over the drop and scaled so its
+## longest side is pack_models.item_extent_m (a meso tier's pack_extent_m). Their Hover clip loops.
 ##
 ## Shapes: box (equipment), chair_box (setup), potion, food, scroll, bundle (arrows), gem (ores and gems), pouch (other
 ## Etc items), meso (coins or a bag). Type and subtype come from the canonical item record; colours from the table,
@@ -15,14 +22,21 @@ extends RefCounted
 
 const TABLE := "loot_visuals"
 const SHAPES: PackedStringArray = ["box", "chair_box", "potion", "food", "scroll", "bundle", "gem", "pouch", "meso"]
+## The child of a drop model holding the pack's model (its ground offset, centring and scale).
+const PACK_NODE := "Pack"
+## The pack drops' looping clip.
+const HOVER_CLIP := "Hover"
 
 var db: ContentDB = null
+## The art pack drops are looked up in; null or absent: procedural drops only.
+var art: ArtPack = null
 var _table: Dictionary = {}
 var _materials: Dictionary = {}
 
 
-func _init(p_db: ContentDB = null) -> void:
+func _init(p_db: ContentDB = null, p_art: ArtPack = null) -> void:
 	db = p_db
+	art = p_art
 	var t: Variant = db.miso_table(TABLE) if db != null else null
 	_table = t if t is Dictionary else {}
 
@@ -96,9 +110,13 @@ func style_for_mesos(amount: int) -> Dictionary:
 		var d := _dict(t)
 		var cap := int(d.get("max_amount", -1))
 		if cap < 0 or amount <= cap:
+			var tint: Variant = d.get("pack_tint")
 			return {"shape": "meso", "body": _color(d.get("coin"), Color(0.96, 0.77, 0.19)),
-				"coins": int(d.get("coins", 1)), "bag": bool(d.get("bag", false))}
-	return {"shape": "meso", "body": Color(0.96, 0.77, 0.19), "coins": 1, "bag": false}
+				"coins": int(d.get("coins", 1)), "bag": bool(d.get("bag", false)),
+				"pack_extent_m": float(d.get("pack_extent_m", size("coin_m"))),
+				"pack_tint": _color(tint, Color.WHITE) if tint is String else null}
+	return {"shape": "meso", "body": Color(0.96, 0.77, 0.19), "coins": 1, "bag": false,
+		"pack_extent_m": size("coin_m"), "pack_tint": null}
 
 
 ## The style of a ground record or rolled drop (items and meso bags alike).
@@ -108,10 +126,83 @@ func style_for_drop(drop: Dictionary) -> Dictionary:
 	return style_for_item(ItemDef.id_of(drop.get("item_id", "")))
 
 
-## A Node3D model for a drop, origin at its base, about sizes.item_m tall (coins sizes.coin_m). Meshes are built
-## from primitives with shared materials, so hundreds of drops cost little.
+## A Node3D model for a drop, origin at its base: the pack's model when the pack has it, else a procedural shape about
+## sizes.item_m tall (coins sizes.coin_m). Procedural meshes are primitives with shared materials, so hundreds of drops
+## cost little.
 func build_drop_model(drop: Dictionary) -> Node3D:
-	return build_model(style_for_drop(drop))
+	var m := _pack_drop_model(drop)
+	return m if m != null else build_model(style_for_drop(drop))
+
+
+## True when a model from build_drop_model shows the pack's model.
+static func is_pack_model(model: Node) -> bool:
+	return model != null and model.get_node_or_null(PACK_NODE) != null
+
+
+## A number from the "pack_models" section (0 when missing).
+func pack_num(key: String) -> float:
+	return num("pack_models", key)
+
+
+## The pack's model for a drop, fitted onto the ground (see the header), or null when there is no pack or no model.
+func _pack_drop_model(drop: Dictionary) -> Node3D:
+	if art == null or not art.present():
+		return null
+	var kind := ArtPack.ITEM
+	var id := ""
+	var extent := pack_num("item_extent_m")
+	var tint: Variant = null
+	if ItemService.is_meso_drop(drop):
+		kind = ArtPack.MESO
+		var style := style_for_mesos(ItemService.quantity_of(drop.get("amount", drop.get("mesos", 0))))
+		extent = float(style.pack_extent_m)
+		tint = style.pack_tint
+	else:
+		id = ItemDef.id_of(drop.get("item_id", ""))
+	var inst := art.instance(kind, id)
+	if inst == null:
+		return null
+	var box := art.bounds(kind, id)
+	var lift := art.ground_offset_y(kind, id)
+	if not box.has_volume():
+		box = ArtImport.visual_aabb(inst)
+		lift = -box.position.y
+	var longest := maxf(box.size.x, maxf(box.size.y, box.size.z))
+	var s := extent / longest if longest > 0.001 and extent > 0.0 else 1.0
+	var root := Node3D.new()
+	root.name = "Model"
+	var fit := Node3D.new()
+	fit.name = PACK_NODE
+	fit.scale = Vector3.ONE * s
+	var centre := box.get_center()
+	fit.position = Vector3(-centre.x, lift, -centre.z) * s
+	root.add_child(fit)
+	fit.add_child(inst)
+	for node in inst.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if tint is Color and mi.mesh != null:
+			for i in mi.mesh.get_surface_count():
+				var mat := mi.mesh.surface_get_material(i)
+				if mat is BaseMaterial3D and mat.resource_name == _s(_dict(_table.get("pack_models")).get("tint_material")):
+					mi.set_surface_override_material(i, _tinted(mat as BaseMaterial3D, tint))
+	for ap in inst.find_children("*", "AnimationPlayer", true, false):
+		var player := ap as AnimationPlayer
+		if player.has_animation(HOVER_CLIP):
+			# The pack imports Hover playing once (#62 leaves drop clips as imported); on the ground it loops.
+			player.get_animation(HOVER_CLIP).loop_mode = Animation.LOOP_LINEAR
+			player.autoplay = HOVER_CLIP
+	return root
+
+
+## A shared copy of a pack material with its albedo replaced by `color` (a meso tier's tint).
+func _tinted(base: BaseMaterial3D, color: Color) -> BaseMaterial3D:
+	var key := "tint|%d|%s" % [base.get_instance_id(), color.to_html()]
+	if not _materials.has(key):
+		var m := base.duplicate() as BaseMaterial3D
+		m.albedo_color = color
+		_materials[key] = m
+	return _materials[key]
 
 
 ## A Node3D model for a style from style_for_item / style_for_mesos.
