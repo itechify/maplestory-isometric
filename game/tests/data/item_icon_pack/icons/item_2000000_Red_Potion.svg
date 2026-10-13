@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!-- A 12 x 40 px red bar in the top-left quarter: small, tall and off-centre, like a rendered icon with margins. -->
+  <rect x="4" y="6" width="12" height="40" fill="#e03a3a"/>
+</svg>
