@@ -10,7 +10,7 @@ extends RefCounted
 ## (tests/unit/test_save_migrations.gd). Never edit an existing step: old saves in the wild depend on it.
 
 ## The schema version this build writes. SaveService.SAVE_VERSION is this constant.
-const CURRENT_VERSION := 2
+const CURRENT_VERSION := 3
 ## Version reported for a document whose "save_version" is present but not a whole number >= 0.
 const INVALID_VERSION := -1
 
@@ -24,6 +24,7 @@ func _init(include_builtin: bool = true) -> void:
 	if include_builtin:
 		register(0, "v0_flat_character_to_v1_envelope", _v0_to_v1)
 		register(1, "v1_typed_quickslots_quest_rewards", _v1_to_v2)
+		register(2, "v2_appearance_default_preset", _v2_to_v3)
 
 
 ## Registers (or replaces) the step from_version -> from_version + 1.
@@ -178,4 +179,26 @@ func _v1_to_v2(doc: Dictionary) -> Dictionary:
 		c["cooldowns"] = {}
 	if not c.has("natural_recovery"):
 		c["natural_recovery"] = {"hp_rest_s": 0.0}
+	return doc
+
+
+## The looks the v2 -> v3 step gives (frozen here: the step must keep meaning what it meant when v3 shipped, whatever
+## CharacterAppearance.DEFAULTS becomes later). The pack's base_recipe of Beginner_Male and Beginner_Female.
+const V3_DEFAULT_LOOKS := {
+	"male": {"hair_style": 3, "face": 0, "skin": 0},
+	"female": {"hair_style": 2, "face": 0, "skin": 3},
+}
+## The look of a v2 character whose gender is neither (""): the male preset, which the game showed for it.
+const V3_DEFAULT_GENDER := "male"
+
+
+## v2 -> v3 (#67: hair, face and skin chosen at creation). v2 characters had no look, so each gets its gender's
+## default Beginner preset look (V3_DEFAULT_LOOKS; no or an unknown gender: the male one) as "appearance". Nothing
+## else changes. A character block that is not an object is left as it is (SaveDocument reports it as corrupt).
+func _v2_to_v3(doc: Dictionary) -> Dictionary:
+	var cd: Variant = doc.get("character", null)
+	if not (cd is Dictionary):
+		return doc
+	var gender := SaveDocument.as_text((cd as Dictionary).get("gender", ""))
+	(cd as Dictionary)["appearance"] = (V3_DEFAULT_LOOKS.get(gender, V3_DEFAULT_LOOKS[V3_DEFAULT_GENDER]) as Dictionary).duplicate()
 	return doc
