@@ -1,0 +1,9 @@
+{
+  "expected_catalog_entries": 4,
+  "entries": [
+    {"source_asset_id": "Sign_Board", "category": "Architecture", "output_file": "environment/glb/noticeboard.glb", "mapping_kind": "semantically_equivalent_original_adaptation", "covered": true},
+    {"source_asset_id": "Signpost_Notice", "category": "Props", "output_file": "environment/glb/noticeboard.glb", "mapping_kind": "semantically_equivalent_original_adaptation", "covered": true},
+    {"source_asset_id": "Bed", "category": "Props", "output_file": "environment/glb/Bed.glb", "mapping_kind": "source_named_original_adaptation", "covered": true},
+    {"source_asset_id": "Player_Proxy", "category": "Characters", "output_file": "characters/glb/Beginner_Male.glb", "mapping_kind": "rigged_player_replaces_proxy", "covered": true}
+  ]
+}

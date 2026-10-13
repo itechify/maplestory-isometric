@@ -1,6 +1,17 @@
 {
   "adaptations": [
     {
+      "file": "game/data/misostory/art_pack.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Project art is pinned as a Release asset, not generated in the repo (ADR 0002); spec #59, ticket #62.",
+      "verified": true,
+      "verified_against": [
+        "https://github.com/itechify/maplestory-isometric/releases/tag/art-pack-v1.0",
+        "docs/adr/0002-pinned-art-pack.md"
+      ]
+    },
+    {
       "file": "game/data/misostory/breakables.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
@@ -197,6 +208,14 @@
       "kind": "misostory_adaptation",
       "path": "shop.protected_items[]",
       "reason": "Untradeable (canonical tradeable false) and given once, by Pio's quest 1012, so a sold chair cannot be obtained again. No in-progress quest needs it, so the quest-item sell guard (quests/_quest_items.json) does not hold it. MeowDB documents no sell restriction (it records a sell-back of 1 meso), so the refusal is an adaptation.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/kit_assets_placed.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Generated from the island build: the catalog names it never places need no art (#62).",
       "verified": false,
       "verified_against": null
     },
@@ -1013,9 +1032,9 @@
     "tools/meowdb/captures/quest_tracker_maple_island.txt"
   ],
   "counts": {
-    "adaptations": 125,
-    "adaptations_unverified": 123,
-    "adaptations_verified": 2,
+    "adaptations": 127,
+    "adaptations_unverified": 124,
+    "adaptations_verified": 3,
     "capture_files": 9,
     "property_rows": 1299,
     "property_rows_by_authority": {
@@ -1049,6 +1068,29 @@
   },
   "format": 1,
   "generated_by": "bash scripts/validate_data.sh --report",
+  "project_art": {
+    "asset": "MisoStory_Art_Pack_v1.0.zip",
+    "asset_sha256": "51928327e3126b7348971c8605e1eb6558468b70b6f2aed49d3b128e3cfe110c",
+    "checksum_manifest": "tools/art_pack/art-pack-v1.0.files.tsv",
+    "delivered": "2026-10-13, as nine ZIPs attached to #59 (pack v1)",
+    "delivery_url": "https://github.com/itechify/maplestory-isometric/issues/59",
+    "file": "game/data/misostory/art_pack.json",
+    "kind": "Project art",
+    "made_by": "Jarvis, the project owner's ChatGPT agent",
+    "made_with": "Blender 4.3.2, procedurally (the generators stay with Jarvis; a not-run copy ships under reference/)",
+    "packaged_by": "tools/art_pack/build_release.py (PACKAGING.json in the asset records the source ZIPs' SHA-256)",
+    "packaging_changes": [
+      {
+        "bytes": 45516.0,
+        "file_sha256": "2809d1a0bc9213a55dfe0c30fa4769350f8aa686586db39e74df0a4058c5a5a9",
+        "from": "environment/glb/bed.glb",
+        "to": "environment/glb/bed_single.glb",
+        "why": "bed.glb and Bed.glb differ only in case and collide on case-insensitive file systems; the catalog maps Bed to Bed.glb. Every JSON naming bed.glb was updated (asset_index.json, docs/glb_structural_audit.json, environment/manifest.json, environment/manifest_complete.json, godot_validation.json, validation.json). #61 removes the clash upstream in v1.1, which then needs only a version bump."
+      }
+    ],
+    "tag": "art-pack-v1.0",
+    "url": "https://github.com/itechify/maplestory-isometric/releases/download/art-pack-v1.0/MisoStory_Art_Pack_v1.0.zip"
+  },
   "records": [
     {
       "authorities": [
