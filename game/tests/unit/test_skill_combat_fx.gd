@@ -88,3 +88,92 @@ func test_the_pack_hit_spark_plays_where_the_spark_played_for_its_life() -> void
 	fx.advance(AttackFx.SPARK_LIFE_S * 0.5 + 0.01)
 	assert_eq(fx.live_count(), 0, "gone after the spark's life, %.2f s" % AttackFx.SPARK_LIFE_S)
 	assert_true(s.is_queued_for_deletion(), "and freed")
+
+
+# --- Three Snails: the thrown shell (PlayerSkills._play_shell) ----------------------------------------------------
+
+const SNAILS := "0001000"
+
+
+func _rig() -> MonsterTestRig:
+	var rig := MonsterTestRig.create(db(), 7)
+	rig.floor(60.0)
+	return rig
+
+
+func _caster(rig: MonsterTestRig, meshes: EffectMeshes) -> PlayerSkills:
+	var p := rig.spawn_player(Vector3.ZERO, Vector3.RIGHT)
+	var c := rig.character()
+	c.skills = {SNAILS: 1}
+	c.base_max_mp = 500
+	c.mp = 500
+	ItemService.new(c, db(), null).gain("348", 3)
+	var ps: PlayerSkills = p.get_node(^"PlayerSkills")
+	ps.effect_meshes = meshes
+	rig.run(5)
+	return ps
+
+
+func _aim_from(ps: PlayerSkills) -> Vector3:
+	var def := SkillDef.of(SNAILS, db())
+	return ps.player.global_position + Vector3.UP * WorldScale.actor(float(def.band.get("aim_px", 0.0)))
+
+
+## The shell leaves the aim line on the cast and lands on `to`, then goes.
+func _assert_flight(ps: PlayerSkills, to: Vector3, what: String) -> void:
+	var shell := ps.last_shell
+	assert_true(shell != null and shell.name == PlayerSkills.SHELL_FX_NAME, "%s: a %s flies" % [what, PlayerSkills.SHELL_FX_NAME])
+	if shell == null:
+		return
+	assert_true(shell.global_position.distance_to(_aim_from(ps)) < 0.01, "%s: it starts on the aim line" % what)
+	ps.last_shell_flight.custom_step(0.05)
+	assert_true(shell.global_position.distance_to(_aim_from(ps)) > 0.1, "%s: it is on its way" % what)
+	assert_false(shell.is_queued_for_deletion(), "%s: still flying" % what)
+	ps.last_shell_flight.custom_step(10.0)
+	assert_true(shell.global_position.distance_to(to) < 0.01, "%s: it ends at %s, got %s" % [what, to, shell.global_position])
+	assert_true(shell.is_queued_for_deletion(), "%s: and goes when it lands" % what)
+
+
+func test_without_the_pack_three_snails_throws_the_procedural_shell() -> void:
+	var rig := _rig()
+	var ps := _caster(rig, EffectMeshes.none())
+	var m := rig.spawn("2", Vector3(WorldScale.actor(200.0), 0.0, 0.0))
+	var res := ps.cast(SNAILS)
+	assert_true(res.ok and res.target == m, "the Snail is the target")
+	assert_true(ps.last_shell is MeshInstance3D and (ps.last_shell as MeshInstance3D).mesh is SphereMesh, "the procedural shell")
+	_assert_flight(ps, m.body_center(), "a hit")
+	rig.free_all()
+
+
+func test_the_pack_three_snails_flies_the_same_path_to_the_target() -> void:
+	if _skip("test_the_pack_three_snails_flies_the_same_path_to_the_target"):
+		return
+	var rig := _rig()
+	var ps := _caster(rig, _pack())
+	var m := rig.spawn("2", Vector3(WorldScale.actor(200.0), 0.0, 0.0))
+	var res := ps.cast(SNAILS)
+	assert_true(res.ok and res.target == m, "the Snail is the target")
+	var shell := ps.last_shell
+	assert_true(shell != null and shell.find_child(EffectMeshes.THREE_SNAILS, true, false) != null, "the pack's ThreeSnails model")
+	assert_false(shell is MeshInstance3D, "not the procedural sphere")
+	if shell != null:
+		var box := _world_aabb(shell)
+		assert_near(box.size.y, SkillRules.of(db()).projectile_size_m, 0.03, "as tall as skills.json projectile_size_m")
+		assert_near(box.get_center().y, shell.global_position.y, 0.03, "centred on the flight line")
+	_assert_flight(ps, m.body_center(), "a hit")
+	assert_eq(ps.last_shell_to, m.body_center(), "the shell's end is unchanged (the target's body)")
+	rig.free_all()
+
+
+func test_the_pack_three_snails_whiff_stops_at_the_wall() -> void:
+	if _skip("test_the_pack_three_snails_whiff_stops_at_the_wall"):
+		return
+	var rig := _rig()
+	rig.wall(Vector3(2.0, 1.5, 0.0), Vector3(0.2, 3.0, 3.0))
+	var ps := _caster(rig, _pack())
+	var res := ps.cast(SNAILS)
+	assert_true(res.ok and res.target == null, "a whiff")
+	assert_true(ps.last_shell_stopped, "the wall stops the shell")
+	assert_near(ps.last_shell_to.x, 1.9, 0.01, "at the wall's face")
+	_assert_flight(ps, ps.last_shell_to, "a whiff into a wall")
+	rig.free_all()

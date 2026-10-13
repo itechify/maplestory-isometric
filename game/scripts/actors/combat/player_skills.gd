@@ -67,6 +67,11 @@ var last_refusal: Dictionary = {}
 ## Where the last thrown shell ended (shell_end) and whether a wall stopped it short of its reach.
 var last_shell_to: Vector3 = Vector3.ZERO
 var last_shell_stopped: bool = false
+## The last thrown shell's node (SHELL_FX_NAME) and its flight (tests step it with Tween.custom_step); presentation.
+var last_shell: Node3D = null
+var last_shell_flight: Tween = null
+## Where the shell's mesh comes from (tests pin a pack or none); null = EffectMeshes.shared().
+var effect_meshes: EffectMeshes = null
 
 ## The last cast set a lockout, and PlayerCombat's attack count when it did (is_casting()).
 var _cast_locked := false
@@ -330,7 +335,8 @@ func shell_end(def: SkillDef, target: Node, facing: Vector3) -> Vector3:
 
 
 ## A shell flies from the player's aim line to the target's body (or, on a whiff, to shell_end: the full reach or the
-## first wall).
+## first wall). With the art pack it is the pack's ThreeSnails mesh (EffectMeshes), as tall as projectile_size_m and
+## turned along its flight; without it a procedural sphere in the shell item's colour. Same path and speed either way.
 func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vector3.ZERO) -> void:
 	if player == null or not player.is_inside_tree():
 		return
@@ -342,8 +348,27 @@ func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vect
 	var parent := _fx_parent()
 	if parent == null:
 		return
-	var shell := MeshInstance3D.new()
+	var meshes := effect_meshes if effect_meshes != null else EffectMeshes.shared()
+	var shell := meshes.centered(EffectMeshes.THREE_SNAILS, rules.projectile_size_m)
+	if shell == null:
+		shell = _procedural_shell(def, level, rules)
 	shell.name = SHELL_FX_NAME
+	shell.top_level = true
+	parent.add_child(shell)
+	shell.global_position = from
+	var along := Vector3(to.x - from.x, 0.0, to.z - from.z)
+	if along.length_squared() > 1e-6:
+		shell.global_basis = Basis.looking_at(along.normalized(), Vector3.UP)
+	var t := shell.create_tween()
+	t.tween_property(shell, "global_position", to, maxf(0.05, from.distance_to(to) / rules.projectile_speed_mps))
+	t.tween_callback(shell.queue_free)
+	last_shell = shell
+	last_shell_flight = t
+
+
+## The no-art shell: an unshaded sphere of projectile_size_m in the level's shell item colour.
+func _procedural_shell(def: SkillDef, level: int, rules: SkillRules) -> MeshInstance3D:
+	var shell := MeshInstance3D.new()
 	var mesh := SphereMesh.new()
 	mesh.radius = rules.projectile_size_m * 0.5
 	mesh.height = rules.projectile_size_m * 0.8
@@ -356,12 +381,7 @@ func _play_shell(def: SkillDef, level: int, target: Node, facing: Vector3 = Vect
 	mat.albedo_color = MisoItemIcon.color_for(item_def) if item_def != null else Color(0.8, 0.7, 0.5)
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	shell.material_override = mat
-	shell.top_level = true
-	parent.add_child(shell)
-	shell.global_position = from
-	var t := shell.create_tween()
-	t.tween_property(shell, "global_position", to, maxf(0.05, from.distance_to(to) / rules.projectile_speed_mps))
-	t.tween_callback(shell.queue_free)
+	return shell
 
 
 func _fx_parent() -> Node:
