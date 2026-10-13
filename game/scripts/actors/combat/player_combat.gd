@@ -62,9 +62,11 @@ var fx: AttackFx = null
 ## Run step() from _physics_process (tests turn it off and call step() themselves). The PlayerSkills and EffectTicker
 ## siblings follow this flag too.
 var autostep: bool = true
-## The player's skills and its timed-effect clock (siblings under the player, made by ensure_skill_nodes()).
+## The player's skills, its timed-effect clock and the pack's effect meshes on it (siblings under the player, made by
+## ensure_skill_nodes()).
 var skills: PlayerSkills = null
 var effects: EffectTicker = null
+var skill_fx: PlayerFx = null
 
 # --- feel (combat.json player_attack; loaded in _ready, or by load_feel()) ----------------------------------------
 ## A ground attack plants the player for its lockout.
@@ -117,7 +119,7 @@ func _ready() -> void:
 		ensure_skill_nodes.call_deferred()
 
 
-## Gives the player its "PlayerSkills" and "EffectTicker" children (reused when present) wired to this node.
+## Gives the player its "PlayerSkills", "EffectTicker" and "PlayerFx" children (reused when present) wired to this node.
 func ensure_skill_nodes() -> void:
 	if player == null or not is_instance_valid(player):
 		return
@@ -137,6 +139,14 @@ func ensure_skill_nodes() -> void:
 		effects.combat = self
 		player.add_child(effects)
 	effects.combat = self
+	skill_fx = player.get_node_or_null(^"PlayerFx") as PlayerFx
+	if skill_fx == null:
+		skill_fx = PlayerFx.new()
+		skill_fx.name = "PlayerFx"
+		skill_fx.combat = self
+		skill_fx.player = player
+		player.add_child(skill_fx)
+	skill_fx.combat = self
 
 
 func _physics_process(delta: float) -> void:

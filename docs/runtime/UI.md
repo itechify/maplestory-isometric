@@ -10,7 +10,7 @@ MapleStory-inspired and built entirely in code:
 - a dark title strip with a gold title, orange call-to-action buttons and orange tabs;
 - dark recessed content areas;
 - outlined text for HUD numbers;
-- procedural item icons;
+- item icons rendered from the art pack's 3D items (Project art), over procedural ones;
 - a gold "LEVEL UP!" with a star burst.
 
 No MapleStory/Nexon sprite, icon, font or sound is used. The only vendored asset is the OFL font Nunito.
@@ -47,7 +47,8 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/common/ui_prefs.gd` | `MisoUiPrefs` | The player's UI preferences on this machine (the minimap's fold), a ConfigFile beside the save slots |
 | `scripts/ui/common/miso_window.gd` | `MisoWindow` | Base window: title strip, key hint, close, drag, clamp, ctx registration, status line |
 | `scripts/ui/common/item_slot.gd` | `MisoItemSlot` | One item square: icon, count, caption, key label, click/double-click/right-click/hover, drag-and-drop hooks |
-| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Procedural item icon (shape per category/item, tint from the name) |
+| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Item icon: the art pack's rendered icon (`art`), else the procedural one (shape per category/item, tint from the name) |
+| `scripts/ui/common/item_icon_art.gd` | `ItemIconArt` | The art pack's item icons by `game_item_id` (ArtPack), framed for every slot size and cached; null without the pack |
 | `scripts/ui/common/skill_icon.gd` | `MisoSkillIcon` | Procedural skill icon (shells, heart, winged boot) with the dim and cooldown-sweep overlays |
 | `scripts/ui/common/item_tooltip.gd` | `MisoItemTooltip` | Inspect card; `describe()` is the pure part |
 | `scripts/ui/common/gauge.gd` | `MisoGauge` | Bar + tag + outlined value text |
@@ -480,7 +481,8 @@ doc comment.
 
 | Decision | Why |
 |---|---|
-| Item icons are procedural: a shape from type, subtype, equip slot and name keywords (potion, apple, sword, skullcap, shirt, shell, gem ...); the tint is the colour word in the name ("Red", "Amethyst", "Jean"), else a stable hue from the id | No proprietary icons may be used. `test_every_canonical_item_has_a_procedural_icon` fails if a new item kind has no shape |
+| Item icons are the art pack's rendered icons (#69), found by the item's `game_item_id`. Each is framed the same way: its drawn part, not its canvas, fills a 128 px square less an 8 px margin, shape kept, centred and mipmapped, so a ring and a spear read at one size and a 26 px slot stays smooth. Icons load the first time an item is shown (about 5 ms each) and are cached | Project art (#59 decision 8, ADR 0002). `test_item_icon_art` pins the framing and all 94 items; the `ui_item_icons` playtest screenshots every surface |
+| Under them, and without the pack, item icons are procedural: a shape from type, subtype, equip slot and name keywords (potion, apple, sword, skullcap, shirt, shell, gem ...); the tint is the colour word in the name ("Red", "Amethyst", "Jean"), else a stable hue from the id. The pack never changes the tint, which also colours the Three Snails shell | No proprietary icons may be used. `test_every_canonical_item_has_a_procedural_icon` fails if a new item kind has no shape |
 | Font: Nunito (OFL), vendored with its license | A rounded, friendly sans close in spirit to the classic UI, and legally redistributable |
 | Quickslot keys are `"1".."8"`, the suffix of the `quickslot_N` actions, stored as `CharacterState.quickslots[key] = item_id` | Matches the save tests (`test_save_roundtrip`). The count comes from the InputMap (8 by the Controls contract) |
 | Only consumables (`ItemDef.is_consumable`) can be bound; an empty stack keeps its binding (greyed, count 0) and refills on pickup | Classic behaviour. Pressing an empty slot says "You have no X left." |

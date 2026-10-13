@@ -33,6 +33,10 @@ var view: MapInstanceView = null
 var player: Node3D = null
 var player_combat: PlayerCombat = null
 var library: ProxyLibrary = null
+## The art pack the monsters' rigged models come from. setup() loads the installed one (ArtPack.load_installed())
+## unless one was injected; without it (bare tests that never call setup, or no pack installed) the monsters keep their
+## proxies.
+var art: ArtPack = null
 var ground: PhysicsGroundQuery = null
 var tuning: WorldTuning = null
 ## Injection seams; null = the autoloads.
@@ -73,6 +77,8 @@ func _process(_delta: float) -> void:
 ## The shell's integration call (GameContext contract). Safe to call once the world is built or before.
 func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
+	if art == null:
+		art = ArtPack.load_installed()
 	_ensure_fx()
 	if ctx != null and ctx.player != null:
 		attach_player(ctx.player as Node3D)
@@ -374,7 +380,7 @@ func _new_monster(mob_id: String, xform: Transform3D, def: MapDefinition, map_id
 		m.settle_up_m = t.num("grounding", "probe_up_m")
 		m.settle_down_m = t.num("grounding", "probe_down_m")
 	var seed_value := hash("%s:%d:%d" % [map_id, slot_index, _spawn_counter])
-	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp)
+	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp, art)
 	var band := region_band(def, slot_index)
 	if not is_nan(band.x):
 		m.set_region_band(band.x, band.y)

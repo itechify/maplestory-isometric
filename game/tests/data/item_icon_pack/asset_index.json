@@ -1,0 +1,12 @@
+{
+  "_doc": "A stand-in art pack for the item icons (tests/unit/test_item_icon_art.gd): the asset_index.json shape with one item that has a rendered icon. The icon is an SVG (text, imported as a texture like the pack's PNGs) whose drawing is small, tall and off-centre, so the test can see the framing. The Sword (1302000) is listed with no icon file, and every other item is absent.",
+  "name": "MisoStory item icon stand-in",
+  "canonical_items": [
+    {"id": "270", "game_item_id": "2000000", "name": "Red Potion", "equip_slot": null, "file": "equipment/glb/item_2000000_Red_Potion.glb", "icon": "icons/item_2000000_Red_Potion.svg", "origin": "ground center"},
+    {"id": "541", "game_item_id": "1302000", "name": "Sword", "equip_slot": "weapon", "file": "equipment/glb/item_1302000_Sword.glb", "icon": "icons/item_1302000_Sword.png", "origin": "grip center; long axis +Z"}
+  ],
+  "canonical_npcs": [],
+  "canonical_monsters": [],
+  "files": [],
+  "counts": {"glb_files": 0, "canonical_items": 2, "canonical_npcs": 0, "canonical_monsters": 0}
+}
