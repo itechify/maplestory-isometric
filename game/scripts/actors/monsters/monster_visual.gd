@@ -43,6 +43,18 @@ const STENCIL_REF := 36
 ## the HP bar (20, 21), which stay on top of a silhouette; the player's X-ray fill and outline (120+) come later too.
 const SEE_THROUGH_PRIORITY := -1
 const SEE_THROUGH_NAME := "SeeThrough"
+## The pack rig's clips (art pack monsters/manifest.json; ArtImport makes Idle and Walk loop, the rest play once, and
+## holds the root bone, so a clip never moves the monster: AI and physics own its position).
+const CLIP_IDLE := "Idle"
+const CLIP_WALK := "Walk"
+const CLIP_ATTACK := "Attack"
+const CLIP_HIT := "Hit"
+const CLIP_DEATH := "Death"
+## Cross-fade between clips (s).
+const CLIP_BLEND_S := 0.15
+## The Death clip plays over this share of the canonical die time at full opacity; the body fades over the rest, so
+## the death still ends (faded_out) exactly at the canonical die time.
+const DEATH_CLIP_SHARE := 0.5
 ## The fill shader shared by every monster (a ShaderMaterial: BaseMaterial3D keeps stencil read and write exclusive).
 ## The tint (sRGB, alpha), the fade amount and the minimum cover are per-instance uniforms. A fragment draws only
 ## where the opaque surface in front of it is at least `see_through_min_cover` m nearer along the view, so the ground
@@ -78,6 +90,8 @@ var monster: Node3D = null
 var def: MonsterDef = null
 var model: Node3D = null
 var is_placeholder: bool = false
+## Where the model came from: the pack model's res:// path, the library asset name, or "" for the placeholder.
+var model_source: String = ""
 ## Height of the model after fitting (m).
 var height_m: float = 0.0
 var hp_bar: Node3D = null
@@ -99,10 +113,19 @@ var see_through_amount: float = 0.0
 var _see_through: bool = false
 var _see_through_fills: Array[MeshInstance3D] = []
 var _see_through_applied: float = -1.0
+## The rig's AnimationPlayer (pack models only), the clip asked of it, and the one-shot clip (Attack, Hit, Death)
+## playing over the base loop with the time it has left.
+var _anim: AnimationPlayer = null
+var _clip: String = ""
+var _oneshot: String = ""
+var _oneshot_left: float = 0.0
+var _oneshot_s: float = 0.0
+var _restart: bool = false
 
 
-## Builds the model for `d` from `library` (null or a missing asset = the labelled placeholder).
-func build(d: MonsterDef, library: ProxyLibrary) -> void:
+## Builds the model for `d`: the species' rigged model from the art pack `art` (by canonical id) when the pack has it,
+## else its proxy from `library`, else (null or a missing asset) the labelled placeholder.
+func build(d: MonsterDef, library: ProxyLibrary, art: ArtPack = null) -> void:
 	def = d
 	if model != null:
 		model.queue_free()
@@ -111,11 +134,22 @@ func build(d: MonsterDef, library: ProxyLibrary) -> void:
 	# Decided afresh: _apply_see_through edits a placeholder's own materials in place, so a stale flag would edit the
 	# library's shared materials.
 	is_placeholder = false
+	model_source = ""
 	var inst: Node3D = null
-	if d.has_model() and library != null:
+	var h := 0.0
+	if art != null and art.present():
+		inst = art.instance(ArtPack.MONSTER, d.id)
+		if inst != null:
+			model_source = art.model(ArtPack.MONSTER, d.id)
+			# The pack's model stands on its own origin (feet at y = 0, front +Z): its height is the top of its meshes
+			# at rest, which model_fit brings to the canonical sprite height.
+			h = ArtImport.visual_aabb(inst).end.y
+	if inst == null and d.has_model() and library != null:
 		inst = library.instance(d.model)
+		if inst != null:
+			model_source = d.model
+			h = library.height(d.model)
 	if inst != null:
-		var h := library.height(d.model)
 		_fit_scale = d.sprite_size_m.y / h if h > 0.0 and d.model_fit == "sprite_height" else 1.0
 		height_m = h * _fit_scale if h > 0.0 else d.sprite_size_m.y
 	else:
@@ -130,6 +164,9 @@ func build(d: MonsterDef, library: ProxyLibrary) -> void:
 	model.scale = Vector3.ONE * _fit_scale
 	add_child(model)
 	model.add_child(inst)
+	_anim = inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	_clip = ""
+	_oneshot = ""
 	_collect_geoms(model)
 	# After _collect_geoms: the fill meshes take no hit flash and no death transparency.
 	_apply_see_through(model, is_placeholder)
@@ -156,11 +193,37 @@ func start_spawn(seconds: float) -> void:
 		model.scale = Vector3.ONE * _fit_scale * 0.01
 
 
-## A landed hit: flinch for the canonical hit clip, a white flash, and the HP bar.
+## A landed hit: the rig's Hit clip over the canonical hit time (or, without one, a flinch for that time), a white
+## flash, and the HP bar.
 func on_hit(hp_ratio: float) -> void:
-	_flinch_t = def.hit_s if def != null and def.hit_s > 0.0 else 0.3
+	var span := def.hit_s if def != null and def.hit_s > 0.0 else 0.3
+	if has_clip(CLIP_HIT):
+		_start_oneshot(CLIP_HIT, span)
+	else:
+		_flinch_t = span
 	_flash_t = FLASH_S
 	set_hp_ratio(hp_ratio)
+
+
+## Its touch reached the player (MonsterSystem.monster_touch resolved one): the rig's Attack clip, unless a hit
+## reaction or the death is playing. Monsters have no other attack.
+func on_attack() -> void:
+	if has_clip(CLIP_ATTACK) and _oneshot != CLIP_HIT:
+		_start_oneshot(CLIP_ATTACK, 0.0)
+
+
+## The rig's AnimationPlayer, or null (a proxy or the placeholder: procedural motion instead).
+func animation_player() -> AnimationPlayer:
+	return _anim
+
+
+func has_clip(clip_name: String) -> bool:
+	return _anim != null and _anim.has_animation(clip_name)
+
+
+## The clip the rig is playing ("" without a rig).
+func clip() -> String:
+	return _clip
 
 
 func set_hp_ratio(r: float) -> void:
@@ -179,6 +242,8 @@ func set_hp_ratio(r: float) -> void:
 func start_death_fade(seconds: float) -> void:
 	_fade_t = 0.0
 	_fade_s = maxf(seconds, 0.01)
+	if has_clip(CLIP_DEATH):
+		_start_oneshot(CLIP_DEATH, _fade_s * DEATH_CLIP_SHARE)
 	if hp_bar != null:
 		hp_bar.visible = false
 	# Off at once: with transparency > 0 the body leaves the opaque pass, so its stencil would no longer be written
@@ -264,7 +329,8 @@ static func stencil_material(mat: Material, owned: bool) -> Material:
 
 
 ## The mesh the fill draws for `mesh`: the mesh itself when it has one surface, else one triangle surface holding
-## every triangle surface of it (positions only; cached per source mesh), so a fill is one draw call per model mesh
+## every triangle surface of it (positions, plus each vertex's bones and weights when every surface is skinned alike,
+## so the fill of a rig follows its animation; cached per source mesh), so a fill is one draw call per model mesh
 ## instead of one per material (a proxy mesh has 3-6 surfaces).
 static func fill_mesh(mesh: Mesh) -> Mesh:
 	if mesh == null or mesh.get_surface_count() <= 1:
@@ -273,12 +339,23 @@ static func fill_mesh(mesh: Mesh) -> Mesh:
 		return _fill_meshes[mesh]
 	var verts := PackedVector3Array()
 	var index := PackedInt32Array()
+	var bones := PackedInt32Array()
+	var weights := PackedFloat32Array()
+	# Bones per vertex shared by every surface: -1 = not known yet, 0 = not skinned (or skinned unevenly: positions only).
+	var per_vertex := -1
 	for s in mesh.get_surface_count():
 		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES:
 			continue
 		var arr := mesh.surface_get_arrays(s)
 		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
 		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
+		var k := 0
+		if arr[Mesh.ARRAY_BONES] != null and arr[Mesh.ARRAY_WEIGHTS] != null and v.size() > 0:
+			k = (arr[Mesh.ARRAY_BONES] as PackedInt32Array).size() / v.size()
+		per_vertex = k if per_vertex < 0 or per_vertex == k else 0
+		if per_vertex > 0:
+			bones.append_array(arr[Mesh.ARRAY_BONES])
+			weights.append_array(arr[Mesh.ARRAY_WEIGHTS])
 		var base := verts.size()
 		verts.append_array(v)
 		if ind.is_empty():
@@ -293,9 +370,15 @@ static func fill_mesh(mesh: Mesh) -> Mesh:
 		arrays.resize(Mesh.ARRAY_MAX)
 		arrays[Mesh.ARRAY_VERTEX] = verts
 		arrays[Mesh.ARRAY_INDEX] = index
+		var flags := 0
+		if per_vertex > 0:
+			arrays[Mesh.ARRAY_BONES] = bones
+			arrays[Mesh.ARRAY_WEIGHTS] = weights
+			if per_vertex == 8:
+				flags = Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
 		var merged := ArrayMesh.new()
 		merged.resource_name = "%s_SeeThrough" % mesh.resource_name
-		merged.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		merged.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 		out = merged
 	_fill_meshes[mesh] = out
 	return out
@@ -324,6 +407,11 @@ func _apply_see_through(root: Node, owned: bool) -> void:
 		# The fill exists to draw where terrain hides the monster: occlusion culling (off today) must never cull it.
 		fill.ignore_occlusion_culling = true
 		fill.layers = mi.layers
+		if mi.skin != null and not mi.skeleton.is_empty():
+			# A rig's mesh: the fill is bound to the same skeleton with the same skin, so it follows the animation
+			# instead of drawing the rest pose. A relative mi.skeleton is relative to mi, the fill's parent.
+			fill.skin = mi.skin
+			fill.skeleton = mi.skeleton if mi.skeleton.is_absolute() else NodePath("../" + String(mi.skeleton))
 		fill.visible = false
 		fill.set_instance_shader_parameter(&"see_through_tint", tint)
 		fill.set_instance_shader_parameter(&"see_through_amount", 0.0)
@@ -359,8 +447,11 @@ func advance(delta: float) -> void:
 	var step := deg_to_rad(TURN_RATE_DEG) * delta
 	_yaw = want if absf(diff) <= step else _yaw + signf(diff) * step
 	rotation.y = _yaw
-	# Walk bob: one cycle per canonical move clip (snails squash, the rest bob).
 	var moving := bool(monster.call("is_walking")) if monster.has_method("is_walking") else false
+	_step_clips(delta, moving)
+	# Walk bob without a Walk clip: one cycle per canonical move clip (snails squash, the rest bob).
+	if has_clip(CLIP_WALK):
+		moving = false
 	if moving and def != null:
 		var period := def.move_s if def.move_s > 0.0 else 0.6
 		_bob_phase = fmod(_bob_phase + delta / period * TAU, TAU)
@@ -393,17 +484,56 @@ func advance(delta: float) -> void:
 	if _flash_t > 0.0:
 		_flash_t -= delta
 		_set_overlay(_flash_mat if _flash_t > 0.0 else null)
-	# Death fade over the canonical die time, sinking a little.
+	# Death fade over the canonical die time, sinking a little; with a Death clip the clip plays first at full opacity
+	# (it topples and shrinks the body itself) and the body fades over the rest of the die time.
 	if _fade_t >= 0.0:
 		_fade_t += delta
 		var f := clampf(_fade_t / _fade_s, 0.0, 1.0)
+		var hold := DEATH_CLIP_SHARE if has_clip(CLIP_DEATH) else 0.0
+		var alpha := clampf((f - hold) / (1.0 - hold), 0.0, 1.0)
 		for g in _geoms:
 			if is_instance_valid(g):
-				g.transparency = f
-		model.position.y = bob - f * height_m * DEATH_SINK_FRACTION
+				g.transparency = alpha
+		if not has_clip(CLIP_DEATH):
+			model.position.y = bob - f * height_m * DEATH_SINK_FRACTION
 		if f >= 1.0:
 			_fade_t = INF
 			faded_out.emit()
+
+
+## Plays the clip the monster's state selects: Death once dying, else the one-shot (Attack, Hit) until it is over,
+## else Walk while it moves and Idle while it stands. Changes cross-fade over CLIP_BLEND_S.
+func _step_clips(delta: float, moving: bool) -> void:
+	if _anim == null:
+		return
+	if _oneshot != "" and _oneshot != CLIP_DEATH:
+		_oneshot_left -= delta
+		if _oneshot_left <= 0.0:
+			_oneshot = ""
+	var want := _oneshot
+	var span := _oneshot_s
+	if want == "":
+		want = CLIP_WALK if moving and has_clip(CLIP_WALK) else CLIP_IDLE
+		span = 0.0
+	if not has_clip(want) or (want == _clip and not _restart):
+		return
+	var length := _anim.get_animation(want).length
+	var speed := length / span if span > 0.0 and length > 0.0 else 1.0
+	_anim.play(want, CLIP_BLEND_S, speed)
+	if _restart and want == _clip:
+		_anim.seek(0.0, true)
+	_restart = false
+	_clip = want
+
+
+## Starts the one-shot `clip_name` over `seconds` (0 = its own length); Death is final.
+func _start_oneshot(clip_name: String, seconds: float) -> void:
+	if _oneshot == CLIP_DEATH:
+		return
+	_oneshot = clip_name
+	_oneshot_s = seconds
+	_oneshot_left = seconds if seconds > 0.0 else _anim.get_animation(clip_name).length
+	_restart = true
 
 
 func _bar_width() -> float:

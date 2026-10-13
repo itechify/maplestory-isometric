@@ -33,6 +33,9 @@ var view: MapInstanceView = null
 var player: Node3D = null
 var player_combat: PlayerCombat = null
 var library: ProxyLibrary = null
+## The art pack the monsters' rigged models come from (null = ArtPack.load_installed() on first use; without the pack
+## installed it is empty and the monsters keep their proxies).
+var art: ArtPack = null
 var ground: PhysicsGroundQuery = null
 var tuning: WorldTuning = null
 ## Injection seams; null = the autoloads.
@@ -374,7 +377,7 @@ func _new_monster(mob_id: String, xform: Transform3D, def: MapDefinition, map_id
 		m.settle_up_m = t.num("grounding", "probe_up_m")
 		m.settle_down_m = t.num("grounding", "probe_down_m")
 	var seed_value := hash("%s:%d:%d" % [map_id, slot_index, _spawn_counter])
-	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp)
+	m.setup(d, self, xform, seed_value, region_for(def), _ground(), _library(), start_hp, _art())
 	var band := region_band(def, slot_index)
 	if not is_nan(band.x):
 		m.set_region_band(band.x, band.y)
@@ -436,6 +439,12 @@ func _library() -> ProxyLibrary:
 		library = ProxyLibrary.load_from()
 		_owns_library = true
 	return library
+
+
+func _art() -> ArtPack:
+	if art == null:
+		art = ArtPack.load_installed()
+	return art
 
 
 func _tuning() -> WorldTuning:

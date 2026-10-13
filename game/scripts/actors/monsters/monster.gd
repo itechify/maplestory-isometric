@@ -93,7 +93,7 @@ func _init() -> void:
 
 ## Configures the monster before it enters the tree. `xform` is the spawn slot transform (feet, facing +Z).
 func setup(d: MonsterDef, sys: Node, xform: Transform3D, rng_seed: int, p_region: MobRegion,
-		p_ground: PhysicsGroundQuery, library: ProxyLibrary, start_hp: int = -1) -> void:
+		p_ground: PhysicsGroundQuery, library: ProxyLibrary, start_hp: int = -1, art: ArtPack = null) -> void:
 	def = d
 	system = sys
 	name = "Mob_%s_%d" % [d.id, spawn_order]
@@ -115,7 +115,7 @@ func setup(d: MonsterDef, sys: Node, xform: Transform3D, rng_seed: int, p_region
 	visual.name = "Visual"
 	visual.monster = self
 	add_child(visual)
-	visual.build(d, library)
+	visual.build(d, library, art)
 	visual.snap_facing(facing)
 	visual.set_hp_ratio(float(hp) / maxf(d.max_hp, 1))
 	visual.faded_out.connect(_on_faded_out)
@@ -211,7 +211,9 @@ func step(delta: float) -> void:
 			MonsterBrain.Mode.WALK, MonsterBrain.Mode.CHASE:
 				_step_walk(delta)
 	if system != null and is_instance_valid(system) and system.has_method("monster_touch"):
-		system.call("monster_touch", self)
+		if bool(system.call("monster_touch", self)) and visual != null:
+			# A resolved touch is its attack (it has no other): the visual plays it.
+			visual.on_attack()
 
 
 func is_alive() -> bool:
