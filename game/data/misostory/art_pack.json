@@ -1,5 +1,13 @@
 {
-  "_doc": "The pinned art pack (ADR 0002, docs/adr/0002-pinned-art-pack.md): which release the game uses and where it is installed. bash scripts/art_pack.sh fetch reads the release block; ArtPack (game/scripts/core/art/art_pack.gd) reads install_dir and the rest. Bump the pack by changing the release block and the checksum manifest together (CONTRIBUTING.md, Art pack releases).",
+  "id": "art_pack",
+  "kind": "misostory_adaptation",
+  "description": "The pinned art pack (ADR 0002, docs/adr/0002-pinned-art-pack.md): which release of the Project art the game uses, where it is installed, and the import rules that depend on it. bash scripts/art_pack.sh fetch reads the release block; ArtPack (scripts/core/art/art_pack.gd) and ArtImport (scripts/core/art/art_import.gd) read the rest. Bump the pack by changing the release block and the checksum manifest together (CONTRIBUTING.md, Art pack releases).",
+  "reason": "Project art is pinned as a Release asset, not generated in the repo (ADR 0002); spec #59, ticket #62.",
+  "verified": true,
+  "verified_against": [
+    "https://github.com/itechify/maplestory-isometric/releases/tag/art-pack-v1.0",
+    "docs/adr/0002-pinned-art-pack.md"
+  ],
   "release": {
     "tag": "art-pack-v1.0",
     "asset": "MisoStory_Art_Pack_v1.0.zip",
@@ -9,13 +17,12 @@
     "checksum_manifest": "tools/art_pack/art-pack-v1.0.files.tsv"
   },
   "install_dir": "res://assets/art_pack",
-  "provenance": {
+  "project_art": {
     "kind": "Project art",
     "made_by": "Jarvis, the project owner's ChatGPT agent",
     "made_with": "Blender 4.3.2, procedurally (the generators stay with Jarvis; a not-run copy ships under reference/)",
     "delivered": "2026-10-13, as nine ZIPs attached to #59 (pack v1)",
-    "source": "https://github.com/itechify/maplestory-isometric/issues/59",
-    "decision": "docs/adr/0002-pinned-art-pack.md",
+    "delivery_url": "https://github.com/itechify/maplestory-isometric/issues/59",
     "packaged_by": "tools/art_pack/build_release.py (PACKAGING.json in the asset records the source ZIPs' SHA-256)",
     "packaging_changes": [
       {
@@ -26,5 +33,13 @@
         "why": "bed.glb and Bed.glb differ only in case and collide on case-insensitive file systems; the catalog maps Bed to Bed.glb. Every JSON naming bed.glb was updated (asset_index.json, docs/glb_structural_audit.json, environment/manifest.json, environment/manifest_complete.json, godot_validation.json, validation.json). #61 removes the clash upstream in v1.1, which then needs only a version bump."
       }
     ]
+  },
+  "character_scale": {
+    "factor": 0.75662,
+    "factor_reason": "One uniform factor fits the Beginner to the game's 1.5 m body (#59 decision 6): body_height_m / reference_height_m. Applied on import to the player presets, the 21 NPCs, the wearables and the hair and face modules, so relative heights stay as Jarvis made them. Monsters keep model_fit.",
+    "body_height_m": 1.5,
+    "reference_file": "characters/glb/Beginner_Male.glb",
+    "reference_height_m": 1.9825,
+    "reference_height_reason": "Beginner_Male's bounds in the pack's godot_validation.json: y 0.0075 to 1.99 m, hair included."
   }
 }
