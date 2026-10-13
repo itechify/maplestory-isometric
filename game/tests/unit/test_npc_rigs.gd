@@ -87,3 +87,54 @@ func test_the_presenter_measures_the_rig_and_lets_idle_replace_the_bob() -> void
 			p.update(0.1)
 			ys.append(n.visual.position.y)
 		assert_near(ys.max() - ys.min(), 0.0, 1e-6, "%s: no procedural bob on the rig" % id)
+
+
+func test_every_portrait_renders_the_rig_head_and_shoulders() -> void:
+	if _skip("test_every_portrait_renders_the_rig_head_and_shoulders"):
+		return
+	var portrait := NpcPortrait.new()
+	_parent().add_child(portrait)
+	_nodes.append(portrait)
+	for id in db().ids("npcs"):
+		var n := _npc(id)
+		# The presenter's turn and the source's pose must not leak into the portrait.
+		n.visual.rotation.y = 1.0
+		portrait.show_speaker(id, String(db().npc(id).get("name", id)), n.visual)
+		assert_eq(portrait.mode, "model", "%s: the rigged model, not the badge" % id)
+		var copy := portrait.shown_model()
+		assert_true(copy != null and copy.find_child("Skeleton3D", true, false) is Skeleton3D, "%s: the rig" % id)
+		if copy == null:
+			continue
+		var ap := copy.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		assert_true(ap != null and ap.is_playing() and String(ap.current_animation) == "idle", "%s: idles" % id)
+		# Head and shoulders: the frame holds the top of the head (a hat too) and the shoulders, not the hips.
+		var span := portrait.framed_span()
+		var box := ArtImport.visual_aabb(copy)
+		var sk := copy.find_child("Skeleton3D", true, false) as Skeleton3D
+		var k := ArtPack.character_scale()
+		var shoulders := sk.get_bone_global_rest(sk.find_bone("upper_arm.L")).origin.y * k
+		var hips := sk.get_bone_global_rest(sk.find_bone("hips")).origin.y * k
+		assert_true(span.y >= box.end.y, "%s: the head's top (%.2f) is in the frame (top %.2f)" % [id, box.end.y, span.y])
+		assert_true(span.x < shoulders, "%s: the shoulders (%.2f) are in the frame (bottom %.2f)" % [id, shoulders, span.x])
+		assert_true(span.x > hips, "%s: the hips (%.2f) are below the frame (bottom %.2f)" % [id, hips, span.x])
+		n.free()
+
+
+func test_a_portrait_of_the_same_speaker_is_not_rebuilt_every_line() -> void:
+	if _skip("test_a_portrait_of_the_same_speaker_is_not_rebuilt_every_line"):
+		return
+	var portrait := NpcPortrait.new()
+	_parent().add_child(portrait)
+	_nodes.append(portrait)
+	var roger := _npc("3")
+	portrait.show_speaker("3", "Roger", roger.visual)
+	var first := portrait.shown_model()
+	portrait.show_speaker("3", "Roger", roger.visual)
+	assert_true(portrait.shown_model() == first, "the next line of the same speaker keeps the rendered copy")
+	var sera := _npc("2", Vector3(3, 0, 0))
+	portrait.show_speaker("2", "Sera", sera.visual)
+	assert_true(portrait.shown_model() != first, "another speaker is rendered afresh")
+	portrait.show_speaker("", "", null, "system")
+	assert_eq(portrait.mode, "badge", "a system line still shows the badge")
+	portrait.show_speaker("2", "Sera", sera.visual)
+	assert_eq(portrait.mode, "model", "and the speaker's model comes back")

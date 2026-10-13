@@ -22,7 +22,7 @@ func test_every_island_npc_resolves_to_its_pack_model() -> void:
 	world.attach_to_session = false
 	world.art = art
 	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(world)
+	tree.current_scene.add_child(world)
 	world.build_now(db())
 	var ids := db().ids("npcs")
 	assert_eq(world.npc_nodes.size(), ids.size(), "every canonical NPC is placed")
@@ -48,7 +48,7 @@ func test_build_now_without_an_injected_pack_keeps_the_proxies() -> void:
 	world.load_visuals = false
 	world.attach_to_session = false
 	var tree := Engine.get_main_loop() as SceneTree
-	tree.root.add_child(world)
+	tree.current_scene.add_child(world)
 	world.build_now(db())
 	for id in world.npc_nodes:
 		var n := world.npc_nodes[id] as WorldNpc
