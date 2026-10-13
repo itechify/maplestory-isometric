@@ -215,6 +215,17 @@ basic attack never overlaps one. The HUD quickslots cast through `MisoQuickslots
 again as soon as the lockout and any cooldown end (`PlayerSkills.ready_to_cast`, #20). The console has `skills` and
 `cast <id|name>`.
 
+**Effect meshes (#71).** With the art pack installed, the pack's five effect meshes (`EffectMeshes`,
+`scripts/actors/combat/effect_meshes.gd`, looked up through `ArtPack` kind `EFFECT`) play on events the game already
+raises, as presentation only: the thrown shell is `ThreeSnails` (as tall as `projectile_size_m`, on the same flight to
+`shell_end`; `PlayerSkills.last_shell` / `last_shell_flight`), the hit spark is `HitSpark` (where and as long as
+`AttackFx.spark` played its burst), and `PlayerFx` (`actors/combat/player_fx.gd`, a third child made by
+`ensure_skill_nodes`) shows `Recovery` and `NimbleFeet` at the feet for exactly as long as the timed effect runs
+(re-read on `effects_changed`, `game_loaded` and `Game.character_replaced`) and `JumpDust` on a ground jump and a
+landing (the player's `jumped` and `landed`; not a jump off a ladder or rope). The player-side meshes get the
+character factor (`ArtPack.character_scale`). Without the pack the shell and spark stay procedural and nothing else
+shows.
+
 **Effects and cooldowns** are remaining seconds of game time on the character (contract C3): `CharacterState.effects`
 `[{"id": "skill:0001002", "source": "skill:0001002", "remaining_s", "data": {"skill_id", "level", "duration_s",
 "bonuses" | "hp_total", "tick_s", "ticks_done"}}]` and `CharacterState.cooldowns` `{skill_id: remaining_s}`.
@@ -305,6 +316,7 @@ ISOLATE=<name> bash scripts/test.sh                                             
 | `test_skills_book.gd` | the three Beginner skills from canonical data (costs, damage, heal, speed, durations, cooldowns, cast positions, the 810 ms action), SP rules (one per level, max 3, the 9 SP of levels 2-10 max all three), cast checks, the search band and its pick, `skills.json` |
 | `test_skills_effects.gd` | `EffectBook`: speed bonus until expiry and the cap, a heal over time that heals exactly its total, cooldowns, malformed entries, a save round trip mid-way |
 | `test_skills_casting.gd` | `PlayerSkills` / `EffectTicker` on `MonsterTestRig`: Three Snails damage per level, costs, lockout and planting, a kill with EXP, band limits, ground only, never a Wooden Box (#5); walls (#6): the nearer monster behind a wall skipped, a whiff's shell stopped at the wall, monsters, boxes and props on the line passed through, `SkillSight`'s rules, the basic attack through a wall unchanged; Recovery per level, from a rope, the cap; Nimble Feet walk speed; death (both `effects_on_death` switches); refusals; the console `cast` past its own input hold; a seated player stands up |
+| `test_skill_combat_fx.gd` | the pack's effect meshes (#71), each pinned with and without the pack: the hit spark's place and life; Three Snails' shell on the same flight to its target and to the wall a whiff meets; Recovery and Nimble Feet shown from the cast to expiry, death, a recast and a load; dust on a ground jump and a landing, none off a rope |
 | `test_parity_*.gd` | the MeowDB oracle vectors (`test_parity_base.gd` holds the shared loader) |
 
 ## Known limits
