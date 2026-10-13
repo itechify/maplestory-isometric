@@ -150,13 +150,13 @@ def butterfly_model(coll, name, wing, spot):
     mb.build(name, coll, smooth=True)
 
 
-@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_yellow(coll):
     """A visible (0.35 m) yellow butterfly with orange spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Yellow", "M_Flat_flower_yellow", "M_Flat_mush_orange")
 
 
-@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_pink(coll):
     """A visible (0.35 m) pink butterfly with white spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Pink", "M_Flat_flower_pink", "M_Flat_flower_white")
@@ -604,7 +604,7 @@ def arch_leafy_trail(coll):
     arch_leafy(coll, "Arch_Leafy_Trail", "trail")
 
 
-@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"))
+@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"), pack=dict(align_xy="kit"))
 def hedge_tunnel(coll):
     """Clipped hedge tunnel over a secret path (4.6 m clear corridor, >= 3 m clear at the centre, 1.7 m deep).
 

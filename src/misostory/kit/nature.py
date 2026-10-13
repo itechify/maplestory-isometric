@@ -329,7 +329,7 @@ def mush_blue_s(coll):
     _mushroom(coll, "Mushroom_Blue_S", "M_Spot_mush_blue__mush_spot", 0.42, 0.33, 0.1, 4, tilt=-6)
 
 
-@asset("Mushroom_Cluster_A", "Foliage", footprint=1.2, tags=("mushroom",))
+@asset("Mushroom_Cluster_A", "Foliage", footprint=1.2, tags=("mushroom",), pack=dict(rot_z=-90, align_xy="kit"))
 def mush_cluster(coll):
     """Little group of 4 colored mushrooms (as seen at the West Entrance)."""
     specs = [((-0.45, 0.05), "M_Spot_mush_yellow__mush_spot", 0.35, 0.25),
@@ -428,7 +428,7 @@ def log_a(coll):
     mb.build("Log_A", coll, smooth=True, sharp_angle=45)
 
 
-@asset("Vine_Hanging_A", "Foliage", footprint=0.5, tags=("vine",))
+@asset("Vine_Hanging_A", "Foliage", footprint=0.5, tags=("vine",), pack=dict(fit="z", anchor_z="kit_top"))
 def vine_hanging(coll):
     """Leafy vine strand to hang down cliff faces (origin = top)."""
     r = core.rng("vine", 1)
@@ -496,7 +496,7 @@ def sunflower_patch(coll):
     mb.build("Sunflower_Patch", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Hedge_Wall_4m", "Foliage", footprint=4.0, tags=("bush", "hedge"))
+@asset("Hedge_Wall_4m", "Foliage", footprint=4.0, tags=("bush", "hedge"), pack=dict(align_xy="kit"))
 def hedge_wall(coll):
     """4 m long clipped hedge along +X from the origin (stack/scale for longer walls); reads as one wall from any yaw.
 
@@ -538,7 +538,7 @@ def veg_garden(coll):
     mb.build("Veg_Garden_Bed", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Butterfly", "Foliage", footprint=0.2, tags=("flower",))
+@asset("Butterfly", "Foliage", footprint=0.2, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly(coll):
     """Hovering butterfly, big enough to read at map scale (0.35 m wings, 1.45 m up)."""
     mb = MeshBuilder()
