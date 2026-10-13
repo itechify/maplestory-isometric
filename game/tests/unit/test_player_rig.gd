@@ -143,6 +143,13 @@ func test_climbing_a_rope_plays_climb() -> void:
 	rig.w.bot.press(&"portal_enter")
 	_tick(vis, 2)
 	assert_true(p.is_climbing(), "on the rope")
+	# Hanging still: the clip holds its pose, but only after the blend into it has finished (a held clip at speed 0
+	# would freeze the crossfade too, leaving the idle arms on the rope).
+	_tick(vis, 60)
+	assert_eq(_playing(vis), "climb", "hanging still")
+	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
+	var hand := sk.get_bone_global_pose(sk.find_bone("hand.R")).origin
+	assert_true(hand.x > -0.2 and hand.y > 0.75, "the hand is up on the rope, not at the side (%s)" % hand)
 	rig.w.bot.climb = 1.0
 	_tick(vis, 20)
 	assert_eq(_playing(vis), "climb", "climbing")

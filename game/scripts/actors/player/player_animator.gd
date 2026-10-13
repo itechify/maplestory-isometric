@@ -73,6 +73,8 @@ var _hit_left: float = 0.0
 var _attack_left: float = 0.0
 var _attack_speed: float = 1.0
 var _restart: bool = false
+## Seconds since the current clip was (re)started.
+var _since_play: float = 0.0
 
 
 ## The animator of an imported character model: null when it has no AnimationPlayer holding every clip of CLIPS.
@@ -126,6 +128,9 @@ func update(s: Dictionary, delta: float) -> StringName:
 		anim.play(clip, float(BLEND_S.get(clip, 0.1)))
 		anim.seek(0.0, true)
 		current = clip
+		_since_play = 0.0
+	else:
+		_since_play += delta
 	_restart = false
 	anim.speed_scale = _speed_for(clip, s)
 	anim.advance(delta)
@@ -138,7 +143,10 @@ func _speed_for(clip: StringName, s: Dictionary) -> float:
 			var ref := float(s.get("cycle_speed", 0.0))
 			return clampf(float(s.get("speed", 0.0)) / ref, CYCLE_SCALE_MIN, CYCLE_SCALE_MAX) if ref > 0.0 else 1.0
 		CLIMB:
-			# Holding still on a rope holds the climbing pose.
+			# Holding still on a rope holds the climbing pose, once the blend into it has run (the crossfade advances
+			# with the playback speed, so a held clip at speed 0 could keep the previous clip's pose on the rope).
+			if _since_play < float(BLEND_S[CLIMB]):
+				return 1.0
 			return clampf(float(s.get("climb_rate", 1.0)), 0.0, CYCLE_SCALE_MAX)
 		ATTACK:
 			return _attack_speed

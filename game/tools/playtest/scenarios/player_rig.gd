@@ -70,9 +70,8 @@ func run(d: PlaytestDriver) -> void:
 	p.apply_knockback_from_point(p.global_position + p.facing * 0.5)
 	await d.wait(0.12)
 	_clip(d, vis, &"hit", "hurt")
-	await _shot(d, "hurt_a")
-	await d.wait(0.07)
-	await _shot(d, "hurt_b")
+	await _shot(d, "hurt")
+	await _blink_off_shot(d, vis)
 	await d.wait_until(func() -> bool: return not p.is_invulnerable(), 5.0)
 
 	await _rope(d, p, vis)
@@ -91,13 +90,39 @@ func _clip(d: PlaytestDriver, vis: PlayerVisual, want: StringName, what: String)
 	d.check("%s plays %s" % [what, want], vis.current_clip() == want, "playing %s" % vis.current_clip())
 
 
+## The post-hit blink's off slice (70 ms): a frame drawn while the body is hidden, saved like _shot's. Retries until
+## the body stayed hidden through the draw.
+func _blink_off_shot(d: PlaytestDriver, vis: PlayerVisual) -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	DirAccess.make_dir_recursive_absolute(d.out_dir.path_join("shots"))
+	for attempt in 30:
+		await d.frames(1)
+		if not vis.is_blinked_off():
+			continue
+		await RenderingServer.frame_post_draw
+		if not vis.is_blinked_off():
+			continue
+		var img := d.get_viewport().get_texture().get_image()
+		var path := d.out_dir.path_join("shots/hurt_blink_off.png")
+		img.save_png(path)
+		d.note("BLINK-OFF frame saved: %s" % path)
+		_zoom(d, img, path)
+		return
+	d.soft_check("caught a blink-off frame", false)
+
+
 ## The gameplay-scale screenshot, plus a 3x crop around the player (<name>_zoom.png) to read the pose.
 func _shot(d: PlaytestDriver, shot_name: String) -> void:
 	var path: String = await d.screenshot(shot_name)
+	if path != "":
+		_zoom(d, Image.load_from_file(path), path)
+
+
+func _zoom(d: PlaytestDriver, img: Image, path: String) -> void:
 	var cam := d.get_viewport().get_camera_3d()
-	if path == "" or cam == null:
+	if cam == null or img == null:
 		return
-	var img := Image.load_from_file(path)
 	var at := Vector2i(cam.unproject_position(d.player().global_position + Vector3.UP * 0.75))
 	var r := Rect2i(at - Vector2i(150, 110), Vector2i(300, 220)).intersection(Rect2i(Vector2i.ZERO, img.get_size()))
 	if r.size.x <= 0 or r.size.y <= 0:
