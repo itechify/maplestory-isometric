@@ -139,6 +139,8 @@ var _last_feet: Vector3 = Vector3.ZERO
 var _hooked: bool = false
 var _combat: Node = null
 var _skills: Node = null
+var _skeleton: Skeleton3D = null
+var _root_bone: int = -1
 
 
 func _ready() -> void:
@@ -268,11 +270,12 @@ static func preset_for(character_gender: String) -> String:
 func seat_lift() -> float:
 	if animator == null or model == null:
 		return 0.0
-	var sk := model.find_child("Skeleton3D", true, false) as Skeleton3D
-	var root_bone := sk.find_bone(ArtImport.ROOT_BONE) if sk != null else -1
-	if root_bone < 0:
+	if _skeleton == null or not is_instance_valid(_skeleton) or not model.is_ancestor_of(_skeleton):
+		_skeleton = model.find_child("Skeleton3D", true, false) as Skeleton3D
+		_root_bone = _skeleton.find_bone(ArtImport.ROOT_BONE) if _skeleton != null else -1
+	if _root_bone < 0:
 		return 0.0
-	var drop := sk.get_bone_rest(root_bone).origin.y - sk.get_bone_pose_position(root_bone).y
+	var drop := _skeleton.get_bone_rest(_root_bone).origin.y - _skeleton.get_bone_pose_position(_root_bone).y
 	return SEAT_LIFT_M * clampf(drop / SIT_ROOT_DROP, 0.0, 1.0)
 
 
