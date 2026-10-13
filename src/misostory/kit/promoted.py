@@ -286,7 +286,8 @@ def planter_box(coll):
     mb.build("Planter_Box", coll, smooth=False)
 
 
-@asset("Bed", "Props", footprint=2.6, tags=("interior",))
+# pack: the bed runs along Y with its headboard at +Y; turned onto the kit frame (headboard at -X)
+@asset("Bed", "Props", footprint=2.6, tags=("interior",), pack=dict(rot_z=90))
 def bed(coll):
     """Orange wooden bed, two white pillows and a patchwork quilt; 2.5 x 1.4 m, length along +X, headboard at -X."""
     mb = MeshBuilder()

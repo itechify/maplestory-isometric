@@ -52,7 +52,7 @@ ALIAS_KIND = "semantically_equivalent_original_adaptation"
 
 # The kit categories whose catalog assets come from the pack. #72: Trees and Foliage. #73 adds Props and Markers,
 # #74 Architecture, Rocks and Terrain. Per-map X<mapid>_* landmarks are not in the mapping and never swap here.
-CATEGORIES = {"Trees", "Foliage"}
+CATEGORIES = {"Trees", "Foliage", "Props", "Markers"}
 LANDMARK = re.compile(r"X\d+_")
 
 # @asset(..., pack={...}) keys, all optional:
@@ -71,7 +71,8 @@ LANDMARK = re.compile(r"X\d+_")
 #   parts        {suffix: [substring, ...]}: pack nodes whose name contains a substring become their own object
 #                <name>_<suffix> (e.g. an overhanging cap that needs collision_tags.OVERHEAD_HULL); the rest is one
 #                object named after the asset
-#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts
+#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts or give them a kit material
+#                (kit_materials(Glow="M_Glow_window"): the glow of lamps and portals, which the pack lacks)
 SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "node_scale", "parts",
              "post"}
 
@@ -162,7 +163,7 @@ def preflight(names, pack_dir=None):
 
 
 def missing_message(problems):
-    lines = ["ART_PACK_MISSING: the Blender build takes its trees and foliage (kit categories "
+    lines = ["ART_PACK_MISSING: the Blender build takes its kit assets (categories "
              f"{', '.join(sorted(CATEGORIES))}) from the pinned art pack, and it is not usable:"]
     lines += [f"  - {p}" for p in problems[:20]]
     lines.append(f"Install it with:  {FETCH_COMMAND}   (ADR 0002; there is no fallback to the procedural kit)")
@@ -260,6 +261,18 @@ def pack_material():
     k = SHADE_BOTTOM ** 2.2  # the sRGB factor, in linear
     dark = b.mix(color, (k, k, k, 1.0), 1.0, blend="MULTIPLY")
     return b.finish(b.mix(dark, color, f))
+
+
+def kit_materials(**by_part):
+    """A ``post`` hook giving parts a kit material instead of ``M_Pack``: ``kit_materials(Glow="M_Glow_window")``
+    puts the lamp glass (``parts={"Glow": [...]}``) back in the kit's emissive material. The pack has no emission,
+    so this is how a lamp, a lantern or a portal keeps its glow (the export reads the MS_Shading Emission)."""
+    def post(coll, parts):
+        for suffix, mat_name in by_part.items():
+            me = parts[suffix].data
+            me.materials.clear()
+            me.materials.append(M.get(mat_name))
+    return post
 
 
 def _base_color(pack_mat):
