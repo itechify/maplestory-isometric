@@ -362,11 +362,14 @@ func _play_fx(weapon: WeaponProfile, feet: Vector3, facing: Vector3) -> void:
 
 
 ## Presentation: the player's model (PlayerVisual's "Model" child, which PlayerVisual never repositions) lunges
-## forward along its own +Z and back.
+## forward along its own +Z and back. Not on the rigged Beginner (#63): its attack clip covers the lunge
+## (PlayerVisual.covers), and the two never play together. The combat.json keys stay for the placeholder.
 func _play_lunge() -> void:
 	var vis := player.get_node_or_null(^"Visual")
 	var model: Node3D = vis.get("model") if vis != null and vis.get("model") is Node3D else null
 	if model == null or not model.is_inside_tree() or lunge_m <= 0.0 or lunge_s <= 0.0:
+		return
+	if vis.has_method(&"covers") and bool(vis.call(&"covers", &"lunge")):
 		return
 	if _lunge != null and _lunge.is_valid():
 		_lunge.kill()
@@ -374,6 +377,11 @@ func _play_lunge() -> void:
 	_lunge = create_tween()
 	_lunge.tween_property(model, "position", Vector3(0, 0, lunge_m), lunge_s * LUNGE_OUT_SHARE).set_ease(Tween.EASE_OUT)
 	_lunge.tween_property(model, "position", Vector3.ZERO, lunge_s * (1.0 - LUNGE_OUT_SHARE)).set_ease(Tween.EASE_IN_OUT)
+
+
+## True while the model's attack lunge is playing (presentation; never on the rigged Beginner).
+func is_lunging() -> bool:
+	return _lunge != null and _lunge.is_valid() and _lunge.is_running()
 
 
 ## Installs (or re-installs, if another system swapped the player's source) the ground-attack input lock.

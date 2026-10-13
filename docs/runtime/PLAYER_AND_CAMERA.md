@@ -16,7 +16,8 @@ key there has a reason. Canonical numbers are read from MeowDB data through `Con
 | `scripts/actors/player/climbable_def.gd` | `ClimbableDef`: one sidecar `climbables[]` entry |
 | `scripts/actors/player/safe_ground.gd` | `SafeGround`: the last safe standing point (§4.6, §4.9) |
 | `scripts/actors/player/route_bot.gd` | `RouteBot`: walks sidecar routes through a BotInput (the L2 bot seed) |
-| `scripts/actors/player/player_visual.gd` | `PlayerVisual`: model (the exported Player_Proxy), blob shadow, X-ray fill and see-through outline, facing, bob, blink, poses including the sit pose and its chair prop (presentation only) |
+| `scripts/actors/player/player_visual.gd` | `PlayerVisual`: model (the art pack's rigged Beginner, else the exported Player_Proxy, else a chibi), blob shadow, X-ray fill and see-through outline, facing, the rig's clips or the placeholder's bob and poses, blink, the chair prop (presentation only) |
+| `scripts/actors/player/player_animator.gd` | `PlayerAnimator`: which Beginner clip the gameplay state plays (`select`, pure) and the hand-driven AnimationPlayer with per-clip blends (#63) |
 | `scripts/core/items/chairs.gd` | `Chairs` (pure): what a chair is, its canonical bonus, using one (sit / stand) and the sit key; reaches the seated state through the player |
 | `scripts/actors/player/player_test_world.gd` | `PlayerTestWorld`: synchronous physics worlds for tests and the sandbox |
 | `scripts/actors/camera/camera_rig.gd` | `CameraRig`: the gameplay camera |
@@ -273,8 +274,9 @@ pitched 40° down, looking toward Godot +X −Z.
   sidecar framing on that map (`map_view_size()`, clamped to min/max) when the rig is MapSession's camera
   (`session_map_id()`). It is empty: the camera review of the nine crowded maps (below) found no map whose size
   needed changing.
-- **Readability extras.** A blob-shadow Decal under the feet marks the landing spot of every jump. The model has a
-  small walk bob and lean, a post-hit blink, and a fall-over pose on death.
+- **Readability extras.** A blob-shadow Decal under the feet marks the landing spot of every jump. The rigged
+  Beginner plays its clips (below); the placeholder models have a small walk bob and lean and a fall-over pose on
+  death. Both blink after a hit.
 
 Wave 2 wiring: instance both scenes, then call `rig.set_target(player)`, `world.set_player(player)`,
 `MapSession.attach_camera(rig)` and `rig.scan_occluders(world)`. The sandbox's `--world` mode does exactly this.
@@ -369,7 +371,34 @@ Hunting Ground I and 0.31 ms in Dangerous Forest with four monsters near the pla
   (`_scratch/visuals`, 2026-10-06): the canopy itself covered only 5-7% of the body; the player vanished on the
   blink-off slices, because hiding the model also hid its X-ray fill and its outline.
 
-The visual now shows the exported Player_Proxy. The export names asset roots with Blender's suffix
+On the rigged Beginner (#63) the fill is a next pass on the skinned surfaces themselves, so it follows the pose. The
+outline copies keep each mesh's bones and weights (eight per vertex too) and are posed by the same skin and skeleton;
+a copy without them would stand in the bind pose while the body animates. The rig has no ink shell.
+
+### The rigged Beginner (#63)
+
+With the art pack installed, the model is the pack's Beginner preset for `CharacterState.gender` (`Beginner_Male` /
+`Beginner_Female`, the male one when unknown), looked up by ID through `ArtPack` and already at the character scale
+(the 1.5 m body). A new game or a load during play swaps it (`set_gender`). `PlayerAnimator` plays, in priority order:
+`death` (dead), `sit` (seated), `hit` (a knockback, a landed touch announced on the bus, or the hit-stun), `climb`
+(ladder, rope or vine; it holds still while the player does), `attack` (each `attack_started` and `cast_started`, timed
+to fill the lockout), `jump` (any airborne state), then `run` / `walk` / `idle` by ground speed (`run` from 1.15x a
+Speed 100 walk; the cycles play at the speed's share). Blends are per clip: reactions 0.05 s, the jump 0.08 s,
+locomotion 0.15-0.2 s.
+
+Animation never moves the body. The import holds every clip's root translation at rest except `sit` (#62), and the
+procedural bob, lean, death fall, sit drop and lean, and `PlayerCombat`'s attack lunge are skipped where a clip covers
+them (`covers()`; the `combat.json` lunge keys stay for the placeholder). Two measured lifts keep the rig on what it
+rests on (`ground_lift()`):
+
+- The sit clip's kept 0.21 m drop would sink the pelvis 0.22 m into The Green Relaxer's cushion (the pack's model of
+  the chair item, at the character scale). The seated body is lifted `SEAT_LIFT_M` (0.221 m) in step with that drop.
+- The death clip, its root held, lays the big head 0.18 m under the feet. The dead body is lifted `DEATH_REST_LIFT_M`
+  (0.176 m) as it falls.
+
+Windowed screenshots: `bash scripts/playtest.sh player_rig --windowed` (`QUEST=female` for the female preset).
+
+Without the pack the visual shows the exported Player_Proxy. The export names asset roots with Blender's suffix
 (`Player_Proxy_001`), and the old exact-name lookup had fallen back to the procedural chibi placeholder in the real
 game. `PlayerVisual.find_proxy()` matches the name like `ProxyLibrary` does.
 
@@ -397,6 +426,8 @@ ISOLATE=player INCLUDE_WORLD=1 bash scripts/test.sh player_route   # bot on real
 | `test_player_climb.gd` | sidecar parsing; a ladder end to end (Up grab, canonical climb time, exit to top_exit, Down grab from the top, climb down); interact and W/S; grab range; jump off sideways; descend-only; ropes without foot ground; mid-air catch; no re-grab after a jump-off with Up held (and Up held climbs, as on the keyboard); `grabbable_climbable()`/`grab_climbable()` and the exact top_exit |
 | `test_player_hit.gd` | knockback rise and airtime per MeowDB's model, push, hit-stun gating input, direction conventions, invulnerability timer and source, knocked off ladders, death and revive, teleport reset, SafeGround rules and both filter forms, kill_y |
 | `test_player_activity.gd` | `activity()`: still, walking (and pushing into a wall), still in a dialogue with a key held, jumping (and falling, and every tick of a held jump including the landings), climbing, hitstun, dead, attacking during a planted lockout (speed 0), seated, other when frozen or outside the tree |
+| `test_player_animation.gd` | `PlayerAnimator.select` (no pack): idle, walk and run by ground speed; jump while airborne; climb; the one-shots in gameplay order (attack over walk and a jump, hit over the attack and the climb, sit, death over all) |
+| `test_player_rig.gd` | with the art pack (SKIP without): the gender's Beginner preset at 1.5 m and its swap; each state plays its clip on the rig (idle, walk, run, jump, climb a rope, attack, hit, sit, death); through a full jump the root bone stays on the body's feet and the visual adds no offset; the bob, lean, death fall, sit drop and lunge never run; the pelvis rests on The Green Relaxer's cushion and the dead body on the ground (both genders); every rig surface writes the stencil and carries the fill, and each outline hull is skinned by the rig's skeleton. Without a rig, the placeholder keeps its bob, lean, lunge, sit drop and death fall |
 | `test_player_sit.gd` | sitting only grounded, still, alive and free; a move press stands up without moving that tick and walks on the next; a jump press stands up without jumping; the attack key (a real PlayerCombat) and a real cast (PlayerSkills) stand up before they start, so on their first tick the activity is "attacking" and `is_seated()` is false (activity and the seated query agree); knockback, death, teleport, a climb and leaving the ground (on its second tick) stand up, while a one-tick flicker of the ground state leaves a still, seated player seated; ladder keys are ignored while seated; X toggles on the first chair owned and reports "no chair"; losing the chair stands up; the seated state is not in the save and a load arrives standing |
 | `test_chairs_use.gd` | chairs are the Setup items with setup data (522, 525); the canonical bonus; the first chair in slot order; refusals (unknown, not a chair, not owned, level, dead, walking); use sits and stands without consuming or emitting item events; moving to another chair; a fixture ItemService never moves the live player; a quickslot-bound chair sits the live player; the inventory window's double-click and Sit / Stand button |
 | `test_player_route_bot.gd` | the bot on real exported collision (INCLUDE_WORLD=1); route geometry helpers; on synthetic collision (no world needed): jumps a 0.8 m rise, climbs a ladder up and down, reports a stall at a wall |
@@ -509,9 +540,11 @@ show instead:
   and the world's `nearest_interactable()` to pick one.
 - `is_on_floor()` can be off for a single tick when a feet ray lands exactly on a chamfer edge (rate above).
   `is_grounded()` is exact.
-- No skeletal animation: the Player_Proxy is a static model with procedural bob, lean, blink, death tilt and a simple
+- Without the art pack the Player_Proxy is a static model with procedural bob, lean, blink, death tilt and a simple
   sit pose (settle and lean onto a procedural chair). The fallback model (when `_library.glb` is missing) is
   procedural.
+- The rigged Beginner has one `attack` clip, so the three starter weapons swing alike (weapons show on the body in
+  #68). There is no player name tag.
 - Sitting needs a chair item: there is no ground sit and no map bench (MeowDB documents neither on Maple Island;
   Rain's quiz 1016 only mentions chairs and benches in general).
 - Crouch and down-jump through platforms (the classic statement from Rain's quiz) are not implemented: excluded as an
