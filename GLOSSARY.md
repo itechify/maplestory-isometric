@@ -1,8 +1,8 @@
 # MisoStory
 
 Classic Maple Island rebuilt as one isometric 3D island and a playable game on it. Its content follows what the
-project's sources publish about the classic game; this glossary names the ways a piece of work or a value can stand
-relative to those sources and to the project's plans.
+project's sources publish about the classic game; this glossary names the ways a piece of work, a value or a piece of
+art can stand relative to those sources and to the project's plans.
 
 ## Language
 
@@ -19,6 +19,11 @@ _Avoid_: Unknown, placeholder, TBD
 A MisoStory rule that stands in where the canonical value is missing or does not translate to isometric 3D. It is
 marked unverified, and changing one is the owner's decision.
 _Avoid_: Placeholder, guess, house rule
+
+**Project art**:
+Art made for MisoStory by the owner or by AI agents working for the owner, such as the island kit and Jarvis's 3D
+asset pack. The project owns it and may commit and publish it. It never sets names or values.
+_Avoid_: Original art, fan art, custom art
 
 **Brief**:
 The document that set one iteration's goal, scope and definition of done. Iterations One to Three each had one; work
