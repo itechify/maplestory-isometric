@@ -36,7 +36,7 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | fallback icon drawn in the item's ground-drop shape |
 | `scenes/systems/loot_system.tscn` | `LootSystem` | root: drops on the ground, pickup, expiry, persistence |
 | `scripts/actors/loot/ground_drop.gd` | `GroundDrop` | one drop: toss arc, hover, bob and spin, expiry blink |
-| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | procedural drop models and styles from `loot_visuals.json` |
+| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | drop models (the art pack's, else procedural) and styles from `loot_visuals.json` |
 | `scripts/actors/loot/loot_rules.gd` | `LootPickupRules` | pure: pickup box in 3D, pickup target, scatter, notices, record helpers |
 | `data/misostory/loot_visuals.json` | | adaptation: drop shapes, colours, sizes, motion, placement, pickup repeat |
 
