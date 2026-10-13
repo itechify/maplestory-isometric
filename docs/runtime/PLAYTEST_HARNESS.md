@@ -697,12 +697,14 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `regen` | natural HP recovery in the real game; sitting, and Up at a real portal while seated (the player stands up and uses it); last, on a ladder: climbing pauses the clock, and `PlaytestKit.rest()` climbs off before it rests | mechanics |
 | `trap_probe` | escape attempts from known former trap spots | world |
 | `test_skills`, `test_box` | the Beginner skills; the Wooden Boxes: 1012 with real boxes, box state not saved, every box of the other five box maps, and Three Snails thrown hits_to_break + 1 times at an Amherst box that keeps all its hits (skills never hit a box, #5) (Iteration Three packages) | skills, breakables |
+| `test_effects` | the art pack's effect meshes at gameplay scale (#71): Recovery and Nimble Feet at the feet, jump dust, Three Snails' shell with the hit spark, a whiff; run `--windowed` for the captures; without the pack it checks the procedural shell and spark and that nothing else shows | skills |
 | `pause_load` | the pause menu's Load inside a running session (contract C3): after a save, a box broken and drops on the ground; Esc, Load, the slot's Load: the same map, a new instance, both boxes whole, no ground drop, nothing parked, the saved character (adopted from the wave-2 integration review) | harness |
 | `resume_gate` | G1: a save just past a trail gate (inside the trigger of the portal the player arrived through: Amherst east00, Southperry west00) resumes there after Quit Game and Continue (load step `resume`, the portal disarmed as after an arrival, re-armed on leaving it) | harness |
 | `test_b_population` | the monster population of all 15 hunting maps | monsters |
 | `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
 | `perf_baseline` | the performance baseline (#62): island load time, then fps, frame time, draw calls, primitives and memory in the five busiest maps; windowed, real time, `PLAYTEST_RESOLUTION=1920x1080` (docs/runtime/PERF_BASELINE.md) | art (#59) |
 | `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2; the status bar's Map [M] button, and the fold kept across Quit Game and Continue (two phases) | UI |
+| `ui_item_icons` | item icons (#69): every icon in the inventory's Equip, Use and Etc tabs, a quickslot, the equipment window, a tooltip, a quest's rewards and Lucy's shop is the art pack's rendered icon, or the procedural shape with `NO_ART_PACK=1`; a screenshot of each with `--windowed` (setup: level, give) | UI, art (#59) |
 
 ## Findings (2026-10-05)
 
