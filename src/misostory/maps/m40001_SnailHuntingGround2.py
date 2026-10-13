@@ -461,7 +461,7 @@ def dress(m):
               min_dist=1.6, z_band=(5.7, 5.9))
     m.place(ob, 3.0, 28.6, rot=100)
     m.place("Bush_A", 9.6, 29.4, rot=30)
-    m.place(ob, 22.6, 29.6, rot=60)
+    m.place(ob, 21.8, 28.6, rot=60)  # the pack birch's crown hangs lower: clear of route Pillar on the tier above
     m.place(rb, 24.2, 27.0, rot=10)
     m.place("Bush_B", 22.6, 22.8, rot=10)
     m.place("Bush_A", 45.6, 28.0, rot=70)

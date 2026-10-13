@@ -408,7 +408,9 @@ def rock_cliff_stone(coll):
     mb.build("Rock_Cliff_Stone", coll, smooth=True, sharp_angle=40)
 
 
-@asset("Stump_A", "Foliage", footprint=1.0, tags=("stump",))
+# pack: the kit stump's width is its splayed roots (1.96 m); the pack stump has none, so fitting that width made a
+# 1.96 m drum. 0.6 gives the kit stump's body instead (about 1.2 m across, 0.7 m tall).
+@asset("Stump_A", "Foliage", footprint=1.0, tags=("stump",), pack=dict(scale_mul=0.6))
 def stump_a(coll):
     mb = MeshBuilder()
     mb.cyl(0.55, 0.7, mat="M_Bark", verts=12, r2=0.48)
