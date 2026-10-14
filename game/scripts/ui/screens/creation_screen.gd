@@ -400,24 +400,15 @@ func _build_look_preview() -> Control:
 	cam.position = Vector3(0, 0.78, 6.0)
 	cam.current = true
 	viewport.add_child(cam)
-	_play_idle()
 	return frame
 
 
-## Puts the model's gender and look on the preview (rebuilt only when they change) and keeps it in its idle clip.
+## Puts the model's gender and look on the preview (rebuilt only when they change). With no player to follow, the
+## preview plays its idle clip by itself (PlayerVisual.advance).
 func _show_look(look: Dictionary) -> void:
 	if _look_preview == null:
 		return
 	_look_preview.set_look(model.gender, look)
-	_play_idle()
-
-
-func _play_idle() -> void:
-	if _look_preview == null or _look_preview.model == null:
-		return
-	var ap := _look_preview.model.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	if ap != null and ap.has_animation(String(PlayerAnimator.IDLE)) and ap.current_animation != String(PlayerAnimator.IDLE):
-		ap.play(String(PlayerAnimator.IDLE))
 
 
 func _look_table() -> Dictionary:

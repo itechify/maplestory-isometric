@@ -94,5 +94,33 @@ func test_the_preview_wears_the_look() -> void:
 	assert_eq(preview.preset, "Beginner_Female", "the preview follows the gender")
 	(s.find_child("Look_hair_style_0", true, false) as Button).pressed.emit()
 	assert_eq(preview.look, {"hair_style": 0, "face": 0, "skin": 3}, "and the look")
-	var ap := preview.model.find_child("AnimationPlayer", true, false) as AnimationPlayer
-	assert_eq(String(ap.current_animation), "idle", "standing in its idle clip")
+	preview.advance(1.0 / 30.0)
+	assert_eq(preview.current_clip(), PlayerAnimator.IDLE, "standing in its idle clip")
+
+
+## The preview has no player to follow, so it drives its idle clip itself: the pose moves from frame to frame (the rig's
+## AnimationPlayer is processed by hand, so a clip that is only started stands still in its first pose), and keeps
+## moving after a look change rebuilds the model.
+func test_the_preview_breathes() -> void:
+	var s := _screen()
+	var preview: PlayerVisual = s.preview_visual()
+	if not ArtPack.load_installed().present():
+		print("SKIP test_the_preview_breathes: no art pack installed (bash scripts/art_pack.sh fetch)")
+		return
+	assert_true(_pose_moves(preview), "the idle pose moves")
+	(s.find_child("Look_hair_style_1", true, false) as Button).pressed.emit()
+	assert_true(_pose_moves(preview), "and still moves after a look change")
+
+
+## True when some bone of the preview's skeleton turns over half a second of preview frames.
+func _pose_moves(preview: PlayerVisual) -> bool:
+	var sk := preview.model.find_child("Skeleton3D", true, false) as Skeleton3D
+	var before := []
+	for b in sk.get_bone_count():
+		before.append(sk.get_bone_pose_rotation(b))
+	for i in 15:
+		preview.advance(1.0 / 30.0)
+	for b in sk.get_bone_count():
+		if not (sk.get_bone_pose_rotation(b) as Quaternion).is_equal_approx(before[b]):
+			return true
+	return false

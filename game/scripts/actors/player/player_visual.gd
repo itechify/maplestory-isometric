@@ -269,9 +269,13 @@ func _process(delta: float) -> void:
 
 
 ## One presentation frame of `delta` seconds (called from _process; tests call it directly): the see-through fade,
-## the facing, the rig's clips or the placeholder's procedural motions, the sit pose, the blink and the shadow.
+## the facing, the rig's clips or the placeholder's procedural motions, the sit pose, the blink and the shadow. A visual
+## with no player (the creation screen's preview) only plays the rig's idle clip.
 func advance(delta: float) -> void:
 	step_see_through(delta)
+	if player == null and animator != null:
+		# No player to follow (the creation screen's preview): the rig stands in its idle clip.
+		animator.update({}, delta)
 	if player == null or player.model == null:
 		return
 	var m := player.model
