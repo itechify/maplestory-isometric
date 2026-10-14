@@ -194,7 +194,7 @@ func _pelvis_bottom(vis: PlayerVisual, p: PlayerController) -> float:
 ## The lowest posed vertex above the player's feet (m): of the pelvis (see _pelvis_bottom) or of the whole body.
 func _lowest_posed(vis: PlayerVisual, p: PlayerController, pelvis_only: bool = false) -> float:
 	var sk: Skeleton3D = vis.model.find_child("Skeleton3D", true, false)
-	var to_model := ArtImport._to_root(vis.model, sk)
+	var to_model := ArtImport.to_root(vis.model, sk)
 	var lowest := INF
 	for node in sk.get_children():
 		var mi := node as MeshInstance3D

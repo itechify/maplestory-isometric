@@ -47,11 +47,11 @@ const SEE_THROUGH_PRIORITY := -1
 const SEE_THROUGH_NAME := "SeeThrough"
 ## The pack rig's clips (art pack monsters/manifest.json; ArtImport makes Idle and Walk loop, the rest play once, and
 ## holds the root bone, so a clip never moves the monster: AI and physics own its position).
-const CLIP_IDLE := "Idle"
-const CLIP_WALK := "Walk"
-const CLIP_ATTACK := "Attack"
-const CLIP_HIT := "Hit"
-const CLIP_DEATH := "Death"
+const CLIP_IDLE := ArtImport.MONSTER_IDLE
+const CLIP_WALK := ArtImport.MONSTER_WALK
+const CLIP_ATTACK := ArtImport.MONSTER_ATTACK
+const CLIP_HIT := ArtImport.MONSTER_HIT
+const CLIP_DEATH := ArtImport.MONSTER_DEATH
 ## Cross-fade between clips (s).
 const CLIP_BLEND_S := 0.15
 ## The Death clip plays over this share of the canonical die time at full opacity; the body fades over the rest, so
@@ -166,7 +166,7 @@ func build(d: MonsterDef, library: ProxyLibrary, art: ArtPack = null) -> void:
 	model.scale = Vector3.ONE * _fit_scale
 	add_child(model)
 	model.add_child(inst)
-	_anim = inst.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	_anim = ArtImport.animation_player(inst)
 	_clip = ""
 	_oneshot = ""
 	_collect_geoms(model)

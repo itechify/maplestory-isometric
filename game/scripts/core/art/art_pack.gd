@@ -193,8 +193,8 @@ func instance(kind: String, id: String) -> Node3D:
 
 
 ## The model's bounds as the game imports it, from the pack's godot_validation.json (an empty AABB when the pack has
-## none). The pack measured raw imports; ArtImport scales characters and their parts (characters/*) by the character
-## factor, so their bounds are scaled the same way here.
+## none). The pack measured raw imports; ArtImport scales characters and their parts by the character factor
+## (ArtImport.takes_character_scale), so their bounds are scaled the same way here.
 func bounds(kind: String, id: String) -> AABB:
 	var v := _validation(kind, id)
 	if v.is_empty() or not (v.get("bounds_min") is Array) or not (v.get("bounds_max") is Array):
@@ -225,7 +225,7 @@ func _validation(kind: String, id: String) -> Dictionary:
 
 func _import_scale(kind: String, id: String) -> float:
 	var rel: Variant = _models.get(kind, {}).get(id, null)
-	return character_scale() if rel is String and String(rel).begins_with("characters/") else 1.0
+	return character_scale() if rel is String and ArtImport.takes_character_scale(rel) else 1.0
 
 
 static func _vec3(a: Array) -> Vector3:

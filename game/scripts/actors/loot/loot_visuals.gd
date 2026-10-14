@@ -26,7 +26,7 @@ const SHAPES: PackedStringArray = ["box", "chair_box", "potion", "food", "scroll
 ## The child of a drop model holding the pack's model (its ground offset, centring and scale).
 const PACK_NODE := "Pack"
 ## The pack drops' looping clip.
-const HOVER_CLIP := "Hover"
+const HOVER_CLIP := ArtImport.DROP_HOVER
 
 var db: ContentDB = null
 ## The art pack drops are looked up in; null or absent: procedural drops only.

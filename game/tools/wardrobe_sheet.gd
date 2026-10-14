@@ -152,7 +152,7 @@ func _place(stage: Node3D, c: Dictionary) -> void:
 		print("SHEET missing models: %s" % [out["missing"]])
 	cell.add_child(model)
 	model.rotation_degrees.y = 25.0
-	var ap := model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var ap := ArtImport.animation_player(model)
 	var clip := String(c.get("clip", "idle"))
 	if ap != null and ap.has_animation(clip):
 		ap.play(clip)
@@ -164,7 +164,7 @@ func _place(stage: Node3D, c: Dictionary) -> void:
 			chair.scale = Vector3.ONE * ArtPack.character_scale()
 			chair.rotation_degrees.y = 25.0
 			cell.add_child(chair)
-		model.position.y = PlayerVisual.SEAT_LIFT_M
+		model.position.y = PlayerVisual.seat_lift_m()
 	var label := Label3D.new()
 	label.text = String(c.get("label", ""))
 	label.font_size = 28

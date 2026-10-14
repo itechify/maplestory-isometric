@@ -17,7 +17,7 @@ extends Node3D
 ## layer and is monitorable on the interactables layer; otherwise both are off and `interaction_enabled` is false.
 
 ## The rig's clip NPCs play (ArtImport makes it loop).
-const CLIP_IDLE := "idle"
+const CLIP_IDLE := ArtImport.CLIP_IDLE
 
 var placement: NpcPlacement = null
 var interaction_enabled: bool = false
@@ -87,7 +87,7 @@ func _pack_model(id: String) -> Node3D:
 
 ## Plays the rig's idle clip from a phase derived from the NPC id (none on a proxy or the placeholder).
 func _start_idle(id: String) -> void:
-	_anim = visual.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	_anim = ArtImport.animation_player(visual)
 	if not has_clip(CLIP_IDLE):
 		return
 	_anim.play(CLIP_IDLE)

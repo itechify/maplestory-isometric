@@ -25,7 +25,7 @@ func _icon(item_id: String) -> MisoItemIcon:
 func test_an_item_with_a_pack_icon_draws_it() -> void:
 	_use_fixture()
 	var icon := _icon(RED_POTION)
-	assert_true(icon.art != null, "the Red Potion draws the pack's icon")
+	assert_true(icon.icon_texture != null, "the Red Potion draws the pack's icon")
 	assert_eq(icon.shape, "potion", "the procedural shape stays underneath")
 	icon.free()
 
@@ -33,10 +33,10 @@ func test_an_item_with_a_pack_icon_draws_it() -> void:
 func test_an_item_without_a_pack_icon_draws_the_procedural_icon() -> void:
 	_use_fixture()
 	var icon := _icon(SWORD)
-	assert_true(icon.art == null, "the stand-in maps the Sword to an icon file that is not there")
+	assert_true(icon.icon_texture == null, "the stand-in maps the Sword to an icon file that is not there")
 	assert_eq(icon.shape, "sword", "so the procedural sword draws")
 	icon.set_item("348", db())
-	assert_true(icon.art == null, "the stand-in has no Snail Shell at all")
+	assert_true(icon.icon_texture == null, "the stand-in has no Snail Shell at all")
 	assert_eq(icon.shape, "shell")
 	icon.free()
 
@@ -44,7 +44,7 @@ func test_an_item_without_a_pack_icon_draws_the_procedural_icon() -> void:
 func test_without_the_pack_every_item_draws_the_procedural_icon() -> void:
 	ItemIconArt.use(ItemIconArt.new(ArtPack.load_from("res://tests/data/no_such_pack")))
 	var icon := _icon(RED_POTION)
-	assert_true(icon.art == null, "no pack, no art")
+	assert_true(icon.icon_texture == null, "no pack, no art")
 	assert_eq(icon.shape, "potion")
 	assert_eq(icon.color, MisoItemIcon.COLOR_WORDS.filter(func(p: Array) -> bool: return p[0] == "red")[0][1])
 	icon.free()
@@ -53,7 +53,7 @@ func test_without_the_pack_every_item_draws_the_procedural_icon() -> void:
 func test_an_unknown_item_draws_the_grey_token_even_with_the_pack() -> void:
 	_use_fixture()
 	var icon := _icon("9999999")
-	assert_true(icon.art == null)
+	assert_true(icon.icon_texture == null)
 	assert_eq(icon.shape, "unknown")
 	assert_eq(icon.color, MisoItemIcon.UNKNOWN_COLOR)
 	icon.free()
@@ -65,8 +65,8 @@ func test_the_drag_preview_carries_the_pack_icon() -> void:
 	slot.set_stack(RED_POTION, 3, db())
 	var holder := slot.drag_preview()
 	var preview: MisoItemIcon = holder.get_child(0)
-	assert_eq(preview.art, slot.icon.art, "the dragged potion is the pack's potion")
-	assert_true(preview.art != null)
+	assert_eq(preview.icon_texture, slot.icon.icon_texture, "the dragged potion is the pack's potion")
+	assert_true(preview.icon_texture != null)
 	assert_eq(preview.shape, "potion", "with the procedural shape underneath")
 	holder.free()
 	slot.free()
@@ -79,12 +79,12 @@ func test_the_tooltip_and_the_shop_show_the_pack_icon() -> void:
 	var icons := tip.find_children("*", "MisoItemIcon", true, false)
 	assert_eq(icons.size(), 1, "the tooltip header has one icon")
 	if icons.size() == 1:
-		assert_true((icons[0] as MisoItemIcon).art != null, "the tooltip shows the pack's potion")
+		assert_true((icons[0] as MisoItemIcon).icon_texture != null, "the tooltip shows the pack's potion")
 	tip.free()
 	var shop_icon := NpcUiStyle.item_icon(RED_POTION, db(), null, 30.0)
-	assert_true(shop_icon is MisoItemIcon and (shop_icon as MisoItemIcon).art != null, "a shop row shows it")
+	assert_true(shop_icon is MisoItemIcon and (shop_icon as MisoItemIcon).icon_texture != null, "a shop row shows it")
 	NpcUiStyle.set_icon_item(shop_icon, SWORD, db(), null)
-	assert_true((shop_icon as MisoItemIcon).art == null, "the shop detail, switched to the Sword, draws its shape")
+	assert_true((shop_icon as MisoItemIcon).icon_texture == null, "the shop detail, switched to the Sword, draws its shape")
 	shop_icon.free()
 
 
@@ -149,10 +149,10 @@ func test_every_obtainable_item_draws_a_pack_icon() -> void:
 	var inner := ItemIconArt.SIDE - 2 * ItemIconArt.MARGIN
 	for id in ids:
 		icon.set_item(id, db())
-		assert_true(icon.art != null, "item %s (%s) draws the pack's icon" % [id, ItemDef.of(id, db()).name])
+		assert_true(icon.icon_texture != null, "item %s (%s) draws the pack's icon" % [id, ItemDef.of(id, db()).name])
 		assert_ne(icon.shape, "unknown", "item %s keeps its procedural shape underneath" % id)
-		if icon.art != null:
-			var used := icon.art.get_image().get_used_rect()
+		if icon.icon_texture != null:
+			var used := icon.icon_texture.get_image().get_used_rect()
 			assert_between(maxi(used.size.x, used.size.y), inner - 2, inner + 2, "item %s fills the frame: %s" % [id, used])
 			assert_true(Rect2i(0, 0, ItemIconArt.SIDE, ItemIconArt.SIDE).encloses(used), "item %s is not cropped" % id)
 	icon.free()

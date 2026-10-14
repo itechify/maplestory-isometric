@@ -14,15 +14,15 @@ extends RefCounted
 ##   walk    grounded and moving
 ##   idle    grounded, about still
 
-const IDLE := &"idle"
-const WALK := &"walk"
-const RUN := &"run"
-const JUMP := &"jump"
-const CLIMB := &"climb"
-const ATTACK := &"attack"
-const HIT := &"hit"
-const SIT := &"sit"
-const DEATH := &"death"
+const IDLE := ArtImport.CLIP_IDLE
+const WALK := ArtImport.CLIP_WALK
+const RUN := ArtImport.CLIP_RUN
+const JUMP := ArtImport.CLIP_JUMP
+const CLIMB := ArtImport.CLIP_CLIMB
+const ATTACK := ArtImport.CLIP_ATTACK
+const HIT := ArtImport.CLIP_HIT
+const SIT := ArtImport.CLIP_SIT
+const DEATH := ArtImport.CLIP_DEATH
 const CLIPS: Array[StringName] = [IDLE, WALK, RUN, JUMP, CLIMB, ATTACK, HIT, SIT, DEATH]
 
 ## Horizontal speed (m/s) under which a grounded player reads as standing (presentation: the controller's own

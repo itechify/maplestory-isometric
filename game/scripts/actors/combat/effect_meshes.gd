@@ -23,7 +23,7 @@ const NIMBLE_FEET := "NimbleFeet"
 const HIT_SPARK := "HitSpark"
 const JUMP_DUST := "JumpDust"
 ## The one clip every effect model carries.
-const CLIP := "Loop"
+const CLIP := ArtImport.EFFECT_LOOP
 ## Skill id (canonical) -> the effect shown for as long as that skill's timed effect runs.
 const SKILL_AURAS := {"0001001": RECOVERY, "0001002": NIMBLE_FEET}
 

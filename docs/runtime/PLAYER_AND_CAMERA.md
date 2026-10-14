@@ -392,9 +392,10 @@ them (`covers()`; the `combat.json` lunge keys stay for the placeholder). Two me
 rests on (`ground_lift()`):
 
 - The sit clip's kept 0.21 m drop would sink the pelvis 0.22 m into The Green Relaxer's cushion (the pack's model of
-  the chair item, at the character scale). The seated body is lifted `SEAT_LIFT_M` (0.221 m) in step with that drop.
-- The death clip, its root held, lays the big head 0.18 m under the feet. The dead body is lifted `DEATH_REST_LIFT_M`
-  (0.176 m) as it falls.
+  the chair item, at the character scale). The seated body is lifted `seat_lift_m()` (0.221 m) in step with that drop.
+- The death clip, its root held, lays the big head 0.18 m under the feet. The dead body is lifted `death_rest_lift_m()`
+  (0.176 m) as it falls. Both are kept in rig units (`SEAT_LIFT_RIG`, `DEATH_REST_LIFT_RIG`) times
+  `ArtPack.character_scale()`, so a new character factor scales them with the body.
 
 Windowed screenshots: `bash scripts/playtest.sh player_rig --windowed` (`QUEST=female` for the female preset).
 

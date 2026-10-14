@@ -24,7 +24,7 @@ var dim: bool = false:
 var shape: String = ""
 var color: Color = Color.WHITE
 ## The pack's rendered icon (ItemIconArt), drawn instead of the shape; null draws the procedural shape.
-var art: Texture2D = null
+var icon_texture: Texture2D = null
 
 ## Name keyword -> tint, checked in order (longer, more specific words first).
 const COLOR_WORDS: Array = [
@@ -66,7 +66,7 @@ func set_item(p_item_id: String, db: ContentDB) -> void:
 	var def: ItemDef = ItemDef.of(item_id, db) if item_id != "" and db != null else null
 	shape = shape_for(def) if item_id != "" else ""
 	color = color_for(def, item_id) if def != null else UNKNOWN_COLOR
-	art = ItemIconArt.shared().texture_for(item_id, db) if def != null else null
+	icon_texture = ItemIconArt.shared().texture_for(item_id, db) if def != null else null
 	queue_redraw()
 
 
@@ -182,9 +182,9 @@ func _draw() -> void:
 	var side := minf(size.x, size.y)
 	var s := side / 32.0
 	draw_set_transform(Vector2((size.x - side) * 0.5, (size.y - side) * 0.5), 0.0, Vector2(s, s))
-	if art != null:
+	if icon_texture != null:
 		# The framed icon fills the 32 x 32 grid; its margin is already inside it.
-		draw_texture_rect(art, Rect2(0, 0, 32, 32), false, DIM_ART if dim else Color.WHITE)
+		draw_texture_rect(icon_texture, Rect2(0, 0, 32, 32), false, DIM_ART if dim else Color.WHITE)
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 		return
 	var c := color

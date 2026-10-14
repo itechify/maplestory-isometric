@@ -57,9 +57,9 @@ const MARKER_BOB_S := 1.3
 
 ## The pack's clips (#65): Idle loops while the box stands, Hit plays on a hit that does not break it, Break once on
 ## the breaking hit.
-const CLIP_IDLE := "Idle"
-const CLIP_HIT := "Hit"
-const CLIP_BREAK := "Break"
+const CLIP_IDLE := ArtImport.MONSTER_IDLE
+const CLIP_HIT := ArtImport.MONSTER_HIT
+const CLIP_BREAK := ArtImport.BOX_BREAK
 ## How far (m) the Break clip's pieces may fly outside the model's bind-pose bounds before culling would pop them.
 const BREAK_CULL_MARGIN_M := 2.0
 
@@ -458,7 +458,7 @@ func _new_rig() -> Node3D:
 		s = minf(size_m.x / bounds.size.x, size_m.z / bounds.size.z)
 	inst.scale = Vector3.ONE * s
 	inst.position = Vector3(0.0, -bounds.position.y * s, 0.0)
-	var ap := _player_of(inst)
+	var ap := ArtImport.animation_player(inst)
 	if ap != null:
 		# Driven by advance() (as every other effect of the box), so tests step it frame by frame.
 		ap.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
@@ -468,17 +468,11 @@ func _new_rig() -> Node3D:
 ## Puts `r` under the model as the standing box: the hit flash covers its meshes, and Idle plays.
 func _add_rig(r: Node3D) -> void:
 	rig = r
-	_rig_anim = _player_of(r)
+	_rig_anim = ArtImport.animation_player(r)
 	model.add_child(r)
 	for mi in r.find_children("*", "MeshInstance3D", true, false):
 		_meshes.append(mi as MeshInstance3D)
 	_play(CLIP_IDLE)
-
-
-static func _player_of(r: Node) -> AnimationPlayer:
-	if r == null:
-		return null
-	return r.find_child("AnimationPlayer", true, false) as AnimationPlayer
 
 
 ## Plays `clip` on the standing rig from its start (a clip already playing starts over).

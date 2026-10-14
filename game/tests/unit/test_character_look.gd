@@ -118,7 +118,7 @@ func _aabb_of(model: Node3D, meshes: Array) -> AABB:
 	var out := AABB()
 	var first := true
 	for mi: MeshInstance3D in meshes:
-		var box: AABB = ArtImport._to_root(model, mi) * mi.mesh.get_aabb()
+		var box: AABB = ArtImport.to_root(model, mi) * mi.mesh.get_aabb()
 		out = box if first else out.merge(box)
 		first = false
 	return out
@@ -161,8 +161,8 @@ func test_a_chosen_hair_style_replaces_the_preset_hair_on_the_head() -> void:
 			assert_eq(mi.get_node(mi.skeleton), sk, "hair %d skinned to it" % style)
 		# On the head at the 1.5 m body: the rest-pose bounds sit around the head bone, above the neck.
 		var box := _aabb_of(model, hair)
-		var head := ArtImport._to_root(model, sk) * sk.get_bone_global_rest(sk.find_bone("head")).origin
-		var neck := ArtImport._to_root(model, sk) * sk.get_bone_global_rest(sk.find_bone("neck")).origin
+		var head := ArtImport.to_root(model, sk) * sk.get_bone_global_rest(sk.find_bone("head")).origin
+		var neck := ArtImport.to_root(model, sk) * sk.get_bone_global_rest(sk.find_bone("neck")).origin
 		assert_true(box.position.y + box.size.y > head.y and box.position.y + box.size.y < 1.6,
 			"hair %d tops out over the head, within the 1.5 m body: %s (head %s)" % [style, box, head])
 		assert_true(box.get_center().y > neck.y, "hair %d is above the neck: %s (neck %s)" % [style, box, neck])

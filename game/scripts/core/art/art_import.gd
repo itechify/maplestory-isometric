@@ -39,14 +39,35 @@ const EFFECT := "effect"
 const ITEM := "item"
 const ENVIRONMENT := "environment"
 
+## The pack's clip names, the one place they are spelled (the import sets their looping here; PlayerAnimator,
+## WorldNpc, MonsterVisual, WoodenBox, LootVisuals and EffectMeshes play them). Characters (the presets and NPCs) share
+## nine lowercase clips; monsters and the box use capitalised ones.
+const CLIP_IDLE := &"idle"
+const CLIP_WALK := &"walk"
+const CLIP_RUN := &"run"
+const CLIP_JUMP := &"jump"
+const CLIP_CLIMB := &"climb"
+const CLIP_ATTACK := &"attack"
+const CLIP_HIT := &"hit"
+const CLIP_SIT := &"sit"
+const CLIP_DEATH := &"death"
+const MONSTER_IDLE := "Idle"
+const MONSTER_WALK := "Walk"
+const MONSTER_ATTACK := "Attack"
+const MONSTER_HIT := "Hit"
+const MONSTER_DEATH := "Death"
+const BOX_BREAK := "Break"
+const DROP_HOVER := "Hover"
+const EFFECT_LOOP := "Loop"
+
 ## family -> the clips that loop; every other clip of these families plays once.
-const LOOPING := {CHARACTER: ["idle", "walk", "run", "climb"], MONSTER: ["Idle", "Walk"], BREAKABLE: ["Idle"],
-	DROP: ["Hover"]}
+const LOOPING := {CHARACTER: [CLIP_IDLE, CLIP_WALK, CLIP_RUN, CLIP_CLIMB], MONSTER: [MONSTER_IDLE, MONSTER_WALK],
+	BREAKABLE: [MONSTER_IDLE], DROP: [DROP_HOVER]}
 ## The families whose clips hold the root bone at rest (every clip but ROOT_MOTION_KEPT).
 const ROOT_HELD := [CHARACTER, MONSTER, BREAKABLE]
 const ROOT_BONE := "root"
 ## Clips whose root translation is kept.
-const ROOT_MOTION_KEPT := ["sit"]
+const ROOT_MOTION_KEPT := [CLIP_SIT]
 const PART_PREFIXES := ["Body", "Clothing", "Face", "Footwear", "Hair", "Hat", "Prop", "Uniform", "Wear"]
 ## Meta on a merged character mesh: garment -> PackedInt32Array [first index, index count, ...] (garments()).
 const GARMENTS_META := &"art_garments"
@@ -71,6 +92,12 @@ static func family_of(pack_path: String, monsters_manifest: Dictionary) -> Strin
 			if a is Dictionary and String(a.get("glb", "")) == file:
 				return String(MONSTER_CATEGORIES.get(String(a.get("category", "")), ""))
 	return ""
+
+
+## True when the import gives the pack file (pack-root relative path) the character factor (its family is in SCALED):
+## the one rule ArtPack's bounds and ground offsets follow too.
+static func takes_character_scale(pack_path: String) -> bool:
+	return family_of(pack_path, {}) in SCALED
 
 
 ## Applies the family's rules to an imported scene in place. Returns {family, draw_calls_before, draw_calls_after}.
@@ -109,13 +136,15 @@ static func visual_aabb(root: Node3D) -> AABB:
 		var mi := node as MeshInstance3D
 		if mi.mesh == null:
 			continue
-		var box: AABB = _to_root(root, mi) * mi.mesh.get_aabb()
+		var box: AABB = to_root(root, mi) * mi.mesh.get_aabb()
 		out = box if first else out.merge(box)
 		first = false
 	return out
 
 
-static func _to_root(root: Node, node: Node) -> Transform3D:
+## `node`'s transform in `root`'s space (the product of the Node3D transforms on the way up), without needing the scene
+## tree.
+static func to_root(root: Node, node: Node) -> Transform3D:
 	var xf := Transform3D.IDENTITY
 	var n := node
 	while n != null and n != root:
@@ -123,6 +152,11 @@ static func _to_root(root: Node, node: Node) -> Transform3D:
 			xf = (n as Node3D).transform * xf
 		n = n.get_parent()
 	return xf
+
+
+## The model's AnimationPlayer (a pack model has one, a child of its top node), or null (a proxy, a placeholder).
+static func animation_player(root: Node) -> AnimationPlayer:
+	return root.find_child("AnimationPlayer", true, false) as AnimationPlayer if root != null else null
 
 
 static func _players(root: Node) -> Array:
