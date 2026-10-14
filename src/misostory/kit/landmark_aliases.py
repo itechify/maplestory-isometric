@@ -229,4 +229,4 @@ def markdown():
 
 if __name__ == "__main__":
     import sys
-    sys.stdout.write(markdown())
+    sys.stdout.buffer.write(markdown().encode("utf-8"))  # LF and UTF-8 on every platform
