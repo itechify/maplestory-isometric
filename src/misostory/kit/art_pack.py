@@ -43,10 +43,12 @@ from mathutils import Matrix, Vector
 
 from .. import core
 from .. import materials as M
+from . import landmark_aliases
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DEFAULT_DIR = os.path.join(ROOT, "game", "assets", "art_pack")
 MAPPING_FILE = "environment/source_catalog_mapping.json"
+MANIFEST_FILE = "environment/manifest_complete.json"  # every environment model by asset id (#75 alias targets)
 FETCH_COMMAND = "bash scripts/art_pack.sh fetch"
 ALIAS_KIND = "semantically_equivalent_original_adaptation"
 
@@ -90,7 +92,7 @@ LANDMARK = re.compile(r"X\d+_")
 SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "node_scale", "parts",
              "post", "omit", "shift", "fit_nodes"}
 
-_state = {"mode": "off", "mapping": {}}
+_state = {"mode": "off", "mapping": {}, "manifest": {}}
 _reference = {}
 BUILT = {}
 
@@ -126,11 +128,49 @@ def mapping(directory=None):
     return _state["mapping"][directory]
 
 
+def manifest_ids(directory=None):
+    """{asset id: output_file} of every environment model in the installed pack's manifest ({} when none)."""
+    directory = directory or pack_dir()
+    if directory not in _state["manifest"]:
+        path = os.path.join(directory, MANIFEST_FILE)
+        if not os.path.isfile(path):
+            return {}
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        base = os.path.dirname(MANIFEST_FILE)
+        _state["manifest"][directory] = {a["id"]: f"{base}/{a['file']}" for a in data.get("assets", [])
+                                         if a.get("id") and a.get("file")}
+    return _state["manifest"][directory]
+
+
+def landmark_model(name):
+    """The pack model id a per-map landmark is aliased to (landmark_aliases.ALIASES), or None (kit art)."""
+    alias = landmark_aliases.ALIASES.get(name)
+    return alias[0] if alias else None
+
+
+def model_entry(model, directory=None):
+    """The entry of a pack model id: a catalog name through the mapping, else (a model no catalog name maps to, a
+    #75 landmark alias target) the manifest's asset id. None when the pack has neither."""
+    e = mapping(directory).get(model)
+    if e is not None:
+        return dict(e, alias=e.get("mapping_kind") == ALIAS_KIND)
+    f = manifest_ids(directory).get(model)
+    if f is not None:
+        return {"source_asset_id": model, "output_file": f, "mapping_kind": "manifest_asset_id", "alias": False}
+    return None
+
+
 def entry(name):
-    """The mapping entry of a catalog name, plus ``alias`` (True when it shares a model under another name)."""
-    e = mapping().get(name)
+    """The mapping entry of a catalog name, plus ``alias`` (True when it shares a model under another name). For an
+    aliased per-map landmark (#75), the entry of its pack model, with ``model`` set."""
+    model = landmark_model(name) if LANDMARK.match(name) else None
+    e = model_entry(model) if model else mapping().get(name)
     if e is None:
-        raise KeyError(f"'{name}' is not in the art pack's {MAPPING_FILE}")
+        raise KeyError(f"'{model or name}' is not in the art pack's {MAPPING_FILE}"
+                       + (f" or {MANIFEST_FILE} (landmark {name})" if model else ""))
+    if model:
+        return dict(e, model=model)
     return dict(e, alias=e.get("mapping_kind") == ALIAS_KIND)
 
 
@@ -151,8 +191,14 @@ def _catalog(name, info):
 
 def swaps(name, info):
     """Is this asset built from the pack? In required mode a catalog name missing from the mapping is an error
-    (raised by build), never a silent procedural fallback."""
-    if _state["mode"] == "off" or not _catalog(name, info):
+    (raised by build), never a silent procedural fallback. A per-map landmark is built from the pack when the alias
+    table gives it a model (#75); the rest stay kit art."""
+    if _state["mode"] == "off":
+        return False
+    if LANDMARK.match(name):
+        model = landmark_model(name)
+        return bool(model) and (_state["mode"] == "required" or model_entry(model) is not None)
+    if not _catalog(name, info):
         return False
     return _state["mode"] == "required" or name in mapping()
 
@@ -165,15 +211,19 @@ def preflight(names, pack_dir=None):
     path = os.path.join(directory, MAPPING_FILE)
     if not os.path.isfile(path):
         return [f"the art pack at {directory} has no {MAPPING_FILE}"]
-    m = mapping(directory)
     problems = []
     for n in names:
-        e = m.get(n)
+        e = model_entry(n, directory)
         if e is None:
-            problems.append(f"{n}: not in {MAPPING_FILE}")
+            problems.append(f"{n}: not in {MAPPING_FILE}" + (f" or {MANIFEST_FILE}" if n in alias_models() else ""))
         elif not os.path.isfile(os.path.join(directory, *e["output_file"].split("/"))):
             problems.append(f"{n}: {e['output_file']} is missing")
     return problems
+
+
+def alias_models():
+    """The pack models the landmark alias table builds landmarks from (#75)."""
+    return sorted({m for m, _why in landmark_aliases.ALIASES.values()})
 
 
 def missing_message(problems):
@@ -184,10 +234,16 @@ def missing_message(problems):
     return "\n".join(lines)
 
 
+def required_names(registry):
+    """The pack models a build needs: every swapped catalog name, plus the landmark alias table's models (the map
+    modules, and so the landmarks, are imported after the preflight)."""
+    names = sorted(n for n, info in registry.items() if _catalog(n, info))
+    return names + [m for m in alias_models() if m not in names]
+
+
 def require_or_exit(registry):
     """Build-script preflight: the pack must hold a model for every swapped catalog name, else exit 1."""
-    names = sorted(n for n, info in registry.items() if _catalog(n, info))
-    problems = preflight(names)
+    problems = preflight(required_names(registry))
     if problems:
         msg = missing_message(problems)
         print(msg)
@@ -469,6 +525,7 @@ def build(name, info, coll):
     if spec.get("post"):
         spec["post"](coll, parts)
     BUILT[name] = {"file": e["output_file"], "alias": e["alias"], "mapping_kind": e.get("mapping_kind"),
+                   **({"model": e["model"]} if e.get("model") else {}),
                    "scale": round(s, 4), **({"scale_xyz": [round(c, 4) for c in size]} if tuple(size) != (s, s, s) else {}), "pack_tris": pack_tris, "tris": tris, "kit_tris": ref["tris"],
                    "decimated": tris < pack_tris, "parts": sorted(o.name for o in objs)}
     print("ART_PACK_ASSET", name, json.dumps(BUILT[name]))

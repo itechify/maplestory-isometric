@@ -229,11 +229,95 @@ class ArchitectureRocksTerrainFromPack(unittest.TestCase):
         self.assertAlmostEqual(hi.y, self.kit["Eave_Lashed_4m"]["hi"][1], delta=0.05)
 
 
+def landmark_names():
+    """Every per-map X<mapid>_* @asset (they register when their map module is imported)."""
+    from misostory.maps import module_for
+    from misostory import layout
+    for mid in layout.MAPS:
+        module_for(mid)
+    return {n for n in kit.REGISTRY if art_pack.LANDMARK.match(n)}
+
+
+class LandmarkAliasTable(unittest.TestCase):
+    """#75: the committed alias table decides, per landmark, its pack model or that it stays kit art."""
+
+    def test_every_landmark_is_listed_once_with_a_rationale(self):
+        from misostory.kit import landmark_aliases as LA
+        names = landmark_names()
+        self.assertEqual(len(names), 183)
+        self.assertEqual(set(LA.ALIASES) | set(LA.KIT_ART), names)
+        self.assertFalse(set(LA.ALIASES) & set(LA.KIT_ART))
+        for n, (model, why) in LA.ALIASES.items():
+            self.assertTrue(model and why.strip(), n)
+        for n, why in LA.KIT_ART.items():
+            self.assertTrue(why.strip(), n)
+
+
+class LandmarkAliasesFromPack(unittest.TestCase):
+    """#75: kit.ensure(landmark) of an aliased landmark builds its pack model, fitted to the landmark's own size."""
+
+    NAMES = ("X1010000_TownGate", "X60000_ArmorStore")
+
+    @classmethod
+    def setUpClass(cls):
+        if not HAVE_PACK:
+            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+        landmark_names()
+        build.reset_scene()
+        art_pack.configure("required")
+        cls.kit = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
+        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
+
+    @classmethod
+    def tearDownClass(cls):
+        art_pack.configure("off")
+
+    def objs(self, name):
+        return list(self.colls[name].objects)
+
+    def test_aliased_landmarks_swap_and_kit_art_landmarks_do_not(self):
+        self.assertTrue(art_pack.swaps("X60000_ArmorStore", kit.REGISTRY["X60000_ArmorStore"]))
+        self.assertFalse(art_pack.swaps("X60000_Ship_Victoria", kit.REGISTRY["X60000_Ship_Victoria"]))
+        self.assertFalse(art_pack.swaps("X0_HeenaBush", kit.REGISTRY["X0_HeenaBush"]))
+
+    def test_built_from_the_alias_model_found_by_id(self):
+        """A catalog name resolves through the mapping; a model no catalog name maps to, by its manifest id."""
+        self.assertEqual(art_pack.BUILT["X60000_ArmorStore"]["model"], "Shop_Armor")
+        self.assertEqual(art_pack.BUILT["X60000_ArmorStore"]["file"], "environment/glb/Shop_Armor.glb")
+        self.assertEqual(art_pack.BUILT["X1010000_TownGate"]["file"], "environment/glb/village_welcome_gate.glb")
+        self.assertTrue(all(o.get("art_pack_file") for o in self.objs("X1010000_TownGate")))
+
+    def test_scaled_uniformly_to_the_landmark_size(self):
+        lo, hi = bounds(self.objs("X1010000_TownGate"))
+        klo, khi = self.kit["X1010000_TownGate"]["lo"], self.kit["X1010000_TownGate"]["hi"]
+        self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.05)
+        self.assertAlmostEqual(lo.z, 0.0, delta=0.01)
+
+    def test_the_landmark_keeps_its_name_and_registry_entry(self):
+        self.assertEqual(self.colls["X1010000_TownGate"].name, "X1010000_TownGate")
+        self.assertTrue(all(o.name.startswith("X1010000_TownGate") for o in self.objs("X1010000_TownGate")))
+        self.assertTrue(all(o.get("asset") == "X1010000_TownGate" for o in self.objs("X1010000_TownGate")))
+
+
 class PreflightWithoutPack(unittest.TestCase):
     def test_missing_pack_is_reported_with_the_fetch_command(self):
         problems = art_pack.preflight(["Bush_A"], pack_dir=os.path.join(tempfile.gettempdir(), "no_such_art_pack"))
         self.assertTrue(problems)
         self.assertIn("bash scripts/art_pack.sh fetch", art_pack.missing_message(problems))
+
+    def test_the_build_preflight_covers_the_landmark_alias_models(self):
+        """build_island.py preflights before any map module (and so any landmark) is imported."""
+        names = art_pack.required_names(kit.REGISTRY)
+        self.assertIn("village_welcome_gate", names)
+        self.assertIn("Shop_Armor", names)
+        with tempfile.TemporaryDirectory() as d:
+            os.makedirs(os.path.join(d, "environment"))
+            for f in ("source_catalog_mapping.json", "manifest_complete.json"):
+                with open(os.path.join(d, "environment", f), "w") as fh:
+                    fh.write('{"entries": [], "assets": []}')
+            problems = art_pack.preflight(["village_welcome_gate"], pack_dir=d)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("manifest_complete.json", problems[0])
 
     def test_build_map_exits_1_without_the_pack(self):
         env = dict(os.environ, MISOSTORY_ART_PACK_DIR=os.path.join(tempfile.gettempdir(), "no_such_art_pack"))
