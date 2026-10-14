@@ -391,7 +391,9 @@ started from); the fading coroutine notices the abort and stops. Then the sessio
     (`clearance_height(mob_id)`): the canonical `sprite_size_px[1]` x `WorldScale.actor` when the species'
     `monsters/<id>.json` (or `monsters/_shared.json`) `model_fit` is `sprite_height`, else its `capsule_height_m`,
     and never below `spawns.clearance_height_m` (0.8 m). The Tutorial Jr. Sentinel is 1.7 m, the Orange Mushroom
-    1.45 m, and the snails and Shroom keep 0.8 m. `SpawnSlotPlanner.species_body_heights(db)` reads them, and
+    1.45 m, and the snails and Shroom keep 0.8 m. The clearance stays at the sprite height when the art pack's model
+    is scaled below it by the monster width cap (MONSTERS_AND_COMBAT_RUNTIME, #64: the pack's Sentinel stands 0.7 m),
+    so the cap never moves a spawn slot. `SpawnSlotPlanner.species_body_heights(db)` reads them, and
     `MapDefinitions.body_heights` holds them;
   - it lies outside every `maps/<id>.json spawn_keepouts` disc. A disc is `around_prop` (every instance of that prop
     shape in the sidecar's `collision.prop_instances`) or a world `center`, plus `radius_m`, a reason and
