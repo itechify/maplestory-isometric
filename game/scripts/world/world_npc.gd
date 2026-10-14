@@ -114,12 +114,17 @@ func map_id() -> String:
 	return placement.map_id if placement != null else ""
 
 
+## Enables talking on the current map, and the rig's idle with it: the 21 NPCs stay loaded on every map, so only the
+## current map's rigs animate. A paused rig keeps its pose and its place in the clip (its own idle phase) for when its
+## map is entered again.
 func set_interaction_enabled(on: bool) -> void:
 	interaction_enabled = on
 	set_meta("interactable", on)
 	if talk_area != null:
 		talk_area.monitoring = on
 		talk_area.monitorable = on
+	if _anim != null:
+		_anim.active = on
 
 
 ## True when `body` is within talk range: the TalkArea overlaps it, or else (an off-layer body, a frame before the

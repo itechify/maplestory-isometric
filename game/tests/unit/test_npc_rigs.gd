@@ -75,6 +75,29 @@ func test_every_canonical_npc_is_its_pack_model_playing_idle() -> void:
 		n.free()
 
 
+## Only the current map's NPCs animate: the 21 rigs live on every map at once, so an NPC off the current map stops
+## processing its AnimationPlayer, and picks up again where it stopped (its own idle phase) when its map is entered.
+func test_only_the_current_maps_npcs_animate_and_keep_their_phase() -> void:
+	if _skip("test_only_the_current_maps_npcs_animate_and_keep_their_phase"):
+		return
+	var shanks := _npc("15")
+	var sera := _npc("2")
+	for n in [shanks, sera]:
+		assert_false(n.animation_player().active, "%s: off the current map, its rig does not animate" % n.npc_id())
+	var phase := [shanks.animation_player().current_animation_position, sera.animation_player().current_animation_position]
+	assert_true(absf(phase[0] - phase[1]) > 0.01, "the two idles are out of step: %s" % str(phase))
+	shanks.set_interaction_enabled(true)
+	assert_true(shanks.animation_player().active, "on the current map it animates")
+	assert_false(sera.animation_player().active, "the other map's NPC still does not")
+	shanks.animation_player().advance(0.25)
+	var moved := shanks.animation_player().current_animation_position
+	assert_true(absf(moved - phase[0]) > 0.1, "it plays on from its phase")
+	shanks.set_interaction_enabled(false)
+	assert_false(shanks.animation_player().active, "leaving the map stops it")
+	shanks.set_interaction_enabled(true)
+	assert_near(shanks.animation_player().current_animation_position, moved, 1e-4, "and it resumes where it stopped")
+
+
 func test_the_presenter_measures_the_rig_and_lets_idle_replace_the_bob() -> void:
 	if _skip("test_the_presenter_measures_the_rig_and_lets_idle_replace_the_bob"):
 		return
