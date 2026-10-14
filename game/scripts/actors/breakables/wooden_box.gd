@@ -97,8 +97,11 @@ var _wobble_t: float = 0.0
 var _respawn_t: float = -1.0
 ## Flying chips and planks: {"node", "v": Vector3, "spin": Vector3, "t", "life"}.
 var _pieces: Array[Dictionary] = []
-## Detached pack models playing Break (breaking_rigs).
+## Detached pack models playing Break (breaking_rigs), and each one's AnimationPlayer (found once, not per frame).
 var _breaking: Array[Node3D] = []
+var _breaking_anims: Dictionary = {}
+## The standing rig's AnimationPlayer (found once in _add_rig; null without a rig).
+var _rig_anim: AnimationPlayer = null
 ## The FX's own random numbers (seeded by the placement key in setup()): never the global RNG, never Game.rng.
 var _fx_rng := RandomNumberGenerator.new()
 
@@ -229,7 +232,7 @@ func show_hit(left: int) -> void:
 	_flash_t = FLASH_S
 	if rig != null:
 		_play(CLIP_HIT)
-		var ap := _player_of(rig)
+		var ap := _rig_anim
 		if ap != null and ap.current_animation == CLIP_HIT:
 			ap.queue(CLIP_IDLE)
 	else:
@@ -254,9 +257,10 @@ func show_break() -> void:
 		model.visible = false
 	_show_cues()
 	if rig != null:
-		_detach_breaking(rig)
+		_detach_breaking(rig, _rig_anim)
 		_meshes.clear()
 		rig = null
+		_rig_anim = null
 		var fresh := _new_rig()
 		if fresh != null:
 			_add_rig(fresh)
@@ -280,17 +284,17 @@ func breaking_rigs() -> Array[Node3D]:
 
 ## Moves `r` from the Model to the box (same place), where it plays Break. Its pieces fly outside the bind-pose
 ## bounds, so a cull margin keeps them from popping.
-func _detach_breaking(r: Node3D) -> void:
+func _detach_breaking(r: Node3D, ap: AnimationPlayer) -> void:
 	r.reparent(self, true)
 	r.name = "Breaking"
 	for mi in r.find_children("*", "MeshInstance3D", true, false):
 		(mi as MeshInstance3D).extra_cull_margin = BREAK_CULL_MARGIN_M
-	var ap := _player_of(r)
 	if ap != null and ap.has_animation(CLIP_BREAK):
 		ap.clear_queue()
 		ap.stop()
 		ap.play(CLIP_BREAK)
 		_breaking.append(r)
+		_breaking_anims[r] = ap
 	else:
 		r.queue_free()
 
@@ -315,18 +319,20 @@ func _process(delta: float) -> void:
 
 ## Advances every effect (called by _process; tests call it directly).
 func advance(delta: float) -> void:
-	var ap := _player_of(rig)
+	var ap := _rig_anim
 	if ap != null and model != null and model.visible:
 		ap.advance(delta)
 	var still: Array[Node3D] = []
 	for r in _breaking:
 		if not is_instance_valid(r) or r.is_queued_for_deletion():
+			_breaking_anims.erase(r)
 			continue
-		var bp := _player_of(r)
+		var bp: AnimationPlayer = _breaking_anims[r]
 		bp.advance(delta)
 		if bp.is_playing():
 			still.append(r)
 		else:
+			_breaking_anims.erase(r)
 			r.queue_free()
 	_breaking = still
 	if marker != null and marker.visible:
@@ -462,6 +468,7 @@ func _new_rig() -> Node3D:
 ## Puts `r` under the model as the standing box: the hit flash covers its meshes, and Idle plays.
 func _add_rig(r: Node3D) -> void:
 	rig = r
+	_rig_anim = _player_of(r)
 	model.add_child(r)
 	for mi in r.find_children("*", "MeshInstance3D", true, false):
 		_meshes.append(mi as MeshInstance3D)
@@ -476,7 +483,7 @@ static func _player_of(r: Node) -> AnimationPlayer:
 
 ## Plays `clip` on the standing rig from its start (a clip already playing starts over).
 func _play(clip: String) -> void:
-	var ap := _player_of(rig)
+	var ap := _rig_anim
 	if ap == null or not ap.has_animation(clip):
 		return
 	ap.clear_queue()
@@ -486,7 +493,7 @@ func _play(clip: String) -> void:
 
 ## The clip the standing pack model plays ("" = no pack model, or none playing).
 func clip() -> String:
-	var ap := _player_of(rig)
+	var ap := _rig_anim
 	return String(ap.current_animation) if ap != null else ""
 
 
@@ -557,6 +564,7 @@ func _clear_model() -> void:
 		model.free()
 	model = null
 	rig = null
+	_rig_anim = null
 	lid = null
 	reach_rim = null
 	reach_ink = null
