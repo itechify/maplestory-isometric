@@ -4,7 +4,8 @@ extends PlaytestScenario
 ## is given Basic Archer Gloves (1439), Brown Duo (1440) and Amethyst Earrings (900) (console give, setup only) -> the
 ## inventory's Equip tab at its real slot size -> a warp to Amherst (setup), a walk up to the nearest Wooden Box and
 ## its hit presentation (WoodenBox.show_hit: the pack's Hit clip, or the procedural wobble without the pack) shot at
-## HIT_FRAMES_S after the hit (the player beside it on the camera's right), the box keeping all its hits -> a warp to the Tomato Field (setup) and a walk to the
+## HIT_FRAMES_S after the hit (the player beside it on the camera's right), the box keeping all its hits -> a walk to
+## the front of Amherst's vegetable garden bed, shot at the gameplay camera -> a warp to the Tomato Field (setup) and a walk to the
 ## open strip in front of its west beds, shot at the gameplay camera.
 
 const ITEMS := ["1439", "1440", "900"]
@@ -13,6 +14,9 @@ const AMHERST := "000001010"
 const TOMATO_FIELD := "000001021"
 ## Map-local (Godot axes: x east, y up, z = -Blender y): the strip in front of the west beds' ridges (m1020001).
 const TOMATO_SPOT := Vector3(19.0, 0.0, -1.2)
+## Amherst's Veg_Garden_Bed (map-local, Godot axes) and where the player stands, 2.6 m in front of it.
+const GARDEN_BED := Vector3(15.0, 0.0, -16.6)
+const GARDEN_SPOT := Vector3(15.0, 0.0, -14.0)
 ## Seconds after the hit at which the box is shot (one hit per shot, so each frame is exact).
 const HIT_FRAMES_S := [0.0, 0.05, 0.1, 0.15, 0.2, 0.3, 0.45]
 ## How far in front of the box (m) the player stands.
@@ -36,6 +40,7 @@ func run(d: PlaytestDriver) -> void:
 		await d.console("give %s 1" % id)
 	await _inventory(d)
 	await _box(d)
+	await _garden(d)
 	await _tomatoes(d)
 
 
@@ -81,6 +86,20 @@ func _box(d: PlaytestDriver) -> void:
 		await d.screenshot("box_hit_%03dms" % int(round(t * 1000.0)))
 		await d.wait(1.2)
 	d.check("the box keeps its hits (presentation only)", int(box.call("hits_left")) == left)
+
+
+## Amherst's vegetable garden bed (m1010000: Veg_Garden_Bed at Blender (15.0, 16.6)), from the player standing in
+## front of it, at the gameplay camera. Still in Amherst after _box.
+func _garden(d: PlaytestDriver) -> void:
+	var r: Dictionary = await d.walk_to({"local": GARDEN_SPOT}, {"max_s": 40.0, "within_m": 0.5})
+	d.soft_check("walked to the front of Amherst's garden bed", bool(r["ok"]), str(r.get("issues", "")))
+	d.input.release_movement()
+	await d.wait(1.5)
+	var cam := d.get_viewport().get_camera_3d()
+	var def := d.world().defs.get_def(d.current_map())
+	if cam != null and def != null:
+		d.note("garden bed at screen %s" % str(cam.unproject_position(def.to_world(GARDEN_BED))))
+	await d.screenshot("garden_bed")
 
 
 func _tomatoes(d: PlaytestDriver) -> void:
