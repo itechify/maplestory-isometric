@@ -106,7 +106,7 @@ Name releases `v<major>.<minor>-<short-name>` (for example `v0.1-iteration-one`)
 
 The game's models and icons come from Jarvis's 3D asset pack (**Project art**), pinned as a GitHub Release asset and
 never committed (ADR 0002, `docs/adr/0002-pinned-art-pack.md`). Art packs have their own tags,
-**`art-pack-v<major>.<minor>`** (the pinned one today is `art-pack-v1.1`), separate from the game's `v<major>.<minor>-<name>`
+**`art-pack-v<major>.<minor>`** (the pinned one is the `release` block of `game/data/misostory/art_pack.json`), separate from the game's `v<major>.<minor>-<name>`
 milestones. An art-pack release holds one asset, `MisoStory_Art_Pack_v<major>.<minor>.zip`, and is published with
 `--latest=false` so it never displaces the latest game release.
 
