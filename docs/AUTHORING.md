@@ -393,8 +393,9 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   (#72), `Architecture`, `Rocks`, `Terrain` (#74)).
   A catalog name of such a category is built by `kit.ensure(name)` from its pack GLB instead of its procedural
   `@asset` builder. Its name, category, footprint, tags and outline stay the registry's, so placement, lookups and
-  the export's collision classes (`instance_rule`) are unchanged. Per-map `X<mapid>_*` landmarks never swap here
-  (they are not in the mapping; #75). Assets are built lazily, so the catalog names the island never places are never
+  the export's collision classes (`instance_rule`) are unchanged. Per-map `X<mapid>_*` landmarks never swap by
+  category (they are not in the mapping); the landmark alias table decides them one by one (below, #75). Assets are
+  built lazily, so the catalog names the island never places are never
   imported. To swap another category, add it to `CATEGORIES`, then fix its outliers with `pack=` specs (below).
 - **Lookup by catalog name.** `game/assets/art_pack/environment/source_catalog_mapping.json`: `entries[]`
   `source_asset_id` (= the `@asset` name) → `output_file`. Aliases (`mapping_kind`
@@ -458,6 +459,23 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
     in the hill face, `Tomato_Gate` (a closed door in the pack, an open arch in the kit, with the arrival point at its
     origin) stands behind its portal, and `Door_Plank` sinks its threshold out of the body band;
   - `Eave_Lashed_4m` runs 0..4 m along +X with its back on the wall top.
+- **Landmark aliases (#75).** The houses, shops, ship and lighthouse players see are the per-map `X<mapid>_*`
+  landmarks of the map modules, which the pack's mapping does not cover. `src/misostory/kit/landmark_aliases.py` lists
+  every one of them (a test checks the 183 are all there): `ALIASES` maps a landmark to the pack model that replaces
+  it (a catalog name such as `Shop_Armor`, or the pack manifest's asset `id` for a model no catalog name maps to, such
+  as `village_welcome_gate`; never a file name), and `KIT_ART` lists the landmarks that stay kit art, the scope of
+  Jarvis's later landmark pack (#76). Each entry carries a short rationale, and `docs/LANDMARK_ALIASES.md` is the
+  table as Markdown (`"$PY" src/misostory/kit/landmark_aliases.py > docs/LANDMARK_ALIASES.md`). An alias is decided by
+  comparing renders (the landmark next to the fitted pack model, then the map's cameras), never by name. An aliased
+  landmark builds like a catalog asset: same name, category, footprint and tags, scaled uniformly to its own
+  procedural size, and the fit exceptions are the `pack=` spec on its own `@asset` in its map module, with the same
+  keys. The constraints that decide them are the door portals and arrivals: the Amherst department store and yellow
+  house and the East Entrance house fit by their stem like the catalog houses (`classic.HOUSE_PACK`); the Southperry
+  armor store fits by its walls with its door on the kit door and leaves out the pack's display counter, which stood
+  on in00; the stouter pack lighthouse is fitted to the kit plinth's width, then 1.15x by eye (`scale_mul`; fitted to
+  the kit height, its foot blocked route Main); the
+  giant tree fits by its trunk so the kit's tree pods still grow out of it; the gates and Sen's stone arch fit by
+  their posts, keeping the walk between them as wide.
 - **No pack, no build.** `scripts/build_island.py` and `scripts/build_map.py` call `art_pack.require_or_exit` first:
   without the pack (or with a GLB missing) they print `ART_PACK_MISSING` and the fetch command and exit 1; there is
   no silent fallback. `build_island.py` also exits 1 when the build raises or a map is not authored (Blender itself
