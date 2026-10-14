@@ -30,11 +30,11 @@
   },
   "polygon_budget": {
    "ok": true,
-   "detail": "maps over 400,000: {}; largest 1000000 (389,929)"
+   "detail": "maps over 400,000: {}; largest 1000000 (390,915)"
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,026,590 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 2,976,968 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
@@ -165,17 +165,17 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Fence_Wood_Seg at (14.2, 0.3) stands 1.07 m from route WestBed, solid at body height 0.94 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Fence_Wood_Seg at (14.2, 0.3) stands 1.07 m from route WestBed, solid at body height 0.9 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Fence_Wood_Seg at (16.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.86 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Fence_Wood_Seg at (16.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.84 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Fence_Wood_Seg at (18.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.92 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Fence_Wood_Seg at (18.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.88 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -234,41 +234,41 @@
   }
  ],
  "stats": {
-  "total_triangles": 8844712,
-  "world_triangles": 3026590,
+  "total_triangles": 8827550,
+  "world_triangles": 2976968,
   "triangles_by_map": {
-   "0": 92650,
-   "10000": 127606,
-   "20000": 114009,
-   "30000": 157444,
-   "40000": 157658,
-   "40001": 315875,
-   "40002": 305706,
-   "50000": 192190,
-   "60000": 371040,
-   "60001": 75405,
+   "0": 103614,
+   "10000": 136806,
+   "20000": 119373,
+   "30000": 157680,
+   "40000": 157434,
+   "40001": 317361,
+   "40002": 306304,
+   "50000": 192724,
+   "60000": 371762,
+   "60001": 74585,
    "20001": 36964,
-   "1000000": 389929,
-   "1000001": 224710,
-   "1000002": 268664,
-   "1000003": 156694,
-   "1000004": 212505,
-   "1000005": 261868,
-   "1000006": 341234,
-   "1010000": 242877,
-   "1010001": 38776,
-   "1010002": 68970,
-   "1010003": 58720,
-   "1010004": 265180,
-   "1020000": 298634,
-   "1020001": 254786
+   "1000000": 390915,
+   "1000001": 224720,
+   "1000002": 269408,
+   "1000003": 157098,
+   "1000004": 212305,
+   "1000005": 261956,
+   "1000006": 341406,
+   "1010000": 250445,
+   "1010001": 37936,
+   "1010002": 68686,
+   "1010003": 58016,
+   "1010004": 264780,
+   "1020000": 298522,
+   "1020001": 251754
   },
   "top_assets_by_instanced_triangles": [
    {
     "asset": "Rock_Cliff_Stone",
     "instances": 8389,
-    "tris_per_instance": 50,
-    "total": 419450
+    "tris_per_instance": 48,
+    "total": 402672
    },
    {
     "asset": "Tree_Round_B",
@@ -291,20 +291,20 @@
    {
     "asset": "Cloud_Puff_A",
     "instances": 324,
-    "tris_per_instance": 880,
-    "total": 285120
-   },
-   {
-    "asset": "Cloud_Puff_B",
-    "instances": 306,
-    "tris_per_instance": 880,
-    "total": 269280
+    "tris_per_instance": 862,
+    "total": 279288
    },
    {
     "asset": "Tree_Birch_Orange",
     "instances": 128,
     "tris_per_instance": 2068,
     "total": 264704
+   },
+   {
+    "asset": "Cloud_Puff_B",
+    "instances": 306,
+    "tris_per_instance": 862,
+    "total": 263772
    },
    {
     "asset": "Mob_Snail",
@@ -682,7 +682,7 @@
      14.2,
      0.3
     ],
-    "body_clearance_m": 0.94,
+    "body_clearance_m": 0.9,
     "grade": "low"
    },
    {
@@ -696,7 +696,7 @@
      16.3,
      0.3
     ],
-    "body_clearance_m": 0.86,
+    "body_clearance_m": 0.84,
     "grade": "low"
    },
    {
@@ -710,7 +710,7 @@
      18.3,
      0.3
     ],
-    "body_clearance_m": 0.92,
+    "body_clearance_m": 0.88,
     "grade": "low"
    },
    {
@@ -3818,9 +3818,9 @@
    }
   },
   "ring_band": {},
-  "objects": 18012,
-  "meshes": 2714,
-  "materials": 201
+  "objects": 18015,
+  "meshes": 2717,
+  "materials": 197
  },
  "exceptions": [],
  "summary": {

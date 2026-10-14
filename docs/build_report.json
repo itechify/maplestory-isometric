@@ -132,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 11.01,
+   "seconds": 17.34,
    "portals": [
     {
      "name": "out00",
@@ -459,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 3.27,
+   "seconds": 6.12,
    "portals": [
     {
      "name": "in00",
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 1.26,
+   "seconds": 4.11,
    "portals": [
     {
      "name": "in01",
@@ -1175,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 0.65,
+   "seconds": 2.63,
    "portals": [
     {
      "name": "in00",
@@ -1852,7 +1852,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 5.04,
+   "seconds": 7.84,
    "portals": [
     {
      "name": "east00",
@@ -2791,7 +2791,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 2.89,
+   "seconds": 4.35,
    "portals": [
     {
      "name": "west00",
@@ -3870,7 +3870,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 3.63,
+   "seconds": 5.51,
    "portals": [
     {
      "name": "west00",
@@ -4932,7 +4932,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 2.28,
+   "seconds": 3.24,
    "portals": [
     {
      "name": "west00",
@@ -5907,7 +5907,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 3.48,
+   "seconds": 10.83,
    "portals": [
     {
      "name": "west00",
@@ -6542,7 +6542,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 0.46,
+   "seconds": 4.17,
    "portals": [
     {
      "name": "out00",
@@ -6841,7 +6841,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.26,
+   "seconds": 0.33,
    "portals": [
     {
      "name": "out00",
@@ -7304,7 +7304,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 8.53,
+   "seconds": 18.44,
    "portals": [
     {
      "name": "in00",
@@ -8558,7 +8558,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.85,
+   "seconds": 1.97,
    "portals": [
     {
      "name": "out00",
@@ -9406,18 +9406,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@34.7,13.0",
-     "X1000002_Toadstool_Dark@32.8,25.2",
-     "X1000002_Toadstool_Dark@16.9,12.4",
      "X1000002_Toadstool_Dark@17.8,17.2",
      "X1000002_Toadstool_Dark@19.5,10.1",
-     "X1000002_Toadstool_Dark@20.8,8.6"
+     "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@20.8,8.6",
+     "X1000002_Toadstool_Dark@32.8,25.2",
+     "X1000002_Toadstool_Dark@16.9,12.4"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 6.58,
+   "seconds": 7.59,
    "portals": [
     {
      "name": "out01",
@@ -13317,7 +13317,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 8.04,
+   "seconds": 10.83,
    "portals": [
     {
      "name": "out00",
@@ -56165,7 +56165,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 5.12,
+   "seconds": 6.06,
    "portals": [
     {
      "name": "out00",
@@ -102500,7 +102500,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 2.26,
+   "seconds": 3.15,
    "portals": [
     {
      "name": "out00",
@@ -104248,7 +104248,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 4.01,
+   "seconds": 5.42,
    "portals": [
     {
      "name": "out00",
@@ -108217,7 +108217,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 1.33,
+   "seconds": 11.45,
    "portals": [
     {
      "name": "west00",
@@ -108724,7 +108724,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 0.28,
+   "seconds": 4.14,
    "portals": [
     {
      "name": "out00",
@@ -109016,7 +109016,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 0.34,
+   "seconds": 5.09,
    "portals": [
     {
      "name": "out00",
@@ -109294,7 +109294,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 1.88,
+   "seconds": 2.57,
    "portals": [
     {
      "name": "out00",
@@ -109992,7 +109992,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 2.11,
+   "seconds": 2.79,
    "portals": [
     {
      "name": "east00",
@@ -111003,7 +111003,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 5.86,
+   "seconds": 13.24,
    "portals": [
     {
      "name": "west00",
@@ -111972,7 +111972,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 2.03,
+   "seconds": 7.12,
    "portals": [
     {
      "name": "out00",
@@ -112487,7 +112487,7 @@
    }
   }
  },
- "started": "2026-10-13 14:29:15",
+ "started": "2026-10-13 16:54:53",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -114009,15 +114009,77 @@
  "art_pack": {
   "mode": "required",
   "categories": [
+   "Architecture",
    "Foliage",
+   "Rocks",
+   "Terrain",
    "Trees"
   ],
   "assets": {
+   "Arch_Leafy": {
+    "file": "environment/glb/Arch_Leafy.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.4492,
+    "scale_xyz": [
+     1.4492,
+     1.4492,
+     1.4492
+    ],
+    "pack_tris": 2336,
+    "tris": 2002,
+    "kit_tris": 2044,
+    "decimated": true,
+    "parts": [
+     "Arch_Leafy"
+    ]
+   },
+   "Arch_Leafy_Trail": {
+    "file": "environment/glb/Arch_Leafy_Trail.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.4461,
+    "scale_xyz": [
+     1.4461,
+     1.4461,
+     1.4461
+    ],
+    "pack_tris": 2316,
+    "tris": 1920,
+    "kit_tris": 1960,
+    "decimated": true,
+    "parts": [
+     "Arch_Leafy_Trail"
+    ]
+   },
+   "Barrel_Door_Mound": {
+    "file": "environment/glb/Barrel_Door_Mound.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.1302,
+    "scale_xyz": [
+     1.1302,
+     1.1302,
+     1.1302
+    ],
+    "pack_tris": 1212,
+    "tris": 1212,
+    "kit_tris": 848,
+    "decimated": false,
+    "parts": [
+     "Barrel_Door_Mound"
+    ]
+   },
    "Berry_Bush": {
     "file": "environment/glb/Berry_Bush.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1829,
+    "scale_xyz": [
+     1.1829,
+     1.1829,
+     1.1829
+    ],
     "pack_tris": 1968,
     "tris": 1968,
     "kit_tris": 2240,
@@ -114031,6 +114093,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.355,
+    "scale_xyz": [
+     1.355,
+     1.355,
+     1.355
+    ],
     "pack_tris": 400,
     "tris": 400,
     "kit_tris": 400,
@@ -114044,6 +114111,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4943,
+    "scale_xyz": [
+     1.4943,
+     1.4943,
+     1.4943
+    ],
     "pack_tris": 400,
     "tris": 400,
     "kit_tris": 480,
@@ -114057,6 +114129,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.313,
+    "scale_xyz": [
+     1.313,
+     1.313,
+     1.313
+    ],
     "pack_tris": 400,
     "tris": 312,
     "kit_tris": 320,
@@ -114070,6 +114147,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5679,
+    "scale_xyz": [
+     1.5679,
+     1.5679,
+     1.5679
+    ],
     "pack_tris": 7340,
     "tris": 666,
     "kit_tris": 680,
@@ -114083,6 +114165,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.417,
+    "scale_xyz": [
+     1.417,
+     1.417,
+     1.417
+    ],
     "pack_tris": 1120,
     "tris": 210,
     "kit_tris": 216,
@@ -114096,6 +114183,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1492,
+    "scale_xyz": [
+     1.1492,
+     1.1492,
+     1.1492
+    ],
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114109,6 +114201,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1492,
+    "scale_xyz": [
+     1.1492,
+     1.1492,
+     1.1492
+    ],
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114117,11 +114214,52 @@
      "Butterfly_Yellow"
     ]
    },
+   "Cloud_Puff_A": {
+    "file": "environment/glb/cloud_module.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.6797,
+    "scale_xyz": [
+     1.6797,
+     2.1973,
+     1.3744
+    ],
+    "pack_tris": 896,
+    "tris": 862,
+    "kit_tris": 880,
+    "decimated": true,
+    "parts": [
+     "Cloud_Puff_A"
+    ]
+   },
+   "Cloud_Puff_B": {
+    "file": "environment/glb/Cloud_Puff_B.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.282,
+    "scale_xyz": [
+     1.282,
+     2.3608,
+     1.9133
+    ],
+    "pack_tris": 896,
+    "tris": 862,
+    "kit_tris": 880,
+    "decimated": true,
+    "parts": [
+     "Cloud_Puff_B"
+    ]
+   },
    "Clover_Patch": {
     "file": "environment/glb/Clover_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.426,
+    "scale_xyz": [
+     1.426,
+     1.426,
+     1.426
+    ],
     "pack_tris": 8064,
     "tris": 564,
     "kit_tris": 576,
@@ -114130,11 +114268,106 @@
      "Clover_Patch"
     ]
    },
+   "Dock_Bollard": {
+    "file": "environment/glb/Dock_Bollard.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.3942,
+    "scale_xyz": [
+     1.3942,
+     1.3942,
+     1.3942
+    ],
+    "pack_tris": 376,
+    "tris": 152,
+    "kit_tris": 156,
+    "decimated": true,
+    "parts": [
+     "Dock_Bollard"
+    ]
+   },
+   "Door_Plank": {
+    "file": "environment/glb/Door_Plank.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.7391,
+    "scale_xyz": [
+     1.7391,
+     1.7391,
+     1.7391
+    ],
+    "pack_tris": 512,
+    "tris": 462,
+    "kit_tris": 472,
+    "decimated": true,
+    "parts": [
+     "Door_Plank"
+    ]
+   },
+   "Eave_Lashed_4m": {
+    "file": "environment/glb/Eave_Lashed_4m.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0161,
+    "scale_xyz": [
+     1.0161,
+     1.0161,
+     1.0161
+    ],
+    "pack_tris": 1080,
+    "tris": 454,
+    "kit_tris": 464,
+    "decimated": true,
+    "parts": [
+     "Eave_Lashed_4m"
+    ]
+   },
+   "Fence_Picket_Seg": {
+    "file": "environment/glb/fence_picket.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9231,
+    "scale_xyz": [
+     0.9231,
+     0.9231,
+     0.9231
+    ],
+    "pack_tris": 894,
+    "tris": 406,
+    "kit_tris": 416,
+    "decimated": true,
+    "parts": [
+     "Fence_Picket_Seg"
+    ]
+   },
+   "Fence_Wood_Seg": {
+    "file": "environment/glb/fence_rail.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9744,
+    "scale_xyz": [
+     0.9744,
+     0.9744,
+     0.9744
+    ],
+    "pack_tris": 444,
+    "tris": 196,
+    "kit_tris": 200,
+    "decimated": true,
+    "parts": [
+     "Fence_Wood_Seg"
+    ]
+   },
    "Flower_Bed_Large": {
     "file": "environment/glb/Flower_Bed_Large.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3033,
+    "scale_xyz": [
+     1.3033,
+     1.3033,
+     1.3033
+    ],
     "pack_tris": 41640,
     "tris": 1050,
     "kit_tris": 1072,
@@ -114148,6 +114381,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.5752,
+    "scale_xyz": [
+     1.5752,
+     1.5752,
+     1.5752
+    ],
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114161,6 +114399,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3801,
+    "scale_xyz": [
+     1.3801,
+     1.3801,
+     1.3801
+    ],
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114174,6 +114417,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.8109,
+    "scale_xyz": [
+     0.8109,
+     0.8109,
+     0.8109
+    ],
     "pack_tris": 11,
     "tris": 8,
     "kit_tris": 9,
@@ -114187,6 +114435,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7882,
+    "scale_xyz": [
+     1.7882,
+     1.7882,
+     1.7882
+    ],
     "pack_tris": 776,
     "tris": 776,
     "kit_tris": 3496,
@@ -114200,6 +114453,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1083,
+    "scale_xyz": [
+     1.1083,
+     1.1083,
+     1.1083
+    ],
     "pack_tris": 108,
     "tris": 108,
     "kit_tris": 860,
@@ -114208,11 +114466,135 @@
      "Hedge_Wall_4m"
     ]
    },
+   "Hill_Door": {
+    "file": "environment/glb/Hill_Door.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.674,
+    "scale_xyz": [
+     0.674,
+     0.674,
+     0.674
+    ],
+    "pack_tris": 896,
+    "tris": 392,
+    "kit_tris": 400,
+    "decimated": true,
+    "parts": [
+     "Hill_Door"
+    ]
+   },
+   "House_Mushroom_BlueCone": {
+    "file": "environment/glb/House_Mushroom_BlueCone.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9593,
+    "scale_xyz": [
+     0.9593,
+     0.9593,
+     0.9593
+    ],
+    "pack_tris": 2736,
+    "tris": 2736,
+    "kit_tris": 1568,
+    "decimated": false,
+    "parts": [
+     "House_Mushroom_BlueCone",
+     "House_Mushroom_BlueCone_Cap",
+     "House_Mushroom_BlueCone_Window"
+    ]
+   },
+   "House_Mushroom_OrangeOven": {
+    "file": "environment/glb/House_Mushroom_OrangeOven.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9593,
+    "scale_xyz": [
+     0.9593,
+     0.9593,
+     0.9593
+    ],
+    "pack_tris": 3914,
+    "tris": 3914,
+    "kit_tris": 2336,
+    "decimated": false,
+    "parts": [
+     "House_Mushroom_OrangeOven",
+     "House_Mushroom_OrangeOven_Cap",
+     "House_Mushroom_OrangeOven_Window"
+    ]
+   },
+   "House_Mushroom_OrangeSpotted": {
+    "file": "environment/glb/House_Mushroom_OrangeSpotted.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9593,
+    "scale_xyz": [
+     0.9593,
+     0.9593,
+     0.9593
+    ],
+    "pack_tris": 7394,
+    "tris": 7394,
+    "kit_tris": 2140,
+    "decimated": false,
+    "parts": [
+     "House_Mushroom_OrangeSpotted",
+     "House_Mushroom_OrangeSpotted_Cap",
+     "House_Mushroom_OrangeSpotted_Lamp",
+     "House_Mushroom_OrangeSpotted_Window"
+    ]
+   },
+   "House_Mushroom_YellowStreaked": {
+    "file": "environment/glb/House_Mushroom_YellowStreaked.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9593,
+    "scale_xyz": [
+     0.9593,
+     0.9593,
+     0.9593
+    ],
+    "pack_tris": 6818,
+    "tris": 6818,
+    "kit_tris": 2052,
+    "decimated": false,
+    "parts": [
+     "House_Mushroom_YellowStreaked",
+     "House_Mushroom_YellowStreaked_Cap",
+     "House_Mushroom_YellowStreaked_Window"
+    ]
+   },
+   "House_Wood_TwoStory_Capped": {
+    "file": "environment/glb/House_Wood_TwoStory_Capped.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.086,
+    "scale_xyz": [
+     1.086,
+     1.086,
+     1.086
+    ],
+    "pack_tris": 6090,
+    "tris": 6090,
+    "kit_tris": 2496,
+    "decimated": false,
+    "parts": [
+     "House_Wood_TwoStory_Capped",
+     "House_Wood_TwoStory_Capped_Cap",
+     "House_Wood_TwoStory_Capped_Window"
+    ]
+   },
    "Iris_Patch": {
     "file": "environment/glb/Iris_Patch.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4691,
+    "scale_xyz": [
+     1.4691,
+     1.4691,
+     1.4691
+    ],
     "pack_tris": 6940,
     "tris": 1438,
     "kit_tris": 1468,
@@ -114221,11 +114603,52 @@
      "Iris_Patch"
     ]
    },
+   "Ivy_Sign": {
+    "file": "environment/glb/Ivy_Sign.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0227,
+    "scale_xyz": [
+     1.0227,
+     1.0227,
+     1.0227
+    ],
+    "pack_tris": 1989,
+    "tris": 301,
+    "kit_tris": 308,
+    "decimated": true,
+    "parts": [
+     "Ivy_Sign"
+    ]
+   },
+   "Ivy_Sign_3Way": {
+    "file": "environment/glb/Ivy_Sign_3Way.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.1122,
+    "scale_xyz": [
+     1.1122,
+     1.1122,
+     1.1122
+    ],
+    "pack_tris": 413,
+    "tris": 413,
+    "kit_tris": 420,
+    "decimated": false,
+    "parts": [
+     "Ivy_Sign_3Way"
+    ]
+   },
    "Log_A": {
     "file": "environment/glb/log.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3309,
+    "scale_xyz": [
+     1.3309,
+     1.3309,
+     1.3309
+    ],
     "pack_tris": 132,
     "tris": 86,
     "kit_tris": 88,
@@ -114239,6 +114662,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.6352,
+    "scale_xyz": [
+     1.6352,
+     1.6352,
+     1.6352
+    ],
     "pack_tris": 6940,
     "tris": 1736,
     "kit_tris": 1772,
@@ -114247,11 +114675,88 @@
      "Marigold_Patch"
     ]
    },
+   "Mountain_Hill": {
+    "file": "environment/glb/Mountain_Hill.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.5466,
+    "scale_xyz": [
+     0.5466,
+     0.5466,
+     0.4941
+    ],
+    "pack_tris": 224,
+    "tris": 224,
+    "kit_tris": 588,
+    "decimated": false,
+    "parts": [
+     "Mountain_Hill"
+    ]
+   },
+   "Mountain_Peak_A": {
+    "file": "environment/glb/Mountain_Peak_A.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.7579,
+    "scale_xyz": [
+     0.7579,
+     0.7579,
+     0.5655
+    ],
+    "pack_tris": 48,
+    "tris": 48,
+    "kit_tris": 588,
+    "decimated": false,
+    "parts": [
+     "Mountain_Peak_A"
+    ]
+   },
+   "Mountain_Peak_B": {
+    "file": "environment/glb/Mountain_Peak_B.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.5544,
+    "scale_xyz": [
+     0.5544,
+     0.5544,
+     1.019
+    ],
+    "pack_tris": 56,
+    "tris": 56,
+    "kit_tris": 588,
+    "decimated": false,
+    "parts": [
+     "Mountain_Peak_B"
+    ]
+   },
+   "Mountain_Peak_Rocky": {
+    "file": "environment/glb/Mountain_Peak_Rocky.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.7492,
+    "scale_xyz": [
+     0.7492,
+     0.7492,
+     0.6903
+    ],
+    "pack_tris": 424,
+    "tris": 424,
+    "kit_tris": 588,
+    "decimated": false,
+    "parts": [
+     "Mountain_Peak_Rocky"
+    ]
+   },
    "Mushroom_Blue_S": {
     "file": "environment/glb/mushroom_blue_small.glb",
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.4723,
+    "scale_xyz": [
+     1.4723,
+     1.4723,
+     1.4723
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114265,6 +114770,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.8371,
+    "scale_xyz": [
+     0.8371,
+     0.8371,
+     0.8371
+    ],
     "pack_tris": 8120,
     "tris": 892,
     "kit_tris": 912,
@@ -114278,6 +114788,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.6954,
+    "scale_xyz": [
+     1.6954,
+     1.6954,
+     1.6954
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114291,6 +114806,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.8495,
+    "scale_xyz": [
+     1.8495,
+     1.8495,
+     1.8495
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114304,6 +114824,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5413,
+    "scale_xyz": [
+     1.5413,
+     1.5413,
+     1.5413
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114317,6 +114842,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.6954,
+    "scale_xyz": [
+     1.6954,
+     1.6954,
+     1.6954
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114330,6 +114860,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.5169,
+    "scale_xyz": [
+     1.5169,
+     1.5169,
+     1.5169
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114343,6 +114878,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3385,
+    "scale_xyz": [
+     1.3385,
+     1.3385,
+     1.3385
+    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -114351,11 +114891,232 @@
      "Mushroom_Yellow_S"
     ]
    },
+   "Post_StoneCap": {
+    "file": "environment/glb/Post_StoneCap.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0304,
+    "scale_xyz": [
+     1.0304,
+     1.0304,
+     1.0304
+    ],
+    "pack_tris": 584,
+    "tris": 584,
+    "kit_tris": 652,
+    "decimated": false,
+    "parts": [
+     "Post_StoneCap"
+    ]
+   },
+   "Rock_A": {
+    "file": "environment/glb/Rock_A.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.6661,
+    "scale_xyz": [
+     0.6661,
+     0.6661,
+     0.6661
+    ],
+    "pack_tris": 160,
+    "tris": 78,
+    "kit_tris": 20,
+    "decimated": true,
+    "parts": [
+     "Rock_A"
+    ]
+   },
+   "Rock_B": {
+    "file": "environment/glb/Rock_B.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.689,
+    "scale_xyz": [
+     0.689,
+     0.689,
+     0.689
+    ],
+    "pack_tris": 160,
+    "tris": 78,
+    "kit_tris": 20,
+    "decimated": true,
+    "parts": [
+     "Rock_B"
+    ]
+   },
+   "Rock_Boulder": {
+    "file": "environment/glb/Rock_Boulder.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.1763,
+    "scale_xyz": [
+     1.1763,
+     1.1763,
+     1.1763
+    ],
+    "pack_tris": 160,
+    "tris": 98,
+    "kit_tris": 100,
+    "decimated": true,
+    "parts": [
+     "Rock_Boulder"
+    ]
+   },
+   "Rock_C": {
+    "file": "environment/glb/Rock_C.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.5503,
+    "scale_xyz": [
+     0.5503,
+     0.5503,
+     0.5503
+    ],
+    "pack_tris": 160,
+    "tris": 78,
+    "kit_tris": 20,
+    "decimated": true,
+    "parts": [
+     "Rock_C"
+    ]
+   },
+   "Rock_Cliff_Stone": {
+    "file": "environment/glb/Rock_Cliff_Stone.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.1191,
+    "scale_xyz": [
+     1.1191,
+     1.1191,
+     1.1191
+    ],
+    "pack_tris": 80,
+    "tris": 24,
+    "kit_tris": 25,
+    "decimated": true,
+    "parts": [
+     "Rock_Cliff_Stone"
+    ]
+   },
+   "Sign_Arrow": {
+    "file": "environment/glb/sign.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.1013,
+    "scale_xyz": [
+     1.1013,
+     1.1013,
+     1.1013
+    ],
+    "pack_tris": 197,
+    "tris": 97,
+    "kit_tris": 100,
+    "decimated": true,
+    "parts": [
+     "Sign_Arrow"
+    ]
+   },
+   "Sign_Board": {
+    "file": "environment/glb/noticeboard.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.1557,
+    "scale_xyz": [
+     1.1557,
+     1.1557,
+     1.1557
+    ],
+    "pack_tris": 744,
+    "tris": 270,
+    "kit_tris": 276,
+    "decimated": true,
+    "parts": [
+     "Sign_Board"
+    ]
+   },
+   "Sign_Danger_Board": {
+    "file": "environment/glb/Sign_Danger_Board.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.56,
+    "scale_xyz": [
+     1.56,
+     1.56,
+     1.56
+    ],
+    "pack_tris": 500,
+    "tris": 262,
+    "kit_tris": 268,
+    "decimated": true,
+    "parts": [
+     "Sign_Danger_Board"
+    ]
+   },
+   "Sign_Danger_Diamond": {
+    "file": "environment/glb/Sign_Danger_Diamond.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.154,
+    "scale_xyz": [
+     1.154,
+     1.154,
+     1.154
+    ],
+    "pack_tris": 608,
+    "tris": 206,
+    "kit_tris": 212,
+    "decimated": true,
+    "parts": [
+     "Sign_Danger_Diamond"
+    ]
+   },
+   "Sign_Danger_Excl": {
+    "file": "environment/glb/Sign_Danger_Excl.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9681,
+    "scale_xyz": [
+     0.9681,
+     0.9681,
+     0.9681
+    ],
+    "pack_tris": 501,
+    "tris": 145,
+    "kit_tris": 148,
+    "decimated": true,
+    "parts": [
+     "Sign_Danger_Excl"
+    ]
+   },
+   "Sign_Danger_Skull": {
+    "file": "environment/glb/Sign_Danger_Skull.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9759,
+    "scale_xyz": [
+     0.9759,
+     0.9759,
+     0.9759
+    ],
+    "pack_tris": 954,
+    "tris": 234,
+    "kit_tris": 240,
+    "decimated": true,
+    "parts": [
+     "Sign_Danger_Skull"
+    ]
+   },
    "Strawberry_Bush": {
     "file": "environment/glb/Strawberry_Bush.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.7375,
+    "scale_xyz": [
+     0.7375,
+     0.7375,
+     0.7375
+    ],
     "pack_tris": 8908,
     "tris": 646,
     "kit_tris": 660,
@@ -114369,6 +115130,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.1728,
+    "scale_xyz": [
+     1.1728,
+     1.1728,
+     1.1728
+    ],
     "pack_tris": 952,
     "tris": 164,
     "kit_tris": 168,
@@ -114382,6 +115148,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.2143,
+    "scale_xyz": [
+     1.2143,
+     1.2143,
+     1.2143
+    ],
     "pack_tris": 7524,
     "tris": 666,
     "kit_tris": 680,
@@ -114390,11 +115161,34 @@
      "Sunflower_Patch"
     ]
    },
+   "Tomato_Gate": {
+    "file": "environment/glb/Tomato_Gate.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.6955,
+    "scale_xyz": [
+     1.6955,
+     1.6955,
+     1.6955
+    ],
+    "pack_tris": 1340,
+    "tris": 1340,
+    "kit_tris": 2804,
+    "decimated": false,
+    "parts": [
+     "Tomato_Gate"
+    ]
+   },
    "Tree_Autumn_A": {
     "file": "environment/glb/Tree_Autumn_A.glb",
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.8721,
+    "scale_xyz": [
+     1.8721,
+     1.8721,
+     1.8721
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1156,
@@ -114409,6 +115203,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0898,
+    "scale_xyz": [
+     2.0898,
+     2.0898,
+     2.0898
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114423,6 +115222,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9998,
+    "scale_xyz": [
+     1.9998,
+     1.9998,
+     1.9998
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114437,6 +115241,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.1599,
+    "scale_xyz": [
+     2.1599,
+     2.1599,
+     2.1599
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114451,6 +115260,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9682,
+    "scale_xyz": [
+     1.9682,
+     1.9682,
+     1.9682
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114465,6 +115279,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.2524,
+    "scale_xyz": [
+     2.2524,
+     2.2524,
+     2.2524
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114479,6 +115298,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.2978,
+    "scale_xyz": [
+     2.2978,
+     2.2978,
+     2.2978
+    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -114493,6 +115317,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.5138,
+    "scale_xyz": [
+     2.5138,
+     2.5138,
+     2.5138
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1316,
@@ -114507,6 +115336,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.2716,
+    "scale_xyz": [
+     1.2716,
+     1.2716,
+     1.2716
+    ],
     "pack_tris": 996,
     "tris": 230,
     "kit_tris": 237,
@@ -114521,6 +115355,11 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.8312,
+    "scale_xyz": [
+     1.8312,
+     1.8312,
+     1.8312
+    ],
     "pack_tris": 108,
     "tris": 108,
     "kit_tris": 216,
@@ -114535,6 +115374,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.1542,
+    "scale_xyz": [
+     2.1542,
+     2.1542,
+     2.1542
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1156,
@@ -114549,6 +115393,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0965,
+    "scale_xyz": [
+     2.0965,
+     2.0965,
+     2.0965
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1236,
@@ -114563,6 +115412,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7164,
+    "scale_xyz": [
+     1.7164,
+     1.7164,
+     1.7164
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1076,
@@ -114577,6 +115431,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0929,
+    "scale_xyz": [
+     2.0929,
+     2.0929,
+     2.0929
+    ],
     "pack_tris": 1036,
     "tris": 974,
     "kit_tris": 996,
@@ -114591,6 +115450,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9926,
+    "scale_xyz": [
+     1.9926,
+     1.9926,
+     1.9926
+    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1992,
@@ -114605,6 +115469,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1752,
+    "scale_xyz": [
+     1.1752,
+     1.1752,
+     1.1752
+    ],
     "pack_tris": 15988,
     "tris": 434,
     "kit_tris": 444,
@@ -114618,6 +115487,11 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7038,
+    "scale_xyz": [
+     1.7038,
+     1.7038,
+     1.7038
+    ],
     "pack_tris": 2680,
     "tris": 458,
     "kit_tris": 468,
@@ -114628,6 +115502,6 @@
    }
   }
  },
- "seconds": 116.3,
- "objects": 18012
+ "seconds": 222.1,
+ "objects": 18015
 }
