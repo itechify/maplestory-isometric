@@ -131,6 +131,35 @@ func test_each_gameplay_state_plays_its_clip() -> void:
 	assert_eq(_playing(vis), "death", "dead")
 
 
+## An equip or unequip rebuilds the model; the clip playing goes on from where it was instead of starting over (a
+## swing keeps its timing, a seated Beginner stays down in the seat).
+func test_changing_equipment_keeps_the_clip_going() -> void:
+	if _skip("test_changing_equipment_keeps_the_clip_going"):
+		return
+	var pair := _player()
+	var p: PlayerController = pair[0]
+	var vis: PlayerVisual = pair[1]
+	_tick(vis, 10)
+	rig.w.bot.press(&"attack")
+	_tick(vis, 6)
+	assert_eq(_playing(vis), "attack", "swinging")
+	var at := vis.animator.anim.current_animation_position
+	assert_true(at > 0.02, "into the swing (%.3f s)" % at)
+	vis.set_equipment({"hat": "708"})
+	assert_eq(vis.worn.keys(), ["hat"], "the hat is on")
+	assert_eq(_playing(vis), "attack", "still swinging after the rebuild")
+	assert_near(vis.animator.anim.current_animation_position, at, 0.001, "from where it was")
+	_tick(vis, 90)
+	assert_true(p.sit("522"), "sits")
+	_tick(vis, 60)
+	var lift := vis.seat_lift()
+	assert_true(lift > 0.1, "down in the seat (lift %.3f)" % lift)
+	vis.set_equipment({})
+	_tick(vis, 1)
+	assert_eq(_playing(vis), "sit", "still seated after the rebuild")
+	assert_near(vis.seat_lift(), lift, 0.01, "and stays down instead of sitting down again")
+
+
 func test_climbing_a_rope_plays_climb() -> void:
 	if _skip("test_climbing_a_rope_plays_climb"):
 		return

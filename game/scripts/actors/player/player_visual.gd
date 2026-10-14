@@ -202,7 +202,8 @@ func set_equipment(equipped: Dictionary) -> void:
 	show_character(gender, appearance, equipped)
 
 
-## The preset, look and equipment together: one rebuild when any of them changes what the rig shows.
+## The preset, look and equipment together: one rebuild when any of them changes what the rig shows. The clip playing
+## carries on through the rebuild from where it was (PlayerAnimator.snapshot/restore).
 func show_character(character_gender: String, character_appearance: Dictionary, equipped: Dictionary) -> void:
 	gender = character_gender
 	appearance = character_appearance.duplicate()
@@ -211,6 +212,7 @@ func show_character(character_gender: String, character_appearance: Dictionary, 
 			and CharacterAppearance.resolve(character_appearance, character_gender) == look
 			and shown_equipment(equipped) == worn):
 		return
+	var playing := animator.snapshot()
 	remove_child(model)
 	model.free()
 	if _outline_root != null:
@@ -225,6 +227,9 @@ func show_character(character_gender: String, character_appearance: Dictionary, 
 	worn = {}
 	wardrobe = {}
 	_install_model()
+	if animator != null:
+		# The clip playing goes on where it was (mid-swing, seated), not from its start.
+		animator.restore(playing)
 
 
 ## The slots of `equipped` that hold an item (what the rig shows).
