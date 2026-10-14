@@ -30,11 +30,11 @@
   },
   "polygon_budget": {
    "ok": true,
-   "detail": "maps over 400,000: {}; largest 1000000 (389,929)"
+   "detail": "maps over 400,000: {}; largest 1000000 (389,865)"
   },
   "world_polygon_budget": {
    "ok": true,
-   "detail": "WORLD layer 3,026,590 triangles (budget 3,500,000)"
+   "detail": "WORLD layer 3,026,542 triangles (budget 3,500,000)"
   },
   "portal_topology": {
    "ok": true,
@@ -105,7 +105,7 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 60000: Signpost_Notice at (18.0, 17.0) stands 1.27 m from route LedgeRopes_Belvedere, solid at body height 0.8 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 60000: Signpost_Notice at (18.0, 17.0) stands 1.27 m from route LedgeRopes_Belvedere, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -125,12 +125,12 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1010001: Armor_Stand at (2.9, 5.3) stands 1.17 m from route Main, solid at body height 0.74 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1010003: Shelf_Goods at (5.6, 11.1) stands 1.15 m from route LeftStack, solid at body height 0.78 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -190,7 +190,7 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.03 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.13 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -200,7 +200,7 @@
   {
    "check": "props_near_routes",
    "severity": "low",
-   "msg": "map 1020001: Haystack at (57.0, 2.0) stands 1.5 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
+   "msg": "map 1020001: Haystack at (57.0, 2.0) stands 1.5 m from route EastYard, solid at body height 0.62 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)"
   },
   {
    "check": "props_near_routes",
@@ -234,34 +234,34 @@
   }
  ],
  "stats": {
-  "total_triangles": 8844712,
-  "world_triangles": 3026590,
+  "total_triangles": 8842422,
+  "world_triangles": 3026542,
   "triangles_by_map": {
-   "0": 92650,
-   "10000": 127606,
-   "20000": 114009,
-   "30000": 157444,
+   "0": 92514,
+   "10000": 127470,
+   "20000": 113945,
+   "30000": 157436,
    "40000": 157658,
    "40001": 315875,
    "40002": 305706,
-   "50000": 192190,
-   "60000": 371040,
-   "60001": 75405,
-   "20001": 36964,
-   "1000000": 389929,
+   "50000": 192170,
+   "60000": 372216,
+   "60001": 75271,
+   "20001": 37716,
+   "1000000": 389865,
    "1000001": 224710,
    "1000002": 268664,
    "1000003": 156694,
-   "1000004": 212505,
+   "1000004": 212425,
    "1000005": 261868,
    "1000006": 341234,
-   "1010000": 242877,
-   "1010001": 38776,
-   "1010002": 68970,
-   "1010003": 58720,
-   "1010004": 265180,
-   "1020000": 298634,
-   "1020001": 254786
+   "1010000": 243393,
+   "1010001": 38696,
+   "1010002": 69620,
+   "1010003": 58606,
+   "1010004": 265172,
+   "1020000": 298352,
+   "1020001": 254480
   },
   "top_assets_by_instanced_triangles": [
    {
@@ -514,7 +514,7 @@
      18.0,
      17.0
     ],
-    "body_clearance_m": 0.8,
+    "body_clearance_m": 0.67,
     "grade": "low"
    },
    {
@@ -561,20 +561,6 @@
    },
    {
     "map": 1010001,
-    "object": "AmherstWeaponStore_1010001_Armor_Stand",
-    "asset": "Armor_Stand",
-    "route": "Main",
-    "origin_distance_m": 1.17,
-    "footprint": 1.0,
-    "local_xy": [
-     2.9,
-     5.3
-    ],
-    "body_clearance_m": 0.74,
-    "grade": "low"
-   },
-   {
-    "map": 1010001,
     "object": "AmherstWeaponStore_1010001_X1010001_WeaponBarrel",
     "asset": "X1010001_WeaponBarrel",
     "route": "ForgeClimb",
@@ -585,6 +571,20 @@
      1.5
     ],
     "body_clearance_m": 0.77,
+    "grade": "low"
+   },
+   {
+    "map": 1010003,
+    "object": "AmherstDepartmentStore_1010003_Shelf_Goods",
+    "asset": "Shelf_Goods",
+    "route": "LeftStack",
+    "origin_distance_m": 1.15,
+    "footprint": 2.0,
+    "local_xy": [
+     5.6,
+     11.1
+    ],
+    "body_clearance_m": 0.78,
     "grade": "low"
    },
    {
@@ -752,7 +752,7 @@
      46.9,
      19.0
     ],
-    "body_clearance_m": 1.03,
+    "body_clearance_m": 1.13,
     "grade": "low"
    },
    {
@@ -780,7 +780,7 @@
      57.0,
      2.0
     ],
-    "body_clearance_m": 0.71,
+    "body_clearance_m": 0.62,
     "grade": "low"
    },
    {
@@ -3818,9 +3818,9 @@
    }
   },
   "ring_band": {},
-  "objects": 18012,
-  "meshes": 2714,
-  "materials": 201
+  "objects": 18016,
+  "meshes": 2718,
+  "materials": 198
  },
  "exceptions": [],
  "summary": {
