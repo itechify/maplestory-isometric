@@ -706,6 +706,7 @@ Wall times grow with the machine's load (the ranges are two runs, the slower one
 | `save_it2_continue` | an Iteration Two save continued in the real game: the migration, Save writing v2, a v2 reload | saves |
 | `perf_baseline` | the performance baseline (#62): island load time, then fps, frame time, draw calls, primitives and memory in the five busiest maps; windowed, real time, `PLAYTEST_RESOLUTION=1920x1080` (docs/runtime/PERF_BASELINE.md) | art (#59) |
 | `ui_minimap` | the minimap on all 25 maps and the Phase 12 feedback, by real kills to level 2; the status bar's Map [M] button, and the fold kept across Quit Game and Continue (two phases) | UI |
+| `art_pack_review` | before/after shots of an art-pack bump (#61), windowed: the Equip tab holding 1439, 1440 and 900 at real slot size, a Wooden Box's Hit shot 0-450 ms after the hit, and the Tomato Field's beds at the gameplay camera; each shot's screen region is a note | art pack |
 | `ui_item_icons` | item icons (#69): every icon in the inventory's Equip, Use and Etc tabs, a quickslot, the equipment window, a tooltip, a quest's rewards and Lucy's shop is the art pack's rendered icon, or the procedural shape with `NO_ART_PACK=1`; a screenshot of each with `--windowed` (setup: level, give) | UI, art (#59) |
 
 ## Findings (2026-10-05)

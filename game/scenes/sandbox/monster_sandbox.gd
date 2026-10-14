@@ -20,6 +20,9 @@ extends Node3D
 ##                       shot idle, walking, attacking (its touch), flashing on a hit with its HP bar, and dying; then
 ##                       one monster behind a wall with its see-through silhouette. Quits when done. Use a map without
 ##                       spawns (e.g. --map 001010000) so the shots are not crowded.
+##   --species <ids>     with --showcase: only these monster ids, comma-separated (default 1,2,3,4,5,9)
+##   --touch             with --showcase: draw each monster's touch zone (MonsterDef.touch_size_m, bottom-anchored at
+##                       its feet, MeleeQuery.touch_overlaps) as a translucent box
 ## Keyboard play otherwise: WASD move, Space jump, J / Ctrl attack, F3 toggles the label, K kills every monster.
 
 const DEFAULT_MAP := "000000040"
@@ -266,9 +269,11 @@ func _showcase(dir: String) -> void:
 	var side := _flat(rig.camera.global_transform.basis.x).normalized()
 	var toward_cam := _flat(rig.camera.global_transform.basis.z).normalized()
 	var fade := monsters.tuning.num("spawns", "fade_in_s") if monsters.tuning != null else 0.0
-	for id in ["1", "2", "3", "4", "5", "9"]:
+	for id in _arg("--species", "1,2,3,4,5,9").split(",", false):
 		var at := player.global_position + side * 2.2
 		var m := _showcase_spawn(id, at, -side)
+		if _has("--touch"):
+			m.add_child(touch_zone_box(m.def))
 		var tag := m.def.name.to_lower().replace(" ", "_").replace(".", "")
 		await _wait(fade + 0.8)
 		await _shot_now(tag + "_idle")
@@ -315,6 +320,27 @@ func _showcase(dir: String) -> void:
 	await _shot_now("occluded_silhouette")
 	hidden.queue_free()
 	wall.queue_free()
+
+
+## A translucent box over a monster's touch zone, as its child: touch_size_m is (width along its facing, height up
+## from its feet, depth across), and a spawned monster's local +Z is its facing.
+static func touch_zone_box(def: MonsterDef) -> MeshInstance3D:
+	var size := def.touch_size_m
+	var box := BoxMesh.new()
+	box.size = Vector3(size.z, size.y, size.x)
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(1.0, 0.25, 0.2, 0.28)
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.no_depth_test = true
+	var mi := MeshInstance3D.new()
+	mi.name = "TouchZone"
+	mi.mesh = box
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.position = Vector3(0.0, size.y * 0.5, 0.0)
+	return mi
 
 
 func _showcase_spawn(id: String, at: Vector3, facing: Vector3) -> Monster:
