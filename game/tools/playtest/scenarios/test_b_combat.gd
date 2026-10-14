@@ -1330,7 +1330,7 @@ func _measure_visual(mob: String) -> void:
 	visual_fit[mob] = {"visual_fwd_m": snappedf(hi.x - lo.x, 0.001), "visual_lat_m": snappedf(hi.z - lo.z, 0.001),
 		"visual_h_m": snappedf(hi.y - maxf(lo.y, 0.0), 0.001), "visual_base_m": snappedf(lo.y, 0.001),
 		"touch_w_m": snappedf(WorldScale.actor(float(tz[0])), 0.001), "touch_h_m": snappedf(WorldScale.actor(float(tz[1])), 0.001),
-		"sprite_px": sp, "touch_px": tz, "placeholder": best.visual.is_placeholder}
+		"max_w_m": best.def.model_max_width_m(), "sprite_px": sp, "touch_px": tz, "placeholder": best.visual.is_placeholder}
 
 
 func _measure_screen(mob: String) -> void:
@@ -1651,13 +1651,15 @@ func _evaluate() -> void:
 		d.game().is_character_dead(), heals, JSON.stringify(kb_interrupts)])
 	d.note("visual fit (model extents vs canonical touch zone, m): %s" % [JSON.stringify(visual_fit)])
 	# The body you see is the body you hit: every species shows its proxy (the Tutorial Jr. Sentinel's too), stands on
-	# its feet (a bouncing walker's bob is up to 6% of its height) and spans about its touch zone (1.35x allows the
-	# crawl's squash and stretch and the ink outline).
+	# its feet (a bouncing walker's bob is up to 6% of its height) and spans about its touch zone: at most its
+	# MonsterDef.model_max_width_m() (monsters/_shared.json model_max_width_touch_ratio, 1.35x the touch width, which
+	# allows the crawl's squash and stretch and the ink outline; MonsterVisual scales a wider model down to it). The
+	# extents are snapped to the millimetre, so a model scaled exactly to the cap may read half a millimetre over.
 	var fit_bad: Array = []
 	for mob: String in visual_fit:
 		var v: Dictionary = visual_fit[mob]
-		var w := float(v["touch_w_m"])
-		if bool(v["placeholder"]) or float(v["visual_fwd_m"]) > w * 1.35 or float(v["visual_lat_m"]) > w * 1.35 \
+		var w := float(v["max_w_m"]) + 0.0005
+		if bool(v["placeholder"]) or float(v["visual_fwd_m"]) > w or float(v["visual_lat_m"]) > w \
 				or float(v["visual_base_m"]) > float(v["visual_h_m"]) * 0.06 + 0.03 or float(v["visual_base_m"]) < -0.05:
 			fit_bad.append(mob)
 	d.check("monster visuals: every species shows its proxy on its feet, within about its canonical touch zone",

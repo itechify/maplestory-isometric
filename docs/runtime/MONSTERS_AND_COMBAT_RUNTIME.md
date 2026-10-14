@@ -96,7 +96,7 @@ modifier, the movement label, the Peace flag, `touch_zone_px`, `sprite_size_px`,
 |---|---|---|
 | Walk speed | `slope x (base_speed + modifier)` px/s → `WorldScale.h`. `slope` is the px/s per Speed point of MeowDB's published walk line (`walk_speed.base_px_per_s` at `base_speed`, `cap_px_per_s` at `speed_cap`: 1.25). The character-only "+20 Speed behind the scenes" is not applied | 43.75 px/s = 0.875 m/s; 125 px/s = 2.5 m/s (player 3.0) |
 | Touch zone | `touch_zone_px` x `WorldScale.actor`, depth = width (`combat.json isometric_reach`) | 0.93 x 0.65 m; 1.58 x 1.45 m |
-| Model size | proxy scaled so its height = `sprite_size_px[1]` x `WorldScale.actor` (`model_fit: sprite_height`) | 0.65 m; 1.45 m |
+| Model size | model scaled so its height = `sprite_size_px[1]` x `WorldScale.actor` (`model_fit: sprite_height`), then scaled down uniformly if wider than `model_max_width_touch_ratio` (1.35) x the touch width (the pack's Tutorial Jr. Sentinel, Blue and Red Snails) | 0.65 m; 1.45 m |
 | Stagger | the canonical record's own stagger time when it carries one (MeowDB's live pages, 2026-10-05: "STAGGER 0.6 seconds" for all six; fields `stagger_s`, `stagger_ms`, `stagger_duration_s/_ms` or `stagger` {seconds, ms}; `combat.json monster_knockback.stagger_from_canonical_record`), else `CombatFormula.monster_stagger_s` (the canonical `hit1` clip, 600 ms). `MonsterDef.stagger_source` says which | 0.6 s |
 | Push | `CombatFormula.monster_knockback_distance_px` (20 px) x `WorldScale.h` | 0.4 m |
 | Hop | apex = the character's canonical base jump (`jump_height_px_by_jump` at `base_jump`, 77 px x `WorldScale.v` = 0.90 m); gravity = canonical `knockback_airtime.gravity_px_per_s2` x `WorldScale.v` | Orange Mushroom only |
@@ -105,7 +105,8 @@ modifier, the movement label, the Peace flag, `touch_zone_px`, `sprite_size_px`,
 
 `MonsterDef.build` reads `data/misostory/monsters/_shared.json` (`MonsterDef.SHARED_TABLE`) and lays the species file
 over it (`MonsterDef.merged_adaptation`): any key the species file names wins, and its `reasons` entry wins with it.
-`MonsterDef.adaptation` holds the merged view. The shared table holds what all six species repeated: `model_fit`, the
+`MonsterDef.adaptation` holds the merged view. The shared table holds what all six species repeated: `model_fit` and its width cap
+`model_max_width_touch_ratio` (1.35), the
 three MAP_ARCHITECTURE §4.7.4 probes (`probe_ahead_m` 0.6, `ledge_tolerance_m` 0.45, `wall_probe_height_m` 0.3),
 the floor band (`floor_band_m` 0.5), the pacing rhythm (`pace_reverse_chance` 0.35, `pace_min_run_m` 1.0,
 `turn_jitter_deg` 50), `provoked_chase_s`, and the two values that used to be code constants,
@@ -177,8 +178,8 @@ sea plane it returns to its spawn point.
 **Rigged models (Project art, #64).** With the art pack installed (ADR 0002), each species is Jarvis's rigged model,
 looked up by canonical id: `MonsterVisual.build(def, library, art)` takes `art.instance(ArtPack.MONSTER, def.id)`
 (`MonsterSystem.art`: `setup(ctx)` with a GameContext takes `ArtPack.shared()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
-the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z).
-`model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
+the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z),
+unless that makes it too wide (the width cap below). `model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
 it:
 
 | State | Clip | How it plays |
@@ -193,9 +194,29 @@ Changes cross-fade over `CLIP_BLEND_S` (0.15 s). The import holds every clip's r
 (`ArtImport`), so animation never moves the monster: AI and physics own its position. Where a clip covers it, the
 procedural motion below is skipped (walk bob and squash under `Walk`, flinch under `Hit`, death sink under `Death`);
 facing, the spawn scale-in, the flash, the HP bar and the fades stay. Without the pack (or for a species it lacks) the
-proxy or the fallback body is built and moves procedurally, as before. Fitted to the sprite height, the pack's
-Tutorial Jr. Sentinel is a 1.7 m dome about 1.7 m across (its touch zone is 0.53 m wide: the sprite is tall, the model
-squat), and the snails are 1.25-1.4x their touch width along their facing; the Shroom and the Orange Mushroom match.
+proxy or the fallback body is built and moves procedurally, as before.
+
+**Width cap (owner decision, 2026-10-14, #59 / #64).** A model keeps its sprite-height `model_fit` sizing, but one
+whose widest horizontal extent at rest is more than `monsters/_shared.json model_max_width_touch_ratio` (1.35) times
+its canonical touch zone width is scaled down uniformly until it fits (`MonsterVisual.width_cap_factor`, the limit is
+`MonsterDef.model_max_width_m()`). It is the same limit, read from the same key, that the `test_b_combat` playtest's
+"monster visuals" check applies, so the check and the sizing cannot drift apart. Fitted to the sprite height alone,
+the pack's Tutorial Jr. Sentinel was a 1.7 m dome 1.73 m across a 0.525 m touch zone (the sprite is tall, the model
+squat). With the pack installed (`test_monster_rigs.gd` prints these):
+
+| Species | Touch width | Cap | At sprite height (tall, widest) | Fitted (tall, widest) |
+|---|---|---|---|---|
+| 1 Tutorial Jr. Sentinel | 0.525 m | 0.709 m | 1.70 m, 1.73 m | 0.695 m, 0.709 m |
+| 2 Snail | 0.925 m | 1.249 m | 0.65 m, 1.155 m | unchanged |
+| 3 Blue Snail | 0.875 m | 1.181 m | 0.85 m, 1.204 m | 0.834 m, 1.181 m (-2%) |
+| 4 Shroom | 0.900 m | 1.215 m | 0.90 m, 0.892 m | unchanged |
+| 5 Red Snail | 0.875 m | 1.181 m | 0.85 m, 1.204 m | 0.834 m, 1.181 m (-2%) |
+| 9 Orange Mushroom | 1.575 m | 2.126 m | 1.45 m, 1.544 m | unchanged |
+
+The proxies are within 1.25x their touch width (`test_monster_hit_area.gd`), so without the pack the cap never fires.
+Gameplay is unchanged: the touch zone, the stats, the attack boxes and the spawn slot planner's clearance capsule
+(still the sprite height, `SpawnSlotPlanner.species_body_heights`, WORLD_RUNTIME) do not read the visual. The HP bar
+and the damage numbers follow the fitted height (`height_m`).
 `bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://scenes/sandbox/monster_sandbox.tscn --
 --map 000001010 --showcase <dir>` shoots every species' states.
 
@@ -468,7 +489,8 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   they stood before; Amherst's 000001010:5 moved from (216.34, 6.0, 580.98) to (248.09, 6.0, 620.16). Not because of
   the re-measured canopies (main's canopy table on the new world gives the same move), but because the pack's
   collision lets a different set of the seeded candidates pass, and the planner keeps the passing candidate farthest
-  from the other boxes. Both spots pass every rule on both worlds.
+  from the other boxes. Both spots pass every rule on both worlds. **Owner decision (2026-10-14, #59 / #64): the
+  move is accepted.** 000001010:5 stays where the planner now puts it; no per-box pin is added to `breakables.json`.
 - **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
   one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
   MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Skills do not count
@@ -529,6 +551,7 @@ presentation constants in the script, not gameplay values.
 | `combat.json monster_knockback` (ours) | canonical stagger first, then the hit clip; 20 px push; `airborne_hit` cancel the hop | MeowDB publishes the STAGGER time, not the push or a mid-air rule |
 | `monsters/_shared.json probe_ahead_m`, `ledge_tolerance_m`, `wall_probe_height_m` | 0.6 / 0.45 / 0.3 m | MAP_ARCHITECTURE §4.7.4 |
 | `monsters/_shared.json model_fit` | `sprite_height` | the body you see is the body you hit |
+| `monsters/_shared.json model_max_width_touch_ratio` | 1.35 | presentation, owner decision #59/#64: a model wider than 1.35x its touch zone is scaled down uniformly; the `test_b_combat` "monster visuals" limit reads it |
 | `monsters/_shared.json hop_max_rise_apex_fraction` | 0.9 | a hop needs clearance under the top of its arc |
 | `monsters/_shared.json see_through_radius_m`, `see_through_hysteresis_m` | 12 m, kept to 13 m | presentation: past the camera's 8 m nearby radius, ~4 s of walking; farther hidden monsters stay hidden (no screen of silhouettes) |
 | `monsters/_shared.json see_through_color`, `see_through_fade_s` | warm red-orange (1.0, 0.42, 0.3) at 50%, 0.2 s | presentation: the opposite of the player's blue X-ray, subtle; no popping at the radius |
@@ -562,7 +585,7 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 
 | File | Covers |
 |---|---|
-| `test_monster_def.gd` | all 6 species build; every map species has an adaptation; stats are the canonical JSON; movement kind = canonical label; speed = the walk-line derivation (read from data) plus the documented pins; hop apex and gravity; stagger and push from the combat rules; the Peace rule; models, placeholder and capsules; every adaptation key (species files and `_shared.json`) has a reason and every reason a key, and each species' merged view explains every value; the shared values (the see-through ones too) reach every species and no species file repeats them; a species override wins with its own reason while the others keep the shared value; a missing shared table is an error, naming every value it held (`model_fit` and the see-through values included: no silent default) |
+| `test_monster_def.gd` | all 6 species build; every map species has an adaptation; stats are the canonical JSON; movement kind = canonical label; speed = the walk-line derivation (read from data) plus the documented pins; hop apex and gravity; stagger and push from the combat rules; the Peace rule; models, placeholder and capsules; every adaptation key (species files and `_shared.json`) has a reason and every reason a key, and each species' merged view explains every value; the shared values (the see-through ones too) reach every species and no species file repeats them; a species override wins with its own reason while the others keep the shared value; a missing shared table is an error, naming every value it held (`model_fit`, its width cap and the see-through values included: no silent default); the width cap is the owner's 1.35x the touch width (#59/#64) |
 | `test_monster_shared_data.gd` | the validator's shared-table exception: the shipped `_shared.json` has no finding and `misostory/monsters` no error; an injected `_zz_test_shared` in `monsters/` and `quests/` is not matched against canonical ids but still fails the reason convention, and is still swept for references; any other basename in a domain folder must still be a canonical id |
 | `test_monster_debug.gd` | `debug_kill()` takes no arguments and is the console's first choice; it runs the death path once (canonical EXP "monster:9", one `monster_killed(id, map)`, `loot_dropped` = `DropRoller.roll` with the same seed, `died` once), a second call does nothing, a bare monster is harmless; 40 debug kills drop only canonical Snail items; a slot index of -1 is no slot; INCLUDE_WORLD: on the real island with the real factory, `spawn 2 3` makes three slotless real Monsters and `kill all` gives EXP = the canonical sum of the kills, the seeded drops, every slot dead, only slot monsters released, and on the respawn tick exactly the slots come back |
 | `test_monster_game.gd` | INCLUDE_WORLD: runs `monster_game_checks.tscn` (36 checks) in a child process: `main.tscn`, the console's warp/spawn/kill end to end, the see-through silhouette as the shell's own frames run it (a Snail spawned next to the player gets it, fades in and its fills draw; every live monster inside 12 m has it and every one beyond 13 m draws none; `kill nearest` drops it in the same frame and it stays off), and real mouse and key events (HUD button click and sub-frame click never swing, a world click swings once, J swings; then, injected between frames as real input arrives: a sub-frame click on the pause menu's Resume never swings, a sub-frame world click swings once) |
@@ -574,7 +597,7 @@ bash scripts/godot.sh --resolution 1600x900 --disable-vsync --path _scratch/godo
 | `test_player_combat_feel.gd` | `combat.json player_attack` holds every feel value with its own reason and `verified: false`; PlayerCombat reads them; edited data changes the attack (no root: walks during it); with `input_buffer_s` 0 a tap whose key is already up at the tick still attacks at once and a press during the lockout is not kept, while the shipped buffer keeps one; a missing section or malformed values are errors and leave the features off |
 | `test_monster_combat.gd` | every species (Sentinel, Snail, Blue Snail, Shroom, Red Snail, Orange Mushroom) dies to Sword hits with a stagger and its HP bar, awarding exactly its own canonical EXP, one `monster_killed(id, map)` and items only from its own drop table; a seeded Sword kill of a Snail in 3-6 hits grants exactly the canonical 2 EXP (`exp_gained` "monster:2"), one `monster_killed("2", map)`; `loot_dropped` = `DropRoller.roll` with the same seed, at the feet, items from the canonical table, none for an empty roll; the kill is recorded and the slot respawns exactly at the 7.56 s tick, not before; survivor HP through release/realize; an already-live map is re-realized as monsters; contact damage = `resolve_monster_touch(...).final` with the same seed, events, the canonical 1.5 s gate, a second touch only after it; a miss (no damage, no push, MISS); a guard; the Peace rule; HP 0 → `player_died` and a dead player; no touch during a warp; touch geometry edges |
 | `test_monster_see_through.gd` | the rule (inside, at and past the radius, the hysteresis, dead, zero radius); the values reach every species from `_shared.json` (radius at least the camera's nearby radius; a malformed colour is an error); the fill: one shared ShaderMaterial, `stencil_mode read, write, compare_greater, 36`, no depth test, both faces, priority below labels, numbers and the HP bar, and `STENCIL_REF` below `PlayerVisual.STENCIL_REF`; lit and ink surfaces write the stencil on copies shared between monsters while the originals stay untouched; the fill mesh is one surface holding every surface's triangles (merged once per source mesh, a one-surface mesh used as it is) and is never occlusion-culled; with the world export, every surface of the real Snail proxy (ink shells included) writes the stencil, each fill is one surface over the whole mesh, and the library stays untouched; the placeholder in place (no fill under its tag); a visual rebuilt from the placeholder to a library model never edits the library's shared material; the fade in and out (alpha follows, hidden when off) through `step_see_through` and `advance`; death drops it at once and ignores requests, and the flash and death fade never touch the fill; `MonsterSystem.update_see_through` by distance (near, edge, past, far), the player walking in and back (hysteresis), a killed monster, no player |
-| `test_monster_rigs.gd` | on a stand-in pack written to `user://` (runs with or without the real pack): a species in the pack is built from its model at the canonical sprite height; Idle, Walk, Attack (from a real touch through `MonsterSystem`), Hit (over the canonical hit time, never cut short by a touch) and Death (final) follow the state; the fills share the skin and skeleton and keep bones and weights; flash, HP bar, spawn scale-in and the death fade (opaque during the clip, `faded_out` at the die time) on the skinned meshes; no bob, squash, flinch or sink under a rig while the fallback keeps them; a species the pack lacks keeps the old path. With the real pack (SKIP without): all six species map to their models at the sprite height, every state selects its clip (Idle and Walk loop, the rest once), every surface writes the stencil and every fill is skinned to the rig |
+| `test_monster_rigs.gd` | on a stand-in pack written to `user://` (runs with or without the real pack): a species in the pack is built from its model at the canonical sprite height; a model wider than its cap (the stand-in fitted to the Sentinel's sprite) is scaled down uniformly to it, still on its feet, with the HP bar over it; Idle, Walk, Attack (from a real touch through `MonsterSystem`), Hit (over the canonical hit time, never cut short by a touch) and Death (final) follow the state; the fills share the skin and skeleton and keep bones and weights; flash, HP bar, spawn scale-in and the death fade (opaque during the clip, `faded_out` at the die time) on the skinned meshes; no bob, squash, flinch or sink under a rig while the fallback keeps them; a species the pack lacks keeps the old path. With the real pack (SKIP without): all six species map to their models at the sprite height unless capped, no model is wider than 1.35x its touch zone, every state selects its clip (Idle and Walk loop, the rest once), every surface writes the stencil and every fill is skinned to the rig |
 | `test_monster_fx.gd` | number styles, stacking, rise and expiry; nearby targets do not overlap; FX reach the canonical box edges; the proxy fit (the Tutorial Jr. Sentinel's too) and the named fallback body without a library (never called a placeholder); the HP bar and the death fade over the canonical time |
 | `test_monster_world.gd` | INCLUDE_WORLD: the island built synchronously, the factory installed on the world's view, maps 030/040/050/1002/1020 realized to capacity with real monsters (all six species), 12 s of stepping each: no falls, no recoveries, inside the mob region and the footprint, on walkable ground, every species wanders, Orange Mushrooms hop; no portal trigger of those maps reaches into the mob region and no monster ever stands in a trigger |
 | `test_spawn_placement.gd` | slots keep `slot_npc_clearance_m` from NPCs; a 16 m² region keeps 8 m² per slot and spills the rest, one species' overflow never displaces another species from its own region, a species shares its regions by weight; authored exclusions are no room and no slot lands in them; INCLUDE_WORLD: on the island every slot is clear of every NPC and exclusion, no region crowded past the map's own density; a respawn is held back while the player stands on its slot and appears once the player leaves (`respawn_waited` inside `monster_spawned`) |

@@ -211,7 +211,7 @@ func test_shared_values_reach_every_species_and_a_species_file_overrides_them() 
 	var shared := db().miso_entity("monsters", MonsterDef.SHARED_TABLE)
 	for k in ["probe_ahead_m", "ledge_tolerance_m", "wall_probe_height_m", "floor_band_m", "pace_reverse_chance",
 			"pace_min_run_m", "turn_jitter_deg",
-			"provoked_chase_s", "model_fit", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m",
+			"provoked_chase_s", "model_fit", "model_max_width_touch_ratio", "hop_max_rise_apex_fraction", "fall_landing_tolerance_m",
 			"see_through_radius_m", "see_through_hysteresis_m", "see_through_color", "see_through_fade_s",
 			"see_through_min_cover_m"]:
 		assert_true(shared.has(k), "_shared.json holds %s" % k)
@@ -228,6 +228,8 @@ func test_shared_values_reach_every_species_and_a_species_file_overrides_them() 
 		assert_near(d.turn_jitter_rad, deg_to_rad(float(shared["turn_jitter_deg"])), 1e-9, "%s jitter" % id)
 		assert_near(d.provoked_chase_s, float(shared["provoked_chase_s"]), 1e-9, "%s chase" % id)
 		assert_eq(d.model_fit, String(shared["model_fit"]), "%s model fit" % id)
+		assert_near(d.model_max_width_touch_ratio, float(shared["model_max_width_touch_ratio"]), 1e-9, "%s model width cap" % id)
+		assert_near(d.model_max_width_m(), d.touch_size_m.x * d.model_max_width_touch_ratio, 1e-9, "%s widest model (m)" % id)
 		assert_near(d.fall_landing_tolerance_m, float(shared["fall_landing_tolerance_m"]), 1e-9, "%s fall tolerance" % id)
 		assert_near(d.see_through_radius_m, float(shared["see_through_radius_m"]), 1e-9, "%s see-through radius" % id)
 		assert_near(d.see_through_fade_s, float(shared["see_through_fade_s"]), 1e-9, "%s see-through fade" % id)
@@ -262,5 +264,14 @@ func test_a_missing_shared_table_or_shared_value_is_an_error() -> void:
 	assert_true(text.contains("_shared"), "the missing table is named: %s" % text)
 	assert_true(text.contains("probe_ahead_m"), "and the values it held are missing: %s" % text)
 	assert_true(text.contains("model_fit"), "model_fit too (no silent default): %s" % text)
+	assert_true(text.contains("model_max_width_touch_ratio"), "and the model width cap: %s" % text)
 	assert_true(text.contains("see_through_radius_m") and text.contains("see_through_color"), "and the see-through values: %s" % text)
 	assert_true(MonsterDef.build("9", c).errors.size() > d.errors.size(), "a jumper also misses its hop reach")
+
+
+## Owner decision (2026-10-14, #59/#64): a monster model never spans more than 1.35x its canonical touch zone width;
+## the Tutorial Jr. Sentinel's limit is its 21 px touch zone (0.525 m) x 1.35.
+func test_the_model_width_cap_is_the_owners_1_35x_touch_width() -> void:
+	var d := MonsterDef.build("1", db())
+	assert_near(d.model_max_width_touch_ratio, 1.35, 1e-9, "1.35x the touch width")
+	assert_near(d.model_max_width_m(), WorldScale.actor(float(d.stats.touch_zone_px.x)) * 1.35, 1e-6, "the Sentinel's widest model")
