@@ -50,14 +50,19 @@ MAPPING_FILE = "environment/source_catalog_mapping.json"
 FETCH_COMMAND = "bash scripts/art_pack.sh fetch"
 ALIAS_KIND = "semantically_equivalent_original_adaptation"
 
-# The kit categories whose catalog assets come from the pack. #72: Trees and Foliage. #73 adds Props and Markers,
-# #74 Architecture, Rocks and Terrain. Per-map X<mapid>_* landmarks are not in the mapping and never swap here.
+# The kit categories whose catalog assets come from the pack. #72: Trees and Foliage; #73: Props and Markers;
+# #74: Architecture, Rocks and Terrain. Per-map X<mapid>_* landmarks are not in the mapping and never swap here.
 CATEGORIES = {"Trees", "Foliage"}
+CATEGORIES |= {"Architecture", "Rocks", "Terrain"}  # #74
 LANDMARK = re.compile(r"X\d+_")
 
 # @asset(..., pack={...}) keys, all optional:
-#   fit          "xy" (default): largest horizontal size = the kit asset's; "z": height = the kit asset's
-#   rot_z        degrees about Z applied to the pack model before fitting (its long side onto the kit's)
+#   fit          "xy" (default): largest horizontal size = the kit asset's; "z": height = the kit asset's;
+#                "box": the largest horizontal size AND the height = the kit asset's (z scaled on its own: only for
+#                assets the island already scales non-uniformly in the kit's frame, e.g. the unit-radius mountains
+#                instanced (radius, radius, height / kit height)); "bbox": each axis to the kit asset's (soft
+#                dressing the island squashes freely, e.g. the clouds; combine with align_xy/anchor_z "kit")
+#   rot_z       degrees about Z applied to the pack model before fitting (its long side onto the kit's)
 #   align_xy     "origin" (default): keep the pack's own horizontal pivot; "kit": centre the model's bounding box on
 #                the kit asset's (a kit asset whose origin is at one end, e.g. Hedge_Wall_4m runs 0..4 m along +X)
 #   anchor_z     "ground" (default): z-min = 0; "kit_bottom": z-min = the kit asset's (hovering butterflies);
@@ -71,9 +76,19 @@ LANDMARK = re.compile(r"X\d+_")
 #   parts        {suffix: [substring, ...]}: pack nodes whose name contains a substring become their own object
 #                <name>_<suffix> (e.g. an overhanging cap that needs collision_tags.OVERHEAD_HULL); the rest is one
 #                object named after the asset
-#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts
+#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts (``part_materials`` makes one
+#                that gives parts a kit material back: glow, which the pack never has)
+#   omit         [substring, ...]: pack nodes left out (e.g. a door's own grass mound where the map's hill is the
+#                mound); the fit measures what is left
+#   fit_nodes    ([substring, ...], metres): instead of the whole model, the pack nodes whose name contains a
+#                substring set the uniform scale: their largest horizontal size becomes this many metres (e.g. a
+#                house's stem fitted to the kit house's walls, where the map's door path and portal stand)
+#   shift        (dx, dy, dz) in metres, added after the fit and anchor (e.g. a door moved onto the kit door's spot,
+#                where the map's door portal stands)
+# The kit asset's shadow setting carries over: when none of its meshes casts a shadow (clouds, the shop posts and
+# eaves), neither do the pack parts.
 SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "node_scale", "parts",
-             "post"}
+             "post", "omit", "shift", "fit_nodes"}
 
 _state = {"mode": "off", "mapping": {}}
 _reference = {}
@@ -162,8 +177,8 @@ def preflight(names, pack_dir=None):
 
 
 def missing_message(problems):
-    lines = ["ART_PACK_MISSING: the Blender build takes its trees and foliage (kit categories "
-             f"{', '.join(sorted(CATEGORIES))}) from the pinned art pack, and it is not usable:"]
+    lines = ["ART_PACK_MISSING: the Blender build takes the kit assets of the categories "
+             f"{', '.join(sorted(CATEGORIES))} from the pinned art pack, and it is not usable:"]
     lines += [f"  - {p}" for p in problems[:20]]
     lines.append(f"Install it with:  {FETCH_COMMAND}   (ADR 0002; there is no fallback to the procedural kit)")
     return "\n".join(lines)
@@ -208,14 +223,16 @@ def _tris(objs):
 
 
 def reference(name, info):
-    """{"lo", "hi", "tris"} of the procedural builder's model (built once in a scratch collection, then removed)."""
+    """{"lo", "hi", "tris", "shadow"} of the procedural builder's model (built once in a scratch collection, then
+    removed); shadow: does any of its meshes cast a shadow."""
     if name not in _reference:
         coll = bpy.data.collections.new(f"_kit_reference_{name}")
         try:
             info["fn"](coll)
             objs = [o for o in coll.all_objects if o.type == "MESH"]
             lo, hi = _mesh_bounds(objs)
-            _reference[name] = {"lo": tuple(lo), "hi": tuple(hi), "tris": _tris(objs)}
+            _reference[name] = {"lo": tuple(lo), "hi": tuple(hi), "tris": _tris(objs),
+                                "shadow": any(o.visible_shadow for o in objs)}
         finally:
             for o in list(coll.all_objects):
                 me = o.data if o.type == "MESH" else None
@@ -260,6 +277,24 @@ def pack_material():
     k = SHADE_BOTTOM ** 2.2  # the sRGB factor, in linear
     dark = b.mix(color, (k, k, k, 1.0), 1.0, blend="MULTIPLY")
     return b.finish(b.mix(dark, color, f))
+
+
+def part_materials(materials):
+    """A ``post`` hook giving parts a kit material instead of M_Pack: ``{part suffix (or "" for the main object):
+    material name}``. For what the pack never has (glow: lit windows, lamps, the clouds' soft glow) or a kit look an
+    asset must keep (the hills' meadow painting). A suffix the asset has no part for is skipped, so one spec can
+    serve a family of models."""
+    def post(coll, parts):
+        for suffix, mat in materials.items():
+            o = parts.get(suffix)
+            if o is None:
+                continue
+            me = o.data
+            me.materials.clear()
+            me.materials.append(M.get(mat))
+            for p in me.polygons:
+                p.material_index = 0
+    return post
 
 
 def _base_color(pack_mat):
@@ -348,13 +383,16 @@ def build(name, info, coll):
     e = entry(name)
     path = glb_path(name)
     new = _import(path)
-    for o in [o for o in new if o.type != "MESH"]:
+    omit = spec.get("omit") or ()
+    for o in [o for o in new if o.type != "MESH" or any(k in o.name for k in omit)]:
         new.remove(o)
         bpy.data.objects.remove(o)
     if not new:
         raise RuntimeError(f"{name}: {e['output_file']} has no meshes")
     pack_tris = 0
     groups = {}
+    fit_nodes, fit_size = spec.get("fit_nodes") or ((), None)
+    fit_pts = []
     for o in new:
         o.parent = None
         if o.data.users > 1:
@@ -370,6 +408,8 @@ def build(name, info, coll):
         _weld(me)
         _colors_to_attribute(me)
         pack_tris += _tris([o])
+        if any(k in o.name for k in fit_nodes):
+            fit_pts += [v.co.copy() for v in me.vertices]
         suffix = next((s for s, keys in (spec.get("parts") or {}).items() if any(k in o.name for k in keys)), "")
         groups.setdefault(suffix, []).append(o)
     parts = {s: _join(objs, f"{name}_{s}" if s else name) for s, objs in sorted(groups.items())}
@@ -383,19 +423,34 @@ def build(name, info, coll):
         o.data.transform(rot)
     lo, hi = _mesh_bounds(objs)
     klo, khi = Vector(ref["lo"]), Vector(ref["hi"])
-    if spec.get("fit", "xy") == "z":
+    fit_kind = spec.get("fit", "xy")
+    if fit_kind not in ("xy", "z", "box", "bbox"):
+        raise ValueError(f"{name}: art pack fit {fit_kind!r}: xy, z, box or bbox")
+    if fit_nodes:
+        if not fit_pts:
+            raise KeyError(f"{name}: no pack node matches fit_nodes {list(fit_nodes)}")
+        ps = [rot @ p for p in fit_pts]
+        w = max(max(p.x for p in ps) - min(p.x for p in ps), max(p.y for p in ps) - min(p.y for p in ps))
+        s = fit_size / max(1e-6, w)
+    elif fit_kind == "z":
         s = (khi.z - klo.z) / max(1e-6, hi.z - lo.z)
     else:
         s = max(khi.x - klo.x, khi.y - klo.y) / max(1e-6, hi.x - lo.x, hi.y - lo.y)
     s *= spec.get("scale_mul", 1.0)
-    lo, hi = lo * s, hi * s
+    sz = (khi.z - klo.z) / max(1e-6, hi.z - lo.z) if fit_kind in ("box", "bbox") else s
+    if fit_kind == "bbox":
+        size = Vector(((khi.x - klo.x) / max(1e-6, hi.x - lo.x), (khi.y - klo.y) / max(1e-6, hi.y - lo.y), sz))
+    else:
+        size = Vector((s, s, sz))
+    lo, hi = lo * size, hi * size
     if spec.get("align_xy", "origin") == "kit":
         dx, dy = (klo.x + khi.x - lo.x - hi.x) / 2, (klo.y + khi.y - lo.y - hi.y) / 2
     else:
         dx = dy = 0.0
     anchor = spec.get("anchor_z", "ground")
     dz = {"ground": -lo.z, "kit_bottom": klo.z - lo.z, "kit_top": khi.z - hi.z}[anchor]
-    fit = Matrix.Translation((dx, dy, dz)) @ Matrix.Scale(s, 4)
+    sx, sy, sz_ = spec.get("shift", (0.0, 0.0, 0.0))
+    fit = Matrix.Translation((dx + sx, dy + sy, dz + sz_)) @ Matrix.Diagonal((*size, 1.0))
     for o in objs:
         o.data.transform(fit)
     sharp = math.radians(spec.get("sharp_angle", 60.0))
@@ -404,6 +459,8 @@ def build(name, info, coll):
         me.shade_smooth()
         me.set_sharp_from_angle(angle=sharp)
         o["art_pack_file"] = e["output_file"]
+        if not ref.get("shadow", True):
+            o.visible_shadow = False  # like the kit asset (clouds over the sea, the shop posts and eaves)
         for c in list(o.users_collection):
             c.objects.unlink(o)
         coll.objects.link(o)
@@ -412,7 +469,7 @@ def build(name, info, coll):
     if spec.get("post"):
         spec["post"](coll, parts)
     BUILT[name] = {"file": e["output_file"], "alias": e["alias"], "mapping_kind": e.get("mapping_kind"),
-                   "scale": round(s, 4), "pack_tris": pack_tris, "tris": tris, "kit_tris": ref["tris"],
+                   "scale": round(s, 4), **({"scale_xyz": [round(c, 4) for c in size]} if tuple(size) != (s, s, s) else {}), "pack_tris": pack_tris, "tris": tris, "kit_tris": ref["tris"],
                    "decimated": tris < pack_tris, "parts": sorted(o.name for o in objs)}
     print("ART_PACK_ASSET", name, json.dumps(BUILT[name]))
     return objs

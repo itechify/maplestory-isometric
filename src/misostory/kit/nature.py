@@ -385,22 +385,30 @@ def _rock(coll, name, seed, size, squash=0.65, mat="M_Rock"):
     mb.build(name, coll, smooth=True, sharp_angle=38)
 
 
-@asset("Rock_A", "Rocks", footprint=1.2, tags=("rock",))
+# pack (#74): the pack rocks stand taller than the kit's squat rocks; the export gives a rock collision only when
+# its scaled top reaches 0.9 m, so they keep the kit rock's height (fit "z") and its top, set 2-4 cm into the ground
+# like the kit rock (anchor "kit_bottom"), and so their collision class. The kit rocks are 20-triangle lumps: the
+# pack rocks keep up to 80 (they are 160) instead of collapsing to 20.
+ROCK_PACK = dict(fit="z", anchor_z="kit_bottom", max_tris=80)
+
+
+@asset("Rock_A", "Rocks", footprint=1.2, tags=("rock",), pack=ROCK_PACK)
 def rock_a(coll):
     _rock(coll, "Rock_A", 21, 0.6)
 
 
-@asset("Rock_B", "Rocks", footprint=1.8, tags=("rock",))
+@asset("Rock_B", "Rocks", footprint=1.8, tags=("rock",), pack=ROCK_PACK)
 def rock_b(coll):
     _rock(coll, "Rock_B", 22, 0.95, 0.55, mat="M_Rock_Moss")
 
 
-@asset("Rock_C", "Rocks", footprint=0.6, tags=("rock",))
+@asset("Rock_C", "Rocks", footprint=0.6, tags=("rock",), pack=ROCK_PACK)
 def rock_c(coll):
     _rock(coll, "Rock_C", 23, 0.32, 0.7)
 
 
-@asset("Rock_Boulder", "Rocks", footprint=3.0, tags=("rock", "landmark"))
+# the boulder always blocks (2.2 m); the kit boulder sits 0.11 m up on its flattened bottom, the pack one on the ground
+@asset("Rock_Boulder", "Rocks", footprint=3.0, tags=("rock", "landmark"), pack=dict(fit="z", max_tris=100))
 def rock_boulder(coll):
     mb = MeshBuilder()
     mb.sphere(1.6, loc=(0, 0, 1.0), scale=(1.2, 1.0, 0.8), mat="M_Rock_Moss", subdiv=2, lumpy=0.25, seed=24,
@@ -410,7 +418,9 @@ def rock_boulder(coll):
     mb.build("Rock_Boulder", coll, smooth=True, sharp_angle=40)
 
 
-@asset("Rock_Cliff_Stone", "Rocks", footprint=0.8, tags=("rock", "cliff"))
+# pack: the cliff stone's origin is inside the stone (the kit stone spans z -0.33..0.55), set into 8,389 cliff faces
+@asset("Rock_Cliff_Stone", "Rocks", footprint=0.8, tags=("rock", "cliff"),
+       pack=dict(anchor_z="kit_bottom", align_xy="kit"))
 def rock_cliff_stone(coll):
     """Flat stone to embed in cliff faces (Maple dirt walls have stones in them)."""
     mb = MeshBuilder()

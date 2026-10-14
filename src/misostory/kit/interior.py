@@ -279,7 +279,10 @@ def _post_stonecap(coll):
     ob.visible_shadow = False   # wall posts: their corbel blobs otherwise stain the floor
 
 
-@asset("Eave_Lashed_4m", "Architecture", footprint=4.0, tags=("interior", "collide_exact"))
+# pack (#74): the pack eave is a flat strip of lashed boards centred on its origin; it runs 0..4 m along +X from the
+# origin like the kit eave (shop_frame scales it along X), with its back on the wall top (kit y 0.23).
+@asset("Eave_Lashed_4m", "Architecture", footprint=4.0, tags=("interior", "collide_exact"),
+       pack=dict(align_xy="kit", shift=(0.0, 0.67, 0.0)))
 def _eave(coll):
     """4 m run of the roof edge seen from inside: lashed planks rising toward -Y, dark-blue cords.
 
@@ -329,7 +332,10 @@ def shop_frame(m, height=SHOP_H, posts_back=(), posts_left=(), eaves=True):
             y += 4.0
 
 
-@asset("Door_Plank", "Architecture", footprint=1.6, tags=("interior", "door"))
+# pack (#74): fitted to the kit door (x1.74) the pack door's threshold slab rose into the body band (0.14-0.28 m)
+# 0.57 m in front of the wall and touched the door portals' route starts (1010001, 1010003); the door sinks 0.16 m
+# (the slab flush with the floor, like the kit's step) and sits 0.1 m back into its wall.
+@asset("Door_Plank", "Architecture", footprint=1.6, tags=("interior", "door"), pack=dict(shift=(0.0, 0.1, -0.16)))
 def _door_plank(coll):
     """Closed round-topped plank double door in a stone frame, modelled flat against a wall (faces -Y)."""
     mb = MeshBuilder()

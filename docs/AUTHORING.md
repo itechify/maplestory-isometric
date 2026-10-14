@@ -389,7 +389,8 @@ swap kit assets to the pinned art pack (Project art, ADR 0002; #72 trees and fol
 architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; its tests are
 `src/misostory/test_art_pack_kit.py` (`"$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py`).
 
-- **Which assets.** `art_pack.CATEGORIES` lists the kit categories built from the pack (today `Trees`, `Foliage`).
+- **Which assets.** `art_pack.CATEGORIES` lists the kit categories built from the pack (today `Trees`, `Foliage`
+  (#72), `Architecture`, `Rocks`, `Terrain` (#74)).
   A catalog name of such a category is built by `kit.ensure(name)` from its pack GLB instead of its procedural
   `@asset` builder. Its name, category, footprint, tags and outline stay the registry's, so placement, lookups and
   the export's collision classes (`instance_rule`) are unchanged. Per-map `X<mapid>_*` landmarks never swap here
@@ -410,7 +411,10 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   `art_pack.SHADE_BOTTOM` = 0.6 of the color (sRGB) at the bottom of the object to the color at its top. One
   material keeps an asset one surface (one draw call in Godot) however many colors the pack gave it. Glow is never
   in the pack: an asset that glows (portals, lamps, windows) must get its kit glow material back on purpose,
-  through a `parts` split and a `post` hook that assigns it.
+  through a `parts` split and a `post` hook that assigns it: `art_pack.part_materials({suffix: material})` makes
+  that hook (the houses' `Window` part takes `M_Window` and their `Lamp` part `M_Glow_window`; the clouds keep
+  `M_Cloud`'s soft glow and `Mountain_Hill` the meadow painting `M_Hill`). The kit asset's shadow setting carries
+  over: when none of its meshes casts a shadow (the clouds, the shop posts and eaves), neither do the pack parts.
 - **Size.** The parts are joined into one object named after the asset (fewer nodes), then scaled
   **uniformly** so the largest horizontal size equals the procedural asset's (its builder is run once to measure
   it, then thrown away; `art_pack.reference(name, info)`), and stood on z = 0 with the pack's own horizontal pivot.
@@ -420,18 +424,40 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   292 in the kit, at 383 instances).
 - **Outline.** `kit.ensure` adds the ink outline to the joined object as for any kit asset (category thickness,
   no outline for the `NO_OUTLINE_TAGS` and for small Props/Foliage).
-- **Per-asset exceptions:** `@asset(..., pack=dict(...))`, keys in `art_pack.SPEC_KEYS`: `fit` (`"xy"` or `"z"`),
+- **Per-asset exceptions:** `@asset(..., pack=dict(...))`, keys in `art_pack.SPEC_KEYS`: `fit` (`"xy"`, `"z"`,
+  `"box"`: the largest horizontal size and the height both the kit's, or `"bbox"`: every axis the kit's; only for
+  assets the island already scales non-uniformly in the kit's frame),
   `rot_z`, `align_xy` (`"origin"` or `"kit"`), `anchor_z` (`"ground"`, `"kit_bottom"`, `"kit_top"`), `scale_mul`,
   `max_tris`, `sharp_angle`, `node_scale` (scale the pack nodes whose name contains a substring, e.g. the trees'
   splayed roots: their reach is the export's trunk prism, and at the pack's reach they boxed players into pockets at
   cliff feet in the stuck scan), `parts` (pack node-name substrings that become their own object, e.g. an overhanging
-  cap that needs `collision_tags.OVERHEAD_HULL`) and `post` (a hook that tags the parts). Examples: `Vine_Hanging_A`
+  cap that needs `collision_tags.OVERHEAD_HULL`), `post` (a hook that tags the parts or gives them a kit material),
+  `omit` (pack nodes left out, e.g. a door's own grass mound where the map's hill is the mound), `fit_nodes`
+  (`([substring, ...], metres)`: those pack nodes' largest horizontal size sets the uniform scale instead of the
+  whole model's) and `shift` (`(dx, dy, dz)` added after the fit, e.g. a door moved onto the kit door's spot, where
+  the map's door portal stands). Examples: `Vine_Hanging_A`
   hangs from its origin (`fit="z", anchor_z="kit_top"`), the butterflies hover (`anchor_z="kit_bottom"`),
   `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), `Mushroom_Cluster_A` lies along Y in the pack
   (`rot_z=-90`), `Stump_A` fits the kit stump's body, not its splayed roots (`scale_mul=0.6`), and the broadleaf
   and birch trees draw their roots in to the kit tree's reach (`nature.TREE_PACK`; the birches also slim their
   trunks to the kit birch's, `nature.BIRCH_PACK`). The kit's non-uniform placements rely on the kit mesh's frame
-  (fences scale along X from the origin, mountains are unit-radius); match that frame with these keys.
+  (fences scale along X from the origin, mountains are unit-radius); match that frame with these keys. #74's
+  architecture, rocks and terrain:
+  - the fences run 0..2 m along +X (`align_xy="kit"`); the mountains fill the unit-radius kit frame at the kit
+    height (`fit="box"`, `terrain.MOUNTAIN_PACK`), and the clouds the kit cloud's box (`fit="bbox"`: squashed sea
+    layers of the slim pack cloud read as white petals);
+  - the rocks keep the kit rock's height and top (`fit="z", anchor_z="kit_bottom"`, `nature.ROCK_PACK`): the export
+    gives a rock a prism only when its scaled top reaches 0.9 m, and the taller pack rocks fitted by width started to
+    block (Rock_A, Rock_B); `Rock_Cliff_Stone` stays set into the cliff face (`anchor_z="kit_bottom",
+    align_xy="kit"`);
+  - the houses are fitted by their stem (`fit_nodes`, `classic.HOUSE_PACK`), not their wider cap: the door paths,
+    door portals and porch arches line up with the kit stem, and Sen's house fitted by its cap blocked route
+    ToSensHouse in 20000. The Amherst weapon store also moves 1.2 m onto the kit door (`shift`). Their caps are a
+    separate `<name>_Cap` part, untagged like the kit caps (they start 3.6 m or more up, above any jump);
+  - the doors that carry portals keep the portal and its arrival clear: `Hill_Door` leaves out its own mound and sits
+    in the hill face, `Tomato_Gate` (a closed door in the pack, an open arch in the kit, with the arrival point at its
+    origin) stands behind its portal, and `Door_Plank` sinks its threshold out of the body band;
+  - `Eave_Lashed_4m` runs 0..4 m along +X with its back on the wall top.
 - **No pack, no build.** `scripts/build_island.py` and `scripts/build_map.py` call `art_pack.require_or_exit` first:
   without the pack (or with a GLB missing) they print `ART_PACK_MISSING` and the fetch command and exit 1; there is
   no silent fallback. `build_island.py` also exits 1 when the build raises or a map is not authored (Blender itself
@@ -444,4 +470,6 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
 - **Checks after a swap.** Collision is re-derived from the new meshes, so a bigger trunk or hedge can block a route:
   the export check (`CHECK_TOTALS`), `sidecar_diff.py`, the stuck scan and the camera renders of all 25 maps, before
   and after (`review_island.sh` with two TAGs). Fix a problem with the asset's scale, placement or collision tag,
-  never by moving a route, platform, portal or spawn.
+  never by moving a route, platform, portal or spawn. Compare the exports' collision prisms per asset too (a rock
+  that starts to block is not a failed route, but it changes the map): the sidecars' `collision.prop_instances`
+  `shape` counts, before and after.

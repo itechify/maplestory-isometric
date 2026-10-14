@@ -22,7 +22,7 @@ else
   B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
 fi
 
-# The pinned art pack (ADR 0002) comes first: the island build imports the kit's trees and foliage from it (and stops
+# The pinned art pack (ADR 0002) comes first: the island build imports kit assets from it (and stops
 # with exit 1 without it), and the Godot import normalises its models. A failed fetch or checksum stops the build.
 if [[ "${SKIP_ART_PACK:-0}" == "1" ]]; then
   echo "[build_runtime] SKIP_ART_PACK=1: not fetching the art pack"
