@@ -11,9 +11,10 @@ from .art_pack import kit_materials
 
 
 # pack (portal.glb): a beaded arch on two pedestals over rune rings, with no glow; the arch and the rings get the kit
-# portal materials back, so exits glow as before
+# portal materials back, so exits glow as before. The open arch reads thinner than the kit's filled vortex in the map
+# renders, so it is x1.2 (2.5 m wide, 2.65 m tall; the kit portal was 2.9 m tall)
 @asset("Portal_Swirl", "Markers", footprint=1.6, tags=("portal",),
-       pack=dict(parts={"Ring": ["Portal luminous rim"], "Core": ["Arrival rune ring"]},
+       pack=dict(parts={"Ring": ["Portal luminous rim"], "Core": ["Arrival rune ring"]}, scale_mul=1.2,
                  post=kit_materials(Ring="M_Portal_Ring", Core="M_Portal_Core")))
 def portal_swirl(coll):
     """Classic MapleStory portal: a tall glowing blue-white vortex standing on a ring."""

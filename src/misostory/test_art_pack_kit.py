@@ -218,7 +218,7 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
     """#73: the props and markers built from the pack keep the kit asset's frame, height and glow."""
 
     NAMES = ("Lamp_Post", "Hanging_Lantern", "Portal_Swirl", "Portal_Door", "Bed", "Cart", "NPC_Beacon", "Crate",
-             "Haystack")
+             "Haystack", "Planter_Box")
 
     @classmethod
     def setUpClass(cls):
@@ -287,6 +287,12 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
         reach = max(math.hypot(p.x, p.y) for o in self.objs("Haystack") for v in o.data.vertices
                     for p in [o.matrix_world @ v.co] if 0.15 <= p.z <= 1.6)
         self.assertLessEqual(reach, 1.0)
+
+    def test_planter_box_stays_low_enough_to_step_over_like_the_kit_box(self):
+        """The kit planter box is 0.44 m tall, under the export's 0.45 m STEP_HEIGHT, so it gets no collision prism.
+        Fitted by width the pack box came out 0.45 m and six new prisms appeared in Tomato Field (1020001)."""
+        lo, hi = bounds(self.objs("Planter_Box"))
+        self.assertLess(hi.z - lo.z, 0.45)
 
     def test_plain_props_stand_on_z0_at_the_kit_size(self):
         lo, hi = bounds(self.objs("Crate"))

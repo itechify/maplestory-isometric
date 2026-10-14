@@ -273,7 +273,9 @@ def planter(coll):
     mb.build("Planter", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Planter_Box", "Props", footprint=0.8, tags=("prop", "farm"))
+# pack: fitted by width the box came out 0.46 m tall, over the export's 0.45 m step height (a new collision prism);
+# fitted to the kit box's 0.44 m it is stepped over as before, and its soil stays at the height plants stand on
+@asset("Planter_Box", "Props", footprint=0.8, tags=("prop", "farm"), pack=dict(fit="z"))
 def planter_box(coll):
     """Small square wooden planter box with a soil top, 0.42 m tall (stand a plant on it at z + 0.42)."""
     mb = MeshBuilder()
