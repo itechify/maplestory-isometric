@@ -286,11 +286,13 @@ controller gets out of every sample by one jump):
 | Component | Map-local point | What it is |
 |---|---|---|
 | 000001021#0, #1 | (19.19, 0, 0.5), (41.58, 0, 0.51) | Tomato Field: 60 and 21 nodes of the strip of ground between the front rail fence (#74's pack fence, at y 0.3) and the map's front edge. The pack fence's posts carry flat 0.34 m caps 1.27 m up (the kit's were pointed), so a player who reaches a cap can step off it into the strip; a jump onto the cap gets them out again |
-| 000000060#1 | (60.7, 5.6, -25.56) | Southperry: one column beside a #73 pack prop, entered by a creep off the ledge 2.4 m above |
+| 000000060#1 | (60.7, 5.6, -25.56) | Southperry: one column of ground (0.12 m²) entered by a creep off the ledge 2.4 m above; new with the pack props (#73) |
 
-They are left as they are and documented: the swap's spec can scale a pack node only about the model's origin, so
-the caps cannot be narrowed in place, and leaving them out or moving the fence changes the art or the map for a
-pocket nobody can be stuck in.
+They are left as they are and documented; no adjustment was tried. One candidate is a `node_scale` on the fence's
+`Post cap` nodes in depth only (the caps stand on the model's y = 0, so their depth narrows in place; their x does
+not, `node_scale` scales about the model's origin). It would change every rail fence on the island, so the export
+check, the stuck scan and the 25-map renders would have to be run again; for pockets nobody can be stuck in it was
+not done.
 
 ### The final scan, per map
 

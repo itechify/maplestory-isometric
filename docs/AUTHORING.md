@@ -414,12 +414,12 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   `art_pack.SHADE_BOTTOM` = 0.6 of the color (sRGB) at the bottom of the object to the color at its top. One
   material keeps an asset one surface (one draw call in Godot) however many colors the pack gave it. Glow is never
   in the pack: an asset that glows (portals, lamps, windows) must get its kit glow material back on purpose,
-  through a `parts` split and a `post` hook that assigns it: `post=art_pack.kit_materials(Glow="M_Glow_window")`
+  through a `parts` split and a `post` hook that assigns it: `post=art_pack.part_materials({"Glow": "M_Glow_window"})`
   gives the part `<name>_Glow` that kit material (the lamps' and lanterns' glass, `props.LAMP_GLOW`; the portals'
-  arch, rings and light bars get `M_Portal_Ring` / `M_Portal_Core`, so exits glow as before), and
-  `art_pack.part_materials({suffix: material})` does the same but skips a suffix the asset has no part for, so one
-  spec serves a family of models (the houses' `Window` part takes `M_Window` and their `Lamp` part `M_Glow_window`;
-  the clouds keep `M_Cloud`'s soft glow and `Mountain_Hill` the meadow painting `M_Hill`). The kit asset's shadow
+  arch, rings and light bars get `M_Portal_Ring` / `M_Portal_Core`, so exits glow as before). It skips a suffix the
+  asset has no part for, so one spec serves a family of models (the houses' `Window` part takes `M_Window` and their
+  `Lamp` part `M_Glow_window`; the clouds keep `M_Cloud`'s soft glow and `Mountain_Hill` the meadow painting
+  `M_Hill`). The kit asset's shadow
   setting carries over: when none of its meshes casts a shadow (the clouds, the shop posts and eaves), neither do
   the pack parts.
 - **Size.** The parts are joined into one object named after the asset (fewer nodes), then scaled
@@ -435,14 +435,16 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   `"box"`: the largest horizontal size and the height both the kit's, or `"bbox"`: every axis the kit's; only for
   assets the island already scales non-uniformly in the kit's frame),
   `rot_z`, `align_xy` (`"origin"` or `"kit"`), `anchor_z` (`"ground"`, `"kit_bottom"`, `"kit_top"`), `scale_mul`,
-  `max_tris`, `sharp_angle`, `node_scale` (scale the pack nodes whose name contains a substring, e.g. the trees'
+  `max_tris`, `node_scale` (scale the pack nodes whose name contains a substring, e.g. the trees'
   splayed roots: their reach is the export's trunk prism, and at the pack's reach they boxed players into pockets at
   cliff feet in the stuck scan), `parts` (pack node-name substrings that become their own object, e.g. an overhanging
   cap that needs `collision_tags.OVERHEAD_HULL`), `post` (a hook that tags the parts or gives them a kit material),
   `omit` (pack nodes left out, e.g. a door's own grass mound where the map's hill is the mound), `fit_nodes`
   (`([substring, ...], metres)`: those pack nodes' largest horizontal size sets the uniform scale instead of the
   whole model's) and `shift` (`(dx, dy, dz)` added after the fit, e.g. a door moved onto the kit door's spot, where
-  the map's door portal stands). Examples: `Vine_Hanging_A`
+  the map's door portal stands). A mode value outside its list raises a `ValueError` naming the allowed ones (before
+  anything is imported), and an `omit` list or a `parts` spec none of whose substrings matches a pack node raises,
+  like `fit_nodes`. Examples: `Vine_Hanging_A`
   hangs from its origin (`fit="z", anchor_z="kit_top"`), the butterflies hover (`anchor_z="kit_bottom"`),
   `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), `Mushroom_Cluster_A` lies along Y in the pack
   (`rot_z=-90`), `Stump_A` fits the kit stump's body, not its splayed roots (`scale_mul=0.6`), and the broadleaf
