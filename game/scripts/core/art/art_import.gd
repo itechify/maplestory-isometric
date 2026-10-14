@@ -6,12 +6,14 @@ extends RefCounted
 ## it as the scene importer's default import script; it leaves every file outside the pack alone), so the game loads
 ## models that already follow the rules:
 ##
-##   Looping     character idle/walk/run/climb, monster Idle/Walk and the box's Idle loop; every other clip of those
-##               families plays once. Drop (Hover) and effect (Loop) clips are left exactly as imported.
+##   Looping     character idle/walk/run/climb, monster Idle/Walk, the box's Idle and a drop's Hover loop; every
+##               other clip of those families plays once. Effect (Loop) clips are left exactly as imported.
 ##   Root        animation never moves the body: in every character, monster and box clip except `sit`, the `root`
 ##               bone's translation is held at its rest position (one key at the rest pose; a clip that never moved
 ##               the root gets that key too, so leaving `sit` never leaves the body sunk). Sit keeps its drop (#59
 ##               decision 5, lined up with The Green Relaxer). Bone rotations and every other bone are untouched.
+##               A drop's Hover keeps its root lift: that lift is the drop's bob on the ground (GroundDrop then
+##               leaves out its procedural bob).
 ##   Draw calls  a model's meshes are merged per material, and for characters and their parts per name prefix as
 ##               well (Body_, Clothing_, Face_, Footwear_, Hair_, Hat_, Prop_, Uniform_, Wear_), so the merged nodes
 ##               are named "<Prefix>_<material>" and customization can still hide or swap a part by prefix. Each merged
@@ -38,7 +40,10 @@ const ITEM := "item"
 const ENVIRONMENT := "environment"
 
 ## family -> the clips that loop; every other clip of these families plays once.
-const LOOPING := {CHARACTER: ["idle", "walk", "run", "climb"], MONSTER: ["Idle", "Walk"], BREAKABLE: ["Idle"]}
+const LOOPING := {CHARACTER: ["idle", "walk", "run", "climb"], MONSTER: ["Idle", "Walk"], BREAKABLE: ["Idle"],
+	DROP: ["Hover"]}
+## The families whose clips hold the root bone at rest (every clip but ROOT_MOTION_KEPT).
+const ROOT_HELD := [CHARACTER, MONSTER, BREAKABLE]
 const ROOT_BONE := "root"
 ## Clips whose root translation is kept.
 const ROOT_MOTION_KEPT := ["sit"]
@@ -74,7 +79,8 @@ static func normalize(root: Node3D, family: String, character_scale: float) -> D
 	if LOOPING.has(family):
 		for ap in _players(root):
 			_set_loops(ap, LOOPING[family])
-			_hold_root(ap)
+			if family in ROOT_HELD:
+				_hold_root(ap)
 	if family in MERGED:
 		_merge(root, family in [CHARACTER, CHARACTER_PART])
 	if family in SCALED and not is_equal_approx(character_scale, 1.0):
