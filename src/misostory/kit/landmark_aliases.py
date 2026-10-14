@@ -47,12 +47,14 @@ ALIASES = {
     "X60000_ArmorStore": (
         "Shop_Armor",
         "Same shape: a white gabled shop with a blue roof, chimney, the door left of centre on the long front. "
-        "Fitted by its walls to the kit walls (7 m); the display counter and its produce, which stand across the "
+        "Fitted by its walls (6.4 m, which puts its door on the kit door's x) and set 0.3 m back and 0.2 m down so "
+        "its proud door and door step keep in00 clear; the display counter and its produce, which stand across the "
         "front in the pack, are left out so in00 and its route reach the door."),
     "X60000_Lighthouse_Tall": (
         "Lighthouse_Southperry",
         "Same shape: a tapered cream tower with a red band, a railed gallery round a lantern room, a blue dome "
-        "and a finial, door at the foot. Fitted to the kit tower's base width."),
+        "and a finial, door at the foot. The pack tower is stouter: fitted to the kit tower's base width and then "
+        "1.15x by eye it stands ~80% of the kit height (fitted to the full height, its foot blocked route Main)."),
     # East Entrance (30000)
     "X30000_HouseYellowBrim": (
         "House_Mushroom_Yellow",
@@ -61,13 +63,13 @@ ALIASES = {
     # Mushroom Town (20000)
     "X20000_StoneArch": (
         "arch",
-        "Same shape: a freestanding stone arch of two piers and a voussoir ring. Fitted to the kit arch's width, "
-        "the opening keeps the walk to in01 clear."),
+        "Same shape: a freestanding stone arch of two piers and a voussoir ring. Fitted by its piers to the kit "
+        "pillars' span, so the opening stays as wide on the walk to in01."),
     # Hunting Ground in the Middle of the Forest II (1000006)
     "X1000006_Gate_Posts": (
         "village_welcome_gate",
-        "Same shape: an open gate of two posts under a crossbar with a sign board on top. Fitted to the kit "
-        "posts' span (3.6 m)."),
+        "Same shape: an open gate of two posts under a crossbar with a sign board on top. Fitted by its posts to "
+        "the kit posts' span (3.4 m); it stands ~1 m taller than the kit gate."),
 }
 
 
@@ -124,9 +126,8 @@ _kit(_PROP,
      "X10000_VegFence", "X10000_WateringCan", "X10000_Firewood", "X10000_PicnicTable",
      "X1010000_FaceCutout_Red", "X1010000_FaceCutout_Yellow", "X1010000_BannerPole", "X1010000_PotionSign",
      "X1010000_Birdhouse", "X1010000_SwordSign", "X1010000_MysticStone",
-     "X1010004_Vine_Arch",
      "X1020000_LogPile",
-     "X1020001_CratesTomatoes", "X1020001_DeckFrame", "X1020001_TrellisLeg", "X1020001_TrellisArch",
+     "X1020001_CratesTomatoes", "X1020001_DeckFrame", "X1020001_TrellisLeg",
      "X30000_RainbowFountain", "X30000_ClimbFlag", "X30000_LogBench",
      "X40002_Chimney_Banner",
      "X50000_Signboard_Amherst", "X50000_Signboard_Southperry", "X50000_Fork_Signpost", "X50000_Mailbox_Post",
@@ -196,6 +197,14 @@ KIT_ART.update({
     "X60001_Door_Arch": (
         "A pink double door under a blue round arch. The pack's Door_Plank is a single square-topped door: not this "
         "shape."),
+    "X1010004_Vine_Arch": (
+        "A slim vine hoop 1.9 m wide and 2.6 m tall over the top of each climbable vine, open to 1.75 m. The pack's "
+        "leafy arch (Arch_Leafy) is a wide, low 5.1 m garden arch with a sign board: fitted to this width it stands "
+        "2 m tall with a lower opening, so not this shape."),
+    "X1020001_TrellisArch": (
+        "The plank-topped tomato trellis over the deck walk, one piece of a set with X1020001_DeckFrame and "
+        "X1020001_TrellisLeg. The pack's leafy arch is an arch of leaf lumps on timber posts: it fits the outline "
+        "but not the trellis set it belongs to."),
     "X60000_Gazebo": (
         "An open gazebo: a striped tent roof on posts over a deck. No pack model is an open pavilion."),
     "X60000_Ship_Victoria": (

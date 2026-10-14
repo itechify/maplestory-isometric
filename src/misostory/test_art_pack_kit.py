@@ -256,7 +256,9 @@ class LandmarkAliasTable(unittest.TestCase):
 class LandmarkAliasesFromPack(unittest.TestCase):
     """#75: kit.ensure(landmark) of an aliased landmark builds its pack model, fitted to the landmark's own size."""
 
-    NAMES = ("X1010000_TownGate", "X60000_ArmorStore")
+    NAMES = ("X1010000_TownGate", "X60000_ArmorStore", "X1010000_DeptStore", "X1010000_YellowHouse",
+             "X1010000_GiantTree", "X60000_Lighthouse_Tall", "X30000_HouseYellowBrim", "X20000_StoneArch",
+             "X1000006_Gate_Posts")
 
     @classmethod
     def setUpClass(cls):
@@ -292,6 +294,90 @@ class LandmarkAliasesFromPack(unittest.TestCase):
         klo, khi = self.kit["X1010000_TownGate"]["lo"], self.kit["X1010000_TownGate"]["hi"]
         self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.05)
         self.assertAlmostEqual(lo.z, 0.0, delta=0.01)
+
+    def points(self, name, z0=-1e9, z1=1e9):
+        return [p for o in self.objs(name) for v in o.data.vertices for p in [o.matrix_world @ v.co] if z0 <= p.z <= z1]
+
+    def band(self, name, z0=0.15, z1=1.6):
+        """The mesh inside the export's prism slice (0.15-1.6 m), what blocks a walk: the edges cut at the slice
+        (a tall post has no vertex inside it)."""
+        out = []
+        for o in self.objs(name):
+            vs = [o.matrix_world @ v.co for v in o.data.vertices]
+            for e in o.data.edges:
+                a, b = vs[e.vertices[0]], vs[e.vertices[1]]
+                if a.z > b.z:
+                    a, b = b, a
+                lo, hi = max(a.z, z0), min(b.z, z1)
+                if lo > hi:
+                    continue
+                for z in (lo, (lo + hi) / 2, hi):
+                    t = 0.0 if b.z - a.z < 1e-9 else (z - a.z) / (b.z - a.z)
+                    out.append(a.lerp(b, t))
+        return out
+
+    def test_every_aliased_landmark_is_built_from_the_pack(self):
+        from misostory.kit import landmark_aliases as LA
+        for name in self.NAMES:
+            self.assertEqual(art_pack.BUILT[name]["model"], LA.ALIASES[name][0], name)
+
+    def test_mushroom_house_walls_stand_where_the_kit_walls_did(self):
+        """Door paths and portals line up with the kit stem's front (stem_r x 1.06; the stone base ring
+        stem_r x 1.25): fitted by the wider cap, the walls would stand on them (#74, Sen's house)."""
+        for name, stem_r in (("X1010000_DeptStore", 2.0), ("X1010000_YellowHouse", 2.0),
+                             ("X30000_HouseYellowBrim", 1.8)):
+            self.assertGreaterEqual(min(p.y for p in self.band(name)), -stem_r * 1.25 - 0.1, name)
+
+    def test_department_store_door_spans_its_portal(self):
+        """Amherst in02 stands 0.59 m west of the store's axis (38.65 vs 39.3 at scale 1.1), at the kit door."""
+        pts = self.band("X1010000_DeptStore")
+        ymin = min(p.y for p in pts)
+        front = [p.x for p in pts if p.y < ymin + 0.15]
+        self.assertLess(min(front), -0.8)
+        self.assertGreater(max(front), -0.4)
+
+    def test_armor_store_door_and_its_portal_stay_clear(self):
+        """Southperry in00 stands at (-1.0, -3.25) from the store's origin, route ArmorStore ending 0.4 m short:
+        the walls stand at the kit front (y -2.5, base -2.75) and nothing (no pack counter) blocks the walk-in."""
+        pts = self.band("X60000_ArmorStore")
+        walk = [p for p in pts if -1.7 <= p.x <= -0.3 and p.y < -2.9]
+        self.assertFalse(walk, f"{len(walk)} points in front of the door")
+        body = [p for p in pts if abs(p.x) < 2.8]  # the pack awning's corner posts stand out at x +-3.1
+        self.assertGreaterEqual(min(p.y for p in body), -3.0)  # kit base -2.75; in00 -3.25
+
+    def test_gates_leave_the_walk_between_their_posts_clear(self):
+        """Route Main runs between the town gate's pillars (kit at x +-2.9); the meadow gate's posts at +-1.6."""
+        for name, post, gap in (("X1010000_TownGate", 2.9, 2.2), ("X1000006_Gate_Posts", 1.6, 1.3)):
+            pts = self.band(name)
+            self.assertFalse([p for p in pts if abs(p.x) < gap], name)
+            for s in (-1, 1):
+                side = [p.x for p in pts if p.x * s > 0]
+                self.assertAlmostEqual(sum(side) / len(side), s * post, delta=0.3, msg=name)
+
+    def test_stone_arch_opening_stays_as_wide_as_the_kit_arch(self):
+        """The walk to Sen's door (in01) runs through the arch: the kit's inner faces are 0.77 m off centre."""
+        pts = [p for p in self.band("X20000_StoneArch") if p.z > 0.3]
+        self.assertGreaterEqual(min(abs(p.x) for p in pts), 0.72)
+
+    def test_giant_tree_trunk_carries_the_kit_pods_and_door(self):
+        """X1010000_TreePods (kit art) sit at 2.55-2.75 m from the origin, grown into the kit trunk (r 2.6)."""
+        pts = self.band("X1010000_GiantTree", 2.0, 5.0)
+        trunk = [math.hypot(p.x, p.y) for p in pts if abs(p.x) < 0.5 and p.y > 0]  # the back, clear of door/balcony
+        self.assertAlmostEqual(max(trunk), 2.4, delta=0.5)
+        front = min(p.y for p in self.band("X1010000_GiantTree"))
+        self.assertTrue(-3.6 <= front <= -2.2, front)  # the kit door stands at -2.45 on a 3.6 m root flare
+
+    def test_lighthouse_foot_stays_within_the_kit_plinth(self):
+        """Route Main passes the quay corner 4.7 m from the tower (m60000): fitted to the kit height, the stouter
+        pack tower's foot (r 3.96) blocked it. At 1.15x the kit plinth's width (r 2.95) it clears it, all but the
+        door step."""
+        foot = [p for p in self.band("X60000_Lighthouse_Tall") if not (abs(p.x) < 1.5 and p.y < 0)]
+        self.assertLessEqual(max(math.hypot(p.x, p.y) for p in foot), 2.95 * 1.15 + 0.05)
+
+    def test_lit_windows_come_back_as_kit_glow(self):
+        for name in ("X1010000_DeptStore", "X60000_ArmorStore", "X60000_Lighthouse_Tall", "X1010000_GiantTree"):
+            mats = {m.name for o in self.objs(name) for m in o.data.materials}
+            self.assertIn("M_Window", mats, name)
 
     def test_the_landmark_keeps_its_name_and_registry_entry(self):
         self.assertEqual(self.colls["X1010000_TownGate"].name, "X1010000_TownGate")

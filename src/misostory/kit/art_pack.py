@@ -29,6 +29,10 @@ Modes (``configure``): ``off`` (default: procedural builders; tests, fixtures, a
 when it is installed, e.g. asset_gallery.py) and ``required`` (scripts/build_island.py and build_map.py: they call
 ``require_or_exit`` first, so a missing pack stops the build with exit 1 and the fetch command, never a silent
 fallback). ``MISOSTORY_ART_PACK_DIR`` overrides the install directory (tests).
+
+Per-map ``X<mapid>_*`` landmarks (#75) are not in the mapping: the landmark alias table (``landmark_aliases.ALIASES``)
+gives some of them a pack model (a catalog name, or the manifest's asset id for a model no catalog name maps to), and
+those build here exactly like a catalog asset, fitted to the landmark's own procedural size; the rest stay kit art.
 """
 
 import json

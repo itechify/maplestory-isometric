@@ -34,7 +34,7 @@ from misostory import collision_tags as CT
 from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
-from misostory.kit.classic import mushroom_house_v2
+from misostory.kit.classic import HOUSE_PACK, mushroom_house_v2
 from misostory.mapkit import MAIN_ROAD
 
 MAP_ID = 30000
@@ -61,7 +61,10 @@ ROAD = MAIN_ROAD["mat"]  # the climb is the island's Main road: pale cream ribbo
 
 
 # ---------------------------------------------------------------- local assets
-@asset("X30000_HouseYellowBrim", "Architecture", footprint=7.2, tags=("house", "mushroom"))
+# pack (#75, kit/landmark_aliases.py): House_Mushroom_Yellow fitted by its stem to this stem (r 1.8). Its cap starts
+# above 3 m at the island's 1.2 scale, above any jump, so like the catalog houses it needs no overhead hull.
+@asset("X30000_HouseYellowBrim", "Architecture", footprint=7.2, tags=("house", "mushroom"),
+       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * 1.8 * 1.06)))
 def _house_yellow_brim(coll):
     """Yellow-capped mushroom house with a dark brim band and a round yellow mushroom dormer
     window (houseGS/house7 + door/grassySoil/window/16), wall lantern by the door."""

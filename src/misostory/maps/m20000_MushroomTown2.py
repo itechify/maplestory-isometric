@@ -75,7 +75,10 @@ def _oven_tower(coll):
     logs.build("X20000_OvenTower_Logs", coll, smooth=True, sharp_angle=45)
 
 
-@asset("X20000_StoneArch", "Architecture", footprint=2.2, tags=("door",))
+# pack (#75, kit/landmark_aliases.py): the pack stone arch, fitted by its piers to these pillars' outer span (2.26 m),
+# so the opening stays as wide as this one (inner faces ~0.75 m off centre) on the walk to in01.
+@asset("X20000_StoneArch", "Architecture", footprint=2.2, tags=("door",),
+       pack=dict(fit_nodes=(["Stone arch pier"], 2 * (0.95 + 0.18))))
 def _stone_arch(coll):
     """Freestanding stone porch arch in front of a house door (door/grassySoil/door/8): faces -Y.
     Pillars at +-0.95 m (inner faces 0.77 m off centre, so a 1.3x arch leaves 1 m either side of the

@@ -31,7 +31,8 @@ from misostory import materials as M
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
 from misostory.kit.architecture import door, shop_sign
-from misostory.kit.classic import mushroom_house_v2
+from misostory.kit.art_pack import part_materials
+from misostory.kit.classic import HOUSE_PACK, mushroom_house_v2
 from misostory.kit.nature import _puffy_canopy
 from misostory.kit.promoted import arc
 
@@ -153,7 +154,10 @@ def _potion_sign(coll):
     mb.build("X1010000_PotionSign", coll, smooth=False)
 
 
-@asset("X1010000_DeptStore", "Architecture", footprint=10.6, tags=("house", "mushroom", "shop", "landmark"))
+# pack (#75, kit/landmark_aliases.py): the pack long lime house, fitted by its stem to this stem (2.0 x 1.1 x 1.6
+# wide) like the catalog houses (classic.HOUSE_PACK), so the walls stand where these did; its 2 m door spans in02.
+@asset("X1010000_DeptStore", "Architecture", footprint=10.6, tags=("house", "mushroom", "shop", "landmark"),
+       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * 2.0 * 1.1 * 1.6)))
 def _dept_store(coll):
     """Amherst Department Store: long lime-green spotted mushroom house with a stone-oven chimney.
 
@@ -254,7 +258,7 @@ def _red_tower(coll):
     mb.build("X1010000_RedTower_Deco", coll, smooth=True, sharp_angle=40)
 
 
-@asset("X1010000_YellowHouse", "Architecture", footprint=7.0, tags=("house", "mushroom"))
+@asset("X1010000_YellowHouse", "Architecture", footprint=7.0, tags=("house", "mushroom"), pack=HOUSE_PACK)  # #75
 def _yellow_house(coll):
     """The yellow-capped house by the west gate (classic house1): smooth yellow cap, green bamboo door."""
     mushroom_house_v2(coll, "X1010000_YellowHouse", "M_Grad_leaf_yellow_dk__mush_yellow", chimney="barrel")
@@ -353,7 +357,11 @@ def _mystic_stone(coll):
     mb.build("X1010000_MysticStone", coll, smooth=False)
 
 
-@asset("X1010000_GiantTree", "Architecture", footprint=12.0, tags=("house", "landmark", "tree"))
+# pack (#75): TreeHouse_Giant fitted by its trunk to this trunk (r 2.6), so X1010000_TreePods (kit art) still grow out
+# of it and the door stays at the trunk's front; the windows get the kit's lit M_Window back.
+@asset("X1010000_GiantTree", "Architecture", footprint=12.0, tags=("house", "landmark", "tree"),
+       pack=dict(parts={"Window": ["Recessed window"]}, post=part_materials({"Window": "M_Window"}),
+                 fit_nodes=(["Hollow treehouse trunk"], 2 * 2.6)))
 def _giant_tree(coll):
     """Amherst's giant tree-house (the kit TreeHouse_Giant trunk) under a trimmed canopy: radius 5.0 m instead of
     5.8, leaned 0.3 m east (+X), so the garden yard and the in01 arch behind it show from the island cameras."""
