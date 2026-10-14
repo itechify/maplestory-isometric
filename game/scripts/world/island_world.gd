@@ -130,10 +130,10 @@ func build() -> void:
 	var plan := _chunk_plan()
 	for item in plan:
 		ResourceLoader.load_threaded_request(String(item.path), "", true)
-	# The NPCs' art pack models load on the same threads as the chunks; _stage_nodes then instantiates cached scenes.
-	var npc_models := _npc_model_paths()
-	for path in npc_models:
-		ResourceLoader.load_threaded_request(path, "", true)
+	# The NPCs' art pack models are NOT loaded on these threads: _stage_nodes loads them on the main thread as it places
+	# them. A rigged model builds its meshes while it loads, and headless (tests, playtests) the dummy renderer's mesh
+	# RIDs are not thread-safe: on a worker thread they were corrupted ("Attempting to initialize the wrong RID") and
+	# some runs crashed (#66). The same limit keeps the visual chunks out of headless builds (GameSession.load_visuals).
 	var loaded := {}
 	while loaded.size() < plan.size():
 		var progress := 0.0
@@ -168,26 +168,9 @@ func build() -> void:
 	load_progress.emit(0.92, "grounding")
 	_stage_ground()
 	load_progress.emit(0.97, "portals and npcs")
-	# Held until the NPCs are placed, so the cache keeps them.
-	var npc_scenes: Array[Resource] = []
-	for path in npc_models:
-		npc_scenes.append(ResourceLoader.load_threaded_get(path))
 	_stage_nodes()
-	npc_scenes.clear()
 	_finish()
 	load_progress.emit(1.0, "ready")
-
-
-## The art pack model of every canonical NPC that is imported ([] without the pack).
-func _npc_model_paths() -> PackedStringArray:
-	var out := PackedStringArray()
-	if art == null or not art.present():
-		return out
-	for id in art.ids(ArtPack.NPC):
-		var path := art.model(ArtPack.NPC, id)
-		if ResourceLoader.exists(path):
-			out.append(path)
-	return out
 
 
 ## Builds synchronously (tests, tools). `db` defaults to the Data autoload's ContentDB.

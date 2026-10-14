@@ -105,7 +105,8 @@ ARCHITECTURE.md "Shared contracts":
 0. MapSession must be in `BOOT`. A quit to title leaves it there (see "Teardown"); if it is found past `BOOT`
    anyway, `start()` calls `MapSession.reset()` first.
 1. Instance `res://scenes/world/world.tscn` and wait for `world_ready`. Visual chunks are off when headless,
-   because the threaded visual load crashes the dummy renderer. A world whose script did not load (a parse error)
+   because the threaded visual load crashes the dummy renderer (for the same reason the NPCs' art pack models load
+   on the main thread, #66). A world whose script did not load (a parse error)
    fails the start with "the island world could not be created", and the title shows it.
 2. Add `res://scenes/actors/player.tscn` and call `world.set_player(player)`.
 3. Add `res://scenes/actors/camera_rig.tscn`, then call `rig.set_target(player)`, `MapSession.attach_camera(rig)`
