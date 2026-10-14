@@ -384,7 +384,9 @@ For an invisible walkable surface (the top of a pipe hump, a tank lid, a perch o
 
 ## 9. Kit assets from the art pack (shared kit work, not map work)
 
-Map authors keep using the kit by name (§4); nothing in a map module changes. This section is for the tickets that
+Map authors keep using the kit by name (§4): a swap changes no asset name and no topology (routes, platforms,
+portals, spawns) in a map module. The one map-module edit a swap may need is a prop's placement fix, which "Checks
+after a swap" (below) allows, such as #72 moving one birch in `m40001` so its crown clears a route. This section is for the tickets that
 swap kit assets to the pinned art pack (Project art, ADR 0002; #72 trees and foliage, #73 props and markers, #74
 architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; its tests are
 `src/misostory/test_art_pack_kit.py` (`"$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py`).

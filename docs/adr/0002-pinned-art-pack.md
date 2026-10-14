@@ -11,8 +11,12 @@ Instead, the pack's runtime subset (GLBs, icons, `asset_index.json` and manifest
 source as a not-run reference) is published as a versioned GitHub Release asset (`art-pack-v<major>.<minor>`). Its
 checksum manifest is committed, and a fetch script brings it into the build. The kit's `@asset` builders import the
 pinned GLBs during the Blender build, so the export still derives collision and checks routes. Characters, monsters
-and items go straight to Godot. Everything is looked up by ID through `asset_index.json`, never by filename. Jarvis
-keeps the generators outside the repo, and a change to the art arrives as a new pack version and a version bump.
+and items go straight to Godot. Everything is looked up by ID through the pack's own indexes, never by filename: the
+game's characters, monsters and items through `asset_index.json` and the manifests beside it (`ArtPack`); the Blender
+build's kit assets by catalog name through `environment/source_catalog_mapping.json`, and the two #75 landmark models
+that no catalog name maps to by asset id through `environment/manifest_complete.json` (`kit/art_pack.py`
+`model_entry`). Jarvis keeps the generators outside the repo, and a change to the art arrives as a new pack version
+and a version bump.
 
 ## Considered Options
 
