@@ -187,7 +187,9 @@ def _hanging_roots(coll):
     mb.build("X1000006_Hanging_Roots", coll, smooth=True, sharp_angle=60)
 
 
-@asset("X1000006_Gate_Posts", "Architecture", footprint=0.6, tags=("fence",))
+# pack (#75, kit/landmark_aliases.py): the pack welcome gate, fitted by its posts to these posts' outer span (3.42 m)
+@asset("X1000006_Gate_Posts", "Architecture", footprint=0.6, tags=("fence",),
+       pack=dict(fit_nodes=(["Village gate timber"], 2 * 1.6 + 0.22)))
 def _gate_posts(coll):
     """The open gate of the high meadow: two tall white stake posts with ball tops under a crossbar
     (posts at x = +-1.6; the opening between them faces -y/+y)."""

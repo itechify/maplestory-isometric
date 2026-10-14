@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 18019, triangles (evaluated, incl. instances): 8,825,260
+Objects: 18023, triangles (evaluated, incl. instances): 8,849,916
 
 | check | ok | detail |
 |---|---|---|
@@ -37,24 +37,24 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | layer | triangles | budget | ok |
 |---|---|---|---|
 | 1000000 FieldWestOfAmherst_1000000 | 390,851 | 400,000 | yes |
-| 60000 Southperry_60000 | 372,938 | 400,000 | yes |
-| 1000006 HuntingGroundMidForest2_1000006 | 341,406 | 400,000 | yes |
+| 60000 Southperry_60000 | 382,390 | 400,000 | yes |
+| 1000006 HuntingGroundMidForest2_1000006 | 341,386 | 400,000 | yes |
 | 40001 SnailHuntingGround2_40001 | 317,361 | 400,000 | yes |
 | 40002 SnailHuntingGround3_40002 | 306,304 | 400,000 | yes |
 | 1020000 FieldEastOfAmherst_1020000 | 298,240 | 400,000 | yes |
 | 1000002 DangerousForest_1000002 | 269,408 | 400,000 | yes |
 | 1010004 SnailFieldOfFlowers_1010004 | 264,772 | 400,000 | yes |
+| 1010000 Amherst_1010000 | 262,429 | 400,000 | yes |
 | 1000005 HuntingGroundMidForest1_1000005 | 261,956 | 400,000 | yes |
 | 1020001 TomatoField_1020001 | 251,448 | 400,000 | yes |
-| 1010000 Amherst_1010000 | 250,961 | 400,000 | yes |
 | 1000001 InASmallForest_1000001 | 224,720 | 400,000 | yes |
 | 1000004 SnailGarden_1000004 | 212,225 | 400,000 | yes |
 | 50000 ASplitRoad_50000 | 192,704 | 400,000 | yes |
-| 30000 EastEntranceMushroomTown_30000 | 157,672 | 400,000 | yes |
+| 30000 EastEntranceMushroomTown_30000 | 162,772 | 400,000 | yes |
 | 40000 SnailHuntingGround1_40000 | 157,434 | 400,000 | yes |
 | 1000003 MushroomGarden_1000003 | 157,098 | 400,000 | yes |
 | 10000 MushroomTown_10000 | 136,670 | 400,000 | yes |
-| 20000 MushroomTown_20000 | 119,309 | 400,000 | yes |
+| 20000 MushroomTown_20000 | 117,965 | 400,000 | yes |
 | 0 WestEntranceMushroomTown_0 | 103,478 | 400,000 | yes |
 | 60001 SouthperryArmorStore_60001 | 74,451 | 400,000 | yes |
 | 1010002 AmherstTownstreet_1010002 | 69,336 | 400,000 | yes |
@@ -62,7 +62,7 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 | 1010001 AmherstWeaponStore_1010001 | 37,856 | 400,000 | yes |
 | 20001 MushroomTownTownstreet_20001 | 37,716 | 400,000 | yes |
 | WORLD (plinth, hull, trails, scenery, clouds) | 2,976,920 | 3,500,000 | yes |
-| total | 8,825,260 | | |
+| total | 8,849,916 | | |
 
 ## Top 10 assets by instanced triangles
 

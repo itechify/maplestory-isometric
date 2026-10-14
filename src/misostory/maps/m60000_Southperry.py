@@ -33,6 +33,8 @@ from misostory import geo
 from misostory.geo import MeshBuilder
 from misostory.kit import asset
 from misostory.kit.architecture import chimney, door, gable_roof, window
+from misostory.kit.art_pack import part_materials
+from misostory.kit.classic import HOUSE_PACK
 from misostory.mapkit import MAIN_ROAD
 
 MAP_ID = 60000
@@ -92,7 +94,14 @@ def _window_px(mb, loc, w=0.9, h=1.0, frame_mat="M_Wood_Dark", shutter_mat=None)
                    bevel=0.03, segs=1)
 
 
-@asset("X60000_ArmorStore", "Architecture", footprint=8.0, tags=("house", "shop", "port"))
+# pack (#75, kit/landmark_aliases.py): Shop_Armor, fitted by its walls (6.4 m, so its door lands on this door's x -1.0)
+# and set 0.3 m back so the door, which stands proud of the pack walls, keeps in00 and its arrival clear, and 0.2 m
+# down so its door step stays under the body band (like the kit's 0.4 m base, which the door stands on); the pack's
+# display counter and produce, across the front, would stand on the portal and are left out. Lit windows and the
+# roof part as the catalog houses (classic.HOUSE_PACK).
+@asset("X60000_ArmorStore", "Architecture", footprint=8.0, tags=("house", "shop", "port"),
+       pack=dict(HOUSE_PACK, fit_nodes=(["Cream plaster walls"], 6.4), shift=(0.0, 0.3, -0.2),
+                 omit=["Store display counter", "Market produce"]))
 def _armor_store(coll):
     """Southperry Armor Store (housePT/house1): white plaster walls, a swooping blue tiled roof with a
     scalloped eave, a chimney topped with barrels and an arched pinkish door.
@@ -224,7 +233,13 @@ def _gazebo(coll):
     roof.build("X60000_Gazebo_Roof", coll, smooth=False)
 
 
-@asset("X60000_Lighthouse_Tall", "Architecture", footprint=6.0, tags=("landmark", "port"))
+# pack (#75): Lighthouse_Southperry fitted to this tower's base width, then 1.15x (scale_mul, by eye from the map
+# cameras: at the base width alone the stouter pack tower stood barely above the harbour houses). Fitted to the kit
+# height instead (1.34x), its foot blocked route Main past the quay corner. It stands ~80% of the kit height. Its
+# windows and lantern glass get the kit's glow back (the pack has no emission).
+@asset("X60000_Lighthouse_Tall", "Architecture", footprint=6.0, tags=("landmark", "port"),
+       pack=dict(scale_mul=1.15, parts={"Window": ["Recessed window"], "Lamp": ["Lantern glass", "Beacon lamp"]},
+                 post=part_materials({"Window": "M_Window", "Lamp": "M_Glow_window"})))
 def _lighthouse_tall(coll):
     """Southperry's lighthouse at the island rim (classic world map): a tall cream tower (~20 m) with gold
     bands, a railed gallery around a glowing lantern room, a blue dome and an orange-red cap. Door faces -y."""
