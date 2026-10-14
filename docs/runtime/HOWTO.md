@@ -146,12 +146,13 @@ ISOLATE=me INCLUDE_WORLD=1 TEST_TIMEOUT_S=3000 TEST_EVIDENCE_OUT="$PWD/_scratch/
   `game/assets/world/` in the project you run).
 - `TEST_TIMEOUT_S` (default 900) is the outer time limit of the Godot process. Raise it on a busy machine.
 - `TEST_EVIDENCE_OUT=<file>` also writes the machine-readable test evidence (contract C6), format 2: `{format, run_at,
-  commit, dirty, world_present, filters, totals, tests: [{file, name, ok, failures, parity, needs_world}]}`. A test
-  file declares parity keys with an optional `func parity_keys() -> Dictionary`; a key that names a missing test, or
-  is malformed, fails as `<file>::parity_keys`. `commit` is `git rev-parse HEAD`; `dirty` is true when `game/`,
-  `tools/` or `scripts/` differ from it (untracked files included); `world_present` says whether the exported world
-  was there, and `needs_world` marks a test whose file names `INCLUDE_WORLD` (the parity build refuses such a test's
-  keys from evidence that ran without the world).
+  commit, dirty, world_present, art_pack_present, filters, totals, tests: [{file, name, ok, failures, parity,
+  needs_world}]}`. A test file declares parity keys with an optional `func parity_keys() -> Dictionary`; a key that
+  names a missing test, or is malformed, fails as `<file>::parity_keys`. `commit` is `git rev-parse HEAD`; `dirty` is
+  true when `game/`, `tools/` or `scripts/` differ from it (untracked files included); `world_present` says whether
+  the exported world was there, `art_pack_present` whether the art pack was installed (`NO_ART_PACK=1` runs without
+  it, and the pack tests SKIP), and `needs_world` marks a test whose file names `INCLUDE_WORLD` (the parity build
+  refuses such a test's keys from evidence that ran without the world).
 - **The Jolt body cap.** Godot 4.7.2's Jolt integration evidently does not reuse the body slots of freed collision
   objects within one process (inferred from the fix below; the engine side was not root-caused), so a test process
   that builds and frees the island more than about ten times aborted with exit code 3 and printed nothing (the suite

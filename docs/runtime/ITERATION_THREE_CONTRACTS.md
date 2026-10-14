@@ -178,12 +178,13 @@ skill, knockback, death or warp stands the player up. While seated: natural reco
 ## C6. Machine-readable test evidence
 
 - `TEST_EVIDENCE_OUT=<file> bash scripts/test.sh ...` makes the unit test runner write (format 2)
-  `{"run_at", "commit", "dirty", "world_present", "totals", "tests": [{"file", "name", "ok", "parity": [keys],
-  "needs_world"}]}`. A test declares parity keys through an optional `func parity_keys() -> Dictionary` in its file,
-  mapping test names to `["quest:1005", ...]`. `commit` is the checked-out commit and `dirty` whether `game/`, `tools/`
-  or `scripts/` held changes or untracked files (`null` when git could not tell); `world_present` is whether the run
-  saw the exported world (`INCLUDE_WORLD=1`); a test `needs_world` when its file names `INCLUDE_WORLD` (it prints SKIP
-  and passes without the world), and the parity generator refuses its keys from a run without the world (and from
+  `{"run_at", "commit", "dirty", "world_present", "art_pack_present", "totals", "tests": [{"file", "name", "ok",
+  "parity": [keys], "needs_world"}]}`. A test declares parity keys through an optional `func parity_keys() ->
+  Dictionary` in its file, mapping test names to `["quest:1005", ...]`. `commit` is the checked-out commit and `dirty`
+  whether `game/`, `tools/` or `scripts/` held changes or untracked files (`null` when git could not tell);
+  `world_present` is whether the run saw the exported world (`INCLUDE_WORLD=1`), `art_pack_present` whether it had the
+  art pack (not `NO_ART_PACK=1`); a test `needs_world` when its file names `INCLUDE_WORLD` (it prints SKIP and passes
+  without the world), and the parity generator refuses its keys from a run without the world (and from
   older evidence that does not record it).
 - A playtest check may carry `"parity": [keys]`, and `report.json` keeps them. `report.json` also records
   `"git": {"commit", "dirty", "mixed", "reused_copy"}` (from `scripts/playtest.sh`: the first phase's commit, whether

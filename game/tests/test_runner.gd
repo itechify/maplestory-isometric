@@ -9,8 +9,9 @@ extends Node
 ## Exit code 0 = all passed, 1 = failures. Output: one line per failing assertion plus a summary.
 ##
 ## Test evidence (docs/runtime/ITERATION_THREE_CONTRACTS.md C6). With TEST_EVIDENCE_OUT set to a file path the runner
-## also writes {format, run_at, commit, dirty, world_present, filters, totals, tests: [{file, name, ok, failures,
-## parity, needs_world}]}: one entry per test (a file that does not compile is one entry named "(load)"). world_present
+## also writes {format, run_at, commit, dirty, world_present, art_pack_present, filters, totals, tests: [{file, name,
+## ok, failures, parity, needs_world}]}: one entry per test (a file that does not compile is one entry named "(load)").
+## art_pack_present says whether the run had the art pack (ArtPack.shared().present()). world_present
 ## says whether the run saw the Blender export (WorldSidecars.exists(): INCLUDE_WORLD=1 in an ISOLATE run); a test
 ## needs_world when its file names INCLUDE_WORLD (WORLD_MARKER: the convention of every test that prints SKIP and
 ## passes without the export), so tools/parity/build_parity.mjs refuses its keys from a run without the world. A test
@@ -59,7 +60,7 @@ func run(filters: PackedStringArray) -> int:
 	var evidence_path := OS.get_environment(EVIDENCE_ENV)
 	if evidence_path != "":
 		var doc := evidence_document(result.entries, filters, files.size(), ms, OS.get_environment(COMMIT_ENV),
-			OS.get_environment(DIRTY_ENV), WorldSidecars.exists())
+			OS.get_environment(DIRTY_ENV), WorldSidecars.exists(), ArtPack.shared().present())
 		if write_evidence(evidence_path, doc):
 			print("test evidence written to %s" % evidence_path)
 		else:
@@ -168,9 +169,10 @@ static func parity_problems(declared: Variant, methods: Array) -> PackedStringAr
 
 
 ## The evidence document written to TEST_EVIDENCE_OUT. `commit` "" is recorded as null; `dirty` "1" / "0" as true /
-## false and anything else as null (unknown); `world_present` is whether the run saw the exported world.
+## false and anything else as null (unknown); `world_present` is whether the run saw the exported world,
+## `art_pack_present` whether it had the art pack installed (NO_ART_PACK=1 runs without it; the pack tests SKIP).
 static func evidence_document(entries: Array, filters: PackedStringArray, file_count: int, ms: int, commit: String,
-		dirty: String = "", world_present: bool = false) -> Dictionary:
+		dirty: String = "", world_present: bool = false, art_pack_present: bool = false) -> Dictionary:
 	var failed := 0
 	for e in entries:
 		if not bool(e.ok):
@@ -181,6 +183,7 @@ static func evidence_document(entries: Array, filters: PackedStringArray, file_c
 		"commit": commit if commit != "" else null,
 		"dirty": true if dirty == "1" else (false if dirty == "0" else null),
 		"world_present": world_present,
+		"art_pack_present": art_pack_present,
 		"filters": Array(filters),
 		"totals": {"tests": entries.size(), "failed": failed, "files": file_count, "ms": ms},
 		"tests": entries,

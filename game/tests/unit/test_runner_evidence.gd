@@ -119,6 +119,16 @@ func test_evidence_records_the_dirty_flag_and_whether_the_world_was_present() ->
 	assert_eq(TestRunner.EVIDENCE_FORMAT, 2, "format 2: dirty, world_present, needs_world")
 
 
+## The art pack decides which code paths the pack tests took (they SKIP without it), so the evidence says whether the
+## run had it (NO_ART_PACK=1 runs without it).
+func test_evidence_records_whether_the_art_pack_was_present() -> void:
+	var r := _run(["fixture_untagged.gd"])
+	assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc").get("art_pack_present", null),
+		false, "no pack unless the run had it")
+	assert_eq(TestRunner.evidence_document(r.entries, PackedStringArray(), 1, 0, "abc", "0", true, true).get(
+		"art_pack_present", null), true, "the pack")
+
+
 func test_a_test_file_that_names_the_world_switch_needs_the_world() -> void:
 	var r := _run(["fixture_world.gd", "fixture_untagged.gd"])
 	assert_eq(_entry(r, "test_on_the_world").get("needs_world", null), true, "a file naming %s needs the world" % TestRunner.WORLD_MARKER)
