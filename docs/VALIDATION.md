@@ -1,6 +1,6 @@
 # Validation report
 
-Objects: 18015, triangles (evaluated, incl. instances): 8,827,550
+Objects: 18019, triangles (evaluated, incl. instances): 8,825,260
 
 | check | ok | detail |
 |---|---|---|
@@ -11,8 +11,8 @@ Objects: 18015, triangles (evaluated, incl. instances): 8,827,550
 | no_hidden_objects | yes | 0 hidden (colliders exempt): [] |
 | materials | yes | 0 meshes missing materials: [] |
 | instances | yes | 0 broken instances |
-| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (390,915) |
-| world_polygon_budget | yes | WORLD layer 2,976,968 triangles (budget 3,500,000) |
+| polygon_budget | yes | maps over 400,000: {}; largest 1000000 (390,851) |
+| world_polygon_budget | yes | WORLD layer 2,976,920 triangles (budget 3,500,000) |
 | portal_topology | yes | 24 links ok-checked (1 one-way); 47 portal objects vs MeowDB 47 (missing [], extra []); arrival markers ['40000:in00']; extra portals: [] |
 | floating_props | yes | 0 of 4086 instances (295 trail dressing) and 62 architecture meshes neither on walkable ground nor within 0.15 m of a surface (137 rest against walls/props) |
 | props_near_routes | yes | 0 medium (solid at body height < 0.45 m from a route centreline), 21 low; exempt {'archway spanning the route': 2, 'perch the route walks over': 28, 'climb': 1, 'hop-able': 8}; interiors use 0.8 m |
@@ -36,33 +36,33 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 
 | layer | triangles | budget | ok |
 |---|---|---|---|
-| 1000000 FieldWestOfAmherst_1000000 | 390,915 | 400,000 | yes |
-| 60000 Southperry_60000 | 371,762 | 400,000 | yes |
+| 1000000 FieldWestOfAmherst_1000000 | 390,851 | 400,000 | yes |
+| 60000 Southperry_60000 | 372,938 | 400,000 | yes |
 | 1000006 HuntingGroundMidForest2_1000006 | 341,406 | 400,000 | yes |
 | 40001 SnailHuntingGround2_40001 | 317,361 | 400,000 | yes |
 | 40002 SnailHuntingGround3_40002 | 306,304 | 400,000 | yes |
-| 1020000 FieldEastOfAmherst_1020000 | 298,522 | 400,000 | yes |
+| 1020000 FieldEastOfAmherst_1020000 | 298,240 | 400,000 | yes |
 | 1000002 DangerousForest_1000002 | 269,408 | 400,000 | yes |
-| 1010004 SnailFieldOfFlowers_1010004 | 264,780 | 400,000 | yes |
+| 1010004 SnailFieldOfFlowers_1010004 | 264,772 | 400,000 | yes |
 | 1000005 HuntingGroundMidForest1_1000005 | 261,956 | 400,000 | yes |
-| 1020001 TomatoField_1020001 | 251,754 | 400,000 | yes |
-| 1010000 Amherst_1010000 | 250,445 | 400,000 | yes |
+| 1020001 TomatoField_1020001 | 251,448 | 400,000 | yes |
+| 1010000 Amherst_1010000 | 250,961 | 400,000 | yes |
 | 1000001 InASmallForest_1000001 | 224,720 | 400,000 | yes |
-| 1000004 SnailGarden_1000004 | 212,305 | 400,000 | yes |
-| 50000 ASplitRoad_50000 | 192,724 | 400,000 | yes |
-| 30000 EastEntranceMushroomTown_30000 | 157,680 | 400,000 | yes |
+| 1000004 SnailGarden_1000004 | 212,225 | 400,000 | yes |
+| 50000 ASplitRoad_50000 | 192,704 | 400,000 | yes |
+| 30000 EastEntranceMushroomTown_30000 | 157,672 | 400,000 | yes |
 | 40000 SnailHuntingGround1_40000 | 157,434 | 400,000 | yes |
 | 1000003 MushroomGarden_1000003 | 157,098 | 400,000 | yes |
-| 10000 MushroomTown_10000 | 136,806 | 400,000 | yes |
-| 20000 MushroomTown_20000 | 119,373 | 400,000 | yes |
-| 0 WestEntranceMushroomTown_0 | 103,614 | 400,000 | yes |
-| 60001 SouthperryArmorStore_60001 | 74,585 | 400,000 | yes |
-| 1010002 AmherstTownstreet_1010002 | 68,686 | 400,000 | yes |
-| 1010003 AmherstDepartmentStore_1010003 | 58,016 | 400,000 | yes |
-| 1010001 AmherstWeaponStore_1010001 | 37,936 | 400,000 | yes |
-| 20001 MushroomTownTownstreet_20001 | 36,964 | 400,000 | yes |
-| WORLD (plinth, hull, trails, scenery, clouds) | 2,976,968 | 3,500,000 | yes |
-| total | 8,827,550 | | |
+| 10000 MushroomTown_10000 | 136,670 | 400,000 | yes |
+| 20000 MushroomTown_20000 | 119,309 | 400,000 | yes |
+| 0 WestEntranceMushroomTown_0 | 103,478 | 400,000 | yes |
+| 60001 SouthperryArmorStore_60001 | 74,451 | 400,000 | yes |
+| 1010002 AmherstTownstreet_1010002 | 69,336 | 400,000 | yes |
+| 1010003 AmherstDepartmentStore_1010003 | 57,902 | 400,000 | yes |
+| 1010001 AmherstWeaponStore_1010001 | 37,856 | 400,000 | yes |
+| 20001 MushroomTownTownstreet_20001 | 37,716 | 400,000 | yes |
+| WORLD (plinth, hull, trails, scenery, clouds) | 2,976,920 | 3,500,000 | yes |
+| total | 8,825,260 | | |
 
 ## Top 10 assets by instanced triangles
 
@@ -81,12 +81,12 @@ Per map: budget 400,000 (evaluated, instances included). The WORLD layer is its 
 
 Issues: 0 high, 0 medium, 26 low
 
-- [low] props_near_routes: map 60000: Signpost_Notice at (18.0, 17.0) stands 1.27 m from route LedgeRopes_Belvedere, solid at body height 0.8 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 60000: Signpost_Notice at (18.0, 17.0) stands 1.27 m from route LedgeRopes_Belvedere, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (23.5, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (27.9, 25.1) stands 0.83 m from route Summit, solid at body height 0.65 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1000004: X1000004_Trellis at (35.8, 27.5) stands 0.85 m from route EastLedges, solid at body height 0.67 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
-- [low] props_near_routes: map 1010001: Armor_Stand at (2.9, 5.3) stands 1.17 m from route Main, solid at body height 0.74 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010001: X1010001_WeaponBarrel at (13.4, 1.5) stands 1.22 m from route ForgeClimb, solid at body height 0.77 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1010003: Shelf_Goods at (5.6, 11.1) stands 1.15 m from route LeftStack, solid at body height 0.78 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010004: Fence_Wood_Seg at (6.0, 28.9) stands 1.4 m from route VineDown_0, solid at body height 1.31 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010004: Fence_Wood_Seg at (17.0, 29.0) stands 1.4 m from route VineDown_1, solid at body height 1.3 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1010004: Fence_Wood_Seg at (23.0, 28.9) stands 1.4 m from route VineDown_2, solid at body height 1.31 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
@@ -98,9 +98,9 @@ Issues: 0 high, 0 medium, 26 low
 - [low] props_near_routes: map 1020001: Fence_Wood_Seg at (18.3, 0.3) stands 1.0 m from route WestBed, solid at body height 0.88 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020001: Stump_A at (17.7, 18.4) stands 0.9 m from route Climb_Vine_WestFurrow, solid at body height 0.48 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020001: Stump_A at (42.2, 18.4) stands 0.9 m from route Climb_Vine_EastFurrow, solid at body height 0.52 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
-- [low] props_near_routes: map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.03 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: Crate at (46.9, 19.0) stands 1.5 m from route Canopy, solid at body height 1.13 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020001: X1020001_CratesTomatoes at (24.1, 22.3) stands 1.28 m from route Canopy, solid at body height 0.76 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
-- [low] props_near_routes: map 1020001: Haystack at (57.0, 2.0) stands 1.5 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
+- [low] props_near_routes: map 1020001: Haystack at (57.0, 2.0) stands 1.5 m from route EastYard, solid at body height 0.62 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] props_near_routes: map 1020001: X1020001_CratesTomatoes at (57.6, 6.0) stands 1.32 m from route EastYard, solid at body height 0.71 m from it (keep m.place props >= 1.5 m from route centrelines; medium below 0.45 m body clearance)
 - [low] trail_ring_band: Trail_ASplitRoad_50000_east01_to_Southperry_60000: map 50000's ring wall stands on the trail's edge, 2.233 m from its centreline at [98.57, -533.08] (half-width 2.6 m)
 - [low] trail_ring_band: Trail_ASplitRoad_50000_east00_to_FieldWestOfAmherst_1000000: map 50000's gate jamb is 1.747 m from the centreline at [124.73, -521.11] (the gap is 2.25 m either side: the trail turns before leaving it)

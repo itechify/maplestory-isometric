@@ -58,8 +58,7 @@ ALIAS_KIND = "semantically_equivalent_original_adaptation"
 
 # The kit categories whose catalog assets come from the pack. #72: Trees and Foliage; #73: Props and Markers;
 # #74: Architecture, Rocks and Terrain. Per-map X<mapid>_* landmarks are not in the mapping and never swap here.
-CATEGORIES = {"Trees", "Foliage"}
-CATEGORIES |= {"Architecture", "Rocks", "Terrain"}  # #74
+CATEGORIES = {"Trees", "Foliage", "Props", "Markers", "Architecture", "Rocks", "Terrain"}
 LANDMARK = re.compile(r"X\d+_")
 
 # @asset(..., pack={...}) keys, all optional:
@@ -82,8 +81,9 @@ LANDMARK = re.compile(r"X\d+_")
 #   parts        {suffix: [substring, ...]}: pack nodes whose name contains a substring become their own object
 #                <name>_<suffix> (e.g. an overhanging cap that needs collision_tags.OVERHEAD_HULL); the rest is one
 #                object named after the asset
-#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts (``part_materials`` makes one
-#                that gives parts a kit material back: glow, which the pack never has)
+#   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts or give them a kit material
+#                back: glow, which the pack never has (``kit_materials(Glow="M_Glow_window")``: the glow of lamps
+#                and portals; ``part_materials({...})``: the same, skipping a suffix the asset has no part for)
 #   omit         [substring, ...]: pack nodes left out (e.g. a door's own grass mound where the map's hill is the
 #                mound); the fit measures what is left
 #   fit_nodes    ([substring, ...], metres): instead of the whole model, the pack nodes whose name contains a
@@ -354,6 +354,18 @@ def part_materials(materials):
             me.materials.append(M.get(mat))
             for p in me.polygons:
                 p.material_index = 0
+    return post
+
+
+def kit_materials(**by_part):
+    """A ``post`` hook giving parts a kit material instead of ``M_Pack``: ``kit_materials(Glow="M_Glow_window")``
+    puts the lamp glass (``parts={"Glow": [...]}``) back in the kit's emissive material. The pack has no emission,
+    so this is how a lamp, a lantern or a portal keeps its glow (the export reads the MS_Shading Emission)."""
+    def post(coll, parts):
+        for suffix, mat_name in by_part.items():
+            me = parts[suffix].data
+            me.materials.clear()
+            me.materials.append(M.get(mat_name))
     return post
 
 

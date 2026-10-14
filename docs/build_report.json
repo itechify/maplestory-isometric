@@ -132,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 17.34,
+   "seconds": 12.52,
    "portals": [
     {
      "name": "out00",
@@ -459,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 6.12,
+   "seconds": 6.37,
    "portals": [
     {
      "name": "in00",
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 4.11,
+   "seconds": 3.14,
    "portals": [
     {
      "name": "in01",
@@ -1175,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 2.63,
+   "seconds": 1.83,
    "portals": [
     {
      "name": "in00",
@@ -1852,7 +1852,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 7.84,
+   "seconds": 4.92,
    "portals": [
     {
      "name": "east00",
@@ -2791,7 +2791,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 4.35,
+   "seconds": 2.66,
    "portals": [
     {
      "name": "west00",
@@ -3870,7 +3870,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 5.51,
+   "seconds": 3.44,
    "portals": [
     {
      "name": "west00",
@@ -4932,7 +4932,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 3.24,
+   "seconds": 2.07,
    "portals": [
     {
      "name": "west00",
@@ -5907,7 +5907,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 10.83,
+   "seconds": 15.14,
    "portals": [
     {
      "name": "west00",
@@ -6542,7 +6542,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 4.17,
+   "seconds": 5.42,
    "portals": [
     {
      "name": "out00",
@@ -6841,7 +6841,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.33,
+   "seconds": 0.22,
    "portals": [
     {
      "name": "out00",
@@ -7304,7 +7304,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 18.44,
+   "seconds": 12.39,
    "portals": [
     {
      "name": "in00",
@@ -8558,7 +8558,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.97,
+   "seconds": 1.49,
    "portals": [
     {
      "name": "out00",
@@ -9406,18 +9406,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@17.8,17.2",
-     "X1000002_Toadstool_Dark@19.5,10.1",
-     "X1000002_Toadstool_Dark@34.7,13.0",
+     "X1000002_Toadstool_Dark@16.9,12.4",
      "X1000002_Toadstool_Dark@20.8,8.6",
+     "X1000002_Toadstool_Dark@19.5,10.1",
+     "X1000002_Toadstool_Dark@17.8,17.2",
      "X1000002_Toadstool_Dark@32.8,25.2",
-     "X1000002_Toadstool_Dark@16.9,12.4"
+     "X1000002_Toadstool_Dark@34.7,13.0"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 7.59,
+   "seconds": 5.46,
    "portals": [
     {
      "name": "out01",
@@ -13317,7 +13317,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 10.83,
+   "seconds": 9.01,
    "portals": [
     {
      "name": "out00",
@@ -56165,7 +56165,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 6.06,
+   "seconds": 8.55,
    "portals": [
     {
      "name": "out00",
@@ -102500,7 +102500,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 3.15,
+   "seconds": 2.11,
    "portals": [
     {
      "name": "out00",
@@ -104248,7 +104248,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 5.42,
+   "seconds": 3.79,
    "portals": [
     {
      "name": "out00",
@@ -108217,7 +108217,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 11.45,
+   "seconds": 14.35,
    "portals": [
     {
      "name": "west00",
@@ -108724,7 +108724,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 4.14,
+   "seconds": 5.0,
    "portals": [
     {
      "name": "out00",
@@ -109016,7 +109016,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 5.09,
+   "seconds": 8.26,
    "portals": [
     {
      "name": "out00",
@@ -109294,7 +109294,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 2.57,
+   "seconds": 4.72,
    "portals": [
     {
      "name": "out00",
@@ -109992,7 +109992,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 2.79,
+   "seconds": 2.25,
    "portals": [
     {
      "name": "east00",
@@ -111003,7 +111003,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 13.24,
+   "seconds": 8.52,
    "portals": [
     {
      "name": "west00",
@@ -111972,7 +111972,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 7.12,
+   "seconds": 11.53,
    "portals": [
     {
      "name": "out00",
@@ -112487,7 +112487,7 @@
    }
   }
  },
- "started": "2026-10-13 16:54:53",
+ "started": "2026-10-13 17:59:04",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -114011,11 +114011,31 @@
   "categories": [
    "Architecture",
    "Foliage",
+   "Markers",
+   "Props",
    "Rocks",
    "Terrain",
    "Trees"
   ],
   "assets": {
+   "Anchor": {
+    "file": "environment/glb/Anchor.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9974,
+    "scale_xyz": [
+     0.9974,
+     0.9974,
+     0.9974
+    ],
+    "pack_tris": 476,
+    "tris": 124,
+    "kit_tris": 128,
+    "decimated": true,
+    "parts": [
+     "Anchor"
+    ]
+   },
    "Arch_Leafy": {
     "file": "environment/glb/Arch_Leafy.glb",
     "alias": false,
@@ -114052,6 +114072,42 @@
      "Arch_Leafy_Trail"
     ]
    },
+   "Armor_Stand": {
+    "file": "environment/glb/Armor_Stand.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0087,
+    "scale_xyz": [
+     1.0087,
+     1.0087,
+     1.0087
+    ],
+    "pack_tris": 1112,
+    "tris": 250,
+    "kit_tris": 256,
+    "decimated": true,
+    "parts": [
+     "Armor_Stand"
+    ]
+   },
+   "Barrel": {
+    "file": "environment/glb/barrel.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9798,
+    "scale_xyz": [
+     0.9798,
+     0.9798,
+     0.9798
+    ],
+    "pack_tris": 1532,
+    "tris": 304,
+    "kit_tris": 312,
+    "decimated": true,
+    "parts": [
+     "Barrel"
+    ]
+   },
    "Barrel_Door_Mound": {
     "file": "environment/glb/Barrel_Door_Mound.glb",
     "alias": false,
@@ -114068,6 +114124,37 @@
     "decimated": false,
     "parts": [
      "Barrel_Door_Mound"
+    ]
+   },
+   "Bed": {
+    "file": "environment/glb/Bed.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.325,
+    "pack_tris": 1904,
+    "tris": 928,
+    "kit_tris": 948,
+    "decimated": true,
+    "parts": [
+     "Bed"
+    ]
+   },
+   "Bench": {
+    "file": "environment/glb/bench.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.0818,
+    "scale_xyz": [
+     1.0818,
+     1.0818,
+     1.0818
+    ],
+    "pack_tris": 1060,
+    "tris": 108,
+    "kit_tris": 112,
+    "decimated": true,
+    "parts": [
+     "Bench"
     ]
    },
    "Berry_Bush": {
@@ -114214,6 +114301,42 @@
      "Butterfly_Yellow"
     ]
    },
+   "Cart": {
+    "file": "environment/glb/cart.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.2045,
+    "scale_xyz": [
+     1.2045,
+     1.2045,
+     1.2045
+    ],
+    "pack_tris": 1228,
+    "tris": 686,
+    "kit_tris": 216,
+    "decimated": true,
+    "parts": [
+     "Cart"
+    ]
+   },
+   "Clothesline_Laundry": {
+    "file": "environment/glb/Clothesline_Laundry.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.4,
+    "scale_xyz": [
+     1.4,
+     1.4,
+     1.4
+    ],
+    "pack_tris": 1992,
+    "tris": 1274,
+    "kit_tris": 1300,
+    "decimated": true,
+    "parts": [
+     "Clothesline_Laundry"
+    ]
+   },
    "Cloud_Puff_A": {
     "file": "environment/glb/cloud_module.glb",
     "alias": true,
@@ -114266,6 +114389,42 @@
     "decimated": true,
     "parts": [
      "Clover_Patch"
+    ]
+   },
+   "Crate": {
+    "file": "environment/glb/crate.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9408,
+    "scale_xyz": [
+     0.9408,
+     0.9408,
+     0.9408
+    ],
+    "pack_tris": 948,
+    "tris": 140,
+    "kit_tris": 144,
+    "decimated": true,
+    "parts": [
+     "Crate"
+    ]
+   },
+   "Crate_Stack": {
+    "file": "environment/glb/crates_stack.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.0199,
+    "scale_xyz": [
+     1.0199,
+     1.0199,
+     1.0199
+    ],
+    "pack_tris": 2844,
+    "tris": 258,
+    "kit_tris": 264,
+    "decimated": true,
+    "parts": [
+     "Crate_Stack"
     ]
    },
    "Dock_Bollard": {
@@ -114412,6 +114571,24 @@
      "Flower_Patch_B"
     ]
    },
+   "Fountain_Small": {
+    "file": "environment/glb/Fountain_Small.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.5252,
+    "scale_xyz": [
+     1.5252,
+     1.5252,
+     1.5252
+    ],
+    "pack_tris": 1128,
+    "tris": 312,
+    "kit_tris": 320,
+    "decimated": true,
+    "parts": [
+     "Fountain_Small"
+    ]
+   },
    "Grass_Tuft_A": {
     "file": "environment/glb/grass_1.glb",
     "alias": true,
@@ -114428,6 +114605,43 @@
     "decimated": true,
     "parts": [
      "Grass_Tuft_A"
+    ]
+   },
+   "Hanging_Lantern": {
+    "file": "environment/glb/lantern.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.5143,
+    "scale_xyz": [
+     0.5143,
+     0.5143,
+     0.5143
+    ],
+    "pack_tris": 692,
+    "tris": 134,
+    "kit_tris": 140,
+    "decimated": true,
+    "parts": [
+     "Hanging_Lantern",
+     "Hanging_Lantern_Glow"
+    ]
+   },
+   "Haystack": {
+    "file": "environment/glb/Haystack.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.4121,
+    "scale_xyz": [
+     1.4121,
+     1.4121,
+     1.4121
+    ],
+    "pack_tris": 1240,
+    "tris": 634,
+    "kit_tris": 648,
+    "decimated": true,
+    "parts": [
+     "Haystack"
     ]
    },
    "Hedge_Tunnel": {
@@ -114639,6 +114853,43 @@
      "Ivy_Sign_3Way"
     ]
    },
+   "Lamp_Post": {
+    "file": "environment/glb/Lamp_Post.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0767,
+    "scale_xyz": [
+     1.0767,
+     1.0767,
+     1.0767
+    ],
+    "pack_tris": 780,
+    "tris": 120,
+    "kit_tris": 124,
+    "decimated": true,
+    "parts": [
+     "Lamp_Post",
+     "Lamp_Post_Glow"
+    ]
+   },
+   "Lifebuoy": {
+    "file": "environment/glb/Lifebuoy.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.2782,
+    "scale_xyz": [
+     1.2782,
+     1.2782,
+     1.2782
+    ],
+    "pack_tris": 1184,
+    "tris": 198,
+    "kit_tris": 204,
+    "decimated": true,
+    "parts": [
+     "Lifebuoy"
+    ]
+   },
    "Log_A": {
     "file": "environment/glb/log.glb",
     "alias": true,
@@ -114657,6 +114908,24 @@
      "Log_A"
     ]
    },
+   "Mailbox_Red": {
+    "file": "environment/glb/Mailbox_Red.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.787,
+    "scale_xyz": [
+     0.787,
+     0.787,
+     0.787
+    ],
+    "pack_tris": 428,
+    "tris": 180,
+    "kit_tris": 184,
+    "decimated": true,
+    "parts": [
+     "Mailbox_Red"
+    ]
+   },
    "Marigold_Patch": {
     "file": "environment/glb/Marigold_Patch.glb",
     "alias": false,
@@ -114673,6 +114942,24 @@
     "decimated": true,
     "parts": [
      "Marigold_Patch"
+    ]
+   },
+   "Market_Stall": {
+    "file": "environment/glb/fruit_market_stall.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.4135,
+    "scale_xyz": [
+     1.4135,
+     1.4135,
+     1.4135
+    ],
+    "pack_tris": 2724,
+    "tris": 238,
+    "kit_tris": 244,
+    "decimated": true,
+    "parts": [
+     "Market_Stall"
     ]
    },
    "Mountain_Hill": {
@@ -114891,6 +115178,94 @@
      "Mushroom_Yellow_S"
     ]
    },
+   "NPC_Beacon": {
+    "file": "environment/glb/NPC_Beacon.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0,
+    "pack_tris": 12,
+    "tris": 12,
+    "kit_tris": 12,
+    "decimated": false,
+    "parts": [
+     "NPC_Beacon"
+    ]
+   },
+   "Planter": {
+    "file": "environment/glb/Planter.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.3371,
+    "scale_xyz": [
+     1.3371,
+     1.3371,
+     1.3371
+    ],
+    "pack_tris": 9064,
+    "tris": 516,
+    "kit_tris": 528,
+    "decimated": true,
+    "parts": [
+     "Planter"
+    ]
+   },
+   "Planter_Box": {
+    "file": "environment/glb/Planter_Box.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9482,
+    "scale_xyz": [
+     0.9482,
+     0.9482,
+     0.9482
+    ],
+    "pack_tris": 360,
+    "tris": 124,
+    "kit_tris": 128,
+    "decimated": true,
+    "parts": [
+     "Planter_Box"
+    ]
+   },
+   "Portal_Door": {
+    "file": "environment/glb/Portal_Door.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.3271,
+    "scale_xyz": [
+     1.3271,
+     1.3271,
+     1.3271
+    ],
+    "pack_tris": 378,
+    "tris": 378,
+    "kit_tris": 588,
+    "decimated": false,
+    "parts": [
+     "Portal_Door_Core",
+     "Portal_Door_Ring"
+    ]
+   },
+   "Portal_Swirl": {
+    "file": "environment/glb/portal.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.3318,
+    "scale_xyz": [
+     1.3318,
+     1.3318,
+     1.3318
+    ],
+    "pack_tris": 4312,
+    "tris": 1556,
+    "kit_tris": 1592,
+    "decimated": true,
+    "parts": [
+     "Portal_Swirl",
+     "Portal_Swirl_Core",
+     "Portal_Swirl_Ring"
+    ]
+   },
    "Post_StoneCap": {
     "file": "environment/glb/Post_StoneCap.glb",
     "alias": false,
@@ -114907,6 +115282,24 @@
     "decimated": false,
     "parts": [
      "Post_StoneCap"
+    ]
+   },
+   "Rainbow_Spring": {
+    "file": "environment/glb/Rainbow_Spring.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.0494,
+    "scale_xyz": [
+     1.0494,
+     1.0494,
+     1.0494
+    ],
+    "pack_tris": 7680,
+    "tris": 2050,
+    "kit_tris": 2092,
+    "decimated": true,
+    "parts": [
+     "Rainbow_Spring"
     ]
    },
    "Rock_A": {
@@ -114997,6 +115390,96 @@
     "decimated": true,
     "parts": [
      "Rock_Cliff_Stone"
+    ]
+   },
+   "Rope_Coil": {
+    "file": "environment/glb/Rope_Coil.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9353,
+    "scale_xyz": [
+     0.9353,
+     0.9353,
+     0.9353
+    ],
+    "pack_tris": 1152,
+    "tris": 548,
+    "kit_tris": 560,
+    "decimated": true,
+    "parts": [
+     "Rope_Coil"
+    ]
+   },
+   "Rug_Round": {
+    "file": "environment/glb/Rug_Round.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.2012,
+    "scale_xyz": [
+     1.2012,
+     1.2012,
+     1.2012
+    ],
+    "pack_tris": 564,
+    "tris": 180,
+    "kit_tris": 184,
+    "decimated": true,
+    "parts": [
+     "Rug_Round"
+    ]
+   },
+   "Sack": {
+    "file": "environment/glb/sack.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9356,
+    "scale_xyz": [
+     0.9356,
+     0.9356,
+     0.9356
+    ],
+    "pack_tris": 556,
+    "tris": 184,
+    "kit_tris": 188,
+    "decimated": true,
+    "parts": [
+     "Sack"
+    ]
+   },
+   "Scarecrow": {
+    "file": "environment/glb/Scarecrow.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.1429,
+    "scale_xyz": [
+     1.1429,
+     1.1429,
+     1.1429
+    ],
+    "pack_tris": 956,
+    "tris": 278,
+    "kit_tris": 284,
+    "decimated": true,
+    "parts": [
+     "Scarecrow"
+    ]
+   },
+   "Shelf_Goods": {
+    "file": "environment/glb/Shelf_Goods.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.5414,
+    "scale_xyz": [
+     1.5414,
+     1.5414,
+     1.5414
+    ],
+    "pack_tris": 3324,
+    "tris": 638,
+    "kit_tris": 652,
+    "decimated": true,
+    "parts": [
+     "Shelf_Goods"
     ]
    },
    "Sign_Arrow": {
@@ -115107,6 +115590,42 @@
      "Sign_Danger_Skull"
     ]
    },
+   "Signpost_Notice": {
+    "file": "environment/glb/noticeboard.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.731,
+    "scale_xyz": [
+     0.731,
+     0.731,
+     0.731
+    ],
+    "pack_tris": 744,
+    "tris": 90,
+    "kit_tris": 92,
+    "decimated": true,
+    "parts": [
+     "Signpost_Notice"
+    ]
+   },
+   "Spawn_Ring": {
+    "file": "environment/glb/spawn.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.102,
+    "scale_xyz": [
+     1.102,
+     1.102,
+     1.102
+    ],
+    "pack_tris": 312,
+    "tris": 124,
+    "kit_tris": 128,
+    "decimated": true,
+    "parts": [
+     "Spawn_Ring"
+    ]
+   },
    "Strawberry_Bush": {
     "file": "environment/glb/Strawberry_Bush.glb",
     "alias": false,
@@ -115161,6 +115680,24 @@
      "Sunflower_Patch"
     ]
    },
+   "Table_Round": {
+    "file": "environment/glb/Table_Round.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.9982,
+    "scale_xyz": [
+     0.9982,
+     0.9982,
+     0.9982
+    ],
+    "pack_tris": 352,
+    "tris": 120,
+    "kit_tris": 124,
+    "decimated": true,
+    "parts": [
+     "Table_Round"
+    ]
+   },
    "Tomato_Gate": {
     "file": "environment/glb/Tomato_Gate.glb",
     "alias": false,
@@ -115177,6 +115714,60 @@
     "decimated": false,
     "parts": [
      "Tomato_Gate"
+    ]
+   },
+   "Tomato_Giant": {
+    "file": "environment/glb/Tomato_Giant.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.7444,
+    "scale_xyz": [
+     1.7444,
+     1.7444,
+     1.7444
+    ],
+    "pack_tris": 488,
+    "tris": 402,
+    "kit_tris": 412,
+    "decimated": true,
+    "parts": [
+     "Tomato_Giant"
+    ]
+   },
+   "Tomato_Plant": {
+    "file": "environment/glb/Tomato_Plant.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 0.7426,
+    "scale_xyz": [
+     0.7426,
+     0.7426,
+     0.7426
+    ],
+    "pack_tris": 1564,
+    "tris": 422,
+    "kit_tris": 432,
+    "decimated": true,
+    "parts": [
+     "Tomato_Plant"
+    ]
+   },
+   "Treasure_Chest": {
+    "file": "environment/glb/chest.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 0.9524,
+    "scale_xyz": [
+     0.9524,
+     0.9524,
+     0.9524
+    ],
+    "pack_tris": 548,
+    "tris": 548,
+    "kit_tris": 124,
+    "decimated": false,
+    "parts": [
+     "Treasure_Chest"
     ]
    },
    "Tree_Autumn_A": {
@@ -115499,9 +116090,45 @@
     "parts": [
      "Vine_Hanging_A"
     ]
+   },
+   "Weapon_Rack": {
+    "file": "environment/glb/Weapon_Rack.glb",
+    "alias": false,
+    "mapping_kind": "source_named_original_adaptation",
+    "scale": 1.2502,
+    "scale_xyz": [
+     1.2502,
+     1.2502,
+     1.2502
+    ],
+    "pack_tris": 1140,
+    "tris": 140,
+    "kit_tris": 144,
+    "decimated": true,
+    "parts": [
+     "Weapon_Rack"
+    ]
+   },
+   "Well": {
+    "file": "environment/glb/well.glb",
+    "alias": true,
+    "mapping_kind": "semantically_equivalent_original_adaptation",
+    "scale": 1.3702,
+    "scale_xyz": [
+     1.3702,
+     1.3702,
+     1.3702
+    ],
+    "pack_tris": 644,
+    "tris": 274,
+    "kit_tris": 280,
+    "decimated": true,
+    "parts": [
+     "Well"
+    ]
    }
   }
  },
- "seconds": 222.1,
- "objects": 18015
+ "seconds": 196.2,
+ "objects": 18019
 }
