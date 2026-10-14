@@ -1,9 +1,10 @@
 class_name ArtPackChecks
 extends RefCounted
 ## The art pack coverage check (#62): when the pinned art pack is installed, every ID the game requires art for
-## (ArtPack.required_ids: the canonical NPCs, monsters, items and breakables, and the kit @asset names the island
-## places) must resolve to an imported model, or the run fails with one error per ID. Without the pack (a fresh clone,
-## an isolated run without it) nothing fails: stats.art_pack says "no pack".
+## (ArtPack.required_ids: the canonical NPCs, monsters, items and breakables, the kit @asset names the island places,
+## the creation presets, hair styles and faces, and the worn equipment) must resolve to an imported model, or the run
+## fails with one error per ID. Without the pack (a fresh clone, an isolated run without it) nothing fails:
+## stats.art_pack says "no pack".
 ##
 ## Options (DataValidator): art_pack (an ArtPack; default ArtPack.load_installed()), art_pack_exists (a Callable
 ## deciding whether a model path exists; default ResourceLoader.exists).

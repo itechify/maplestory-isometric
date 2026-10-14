@@ -248,19 +248,40 @@ func coverage(required: Dictionary, exists: Callable = Callable(ResourceLoader, 
 	return {"status": MISSING if not missing.is_empty() else COVERED, "checked": checked, "missing": missing}
 
 
-## The IDs the game requires art for: every canonical NPC, monster, item and breakable, and the kit @asset names the
-## island places (data/misostory/kit_assets_placed.json; the never-placed catalog names are exempt).
+## The IDs the game requires art for (#59 decision 7): every canonical NPC, monster, item and breakable; the kit @asset
+## names the island places (data/misostory/kit_assets_placed.json; the never-placed catalog names are exempt); the
+## Beginner presets, hair styles and faces creation offers (data/misostory/appearance.json); and a wearable for every
+## canonical item worn on the body (an equip slot other than the hand sockets, CharacterWardrobe.SOCKETS: held items
+## need their ITEM model).
 static func required_ids(db: ContentDB) -> Dictionary:
 	var placed: Variant = db.miso_table("kit_assets_placed")
 	var kit: Array = []
 	if placed is Dictionary:
 		kit = (placed as Dictionary).get("names", []).duplicate()
+	var look: Dictionary = db.miso_table("appearance") if db.miso_table("appearance") is Dictionary else {}
+	var presets: Array = []
+	for g in look.get("defaults", {}):
+		var p: Variant = (look.defaults[g] as Dictionary).get("preset")
+		if p is String and not (p in presets):
+			presets.append(p)
+	var hair: Array = []
+	for i in int(look.get("choices", {}).get("hair_style", 0)):
+		hair.append(str(i))
+	var worn: Array = []
+	for id in db.ids("items"):
+		var slot: Variant = db.item(str(id)).get("equip_slot")
+		if slot is String and slot != "" and not CharacterWardrobe.SOCKETS.has(slot):
+			worn.append(str(id))
 	return {
 		NPC: Array(db.ids("npcs")),
 		MONSTER: Array(db.ids("monsters")),
 		ITEM: Array(db.ids("items")),
 		BREAKABLE: Array(db.ids("breakables")),
 		KIT: kit,
+		PRESET: presets,
+		HAIR: hair,
+		FACE: Array(look.get("face_styles", [])).map(func(f: Variant) -> String: return str(f)),
+		WEARABLE: worn,
 	}
 
 
