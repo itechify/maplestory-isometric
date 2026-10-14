@@ -367,6 +367,12 @@ class LandmarkAliasesFromPack(unittest.TestCase):
         pts = [p for p in self.band("X20000_StoneArch") if p.z > 0.3]
         self.assertGreaterEqual(min(abs(p.x) for p in pts), 0.72)
 
+    def test_giant_tree_keeps_a_separate_canopy_part_like_the_kit(self):
+        """The Wooden Box sight rule measures <asset>_Canopy meshes (breakables.json placement.canopies)."""
+        canopy = self.colls["X1010000_GiantTree"].objects.get("X1010000_GiantTree_Canopy")
+        self.assertIsNotNone(canopy)
+        self.assertGreater(min((canopy.matrix_world @ v.co).z for v in canopy.data.vertices), 5.0)
+
     def test_giant_tree_trunk_carries_the_kit_pods_and_door(self):
         """X1010000_TreePods (kit art) sit at 2.55-2.75 m from the origin, grown into the kit trunk (r 2.6)."""
         pts = self.band("X1010000_GiantTree", 2.0, 5.0)

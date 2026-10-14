@@ -358,9 +358,11 @@ def _mystic_stone(coll):
 
 
 # pack (#75): TreeHouse_Giant fitted by its trunk to this trunk (r 2.6), so X1010000_TreePods (kit art) still grow out
-# of it and the door stays at the trunk's front; the windows get the kit's lit M_Window back.
+# of it and the door stays at the trunk's front; the windows get the kit's lit M_Window back. The leaves stay a
+# separate <name>_Canopy part like the kit's (breakables.json placement.canopies measures it for the box sight rule).
 @asset("X1010000_GiantTree", "Architecture", footprint=12.0, tags=("house", "landmark", "tree"),
-       pack=dict(parts={"Window": ["Recessed window"]}, post=part_materials({"Window": "M_Window"}),
+       pack=dict(parts={"Window": ["Recessed window"], "Canopy": ["Sculpted leaf cloud", "Leaf light cluster"]},
+                 post=part_materials({"Window": "M_Window"}),
                  fit_nodes=(["Hollow treehouse trunk"], 2 * 2.6)))
 def _giant_tree(coll):
     """Amherst's giant tree-house (the kit TreeHouse_Giant trunk) under a trimmed canopy: radius 5.0 m instead of
