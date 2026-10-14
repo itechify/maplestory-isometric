@@ -390,7 +390,7 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
 `src/misostory/test_art_pack_kit.py` (`"$B" -b --factory-startup --python src/misostory/test_art_pack_kit.py`).
 
 - **Which assets.** `art_pack.CATEGORIES` lists the kit categories built from the pack (today `Trees`, `Foliage`
-  (#72), `Architecture`, `Rocks`, `Terrain` (#74)).
+  (#72), `Props`, `Markers` (#73), `Architecture`, `Rocks`, `Terrain` (#74)).
   A catalog name of such a category is built by `kit.ensure(name)` from its pack GLB instead of its procedural
   `@asset` builder. Its name, category, footprint, tags and outline stay the registry's, so placement, lookups and
   the export's collision classes (`instance_rule`) are unchanged. Per-map `X<mapid>_*` landmarks never swap here
@@ -411,10 +411,14 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   `art_pack.SHADE_BOTTOM` = 0.6 of the color (sRGB) at the bottom of the object to the color at its top. One
   material keeps an asset one surface (one draw call in Godot) however many colors the pack gave it. Glow is never
   in the pack: an asset that glows (portals, lamps, windows) must get its kit glow material back on purpose,
-  through a `parts` split and a `post` hook that assigns it: `art_pack.part_materials({suffix: material})` makes
-  that hook (the houses' `Window` part takes `M_Window` and their `Lamp` part `M_Glow_window`; the clouds keep
-  `M_Cloud`'s soft glow and `Mountain_Hill` the meadow painting `M_Hill`). The kit asset's shadow setting carries
-  over: when none of its meshes casts a shadow (the clouds, the shop posts and eaves), neither do the pack parts.
+  through a `parts` split and a `post` hook that assigns it: `post=art_pack.kit_materials(Glow="M_Glow_window")`
+  gives the part `<name>_Glow` that kit material (the lamps' and lanterns' glass, `props.LAMP_GLOW`; the portals'
+  arch, rings and light bars get `M_Portal_Ring` / `M_Portal_Core`, so exits glow as before), and
+  `art_pack.part_materials({suffix: material})` does the same but skips a suffix the asset has no part for, so one
+  spec serves a family of models (the houses' `Window` part takes `M_Window` and their `Lamp` part `M_Glow_window`;
+  the clouds keep `M_Cloud`'s soft glow and `Mountain_Hill` the meadow painting `M_Hill`). The kit asset's shadow
+  setting carries over: when none of its meshes casts a shadow (the clouds, the shop posts and eaves), neither do
+  the pack parts.
 - **Size.** The parts are joined into one object named after the asset (fewer nodes), then scaled
   **uniformly** so the largest horizontal size equals the procedural asset's (its builder is run once to measure
   it, then thrown away; `art_pack.reference(name, info)`), and stood on z = 0 with the pack's own horizontal pivot.
@@ -440,9 +444,13 @@ architecture, rocks and terrain). The code is `src/misostory/kit/art_pack.py`; i
   `Hedge_Wall_4m` runs 0..4 m along +X (`align_xy="kit"`), `Mushroom_Cluster_A` lies along Y in the pack
   (`rot_z=-90`), `Stump_A` fits the kit stump's body, not its splayed roots (`scale_mul=0.6`), and the broadleaf
   and birch trees draw their roots in to the kit tree's reach (`nature.TREE_PACK`; the birches also slim their
-  trunks to the kit birch's, `nature.BIRCH_PACK`). The kit's non-uniform placements rely on the kit mesh's frame
-  (fences scale along X from the origin, mountains are unit-radius); match that frame with these keys. #74's
-  architecture, rocks and terrain:
+  trunks to the kit birch's, `nature.BIRCH_PACK`). Props and markers (#73): a slim pack model whose kit asset is
+  wide fits the kit's height instead (`Lamp_Post`, `Market_Stall`, `NPC_Beacon`: `fit="z"`; fitting the lamp arm's
+  width made a 4.4 m lamp), `Bed` and `Cart` run along Y in the pack (`rot_z=90`: headboard at -X, shafts to +X),
+  `Hanging_Lantern` hangs from its hook (`anchor_z="kit_top"`), and a hard-surface prop whose look a collapse to the
+  kit's few triangles broke keeps more where few are placed (`Treasure_Chest`, `Cart`: `max_tris`). The kit's
+  non-uniform placements rely on the kit mesh's frame (fences scale along X from the origin, mountains are
+  unit-radius); match that frame with these keys. #74's architecture, rocks and terrain:
   - the fences run 0..2 m along +X (`align_xy="kit"`); the mountains fill the unit-radius kit frame at the kit
     height (`fit="box"`, `terrain.MOUNTAIN_PACK`), and the clouds the kit cloud's box (`fit="bbox"`: squashed sea
     layers of the slim pack cloud read as white petals);

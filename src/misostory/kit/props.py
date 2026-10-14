@@ -7,6 +7,11 @@ from mathutils import Vector
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
+from .art_pack import kit_materials
+
+# Built from the pinned art pack (kit/art_pack.py, docs/AUTHORING.md section 9); pack= are the per-asset exceptions.
+# The pack's lamp glass goes back into the kit's glowing window material (the pack has no emission).
+LAMP_GLOW = dict(parts={"Glow": ["Amber lamp glass"]}, post=kit_materials(Glow="M_Glow_window"))
 
 
 @asset("Crate", "Props", footprint=1.0, tags=("prop",))
@@ -19,7 +24,8 @@ def crate(coll):
     mb.build("Crate", coll, smooth=False)
 
 
-@asset("Crate_Stack", "Props", footprint=1.8, tags=("prop",))
+# pack: the kit stack starts at its origin crate and runs along +X; the pack stack is centred
+@asset("Crate_Stack", "Props", footprint=1.8, tags=("prop",), pack=dict(align_xy="kit"))
 def crate_stack(coll):
     mb = MeshBuilder()
     for (x, y, z, r) in ((0, 0, 0, 0), (0.95, 0.1, 0, 8), (0.45, 0.05, 0.9, -12)):
@@ -49,7 +55,8 @@ def sack(coll):
     mb.build("Sack", coll, smooth=True)
 
 
-@asset("Lamp_Post", "Props", footprint=0.6, tags=("prop", "light"))
+# pack: a slim centred post; fitting the kit lamp's arm width made it 4.4 m tall, so it fits the kit height
+@asset("Lamp_Post", "Props", footprint=0.6, tags=("prop", "light"), pack=dict(LAMP_GLOW, fit="z"))
 def lamp_post(coll):
     mb = MeshBuilder()
     mb.cyl(0.25, 0.3, mat="M_StoneWall", verts=8, r2=0.2)
@@ -95,7 +102,9 @@ def well(coll):
     mb.build("Well", coll, smooth=False)
 
 
-@asset("Cart", "Props", footprint=2.5, tags=("prop",))
+# pack: the cart runs along Y with its handles at -Y; the kit cart's shafts point to +X. Decimated to the kit's 216
+# triangles its wheels went octagonal; 3 placed, so it keeps more
+@asset("Cart", "Props", footprint=2.5, tags=("prop",), pack=dict(rot_z=90, max_tris=700))
 def cart(coll):
     mb = MeshBuilder()
     mb.box((2.0, 1.2, 0.5), loc=(0, 0, 0.85), mat="M_Plank", bevel=0.04, segs=1)
@@ -109,7 +118,9 @@ def cart(coll):
     mb.build("Cart", coll, smooth=True, sharp_angle=40)
 
 
-@asset("Haystack", "Props", footprint=1.6, tags=("prop", "farm"))
+# pack: the kit haystack's width is the loose straw at its foot (2.8 m), its body 1.9 m; the solid pack stack fitted to
+# the straw blocked route EastYard in Tomato Field, so 0.7 gives the kit body (2 m across, 1.5 m tall)
+@asset("Haystack", "Props", footprint=1.6, tags=("prop", "farm"), pack=dict(scale_mul=0.7))
 def haystack(coll):
     """Tapered straw stack with binding bands, a ragged top tuft and loose straw at the foot."""
     r = core.rng("hay", 1)
@@ -170,7 +181,8 @@ def tomato_giant(coll):
     mb.build("Tomato_Giant", coll, smooth=True, sharp_angle=60)
 
 
-@asset("Market_Stall", "Props", footprint=3.0, tags=("prop", "town"))
+# pack: a narrow, tall stall; fitting the kit stall's 3.2 m width made it 3.9 m tall, so it fits the kit height
+@asset("Market_Stall", "Props", footprint=3.0, tags=("prop", "town"), pack=dict(fit="z"))
 def market_stall(coll):
     mb = MeshBuilder()
     mb.box((2.6, 1.2, 0.9), loc=(0, 0, 0.45), mat="M_Plank", bevel=0.05, segs=1)
@@ -186,7 +198,8 @@ def market_stall(coll):
     mb.build("Market_Stall", coll, smooth=True, sharp_angle=40)
 
 
-@asset("Signpost_Notice", "Props", footprint=1.0, tags=("prop",))
+# pack (noticeboard.glb, shared with Sign_Board): a wide gabled board, only 1.3 m tall at the kit width; x1.2
+@asset("Signpost_Notice", "Props", footprint=1.0, tags=("prop",), pack=dict(scale_mul=1.2))
 def notice(coll):
     mb = MeshBuilder()
     mb.box((0.15, 0.15, 1.6), loc=(0, 0, 0.8), mat="M_Wood")
@@ -224,7 +237,8 @@ def lifebuoy(coll):
     mb.build("Lifebuoy", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Treasure_Chest", "Props", footprint=1.0, tags=("prop",))
+# pack (chest.glb): decimated to the kit's 124 triangles its lid collapsed into a lump; 3 placed, so it keeps them all
+@asset("Treasure_Chest", "Props", footprint=1.0, tags=("prop",), pack=dict(max_tris=560))
 def chest(coll):
     mb = MeshBuilder()
     mb.box((1.0, 0.65, 0.55), loc=(0, 0, 0.28), mat="M_Wood", bevel=0.05, segs=1)
@@ -303,7 +317,8 @@ def weapon_rack(coll):
     mb.build("Weapon_Rack", coll, smooth=False)
 
 
-@asset("Armor_Stand", "Props", footprint=1.0, tags=("interior",))
+# pack: a mannequin with wide shoulder plates, 1.2 m tall at the kit width; fitted to 0.85 of the kit height instead
+@asset("Armor_Stand", "Props", footprint=1.0, tags=("interior",), pack=dict(fit="z", scale_mul=0.85))
 def armor_stand(coll):
     mb = MeshBuilder()
     mb.cyl(0.35, 0.1, mat="M_Wood_Dark", verts=10)
@@ -331,7 +346,8 @@ def table_round(coll):
     mb.build("Table_Round", coll, smooth=False)
 
 
-@asset("Hanging_Lantern", "Props", footprint=0.4, tags=("interior", "light"))
+# pack: the lantern stands on z = 0; the kit lantern hangs from its origin (the hook)
+@asset("Hanging_Lantern", "Props", footprint=0.4, tags=("interior", "light"), pack=dict(LAMP_GLOW, anchor_z="kit_top"))
 def hanging_lantern(coll):
     mb = MeshBuilder()
     mb.cyl(0.05, 0.62, loc=(0, 0, -0.62), mat="M_Metal", verts=6)
