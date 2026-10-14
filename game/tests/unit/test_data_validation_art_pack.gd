@@ -63,5 +63,5 @@ func test_the_installed_pack_covers_every_required_id() -> void:
 		print("SKIP test_the_installed_pack_covers_every_required_id: no art pack installed (bash scripts/art_pack.sh fetch)")
 		return
 	var report := DataValidator.validate(db(), {"art_pack": art})
-	assert_eq(_art_errors(report), [] as Array[Dictionary], "art-pack-v1.0 covers 21 NPCs, 6 monsters, 94 items, the box, 123 kit names, 2 presets, 6 hair styles, 3 faces and 40 wearables")
+	assert_eq(_art_errors(report), [] as Array[Dictionary], "the pinned pack covers 21 NPCs, 6 monsters, 94 items, the box, 123 kit names, 2 presets, 6 hair styles, 3 faces and 40 wearables")
 	assert_eq(report.stats.get("art_pack", ""), ArtPack.COVERED, "the summary says covered")

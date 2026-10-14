@@ -218,7 +218,8 @@ Gameplay is unchanged: the touch zone, the stats, the attack boxes and the spawn
 (still the sprite height, `SpawnSlotPlanner.species_body_heights`, WORLD_RUNTIME) do not read the visual. The HP bar
 and the damage numbers follow the fitted height (`height_m`).
 `bash scripts/godot.sh --path game --resolution 1600x900 --disable-vsync res://scenes/sandbox/monster_sandbox.tscn --
---map 000001010 --showcase <dir>` shoots every species' states.
+--map 000001010 --showcase <dir>` shoots every species' states; `--species 1` limits it to some ids and `--touch`
+draws each one's touch zone as a translucent red box (`docs/images/art-pack/v1_1_sentinel.jpg`).
 
 **Proxies.** The proxies from `_library.glb` (Snail, Blue Snail, Red Snail, Shroom, Orange Mushroom, and since Iteration Three the
 Tutorial Jr. Sentinel: `Mob_TutorialJrSentinel`, a small stone sentinel with one glowing eye, `src/misostory/kit/

@@ -1,9 +1,11 @@
 """Package Jarvis's art-pack delivery ZIPs into the pinned release asset (ADR 0002, docs/adr/0002-pinned-art-pack.md).
 
     PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"   # Linux: PY=python3; or: py
-    "$PY" -I tools/art_pack/build_release.py --tag art-pack-v1.0 --out-dir <new empty dir outside the repo> <zips...>
+    "$PY" -I tools/art_pack/build_release.py --tag art-pack-v1.1 --out-dir <new empty dir outside the repo> <zips...>
 
-The delivery is untrusted data: this script only reads the ZIPs' bytes (it never extracts to disk and never runs any of
+The ZIPs are one complete, non-conflicting delivery: Jarvis's part ZIPs, or a single ZIP of a source copy a correction
+patch was merged into (v1.1). Never pass a full delivery and a patch together: a path whose bytes differ between ZIPs
+is refused. The delivery is untrusted data: this script only reads the ZIPs' bytes (it never extracts to disk and never runs any of
 the pack's code), so run it with -I, from outside the pack. It writes into --out-dir:
 
     MisoStory_Art_Pack_<version>.zip   the release asset (upload with gh release create/upload)
@@ -30,15 +32,10 @@ REFERENCE_DIR = "reference/"
 CODE_EXTENSIONS = (".py", ".gd", ".sh", ".bat")
 FIXED_TIME = (2026, 10, 13, 0, 0, 0)
 
-# Paths renamed by our packaging. v1.0 ships Bed.glb (the catalog's Bed) and bed.glb (a generic first-batch prop)
-# side by side, which collide on case-insensitive file systems (#61 fixes it upstream in v1.1; owner ruling on #62).
-RENAMES = {
-    "environment/glb/bed.glb": (
-        "environment/glb/bed_single.glb",
-        "Bed.glb and bed.glb differ only in case and collide on Windows and macOS; the catalog mapping uses Bed.glb, "
-        "so the generic 1.2 x 2.0 m prop 'bed' is shipped as bed_single.glb (bytes and SHA-256 unchanged).",
-    ),
-}
+# Paths renamed by our packaging: {old: (new, reason)}; every JSON naming the old path is rewritten. Empty since v1.1:
+# art-pack-v1.0 renamed environment/glb/bed.glb to bed_single.glb (it collided with Bed.glb on case-insensitive file
+# systems), and Jarvis's v1.1 correction ships it under that name.
+RENAMES = {}
 
 
 class PackagingError(Exception):
@@ -71,7 +68,7 @@ def classify(path):
         return "keep"
     if ext in CODE_EXTENSIONS:
         return "reference"
-    if ext == ".png" and (path.startswith("icons/") or "/icons/" in path):
+    if ext == ".png" and path.startswith(("icons/", "monsters/icons/")):
         return "keep"
     return None
 
@@ -86,8 +83,10 @@ def _rewrite_json(text, renames):
     return out
 
 
-def build(zip_paths, out_path, tag):
-    """Package the delivery ZIPs into out_path. Returns {path, bytes, sha256, files: [{path, bytes, sha256}]}."""
+def build(zip_paths, out_path, tag, renames=None):
+    """Package the delivery ZIPs into out_path. Returns {path, bytes, sha256, files: [{path, bytes, sha256}]}.
+    renames defaults to RENAMES."""
+    renames = RENAMES if renames is None else renames
     files = {}
     left_out = set()
     sources = []
@@ -110,7 +109,7 @@ def build(zip_paths, out_path, tag):
                 files[rel] = data
 
     renamed = []
-    for old, (new, reason) in sorted(RENAMES.items()):
+    for old, (new, reason) in sorted(renames.items()):
         if old not in files:
             continue
         if new in files:

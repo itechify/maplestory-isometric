@@ -106,7 +106,7 @@ Name releases `v<major>.<minor>-<short-name>` (for example `v0.1-iteration-one`)
 
 The game's models and icons come from Jarvis's 3D asset pack (**Project art**), pinned as a GitHub Release asset and
 never committed (ADR 0002, `docs/adr/0002-pinned-art-pack.md`). Art packs have their own tags,
-**`art-pack-v<major>.<minor>`** (for example `art-pack-v1.0`), separate from the game's `v<major>.<minor>-<name>`
+**`art-pack-v<major>.<minor>`** (the pinned one is the `release` block of `game/data/misostory/art_pack.json`), separate from the game's `v<major>.<minor>-<name>`
 milestones. An art-pack release holds one asset, `MisoStory_Art_Pack_v<major>.<minor>.zip`, and is published with
 `--latest=false` so it never displaces the latest game release.
 
@@ -122,23 +122,34 @@ a verified install alone so Godot does not re-import it. Without the pack the ga
 placeholders, and `NO_ART_PACK=1` leaves it out of the isolated copies of `test.sh`, `validate_data.sh` and
 `playtest.sh`. Godot normalises every pack model as it imports it (`game/scripts/core/art/art_import.gd`).
 
-**Bumping the pinned version** when Jarvis delivers a new pack (for example v1.1 from #61):
+**Bumping the pinned version** when Jarvis delivers a new pack (`<v>` below is the new version, for example 1.2):
 
 1. Download the delivery's ZIPs into a new, empty directory outside the repo. They are untrusted data: never run
    their scripts or open their `.blend` files.
+   - A **correction patch** (an overlay of changed files, like v1.1) is not a delivery on its own. Extract the
+     current source (the previous delivery's ZIPs) into a fresh directory, apply the patch there with its
+     checksum-checked installer or by hand (each file's before/after SHA-256 checked against its manifest), move any
+     backup the installer leaves out of the pack folder, and ZIP the merged folder (one `MisoStory_Asset_Pack/` root).
+     That one ZIP is the delivery: never pass the original ZIPs and a patch together, since a path whose bytes
+     differ between ZIPs is refused. v1.1 was built this way (`project_art.corrections` in the pin records it).
 2. Package the runtime subset into another new, empty directory (Python run isolated, from outside the delivery):
    ```bash
-   "$PY" -I tools/art_pack/build_release.py --tag art-pack-v1.1 --out-dir <out> <delivery>/*.zip
+   "$PY" -I tools/art_pack/build_release.py --tag art-pack-v<v> --out-dir <out> <delivery>/*.zip
    ```
-   Remove an entry from `RENAMES` in `build_release.py` once the delivery fixes what it worked around (v1.1 drops the
-   `bed.glb` rename), and keep `"$PY" -I tools/art_pack/test_build_release.py` passing.
-3. Publish: `gh release create art-pack-v1.1 <out>/MisoStory_Art_Pack_v1.1.zip --latest=false --title "..." --notes "..."`.
-4. Copy `<out>/art-pack-v1.1.files.tsv` to `tools/art_pack/`, delete the old manifest, and update the `release` block
+   Add an entry to `RENAMES` in `build_release.py` only to work around a delivery defect (art-pack-v1.0 renamed the
+   lowercase `bed.glb`; v1.1 fixed it at the source and the entry went), remove it once the delivery fixes it, and
+   keep `"$PY" -I tools/art_pack/test_build_release.py` passing. Check the new `<tag>.files.tsv` against the old one
+   (every model and icon still there, only the expected files changed).
+3. Publish: `gh release create art-pack-v<v> <out>/MisoStory_Art_Pack_v<v>.zip --latest=false --title "..." --notes "..."`.
+4. Copy `<out>/art-pack-v<v>.files.tsv` to `tools/art_pack/`, delete the old manifest, and update the `release` block
    of `game/data/misostory/art_pack.json` (tag, asset, `asset_bytes`, `asset_sha256`, url, `checksum_manifest`) and
-   its `project_art` record (delivery, packaging changes).
+   its `project_art` record (delivery, packaging changes, corrections).
 5. `bash scripts/art_pack.sh fetch`, then `bash scripts/validate_data.sh --report` (the coverage check, and the
    regenerated provenance report records the new tag), `bash scripts/test.sh art_` and the performance baseline
-   check (`docs/runtime/PERF_BASELINE.md`). Commit the pin, the manifest and the regenerated docs together.
+   check (`docs/runtime/PERF_BASELINE.md`). Commit the pin, the manifest and the regenerated docs together. A changed
+   model or icon may keep its old import in an existing `.godot/` cache: run checks in fresh `ISOLATE` copies, and
+   delete `game/.godot/imported/` before running from `game/` itself. Rebuild the island (`build_runtime.sh`
+   rebuilds it when the pin is newer than `MapleIsland.blend`) when a kit model changed.
 
 ## If binaries ever need to live in the repo
 

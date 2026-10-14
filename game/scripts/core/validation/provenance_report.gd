@@ -109,7 +109,8 @@ static func build(db: ContentDB, validation: ValidationReport) -> Dictionary:
 
 
 ## The pinned art pack (data/misostory/art_pack.json; ADR 0002): which Project art the game uses, who made it, the
-## Release tag and asset checksum, the checksum manifest, and what our packaging changed. Empty when there is no pin.
+## Release tag and asset checksum, the checksum manifest, what our packaging changed and the correction patches merged
+## into the delivery before packaging. Empty when there is no pin.
 static func project_art_of(db: ContentDB) -> Dictionary:
 	var pin: Variant = db.miso_table("art_pack")
 	if not (pin is Dictionary):
@@ -123,6 +124,7 @@ static func project_art_of(db: ContentDB) -> Dictionary:
 		"tag": release.get("tag", null), "asset": release.get("asset", null), "url": release.get("url", null),
 		"asset_sha256": release.get("asset_sha256", null), "checksum_manifest": release.get("checksum_manifest", null),
 		"packaged_by": art.get("packaged_by", null), "packaging_changes": art.get("packaging_changes", []),
+		"corrections": art.get("corrections", []),
 	}
 
 
@@ -317,6 +319,9 @@ static func to_markdown(doc: Dictionary) -> String:
 		for change in art.packaging_changes:
 			L.append("| Packaging change | `%s` -> `%s` (SHA-256 `%s` unchanged): %s |" % [_s(change.get("from")), _s(change.get("to")),
 				_s(change.get("file_sha256")), _esc(change.get("why"))])
+		for fix in art.corrections:
+			L.append("| Correction %s | %s, %s (%s; patch SHA-256 `%s`): %s |" % [_s(fix.get("version")), _esc(fix.get("delivered")),
+				_esc(fix.get("by")), _s(fix.get("ticket")), _s(fix.get("patch_sha256")), _esc(fix.get("what"))])
 		L.append("")
 	L.append("## Records")
 	L.append("")

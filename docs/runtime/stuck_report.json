@@ -1,12 +1,12 @@
 {
   "generated_by": "game/tools/stuck_scan_tool.tscn",
-  "generated_at": "2026-10-14T03:24:22Z",
+  "generated_at": "2026-10-14T16:49:10Z",
   "engine": "4.7.2-stable (official)",
   "verified": true,
   "maps_requested": [
     "all"
   ],
-  "build_ms": 1121,
+  "build_ms": 1119,
   "allowlist": "game/data/misostory/stuck_allowlist.json",
   "params": {
     "cell_m": 0.35,
@@ -30,10 +30,10 @@
   },
   "totals": {
     "maps": 25,
-    "nodes": 490870,
-    "certain_edges": 3621347,
-    "into_edges": 2937086,
-    "reachable": 373580,
+    "nodes": 490975,
+    "certain_edges": 3622379,
+    "into_edges": 2940009,
+    "reachable": 373681,
     "flagged": 472,
     "components": 35,
     "confirmed": 0,
@@ -46,7 +46,7 @@
     "fall_outs": 4939,
     "outside_regions": 160,
     "outside_regions_escapable": 0,
-    "ms": 92182
+    "ms": 77542
   },
   "traps": [],
   "unreviewed_unenterable": [],
@@ -64,9 +64,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 256,
-      "edges_ms": 617,
-      "ms": 945,
+      "sample_ms": 252,
+      "edges_ms": 554,
+      "ms": 863,
       "rays": 60891,
       "shape_queries": 30110,
       "sweeps": 117413,
@@ -90,9 +90,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 433,
-      "edges_ms": 1062,
-      "ms": 1614,
+      "sample_ms": 381,
+      "edges_ms": 798,
+      "ms": 1287,
       "rays": 76254,
       "shape_queries": 47561,
       "sweeps": 167790,
@@ -116,9 +116,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 386,
-      "edges_ms": 755,
-      "ms": 1259,
+      "sample_ms": 441,
+      "edges_ms": 880,
+      "ms": 1450,
       "rays": 101124,
       "shape_queries": 45977,
       "sweeps": 146446,
@@ -142,9 +142,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 191,
-      "sample_ms": 27,
-      "edges_ms": 140,
-      "ms": 179,
+      "sample_ms": 20,
+      "edges_ms": 137,
+      "ms": 169,
       "rays": 6184,
       "shape_queries": 2795,
       "sweeps": 30515,
@@ -273,7 +273,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [38.46, 2.6, -13.65])",
-          "verify_ms": 712,
+          "verify_ms": 633,
           "in_edges": [
             {
               "kind": "slide",
@@ -440,9 +440,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 452,
-      "edges_ms": 1099,
-      "ms": 1681,
+      "sample_ms": 468,
+      "edges_ms": 967,
+      "ms": 1563,
       "rays": 107093,
       "shape_queries": 53648,
       "sweeps": 214546,
@@ -490,7 +490,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [-0.19, 1.2, -16.21])",
-          "verify_ms": 81,
+          "verify_ms": 74,
           "in_edges": [
             {
               "kind": "slide",
@@ -607,9 +607,9 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 766,
-      "edges_ms": 1623,
-      "ms": 2641,
+      "sample_ms": 702,
+      "edges_ms": 1368,
+      "ms": 2287,
       "rays": 202411,
       "shape_queries": 85325,
       "sweeps": 278449,
@@ -649,9 +649,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 651,
-      "sample_ms": 1617,
-      "edges_ms": 2309,
-      "ms": 4235,
+      "sample_ms": 1480,
+      "edges_ms": 2019,
+      "ms": 3767,
       "rays": 376766,
       "shape_queries": 128886,
       "sweeps": 366320,
@@ -780,7 +780,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [15.39, 9.18, -38.12])",
-          "verify_ms": 10,
+          "verify_ms": 7,
           "in_edges": [
             {
               "kind": "drop",
@@ -886,7 +886,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 143,
+          "verify_ms": 92,
           "in_edges": [
             {
               "kind": "slide",
@@ -970,7 +970,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 598,
+          "verify_ms": 687,
           "in_edges": [
             {
               "kind": "slide",
@@ -1054,7 +1054,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 79,
+          "verify_ms": 115,
           "in_edges": [
             {
               "kind": "slide",
@@ -1138,7 +1138,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 182,
+          "verify_ms": 141,
           "in_edges": [
             {
               "kind": "slide",
@@ -1199,9 +1199,9 @@
         }
       ],
       "fall_outs": 1500,
-      "sample_ms": 2832,
-      "edges_ms": 2750,
-      "ms": 6050,
+      "sample_ms": 2123,
+      "edges_ms": 1799,
+      "ms": 4213,
       "rays": 550918,
       "shape_queries": 176943,
       "sweeps": 322818,
@@ -1330,7 +1330,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [38.18, 2.96, -12.96])",
-          "verify_ms": 614,
+          "verify_ms": 489,
           "in_edges": [
             {
               "kind": "slide",
@@ -1414,7 +1414,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 991,
+          "verify_ms": 753,
           "in_edges": [
             {
               "kind": "slide",
@@ -1476,10 +1476,10 @@
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 2094,
-      "edges_ms": 2148,
-      "ms": 4585,
-      "rays": 329693,
+      "sample_ms": 1571,
+      "edges_ms": 1948,
+      "ms": 3753,
+      "rays": 329689,
       "shape_queries": 139022,
       "sweeps": 268835,
       "name": "A Split Road",
@@ -1512,8 +1512,8 @@
     },
     "000000060": {
       "nodes": 32125,
-      "certain_edges": 230425,
-      "into_edges": 290066,
+      "certain_edges": 230430,
+      "into_edges": 289876,
       "refined_jumps": 31,
       "entries": 431,
       "exits": 127,
@@ -1547,7 +1547,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [77.56, 7.2, 0.99])",
-          "verify_ms": 84,
+          "verify_ms": 70,
           "in_edges": [
             {
               "kind": "slide",
@@ -1653,7 +1653,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [60.83, 7.98, -25.89])",
-          "verify_ms": 15,
+          "verify_ms": 11,
           "in_edges": [
             {
               "kind": "slide",
@@ -1701,7 +1701,7 @@
           "samples": [
             {
               "escaped": true,
-              "how": "via local [60.7, 5.6, -25.56] toward local [61.48, 5.6, -25.61], jump hold from local [60.7, 5.6, -25.56]: stands on escapable ground at local [61.93, 5.6, -25.49]",
+              "how": "via local [60.7, 5.6, -25.56] toward local [61.48, 5.6, -25.61], jump hold from local [60.7, 5.6, -25.56]: stands on escapable ground at local [61.87, 5.6, -25.46]",
               "tries": 1,
               "start_local": [
                 60.7,
@@ -1714,12 +1714,12 @@
         }
       ],
       "fall_outs": 183,
-      "sample_ms": 2758,
-      "edges_ms": 4468,
-      "ms": 7694,
-      "rays": 387120,
-      "shape_queries": 216420,
-      "sweeps": 566896,
+      "sample_ms": 2000,
+      "edges_ms": 3310,
+      "ms": 5623,
+      "rays": 387122,
+      "shape_queries": 216421,
+      "sweeps": 566508,
       "name": "Southperry",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -1845,7 +1845,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [12.25, 1.91, -7.85])",
-          "verify_ms": 148,
+          "verify_ms": 111,
           "in_edges": [
             {
               "kind": "drop",
@@ -1951,7 +1951,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 171,
+          "verify_ms": 128,
           "in_edges": [
             {
               "kind": "slide",
@@ -2012,9 +2012,9 @@
         }
       ],
       "fall_outs": 324,
-      "sample_ms": 27,
-      "edges_ms": 198,
-      "ms": 254,
+      "sample_ms": 16,
+      "edges_ms": 158,
+      "ms": 191,
       "rays": 5265,
       "shape_queries": 2549,
       "sweeps": 30798,
@@ -2143,7 +2143,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 673,
+          "verify_ms": 500,
           "in_edges": [
             {
               "kind": "slide",
@@ -2228,7 +2228,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [66.77, 1.19, -17.46])",
-          "verify_ms": 18,
+          "verify_ms": 12,
           "in_edges": [
             {
               "kind": "slide",
@@ -2334,7 +2334,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 645,
+          "verify_ms": 458,
           "in_edges": [
             {
               "kind": "slide",
@@ -2419,7 +2419,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [32.94, 3.88, -27.46])",
-          "verify_ms": 9,
+          "verify_ms": 6,
           "in_edges": [
             {
               "kind": "drop",
@@ -2503,7 +2503,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 924,
+          "verify_ms": 656,
           "in_edges": [
             {
               "kind": "slide",
@@ -2565,9 +2565,9 @@
         }
       ],
       "fall_outs": 704,
-      "sample_ms": 4988,
-      "edges_ms": 4725,
-      "ms": 10805,
+      "sample_ms": 3627,
+      "edges_ms": 3386,
+      "ms": 7711,
       "rays": 749324,
       "shape_queries": 247192,
       "sweeps": 546849,
@@ -2717,7 +2717,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [29.39, 1.56, -10.02])",
-          "verify_ms": 199,
+          "verify_ms": 152,
           "in_edges": [
             {
               "kind": "drop",
@@ -2812,7 +2812,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 237,
+          "verify_ms": 181,
           "in_edges": [
             {
               "kind": "slide",
@@ -2896,7 +2896,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.28, 1.56, -0.82])",
-          "verify_ms": 5,
+          "verify_ms": 6,
           "in_edges": [
             {
               "kind": "slide",
@@ -2980,7 +2980,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (slide edge from local [30.66, 1.57, -10.05])",
-          "verify_ms": 328,
+          "verify_ms": 254,
           "in_edges": [
             {
               "kind": "slide",
@@ -3041,9 +3041,9 @@
         }
       ],
       "fall_outs": 144,
-      "sample_ms": 728,
-      "edges_ms": 1801,
-      "ms": 2691,
+      "sample_ms": 527,
+      "edges_ms": 1243,
+      "ms": 1869,
       "rays": 109307,
       "shape_queries": 46635,
       "sweeps": 208869,
@@ -3148,9 +3148,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 55,
-      "sample_ms": 975,
-      "edges_ms": 1445,
-      "ms": 2561,
+      "sample_ms": 730,
+      "edges_ms": 1054,
+      "ms": 1886,
       "rays": 139074,
       "shape_queries": 59032,
       "sweeps": 186886,
@@ -3280,7 +3280,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 575,
+          "verify_ms": 419,
           "in_edges": [
             {
               "kind": "slide",
@@ -3365,7 +3365,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (slide edge from local [32.23, 11.57, -25.08])",
-          "verify_ms": 13,
+          "verify_ms": 10,
           "in_edges": [
             {
               "kind": "slide",
@@ -3449,7 +3449,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "creep (drop edge from local [26.03, 12.81, -30.27])",
-          "verify_ms": 72,
+          "verify_ms": 46,
           "in_edges": [
             {
               "kind": "drop",
@@ -3510,9 +3510,9 @@
         }
       ],
       "fall_outs": 56,
-      "sample_ms": 905,
-      "edges_ms": 1134,
-      "ms": 2148,
+      "sample_ms": 707,
+      "edges_ms": 830,
+      "ms": 1620,
       "rays": 173265,
       "shape_queries": 59926,
       "sweeps": 156584,
@@ -3606,8 +3606,8 @@
     },
     "000001004": {
       "nodes": 11461,
-      "certain_edges": 81823,
-      "into_edges": 99720,
+      "certain_edges": 81824,
+      "into_edges": 99662,
       "refined_jumps": 6,
       "entries": 257,
       "exits": 96,
@@ -3617,12 +3617,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 2,
-      "sample_ms": 1208,
-      "edges_ms": 1678,
-      "ms": 3037,
-      "rays": 196246,
-      "shape_queries": 75540,
-      "sweeps": 198890,
+      "sample_ms": 942,
+      "edges_ms": 1159,
+      "ms": 2190,
+      "rays": 196237,
+      "shape_queries": 75539,
+      "sweeps": 198771,
       "name": "Snail Garden",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -3678,7 +3678,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [-0.41, 5.33, -16.45])",
-          "verify_ms": 494,
+          "verify_ms": 339,
           "in_edges": [
             {
               "kind": "drop",
@@ -3739,9 +3739,9 @@
         }
       ],
       "fall_outs": 0,
-      "sample_ms": 802,
-      "edges_ms": 2077,
-      "ms": 3061,
+      "sample_ms": 608,
+      "edges_ms": 1524,
+      "ms": 2252,
       "rays": 119812,
       "shape_queries": 56690,
       "sweeps": 257413,
@@ -3789,7 +3789,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 589,
+          "verify_ms": 421,
           "in_edges": [
             {
               "kind": "slide",
@@ -3851,9 +3851,9 @@
         }
       ],
       "fall_outs": 302,
-      "sample_ms": 1463,
-      "edges_ms": 2468,
-      "ms": 4191,
+      "sample_ms": 1442,
+      "edges_ms": 1804,
+      "ms": 3411,
       "rays": 181139,
       "shape_queries": 78517,
       "sweeps": 289935,
@@ -3979,9 +3979,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 54,
-      "sample_ms": 2451,
-      "edges_ms": 3408,
-      "ms": 6428,
+      "sample_ms": 1856,
+      "edges_ms": 3218,
+      "ms": 5661,
       "rays": 428871,
       "shape_queries": 150109,
       "sweeps": 462581,
@@ -4086,9 +4086,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 323,
-      "sample_ms": 18,
-      "edges_ms": 202,
-      "ms": 238,
+      "sample_ms": 26,
+      "edges_ms": 226,
+      "ms": 267,
       "rays": 5511,
       "shape_queries": 2719,
       "sweeps": 33825,
@@ -4183,7 +4183,7 @@
     "000001012": {
       "nodes": 7636,
       "certain_edges": 52417,
-      "into_edges": 73953,
+      "into_edges": 73945,
       "refined_jumps": 1,
       "entries": 53,
       "exits": 178,
@@ -4193,12 +4193,12 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 0,
-      "sample_ms": 309,
-      "edges_ms": 967,
-      "ms": 1337,
+      "sample_ms": 339,
+      "edges_ms": 1085,
+      "ms": 1514,
       "rays": 45532,
       "shape_queries": 20930,
-      "sweeps": 144807,
+      "sweeps": 144799,
       "name": "Amherst Townstreet",
       "kill_y_local": -7.34,
       "fall_out_samples_local": [],
@@ -4243,7 +4243,7 @@
           "verdict": "CLEARED",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 182,
+          "verify_ms": 226,
           "in_edges": [
             {
               "kind": "slide",
@@ -4304,9 +4304,9 @@
         }
       ],
       "fall_outs": 401,
-      "sample_ms": 29,
-      "edges_ms": 183,
-      "ms": 228,
+      "sample_ms": 28,
+      "edges_ms": 236,
+      "ms": 281,
       "rays": 5179,
       "shape_queries": 2554,
       "sweeps": 33299,
@@ -4411,9 +4411,9 @@
       "flagged": 0,
       "components": [],
       "fall_outs": 35,
-      "sample_ms": 880,
-      "edges_ms": 1598,
-      "ms": 2620,
+      "sample_ms": 939,
+      "edges_ms": 1811,
+      "ms": 2920,
       "rays": 142267,
       "shape_queries": 61844,
       "sweeps": 233402,
@@ -4508,7 +4508,7 @@
     "000001020": {
       "nodes": 18249,
       "certain_edges": 133577,
-      "into_edges": 125694,
+      "into_edges": 125688,
       "refined_jumps": 6,
       "entries": 335,
       "exits": 163,
@@ -4542,7 +4542,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 744,
+          "verify_ms": 830,
           "in_edges": [
             {
               "kind": "slide",
@@ -4627,7 +4627,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 525,
+          "verify_ms": 550,
           "in_edges": [
             {
               "kind": "slide",
@@ -4712,7 +4712,7 @@
           "verdict": "UNENTERABLE",
           "entered": false,
           "enter_how": "",
-          "verify_ms": 483,
+          "verify_ms": 582,
           "in_edges": [
             {
               "kind": "slide",
@@ -4774,12 +4774,12 @@
         }
       ],
       "fall_outs": 3,
-      "sample_ms": 1466,
-      "edges_ms": 1665,
-      "ms": 3307,
+      "sample_ms": 1611,
+      "edges_ms": 1976,
+      "ms": 3843,
       "rays": 288163,
       "shape_queries": 112571,
-      "sweeps": 248776,
+      "sweeps": 248766,
       "name": "The Field East of Amherst",
       "kill_y_local": -6.84,
       "fall_out_samples_local": [
@@ -4804,15 +4804,15 @@
       "outside_regions_samples_local": []
     },
     "000001021": {
-      "nodes": 15824,
-      "certain_edges": 108588,
-      "into_edges": 170809,
-      "refined_jumps": 11,
+      "nodes": 15929,
+      "certain_edges": 109614,
+      "into_edges": 173994,
+      "refined_jumps": 10,
       "entries": 260,
       "exits": 60,
-      "reachable": 15362,
-      "escapable": 15608,
-      "flagged_before_refine": 650,
+      "reachable": 15463,
+      "escapable": 15713,
+      "flagged_before_refine": 647,
       "flagged": 81,
       "components": [
         {
@@ -4840,7 +4840,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [25.28, 1.27, -0.14])",
-          "verify_ms": 60,
+          "verify_ms": 84,
           "in_edges": [
             {
               "kind": "drop",
@@ -4946,7 +4946,7 @@
           "verdict": "CLEARED",
           "entered": true,
           "enter_how": "walk (drop edge from local [39.99, 1.27, -0.23])",
-          "verify_ms": 8,
+          "verify_ms": 11,
           "in_edges": [
             {
               "kind": "drop",
@@ -5029,12 +5029,12 @@
         }
       ],
       "fall_outs": 4,
-      "sample_ms": 1287,
-      "edges_ms": 1676,
-      "ms": 3124,
-      "rays": 242239,
-      "shape_queries": 91328,
-      "sweeps": 336650,
+      "sample_ms": 1450,
+      "edges_ms": 2367,
+      "ms": 4069,
+      "rays": 242215,
+      "shape_queries": 91317,
+      "sweeps": 343548,
       "name": "Tomato Field",
       "kill_y_local": -6.0,
       "fall_out_samples_local": [
@@ -5065,7 +5065,7 @@
     }
   },
   "cache": {
-    "key": "4635e83017a771d1f4a8eca29c4c3666ea94aabd758285f80430a416db973ee4",
+    "key": "ae895799d067e8aecc8e3bd1a712c1817fbc89f6ae523436f8ece3f145adf6e3",
     "maps_scanned": 25,
     "maps_from_cache": 0
   }

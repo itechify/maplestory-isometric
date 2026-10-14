@@ -77,6 +77,16 @@ Against the baseline the busiest map lost 20% of its frame rate (357 to 284 fps)
 is about unchanged (401 to 395 fps). Full equipment costs 14-53 draw calls and up to 8% fps per map. Static memory
 grew by about 6 MB and video memory by about 18-30 MB.
 
+### art-pack-v1.1 (2026-10-14, #61)
+
+The same command, plain, three runs on the same PC with nothing else running, after the bump to Jarvis's v1.1
+correction (the island rebuilt with the smaller fitted tomato plants and garden beds). **Gate: pass.** World load
+1,717 ms median (1,653-1,866 ms), 5.5% above the baseline. The busiest map runs at 286 fps (269-286). Southperry runs
+at 390 fps, A Split Road 371, Amherst 459 and Snail Hunting Ground II 421. Draw calls and primitives match the
+v1.0 numbers above to within 0.3%: 1,991 draws and 1.56 M primitives in the busiest map. The decimated garden beds keep
+their 434 triangles, and the plants their 422. A v1.0 run in the same session gave 260 fps and a 1,793 ms load, so
+the spread is run-to-run noise.
+
 ## Using it
 
 A later ticket reruns the same command on the same PC and compares: every map at least 60 fps, the world load at most

@@ -4,7 +4,8 @@
     "$PY" -I tools/art_pack/test_build_release.py
 
 Each test builds small stand-in delivery ZIPs (the shape of Jarvis's nine part ZIPs: one MisoStory_Asset_Pack/ folder
-spread over several archives) and packages them the way the real release is built.
+spread over several archives, or one ZIP of a merged and patched source) and packages them the way the real release is
+built.
 """
 
 import hashlib
@@ -34,24 +35,32 @@ def read_zip(path):
         return {i.filename: z.read(i) for i in z.infolist() if not i.is_dir()}
 
 
-INDEX = {
-    "canonical_npcs": [{"id": "1", "name": "Heena", "file": "characters/glb/Heena.glb"}],
-    "files": [
-        {"file": "environment/glb/Bed.glb", "bytes": 3, "sha256": hashlib.sha256(b"BIG").hexdigest()},
-        {"file": "environment/glb/bed.glb", "bytes": 5, "sha256": hashlib.sha256(b"small").hexdigest()},
-    ],
-}
-MANIFEST = {"assets": [{"id": "bed", "file": "glb/bed.glb"}, {"id": "Bed", "file": "glb/Bed.glb"}]}
+def index(small_bed):
+    return {
+        "canonical_npcs": [{"id": "1", "name": "Heena", "file": "characters/glb/Heena.glb"}],
+        "files": [
+            {"file": "environment/glb/Bed.glb", "bytes": 3, "sha256": hashlib.sha256(b"BIG").hexdigest()},
+            {"file": "environment/glb/" + small_bed, "bytes": 5, "sha256": hashlib.sha256(b"small").hexdigest()},
+        ],
+    }
 
 
-def delivery(tmp):
-    """Two part ZIPs, with the Bed.glb / bed.glb pair that collides on a case-insensitive file system."""
+def manifest(small_bed):
+    return {"assets": [{"id": small_bed[:-4], "file": "glb/" + small_bed}, {"id": "Bed", "file": "glb/Bed.glb"}]}
+
+
+V10_BED_RENAME = {"environment/glb/bed.glb": ("environment/glb/bed_single.glb", "case clash")}
+
+
+def delivery(tmp, small_bed="bed_single.glb"):
+    """Two part ZIPs shaped like Jarvis's delivery. v1.1 (the default) ships the generic small bed as bed_single.glb
+    beside Bed.glb; small_bed="bed.glb" gives v1.0's pair, which collides on a case-insensitive file system."""
     a = os.path.join(tmp, "Part01.zip")
     b = os.path.join(tmp, "Part04.zip")
     make_zip(a, {
         "MisoStory_Assets_Extraction_README.txt": "merge the parts",
         ROOT + "README.md": "# pack",
-        ROOT + "asset_index.json": json.dumps(INDEX, indent=2),
+        ROOT + "asset_index.json": json.dumps(index(small_bed), indent=2),
         ROOT + "build_all.py": "print('never run')",
         ROOT + "MapleIsland_Diorama.blend": b"BLEND",
         ROOT + "previews/MapleIsland_Diorama.png": b"PNG",
@@ -60,11 +69,13 @@ def delivery(tmp):
         ROOT + "characters/wardrobe_swap.gd": "class_name MisoWardrobeSwap",
         ROOT + "characters/renders/Heena.png": b"PNG",
         ROOT + "icons/equipment/item_1_Sword.png": b"ICON",
+        ROOT + "docs/v1_1/icons/inventory_pairs_before_after_32px.png": b"PREVIEW",
+        ROOT + "qa/monsters/qa_runtime/project.godot": "[application]",
     })
     make_zip(b, {
         ROOT + "environment/glb/Bed.glb": b"BIG",
-        ROOT + "environment/glb/bed.glb": b"small",
-        ROOT + "environment/manifest_complete.json": json.dumps(MANIFEST, indent=2),
+        ROOT + "environment/glb/" + small_bed: b"small",
+        ROOT + "environment/manifest_complete.json": json.dumps(manifest(small_bed), indent=2),
         ROOT + "environment/contact_props.png": b"PNG",
         ROOT + "environment/build.sh": "echo never",
         ROOT + "monsters/Snail.glb": b"SNAIL",
@@ -98,7 +109,8 @@ class Package(unittest.TestCase):
             self.assertFalse(path.endswith(".blend"), path)
             self.assertFalse(path.startswith("godot_demo/") or "/godot_demo/" in path, path)
         for path in ("previews/MapleIsland_Diorama.png", "characters/renders/Heena.png",
-                     "environment/contact_props.png", "monsters/Snail.png", "MisoStory_Assets_Extraction_README.txt"):
+                     "environment/contact_props.png", "monsters/Snail.png", "MisoStory_Assets_Extraction_README.txt",
+                     "docs/v1_1/icons/inventory_pairs_before_after_32px.png", "qa/monsters/qa_runtime/project.godot"):
             self.assertNotIn(path, self.files)
 
     def test_generator_code_is_kept_only_as_an_ignored_reference(self):
@@ -109,33 +121,26 @@ class Package(unittest.TestCase):
         code = [p for p in self.files if p.endswith((".py", ".gd", ".sh", ".bat"))]
         self.assertTrue(all(p.startswith("reference/") for p in code), code)
 
-    def test_the_lowercase_bed_is_renamed_and_every_json_follows(self):
+    def test_the_v1_1_delivery_ships_both_beds_as_delivered(self):
         self.assertEqual(self.files["environment/glb/Bed.glb"], b"BIG")
-        self.assertNotIn("environment/glb/bed.glb", self.files)
         self.assertEqual(self.files["environment/glb/bed_single.glb"], b"small")
-        index = json.loads(self.files["asset_index.json"])
-        by_file = {f["file"]: f for f in index["files"]}
-        self.assertIn("environment/glb/bed_single.glb", by_file)
-        self.assertEqual(by_file["environment/glb/bed_single.glb"]["sha256"], hashlib.sha256(b"small").hexdigest())
-        self.assertIn("environment/glb/Bed.glb", by_file)
-        manifest = json.loads(self.files["environment/manifest_complete.json"])
-        self.assertEqual([a["file"] for a in manifest["assets"]], ["glb/bed_single.glb", "glb/Bed.glb"])
+        listed = [f["file"] for f in json.loads(self.files["asset_index.json"])["files"]]
+        self.assertEqual(listed, ["environment/glb/Bed.glb", "environment/glb/bed_single.glb"])
+
+    def test_the_packager_no_longer_renames_the_bed(self):
+        self.assertNotIn("environment/glb/bed.glb", BR.RENAMES)
 
     def test_no_two_paths_differ_only_in_case(self):
         lowered = [p.lower() for p in self.files]
         self.assertEqual(len(lowered), len(set(lowered)))
 
-    def test_the_packaging_record_names_sources_rename_and_rules(self):
+    def test_the_packaging_record_names_sources_and_rules(self):
         rec = json.loads(self.files["PACKAGING.json"])
         self.assertEqual(rec["tag"], "art-pack-v9.9")
         self.assertEqual([s["name"] for s in rec["source_zips"]], ["Part01.zip", "Part04.zip"])
         with open(self.zips[1], "rb") as f:
             self.assertEqual(rec["source_zips"][1]["sha256"], hashlib.sha256(f.read()).hexdigest())
-        self.assertEqual(rec["renamed"], [{
-            "from": "environment/glb/bed.glb", "to": "environment/glb/bed_single.glb", "bytes": 5,
-            "sha256": hashlib.sha256(b"small").hexdigest(),
-            "json_rewritten": ["asset_index.json", "environment/manifest_complete.json"],
-            "reason": rec["renamed"][0]["reason"]}])
+        self.assertEqual(rec["renamed"], [])
 
     def test_the_checksum_rows_cover_every_file_with_size_and_sha(self):
         rows = {r["path"]: r for r in self.result["files"]}
@@ -159,6 +164,40 @@ class Package(unittest.TestCase):
         path, size, sha = lines[0].split("\t")
         self.assertEqual(int(size), len(self.files[path]))
         self.assertEqual(sha, hashlib.sha256(self.files[path]).hexdigest())
+
+
+class Renames(unittest.TestCase):
+    """The rename mechanism, kept for later deliveries: v1.0's bed.glb renamed the way art-pack-v1.0 was built."""
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.tmp = self._tmp.name
+        self.zips = delivery(self.tmp, small_bed="bed.glb")
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_a_renamed_file_keeps_its_bytes_and_every_json_follows(self):
+        out = os.path.join(self.tmp, "out", "pack.zip")
+        BR.build(self.zips, out, tag="art-pack-v1.0", renames=V10_BED_RENAME)
+        files = read_zip(out)
+        self.assertEqual(files["environment/glb/Bed.glb"], b"BIG")
+        self.assertNotIn("environment/glb/bed.glb", files)
+        self.assertEqual(files["environment/glb/bed_single.glb"], b"small")
+        by_file = {f["file"]: f for f in json.loads(files["asset_index.json"])["files"]}
+        self.assertEqual(by_file["environment/glb/bed_single.glb"]["sha256"], hashlib.sha256(b"small").hexdigest())
+        self.assertIn("environment/glb/Bed.glb", by_file)
+        manifest_files = [a["file"] for a in json.loads(files["environment/manifest_complete.json"])["assets"]]
+        self.assertEqual(manifest_files, ["glb/bed_single.glb", "glb/Bed.glb"])
+        rec = json.loads(files["PACKAGING.json"])
+        self.assertEqual(rec["renamed"], [{
+            "from": "environment/glb/bed.glb", "to": "environment/glb/bed_single.glb", "bytes": 5,
+            "sha256": hashlib.sha256(b"small").hexdigest(),
+            "json_rewritten": ["asset_index.json", "environment/manifest_complete.json"], "reason": "case clash"}])
+
+    def test_the_v1_0_pair_without_its_rename_is_refused_as_a_case_clash(self):
+        with self.assertRaises(BR.PackagingError):
+            BR.build(self.zips, os.path.join(self.tmp, "o.zip"), tag="t")
 
 
 class Rejects(unittest.TestCase):

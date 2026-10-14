@@ -760,6 +760,10 @@ staged export. Value changes:
   369,621). `sidecar_diff.py --old <main's export> --new <the integrated export>`: `SIDECAR_DIFF_OK True`, no path
   added, 25 map chunks, 47 portals, 21 NPCs, 25 player spawns, 150 spawn regions on 15 maps, 20 trails, 0 blocked
   portal arrivals.
+- **art-pack-v1.1 (#61, 2026-10-14).** Rebuilt with Jarvis's v1.1 correction (smaller fitted `Tomato_Plant`, 0.645 m,
+  and `Veg_Garden_Bed`, 1.248 m), `--check` is unchanged: 15,782 samples, 1 prop-hull, 20 wall-overhead, 0 blocked
+  spawns, arrivals, arrival segments and route ends, 2,556 prop hulls. Ground 379,389 and Walls 369,445 triangles.
+  `sidecar_diff.py` against the v1.0 export: `SIDECAR_DIFF_OK True`, no path added, the same counts.
 
 ## Files
 
