@@ -753,6 +753,13 @@ staged export. Value changes:
   hulls and Ground / Walls triangles are unchanged (float-level decimation aside).
 - Route check with the side rays (#28): 15,782 samples, 1 prop-hull sample (`PoleShelf` beside the 0.45 m jar on
   the chest shelf), 20 wall-overhead samples (16 `step`, 4 `climb_or_drop`, 0 `body`).
+- **The art pack, integrated (#59, 2026-10-13).** With every kit category and the landmark aliases from the pack
+  (#72-#75), `--check` on the integrated island gives the same route check as main: 15,782 samples, 1 prop-hull
+  sample, 20 wall-overhead samples, 0 blocked player spawns, 0 blocked portal arrivals (or arrival segments), 0
+  blocked route ends. Prop hulls 2,556 (main 2,448), Ground 379,451 and Walls 369,437 triangles (main 379,413 and
+  369,621). `sidecar_diff.py --old <main's export> --new <the integrated export>`: `SIDECAR_DIFF_OK True`, no path
+  added, 25 map chunks, 47 portals, 21 NPCs, 25 player spawns, 150 spawn regions on 15 maps, 20 trails, 0 blocked
+  portal arrivals.
 
 ## Files
 

@@ -5,7 +5,7 @@ extends RefCounted
 ## equipment files by game item id; only the index is consistent). Aliases resolve explicitly from
 ## environment/source_catalog_mapping.json (Sign_Board and Signpost_Notice share noticeboard.glb).
 ##
-##   var art := ArtPack.load_installed()          # res://assets/art_pack, from data/misostory/art_pack.json
+##   var art := ArtPack.shared()                  # res://assets/art_pack (data/misostory/art_pack.json), read once
 ##   if art.present():
 ##       var shanks := art.instance(ArtPack.NPC, "15")      # null when the model is missing: keep the placeholder
 ##   art.model(ArtPack.ITEM, "1302000")           # by game_item_id or canonical item id -> "res://.../item_..glb"
@@ -29,6 +29,16 @@ extends RefCounted
 ## Models are imported resources: existence is checked with ResourceLoader.exists, which also holds in exported
 ## builds. Without the pack (a fresh clone, unit tests) present() is false and every lookup is empty, so callers keep
 ## the procedural placeholders. coverage() is the check that every ID the game requires has a model.
+##
+## Who gets which pack. Every consumer has an `art: ArtPack` field (LootSystem, MonsterSystem, BreakableSystem,
+## IslandWorld, PlayerVisual, WorldNpc, WoodenBox, LootVisuals, ...): an injected pack always wins. Otherwise the
+## game's own wiring hands it ArtPack.shared(), the installed pack read once per process:
+##   setup(ctx) with a GameContext   LootSystem, MonsterSystem, BreakableSystem (the shell's SubsystemInstaller)
+##   IslandWorld.build()             the game's asynchronous build, behind the loading screen
+##   PlayerVisual._ready             the player's model, which has no setup call (the creation preview too)
+## A null `art` means no pack: the procedural placeholders. So a system a test builds bare (never set up, setup(null),
+## IslandWorld.build_now()) stays procedural whether or not the pack is installed, unless the test injects one.
+## The shared caches of other art (EffectMeshes.shared(), ItemIconArt.shared(), ArtPackChecks) read shared() too.
 
 const PIN := "res://data/misostory/art_pack.json"
 
@@ -64,9 +74,17 @@ var _present := false
 var _validation_by_file: Dictionary = {}
 
 
+## art_pack.json, read once per process.
+static var _pin_cache: Variant = null
+## The installed pack, loaded once per process (shared()).
+static var _shared: ArtPack = null
+
+
 static func _pin() -> Dictionary:
-	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(PIN))
-	return data if data is Dictionary else {}
+	if _pin_cache == null:
+		var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(PIN))
+		_pin_cache = data if data is Dictionary else {}
+	return _pin_cache
 
 
 ## Where the fetch script installs the pack (art_pack.json install_dir).
@@ -79,6 +97,15 @@ static func character_scale() -> float:
 	return float(_pin().get("character_scale", {}).get("factor", 1.0))
 
 
+## The installed pack, read once per process and shared by every consumer the game wires (see the header). Lookups
+## never change it; tests that need their own copy use load_installed() or load_from().
+static func shared() -> ArtPack:
+	if _shared == null:
+		_shared = load_installed()
+	return _shared
+
+
+## A fresh read of the installed pack (its manifests parsed again).
 static func load_installed() -> ArtPack:
 	return load_from(install_dir())
 
@@ -166,8 +193,8 @@ func instance(kind: String, id: String) -> Node3D:
 
 
 ## The model's bounds as the game imports it, from the pack's godot_validation.json (an empty AABB when the pack has
-## none). The pack measured raw imports; ArtImport scales characters and their parts (characters/*) by the character
-## factor, so their bounds are scaled the same way here.
+## none). The pack measured raw imports; ArtImport scales characters and their parts by the character factor
+## (ArtImport.takes_character_scale), so their bounds are scaled the same way here.
 func bounds(kind: String, id: String) -> AABB:
 	var v := _validation(kind, id)
 	if v.is_empty() or not (v.get("bounds_min") is Array) or not (v.get("bounds_max") is Array):
@@ -198,7 +225,7 @@ func _validation(kind: String, id: String) -> Dictionary:
 
 func _import_scale(kind: String, id: String) -> float:
 	var rel: Variant = _models.get(kind, {}).get(id, null)
-	return character_scale() if rel is String and String(rel).begins_with("characters/") else 1.0
+	return character_scale() if rel is String and ArtImport.takes_character_scale(rel) else 1.0
 
 
 static func _vec3(a: Array) -> Vector3:
@@ -248,19 +275,40 @@ func coverage(required: Dictionary, exists: Callable = Callable(ResourceLoader, 
 	return {"status": MISSING if not missing.is_empty() else COVERED, "checked": checked, "missing": missing}
 
 
-## The IDs the game requires art for: every canonical NPC, monster, item and breakable, and the kit @asset names the
-## island places (data/misostory/kit_assets_placed.json; the never-placed catalog names are exempt).
+## The IDs the game requires art for (#59 decision 7): every canonical NPC, monster, item and breakable; the kit @asset
+## names the island places (data/misostory/kit_assets_placed.json; the never-placed catalog names are exempt); the
+## Beginner presets, hair styles and faces creation offers (data/misostory/appearance.json); and a wearable for every
+## canonical item worn on the body (an equip slot other than the hand sockets, CharacterWardrobe.SOCKETS: held items
+## need their ITEM model).
 static func required_ids(db: ContentDB) -> Dictionary:
 	var placed: Variant = db.miso_table("kit_assets_placed")
 	var kit: Array = []
 	if placed is Dictionary:
 		kit = (placed as Dictionary).get("names", []).duplicate()
+	var look: Dictionary = db.miso_table("appearance") if db.miso_table("appearance") is Dictionary else {}
+	var presets: Array = []
+	for g in look.get("defaults", {}):
+		var p: Variant = (look.defaults[g] as Dictionary).get("preset")
+		if p is String and not (p in presets):
+			presets.append(p)
+	var hair: Array = []
+	for i in int(look.get("choices", {}).get("hair_style", 0)):
+		hair.append(str(i))
+	var worn: Array = []
+	for id in db.ids("items"):
+		var slot: Variant = db.item(str(id)).get("equip_slot")
+		if slot is String and slot != "" and not CharacterWardrobe.SOCKETS.has(slot):
+			worn.append(str(id))
 	return {
 		NPC: Array(db.ids("npcs")),
 		MONSTER: Array(db.ids("monsters")),
 		ITEM: Array(db.ids("items")),
 		BREAKABLE: Array(db.ids("breakables")),
 		KIT: kit,
+		PRESET: presets,
+		HAIR: hair,
+		FACE: Array(look.get("face_styles", [])).map(func(f: Variant) -> String: return str(f)),
+		WEARABLE: worn,
 	}
 
 

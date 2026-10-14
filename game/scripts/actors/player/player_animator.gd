@@ -14,15 +14,15 @@ extends RefCounted
 ##   walk    grounded and moving
 ##   idle    grounded, about still
 
-const IDLE := &"idle"
-const WALK := &"walk"
-const RUN := &"run"
-const JUMP := &"jump"
-const CLIMB := &"climb"
-const ATTACK := &"attack"
-const HIT := &"hit"
-const SIT := &"sit"
-const DEATH := &"death"
+const IDLE := ArtImport.CLIP_IDLE
+const WALK := ArtImport.CLIP_WALK
+const RUN := ArtImport.CLIP_RUN
+const JUMP := ArtImport.CLIP_JUMP
+const CLIMB := ArtImport.CLIP_CLIMB
+const ATTACK := ArtImport.CLIP_ATTACK
+const HIT := ArtImport.CLIP_HIT
+const SIT := ArtImport.CLIP_SIT
+const DEATH := ArtImport.CLIP_DEATH
 const CLIPS: Array[StringName] = [IDLE, WALK, RUN, JUMP, CLIMB, ATTACK, HIT, SIT, DEATH]
 
 ## Horizontal speed (m/s) under which a grounded player reads as standing (presentation: the controller's own
@@ -91,6 +91,29 @@ static func from_model(model: Node) -> PlayerAnimator:
 			ap.autoplay = ""
 			return a
 	return null
+
+
+## Where the rig is in its clips ({} with nothing playing): restore() on the animator of a rebuilt model (an equip or
+## a look change) carries on from here instead of starting the clip over.
+func snapshot() -> Dictionary:
+	if current == &"" or anim == null:
+		return {}
+	return {"clip": current, "position": anim.current_animation_position, "speed": anim.speed_scale,
+		"hit_left": _hit_left, "attack_left": _attack_left, "attack_speed": _attack_speed, "since_play": _since_play}
+
+
+## Takes up a snapshot() of another animator: the same clip at the same point, with no blend.
+func restore(s: Dictionary) -> void:
+	if s.is_empty() or not has_clip(s.clip):
+		return
+	current = s.clip
+	_hit_left = s.hit_left
+	_attack_left = s.attack_left
+	_attack_speed = s.attack_speed
+	_since_play = s.since_play
+	anim.play(current, 0.0)
+	anim.seek(s.position, true)
+	anim.speed_scale = s.speed
 
 
 func has_clip(clip: StringName) -> bool:

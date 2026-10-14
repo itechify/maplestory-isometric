@@ -93,7 +93,7 @@ func setup(p_npc: Node3D, overlay: Control, db: ContentDB) -> void:
 		_base_yaw = _visual.rotation.y
 		_yaw = _base_yaw
 		height = _measure_height(_visual)
-		var ap := _visual.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		var ap := ArtImport.animation_player(_visual)
 		_idle_clip = ap != null and ap.has_animation(WorldNpc.CLIP_IDLE)
 		if _visual.has_meta("placeholder"):
 			# The world's placeholder carries its own Label3D name; the tag below replaces it.
@@ -267,18 +267,8 @@ static func _measure_height(root: Node3D) -> float:
 		var mi := n as MeshInstance3D
 		if mi.mesh == null:
 			continue
-		var xf := (inv * mi.global_transform) if root.is_inside_tree() else _relative(root, mi)
+		var xf := (inv * mi.global_transform) if root.is_inside_tree() else ArtImport.to_root(root, mi)
 		var box := xf * mi.get_aabb()
 		top = maxf(top, box.end.y) if found else box.end.y
 		found = true
 	return top + root.position.y if found and top > 0.2 else DEFAULT_HEIGHT_M
-
-
-static func _relative(root: Node3D, n: Node3D) -> Transform3D:
-	var xf := Transform3D.IDENTITY
-	var cur: Node = n
-	while cur != null and cur != root:
-		if cur is Node3D:
-			xf = (cur as Node3D).transform * xf
-		cur = cur.get_parent()
-	return xf

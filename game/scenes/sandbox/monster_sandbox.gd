@@ -274,13 +274,13 @@ func _showcase(dir: String) -> void:
 		await _shot_now(tag + "_idle")
 		# Walking: it walks back and forth on the spot's ground (its AI is off; the visual reads is_walking()).
 		var t := 0.0
-		var dir_ := side
+		var walk_dir := side
 		while t < 0.9:
 			await get_tree().physics_frame
 			t += get_physics_process_delta_time()
 			m.set("_walking", true)
-			m.facing = dir_
-			m.global_position += dir_ * m.def.move_speed_mps * get_physics_process_delta_time()
+			m.facing = walk_dir
+			m.global_position += walk_dir * m.def.move_speed_mps * get_physics_process_delta_time()
 			m.settle()
 		await _shot_now(tag + "_walk")
 		m.set("_walking", false)

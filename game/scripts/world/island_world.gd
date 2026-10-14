@@ -48,10 +48,9 @@ var sidecars: WorldSidecars = null
 var defs: MapDefinitions = null
 var tuning: WorldTuning = null
 var library: ProxyLibrary = null
-## The art pack the NPCs' rigged models come from (WorldNpc.art, #66). Like BreakableSystem.art, null does not mean
-## "the installed one" everywhere: build() (the game's path, behind the loading screen) loads the installed pack
-## (ArtPack.load_installed) when nothing was injected, while build_now() (tests and the headless world tools) uses
-## only an injected one, so they keep the library proxies.
+## The art pack the NPCs' rigged models come from (WorldNpc.art, #66). Null = no pack, the library proxies. build()
+## (the game's path, behind the loading screen) takes ArtPack.shared() when nothing was injected; build_now() (tests and
+## the headless world tools) uses only an injected one (the ArtPack header has the convention).
 var art: ArtPack = null
 var ground_query: PhysicsGroundQuery = null
 var region_index: RegionIndex = null
@@ -122,7 +121,7 @@ func build() -> void:
 		return
 	_building = true
 	if art == null:
-		art = ArtPack.load_installed()
+		art = ArtPack.shared()
 	_make_children()
 	_stage_data(null)
 	load_progress.emit(0.05, "data")

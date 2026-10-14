@@ -129,7 +129,7 @@ func _show_model(source: Node3D) -> bool:
 		copy.queue_free()
 		return false
 	# A rig shows its idle clip (a duplicated AnimationPlayer does not play by itself; the rest pose is a T).
-	var ap := copy.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var ap := ArtImport.animation_player(copy)
 	if ap != null and ap.has_animation(WorldNpc.CLIP_IDLE):
 		ap.play(WorldNpc.CLIP_IDLE)
 	_span = frame_span(box, _shoulder_height(copy), _head_width(copy))
@@ -176,13 +176,7 @@ static func _head_width(root: Node3D) -> float:
 		var mi := n as MeshInstance3D
 		if mi.mesh == null or not HEAD_PARTS.any(func(p: String) -> bool: return String(mi.name).begins_with(p)):
 			continue
-		var xf := Transform3D.IDENTITY
-		var cur: Node = mi
-		while cur != null and cur != root:
-			if cur is Node3D:
-				xf = (cur as Node3D).transform * xf
-			cur = cur.get_parent()
-		var b := xf * mi.get_aabb()
+		var b := ArtImport.to_root(root, mi) * mi.get_aabb()
 		out = out.merge(b) if found else b
 		found = true
 	return out.size.x if found else 0.0
@@ -196,13 +190,7 @@ static func _shoulder_height(root: Node3D) -> float:
 	var b := sk.find_bone(SHOULDER_BONE)
 	if b < 0:
 		return NAN
-	var xf := Transform3D.IDENTITY
-	var cur: Node = sk
-	while cur != null and cur != root:
-		if cur is Node3D:
-			xf = (cur as Node3D).transform * xf
-		cur = cur.get_parent()
-	return (xf * sk.get_bone_global_rest(b).origin).y
+	return (ArtImport.to_root(root, sk) * sk.get_bone_global_rest(b).origin).y
 
 
 func _ensure_viewport() -> void:
@@ -250,13 +238,7 @@ static func _model_aabb(root: Node3D) -> AABB:
 		var mi := n as MeshInstance3D
 		if mi.mesh == null:
 			continue
-		var xf := Transform3D.IDENTITY
-		var cur: Node = mi
-		while cur != null and cur != root:
-			if cur is Node3D:
-				xf = (cur as Node3D).transform * xf
-			cur = cur.get_parent()
-		var b := xf * mi.get_aabb()
+		var b := ArtImport.to_root(root, mi) * mi.get_aabb()
 		out = b if first else out.merge(b)
 		first = false
 	return out

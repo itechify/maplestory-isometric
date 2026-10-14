@@ -1,7 +1,8 @@
 extends PlaytestScenario
 ## creation_look (#67): the look chosen at creation, through the real screens, kept through Quit Game and Continue.
 ## Phase 0: New Game, the name typed, the gender, then every hair style, every face and every skin clicked on the creation
-## screen with a screenshot of each (the live preview), a non-default look (hair 5, face 3, skin 2) clicked and Start.
+## screen with a screenshot of each (the live preview), a non-default look (CHOSEN, 0-based: hair 4, face 2, skin 1;
+## the buttons labelled 5, 3 and 2) clicked and Start.
 ## In the game the player wears it; then every hair, face and skin on the player in the world (setting the visual's
 ## look in code: the scenario is a camera here, not a gameplay test), each with a screenshot and a 3x close-up.
 ## Quit Game ends the process. Phase 1: Continue, and the character and the player still wear the chosen look.
@@ -13,7 +14,7 @@ extends PlaytestScenario
 const NAME := "Stylist"
 ## The character's gender: female, or male with QUEST=male (as player_rig takes QUEST=female).
 var gender := "male" if OS.get_environment("QUEST") == "male" else "female"
-## The look picked at creation (indices; each differs from both defaults, female 2 / 0 / 3 and male 3 / 0 / 0).
+## The look picked at creation (0-based indices; each differs from both defaults, female 2 / 0 / 3 and male 3 / 0 / 0).
 const CHOSEN := {"hair_style": 4, "face": 2, "skin": 1}
 
 
@@ -55,7 +56,7 @@ func _create(d: PlaytestDriver) -> void:
 	var preview := cs.preview_visual()
 	# Without the art pack (NO_ART_PACK=1) the preview and the player are the placeholder: the look is still chosen,
 	# saved and loaded, only not shown.
-	var has_art := ArtPack.load_installed().present()
+	var has_art := ArtPack.shared().present()
 	d.check("the creation screen previews the %s" % ("rigged Beginner" if has_art else "placeholder (no art pack)"),
 		preview != null and preview.rigged() == has_art, "preset %s" % (preview.preset if preview != null else "(none)"))
 	var base := CharacterAppearance.default_for(gender)

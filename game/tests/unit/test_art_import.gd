@@ -197,13 +197,21 @@ func test_monster_lunges_and_bobs_are_held_at_rest() -> void:
 				assert_eq(k, ROOT_REST, clip + " root key at rest"))
 
 
-func test_drops_and_effects_keep_their_animation_untouched() -> void:
-	for family in [ArtImport.DROP, ArtImport.EFFECT]:
-		_with(_character({"Hover": [ROOT_REST, Vector3(0, 0.1, 0)]}), func(root: Node3D) -> void:
-			_clip(root, "Hover").loop_mode = Animation.LOOP_LINEAR
-			ArtImport.normalize(root, family, 1.0)
-			assert_eq(_clip(root, "Hover").loop_mode, Animation.LOOP_LINEAR, family + " loop left alone")
-			assert_eq(_root_keys(_clip(root, "Hover")), [ROOT_REST, Vector3(0, 0.1, 0)], family + " motion left alone"))
+## A drop's Hover is its bob on the ground: it loops, and its root lift (the bob itself) is kept.
+func test_drop_hover_loops_and_keeps_its_bob() -> void:
+	_with(_character({"Hover": [ROOT_REST, Vector3(0, 0.1, 0)]}), func(root: Node3D) -> void:
+		ArtImport.normalize(root, ArtImport.DROP, 1.0)
+		assert_eq(_clip(root, "Hover").loop_mode, Animation.LOOP_LINEAR, "drop Hover loops")
+		assert_eq(_root_keys(_clip(root, "Hover")), [ROOT_REST, Vector3(0, 0.1, 0)], "drop Hover keeps its bob"))
+
+
+func test_effects_keep_their_animation_untouched() -> void:
+	for loop in [Animation.LOOP_NONE, Animation.LOOP_LINEAR]:
+		_with(_character({"Loop": [ROOT_REST, Vector3(0, 0.1, 0)]}), func(root: Node3D) -> void:
+			_clip(root, "Loop").loop_mode = loop
+			ArtImport.normalize(root, ArtImport.EFFECT, 1.0)
+			assert_eq(_clip(root, "Loop").loop_mode, loop, "effect loop left alone")
+			assert_eq(_root_keys(_clip(root, "Loop")), [ROOT_REST, Vector3(0, 0.1, 0)], "effect motion left alone"))
 
 
 # --- mesh merging ------------------------------------------------------------------------------------------------

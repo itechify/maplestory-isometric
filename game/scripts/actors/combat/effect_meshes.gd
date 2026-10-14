@@ -23,7 +23,7 @@ const NIMBLE_FEET := "NimbleFeet"
 const HIT_SPARK := "HitSpark"
 const JUMP_DUST := "JumpDust"
 ## The one clip every effect model carries.
-const CLIP := "Loop"
+const CLIP := ArtImport.EFFECT_LOOP
 ## Skill id (canonical) -> the effect shown for as long as that skill's timed effect runs.
 const SKILL_AURAS := {"0001001": RECOVERY, "0001002": NIMBLE_FEET}
 
@@ -35,10 +35,10 @@ var art: ArtPack = null
 var _bounds: Dictionary = {}
 
 
-## The installed pack's effect meshes, loaded once per process (ArtPack.load_installed reads several manifests).
+## The installed pack's effect meshes (ArtPack.shared()), made once per process.
 static func shared() -> EffectMeshes:
 	if _shared == null:
-		_shared = from_pack(ArtPack.load_installed())
+		_shared = from_pack(ArtPack.shared())
 	return _shared
 
 

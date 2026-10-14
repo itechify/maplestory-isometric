@@ -56,9 +56,14 @@ var owner_name: String = "player"
 var read_input: bool = true
 ## MapSession (duck-typed is_idle()); null = the autoload. Tests set use_session = false.
 var use_session: bool = true
-## The art pack drops show their models from (Project art, ADR 0002); null = the installed pack (ArtPack.load_installed).
-## Without it the drops are procedural.
-var art: ArtPack = null
+## The art pack drops show their models from (Project art, ADR 0002). Null = no pack, procedural drops. setup(ctx) with
+## a GameContext takes ArtPack.shared() when nothing was injected (the ArtPack header has the convention); a pack
+## injected later still reaches the drops spawned after it.
+var art: ArtPack = null:
+	set(value):
+		art = value
+		if visuals != null:
+			visuals.art = value
 
 var visuals: LootVisuals = null
 var _nodes: Dictionary = {}
@@ -86,6 +91,8 @@ func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
 	if ctx != null and ctx.player is Node3D:
 		player = ctx.player
+	if ctx != null and art == null:
+		art = ArtPack.shared()
 	add_to_group(GROUP)
 	_ensure_ready()
 	if ctx != null:
@@ -97,8 +104,6 @@ func _ensure_ready() -> void:
 	if db == null:
 		db = WorldUiServices.content()
 	if visuals == null and db != null:
-		if art == null:
-			art = ArtPack.load_installed()
 		visuals = LootVisuals.new(db, art)
 	var b := _bus()
 	if b != _connected_bus:

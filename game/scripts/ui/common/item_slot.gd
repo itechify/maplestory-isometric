@@ -167,7 +167,7 @@ func drag_preview() -> Control:
 	preview.item_id = item_id
 	preview.shape = icon.shape
 	preview.color = icon.color
-	preview.art = icon.art
+	preview.icon_texture = icon.icon_texture
 	preview.modulate = Color(1, 1, 1, 0.85)
 	var holder := Control.new()
 	holder.add_child(preview)

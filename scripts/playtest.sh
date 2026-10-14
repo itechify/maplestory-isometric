@@ -88,12 +88,9 @@ if [[ "${PLAYTEST_REUSE_COPY:-0}" == "1" && -f "$PROJECT/project.godot" ]]; then
   # run left it, whatever changed in game/ since.
   echo "playtest.sh: PLAYTEST_REUSE_COPY=1: reusing $PROJECT as it is (no mirror, no import)"
 else
-  mkdir -p "$DEST/game"
-  # The art pack (game/assets/art_pack) is mirrored unless NO_ART_PACK=1 asks for a run without it.
-  ART_EXCLUDE=""
-  if [[ "${NO_ART_PACK:-0}" == "1" ]]; then ART_EXCLUDE="--exclude=./assets/art_pack"; rm -rf "$DEST/game/assets/art_pack"; fi
-  (cd "$PROJECT_SRC" && tar --exclude=./.godot --exclude=./assets/world $ART_EXCLUDE -cf - .) | (cd "$DEST/game" && tar -xf -)
-  (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT_SRC/$f" ]] || rm -f "$f"; done)
+  # The art pack is mirrored unless NO_ART_PACK=1 asks for a run without it (scripts/mirror_game.sh).
+  source "$REPO/scripts/mirror_game.sh"
+  mirror_game "$PROJECT_SRC" "$PROJECT"
   mkdir -p "$DEST/game/assets"
   cp -ru "$PROJECT_SRC/assets/world" "$DEST/game/assets/"
   "${GODOT_CMD[@]}" --headless --path "$PROJECT" --import >/dev/null 2>&1 || true

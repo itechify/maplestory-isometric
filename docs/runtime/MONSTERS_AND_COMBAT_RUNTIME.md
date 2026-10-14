@@ -176,7 +176,7 @@ sea plane it returns to its spawn point.
 
 **Rigged models (Project art, #64).** With the art pack installed (ADR 0002), each species is Jarvis's rigged model,
 looked up by canonical id: `MonsterVisual.build(def, library, art)` takes `art.instance(ArtPack.MONSTER, def.id)`
-(`MonsterSystem.art`: `setup(ctx)` loads `ArtPack.load_installed()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
+(`MonsterSystem.art`: `setup(ctx)` with a GameContext takes `ArtPack.shared()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
 the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z).
 `model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
 it:
@@ -464,7 +464,11 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
   region extensions. A box keeps a clear capsule, stays out of portal triggers and keep-outs, 3.5 m from portals and
   arrivals, 1.2 m from spawn slots, 2.5 m from other boxes and outside NPC talk zones, needs 5 of 8 standing points
   around it, and must be in the gameplay camera's sight (checked against collision: a colliderless canopy can still
-  hang over one). A map always gets the same boxes.
+  hang over one). A map always gets the same boxes. With the art pack (#59) 18 of the 19 boxes stand exactly where
+  they stood before; Amherst's 000001010:5 moved from (216.34, 6.0, 580.98) to (248.09, 6.0, 620.16). Not because of
+  the re-measured canopies (main's canopy table on the new world gives the same move), but because the pack's
+  collision lets a different set of the seeded candidates pass, and the planner keeps the passing candidate farthest
+  from the other boxes. Both spots pass every rule on both worlds.
 - **Hits.** `PlayerCombat.attack_started` hands the swing's canonical hit box to `MeleeQuery` over the intact boxes:
   one landed basic attack is one hit on the nearest box it overlaps, whatever monster the swing also hits. There is no
   MISS, and damage does not matter (MeowDB: "how many basic attacks it takes to break open"). Skills do not count
@@ -478,7 +482,7 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
 - **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
   monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the
   breakable page's single 120 s). The box is not solid (classic reactors never block movement).
-- **Model (#65).** `BreakableSystem.setup(ctx)` loads the installed art pack (`ArtPack.load_installed()`) into its
+- **Model (#65).** `BreakableSystem.setup(ctx)` with a GameContext takes the installed art pack (`ArtPack.shared()`) into its
   `art` seam, and every box it realizes looks up the pack's WoodenBox by canonical breakable id (`ArtPack.BREAKABLE`,
   `0000001`), fitted by one uniform scale so its wider footprint side matches the body (`box.touch_px`) and its base
   sits on the feet. `Idle` loops while the box stands; each hit that does not break it plays `Hit` from its start

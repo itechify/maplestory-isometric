@@ -4,7 +4,7 @@ extends RefCounted
 ## art are Nexon sprites, which MisoStory never uses). With the art pack (Project art, ADR 0002) a drop shows the pack's
 ## model; without it, or for a model the pack lacks, a procedural shape.
 ##
-##   var vis := LootVisuals.new(Data.db, ArtPack.load_installed())   # no pack argument: procedural only
+##   var vis := LootVisuals.new(Data.db, ArtPack.shared())   # no pack argument: procedural only
 ##   vis.style_for_item("270")      # {"shape": "potion", "body": Color, "accent": Color, "name": "Red Potion"}
 ##   vis.style_for_mesos(7)         # {"shape": "meso", "body": Color, "coins": 1, "bag": false, "pack_extent_m", ...}
 ##   var mesh_root := vis.build_drop_model(record)    # Node3D: the pack model, or a bottle, a chest, a coin pile ...
@@ -14,7 +14,8 @@ extends RefCounted
 ## Pack models: the item's model by canonical id (monster drops such as the Snail Shell through the pack's monster
 ## manifest), the one meso model for every meso tier (tiers differ by size and tint). Each sits under a "Pack" child of
 ## the "Model" root, raised by the pack's ground offset (godot_validation.json), centred over the drop and scaled so its
-## longest side is pack_models.item_extent_m (a meso tier's pack_extent_m). Their Hover clip loops.
+## longest side is pack_models.item_extent_m (a meso tier's pack_extent_m). A skinned drop plays its Hover clip, which
+## loops (ArtImport) and is its bob (hover_player()).
 ##
 ## Shapes: box (equipment), chair_box (setup), potion, food, scroll, bundle (arrows), gem (ores and gems), pouch (other
 ## Etc items), meso (coins or a bag). Type and subtype come from the canonical item record; colours from the table,
@@ -25,7 +26,7 @@ const SHAPES: PackedStringArray = ["box", "chair_box", "potion", "food", "scroll
 ## The child of a drop model holding the pack's model (its ground offset, centring and scale).
 const PACK_NODE := "Pack"
 ## The pack drops' looping clip.
-const HOVER_CLIP := "Hover"
+const HOVER_CLIP := ArtImport.DROP_HOVER
 
 var db: ContentDB = null
 ## The art pack drops are looked up in; null or absent: procedural drops only.
@@ -186,13 +187,22 @@ func _pack_drop_model(drop: Dictionary) -> Node3D:
 				var mat := mi.mesh.surface_get_material(i)
 				if mat is BaseMaterial3D and mat.resource_name == _s(_dict(_table.get("pack_models")).get("tint_material")):
 					mi.set_surface_override_material(i, _tinted(mat as BaseMaterial3D, tint))
-	for ap in inst.find_children("*", "AnimationPlayer", true, false):
-		var player := ap as AnimationPlayer
-		if player.has_animation(HOVER_CLIP):
-			# The pack imports Hover playing once (#62 leaves drop clips as imported); on the ground it loops.
-			player.get_animation(HOVER_CLIP).loop_mode = Animation.LOOP_LINEAR
-			player.autoplay = HOVER_CLIP
+	var player := hover_player(root)
+	if player != null:
+		# ArtImport makes Hover loop on import.
+		player.autoplay = HOVER_CLIP
 	return root
+
+
+## The AnimationPlayer playing a pack drop's Hover clip (its bob on the ground), or null (a procedural shape or a
+## static pack model): GroundDrop leaves out its procedural bob where Hover plays (#59 decision 5).
+static func hover_player(model: Node) -> AnimationPlayer:
+	if model == null:
+		return null
+	for ap in model.find_children("*", "AnimationPlayer", true, false):
+		if (ap as AnimationPlayer).has_animation(HOVER_CLIP):
+			return ap
+	return null
 
 
 ## A shared copy of a pack material with its albedo replaced by `color` (a meso tier's tint).

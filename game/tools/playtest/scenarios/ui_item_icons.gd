@@ -6,7 +6,7 @@ extends PlaytestScenario
 ## tooltip (hovering an inventory slot)
 ## -> the quest window on Lucas's Reply (1008), whose random rewards are items -> Lucy's shop (Events.
 ## shop_open_requested), its rows and the detail of one item. On each surface every visible MisoItemIcon with an item
-## draws the pack's icon (MisoItemIcon.art) with the pack, and none does without it. Screenshots need --windowed.
+## draws the pack's icon (MisoItemIcon.icon_texture) with the pack, and none does without it. Screenshots need --windowed.
 
 const WEAPON := "541"
 const GIVE := ["933", "1157", "1305", "708", "1002", "1440", "270", "271", "236", "237", "239", "348", "349", "351",
@@ -30,7 +30,7 @@ func max_seconds() -> float:
 
 
 func run(d: PlaytestDriver) -> void:
-	_pack = ArtPack.load_installed().present()
+	_pack = ArtPack.shared().present()
 	d.note("art pack installed: %s" % _pack)
 	var ng: Dictionary = await d.new_game("Icons", "male", WEAPON, {"str": 9})
 	if not d.check("new game through the title and creation screens", bool(ng["ok"]), str(ng)):
@@ -109,7 +109,7 @@ func _check_icons(d: PlaytestDriver, where: String, root: Node) -> void:
 		var icon := n as MisoItemIcon
 		if icon.item_id == "" or not icon.is_visible_in_tree():
 			continue
-		if icon.art != null:
+		if icon.icon_texture != null:
 			with_art += 1
 		else:
 			shapes.append("%s:%s" % [icon.item_id, icon.shape])

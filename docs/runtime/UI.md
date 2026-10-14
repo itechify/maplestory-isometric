@@ -47,7 +47,7 @@ So every change it makes fires the usual `Events`.
 | `scripts/ui/common/ui_prefs.gd` | `MisoUiPrefs` | The player's UI preferences on this machine (the minimap's fold), a ConfigFile beside the save slots |
 | `scripts/ui/common/miso_window.gd` | `MisoWindow` | Base window: title strip, key hint, close, drag, clamp, ctx registration, status line |
 | `scripts/ui/common/item_slot.gd` | `MisoItemSlot` | One item square: icon, count, caption, key label, click/double-click/right-click/hover, drag-and-drop hooks |
-| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Item icon: the art pack's rendered icon (`art`), else the procedural one (shape per category/item, tint from the name) |
+| `scripts/ui/common/item_icon.gd` | `MisoItemIcon` | Item icon: the art pack's rendered icon (`icon_texture`), else the procedural one (shape per category/item, tint from the name) |
 | `scripts/ui/common/item_icon_art.gd` | `ItemIconArt` | The art pack's item icons by `game_item_id` (ArtPack), framed for every slot size and cached; null without the pack |
 | `scripts/ui/common/skill_icon.gd` | `MisoSkillIcon` | Procedural skill icon (shells, heart, winged boot) with the dim and cooldown-sweep overlays |
 | `scripts/ui/common/item_tooltip.gd` | `MisoItemTooltip` | Inspect card; `describe()` is the pure part |

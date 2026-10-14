@@ -124,8 +124,7 @@ func test_the_loot_system_drops_pack_models() -> void:
 		l.clock_provider = func() -> float: return 100.0
 		l.state_provider = func() -> MapInstanceState: return state
 		l.ground_axis_provider = func() -> Vector3: return Vector3(1, 0, 0)
-		if label == "none":
-			l.art = ArtPack.load_from("res://tests/data/no_such_pack")
+		l.art = ArtPack.shared() if label == "installed" else ArtPack.load_from("res://tests/data/no_such_pack")
 		l.setup(null)
 		var nodes: Array = []
 		l.drop_spawned.connect(func(n: GroundDrop) -> void: nodes.append(n))
@@ -187,3 +186,44 @@ func test_hover_loops_and_never_sinks_the_drop() -> void:
 		m.free()
 	# The six monster drops (347-351, 356) and the four meso tiers.
 	assert_eq(hovering, 10, "every skinned drop hovers")
+
+
+## #59 decision 5: a clip retires the procedural motion it covers, never both. Hover bobs the model's root (a lift of
+## a couple of centimetres, no turn), so a hovering drop rests at the hover height without the procedural bob and
+## keeps only the procedural spin; a static pack model (no clip) keeps both.
+func test_a_hovering_drop_bobs_by_its_clip_alone_and_still_spins() -> void:
+	if _skip("test_a_hovering_drop_bobs_by_its_clip_alone_and_still_spins"):
+		return
+	var v := _vis()
+	for d: Dictionary in [{"kind": "item", "item_id": "348", "amount": 1}, {"kind": "mesos", "amount": 7}]:
+		var n := GroundDrop.new()
+		n.setup(d.merged({"uid": "h:1", "expires_at": 1000.0}), v, Vector3.ZERO, Vector3.ZERO, false)
+		var ap := n.model.find_child("AnimationPlayer", true, false) as AnimationPlayer
+		var sk := n.model.find_child("Skeleton3D", true, false) as Skeleton3D
+		var bone := sk.find_bone("root")
+		# Outside the tree autoplay has not started it.
+		ap.play(String(ap.autoplay))
+		var ys := []
+		var yaws := []
+		var lifts := []
+		for i in 20:
+			n.update(0.0, v.motion("bob_period_s") / 20.0)
+			ap.advance(v.motion("bob_period_s") / 20.0)
+			ys.append(n.model.position.y)
+			yaws.append(n.model.rotation.y)
+			lifts.append(sk.get_bone_pose_position(bone).y)
+		assert_near(ys.max() - ys.min(), 0.0, 0.0001, "%s: no procedural bob" % str(d))
+		assert_near(ys[0], v.motion("hover_m"), 0.0001, "%s: at the hover height" % str(d))
+		assert_true(absf(yaws[19] - yaws[0]) > 0.1, "%s: still spins" % str(d))
+		assert_true(lifts.max() - lifts.min() > 0.005, "%s: the clip bobs the root (%s)" % [str(d), str(lifts)])
+		n.free()
+	var still := GroundDrop.new()
+	still.setup({"uid": "s:1", "kind": "item", "item_id": "541", "amount": 1, "expires_at": 1000.0}, v, Vector3.ZERO,
+		Vector3.ZERO, false)
+	assert_true(LootVisuals.is_pack_model(still.model), "the sword is a static pack model")
+	var sy := []
+	for i in 20:
+		still.update(0.0, v.motion("bob_period_s") / 20.0)
+		sy.append(still.model.position.y)
+	assert_true(sy.max() - sy.min() > v.motion("bob_amplitude_m"), "a static pack model bobs procedurally")
+	still.free()

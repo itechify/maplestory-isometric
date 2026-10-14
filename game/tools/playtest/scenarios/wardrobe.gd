@@ -33,7 +33,7 @@ func max_seconds() -> float:
 
 
 func run(d: PlaytestDriver) -> void:
-	_pack = ArtPack.load_installed().present()
+	_pack = ArtPack.shared().present()
 	d.note("art pack installed: %s; %s character" % [_pack, gender])
 	if d.phase == 0:
 		await _dress(d)

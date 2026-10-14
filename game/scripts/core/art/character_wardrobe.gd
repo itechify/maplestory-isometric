@@ -196,7 +196,7 @@ static func _keep_only(mi: MeshInstance3D, gone: PackedStringArray) -> void:
 	var overrides := []
 	for s in mesh.get_surface_count():
 		overrides.append(mi.get_surface_override_material(s))
-	var flags: int = mesh.surface_get_format(0) & Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+	var flags := SkinnedCopy.bone_flags_of(mesh, 0)
 	var trimmed := ArrayMesh.new()
 	trimmed.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 	trimmed.surface_set_material(0, mesh.surface_get_material(0))

@@ -14,8 +14,8 @@ extends Node3D
 ##      state (idle, walk, run, jump, climb, attack, hit, sit, death). Animation never moves the body: the clips'
 ##      root translation is held by the import (#62), and the procedural motions a clip covers (covers(): the walk bob
 ##      and lean, the death fall, the sit drop and lean, PlayerCombat's attack lunge) do not run. The only vertical
-##      offsets the visual adds on the rig are ground_lift(): onto the chair's cushion while seated (SEAT_LIFT_M, the
-##      sit clip keeps its root drop) and onto the ground while dead (DEATH_REST_LIFT_M);
+##      offsets the visual adds on the rig are ground_lift(): onto the chair's cushion while seated (seat_lift_m(), the
+##      sit clip keeps its root drop) and onto the ground while dead (death_rest_lift_m());
 ##   2. Iteration One's Player_Proxy from the exported library (res://assets/world/_library.glb, "Player_Proxy_001");
 ##   3. a procedural chibi placeholder.
 ## Without the pack (a fresh clone, unit tests) 2 and 3 keep their procedural motions exactly as before.
@@ -75,18 +75,20 @@ const COVERED_BY := {&"bob": PlayerAnimator.WALK, &"lean": PlayerAnimator.WALK, 
 	&"sit_drop": PlayerAnimator.SIT, &"sit_lean": PlayerAnimator.SIT, &"lunge": PlayerAnimator.ATTACK}
 ## The rig's sit clip keeps its root drop (#59 decision 5): 0.28 m in rig units, about 0.21 m at the character scale.
 const SIT_ROOT_DROP := 0.28
-## How far the seated Beginner is lifted onto the chair (m). Measured on the pack's v1 rigs at the character scale:
-## at the end of the sit clip the pelvis rests 0.127 m above the feet, and The Green Relaxer's seat cushion tops out
-## at 0.46 m x 0.7566 = 0.348 m, so the dropped pose would sink 0.22 m into the seat. The lift follows the clip's
-## own root drop (0 standing .. SEAT_LIFT_M fully seated), so the body settles onto the cushion instead of through
-## it; the chair stays on the ground (sinking it instead buried its legs). test_player_rig pins the line-up.
-const SEAT_LIFT_M := 0.221
-## How far the dead Beginner is lifted so it lies on the ground (m). Measured on the pack's v1 rigs at the character
-## scale: with its root held at rest (#62) the death clip lays the big chibi head 0.176 m under the feet (the clip's
-## own stripped root lift, 0.12 m x 0.7566, was not enough either), and the X-ray fill painted the buried head and
-## heels blue on a dead player nothing hides. The lift grows with the fall, over the first DEATH_FALL_SHARE of the
-## clip (the sink grows about linearly until then and holds), and goes with the clip. test_player_rig pins it.
-const DEATH_REST_LIFT_M := 0.176
+## How far the seated Beginner is lifted onto the chair, in rig units (seat_lift_m() is it at the character scale,
+## ArtPack.character_scale(): 0.221 m with the v1 factor 0.7566). Measured on the pack's v1 rigs at the character
+## scale: at the end of the sit clip the pelvis rests 0.127 m above the feet, and The Green Relaxer's seat cushion tops
+## out at 0.46 m x 0.7566 = 0.348 m, so the dropped pose would sink 0.22 m into the seat. The lift follows the clip's
+## own root drop (0 standing .. fully seated), so the body settles onto the cushion instead of through it; the chair
+## stays on the ground (sinking it instead buried its legs). test_player_rig pins the line-up.
+const SEAT_LIFT_RIG := 0.2921
+## How far the dead Beginner is lifted so it lies on the ground, in rig units (death_rest_lift_m(): 0.176 m with the v1
+## factor). Measured on the pack's v1 rigs at the character scale: with its root held at rest (#62) the death clip lays
+## the big chibi head 0.176 m under the feet (the clip's own stripped root lift, 0.12 m x 0.7566, was not enough
+## either), and the X-ray fill painted the buried head and heels blue on a dead player nothing hides. The lift grows
+## with the fall, over the first DEATH_FALL_SHARE of the clip (the sink grows about linearly until then and holds),
+## and goes with the clip. test_player_rig pins it.
+const DEATH_REST_LIFT_RIG := 0.2326
 const DEATH_FALL_SHARE := 0.5
 ## The art pack's Beginner preset per CharacterState.gender (#59: the default preset for the gender). Unknown ("")
 ## shows the male preset. The character's hair, face and skin (#67, CharacterState.appearance) go on it through
@@ -147,7 +149,8 @@ var worn: Dictionary = {}
 var wardrobe: Dictionary = {}
 ## Drives the rig's clips (null without a rig).
 var animator: PlayerAnimator = null
-## The art pack (injectable before the node enters the tree; else the installed one, loaded once).
+## The art pack (injectable before the node enters the tree; else _ready takes ArtPack.shared(): the visual has no
+## setup call, see the ArtPack header).
 var art: ArtPack = null
 
 var _chair_id: String = ""
@@ -177,11 +180,11 @@ func _ready() -> void:
 	if player != null and player.use_autoloads and gender == "":
 		var game := get_node_or_null(^"/root/Game")
 		if game != null and game.has_signal(&"character_replaced"):
-			game.connect(&"character_replaced", _on_character_replaced)
+			game.connect(&"character_replaced", _follow_live_character)
 		# Every equip, unequip and swap (and the "" after a new game or a load) shows at once (#68).
 		var events := get_node_or_null(^"/root/Events")
 		if events != null and events.has_signal(&"equipment_changed"):
-			events.connect(&"equipment_changed", _on_equipment_changed)
+			events.connect(&"equipment_changed", _follow_live_character)
 
 
 ## Shows the preset for `character_gender` (CharacterState.gender) with the current appearance (set_look).
@@ -202,7 +205,8 @@ func set_equipment(equipped: Dictionary) -> void:
 	show_character(gender, appearance, equipped)
 
 
-## The preset, look and equipment together: one rebuild when any of them changes what the rig shows.
+## The preset, look and equipment together: one rebuild when any of them changes what the rig shows. The clip playing
+## carries on through the rebuild from where it was (PlayerAnimator.snapshot/restore).
 func show_character(character_gender: String, character_appearance: Dictionary, equipped: Dictionary) -> void:
 	gender = character_gender
 	appearance = character_appearance.duplicate()
@@ -211,6 +215,7 @@ func show_character(character_gender: String, character_appearance: Dictionary, 
 			and CharacterAppearance.resolve(character_appearance, character_gender) == look
 			and shown_equipment(equipped) == worn):
 		return
+	var playing := animator.snapshot()
 	remove_child(model)
 	model.free()
 	if _outline_root != null:
@@ -225,6 +230,9 @@ func show_character(character_gender: String, character_appearance: Dictionary, 
 	worn = {}
 	wardrobe = {}
 	_install_model()
+	if animator != null:
+		# The clip playing goes on where it was (mid-swing, seated), not from its start.
+		animator.restore(playing)
 
 
 ## The slots of `equipped` that hold an item (what the rig shows).
@@ -236,13 +244,8 @@ static func shown_equipment(equipped: Dictionary) -> Dictionary:
 	return out
 
 
-func _on_character_replaced(_reason: String = "") -> void:
-	var c := _live_character()
-	if c != null:
-		show_character(c.gender, c.appearance, c.equipment.equipped())
-
-
-func _on_equipment_changed(_slot: String = "") -> void:
+## Shows the live character as it is now (Game.character_replaced(reason), Events.equipment_changed(slot)).
+func _follow_live_character(_why: String = "") -> void:
 	var c := _live_character()
 	if c != null:
 		show_character(c.gender, c.appearance, c.equipment.equipped())
@@ -269,9 +272,13 @@ func _process(delta: float) -> void:
 
 
 ## One presentation frame of `delta` seconds (called from _process; tests call it directly): the see-through fade,
-## the facing, the rig's clips or the placeholder's procedural motions, the sit pose, the blink and the shadow.
+## the facing, the rig's clips or the placeholder's procedural motions, the sit pose, the blink and the shadow. A visual
+## with no player (the creation screen's preview) only plays the rig's idle clip.
 func advance(delta: float) -> void:
 	step_see_through(delta)
+	if player == null and animator != null:
+		# No player to follow (the creation screen's preview): the rig stands in its idle clip.
+		animator.update({}, delta)
 	if player == null or player.model == null:
 		return
 	var m := player.model
@@ -285,7 +292,7 @@ func advance(delta: float) -> void:
 		_step_rig(delta, speed)
 	# Walk bob and a slight lean into the motion; nothing while airborne, climbing or dead. Retired on the rig, whose
 	# walk clip moves the body (covers()).
-	var moving := player.is_grounded() and speed > 0.2 and not player.is_dead()
+	var moving := player.is_grounded() and speed > PlayerAnimator.IDLE_SPEED and not player.is_dead()
 	if moving:
 		_bob_phase += delta * speed / maxf(m.walk_speed, 0.01) * TAU * 2.2
 	else:
@@ -333,7 +340,7 @@ static func preset_for(character_gender: String) -> String:
 	return String(PRESETS.get(character_gender, DEFAULT_PRESET))
 
 
-## How far the rig is lifted onto the chair now (m): SEAT_LIFT_M times the sit clip's current share of its root drop,
+## How far the rig is lifted onto the chair now (m): seat_lift_m() times the sit clip's current share of its root drop,
 ## so it rises and settles with the clip (and the blend out of it). 0 without a rig.
 func seat_lift() -> float:
 	if animator == null or model == null:
@@ -344,18 +351,29 @@ func seat_lift() -> float:
 	if _root_bone < 0:
 		return 0.0
 	var drop := _skeleton.get_bone_rest(_root_bone).origin.y - _skeleton.get_bone_pose_position(_root_bone).y
-	return SEAT_LIFT_M * clampf(drop / SIT_ROOT_DROP, 0.0, 1.0)
+	return seat_lift_m() * clampf(drop / SIT_ROOT_DROP, 0.0, 1.0)
 
 
-## How far the dead rig is lifted onto the ground now (m): DEATH_REST_LIFT_M as the death clip falls. 0 otherwise.
+## How far the dead rig is lifted onto the ground now (m): death_rest_lift_m() as the death clip falls. 0 otherwise.
 func death_lift() -> float:
 	if animator == null or animator.current != PlayerAnimator.DEATH:
 		return 0.0
 	var ap := animator.anim
 	if not ap.is_playing() or ap.current_animation != String(PlayerAnimator.DEATH):
-		return DEATH_REST_LIFT_M
+		return death_rest_lift_m()
 	var fall := ap.current_animation_length * DEATH_FALL_SHARE
-	return DEATH_REST_LIFT_M * clampf(ap.current_animation_position / fall, 0.0, 1.0) if fall > 0.0 else DEATH_REST_LIFT_M
+	var rest := death_rest_lift_m()
+	return rest * clampf(ap.current_animation_position / fall, 0.0, 1.0) if fall > 0.0 else rest
+
+
+## The full seat lift at the character scale (m): SEAT_LIFT_RIG x ArtPack.character_scale().
+static func seat_lift_m() -> float:
+	return SEAT_LIFT_RIG * ArtPack.character_scale()
+
+
+## The full death lift at the character scale (m): DEATH_REST_LIFT_RIG x ArtPack.character_scale().
+static func death_rest_lift_m() -> float:
+	return DEATH_REST_LIFT_RIG * ArtPack.character_scale()
 
 
 ## The rig's whole lift onto what it rests on (seat_lift() + death_lift()); the only vertical offset the visual
@@ -442,7 +460,7 @@ func step_sit(delta: float) -> void:
 
 
 ## With the rig: the art pack's model of the chair item (The Green Relaxer is "522"), at the character scale like
-## the body that sits on it (the seat line-up is SEAT_LIFT_M), front +Z, every surface writing the player's stencil
+## the body that sits on it (the seat line-up is seat_lift_m()), front +Z, every surface writing the player's stencil
 ## like the procedural chair. Null without the rig or without a model for that item (the procedural chair then).
 func _pack_chair(item_id: String) -> Node3D:
 	if animator == null:
@@ -729,19 +747,12 @@ func _apply_silhouette(root: Node) -> void:
 		o.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		o.visible = false
 		# Under the outline root, at the mesh's place in the model: hiding the body for the blink leaves it.
-		var rel := Transform3D.IDENTITY
-		var n: Node = mi
-		while n != null and n != root:
-			if n is Node3D:
-				rel = (n as Node3D).transform * rel
-			n = n.get_parent()
-		o.transform = rel
+		o.transform = ArtImport.to_root(root, mi)
 		_outline_root.add_child(o)
 		# A skinned mesh (the rig): the hull keeps its bones and weights (smoothed_hull) and is posed by the same skin
 		# and skeleton, so the outline follows every clip instead of standing in the bind pose.
 		if mi.skin != null:
-			o.skin = mi.skin
-			o.skeleton = o.get_path_to(mi.get_node(mi.skeleton))
+			SkinnedCopy.bind(o, mi)
 		elif _on_bone(mi, root):
 			# A held item (#68): a bone attachment moves it, so its hull is put back on it every frame it shows.
 			_held_outlines.append([mi, o])
@@ -769,65 +780,21 @@ func held_outline(mi: MeshInstance3D) -> MeshInstance3D:
 ## One triangle surface of `surfaces` of `mesh` with every vertex normal averaged over the vertices at the same
 ## position, so growing it along the normals never cracks at hard edges (the proxy is flat shaded). Null when the
 ## surfaces hold no triangles. Skinned surfaces keep their bones and weights (when every surface has the same number
-## per vertex), so the hull can be posed by the source's skin.
+## per vertex), so the hull can be posed by the source's skin (SkinnedCopy).
 static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
-	var verts := PackedVector3Array()
-	var normals := PackedVector3Array()
-	var index := PackedInt32Array()
-	var bones := PackedInt32Array()
-	var weights := PackedFloat32Array()
-	var per_vertex := -1
+	var g := SkinnedCopy.gather(mesh, surfaces)
+	var verts: PackedVector3Array = g.verts
+	var source: PackedVector3Array = g.normals
 	var acc: Dictionary = {}
-	for s in surfaces:
-		# PrimitiveMeshes are always triangles; an ArrayMesh says.
-		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(int(s)) != Mesh.PRIMITIVE_TRIANGLES:
-			continue
-		var arr := mesh.surface_get_arrays(int(s))
-		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
-		var nrm: PackedVector3Array = arr[Mesh.ARRAY_NORMAL] if arr[Mesh.ARRAY_NORMAL] != null else PackedVector3Array()
-		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
-		var base := verts.size()
-		if arr[Mesh.ARRAY_BONES] != null and arr[Mesh.ARRAY_WEIGHTS] != null and v.size() > 0 and per_vertex != 0:
-			var b: PackedInt32Array = arr[Mesh.ARRAY_BONES]
-			var n_per := b.size() / v.size()
-			if per_vertex < 0 or per_vertex == n_per:
-				per_vertex = n_per
-				bones.append_array(b)
-				weights.append_array(arr[Mesh.ARRAY_WEIGHTS])
-			else:
-				per_vertex = 0
-		else:
-			per_vertex = 0
-		verts.append_array(v)
-		for i in v.size():
-			var key := v[i].snappedf(0.0001)
-			acc[key] = (acc.get(key, Vector3.ZERO) as Vector3) + (nrm[i] if i < nrm.size() else Vector3.ZERO)
-		if ind.is_empty():
-			for i in v.size():
-				index.append(base + i)
-		else:
-			for i in ind:
-				index.append(base + i)
-	if index.is_empty():
-		return null
+	for i in verts.size():
+		var key := verts[i].snappedf(0.0001)
+		acc[key] = (acc.get(key, Vector3.ZERO) as Vector3) + (source[i] if i < source.size() else Vector3.ZERO)
+	var normals := PackedVector3Array()
 	normals.resize(verts.size())
 	for i in verts.size():
 		var n: Vector3 = acc[verts[i].snappedf(0.0001)]
 		normals[i] = n.normalized() if n.length_squared() > 1e-12 else Vector3.UP
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = verts
-	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_INDEX] = index
-	var flags := 0
-	if per_vertex > 0 and bones.size() == verts.size() * per_vertex:
-		arrays[Mesh.ARRAY_BONES] = bones
-		arrays[Mesh.ARRAY_WEIGHTS] = weights
-		if per_vertex == 8:
-			flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
-	var out := ArrayMesh.new()
-	out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
-	return out
+	return SkinnedCopy.build(g, normals)
 
 
 # =================================================================================================================
@@ -886,7 +853,7 @@ func _rig_model() -> Node3D:
 
 func _load_art() -> void:
 	if art == null:
-		art = ArtPack.load_installed()
+		art = ArtPack.shared()
 
 
 func _gender() -> String:

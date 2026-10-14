@@ -57,9 +57,9 @@ var rng: RandomNumberGenerator = null
 ## (owner_id: String, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary) -> Array; empty =
 ## BreakableRules.roll_drops (DropRoller.roll, contract C2).
 var roller: Callable = Callable()
-## The art pack the boxes take their model from (WoodenBox.art). Unlike the seams above, null does not mean "the
-## installed one": setup(ctx) loads the installed pack (ArtPack.load_installed) when nothing was injected, so a system
-## built without setup (the unit tests) keeps the procedural crate whether or not the pack is installed.
+## The art pack the boxes take their model from (WoodenBox.art). Null = no pack, the procedural crate: unlike the seams
+## above, null does not mean "the installed one". setup(ctx) with a GameContext takes ArtPack.shared() when nothing was
+## injected (the ArtPack header has the convention).
 var art: ArtPack = null
 
 ## Live boxes of the current map: placement index -> WoodenBox.
@@ -93,8 +93,8 @@ func _exit_tree() -> void:
 ## Wires the system into the game (GameContext contract). A null field of ctx means "not available".
 func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
-	if art == null:
-		art = ArtPack.load_installed()
+	if ctx != null and art == null:
+		art = ArtPack.shared()
 	if ctx != null and ctx.player is Node3D:
 		attach_player(ctx.player as Node3D)
 	_connect_bus()

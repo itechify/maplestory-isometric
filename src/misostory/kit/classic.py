@@ -57,10 +57,17 @@ def wall_lantern(mb, loc, face="-Y"):
 # Size: the houses are fitted by their stem, not by their wider cap: the maps' door paths, door portals and porch
 # arches line up with the kit stem's front (stem_r 2.0 x 1.06 = 2.12 m), and Sen's house fitted by its cap (1.25x)
 # blocked route ToSensHouse in 20000. The pack caps come out a little smaller than the kit's.
+def stem_width(stem_r=2.0, flare=1.06, long_body=1.0):
+    """The width (m) a pack house's stem is fitted to (``fit_nodes``): the procedural mushroom stem's (stem_r) at
+    ``flare`` times its radius (1.06: the stem front, where door paths and portals stand; 1.1: its widest band),
+    across both sides, stretched by its ``long_body`` along X."""
+    return 2 * stem_r * flare * long_body
+
+
 HOUSE_PACK = dict(parts={"Cap": ["roof", "Roof", "chimney", "Chimney"], "Window": ["Recessed window"],
                          "Lamp": ["lamp glass"]},
                   post=part_materials({"Window": "M_Window", "Lamp": "M_Glow_window"}), max_tris=8000,
-                  fit_nodes=(["Plaster stem house"], 2 * 2.12))
+                  fit_nodes=(["Plaster stem house"], stem_width()))
 
 
 def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, cap_h=2.5, chimney="barrel",
@@ -151,8 +158,11 @@ def hm_blue_cone(coll):
 # stands; the pack store is a round stem under a smaller cap with its door in the middle. Fitted by its cap it
 # would be 12.6 m tall with its door 1.2 m off the portal, so its stem front stands on the kit wall (y -2.4) and it
 # moves 1.2 m along -X onto the kit door.
+KIT_STORE_WALL_Y = 2.4  # the kit store's front wall stands this far in front of its origin (y -2.4)
+
+
 @asset("House_Wood_TwoStory_Capped", "Architecture", footprint=9.0, tags=("house", "shop"),
-       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * 2.4), shift=(-1.2, 0.0, 0.0)))
+       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * KIT_STORE_WALL_Y), shift=(-1.2, 0.0, 0.0)))
 def house_wood_two_story(coll):
     """Two-storey wooden house under a big yellow/orange mushroom cap (Amherst Weapon Store)."""
     mb = MeshBuilder()

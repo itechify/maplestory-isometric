@@ -132,7 +132,7 @@
    "slug": "WestEntranceMushroomTown_0",
    "status": "authored",
    "error": null,
-   "seconds": 10.68,
+   "seconds": 11.91,
    "portals": [
     {
      "name": "out00",
@@ -459,7 +459,7 @@
    "slug": "MushroomTown_10000",
    "status": "authored",
    "error": null,
-   "seconds": 5.87,
+   "seconds": 6.95,
    "portals": [
     {
      "name": "in00",
@@ -765,7 +765,7 @@
    "slug": "MushroomTown_20000",
    "status": "authored",
    "error": null,
-   "seconds": 3.73,
+   "seconds": 4.67,
    "portals": [
     {
      "name": "in01",
@@ -1175,7 +1175,7 @@
    "slug": "EastEntranceMushroomTown_30000",
    "status": "authored",
    "error": null,
-   "seconds": 2.33,
+   "seconds": 3.13,
    "portals": [
     {
      "name": "in00",
@@ -1852,7 +1852,7 @@
    "slug": "SnailHuntingGround1_40000",
    "status": "authored",
    "error": null,
-   "seconds": 4.7,
+   "seconds": 6.03,
    "portals": [
     {
      "name": "east00",
@@ -2791,7 +2791,7 @@
    "slug": "SnailHuntingGround2_40001",
    "status": "authored",
    "error": null,
-   "seconds": 2.56,
+   "seconds": 3.2,
    "portals": [
     {
      "name": "west00",
@@ -3870,7 +3870,7 @@
    "slug": "SnailHuntingGround3_40002",
    "status": "authored",
    "error": null,
-   "seconds": 3.31,
+   "seconds": 4.09,
    "portals": [
     {
      "name": "west00",
@@ -4932,7 +4932,7 @@
    "slug": "ASplitRoad_50000",
    "status": "authored",
    "error": null,
-   "seconds": 2.11,
+   "seconds": 2.5,
    "portals": [
     {
      "name": "west00",
@@ -5907,7 +5907,7 @@
    "slug": "Southperry_60000",
    "status": "authored",
    "error": null,
-   "seconds": 18.76,
+   "seconds": 24.29,
    "portals": [
     {
      "name": "west00",
@@ -6542,7 +6542,7 @@
    "slug": "SouthperryArmorStore_60001",
    "status": "authored",
    "error": null,
-   "seconds": 5.02,
+   "seconds": 6.72,
    "portals": [
     {
      "name": "out00",
@@ -6841,7 +6841,7 @@
    "slug": "MushroomTownTownstreet_20001",
    "status": "authored",
    "error": null,
-   "seconds": 0.25,
+   "seconds": 0.26,
    "portals": [
     {
      "name": "out00",
@@ -7304,7 +7304,7 @@
    "slug": "FieldWestOfAmherst_1000000",
    "status": "authored",
    "error": null,
-   "seconds": 11.79,
+   "seconds": 15.31,
    "portals": [
     {
      "name": "in00",
@@ -8558,7 +8558,7 @@
    "slug": "InASmallForest_1000001",
    "status": "authored",
    "error": null,
-   "seconds": 1.36,
+   "seconds": 1.7,
    "portals": [
     {
      "name": "out00",
@@ -9406,18 +9406,18 @@
     "group_gaps": [],
     "ok": true,
     "cleared_from_routes": [
-     "X1000002_Toadstool_Dark@20.8,8.6",
-     "X1000002_Toadstool_Dark@32.8,25.2",
      "X1000002_Toadstool_Dark@17.8,17.2",
+     "X1000002_Toadstool_Dark@32.8,25.2",
+     "X1000002_Toadstool_Dark@20.8,8.6",
+     "X1000002_Toadstool_Dark@19.5,10.1",
      "X1000002_Toadstool_Dark@34.7,13.0",
-     "X1000002_Toadstool_Dark@16.9,12.4",
-     "X1000002_Toadstool_Dark@19.5,10.1"
+     "X1000002_Toadstool_Dark@16.9,12.4"
     ]
    },
    "slug": "DangerousForest_1000002",
    "status": "authored",
    "error": null,
-   "seconds": 5.13,
+   "seconds": 5.62,
    "portals": [
     {
      "name": "out01",
@@ -13317,7 +13317,7 @@
    "slug": "MushroomGarden_1000003",
    "status": "authored",
    "error": null,
-   "seconds": 8.74,
+   "seconds": 9.11,
    "portals": [
     {
      "name": "out00",
@@ -56165,7 +56165,7 @@
    "slug": "SnailGarden_1000004",
    "status": "authored",
    "error": null,
-   "seconds": 8.37,
+   "seconds": 9.32,
    "portals": [
     {
      "name": "out00",
@@ -102500,7 +102500,7 @@
    "slug": "HuntingGroundMidForest1_1000005",
    "status": "authored",
    "error": null,
-   "seconds": 1.86,
+   "seconds": 2.54,
    "portals": [
     {
      "name": "out00",
@@ -104248,7 +104248,7 @@
    "slug": "HuntingGroundMidForest2_1000006",
    "status": "authored",
    "error": null,
-   "seconds": 5.66,
+   "seconds": 9.01,
    "portals": [
     {
      "name": "out00",
@@ -108217,7 +108217,7 @@
    "slug": "Amherst_1010000",
    "status": "authored",
    "error": null,
-   "seconds": 26.93,
+   "seconds": 48.38,
    "portals": [
     {
      "name": "west00",
@@ -108724,7 +108724,7 @@
    "slug": "AmherstWeaponStore_1010001",
    "status": "authored",
    "error": null,
-   "seconds": 5.08,
+   "seconds": 7.82,
    "portals": [
     {
      "name": "out00",
@@ -109016,7 +109016,7 @@
    "slug": "AmherstTownstreet_1010002",
    "status": "authored",
    "error": null,
-   "seconds": 8.1,
+   "seconds": 12.99,
    "portals": [
     {
      "name": "out00",
@@ -109294,7 +109294,7 @@
    "slug": "AmherstDepartmentStore_1010003",
    "status": "authored",
    "error": null,
-   "seconds": 4.91,
+   "seconds": 7.37,
    "portals": [
     {
      "name": "out00",
@@ -109992,7 +109992,7 @@
    "slug": "SnailFieldOfFlowers_1010004",
    "status": "authored",
    "error": null,
-   "seconds": 1.95,
+   "seconds": 2.89,
    "portals": [
     {
      "name": "east00",
@@ -111003,7 +111003,7 @@
    "slug": "FieldEastOfAmherst_1020000",
    "status": "authored",
    "error": null,
-   "seconds": 9.01,
+   "seconds": 12.13,
    "portals": [
     {
      "name": "west00",
@@ -111972,7 +111972,7 @@
    "slug": "TomatoField_1020001",
    "status": "authored",
    "error": null,
-   "seconds": 10.79,
+   "seconds": 13.06,
    "portals": [
     {
      "name": "out00",
@@ -112487,7 +112487,7 @@
    }
   }
  },
- "started": "2026-10-13 18:41:17",
+ "started": "2026-10-13 20:10:53",
  "trails": [
   {
    "trail": "Trail_WestEntranceMushroomTown_0_out00_to_MushroomTown_10000",
@@ -114023,11 +114023,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9974,
-    "scale_xyz": [
-     0.9974,
-     0.9974,
-     0.9974
-    ],
     "pack_tris": 476,
     "tris": 124,
     "kit_tris": 128,
@@ -114041,11 +114036,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4492,
-    "scale_xyz": [
-     1.4492,
-     1.4492,
-     1.4492
-    ],
     "pack_tris": 2336,
     "tris": 2002,
     "kit_tris": 2044,
@@ -114059,11 +114049,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4461,
-    "scale_xyz": [
-     1.4461,
-     1.4461,
-     1.4461
-    ],
     "pack_tris": 2316,
     "tris": 1920,
     "kit_tris": 1960,
@@ -114077,11 +114062,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0087,
-    "scale_xyz": [
-     1.0087,
-     1.0087,
-     1.0087
-    ],
     "pack_tris": 1112,
     "tris": 250,
     "kit_tris": 256,
@@ -114095,11 +114075,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9798,
-    "scale_xyz": [
-     0.9798,
-     0.9798,
-     0.9798
-    ],
     "pack_tris": 1532,
     "tris": 304,
     "kit_tris": 312,
@@ -114113,11 +114088,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1302,
-    "scale_xyz": [
-     1.1302,
-     1.1302,
-     1.1302
-    ],
     "pack_tris": 1212,
     "tris": 1212,
     "kit_tris": 848,
@@ -114144,11 +114114,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.0818,
-    "scale_xyz": [
-     1.0818,
-     1.0818,
-     1.0818
-    ],
     "pack_tris": 1060,
     "tris": 108,
     "kit_tris": 112,
@@ -114162,11 +114127,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1829,
-    "scale_xyz": [
-     1.1829,
-     1.1829,
-     1.1829
-    ],
     "pack_tris": 1968,
     "tris": 1968,
     "kit_tris": 2240,
@@ -114180,11 +114140,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.355,
-    "scale_xyz": [
-     1.355,
-     1.355,
-     1.355
-    ],
     "pack_tris": 400,
     "tris": 400,
     "kit_tris": 400,
@@ -114198,11 +114153,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4943,
-    "scale_xyz": [
-     1.4943,
-     1.4943,
-     1.4943
-    ],
     "pack_tris": 400,
     "tris": 400,
     "kit_tris": 480,
@@ -114216,11 +114166,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.313,
-    "scale_xyz": [
-     1.313,
-     1.313,
-     1.313
-    ],
     "pack_tris": 400,
     "tris": 312,
     "kit_tris": 320,
@@ -114234,11 +114179,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5679,
-    "scale_xyz": [
-     1.5679,
-     1.5679,
-     1.5679
-    ],
     "pack_tris": 7340,
     "tris": 666,
     "kit_tris": 680,
@@ -114252,11 +114192,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.417,
-    "scale_xyz": [
-     1.417,
-     1.417,
-     1.417
-    ],
     "pack_tris": 1120,
     "tris": 210,
     "kit_tris": 216,
@@ -114270,11 +114205,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1492,
-    "scale_xyz": [
-     1.1492,
-     1.1492,
-     1.1492
-    ],
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114288,11 +114218,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1492,
-    "scale_xyz": [
-     1.1492,
-     1.1492,
-     1.1492
-    ],
     "pack_tris": 2104,
     "tris": 278,
     "kit_tris": 284,
@@ -114306,11 +114231,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.2045,
-    "scale_xyz": [
-     1.2045,
-     1.2045,
-     1.2045
-    ],
     "pack_tris": 1228,
     "tris": 686,
     "kit_tris": 216,
@@ -114324,11 +114244,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4,
-    "scale_xyz": [
-     1.4,
-     1.4,
-     1.4
-    ],
     "pack_tris": 1992,
     "tris": 1274,
     "kit_tris": 1300,
@@ -114378,11 +114293,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.426,
-    "scale_xyz": [
-     1.426,
-     1.426,
-     1.426
-    ],
     "pack_tris": 8064,
     "tris": 564,
     "kit_tris": 576,
@@ -114396,11 +114306,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9408,
-    "scale_xyz": [
-     0.9408,
-     0.9408,
-     0.9408
-    ],
     "pack_tris": 948,
     "tris": 140,
     "kit_tris": 144,
@@ -114414,11 +114319,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.0199,
-    "scale_xyz": [
-     1.0199,
-     1.0199,
-     1.0199
-    ],
     "pack_tris": 2844,
     "tris": 258,
     "kit_tris": 264,
@@ -114432,11 +114332,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3942,
-    "scale_xyz": [
-     1.3942,
-     1.3942,
-     1.3942
-    ],
     "pack_tris": 376,
     "tris": 152,
     "kit_tris": 156,
@@ -114450,11 +114345,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7391,
-    "scale_xyz": [
-     1.7391,
-     1.7391,
-     1.7391
-    ],
     "pack_tris": 512,
     "tris": 462,
     "kit_tris": 472,
@@ -114468,11 +114358,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0161,
-    "scale_xyz": [
-     1.0161,
-     1.0161,
-     1.0161
-    ],
     "pack_tris": 1080,
     "tris": 454,
     "kit_tris": 464,
@@ -114486,11 +114371,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9231,
-    "scale_xyz": [
-     0.9231,
-     0.9231,
-     0.9231
-    ],
     "pack_tris": 894,
     "tris": 406,
     "kit_tris": 416,
@@ -114504,11 +114384,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9744,
-    "scale_xyz": [
-     0.9744,
-     0.9744,
-     0.9744
-    ],
     "pack_tris": 444,
     "tris": 196,
     "kit_tris": 200,
@@ -114522,11 +114397,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3033,
-    "scale_xyz": [
-     1.3033,
-     1.3033,
-     1.3033
-    ],
     "pack_tris": 41640,
     "tris": 1050,
     "kit_tris": 1072,
@@ -114540,11 +114410,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.5752,
-    "scale_xyz": [
-     1.5752,
-     1.5752,
-     1.5752
-    ],
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114558,11 +114423,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3801,
-    "scale_xyz": [
-     1.3801,
-     1.3801,
-     1.3801
-    ],
     "pack_tris": 6940,
     "tris": 286,
     "kit_tris": 292,
@@ -114576,11 +114436,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5252,
-    "scale_xyz": [
-     1.5252,
-     1.5252,
-     1.5252
-    ],
     "pack_tris": 1128,
     "tris": 312,
     "kit_tris": 320,
@@ -114594,11 +114449,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.8109,
-    "scale_xyz": [
-     0.8109,
-     0.8109,
-     0.8109
-    ],
     "pack_tris": 11,
     "tris": 8,
     "kit_tris": 9,
@@ -114612,11 +114462,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.5143,
-    "scale_xyz": [
-     0.5143,
-     0.5143,
-     0.5143
-    ],
     "pack_tris": 692,
     "tris": 134,
     "kit_tris": 140,
@@ -114631,11 +114476,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4121,
-    "scale_xyz": [
-     1.4121,
-     1.4121,
-     1.4121
-    ],
     "pack_tris": 1240,
     "tris": 634,
     "kit_tris": 648,
@@ -114649,11 +114489,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7882,
-    "scale_xyz": [
-     1.7882,
-     1.7882,
-     1.7882
-    ],
     "pack_tris": 776,
     "tris": 776,
     "kit_tris": 3496,
@@ -114667,11 +114502,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1083,
-    "scale_xyz": [
-     1.1083,
-     1.1083,
-     1.1083
-    ],
     "pack_tris": 108,
     "tris": 108,
     "kit_tris": 860,
@@ -114685,11 +114515,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.674,
-    "scale_xyz": [
-     0.674,
-     0.674,
-     0.674
-    ],
     "pack_tris": 896,
     "tris": 392,
     "kit_tris": 400,
@@ -114703,11 +114528,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9593,
-    "scale_xyz": [
-     0.9593,
-     0.9593,
-     0.9593
-    ],
     "pack_tris": 2736,
     "tris": 2736,
     "kit_tris": 1568,
@@ -114723,11 +114543,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9593,
-    "scale_xyz": [
-     0.9593,
-     0.9593,
-     0.9593
-    ],
     "pack_tris": 3914,
     "tris": 3914,
     "kit_tris": 2336,
@@ -114743,11 +114558,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9593,
-    "scale_xyz": [
-     0.9593,
-     0.9593,
-     0.9593
-    ],
     "pack_tris": 7394,
     "tris": 7394,
     "kit_tris": 2140,
@@ -114764,11 +114574,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9593,
-    "scale_xyz": [
-     0.9593,
-     0.9593,
-     0.9593
-    ],
     "pack_tris": 6818,
     "tris": 6818,
     "kit_tris": 2052,
@@ -114784,11 +114589,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.086,
-    "scale_xyz": [
-     1.086,
-     1.086,
-     1.086
-    ],
     "pack_tris": 6090,
     "tris": 6090,
     "kit_tris": 2496,
@@ -114804,11 +114604,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.4691,
-    "scale_xyz": [
-     1.4691,
-     1.4691,
-     1.4691
-    ],
     "pack_tris": 6940,
     "tris": 1438,
     "kit_tris": 1468,
@@ -114822,11 +114617,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0227,
-    "scale_xyz": [
-     1.0227,
-     1.0227,
-     1.0227
-    ],
     "pack_tris": 1989,
     "tris": 301,
     "kit_tris": 308,
@@ -114840,11 +114630,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1122,
-    "scale_xyz": [
-     1.1122,
-     1.1122,
-     1.1122
-    ],
     "pack_tris": 413,
     "tris": 413,
     "kit_tris": 420,
@@ -114858,11 +114643,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0767,
-    "scale_xyz": [
-     1.0767,
-     1.0767,
-     1.0767
-    ],
     "pack_tris": 780,
     "tris": 120,
     "kit_tris": 124,
@@ -114877,11 +114657,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.2782,
-    "scale_xyz": [
-     1.2782,
-     1.2782,
-     1.2782
-    ],
     "pack_tris": 1184,
     "tris": 198,
     "kit_tris": 204,
@@ -114895,11 +114670,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3309,
-    "scale_xyz": [
-     1.3309,
-     1.3309,
-     1.3309
-    ],
     "pack_tris": 132,
     "tris": 86,
     "kit_tris": 88,
@@ -114913,11 +114683,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.787,
-    "scale_xyz": [
-     0.787,
-     0.787,
-     0.787
-    ],
     "pack_tris": 428,
     "tris": 180,
     "kit_tris": 184,
@@ -114931,11 +114696,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.6352,
-    "scale_xyz": [
-     1.6352,
-     1.6352,
-     1.6352
-    ],
     "pack_tris": 6940,
     "tris": 1736,
     "kit_tris": 1772,
@@ -114949,11 +114709,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.4135,
-    "scale_xyz": [
-     1.4135,
-     1.4135,
-     1.4135
-    ],
     "pack_tris": 2724,
     "tris": 238,
     "kit_tris": 244,
@@ -115039,11 +114794,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.4723,
-    "scale_xyz": [
-     1.4723,
-     1.4723,
-     1.4723
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115057,11 +114807,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.8371,
-    "scale_xyz": [
-     0.8371,
-     0.8371,
-     0.8371
-    ],
     "pack_tris": 8120,
     "tris": 892,
     "kit_tris": 912,
@@ -115075,11 +114820,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.6954,
-    "scale_xyz": [
-     1.6954,
-     1.6954,
-     1.6954
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115093,11 +114833,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.8495,
-    "scale_xyz": [
-     1.8495,
-     1.8495,
-     1.8495
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115111,11 +114846,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5413,
-    "scale_xyz": [
-     1.5413,
-     1.5413,
-     1.5413
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115129,11 +114859,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.6954,
-    "scale_xyz": [
-     1.6954,
-     1.6954,
-     1.6954
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115147,11 +114872,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.5169,
-    "scale_xyz": [
-     1.5169,
-     1.5169,
-     1.5169
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115165,11 +114885,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3385,
-    "scale_xyz": [
-     1.3385,
-     1.3385,
-     1.3385
-    ],
     "pack_tris": 1624,
     "tris": 316,
     "kit_tris": 324,
@@ -115196,11 +114911,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3371,
-    "scale_xyz": [
-     1.3371,
-     1.3371,
-     1.3371
-    ],
     "pack_tris": 9064,
     "tris": 516,
     "kit_tris": 528,
@@ -115214,11 +114924,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9482,
-    "scale_xyz": [
-     0.9482,
-     0.9482,
-     0.9482
-    ],
     "pack_tris": 360,
     "tris": 124,
     "kit_tris": 128,
@@ -115232,11 +114937,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.3271,
-    "scale_xyz": [
-     1.3271,
-     1.3271,
-     1.3271
-    ],
     "pack_tris": 378,
     "tris": 378,
     "kit_tris": 588,
@@ -115251,11 +114951,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3318,
-    "scale_xyz": [
-     1.3318,
-     1.3318,
-     1.3318
-    ],
     "pack_tris": 4312,
     "tris": 1556,
     "kit_tris": 1592,
@@ -115271,11 +114966,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0304,
-    "scale_xyz": [
-     1.0304,
-     1.0304,
-     1.0304
-    ],
     "pack_tris": 584,
     "tris": 584,
     "kit_tris": 652,
@@ -115289,11 +114979,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.0494,
-    "scale_xyz": [
-     1.0494,
-     1.0494,
-     1.0494
-    ],
     "pack_tris": 7680,
     "tris": 2050,
     "kit_tris": 2092,
@@ -115307,11 +114992,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.6661,
-    "scale_xyz": [
-     0.6661,
-     0.6661,
-     0.6661
-    ],
     "pack_tris": 160,
     "tris": 78,
     "kit_tris": 20,
@@ -115325,11 +115005,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.689,
-    "scale_xyz": [
-     0.689,
-     0.689,
-     0.689
-    ],
     "pack_tris": 160,
     "tris": 78,
     "kit_tris": 20,
@@ -115343,11 +115018,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1763,
-    "scale_xyz": [
-     1.1763,
-     1.1763,
-     1.1763
-    ],
     "pack_tris": 160,
     "tris": 98,
     "kit_tris": 100,
@@ -115361,11 +115031,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.5503,
-    "scale_xyz": [
-     0.5503,
-     0.5503,
-     0.5503
-    ],
     "pack_tris": 160,
     "tris": 78,
     "kit_tris": 20,
@@ -115379,11 +115044,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1191,
-    "scale_xyz": [
-     1.1191,
-     1.1191,
-     1.1191
-    ],
     "pack_tris": 80,
     "tris": 24,
     "kit_tris": 25,
@@ -115397,11 +115057,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9353,
-    "scale_xyz": [
-     0.9353,
-     0.9353,
-     0.9353
-    ],
     "pack_tris": 1152,
     "tris": 548,
     "kit_tris": 560,
@@ -115415,11 +115070,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.2012,
-    "scale_xyz": [
-     1.2012,
-     1.2012,
-     1.2012
-    ],
     "pack_tris": 564,
     "tris": 180,
     "kit_tris": 184,
@@ -115433,11 +115083,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9356,
-    "scale_xyz": [
-     0.9356,
-     0.9356,
-     0.9356
-    ],
     "pack_tris": 556,
     "tris": 184,
     "kit_tris": 188,
@@ -115451,11 +115096,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1429,
-    "scale_xyz": [
-     1.1429,
-     1.1429,
-     1.1429
-    ],
     "pack_tris": 956,
     "tris": 278,
     "kit_tris": 284,
@@ -115469,11 +115109,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.5414,
-    "scale_xyz": [
-     1.5414,
-     1.5414,
-     1.5414
-    ],
     "pack_tris": 3324,
     "tris": 638,
     "kit_tris": 652,
@@ -115487,11 +115122,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.1013,
-    "scale_xyz": [
-     1.1013,
-     1.1013,
-     1.1013
-    ],
     "pack_tris": 197,
     "tris": 97,
     "kit_tris": 100,
@@ -115505,11 +115135,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.1557,
-    "scale_xyz": [
-     1.1557,
-     1.1557,
-     1.1557
-    ],
     "pack_tris": 744,
     "tris": 270,
     "kit_tris": 276,
@@ -115523,11 +115148,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.56,
-    "scale_xyz": [
-     1.56,
-     1.56,
-     1.56
-    ],
     "pack_tris": 500,
     "tris": 262,
     "kit_tris": 268,
@@ -115541,11 +115161,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.154,
-    "scale_xyz": [
-     1.154,
-     1.154,
-     1.154
-    ],
     "pack_tris": 608,
     "tris": 206,
     "kit_tris": 212,
@@ -115559,11 +115174,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9681,
-    "scale_xyz": [
-     0.9681,
-     0.9681,
-     0.9681
-    ],
     "pack_tris": 501,
     "tris": 145,
     "kit_tris": 148,
@@ -115577,11 +115187,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9759,
-    "scale_xyz": [
-     0.9759,
-     0.9759,
-     0.9759
-    ],
     "pack_tris": 954,
     "tris": 234,
     "kit_tris": 240,
@@ -115595,11 +115200,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.731,
-    "scale_xyz": [
-     0.731,
-     0.731,
-     0.731
-    ],
     "pack_tris": 744,
     "tris": 90,
     "kit_tris": 92,
@@ -115613,11 +115213,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.102,
-    "scale_xyz": [
-     1.102,
-     1.102,
-     1.102
-    ],
     "pack_tris": 312,
     "tris": 124,
     "kit_tris": 128,
@@ -115631,11 +115226,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.7375,
-    "scale_xyz": [
-     0.7375,
-     0.7375,
-     0.7375
-    ],
     "pack_tris": 8908,
     "tris": 646,
     "kit_tris": 660,
@@ -115649,11 +115239,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.1728,
-    "scale_xyz": [
-     1.1728,
-     1.1728,
-     1.1728
-    ],
     "pack_tris": 952,
     "tris": 164,
     "kit_tris": 168,
@@ -115667,11 +115252,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.2143,
-    "scale_xyz": [
-     1.2143,
-     1.2143,
-     1.2143
-    ],
     "pack_tris": 7524,
     "tris": 666,
     "kit_tris": 680,
@@ -115685,11 +115265,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.9982,
-    "scale_xyz": [
-     0.9982,
-     0.9982,
-     0.9982
-    ],
     "pack_tris": 352,
     "tris": 120,
     "kit_tris": 124,
@@ -115703,11 +115278,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.6955,
-    "scale_xyz": [
-     1.6955,
-     1.6955,
-     1.6955
-    ],
     "pack_tris": 1340,
     "tris": 1340,
     "kit_tris": 2804,
@@ -115721,11 +115291,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7444,
-    "scale_xyz": [
-     1.7444,
-     1.7444,
-     1.7444
-    ],
     "pack_tris": 488,
     "tris": 402,
     "kit_tris": 412,
@@ -115739,11 +115304,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 0.7426,
-    "scale_xyz": [
-     0.7426,
-     0.7426,
-     0.7426
-    ],
     "pack_tris": 1564,
     "tris": 422,
     "kit_tris": 432,
@@ -115757,11 +115317,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 0.9524,
-    "scale_xyz": [
-     0.9524,
-     0.9524,
-     0.9524
-    ],
     "pack_tris": 548,
     "tris": 548,
     "kit_tris": 124,
@@ -115775,11 +115330,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.8721,
-    "scale_xyz": [
-     1.8721,
-     1.8721,
-     1.8721
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1156,
@@ -115794,11 +115344,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0898,
-    "scale_xyz": [
-     2.0898,
-     2.0898,
-     2.0898
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115813,11 +115358,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9998,
-    "scale_xyz": [
-     1.9998,
-     1.9998,
-     1.9998
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115832,11 +115372,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.1599,
-    "scale_xyz": [
-     2.1599,
-     2.1599,
-     2.1599
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115851,11 +115386,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9682,
-    "scale_xyz": [
-     1.9682,
-     1.9682,
-     1.9682
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115870,11 +115400,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.2524,
-    "scale_xyz": [
-     2.2524,
-     2.2524,
-     2.2524
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115889,11 +115414,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.2978,
-    "scale_xyz": [
-     2.2978,
-     2.2978,
-     2.2978
-    ],
     "pack_tris": 1372,
     "tris": 1034,
     "kit_tris": 1056,
@@ -115908,11 +115428,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.5138,
-    "scale_xyz": [
-     2.5138,
-     2.5138,
-     2.5138
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1316,
@@ -115927,11 +115442,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.2716,
-    "scale_xyz": [
-     1.2716,
-     1.2716,
-     1.2716
-    ],
     "pack_tris": 996,
     "tris": 230,
     "kit_tris": 237,
@@ -115946,11 +115456,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.8312,
-    "scale_xyz": [
-     1.8312,
-     1.8312,
-     1.8312
-    ],
     "pack_tris": 108,
     "tris": 108,
     "kit_tris": 216,
@@ -115965,11 +115470,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.1542,
-    "scale_xyz": [
-     2.1542,
-     2.1542,
-     2.1542
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1156,
@@ -115984,11 +115484,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0965,
-    "scale_xyz": [
-     2.0965,
-     2.0965,
-     2.0965
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1236,
@@ -116003,11 +115498,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7164,
-    "scale_xyz": [
-     1.7164,
-     1.7164,
-     1.7164
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1076,
@@ -116022,11 +115512,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 2.0929,
-    "scale_xyz": [
-     2.0929,
-     2.0929,
-     2.0929
-    ],
     "pack_tris": 1036,
     "tris": 974,
     "kit_tris": 996,
@@ -116041,11 +115526,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.9926,
-    "scale_xyz": [
-     1.9926,
-     1.9926,
-     1.9926
-    ],
     "pack_tris": 1036,
     "tris": 1036,
     "kit_tris": 1992,
@@ -116060,11 +115540,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.1752,
-    "scale_xyz": [
-     1.1752,
-     1.1752,
-     1.1752
-    ],
     "pack_tris": 15988,
     "tris": 434,
     "kit_tris": 444,
@@ -116078,11 +115553,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.7038,
-    "scale_xyz": [
-     1.7038,
-     1.7038,
-     1.7038
-    ],
     "pack_tris": 2680,
     "tris": 458,
     "kit_tris": 468,
@@ -116096,11 +115566,6 @@
     "alias": false,
     "mapping_kind": "source_named_original_adaptation",
     "scale": 1.2502,
-    "scale_xyz": [
-     1.2502,
-     1.2502,
-     1.2502
-    ],
     "pack_tris": 1140,
     "tris": 140,
     "kit_tris": 144,
@@ -116114,11 +115579,6 @@
     "alias": true,
     "mapping_kind": "semantically_equivalent_original_adaptation",
     "scale": 1.3702,
-    "scale_xyz": [
-     1.3702,
-     1.3702,
-     1.3702
-    ],
     "pack_tris": 644,
     "tris": 274,
     "kit_tris": 280,
@@ -116133,11 +115593,6 @@
     "mapping_kind": "manifest_asset_id",
     "model": "village_welcome_gate",
     "scale": 1.3465,
-    "scale_xyz": [
-     1.3465,
-     1.3465,
-     1.3465
-    ],
     "pack_tris": 1540,
     "tris": 462,
     "kit_tris": 472,
@@ -116152,11 +115607,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "House_Mushroom_LimeLong",
     "scale": 0.9653,
-    "scale_xyz": [
-     0.9653,
-     0.9653,
-     0.9653
-    ],
     "pack_tris": 5278,
     "tris": 5278,
     "kit_tris": 2160,
@@ -116173,11 +115623,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "TreeHouse_Giant",
     "scale": 1.6993,
-    "scale_xyz": [
-     1.6993,
-     1.6993,
-     1.6993
-    ],
     "pack_tris": 2528,
     "tris": 2366,
     "kit_tris": 2416,
@@ -116194,11 +115639,6 @@
     "mapping_kind": "manifest_asset_id",
     "model": "village_welcome_gate",
     "scale": 2.5143,
-    "scale_xyz": [
-     2.5143,
-     2.5143,
-     2.5143
-    ],
     "pack_tris": 1540,
     "tris": 892,
     "kit_tris": 912,
@@ -116213,11 +115653,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "House_Mushroom_Yellow",
     "scale": 0.9593,
-    "scale_xyz": [
-     0.9593,
-     0.9593,
-     0.9593
-    ],
     "pack_tris": 5170,
     "tris": 5170,
     "kit_tris": 2484,
@@ -116234,11 +115669,6 @@
     "mapping_kind": "manifest_asset_id",
     "model": "arch",
     "scale": 0.9417,
-    "scale_xyz": [
-     0.9417,
-     0.9417,
-     0.9417
-    ],
     "pack_tris": 1188,
     "tris": 1188,
     "kit_tris": 1860,
@@ -116253,11 +115683,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "House_Mushroom_Yellow",
     "scale": 0.8633,
-    "scale_xyz": [
-     0.8633,
-     0.8633,
-     0.8633
-    ],
     "pack_tris": 5170,
     "tris": 5170,
     "kit_tris": 2620,
@@ -116274,11 +115699,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "Shop_Armor",
     "scale": 1.2982,
-    "scale_xyz": [
-     1.2982,
-     1.2982,
-     1.2982
-    ],
     "pack_tris": 11194,
     "tris": 7838,
     "kit_tris": 3070,
@@ -116295,11 +115715,6 @@
     "mapping_kind": "source_named_original_adaptation",
     "model": "Lighthouse_Southperry",
     "scale": 1.5069,
-    "scale_xyz": [
-     1.5069,
-     1.5069,
-     1.5069
-    ],
     "pack_tris": 4104,
     "tris": 1882,
     "kit_tris": 1924,
@@ -116312,6 +115727,6 @@
    }
   }
  },
- "seconds": 211.1,
+ "seconds": 284.3,
  "objects": 18023
 }

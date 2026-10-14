@@ -65,7 +65,7 @@ func advance(delta: float) -> void:
 		if k >= 1.0:
 			n.queue_free()
 			continue
-		n.scale = Vector3.ONE * _scale() * lerpf(0.8, 1.15, sqrt(k))
+		n.scale = Vector3.ONE * ArtPack.character_scale() * lerpf(0.8, 1.15, sqrt(k))
 		EffectMeshes.fade(n, k * k)
 		keep.append(d)
 	_dust = keep
@@ -92,7 +92,7 @@ func refresh() -> void:
 	for id: String in want:
 		if _auras.has(id):
 			continue
-		var n := _meshes().standing(want[id], _scale())
+		var n := _meshes().standing(want[id], ArtPack.character_scale())
 		if n == null:
 			continue
 		n.name = want[id]
@@ -142,7 +142,7 @@ func _on_climb_ended(_climbable: Variant, how: StringName) -> void:
 func _puff() -> void:
 	if player == null or not is_inside_tree():
 		return
-	var n := _meshes().standing(EffectMeshes.JUMP_DUST, _scale())
+	var n := _meshes().standing(EffectMeshes.JUMP_DUST, ArtPack.character_scale())
 	if n == null:
 		return
 	n.top_level = true
@@ -153,10 +153,6 @@ func _puff() -> void:
 
 func _meshes() -> EffectMeshes:
 	return effect_meshes if effect_meshes != null else EffectMeshes.shared()
-
-
-func _scale() -> float:
-	return ArtPack.character_scale()
 
 
 func _connect_sources() -> void:

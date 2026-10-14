@@ -32,7 +32,7 @@ from misostory.geo import MeshBuilder
 from misostory.kit import asset
 from misostory.kit.architecture import door, shop_sign
 from misostory.kit.art_pack import part_materials
-from misostory.kit.classic import HOUSE_PACK, mushroom_house_v2
+from misostory.kit.classic import HOUSE_PACK, mushroom_house_v2, stem_width
 from misostory.kit.nature import _puffy_canopy
 from misostory.kit.promoted import arc
 
@@ -157,7 +157,7 @@ def _potion_sign(coll):
 # pack (#75, kit/landmark_aliases.py): the pack long lime house, fitted by its stem to this stem (2.0 x 1.1 x 1.6
 # wide) like the catalog houses (classic.HOUSE_PACK), so the walls stand where these did; its 2 m door spans in02.
 @asset("X1010000_DeptStore", "Architecture", footprint=10.6, tags=("house", "mushroom", "shop", "landmark"),
-       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * 2.0 * 1.1 * 1.6)))
+       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], stem_width(flare=1.1, long_body=1.6))))
 def _dept_store(coll):
     """Amherst Department Store: long lime-green spotted mushroom house with a stone-oven chimney.
 

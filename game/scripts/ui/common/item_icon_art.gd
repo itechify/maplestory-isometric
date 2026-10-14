@@ -28,7 +28,7 @@ func _init(p_pack: ArtPack) -> void:
 ## The icons of the installed pack (loaded once), or those use() set.
 static func shared() -> ItemIconArt:
 	if _shared == null:
-		_shared = ItemIconArt.new(ArtPack.load_installed())
+		_shared = ItemIconArt.new(ArtPack.shared())
 	return _shared
 
 
