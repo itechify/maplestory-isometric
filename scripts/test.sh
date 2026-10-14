@@ -47,14 +47,10 @@ fi
 
 if [[ -n "${ISOLATE:-}" ]]; then
   DEST="$REPO/_scratch/godot_runs/$ISOLATE"
-  mkdir -p "$DEST/game"
   # Mirror everything except the import cache and the (large) exported world; logic tests do not need the world.
-  # The art pack (game/assets/art_pack) is mirrored unless NO_ART_PACK=1 asks for a run without it.
-  ART_EXCLUDE=""
-  if [[ "${NO_ART_PACK:-0}" == "1" ]]; then ART_EXCLUDE="--exclude=./assets/art_pack"; rm -rf "$DEST/game/assets/art_pack"; fi
-  (cd "$PROJECT" && tar --exclude=./.godot --exclude=./assets/world $ART_EXCLUDE -cf - .) | (cd "$DEST/game" && tar -xf -)
-  # Drop files deleted from the source since the last mirror.
-  (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT/$f" ]] || rm -f "$f"; done)
+  # The art pack is mirrored unless NO_ART_PACK=1 (scripts/mirror_game.sh).
+  source "$REPO/scripts/mirror_game.sh"
+  mirror_game "$PROJECT" "$DEST/game"
   if [[ "${INCLUDE_WORLD:-0}" == "1" && -d "$PROJECT/assets/world" ]]; then
     mkdir -p "$DEST/game/assets"
     cp -ru "$PROJECT/assets/world" "$DEST/game/assets/"

@@ -9,8 +9,8 @@
 #                                            # needs the pack already installed, and stops with exit 1 without it
 #
 # Takes about 6 minutes on the dev machine (island build ~1 min, export ~4 min, Godot import ~15 s). The export goes
-# to game/assets/world/ (git-ignored), the art pack to game/assets/art_pack/ (git-ignored; scripts/art_pack.sh; its first
-# import takes about a minute more). Afterwards, play with:  bash scripts/play.sh
+# to game/assets/world/ (git-ignored), the art pack to game/assets/art_pack/ (git-ignored; scripts/art_pack.sh; its
+# first import takes about a minute more). Afterwards, play with:  bash scripts/play.sh
 set -euo pipefail
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$REPO"

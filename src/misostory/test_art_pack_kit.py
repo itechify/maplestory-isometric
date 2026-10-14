@@ -22,33 +22,58 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 sys.path.insert(0, os.path.dirname(HERE))
 
 import bpy  # noqa: E402
-from mathutils import Vector  # noqa: E402
 
 from misostory import build, kit  # noqa: E402
 from misostory.kit import art_pack  # noqa: E402
+# Bounds from the vertices (asset sources live in an excluded collection, whose cached bound_box goes stale) and
+# triangle counts, as the swap itself measures them.
+from misostory.kit.art_pack import _mesh_bounds as bounds, _tris as tris  # noqa: E402
 
-HAVE_PACK = not art_pack.preflight(["Bush_A"], pack_dir=art_pack.DEFAULT_DIR)
-
-
-def bounds(objs):
-    """From the vertices: asset sources live in an excluded collection, whose cached bound_box goes stale."""
-    lo, hi = Vector((1e9,) * 3), Vector((-1e9,) * 3)
-    for o in objs:
-        for v in o.data.vertices:
-            p = o.matrix_world @ v.co
-            lo, hi = Vector(map(min, lo, p)), Vector(map(max, hi, p))
-    return lo, hi
+HAVE_PACK = not art_pack.preflight(["Bush_A"], directory=art_pack.DEFAULT_DIR)
+NO_PACK = "no art pack installed (bash scripts/art_pack.sh fetch)"
 
 
-def tris(objs):
-    return sum(len(p.vertices) - 2 for o in objs for p in o.data.polygons)
+class NeedsPack(unittest.TestCase):
+    """Tests of the installed pack's lookups: each SKIPs without the pack."""
 
-
-class PackLookup(unittest.TestCase):
     def setUp(self):
         if not HAVE_PACK:
-            self.skipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+            self.skipTest(NO_PACK)
 
+
+class BuiltFromPack(unittest.TestCase):
+    """Builds every name of NAMES once from the pack (the pack required, in a fresh scene): ``colls[name]`` is its
+    asset collection, ``kit[name]`` the procedural asset's reference (art_pack.reference: bounds, triangles,
+    shadow). The whole class SKIPs without the pack."""
+
+    NAMES = ()
+
+    @classmethod
+    def setUpClass(cls):
+        if not HAVE_PACK:
+            raise unittest.SkipTest(NO_PACK)
+        cls.prepare()
+        build.reset_scene()
+        art_pack.configure("required")
+        cls.kit = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
+        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
+
+    @classmethod
+    def prepare(cls):
+        """Called before the scene is reset (e.g. to register map-module assets)."""
+
+    @classmethod
+    def tearDownClass(cls):
+        art_pack.configure("off")
+
+    def objs(self, name):
+        return list(self.colls[name].objects)
+
+    def points(self, name, z0=-1e9, z1=1e9):
+        return [p for o in self.objs(name) for v in o.data.vertices for p in [o.matrix_world @ v.co] if z0 <= p.z <= z1]
+
+
+class PackLookup(NeedsPack):
     def test_alias_resolves_to_the_mapped_file_not_the_name(self):
         entry = art_pack.entry("Flower_Patch_A")
         self.assertEqual(entry["output_file"], "environment/glb/flower_1.glb")
@@ -74,12 +99,8 @@ class PackLookup(unittest.TestCase):
         self.assertTrue(entry["alias"])
 
 
-class ArchitectureRocksTerrainLookup(unittest.TestCase):
+class ArchitectureRocksTerrainLookup(NeedsPack):
     """#74: the architecture, rocks and terrain catalog names come from the pack too."""
-
-    def setUp(self):
-        if not HAVE_PACK:
-            self.skipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
 
     def test_architecture_rocks_and_terrain_swap_but_their_landmarks_do_not(self):
         swapped = art_pack.swapped_names(kit.REGISTRY)
@@ -94,32 +115,13 @@ class ArchitectureRocksTerrainLookup(unittest.TestCase):
             self.assertIn(cat, msg)
 
 
-class ArchitectureRocksTerrainFromPack(unittest.TestCase):
+class ArchitectureRocksTerrainFromPack(BuiltFromPack):
     """#74: kit.ensure(name) of architecture, rocks and terrain keeps the frame the island places them in."""
 
     NAMES = ("Fence_Wood_Seg", "Fence_Picket_Seg", "Mountain_Peak_B", "Mountain_Hill", "Rock_A", "Rock_B",
              "Rock_Boulder", "Rock_Cliff_Stone", "Cloud_Puff_A", "Post_StoneCap", "Eave_Lashed_4m",
              "House_Mushroom_OrangeSpotted", "House_Mushroom_OrangeOven", "House_Wood_TwoStory_Capped",
              "Tomato_Gate", "Hill_Door", "Barrel_Door_Mound", "Door_Plank")
-
-    @classmethod
-    def setUpClass(cls):
-        if not HAVE_PACK:
-            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
-        build.reset_scene()
-        art_pack.configure("required")
-        cls.kit = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
-        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
-
-    @classmethod
-    def tearDownClass(cls):
-        art_pack.configure("off")
-
-    def objs(self, name):
-        return list(self.colls[name].objects)
-
-    def points(self, name, z0=-1e9, z1=1e9):
-        return [p for o in self.objs(name) for v in o.data.vertices for p in [o.matrix_world @ v.co] if z0 <= p.z <= z1]
 
     def test_fences_run_from_the_origin_along_x_like_the_kit_segment(self):
         """m.fence and the trails scale a segment (L/n/2, 1, 1) from its origin: the kit runs 0..2 m along +X."""
@@ -146,6 +148,14 @@ class ArchitectureRocksTerrainFromPack(unittest.TestCase):
         for i in range(3):
             self.assertAlmostEqual(hi[i] - lo[i], khi[i] - klo[i], delta=0.02, msg=i)
             self.assertAlmostEqual(lo[i], klo[i], delta=0.02, msg=i)
+
+    def test_the_build_report_gives_per_axis_factors_only_for_non_uniform_fits(self):
+        """docs/build_report.json: scale_xyz marks the box and bbox fits (mountains, clouds), not a uniform fit whose
+        float32 factors differ from the Python scale in the last bits."""
+        for name in ("Rock_A", "Fence_Wood_Seg", "House_Mushroom_OrangeSpotted"):
+            self.assertNotIn("scale_xyz", art_pack.BUILT[name], name)
+        for name in ("Cloud_Puff_A", "Mountain_Peak_B"):
+            self.assertIn("scale_xyz", art_pack.BUILT[name], name)
 
     def test_rocks_keep_the_kit_height_so_their_collision_class_is_unchanged(self):
         """The export gives a rock a prism only when its scaled top reaches 0.9 m: the kit Rock_A (top 0.64 m) never
@@ -261,7 +271,7 @@ class LandmarkAliasTable(unittest.TestCase):
             self.assertTrue(why.strip(), n)
 
 
-class LandmarkAliasesFromPack(unittest.TestCase):
+class LandmarkAliasesFromPack(BuiltFromPack):
     """#75: kit.ensure(landmark) of an aliased landmark builds its pack model, fitted to the landmark's own size."""
 
     NAMES = ("X1010000_TownGate", "X60000_ArmorStore", "X1010000_DeptStore", "X1010000_YellowHouse",
@@ -269,21 +279,8 @@ class LandmarkAliasesFromPack(unittest.TestCase):
              "X1000006_Gate_Posts")
 
     @classmethod
-    def setUpClass(cls):
-        if not HAVE_PACK:
-            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+    def prepare(cls):
         landmark_names()
-        build.reset_scene()
-        art_pack.configure("required")
-        cls.kit = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
-        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
-
-    @classmethod
-    def tearDownClass(cls):
-        art_pack.configure("off")
-
-    def objs(self, name):
-        return list(self.colls[name].objects)
 
     def test_aliased_landmarks_swap_and_kit_art_landmarks_do_not(self):
         self.assertTrue(art_pack.swaps("X60000_ArmorStore", kit.REGISTRY["X60000_ArmorStore"]))
@@ -302,9 +299,6 @@ class LandmarkAliasesFromPack(unittest.TestCase):
         klo, khi = self.kit["X1010000_TownGate"]["lo"], self.kit["X1010000_TownGate"]["hi"]
         self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.05)
         self.assertAlmostEqual(lo.z, 0.0, delta=0.01)
-
-    def points(self, name, z0=-1e9, z1=1e9):
-        return [p for o in self.objs(name) for v in o.data.vertices for p in [o.matrix_world @ v.co] if z0 <= p.z <= z1]
 
     def band(self, name, z0=0.15, z1=1.6):
         """The mesh inside the export's prism slice (0.15-1.6 m), what blocks a walk: the edges cut at the slice
@@ -399,9 +393,45 @@ class LandmarkAliasesFromPack(unittest.TestCase):
         self.assertTrue(all(o.get("asset") == "X1010000_TownGate" for o in self.objs("X1010000_TownGate")))
 
 
+class SpecChecks(unittest.TestCase):
+    """A pack spec the build cannot follow fails loudly: an unknown mode value names the allowed ones (before any
+    import), and an omit or parts list that matches no pack node raises, as fit_nodes does."""
+
+    def info(self, name, **pack):
+        return dict(kit.REGISTRY[name], pack=pack)
+
+    def test_a_bad_mode_value_names_the_allowed_values(self):
+        for key, bad, allowed in (("fit", "xyz", "xy, z, box, bbox"), ("align_xy", "centre", "origin, kit"),
+                                  ("anchor_z", "top", "ground, kit_bottom, kit_top")):
+            with self.assertRaises(ValueError) as cm:
+                art_pack.check_spec("Bush_A", {key: bad})
+            self.assertIn(allowed, str(cm.exception), key)
+            self.assertIn(repr(bad), str(cm.exception), key)
+        art_pack.check_spec("Bush_A", {"fit": "box", "align_xy": "kit", "anchor_z": "kit_top"})
+
+    def test_an_unknown_or_retired_key_is_refused(self):
+        for key in ("sharpness", "sharp_angle"):
+            with self.assertRaises(KeyError):
+                art_pack.check_spec("Bush_A", {key: 1})
+
+    def test_omit_or_parts_that_match_no_node_raise(self):
+        if not HAVE_PACK:
+            self.skipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
+        build.reset_scene()
+        art_pack.configure("required")
+        try:
+            for pack in ({"omit": ["No such node"]}, {"parts": {"Glow": ["No such node"]}}):
+                coll = bpy.data.collections.new("_spec_check")
+                with self.assertRaises(KeyError) as cm:
+                    art_pack.build("Bush_A", self.info("Bush_A", **pack), coll)
+                self.assertIn("No such node", str(cm.exception))
+        finally:
+            art_pack.configure("off")
+
+
 class PreflightWithoutPack(unittest.TestCase):
     def test_missing_pack_is_reported_with_the_fetch_command(self):
-        problems = art_pack.preflight(["Bush_A"], pack_dir=os.path.join(tempfile.gettempdir(), "no_such_art_pack"))
+        problems = art_pack.preflight(["Bush_A"], directory=os.path.join(tempfile.gettempdir(), "no_such_art_pack"))
         self.assertTrue(problems)
         self.assertIn("bash scripts/art_pack.sh fetch", art_pack.missing_message(problems))
 
@@ -415,7 +445,7 @@ class PreflightWithoutPack(unittest.TestCase):
             for f in ("source_catalog_mapping.json", "manifest_complete.json"):
                 with open(os.path.join(d, "environment", f), "w") as fh:
                     fh.write('{"entries": [], "assets": []}')
-            problems = art_pack.preflight(["village_welcome_gate"], pack_dir=d)
+            problems = art_pack.preflight(["village_welcome_gate"], directory=d)
         self.assertEqual(len(problems), 1)
         self.assertIn("manifest_complete.json", problems[0])
 
@@ -429,27 +459,10 @@ class PreflightWithoutPack(unittest.TestCase):
         self.assertNotIn("RENDERED", r.stdout)
 
 
-class EnsureFromPack(unittest.TestCase):
+class EnsureFromPack(BuiltFromPack):
     """kit.ensure(name) with the pack required: the @asset's collection holds the pack model, fitted to the kit."""
 
-    @classmethod
-    def setUpClass(cls):
-        if not HAVE_PACK:
-            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
-        build.reset_scene()
-        art_pack.configure("required")
-        cls.kit_size = {}
-        for name in ("Bush_A", "Flower_Patch_A", "Vine_Hanging_A", "Butterfly", "Tree_Round_A", "Tree_Birch_Teal"):
-            ref = art_pack.reference(name, kit.REGISTRY[name])   # the procedural builder's size and triangles
-            cls.kit_size[name] = ref
-        cls.colls = {n: kit.ensure(n) for n in cls.kit_size}
-
-    @classmethod
-    def tearDownClass(cls):
-        art_pack.configure("off")
-
-    def objs(self, name):
-        return list(self.colls[name].objects)
+    NAMES = ("Bush_A", "Flower_Patch_A", "Vine_Hanging_A", "Butterfly", "Tree_Round_A", "Tree_Birch_Teal")
 
     def test_parts_are_meshes_named_without_blender_suffixes_and_unparented(self):
         for name in self.colls:
@@ -464,7 +477,7 @@ class EnsureFromPack(unittest.TestCase):
     def test_largest_horizontal_size_matches_the_kit_asset(self):
         for name in ("Bush_A", "Flower_Patch_A", "Tree_Round_A"):
             lo, hi = bounds(self.objs(name))
-            klo, khi = self.kit_size[name]["lo"], self.kit_size[name]["hi"]
+            klo, khi = self.kit[name]["lo"], self.kit[name]["hi"]
             self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.02,
                                    msg=name)
 
@@ -475,7 +488,7 @@ class EnsureFromPack(unittest.TestCase):
 
     def test_hanging_vine_keeps_the_kit_frame_origin_at_the_top(self):
         lo, hi = bounds(self.objs("Vine_Hanging_A"))
-        klo, khi = self.kit_size["Vine_Hanging_A"]["lo"], self.kit_size["Vine_Hanging_A"]["hi"]
+        klo, khi = self.kit["Vine_Hanging_A"]["lo"], self.kit["Vine_Hanging_A"]["hi"]
         self.assertAlmostEqual(hi.z, khi[2], delta=0.02)
         self.assertAlmostEqual(hi.z - lo.z, khi[2] - klo[2], delta=0.05)
 
@@ -500,11 +513,11 @@ class EnsureFromPack(unittest.TestCase):
 
     def test_butterfly_hovers_at_the_kit_height(self):
         lo, _ = bounds(self.objs("Butterfly"))
-        self.assertAlmostEqual(lo.z, self.kit_size["Butterfly"]["lo"][2], delta=0.02)
+        self.assertAlmostEqual(lo.z, self.kit["Butterfly"]["lo"][2], delta=0.02)
 
     def test_triangles_stay_within_the_kit_asset_budget(self):
         for name in self.colls:
-            self.assertLessEqual(tris(self.objs(name)), art_pack.tri_budget(name, self.kit_size[name]), name)
+            self.assertLessEqual(tris(self.objs(name)), art_pack.tri_budget(name, self.kit[name]), name)
 
     def test_materials_go_through_the_shared_shading_group(self):
         for name in self.colls:
@@ -553,27 +566,11 @@ def emission(mat):
     return 0.0
 
 
-class EnsurePropsAndMarkersFromPack(unittest.TestCase):
+class EnsurePropsAndMarkersFromPack(BuiltFromPack):
     """#73: the props and markers built from the pack keep the kit asset's frame, height and glow."""
 
     NAMES = ("Lamp_Post", "Hanging_Lantern", "Portal_Swirl", "Portal_Door", "Bed", "Cart", "NPC_Beacon", "Crate",
              "Haystack", "Planter_Box")
-
-    @classmethod
-    def setUpClass(cls):
-        if not HAVE_PACK:
-            raise unittest.SkipTest("no art pack installed (bash scripts/art_pack.sh fetch)")
-        build.reset_scene()
-        art_pack.configure("required")
-        cls.ref = {n: art_pack.reference(n, kit.REGISTRY[n]) for n in cls.NAMES}
-        cls.colls = {n: kit.ensure(n) for n in cls.NAMES}
-
-    @classmethod
-    def tearDownClass(cls):
-        art_pack.configure("off")
-
-    def objs(self, name):
-        return list(self.colls[name].objects)
 
     def glows(self, name):
         return [o.name for o in self.objs(name) for m in o.data.materials if m and emission(m) > 0.5]
@@ -593,13 +590,13 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
     def test_lamp_post_keeps_the_kit_height(self):
         """The pack lamp is a slim centred post: fitting the kit lamp's arm width made it 4.4 m tall (kit 3.1 m)."""
         lo, hi = bounds(self.objs("Lamp_Post"))
-        self.assertAlmostEqual(hi.z - lo.z, self.ref["Lamp_Post"]["hi"][2] - self.ref["Lamp_Post"]["lo"][2],
+        self.assertAlmostEqual(hi.z - lo.z, self.kit["Lamp_Post"]["hi"][2] - self.kit["Lamp_Post"]["lo"][2],
                                delta=0.05)
 
     def test_hanging_lantern_hangs_from_its_origin(self):
         """Kit frame: the origin is the hook at the top (placed under ceilings and eaves)."""
         lo, hi = bounds(self.objs("Hanging_Lantern"))
-        self.assertAlmostEqual(hi.z, self.ref["Hanging_Lantern"]["hi"][2], delta=0.02)
+        self.assertAlmostEqual(hi.z, self.kit["Hanging_Lantern"]["hi"][2], delta=0.02)
         self.assertLess(lo.z, -0.3)
 
     def test_bed_runs_along_x_with_the_headboard_at_minus_x(self):
@@ -617,8 +614,8 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
 
     def test_npc_beacon_hovers_centred_on_its_origin_like_the_kit_diamond(self):
         lo, hi = bounds(self.objs("NPC_Beacon"))
-        self.assertAlmostEqual(lo.z, self.ref["NPC_Beacon"]["lo"][2], delta=0.02)
-        self.assertAlmostEqual(hi.z, self.ref["NPC_Beacon"]["hi"][2], delta=0.02)
+        self.assertAlmostEqual(lo.z, self.kit["NPC_Beacon"]["lo"][2], delta=0.02)
+        self.assertAlmostEqual(hi.z, self.kit["NPC_Beacon"]["hi"][2], delta=0.02)
 
     def test_haystack_body_blocks_about_as_much_as_the_kit_haystack(self):
         """The kit haystack's width is the loose straw at its foot (2.8 m); its body is 1.9 m across. Fitted to the
@@ -635,7 +632,7 @@ class EnsurePropsAndMarkersFromPack(unittest.TestCase):
 
     def test_plain_props_stand_on_z0_at_the_kit_size(self):
         lo, hi = bounds(self.objs("Crate"))
-        klo, khi = self.ref["Crate"]["lo"], self.ref["Crate"]["hi"]
+        klo, khi = self.kit["Crate"]["lo"], self.kit["Crate"]["hi"]
         self.assertAlmostEqual(lo.z, 0.0, delta=0.01)
         self.assertAlmostEqual(max(hi.x - lo.x, hi.y - lo.y), max(khi[0] - klo[0], khi[1] - klo[1]), delta=0.02)
 

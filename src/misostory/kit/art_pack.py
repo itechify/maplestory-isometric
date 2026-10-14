@@ -22,7 +22,7 @@ lookups and the export's collision classes are unchanged; only the mesh comes fr
 5. **Triangle budget:** a pack model heavier than the kit asset it replaces is decimated (collapse) down to the kit
    asset's own triangle count, so no map gets heavier than before (``validate.py`` polygon budget). ``max_tris``
    overrides that per asset.
-6. Shading like the kit's (smooth, edges sharper than ``sharp_angle`` hard), the object is renamed after the asset
+6. Shading like the kit's (smooth, edges sharper than ``SHARP_ANGLE_DEG`` hard), the object is renamed after the asset
    (never ``.NNN``) and moved into the asset collection; ``kit.ensure`` then adds the ink outline.
 
 Modes (``configure``): ``off`` (default: procedural builders; tests, fixtures, a fresh clone), ``auto`` (the pack
@@ -75,18 +75,19 @@ LANDMARK = re.compile(r"X\d+_")
 #                "kit_top": z-max = the kit asset's (a hanging vine whose origin is its top)
 #   scale_mul    extra uniform factor after the fit (an art adjustment checked by eye)
 #   max_tris     triangle budget instead of the kit asset's own triangle count
-#   sharp_angle  degrees; edges sharper than this stay hard (default 60)
 #   node_scale   {substring: (sx, sy, sz)}: scale the pack nodes whose name contains the substring about the pack
 #                origin, before the fit (an art adjustment, e.g. the trees' splayed roots, whose reach sets the
 #                export's trunk prism)
 #   parts        {suffix: [substring, ...]}: pack nodes whose name contains a substring become their own object
 #                <name>_<suffix> (e.g. an overhanging cap that needs collision_tags.OVERHEAD_HULL); the rest is one
-#                object named after the asset
+#                object named after the asset. A parts spec none of whose substrings is in any pack node raises
+#                (one suffix may match nothing: a family spec such as classic.HOUSE_PACK names parts not every
+#                model has)
 #   post         fn(coll, parts) called last with {suffix or "": object}, to tag parts or give them a kit material
-#                back: glow, which the pack never has (``kit_materials(Glow="M_Glow_window")``: the glow of lamps
-#                and portals; ``part_materials({...})``: the same, skipping a suffix the asset has no part for)
+#                back: glow, which the pack never has (``part_materials({"Glow": "M_Glow_window"})``: the glow of
+#                lamps and portals; a suffix the asset has no part for is skipped, so one spec serves a family)
 #   omit         [substring, ...]: pack nodes left out (e.g. a door's own grass mound where the map's hill is the
-#                mound); the fit measures what is left
+#                mound); the fit measures what is left. Like fit_nodes, an omit list that matches no node raises
 #   fit_nodes    ([substring, ...], metres): instead of the whole model, the pack nodes whose name contains a
 #                substring set the uniform scale: their largest horizontal size becomes this many metres (e.g. a
 #                house's stem fitted to the kit house's walls, where the map's door path and portal stand)
@@ -94,8 +95,16 @@ LANDMARK = re.compile(r"X\d+_")
 #                where the map's door portal stands)
 # The kit asset's shadow setting carries over: when none of its meshes casts a shadow (clouds, the shop posts and
 # eaves), neither do the pack parts.
-SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "sharp_angle", "node_scale", "parts",
-             "post", "omit", "shift", "fit_nodes"}
+SPEC_KEYS = {"fit", "rot_z", "align_xy", "anchor_z", "scale_mul", "max_tris", "node_scale", "parts", "post", "omit",
+             "shift", "fit_nodes"}
+# The allowed values of the mode keys, the first being the default.
+SPEC_MODES = {"fit": ("xy", "z", "box", "bbox"), "align_xy": ("origin", "kit"),
+              "anchor_z": ("ground", "kit_bottom", "kit_top")}
+# Edges sharper than this stay hard (degrees), as on the kit's own smooth-shaded assets.
+SHARP_ANGLE_DEG = 60.0
+# How far (relative) a fit's per-axis factors may differ and still be one uniform scale: the factors are float32
+# (mathutils), the scale a Python float.
+UNIFORM_TOLERANCE = 1e-6
 
 _state = {"mode": "off", "mapping": {}, "manifest": {}}
 _reference = {}
@@ -112,40 +121,35 @@ def configure(mode):
     _state["mode"] = mode
 
 
-def mode():
-    return _state["mode"]
-
-
 def pack_dir():
     return os.environ.get("MISOSTORY_ART_PACK_DIR") or DEFAULT_DIR
 
 
-def mapping(directory=None):
-    """{catalog name: mapping entry} of the installed pack ({} when there is none)."""
+def _index(cache, filename, directory, build_index):
+    """``build_index(json data)`` of the pack file ``filename`` under ``directory`` (default: the installed pack),
+    read once per directory into ``_state[cache]``; {} when the file is not there (and nothing is cached)."""
     directory = directory or pack_dir()
-    if directory not in _state["mapping"]:
-        path = os.path.join(directory, MAPPING_FILE)
+    if directory not in _state[cache]:
+        path = os.path.join(directory, filename)
         if not os.path.isfile(path):
             return {}
         with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-        _state["mapping"][directory] = {e["source_asset_id"]: e for e in data.get("entries", [])}
-    return _state["mapping"][directory]
+            _state[cache][directory] = build_index(json.load(f))
+    return _state[cache][directory]
+
+
+def mapping(directory=None):
+    """{catalog name: mapping entry} of the installed pack ({} when there is none)."""
+    return _index("mapping", MAPPING_FILE, directory,
+                  lambda data: {e["source_asset_id"]: e for e in data.get("entries", [])})
 
 
 def manifest_ids(directory=None):
     """{asset id: output_file} of every environment model in the installed pack's manifest ({} when none)."""
-    directory = directory or pack_dir()
-    if directory not in _state["manifest"]:
-        path = os.path.join(directory, MANIFEST_FILE)
-        if not os.path.isfile(path):
-            return {}
-        with open(path, encoding="utf-8") as f:
-            data = json.load(f)
-        base = os.path.dirname(MANIFEST_FILE)
-        _state["manifest"][directory] = {a["id"]: f"{base}/{a['file']}" for a in data.get("assets", [])
-                                         if a.get("id") and a.get("file")}
-    return _state["manifest"][directory]
+    base = os.path.dirname(MANIFEST_FILE)
+    return _index("manifest", MANIFEST_FILE, directory,
+                  lambda data: {a["id"]: f"{base}/{a['file']}" for a in data.get("assets", [])
+                                if a.get("id") and a.get("file")})
 
 
 def landmark_model(name):
@@ -208,9 +212,10 @@ def swaps(name, info):
     return _state["mode"] == "required" or name in mapping()
 
 
-def preflight(names, pack_dir=None):
-    """Problems that stop a pack build of these catalog names ([] = ready)."""
-    directory = pack_dir or globals()["pack_dir"]()
+def preflight(names, directory=None):
+    """Problems that stop a pack build of these catalog names from the pack at ``directory`` (default: the installed
+    pack) ([] = ready)."""
+    directory = directory or pack_dir()
     if not os.path.isdir(directory):
         return [f"no art pack installed at {directory}"]
     path = os.path.join(directory, MAPPING_FILE)
@@ -342,9 +347,9 @@ def pack_material():
 
 def part_materials(materials):
     """A ``post`` hook giving parts a kit material instead of M_Pack: ``{part suffix (or "" for the main object):
-    material name}``. For what the pack never has (glow: lit windows, lamps, the clouds' soft glow) or a kit look an
-    asset must keep (the hills' meadow painting). A suffix the asset has no part for is skipped, so one spec can
-    serve a family of models."""
+    material name}``. For what the pack never has (glow: lit windows, lamps, portals, the clouds' soft glow; the
+    export reads the MS_Shading Emission) or a kit look an asset must keep (the hills' meadow painting). A suffix the
+    asset has no part for is skipped, so one spec can serve a family of models."""
     def post(coll, parts):
         for suffix, mat in materials.items():
             o = parts.get(suffix)
@@ -355,18 +360,6 @@ def part_materials(materials):
             me.materials.append(M.get(mat))
             for p in me.polygons:
                 p.material_index = 0
-    return post
-
-
-def kit_materials(**by_part):
-    """A ``post`` hook giving parts a kit material instead of ``M_Pack``: ``kit_materials(Glow="M_Glow_window")``
-    puts the lamp glass (``parts={"Glow": [...]}``) back in the kit's emissive material. The pack has no emission,
-    so this is how a lamp, a lantern or a portal keeps its glow (the export reads the MS_Shading Emission)."""
-    def post(coll, parts):
-        for suffix, mat_name in by_part.items():
-            me = parts[suffix].data
-            me.materials.clear()
-            me.materials.append(M.get(mat_name))
     return post
 
 
@@ -446,17 +439,37 @@ def _decimate(objs, budget):
     return total
 
 
-def build(name, info, coll):
-    """Fill the asset collection ``coll`` with the pack model of catalog name ``name`` (see the module doc)."""
-    spec = info.get("pack") or {}
+def check_spec(name, spec):
+    """Raise for a pack spec the build cannot follow: an unknown key (KeyError) or a mode value outside SPEC_MODES
+    (ValueError naming the allowed values). Checked before anything is imported."""
     unknown = set(spec) - SPEC_KEYS
     if unknown:
         raise KeyError(f"{name}: unknown art pack spec keys {sorted(unknown)}")
+    for key, allowed in SPEC_MODES.items():
+        if key in spec and spec[key] not in allowed:
+            raise ValueError(f"{name}: art pack {key} {spec[key]!r}: one of {', '.join(allowed)}")
+
+
+def _mode(spec, key):
+    return spec.get(key, SPEC_MODES[key][0])
+
+
+def _matched(name, key, substrings, node_names):
+    """Raise KeyError when none of ``substrings`` (a spec's omit or parts list) is in a pack node name."""
+    if substrings and not any(k in n for k in substrings for n in node_names):
+        raise KeyError(f"{name}: no pack node matches {key} {list(substrings)}")
+
+
+def build(name, info, coll):
+    """Fill the asset collection ``coll`` with the pack model of catalog name ``name`` (see the module doc)."""
+    spec = info.get("pack") or {}
+    check_spec(name, spec)
     ref = reference(name, info)
     e = entry(name)
     path = glb_path(name)
     new = _import(path)
     omit = spec.get("omit") or ()
+    _matched(name, "omit", omit, [o.name for o in new])
     for o in [o for o in new if o.type != "MESH" or any(k in o.name for k in omit)]:
         new.remove(o)
         bpy.data.objects.remove(o)
@@ -485,6 +498,7 @@ def build(name, info, coll):
             fit_pts += [v.co.copy() for v in me.vertices]
         suffix = next((s for s, keys in (spec.get("parts") or {}).items() if any(k in o.name for k in keys)), "")
         groups.setdefault(suffix, []).append(o)
+    _matched(name, "parts", [k for keys in (spec.get("parts") or {}).values() for k in keys], [o.name for o in new])
     parts = {s: _join(objs, f"{name}_{s}" if s else name) for s, objs in sorted(groups.items())}
     objs = list(parts.values())
 
@@ -496,9 +510,7 @@ def build(name, info, coll):
         o.data.transform(rot)
     lo, hi = _mesh_bounds(objs)
     klo, khi = Vector(ref["lo"]), Vector(ref["hi"])
-    fit_kind = spec.get("fit", "xy")
-    if fit_kind not in ("xy", "z", "box", "bbox"):
-        raise ValueError(f"{name}: art pack fit {fit_kind!r}: xy, z, box or bbox")
+    fit_kind = _mode(spec, "fit")
     if fit_nodes:
         if not fit_pts:
             raise KeyError(f"{name}: no pack node matches fit_nodes {list(fit_nodes)}")
@@ -516,17 +528,16 @@ def build(name, info, coll):
     else:
         size = Vector((s, s, sz))
     lo, hi = lo * size, hi * size
-    if spec.get("align_xy", "origin") == "kit":
+    if _mode(spec, "align_xy") == "kit":
         dx, dy = (klo.x + khi.x - lo.x - hi.x) / 2, (klo.y + khi.y - lo.y - hi.y) / 2
     else:
         dx = dy = 0.0
-    anchor = spec.get("anchor_z", "ground")
-    dz = {"ground": -lo.z, "kit_bottom": klo.z - lo.z, "kit_top": khi.z - hi.z}[anchor]
+    dz = {"ground": -lo.z, "kit_bottom": klo.z - lo.z, "kit_top": khi.z - hi.z}[_mode(spec, "anchor_z")]
     sx, sy, sz_ = spec.get("shift", (0.0, 0.0, 0.0))
     fit = Matrix.Translation((dx + sx, dy + sy, dz + sz_)) @ Matrix.Diagonal((*size, 1.0))
     for o in objs:
         o.data.transform(fit)
-    sharp = math.radians(spec.get("sharp_angle", 60.0))
+    sharp = math.radians(SHARP_ANGLE_DEG)
     for o in objs:
         me = o.data
         me.shade_smooth()
@@ -541,9 +552,11 @@ def build(name, info, coll):
         bpy.data.materials.remove(m)
     if spec.get("post"):
         spec["post"](coll, parts)
+    uniform = all(abs(c - s) <= UNIFORM_TOLERANCE * max(1.0, abs(s)) for c in size)
     BUILT[name] = {"file": e["output_file"], "alias": e["alias"], "mapping_kind": e.get("mapping_kind"),
                    **({"model": e["model"]} if e.get("model") else {}),
-                   "scale": round(s, 4), **({"scale_xyz": [round(c, 4) for c in size]} if tuple(size) != (s, s, s) else {}), "pack_tris": pack_tris, "tris": tris, "kit_tris": ref["tris"],
+                   "scale": round(s, 4), **({} if uniform else {"scale_xyz": [round(c, 4) for c in size]}),
+                   "pack_tris": pack_tris, "tris": tris, "kit_tris": ref["tris"],
                    "decimated": tris < pack_tris, "parts": sorted(o.name for o in objs)}
     print("ART_PACK_ASSET", name, json.dumps(BUILT[name]))
     return objs

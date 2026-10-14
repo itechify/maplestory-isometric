@@ -5,7 +5,7 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
-from .art_pack import kit_materials
+from .art_pack import part_materials
 
 # Built from the pinned art pack (kit/art_pack.py, docs/AUTHORING.md section 9); pack= are the per-asset exceptions.
 
@@ -15,7 +15,7 @@ from .art_pack import kit_materials
 # renders, so it is x1.2 (2.5 m wide, 2.65 m tall; the kit portal was 2.9 m tall)
 @asset("Portal_Swirl", "Markers", footprint=1.6, tags=("portal",),
        pack=dict(parts={"Ring": ["Portal luminous rim"], "Core": ["Arrival rune ring"]}, scale_mul=1.2,
-                 post=kit_materials(Ring="M_Portal_Ring", Core="M_Portal_Core")))
+                 post=part_materials({"Ring": "M_Portal_Ring", "Core": "M_Portal_Core"})))
 def portal_swirl(coll):
     """Classic MapleStory portal: a tall glowing blue-white vortex standing on a ring."""
     mb = MeshBuilder()
@@ -38,7 +38,7 @@ def portal_swirl(coll):
 # pack: a threshold rune between two light bars, and a chevron, with no glow; they get the kit portal materials back
 @asset("Portal_Door", "Markers", footprint=1.2, tags=("portal",),
        pack=dict(parts={"Core": ["Door threshold rune"], "Ring": ["Door marker"]},
-                 post=kit_materials(Ring="M_Portal_Ring", Core="M_Portal_Core")))
+                 post=part_materials({"Ring": "M_Portal_Ring", "Core": "M_Portal_Core"})))
 def portal_door(coll):
     """Door portal: glowing threshold disc and ring, a 1.6 m light column fading to clear, chevrons at ~2.4 m."""
     mb = MeshBuilder()

@@ -7,11 +7,11 @@ from mathutils import Vector
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
-from .art_pack import kit_materials
+from .art_pack import part_materials
 
 # Built from the pinned art pack (kit/art_pack.py, docs/AUTHORING.md section 9); pack= are the per-asset exceptions.
 # The pack's lamp glass goes back into the kit's glowing window material (the pack has no emission).
-LAMP_GLOW = dict(parts={"Glow": ["Amber lamp glass"]}, post=kit_materials(Glow="M_Glow_window"))
+LAMP_GLOW = dict(parts={"Glow": ["Amber lamp glass"]}, post=part_materials({"Glow": "M_Glow_window"}))
 
 
 @asset("Crate", "Props", footprint=1.0, tags=("prop",))
