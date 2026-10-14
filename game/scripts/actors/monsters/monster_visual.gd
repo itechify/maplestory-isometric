@@ -333,54 +333,16 @@ static func stencil_material(mat: Material, owned: bool) -> Material:
 ## The mesh the fill draws for `mesh`: the mesh itself when it has one surface, else one triangle surface holding
 ## every triangle surface of it (positions, plus each vertex's bones and weights when every surface is skinned alike,
 ## so the fill of a rig follows its animation; cached per source mesh), so a fill is one draw call per model mesh
-## instead of one per material (a proxy mesh has 3-6 surfaces).
+## instead of one per material (a proxy mesh has 3-6 surfaces). SkinnedCopy builds it.
 static func fill_mesh(mesh: Mesh) -> Mesh:
 	if mesh == null or mesh.get_surface_count() <= 1:
 		return mesh
 	if _fill_meshes.has(mesh):
 		return _fill_meshes[mesh]
-	var verts := PackedVector3Array()
-	var index := PackedInt32Array()
-	var bones := PackedInt32Array()
-	var weights := PackedFloat32Array()
-	# Bones per vertex shared by every surface: -1 = not known yet, 0 = not skinned (or skinned unevenly: positions only).
-	var per_vertex := -1
-	for s in mesh.get_surface_count():
-		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(s) != Mesh.PRIMITIVE_TRIANGLES:
-			continue
-		var arr := mesh.surface_get_arrays(s)
-		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
-		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
-		var k := 0
-		if arr[Mesh.ARRAY_BONES] != null and arr[Mesh.ARRAY_WEIGHTS] != null and v.size() > 0:
-			k = (arr[Mesh.ARRAY_BONES] as PackedInt32Array).size() / v.size()
-		per_vertex = k if per_vertex < 0 or per_vertex == k else 0
-		if per_vertex > 0:
-			bones.append_array(arr[Mesh.ARRAY_BONES])
-			weights.append_array(arr[Mesh.ARRAY_WEIGHTS])
-		var base := verts.size()
-		verts.append_array(v)
-		if ind.is_empty():
-			for i in v.size():
-				index.append(base + i)
-		else:
-			for i in ind:
-				index.append(base + i)
+	var merged := SkinnedCopy.build(SkinnedCopy.gather(mesh, range(mesh.get_surface_count())))
 	var out: Mesh = mesh
-	if not index.is_empty():
-		var arrays := []
-		arrays.resize(Mesh.ARRAY_MAX)
-		arrays[Mesh.ARRAY_VERTEX] = verts
-		arrays[Mesh.ARRAY_INDEX] = index
-		var flags := 0
-		if per_vertex > 0:
-			arrays[Mesh.ARRAY_BONES] = bones
-			arrays[Mesh.ARRAY_WEIGHTS] = weights
-			if per_vertex == 8:
-				flags = Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
-		var merged := ArrayMesh.new()
+	if merged != null:
 		merged.resource_name = "%s_SeeThrough" % mesh.resource_name
-		merged.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
 		out = merged
 	_fill_meshes[mesh] = out
 	return out
@@ -409,16 +371,14 @@ func _apply_see_through(root: Node, owned: bool) -> void:
 		# The fill exists to draw where terrain hides the monster: occlusion culling (off today) must never cull it.
 		fill.ignore_occlusion_culling = true
 		fill.layers = mi.layers
-		if mi.skin != null and not mi.skeleton.is_empty():
-			# A rig's mesh: the fill is bound to the same skeleton with the same skin, so it follows the animation
-			# instead of drawing the rest pose. A relative mi.skeleton is relative to mi, the fill's parent.
-			fill.skin = mi.skin
-			fill.skeleton = mi.skeleton if mi.skeleton.is_absolute() else NodePath("../" + String(mi.skeleton))
 		fill.visible = false
 		fill.set_instance_shader_parameter(&"see_through_tint", tint)
 		fill.set_instance_shader_parameter(&"see_through_amount", 0.0)
 		fill.set_instance_shader_parameter(&"see_through_min_cover", min_cover)
 		mi.add_child(fill)
+		# A rig's mesh: the fill is bound to the same skeleton with the same skin, so it follows the animation
+		# instead of drawing the rest pose.
+		SkinnedCopy.bind(fill, mi)
 		_see_through_fills.append(fill)
 	_see_through_applied = 0.0
 

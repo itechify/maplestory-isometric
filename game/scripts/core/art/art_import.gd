@@ -375,8 +375,8 @@ static func _combine(surfaces: Array, mat: Material, ranges: Dictionary = {}) ->
 				ranges[garment] = PackedInt32Array()
 			ranges[garment].append_array([first_index, out[Mesh.ARRAY_INDEX].size() - first_index])
 	var flags := 0
-	if out[Mesh.ARRAY_BONES] != null and offset > 0 and (out[Mesh.ARRAY_BONES] as PackedInt32Array).size() == offset * 8:
-		flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
+	if out[Mesh.ARRAY_BONES] != null and offset > 0:
+		flags = SkinnedCopy.bone_flags((out[Mesh.ARRAY_BONES] as PackedInt32Array).size() / offset)
 	var mesh := ArrayMesh.new()
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, out, [], {}, flags)
 	mesh.surface_set_material(0, mat)

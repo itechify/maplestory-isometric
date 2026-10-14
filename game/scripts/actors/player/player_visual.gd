@@ -752,8 +752,7 @@ func _apply_silhouette(root: Node) -> void:
 		# A skinned mesh (the rig): the hull keeps its bones and weights (smoothed_hull) and is posed by the same skin
 		# and skeleton, so the outline follows every clip instead of standing in the bind pose.
 		if mi.skin != null:
-			o.skin = mi.skin
-			o.skeleton = o.get_path_to(mi.get_node(mi.skeleton))
+			SkinnedCopy.bind(o, mi)
 		elif _on_bone(mi, root):
 			# A held item (#68): a bone attachment moves it, so its hull is put back on it every frame it shows.
 			_held_outlines.append([mi, o])
@@ -781,65 +780,21 @@ func held_outline(mi: MeshInstance3D) -> MeshInstance3D:
 ## One triangle surface of `surfaces` of `mesh` with every vertex normal averaged over the vertices at the same
 ## position, so growing it along the normals never cracks at hard edges (the proxy is flat shaded). Null when the
 ## surfaces hold no triangles. Skinned surfaces keep their bones and weights (when every surface has the same number
-## per vertex), so the hull can be posed by the source's skin.
+## per vertex), so the hull can be posed by the source's skin (SkinnedCopy).
 static func smoothed_hull(mesh: Mesh, surfaces: Array) -> ArrayMesh:
-	var verts := PackedVector3Array()
-	var normals := PackedVector3Array()
-	var index := PackedInt32Array()
-	var bones := PackedInt32Array()
-	var weights := PackedFloat32Array()
-	var per_vertex := -1
+	var g := SkinnedCopy.gather(mesh, surfaces)
+	var verts: PackedVector3Array = g.verts
+	var source: PackedVector3Array = g.normals
 	var acc: Dictionary = {}
-	for s in surfaces:
-		# PrimitiveMeshes are always triangles; an ArrayMesh says.
-		if mesh is ArrayMesh and (mesh as ArrayMesh).surface_get_primitive_type(int(s)) != Mesh.PRIMITIVE_TRIANGLES:
-			continue
-		var arr := mesh.surface_get_arrays(int(s))
-		var v: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
-		var nrm: PackedVector3Array = arr[Mesh.ARRAY_NORMAL] if arr[Mesh.ARRAY_NORMAL] != null else PackedVector3Array()
-		var ind: PackedInt32Array = arr[Mesh.ARRAY_INDEX] if arr[Mesh.ARRAY_INDEX] != null else PackedInt32Array()
-		var base := verts.size()
-		if arr[Mesh.ARRAY_BONES] != null and arr[Mesh.ARRAY_WEIGHTS] != null and v.size() > 0 and per_vertex != 0:
-			var b: PackedInt32Array = arr[Mesh.ARRAY_BONES]
-			var n_per := b.size() / v.size()
-			if per_vertex < 0 or per_vertex == n_per:
-				per_vertex = n_per
-				bones.append_array(b)
-				weights.append_array(arr[Mesh.ARRAY_WEIGHTS])
-			else:
-				per_vertex = 0
-		else:
-			per_vertex = 0
-		verts.append_array(v)
-		for i in v.size():
-			var key := v[i].snappedf(0.0001)
-			acc[key] = (acc.get(key, Vector3.ZERO) as Vector3) + (nrm[i] if i < nrm.size() else Vector3.ZERO)
-		if ind.is_empty():
-			for i in v.size():
-				index.append(base + i)
-		else:
-			for i in ind:
-				index.append(base + i)
-	if index.is_empty():
-		return null
+	for i in verts.size():
+		var key := verts[i].snappedf(0.0001)
+		acc[key] = (acc.get(key, Vector3.ZERO) as Vector3) + (source[i] if i < source.size() else Vector3.ZERO)
+	var normals := PackedVector3Array()
 	normals.resize(verts.size())
 	for i in verts.size():
 		var n: Vector3 = acc[verts[i].snappedf(0.0001)]
 		normals[i] = n.normalized() if n.length_squared() > 1e-12 else Vector3.UP
-	var arrays := []
-	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = verts
-	arrays[Mesh.ARRAY_NORMAL] = normals
-	arrays[Mesh.ARRAY_INDEX] = index
-	var flags := 0
-	if per_vertex > 0 and bones.size() == verts.size() * per_vertex:
-		arrays[Mesh.ARRAY_BONES] = bones
-		arrays[Mesh.ARRAY_WEIGHTS] = weights
-		if per_vertex == 8:
-			flags |= Mesh.ARRAY_FLAG_USE_8_BONE_WEIGHTS
-	var out := ArrayMesh.new()
-	out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays, [], {}, flags)
-	return out
+	return SkinnedCopy.build(g, normals)
 
 
 # =================================================================================================================
