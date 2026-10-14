@@ -124,8 +124,7 @@ func test_the_loot_system_drops_pack_models() -> void:
 		l.clock_provider = func() -> float: return 100.0
 		l.state_provider = func() -> MapInstanceState: return state
 		l.ground_axis_provider = func() -> Vector3: return Vector3(1, 0, 0)
-		if label == "none":
-			l.art = ArtPack.load_from("res://tests/data/no_such_pack")
+		l.art = ArtPack.shared() if label == "installed" else ArtPack.load_from("res://tests/data/no_such_pack")
 		l.setup(null)
 		var nodes: Array = []
 		l.drop_spawned.connect(func(n: GroundDrop) -> void: nodes.append(n))

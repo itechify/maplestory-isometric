@@ -147,7 +147,8 @@ var worn: Dictionary = {}
 var wardrobe: Dictionary = {}
 ## Drives the rig's clips (null without a rig).
 var animator: PlayerAnimator = null
-## The art pack (injectable before the node enters the tree; else the installed one, loaded once).
+## The art pack (injectable before the node enters the tree; else _ready takes ArtPack.shared(): the visual has no
+## setup call, see the ArtPack header).
 var art: ArtPack = null
 
 var _chair_id: String = ""
@@ -895,7 +896,7 @@ func _rig_model() -> Node3D:
 
 func _load_art() -> void:
 	if art == null:
-		art = ArtPack.load_installed()
+		art = ArtPack.shared()
 
 
 func _gender() -> String:

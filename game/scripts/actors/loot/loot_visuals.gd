@@ -4,7 +4,7 @@ extends RefCounted
 ## art are Nexon sprites, which MisoStory never uses). With the art pack (Project art, ADR 0002) a drop shows the pack's
 ## model; without it, or for a model the pack lacks, a procedural shape.
 ##
-##   var vis := LootVisuals.new(Data.db, ArtPack.load_installed())   # no pack argument: procedural only
+##   var vis := LootVisuals.new(Data.db, ArtPack.shared())   # no pack argument: procedural only
 ##   vis.style_for_item("270")      # {"shape": "potion", "body": Color, "accent": Color, "name": "Red Potion"}
 ##   vis.style_for_mesos(7)         # {"shape": "meso", "body": Color, "coins": 1, "bag": false, "pack_extent_m", ...}
 ##   var mesh_root := vis.build_drop_model(record)    # Node3D: the pack model, or a bottle, a chest, a coin pile ...

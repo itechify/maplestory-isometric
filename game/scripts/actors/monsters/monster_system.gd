@@ -33,9 +33,8 @@ var view: MapInstanceView = null
 var player: Node3D = null
 var player_combat: PlayerCombat = null
 var library: ProxyLibrary = null
-## The art pack the monsters' rigged models come from. setup() loads the installed one (ArtPack.load_installed())
-## unless one was injected; without it (bare tests that never call setup, or no pack installed) the monsters keep their
-## proxies.
+## The art pack the monsters' rigged models come from. Null = no pack, the proxies. setup(ctx) with a GameContext takes
+## ArtPack.shared() when nothing was injected (the ArtPack header has the convention).
 var art: ArtPack = null
 var ground: PhysicsGroundQuery = null
 var tuning: WorldTuning = null
@@ -77,8 +76,8 @@ func _process(_delta: float) -> void:
 ## The shell's integration call (GameContext contract). Safe to call once the world is built or before.
 func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
-	if art == null:
-		art = ArtPack.load_installed()
+	if ctx != null and art == null:
+		art = ArtPack.shared()
 	_ensure_fx()
 	if ctx != null and ctx.player != null:
 		attach_player(ctx.player as Node3D)

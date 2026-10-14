@@ -35,10 +35,10 @@ var art: ArtPack = null
 var _bounds: Dictionary = {}
 
 
-## The installed pack's effect meshes, loaded once per process (ArtPack.load_installed reads several manifests).
+## The installed pack's effect meshes (ArtPack.shared()), made once per process.
 static func shared() -> EffectMeshes:
 	if _shared == null:
-		_shared = from_pack(ArtPack.load_installed())
+		_shared = from_pack(ArtPack.shared())
 	return _shared
 
 

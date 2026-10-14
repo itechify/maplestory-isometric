@@ -240,7 +240,7 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
   | tied pouch | other Etc items |
 
   Name keywords tint the body (Red Potion red, Blue Snail Shell blue). Mesos change art with the amount: a bronze coin, a gold coin, a pile, then a bag. Every model has a soft shadow disc and slight emission, so it still reads in shade.
-- **Pack models (#70).** With the art pack installed (ADR 0002), every drop shows the pack's model instead (`LootVisuals.new(db, art)`; `LootSystem.art`, default `ArtPack.load_installed()`).
+- **Pack models (#70).** With the art pack installed (ADR 0002), every drop shows the pack's model instead (`LootVisuals.new(db, art)`; `LootSystem.art`: `setup(ctx)` with a GameContext takes `ArtPack.shared()` unless one was injected, a bare or `setup(null)` system stays procedural).
   - Items resolve by canonical id through `ArtPack.ITEM`, so the monster drops (Snail Shell and the rest) come from the pack's monster manifest.
   - Every meso tier shows the pack's one meso model: the bronze coin is recoloured (`pack_tint`), the pile and the bag are bigger (`pack_extent_m`).
   - Each model sits under a `Pack` child of the drop's `Model`. It is raised by `godot_validation.json`'s ground offset (`ArtPack.ground_offset_y`), so a grip-centred sword stands on its pommel instead of sinking. It is centred over the drop (`ArtPack.bounds`), so it turns in place, and scaled so its longest side is `pack_models.item_extent_m` (0.6 m). Characters' parts are scaled on import, so both lookups scale their bounds to match.

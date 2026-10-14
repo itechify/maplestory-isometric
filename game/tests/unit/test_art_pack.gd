@@ -84,6 +84,14 @@ func test_the_installed_pack_comes_from_the_pin() -> void:
 	assert_near(ArtPack.character_scale(), 1.5 / 1.9825, 1e-4, "the one character factor")
 
 
+## Every consumer the game wires shares one read of the installed pack (with or without the pack installed).
+func test_the_shared_pack_is_the_installed_one_read_once() -> void:
+	var a := ArtPack.shared()
+	assert_true(a == ArtPack.shared(), "the same instance every time")
+	assert_eq(a.root, ArtPack.install_dir(), "from the pin's install_dir")
+	assert_eq(a.present(), ArtPack.load_installed().present(), "the installed pack")
+
+
 # --- coverage ----------------------------------------------------------------------------------------------------
 
 func _required() -> Dictionary:

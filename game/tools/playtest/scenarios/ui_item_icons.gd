@@ -30,7 +30,7 @@ func max_seconds() -> float:
 
 
 func run(d: PlaytestDriver) -> void:
-	_pack = ArtPack.load_installed().present()
+	_pack = ArtPack.shared().present()
 	d.note("art pack installed: %s" % _pack)
 	var ng: Dictionary = await d.new_game("Icons", "male", WEAPON, {"str": 9})
 	if not d.check("new game through the title and creation screens", bool(ng["ok"]), str(ng)):

@@ -306,7 +306,7 @@ func _build_look_row(key: String) -> HBoxContainer:
 	var group := ButtonGroup.new()
 	var buttons: Array = []
 	var faces: Array = _look_table().get("face_styles", [])
-	var art := ArtPack.load_installed() if key == CharacterAppearance.SKIN else null
+	var art := ArtPack.shared() if key == CharacterAppearance.SKIN else null
 	for i in CharacterAppearance.choices(key):
 		var index := i
 		var text := str(i + 1)

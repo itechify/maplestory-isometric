@@ -176,7 +176,7 @@ sea plane it returns to its spawn point.
 
 **Rigged models (Project art, #64).** With the art pack installed (ADR 0002), each species is Jarvis's rigged model,
 looked up by canonical id: `MonsterVisual.build(def, library, art)` takes `art.instance(ArtPack.MONSTER, def.id)`
-(`MonsterSystem.art`: `setup(ctx)` loads `ArtPack.load_installed()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
+(`MonsterSystem.art`: `setup(ctx)` with a GameContext takes `ArtPack.shared()` unless one was injected; passed through `Monster.setup`). `model_fit` still sizes it:
 the top of its meshes at rest goes to the canonical sprite height, on the model's own origin (feet at y = 0, front +Z).
 `model_source` says where the model came from. The rig plays the clip the monster's state selects, and never drives
 it:
@@ -478,7 +478,7 @@ The Wooden Box (MeowDB breakable `0000001`) stands on its 19 canonical placement
 - **Respawn.** Exactly the placement's canonical `respawn_s` after the break, on `Game.clock` (not aligned to the
   monster spawn tick; the map pages' per-placement values, such as 90 and 180 s on 000001000, are kept over the
   breakable page's single 120 s). The box is not solid (classic reactors never block movement).
-- **Model (#65).** `BreakableSystem.setup(ctx)` loads the installed art pack (`ArtPack.load_installed()`) into its
+- **Model (#65).** `BreakableSystem.setup(ctx)` with a GameContext takes the installed art pack (`ArtPack.shared()`) into its
   `art` seam, and every box it realizes looks up the pack's WoodenBox by canonical breakable id (`ArtPack.BREAKABLE`,
   `0000001`), fitted by one uniform scale so its wider footprint side matches the body (`box.touch_px`) and its base
   sits on the feet. `Idle` loops while the box stands; each hit that does not break it plays `Hit` from its start

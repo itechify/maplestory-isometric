@@ -6,7 +6,7 @@ extends RefCounted
 ## fails with one error per ID. Without the pack (a fresh clone, an isolated run without it) nothing fails:
 ## stats.art_pack says "no pack".
 ##
-## Options (DataValidator): art_pack (an ArtPack; default ArtPack.load_installed()), art_pack_exists (a Callable
+## Options (DataValidator): art_pack (an ArtPack; default ArtPack.shared(), the installed pack), art_pack_exists (a Callable
 ## deciding whether a model path exists; default ResourceLoader.exists).
 
 const CHECK := "art_pack"
@@ -25,7 +25,7 @@ func _init(content: ContentDB, validation_report: ValidationReport, opts: Dictio
 func run() -> void:
 	var art: ArtPack = options.get("art_pack", null)
 	if art == null:
-		art = ArtPack.load_installed()
+		art = ArtPack.shared()
 	var exists: Callable = options.get("art_pack_exists", Callable(ResourceLoader, "exists"))
 	var result := art.coverage(ArtPack.required_ids(db), exists)
 	report.stats[CHECK] = result.status

@@ -25,7 +25,7 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	var sheet := _arg(args, "--sheet", "wearables")
 	var out := _arg(args, "--out", "")
-	art = ArtPack.load_installed()
+	art = ArtPack.shared()
 	if not art.present() or out == "":
 		print("SHEET_FAILED %s" % ("no art pack" if not art.present() else "no --out"))
 		get_tree().quit(1)

@@ -55,7 +55,7 @@ func _create(d: PlaytestDriver) -> void:
 	var preview := cs.preview_visual()
 	# Without the art pack (NO_ART_PACK=1) the preview and the player are the placeholder: the look is still chosen,
 	# saved and loaded, only not shown.
-	var has_art := ArtPack.load_installed().present()
+	var has_art := ArtPack.shared().present()
 	d.check("the creation screen previews the %s" % ("rigged Beginner" if has_art else "placeholder (no art pack)"),
 		preview != null and preview.rigged() == has_art, "preset %s" % (preview.preset if preview != null else "(none)"))
 	var base := CharacterAppearance.default_for(gender)
