@@ -169,6 +169,28 @@ func test_a_species_in_the_pack_uses_its_model_fitted_to_the_sprite_height() -> 
 	assert_near(box.position.y, 0.0, 1e-3, "on its feet")
 
 
+## Owner decision (#59/#64): a model fitted to the sprite height that ends up wider than the species' model width cap
+## (1.35x its touch zone width) is scaled down uniformly until it fits. The stand-in (0.4 x 0.5 x 0.6 m at rest) fitted
+## to the Tutorial Jr. Sentinel's 1.7 m sprite would be 2.04 m deep against its 0.525 m touch zone.
+func test_a_model_wider_than_the_cap_is_scaled_down_uniformly_until_it_fits() -> void:
+	var art := standin_pack(["1"])
+	var v := _visual("1", art)
+	var d := v.def
+	var limit := d.model_max_width_m()
+	assert_near(limit, 0.525 * 1.35, 1e-4, "the Sentinel's cap")
+	var box := _model_box(v)
+	var width := maxf(box.size.x, box.size.z)
+	assert_near(width, limit, 1e-3, "its widest extent is the cap (%.3f m)" % width)
+	# Uniform: the stand-in keeps its 0.4 : 0.5 : 0.6 proportions.
+	assert_near(box.size.y, limit * STANDIN_H / 0.6, 1e-3, "scaled uniformly, so shorter than the sprite")
+	assert_near(box.size.x, limit * 0.4 / 0.6, 1e-3, "and narrower across")
+	assert_near(box.position.y, 0.0, 1e-3, "still on its feet")
+	assert_near(v.height_m, box.end.y, 1e-3, "the HP bar sits over the capped model")
+	assert_true(v.height_m < d.sprite_size_m.y, "below the sprite height")
+	# The touch zone is gameplay: the cap never changes it.
+	assert_near(d.touch_size_m.x, 0.525, 1e-6, "touch zone unchanged")
+
+
 # =================================================================================================================
 # Clips follow the state
 # =================================================================================================================
@@ -394,8 +416,8 @@ func _installed(test: String) -> ArtPack:
 	return null
 
 
-func test_real_pack_every_species_uses_its_model_at_its_sprite_height() -> void:
-	var art := _installed("test_real_pack_every_species_uses_its_model_at_its_sprite_height")
+func test_real_pack_every_species_uses_its_model_at_its_sprite_height_unless_capped() -> void:
+	var art := _installed("test_real_pack_every_species_uses_its_model_at_its_sprite_height_unless_capped")
 	if art == null:
 		return
 	var ids := PackedStringArray(PACK_MODELS.keys())
@@ -409,11 +431,30 @@ func test_real_pack_every_species_uses_its_model_at_its_sprite_height() -> void:
 		assert_eq(v.model_source.get_file(), PACK_MODELS[id], "%s %s: its pack model" % [id, d.name])
 		assert_false(v.is_placeholder, "%s: not the fallback" % id)
 		var box := _model_box(v)
-		assert_near(box.end.y, d.sprite_size_m.y, 0.01, "%s: top at the canonical sprite height %.2f m" % [id, d.sprite_size_m.y])
-		assert_near(v.height_m, d.sprite_size_m.y, 1e-4, "%s: the HP bar and numbers sit over it" % id)
+		var width := maxf(box.size.x, box.size.z)
+		if width < d.model_max_width_m() - 1e-3:
+			assert_near(box.end.y, d.sprite_size_m.y, 0.01, "%s: top at the canonical sprite height %.2f m" % [id, d.sprite_size_m.y])
+		else:
+			assert_true(box.end.y < d.sprite_size_m.y, "%s: at its width cap, so below the sprite height" % id)
+		assert_near(v.height_m, box.end.y, 0.01, "%s: the HP bar and numbers sit over it" % id)
 		assert_true(box.position.y >= -0.01, "%s: never below its feet (base %.3f m)" % [id, box.position.y])
-		print("  %s %-22s fitted %.2f m tall, footprint %.2f x %.2f m (touch width %.2f m)" % [id, d.name, box.end.y,
-			box.size.x, box.size.z, d.touch_size_m.x])
+		print("  %s %-22s fitted %.3f m tall, footprint %.3f x %.3f m (touch width %.3f m, cap %.3f m)" % [id, d.name,
+			box.end.y, box.size.x, box.size.z, d.touch_size_m.x, d.model_max_width_m()])
+
+
+## Owner decision (#59/#64): with the real pack, no species' model is wider than 1.35x its touch zone (the playtest
+## test_b_combat "monster visuals" limit). Before the cap the Tutorial Jr. Sentinel was 1.73 m across a 0.525 m zone.
+func test_real_pack_every_species_model_fits_its_width_cap() -> void:
+	var art := _installed("test_real_pack_every_species_model_fits_its_width_cap")
+	if art == null:
+		return
+	for id in PACK_MODELS:
+		var v := _visual(id, art)
+		var box := _model_box(v)
+		var limit := v.def.touch_size_m.x * 1.35
+		assert_true(box.size.x <= limit + 1e-3 and box.size.z <= limit + 1e-3,
+			"%s %s: %.3f x %.3f m within %.3f m (1.35x its %.3f m touch zone)" % [id, v.def.name, box.size.x, box.size.z,
+				limit, v.def.touch_size_m.x])
 
 
 func test_real_pack_each_state_selects_its_clip() -> void:

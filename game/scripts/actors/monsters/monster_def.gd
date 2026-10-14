@@ -77,6 +77,9 @@ var airborne_hit: String = ""
 ## _library.glb asset ("" = procedural placeholder).
 var model: String = ""
 var model_fit: String = "sprite_height"
+## The widest a model may be, in touch zone widths (monsters/_shared.json; owner decision #59/#64): MonsterVisual
+## scales a wider one down uniformly, and the test_b_combat playtest checks every species against it.
+var model_max_width_touch_ratio: float = 0.0
 var placeholder_color: Color = Color(0.6, 0.64, 0.68)
 ## Procedural walk cycle: "crawl" (squash and stretch) or "bounce" (a small hop per step).
 var walk_style: String = WALK_BOUNCE
@@ -281,6 +284,11 @@ func has_model() -> bool:
 	return model != ""
 
 
+## The widest the species' model may be (m): model_max_width_touch_ratio x the touch zone width.
+func model_max_width_m() -> float:
+	return touch_size_m.x * model_max_width_touch_ratio
+
+
 ## True when walking into this monster can hurt the player (`provoked`: the player has hit it).
 func touch_active(provoked: bool) -> bool:
 	if touch_rule == TOUCH_WHEN_PROVOKED:
@@ -343,6 +351,7 @@ func _load_adaptation(a: Dictionary, db: ContentDB) -> void:
 		model_fit = String(a["model_fit"])
 	elif not a.is_empty():
 		errors.append("adaptation 'model_fit' missing")
+	model_max_width_touch_ratio = _num(a, "model_max_width_touch_ratio")
 	if a.get("placeholder_color") is String:
 		placeholder_color = Color(String(a["placeholder_color"]))
 	walk_style = String(a.get("walk_style", WALK_BOUNCE))

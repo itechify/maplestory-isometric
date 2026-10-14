@@ -3,6 +3,7 @@
   "verified": false,
   "description": "Adaptation values every Maple Island monster species shares in the isometric 3D world: the terrain probes, the wander rhythm, the model fit, the hop landing reach, the fall landing tolerance and the see-through silhouette (radius, colour, fade, minimum cover). MonsterDef reads this table first and then the species file data/misostory/monsters/<id>.json on top of it, so a species file overrides any key here by naming it again (with its own reason). The leading underscore marks a shared adaptation table, not a canonical monster id (AdaptationChecks). Gameplay stats are never here: they are canonical (data/canonical/monsters/<id>.json). Owner: the monster system (docs/runtime/MONSTERS_AND_COMBAT_RUNTIME.md).",
   "model_fit": "sprite_height",
+  "model_max_width_touch_ratio": 1.35,
   "probe_ahead_m": 0.6,
   "ledge_tolerance_m": 0.45,
   "wall_probe_height_m": 0.3,
@@ -20,6 +21,7 @@
   "see_through_min_cover_m": 0.25,
   "reasons": {
     "model_fit": "The proxy (or the fallback body when the library lacks it) is scaled so its height equals the canonical sprite height (sprite_size_px[1]) x WorldScale.actor, the same factor that sizes the touch zone and the attack boxes, so the body you see is the body you hit and that hurts you.",
+    "model_max_width_touch_ratio": "Presentation, owner decision 2026-10-14 (#59, #64): a model fitted by model_fit that ends up wider (its widest horizontal extent at rest) than this many times the canonical touch zone width (touch_zone_px[0] x WorldScale.actor) is scaled down uniformly until it fits, so it never reads much larger than the body that hits you. 1.35x is the playtest test_b_combat 'monster visuals' limit, which reads it from here (it allows the crawl's squash and stretch and the ink outline). With the art pack it shrinks the Tutorial Jr. Sentinel (a tall sprite, a squat model: 1.73 m across a 0.525 m zone at sprite height) and the Blue and Red Snails (about 2%); the proxies are within 1.25x and never reach it. The touch zone, the stats and the spawn clearance (the sprite height) are unchanged.",
     "probe_ahead_m": "MAP_ARCHITECTURE section 4.7.4: before stepping, probe 0.6 m ahead for ground.",
     "ledge_tolerance_m": "MAP_ARCHITECTURE section 4.7.4: ground must exist within +/-0.45 m of the feet at the probe (the player's step_up_m); otherwise it is a ledge (or a step too high) and the monster turns (a jumper first tries a hop).",
     "wall_probe_height_m": "MAP_ARCHITECTURE section 4.7.4: probe for a wall at 0.3 m above the feet.",

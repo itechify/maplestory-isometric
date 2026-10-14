@@ -153,6 +153,7 @@ func build(d: MonsterDef, library: ProxyLibrary, art: ArtPack = null) -> void:
 			h = library.height(d.model)
 	if inst != null:
 		_fit_scale = d.sprite_size_m.y / h if h > 0.0 and d.model_fit == "sprite_height" else 1.0
+		_fit_scale *= width_cap_factor(d, inst.transform * ArtImport.visual_aabb(inst), _fit_scale)
 		height_m = h * _fit_scale if h > 0.0 else d.sprite_size_m.y
 	else:
 		inst = _placeholder(d)
@@ -178,6 +179,15 @@ func build(d: MonsterDef, library: ProxyLibrary, art: ArtPack = null) -> void:
 	_flash_mat.albedo_color = Color(1, 1, 1, 0.75)
 	_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+
+
+## The extra uniform scale that brings a model (its meshes' `bounds` at rest, scaled by `fit_scale`) within the
+## species' width cap (MonsterDef.model_max_width_m, owner decision #59/#64): 1.0 when its widest horizontal extent
+## already fits, else the cap over that extent.
+static func width_cap_factor(d: MonsterDef, bounds: AABB, fit_scale: float) -> float:
+	var width := maxf(bounds.size.x, bounds.size.z) * fit_scale
+	var cap := d.model_max_width_m()
+	return cap / width if cap > 0.0 and width > cap else 1.0
 
 
 ## Faces `dir` at once (spawn).
