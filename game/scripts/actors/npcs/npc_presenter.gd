@@ -5,7 +5,8 @@ extends Node3D
 ##   - a MapleStory-style name tag under the feet and the quest marker above the head (screen-space Controls in the
 ##     interaction system's overlay layer; the marker in its MarkerClip, which cuts it at the HUD's status bar), shown
 ##     only for NPCs of the current map that are on screen;
-##   - a subtle idle bob of the NPC's model;
+##   - a subtle idle bob of the NPC's model, unless the model is a rig playing its idle clip (the art pack's NPCs,
+##     #66: WorldNpc plays it; idle_covers_bob());
 ##   - facing the player while the player talks to this NPC, then turning back;
 ##   - now and then a speech bubble with one of the NPC's canonical idle-chatter lines (NpcSpeechBubble), timed by
 ##     NpcBubbleSchedule from data/misostory/npcs/_speech_bubbles.json (MeowDB gives the lines, not the timing), only
@@ -53,6 +54,7 @@ var _yaw: float = 0.0
 var _t: float = 0.0
 var _phase: float = 0.0
 var _refresh: float = 0.0
+var _idle_clip: bool = false
 
 
 ## Attaches a presenter to `p_npc` (idempotent: returns the existing one, with fresh tag and marker controls in
@@ -91,6 +93,8 @@ func setup(p_npc: Node3D, overlay: Control, db: ContentDB) -> void:
 		_base_yaw = _visual.rotation.y
 		_yaw = _base_yaw
 		height = _measure_height(_visual)
+		var ap := ArtImport.animation_player(_visual)
+		_idle_clip = ap != null and ap.has_animation(WorldNpc.CLIP_IDLE)
 		if _visual.has_meta("placeholder"):
 			# The world's placeholder carries its own Label3D name; the tag below replaces it.
 			for c in _visual.get_children():
@@ -210,7 +214,7 @@ func is_modal_open() -> bool:
 func _animate_model(delta: float, active: bool) -> void:
 	if _visual == null or not is_instance_valid(_visual):
 		return
-	var bob := sin(_t * TAU / BOB_PERIOD_S + _phase) * BOB_AMPLITUDE_M if active else 0.0
+	var bob := sin(_t * TAU / BOB_PERIOD_S + _phase) * BOB_AMPLITUDE_M if active and not _idle_clip else 0.0
 	_visual.position = _base_pos + Vector3(0, bob, 0)
 	var target := _base_yaw
 	var p := _player()
@@ -220,6 +224,12 @@ func _animate_model(delta: float, active: bool) -> void:
 			target = atan2(local.x, local.z)
 	_yaw = lerp_angle(_yaw, target, clampf(delta * TURN_RATE, 0.0, 1.0))
 	_visual.rotation.y = _yaw
+
+
+## True when the model is a rig with an idle clip, which replaces the procedural bob (the turn toward the player
+## stays).
+func idle_covers_bob() -> bool:
+	return _idle_clip
 
 
 ## The yaw the model faces now (radians, in the NPC's frame).
@@ -257,18 +267,8 @@ static func _measure_height(root: Node3D) -> float:
 		var mi := n as MeshInstance3D
 		if mi.mesh == null:
 			continue
-		var xf := (inv * mi.global_transform) if root.is_inside_tree() else _relative(root, mi)
+		var xf := (inv * mi.global_transform) if root.is_inside_tree() else ArtImport.to_root(root, mi)
 		var box := xf * mi.get_aabb()
 		top = maxf(top, box.end.y) if found else box.end.y
 		found = true
 	return top + root.position.y if found and top > 0.2 else DEFAULT_HEIGHT_M
-
-
-static func _relative(root: Node3D, n: Node3D) -> Transform3D:
-	var xf := Transform3D.IDENTITY
-	var cur: Node = n
-	while cur != null and cur != root:
-		if cur is Node3D:
-			xf = (cur as Node3D).transform * xf
-		cur = cur.get_parent()
-	return xf

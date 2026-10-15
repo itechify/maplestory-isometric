@@ -7,6 +7,8 @@
 #                                                   # use your own name when several agents run at once)
 #   PLAYTEST_REUSE_COPY=1 ISOLATE=<name> ...        # run on that copy as the last run left it (no mirror, no import):
 #                                                   # repeat runs on a frozen tree
+#   NO_ART_PACK=1 bash scripts/playtest.sh ...      # leave the art pack (game/assets/art_pack) out of the copy
+#   PLAYTEST_RESOLUTION=1920x1080 ... --windowed    # another window size (default 1600x900; perf_baseline uses 1080p)
 #
 # The scenario is game/tools/playtest/scenarios/<scenario>.gd (a PlaytestScenario). It runs in a mirror of game/ with
 # the exported world, like `ISOLATE=... INCLUDE_WORLD=1 bash scripts/test.sh`, so it never shares a .godot/ import
@@ -86,9 +88,9 @@ if [[ "${PLAYTEST_REUSE_COPY:-0}" == "1" && -f "$PROJECT/project.godot" ]]; then
   # run left it, whatever changed in game/ since.
   echo "playtest.sh: PLAYTEST_REUSE_COPY=1: reusing $PROJECT as it is (no mirror, no import)"
 else
-  mkdir -p "$DEST/game"
-  (cd "$PROJECT_SRC" && tar --exclude=./.godot --exclude=./assets/world -cf - .) | (cd "$DEST/game" && tar -xf -)
-  (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT_SRC/$f" ]] || rm -f "$f"; done)
+  # The art pack is mirrored unless NO_ART_PACK=1 asks for a run without it (scripts/mirror_game.sh).
+  source "$REPO/scripts/mirror_game.sh"
+  mirror_game "$PROJECT_SRC" "$PROJECT"
   mkdir -p "$DEST/game/assets"
   cp -ru "$PROJECT_SRC/assets/world" "$DEST/game/assets/"
   "${GODOT_CMD[@]}" --headless --path "$PROJECT" --import >/dev/null 2>&1 || true
@@ -106,7 +108,7 @@ export PLAYTEST_GIT_COMMIT PLAYTEST_GIT_DIRTY="${PLAYTEST_GIT_DIRTY:-}" PLAYTEST
 # --- end evidence provenance
 
 if [[ "$WINDOWED" == "1" ]]; then
-  MODE=(--resolution 1600x900 --disable-vsync)
+  MODE=(--resolution "${PLAYTEST_RESOLUTION:-1600x900}" --disable-vsync)
   [[ "$REALTIME" == "1" ]] || MODE+=(--fixed-fps 60)
 else
   MODE=(--headless --fixed-fps 60)

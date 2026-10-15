@@ -132,6 +132,26 @@ func test_loot_dropped_puts_records_in_the_map_instance_and_nodes_in_the_scene()
 		assert_true(n.is_landed())
 
 
+## Which pack the drops come from (the ArtPack header's convention): a LootSystem set up without a GameContext (this
+## file's) has no pack, so its drops are procedural whether or not the pack is installed; a pack injected after setup
+## reaches the drops spawned from then on.
+func test_without_a_game_context_drops_are_procedural_until_a_pack_is_injected() -> void:
+	bus.emit_signal("loot_dropped", [{"kind": "item", "item_id": "348", "qty": 1}], Vector3(5, 1, 2), "000000040")
+	for n: GroundDrop in loot.nodes().values():
+		assert_false(LootVisuals.is_pack_model(n.model), "setup(null): procedural")
+	if not ArtPack.shared().present():
+		print("SKIP test_without_a_game_context_drops_are_procedural_until_a_pack_is_injected (injection part): no " +
+			"art pack installed (bash scripts/art_pack.sh fetch)")
+		return
+	loot.art = ArtPack.shared()
+	var got: Array = []
+	loot.drop_spawned.connect(func(n: GroundDrop) -> void: got.append(n))
+	bus.emit_signal("loot_dropped", [{"kind": "item", "item_id": "348", "qty": 1}], Vector3(5, 1, 2), "000000040")
+	assert_eq(got.size(), 1, "one more drop")
+	if got.size() == 1:
+		assert_true(LootVisuals.is_pack_model(got[0].model), "the injected pack's model")
+
+
 func test_loot_for_another_map_is_ignored() -> void:
 	bus.emit_signal("loot_dropped", [{"kind": "mesos", "amount": 3}], Vector3.ZERO, "000000010")
 	assert_eq(state.drops.size(), 0)

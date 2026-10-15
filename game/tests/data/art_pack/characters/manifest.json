@@ -1,0 +1,7 @@
+{
+  "assets": [
+    {"name": "Beginner_Male", "file": "glb/Beginner_Male.glb", "type": "player", "npc_id": null},
+    {"name": "Beginner_Female", "file": "glb/Beginner_Female.glb", "type": "player", "npc_id": null},
+    {"name": "Heena", "file": "glb/Heena.glb", "type": "npc", "npc_id": "2101"}
+  ]
+}

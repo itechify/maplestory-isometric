@@ -97,6 +97,8 @@ func run(args: PackedStringArray) -> int:
 		return exit_code
 	print("MisoStory canonical data validation (%d ms)" % (Time.get_ticks_msec() - t0))
 	print(text)
+	# The art pack coverage check (ArtPackChecks): covered, missing, or no pack (not a failure).
+	print("ART PACK coverage: %s" % report.stats.get("art_pack", "not run"))
 	var json_path := _arg_value(args, "--json")
 	if json_path != "" and not _write_json(json_path, as_dict):
 		_broken("cannot write %s (%s)" % [json_path, error_string(FileAccess.get_open_error())])

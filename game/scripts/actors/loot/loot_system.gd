@@ -9,7 +9,7 @@ extends Node3D
 ##     -> DropRoller.ground_records(drops, now, "player", db)       expires_at, owner, free_at, scatter offset
 ##     -> landing points: kill point + offset along the camera's ground right axis, grounded on the kill's tier
 ##     -> MapInstanceState.add_drop(record + uid + pos_local)       the record lives in the map instance
-##     -> GroundDrop node (toss arc, hover, bob, spin, expiry blink)
+##     -> GroundDrop node (toss arc, hover, bob, spin, expiry blink; the art pack's model, else a procedural shape)
 ##   pickup key (Z): the nearest landed drop inside the canonical pickup box (LootPickupRules, DropRates.pickup_box_m)
 ##     -> ItemService.pickup(record)                                  inventory or mesos; item_gained / mesos_changed
 ##     -> ok: MapInstanceState.remove_drop(uid), node freed, Events.notice("You have gained an item (Snail Shell)")
@@ -20,7 +20,7 @@ extends Node3D
 ##   game clock).
 ##
 ## setup(ctx) wires it into the game; every collaborator is also injectable (tests, sandboxes): db, bus,
-## character_provider, clock_provider, state_provider, def_provider, player, ground_axis_provider, space.
+## character_provider, clock_provider, state_provider, def_provider, player, ground_axis_provider, space, art.
 
 signal drop_spawned(node: GroundDrop)
 signal drop_picked_up(record: Dictionary, result: Dictionary)
@@ -56,6 +56,14 @@ var owner_name: String = "player"
 var read_input: bool = true
 ## MapSession (duck-typed is_idle()); null = the autoload. Tests set use_session = false.
 var use_session: bool = true
+## The art pack drops show their models from (Project art, ADR 0002). Null = no pack, procedural drops. setup(ctx) with
+## a GameContext takes ArtPack.shared() when nothing was injected (the ArtPack header has the convention); a pack
+## injected later still reaches the drops spawned after it.
+var art: ArtPack = null:
+	set(value):
+		art = value
+		if visuals != null:
+			visuals.art = value
 
 var visuals: LootVisuals = null
 var _nodes: Dictionary = {}
@@ -83,6 +91,8 @@ func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
 	if ctx != null and ctx.player is Node3D:
 		player = ctx.player
+	if ctx != null and art == null:
+		art = ArtPack.shared()
 	add_to_group(GROUP)
 	_ensure_ready()
 	if ctx != null:
@@ -94,7 +104,7 @@ func _ensure_ready() -> void:
 	if db == null:
 		db = WorldUiServices.content()
 	if visuals == null and db != null:
-		visuals = LootVisuals.new(db)
+		visuals = LootVisuals.new(db, art)
 	var b := _bus()
 	if b != _connected_bus:
 		_disconnect_bus()

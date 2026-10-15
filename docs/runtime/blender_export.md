@@ -26,6 +26,7 @@ stairs (and Roger a gap in his hedge and fence). The sidecar fields they added a
 B="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"       # Windows (Git Bash)
 PY="/c/Program Files/Blender Foundation/Blender 5.2/5.2/python/bin/python.exe"
 B=blender; PY=python3                                                 # Linux
+bash scripts/art_pack.sh fetch                                        # the island's kit assets come from it
 "$B" -b --factory-startup --python scripts/build_island.py            # rebuild MapleIsland.blend (~55 s)
 "$B" -b MapleIsland.blend --python scripts/validate.py                # must stay 0 high / 0 medium (~75 s)
 "$B" -b MapleIsland.blend --python scripts/export_runtime.py -- --out _scratch/export_check --check   # ~45 s: check.json only
@@ -752,6 +753,17 @@ staged export. Value changes:
   hulls and Ground / Walls triangles are unchanged (float-level decimation aside).
 - Route check with the side rays (#28): 15,782 samples, 1 prop-hull sample (`PoleShelf` beside the 0.45 m jar on
   the chest shelf), 20 wall-overhead samples (16 `step`, 4 `climb_or_drop`, 0 `body`).
+- **The art pack, integrated (#59, 2026-10-13).** With every kit category and the landmark aliases from the pack
+  (#72-#75), `--check` on the integrated island gives the same route check as main: 15,782 samples, 1 prop-hull
+  sample, 20 wall-overhead samples, 0 blocked player spawns, 0 blocked portal arrivals (or arrival segments), 0
+  blocked route ends. Prop hulls 2,556 (main 2,448), Ground 379,451 and Walls 369,437 triangles (main 379,413 and
+  369,621). `sidecar_diff.py --old <main's export> --new <the integrated export>`: `SIDECAR_DIFF_OK True`, no path
+  added, 25 map chunks, 47 portals, 21 NPCs, 25 player spawns, 150 spawn regions on 15 maps, 20 trails, 0 blocked
+  portal arrivals.
+- **art-pack-v1.1 (#61, 2026-10-14).** Rebuilt with Jarvis's v1.1 correction (smaller fitted `Tomato_Plant`, 0.645 m,
+  and `Veg_Garden_Bed`, 1.248 m), `--check` is unchanged: 15,782 samples, 1 prop-hull, 20 wall-overhead, 0 blocked
+  spawns, arrivals, arrival segments and route ends, 2,556 prop hulls. Ground 379,389 and Walls 369,445 triangles.
+  `sidecar_diff.py` against the v1.0 export: `SIDECAR_DIFF_OK True`, no path added, the same counts.
 
 ## Files
 

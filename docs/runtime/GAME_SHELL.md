@@ -58,8 +58,9 @@ nothing. `MainShell` fires the event, then shows the screen that belongs to the 
   most recently written loadable slot, chosen by `SaveSlotIndex.continue_slot`. Load opens the slot list, with one
   row per `Saves.list_saves()` entry. A row shows the name, level, map name, play time, slot and save time. An
   unreadable save is listed with its error, plus a "Restore backup" button when a backup exists.
-- **Creation.** It has a name field, gender, the creation weapon (each with its canonical W.ATK and attack speed),
-  and the creation AP with +/−, Clear and Recommended. A live preview shows HP/MP, W.ATK, Accuracy, Avoidability
+- **Creation.** It has a name field, gender, the look (#67: hair style, face and skin buttons `Look_<key>_<index>`,
+  previewed live on the rigged Beginner; an Adaptation, docs/runtime/SAVES.md), the creation weapon (each with its
+  canonical W.ATK and attack speed), and the creation AP with +/−, Clear and Recommended. A live preview shows HP/MP, W.ATK, Accuracy, Avoidability
   and Damage. Start is enabled only when `CreationModel.errors()` is empty. A new game is written to the first free
   slot (`slot1`, `slot2`, ...), so New Game never overwrites a save. The screen shows which slot it will use.
 - **Loading.** A bar driven by `GameSession.progress`. The island load (`IslandWorld.load_progress`) fills the
@@ -104,7 +105,8 @@ ARCHITECTURE.md "Shared contracts":
 0. MapSession must be in `BOOT`. A quit to title leaves it there (see "Teardown"); if it is found past `BOOT`
    anyway, `start()` calls `MapSession.reset()` first.
 1. Instance `res://scenes/world/world.tscn` and wait for `world_ready`. Visual chunks are off when headless,
-   because the threaded visual load crashes the dummy renderer. A world whose script did not load (a parse error)
+   because the threaded visual load crashes the dummy renderer (for the same reason the NPCs' art pack models load
+   on the main thread, #66). A world whose script did not load (a parse error)
    fails the start with "the island world could not be created", and the title shows it.
 2. Add `res://scenes/actors/player.tscn` and call `world.set_player(player)`.
 3. Add `res://scenes/actors/camera_rig.tscn`, then call `rig.set_target(player)`, `MapSession.attach_camera(rig)`

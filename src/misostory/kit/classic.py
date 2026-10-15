@@ -12,6 +12,7 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
+from .art_pack import part_materials
 from .architecture import _shop_sign, door, window
 from .nature import _puffy_canopy
 
@@ -47,6 +48,26 @@ def wall_lantern(mb, loc, face="-Y"):
     mb.box((0.08, 0.3, 0.08), loc=P(0, -0.15, 0.35), rot=(0, 0, yaw), mat="M_Metal")
     mb.box((0.26, 0.26, 0.34), loc=P(0, -0.32, 0.15), rot=(0, 0, yaw), mat="M_Glow_window", bevel=0.03, segs=1)
     mb.cyl(0.2, 0.14, loc=P(0, -0.32, 0.32), mat="M_Eye_Black", verts=4, r2=0.03, rot=(0, 0, 45 + yaw))
+
+
+# pack (#74): the pack houses have no emission, so the kit's lit windows (M_Window) and wall lantern (M_Glow_window)
+# come back on purpose as their own parts; the roof (with its chimney) is <name>_Cap like the kit's. The cap is not
+# tagged OVERHEAD_HULL, like the kit caps: it starts 3.6 m or more above the base, above any jump. The pack houses
+# keep their own triangles (5 placed, one per town map) rather than collapsing their windows and doors.
+# Size: the houses are fitted by their stem, not by their wider cap: the maps' door paths, door portals and porch
+# arches line up with the kit stem's front (stem_r 2.0 x 1.06 = 2.12 m), and Sen's house fitted by its cap (1.25x)
+# blocked route ToSensHouse in 20000. The pack caps come out a little smaller than the kit's.
+def stem_width(stem_r=2.0, flare=1.06, long_body=1.0):
+    """The width (m) a pack house's stem is fitted to (``fit_nodes``): the procedural mushroom stem's (stem_r) at
+    ``flare`` times its radius (1.06: the stem front, where door paths and portals stand; 1.1: its widest band),
+    across both sides, stretched by its ``long_body`` along X."""
+    return 2 * stem_r * flare * long_body
+
+
+HOUSE_PACK = dict(parts={"Cap": ["roof", "Roof", "chimney", "Chimney"], "Window": ["Recessed window"],
+                         "Lamp": ["lamp glass"]},
+                  post=part_materials({"Window": "M_Window", "Lamp": "M_Glow_window"}), max_tris=8000,
+                  fit_nodes=(["Plaster stem house"], stem_width()))
 
 
 def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, cap_h=2.5, chimney="barrel",
@@ -92,47 +113,56 @@ def mushroom_house_v2(coll, name, cap_mat, stem_r=2.0, stem_h=4.1, cap_r=3.3, ca
     return stem, cap.build(name + "_Cap", coll, smooth=True, sharp_angle=70)
 
 
-@asset("House_Mushroom_OrangeSpotted", "Architecture", footprint=7.5, tags=("house", "mushroom"))
+@asset("House_Mushroom_OrangeSpotted", "Architecture", footprint=7.5, tags=("house", "mushroom"), pack=HOUSE_PACK)
 def hm_orange_spotted(coll):
     """Orange cap with yellow spots, barrels and a wall lantern (West Entrance, map 0)."""
     mushroom_house_v2(coll, "House_Mushroom_OrangeSpotted", "M_Spot_mush_orange__flower_yellow", barrels=True)
 
 
-@asset("House_Mushroom_YellowStreaked", "Architecture", footprint=7.5, tags=("house", "mushroom"))
+@asset("House_Mushroom_YellowStreaked", "Architecture", footprint=7.5, tags=("house", "mushroom"), pack=HOUSE_PACK)
 def hm_yellow_streaked(coll):
     """Yellow cap with dark streaks, wooden collar, barrel chimney with a yellow lid (Mushroom Town 10000)."""
     mushroom_house_v2(coll, "House_Mushroom_YellowStreaked", "M_Streak_mush_yellow__wood", chimney="barrel")
 
 
-@asset("House_Mushroom_OrangeOven", "Architecture", footprint=8.0, tags=("house", "mushroom"))
+@asset("House_Mushroom_OrangeOven", "Architecture", footprint=8.0, tags=("house", "mushroom"), pack=HOUSE_PACK)
 def hm_orange_oven(coll):
     """Plain orange cap, stone-oven chimney, two storeys (Mushroom Town 20000, Sen and Nina's house)."""
     mushroom_house_v2(coll, "House_Mushroom_OrangeOven", "M_Grad_mush_orange__roof_orange", chimney="oven",
                       cap_r=3.9, stem_h=3.6, two_story=True)
 
 
-@asset("House_Mushroom_RedStriped", "Architecture", footprint=7.0, tags=("house", "mushroom"))
+@asset("House_Mushroom_RedStriped", "Architecture", footprint=7.0, tags=("house", "mushroom"), pack=HOUSE_PACK)
 def hm_red_striped(coll):
     """Red cap with white stripes and a chimney (Amherst)."""
     mushroom_house_v2(coll, "House_Mushroom_RedStriped", "M_Streak_mush_red__cloth_white", chimney="barrel",
                       cap_r=3.3, stem_h=3.0)
 
 
-@asset("House_Mushroom_LimeLong", "Architecture", footprint=10.0, tags=("house", "mushroom", "shop"))
+@asset("House_Mushroom_LimeLong", "Architecture", footprint=10.0, tags=("house", "mushroom", "shop"),
+       pack=HOUSE_PACK)
 def hm_lime_long(coll):
     """Long low lime-yellow capped mushroom house with a chimney (Amherst Department Store)."""
     mushroom_house_v2(coll, "House_Mushroom_LimeLong", "M_Spot_mush_green__flower_yellow", chimney="oven",
                       long_body=1.6, stem_h=4.0, cap_r=3.3, cap_h=2.0, profile=0.6)
 
 
-@asset("House_Mushroom_BlueCone", "Architecture", footprint=7.0, tags=("house", "mushroom"))
+@asset("House_Mushroom_BlueCone", "Architecture", footprint=7.0, tags=("house", "mushroom"), pack=HOUSE_PACK)
 def hm_blue_cone(coll):
     """Blue pointed-cone cap (classic world map, Mushroom Town pocket)."""
     mushroom_house_v2(coll, "House_Mushroom_BlueCone", "M_Spot_mush_blue__cloth_white", cap_r=3.1, cap_h=4.6,
                       profile="cone", chimney=None)
 
 
-@asset("House_Wood_TwoStory_Capped", "Architecture", footprint=9.0, tags=("house", "shop"))
+# pack: the kit store is a wide box under a 9.8 m cap with its door at (-1.2, -2.4), where Amherst's in00 portal
+# stands; the pack store is a round stem under a smaller cap with its door in the middle. Fitted by its cap it
+# would be 12.6 m tall with its door 1.2 m off the portal, so its stem front stands on the kit wall (y -2.4) and it
+# moves 1.2 m along -X onto the kit door.
+KIT_STORE_WALL_Y = 2.4  # the kit store's front wall stands this far in front of its origin (y -2.4)
+
+
+@asset("House_Wood_TwoStory_Capped", "Architecture", footprint=9.0, tags=("house", "shop"),
+       pack=dict(HOUSE_PACK, fit_nodes=(["Plaster stem house"], 2 * KIT_STORE_WALL_Y), shift=(-1.2, 0.0, 0.0)))
 def house_wood_two_story(coll):
     """Two-storey wooden house under a big yellow/orange mushroom cap (Amherst Weapon Store)."""
     mb = MeshBuilder()
@@ -182,7 +212,8 @@ def tree_house_giant(coll):
     can.build("TreeHouse_Giant_Canopy", coll, smooth=True, sharp_angle=80)
 
 
-@asset("Barrel_Door_Mound", "Architecture", footprint=5.0, tags=("portal_door", "landmark"))
+@asset("Barrel_Door_Mound", "Architecture", footprint=5.0, tags=("portal_door", "landmark"),
+       pack=dict(max_tris=1212))
 def barrel_door_mound(coll):
     """Rainbow Street side-map entrance: round plank barrel-door in a grass-capped mound (door faces -Y).
 

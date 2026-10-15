@@ -9,6 +9,10 @@ Asset conventions:
 * origin = ground contact point, model stands on z=0;
 * "front" (doors, faces, signs) faces -Y at rotation 0 (toward the camera side);
 * sizes in meters, player proxy is ~1.5 m tall.
+
+The catalog assets of the categories in ``art_pack.CATEGORIES`` are built from the pinned art pack instead of their
+procedural builder when the pack is required (the Blender build scripts) or wanted (``art_pack.configure``); the
+builder then stays the no-pack placeholder and the size reference. See ``art_pack`` and docs/AUTHORING.md.
 """
 
 import math
@@ -16,6 +20,7 @@ import math
 import bpy
 
 from .. import core
+from . import art_pack
 
 REGISTRY = {}
 ASSET_ROOT = "ENVIRONMENT_ASSETS"
@@ -43,11 +48,13 @@ OUTLINE = {
 NO_OUTLINE_TAGS = {"grass", "flower", "vine", "debug", "portal"}
 
 
-def asset(name, category, footprint=1.0, tags=(), outline=None):
-    """Register an asset builder. The builder receives the target collection."""
+def asset(name, category, footprint=1.0, tags=(), outline=None, pack=None):
+    """Register an asset builder. The builder receives the target collection.
+
+    ``pack``: per-asset exceptions for building it from the art pack (``art_pack.SPEC_KEYS``)."""
     def deco(fn):
         REGISTRY[name] = {"fn": fn, "category": category, "footprint": footprint, "tags": tuple(tags),
-                          "outline": outline}
+                          "outline": outline, "pack": pack}
         return fn
     return deco
 
@@ -91,7 +98,10 @@ def ensure(name):
     parent = _library_parent(info["category"])
     coll = bpy.data.collections.new(name)
     parent.children.link(coll)
-    info["fn"](coll)
+    if art_pack.swaps(name, info):
+        art_pack.build(name, info, coll)
+    else:
+        info["fn"](coll)
     thick = info.get("outline")
     if thick is None:
         thick = OUTLINE.get(info["category"], 0.0)

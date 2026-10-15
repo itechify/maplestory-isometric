@@ -101,9 +101,30 @@ static func build(db: ContentDB, validation: ValidationReport) -> Dictionary:
 			"adaptations_unverified": adaptations.size() - verified,
 		},
 		"capture_files": capture_list,
+		"project_art": project_art_of(db),
 		"records": records,
 		"unresolved": unresolved,
 		"adaptations": adaptations,
+	}
+
+
+## The pinned art pack (data/misostory/art_pack.json; ADR 0002): which Project art the game uses, who made it, the
+## Release tag and asset checksum, the checksum manifest, what our packaging changed and the correction patches merged
+## into the delivery before packaging. Empty when there is no pin.
+static func project_art_of(db: ContentDB) -> Dictionary:
+	var pin: Variant = db.miso_table("art_pack")
+	if not (pin is Dictionary):
+		return {}
+	var release: Dictionary = (pin as Dictionary).get("release", {})
+	var art: Dictionary = (pin as Dictionary).get("project_art", {})
+	return {
+		"file": "game/data/misostory/art_pack.json",
+		"kind": art.get("kind", null), "made_by": art.get("made_by", null), "made_with": art.get("made_with", null),
+		"delivered": art.get("delivered", null), "delivery_url": art.get("delivery_url", null),
+		"tag": release.get("tag", null), "asset": release.get("asset", null), "url": release.get("url", null),
+		"asset_sha256": release.get("asset_sha256", null), "checksum_manifest": release.get("checksum_manifest", null),
+		"packaged_by": art.get("packaged_by", null), "packaging_changes": art.get("packaging_changes", []),
+		"corrections": art.get("corrections", []),
 	}
 
 
@@ -279,6 +300,29 @@ static func to_markdown(doc: Dictionary) -> String:
 		L.append("")
 	L.append("Captures cited: %s." % ", ".join(PackedStringArray(doc.capture_files.map(func(x: String) -> String: return "`%s`" % x))))
 	L.append("")
+	var art: Dictionary = doc.get("project_art", {})
+	if not art.is_empty():
+		L.append("## Project art")
+		L.append("")
+		L.append("The game's models and icons come from the pinned art pack (`%s`, ADR 0002), not from canonical data." % art.file)
+		L.append("")
+		L.append("| What | Value |")
+		L.append("|---|---|")
+		L.append("| Kind | %s |" % _esc(art.kind))
+		L.append("| Made by | %s |" % _esc(art.made_by))
+		L.append("| Made with | %s |" % _esc(art.made_with))
+		L.append("| Delivered | %s (%s) |" % [_esc(art.delivered), _s(art.delivery_url)])
+		L.append("| Release | `%s`: %s |" % [_s(art.tag), _s(art.url)])
+		L.append("| Asset SHA-256 | `%s` |" % _s(art.asset_sha256))
+		L.append("| Checksum manifest | `%s` |" % _s(art.checksum_manifest))
+		L.append("| Packaged by | %s |" % _esc(art.packaged_by))
+		for change in art.packaging_changes:
+			L.append("| Packaging change | `%s` -> `%s` (SHA-256 `%s` unchanged): %s |" % [_s(change.get("from")), _s(change.get("to")),
+				_s(change.get("file_sha256")), _esc(change.get("why"))])
+		for fix in art.corrections:
+			L.append("| Correction %s | %s, %s (%s; patch SHA-256 `%s`): %s |" % [_s(fix.get("version")), _esc(fix.get("delivered")),
+				_esc(fix.get("by")), _s(fix.get("ticket")), _s(fix.get("patch_sha256")), _esc(fix.get("what"))])
+		L.append("")
 	L.append("## Records")
 	L.append("")
 	L.append("One row per canonical record: its own source page (it covers every value no property row names), the other")

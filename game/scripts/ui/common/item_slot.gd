@@ -155,17 +155,24 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	# The drag may cross the world with the left (attack) button held. That never swings: the press was consumed here,
 	# and PlayerCombat counts only unconsumed presses outside a GUI drag (MouseAttackGate). The attack action is left
 	# alone, so an attack key held meanwhile (J) keeps repeating.
+	set_drag_preview(drag_preview())
+	return d
+
+
+## The icon that follows the mouse while this slot's item is dragged: the slot's icon (pack art or procedural shape)
+## at 40 px, centred on the cursor.
+func drag_preview() -> Control:
 	var preview := MisoItemIcon.new()
 	preview.size = Vector2(40, 40)
 	preview.item_id = item_id
 	preview.shape = icon.shape
 	preview.color = icon.color
+	preview.icon_texture = icon.icon_texture
 	preview.modulate = Color(1, 1, 1, 0.85)
 	var holder := Control.new()
 	holder.add_child(preview)
 	preview.position = Vector2(-20, -20)
-	set_drag_preview(holder)
-	return d
+	return holder
 
 
 func _can_drop_data(_at_position: Vector2, d: Variant) -> bool:

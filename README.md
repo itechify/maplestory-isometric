@@ -98,7 +98,7 @@ of [`docs/ITERATION_LOG.md`](docs/ITERATION_LOG.md).
 | What | Command (Git Bash on Windows; on Linux use `blender` and `python3`) |
 |---|---|
 | Get the built island without building | Download `MapleIsland.blend` and `renders-final.zip` from the [latest release](https://github.com/itechify/maplestory-isometric/releases/latest), or `gh release download --repo itechify/maplestory-isometric` |
-| Build the whole island → `MapleIsland.blend` | `blender -b --factory-startup --python scripts/build_island.py` |
+| Build the whole island → `MapleIsland.blend` | `bash scripts/art_pack.sh fetch` once (the kit assets come from the pinned art pack), then `blender -b --factory-startup --python scripts/build_island.py` |
 | Build + render every camera | `... --python scripts/build_island.py -- --render final` |
 | Render cameras from an existing .blend | `blender -b MapleIsland.blend --python scripts/render_review.py -- <tag> [camera filters] [--debug]` |
 | Build/render one map while authoring | `blender -b --factory-startup --python scripts/build_map.py -- <mapId> --debug` |

@@ -1,0 +1,15 @@
+{
+  "faces": [
+    {"style": "bright", "file": "modules/Face_bright.glb", "replace_prefix": "Face.", "bind_bone": "head"},
+    {"style": "sleepy", "file": "modules/Face_sleepy.glb", "replace_prefix": "Face.", "bind_bone": "head"}
+  ],
+  "hair": {
+    "files": ["modules/Hair_0.glb", "modules/Hair_1.glb"],
+    "replace_prefix": "Hair.",
+    "colors_linear": {"chestnut": [0.24, 0.075, 0.027], "silver": [0.56, 0.59, 0.57]}
+  },
+  "skin": {
+    "material_name_prefix": "Skin ",
+    "colors_linear": [[0.96, 0.67, 0.43], [0.42, 0.2, 0.105]]
+  }
+}

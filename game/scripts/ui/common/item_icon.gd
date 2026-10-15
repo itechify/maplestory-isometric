@@ -1,14 +1,17 @@
 class_name MisoItemIcon
 extends Control
-## A procedurally drawn item icon: a small sticker-like shape chosen from the item's canonical type, subtype and
-## equip slot (a potion bottle, an apple, a sword, a skullcap, a shell ...) tinted by the colour its name states
-## ("Red Potion", "Blue Headband", "Amethyst Ore"), or a stable hue derived from the id. No MapleStory art is used.
+## An item icon: the art pack's rendered icon for the item (Project art, ItemIconArt, #69), over a procedurally drawn
+## base: a small sticker-like shape chosen from the item's canonical type, subtype and equip slot (a potion bottle, an
+## apple, a sword, a skullcap, a shell ...) tinted by the colour its name states ("Red Potion", "Blue Headband",
+## "Amethyst Ore"), or a stable hue derived from the id. The shape draws when the pack is absent or has no icon for
+## the item; shape and colour are always set, whichever draws. No MapleStory art is used.
 ##
 ##   var icon := MisoItemIcon.new()
-##   icon.set_item("270", Data.db)      # Red Potion: a red bottle
+##   icon.set_item("270", Data.db)      # Red Potion: the pack's potion, else a red bottle
 ##
 ## The shape and colour rules are presentation only (no gameplay value); shape_for() and color_for() are static so
-## other UI (shop, dialogue item refs, loot labels) can reuse them.
+## other UI (shop, dialogue item refs, loot labels) can reuse them. The pack never changes color_for(), which also
+## colours the Three Snails shell (PlayerSkills).
 
 ## Item to draw ("" = nothing).
 var item_id: String = ""
@@ -20,6 +23,8 @@ var dim: bool = false:
 
 var shape: String = ""
 var color: Color = Color.WHITE
+## The pack's rendered icon (ItemIconArt), drawn instead of the shape; null draws the procedural shape.
+var icon_texture: Texture2D = null
 
 ## Name keyword -> tint, checked in order (longer, more specific words first).
 const COLOR_WORDS: Array = [
@@ -41,6 +46,8 @@ const COLOR_WORDS: Array = [
 const OUTLINE_COLOR := Color(0.06, 0.07, 0.10, 0.95)
 ## The neutral token of an item the item data does not define, so it reads as inert.
 const UNKNOWN_COLOR := Color(0.62, 0.62, 0.66)
+## The tint of a dimmed pack icon: darkened and faded like a dimmed shape.
+const DIM_ART := Color(0.55, 0.55, 0.55, 0.55)
 const METAL := Color(0.82, 0.86, 0.92)
 const WOOD := Color(0.62, 0.42, 0.22)
 
@@ -48,6 +55,8 @@ const WOOD := Color(0.62, 0.42, 0.22)
 func _init() -> void:
 	mouse_filter = MOUSE_FILTER_IGNORE
 	custom_minimum_size = Vector2(32, 32)
+	# The pack's icons are framed at 128 px with mipmaps (ItemIconArt); sampling them keeps 26-56 px slots smooth.
+	texture_filter = TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 
 
 ## Shows an item (or nothing for ""). `db` resolves the canonical record; an id it does not define (an unknown item
@@ -57,6 +66,7 @@ func set_item(p_item_id: String, db: ContentDB) -> void:
 	var def: ItemDef = ItemDef.of(item_id, db) if item_id != "" and db != null else null
 	shape = shape_for(def) if item_id != "" else ""
 	color = color_for(def, item_id) if def != null else UNKNOWN_COLOR
+	icon_texture = ItemIconArt.shared().texture_for(item_id, db) if def != null else null
 	queue_redraw()
 
 
@@ -172,6 +182,11 @@ func _draw() -> void:
 	var side := minf(size.x, size.y)
 	var s := side / 32.0
 	draw_set_transform(Vector2((size.x - side) * 0.5, (size.y - side) * 0.5), 0.0, Vector2(s, s))
+	if icon_texture != null:
+		# The framed icon fills the 32 x 32 grid; its margin is already inside it.
+		draw_texture_rect(icon_texture, Rect2(0, 0, 32, 32), false, DIM_ART if dim else Color.WHITE)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		return
 	var c := color
 	if dim:
 		c = c.darkened(0.45)

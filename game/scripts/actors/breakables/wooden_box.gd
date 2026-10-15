@@ -1,7 +1,8 @@
 class_name WoodenBox
 extends Node3D
-## One Wooden Box in the world (MeowDB breakable 0000001, contract C8): a procedural proxy crate in the MisoStory
-## style (warm planks, a dark frame and brace, an ink outline), placed by BreakableSystem at its BreakablePlacement.
+## One Wooden Box in the world (MeowDB breakable 0000001, contract C8), placed by BreakableSystem at its
+## BreakablePlacement: the art pack's rigged WoodenBox (`art`, #65: Idle, Hit, Break), or without the pack a procedural
+## proxy crate in the MisoStory style (warm planks, a dark frame and brace, an ink outline).
 ## Presentation only: the box's state (hits, broken, respawn time) lives in MapInstanceState.breakables and the rules
 ## in BreakableSystem / BreakableRules; the system calls show_hit / show_break / show_respawn / sync.
 ##
@@ -54,7 +55,20 @@ const MARKER_HEIGHT_M := 0.34
 const MARKER_BOB_M := 0.07
 const MARKER_BOB_S := 1.3
 
+## The pack's clips (#65): Idle loops while the box stands, Hit plays on a hit that does not break it, Break once on
+## the breaking hit.
+const CLIP_IDLE := ArtImport.MONSTER_IDLE
+const CLIP_HIT := ArtImport.MONSTER_HIT
+const CLIP_BREAK := ArtImport.BOX_BREAK
+## How far (m) the Break clip's pieces may fly outside the model's bind-pose bounds before culling would pop them.
+const BREAK_CULL_MARGIN_M := 2.0
+
 var placement: BreakablePlacement = null
+## The art pack (BreakableSystem.art): with the pack's WoodenBox model the box shows it instead of the procedural
+## crate. Set before the box enters the tree. null, or a pack without the model = the procedural crate.
+var art: ArtPack = null
+## The pack's model under `model` (null = the procedural crate).
+var rig: Node3D = null
 ## BreakableSystem (duck-typed: land_hit(box, source) -> Dictionary); null = hits are not counted.
 var system: Node = null
 ## Body size (m): width, height, depth (BreakableRules.size_m).
@@ -83,6 +97,11 @@ var _wobble_t: float = 0.0
 var _respawn_t: float = -1.0
 ## Flying chips and planks: {"node", "v": Vector3, "spin": Vector3, "t", "life"}.
 var _pieces: Array[Dictionary] = []
+## Detached pack models playing Break (breaking_rigs), and each one's AnimationPlayer (found once, not per frame).
+var _breaking: Array[Node3D] = []
+var _breaking_anims: Dictionary = {}
+## The standing rig's AnimationPlayer (found once in _add_rig; null without a rig).
+var _rig_anim: AnimationPlayer = null
 ## The FX's own random numbers (seeded by the placement key in setup()): never the global RNG, never Game.rng.
 var _fx_rng := RandomNumberGenerator.new()
 
@@ -165,6 +184,8 @@ func sync(hits_taken: int, is_broken_now: bool) -> void:
 		model.visible = not _broken
 		model.scale = Vector3.ONE
 		model.rotation = Vector3.ZERO
+	if rig != null and not _broken:
+		_play(CLIP_IDLE)
 	_set_lid()
 	_show_cues()
 
@@ -204,18 +225,28 @@ static func _drawn(n: Variant) -> bool:
 	return mat != null and mat.albedo_color.a > 0.0
 
 
-## A landed hit that did not break it: a white flash, a wobble and a few chips.
+## A landed hit that did not break it: a white flash, a wobble and a few chips. The pack model plays Hit instead of
+## the wobble (and has no lid), then Idle again.
 func show_hit(left: int) -> void:
 	_hits_left = left
 	_flash_t = FLASH_S
-	_wobble_t = WOBBLE_S
+	if rig != null:
+		_play(CLIP_HIT)
+		var ap := _rig_anim
+		if ap != null and ap.current_animation == CLIP_HIT:
+			ap.queue(CLIP_IDLE)
+	else:
+		_wobble_t = WOBBLE_S
 	_set_lid()
 	for k in CHIPS_PER_HIT:
 		_spawn_piece(Vector3(0.08, 0.04, 0.06), center() + Vector3.UP * size_m.y * 0.3, 1.6, 2.4, 0.45)
 	hit_shown.emit(left)
 
 
-## The breaking hit: the body vanishes into flying planks and a puff of dust.
+## The breaking hit: the body vanishes into flying planks and a puff of dust. The box itself is broken and its model
+## hidden at once, as without the pack; the pack model is detached instead (presentation only, outside the hidden
+## Model, see breaking_rigs) and plays Break once, whose flying pieces replace the planks, then frees itself. A fresh
+## pack model waits in the hidden Model for the respawn.
 func show_break() -> void:
 	_broken = true
 	_hits_left = 0
@@ -225,12 +256,47 @@ func show_break() -> void:
 	if model != null:
 		model.visible = false
 	_show_cues()
-	for k in PLANKS_ON_BREAK:
-		var long := k % 2 == 0
-		var dims := Vector3(size_m.x * (0.8 if long else 0.35), 0.06, 0.16)
-		_spawn_piece(dims, center(), 2.2, 3.4, BREAK_S)
+	if rig != null:
+		_detach_breaking(rig, _rig_anim)
+		_meshes.clear()
+		rig = null
+		_rig_anim = null
+		var fresh := _new_rig()
+		if fresh != null:
+			_add_rig(fresh)
+	else:
+		for k in PLANKS_ON_BREAK:
+			var long := k % 2 == 0
+			var dims := Vector3(size_m.x * (0.8 if long else 0.35), 0.06, 0.16)
+			_spawn_piece(dims, center(), 2.2, 3.4, BREAK_S)
 	_spawn_dust()
 	broke.emit()
+
+
+## Pack models playing Break after their box broke (each frees itself when the clip ends).
+func breaking_rigs() -> Array[Node3D]:
+	var out: Array[Node3D] = []
+	for r in _breaking:
+		if is_instance_valid(r) and not r.is_queued_for_deletion():
+			out.append(r)
+	return out
+
+
+## Moves `r` from the Model to the box (same place), where it plays Break. Its pieces fly outside the bind-pose
+## bounds, so a cull margin keeps them from popping.
+func _detach_breaking(r: Node3D, ap: AnimationPlayer) -> void:
+	r.reparent(self, true)
+	r.name = "Breaking"
+	for mi in r.find_children("*", "MeshInstance3D", true, false):
+		(mi as MeshInstance3D).extra_cull_margin = BREAK_CULL_MARGIN_M
+	if ap != null and ap.has_animation(CLIP_BREAK):
+		ap.clear_queue()
+		ap.stop()
+		ap.play(CLIP_BREAK)
+		_breaking.append(r)
+		_breaking_anims[r] = ap
+	else:
+		r.queue_free()
 
 
 ## The box is back (its respawn time came): it grows back in place.
@@ -253,6 +319,22 @@ func _process(delta: float) -> void:
 
 ## Advances every effect (called by _process; tests call it directly).
 func advance(delta: float) -> void:
+	var ap := _rig_anim
+	if ap != null and model != null and model.visible:
+		ap.advance(delta)
+	var still: Array[Node3D] = []
+	for r in _breaking:
+		if not is_instance_valid(r) or r.is_queued_for_deletion():
+			_breaking_anims.erase(r)
+			continue
+		var bp: AnimationPlayer = _breaking_anims[r]
+		bp.advance(delta)
+		if bp.is_playing():
+			still.append(r)
+		else:
+			_breaking_anims.erase(r)
+			r.queue_free()
+	_breaking = still
 	if marker != null and marker.visible:
 		_marker_t = fmod(_marker_t + delta, MARKER_BOB_S)
 		marker.position.y = size_m.y + MARKER_LIFT_M + MARKER_BOB_M * sin(_marker_t / MARKER_BOB_S * TAU)
@@ -304,6 +386,21 @@ func _build() -> void:
 	var w := size_m.x
 	var h := size_m.y
 	var d := size_m.z
+	_flash_mat = StandardMaterial3D.new()
+	_flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_flash_mat.albedo_color = Color(1, 1, 1, 0.7)
+	_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	rig = _new_rig()
+	if rig != null:
+		_add_rig(rig)
+	else:
+		_build_crate(w, h, d)
+	_build_cues(w, h, d)
+
+
+## The procedural crate (no art pack): planks, an ink hull, posts, a rim, braces and a lid.
+func _build_crate(w: float, h: float, d: float) -> void:
 	var plank := _material(PLANK_COLOR)
 	# A faint glow of its own colour keeps the planks readable in a house's or a tree's shadow (as loot does).
 	plank.emission_enabled = true
@@ -344,12 +441,54 @@ func _build() -> void:
 	lid.position = Vector3(-w * 0.5, h, 0)
 	model.add_child(lid)
 	_box(lid, Vector3(w * 1.04, h * 0.1, d * 1.04), Vector3(w * 0.5, 0, 0), frame)
-	_flash_mat = StandardMaterial3D.new()
-	_flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	_flash_mat.albedo_color = Color(1, 1, 1, 0.7)
-	_flash_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	_flash_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	_build_cues(w, h, d)
+
+
+## A fresh instance of the pack's WoodenBox (ArtPack BREAKABLE by canonical id), fitted to the box's body: one uniform
+## scale puts its wider footprint side at the body's, and its base on the feet. null without the pack or the model.
+func _new_rig() -> Node3D:
+	if art == null:
+		return null
+	var inst := art.instance(ArtPack.BREAKABLE, BreakableRules.WOODEN_BOX)
+	if inst == null:
+		return null
+	inst.name = "Rig"
+	var bounds := ArtImport.visual_aabb(inst)
+	var s := 1.0
+	if bounds.size.x > 0.0 and bounds.size.z > 0.0:
+		s = minf(size_m.x / bounds.size.x, size_m.z / bounds.size.z)
+	inst.scale = Vector3.ONE * s
+	inst.position = Vector3(0.0, -bounds.position.y * s, 0.0)
+	var ap := ArtImport.animation_player(inst)
+	if ap != null:
+		# Driven by advance() (as every other effect of the box), so tests step it frame by frame.
+		ap.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	return inst
+
+
+## Puts `r` under the model as the standing box: the hit flash covers its meshes, and Idle plays.
+func _add_rig(r: Node3D) -> void:
+	rig = r
+	_rig_anim = ArtImport.animation_player(r)
+	model.add_child(r)
+	for mi in r.find_children("*", "MeshInstance3D", true, false):
+		_meshes.append(mi as MeshInstance3D)
+	_play(CLIP_IDLE)
+
+
+## Plays `clip` on the standing rig from its start (a clip already playing starts over).
+func _play(clip: String) -> void:
+	var ap := _rig_anim
+	if ap == null or not ap.has_animation(clip):
+		return
+	ap.clear_queue()
+	ap.stop()
+	ap.play(clip)
+
+
+## The clip the standing pack model plays ("" = no pack model, or none playing).
+func clip() -> String:
+	var ap := _rig_anim
+	return String(ap.current_animation) if ap != null else ""
 
 
 ## The reach rim (a hot orange inverted hull REACH_RIM_M wider than the body, its bottom just above the feet, inside
@@ -418,6 +557,8 @@ func _clear_model() -> void:
 		remove_child(model)
 		model.free()
 	model = null
+	rig = null
+	_rig_anim = null
 	lid = null
 	reach_rim = null
 	reach_ink = null

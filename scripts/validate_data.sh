@@ -12,6 +12,7 @@
 #                                                        # (or --report-json <path> / --report-md <path>)
 #   ISOLATE=<name> bash scripts/validate_data.sh ...     # run in a private copy (_scratch/godot_runs/<name>/game), as
 #                                                        # scripts/test.sh does, so concurrent runs never share .godot/
+#   ISOLATE=<name> NO_ART_PACK=1 bash ...                # the same without the art pack (game/assets/art_pack)
 #   VALIDATE_TIMEOUT_S=300 bash scripts/validate_data.sh # outer time limit in seconds (default 180)
 #
 # The crosswalk check also looks for the Blender export sidecars (game/assets/world/<slug>.json). An isolated run
@@ -46,10 +47,10 @@ done
 
 if [[ -n "${ISOLATE:-}" ]]; then
   DEST="$REPO/_scratch/godot_runs/$ISOLATE"
-  mkdir -p "$DEST/game"
-  # Same mirror as scripts/test.sh: everything except the import cache and the exported world.
-  (cd "$PROJECT" && tar --exclude=./.godot --exclude=./assets/world -cf - .) | (cd "$DEST/game" && tar -xf -)
-  (cd "$DEST/game" && find . -type f ! -path './.godot/*' ! -path './assets/world/*' | while read -r f; do [[ -e "$PROJECT/$f" ]] || rm -f "$f"; done)
+  # Same mirror as scripts/test.sh: everything except the import cache and the exported world. The art pack (checked
+  # by the coverage check) is mirrored unless NO_ART_PACK=1 (scripts/mirror_game.sh).
+  source "$REPO/scripts/mirror_game.sh"
+  mirror_game "$PROJECT" "$DEST/game"
   # Refresh the sidecars from scratch so a sidecar removed from the export cannot linger in the mirror.
   rm -f "$DEST/game/assets/world/"*.json
   if [[ -d "$PROJECT/assets/world" ]]; then

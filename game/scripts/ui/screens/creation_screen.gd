@@ -1,15 +1,21 @@
 class_name CreationScreen
 extends Control
-## Character creation: name (CharacterFactory's rules), gender, one of the creation weapons with its canonical W.ATK
-## and attack speed, and the creation AP spread over the allocatable stats on top of the starting stats, with a live
-## preview (StatCalculator.compute through CreationModel: HP/MP, ACC, EVA, W.ATK, damage range). Start is enabled
-## only when CreationModel.errors() is empty. All rules live in CreationModel; this is only its view.
+## Character creation: name (CharacterFactory's rules), gender, the look (#67: hair style, face and skin, buttons
+## "Look_<key>_<index>", with a live 3D preview of the player's own model wearing it), one of the creation weapons with
+## its canonical W.ATK and attack speed, and the creation AP spread over the allocatable stats on top of the starting
+## stats, with a live preview (StatCalculator.compute through CreationModel: HP/MP, ACC, EVA, W.ATK, damage range).
+## Start is enabled only when CreationModel.errors() is empty. All rules live in CreationModel; this is only its view.
 
 signal start_pressed(params: Dictionary)
 signal back_pressed
 
 const STAT_LABELS := {"str": "STR", "dex": "DEX", "int": "INT", "luk": "LUK"}
 const GENDER_LABELS := {"male": "Male", "female": "Female"}
+const LOOK_LABELS := {"hair_style": "Hair", "face": "Face", "skin": "Skin"}
+## The look preview's size (px) and its camera: an orthographic three-quarter view of the whole 1.5 m body.
+const LOOK_PREVIEW_SIZE := Vector2i(250, 380)
+const LOOK_PREVIEW_YAW_DEG := 25.0
+const LOOK_PREVIEW_VIEW_M := 1.85
 
 var model: CreationModel = null
 var name_edit: LineEdit = null
@@ -26,6 +32,11 @@ var _stat_values: Dictionary = {}
 var _stat_plus: Dictionary = {}
 var _stat_minus: Dictionary = {}
 var _preview_labels: Dictionary = {}
+## CharacterAppearance key -> [Button per choice] ("Look_<key>_<index>").
+var _look_buttons: Dictionary = {}
+## The live 3D preview: a PlayerVisual (the rigged Beginner wearing the look; the placeholder without the art pack)
+## in its own SubViewport.
+var _look_preview: PlayerVisual = null
 
 
 func _init(p_model: CreationModel = null) -> void:
@@ -62,6 +73,12 @@ func refresh() -> void:
 		(_gender_buttons[g] as Button).button_pressed = model.gender == g
 	for w in _weapon_buttons:
 		(_weapon_buttons[w] as Button).button_pressed = model.weapon_id == w
+	var look := model.look()
+	for key in _look_buttons:
+		var buttons: Array = _look_buttons[key]
+		for i in buttons.size():
+			(buttons[i] as Button).button_pressed = int(look.get(key, -1)) == i
+	_show_look(look)
 	for k in _stat_values:
 		(_stat_values[k] as Label).text = str(model.stat_total(k))
 		(_stat_plus[k] as Button).disabled = not model.can_add(k)
@@ -96,11 +113,16 @@ func focus_default() -> void:
 		name_edit.grab_focus()
 
 
+## The preview's character (PlayerVisual: preset, look, rigged()); null before the screen is built.
+func preview_visual() -> PlayerVisual:
+	return _look_preview
+
+
 # --- building -------------------------------------------------------------------------------------------------
 
 func _build() -> void:
 	var panel := ScreenKit.window_panel()
-	panel.custom_minimum_size = Vector2(1040, 0)
+	panel.custom_minimum_size = Vector2(1320, 0)
 	add_child(ScreenKit.centered(panel))
 	var root := ScreenKit.vbox(14)
 	panel.add_child(ScreenKit.margin(root, 8))
@@ -117,6 +139,7 @@ func _build() -> void:
 	var left := ScreenKit.vbox(12)
 	left.custom_minimum_size = Vector2(500, 0)
 	cols.add_child(left)
+	cols.add_child(_build_look_preview())
 	var right := ScreenKit.vbox(12)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cols.add_child(right)
@@ -152,6 +175,19 @@ func _build() -> void:
 		genders.add_child(b)
 		_gender_buttons[g] = b
 	left.add_child(genders)
+
+	# Look (#67): hair style, face and skin, chosen here only.
+	left.add_child(ScreenKit.label("Look", 16, Color(0, 0, 0, 0), "MisoHeading"))
+	var look_grid := GridContainer.new()
+	look_grid.columns = 2
+	look_grid.add_theme_constant_override("h_separation", 12)
+	look_grid.add_theme_constant_override("v_separation", 6)
+	for key in CharacterAppearance.KEYS:
+		var l := ScreenKit.label(String(LOOK_LABELS.get(key, key)), 15, ScreenKit.TEXT_DIM, "MisoDim")
+		l.custom_minimum_size = Vector2(70, 0)
+		look_grid.add_child(l)
+		look_grid.add_child(_build_look_row(key))
+	left.add_child(look_grid)
 
 	# Starter weapon.
 	left.add_child(ScreenKit.label("Starter weapon", 16, Color(0, 0, 0, 0), "MisoHeading"))
@@ -261,6 +297,123 @@ func _build() -> void:
 	foot.add_child(back_button)
 	foot.add_child(start_button)
 	root.add_child(foot)
+
+
+## One toggle button per choice of an appearance key, named "Look_<key>_<index>": hair styles by number, faces by
+## the pack's style name (data/misostory/appearance.json face_styles), skins as swatches of the pack's palette.
+func _build_look_row(key: String) -> HBoxContainer:
+	var row := ScreenKit.hbox(6)
+	var group := ButtonGroup.new()
+	var buttons: Array = []
+	var faces: Array = _look_table().get("face_styles", [])
+	var art := ArtPack.shared() if key == CharacterAppearance.SKIN else null
+	for i in CharacterAppearance.choices(key):
+		var index := i
+		var text := str(i + 1)
+		var width := 44
+		if key == CharacterAppearance.FACE:
+			text = String(faces[i]).capitalize() if i < faces.size() else text
+			width = 120
+		var b := ScreenKit.button(text, false, width)
+		b.name = "Look_%s_%d" % [key, i]
+		b.toggle_mode = true
+		b.button_group = group
+		if ScreenKit.has_miso_theme():
+			b.theme_type_variation = "MisoTabButton"
+		if key == CharacterAppearance.SKIN:
+			b.tooltip_text = "Skin %d" % (i + 1)
+			if art != null and art.present():
+				b.text = ""
+				_swatch(b, art.skin_color(i))
+		b.pressed.connect(func() -> void:
+			model.pick(key, index)
+			refresh())
+		row.add_child(b)
+		buttons.append(b)
+	_look_buttons[key] = buttons
+	return row
+
+
+## A skin button drawn as a swatch of `color`, ringed in gold when pressed.
+static func _swatch(b: Button, color: Color) -> void:
+	for state in ["normal", "hover", "pressed", "hover_pressed", "focus"]:
+		var box := StyleBoxFlat.new()
+		box.bg_color = color
+		box.set_corner_radius_all(6)
+		var on: bool = state in ["pressed", "hover_pressed"]
+		box.set_border_width_all(4 if on else (2 if state == "hover" else 1))
+		box.border_color = ScreenKit.GOLD if on else Color(0, 0, 0, 0.45)
+		if state == "focus":
+			box.bg_color = Color(0, 0, 0, 0)
+			box.set_border_width_all(0)
+		b.add_theme_stylebox_override(state, box)
+	b.custom_minimum_size = Vector2(44, 36)
+
+
+## The 3D preview column: the player's own model (PlayerVisual, no shadow or X-ray) in a SubViewport with its own
+## world, lights and camera, playing its idle clip.
+func _build_look_preview() -> Control:
+	var frame := ScreenKit.inset_panel()
+	frame.custom_minimum_size = Vector2(LOOK_PREVIEW_SIZE)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	var container := SubViewportContainer.new()
+	container.name = "LookPreview"
+	container.stretch = true
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(container)
+	var viewport := SubViewport.new()
+	viewport.own_world_3d = true
+	viewport.transparent_bg = true
+	viewport.msaa_3d = Viewport.MSAA_4X
+	viewport.size = LOOK_PREVIEW_SIZE
+	container.add_child(viewport)
+	var env := WorldEnvironment.new()
+	var e := Environment.new()
+	e.background_mode = Environment.BG_CLEAR_COLOR
+	e.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	e.ambient_light_color = Color("#dfe6f0")
+	e.ambient_light_energy = 0.7
+	env.environment = e
+	viewport.add_child(env)
+	var key := DirectionalLight3D.new()
+	key.rotation_degrees = Vector3(-35, 30, 0)
+	key.light_energy = 1.1
+	viewport.add_child(key)
+	var fill := DirectionalLight3D.new()
+	fill.rotation_degrees = Vector3(-10, -140, 0)
+	fill.light_energy = 0.35
+	viewport.add_child(fill)
+	var pivot := Node3D.new()
+	pivot.rotation_degrees = Vector3(0, LOOK_PREVIEW_YAW_DEG, 0)
+	viewport.add_child(pivot)
+	_look_preview = PlayerVisual.new()
+	_look_preview.name = "PreviewCharacter"
+	_look_preview.blob_shadow = false
+	_look_preview.xray = false
+	_look_preview.gender = model.gender if model != null else ""
+	_look_preview.appearance = model.look() if model != null else {}
+	pivot.add_child(_look_preview)
+	var cam := Camera3D.new()
+	cam.projection = Camera3D.PROJECTION_ORTHOGONAL
+	cam.keep_aspect = Camera3D.KEEP_HEIGHT
+	cam.size = LOOK_PREVIEW_VIEW_M
+	cam.position = Vector3(0, 0.78, 6.0)
+	cam.current = true
+	viewport.add_child(cam)
+	return frame
+
+
+## Puts the model's gender and look on the preview (rebuilt only when they change). With no player to follow, the
+## preview plays its idle clip by itself (PlayerVisual.advance).
+func _show_look(look: Dictionary) -> void:
+	if _look_preview == null:
+		return
+	_look_preview.set_look(model.gender, look)
+
+
+func _look_table() -> Dictionary:
+	var t: Variant = model.db.miso_table("appearance") if model != null and model.db != null else null
+	return t if t is Dictionary else {}
 
 
 func _set_preview(key: String, text: String) -> void:

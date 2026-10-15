@@ -1,0 +1,20 @@
+{
+  "id": "appearance",
+  "kind": "misostory_adaptation",
+  "description": "The look a new character chooses at creation (#67): hair style, face and skin, each an index into the art pack's characters/customization.json (hair files, faces, skin palette), saved in CharacterState.appearance (save_version 3, docs/runtime/SAVES.md). CharacterAppearance (scripts/core/character/character_appearance.gd) holds the same values for code that has no ContentDB (loading saves, the v2 -> v3 migration); test_appearance_data.gd pins the two together and against the pack.",
+  "decision": "#59 (owner, 2026-10-13): hair, face and skin are an Adaptation, chosen at creation only; a save v2 -> v3 migration gives old characters their gender's default preset.",
+  "reason": "MeowDB MS Classic and Henesys.gg do not list Maple Island's creation appearance options, and the classic creation screen's hair, face and skin art is Nexon's. The choices are the ones Jarvis's art pack (Project art) provides as modules for its rigged Beginner: 6 hair styles, 3 faces and 4 skin colours. Each gender's default is its Beginner preset's own look (the pack's characters/manifest.json base_recipe of Beginner_Male and Beginner_Female); a character with no gender (quick start, tools) gets the male one, because the game shows it the male preset. Maple Island has no salon, so the look cannot change after creation. The pack's hair colours are not offered: the ticket asks for hair, face and skin only, and both presets wear chestnut.",
+  "verified": false,
+  "choices": {
+    "hair_style": 6,
+    "face": 3,
+    "skin": 4
+  },
+  "face_styles": ["bright", "determined", "sleepy"],
+  "defaults": {
+    "male": {"preset": "Beginner_Male", "hair_style": 3, "face": 0, "skin": 0},
+    "female": {"preset": "Beginner_Female", "hair_style": 2, "face": 0, "skin": 3}
+  },
+  "no_gender_default": "male",
+  "change_after_creation": false
+}

@@ -22,7 +22,7 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scripts/systems/interaction/world_ui_services.gd` | `WorldUiServices` | finds the shared `NpcInteraction`, the autoloads, input presses; null-safe |
 | `scripts/systems/interaction/sandbox/world_ui_sandbox.tscn` (+ `.gd`) | | sandbox and headless integration check on the real island |
 | `scripts/systems/interaction/sandbox/world_ui_main_checks.tscn` (+ `.gd`) | | the world UI driven inside the real `main.tscn` (checks and screenshots) |
-| `scripts/actors/npcs/npc_presenter.gd` | `NpcPresenter` | per-NPC child node: name tag, quest marker, idle bob, facing the player |
+| `scripts/actors/npcs/npc_presenter.gd` | `NpcPresenter` | per-NPC child node: name tag, quest marker, idle bob (proxies only), facing the player |
 | `scripts/actors/npcs/npc_name_tag.gd`, `quest_marker.gd` | `NpcNameTag`, `QuestMarker` | the tag under the feet, the marker above the head (screen space) |
 | `scripts/actors/npcs/npc_speech_bubble.gd`, `npc_bubble_schedule.gd` | `NpcSpeechBubble`, `NpcBubbleSchedule` | the speech bubble with a canonical idle-chatter line; when it shows and which line (seeded per NPC) |
 | `data/misostory/npcs/_speech_bubbles.json` | | adaptation: speech-bubble timing and order (MeowDB has the lines, not the timing) |
@@ -30,13 +30,13 @@ The rules underneath belong to other systems: `NpcInteraction` and `DialogueRunn
 | `scenes/ui/npc_ui.tscn` | `NpcUi` | root: the dialogue window and the shop window |
 | `scripts/ui/npc/dialogue_window.gd` | `DialogueWindow` | renders every dialogue VIEW and forwards answers |
 | `scripts/ui/npc/dialogue_rich_text.gd` | `DialogueRichText` | text segments to BBCode (bold, red, highlighted references), escaped |
-| `scripts/ui/npc/npc_portrait.gd` | `NpcPortrait` | the NPC's own proxy model rendered in a SubViewport, or an initial badge |
+| `scripts/ui/npc/npc_portrait.gd` | `NpcPortrait` | the world NPC's own model (the art pack's rig, else the proxy) rendered in a SubViewport, or an initial badge |
 | `scripts/ui/npc/shop_window.gd` | `ShopWindow` | Buy and Sell tabs, quantity picker, meso check, result messages |
 | `scripts/ui/npc/npc_ui_style.gd` | `NpcUiStyle` | MisoTheme bridge (loaded by path) plus the local paper and overlay styles |
 | `scripts/ui/npc/loot_item_icon.gd` | `LootItemIcon` | fallback icon drawn in the item's ground-drop shape |
 | `scenes/systems/loot_system.tscn` | `LootSystem` | root: drops on the ground, pickup, expiry, persistence |
 | `scripts/actors/loot/ground_drop.gd` | `GroundDrop` | one drop: toss arc, hover, bob and spin, expiry blink |
-| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | procedural drop models and styles from `loot_visuals.json` |
+| `scripts/actors/loot/loot_visuals.gd` | `LootVisuals` | drop models (the art pack's, else procedural) and styles from `loot_visuals.json` |
 | `scripts/actors/loot/loot_rules.gd` | `LootPickupRules` | pure: pickup box in 3D, pickup target, scatter, notices, record helpers |
 | `data/misostory/loot_visuals.json` | | adaptation: drop shapes, colours, sizes, motion, placement, pickup repeat |
 
@@ -108,7 +108,7 @@ It is built in code. On the left are the portrait and the name plate. On the rig
 - **Rewards and feedback.** These come from data and events, not from the VIEW:
   - An offer (`q<id>.offer.<n>`) lists the quest's canonical rewards from `QuestDef`: EXP, mesos, fame, items, "one of" and "your choice of".
   - When an accept or turn-in happens, the window collects the events of that step: `exp_gained` with source `quest:<id>`, `item_gained` and `mesos_changed`. The next view shows "Quest accepted: ... · Received ..." or "Quest complete: ... · +30 EXP, +Egg x3", including random rewards. If the chat ends right after, that line goes to `Events.notice` instead.
-- **Portrait.** The world NPC's own `_library.glb` proxy is duplicated into a SubViewport with its own lights, in a three-quarter view of the upper body. Without a world it is a coloured initial badge.
+- **Portrait.** The world NPC's own model is duplicated into a SubViewport with its own lights, in a three-quarter view. With the art pack (#66) it is the NPC's rigged model, playing its idle clip and framed head and shoulders: from just below the shoulder bones to just above the head (a hat too), taller where the wide chibi head would not fit the frame's width, at most down to the hips (`NpcPortrait.frame_span`). Without the pack it is the `_library.glb` proxy, framed on its upper body. The copy is kept while the same speaker talks on. Without a world it is a coloured initial badge.
 - **Modal.** `ctx.push_modal(window)` and `ctx.window_opened(window)` on open; the reverse on close, with one
   exception. When a **key** ends the chat (Enter/Space on the last line, Y on an offer, a digit), the window leaves the
   window stack at once but keeps the modal until a physics step has run after that key event, then pops it
@@ -173,7 +173,8 @@ The shop opens from `npc_talk.shop_requested` (a shopkeeper's greeting runs `ope
   on the screen is cut at the bar's top edge, so no part of it is drawn over the bar (issue #14: the overlay is under
   the HUD, but the bar is translucent, so the marker showed through it). Anywhere else a marker is placed and drawn
   as before. Name tags and speech bubbles are not clipped.
-- **Idle bob** of the model: 2.5 cm, a 2.6 s period, with a phase per NPC.
+- **Idle.** With the art pack (#66) every NPC is its rigged model (`WorldNpc`, looked up by canonical NPC id through `ArtPack`, at the character scale, so Shanks and Nina stand taller than the player), playing its looping `idle` clip from a phase of its own; the procedural bob does not run (`NpcPresenter.idle_covers_bob()`). The name tag, the quest marker and the bubble follow the taller models: `NpcPresenter.height` is measured from the model's meshes (1.41 m to 1.79 m). Without the pack the proxy keeps the **idle bob**: 2.5 cm, a 2.6 s period, with a phase per NPC.
+- **X-ray.** NPCs have no silhouette of their own, as before #66: they stand still at fixed spots, so the player always knows where they are. A taller NPC that hides the player is drawn over by the player's X-ray fill like any other geometry (`PlayerVisual`, stencil), so the player stays readable behind it. NPC meshes carry no glTF extras, so the camera's occlusion fader never takes one for an occluder.
 - **Facing.** While the player talks to this NPC, the model turns toward the player (`lerp_angle`, rate 8), then turns back.
 - **Speech bubbles** (Iteration Three). Now and then a light balloon with a tail shows one of the NPC's canonical
   idle-chatter lines (MeowDB's speech-bubble pool, `NpcDef.idle_line`; `bubble.source` keeps the provenance) above
@@ -239,6 +240,13 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
   | tied pouch | other Etc items |
 
   Name keywords tint the body (Red Potion red, Blue Snail Shell blue). Mesos change art with the amount: a bronze coin, a gold coin, a pile, then a bag. Every model has a soft shadow disc and slight emission, so it still reads in shade.
+- **Pack models (#70).** With the art pack installed (ADR 0002), every drop shows the pack's model instead (`LootVisuals.new(db, art)`; `LootSystem.art`: `setup(ctx)` with a GameContext takes `ArtPack.shared()` unless one was injected, a bare or `setup(null)` system stays procedural).
+  - Items resolve by canonical id through `ArtPack.ITEM`, so the monster drops (Snail Shell and the rest) come from the pack's monster manifest.
+  - Every meso tier shows the pack's one meso model: the bronze coin is recoloured (`pack_tint`), the pile and the bag are bigger (`pack_extent_m`).
+  - Each model sits under a `Pack` child of the drop's `Model`. It is raised by `godot_validation.json`'s ground offset (`ArtPack.ground_offset_y`), so a grip-centred sword stands on its pommel instead of sinking. It is centred over the drop (`ArtPack.bounds`), so it turns in place, and scaled so its longest side is `pack_models.item_extent_m` (0.6 m). Characters' parts are scaled on import, so both lookups scale their bounds to match.
+  - The skinned drops (the six monster drops and every meso tier) play the pack's `Hover` clip, which `ArtImport` makes loop on import. Hover is a 2 cm lift of the model's root and no turn, so it replaces the procedural bob (#59 decision 5: a clip retires the motion it covers, never both); the hover height and the spin stay procedural. Static pack models keep the procedural bob. Pack meshes cast no shadow, like the procedural ones.
+  - A change to `ArtImport` reaches an existing install only after the pack is imported again: delete `game/.godot/imported/` (or the pack's `*.glb.import` files) and run `bash scripts/godot.sh --headless --path game --import`. Godot does not re-import when the import script changes.
+  - Without the pack, or for a model the pack lacks, the procedural shape above is used.
 - **Debug console:**
   - `loot <owner_id> [kills]`: rolls a drop table at the player's feet;
   - `drop_item <item_id> [qty]`;
@@ -295,7 +303,7 @@ rebuilt from the restored records at rest, with their remaining lifetime (expire
 | Enter buys only after the shop has been open 0.3 s; Space never buys | `ShopWindow.confirm_arm_s` (UI feel, code) | Enter and Space advance the shopkeeper's greeting: mashing them must not spend mesos |
 | Quest accept/complete summaries and offer reward lines | `DialogueWindow` | The VIEW does not carry them, but the brief asks for "reward summary lines". Rewards come from canonical `QuestDef`, the summary from the actual events. |
 | Name tag under the feet, quest marker above the head, idle bob 2.5 cm / 2.6 s, turn rate 8, marker refresh 0.3 s | `NpcPresenter`, `QuestMarker` (code constants) | Cosmetic presentation constants, not gameplay values. This system owns no NPC presentation data file. |
-| NPC portrait = the world proxy in a SubViewport | `NpcPortrait` | No NPC art may be used, and the proxy is MisoStory's own |
+| NPC portrait = the world NPC's model (the art pack's rig, else the proxy) in a SubViewport | `NpcPortrait` | No NPC art may be used; the pack's models (Project art, ADR 0002) and the proxies are MisoStory's own |
 | Paper body for the dialogue text and the shop lists; everything else MisoTheme | `NpcUiStyle` | Canonical text carries red, blue and green emphasis that reads best dark on light, like MapleStory's NPC chat. The frame, buttons and font match the HUD's MisoTheme. |
 | Speech bubbles: canonical idle-chatter lines every 14-26 s (first after 2-10 s), 5 s each, in canonical order from a seeded line; never off screen or in a conversation | `data/misostory/npcs/_speech_bubbles.json` (`verified: false`); `NpcSpeechBubble` (look) | MeowDB feeds each NPC's idle chatter to its speech bubble but documents no interval, duration or order |
 | Shop window title "<NPC>'s Shop" | `data/misostory/dialogue/_rules.json` `shop_window_title` | MeowDB has no shop title |
@@ -314,12 +322,15 @@ ISOLATE=worldui bash scripts/validate_data.sh                             # loot
 
 | File | Covers |
 |---|---|
+| `test_npc_rigs.gd` | with the art pack (SKIP without it): every canonical NPC id is its pack model (not a placeholder), rigged, playing a looping `idle`, with no occluder extras; the presenter's height follows the model (Shanks 1.79 m, Sera 1.41 m) and the idle clip replaces the bob; only the current map's rigs animate, and each resumes at its own idle phase; every portrait renders the rig, idling, head and shoulders (the head's top and width, the shoulders, not the knees); the same speaker's portrait is kept between lines |
+| `test_npc_rigs_world.gd` | the island (INCLUDE_WORLD) built with the pack injected: all 21 placed NPCs resolve to their pack models; `build()` never loads an NPC model on a worker thread; `build_now()` without one keeps the proxies |
 | `test_interaction_resolver.gd` | prompt texts and keys (F, Up, Down, Z); precedence climb > NPC > portal > drop; nothing while blocked or climbing; hidden portals; `interact_talks` only for NPCs |
 | `test_interaction_system.gd` | with a duck-typed world and player: F talks to the nearest NPC through the shared `NpcInteraction`; no talk after the controller grabbed a ladder, on a nearer portal, or under a modal; the climb-down prompt; the drop prompt from `LootSystem`; presenters (tag, height from the model, markers available → in progress → completable through Sam/Mai, facing and turning back, bob); off-map NPCs stay quiet; presenters survive a freed overlay; a marker that projects into the HUD's status bar (an orthographic camera, the HUD under `ctx.ui_root`) is cut at the bar's top edge and one higher up is placed and drawn whole as before; a modal leaves the world's `PortalInteractor` to its own rule (no prompt, no talk, the interactor keeps running) |
 | `test_npc_ui_dialogue.gd` | Roger's Apple and Sam's Suggestion end to end through the window's keys (offer rewards, accept summary to the notice log, item references, completion summary, Enter/Space/Esc); decline + Back + Left/Right; Rain's quiz with 1-9 and arrows; the system line on a full inventory; every VIEW shape (say/yes_no/menu/journal/system/empty/unknown, escaped brackets, ref colours); the runner index (not the position) is passed; closing mid-chat announces `dialogue_closed` once and accepts nothing; modal + window stack with a `GameContext` (Esc left to the shell); a walk through all 21 NPCs' conversations; BBCode rules; portrait badge vs model; a key that ends the chat holds the modal through the physics step (and a new chat, a non-key close or leaving the tree release it); both windows sit above another layer's bottom-wide bar; one NPC window at a time (a shop request ends the chat, a chat closes the shop, Lucy's greeting still hands over to her shop) and a map change (`transition_started`, `map_left`) closes both |
 | `test_shop_ui_window.gd` | canonical stock in order with prices; buy with quantity (mesos, inventory, Events, status, meso display, owned count); insufficient mesos with the numbers; full inventory; the picker's limits; sell from tabs at the canonical sell-back price; selling an equipment slot; every shop renders; unknown shops refused; keys; Space never buys or sells and Enter waits for `confirm_arm_s` (the Buy button never does); modal + window stack; `NpcUi` opens the shop from Lucy's greeting and from `Events.shop_open_requested` |
 | `test_loot_system.gd` | `loot_dropped` → records (uid, pos_local, expires_at, owner) + nodes, scatter in m, toss; another map's loot ignored; pos_local in the map frame; pickup into the inventory with notices (single, stack, mesos); inventory full leaves the drop; the canonical box through `WorldScale.actor` and the nearest drop first; the owner window; Z through the player's input source (not under a modal, not on a ladder) and hold-to-repeat; holding Z with a full inventory announces the refusal once and still takes the meso bag next to it; the pickup notices are word for word the HUD's lines (thousands separators); blink then expiry; records expired by the map instance lose their node; leaving and returning keeps drops with their remaining lifetime; expired after a long absence; 20 seeded Snail kills picked up exactly |
 | `test_loot_visuals.gd` | `loot_visuals.json` labelled; shapes by canonical type/subtype; keyword tints; meso tiers; a model for every drop-table item and meso tier; toss arc, hover and bob; the blink window |
+| `test_loot_pack_models.gd` | with the pack (SKIP without it): all 94 items and every meso tier resolve a pack model; measured on the built model, every drop's lowest point is on the ground (weapons included), it is centred, and its longest side is the table's size; Hover loops and only lifts; a hovering drop bobs by its clip alone and still spins; meso tiers differ by tint then size and share the tinted material; `LootSystem` drops pack models. With or without the pack: no pack, or an unimported model, keeps the procedural drop |
 | `test_interaction_main_flow.gd` | the real game in a child process (`world_ui_main_checks.tscn --scenario main`, see below) |
 | `test_npc_speech_bubbles.gd` | the timing comes from the adaptation file; seeded per NPC; intervals in range; sequential order shows every line; an off-screen turn is skipped, a conversation hides it; every bubble of all 21 NPCs is their canonical line with its source; a presenter shows bubbles on screen, never while talking, never for another map's NPC |
 | `test_npc_departure_screen.gd` | the scene builds the screen hidden; Yes at Shanks opens it (texts, level, mesos, 20 of 20, modal and window stack, the button closes it, no mesos taken); unfinished quests are named and Esc closes it; quit to title closes it |
@@ -424,8 +435,13 @@ tab and the insufficient-mesos line.
 - **Enter on a Yes/No accepts.** Yes is highlighted on an offer, so Enter (the Next key) accepts a quest; mashing Enter
   through an NPC's pages accepts its offer. Kept: an accepted quest can be forfeited, and Y/N stay explicit. The shop,
   where a press spends mesos, has the arm time instead.
-- **The portrait is re-made on every page.** `NpcPortrait.show_speaker` duplicates the NPC's proxy into its SubViewport
-  for each view. Cheap for the island's proxies; a cache by NPC id would avoid it.
+- **Resolved (#66): the NPC models load on the main thread.** `IslandWorld.build()` had them load on the chunks'
+  worker threads; headless the dummy renderer's mesh RIDs are not thread-safe, so runs logged "Attempting to initialize
+  the wrong RID" and some crashed (test_interaction_main_flow, quest chain 1007-1008). They now load as `_stage_nodes`
+  places them, like the visual chunks are kept out of headless builds (`GameSession.load_visuals`).
+- **Resolved (#66): the portrait is no longer re-made on every page.** `NpcPortrait.show_speaker` keeps its copy
+  while the same speaker talks on, so a rig (a skeleton, about 18 skinned meshes and an AnimationPlayer) is duplicated
+  once per speaker, not once per view.
 - **Resolved in the second review (2026-10-04):** the `PortalInteractor` modal workaround is gone (the world's
   interactor applies the rule itself); pickup and expiry use `MapInstanceState.remove_drop` / `expire_drops`; drops no
   longer survive a quit to title (`MapSession.reset()`); the `events.gd` comment on `shop_open_requested` is fixed.

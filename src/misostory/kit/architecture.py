@@ -248,7 +248,9 @@ def house_stone_port_2f(coll):
 # Fences, signs, walkways
 # ---------------------------------------------------------------------------
 
-@asset("Fence_Wood_Seg", "Architecture", footprint=2.0, tags=("fence",))
+# pack (#74): the pack fence is centred on its origin; m.fence and the trails scale a segment (L/n/2, 1, 1) from
+# its origin, so it keeps the kit frame (0..2 m along +X)
+@asset("Fence_Wood_Seg", "Architecture", footprint=2.0, tags=("fence",), pack=dict(align_xy="kit"))
 def fence_seg(coll):
     """2 m fence segment along +X starting at origin."""
     mb = MeshBuilder()
@@ -260,7 +262,7 @@ def fence_seg(coll):
     mb.build("Fence_Wood_Seg", coll, smooth=False)
 
 
-@asset("Fence_Picket_Seg", "Architecture", footprint=2.0, tags=("fence",))
+@asset("Fence_Picket_Seg", "Architecture", footprint=2.0, tags=("fence",), pack=dict(align_xy="kit"))
 def fence_picket(coll):
     mb = MeshBuilder()
     for i in range(7):

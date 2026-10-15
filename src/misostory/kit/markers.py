@@ -5,9 +5,17 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
+from .art_pack import part_materials
+
+# Built from the pinned art pack (kit/art_pack.py, docs/AUTHORING.md section 9); pack= are the per-asset exceptions.
 
 
-@asset("Portal_Swirl", "Markers", footprint=1.6, tags=("portal",))
+# pack (portal.glb): a beaded arch on two pedestals over rune rings, with no glow; the arch and the rings get the kit
+# portal materials back, so exits glow as before. The open arch reads thinner than the kit's filled vortex in the map
+# renders, so it is x1.2 (2.5 m wide, 2.65 m tall; the kit portal was 2.9 m tall)
+@asset("Portal_Swirl", "Markers", footprint=1.6, tags=("portal",),
+       pack=dict(parts={"Ring": ["Portal luminous rim"], "Core": ["Arrival rune ring"]}, scale_mul=1.2,
+                 post=part_materials({"Ring": "M_Portal_Ring", "Core": "M_Portal_Core"})))
 def portal_swirl(coll):
     """Classic MapleStory portal: a tall glowing blue-white vortex standing on a ring."""
     mb = MeshBuilder()
@@ -27,7 +35,10 @@ def portal_swirl(coll):
     mb.build("Portal_Swirl", coll, smooth=True, sharp_angle=60)
 
 
-@asset("Portal_Door", "Markers", footprint=1.2, tags=("portal",))
+# pack: a threshold rune between two light bars, and a chevron, with no glow; they get the kit portal materials back
+@asset("Portal_Door", "Markers", footprint=1.2, tags=("portal",),
+       pack=dict(parts={"Core": ["Door threshold rune"], "Ring": ["Door marker"]},
+                 post=part_materials({"Ring": "M_Portal_Ring", "Core": "M_Portal_Core"})))
 def portal_door(coll):
     """Door portal: glowing threshold disc and ring, a 1.6 m light column fading to clear, chevrons at ~2.4 m."""
     mb = MeshBuilder()
@@ -67,7 +78,8 @@ def spawn_ring(coll):
     mb.build("Spawn_Ring", coll, smooth=True)
 
 
-@asset("NPC_Beacon", "Markers", footprint=0.4, tags=("debug",))
+# pack: the diamond stands on z = 0; the kit diamond is centred on its origin (placed 2 m above the NPC)
+@asset("NPC_Beacon", "Markers", footprint=0.4, tags=("debug",), pack=dict(fit="z", anchor_z="kit_bottom"))
 def npc_beacon(coll):
     """Floating yellow diamond that hovers over NPC proxies."""
     mb = MeshBuilder()

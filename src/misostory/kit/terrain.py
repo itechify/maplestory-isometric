@@ -7,6 +7,14 @@ from mathutils import Vector, noise
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
+from .art_pack import part_materials
+
+# pack (#74): the island instances a mountain (radius, radius, height / kit height) on the unit-radius kit peak, so
+# the pack peak fills the kit's frame: its largest horizontal size and its height both equal the kit's
+MOUNTAIN_PACK = dict(fit="box")
+# the clouds keep the kit's soft glow (M_Cloud) and fill the kit cloud's box: the island squashes them (sea layers
+# at (s, 0.8 s, 0.55 s)), and the slim pack cloud fitted by its width alone read as a field of white petals
+CLOUD_PACK = dict(fit="bbox", align_xy="kit", anchor_z="kit_bottom", post=part_materials({"": "M_Cloud"}))
 
 
 def _peak(coll, name, seed, height=1.6, lumps=0.12, segments=28, rings=10, tip=0.12, mat="M_Mountain",
@@ -46,35 +54,37 @@ def _peak(coll, name, seed, height=1.6, lumps=0.12, segments=28, rings=10, tip=0
     mb.build(name, coll, smooth=True, sharp_angle=70)
 
 
-@asset("Mountain_Peak_A", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025)
+@asset("Mountain_Peak_A", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025, pack=MOUNTAIN_PACK)
 def mountain_a(coll):
     _peak(coll, "Mountain_Peak_A", 1)
 
 
-@asset("Mountain_Peak_B", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025)
+@asset("Mountain_Peak_B", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025, pack=MOUNTAIN_PACK)
 def mountain_b(coll):
     _peak(coll, "Mountain_Peak_B", 2, height=2.1, lumps=0.16, tip=0.08)
 
 
-@asset("Mountain_Peak_C", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025)
+@asset("Mountain_Peak_C", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025, pack=MOUNTAIN_PACK)
 def mountain_c(coll):
     """Low rounded grassy peak (ground grass tint, M_Hill) for the island's filler hills."""
     _peak(coll, "Mountain_Peak_C", 3, height=1.2, lumps=0.1, tip=0.2, ledge=False, mat="M_Hill")
 
 
-@asset("Mountain_Peak_Rocky", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025)
+@asset("Mountain_Peak_Rocky", "Terrain", footprint=2.0, tags=("mountain",), outline=0.025, pack=MOUNTAIN_PACK)
 def mountain_rocky(coll):
     """Tall peak with a bare rocky crown (the cloud-ringed peaks of the world map)."""
     _peak(coll, "Mountain_Peak_Rocky", 4, height=2.1, lumps=0.15, tip=0.07, mat="M_Mountain_Rocky")
 
 
-@asset("Mountain_Hill", "Terrain", footprint=2.0, tags=("mountain",), outline=0.02)
+# pack: the meadow hill keeps the kit hills' grass painting (M_Hill), so it melts into the meadow
+@asset("Mountain_Hill", "Terrain", footprint=2.0, tags=("mountain",), outline=0.02,
+       pack=dict(MOUNTAIN_PACK, post=part_materials({"": "M_Hill"})))
 def mountain_hill(coll):
     """Low rounded green hill (ground grass tint, M_Hill)."""
     _peak(coll, "Mountain_Hill", 5, height=0.8, lumps=0.08, tip=0.35, ledge=False, mat="M_Hill")
 
 
-@asset("Mountain_Mesa_A", "Terrain", footprint=2.0, tags=("mountain",), outline=0.02)
+@asset("Mountain_Mesa_A", "Terrain", footprint=2.0, tags=("mountain",), outline=0.02, pack=MOUNTAIN_PACK)
 def mountain_mesa(coll):
     """Flat-topped rock outcrop (waterfall source)."""
     mb = MeshBuilder()
@@ -104,13 +114,13 @@ def _cloud(coll, name, seed, puffs=7, spread=1.6):
     ob.visible_shadow = False  # clouds should not blot the sea / island with shadows
 
 
-@asset("Cloud_Puff_A", "Terrain", footprint=4.0, tags=("cloud",), outline=0.0)
+@asset("Cloud_Puff_A", "Terrain", footprint=4.0, tags=("cloud",), outline=0.0, pack=CLOUD_PACK)
 def cloud_a(coll):
     """Soft round cumulus (7 smooth puffs on a core); instanced at 2-30 m scales for mist, collars, sea, sky."""
     _cloud(coll, "Cloud_Puff_A", 1)
 
 
-@asset("Cloud_Puff_B", "Terrain", footprint=4.0, tags=("cloud",), outline=0.0)
+@asset("Cloud_Puff_B", "Terrain", footprint=4.0, tags=("cloud",), outline=0.0, pack=CLOUD_PACK)
 def cloud_b(coll):
     """Wider, flatter cloud bank (7 puffs over a longer spread)."""
     _cloud(coll, "Cloud_Puff_B", 2, puffs=7, spread=2.2)

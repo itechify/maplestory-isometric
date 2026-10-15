@@ -1,0 +1,1066 @@
+{
+  "format": 1,
+  "ticket": "#62",
+  "measured": "2026-10-13",
+  "commit_note": "measured on issues/62-art-pack before any #59 visual change (the game still draws Iteration One proxies; the art pack is installed but unused)",
+  "command": "PLAYTEST_RESOLUTION=1920x1080 bash scripts/playtest.sh perf_baseline --windowed --realtime --out <dir>",
+  "machine": {
+    "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+    "window": [
+      1920,
+      1080
+    ],
+    "vsync": false
+  },
+  "runs": 3,
+  "load": {
+    "world_load_ms": 1627,
+    "new_game_ms": 2916
+  },
+  "maps": [
+    {
+      "map": "000001000",
+      "fps": 357.39,
+      "frame_ms": 2.8,
+      "worst_frame_ms": 4.96,
+      "cpu_ms": 5.11,
+      "gpu_ms": 1.06,
+      "draws": 2144,
+      "prims": 1151541,
+      "static_mb": 511.63,
+      "video_mb": 540.91,
+      "nodes": 27477,
+      "monsters": 49
+    },
+    {
+      "map": "000000060",
+      "fps": 401.28,
+      "frame_ms": 2.49,
+      "worst_frame_ms": 3.52,
+      "cpu_ms": 4.69,
+      "gpu_ms": 0.94,
+      "draws": 2337,
+      "prims": 1115598,
+      "static_mb": 509.22,
+      "video_mb": 541.01,
+      "nodes": 26789,
+      "monsters": 0
+    },
+    {
+      "map": "000000050",
+      "fps": 467.28,
+      "frame_ms": 2.14,
+      "worst_frame_ms": 3.92,
+      "cpu_ms": 3.79,
+      "gpu_ms": 1,
+      "draws": 1522,
+      "prims": 926349,
+      "static_mb": 513.43,
+      "video_mb": 540.89,
+      "nodes": 27161,
+      "monsters": 31
+    },
+    {
+      "map": "000001010",
+      "fps": 482.89,
+      "frame_ms": 2.07,
+      "worst_frame_ms": 3.25,
+      "cpu_ms": 3.97,
+      "gpu_ms": 0.92,
+      "draws": 1857,
+      "prims": 919096,
+      "static_mb": 515.88,
+      "video_mb": 540.99,
+      "nodes": 26909,
+      "monsters": 0
+    },
+    {
+      "map": "000000041",
+      "fps": 574.91,
+      "frame_ms": 1.74,
+      "worst_frame_ms": 3.15,
+      "cpu_ms": 2.96,
+      "gpu_ms": 1.03,
+      "draws": 935,
+      "prims": 844662,
+      "static_mb": 519.75,
+      "video_mb": 541.08,
+      "nodes": 27185,
+      "monsters": 33
+    }
+  ],
+  "gate": {
+    "min_fps_1080p": 60,
+    "max_load_increase": 0.2,
+    "max_world_load_ms": 1952
+  },
+  "raw": [
+    {
+      "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+      "maps": [
+        {
+          "cpu_ms": 5.36428000124928,
+          "draws": 2144,
+          "fps": 354.368238211055,
+          "frame_ms": 2.82192333333333,
+          "gpu_ms": 1.05969332973162,
+          "map": "000001000",
+          "monsters": 49,
+          "nodes": 27477,
+          "prims": 1151546,
+          "static_mb": 511.702988624573,
+          "video_mb": 541.019393920898,
+          "worst_frame_ms": 4.845
+        },
+        {
+          "cpu_ms": 4.69010666610721,
+          "draws": 2337,
+          "fps": 405.268490374873,
+          "frame_ms": 2.4675,
+          "gpu_ms": 0.941820012728373,
+          "map": "000000060",
+          "monsters": 0,
+          "nodes": 26789,
+          "prims": 1115598,
+          "static_mb": 509.288599967957,
+          "video_mb": 541.11735534668,
+          "worst_frame_ms": 3.42
+        },
+        {
+          "cpu_ms": 3.78761333274045,
+          "draws": 1522,
+          "fps": 467.27807406669,
+          "frame_ms": 2.14005333333333,
+          "gpu_ms": 0.987513337532679,
+          "map": "000000050",
+          "monsters": 31,
+          "nodes": 27161,
+          "prims": 926349,
+          "static_mb": 513.494651794434,
+          "video_mb": 540.999252319336,
+          "worst_frame_ms": 3.114
+        },
+        {
+          "cpu_ms": 3.78441333352724,
+          "draws": 1857,
+          "fps": 491.717026685483,
+          "frame_ms": 2.03369,
+          "gpu_ms": 0.922223337690036,
+          "map": "000001010",
+          "monsters": 0,
+          "nodes": 26909,
+          "prims": 919096,
+          "static_mb": 515.944288253784,
+          "video_mb": 541.095001220703,
+          "worst_frame_ms": 3.049
+        },
+        {
+          "cpu_ms": 2.97765666638217,
+          "draws": 935,
+          "fps": 567.133480535979,
+          "frame_ms": 1.76325333333333,
+          "gpu_ms": 1.03137666503588,
+          "map": "000000041",
+          "monsters": 33,
+          "nodes": 27185,
+          "prims": 844662,
+          "static_mb": 519.81667804718,
+          "video_mb": 541.184997558594,
+          "worst_frame_ms": 4.233
+        }
+      ],
+      "new_game_ms": 3142,
+      "vsync": false,
+      "window_size": [
+        1920,
+        1080
+      ],
+      "windowed": true,
+      "world_load_ms": 1658
+    },
+    {
+      "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+      "maps": [
+        {
+          "cpu_ms": 4.82735333515803,
+          "draws": 2144,
+          "fps": 357.393458031882,
+          "frame_ms": 2.79803666666667,
+          "gpu_ms": 1.05838999390602,
+          "map": "000001000",
+          "monsters": 49,
+          "nodes": 27477,
+          "prims": 1151538,
+          "static_mb": 511.634034156799,
+          "video_mb": 540.910018920898,
+          "worst_frame_ms": 4.956
+        },
+        {
+          "cpu_ms": 4.58004333515167,
+          "draws": 2337,
+          "fps": 401.278741589866,
+          "frame_ms": 2.49203333333333,
+          "gpu_ms": 0.941903328498205,
+          "map": "000000060",
+          "monsters": 0,
+          "nodes": 26789,
+          "prims": 1115598,
+          "static_mb": 509.219645500183,
+          "video_mb": 541.00798034668,
+          "worst_frame_ms": 3.523
+        },
+        {
+          "cpu_ms": 4.27599000141619,
+          "draws": 1522,
+          "fps": 454.191047894446,
+          "frame_ms": 2.20171666666667,
+          "gpu_ms": 1.01891667723656,
+          "map": "000000050",
+          "monsters": 31,
+          "nodes": 27161,
+          "prims": 926350,
+          "static_mb": 513.430046081543,
+          "video_mb": 540.889877319336,
+          "worst_frame_ms": 3.921
+        },
+        {
+          "cpu_ms": 4.5553433337927,
+          "draws": 1857,
+          "fps": 482.615389317791,
+          "frame_ms": 2.07204333333333,
+          "gpu_ms": 0.921690002481143,
+          "map": "000001010",
+          "monsters": 0,
+          "nodes": 26909,
+          "prims": 919096,
+          "static_mb": 515.879682540894,
+          "video_mb": 540.985626220703,
+          "worst_frame_ms": 3.573
+        },
+        {
+          "cpu_ms": 2.77079333589078,
+          "draws": 935,
+          "fps": 574.910888812234,
+          "frame_ms": 1.7394,
+          "gpu_ms": 1.02720333019892,
+          "map": "000000041",
+          "monsters": 33,
+          "nodes": 27185,
+          "prims": 844616,
+          "static_mb": 519.747723579407,
+          "video_mb": 541.075622558594,
+          "worst_frame_ms": 3.146
+        }
+      ],
+      "new_game_ms": 2916,
+      "vsync": false,
+      "window_size": [
+        1920,
+        1080
+      ],
+      "windowed": true,
+      "world_load_ms": 1627
+    },
+    {
+      "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+      "maps": [
+        {
+          "cpu_ms": 5.11165999935147,
+          "draws": 2144,
+          "fps": 358.333890741608,
+          "frame_ms": 2.79069333333333,
+          "gpu_ms": 1.056519998312,
+          "map": "000001000",
+          "monsters": 49,
+          "nodes": 27477,
+          "prims": 1151541,
+          "static_mb": 511.615647315979,
+          "video_mb": 540.003768920898,
+          "worst_frame_ms": 5.542
+        },
+        {
+          "cpu_ms": 5.01561333461443,
+          "draws": 2337,
+          "fps": 399.514190744055,
+          "frame_ms": 2.50304,
+          "gpu_ms": 0.939736674626668,
+          "map": "000000060",
+          "monsters": 0,
+          "nodes": 26789,
+          "prims": 1115598,
+          "static_mb": 509.201151847839,
+          "video_mb": 540.10173034668,
+          "worst_frame_ms": 4.183
+        },
+        {
+          "cpu_ms": 3.60133666816554,
+          "draws": 1522,
+          "fps": 471.488315733722,
+          "frame_ms": 2.12094333333333,
+          "gpu_ms": 0.999239996274312,
+          "map": "000000050",
+          "monsters": 31,
+          "nodes": 27161,
+          "prims": 926336,
+          "static_mb": 513.411552429199,
+          "video_mb": 539.983627319336,
+          "worst_frame_ms": 3.989
+        },
+        {
+          "cpu_ms": 3.9708766665395,
+          "draws": 1857,
+          "fps": 482.894275127404,
+          "frame_ms": 2.07084666666667,
+          "gpu_ms": 1.01901000579198,
+          "map": "000001010",
+          "monsters": 0,
+          "nodes": 26909,
+          "prims": 919096,
+          "static_mb": 515.861173629761,
+          "video_mb": 540.079376220703,
+          "worst_frame_ms": 3.246
+        },
+        {
+          "cpu_ms": 2.96330999888577,
+          "draws": 935,
+          "fps": 575.408204170175,
+          "frame_ms": 1.73789666666667,
+          "gpu_ms": 1.13270667394002,
+          "map": "000000041",
+          "monsters": 33,
+          "nodes": 27185,
+          "prims": 844703,
+          "static_mb": 519.729229927063,
+          "video_mb": 540.169372558594,
+          "worst_frame_ms": 3.124
+        }
+      ],
+      "new_game_ms": 2873,
+      "vsync": false,
+      "window_size": [
+        1920,
+        1080
+      ],
+      "windowed": true,
+      "world_load_ms": 1570
+    }
+  ],
+  "after_art_pack": {
+    "ticket": "#59 review (D15)",
+    "measured": "2026-10-13",
+    "commit_note": "measured on issues/59-review-fixes (the integrated #62-#75 art pack plus the review fixes), with the pack installed, nothing else running",
+    "command": "PLAYTEST_RESOLUTION=1920x1080 bash scripts/playtest.sh perf_baseline --windowed --realtime --out <dir>",
+    "equipped_command": "PERF_EQUIP=1 PLAYTEST_RESOLUTION=1920x1080 bash scripts/playtest.sh perf_baseline --windowed --realtime --out <dir>",
+    "machine": {
+      "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+      "window": [
+        1920,
+        1080
+      ],
+      "vsync": false
+    },
+    "plain": {
+      "runs": 3,
+      "load": {
+        "world_load_ms": 1649,
+        "new_game_ms": 2560
+      },
+      "equipped": {},
+      "maps": [
+        {
+          "map": "000001000",
+          "cpu_ms": 5.76,
+          "draws": 1991,
+          "fps": 284.34,
+          "frame_ms": 3.52,
+          "gpu_ms": 1.21,
+          "monsters": 49,
+          "nodes": 28691,
+          "prims": 1557116,
+          "static_mb": 517.74,
+          "video_mb": 571.15,
+          "worst_frame_ms": 5.91
+        },
+        {
+          "map": "000000060",
+          "cpu_ms": 4.49,
+          "draws": 2041,
+          "fps": 395.03,
+          "frame_ms": 2.53,
+          "gpu_ms": 0.93,
+          "monsters": 0,
+          "nodes": 27350,
+          "prims": 1255185,
+          "static_mb": 510.73,
+          "video_mb": 559.09,
+          "worst_frame_ms": 3.71
+        },
+        {
+          "map": "000000050",
+          "cpu_ms": 4.28,
+          "draws": 1438,
+          "fps": 379.94,
+          "frame_ms": 2.63,
+          "gpu_ms": 1.08,
+          "monsters": 31,
+          "nodes": 28178,
+          "prims": 1195116,
+          "static_mb": 517.93,
+          "video_mb": 566.6,
+          "worst_frame_ms": 4.05
+        },
+        {
+          "map": "000001010",
+          "cpu_ms": 3.76,
+          "draws": 1379,
+          "fps": 472.58,
+          "frame_ms": 2.12,
+          "gpu_ms": 0.96,
+          "monsters": 0,
+          "nodes": 27440,
+          "prims": 1081197,
+          "static_mb": 515.85,
+          "video_mb": 559.94,
+          "worst_frame_ms": 3.55
+        },
+        {
+          "map": "000000041",
+          "cpu_ms": 3.46,
+          "draws": 1024,
+          "fps": 427.1,
+          "frame_ms": 2.34,
+          "gpu_ms": 1.12,
+          "monsters": 33,
+          "nodes": 28112,
+          "prims": 1118847,
+          "static_mb": 522.7,
+          "video_mb": 565.06,
+          "worst_frame_ms": 3.82
+        }
+      ],
+      "raw": [
+        {
+          "equipped": {},
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 5.96938333561581,
+              "draws": 1991,
+              "fps": 292.869220225939,
+              "frame_ms": 3.41449333333333,
+              "gpu_ms": 1.19790332833926,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28691,
+              "prims": 1556929,
+              "static_mb": 517.735966682434,
+              "video_mb": 571.150695800781,
+              "worst_frame_ms": 5.732
+            },
+            {
+              "cpu_ms": 4.25363000043233,
+              "draws": 2041,
+              "fps": 399.542922896207,
+              "frame_ms": 2.50286,
+              "gpu_ms": 0.929383329947789,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27350,
+              "prims": 1255185,
+              "static_mb": 510.730902671814,
+              "video_mb": 559.085174560547,
+              "worst_frame_ms": 3.714
+            },
+            {
+              "cpu_ms": 4.2682766657114,
+              "draws": 1437,
+              "fps": 384.992973878227,
+              "frame_ms": 2.59745,
+              "gpu_ms": 1.08255665858587,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28178,
+              "prims": 1194892,
+              "static_mb": 517.927306175232,
+              "video_mb": 566.601654052734,
+              "worst_frame_ms": 3.735
+            },
+            {
+              "cpu_ms": 3.7582133345906,
+              "draws": 1379,
+              "fps": 482.874843669269,
+              "frame_ms": 2.07093,
+              "gpu_ms": 0.96129333337148,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27440,
+              "prims": 1081197,
+              "static_mb": 515.830739021301,
+              "video_mb": 559.941864013672,
+              "worst_frame_ms": 3.554
+            },
+            {
+              "cpu_ms": 3.44165666862171,
+              "draws": 1024,
+              "fps": 428.985092768026,
+              "frame_ms": 2.33108333333333,
+              "gpu_ms": 1.12160000046094,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28112,
+              "prims": 1118847,
+              "static_mb": 522.694024085999,
+              "video_mb": 565.056549072266,
+              "worst_frame_ms": 3.823
+            }
+          ],
+          "new_game_ms": 2560,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1643
+        },
+        {
+          "equipped": {},
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 5.76394000312488,
+              "draws": 1991,
+              "fps": 284.341053824814,
+              "frame_ms": 3.51690333333333,
+              "gpu_ms": 1.23243666569392,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28691,
+              "prims": 1557116,
+              "static_mb": 517.80740070343,
+              "video_mb": 570.900695800781,
+              "worst_frame_ms": 6.03
+            },
+            {
+              "cpu_ms": 4.58145999916396,
+              "draws": 2041,
+              "fps": 387.104766033879,
+              "frame_ms": 2.58328,
+              "gpu_ms": 0.917706667979558,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27350,
+              "prims": 1255185,
+              "static_mb": 510.806616783142,
+              "video_mb": 558.881744384766,
+              "worst_frame_ms": 3.633
+            },
+            {
+              "cpu_ms": 4.27708333512149,
+              "draws": 1438,
+              "fps": 379.94257801171,
+              "frame_ms": 2.63197666666667,
+              "gpu_ms": 1.11158667008082,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28178,
+              "prims": 1195116,
+              "static_mb": 517.998740196228,
+              "video_mb": 566.351654052734,
+              "worst_frame_ms": 4.046
+            },
+            {
+              "cpu_ms": 3.71888666705292,
+              "draws": 1379,
+              "fps": 472.562248262152,
+              "frame_ms": 2.11612333333333,
+              "gpu_ms": 0.952839999198914,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27440,
+              "prims": 1081197,
+              "static_mb": 515.918549537659,
+              "video_mb": 559.691864013672,
+              "worst_frame_ms": 3.39
+            },
+            {
+              "cpu_ms": 3.46280333268644,
+              "draws": 1024,
+              "fps": 425.985090521832,
+              "frame_ms": 2.3475,
+              "gpu_ms": 1.05817999124527,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28112,
+              "prims": 1118872,
+              "static_mb": 522.765458106995,
+              "video_mb": 564.806549072266,
+              "worst_frame_ms": 3.982
+            }
+          ],
+          "new_game_ms": 2555,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1658
+        },
+        {
+          "equipped": {},
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 5.55197333571438,
+              "draws": 1991,
+              "fps": 284.183484013732,
+              "frame_ms": 3.51885333333333,
+              "gpu_ms": 1.21441999197006,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28691,
+              "prims": 1557147,
+              "static_mb": 517.737195014954,
+              "video_mb": 571.213195800781,
+              "worst_frame_ms": 5.914
+            },
+            {
+              "cpu_ms": 4.49453333185511,
+              "draws": 2041,
+              "fps": 395.028435463546,
+              "frame_ms": 2.53146333333333,
+              "gpu_ms": 0.930509997010231,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27350,
+              "prims": 1255185,
+              "static_mb": 510.732131004334,
+              "video_mb": 559.147674560547,
+              "worst_frame_ms": 3.775
+            },
+            {
+              "cpu_ms": 4.50418333226045,
+              "draws": 1438,
+              "fps": 373.848546476851,
+              "frame_ms": 2.67488,
+              "gpu_ms": 1.07729665994644,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28178,
+              "prims": 1195147,
+              "static_mb": 517.928534507751,
+              "video_mb": 566.664154052734,
+              "worst_frame_ms": 4.406
+            },
+            {
+              "cpu_ms": 3.90059666675567,
+              "draws": 1379,
+              "fps": 472.581603028303,
+              "frame_ms": 2.11603666666667,
+              "gpu_ms": 0.961566664775213,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27440,
+              "prims": 1081197,
+              "static_mb": 515.848343849182,
+              "video_mb": 560.004364013672,
+              "worst_frame_ms": 3.572
+            },
+            {
+              "cpu_ms": 3.61845666735171,
+              "draws": 1024,
+              "fps": 427.104629244708,
+              "frame_ms": 2.34134666666667,
+              "gpu_ms": 1.12099332928658,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28112,
+              "prims": 1118839,
+              "static_mb": 522.695252418518,
+              "video_mb": 565.119049072266,
+              "worst_frame_ms": 3.69
+            }
+          ],
+          "new_game_ms": 2567,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1649
+        }
+      ]
+    },
+    "equipped": {
+      "runs": 3,
+      "load": {
+        "world_load_ms": 1634,
+        "new_game_ms": 2547
+      },
+      "equipped": {
+        "bottom": "1160",
+        "earrings": "900",
+        "hat": "708",
+        "shoes": "1306",
+        "top": "937",
+        "weapon": "541"
+      },
+      "maps": [
+        {
+          "map": "000001000",
+          "cpu_ms": 5.63,
+          "draws": 2044,
+          "fps": 282.83,
+          "frame_ms": 3.54,
+          "gpu_ms": 1.27,
+          "monsters": 49,
+          "nodes": 28903,
+          "prims": 1558078,
+          "static_mb": 527.97,
+          "video_mb": 580.02,
+          "worst_frame_ms": 5.96
+        },
+        {
+          "map": "000000060",
+          "cpu_ms": 4.77,
+          "draws": 2055,
+          "fps": 382.34,
+          "frame_ms": 2.62,
+          "gpu_ms": 0.93,
+          "monsters": 0,
+          "nodes": 27548,
+          "prims": 1253226,
+          "static_mb": 520.35,
+          "video_mb": 567.67,
+          "worst_frame_ms": 3.94
+        },
+        {
+          "map": "000000050",
+          "cpu_ms": 4.22,
+          "draws": 1463,
+          "fps": 355.58,
+          "frame_ms": 2.81,
+          "gpu_ms": 1.07,
+          "monsters": 31,
+          "nodes": 28376,
+          "prims": 1194592,
+          "static_mb": 527.56,
+          "video_mb": 575.2,
+          "worst_frame_ms": 4.38
+        },
+        {
+          "map": "000001010",
+          "cpu_ms": 4,
+          "draws": 1411,
+          "fps": 436.4,
+          "frame_ms": 2.29,
+          "gpu_ms": 0.97,
+          "monsters": 0,
+          "nodes": 27638,
+          "prims": 1080243,
+          "static_mb": 525.55,
+          "video_mb": 568.56,
+          "worst_frame_ms": 3.53
+        },
+        {
+          "map": "000000041",
+          "cpu_ms": 3.73,
+          "draws": 1042,
+          "fps": 407.59,
+          "frame_ms": 2.45,
+          "gpu_ms": 1.13,
+          "monsters": 33,
+          "nodes": 28310,
+          "prims": 1117402,
+          "static_mb": 532.32,
+          "video_mb": 573.64,
+          "worst_frame_ms": 4.17
+        }
+      ],
+      "raw": [
+        {
+          "equipped": {
+            "bottom": "1160",
+            "earrings": "900",
+            "hat": "708",
+            "shoes": "1306",
+            "top": "937",
+            "weapon": "541"
+          },
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 5.63212999889693,
+              "draws": 2044,
+              "fps": 283.535651772854,
+              "frame_ms": 3.52689333333333,
+              "gpu_ms": 1.23020667155584,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28903,
+              "prims": 1558078,
+              "static_mb": 527.969246864319,
+              "video_mb": 580.023193359375,
+              "worst_frame_ms": 5.487
+            },
+            {
+              "cpu_ms": 4.53877999881743,
+              "draws": 2055,
+              "fps": 393.16830748907,
+              "frame_ms": 2.54344,
+              "gpu_ms": 0.924333335757256,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27548,
+              "prims": 1253226,
+              "static_mb": 520.347491264343,
+              "video_mb": 567.66943359375,
+              "worst_frame_ms": 3.647
+            },
+            {
+              "cpu_ms": 4.13751666654428,
+              "draws": 1463,
+              "fps": 359.05009706321,
+              "frame_ms": 2.78512666666667,
+              "gpu_ms": 1.0704533247153,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28376,
+              "prims": 1194170,
+              "static_mb": 527.558455467224,
+              "video_mb": 575.203857421875,
+              "worst_frame_ms": 4.122
+            },
+            {
+              "cpu_ms": 3.98557333298525,
+              "draws": 1411,
+              "fps": 438.992482985383,
+              "frame_ms": 2.27794333333333,
+              "gpu_ms": 0.965716665387154,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27638,
+              "prims": 1080243,
+              "static_mb": 525.547360420227,
+              "video_mb": 568.56201171875,
+              "worst_frame_ms": 3.392
+            },
+            {
+              "cpu_ms": 4.28882333401839,
+              "draws": 1042,
+              "fps": 395.806039208546,
+              "frame_ms": 2.52649,
+              "gpu_ms": 1.13618667244911,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28310,
+              "prims": 1117402,
+              "static_mb": 532.322224617004,
+              "video_mb": 573.640808105469,
+              "worst_frame_ms": 4.354
+            }
+          ],
+          "new_game_ms": 2547,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1629
+        },
+        {
+          "equipped": {
+            "bottom": "1160",
+            "earrings": "900",
+            "hat": "708",
+            "shoes": "1306",
+            "top": "937",
+            "weapon": "541"
+          },
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 5.57586333409947,
+              "draws": 2044,
+              "fps": 282.833691903603,
+              "frame_ms": 3.53564666666667,
+              "gpu_ms": 1.26909666975339,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28903,
+              "prims": 1557978,
+              "static_mb": 527.968964576721,
+              "video_mb": 579.523193359375,
+              "worst_frame_ms": 5.963
+            },
+            {
+              "cpu_ms": 14.6234033325926,
+              "draws": 2055,
+              "fps": 382.344844462117,
+              "frame_ms": 2.61544,
+              "gpu_ms": 0.99743332862854,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27548,
+              "prims": 1253226,
+              "static_mb": 520.347254753113,
+              "video_mb": 567.16943359375,
+              "worst_frame_ms": 3.937
+            },
+            {
+              "cpu_ms": 4.21528666501206,
+              "draws": 1463,
+              "fps": 355.579576931419,
+              "frame_ms": 2.81231,
+              "gpu_ms": 1.11266000191371,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28376,
+              "prims": 1194693,
+              "static_mb": 527.558222770691,
+              "video_mb": 574.703857421875,
+              "worst_frame_ms": 4.385
+            },
+            {
+              "cpu_ms": 3.99964999806878,
+              "draws": 1411,
+              "fps": 436.396009013032,
+              "frame_ms": 2.29149666666667,
+              "gpu_ms": 1.01250666737556,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27638,
+              "prims": 1080243,
+              "static_mb": 525.563504219055,
+              "video_mb": 568.06201171875,
+              "worst_frame_ms": 3.53
+            },
+            {
+              "cpu_ms": 3.54212000048159,
+              "draws": 1042,
+              "fps": 410.373138615839,
+              "frame_ms": 2.43680666666667,
+              "gpu_ms": 1.13007333278656,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28310,
+              "prims": 1117436,
+              "static_mb": 532.321991920471,
+              "video_mb": 573.140808105469,
+              "worst_frame_ms": 4.169
+            }
+          ],
+          "new_game_ms": 2545,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1634
+        },
+        {
+          "equipped": {
+            "bottom": "1160",
+            "earrings": "900",
+            "hat": "708",
+            "shoes": "1306",
+            "top": "937",
+            "weapon": "541"
+          },
+          "gpu": "NVIDIA GeForce RTX 4070 SUPER",
+          "maps": [
+            {
+              "cpu_ms": 6.13843999842329,
+              "draws": 2044,
+              "fps": 271.600623957167,
+              "frame_ms": 3.68187666666667,
+              "gpu_ms": 1.28502000212669,
+              "map": "000001000",
+              "monsters": 49,
+              "nodes": 28903,
+              "prims": 1558161,
+              "static_mb": 527.938019752502,
+              "video_mb": 580.585693359375,
+              "worst_frame_ms": 6.163
+            },
+            {
+              "cpu_ms": 4.76878333470029,
+              "draws": 2055,
+              "fps": 371.861949969693,
+              "frame_ms": 2.68917,
+              "gpu_ms": 0.927149999340375,
+              "map": "000000060",
+              "monsters": 0,
+              "nodes": 27548,
+              "prims": 1253226,
+              "static_mb": 520.316264152527,
+              "video_mb": 568.23193359375,
+              "worst_frame_ms": 4.181
+            },
+            {
+              "cpu_ms": 4.57417333217778,
+              "draws": 1463,
+              "fps": 344.57054450186,
+              "frame_ms": 2.90216333333333,
+              "gpu_ms": 1.06751332998276,
+              "map": "000000050",
+              "monsters": 31,
+              "nodes": 28376,
+              "prims": 1194592,
+              "static_mb": 527.527403831482,
+              "video_mb": 575.766357421875,
+              "worst_frame_ms": 5.487
+            },
+            {
+              "cpu_ms": 4.1910599986728,
+              "draws": 1411,
+              "fps": 413.87816254651,
+              "frame_ms": 2.41617,
+              "gpu_ms": 0.960706667105357,
+              "map": "000001010",
+              "monsters": 0,
+              "nodes": 27638,
+              "prims": 1080243,
+              "static_mb": 525.532509803772,
+              "video_mb": 569.12451171875,
+              "worst_frame_ms": 4.78
+            },
+            {
+              "cpu_ms": 3.72858666894119,
+              "draws": 1042,
+              "fps": 407.59208184449,
+              "frame_ms": 2.45343333333333,
+              "gpu_ms": 1.1226766761144,
+              "map": "000000041",
+              "monsters": 33,
+              "nodes": 28310,
+              "prims": 1117336,
+              "static_mb": 532.290997505188,
+              "video_mb": 574.203308105469,
+              "worst_frame_ms": 3.958
+            }
+          ],
+          "new_game_ms": 2621,
+          "vsync": false,
+          "window_size": [
+            1920,
+            1080
+          ],
+          "windowed": true,
+          "world_load_ms": 1678
+        }
+      ]
+    },
+    "gate": {
+      "min_fps_1080p": 60,
+      "busiest_fps": 282.83,
+      "max_world_load_ms": 1952,
+      "world_load_ms": 1649,
+      "pass": true
+    }
+  }
+}

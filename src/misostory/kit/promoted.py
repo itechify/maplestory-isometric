@@ -20,32 +20,32 @@ import math
 from .. import core
 from ..geo import MeshBuilder
 from . import asset
-from .nature import birch
+from .nature import BIRCH_PACK, birch
 
 
 # ---------------------------------------------------------------------------
 # White-trunk birches (classic midForest / grassySoil trees)
 # ---------------------------------------------------------------------------
 
-@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Teal", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_teal(coll):
     """White-trunk birch with teal-green foliage (the classic 'midForest' teal tree)."""
     birch(coll, "Tree_Birch_Teal", 33, 5.0, 2.3, "M_Leaf_B")
 
 
-@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Green", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_green(coll):
     """White-trunk birch with fresh green foliage (classic grassySoil lawn trees)."""
     birch(coll, "Tree_Birch_Green", 41, 4.8, 2.3, "M_Leaf")
 
 
-@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Lime", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_lime(coll):
     """White-trunk birch, same green leaf as Tree_Birch_Green but shorter (4.4 m) with a smaller crown."""
     birch(coll, "Tree_Birch_Lime", 43, 4.4, 2.1, "M_Leaf")
 
 
-@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",))
+@asset("Tree_Birch_Red", "Trees", footprint=2.6, tags=("tree",), pack=BIRCH_PACK)
 def tree_birch_red(coll):
     """White-trunk birch with a red-leaf crown (the red-leaf trees of the snail hunting grounds)."""
     birch(coll, "Tree_Birch_Red", 43, 4.3, 2.1, "M_Grad_rsnail_shell_dk__rsnail_shell")
@@ -150,13 +150,13 @@ def butterfly_model(coll, name, wing, spot):
     mb.build(name, coll, smooth=True)
 
 
-@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Yellow", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_yellow(coll):
     """A visible (0.35 m) yellow butterfly with orange spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Yellow", "M_Flat_flower_yellow", "M_Flat_mush_orange")
 
 
-@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",))
+@asset("Butterfly_Pink", "Foliage", footprint=0.4, tags=("flower",), pack=dict(anchor_z="kit_bottom"))
 def butterfly_pink(coll):
     """A visible (0.35 m) pink butterfly with white spots hovering 1.45 m up."""
     butterfly_model(coll, "Butterfly_Pink", "M_Flat_flower_pink", "M_Flat_flower_white")
@@ -273,7 +273,9 @@ def planter(coll):
     mb.build("Planter", coll, smooth=True, sharp_angle=50)
 
 
-@asset("Planter_Box", "Props", footprint=0.8, tags=("prop", "farm"))
+# pack: fitted by width the box came out 0.46 m tall, over the export's 0.45 m step height (a new collision prism);
+# fitted to the kit box's 0.44 m it is stepped over as before, and its soil stays at the height plants stand on
+@asset("Planter_Box", "Props", footprint=0.8, tags=("prop", "farm"), pack=dict(fit="z"))
 def planter_box(coll):
     """Small square wooden planter box with a soil top, 0.42 m tall (stand a plant on it at z + 0.42)."""
     mb = MeshBuilder()
@@ -286,7 +288,8 @@ def planter_box(coll):
     mb.build("Planter_Box", coll, smooth=False)
 
 
-@asset("Bed", "Props", footprint=2.6, tags=("interior",))
+# pack: the bed runs along Y with its headboard at +Y; turned onto the kit frame (headboard at -X)
+@asset("Bed", "Props", footprint=2.6, tags=("interior",), pack=dict(rot_z=90))
 def bed(coll):
     """Orange wooden bed, two white pillows and a patchwork quilt; 2.5 x 1.4 m, length along +X, headboard at -X."""
     mb = MeshBuilder()
@@ -435,7 +438,13 @@ def ivy_sign_3way(coll):
 # Landmarks
 # ---------------------------------------------------------------------------
 
-@asset("Tomato_Gate", "Architecture", footprint=6.0, tags=("landmark", "portal_door"))
+# pack (#74): the kit gate is an open arch: m1020001 sets it 1.5 m inward of out00, so the arrival point (1.5 m
+# inward of the anchor) is its origin and route Main walks on through it. The pack gate is a closed round door under
+# a tomato crown, the door 1.1 m in front of its origin (fitted x1.7: on the portal). It stands 0.65 m further out,
+# behind the portal like the barrel-door mounds, its door clear of the anchor and the arrival segment by more than
+# a body radius; the crown hangs over the arrival above head height (3.1 m).
+@asset("Tomato_Gate", "Architecture", footprint=6.0, tags=("landmark", "portal_door"),
+       pack=dict(shift=(0.0, -0.65, 0.0)))
 def tomato_gate(coll):
     """Barrel gate capped with a giant ripe tomato (hidden path East Field <-> Tomato Field); opening faces -Y.
 
@@ -487,7 +496,11 @@ def tomato_gate(coll):
 # Garden doors, leafy arches and the hedge tunnel (promoted from 1000003/1000004, 1010000/1010002, 1020000)
 # ---------------------------------------------------------------------------
 
-@asset("Hill_Door", "Architecture", footprint=2.4, tags=("landmark", "portal_door"))
+# pack: the pack door comes in its own grass mound; here the map's hill is the mound, so the mound is left out and
+# the door alone is fitted to the kit door (1.84 m: under a 2 m hill's turf lip) and set into the face at the
+# origin (moved 0.6 m back, as deep as the pack door stood in front of its mound).
+@asset("Hill_Door", "Architecture", footprint=2.4, tags=("landmark", "portal_door"),
+       pack=dict(omit=["Grass mound", "Sunlit mound top"], scale_mul=0.92, shift=(0.0, 0.6, 0.0)))
 def hill_door(coll):
     """Round banded plank door set into a grassy hill face (grassySoil door/0). Faces -Y.
 
@@ -604,7 +617,7 @@ def arch_leafy_trail(coll):
     arch_leafy(coll, "Arch_Leafy_Trail", "trail")
 
 
-@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"))
+@asset("Hedge_Tunnel", "Foliage", footprint=6.0, tags=("hedge", "landmark"), pack=dict(align_xy="kit"))
 def hedge_tunnel(coll):
     """Clipped hedge tunnel over a secret path (4.6 m clear corridor, >= 3 m clear at the centre, 1.7 m deep).
 

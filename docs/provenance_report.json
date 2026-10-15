@@ -1,6 +1,25 @@
 {
   "adaptations": [
     {
+      "file": "game/data/misostory/appearance.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "MeowDB MS Classic and Henesys.gg do not list Maple Island's creation appearance options, and the classic creation screen's hair, face and skin art is Nexon's. The choices are the ones Jarvis's art pack (Project art) provides as modules for its rigged Beginner: 6 hair styles, 3 faces and 4 skin colours. Each gender's default is its Beginner preset's own look (the pack's characters/manifest.json base_recipe of Beginner_Male and Beginner_Female); a character with no gender (quick start, tools) gets the male one, because the game shows it the male preset. Maple Island has no salon, so the look cannot change after creation. The pack's hair colours are not offered: the ticket asks for hair, face and skin only, and both presets wear chestnut.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/art_pack.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Project art is pinned as a Release asset, not generated in the repo (ADR 0002); spec #59, ticket #62.",
+      "verified": true,
+      "verified_against": [
+        "https://github.com/itechify/maplestory-isometric/releases/tag/art-pack-v1.1",
+        "docs/adr/0002-pinned-art-pack.md"
+      ]
+    },
+    {
       "file": "game/data/misostory/breakables.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
@@ -36,7 +55,7 @@
       "file": "game/data/misostory/breakables.json",
       "kind": "misostory_adaptation",
       "path": "placement",
-      "reason": "Contract C8 (a recorded adaptation, like the monster spawn slots of MAP_ARCHITECTURE section 4.7.1): MeowDB's x_px/y_px are 2D side-view coordinates and are not used; each placement samples walkable ground inside the map's exported spawn areas clipped to its mob region (any species), or, for maps without areas (the town 000001010 and the interiors 000001011, 000001012 and 000001013) and for any placement the areas cannot hold, the walkable floor of the mob region and the region extensions, first on the map's base floor tier (within tier_tolerance_m of base_y, so a box does not land on a terrace, a counter or a ledge), then on any walkable top surface. The sampling is seeded by hash('<map_id>:box:<index>'), so it is deterministic per map. A candidate must stand on walkable collision with a clearance capsule of clearance_radius_m x clearance_height_m clear of walls, outside the spawn keep-outs, outside every portal trigger and at least portal_clearance_m from every portal anchor, arrival and player_spawns[0], at least min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster spawn slot, and npc_clearance_m outside every NPC's talk zone (presentation.json npc.talk_zones; the counter keepers' 2.4 m); at least approach_min_free of approach_directions points approach_m around it must be grounded on the box's tier with the player's grounding capsule clear, so a walking player can stand beside it and swing; and the line from the top of its clearance capsule toward the map's gameplay camera must be free of walkable, blocking and scenery collision for camera_sight_m, so a box is seen from afar instead of tucked behind a house or a tree (the first box playtest found one in the corner behind Pio's neighbour's house). Of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept (an even spread). attempts bounds each pass; only when no pass finds a spot in the camera's sight is one out of sight taken ('_unseen', logged); a placement that finds nothing is 'unplaced' and logged. Tree canopies have no collision, so the physics sight lines pass through them (the acceptance review found Amherst's box 000001010:4 behind an orange tree's leaves): canopies lists, per tree asset, the box of its canopy mesh in the asset's frame (min / max, m), measured from the visual export (game/assets/world/*.glb, the <asset>_Canopy mesh, 2026-10-05); every sidecar collision.prop_instances entry of that shape places that box with its own xform (position, rotation, scale; generous where a round crown leaves the corners empty), and a sight line through one hides the box like collision does. The table is presentation data read headless and windowed alike (the planner never loads meshes); test_breakables_canopies fails when the export and the table disagree.",
+      "reason": "Contract C8 (a recorded adaptation, like the monster spawn slots of MAP_ARCHITECTURE section 4.7.1): MeowDB's x_px/y_px are 2D side-view coordinates and are not used; each placement samples walkable ground inside the map's exported spawn areas clipped to its mob region (any species), or, for maps without areas (the town 000001010 and the interiors 000001011, 000001012 and 000001013) and for any placement the areas cannot hold, the walkable floor of the mob region and the region extensions, first on the map's base floor tier (within tier_tolerance_m of base_y, so a box does not land on a terrace, a counter or a ledge), then on any walkable top surface. The sampling is seeded by hash('<map_id>:box:<index>'), so it is deterministic per map. A candidate must stand on walkable collision with a clearance capsule of clearance_radius_m x clearance_height_m clear of walls, outside the spawn keep-outs, outside every portal trigger and at least portal_clearance_m from every portal anchor, arrival and player_spawns[0], at least min_spacing_m from the other boxes, spawn_slot_clearance_m from every monster spawn slot, and npc_clearance_m outside every NPC's talk zone (presentation.json npc.talk_zones; the counter keepers' 2.4 m); at least approach_min_free of approach_directions points approach_m around it must be grounded on the box's tier with the player's grounding capsule clear, so a walking player can stand beside it and swing; and the line from the top of its clearance capsule toward the map's gameplay camera must be free of walkable, blocking and scenery collision for camera_sight_m, so a box is seen from afar instead of tucked behind a house or a tree (the first box playtest found one in the corner behind Pio's neighbour's house). Of the first candidates_per_box candidates that pass, the one farthest from the boxes already placed is kept (an even spread). attempts bounds each pass; only when no pass finds a spot in the camera's sight is one out of sight taken ('_unseen', logged); a placement that finds nothing is 'unplaced' and logged. Tree canopies have no collision, so the physics sight lines pass through them (the acceptance review found Amherst's box 000001010:4 behind an orange tree's leaves): canopies lists, per tree asset, the box of its canopy mesh in the asset's frame (min / max, m), measured from the visual export (game/assets/world/*.glb, the <asset>_Canopy mesh; the kit trees re-measured 2026-10-13 when they came from the art pack, #72, and Amherst's giant tree when it became the pack tree house, #75); every sidecar collision.prop_instances entry of that shape places that box with its own xform (position, rotation, scale; generous where a round crown leaves the corners empty), and a sight line through one hides the box like collision does. The table is presentation data read headless and windowed alike (the planner never loads meshes); test_breakables_canopies fails when the export and the table disagree.",
       "verified": false,
       "verified_against": null
     },
@@ -201,6 +220,14 @@
       "verified_against": null
     },
     {
+      "file": "game/data/misostory/kit_assets_placed.json",
+      "kind": "misostory_adaptation",
+      "path": "(file)",
+      "reason": "Generated from the island build: the catalog names it never places need no art (#62).",
+      "verified": false,
+      "verified_against": null
+    },
+    {
       "file": "game/data/misostory/loot_visuals.json",
       "kind": "misostory_adaptation",
       "path": "(file)",
@@ -220,7 +247,7 @@
       "file": "game/data/misostory/loot_visuals.json",
       "kind": "misostory_adaptation",
       "path": "meso_tiers",
-      "reason": "Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit.",
+      "reason": "Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit. With the art pack every tier shows the pack's one meso model (it has no pile or bag model; #70), so the tiers differ the way the procedural ones do, by colour and then by size: pack_extent_m is the coin's diameter (the bronze and gold coins match the procedural coin_m, the pile and the bag grow like the procedural pile and bag), pack_tint recolours the coin's gold (pack_models.tint_material) bronze below 50.",
       "verified": false,
       "verified_against": null
     },
@@ -237,6 +264,14 @@
       "kind": "misostory_adaptation",
       "path": "name_keyword_colors",
       "reason": "The first keyword found in the item's English name tints the shape's body (Red Potion red, Blue Snail Shell blue, Egg cream). Without a match the shape colour above is used. Purely visual; names are canonical.",
+      "verified": false,
+      "verified_against": null
+    },
+    {
+      "file": "game/data/misostory/loot_visuals.json",
+      "kind": "misostory_adaptation",
+      "path": "pack_models",
+      "reason": "With the art pack (ADR 0002) every drop shows the pack's model instead of a procedural shape. The pack's models come at their real sizes (a 2.2 m spear, a 0.3 m apple, a 1.2 m chair), so each is scaled to the same longest side, 0.6 m: about the procedural item_m, an icon-sized drop next to the ~1.4 m Beginner that reads at the gameplay camera, alike across item kinds. Models rest on the ground by the pack's godot_validation.json ground offset (weapons are grip-centred) and turn about their own centre. The meso coin's gold material is named tint_material.",
       "verified": false,
       "verified_against": null
     },
@@ -1013,9 +1048,9 @@
     "tools/meowdb/captures/quest_tracker_maple_island.txt"
   ],
   "counts": {
-    "adaptations": 125,
-    "adaptations_unverified": 123,
-    "adaptations_verified": 2,
+    "adaptations": 129,
+    "adaptations_unverified": 126,
+    "adaptations_verified": 3,
     "capture_files": 9,
     "property_rows": 1299,
     "property_rows_by_authority": {
@@ -1049,6 +1084,33 @@
   },
   "format": 1,
   "generated_by": "bash scripts/validate_data.sh --report",
+  "project_art": {
+    "asset": "MisoStory_Art_Pack_v1.1.zip",
+    "asset_sha256": "68545a38af9419b982afd66c999f1b31fdcc74ec1e2d9cb8e74c656b6bc1a49c",
+    "checksum_manifest": "tools/art_pack/art-pack-v1.1.files.tsv",
+    "corrections": [
+      {
+        "asset_index_changes": "the bed's path and the checksums of the four changed models (Tomato_Plant, Veg_Garden_Bed, TutorialJrSentinel, WoodenBox), plus a correction_version key; no gameplay data",
+        "by": "Jarvis",
+        "delivered": "2026-10-14",
+        "merged_into": "the v1.0 nine-ZIP extraction (byte-identical to the ZIPs but for the lowercase bed.glb a case-insensitive file system cannot hold), patched with its checksum-checked installer; every after-hash matched. The merged folder was zipped as one delivery, MisoStory_Assets_v1.1_Merged_Source.zip (SHA-256 5cac18e1c489172479dd4cf8a4f1c0f6d514b26d1e34b06a5732c37a57002aaa), and packaged with build_release.py.",
+        "patch_sha256": "3b99836ae5ab33a00e36659b630b3ce3c9a77652fbf27ca198ecf39155a74b93",
+        "ticket": "https://github.com/itechify/maplestory-isometric/issues/61",
+        "version": "1.1",
+        "what": "a focused correction overlay of 76 files (PATCH_MANIFEST.json, each with its before and after SHA-256): the lowercase environment/glb/bed.glb renamed bed_single.glb at the source (bytes unchanged; art-pack-v1.0 had renamed it in packaging), the inventory icons of 1439 Basic Archer Gloves, 1440 Brown Duo and 900 Amethyst Earrings recomposed as a compact pair, a stronger Wooden Box Hit (damped rotation and child-piece rattle), the tomato fruit moved out of the foliage in Tomato_Plant.glb and the ten plants of Veg_Garden_Bed.glb, and a taller Tutorial Jr. Sentinel (fitted top about 0.879 m under the width cap, inside its 0.9 m touch zone)"
+      }
+    ],
+    "delivered": "2026-10-13, as nine ZIPs attached to #59 (pack v1), corrected by Jarvis's v1.1 patch (2026-10-14, #61)",
+    "delivery_url": "https://github.com/itechify/maplestory-isometric/issues/59",
+    "file": "game/data/misostory/art_pack.json",
+    "kind": "Project art",
+    "made_by": "Jarvis, the project owner's ChatGPT agent",
+    "made_with": "Blender 4.3.2, procedurally (the generators stay with Jarvis; a not-run copy ships under reference/)",
+    "packaged_by": "tools/art_pack/build_release.py (PACKAGING.json in the asset records the source ZIP's SHA-256)",
+    "packaging_changes": [],
+    "tag": "art-pack-v1.1",
+    "url": "https://github.com/itechify/maplestory-isometric/releases/download/art-pack-v1.1/MisoStory_Art_Pack_v1.1.zip"
+  },
   "records": [
     {
       "authorities": [

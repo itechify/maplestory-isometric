@@ -1,7 +1,8 @@
 class_name GroundDrop
 extends Node3D
-## One drop lying on the ground (an item or a meso bag): a procedural model (LootVisuals) that is tossed out of the
-## monster in a small arc, then hovers, bobs and turns, and blinks during its last seconds. The node is presentation
+## One drop lying on the ground (an item or a meso bag): a model from LootVisuals (the art pack's, else a procedural
+## shape) that is tossed out of the monster in a small arc, then hovers, bobs and turns, and blinks during its last
+## seconds. A pack model with a Hover clip bobs by the clip, not by the procedural bob. The node is presentation
 ## only: the record it shows lives in the map instance (MapInstanceState.drops) and LootSystem owns both. LootSystem
 ## calls update(now, delta) every frame, so the node has no clock of its own and tests can drive it synchronously.
 
@@ -47,6 +48,9 @@ func setup(p_record: Dictionary, visuals: LootVisuals, p_landing: Vector3, from:
 	_blink_hz = visuals.motion("blink_hz")
 	_phase = float(absi(hash(uid)) % 1000) / 1000.0
 	model = visuals.build_drop_model(record)
+	if LootVisuals.hover_player(model) != null:
+		# The pack's Hover clip bobs the model (#59 decision 5: never both); the lift and the spin stay.
+		_bob_amp = 0.0
 	add_child(model)
 	model.rotation.y = _phase * TAU
 	shadow = MeshInstance3D.new()

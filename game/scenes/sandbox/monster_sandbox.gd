@@ -16,6 +16,13 @@ extends Node3D
 ##   --shots <dir>       save screenshots (arrival, first hit, first critical, first kill, first touch, end)
 ##   --seconds <s>       quit after this many seconds of fighting (with --quit; default 30)
 ##   --quit              quit at the end and print a SANDBOX_SUMMARY line
+##   --showcase <dir>    instead of fighting: each species in turn, spawned next to the player at the gameplay camera,
+##                       shot idle, walking, attacking (its touch), flashing on a hit with its HP bar, and dying; then
+##                       one monster behind a wall with its see-through silhouette. Quits when done. Use a map without
+##                       spawns (e.g. --map 001010000) so the shots are not crowded.
+##   --species <ids>     with --showcase: only these monster ids, comma-separated (default 1,2,3,4,5,9)
+##   --touch             with --showcase: draw each monster's touch zone (MonsterDef.touch_size_m, bottom-anchored at
+##                       its feet, MeleeQuery.touch_overlaps) as a translucent box
 ## Keyboard play otherwise: WASD move, Space jump, J / Ctrl attack, F3 toggles the label, K kills every monster.
 
 const DEFAULT_MAP := "000000040"
@@ -90,6 +97,10 @@ func _ready() -> void:
 	await _wait(1.2)
 	print("SANDBOX map %s: %d live monsters (%s)" % [map, monsters.live_monsters().size(), _species_summary()])
 	_shot("arrival")
+	if _arg("--showcase", "") != "":
+		await _showcase(_arg("--showcase", ""))
+		get_tree().quit(0)
+		return
 	if _has("--bot"):
 		bot = BotInput.new()
 		player.set_input_source(bot)
@@ -244,6 +255,100 @@ func _summary() -> void:
 		session.get("current_map"), _arg("--weapon", DEFAULT_WEAPON), _fight_t, _stats.attacks, _stats.hits, _stats.misses,
 		_stats.crits, _stats.kills, _stats.exp, c.level, c.exp, c.hp, _stats.touches, _stats.touch_damage, _stats.deaths,
 		_stats.heals, monsters.live_monsters().size()])
+
+
+# --- showcase --------------------------------------------------------------------------------------------------------
+
+## Every species' states at gameplay scale (#64): idle, walk, attack, hit (flash and HP bar), death; then one monster
+## hidden behind a wall showing its silhouette. The monsters are free spawns of the real MonsterSystem that do not run
+## their AI (autostep off), so each state is shown on cue; the hit is a real one through apply_player_hit.
+func _showcase(dir: String) -> void:
+	_shots_dir = dir
+	DirAccess.make_dir_recursive_absolute(dir)
+	player.set_input_source(BotInput.new())
+	var side := _flat(rig.camera.global_transform.basis.x).normalized()
+	var toward_cam := _flat(rig.camera.global_transform.basis.z).normalized()
+	var fade := monsters.tuning.num("spawns", "fade_in_s") if monsters.tuning != null else 0.0
+	for id in _arg("--species", "1,2,3,4,5,9").split(",", false):
+		var at := player.global_position + side * 2.2
+		var m := _showcase_spawn(id, at, -side)
+		if _has("--touch"):
+			m.add_child(touch_zone_box(m.def))
+		var tag := m.def.name.to_lower().replace(" ", "_").replace(".", "")
+		await _wait(fade + 0.8)
+		await _shot_now(tag + "_idle")
+		# Walking: it walks back and forth on the spot's ground (its AI is off; the visual reads is_walking()).
+		var t := 0.0
+		var walk_dir := side
+		while t < 0.9:
+			await get_tree().physics_frame
+			t += get_physics_process_delta_time()
+			m.set("_walking", true)
+			m.facing = walk_dir
+			m.global_position += walk_dir * m.def.move_speed_mps * get_physics_process_delta_time()
+			m.settle()
+		await _shot_now(tag + "_walk")
+		m.set("_walking", false)
+		m.visual.on_attack()
+		await _wait(0.35)
+		await _shot_now(tag + "_attack")
+		await _wait(0.8)
+		var res := DamageResult.new()
+		res.final = 1
+		monsters.apply_player_hit(m, res, player)
+		await get_tree().process_frame
+		await _shot_now(tag + "_hit")
+		await _wait(0.8)
+		m.die()
+		await _wait(m.def.die_fade_s * MonsterVisual.DEATH_CLIP_SHARE * 0.6)
+		await _shot_now(tag + "_death")
+		await _wait(m.def.die_fade_s + 0.3)
+	# One monster behind a wall between it and the camera: its silhouette shows through.
+	var hidden_at := player.global_position + side * 2.4
+	var hidden := _showcase_spawn("9", hidden_at, -side)
+	var wall := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(2.6, 2.4, 0.4)
+	wall.mesh = box
+	var stone := StandardMaterial3D.new()
+	stone.albedo_color = Color(0.55, 0.5, 0.45)
+	wall.material_override = stone
+	add_child(wall)
+	wall.global_position = hidden_at + toward_cam * 1.4 + Vector3.UP * 1.0
+	wall.look_at(wall.global_position - toward_cam, Vector3.UP)
+	await _wait(fade + 1.0)
+	await _shot_now("occluded_silhouette")
+	hidden.queue_free()
+	wall.queue_free()
+
+
+## A translucent box over a monster's touch zone, as its child: touch_size_m is (width along its facing, height up
+## from its feet, depth across), and a spawned monster's local +Z is its facing.
+static func touch_zone_box(def: MonsterDef) -> MeshInstance3D:
+	var size := def.touch_size_m
+	var box := BoxMesh.new()
+	box.size = Vector3(size.z, size.y, size.x)
+	var mat := StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(1.0, 0.25, 0.2, 0.28)
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.no_depth_test = true
+	var mi := MeshInstance3D.new()
+	mi.name = "TouchZone"
+	mi.mesh = box
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mi.position = Vector3(0.0, size.y * 0.5, 0.0)
+	return mi
+
+
+func _showcase_spawn(id: String, at: Vector3, facing: Vector3) -> Monster:
+	var f := facing.normalized()
+	var xf := Transform3D(Basis(Vector3.UP.cross(f).normalized(), Vector3.UP, f), at)
+	var m := monsters.spawn_monster(id, xf)
+	m.autostep = false
+	return m
 
 
 # --- helpers ---------------------------------------------------------------------------------------------------------

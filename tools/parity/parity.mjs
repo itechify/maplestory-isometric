@@ -137,7 +137,8 @@ export function buildParity({ canonical, miso, rules, runtime, provenance = null
       tests: tests.map((t) => {
         const mine = refused.filter((x) => x.evidence === t.file);
         return { file: t.file, run_at: t.doc.run_at ?? null, commit: t.doc.commit ?? null, dirty: t.doc.dirty ?? null,
-          world_present: typeof t.doc.world_present === 'boolean' ? t.doc.world_present : null, totals: t.doc.totals ?? null,
+          world_present: typeof t.doc.world_present === 'boolean' ? t.doc.world_present : null,
+          art_pack_present: typeof t.doc.art_pack_present === 'boolean' ? t.doc.art_pack_present : null, totals: t.doc.totals ?? null,
           world_refused: { tests: mine.length, keys: [...new Set(mine.flatMap((x) => x.keys))].sort() } };
       }),
       playtests: playtests.map((p) => ({ file: p.file, scenario: p.doc.scenario ?? null, result: p.doc.result ?? null, seed: p.doc.seed ?? null,

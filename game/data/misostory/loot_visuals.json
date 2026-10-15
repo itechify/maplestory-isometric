@@ -106,11 +106,17 @@
   "name_keyword_colors_reason": "The first keyword found in the item's English name tints the shape's body (Red Potion red, Blue Snail Shell blue, Egg cream). Without a match the shape colour above is used. Purely visual; names are canonical.",
   "name_keyword_colors_verified": false,
   "meso_tiers": [
-    {"max_amount": 49, "coin": "#c98a3a", "coins": 1, "bag": false},
-    {"max_amount": 99, "coin": "#f4c430", "coins": 1, "bag": false},
-    {"max_amount": 999, "coin": "#f4c430", "coins": 3, "bag": false},
-    {"max_amount": -1, "coin": "#f4c430", "coins": 0, "bag": true}
+    {"max_amount": 49, "coin": "#c98a3a", "coins": 1, "bag": false, "pack_extent_m": 0.36, "pack_tint": "#c98a3a"},
+    {"max_amount": 99, "coin": "#f4c430", "coins": 1, "bag": false, "pack_extent_m": 0.36},
+    {"max_amount": 999, "coin": "#f4c430", "coins": 3, "bag": false, "pack_extent_m": 0.46},
+    {"max_amount": -1, "coin": "#f4c430", "coins": 0, "bag": true, "pack_extent_m": 0.56}
   ],
-  "meso_tiers_reason": "Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit.",
-  "meso_tiers_verified": false
+  "meso_tiers_reason": "Classic meso drops change art with the amount: a bronze coin for small amounts, a gold coin, a pile of gold coins, then a bag. The thresholds follow the remembered classic breakpoints (under 50, under 100, under 1,000, 1,000 and more); MeowDB documents none of this. max_amount -1 means no upper limit. With the art pack every tier shows the pack's one meso model (it has no pile or bag model; #70), so the tiers differ the way the procedural ones do, by colour and then by size: pack_extent_m is the coin's diameter (the bronze and gold coins match the procedural coin_m, the pile and the bag grow like the procedural pile and bag), pack_tint recolours the coin's gold (pack_models.tint_material) bronze below 50.",
+  "meso_tiers_verified": false,
+  "pack_models": {
+    "item_extent_m": 0.6,
+    "tint_material": "Gold",
+    "reason": "With the art pack (ADR 0002) every drop shows the pack's model instead of a procedural shape. The pack's models come at their real sizes (a 2.2 m spear, a 0.3 m apple, a 1.2 m chair), so each is scaled to the same longest side, 0.6 m: about the procedural item_m, an icon-sized drop next to the ~1.4 m Beginner that reads at the gameplay camera, alike across item kinds. Models rest on the ground by the pack's godot_validation.json ground offset (weapons are grip-centred) and turn about their own centre. The meso coin's gold material is named tint_material.",
+    "verified": false
+  }
 }

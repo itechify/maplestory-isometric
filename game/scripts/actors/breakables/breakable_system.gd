@@ -20,7 +20,7 @@ extends Node3D
 ## (breakables.json hit_rule, the owner's ruling in #5), so a Three Snails cast never searches them.
 ##
 ## setup(ctx) wires it into the game; every collaborator is injectable (tests): db, bus, session, character_provider,
-## clock_provider, state_provider, def_provider, ground, rng, roller, player.
+## clock_provider, state_provider, def_provider, ground, rng, roller, player, art.
 
 ## A landed hit counted on `box`; `hits_left` 0 means it broke.
 signal box_hit(box: WoodenBox, hits_left: int)
@@ -57,6 +57,10 @@ var rng: RandomNumberGenerator = null
 ## (owner_id: String, db: ContentDB, rng: RandomNumberGenerator, ctx: Dictionary) -> Array; empty =
 ## BreakableRules.roll_drops (DropRoller.roll, contract C2).
 var roller: Callable = Callable()
+## The art pack the boxes take their model from (WoodenBox.art). Null = no pack, the procedural crate: unlike the seams
+## above, null does not mean "the installed one". setup(ctx) with a GameContext takes ArtPack.shared() when nothing was
+## injected (the ArtPack header has the convention).
+var art: ArtPack = null
 
 ## Live boxes of the current map: placement index -> WoodenBox.
 var boxes: Dictionary = {}
@@ -89,6 +93,8 @@ func _exit_tree() -> void:
 ## Wires the system into the game (GameContext contract). A null field of ctx means "not available".
 func setup(p_ctx: GameContext) -> void:
 	ctx = p_ctx
+	if ctx != null and art == null:
+		art = ArtPack.shared()
 	if ctx != null and ctx.player is Node3D:
 		attach_player(ctx.player as Node3D)
 	_connect_bus()
@@ -218,6 +224,7 @@ func realize(st: MapInstanceState) -> void:
 		if not b.is_placed() or not st.has_breakable(b.index):
 			continue
 		var box := WoodenBox.new()
+		box.art = art  # before add_child: _ready() builds the model
 		add_child(box)
 		box.setup(b, size, n, st.breakable_hits(b.index), not st.is_breakable_intact(b.index), self)
 		boxes[b.index] = box

@@ -1,7 +1,8 @@
 class_name CreationModel
 extends RefCounted
-## The character-creation screen without the UI (docs/runtime/GAME_SHELL.md): name, gender, starter weapon and the
-## creation AP spread, validated by CharacterFactory and previewed with StatCalculator.compute.
+## The character-creation screen without the UI (docs/runtime/GAME_SHELL.md): name, gender, the look (hair style,
+## face and skin, #67: CharacterAppearance), starter weapon and the creation AP spread, validated by CharacterFactory
+## and previewed with StatCalculator.compute.
 ##
 ## Every number is read, never written here: the starting stats, the creation AP total, the allocatable stats and
 ## the base HP/MP from canonical formulas/beginner.json; the creation weapons (541 Sword, 576 Hand Axe, 585 Wooden
@@ -24,6 +25,9 @@ var gender: String = ""
 var weapon_id: String = ""
 ## stat -> creation AP placed on top of the canonical starting stats.
 var placed: Dictionary = {}
+## The appearance choices the player made (CharacterAppearance key -> index); a key not picked shows the gender's
+## default (look()), so switching gender before picking shows that gender's own Beginner look.
+var picked: Dictionary = {}
 
 
 func _init(p_db: ContentDB = null) -> void:
@@ -129,6 +133,21 @@ func weapons() -> Array[Dictionary]:
 	return out
 
 
+# --- appearance (#67) -----------------------------------------------------------------------------------------
+
+## The look the character would have: every picked choice, the gender's default for the rest.
+func look() -> Dictionary:
+	return CharacterAppearance.resolve(picked, gender)
+
+
+## Picks choice `index` of an appearance key (CharacterAppearance.HAIR_STYLE, FACE, SKIN); false when out of range.
+func pick(key: String, index: int) -> bool:
+	if not (key in CharacterAppearance.KEYS) or index < 0 or index >= CharacterAppearance.choices(key):
+		return false
+	picked[key] = index
+	return true
+
+
 # --- preview and validation -----------------------------------------------------------------------------------
 
 ## The derived numbers of the character these choices would create (StatCalculator.compute): "max_hp", "max_mp",
@@ -158,7 +177,7 @@ func params() -> Dictionary:
 	for k in stat_keys():
 		if int(placed.get(k, 0)) > 0:
 			ap[k] = int(placed[k])
-	return {"name": name, "gender": gender, "ap": ap, "weapon_id": weapon_id}
+	return {"name": name, "gender": gender, "ap": ap, "weapon_id": weapon_id, "appearance": look()}
 
 
 ## Every reason Start is not allowed yet (empty when the character can be created).
